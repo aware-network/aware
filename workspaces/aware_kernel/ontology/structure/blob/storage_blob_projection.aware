@@ -1,0 +1,12 @@
+// StorageBlob projection (v0)
+//
+// Contract:
+// - StorageBlob is the canonical commit-backed media metadata projection root.
+// - Bucket binding is portal-routed to keep bucket governance lane-decoupled.
+
+projection StorageBlob {
+    root blob.StorageBlob
+
+    // Cross-OPG portal edge to bucket governance.
+    blob.StorageBlob::bucket StorageBucket
+}

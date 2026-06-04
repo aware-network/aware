@@ -1,0 +1,35 @@
+aware = 1
+
+[workspace]
+handle = "aware_kernel"
+title = "Aware Kernel"
+
+environments = [
+    "aware.environment.toml",
+]
+
+codes = [
+    "libs/orm/pyproject.toml",
+]
+
+ontologies = []
+
+apis = []
+
+services = []
+
+experiences = []
+
+interfaces = []
+
+attentions = []
+
+panes = []
+
+nodes = []
+
+sdks = []
+
+economies = []
+
+inferences = []

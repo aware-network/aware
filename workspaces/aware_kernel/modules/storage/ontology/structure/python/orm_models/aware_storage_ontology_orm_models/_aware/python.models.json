@@ -1,0 +1,40 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "947d63f4-3429-56ee-8d6c-d93853fd3e83",
+      "module": "aware_storage_ontology_orm_models.blob.storage_blob",
+      "name": "StorageBlob",
+      "aware_class_ref": "aware_storage.blob.StorageBlob",
+      "functions": [
+        {
+          "function_config_id": "c9c09d73-5587-5528-8f71-7f4d0e718706",
+          "name": "create",
+          "input_model": "StorageBlobCreateInput",
+          "output_model": "StorageBlobCreateOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "91115838-1bed-5d70-894b-8b7dbeb9ba6a",
+      "module": "aware_storage_ontology_orm_models.bucket.storage_bucket",
+      "name": "StorageBucket",
+      "aware_class_ref": "aware_storage.bucket.StorageBucket",
+      "functions": [
+        {
+          "function_config_id": "0d62a2a3-7f84-557f-a185-05bf909aaef9",
+          "name": "build",
+          "input_model": "StorageBucketBuildInput",
+          "output_model": "StorageBucketBuildOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "a858ebaa-fc40-5556-9af3-025512c220df",
+      "module": "aware_storage_ontology_orm_models.bucket.storage_bucket_enums",
+      "name": "StorageBackend"
+    }
+  ]
+}

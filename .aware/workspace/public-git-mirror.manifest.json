@@ -1,0 +1,23 @@
+{
+  "byte_count": 1127468,
+  "file_count": 228,
+  "json_file_count": 10,
+  "manifest_version": "aware.workspace.public_git_mirror.v1",
+  "policy": {
+    "base_authority": "workspace_revision_filesystem",
+    "forbidden_roots": [
+      ".aware/oig",
+      ".aware/reports",
+      ".git",
+      ".pytest_cache",
+      ".ruff_cache",
+      ".venv",
+      "__pycache__",
+      "node_modules"
+    ],
+    "local_absolute_paths": "rejected_in_json",
+    "secret_looking_files": "rejected"
+  },
+  "status": "ready",
+  "workspace_revision_id": "8b5a7628-c6ec-52b6-9402-bc8535b7a553"
+}

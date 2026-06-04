@@ -1,0 +1,29 @@
+class StorageBucket {
+    // Attributes
+    allowed_mime_types String[]
+    backend StorageBackend = local
+    config JsonObject?
+    name String
+
+    fn build construct (
+        name String key,
+        backend StorageBackend = local,
+        allowed_mime_types String[] = [],
+        config JsonObject? = null
+    ) -> StorageBucket {
+        """
+        Create a deterministic storage bucket metadata root.
+
+        Contract:
+        - Identity is deterministic from `(name)`.
+        - Backend/config values are mutable policy metadata.
+        """
+        construct StorageBucket(
+            name = name,
+            backend = backend,
+            allowed_mime_types = allowed_mime_types,
+            config = config,
+        )
+    }
+
+}

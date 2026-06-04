@@ -1,0 +1,8 @@
+// StorageBucket projection (v0)
+//
+// Contract:
+// - Bucket is the storage backend/governance root (backend/config policy).
+
+projection StorageBucket {
+    root bucket.StorageBucket
+}

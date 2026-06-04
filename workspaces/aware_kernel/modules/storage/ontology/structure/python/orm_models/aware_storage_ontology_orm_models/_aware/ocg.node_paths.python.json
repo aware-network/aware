@@ -1,0 +1,23 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "29cd521b-9328-5439-a325-9a2356abe738",
+      "node_type": "class",
+      "entity_id": "947d63f4-3429-56ee-8d6c-d93853fd3e83",
+      "relative_path": "blob/storage_blob.py"
+    },
+    {
+      "node_id": "30ec0bbe-ab01-51de-bcbd-df8687b3f0ad",
+      "node_type": "class",
+      "entity_id": "91115838-1bed-5d70-894b-8b7dbeb9ba6a",
+      "relative_path": "bucket/storage_bucket.py"
+    },
+    {
+      "node_id": "c605f2a7-5808-5aa3-a2ba-07d3ed383f16",
+      "node_type": "enum",
+      "entity_id": "a858ebaa-fc40-5556-9af3-025512c220df",
+      "relative_path": "bucket/storage_bucket_enums.py"
+    }
+  ]
+}

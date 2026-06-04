@@ -1,0 +1,16 @@
+aware = 1
+
+[environment]
+handle = "aware-kernel-runtime"
+title = "Aware Kernel Runtime"
+canonical_language = "aware"
+
+# Public runtime kernel environment for the currently selected workspace-local
+# kernel seed.
+#
+# This descriptor must only reference packages that have actually migrated into
+# `workspaces/aware_kernel`. Add the next module here only after its
+# workspace-local ontology source, materialization, and proof gate are green.
+ontologies = [
+    "modules/storage/ontology/aware.ontology.toml",
+]

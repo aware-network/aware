@@ -1,0 +1,12 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_storage_ontology.blob.storage_blob",
+    "aware_storage_ontology.bucket.storage_bucket",
+    "aware_storage_ontology.bucket.storage_bucket_enums",
+    "aware_storage_ontology.event_render_catalog",
+    "aware_storage_ontology.stable_ids"
+  ],
+  "package_prefix": "aware_storage_ontology",
+  "version": "v1"
+}

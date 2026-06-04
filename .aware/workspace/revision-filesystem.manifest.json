@@ -1,0 +1,1245 @@
+{
+  "artifact_files": [],
+  "layout": {
+    "base_authority": "code_package_commit",
+    "file_path_source": "CodePackageCode.relative_path",
+    "overlays": [
+      "public_git_mirror"
+    ],
+    "package_root_source": "CodePackage.package_root"
+  },
+  "manifest_version": "aware.workspace.revision_filesystem.v1",
+  "mode": "materialized_revision",
+  "packages": [
+    {
+      "code_package_id": "4228c3fd-248d-50b7-91ab-b0153d3f1eb0",
+      "domain_commit_id": "3b9ed33d-6984-4729-96ed-7b3522188e48",
+      "files": [
+        {
+          "byte_length": 1592,
+          "relative_path": "blob/storage_blob.aware",
+          "sha256": "06badedf961fce065302aa2fee7b131dfe07f313b2e542df061202289bf07ed9"
+        },
+        {
+          "byte_length": 355,
+          "relative_path": "blob/storage_blob_projection.aware",
+          "sha256": "f2f24cddb3dc7c7eb0f7d5ab90ec48e542fb7f2062077478b433a66ac9067397"
+        },
+        {
+          "byte_length": 744,
+          "relative_path": "bucket/storage_bucket.aware",
+          "sha256": "3ee0d7c0b0b812368323a92e025c64ce659623d52160389eefb2a97d81fa5942"
+        },
+        {
+          "byte_length": 70,
+          "relative_path": "bucket/storage_bucket_enums.aware",
+          "sha256": "3ebf42690fa2fbadf5caced7d6527eab9a0c9ca27c33418e0d70c273a38aa1e0"
+        },
+        {
+          "byte_length": 185,
+          "relative_path": "bucket/storage_bucket_projection.aware",
+          "sha256": "e1b25ee5afab9f1ea2a1ae2cdf9a6b57db9e40c90dba1d11c9dea07a054d5250"
+        }
+      ],
+      "language": "aware",
+      "manifest_kind": "aware_toml",
+      "manifest_relative_path": "ontology/structure/aware.toml",
+      "object_instance_graph_commit_id": "51d6f402-5ce5-54db-973c-492997c1a210",
+      "package_name": "storage-ontology",
+      "package_root": "workspaces/aware_kernel/ontology/structure",
+      "revision_code_package_id": "5e269886-515f-548a-b98d-6f3c6af64704",
+      "sources_root": "ontology/structure/aware"
+    },
+    {
+      "code_package_id": "7b620db8-b227-559d-864f-2caacdf2c691",
+      "domain_commit_id": "5cc8addd-1f03-5961-bd74-e54b512a4fdc",
+      "files": [
+        {
+          "byte_length": 121,
+          "relative_path": "README.md",
+          "sha256": "469288a1c564b8109debd7a03badadc0b33afcf7dca0d04db11b6c9f8757b2c1"
+        },
+        {
+          "byte_length": 881,
+          "relative_path": "aware_storage_ontology/__init__.py",
+          "sha256": "c1c5ad1e0d8c9b9c2ebc5e475a1568d8596abd6f7c9634cfeaddc38bd60841f4"
+        },
+        {
+          "byte_length": 882,
+          "relative_path": "aware_storage_ontology/_aware/event.render_catalog.json",
+          "sha256": "4553912658eeb58ad3bbdd7c8d6164ce3995185cf5e36a9225ff260394c403b1"
+        },
+        {
+          "byte_length": 666,
+          "relative_path": "aware_storage_ontology/_aware/ocg.node_paths.python.json",
+          "sha256": "1558883d9f0a0583027932e074ae431b16e15659edb19f18f2608c9394e1e8df"
+        },
+        {
+          "byte_length": 370,
+          "relative_path": "aware_storage_ontology/_aware/python.bootstrap.json",
+          "sha256": "b6b1bbd88a16fb78fd099303d2cdfa985ee876b1ecdf1288197364dbde447a97"
+        },
+        {
+          "byte_length": 1208,
+          "relative_path": "aware_storage_ontology/_aware/python.models.json",
+          "sha256": "5e27a240784510c29c6a88e294e81bd1c62e7068385af4417a779604212583bf"
+        },
+        {
+          "byte_length": 2912,
+          "relative_path": "aware_storage_ontology/aware_storage_ontology/blob/storage_blob.py",
+          "sha256": "57225aae35ba39fac55fe499ef5f89878950f3cfeabd848d9bb357fb0b7cf877"
+        },
+        {
+          "byte_length": 2409,
+          "relative_path": "aware_storage_ontology/aware_storage_ontology/bucket/storage_bucket.py",
+          "sha256": "ed1409e11480e2f766f697932b6b152740392ca1920f32d7ae99a340ee134679"
+        },
+        {
+          "byte_length": 191,
+          "relative_path": "aware_storage_ontology/aware_storage_ontology/bucket/storage_bucket_enums.py",
+          "sha256": "0ff92eae21d5ea63d7791e08e795511729ffa37d5b923eeb94f6c57e98ee9922"
+        },
+        {
+          "byte_length": 1233,
+          "relative_path": "aware_storage_ontology/aware_storage_ontology/event_render_catalog.py",
+          "sha256": "e860c6e20fd59c503bade44c06f52272235e662fe5c811f5708979a9f190e038"
+        },
+        {
+          "byte_length": 1082,
+          "relative_path": "aware_storage_ontology/aware_storage_ontology/stable_ids.py",
+          "sha256": "17657bd4a5e201f54c1d445c05a48400bca209949cd7e1a0a8e8698c8fbcdbf6"
+        },
+        {
+          "byte_length": 44,
+          "relative_path": "aware_storage_ontology/blob/__init__.py",
+          "sha256": "7badc9ddf1b7ced2d81f06bb703c21d1c56258975342f87a1b0245336bdbff03"
+        },
+        {
+          "byte_length": 2912,
+          "relative_path": "aware_storage_ontology/blob/storage_blob.py",
+          "sha256": "57225aae35ba39fac55fe499ef5f89878950f3cfeabd848d9bb357fb0b7cf877"
+        },
+        {
+          "byte_length": 44,
+          "relative_path": "aware_storage_ontology/bucket/__init__.py",
+          "sha256": "7badc9ddf1b7ced2d81f06bb703c21d1c56258975342f87a1b0245336bdbff03"
+        },
+        {
+          "byte_length": 2409,
+          "relative_path": "aware_storage_ontology/bucket/storage_bucket.py",
+          "sha256": "ed1409e11480e2f766f697932b6b152740392ca1920f32d7ae99a340ee134679"
+        },
+        {
+          "byte_length": 191,
+          "relative_path": "aware_storage_ontology/bucket/storage_bucket_enums.py",
+          "sha256": "0ff92eae21d5ea63d7791e08e795511729ffa37d5b923eeb94f6c57e98ee9922"
+        },
+        {
+          "byte_length": 1233,
+          "relative_path": "aware_storage_ontology/event_render_catalog.py",
+          "sha256": "e860c6e20fd59c503bade44c06f52272235e662fe5c811f5708979a9f190e038"
+        },
+        {
+          "byte_length": 0,
+          "relative_path": "aware_storage_ontology/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "byte_length": 1082,
+          "relative_path": "aware_storage_ontology/stable_ids.py",
+          "sha256": "17657bd4a5e201f54c1d445c05a48400bca209949cd7e1a0a8e8698c8fbcdbf6"
+        },
+        {
+          "byte_length": 445,
+          "relative_path": "pyproject.toml",
+          "sha256": "a15e595f33ccdecab5d56c1d5cf5929b8a673a89d67feecba39f3ee4980fc677"
+        }
+      ],
+      "language": "python",
+      "manifest_kind": "pyproject_toml",
+      "manifest_relative_path": "modules/storage/ontology/structure/python/orm_runtime/pyproject.toml",
+      "object_instance_graph_commit_id": "e98dff3d-3bc5-5efa-a670-170fa4af8144",
+      "package_name": "aware-storage-ontology",
+      "package_root": "workspaces/aware_kernel/modules/storage/ontology/structure/python/orm_runtime",
+      "revision_code_package_id": "ec3d652f-c39e-57f4-b3ea-ec9751dce3c2",
+      "sources_root": "modules/storage/ontology/structure/python/orm_runtime"
+    },
+    {
+      "code_package_id": "8b48c471-795b-5efa-a53a-1bb5cfa7a4ba",
+      "domain_commit_id": "ecb4a460-01d8-5b28-b621-58c8f6311fa2",
+      "files": [
+        {
+          "byte_length": 2454,
+          "relative_path": "CHANGELOG.md",
+          "sha256": "f3b01bc58d61fd94ec302693620f28dbfb2fcba75b6ceca37e986b65e174a53d"
+        },
+        {
+          "byte_length": 1062,
+          "relative_path": "LICENSE",
+          "sha256": "9225f6222cc4b414f0cd1e0e6a79033458bb6eb8c069c8300fe960c392714854"
+        },
+        {
+          "byte_length": 6723,
+          "relative_path": "README.md",
+          "sha256": "7f507eef9bd1c4020ab1c0d989e38be28cb97aed9a30b6d2b903575c13f04c10"
+        },
+        {
+          "byte_length": 474,
+          "relative_path": "aware_orm/__init__.py",
+          "sha256": "b2b5914e84ea606449a2df33d42ffe271270476f3a5cdc5ed245440cc981d144"
+        },
+        {
+          "byte_length": 3660,
+          "relative_path": "aware_orm/_support.py",
+          "sha256": "51f14dbb86538619c454514821c888eb83d1144c43ac9cc74cd6efd39d5f3e65"
+        },
+        {
+          "byte_length": 0,
+          "relative_path": "aware_orm/cache/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "byte_length": 11353,
+          "relative_path": "aware_orm/cache/identity_map.py",
+          "sha256": "d18e53a9eb8f26d6a68adf484e6c7b0627f3eb79447834c7d797c1a3936d1a03"
+        },
+        {
+          "byte_length": 2727,
+          "relative_path": "aware_orm/db/__init__.py",
+          "sha256": "f74f3c6e44d24ae16d528de6ac9b33b08a032335b94d5159edd660ecc5cb0795"
+        },
+        {
+          "byte_length": 1140,
+          "relative_path": "aware_orm/db/adapters/__init__.py",
+          "sha256": "98a7df6ef3727fecef4c108d3e09184d20f4e2f38c66198593be1a638980344d"
+        },
+        {
+          "byte_length": 973,
+          "relative_path": "aware_orm/db/adapters/base.py",
+          "sha256": "654ff99e1c22d804421aa68094c8c215c67dbe1c0be9a3da95d90259af67f96f"
+        },
+        {
+          "byte_length": 26061,
+          "relative_path": "aware_orm/db/adapters/postgres/__init__.py",
+          "sha256": "e0fb97b1ecac8c2abcc3664a9c225532605ea516540357fd6b14d0dd2499424e"
+        },
+        {
+          "byte_length": 8005,
+          "relative_path": "aware_orm/db/adapters/sqlite/__init__.py",
+          "sha256": "f65c7d6b6e0b087471a1243ef190e822e575178ec8e4e114a3239539077b5cb2"
+        },
+        {
+          "byte_length": 14930,
+          "relative_path": "aware_orm/db/boot.py",
+          "sha256": "22fd95937b354db590181348dbc7529716c703ef4771de4a8f0ddcd58717c5e9"
+        },
+        {
+          "byte_length": 2419,
+          "relative_path": "aware_orm/db/contracts.py",
+          "sha256": "59aea3112b4b5b2b58d62491fcbb7d4468ec65b072dc83084eae21e829f04888"
+        },
+        {
+          "byte_length": 8572,
+          "relative_path": "aware_orm/db/schema_registry.py",
+          "sha256": "45717637ec8bf9de63add83a793b9a5650a43ca48667e86b70c7338b02ab50ab"
+        },
+        {
+          "byte_length": 10970,
+          "relative_path": "aware_orm/filters.py",
+          "sha256": "399d7257843ec97f3fd7f75c005535a398ef7f9e9228dd72f86de4f7e2f7eb8b"
+        },
+        {
+          "byte_length": 695,
+          "relative_path": "aware_orm/graph/__init__.py",
+          "sha256": "458e7a5b377658462f6a1268ea9d85c076c46abc98798817ce61bff39192e063"
+        },
+        {
+          "byte_length": 1733,
+          "relative_path": "aware_orm/graph/config_registry.py",
+          "sha256": "6434e60eb4d728ed3a6a581df75e189d0f73ee588e552e6200a4ead790d77403"
+        },
+        {
+          "byte_length": 828,
+          "relative_path": "aware_orm/graph/cte_builder.py",
+          "sha256": "33474e1e1e0ea8d555a7df7bc689e194bacd255315dd52a690cbfab60663b8c3"
+        },
+        {
+          "byte_length": 1864,
+          "relative_path": "aware_orm/graph/plan_cache.py",
+          "sha256": "57b2aba8a9054a949163782ec7c615c9aa267815e47fcd528989bc0fe7f60f9b"
+        },
+        {
+          "byte_length": 3485,
+          "relative_path": "aware_orm/graph/plan_compiler.py",
+          "sha256": "79a020db6f7bd0a25999e8c4ba5ddfc37cdc5173db5a30a5bb069143579b8c60"
+        },
+        {
+          "byte_length": 1282,
+          "relative_path": "aware_orm/graph/plan_context.py",
+          "sha256": "bd8a7b9fa69fe6babe2efa0163011feadfb7c1c1e04355caabeef354495a5b4f"
+        },
+        {
+          "byte_length": 1235,
+          "relative_path": "aware_orm/graph/projection_builder.py",
+          "sha256": "9295e018e84f940441bf6979f61a7202ec097f5f81431f0ffbd59d72bf44baca"
+        },
+        {
+          "byte_length": 2038,
+          "relative_path": "aware_orm/graph/query_executor.py",
+          "sha256": "c039ed030f2a05380eea695cb803c4fb4d7c441e9e526c8477a4f3e92d7a6b46"
+        },
+        {
+          "byte_length": 3329,
+          "relative_path": "aware_orm/graph/runtime.py",
+          "sha256": "67a52eccf31200594cdb03ca43a3d24f888a6342678c8cc95e68ab69019223d1"
+        },
+        {
+          "byte_length": 2628,
+          "relative_path": "aware_orm/graph/serialization.py",
+          "sha256": "ad25c56d0c3ef8999590258466b6dad88f91533d62d7fea8d80f9fe8854548c6"
+        },
+        {
+          "byte_length": 3269,
+          "relative_path": "aware_orm/helpers.py",
+          "sha256": "9d88691157e792b7572d15fc4e008147e0706ffc133d6679d55ee0219df492a1"
+        },
+        {
+          "byte_length": 0,
+          "relative_path": "aware_orm/load/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "byte_length": 1473,
+          "relative_path": "aware_orm/local_state/__init__.py",
+          "sha256": "ef75dd4717d668fa3b0195f6cf9d586df033d3746a75d2311094f1732fcbbde7"
+        },
+        {
+          "byte_length": 29490,
+          "relative_path": "aware_orm/local_state/sqlite.py",
+          "sha256": "1f314737b189a2fa6de9bfe76a8168f45e1d3341169c49ed3576b991878c80a0"
+        },
+        {
+          "byte_length": 794,
+          "relative_path": "aware_orm/models/__init__.py",
+          "sha256": "d7099ac0903e45dbac50773d65b6eee3a85e278ba7a2ad1488be179eafd2d087"
+        },
+        {
+          "byte_length": 25388,
+          "relative_path": "aware_orm/models/base_model.py",
+          "sha256": "3867092ac30ba9f5b1e31a7e3c5a5287ef200056f6c8d5c134656bb71e2a4b87"
+        },
+        {
+          "byte_length": 8205,
+          "relative_path": "aware_orm/models/branch_mixin.py",
+          "sha256": "f3a96d1e437fb3d13c21e78ccb8bff07ede0662d4ad0afb412851b95f877651c"
+        },
+        {
+          "byte_length": 10919,
+          "relative_path": "aware_orm/models/crud_mixin.py",
+          "sha256": "be1e739b555300303f43b9aef44efdc197e07bcafd9385709b3124e18d32fd90"
+        },
+        {
+          "byte_length": 2785,
+          "relative_path": "aware_orm/models/introspection.py",
+          "sha256": "03637edabe20b31950f5eb120a872bd24b9b01506cd5c705c9a9352e2b9bebd4"
+        },
+        {
+          "byte_length": 4633,
+          "relative_path": "aware_orm/models/orm_model.py",
+          "sha256": "fbfb52ee7b3fb1ff90e732af3ef14b160f25cf1a205a61e01e312cd327e06128"
+        },
+        {
+          "byte_length": 33367,
+          "relative_path": "aware_orm/models/query_mixin.py",
+          "sha256": "a0a0e74fdfd3511ae72112f6fe6c158a504c7add047ef03129334b5b0eac277e"
+        },
+        {
+          "byte_length": 17973,
+          "relative_path": "aware_orm/models/relationship_mixin.py",
+          "sha256": "cc8450bb8e70b005229036cad5d91b36fda60645577e334eaa263a25bfadbe97"
+        },
+        {
+          "byte_length": 566,
+          "relative_path": "aware_orm/projection/__init__.py",
+          "sha256": "d51373a1c3597f358b46510b9ee3aca14609e6fe7f81ae52c84b199943d319af"
+        },
+        {
+          "byte_length": 3227,
+          "relative_path": "aware_orm/projection/plan.py",
+          "sha256": "7d3f4d4d4d34d72ceede0103b8c8ef9278c074352ffb2f37452cc315c3092961"
+        },
+        {
+          "byte_length": 2595,
+          "relative_path": "aware_orm/projection/runtime.py",
+          "sha256": "ce0a1b3a88d190e8d87a89fa8e45dc56c77b9db6b9eed2ae86bb3d55c9c738bd"
+        },
+        {
+          "byte_length": 4431,
+          "relative_path": "aware_orm/projection/serialization.py",
+          "sha256": "6ce24050e01f08a40442356f39c244cb9b272efe1522b0b69d42fd32916cb794"
+        },
+        {
+          "byte_length": 43,
+          "relative_path": "aware_orm/query/__init__.py",
+          "sha256": "b3cf1e493a61547f4adea3f8ed9bee0d7af8330316b6d2669ec6bc1d8f7b81dd"
+        },
+        {
+          "byte_length": 2902,
+          "relative_path": "aware_orm/query/graph_loader.py",
+          "sha256": "dfdd0db5dc559ee5f6f82d760482a0e304363ecd02db5a96d9e15395574497c6"
+        },
+        {
+          "byte_length": 6470,
+          "relative_path": "aware_orm/query/graph_spec.py",
+          "sha256": "66ef08828c77cf4b4fc5b211ed062960763a6015943525f23dc17bffeab9245d"
+        },
+        {
+          "byte_length": 7060,
+          "relative_path": "aware_orm/query_builder.py",
+          "sha256": "7845828d7d34ab37676a05e3aaa8202bcee7069883be2f99bc40231509368fe3"
+        },
+        {
+          "byte_length": 5276,
+          "relative_path": "aware_orm/query_spec.py",
+          "sha256": "bb756fcdaa7872057f11772e4736dedf2e139a6f1c6c80c691e9662b05771b42"
+        },
+        {
+          "byte_length": 7419,
+          "relative_path": "aware_orm/registry.py",
+          "sha256": "51ed4212526ace75d971007321087b2e279d65f75d9528bf3c7b67887eb1cfe8"
+        },
+        {
+          "byte_length": 6305,
+          "relative_path": "aware_orm/runtime/__init__.py",
+          "sha256": "22d0dd594adccc34149fab3ffa7e538694773d51a71a5adf9dd9f22e11762921"
+        },
+        {
+          "byte_length": 1838,
+          "relative_path": "aware_orm/runtime/bootstrap_context.py",
+          "sha256": "25ebc9272e053eeb8d0d0e29db59b91ab91b9431e04c7ab9447182fc3dcd526b"
+        },
+        {
+          "byte_length": 3737,
+          "relative_path": "aware_orm/runtime/bundle_binding.py",
+          "sha256": "9c6bdcc7e03d447c71ee9225e3991a29298207bbe7b6e6b92dd8567d97c6e8b4"
+        },
+        {
+          "byte_length": 2302,
+          "relative_path": "aware_orm/runtime/bundle_runtime_install.py",
+          "sha256": "9798ac7b0d44a9cdc31ee52d5876f86c5e3edc2804c4385fd46d8519f4f9e3c5"
+        },
+        {
+          "byte_length": 7336,
+          "relative_path": "aware_orm/runtime/bundle_sql_metadata.py",
+          "sha256": "fcb39c8e4a5d1c9e1d7f7c6a77e68fa4f3cad6b57d73f07522b9fea026fb0220"
+        },
+        {
+          "byte_length": 6949,
+          "relative_path": "aware_orm/runtime/class_resolver.py",
+          "sha256": "0a24acd9b3ebe57e95e1248d71871818c24de263dfb1a53f91b6b54e191850d2"
+        },
+        {
+          "byte_length": 1375,
+          "relative_path": "aware_orm/runtime/db_boot.py",
+          "sha256": "b8a38c97e51d4c668679438de70bcd073e3beaafc2b7c169026ab26d963c02f1"
+        },
+        {
+          "byte_length": 558,
+          "relative_path": "aware_orm/runtime/errors.py",
+          "sha256": "4461015721ce3838ab23e9718bffe79c3735120d6de81715134cf0abf9b1cf76"
+        },
+        {
+          "byte_length": 6290,
+          "relative_path": "aware_orm/runtime/graph_artifacts.py",
+          "sha256": "99d5c0d9bd4073bf5cfc6230dfcaa694e70ae6eeb1f30c539b558c40b4931a29"
+        },
+        {
+          "byte_length": 6643,
+          "relative_path": "aware_orm/runtime/graph_binding.py",
+          "sha256": "3af16184789af3311043039c682388609ee6afb967fb23461b4ec39d8f1564ee"
+        },
+        {
+          "byte_length": 3570,
+          "relative_path": "aware_orm/runtime/invocation.py",
+          "sha256": "a5bdf5ba2c1af69b4d8286a75c47e1d4c5b23be934e710f0a0da8072dbb5ea17"
+        },
+        {
+          "byte_length": 1472,
+          "relative_path": "aware_orm/runtime/models_manifest.py",
+          "sha256": "ab54993da6b5e1ecbc6f998e76fbb09136bb0361a6dd8ff5eea4686321f1f169"
+        },
+        {
+          "byte_length": 18653,
+          "relative_path": "aware_orm/runtime/ocg_migrations.py",
+          "sha256": "2491a16d85d75cb64c84acae5e9c58bee2a8aedeacd1237518127069ec83873f"
+        },
+        {
+          "byte_length": 1429,
+          "relative_path": "aware_orm/runtime/package_artifacts.py",
+          "sha256": "f140b8980e4e493b3ca5110866f4565f9ae95260996382671aa3009d728458a4"
+        },
+        {
+          "byte_length": 30708,
+          "relative_path": "aware_orm/runtime/package_bootstrap.py",
+          "sha256": "352b57a41f0ac363b0b98843c22f786dc3378957475331196bcf7064615e26e1"
+        },
+        {
+          "byte_length": 7497,
+          "relative_path": "aware_orm/runtime/package_install.py",
+          "sha256": "29bf9d6c9e2e975231c873978e69f3c7379c81024ef71f2098e767a96637c53c"
+        },
+        {
+          "byte_length": 6459,
+          "relative_path": "aware_orm/runtime/plan_registry.py",
+          "sha256": "ce8c539591ee4cf29b13805f6044ec056f86731f32393a480dccae06689c1c98"
+        },
+        {
+          "byte_length": 8349,
+          "relative_path": "aware_orm/runtime/relationship_strategies.py",
+          "sha256": "ed4e6ee72f56f8cb8bdd341838e9e4ed88c1debdc4b1e02c2db5a8b800ae0721"
+        },
+        {
+          "byte_length": 1601,
+          "relative_path": "aware_orm/runtime/sql_metadata.py",
+          "sha256": "3f027d7156c63dc6d7ba642464cadb4631b12eb47bd621103ab3bf2148bb360c"
+        },
+        {
+          "byte_length": 1026,
+          "relative_path": "aware_orm/session/__init__.py",
+          "sha256": "180b36e114b6e90777513a916e04d86ff630e1126699947b2a9045e3e680f591"
+        },
+        {
+          "byte_length": 1130,
+          "relative_path": "aware_orm/session/autobind.py",
+          "sha256": "496d5c697f5505120e91f454a09df203d8664ac28b2076cf6b33ff5e9d8b4123"
+        },
+        {
+          "byte_length": 606,
+          "relative_path": "aware_orm/session/backends/__init__.py",
+          "sha256": "344bdc0365ec8996dacd5c987a2b830085f8cb188ac718913c2b4941f15dbe24"
+        },
+        {
+          "byte_length": 11454,
+          "relative_path": "aware_orm/session/backends/database.py",
+          "sha256": "c1798f7d44c042d5de28a22a3be506652bf5667e92a2177069a70299e95fa32d"
+        },
+        {
+          "byte_length": 19494,
+          "relative_path": "aware_orm/session/backends/fs_backend.py",
+          "sha256": "b4ac514de28d784df61efc5f060018d850ddc0f27b74b8f75da820b3979dfcb6"
+        },
+        {
+          "byte_length": 2565,
+          "relative_path": "aware_orm/session/backends/noop_backend.py",
+          "sha256": "7c395a1415c51d6f84a43008fa06173de812e130fe9f02e306148458c98d4dd7"
+        },
+        {
+          "byte_length": 2706,
+          "relative_path": "aware_orm/session/backends/protocol.py",
+          "sha256": "204a1f3cdfcd21b4ed3eddd31a016f6c7ec8481af1a1372e4281b2816c79fa7a"
+        },
+        {
+          "byte_length": 2484,
+          "relative_path": "aware_orm/session/backends/resolver.py",
+          "sha256": "45c63b8d87a2afd0fe30524089b2c0be589eccf2499180fb18d9d6547c13af50"
+        },
+        {
+          "byte_length": 7961,
+          "relative_path": "aware_orm/session/backends/sqlite_backend.py",
+          "sha256": "ea73ffb983ca23fa23712009e4bf99478d70f9c4b147fd2808596292a56864e2"
+        },
+        {
+          "byte_length": 4442,
+          "relative_path": "aware_orm/session/branch_session_registry.py",
+          "sha256": "77a8097add12774f4c393d320eed50c5ae7112ddbde1c34a764e502291aca9ef"
+        },
+        {
+          "byte_length": 30974,
+          "relative_path": "aware_orm/session/change_collector.py",
+          "sha256": "d783eb5826b20db1b17c7b1a51a8bb9a728aa0343870da16f9c9a0a9927bc65d"
+        },
+        {
+          "byte_length": 6197,
+          "relative_path": "aware_orm/session/current_session_ctx.py",
+          "sha256": "f3ff283dca7d4b8ab1d75685e497f9934d7110d16c90d8e859db6b934bef69cc"
+        },
+        {
+          "byte_length": 9212,
+          "relative_path": "aware_orm/session/execution_guard.py",
+          "sha256": "8116c68eab66ad6205e9ae639ec0052d81677f27e70ad36a8a90598db2f3480f"
+        },
+        {
+          "byte_length": 2506,
+          "relative_path": "aware_orm/session/mutation_log.py",
+          "sha256": "70fe5a8e5eadaf70ee696fed7ff936c3b3ce366dcedea0fa811dcda9753c0eb4"
+        },
+        {
+          "byte_length": 23407,
+          "relative_path": "aware_orm/session/session.py",
+          "sha256": "73653990108544a47b0b4db6771938fbc82a109c468db7d2b957b2c71f99dfaa"
+        },
+        {
+          "byte_length": 2061,
+          "relative_path": "aware_orm/session/session_context.py",
+          "sha256": "94268c10c6939163da7803a915791a6fc40893f3d0e03d1e350729df782b6774"
+        },
+        {
+          "byte_length": 126,
+          "relative_path": "aware_orm/session/session_enums.py",
+          "sha256": "2c4e0ab575a05c6befe10d9f3aea1144552398c52888b8189e2837b2ab490be5"
+        },
+        {
+          "byte_length": 370,
+          "relative_path": "aware_orm/session/session_provider.py",
+          "sha256": "54a43b988f9dd26afa16d55a47c45a5da379b9646b809879db1dc7c68931e253"
+        },
+        {
+          "byte_length": 328,
+          "relative_path": "aware_orm/sql_generator/__init__.py",
+          "sha256": "50b6f9d5da84d6440fcf1ea13629080d726cea3d83d1ffa49e0c93965226e545"
+        },
+        {
+          "byte_length": 21924,
+          "relative_path": "aware_orm/sql_generator/_filter_translator.py",
+          "sha256": "03a1c7703c17b388a59157869c6885ee7ab67a012e25e39d9ad63da282906527"
+        },
+        {
+          "byte_length": 14708,
+          "relative_path": "aware_orm/sql_generator/generator.py",
+          "sha256": "af8d505ef0b74209912396f59c79b15a17da1e7f20a380a5d2e510a473baf882"
+        },
+        {
+          "byte_length": 8649,
+          "relative_path": "aware_orm/sql_generator/graph_generator_plan.py",
+          "sha256": "6d56367329881317c05a1c1783c92a8883bb72935772027d571c71b8298141fe"
+        },
+        {
+          "byte_length": 6808,
+          "relative_path": "aware_orm/testing.py",
+          "sha256": "8e642d4f9c6615917221fd2f5f3988731e7b88484b5db92df37ec7ec1934e4c8"
+        },
+        {
+          "byte_length": 14333,
+          "relative_path": "docs/ORM_RELEASE_READINESS_MATRIX.md",
+          "sha256": "14087bda48efa6d2d44b94fa17ce3cc542df0dd6c59e9813e1f52af3788fd270"
+        },
+        {
+          "byte_length": 9103,
+          "relative_path": "docs/OSS_CLEAN_LATEST_AUDIT.md",
+          "sha256": "b82b75d776a5af312a51a7329daa1cfc378fc15da3284a7eeb74a9c622f2cdb9"
+        },
+        {
+          "byte_length": 555,
+          "relative_path": "docs/cache/identity_map.md",
+          "sha256": "133d159630f5ac49d263072755c137bc901ee8e655a03eb9e6be5d88c802cd0e"
+        },
+        {
+          "byte_length": 717,
+          "relative_path": "docs/graph/query_mixin.md",
+          "sha256": "eb37920846d115ce98a9f10b231f2667e04fa44943bb8ce2955aea1214edfd0d"
+        },
+        {
+          "byte_length": 764,
+          "relative_path": "docs/models/crud.md",
+          "sha256": "82aa7179045093e21adecf406e12fe2e962cb0150547d6cc170e53994cba5b7f"
+        },
+        {
+          "byte_length": 671,
+          "relative_path": "docs/session/runtime.md",
+          "sha256": "b513dba83c9c68c923f5cf6fa44b33d1f79005fa83855673fdd3975149e62068"
+        },
+        {
+          "byte_length": 2095,
+          "relative_path": "pyproject.toml",
+          "sha256": "95ce0a08480103fe5471a9211ce312bc0d7ca7a9505e022e68533261f349b0ba"
+        },
+        {
+          "byte_length": 4860,
+          "relative_path": "scripts/run_postgres_ci_proof.py",
+          "sha256": "967c270046c615c739517d265381276ada0922a562824eed46e3ca0ef0f600cf"
+        },
+        {
+          "byte_length": 0,
+          "relative_path": "tests/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "byte_length": 3893,
+          "relative_path": "tests/cache/test_identity_map.py",
+          "sha256": "d2dbd4180408fe2166de1ad633d0b213a08b96d722d6abc4ec526a12f9f03a23"
+        },
+        {
+          "byte_length": 3388,
+          "relative_path": "tests/conftest.py",
+          "sha256": "e6141571d9b6836afa8af0e2c48cc617b92f0dc5ebbcbc44271415118fd4e1cc"
+        },
+        {
+          "byte_length": 0,
+          "relative_path": "tests/graph/__init__.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "byte_length": 1118,
+          "relative_path": "tests/graph/test_cte_builder.py",
+          "sha256": "fe27ad978eecdbf69cce5c316e25c440ff330b6b19f0ae9b73671ee54f95dc94"
+        },
+        {
+          "byte_length": 881,
+          "relative_path": "tests/graph/test_graphsql_plan_stats.py",
+          "sha256": "8e675187cc04444c811e0fba943a0dff6548b337ad0b38df9e52e250b2cba173"
+        },
+        {
+          "byte_length": 4642,
+          "relative_path": "tests/graph/test_plan_components.py",
+          "sha256": "abb769bcb4441c65d5cf5d222505492cdd83fc607a3607dcf7bfb407fd568982"
+        },
+        {
+          "byte_length": 992,
+          "relative_path": "tests/graph/test_plan_context.py",
+          "sha256": "52fa454817ec40e2fd3ffe225fedf3e6d3ead80e6a74693a7c55e09b34d7b34f"
+        },
+        {
+          "byte_length": 6281,
+          "relative_path": "tests/graph/test_plan_generator.py",
+          "sha256": "ba01cdc64e06a5311175a22ecab3d58241431e604391a66c9876e6194009d167"
+        },
+        {
+          "byte_length": 1604,
+          "relative_path": "tests/graph/test_plan_serialization.py",
+          "sha256": "e09a5f7d08bad158152f264e39fb1bbfb2e346997f752c8614a6be2e4139ce7c"
+        },
+        {
+          "byte_length": 1202,
+          "relative_path": "tests/graph/test_projection_builder.py",
+          "sha256": "223d231c69eb296d0f9878d7de3f1aef29e63e531aea736e71ab0084d042111e"
+        },
+        {
+          "byte_length": 4259,
+          "relative_path": "tests/graph/test_query_mixin_graph.py",
+          "sha256": "b011c172dabc016d2abaa0c84d2036e63db288065d37f2df5e6fa602b03cb566"
+        },
+        {
+          "byte_length": 719,
+          "relative_path": "tests/graph/test_runtime.py",
+          "sha256": "23fa2787ac82ffa158798f7e63f74e8d99062b90238c66c7468551925f92727d"
+        },
+        {
+          "byte_length": 7485,
+          "relative_path": "tests/local_state/test_sqlite_contract.py",
+          "sha256": "f51074961b81c4dbf2c3056041bd6059277a0a63ff3ff231a1d5e355c7ee5327"
+        },
+        {
+          "byte_length": 2609,
+          "relative_path": "tests/models/test_base_model_invocation_value.py",
+          "sha256": "5e4d46cae2824f760b369dceb0106027c549c089005cd035b5898760ff8c6953"
+        },
+        {
+          "byte_length": 903,
+          "relative_path": "tests/models/test_introspection_optional_none.py",
+          "sha256": "9930d85da8ebdb8fd692373b4c35f6944ca68f2a2e602b6000751b6d7cdd9147"
+        },
+        {
+          "byte_length": 2346,
+          "relative_path": "tests/projection/test_projection_plan_serialization.py",
+          "sha256": "77bb239b7ce9009575404bd725b10e3aa07203407652c54fe599855be68d4bbb"
+        },
+        {
+          "byte_length": 1646,
+          "relative_path": "tests/projection/test_projection_runtime_merge.py",
+          "sha256": "a8764e2d0d573039580ba187f7c2dfcf95000406fe0f77d02ec5c1b1e5b7fa55"
+        },
+        {
+          "byte_length": 1077,
+          "relative_path": "tests/runtime/test_bootstrap_helpers.py",
+          "sha256": "f51fab05dd79692ada984580430495e4236dd3295c485258139d6399fbc5531d"
+        },
+        {
+          "byte_length": 2523,
+          "relative_path": "tests/runtime/test_bundle_sql_metadata_composition.py",
+          "sha256": "b8a316d9d3a7b02d19bf731c559e45e36184d68b67e08716b4b13feceb610bf9"
+        },
+        {
+          "byte_length": 4400,
+          "relative_path": "tests/runtime/test_class_resolver.py",
+          "sha256": "d413be84cd6548332676d8e64894606ce4c707c7f6ffef15f44b1cd56da444c5"
+        },
+        {
+          "byte_length": 5152,
+          "relative_path": "tests/runtime/test_db_boot_adapters.py",
+          "sha256": "311e72af2fcad846a9ac0cc046cf7876e9553b0cc771f1f81791016cc6b6de87"
+        },
+        {
+          "byte_length": 618,
+          "relative_path": "tests/runtime/test_db_boot_contract_shim.py",
+          "sha256": "36d2fa011d67a654345e309b79b63ba2a9961b275d3c5b862a0f75b6efa7c741"
+        },
+        {
+          "byte_length": 19162,
+          "relative_path": "tests/runtime/test_db_boot_execution.py",
+          "sha256": "d4f75a752de204c895d0e75bae9a7a77fb9126e65658a3717123f9ccce0191a3"
+        },
+        {
+          "byte_length": 3671,
+          "relative_path": "tests/runtime/test_db_boot_kernel_sql_roots.py",
+          "sha256": "d849c2314a3534782c15f07505b09c76ffe907bc8602fd8c691ff86518812f78"
+        },
+        {
+          "byte_length": 4796,
+          "relative_path": "tests/runtime/test_db_boot_plan.py",
+          "sha256": "8eb92a736a84208ddfa6006661393de50f5157074c80bb81a2099dfc67ae2569"
+        },
+        {
+          "byte_length": 1015,
+          "relative_path": "tests/runtime/test_db_boot_runtime_shim_surface.py",
+          "sha256": "07608367d0163bae3e05dbfa8b9e42b5eea0e3a8241bafbc1808bb24185c00af"
+        },
+        {
+          "byte_length": 6345,
+          "relative_path": "tests/runtime/test_db_schema_registry.py",
+          "sha256": "9a5c53d466c3febfaf61084ac83148292b2592bcd606e54bca0f95c9468dcca9"
+        },
+        {
+          "byte_length": 16299,
+          "relative_path": "tests/runtime/test_environment_binding.py",
+          "sha256": "c008a073827114c8d2a3027c62bd02bce1458b9a28faef81ac2215fd12efb822"
+        },
+        {
+          "byte_length": 1486,
+          "relative_path": "tests/runtime/test_execution_guard_read_only_barrier.py",
+          "sha256": "23b86f925900f6e0a3b96332dc0cafc6bdad00c66b68998447461d8b9c9233d3"
+        },
+        {
+          "byte_length": 6214,
+          "relative_path": "tests/runtime/test_graph_binding_skips_inline_value.py",
+          "sha256": "3fc28991750533005880d62c4a79d9db431429980308de57653924e815e9225b"
+        },
+        {
+          "byte_length": 1586,
+          "relative_path": "tests/runtime/test_graph_retrieval_contract.py",
+          "sha256": "5f145664fa300765029d971ada34f68cd90fad5bfcdb5b40a9ec187c6a769b42"
+        },
+        {
+          "byte_length": 9592,
+          "relative_path": "tests/runtime/test_ocg_sql_migrations.py",
+          "sha256": "f8f3cbeb9631a4e50e9786186f3d93143403d053b3aac21dae785a5e8fe47ad7"
+        },
+        {
+          "byte_length": 13655,
+          "relative_path": "tests/runtime/test_ocg_sql_migrations_postgres.py",
+          "sha256": "e957016a4483875949c06dcba1973fc496da1d823dc2de452f5725a2294b02e9"
+        },
+        {
+          "byte_length": 9584,
+          "relative_path": "tests/runtime/test_package_bootstrap_dependency_order.py",
+          "sha256": "832c071dafac651eda1a54bc514f3344d080cd4d316426e843b16a4e9a6d2866"
+        },
+        {
+          "byte_length": 2689,
+          "relative_path": "tests/runtime/test_package_install_avoids_aware_environment_import.py",
+          "sha256": "acf9d18cb9b964c1f8c51557099314a1c85abeaf802ce5314f11962771d458cb"
+        },
+        {
+          "byte_length": 2489,
+          "relative_path": "tests/runtime/test_plan_registry.py",
+          "sha256": "0711ededbbe4f96c4d0efc78e3d8af3c58c8c0c5f81b7188880e08abe5273d3d"
+        },
+        {
+          "byte_length": 2269,
+          "relative_path": "tests/runtime/test_postgres_runtime_ci_proof.py",
+          "sha256": "a537f83c621df02c4da576e1338d798bb79496159b6ae49a9b85947037e563ca"
+        },
+        {
+          "byte_length": 18251,
+          "relative_path": "tests/runtime/test_public_boundary.py",
+          "sha256": "720abc814ff863e42ee3bf9c543f4ab6935721670f5ac31a9bba58d267d9e16e"
+        },
+        {
+          "byte_length": 6158,
+          "relative_path": "tests/runtime/test_query_builder.py",
+          "sha256": "11d27450ee430ac948b76794a2d9eb3c8192c36dc43280f5f309561e49fd761d"
+        },
+        {
+          "byte_length": 14700,
+          "relative_path": "tests/runtime/test_query_mixin.py",
+          "sha256": "3cb430d8307375aac766160e3a25ea373183141337b0e091c2276f7a59d31645"
+        },
+        {
+          "byte_length": 2903,
+          "relative_path": "tests/runtime/test_query_mixin_graph_canonical.py",
+          "sha256": "7a7ef266f926d9795b24cb972398cbb09d2aa916d96573364d14b7382fd1238c"
+        },
+        {
+          "byte_length": 14125,
+          "relative_path": "tests/runtime/test_service_query_conformance.py",
+          "sha256": "083d4d4c6de0142707c54480a120ec71481e54f52be64280469a220e14e5f476"
+        },
+        {
+          "byte_length": 9212,
+          "relative_path": "tests/runtime/test_service_state_e2e.py",
+          "sha256": "e20c950375e46ad6161369e27d9a1a1afbe4bda0c6018c092b382d2e9cba70dc"
+        },
+        {
+          "byte_length": 1220,
+          "relative_path": "tests/runtime/test_session_read_barrier.py",
+          "sha256": "f526a03cb8b51f1024e8171824a9427b14440da4247abe23a233f7b32aa0d610"
+        },
+        {
+          "byte_length": 8822,
+          "relative_path": "tests/runtime/test_sql_metadata_enforcement.py",
+          "sha256": "5e108f2847a4a4b8cf09e10a93e731da1d9f26a1e226d80423ccf0e3a6723cc0"
+        },
+        {
+          "byte_length": 6429,
+          "relative_path": "tests/session/test_backends.py",
+          "sha256": "f6bc83cda3510fba863bf0dbe66a0a23be3c3a0d062af1d249843f1048f6069a"
+        },
+        {
+          "byte_length": 1766,
+          "relative_path": "tests/session/test_change_collector_id_normalization.py",
+          "sha256": "b6542db6224f5497569a20273d549c7e9f4e51e7f3399e6ff2f8be3064ff5d98"
+        },
+        {
+          "byte_length": 9202,
+          "relative_path": "tests/session/test_change_collector_tracked_list.py",
+          "sha256": "f1930792863741eb0c156f2f8fe24448cd2622302ffa8e853edf6db3e996d0b4"
+        },
+        {
+          "byte_length": 1676,
+          "relative_path": "tests/session/test_current_session_ctx_injection.py",
+          "sha256": "d1d1e73bdee58c316574b11c42c25f700f5015df5490a441831adfa2a6705d8a"
+        },
+        {
+          "byte_length": 7097,
+          "relative_path": "tests/session/test_sqlite_backend.py",
+          "sha256": "52bdde8fc641630ad6ee8fd1f8f5139a7a1f9c97e16c42468dfff8c8551d44bf"
+        },
+        {
+          "byte_length": 13746,
+          "relative_path": "tests/sql_generator/test_filter_translator.py",
+          "sha256": "b94e3cb390ef28695aa0595c5bb7dc98dbae9ce923e85f5e511cb421cf36e230"
+        },
+        {
+          "byte_length": 1630,
+          "relative_path": "tests/sql_generator/test_graph_generator.py",
+          "sha256": "5cb6642e737455e161b5ab2e7f479e604f4017db59c57f140936d3b75551acc4"
+        },
+        {
+          "byte_length": 5051,
+          "relative_path": "tests/sql_generator/test_query_spec.py",
+          "sha256": "7f5ec547dcfd59e224ff5b027c15947a3089a0e5788f2931b1d4b1c141b981ee"
+        },
+        {
+          "byte_length": 14186,
+          "relative_path": "tests/test_branch_mixin.py",
+          "sha256": "6e5a731175b22062b112f4aacd1dcc57b38a6eab27ae77cc7cf9cfeacb7147d4"
+        },
+        {
+          "byte_length": 5094,
+          "relative_path": "tests/test_fs_backend.py",
+          "sha256": "c8c98dead5e90be95f0a1c1dc00c2f4edeed033d2099cb168b5d7de51558ed86"
+        },
+        {
+          "byte_length": 2435,
+          "relative_path": "tests/test_introspection_contract.py",
+          "sha256": "6d5b5d95b062005109e5bd8eb8d126c2b9753214762c4d42756b571ac9353d42"
+        },
+        {
+          "byte_length": 10404,
+          "relative_path": "tests/test_relationship_mixin.py",
+          "sha256": "c55847be5c86eb4fc6d9c14b6e428028988a01ec47cf7553a0171be0891fae33"
+        },
+        {
+          "byte_length": 19583,
+          "relative_path": "tests/test_session_integration.py",
+          "sha256": "fc07c3db27cb97848ceca66ea961040da03244fd596bef226bdcdce968a029b9"
+        }
+      ],
+      "language": "python",
+      "manifest_kind": "pyproject_toml",
+      "manifest_relative_path": "libs/orm/pyproject.toml",
+      "object_instance_graph_commit_id": "7ef1ed05-e0d0-597d-be93-534c65d216d5",
+      "package_name": "aware-orm",
+      "package_root": "workspaces/aware_kernel/libs/orm",
+      "revision_code_package_id": "d756453d-1fe5-5a12-86e3-892dbc0d1d40",
+      "sources_root": "libs/orm"
+    },
+    {
+      "code_package_id": "f12c5a40-82c9-5e6e-ad2a-f939018230c6",
+      "domain_commit_id": "d33654ae-9c5b-57a8-8e68-1ee2fe30e91e",
+      "files": [
+        {
+          "byte_length": 129,
+          "relative_path": "README.md",
+          "sha256": "60e3512a1f8572b1e6f3203b5e90dd7de5b76f441d5b1210f3bab1ad998dcb71"
+        },
+        {
+          "byte_length": 713,
+          "relative_path": "aware_storage_ontology_dto/__init__.py",
+          "sha256": "adb2cec217f349a743eb07794e3d62a1e50f3b44a6540e361c5c165693b7d222"
+        },
+        {
+          "byte_length": 666,
+          "relative_path": "aware_storage_ontology_dto/_aware/ocg.node_paths.python.json",
+          "sha256": "1558883d9f0a0583027932e074ae431b16e15659edb19f18f2608c9394e1e8df"
+        },
+        {
+          "byte_length": 339,
+          "relative_path": "aware_storage_ontology_dto/_aware/python.bootstrap.json",
+          "sha256": "4c4473ff487fd45f4db2763456f5b9857a06bef06c126f4100b8f459b8aa1ebe"
+        },
+        {
+          "byte_length": 519,
+          "relative_path": "aware_storage_ontology_dto/aware_storage_ontology_dto/blob/storage_blob.py",
+          "sha256": "ff5029d4a818e900429d94fe6ddf6d36a6eda3a34c8c8e5df3eda37716f45c8d"
+        },
+        {
+          "byte_length": 498,
+          "relative_path": "aware_storage_ontology_dto/aware_storage_ontology_dto/bucket/storage_bucket.py",
+          "sha256": "f62feed9d95f2f5c489285bc1922484298cba5bc66b9a4ab1fb2c71486c31e57"
+        },
+        {
+          "byte_length": 191,
+          "relative_path": "aware_storage_ontology_dto/aware_storage_ontology_dto/bucket/storage_bucket_enums.py",
+          "sha256": "0ff92eae21d5ea63d7791e08e795511729ffa37d5b923eeb94f6c57e98ee9922"
+        },
+        {
+          "byte_length": 1082,
+          "relative_path": "aware_storage_ontology_dto/aware_storage_ontology_dto/stable_ids.py",
+          "sha256": "17657bd4a5e201f54c1d445c05a48400bca209949cd7e1a0a8e8698c8fbcdbf6"
+        },
+        {
+          "byte_length": 44,
+          "relative_path": "aware_storage_ontology_dto/blob/__init__.py",
+          "sha256": "7badc9ddf1b7ced2d81f06bb703c21d1c56258975342f87a1b0245336bdbff03"
+        },
+        {
+          "byte_length": 519,
+          "relative_path": "aware_storage_ontology_dto/blob/storage_blob.py",
+          "sha256": "ff5029d4a818e900429d94fe6ddf6d36a6eda3a34c8c8e5df3eda37716f45c8d"
+        },
+        {
+          "byte_length": 44,
+          "relative_path": "aware_storage_ontology_dto/bucket/__init__.py",
+          "sha256": "7badc9ddf1b7ced2d81f06bb703c21d1c56258975342f87a1b0245336bdbff03"
+        },
+        {
+          "byte_length": 498,
+          "relative_path": "aware_storage_ontology_dto/bucket/storage_bucket.py",
+          "sha256": "f62feed9d95f2f5c489285bc1922484298cba5bc66b9a4ab1fb2c71486c31e57"
+        },
+        {
+          "byte_length": 191,
+          "relative_path": "aware_storage_ontology_dto/bucket/storage_bucket_enums.py",
+          "sha256": "0ff92eae21d5ea63d7791e08e795511729ffa37d5b923eeb94f6c57e98ee9922"
+        },
+        {
+          "byte_length": 0,
+          "relative_path": "aware_storage_ontology_dto/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "byte_length": 1082,
+          "relative_path": "aware_storage_ontology_dto/stable_ids.py",
+          "sha256": "17657bd4a5e201f54c1d445c05a48400bca209949cd7e1a0a8e8698c8fbcdbf6"
+        },
+        {
+          "byte_length": 461,
+          "relative_path": "pyproject.toml",
+          "sha256": "94c9ecb0ea821b2b64f8d764ee2b8f64611519bdf271af71ee01ae679df081ad"
+        }
+      ],
+      "language": "python",
+      "manifest_kind": "pyproject_toml",
+      "manifest_relative_path": "modules/storage/ontology/structure/python/dto/pyproject.toml",
+      "object_instance_graph_commit_id": "4b5d5f15-6117-5d18-b3bf-d02d19519466",
+      "package_name": "aware-storage-ontology-dto",
+      "package_root": "workspaces/aware_kernel/modules/storage/ontology/structure/python/dto",
+      "revision_code_package_id": "803b36c5-57a5-5614-89a9-0fdfb63217bb",
+      "sources_root": "modules/storage/ontology/structure/python/dto"
+    },
+    {
+      "code_package_id": "fb842008-3a45-5ba5-be25-aff7a78d4c8a",
+      "domain_commit_id": "dcdf8935-5b6a-5123-8b03-8e4a640fcb3e",
+      "files": [
+        {
+          "byte_length": 143,
+          "relative_path": "README.md",
+          "sha256": "b9b448b1d527a40862bb0c8328d28ecc3fc0c67381cc9d722b75fdaace1949b9"
+        },
+        {
+          "byte_length": 881,
+          "relative_path": "aware_storage_ontology_orm_models/__init__.py",
+          "sha256": "c1c5ad1e0d8c9b9c2ebc5e475a1568d8596abd6f7c9634cfeaddc38bd60841f4"
+        },
+        {
+          "byte_length": 666,
+          "relative_path": "aware_storage_ontology_orm_models/_aware/ocg.node_paths.python.json",
+          "sha256": "1558883d9f0a0583027932e074ae431b16e15659edb19f18f2608c9394e1e8df"
+        },
+        {
+          "byte_length": 374,
+          "relative_path": "aware_storage_ontology_orm_models/_aware/python.bootstrap.json",
+          "sha256": "909eacf88322615cfa480309d19806d17faeb1a587c7e5e6b5c80dece54f6100"
+        },
+        {
+          "byte_length": 1241,
+          "relative_path": "aware_storage_ontology_orm_models/_aware/python.models.json",
+          "sha256": "2f15cbd53cbba4f6d7f0ca3023d1ffbf2be4d0d38cb6ebb46bbc37d8e440eabe"
+        },
+        {
+          "byte_length": 711,
+          "relative_path": "aware_storage_ontology_orm_models/aware_storage_ontology_orm_models/blob/storage_blob.py",
+          "sha256": "715ae8791c4bd59d485408e2054c405f8a2c59edffdc4a9f6ff76b21d052ceab"
+        },
+        {
+          "byte_length": 542,
+          "relative_path": "aware_storage_ontology_orm_models/aware_storage_ontology_orm_models/bucket/storage_bucket.py",
+          "sha256": "26dcfd0f0fa5db07cf9f83dfe9cc1467d59a1e86274c6201d6f07eeb480d623f"
+        },
+        {
+          "byte_length": 191,
+          "relative_path": "aware_storage_ontology_orm_models/aware_storage_ontology_orm_models/bucket/storage_bucket_enums.py",
+          "sha256": "0ff92eae21d5ea63d7791e08e795511729ffa37d5b923eeb94f6c57e98ee9922"
+        },
+        {
+          "byte_length": 1082,
+          "relative_path": "aware_storage_ontology_orm_models/aware_storage_ontology_orm_models/stable_ids.py",
+          "sha256": "17657bd4a5e201f54c1d445c05a48400bca209949cd7e1a0a8e8698c8fbcdbf6"
+        },
+        {
+          "byte_length": 44,
+          "relative_path": "aware_storage_ontology_orm_models/blob/__init__.py",
+          "sha256": "7badc9ddf1b7ced2d81f06bb703c21d1c56258975342f87a1b0245336bdbff03"
+        },
+        {
+          "byte_length": 711,
+          "relative_path": "aware_storage_ontology_orm_models/blob/storage_blob.py",
+          "sha256": "715ae8791c4bd59d485408e2054c405f8a2c59edffdc4a9f6ff76b21d052ceab"
+        },
+        {
+          "byte_length": 44,
+          "relative_path": "aware_storage_ontology_orm_models/bucket/__init__.py",
+          "sha256": "7badc9ddf1b7ced2d81f06bb703c21d1c56258975342f87a1b0245336bdbff03"
+        },
+        {
+          "byte_length": 542,
+          "relative_path": "aware_storage_ontology_orm_models/bucket/storage_bucket.py",
+          "sha256": "26dcfd0f0fa5db07cf9f83dfe9cc1467d59a1e86274c6201d6f07eeb480d623f"
+        },
+        {
+          "byte_length": 191,
+          "relative_path": "aware_storage_ontology_orm_models/bucket/storage_bucket_enums.py",
+          "sha256": "0ff92eae21d5ea63d7791e08e795511729ffa37d5b923eeb94f6c57e98ee9922"
+        },
+        {
+          "byte_length": 0,
+          "relative_path": "aware_storage_ontology_orm_models/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "byte_length": 1082,
+          "relative_path": "aware_storage_ontology_orm_models/stable_ids.py",
+          "sha256": "17657bd4a5e201f54c1d445c05a48400bca209949cd7e1a0a8e8698c8fbcdbf6"
+        },
+        {
+          "byte_length": 489,
+          "relative_path": "pyproject.toml",
+          "sha256": "a84239d249ac4e37beabc0504e0e05cfdeddb061c9bc7e08dc9908b8c336a990"
+        }
+      ],
+      "language": "python",
+      "manifest_kind": "pyproject_toml",
+      "manifest_relative_path": "modules/storage/ontology/structure/python/orm_models/pyproject.toml",
+      "object_instance_graph_commit_id": "8157bd35-acf9-589c-9573-98c36c9c2cb6",
+      "package_name": "aware-storage-ontology-orm-models",
+      "package_root": "workspaces/aware_kernel/modules/storage/ontology/structure/python/orm_models",
+      "revision_code_package_id": "f09b1063-3b63-5c25-929f-1bff63fc5230",
+      "sources_root": "modules/storage/ontology/structure/python/orm_models"
+    }
+  ],
+  "selected_workspaces": [
+    {
+      "environment_toml_target": "workspaces/aware_kernel/aware.environment.toml",
+      "files": [
+        {
+          "role": "public_root_readme",
+          "source_relative_path": "workspaces/aware_kernel/README.md",
+          "target_relative_path": "README.md"
+        },
+        {
+          "role": "selected_workspace_readme",
+          "source_relative_path": "workspaces/aware_kernel/docs/WORKSPACE.md",
+          "target_relative_path": "workspaces/aware_kernel/README.md"
+        },
+        {
+          "role": "agent_coordination_surface:AGENTS.md",
+          "source_relative_path": "AGENTS.md",
+          "target_relative_path": "AGENTS.md"
+        },
+        {
+          "role": "agent_coordination_surface:docs/alignment/PROTOCOL.md",
+          "source_relative_path": "docs/alignment/PROTOCOL.md",
+          "target_relative_path": "docs/alignment/PROTOCOL.md"
+        },
+        {
+          "role": "agent_coordination_surface:docs/alignment/README.md",
+          "source_relative_path": "docs/alignment/README.md",
+          "target_relative_path": "docs/alignment/README.md"
+        },
+        {
+          "role": "agent_coordination_surface:docs/alignment/CURRENT.md",
+          "source_relative_path": "docs/alignment/PUBLIC.md",
+          "target_relative_path": "docs/alignment/CURRENT.md"
+        },
+        {
+          "role": "agent_coordination_surface:docs/issues/PROTOCOL.md",
+          "source_relative_path": "docs/issues/PROTOCOL.md",
+          "target_relative_path": "docs/issues/PROTOCOL.md"
+        },
+        {
+          "role": "agent_coordination_surface:docs/feed/PROTOCOL.md",
+          "source_relative_path": "docs/feed/PROTOCOL.md",
+          "target_relative_path": "docs/feed/PROTOCOL.md"
+        },
+        {
+          "role": "agent_coordination_surface:docs/goals/PROTOCOL.md",
+          "source_relative_path": "docs/goals/PROTOCOL.md",
+          "target_relative_path": "docs/goals/PROTOCOL.md"
+        },
+        {
+          "role": "agent_coordination_surface:docs/specs/PROTOCOL.md",
+          "source_relative_path": "docs/specs/PROTOCOL.md",
+          "target_relative_path": "docs/specs/PROTOCOL.md"
+        }
+      ],
+      "handle": "aware_kernel",
+      "workspace_root": "workspaces/aware_kernel",
+      "workspace_toml_target": "workspaces/aware_kernel/aware.workspace.toml"
+    }
+  ],
+  "semantic_package_receipts": {
+    "available": false,
+    "environment_config_package_commit_count": 0,
+    "environment_config_package_commits": [],
+    "evidence_complete": false,
+    "reason": "workspace_materialization_unavailable",
+    "receipt_count": 0,
+    "receipt_version": "aware.workspace.semantic_package_receipts.v1",
+    "receipts": [],
+    "selection": "latest_successful",
+    "source_revision_id": "code_package_set:fbcada1e3a17250f0932d22efb512db7f05dec7a356b99ba1181622949a41595",
+    "source_revision_kind": "code_package_set",
+    "workspace_id": "5cfdbd70-e506-5c08-b153-1721109aa511",
+    "workspace_materialization_id": null,
+    "workspace_materialization_index": null,
+    "workspace_materialization_status": null,
+    "workspace_revision_id": "8b5a7628-c6ec-52b6-9402-bc8535b7a553"
+  },
+  "semantic_runtime_package_catalog": {
+    "available": false,
+    "entry_count": 8,
+    "reason": "semantic_runtime_package_catalog_not_revision_scoped"
+  },
+  "support_roots": [],
+  "workspace_revision_id": "8b5a7628-c6ec-52b6-9402-bc8535b7a553"
+}
