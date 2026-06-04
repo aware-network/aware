@@ -153,9 +153,6 @@ def build_sql_boot_plan(*, sql_root: Path) -> SQLBootPlan:
         type_names = _created_type_names(sql_text)
         table_names = _created_table_names(sql_text)
 
-        if type_names and table_names:
-            raise DBBootPlanError(f"SQL file mixes CREATE TYPE and CREATE TABLE statements (unsupported): {p}")
-
         if type_names:
             type_files.append((schema, min(type_names), p))
             for name in type_names:
@@ -165,9 +162,10 @@ def build_sql_boot_plan(*, sql_root: Path) -> SQLBootPlan:
                     raise DBBootPlanError(
                         "Duplicate type name across schemas is ambiguous for unqualified columns: "
                         f"type={name} seen_in=({prev_schema}, {prev_path}) and ({schema}, {p})"
-                    )
+                )
                 type_defs[name] = (schema, p)
-            continue
+            if not table_names:
+                continue
 
         if table_names:
             _register_table_file(
@@ -223,9 +221,6 @@ def build_sql_boot_plan_multi(*, sql_roots: Sequence[Path]) -> SQLBootPlan:
         type_names = _created_type_names(sql_text)
         table_names = _created_table_names(sql_text)
 
-        if type_names and table_names:
-            raise DBBootPlanError(f"SQL file mixes CREATE TYPE and CREATE TABLE statements (unsupported): {p}")
-
         if type_names:
             type_files.append((schema, min(type_names), p))
             for name in type_names:
@@ -235,9 +230,10 @@ def build_sql_boot_plan_multi(*, sql_roots: Sequence[Path]) -> SQLBootPlan:
                     raise DBBootPlanError(
                         "Duplicate type name across schemas is ambiguous for unqualified columns: "
                         f"type={name} seen_in=({prev_schema}, {prev_path}) and ({schema}, {p})"
-                    )
+                )
                 type_defs[name] = (schema, p)
-            continue
+            if not table_names:
+                continue
 
         if table_names:
             _register_table_file(

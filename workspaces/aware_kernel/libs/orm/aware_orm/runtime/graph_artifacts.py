@@ -61,6 +61,7 @@ class OrmFieldBinding(OrmGraphDTO):
     field_id: UUID | None = None
     position: int | None = None
     binding_role: str | None = None
+    is_identity_key: bool = False
     field: OrmFieldSpec | None = None
 
     @property
@@ -79,11 +80,18 @@ class OrmFieldBinding(OrmGraphDTO):
     def attribute_config(self) -> OrmFieldSpec | None:
         return self.field
 
+    @property
+    def type(self) -> str | None:
+        return self.binding_role
+
 
 class OrmFunctionSpec(OrmGraphDTO):
     id: UUID | None = None
     owner_key: str | None = None
     name: str | None = None
+    description: str | None = None
+    verb: str | None = None
+    is_async: bool | None = None
     kind: Any = None
     is_public: bool | None = None
     is_constructor: bool | None = None
@@ -100,6 +108,8 @@ class OrmFunctionBinding(OrmGraphDTO):
     entity_id: UUID | None = None
     function_id: UUID | None = None
     position: int | None = None
+    is_public: bool | None = None
+    is_constructor: bool | None = None
     function: OrmFunctionSpec | None = None
 
     @property

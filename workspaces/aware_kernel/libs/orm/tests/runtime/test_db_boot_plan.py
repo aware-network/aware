@@ -104,6 +104,38 @@ CREATE TABLE hub_artifact_revision (
     assert table_steps[0].path.name == "hub_artifact.sql"
 
 
+def test_build_sql_boot_plan_accepts_generated_mixed_type_table_files(
+    tmp_path: Path,
+) -> None:
+    sql_root = tmp_path / "sql"
+    _write(
+        sql_root / "workspace" / "workspace.sql",
+        "CREATE TABLE workspace (id UUID PRIMARY KEY NOT NULL);",
+    )
+    _write(
+        sql_root / "workspace" / "workspace_build.sql",
+        """
+CREATE TYPE workspace_build_lifecycle AS ENUM ('idle', 'running');
+
+CREATE TABLE workspace_build (
+  id UUID PRIMARY KEY NOT NULL,
+  workspace_id UUID REFERENCES workspace(id),
+  status workspace_build_lifecycle NOT NULL
+);
+""".strip(),
+    )
+
+    plan = build_sql_boot_plan(sql_root=sql_root)
+
+    type_steps = [step for step in plan.steps if step.kind == "type"]
+    table_steps = [step for step in plan.steps if step.kind == "table"]
+    assert [step.path.name for step in type_steps] == ["workspace_build.sql"]
+    assert [step.path.name for step in table_steps] == [
+        "workspace.sql",
+        "workspace_build.sql",
+    ]
+
+
 def test_build_sql_boot_plan_accepts_schema_only_layout(tmp_path: Path) -> None:
     sql_root = tmp_path / "sql"
     _write(sql_root / "a" / "t1.sql", "CREATE TABLE t1 (id UUID PRIMARY KEY NOT NULL);")

@@ -13,46 +13,46 @@
   "packages": [
     {
       "code_package_id": "4228c3fd-248d-50b7-91ab-b0153d3f1eb0",
-      "domain_commit_id": "3b9ed33d-6984-4729-96ed-7b3522188e48",
+      "domain_commit_id": "c1c03729-0a47-4d4f-8f67-32390578d7ea",
       "files": [
         {
           "byte_length": 1592,
-          "relative_path": "blob/storage_blob.aware",
+          "relative_path": "aware/blob/storage_blob.aware",
           "sha256": "06badedf961fce065302aa2fee7b131dfe07f313b2e542df061202289bf07ed9"
         },
         {
           "byte_length": 355,
-          "relative_path": "blob/storage_blob_projection.aware",
+          "relative_path": "aware/blob/storage_blob_projection.aware",
           "sha256": "f2f24cddb3dc7c7eb0f7d5ab90ec48e542fb7f2062077478b433a66ac9067397"
         },
         {
           "byte_length": 744,
-          "relative_path": "bucket/storage_bucket.aware",
+          "relative_path": "aware/bucket/storage_bucket.aware",
           "sha256": "3ee0d7c0b0b812368323a92e025c64ce659623d52160389eefb2a97d81fa5942"
         },
         {
           "byte_length": 70,
-          "relative_path": "bucket/storage_bucket_enums.aware",
+          "relative_path": "aware/bucket/storage_bucket_enums.aware",
           "sha256": "3ebf42690fa2fbadf5caced7d6527eab9a0c9ca27c33418e0d70c273a38aa1e0"
         },
         {
           "byte_length": 185,
-          "relative_path": "bucket/storage_bucket_projection.aware",
+          "relative_path": "aware/bucket/storage_bucket_projection.aware",
           "sha256": "e1b25ee5afab9f1ea2a1ae2cdf9a6b57db9e40c90dba1d11c9dea07a054d5250"
         }
       ],
       "language": "aware",
       "manifest_kind": "aware_toml",
-      "manifest_relative_path": "ontology/structure/aware.toml",
-      "object_instance_graph_commit_id": "51d6f402-5ce5-54db-973c-492997c1a210",
+      "manifest_relative_path": "modules/storage/ontology/structure/aware.toml",
+      "object_instance_graph_commit_id": "3a036ecb-36c3-51a4-bd73-c8fd5074996a",
       "package_name": "storage-ontology",
-      "package_root": "workspaces/aware_kernel/ontology/structure",
-      "revision_code_package_id": "5e269886-515f-548a-b98d-6f3c6af64704",
-      "sources_root": "ontology/structure/aware"
+      "package_root": "workspaces/aware_kernel/modules/storage/ontology/structure",
+      "revision_code_package_id": "052ae513-908c-5ee7-8d1a-a19d5243e0ab",
+      "sources_root": "modules/storage/ontology/structure/aware"
     },
     {
       "code_package_id": "7b620db8-b227-559d-864f-2caacdf2c691",
-      "domain_commit_id": "5cc8addd-1f03-5961-bd74-e54b512a4fdc",
+      "domain_commit_id": "d7a7d101-3f14-5895-9c25-6d3a9bab3d53",
       "files": [
         {
           "byte_length": 121,
@@ -83,31 +83,6 @@
           "byte_length": 1208,
           "relative_path": "aware_storage_ontology/_aware/python.models.json",
           "sha256": "5e27a240784510c29c6a88e294e81bd1c62e7068385af4417a779604212583bf"
-        },
-        {
-          "byte_length": 2912,
-          "relative_path": "aware_storage_ontology/aware_storage_ontology/blob/storage_blob.py",
-          "sha256": "57225aae35ba39fac55fe499ef5f89878950f3cfeabd848d9bb357fb0b7cf877"
-        },
-        {
-          "byte_length": 2409,
-          "relative_path": "aware_storage_ontology/aware_storage_ontology/bucket/storage_bucket.py",
-          "sha256": "ed1409e11480e2f766f697932b6b152740392ca1920f32d7ae99a340ee134679"
-        },
-        {
-          "byte_length": 191,
-          "relative_path": "aware_storage_ontology/aware_storage_ontology/bucket/storage_bucket_enums.py",
-          "sha256": "0ff92eae21d5ea63d7791e08e795511729ffa37d5b923eeb94f6c57e98ee9922"
-        },
-        {
-          "byte_length": 1233,
-          "relative_path": "aware_storage_ontology/aware_storage_ontology/event_render_catalog.py",
-          "sha256": "e860c6e20fd59c503bade44c06f52272235e662fe5c811f5708979a9f190e038"
-        },
-        {
-          "byte_length": 1082,
-          "relative_path": "aware_storage_ontology/aware_storage_ontology/stable_ids.py",
-          "sha256": "17657bd4a5e201f54c1d445c05a48400bca209949cd7e1a0a8e8698c8fbcdbf6"
         },
         {
           "byte_length": 44,
@@ -158,15 +133,15 @@
       "language": "python",
       "manifest_kind": "pyproject_toml",
       "manifest_relative_path": "modules/storage/ontology/structure/python/orm_runtime/pyproject.toml",
-      "object_instance_graph_commit_id": "e98dff3d-3bc5-5efa-a670-170fa4af8144",
+      "object_instance_graph_commit_id": "b36c5c97-c595-5f99-ae7a-4310bac61ed8",
       "package_name": "aware-storage-ontology",
       "package_root": "workspaces/aware_kernel/modules/storage/ontology/structure/python/orm_runtime",
-      "revision_code_package_id": "ec3d652f-c39e-57f4-b3ea-ec9751dce3c2",
+      "revision_code_package_id": "25a0b501-8eee-575e-b316-66daf3b090df",
       "sources_root": "modules/storage/ontology/structure/python/orm_runtime"
     },
     {
       "code_package_id": "8b48c471-795b-5efa-a53a-1bb5cfa7a4ba",
-      "domain_commit_id": "ecb4a460-01d8-5b28-b621-58c8f6311fa2",
+      "domain_commit_id": "b064cb64-0a73-5d2c-9299-df7abc8c2aa7",
       "files": [
         {
           "byte_length": 2454,
@@ -219,9 +194,9 @@
           "sha256": "654ff99e1c22d804421aa68094c8c215c67dbe1c0be9a3da95d90259af67f96f"
         },
         {
-          "byte_length": 26061,
+          "byte_length": 26865,
           "relative_path": "aware_orm/db/adapters/postgres/__init__.py",
-          "sha256": "e0fb97b1ecac8c2abcc3664a9c225532605ea516540357fd6b14d0dd2499424e"
+          "sha256": "829db55e8fee619ba64c5eb90521c641123a27ee263da238af0eadb456457d3a"
         },
         {
           "byte_length": 8005,
@@ -229,9 +204,9 @@
           "sha256": "f65c7d6b6e0b087471a1243ef190e822e575178ec8e4e114a3239539077b5cb2"
         },
         {
-          "byte_length": 14930,
+          "byte_length": 14690,
           "relative_path": "aware_orm/db/boot.py",
-          "sha256": "22fd95937b354db590181348dbc7529716c703ef4771de4a8f0ddcd58717c5e9"
+          "sha256": "fa5d1c2bf609409cdd34790dd274174cb1549c03235e8da55f64fabcce951b26"
         },
         {
           "byte_length": 2419,
@@ -449,9 +424,9 @@
           "sha256": "4461015721ce3838ab23e9718bffe79c3735120d6de81715134cf0abf9b1cf76"
         },
         {
-          "byte_length": 6290,
+          "byte_length": 6575,
           "relative_path": "aware_orm/runtime/graph_artifacts.py",
-          "sha256": "99d5c0d9bd4073bf5cfc6230dfcaa694e70ae6eeb1f30c539b558c40b4931a29"
+          "sha256": "dcd8713db522ff48b536efc9fd193be2745517ffb2eef47c2afd52c14acf342f"
         },
         {
           "byte_length": 6643,
@@ -784,9 +759,9 @@
           "sha256": "d849c2314a3534782c15f07505b09c76ffe907bc8602fd8c691ff86518812f78"
         },
         {
-          "byte_length": 4796,
+          "byte_length": 5780,
           "relative_path": "tests/runtime/test_db_boot_plan.py",
-          "sha256": "8eb92a736a84208ddfa6006661393de50f5157074c80bb81a2099dfc67ae2569"
+          "sha256": "ca3728817a4e441581077e9b262b02653102455db2b881172a45d6f451505818"
         },
         {
           "byte_length": 1015,
@@ -809,9 +784,9 @@
           "sha256": "23b86f925900f6e0a3b96332dc0cafc6bdad00c66b68998447461d8b9c9233d3"
         },
         {
-          "byte_length": 6214,
+          "byte_length": 8442,
           "relative_path": "tests/runtime/test_graph_binding_skips_inline_value.py",
-          "sha256": "3fc28991750533005880d62c4a79d9db431429980308de57653924e815e9225b"
+          "sha256": "ef8651c73acf86b80ecdbf976996f244f805b73be2462ddbf3ae8fee80000e30"
         },
         {
           "byte_length": 1586,
@@ -957,15 +932,15 @@
       "language": "python",
       "manifest_kind": "pyproject_toml",
       "manifest_relative_path": "libs/orm/pyproject.toml",
-      "object_instance_graph_commit_id": "7ef1ed05-e0d0-597d-be93-534c65d216d5",
+      "object_instance_graph_commit_id": "bd10fd18-7615-52fa-a22f-91d43e514613",
       "package_name": "aware-orm",
       "package_root": "workspaces/aware_kernel/libs/orm",
-      "revision_code_package_id": "d756453d-1fe5-5a12-86e3-892dbc0d1d40",
+      "revision_code_package_id": "094a444e-9da2-57a7-a212-feee56edcdc3",
       "sources_root": "libs/orm"
     },
     {
       "code_package_id": "f12c5a40-82c9-5e6e-ad2a-f939018230c6",
-      "domain_commit_id": "d33654ae-9c5b-57a8-8e68-1ee2fe30e91e",
+      "domain_commit_id": "244a6276-99d0-56f3-99ca-28c26260db4e",
       "files": [
         {
           "byte_length": 129,
@@ -986,26 +961,6 @@
           "byte_length": 339,
           "relative_path": "aware_storage_ontology_dto/_aware/python.bootstrap.json",
           "sha256": "4c4473ff487fd45f4db2763456f5b9857a06bef06c126f4100b8f459b8aa1ebe"
-        },
-        {
-          "byte_length": 519,
-          "relative_path": "aware_storage_ontology_dto/aware_storage_ontology_dto/blob/storage_blob.py",
-          "sha256": "ff5029d4a818e900429d94fe6ddf6d36a6eda3a34c8c8e5df3eda37716f45c8d"
-        },
-        {
-          "byte_length": 498,
-          "relative_path": "aware_storage_ontology_dto/aware_storage_ontology_dto/bucket/storage_bucket.py",
-          "sha256": "f62feed9d95f2f5c489285bc1922484298cba5bc66b9a4ab1fb2c71486c31e57"
-        },
-        {
-          "byte_length": 191,
-          "relative_path": "aware_storage_ontology_dto/aware_storage_ontology_dto/bucket/storage_bucket_enums.py",
-          "sha256": "0ff92eae21d5ea63d7791e08e795511729ffa37d5b923eeb94f6c57e98ee9922"
-        },
-        {
-          "byte_length": 1082,
-          "relative_path": "aware_storage_ontology_dto/aware_storage_ontology_dto/stable_ids.py",
-          "sha256": "17657bd4a5e201f54c1d445c05a48400bca209949cd7e1a0a8e8698c8fbcdbf6"
         },
         {
           "byte_length": 44,
@@ -1051,15 +1006,15 @@
       "language": "python",
       "manifest_kind": "pyproject_toml",
       "manifest_relative_path": "modules/storage/ontology/structure/python/dto/pyproject.toml",
-      "object_instance_graph_commit_id": "4b5d5f15-6117-5d18-b3bf-d02d19519466",
+      "object_instance_graph_commit_id": "cfb651ae-88f5-533b-9971-644bfe4703cf",
       "package_name": "aware-storage-ontology-dto",
       "package_root": "workspaces/aware_kernel/modules/storage/ontology/structure/python/dto",
-      "revision_code_package_id": "803b36c5-57a5-5614-89a9-0fdfb63217bb",
+      "revision_code_package_id": "bb632d22-5232-5bc9-9c01-e519d60aa57e",
       "sources_root": "modules/storage/ontology/structure/python/dto"
     },
     {
       "code_package_id": "fb842008-3a45-5ba5-be25-aff7a78d4c8a",
-      "domain_commit_id": "dcdf8935-5b6a-5123-8b03-8e4a640fcb3e",
+      "domain_commit_id": "52b44d2c-cfd3-55b5-96ab-4ee8e84fb936",
       "files": [
         {
           "byte_length": 143,
@@ -1085,26 +1040,6 @@
           "byte_length": 1241,
           "relative_path": "aware_storage_ontology_orm_models/_aware/python.models.json",
           "sha256": "2f15cbd53cbba4f6d7f0ca3023d1ffbf2be4d0d38cb6ebb46bbc37d8e440eabe"
-        },
-        {
-          "byte_length": 711,
-          "relative_path": "aware_storage_ontology_orm_models/aware_storage_ontology_orm_models/blob/storage_blob.py",
-          "sha256": "715ae8791c4bd59d485408e2054c405f8a2c59edffdc4a9f6ff76b21d052ceab"
-        },
-        {
-          "byte_length": 542,
-          "relative_path": "aware_storage_ontology_orm_models/aware_storage_ontology_orm_models/bucket/storage_bucket.py",
-          "sha256": "26dcfd0f0fa5db07cf9f83dfe9cc1467d59a1e86274c6201d6f07eeb480d623f"
-        },
-        {
-          "byte_length": 191,
-          "relative_path": "aware_storage_ontology_orm_models/aware_storage_ontology_orm_models/bucket/storage_bucket_enums.py",
-          "sha256": "0ff92eae21d5ea63d7791e08e795511729ffa37d5b923eeb94f6c57e98ee9922"
-        },
-        {
-          "byte_length": 1082,
-          "relative_path": "aware_storage_ontology_orm_models/aware_storage_ontology_orm_models/stable_ids.py",
-          "sha256": "17657bd4a5e201f54c1d445c05a48400bca209949cd7e1a0a8e8698c8fbcdbf6"
         },
         {
           "byte_length": 44,
@@ -1150,10 +1085,10 @@
       "language": "python",
       "manifest_kind": "pyproject_toml",
       "manifest_relative_path": "modules/storage/ontology/structure/python/orm_models/pyproject.toml",
-      "object_instance_graph_commit_id": "8157bd35-acf9-589c-9573-98c36c9c2cb6",
+      "object_instance_graph_commit_id": "0d510138-1847-5896-8372-4cbb5ae248c8",
       "package_name": "aware-storage-ontology-orm-models",
       "package_root": "workspaces/aware_kernel/modules/storage/ontology/structure/python/orm_models",
-      "revision_code_package_id": "f09b1063-3b63-5c25-929f-1bff63fc5230",
+      "revision_code_package_id": "665ae160-9099-5262-9e2d-6e6e1a92eea2",
       "sources_root": "modules/storage/ontology/structure/python/orm_models"
     }
   ],
@@ -1218,21 +1153,79 @@
     }
   ],
   "semantic_package_receipts": {
-    "available": false,
+    "available": true,
     "environment_config_package_commit_count": 0,
     "environment_config_package_commits": [],
-    "evidence_complete": false,
-    "reason": "workspace_materialization_unavailable",
-    "receipt_count": 0,
+    "evidence_complete": true,
+    "reason": "resolved",
+    "receipt_count": 1,
     "receipt_version": "aware.workspace.semantic_package_receipts.v1",
-    "receipts": [],
+    "receipts": [
+      {
+        "code_module_id": null,
+        "code_module_layout_root": null,
+        "code_module_object_instance_graph_commit_id": null,
+        "code_module_pin_id": null,
+        "code_module_resolved_module_ref": null,
+        "code_module_source_kind": null,
+        "code_module_source_ref": null,
+        "manifest_path": "modules/storage/ontology/aware.ontology.toml",
+        "manifest_toml_path": "workspaces/aware_kernel/modules/storage/ontology/aware.ontology.toml",
+        "materialized_language_package_refs": [],
+        "revision_code_package_id": "052ae513-908c-5ee7-8d1a-a19d5243e0ab",
+        "revision_code_package_object_instance_graph_commit_id": "3a036ecb-36c3-51a4-bd73-c8fd5074996a",
+        "runtime_code_package_refs": [],
+        "semantic_binding_capabilities": [],
+        "semantic_binding_contract_module": null,
+        "semantic_binding_contract_name": null,
+        "semantic_binding_contract_role": null,
+        "semantic_binding_manifest_relative_path": null,
+        "semantic_binding_module_package_id": null,
+        "semantic_binding_module_package_kind": null,
+        "semantic_binding_module_relative_package_root": null,
+        "semantic_binding_owned_manifest_kinds": [],
+        "semantic_binding_status": null,
+        "semantic_branch_id": "cf2032e5-aeac-5c5d-bd5a-5216e25264ca",
+        "semantic_contract_name": "aware.semantic_provider",
+        "semantic_contract_provider_key": "aware_ontology",
+        "semantic_contract_role": "aware_ontology.provider",
+        "semantic_object_instance_graph_commit_id": "20e58e03-4323-5013-aad8-7bb55dacb628",
+        "semantic_owner_module": "aware_ontology",
+        "semantic_package_binding_id": null,
+        "semantic_package_commit_id": "446d2c85-8eb6-5c1d-922c-73c1c0b56038",
+        "semantic_package_id": "b73972b2-3f4f-5b51-9df2-80e9f3c756d8",
+        "semantic_package_kind": "ontology_package",
+        "semantic_package_name": "storage-ontology",
+        "semantic_projection_hash": null,
+        "semantic_projection_name": "OntologyPackage",
+        "semantic_provider_key": null,
+        "semantic_provider_registration_id": null,
+        "semantic_provider_status": null,
+        "semantic_root_id": "b73972b2-3f4f-5b51-9df2-80e9f3c756d8",
+        "semantic_root_kind": "OntologyPackage",
+        "semantic_root_object_instance_graph_commit_id": "20e58e03-4323-5013-aad8-7bb55dacb628",
+        "source_code_package_id": "4228c3fd-248d-50b7-91ab-b0153d3f1eb0",
+        "source_object_instance_graph_commit_id": "3a036ecb-36c3-51a4-bd73-c8fd5074996a",
+        "source_package_language": null,
+        "source_package_manifest_relative_path": null,
+        "source_package_name": null,
+        "source_package_root": null,
+        "source_package_sources_root": null,
+        "workspace_materialization_id": "6e468da7-6eaf-5ee3-9ddc-a3a163e3e411",
+        "workspace_materialization_index": 2,
+        "workspace_revision_code_module_id": null,
+        "workspace_revision_id": "8b5a7628-c6ec-52b6-9402-bc8535b7a553",
+        "workspace_revision_semantic_package_binding_id": null,
+        "workspace_revision_semantic_provider_id": null
+      }
+    ],
     "selection": "latest_successful",
     "source_revision_id": "code_package_set:fbcada1e3a17250f0932d22efb512db7f05dec7a356b99ba1181622949a41595",
     "source_revision_kind": "code_package_set",
     "workspace_id": "5cfdbd70-e506-5c08-b153-1721109aa511",
-    "workspace_materialization_id": null,
-    "workspace_materialization_index": null,
-    "workspace_materialization_status": null,
+    "workspace_materialization_id": "6e468da7-6eaf-5ee3-9ddc-a3a163e3e411",
+    "workspace_materialization_index": 2,
+    "workspace_materialization_status": "succeeded",
     "workspace_revision_id": "8b5a7628-c6ec-52b6-9402-bc8535b7a553"
   },
   "semantic_runtime_package_catalog": {

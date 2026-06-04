@@ -415,6 +415,28 @@ def _split_generated_sql_statements(sql_text: str) -> list[str]:
     return statements
 
 
+def _is_create_type_statement(statement: str) -> bool:
+    return _RE_CREATE_TYPE.search(statement) is not None
+
+
+def _only_create_type_statements(sql_text: str) -> str:
+    statements = [
+        statement
+        for statement in _split_generated_sql_statements(sql_text)
+        if _is_create_type_statement(statement)
+    ]
+    return "\n\n".join(statements)
+
+
+def _without_create_type_statements(sql_text: str) -> str:
+    statements = [
+        statement
+        for statement in _split_generated_sql_statements(sql_text)
+        if not _is_create_type_statement(statement)
+    ]
+    return "\n\n".join(statements)
+
+
 def _rewrite_create_table_statements(
     sql_text: str,
     *,
@@ -575,11 +597,9 @@ async def _missing_steps_for_same_hash_marker(
 def _type_schema_by_name_from_plan(*, plan: SQLBootPlan) -> dict[str, str]:
     type_schema_by_name: dict[str, str] = {}
     for step in plan.steps:
-        if step.kind != "type":
-            continue
         sql_text = step.path.read_text(encoding="utf-8")
         type_names = _created_type_names(sql_text)
-        if not type_names:
+        if step.kind == "type" and not type_names:
             raise DBBootExecutionError(f"Failed to parse type names for qualification: {step.path}")
         for name in type_names:
             prev = type_schema_by_name.get(name)
@@ -627,6 +647,10 @@ async def _apply_plan_steps(
 
         for step in steps:
             sql_text = step.path.read_text(encoding="utf-8")
+            if step.kind == "type":
+                sql_text = _only_create_type_statements(sql_text)
+            elif step.kind == "table":
+                sql_text = _without_create_type_statements(sql_text)
             if _is_effective_sql_empty(sql_text):
                 continue
 

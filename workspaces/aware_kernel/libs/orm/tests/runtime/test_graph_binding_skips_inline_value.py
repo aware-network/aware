@@ -13,7 +13,11 @@ from aware_orm.runtime.graph_artifacts import (
     OrmFunctionSpec,
     OrmGraphBindingSnapshot,
 )
-from aware_orm.runtime.graph_binding import bind_entities_by_fqn, dump_orm_graph_binding_snapshot_msgpack, index_entities_from_msgpack
+from aware_orm.runtime.graph_binding import (
+    bind_entities_by_fqn,
+    dump_orm_graph_binding_snapshot_msgpack,
+    index_entities_from_msgpack,
+)
 
 
 def test_bind_entities_by_fqn_skips_inline_value_classes() -> None:
@@ -62,9 +66,15 @@ def test_bind_entities_by_fqn_does_not_merge_stale_installed_fields() -> None:
 
         fqn = ORMModelRegistry.register_class_stub(BoundThing)
         entity_id = uuid4()
-        current_attr = OrmFieldSpec.model_construct(id=uuid4(), owner_key=fqn, name="current")
-        stale_attr = OrmFieldSpec.model_construct(id=uuid4(), owner_key=fqn, name="stale_installed_field")
-        current_entity = OrmEntitySpec.model_construct(id=entity_id, name="BoundThing", entity_fqn=fqn)
+        current_attr = OrmFieldSpec.model_construct(
+            id=uuid4(), owner_key=fqn, name="current"
+        )
+        stale_attr = OrmFieldSpec.model_construct(
+            id=uuid4(), owner_key=fqn, name="stale_installed_field"
+        )
+        current_entity = OrmEntitySpec.model_construct(
+            id=entity_id, name="BoundThing", entity_fqn=fqn
+        )
         current_entity.field_bindings = [
             OrmFieldBinding.model_construct(
                 entity_id=entity_id,
@@ -112,8 +122,7 @@ def test_bind_entities_by_fqn_does_not_merge_stale_installed_fields() -> None:
             for link in bound_cc.class_config_attribute_configs
         ] == ["current"]
         assert [
-            link.function_config.name
-            for link in bound_cc.class_config_function_configs
+            link.function_config.name for link in bound_cc.class_config_function_configs
         ] == ["runtime_constructor"]
     finally:
         ORMModelRegistry.restore_state(registry_snapshot)
@@ -175,3 +184,66 @@ def test_graph_binding_roundtrips_field_binding_role_and_value_type() -> None:
     assert rebound_output.attribute_config.value_type is not None
     assert rebound_output.attribute_config.value_type.entity_id == output_entity_id
     assert rebound_output.attribute_config.value_type.is_collection is False
+
+
+def test_graph_binding_roundtrips_function_contract_metadata() -> None:
+    entity_id = uuid4()
+    function_id = uuid4()
+    input_field_id = uuid4()
+    input_field = OrmFieldSpec.model_construct(
+        id=input_field_id,
+        name="slug",
+        is_primary=True,
+    )
+    function = OrmFunctionSpec.model_construct(
+        id=function_id,
+        name="build_via_parent",
+        description="Build one child through its parent rail.",
+        verb="construct",
+        is_async=True,
+        kind="instance",
+        field_bindings=[
+            OrmFieldBinding.model_construct(
+                function_id=function_id,
+                field_id=input_field_id,
+                field=input_field,
+                binding_role="input",
+                is_identity_key=True,
+                position=0,
+            )
+        ],
+    )
+    snapshot = OrmGraphBindingSnapshot.model_construct(
+        entities=[
+            OrmEntitySpec.model_construct(
+                id=entity_id,
+                name="Child",
+                entity_fqn="pkg.Child",
+                function_bindings=[
+                    OrmFunctionBinding.model_construct(
+                        entity_id=entity_id,
+                        function_id=function_id,
+                        function=function,
+                        is_public=True,
+                        is_constructor=True,
+                    )
+                ],
+            )
+        ]
+    )
+
+    entity_index = index_entities_from_msgpack(
+        dump_orm_graph_binding_snapshot_msgpack(snapshot=snapshot)
+    )
+
+    rebound_link = entity_index[str(entity_id)].function_bindings[0]
+    assert rebound_link.is_public is True
+    assert rebound_link.is_constructor is True
+    rebound_function = rebound_link.function
+    assert rebound_function is not None
+    assert rebound_function.description == "Build one child through its parent rail."
+    assert rebound_function.verb == "construct"
+    assert rebound_function.is_async is True
+    rebound_input = rebound_function.function_config_attribute_configs[0]
+    assert rebound_input.type == "input"
+    assert rebound_input.is_identity_key is True
