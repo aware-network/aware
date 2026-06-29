@@ -76,9 +76,9 @@ def resolve_orm_class(
     Lookup order:
     1. Installed native graph binding (`class_config_id -> model class`).
     2. Exact class FQN registered in ORM.
-    3. Embedded package `python.models.json` manifests for already imported model
-       packages. This fallback keeps committed-OIG reads working while stale
-       packages are being refreshed to native graph artifacts.
+    3. Embedded package `python.models.json` manifests for generated model
+       packages. This fallback resolves by canonical aware class FQN when class
+       ids change during namespace/stable-id migrations.
     """
 
     orm_class = ORMModelRegistry.get_class_by_class_config_id(class_config_id)
@@ -164,7 +164,9 @@ def _resolve_orm_class_from_python_models_manifest(
             continue
 
         for entry in manifest.classes:
-            if entry.class_config_id != class_config_id:
+            if entry.class_config_id != class_config_id and (
+                entry.aware_class_ref not in candidate_fqns
+            ):
                 continue
             try:
                 module = import_module(entry.module)
@@ -199,6 +201,10 @@ def _candidate_model_package_prefixes(
         package_prefix, _, _rest = fqn.partition(".")
         if package_prefix:
             prefixes.add(package_prefix)
+            if package_prefix.startswith("aware_") and not package_prefix.endswith(
+                "_ontology"
+            ):
+                prefixes.add(f"{package_prefix}_ontology")
 
     return tuple(sorted(prefixes))
 

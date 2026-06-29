@@ -1,0 +1,121 @@
+// Code Package projection (v0)
+//
+// Contract:
+// - CodePackage is the canonical package-owned code surface.
+// - Raw Code lives under CodePackage and is no longer module-contained.
+// - CodeTestFramework is standalone framework truth referenced by package tests.
+projection CodeTestFramework {
+    root aware_code.code.CodeTestFramework
+}
+
+projection CodePackage {
+    root aware_code.package.CodePackage
+
+    aware_code.package.CodePackage::codes
+    aware_code.package.CodePackageCode::code
+    aware_code.package.CodePackage::artifacts
+    aware_code.package.CodePackage::test_frameworks
+    aware_code.package.CodePackageTestFramework::code_test_framework CodeTestFramework
+    aware_code.package.CodePackage::tests
+    aware_code.package.CodePackageTest::code_test
+    aware_code.package.CodePackageTest::runs
+    aware_code.package.CodePackageTestRun::unit_runs
+    aware_code.code.CodeTestUnitRun::code_test_unit
+    aware_code.code.Code::tests
+    aware_code.code.CodeTest::framework CodeTestFramework
+    aware_code.code.CodeTest::units
+    aware_code.code.CodeTestUnit::code_section
+    aware_code.code.Code::code_sections
+    aware_code.code.Code::content_part_text
+
+    // Core section base
+    aware_code.code.CodeSection::content_part_text_segment
+    aware_code.code.CodeSection::code_section_annotation
+    aware_code.code.CodeSection::code_section_attribute
+    aware_code.code.CodeSection::code_section_class
+    aware_code.code.CodeSection::code_section_comment
+    aware_code.code.CodeSection::code_section_decorator
+    aware_code.code.CodeSection::code_section_enum
+    aware_code.code.CodeSection::code_section_enum_value
+    aware_code.code.CodeSection::code_section_expression
+    aware_code.code.CodeSection::code_section_function
+    aware_code.code.CodeSection::code_section_import
+    aware_code.code.CodeSection::code_section_mirror
+    aware_code.code.CodeSection::code_section_projection
+
+    // Class rail
+    aware_code.class.CodeSectionClass::name_segment
+    aware_code.class.CodeSectionClass::keyword_segment
+    aware_code.class.CodeSectionClass::modifiers_segment
+    aware_code.class.CodeSectionClass::code_section_attributes
+    aware_code.class.CodeSectionClass::code_section_functions
+    aware_code.class.CodeSectionClass::code_section_class_bases
+    aware_code.class.CodeSectionClass::code_section_comments
+    aware_code.class.CodeSectionClass::code_section_decorators
+    aware_code.class.CodeSectionClassBase::segment
+
+    // Function rail
+    aware_code.function.CodeSectionFunction::name_segment
+    aware_code.function.CodeSectionFunction::signature_segment
+    aware_code.function.CodeSectionFunction::return_type_segment
+    aware_code.function.CodeSectionFunction::body_segment
+    aware_code.function.CodeSectionFunction::code_section_attributes
+    aware_code.function.CodeSectionFunction::code_section_comments
+    aware_code.function.CodeSectionFunction::code_section_decorators
+
+    // Attribute/comment/decorator rails
+    aware_code.attribute.CodeSectionAttribute::name_segment
+    aware_code.attribute.CodeSectionAttribute::type_segment
+    aware_code.attribute.CodeSectionAttribute::default_value_segment
+    aware_code.attribute.CodeSectionAttribute::code_section_comments
+    aware_code.comment.CodeSectionComment::code_section_comment_contents
+    aware_code.comment.CodeSectionCommentContent::content_part_text_segment
+    aware_code.decorator.CodeSectionDecorator::name_segment
+    aware_code.decorator.CodeSectionDecorator::code_section_decorator_expressions
+    aware_code.decorator.CodeSectionDecoratorExpression::name_segment
+    aware_code.decorator.CodeSectionDecoratorExpression::code_section_expression
+
+    // Enum rail
+    aware_code.enum.CodeSectionEnum::name_segment
+    aware_code.enum.CodeSectionEnum::code_section_comments
+    aware_code.enum.CodeSectionEnum::code_section_enum_values
+    aware_code.enum.CodeSectionEnum::content_part_text_segments
+    aware_code.enum.CodeSectionEnumValue::value_segment
+    aware_code.enum.CodeSectionEnumValue::code_section_comments
+
+    // Import/mirror rails
+    aware_code.import.CodeSectionImport::module_segment
+    aware_code.import.CodeSectionImport::code_section_import_names
+    aware_code.import.CodeSectionImportName::name_segment
+    aware_code.import.CodeSectionImportName::alias_segment
+    aware_code.mirror.CodeSectionMirror::target_segment
+
+    // Projection rail
+    aware_code.projection.CodeSectionProjection::code_section_comments
+    aware_code.projection.CodeSectionProjection::name_segment
+    aware_code.projection.CodeSectionProjection::root_type_segment
+    aware_code.projection.CodeSectionProjection::projection_edges
+    aware_code.projection.CodeSectionProjection::projection_views
+    aware_code.projection.CodeSectionProjectionEdge::type_segment
+    aware_code.projection.CodeSectionProjectionEdge::member_segment
+    aware_code.projection.CodeSectionProjectionEdge::target_segment
+    aware_code.projection.CodeSectionProjectionView::key_segment
+    aware_code.projection.CodeSectionProjectionView::body_segment
+
+    // Shared text graph
+    aware_content.part.ContentPartText::segments
+    aware_content.part.ContentPartTextSegment::style
+    aware_content.part.ContentPartTextSegment::content_part_text_segment_translations
+
+    observable codes instance {
+        """
+        Package-owned Code membership, selection, and source text surface.
+        """
+    }
+
+    observable home instance default {
+        """
+        CodePackage manifest-backed package and full code ownership surface.
+        """
+    }
+}

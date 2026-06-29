@@ -1,0 +1,25 @@
+/// Ontology-level view of a `load` ANN.
+/// This sits on top of the generic CodeSectionAnnotation and captures
+/// the resolved, object-centric semantics used by loaders and renderers.
+/// It is intentionally grammar-agnostic: the compiler only knows about
+/// CodeSectionAnnotation entries where `verb == \"load\"`.
+///
+/// Contract (current canonical representation):
+/// - `load` annotations are the SSOT for relationship pointer semantics on the canonical model.
+/// - Loading semantics == serialization semantics for the canonical model (round-trippable always).
+/// - Import strategy is a language concern and MUST NOT be derived from `load`.
+class CodeSectionAnnotationLoad {
+    // Relationships
+    code_section_annotation aware_code.annotation.CodeSectionAnnotation?
+
+    /// Location within the canonical graph
+    fqn_prefix String key
+    namespace String key
+    class_name String key
+    attribute_name String key
+    edge_name String?
+
+    /// Loading semantics derived from ANN arguments
+    forward_strategy class.ClassConfigRelationshipSideLoadingStrategy?
+    reverse_strategy class.ClassConfigRelationshipSideLoadingStrategy?
+}

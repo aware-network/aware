@@ -1,0 +1,13 @@
+enum CodeLanguage {
+    aware
+    dart
+    python
+    sql
+}
+
+enum CodeTestRunStatus {
+    passed
+    failed
+    skipped
+    unsupported
+}

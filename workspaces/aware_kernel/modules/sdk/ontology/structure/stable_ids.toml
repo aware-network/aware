@@ -1,0 +1,198 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_SDK"
+kind = "ns_url"
+value = "aware://sdk/v1"
+
+[[functions]]
+name = "stable_sdk_config_id"
+namespace = "NS_SDK"
+template = "aware:sdk_config:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_sdk_operation_id"
+namespace = "NS_SDK"
+template = "aware:sdk_operation:{sdk_config_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: sdk_config_id, name"
+
+[[functions.params]]
+name = "sdk_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_sdk_operation_api_capability_endpoint_id"
+namespace = "NS_SDK"
+template = "aware:sdk_operation_api_capability_endpoint:{sdk_operation_id}:{api_capability_endpoint_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: sdk_operation_id, api_capability_endpoint_id, name"
+
+[[functions.params]]
+name = "sdk_operation_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_capability_endpoint_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_sdk_operation_dependency_id"
+namespace = "NS_SDK"
+template = "aware:sdk_operation_dependency:{sdk_operation_id}:{target_sdk_operation_id}"
+doc = "Compiler-generated from class-attribute identity keys: sdk_operation_id, target_sdk_operation_id"
+
+[[functions.params]]
+name = "sdk_operation_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_sdk_operation_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_sdk_package_id"
+namespace = "NS_SDK"
+template = "aware:sdk_package:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_sdk_package_api_package_id"
+namespace = "NS_SDK"
+template = "aware:sdk_package_api_package:{sdk_package_id}:{api_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: sdk_package_id, api_package_id"
+
+[[functions.params]]
+name = "sdk_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_sdk_package_dependency_id"
+namespace = "NS_SDK"
+template = "aware:sdk_package_dependency:{sdk_package_id}:{target_sdk_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: sdk_package_id, target_sdk_package_id"
+
+[[functions.params]]
+name = "sdk_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_sdk_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_sdk_package_implementation_package_id"
+namespace = "NS_SDK"
+template = "aware:sdk_package_implementation_package:{sdk_package_id}:{code_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: sdk_package_id, code_package_id"
+
+[[functions.params]]
+name = "sdk_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_sdk_package_object_config_graph_package_id"
+namespace = "NS_SDK"
+template = "aware:sdk_package_object_config_graph_package:{sdk_package_id}:{object_config_graph_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: sdk_package_id, object_config_graph_package_id"
+
+[[functions.params]]
+name = "sdk_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_config_graph_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_sdk_surface_id"
+namespace = "NS_SDK"
+template = "aware:sdk_surface:{sdk_config_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: sdk_config_id, name"
+
+[[functions.params]]
+name = "sdk_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_sdk_surface_method_id"
+namespace = "NS_SDK"
+template = "aware:sdk_surface_method:{sdk_surface_id}:{target_sdk_operation_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: sdk_surface_id, target_sdk_operation_id, name"
+
+[[functions.params]]
+name = "sdk_surface_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_sdk_operation_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]

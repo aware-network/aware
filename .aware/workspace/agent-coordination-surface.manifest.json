@@ -1,0 +1,17 @@
+{
+  "base_authority": "workspace_revision_filesystem",
+  "manifest_version": "aware.workspace.agent_coordination_surface.v1",
+  "required_paths": [
+    "AGENTS.md",
+    "docs/alignment/PROTOCOL.md",
+    "docs/alignment/README.md",
+    "docs/alignment/CURRENT.md",
+    "docs/issues/PROTOCOL.md",
+    "docs/feed/PROTOCOL.md",
+    "docs/goals/PROTOCOL.md",
+    "docs/specs/PROTOCOL.md"
+  ],
+  "status": "ready",
+  "surface": "agentic_workspace_checkout",
+  "workspace_revision_id": "be5721d9-bd44-5bd2-81d0-aad218d3db0e"
+}

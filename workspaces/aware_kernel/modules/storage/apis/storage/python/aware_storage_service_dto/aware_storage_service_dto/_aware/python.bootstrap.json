@@ -1,0 +1,9 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_storage_service_dto.storage.media",
+    "aware_storage_service_dto.storage.service_operation"
+  ],
+  "package_prefix": "aware_storage_service_dto",
+  "version": "v1"
+}

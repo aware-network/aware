@@ -16,7 +16,14 @@ from aware_orm.filters import (
     RelationPathFilter,
     SortOrder,
 )
-from aware_orm.query_spec import Predicate, QueryOrder, QueryPage, QuerySpec, and_
+from aware_orm.query_spec import (
+    Predicate,
+    PredicateGroup,
+    QueryOrder,
+    QueryPage,
+    QuerySpec,
+    and_,
+)
 
 
 T = TypeVar("T")
@@ -144,7 +151,9 @@ class QueryRelationField:
         return self._filter("is_null", is_null)
 
     def _filter(self, operator: str, value: Any) -> RelationPathFilter:
-        return RelationPathFilter(path=self.path, field=self.field, operator=operator, value=value)
+        return RelationPathFilter(
+            path=self.path, field=self.field, operator=operator, value=value
+        )
 
 
 @dataclass(frozen=True)
@@ -157,6 +166,45 @@ class ModelQuery(Generic[T]):
 
     def where(self, *predicates: Predicate) -> ModelQuery[T]:
         return self._with(where=_and_where(self.query_spec.where, predicates))
+
+    def match(self, **eq_fields: Any) -> ModelQuery[T]:
+        """Append exact-match predicates to this query."""
+        predicates = _exact_match_predicates(
+            model=self.model,
+            fields=eq_fields,
+            operation="match",
+        )
+        return self.where(*predicates) if predicates else self
+
+    def match_if_present(self, **eq_fields: Any) -> ModelQuery[T]:
+        """Append exact-match predicates for fields whose value is not None."""
+        predicates = _exact_match_predicates(
+            model=self.model,
+            fields=eq_fields,
+            operation="match_if_present",
+        )
+        present_predicates = tuple(
+            predicate for predicate in predicates if predicate.value is not None
+        )
+        return self.where(*present_predicates) if present_predicates else self
+
+    def match_when(self, condition: bool, **eq_fields: Any) -> ModelQuery[T]:
+        """Append exact-match predicates when condition is true."""
+        predicates = _exact_match_predicates(
+            model=self.model,
+            fields=eq_fields,
+            operation="match_when",
+        )
+        return self.where(*predicates) if condition and predicates else self
+
+    def match_unless(self, condition: bool, **eq_fields: Any) -> ModelQuery[T]:
+        """Append exact-match predicates when condition is false."""
+        predicates = _exact_match_predicates(
+            model=self.model,
+            fields=eq_fields,
+            operation="match_unless",
+        )
+        return self.where(*predicates) if not condition and predicates else self
 
     def order_by(self, *orders: QueryOrder | QueryField) -> ModelQuery[T]:
         normalized: list[QueryOrder] = []
@@ -177,14 +225,18 @@ class ModelQuery(Generic[T]):
         page = self.query_spec.page or QueryPage()
         return self._with(page=replace(page, offset=offset))
 
-    def page(self, *, limit: int | None = None, offset: int | None = None) -> ModelQuery[T]:
+    def page(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> ModelQuery[T]:
         return self._with(page=QueryPage(limit=limit, offset=offset))
 
     def spec(self) -> QuerySpec:
         return self.query_spec
 
     async def all(self) -> list[T]:
-        return await self.model._query_spec(self.query_spec, cache_valid=self.cache_valid)
+        return await self.model._query_spec(
+            self.query_spec, cache_valid=self.cache_valid
+        )
 
     async def first(self) -> T | None:
         rows = await self.limit(1).all()
@@ -211,13 +263,53 @@ class ModelQuery(Generic[T]):
         )
 
 
-def _and_where(existing: Predicate | None, predicates: tuple[Predicate, ...]) -> Predicate | None:
-    parts = tuple(part for part in ((existing,) + predicates) if part is not None)
+def _and_where(
+    existing: Predicate | None, predicates: tuple[Predicate, ...]
+) -> Predicate | None:
+    parts = tuple(_iter_and_parts((existing,) + predicates))
     if not parts:
         return None
     if len(parts) == 1:
         return parts[0]
     return and_(*parts)
+
+
+def _iter_and_parts(predicates: tuple[Predicate | None, ...]):
+    for predicate in predicates:
+        if predicate is None:
+            continue
+        if isinstance(predicate, PredicateGroup) and predicate.op == "and":
+            yield from predicate.predicates
+            continue
+        yield predicate
+
+
+def _exact_match_predicates(
+    *,
+    model: type,
+    fields: dict[str, Any],
+    operation: str,
+) -> tuple[EqFilter, ...]:
+    model_name = getattr(model, "__name__", "Model")
+    model_fields = getattr(model, "model_fields", None)
+    if not isinstance(model_fields, dict):
+        raise TypeError(
+            f"{model_name}.{operation}() requires a generated ORM model with "
+            "model_fields metadata."
+        )
+
+    predicates: list[EqFilter] = []
+    for field_name, value in fields.items():
+        if not isinstance(field_name, str) or not field_name.strip():
+            raise ValueError(f"{model_name}.{operation}() received an empty field name")
+        normalized_field_name = field_name.strip()
+        if normalized_field_name not in model_fields:
+            raise ValueError(
+                f"{model_name}.{operation}() received unknown field "
+                f"{normalized_field_name!r}."
+            )
+        predicates.append(EqFilter(column=normalized_field_name, value=value))
+    return tuple(predicates)
 
 
 __all__ = [

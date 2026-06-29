@@ -1,0 +1,16 @@
+[project]
+name = "aware-sdk-ontology"
+version = "0.1.0"
+description = "Auto-generated package aware-sdk-ontology"
+authors = [{ name = "Aware Automations" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_sdk_ontology"]
+include = ["README.md", "aware_sdk_ontology/py.typed"]

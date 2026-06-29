@@ -1,0 +1,209 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "373a1fb3-9b39-5446-ad73-a957ef81665d",
+      "node_type": "class",
+      "entity_id": "0f149eb7-f1fa-583b-97d8-d9e3a3a5ff66",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "d3795cca-75ce-5d24-8e32-6f12852dd5f1",
+      "node_type": "class",
+      "entity_id": "29483ab4-5a6a-5322-b1f5-3cf8b40e7bf8",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "e4751931-ef2f-5e8b-aeba-33ebd712e5c7",
+      "node_type": "class",
+      "entity_id": "2e2687ff-1f29-5e07-a542-ebe456960637",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "1b356897-b947-59dd-8e97-393435a24be2",
+      "node_type": "class",
+      "entity_id": "84475f4f-63bd-5efc-b84d-2af7fdffd935",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "c98fa888-876c-5968-bff4-49d94f9fbc44",
+      "node_type": "class",
+      "entity_id": "8f25208f-ff02-5d10-85d5-bcf5cd7ae6f6",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "052f4124-6530-5f17-a9c7-8fd6a2521521",
+      "node_type": "class",
+      "entity_id": "99c80e9e-6a76-55bd-a037-e93dbec744e1",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "d1572254-fd4e-5d21-96ae-a122cd48b84a",
+      "node_type": "class",
+      "entity_id": "9fd7aeb8-d07e-534e-867a-c38b23a71e0e",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "1b8838d4-b7fd-576b-aaae-5bf523808e42",
+      "node_type": "class",
+      "entity_id": "a99da8b1-ec2b-5e2c-a6f5-292bc06cb1ea",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "e3cd2d38-4449-5e8f-a9cd-a656dcd85f1e",
+      "node_type": "class",
+      "entity_id": "aae8dfd7-0778-55ae-bf77-0b9abd84e111",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "8bbae2b6-8b6d-5010-aa48-eaa54444acc9",
+      "node_type": "class",
+      "entity_id": "b403b516-bd67-50cb-8065-c3af6d72352d",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "8cad782e-68ff-52b5-a764-860a2e09e5c3",
+      "node_type": "class",
+      "entity_id": "cc88ca90-b728-5182-a3de-e63de5ddc246",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "24cadad8-64e6-5eab-ba3a-f0df95ade402",
+      "node_type": "class",
+      "entity_id": "e6d8fb99-e389-5db5-8fd9-224d8b0da6da",
+      "relative_path": "file_system/service_operation.py"
+    },
+    {
+      "node_id": "04447f3e-1394-5058-8f80-675dd4c75e85",
+      "node_type": "class",
+      "entity_id": "2d80548e-6afa-51e2-bee2-1bc430cc65ee",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "61e9c0e6-1da8-505e-9311-85054d29fff5",
+      "node_type": "class",
+      "entity_id": "2f4cceb3-12a8-565b-944e-fccd8f939bf9",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "49836aa3-bb90-5ab4-a0a3-47d3eedac232",
+      "node_type": "class",
+      "entity_id": "496a789b-92a3-5bb7-b5f7-df7d49e5f465",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "0f6b49ca-6bb8-5bfb-af18-3e4532c0e5ef",
+      "node_type": "class",
+      "entity_id": "64f2925d-8770-53fe-b13d-959f6eb27f6f",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "05e5f185-6995-5f6d-86af-1402e33a62ea",
+      "node_type": "class",
+      "entity_id": "69e6ce6a-8b26-5b43-b227-46567bedcf4f",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "9c7c43a7-e0fd-553f-9ee0-18fb6c0448e5",
+      "node_type": "class",
+      "entity_id": "6fc716bb-2c13-5a92-a73d-877d3f59ef02",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "969c7bee-c25a-5ef8-925f-8eebe421c0c7",
+      "node_type": "class",
+      "entity_id": "98533d4b-c7a0-534f-af3d-80b257d51e87",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "fe09cb1e-a3cb-50be-90bb-b200b0d42ad1",
+      "node_type": "class",
+      "entity_id": "ac0cfeca-6242-53ea-92d1-62c8ed548ffd",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "abe15160-0840-564e-8930-ff246ebff340",
+      "node_type": "class",
+      "entity_id": "b3f250d6-f038-5f5b-a86d-4f0c8c145994",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "536f15d7-4914-5d36-bd70-c73286eaa4a9",
+      "node_type": "class",
+      "entity_id": "b9be720e-a7c6-5b7f-a8fd-1cf03264cf6e",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "a57afc3a-74b3-5afa-9772-37fb69cd7d7c",
+      "node_type": "class",
+      "entity_id": "c482fbbb-d51e-597d-8a01-22390b7f9721",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "a967a9ae-ff2d-52fa-aabf-6f8caff425f1",
+      "node_type": "class",
+      "entity_id": "c90cd28f-584e-51df-965a-b736b3acc094",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "d29e7f13-ae4d-526d-ac61-f078f371a7d5",
+      "node_type": "class",
+      "entity_id": "da69ef67-f890-5319-9367-fc80d652c3d6",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "0e359a04-db48-5f02-8536-d12171e69851",
+      "node_type": "class",
+      "entity_id": "e767e52a-a0e4-57b4-ae0f-00094f9db933",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "e5d1e2ec-bda5-5c8f-8835-3913dc1a9207",
+      "node_type": "class",
+      "entity_id": "f7206bb8-40b2-5a87-b849-5e750ed524ca",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "cd14f745-70c8-582c-825d-84b91ca3277b",
+      "node_type": "class",
+      "entity_id": "f777ef82-c11e-5f4d-abeb-2b8db8b07c58",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "07acd089-84ba-5027-afc6-c0d0a296fbb8",
+      "node_type": "enum",
+      "entity_id": "11ce1bfb-eec8-578d-bd91-9c0f4bb4b3d1",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "157cbb5e-4bc6-578f-b898-a28951c05892",
+      "node_type": "enum",
+      "entity_id": "1a9cf999-f3ff-55ff-964d-e896225f1e55",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "b7ac0abe-a8b3-53f7-91d2-38fcd4a20098",
+      "node_type": "enum",
+      "entity_id": "1f62c599-9690-50ba-9214-90b57da7ab4a",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "eabbbf5e-17ac-5b5d-a2e2-66bbf51ee422",
+      "node_type": "enum",
+      "entity_id": "51f408e3-7677-5f7b-bd2b-43e2fb389cfd",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "6f41b499-9c01-5f17-9f3d-487428f742ba",
+      "node_type": "enum",
+      "entity_id": "a960fccc-f222-529b-abe7-5fb5996a8ecc",
+      "relative_path": "file_system/types.py"
+    },
+    {
+      "node_id": "21d5f82e-e7ee-5f09-8b42-15c33aa3f02f",
+      "node_type": "enum",
+      "entity_id": "b7bbbe3e-6bfa-536a-9c2d-61e13a46a70e",
+      "relative_path": "file_system/types.py"
+    }
+  ]
+}

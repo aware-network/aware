@@ -1,0 +1,41 @@
+/// Deterministic mutation intent payload for function execution rail.
+///
+/// Notes:
+/// - Grammar lowering for `set` is staged after this ontology contract.
+/// - Runtime must remain fail-closed until lowering/execution support is complete.
+class FunctionImplInstructionSet {
+    // Relationships
+    /// Canonical self-owned attribute declaration being mutated.
+    target_class_config_attribute_config class.ClassConfigAttributeConfig
+    /// Deterministic assignment source (literal / function input ref / let ref).
+    value_source FunctionImplValueSource
+
+    fn build construct (
+        target_class_config_attribute_config_id UUID,
+        value_source_id UUID
+    ) -> FunctionImplInstructionSet {
+        """
+        Create deterministic `set` payload for one FunctionImplInstruction.
+
+        Contract:
+        - Parent context (`function_impl_instruction_id`) is injected by parent-edge lowering.
+        """
+    }
+
+    fn update_assignment (
+        target_class_config_attribute_config_id UUID,
+        value_source_id UUID
+    ) -> {
+        """
+        Update the mutable assignment payload for an existing `set` instruction.
+
+        Contract:
+        - The FunctionImplInstructionSet identity is stable for the parent instruction.
+        - The target attribute and value source must already exist as ontology truth.
+        - The value source must belong to the same FunctionImplInstruction.
+        """
+    }
+}
+
+ann function.FunctionImplInstructionSet::target_class_config_attribute_config load eager
+ann function.FunctionImplInstructionSet::value_source load eager

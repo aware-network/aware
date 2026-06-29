@@ -1,0 +1,6 @@
+/// Function-call target variants supported by the Ontology GraphOS API.
+
+enum OntologyGraphFunctionCallTarget {
+    instance
+    opg_constructor
+}

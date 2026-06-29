@@ -1,0 +1,70 @@
+class EnumConfig {
+    // Relationships
+    enum_options EnumOption[]
+    code_section_enum aware_code.enum.CodeSectionEnum?
+
+    // Attributes
+    enum_fqn String key
+    name String
+    description String?
+
+    fn create construct(
+        enum_fqn String key,
+        name String,
+        description String? = null,
+        values String[] = []
+    ) -> EnumConfig {
+        """
+        Create deterministic EnumConfig with optional ordered EnumOption values.
+        """
+    }
+
+    fn create_enum_option(
+        value String,
+        label String? = null,
+        description String? = null,
+        position Int = 0
+    ) -> EnumOption {
+        """
+        Materialize one EnumOption under this EnumConfig.
+        """
+        let created = construct enum_options.create(
+            value = value,
+            label = label,
+            description = description,
+            position = position,
+        )
+    }
+
+    fn delete_enum_option(
+        value String,
+        enum_option_id UUID? = null
+    ) -> {
+        """
+        Remove one EnumOption membership from this EnumConfig.
+
+        Contract:
+        - Mutates only enum_options on this EnumConfig.
+        - EnumOption identity comes from committed semantic baseline truth when available.
+        - Rooted OIG commit reachability owns stale EnumOption deletion after membership removal.
+        """
+    }
+
+    fn update_config(
+        description String? = null
+    ) -> {
+        """
+        Update mutable EnumConfig metadata.
+
+        Contract:
+        - `enum_fqn` and `name` are identity and are not mutable here.
+        - EnumOption membership and option metadata changes use explicit
+          EnumConfig/EnumOption ontology functions.
+        - This full-payload update treats nullable arguments as current
+          semantic truth.
+        """
+    }
+}
+
+/// Load enum options eagerly
+ann enum.EnumConfig::enum_options load eager

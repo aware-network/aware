@@ -1,0 +1,127 @@
+class FunctionConfigAttributeConfig {
+    // Relationships
+    attribute_config attribute.AttributeConfig
+
+    // Attributes
+    name String key
+    position Int = 0
+    type FunctionAttributeType key
+    is_identity_key Bool = false
+    identity_key_origin FunctionIdentityKeyOrigin = standalone
+
+    fn update_config (
+        position Int = 0,
+        is_identity_key Bool = false,
+        identity_key_origin FunctionIdentityKeyOrigin = standalone
+    ) -> {
+        """
+        Update mutable function-attribute membership metadata.
+
+        Contract:
+        - `function_config_id`, `attribute_config_id`, `name`, and `type` are identity keys and are not mutable here.
+        - Attribute scalar/type descriptor metadata lives on AttributeConfig.update_*.
+        - This full-payload update treats position and identity-key membership metadata as current semantic truth.
+        """
+    }
+
+    fn create_primitive construct (
+        owner_key String,
+        name String key,
+        primitive_base_type aware_code.primitive.CodePrimitiveBaseType = any,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        type FunctionAttributeType key = input,
+        position Int = 0,
+        is_identity_key Bool = false,
+        identity_key_origin FunctionIdentityKeyOrigin = standalone
+    ) -> FunctionConfigAttributeConfig {
+        """
+        Create deterministic FunctionConfigAttributeConfig association edge.
+        """
+        let created = construct attribute_config.create_primitive(
+            owner_key = owner_key,
+            name = name,
+            primitive_base_type = primitive_base_type,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+        )
+    }
+
+    fn create_enum construct (
+        owner_key String,
+        name String key,
+        enum_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        type FunctionAttributeType key = input,
+        position Int = 0,
+        is_identity_key Bool = false,
+        identity_key_origin FunctionIdentityKeyOrigin = standalone
+    ) -> FunctionConfigAttributeConfig {
+        """
+        Create deterministic FunctionConfigAttributeConfig association edge for an enum attribute.
+        """
+        let created = construct attribute_config.create_enum(
+            owner_key = owner_key,
+            name = name,
+            enum_config_id = enum_config_id,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+        )
+    }
+
+    fn create_class construct (
+        owner_key String,
+        name String key,
+        type_class_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        type FunctionAttributeType key = input,
+        position Int = 0,
+        is_identity_key Bool = false,
+        identity_key_origin FunctionIdentityKeyOrigin = standalone
+    ) -> FunctionConfigAttributeConfig {
+        """
+        Create deterministic FunctionConfigAttributeConfig association edge for a class attribute.
+        """
+        let created = construct attribute_config.create_class(
+            owner_key = owner_key,
+            name = name,
+            type_class_config_id = type_class_config_id,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+        )
+    }
+}
+
+ann function.FunctionConfigAttributeConfig::attribute_config load eager

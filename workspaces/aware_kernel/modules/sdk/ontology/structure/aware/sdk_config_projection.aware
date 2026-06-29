@@ -1,0 +1,17 @@
+/// SdkConfig projection
+///
+/// Purpose:
+/// - Expose SDK-owned local operation truth as a semantic lane.
+/// - Route operation endpoint targets through API's `Api` projection.
+/// - Keep package/public mounting separate through `SdkPackage`.
+projection SdkConfig is_branchable {
+    root sdk.SdkConfig
+
+    sdk.SdkConfig::operations
+    sdk.SdkOperation::api_capability_endpoints
+    sdk.SdkOperation::sdk_operation_dependencies
+    sdk.SdkOperation::sdk_operation_calls
+    sdk.SdkOperationCall::api_call aware_api.Api
+    sdk.SdkOperationApiCapabilityEndpoint::api_capability_endpoint aware_api.Api
+    sdk.SdkOperationDependency::target_sdk_operation SdkConfig
+}

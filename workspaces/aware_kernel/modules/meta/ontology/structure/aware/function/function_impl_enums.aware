@@ -1,0 +1,7 @@
+/// Canonical implementation mode for a FunctionImpl.
+enum FunctionImplKind {
+    /// FunctionImpl owns executable instruction payloads.
+    instruction_body
+    /// Bodyless construct declaration materialized through constructor identity rails.
+    auto_constructor
+}

@@ -1,0 +1,45 @@
+class Version {
+    // Relationships
+    /// Optional for initial versions created before commits exist.
+    /// The lockfile / commit pipeline will later make this concrete.
+    head_commit commit.Commit?
+    migrations migration.Migration[]
+    parents Version[]
+
+    // Attributes
+    version_number Int key
+
+    fn create construct (
+        version_number Int key,
+        head_commit_id UUID? = null
+    ) -> Version {
+        """
+        Create one Version under this Branch.
+        """
+    }
+
+    fn create_migration (
+        name String key,
+        description String? = null,
+        applied_at DateTime? = null,
+        status migration.MigrationStatus = pending
+    ) -> migration.Migration {
+        """
+        Create one Migration under this Version.
+
+        Contract:
+        - Parent `version_id` is propagated by traversal lowering.
+        - Stable identity is keyed by `(version_id, name)`.
+        """
+        let created_migration = construct migrations.create(
+            name = name,
+            description = description,
+            applied_at = applied_at,
+            status = status,
+        )
+    }
+}
+
+/// Load head commit eagerly
+ann version.Version::parents override fk nullable
+ann version.Version::head_commit load eager

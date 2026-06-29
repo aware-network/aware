@@ -1,0 +1,13 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_ontology_service_dto.graph.config.package_compile",
+    "aware_ontology_service_dto.graph.instance.commit_event",
+    "aware_ontology_service_dto.graph.instance.function_call",
+    "aware_ontology_service_dto.graph.instance.function_call_target",
+    "aware_ontology_service_dto.persistence.readiness",
+    "aware_ontology_service_dto.runtime.artifact_set"
+  ],
+  "package_prefix": "aware_ontology_service_dto",
+  "version": "v1"
+}

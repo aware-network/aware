@@ -1,0 +1,14 @@
+// Sample for reverse-side loading → backref materialisation
+
+class Parent {
+    name String
+    children Child[]
+}
+
+class Child {
+    name String
+}
+
+// Only reverse side is configured; forward remains default lazy.
+ann default.Parent::children load reverse eager
+

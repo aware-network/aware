@@ -1,0 +1,113 @@
+/// Canonical DTOs for resolving actor-free action intents.
+///
+/// Ownership:
+/// - Reactivity owns event-policy to action-intent resolution envelopes.
+/// - Caller provenance lives above this rail in subscription/program receipts.
+/// - Action services own fulfillment after an intent is emitted.
+
+class ReactivityActionIntent {
+    action_intent_id UUID
+    /// Caller-derived opaque ActionIntent identity key.
+    ///
+    /// Subscription resolvers derive this from subscription provenance; the
+    /// ontology ActionIntent consumes it as actor-free idempotency input.
+    intent_key String
+    event_id UUID
+    event_type String
+    source String
+    branch_id UUID
+    projection_hash String
+    commit_id UUID
+    /// Deprecated subscription-provenance mirror.
+    ///
+    /// C0 keeps this optional compatibility field for the live subscription
+    /// resolver. New consumers must use `intent_key` plus caller-plane
+    /// provenance receipts/context.
+    actor_id UUID?
+    /// Deprecated actor-routing mirror.
+    ///
+    /// Dispatch-time registration, not the rail DTO, owns fulfillment routing.
+    target_actor_id UUID?
+    /// Deprecated subscription-provenance mirror.
+    ///
+    /// Subscription callers derive `intent_key`; subscription attribution
+    /// belongs to the bridge/policy plane.
+    actor_subscription_id UUID?
+    event_config_condition_config_scope_id UUID
+    event_config_condition_config_id UUID?
+    event_config_action_config_id UUID?
+    action_config_id UUID?
+    action_type String?
+    action_payload JsonValue?
+    status ActionIntentStatus = requested
+    root_object_id UUID?
+    object_instance_graph_id UUID?
+    object_instance_graph_branch_id UUID?
+    focus_scope_id UUID?
+    focus_id UUID?
+    view_id UUID?
+    interface_id UUID?
+    window_id UUID?
+    window_layout_id UUID?
+    window_section_id UUID?
+    visible_window_section_ids UUID[] = []
+    graph_hash_post String?
+    /// Deprecated subscription policy mirror.
+    ///
+    /// Kept only for live resolver compatibility until the C2 mirror-removal
+    /// wave.
+    subscription_filter_config JsonValue?
+    /// Deprecated subscription sorting mirror.
+    ///
+    /// Kept only for live resolver compatibility until the C2 mirror-removal
+    /// wave.
+    subscription_priority Int = 0
+}
+
+class ReactivityActionIntentResolveRequest {
+    request_id UUID?
+    subscriber_id String?
+    event_id UUID
+    event_type String
+    source String
+    created_at_unix_ms Int = 0
+    branch_id UUID
+    projection_hash String
+    commit_id UUID
+    /// Deprecated caller-context mirror.
+    ///
+    /// Requesting callers should use caller-plane context. The resolver keeps
+    /// this optional field only while subscription bridge consumers migrate.
+    actor_id UUID?
+    /// Deprecated caller-context mirror.
+    ///
+    /// Fulfillment targeting is dispatch-time registration, not request DTO
+    /// identity.
+    target_actor_id UUID?
+    event_config_condition_config_scope_id UUID?
+    event_config_condition_config_id UUID?
+    root_object_id UUID?
+    object_instance_graph_id UUID?
+    object_instance_graph_branch_id UUID?
+    focus_scope_id UUID?
+    focus_id UUID?
+    view_id UUID?
+    interface_id UUID?
+    window_id UUID?
+    window_layout_id UUID?
+    window_section_id UUID?
+    visible_window_section_ids UUID[] = []
+    graph_hash_post String?
+    action_type_filters String[] = []
+    event_config_action_config_id_filters UUID[] = []
+    include_disabled_subscriptions Bool = false
+    include_inactive_subscriptions Bool = false
+}
+
+class ReactivityActionIntentResolveResponse {
+    request_id UUID?
+    accepted Bool = true
+    intents ReactivityActionIntent[] = []
+    info String?
+    error String?
+}

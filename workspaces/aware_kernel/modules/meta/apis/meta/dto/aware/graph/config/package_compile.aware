@@ -1,0 +1,59 @@
+/// Meta-owned ObjectConfigGraph package compile DTOs.
+///
+/// This surface is the public service/API boundary for asking Meta to produce
+/// canonical package OCG truth from `.aware` package sources. Callers pass
+/// workspace/package coordinates and optional dependency graph snapshots;
+/// Meta Service owns runtime/index/branch context and returns commit-backed
+/// package evidence.
+
+class MetaObjectConfigGraphPackageDependencyRef {
+    package_name String?
+    fqn_prefix String?
+    object_config_graph_package_id UUID?
+    object_config_graph_id UUID?
+    object_config_graph_commit_id UUID?
+    object_config_graph_object_instance_graph_commit_id UUID?
+    object_config_graph JsonObject?
+}
+
+class MetaObjectConfigGraphPackageEnsureRequest {
+    actor_id UUID?
+    workspace_root String?
+    aware_toml_path String
+    parent_branch_id UUID?
+    package_branch_id UUID?
+    source_code_package_id UUID?
+    object_config_graph_package_id UUID?
+    dependency_refs graph.config.MetaObjectConfigGraphPackageDependencyRef[] = []
+    include_object_config_graph Bool = false
+    collect_telemetry Bool = true
+}
+
+class MetaObjectConfigGraphPackageEnsureResponse {
+    status String
+    actor_id UUID?
+    workspace_root String?
+    aware_toml_path String?
+    package_name String?
+    fqn_prefix String?
+    package_branch_id UUID?
+    source_code_package_id UUID?
+    code_package_commit_id UUID?
+    code_package_head_commit_id UUID?
+    code_package_object_instance_graph_commit_id UUID?
+    object_config_graph_id UUID?
+    object_config_graph_hash String?
+    object_config_graph_commit_id UUID?
+    object_config_graph_head_commit_id UUID?
+    object_config_graph_object_instance_graph_commit_id UUID?
+    object_config_graph_package_id UUID?
+    object_config_graph_package_commit_id UUID?
+    object_config_graph_package_head_commit_id UUID?
+    object_config_graph_package_object_instance_graph_commit_id UUID?
+    owned_file_paths String[] = []
+    dependency_refs graph.config.MetaObjectConfigGraphPackageDependencyRef[] = []
+    object_config_graph JsonObject?
+    timings JsonObject = {}
+    telemetry JsonObject = {}
+    error String?
+}

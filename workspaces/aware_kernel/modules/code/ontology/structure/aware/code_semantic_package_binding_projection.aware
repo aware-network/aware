@@ -1,0 +1,17 @@
+// Code Semantic Package Binding projection (v0)
+//
+// Contract:
+// - CodeSemanticPackageBinding owns one package-slot semantic contract binding.
+// - CodePackage remains package-owned code/test surface and is reached through
+//   a portal.
+projection CodeSemanticPackageBinding {
+    root semantic.CodeSemanticPackageBinding
+
+    semantic.CodeSemanticPackageBinding::code_package CodePackage
+
+    observable home instance default {
+        """
+        Code-owned semantic package binding surface.
+        """
+    }
+}

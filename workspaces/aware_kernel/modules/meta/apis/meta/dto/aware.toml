@@ -1,0 +1,21 @@
+aware = 1
+
+[package]
+package_name = "meta-service-dto"
+fqn_prefix = "aware_meta_service_dto"
+kind = "api"
+version_number = 1
+title = "Meta Service DTO"
+description = "API-owned DTO package for Meta service graph authority, commit fan-out, package compile, persistence, and runtime read-model payloads."
+
+[build]
+environment_slug = "aware_meta_service_dto"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "history-ontology"

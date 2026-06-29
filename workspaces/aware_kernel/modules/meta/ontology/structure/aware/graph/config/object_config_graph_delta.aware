@@ -1,0 +1,50 @@
+/// DTO-only representation of "what changed" in an ObjectConfigGraph.
+///
+/// Invariants:
+/// - This is NOT a commit envelope (no who/when, no parent pointers).
+/// - This is delta-only: for CREATE/UPDATE, `payload` holds the post-state snapshot; for DELETE, it is null.
+/// - Consumers may enforce `graph_hash_pre` as a precondition, but hashes are optional so deltas can be produced
+///   before a full post-hash is computed (e.g. during interactive compilation).
+
+class ObjectConfigGraphDelta : inline_value {
+    // Attributes
+    object_config_graph_id UUID
+    language aware_code.code.CodeLanguage
+
+    // Optional integrity anchors (no commit semantics).
+    graph_hash_pre String?
+    graph_hash_post String?
+
+    // Changes
+    node_deltas ObjectConfigGraphNodeDelta[]
+
+    // Optional human/debug info (never treated as SSOT).
+    warnings String[]
+}
+
+class ObjectConfigGraphNodeDelta : inline_value {
+    // Attributes
+    change_type aware_history.change.ChangeType
+    node_type aware_meta.graph.config.ObjectConfigGraphNodeType
+
+    // Identity anchors.
+    //
+    // `node_id` is optional because it is derivable from:
+    //   stable_ocg_node_id(ocg_id, node_type, entity_id)
+    // But including it makes debugging and integrity checks easier.
+    node_id UUID?
+    entity_id UUID
+
+    // Delta-only payload: canonical post-state snapshot for CREATE/UPDATE, null for DELETE.
+    //
+    // Payload contracts are compiler-owned and may evolve:
+    // - For CREATE/UPDATE, payload should be a serialized form of the underlying config entity
+    //   (e.g. ClassConfig / EnumConfig / FunctionConfig / ClassConfigRelationship).
+    // - For DELETE, payload must be null (entity_id is the only required anchor).
+    payload JsonObject?
+
+    // Optional provenance/debug info (never treated as SSOT).
+    entity_fqn String?
+    source_relative_path String?
+    notes String?
+}

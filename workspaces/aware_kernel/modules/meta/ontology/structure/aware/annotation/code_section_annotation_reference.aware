@@ -1,0 +1,31 @@
+/// Ontology-level view of a `reference` ANN.
+///
+/// This supports deterministic "port + bind" references across ObjectConfigGraphs,
+/// allowing ontology cycles without requiring package-manager dependency cycles.
+///
+/// Canonical forms (path + args):
+/// - Port: ann <TypeRef>::<attribute> reference port
+/// - Bind: ann <TypeRef>::<relationship_attribute> reference bind <TargetTypeRef>::<target_attribute>
+///
+/// Invariants:
+/// - `port` declares that an attribute is a canonical reference target (no guessing).
+/// - `bind` declares that a relationship must reuse an existing FK attribute (no synthetic FK).
+class CodeSectionAnnotationReference {
+    // Relationships
+    code_section_annotation aware_code.annotation.CodeSectionAnnotation?
+
+    /// Location within the canonical graph (bind owner / port owner)
+    fqn_prefix String key
+    namespace String key
+    class_name String key
+    attribute_name String key
+
+    /// Reference semantics
+    mode CodeSectionAnnotationReferenceMode key
+
+    /// Bind target (only when mode=BIND)
+    target_fqn_prefix String?
+    target_namespace String?
+    target_class_name String?
+    target_attribute_name String?
+}

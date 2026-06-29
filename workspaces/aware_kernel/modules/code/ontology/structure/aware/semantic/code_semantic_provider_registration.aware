@@ -1,0 +1,66 @@
+class CodeSemanticProviderRegistration {
+    // Relationships
+    code_module module.CodeModule key
+    semantic_package_bindings CodeSemanticPackageBinding[]
+
+    // Attributes
+    provider_key String key
+    semantic_contract_module String?
+    status String = "registered"
+
+    fn build construct(
+        code_module_id UUID key,
+        provider_key String key,
+        semantic_contract_module String? = null,
+        status String = "registered"
+    ) -> CodeSemanticProviderRegistration {
+        """
+        Register Code-owned semantic contract provider participation.
+
+        Contract:
+        - Provider registration is anchored to CodeModule truth, not
+          WorkspaceCodeModulePin.
+        - Package-slot participation is recorded by CodeSemanticPackageBinding.
+        - Workspace consumes resolved provider records through revision
+          receipts only.
+        """
+    }
+
+    fn bind_semantic_package(
+        code_package_id UUID key,
+        module_package_id String key,
+        semantic_contract_role String key,
+        semantic_contract_name String key,
+        code_package_config_key String? = null,
+        code_module_name String? = null,
+        module_package_kind String? = null,
+        module_relative_package_root String? = null,
+        manifest_relative_path String? = null,
+        semantic_contract_module String? = null,
+        owned_manifest_kinds String[] = [],
+        capabilities String[] = [],
+        status String = "bound"
+    ) -> CodeSemanticPackageBinding {
+        """
+        Attach one Code-owned semantic package binding under this provider.
+        """
+        let created = construct semantic_package_bindings.build(
+            code_package_id = code_package_id,
+            module_package_id = module_package_id,
+            semantic_contract_role = semantic_contract_role,
+            semantic_contract_name = semantic_contract_name,
+            code_package_config_key = code_package_config_key,
+            code_module_name = code_module_name,
+            module_package_kind = module_package_kind,
+            module_relative_package_root = module_relative_package_root,
+            manifest_relative_path = manifest_relative_path,
+            semantic_contract_module = semantic_contract_module,
+            owned_manifest_kinds = owned_manifest_kinds,
+            capabilities = capabilities,
+            status = status,
+        )
+    }
+}
+
+ann semantic.CodeSemanticProviderRegistration::code_module load eager
+ann semantic.CodeSemanticProviderRegistration::semantic_package_bindings load eager

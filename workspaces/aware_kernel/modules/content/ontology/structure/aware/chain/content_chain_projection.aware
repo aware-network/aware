@@ -1,0 +1,33 @@
+/// ContentChain Projection (v0)
+///
+/// Contract:
+/// - ContentChain is SSOT for ordered evidence/timeline content.
+/// - Content remains SSOT for multimodal parts.
+/// - Consumers portal to ContentChain rather than flattening evidence into local DTOs.
+
+projection ContentChain is_branchable {
+    root aware_content.chain.ContentChain
+
+    aware_content.chain.ContentChain::content_chain_section
+    aware_content.chain.ContentChain::content_chain_contents
+    aware_content.chain.ContentChainContent::content
+
+    aware_content.content.Content::content_index
+    aware_content.content.Content::content_layouts
+    aware_content.content.ContentLayout::content_part_contents
+    aware_content.content.Content::content_part_contents
+    aware_content.part.ContentPartContent::content_part
+    aware_content.part.ContentPart::content_part_multimodal_index
+    aware_content.part.ContentPart::content_part_text
+    aware_content.part.ContentPartText::index
+    aware_content.part.ContentPartText::segments
+    aware_content.part.ContentPartTextSegment::style
+    aware_content.part.ContentPartTextSegment::content_part_text_segment_translations
+    aware_content.part.ContentPart::storage_blobs
+
+    view chain instance default {
+        """
+        Ordered content chain with multimodal content evidence.
+        """
+    }
+}

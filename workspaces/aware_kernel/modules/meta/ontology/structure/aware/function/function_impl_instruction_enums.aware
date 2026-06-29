@@ -1,0 +1,70 @@
+/// Polymorphic instruction shape for function implementation lowering.
+enum FunctionImplInstructionType {
+    let
+    invoke
+    construct
+    set
+    require
+    delete
+}
+
+/// Canonical invoke semantics for function impl instruction payloads.
+enum FunctionImplInvokeKind {
+    call
+    construct
+}
+
+/// Canonical delete target semantics for FunctionImpl lifecycle instructions.
+enum FunctionImplDeleteTargetKind {
+    self
+}
+
+/// Canonical assignment-source semantics for function mutation instructions.
+enum FunctionImplValueSourceKind {
+    literal
+    function_input_ref
+    let_ref
+    transform
+    read_path
+}
+
+/// Canonical root semantics for read-only FunctionImpl value-source traversal.
+enum FunctionImplValueSourceReadPathRootKind {
+    function_input
+    let_binding
+    target_attribute
+}
+
+/// Canonical pure transforms for `FunctionImplValueSource`.
+///
+/// These are expression/value-source semantics, not standalone instructions.
+enum FunctionImplValueTransformKind {
+    text_strip
+    text_casefold
+    text_lower
+    text_default_if_blank
+    text_slice
+    text_concat
+}
+
+/// Canonical predicate semantics for `FunctionImplInstructionRequire`.
+enum FunctionImplRequireKind {
+    exists
+    equals
+    member
+    unique
+    compare
+    cardinality
+    all_or_none
+    text_matches_regex
+}
+
+/// Canonical comparator semantics for `compare`/`cardinality` require kinds.
+enum FunctionImplRequireCompareOperator {
+    eq
+    neq
+    gt
+    gte
+    lt
+    lte
+}

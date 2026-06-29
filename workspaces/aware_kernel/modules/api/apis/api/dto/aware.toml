@@ -1,0 +1,12 @@
+aware = 1
+
+[package]
+package_name = "api-service-dto"
+fqn_prefix = "aware_api_service_dto"
+kind = "api"
+version_number = 1
+title = "API Service DTO"
+description = "API-owned DTO package for API ingress operation envelopes and invocation context payloads."
+
+[build]
+environment_slug = "aware_api_service_dto"

@@ -1,0 +1,10 @@
+class AttributeChange {
+    // Relationships
+    change aware_history.change.Change key
+    /// Canonical descriptor-driven value tree change (root node).
+    value_root_change AttributeValueChange? unique
+}
+
+/// Load change and canonical value root change eagerly.
+ann attribute.AttributeChange::change load eager
+ann attribute.AttributeChange::value_root_change load eager

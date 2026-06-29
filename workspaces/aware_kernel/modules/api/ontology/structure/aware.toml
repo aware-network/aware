@@ -1,0 +1,18 @@
+aware = 1
+
+[package]
+package_name = "api-ontology"
+fqn_prefix = "aware_api"
+kind = "ontology"
+version_number = 1
+title = "Api"
+description = "SSOT canonical (.aware) sources for api."
+
+[build]
+environment_slug = "aware_api"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"

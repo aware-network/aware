@@ -1,0 +1,137 @@
+/// Semantic-analysis diagnostic evidence returned by a provider preview.
+class CodeSemanticAnalysisDiagnostic : inline_value {
+    severity String
+    code String
+    message String
+    source_path String?
+    metadata JsonObject?
+}
+
+/// Semantic-analysis dependency requirement returned by a provider preview.
+class CodeSemanticAnalysisDependencyRequirement : inline_value {
+    dependency_key String
+    provider_key String
+    package_name String
+    required_state String = "materialized"
+    dependency_kind String = "semantic_package"
+    semantic_owner String?
+    manifest_kind String?
+    package_selector JsonObject?
+    reason String?
+    source_refs String[] = []
+    metadata JsonObject?
+}
+
+/// Provider-owned semantic before/after candidate derived from a CodePackageDelta.
+class CodeSemanticDelta : inline_value {
+    delta_key String
+    semantic_key String
+    verb String
+    subject_type String
+    source String
+    source_refs String[] = []
+    before_payload JsonObject?
+    after_payload JsonObject?
+    metadata JsonObject?
+}
+
+/// Provider-owned semantic event candidate derived from semantic deltas.
+class CodeSemanticEvent : inline_value {
+    event_key String
+    semantic_key String
+    verb String
+    subject_type String
+    source String
+    event_type String = "semantic_change"
+    source_refs String[] = []
+    delta_keys String[] = []
+    condition_keys String[] = []
+    payload JsonObject?
+    metadata JsonObject?
+}
+
+/// Provider-neutral typed mutation intent derived from semantic source meaning.
+class CodeSemanticTypedOperation : inline_value {
+    operation_key String
+    operation_family String
+    semantic_operation_type String
+    semantic_key String
+    semantic_subject_type String
+    field_path String?
+    event_key String?
+    source String
+    source_refs String[] = []
+    before_payload JsonObject?
+    after_payload JsonObject?
+    requires_baseline_object_identity Bool = false
+    metadata JsonObject?
+}
+
+/// Function-call action policy over a semantic event.
+class CodeSemanticFunctionCallBinding : inline_value {
+    binding_key String
+    event_key String
+    function_ref String
+    receiver_semantic_key_template String?
+    argument_bindings JsonObject?
+    argument_ref_bindings JsonObject?
+    constant_arguments JsonObject?
+    result_semantic_key_template String?
+    metadata JsonObject?
+}
+
+/// Declarative action policy over one semantic event.
+class CodeSemanticActionBinding : inline_value {
+    action_key String
+    event_key String
+    action_type String
+    description String?
+    function_call_binding code.CodeSemanticFunctionCallBinding?
+    metadata JsonObject?
+}
+
+/// Provider-owned semantic-analysis preview over one CodePackageDelta.
+class CodeSemanticAnalysisChangePreview : inline_value {
+    changed_source_files String[] = []
+    affected_semantic_keys String[] = []
+    required_materializations String[] = []
+    required_semantic_dependencies code.CodeSemanticAnalysisDependencyRequirement[] = []
+    semantic_deltas code.CodeSemanticDelta[] = []
+    semantic_events code.CodeSemanticEvent[] = []
+    typed_operations code.CodeSemanticTypedOperation[] = []
+    action_bindings code.CodeSemanticActionBinding[] = []
+    metadata JsonObject?
+}
+
+/// Preview semantic meaning for one CodePackageDelta without materialization.
+class PreviewCodeSemanticAnalysisPackageDeltaRequest augment code.CodeServiceRequest {
+    operation String = "preview_semantic_analysis_package_delta"
+    provider_key String?
+    semantic_owner String?
+    workspace_root String?
+    package_root String?
+    manifest_path String?
+    source_files String[] = []
+    delta code.CodePackageDelta
+    layout_contract code.CodePackageLayoutContract?
+    semantic_contract code.CodeSemanticContract?
+    include_provider_payload Bool = false
+    strict Bool = true
+    metadata JsonObject?
+}
+
+class PreviewCodeSemanticAnalysisPackageDeltaResponse augment code.CodeServiceResponse {
+    operation String = "preview_semantic_analysis_package_delta"
+    previewed Bool = false
+    provider_key String?
+    semantic_owner String?
+    delta_fingerprint String?
+    diagnostics code.CodeSemanticAnalysisDiagnostic[] = []
+    change_preview code.CodeSemanticAnalysisChangePreview?
+    blockers String[] = []
+    available Bool = false
+    provider_payload JsonObject?
+}
+
+ann code.PreviewCodeSemanticAnalysisPackageDeltaRequest::operation discriminate tag "preview_semantic_analysis_package_delta"
+ann code.PreviewCodeSemanticAnalysisPackageDeltaResponse::operation discriminate tag "preview_semantic_analysis_package_delta"

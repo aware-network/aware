@@ -1,0 +1,47 @@
+/// Stage-one API-owned ingress/provenance receipt.
+///
+/// Contract:
+/// - one `ApiCall` means one caller hit on one `ApiCapabilityEndpoint`
+/// - normalized request-model truth is one `InlineValueInstance`
+/// - this object is ingress truth only and must not collapse into endpoint-function or Service fulfillment rails
+class ApiCall {
+    // Relationships
+    outcome ApiCallOutcome? unique
+    request_model aware_meta.class.InlineValueInstance unique
+
+    // Attributes
+    /// Stable external/request identity for one endpoint hit.
+    call_key UUID key
+    description String?
+    request_hash String
+
+    fn create construct (
+        call_key UUID key,
+        request_class_config_id UUID,
+        description String? = null
+    ) -> ApiCall {
+        """
+        Create one stage-one API call receipt under ApiCapabilityEndpoint.
+        """
+        let created = construct request_model.build(
+            owner_key = call_key,
+            class_config_id = request_class_config_id,
+        )
+    }
+
+    fn create_outcome (
+        status ApiCallOutcomeStatus = succeeded,
+        error String? = null
+    ) -> ApiCallOutcome {
+        """
+        Create one terminal response receipt under this ApiCall.
+        """
+        let created = construct outcome.build(
+            status = status,
+            error = error,
+        )
+    }
+}
+
+ann api.ApiCall::outcome load eager
+ann api.ApiCall::request_model load eager

@@ -1,0 +1,30 @@
+/// Entry linking two ObjectConfigGraphs (source → target) and their relationships
+class ObjectConfigGraphRelationship {
+    // Relationships
+    target_object_config_graph ObjectConfigGraph key
+    class_config_relationships class.ClassConfigRelationship[] many
+    object_config_graph_relationship_classes ObjectConfigGraphRelationshipClass[]
+
+    fn build construct(
+        target_object_config_graph_id UUID key,
+    ) -> ObjectConfigGraphRelationship {
+        """
+        Build deterministic ObjectConfigGraphRelationship within an ObjectConfigGraph scope.
+        """
+    }
+
+    fn create_class(
+        class_config_id UUID key,
+    ) -> ObjectConfigGraphRelationshipClass {
+        """
+        Create deterministic ObjectConfigGraphRelationshipClass under this relationship.
+        """
+        let created = construct object_config_graph_relationship_classes.build(
+            class_config_id = class_config_id,
+        )
+    }
+}
+
+/// Load ObjectConfigGraphRelationshipClass eagerly.
+ann config.ObjectConfigGraphRelationship::class_config_relationships load eager
+ann config.ObjectConfigGraphRelationship::object_config_graph_relationship_classes load eager

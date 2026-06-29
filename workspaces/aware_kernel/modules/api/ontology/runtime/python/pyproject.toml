@@ -1,0 +1,26 @@
+[project]
+name = "aware-api-runtime"
+version = "0.1.0"
+description = "Aware api runtime module."
+authors = [{ name = "AWARE Team" }]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-code",
+  "aware-meta",
+  "aware-meta-ontology",
+  "aware-ontology",
+  "pydantic>=2.8.2,<3.0.0",
+  "aware-api-ontology",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_api_runtime"]
+[tool.aware.tests]
+requires_module = "api"

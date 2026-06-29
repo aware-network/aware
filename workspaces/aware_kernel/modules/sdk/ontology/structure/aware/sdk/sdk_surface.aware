@@ -1,0 +1,63 @@
+/// SDK conceptual surface truth.
+///
+/// A surface groups stable SDK methods around one product concept. It is not a
+/// CLI command and does not replace API endpoint truth; CLI, Skill, and other
+/// renderers project from surface methods.
+class SdkSurface {
+    // Relationships
+    methods SdkSurfaceMethod[]
+
+    // Attributes
+    name String key
+    title String?
+    description String?
+
+    fn build construct (
+        name String key,
+        title String? = null,
+        description String? = null
+    ) -> SdkSurface {
+        """
+        Create one SDK-owned conceptual surface.
+
+        Contract:
+        - Identity is scoped by parent `SdkConfig` and surface `name`.
+        - Surface names are stable conceptual groups, not command paths.
+        - Methods bind the surface to SDK operations and effect policy.
+        """
+    }
+
+    fn add_method (
+        name String key,
+        target_sdk_operation_id UUID key,
+        operation_ref String,
+        operation_name String,
+        method_family String,
+        effect String = "read",
+        mutation_scope String = "none",
+        confirmation_policy String = "none",
+        execution_mode String = "request_response",
+        runtime_binding_kind String = "unbound",
+        description String? = null
+    ) -> SdkSurfaceMethod {
+        """
+        Add one stable method under this SDK surface.
+        """
+        let created = construct methods.create(
+            name = name,
+            target_sdk_operation_id = target_sdk_operation_id,
+            operation_ref = operation_ref,
+            operation_name = operation_name,
+            method_family = method_family,
+            effect = effect,
+            mutation_scope = mutation_scope,
+            confirmation_policy = confirmation_policy,
+            execution_mode = execution_mode,
+            runtime_binding_kind = runtime_binding_kind,
+            description = description,
+        )
+    }
+}
+
+ann sdk.SdkSurface::methods load eager
+

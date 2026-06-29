@@ -1,0 +1,13 @@
+name: aware_model_helpers
+description: "Shared converter utilities for AWARE Dart model packages."
+version: 0.1.0
+publish_to: "none"
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  json_annotation: ^4.9.0
+  uuid: ^4.5.1
+  intl: ^0.20.2
+

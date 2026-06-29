@@ -1,0 +1,37 @@
+class ActionConfig {
+    // Attributes
+    /// Deprecated compatibility schema mirror.
+    ///
+    /// Schema authority belongs to Meta ClassConfig and API endpoint
+    /// request/response/stream contracts. New action rail code must resolve
+    /// typed contracts through Experience bindings and `InlineValueInstance`
+    /// payload evidence, not this JSON attribute.
+    action_schema JsonObject = {}
+    action_type String
+    allowed_roles String[]
+    description String
+    is_enabled Bool = true
+    is_system Bool = false
+    name String key
+    require_authentication Bool = true
+
+    fn create construct (
+        name String key,
+        description String,
+        action_type String,
+        is_enabled Bool = true,
+        is_system Bool = false,
+        require_authentication Bool = true,
+        allowed_roles String[] = [],
+        action_schema JsonObject = {}
+    ) -> ActionConfig {
+        """
+        Create a canonical action policy root.
+
+        Contract:
+        - `action_schema` is deprecated compatibility metadata only.
+        - New typed action contracts resolve through Experience invocation
+          bindings and Meta `InlineValueInstance` payload evidence.
+        """
+    }
+}

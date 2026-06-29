@@ -1,0 +1,210 @@
+class SdkPackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    api_packages SdkPackageApiPackage[]
+    implementation_packages SdkPackageImplementationPackage[]
+    object_config_graph_packages SdkPackageObjectConfigGraphPackage[]
+    sdk_package_dependencies SdkPackageDependency[]
+    sdk_config SdkConfig unique
+    sdk_config_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    aware_sdk_version Int = 1
+    compilation_mode String = "raw_xor"
+    dependencies JsonArray = []
+    description String?
+    exclude_paths JsonArray = []
+    force_fresh_scan Bool = true
+    fqn_prefix String?
+    include_paths JsonArray = []
+    manifest_relative_path String?
+    name String key
+    package_root String = "."
+    sources_root String = "sdks"
+    targets JsonObject = {}
+    title String?
+    version_number Int = 1
+
+    fn build construct (
+        name String key,
+        sdk_config_id UUID,
+        sdk_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_sdk_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = "sdks",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        compilation_mode String = "raw_xor",
+        dependencies JsonArray = [],
+        targets JsonObject = {}
+    ) -> SdkPackage {
+        """
+        Create the canonical SDK-owned package root over an existing `SdkConfig`.
+
+        Contract:
+        - Identity is keyed by SDK package `name`.
+        - `SdkPackage` is the package/public root over an existing canonical `SdkConfig`.
+        - `sdk_config_id` must point at the canonical SdkConfig stable id for this package root.
+        - `sdk_config_object_instance_graph_commit_id` pins the historical ObjectInstanceGraphCommit
+          for the semantic SdkConfig root so package consumers can replay exact SDK truth without
+          resolving branch head or reopening authoring TOML.
+        - `source_code_package_id` is explicit raw-source provenance for this semantic leaf package.
+        - `SdkPackageApiPackage` declares which API packages are available to generated/runtime SDKs.
+        - `SdkPackageImplementationPackage` declares concrete Python/Dart package roots owned by
+          the SDK package for public install/runtime consumption.
+        - `SdkPackageObjectConfigGraphPackage` declares SDK-owned OCG/state packages that travel
+          with this SDK package rather than acting as external dependencies.
+        - `SdkPackageDependency` declares package-level SDK dependencies; operation composition may only
+          target SDK operations from this declared dependency closure.
+        """
+    }
+
+    fn sync_manifest_truth (
+        sdk_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_sdk_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = "sdks",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        compilation_mode String = "raw_xor",
+        dependencies JsonArray = [],
+        targets JsonObject = {}
+    ) -> SdkPackage {
+        """
+        Sync mutable manifest/build/dependency/target truth onto an existing SdkPackage root.
+        """
+    }
+
+    fn attach_api_package (
+        api_package_id UUID key,
+        description String? = null
+    ) -> SdkPackageApiPackage {
+        """
+        Attach one API package to this SdkPackage.
+
+        Contract:
+        - This is the package/import rail for authored/generated SDK source.
+        - Operation-level endpoint bindings remain separate `SdkOperation -> ApiCapabilityEndpoint` truth.
+        """
+        let created = construct api_packages.build(
+            api_package_id = api_package_id,
+            description = description,
+        )
+    }
+
+    fn attach_implementation_package (
+        code_package_id UUID key,
+        package_name String,
+        language aware_code.code.CodeLanguage,
+        import_root String,
+        manifest_relative_path String,
+        package_root String = ".",
+        entrypoint String? = null,
+        role String = "public_package",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = []
+    ) -> SdkPackageImplementationPackage {
+        """
+        Attach one concrete language implementation package owned by this SdkPackage.
+
+        Contract:
+        - The SDK package owns explicit language implementation packages as semantic package truth.
+        - WorkspaceRevision checkout and SDK installers must resolve public package roots from this
+          bridge, never from target JSON or workspace layout heuristics.
+        - `code_package_id` points at the canonical CodePackage for the implementation package.
+        - `package_root` and `manifest_relative_path` are workspace-revision relative contract payload.
+        """
+        let created = construct implementation_packages.build(
+            code_package_id = code_package_id,
+            package_name = package_name,
+            language = language,
+            import_root = import_root,
+            manifest_relative_path = manifest_relative_path,
+            package_root = package_root,
+            entrypoint = entrypoint,
+            role = role,
+            include_paths = include_paths,
+            exclude_paths = exclude_paths,
+        )
+    }
+
+    fn attach_object_config_graph_package (
+        object_config_graph_package_id UUID key,
+        manifest_relative_path String,
+        role String = "local_state",
+        package_kind String = "state",
+        object_config_graph_package_object_instance_graph_commit_id UUID? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null
+    ) -> SdkPackageObjectConfigGraphPackage {
+        """
+        Attach one SDK-owned ObjectConfigGraphPackage to this SdkPackage.
+
+        Contract:
+        - This is SDK ownership truth, not SDK dependency truth.
+        - The child package is declared by `aware.sdk.toml` and materialized through the
+          canonical ObjectConfigGraphPackage rail.
+        - WorkspaceRevision/Hub consumers can use the optional OIG commit pin to replay
+          exact SDK-owned DB/schema truth without reopening local manifests.
+        """
+        let created = construct object_config_graph_packages.build(
+            object_config_graph_package_id = object_config_graph_package_id,
+            manifest_relative_path = manifest_relative_path,
+            role = role,
+            package_kind = package_kind,
+            object_config_graph_package_object_instance_graph_commit_id = object_config_graph_package_object_instance_graph_commit_id,
+            expected_hash_sha256 = expected_hash_sha256,
+            description = description,
+        )
+    }
+
+    fn attach_sdk_package_dependency (
+        target_sdk_package_id UUID key,
+        target_package_name String,
+        target_sdk_package_object_instance_graph_commit_id UUID? = null,
+        target_version_number Int? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null
+    ) -> SdkPackageDependency {
+        """
+        Attach one SDK package dependency to this SdkPackage.
+
+        Contract:
+        - This is package dependency truth, not operation invocation truth.
+        - `target_version_number` is selector/compatibility metadata.
+        - `target_sdk_package_object_instance_graph_commit_id` is the exact reproducibility authority
+          when the dependency is locked or resolved through WorkspaceRevision/Hub evidence.
+        - SDK operation composition must only target operations from the declared dependency closure.
+        """
+        let created = construct sdk_package_dependencies.build(
+            target_sdk_package_id = target_sdk_package_id,
+            target_package_name = target_package_name,
+            target_sdk_package_object_instance_graph_commit_id = target_sdk_package_object_instance_graph_commit_id,
+            target_version_number = target_version_number,
+            expected_hash_sha256 = expected_hash_sha256,
+            description = description,
+        )
+    }
+}
+
+ann sdk.SdkPackage::source_code_package load eager
+ann sdk.SdkPackage::api_packages load eager
+ann sdk.SdkPackage::implementation_packages load eager
+ann sdk.SdkPackage::object_config_graph_packages load eager
+ann sdk.SdkPackage::sdk_package_dependencies load eager
+ann sdk.SdkPackage::sdk_config load eager
+ann sdk.SdkPackage::sdk_config_object_instance_graph_commit load eager

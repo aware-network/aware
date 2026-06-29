@@ -1,0 +1,53 @@
+/// Canonical action intent status tokens.
+enum ActionIntentStatus {
+    requested
+    skipped
+    superseded
+}
+
+/// Canonical action execution status tokens.
+enum ActionExecutionStatus {
+    accepted
+    canceled
+    created
+    failed
+    rejected
+    running
+    succeeded
+    timed_out
+}
+
+/// Canonical lifecycle stage emitted by reactivity action feedback.
+///
+/// Notes:
+/// - v0 emitters currently produce `dispatch` and `execute`.
+/// - `terminal` aligns feedback with the ontology-backed lifecycle rail.
+/// - `stream` and `finalize` remain compatibility tokens while callers migrate.
+enum ActionFeedbackStage {
+    dispatch
+    execute
+    terminal
+    stream
+    finalize
+}
+
+/// Canonical progressive execution feedback status tokens.
+enum ActionFeedbackStatus {
+    accepted
+    failed
+    rejected
+    requested
+    running
+    responded
+    skipped
+    succeeded
+}
+
+/// Canonical action execution terminal status tokens.
+enum ActionTerminalStatus {
+    succeeded
+    skipped
+    failed
+    timed_out
+    canceled
+}

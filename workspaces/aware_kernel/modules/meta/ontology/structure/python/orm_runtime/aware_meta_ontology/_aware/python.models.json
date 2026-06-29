@@ -1,0 +1,1970 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "855ea5ea-6eba-56bd-8b12-fe91007efc72",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_discriminate",
+      "name": "CodeSectionAnnotationDiscriminate",
+      "aware_class_ref": "aware_meta.annotation.CodeSectionAnnotationDiscriminate",
+      "functions": []
+    },
+    {
+      "class_config_id": "6f953f9b-e7b4-5a5d-a0c4-62f62c46f95c",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_identity",
+      "name": "CodeSectionAnnotationIdentity",
+      "aware_class_ref": "aware_meta.annotation.CodeSectionAnnotationIdentity",
+      "functions": []
+    },
+    {
+      "class_config_id": "3d3ba553-602b-547d-ae2c-189ae4bb0bf0",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_index",
+      "name": "CodeSectionAnnotationIndex",
+      "aware_class_ref": "aware_meta.annotation.CodeSectionAnnotationIndex",
+      "functions": []
+    },
+    {
+      "class_config_id": "4f9c37d5-21aa-5d31-ac0c-4a6c5d9aface",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_load",
+      "name": "CodeSectionAnnotationLoad",
+      "aware_class_ref": "aware_meta.annotation.CodeSectionAnnotationLoad",
+      "functions": []
+    },
+    {
+      "class_config_id": "f917db54-4b11-5a71-8de7-deaba58276af",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_oneof",
+      "name": "CodeSectionAnnotationOneOf",
+      "aware_class_ref": "aware_meta.annotation.CodeSectionAnnotationOneOf",
+      "functions": []
+    },
+    {
+      "class_config_id": "657b7a54-7c82-59c6-a1bd-c271524b6b82",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_overlay",
+      "name": "CodeSectionAnnotationOverlay",
+      "aware_class_ref": "aware_meta.annotation.CodeSectionAnnotationOverlay",
+      "functions": []
+    },
+    {
+      "class_config_id": "fe0cb225-4f38-5346-8f07-b1569cd2fc38",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_override",
+      "name": "CodeSectionAnnotationOverride",
+      "aware_class_ref": "aware_meta.annotation.CodeSectionAnnotationOverride",
+      "functions": []
+    },
+    {
+      "class_config_id": "13697706-4c3a-53f4-8f44-7b510bc19201",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_reference",
+      "name": "CodeSectionAnnotationReference",
+      "aware_class_ref": "aware_meta.annotation.CodeSectionAnnotationReference",
+      "functions": []
+    },
+    {
+      "class_config_id": "7e13f938-4ddc-5efb-b3f4-04bee9625992",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_storage",
+      "name": "CodeSectionAnnotationStorage",
+      "aware_class_ref": "aware_meta.annotation.CodeSectionAnnotationStorage",
+      "functions": []
+    },
+    {
+      "class_config_id": "8a206f1e-584b-5740-8d9b-81329d618097",
+      "module": "aware_meta_ontology.attribute.attribute",
+      "name": "Attribute",
+      "aware_class_ref": "aware_meta.attribute.Attribute",
+      "functions": [
+        {
+          "function_config_id": "12ff72b4-c1f5-595b-a93c-74584c431183",
+          "name": "create",
+          "input_model": "AttributeCreateInput",
+          "output_model": "AttributeCreateOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "36aaefc9-fdae-5aa5-bf35-5bfe834fd274",
+      "module": "aware_meta_ontology.attribute.attribute_change",
+      "name": "AttributeChange",
+      "aware_class_ref": "aware_meta.attribute.AttributeChange",
+      "functions": []
+    },
+    {
+      "class_config_id": "615953a6-9d3f-50fa-b385-08a8343d22fa",
+      "module": "aware_meta_ontology.attribute.attribute_config",
+      "name": "AttributeConfig",
+      "aware_class_ref": "aware_meta.attribute.AttributeConfig",
+      "functions": [
+        {
+          "function_config_id": "f6953336-3d20-5450-a29b-459b2e3ca715",
+          "name": "create_class",
+          "input_model": "AttributeConfigCreateClassInput",
+          "output_model": "AttributeConfigCreateClassOutput"
+        },
+        {
+          "function_config_id": "c80efca7-5035-57c0-89b3-9354423bc1cc",
+          "name": "create_enum",
+          "input_model": "AttributeConfigCreateEnumInput",
+          "output_model": "AttributeConfigCreateEnumOutput"
+        },
+        {
+          "function_config_id": "b273de03-004a-5bb2-9854-84098bded6c7",
+          "name": "create_primitive",
+          "input_model": "AttributeConfigCreatePrimitiveInput",
+          "output_model": "AttributeConfigCreatePrimitiveOutput"
+        },
+        {
+          "function_config_id": "e3ecf6d0-a7be-530e-a389-bad4e8cdb397",
+          "name": "update_class",
+          "input_model": "AttributeConfigUpdateClassInput",
+          "output_model": "AttributeConfigUpdateClassOutput"
+        },
+        {
+          "function_config_id": "28dad8ac-ee1e-501c-b153-22bdb4d3d365",
+          "name": "update_enum",
+          "input_model": "AttributeConfigUpdateEnumInput",
+          "output_model": "AttributeConfigUpdateEnumOutput"
+        },
+        {
+          "function_config_id": "ae06f168-7edc-5c1a-afa3-b1f23b735959",
+          "name": "update_primitive",
+          "input_model": "AttributeConfigUpdatePrimitiveInput",
+          "output_model": "AttributeConfigUpdatePrimitiveOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ce74cc33-075b-56fb-b039-4026690bb13d",
+      "module": "aware_meta_ontology.attribute.attribute_config_overlay",
+      "name": "AttributeConfigOverlay",
+      "aware_class_ref": "aware_meta.attribute.AttributeConfigOverlay",
+      "functions": []
+    },
+    {
+      "class_config_id": "d3fac7a1-b0db-5840-8fa8-b3d30f3ab9df",
+      "module": "aware_meta_ontology.attribute.attribute_type_descriptor",
+      "name": "AttributeTypeDescriptor",
+      "aware_class_ref": "aware_meta.attribute.AttributeTypeDescriptor",
+      "functions": [
+        {
+          "function_config_id": "a59e9a6a-166b-54e1-a5c1-f41468be497f",
+          "name": "create_child_link",
+          "input_model": "AttributeTypeDescriptorCreateChildLinkInput",
+          "output_model": "AttributeTypeDescriptorCreateChildLinkOutput"
+        },
+        {
+          "function_config_id": "c9e9fa35-a894-58ea-9d0e-fca82f38196f",
+          "name": "create_class",
+          "input_model": "AttributeTypeDescriptorCreateClassInput",
+          "output_model": "AttributeTypeDescriptorCreateClassOutput"
+        },
+        {
+          "function_config_id": "53ed040b-3741-5b12-93fa-551c439c80a3",
+          "name": "create_enum",
+          "input_model": "AttributeTypeDescriptorCreateEnumInput",
+          "output_model": "AttributeTypeDescriptorCreateEnumOutput"
+        },
+        {
+          "function_config_id": "8add8eb7-2679-5275-aab1-c3678d35cbb2",
+          "name": "create_primitive",
+          "input_model": "AttributeTypeDescriptorCreatePrimitiveInput",
+          "output_model": "AttributeTypeDescriptorCreatePrimitiveOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "22abd186-841e-52d6-ac87-272e757af4be",
+      "module": "aware_meta_ontology.attribute.attribute_type_descriptor_link",
+      "name": "AttributeTypeDescriptorLink",
+      "aware_class_ref": "aware_meta.attribute.AttributeTypeDescriptorLink",
+      "functions": [
+        {
+          "function_config_id": "dad39100-7967-5e32-8230-aad94ff7ff7e",
+          "name": "build_via_attribute_type_descriptor",
+          "input_model": "AttributeTypeDescriptorLinkBuildViaAttributeTypeDescriptorInput",
+          "output_model": "AttributeTypeDescriptorLinkBuildViaAttributeTypeDescriptorOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "60ff07e7-650c-5e3b-9104-6db5bb1d115e",
+      "module": "aware_meta_ontology.attribute.attribute_value",
+      "name": "AttributeValue",
+      "aware_class_ref": "aware_meta.attribute.AttributeValue",
+      "functions": []
+    },
+    {
+      "class_config_id": "a3373b45-8bc1-52d2-b668-b4dfed009484",
+      "module": "aware_meta_ontology.attribute.attribute_value_change",
+      "name": "AttributeValueChange",
+      "aware_class_ref": "aware_meta.attribute.AttributeValueChange",
+      "functions": []
+    },
+    {
+      "class_config_id": "8953423d-af05-5b44-b6de-34e8b2ac6dd2",
+      "module": "aware_meta_ontology.attribute.attribute_value_link",
+      "name": "AttributeValueLink",
+      "aware_class_ref": "aware_meta.attribute.AttributeValueLink",
+      "functions": []
+    },
+    {
+      "class_config_id": "a44f6edd-0d2c-558b-b687-91f5eb609471",
+      "module": "aware_meta_ontology.attribute.attribute_value_link_change",
+      "name": "AttributeValueLinkChange",
+      "aware_class_ref": "aware_meta.attribute.AttributeValueLinkChange",
+      "functions": []
+    },
+    {
+      "class_config_id": "ac3205d2-d898-5380-bfca-b2998c43d978",
+      "module": "aware_meta_ontology.class_.class_config",
+      "name": "ClassConfig",
+      "aware_class_ref": "aware_meta.class.ClassConfig",
+      "functions": [
+        {
+          "function_config_id": "235cfbdc-868d-5c8b-ba4f-27607bef2f6e",
+          "name": "create_class_attribute_config",
+          "input_model": "ClassConfigCreateClassAttributeConfigInput",
+          "output_model": "ClassConfigCreateClassAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "82e3c791-c1fc-5ad4-985c-f544b5388401",
+          "name": "create_enum_attribute_config",
+          "input_model": "ClassConfigCreateEnumAttributeConfigInput",
+          "output_model": "ClassConfigCreateEnumAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "d210d6b1-e911-56a0-8c93-820eee11b2a9",
+          "name": "create_function_config",
+          "input_model": "ClassConfigCreateFunctionConfigInput",
+          "output_model": "ClassConfigCreateFunctionConfigOutput"
+        },
+        {
+          "function_config_id": "0bafbf1a-ba68-58dd-bd83-bc439193c608",
+          "name": "create_primitive_attribute_config",
+          "input_model": "ClassConfigCreatePrimitiveAttributeConfigInput",
+          "output_model": "ClassConfigCreatePrimitiveAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "c08e8181-a078-5fcb-8abf-372d1360ce80",
+          "name": "create_relationship",
+          "input_model": "ClassConfigCreateRelationshipInput",
+          "output_model": "ClassConfigCreateRelationshipOutput"
+        },
+        {
+          "function_config_id": "1e65dc85-5b48-5cec-9817-b01c6c029f2d",
+          "name": "create_via_object_config_graph_node",
+          "input_model": "ClassConfigCreateViaObjectConfigGraphNodeInput",
+          "output_model": "ClassConfigCreateViaObjectConfigGraphNodeOutput"
+        },
+        {
+          "function_config_id": "ded03a2c-9256-5a1d-9011-abce053ac203",
+          "name": "remove_attribute_config",
+          "input_model": "ClassConfigRemoveAttributeConfigInput",
+          "output_model": "ClassConfigRemoveAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "a288a5f5-e132-5815-8956-ef118e2b9f2f",
+          "name": "remove_function_config",
+          "input_model": "ClassConfigRemoveFunctionConfigInput",
+          "output_model": "ClassConfigRemoveFunctionConfigOutput"
+        },
+        {
+          "function_config_id": "7b7efb34-300c-5af0-8a2e-33cbb9eb24bc",
+          "name": "remove_relationship_config",
+          "input_model": "ClassConfigRemoveRelationshipConfigInput",
+          "output_model": "ClassConfigRemoveRelationshipConfigOutput"
+        },
+        {
+          "function_config_id": "998a32ad-e53f-5a32-91df-8cd45ba6af8a",
+          "name": "update_config",
+          "input_model": "ClassConfigUpdateConfigInput",
+          "output_model": "ClassConfigUpdateConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d53964f4-3a0b-582d-9bc2-91f401f6dca7",
+      "module": "aware_meta_ontology.class_.class_config_attribute_config",
+      "name": "ClassConfigAttributeConfig",
+      "aware_class_ref": "aware_meta.class.ClassConfigAttributeConfig",
+      "functions": [
+        {
+          "function_config_id": "d0463300-27c3-581b-a1e6-7ae48c804e3c",
+          "name": "create_class_via_class_config",
+          "input_model": "ClassConfigAttributeConfigCreateClassViaClassConfigInput",
+          "output_model": "ClassConfigAttributeConfigCreateClassViaClassConfigOutput"
+        },
+        {
+          "function_config_id": "46866ddf-3ac1-54f4-b493-0c34a48b371c",
+          "name": "create_enum_via_class_config",
+          "input_model": "ClassConfigAttributeConfigCreateEnumViaClassConfigInput",
+          "output_model": "ClassConfigAttributeConfigCreateEnumViaClassConfigOutput"
+        },
+        {
+          "function_config_id": "c8248960-7b55-5650-a383-8652dca80fe2",
+          "name": "create_primitive_via_class_config",
+          "input_model": "ClassConfigAttributeConfigCreatePrimitiveViaClassConfigInput",
+          "output_model": "ClassConfigAttributeConfigCreatePrimitiveViaClassConfigOutput"
+        },
+        {
+          "function_config_id": "18d99660-cc8c-5252-9225-0347474d5011",
+          "name": "update_config",
+          "input_model": "ClassConfigAttributeConfigUpdateConfigInput",
+          "output_model": "ClassConfigAttributeConfigUpdateConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4bcf8bf7-3fcd-5d03-a0aa-f4e3c7be86b1",
+      "module": "aware_meta_ontology.class_.class_config_function_config",
+      "name": "ClassConfigFunctionConfig",
+      "aware_class_ref": "aware_meta.class.ClassConfigFunctionConfig",
+      "functions": [
+        {
+          "function_config_id": "6a46a20e-9227-5900-9215-7f7ba0d2151e",
+          "name": "create_via_class_config",
+          "input_model": "ClassConfigFunctionConfigCreateViaClassConfigInput",
+          "output_model": "ClassConfigFunctionConfigCreateViaClassConfigOutput"
+        },
+        {
+          "function_config_id": "0e464edc-109d-542f-886e-836388231fee",
+          "name": "update_config",
+          "input_model": "ClassConfigFunctionConfigUpdateConfigInput",
+          "output_model": "ClassConfigFunctionConfigUpdateConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9d268813-f20b-56ff-bb38-b0a9a4567d10",
+      "module": "aware_meta_ontology.class_.class_config_overlay",
+      "name": "ClassConfigOverlay",
+      "aware_class_ref": "aware_meta.class.ClassConfigOverlay",
+      "functions": []
+    },
+    {
+      "class_config_id": "ceb3aa47-df0e-5429-ad25-99dae61bacd7",
+      "module": "aware_meta_ontology.class_.class_config_relationship",
+      "name": "ClassConfigRelationship",
+      "aware_class_ref": "aware_meta.class.ClassConfigRelationship",
+      "functions": [
+        {
+          "function_config_id": "65cfde53-6f84-5582-9977-c0d3c32fda1e",
+          "name": "create_association",
+          "input_model": "ClassConfigRelationshipCreateAssociationInput",
+          "output_model": "ClassConfigRelationshipCreateAssociationOutput"
+        },
+        {
+          "function_config_id": "d1b82b1f-93b0-5fbb-b37a-21714a84fde3",
+          "name": "create_attribute",
+          "input_model": "ClassConfigRelationshipCreateAttributeInput",
+          "output_model": "ClassConfigRelationshipCreateAttributeOutput"
+        },
+        {
+          "function_config_id": "f489bed0-d30c-5197-89db-79f291fbfd01",
+          "name": "create_via_class_config",
+          "input_model": "ClassConfigRelationshipCreateViaClassConfigInput",
+          "output_model": "ClassConfigRelationshipCreateViaClassConfigOutput"
+        },
+        {
+          "function_config_id": "713eb46c-e2d1-5d62-a62d-69783c6c8f03",
+          "name": "update_config",
+          "input_model": "ClassConfigRelationshipUpdateConfigInput",
+          "output_model": "ClassConfigRelationshipUpdateConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "24d12de6-3c84-5c50-9c83-97b913ae90ef",
+      "module": "aware_meta_ontology.class_.class_config_relationship_association",
+      "name": "ClassConfigRelationshipAssociation",
+      "aware_class_ref": "aware_meta.class.ClassConfigRelationshipAssociation",
+      "functions": [
+        {
+          "function_config_id": "edea6eb7-c1d1-5c3e-a513-21420e616e75",
+          "name": "create_via_class_config_relationship",
+          "input_model": "ClassConfigRelationshipAssociationCreateViaClassConfigRelationshipInput",
+          "output_model": "ClassConfigRelationshipAssociationCreateViaClassConfigRelationshipOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9c3fecaf-6630-52f8-98ba-98829d593a8f",
+      "module": "aware_meta_ontology.class_.class_config_relationship_attribute",
+      "name": "ClassConfigRelationshipAttribute",
+      "aware_class_ref": "aware_meta.class.ClassConfigRelationshipAttribute",
+      "functions": [
+        {
+          "function_config_id": "ad02245d-b2c7-57c2-a1aa-104b33135760",
+          "name": "create_via_class_config_relationship",
+          "input_model": "ClassConfigRelationshipAttributeCreateViaClassConfigRelationshipInput",
+          "output_model": "ClassConfigRelationshipAttributeCreateViaClassConfigRelationshipOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "386f612d-244d-5b3a-bf29-95644d517f79",
+      "module": "aware_meta_ontology.class_.class_instance",
+      "name": "ClassInstance",
+      "aware_class_ref": "aware_meta.class.ClassInstance",
+      "functions": [
+        {
+          "function_config_id": "a5ecac92-edfe-5b6e-a71f-31d4bef01281",
+          "name": "create_attribute",
+          "input_model": "ClassInstanceCreateAttributeInput",
+          "output_model": "ClassInstanceCreateAttributeOutput"
+        },
+        {
+          "function_config_id": "44ac4d3a-9dfc-5746-aad4-ce4bb8d3887e",
+          "name": "create_via_object_instance_graph",
+          "input_model": "ClassInstanceCreateViaObjectInstanceGraphInput",
+          "output_model": "ClassInstanceCreateViaObjectInstanceGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fe60c6b0-a162-5115-8d5a-ffc399acc232",
+      "module": "aware_meta_ontology.class_.class_instance_attribute",
+      "name": "ClassInstanceAttribute",
+      "aware_class_ref": "aware_meta.class.ClassInstanceAttribute",
+      "functions": [
+        {
+          "function_config_id": "6f3d01f8-e188-541e-aff1-c63c355776a0",
+          "name": "create_via_class_instance",
+          "input_model": "ClassInstanceAttributeCreateViaClassInstanceInput",
+          "output_model": "ClassInstanceAttributeCreateViaClassInstanceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "026e43b7-fcc2-52fd-ab7b-abea0df320b6",
+      "module": "aware_meta_ontology.class_.class_instance_change",
+      "name": "ClassInstanceChange",
+      "aware_class_ref": "aware_meta.class.ClassInstanceChange",
+      "functions": []
+    },
+    {
+      "class_config_id": "c6619ca6-b035-599b-9498-e7c9258e17d8",
+      "module": "aware_meta_ontology.class_.class_instance_identity",
+      "name": "ClassInstanceIdentity",
+      "aware_class_ref": "aware_meta.class.ClassInstanceIdentity",
+      "functions": [
+        {
+          "function_config_id": "5fd8dd7d-b346-5629-a279-22fe6425262b",
+          "name": "create_via_object_instance_graph_identity",
+          "input_model": "ClassInstanceIdentityCreateViaObjectInstanceGraphIdentityInput",
+          "output_model": "ClassInstanceIdentityCreateViaObjectInstanceGraphIdentityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4f887c7d-5b6a-5791-8731-2a9208b49c27",
+      "module": "aware_meta_ontology.class_.class_instance_relationship",
+      "name": "ClassInstanceRelationship",
+      "aware_class_ref": "aware_meta.class.ClassInstanceRelationship",
+      "functions": []
+    },
+    {
+      "class_config_id": "55a89728-a7fc-59e1-bd80-88d30b0ae531",
+      "module": "aware_meta_ontology.class_.class_instance_relationship_change",
+      "name": "ClassInstanceRelationshipChange",
+      "aware_class_ref": "aware_meta.class.ClassInstanceRelationshipChange",
+      "functions": []
+    },
+    {
+      "class_config_id": "fa742756-9b18-504c-b5dd-428542f3841e",
+      "module": "aware_meta_ontology.class_.class_instance_relationship_identity",
+      "name": "ClassInstanceRelationshipIdentity",
+      "aware_class_ref": "aware_meta.class.ClassInstanceRelationshipIdentity",
+      "functions": [
+        {
+          "function_config_id": "813701f0-e316-58d4-9022-1ae8a730d23a",
+          "name": "create_via_object_instance_graph_identity",
+          "input_model": "ClassInstanceRelationshipIdentityCreateViaObjectInstanceGraphIdentityInput",
+          "output_model": "ClassInstanceRelationshipIdentityCreateViaObjectInstanceGraphIdentityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a78f4526-f95d-5aba-9ff7-2b40463209d7",
+      "module": "aware_meta_ontology.class_.inline_value_instance",
+      "name": "InlineValueInstance",
+      "aware_class_ref": "aware_meta.class.InlineValueInstance",
+      "functions": [
+        {
+          "function_config_id": "91ce7318-68dd-5635-aa69-1805e720b712",
+          "name": "build",
+          "input_model": "InlineValueInstanceBuildInput",
+          "output_model": "InlineValueInstanceBuildOutput"
+        },
+        {
+          "function_config_id": "eb2b160d-f742-5d5c-9e54-ff36c08c5318",
+          "name": "create_attribute",
+          "input_model": "InlineValueInstanceCreateAttributeInput",
+          "output_model": "InlineValueInstanceCreateAttributeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "16086af4-f646-5a3b-b78d-3d1559a7ff1e",
+      "module": "aware_meta_ontology.class_.inline_value_instance_attribute",
+      "name": "InlineValueInstanceAttribute",
+      "aware_class_ref": "aware_meta.class.InlineValueInstanceAttribute",
+      "functions": [
+        {
+          "function_config_id": "54325486-8274-5c8f-8afb-d06bcbe3e9f2",
+          "name": "create_via_inline_value_instance",
+          "input_model": "InlineValueInstanceAttributeCreateViaInlineValueInstanceInput",
+          "output_model": "InlineValueInstanceAttributeCreateViaInlineValueInstanceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "04785c94-a9dc-55b2-8d80-d5ae02788c94",
+      "module": "aware_meta_ontology.enum.enum",
+      "name": "Enum",
+      "aware_class_ref": "aware_meta.enum.Enum",
+      "functions": []
+    },
+    {
+      "class_config_id": "01df40c5-84e7-55b9-b16f-66fa73f4e6b6",
+      "module": "aware_meta_ontology.enum.enum_change",
+      "name": "EnumChange",
+      "aware_class_ref": "aware_meta.enum.EnumChange",
+      "functions": []
+    },
+    {
+      "class_config_id": "282599c0-61dc-5e72-a457-a343989277fd",
+      "module": "aware_meta_ontology.enum.enum_config",
+      "name": "EnumConfig",
+      "aware_class_ref": "aware_meta.enum.EnumConfig",
+      "functions": [
+        {
+          "function_config_id": "e13f54e6-5e4f-5815-8345-6fd1ce5a286e",
+          "name": "create_enum_option",
+          "input_model": "EnumConfigCreateEnumOptionInput",
+          "output_model": "EnumConfigCreateEnumOptionOutput"
+        },
+        {
+          "function_config_id": "0c2b8852-c0a1-504a-98d6-4ed174c6adb7",
+          "name": "create_via_object_config_graph_node",
+          "input_model": "EnumConfigCreateViaObjectConfigGraphNodeInput",
+          "output_model": "EnumConfigCreateViaObjectConfigGraphNodeOutput"
+        },
+        {
+          "function_config_id": "0479aefa-8d63-5839-ae41-1f56ac16bdb4",
+          "name": "delete_enum_option",
+          "input_model": "EnumConfigDeleteEnumOptionInput",
+          "output_model": "EnumConfigDeleteEnumOptionOutput"
+        },
+        {
+          "function_config_id": "06b1670e-c960-5795-b510-e7778f879100",
+          "name": "update_config",
+          "input_model": "EnumConfigUpdateConfigInput",
+          "output_model": "EnumConfigUpdateConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "bdb44936-c458-5d9c-a9f5-67212acd1159",
+      "module": "aware_meta_ontology.enum.enum_config_overlay",
+      "name": "EnumConfigOverlay",
+      "aware_class_ref": "aware_meta.enum.EnumConfigOverlay",
+      "functions": []
+    },
+    {
+      "class_config_id": "ea70b7f4-8092-591d-9eed-56b518828b8c",
+      "module": "aware_meta_ontology.enum.enum_option",
+      "name": "EnumOption",
+      "aware_class_ref": "aware_meta.enum.EnumOption",
+      "functions": [
+        {
+          "function_config_id": "f042c4c9-fe6f-59d4-b242-6312361ebf43",
+          "name": "create_via_enum_config",
+          "input_model": "EnumOptionCreateViaEnumConfigInput",
+          "output_model": "EnumOptionCreateViaEnumConfigOutput"
+        },
+        {
+          "function_config_id": "4916bad7-c7e0-569c-9331-91d1b470723b",
+          "name": "update_config",
+          "input_model": "EnumOptionUpdateConfigInput",
+          "output_model": "EnumOptionUpdateConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f08b68c3-ff3e-5f18-9979-c8a4fcf23745",
+      "module": "aware_meta_ontology.enum.enum_option_overlay",
+      "name": "EnumOptionOverlay",
+      "aware_class_ref": "aware_meta.enum.EnumOptionOverlay",
+      "functions": []
+    },
+    {
+      "class_config_id": "2b11f642-38bd-5869-b67b-c8cf5d524cd8",
+      "module": "aware_meta_ontology.function.function_call",
+      "name": "FunctionCall",
+      "aware_class_ref": "aware_meta.function.FunctionCall",
+      "functions": [
+        {
+          "function_config_id": "7f62c5bd-1109-56e6-a906-ac7a0b010e5b",
+          "name": "build_via_object_instance_graph_lane",
+          "input_model": "FunctionCallBuildViaObjectInstanceGraphLaneInput",
+          "output_model": "FunctionCallBuildViaObjectInstanceGraphLaneOutput"
+        },
+        {
+          "function_config_id": "4489e2c5-e553-54f3-a85f-3d2e7f3f37a7",
+          "name": "create_response",
+          "input_model": "FunctionCallCreateResponseInput",
+          "output_model": "FunctionCallCreateResponseOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "322bedbb-2f65-5dab-b5e0-68cb502cde4a",
+      "module": "aware_meta_ontology.function.function_call_argument",
+      "name": "FunctionCallArgument",
+      "aware_class_ref": "aware_meta.function.FunctionCallArgument",
+      "functions": []
+    },
+    {
+      "class_config_id": "95b54c55-c785-5fcf-a84d-4c2d49b6c7dd",
+      "module": "aware_meta_ontology.function.function_call_response",
+      "name": "FunctionCallResponse",
+      "aware_class_ref": "aware_meta.function.FunctionCallResponse",
+      "functions": [
+        {
+          "function_config_id": "09bb0fbd-a769-533a-b844-1cf71707bc75",
+          "name": "build_via_function_call",
+          "input_model": "FunctionCallResponseBuildViaFunctionCallInput",
+          "output_model": "FunctionCallResponseBuildViaFunctionCallOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "545796bf-2f3a-55da-bf12-17e3a6e22f65",
+      "module": "aware_meta_ontology.function.function_call_response_attribute",
+      "name": "FunctionCallResponseAttribute",
+      "aware_class_ref": "aware_meta.function.FunctionCallResponseAttribute",
+      "functions": []
+    },
+    {
+      "class_config_id": "c5552197-3cad-5275-87a1-d47ef3b1e619",
+      "module": "aware_meta_ontology.function.function_call_response_commit",
+      "name": "FunctionCallResponseCommit",
+      "aware_class_ref": "aware_meta.function.FunctionCallResponseCommit",
+      "functions": []
+    },
+    {
+      "class_config_id": "be3308e7-f15c-550b-8ce2-bb6305423c02",
+      "module": "aware_meta_ontology.function.function_config",
+      "name": "FunctionConfig",
+      "aware_class_ref": "aware_meta.function.FunctionConfig",
+      "functions": [
+        {
+          "function_config_id": "a3079066-33e4-5d3c-8b1e-3f7ed9803a13",
+          "name": "add_class_attribute_config",
+          "input_model": "FunctionConfigAddClassAttributeConfigInput",
+          "output_model": "FunctionConfigAddClassAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "a5efc86d-e5a4-5ece-8b88-90b75160ff6d",
+          "name": "add_enum_attribute_config",
+          "input_model": "FunctionConfigAddEnumAttributeConfigInput",
+          "output_model": "FunctionConfigAddEnumAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "db33ed81-f8b4-5787-960e-82d02edddc8c",
+          "name": "add_primitive_attribute_config",
+          "input_model": "FunctionConfigAddPrimitiveAttributeConfigInput",
+          "output_model": "FunctionConfigAddPrimitiveAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "2e03c8ce-6c9d-524f-a3d6-d476b0283f8a",
+          "name": "create",
+          "input_model": "FunctionConfigCreateInput",
+          "output_model": "FunctionConfigCreateOutput"
+        },
+        {
+          "function_config_id": "a3dcb0b6-6c3a-54df-a5b6-1ad77adca502",
+          "name": "create_function_impl",
+          "input_model": "FunctionConfigCreateFunctionImplInput",
+          "output_model": "FunctionConfigCreateFunctionImplOutput"
+        },
+        {
+          "function_config_id": "d7ce69d3-87ed-5695-875f-d28684d84767",
+          "name": "create_invocation",
+          "input_model": "FunctionConfigCreateInvocationInput",
+          "output_model": "FunctionConfigCreateInvocationOutput"
+        },
+        {
+          "function_config_id": "4efa6a66-673f-51e6-a8df-4fcfc0f865f2",
+          "name": "remove_attribute_config",
+          "input_model": "FunctionConfigRemoveAttributeConfigInput",
+          "output_model": "FunctionConfigRemoveAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "f31258f1-7301-57c3-878c-765eb2d900f3",
+          "name": "update_config",
+          "input_model": "FunctionConfigUpdateConfigInput",
+          "output_model": "FunctionConfigUpdateConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c7ad7495-ce85-5e58-a538-6cbc4aaeb937",
+      "module": "aware_meta_ontology.function.function_config_attribute_config",
+      "name": "FunctionConfigAttributeConfig",
+      "aware_class_ref": "aware_meta.function.FunctionConfigAttributeConfig",
+      "functions": [
+        {
+          "function_config_id": "e20e1c76-3142-574a-95d8-4de675085c44",
+          "name": "create_class_via_function_config",
+          "input_model": "FunctionConfigAttributeConfigCreateClassViaFunctionConfigInput",
+          "output_model": "FunctionConfigAttributeConfigCreateClassViaFunctionConfigOutput"
+        },
+        {
+          "function_config_id": "86c0375e-2780-59a1-a5be-611a0d618332",
+          "name": "create_enum_via_function_config",
+          "input_model": "FunctionConfigAttributeConfigCreateEnumViaFunctionConfigInput",
+          "output_model": "FunctionConfigAttributeConfigCreateEnumViaFunctionConfigOutput"
+        },
+        {
+          "function_config_id": "f6cd757a-7a7c-5588-af51-746861fda8cd",
+          "name": "create_primitive_via_function_config",
+          "input_model": "FunctionConfigAttributeConfigCreatePrimitiveViaFunctionConfigInput",
+          "output_model": "FunctionConfigAttributeConfigCreatePrimitiveViaFunctionConfigOutput"
+        },
+        {
+          "function_config_id": "3eae03a4-c098-5990-94aa-b911eb67ff4c",
+          "name": "update_config",
+          "input_model": "FunctionConfigAttributeConfigUpdateConfigInput",
+          "output_model": "FunctionConfigAttributeConfigUpdateConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a4df4f29-a955-5f78-8aaa-9841c84c35e5",
+      "module": "aware_meta_ontology.function.function_config_invocation",
+      "name": "FunctionConfigInvocation",
+      "aware_class_ref": "aware_meta.function.FunctionConfigInvocation",
+      "functions": [
+        {
+          "function_config_id": "6521f037-136a-52de-9df2-340b6aeaa9ed",
+          "name": "create_via_function_config",
+          "input_model": "FunctionConfigInvocationCreateViaFunctionConfigInput",
+          "output_model": "FunctionConfigInvocationCreateViaFunctionConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "dd145668-20fa-54d8-a17c-d39f9cb27cc5",
+      "module": "aware_meta_ontology.function.function_config_overlay",
+      "name": "FunctionConfigOverlay",
+      "aware_class_ref": "aware_meta.function.FunctionConfigOverlay",
+      "functions": []
+    },
+    {
+      "class_config_id": "37e775bf-2989-5f1c-bdfd-b6ca72544db5",
+      "module": "aware_meta_ontology.function.function_impl",
+      "name": "FunctionImpl",
+      "aware_class_ref": "aware_meta.function.FunctionImpl",
+      "functions": [
+        {
+          "function_config_id": "86fcc8bd-d943-5281-88ef-72ba44d158b6",
+          "name": "build_via_function_config",
+          "input_model": "FunctionImplBuildViaFunctionConfigInput",
+          "output_model": "FunctionImplBuildViaFunctionConfigOutput"
+        },
+        {
+          "function_config_id": "81abe3d1-e042-5fa7-9f44-7e0575eddf0a",
+          "name": "create_instruction",
+          "input_model": "FunctionImplCreateInstructionInput",
+          "output_model": "FunctionImplCreateInstructionOutput"
+        },
+        {
+          "function_config_id": "fe997251-9dc9-5b5b-9822-4ccb6fca30b6",
+          "name": "remove_instruction",
+          "input_model": "FunctionImplRemoveInstructionInput",
+          "output_model": "FunctionImplRemoveInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "523af0e8-2e37-56f7-8b2c-d6c8f5eaa3cd",
+      "module": "aware_meta_ontology.function.function_impl_instruction",
+      "name": "FunctionImplInstruction",
+      "aware_class_ref": "aware_meta.function.FunctionImplInstruction",
+      "functions": [
+        {
+          "function_config_id": "436bbf28-8bf9-55ac-aee1-735e6d8a4a59",
+          "name": "attach_construct",
+          "input_model": "FunctionImplInstructionAttachConstructInput",
+          "output_model": "FunctionImplInstructionAttachConstructOutput"
+        },
+        {
+          "function_config_id": "e75f1c47-56c8-56eb-8e6c-f8c722f5ed69",
+          "name": "attach_delete",
+          "input_model": "FunctionImplInstructionAttachDeleteInput",
+          "output_model": "FunctionImplInstructionAttachDeleteOutput"
+        },
+        {
+          "function_config_id": "f49f3422-31c3-5b76-a516-d67f7d709a06",
+          "name": "attach_invoke",
+          "input_model": "FunctionImplInstructionAttachInvokeInput",
+          "output_model": "FunctionImplInstructionAttachInvokeOutput"
+        },
+        {
+          "function_config_id": "7add5855-2ea6-56f9-82b8-7fb3cd428c34",
+          "name": "attach_let",
+          "input_model": "FunctionImplInstructionAttachLetInput",
+          "output_model": "FunctionImplInstructionAttachLetOutput"
+        },
+        {
+          "function_config_id": "4a52fff6-3b3c-5afc-a450-9013ed5e8642",
+          "name": "attach_require",
+          "input_model": "FunctionImplInstructionAttachRequireInput",
+          "output_model": "FunctionImplInstructionAttachRequireOutput"
+        },
+        {
+          "function_config_id": "29f1bb56-02cc-58ad-849a-d10900b99379",
+          "name": "attach_set",
+          "input_model": "FunctionImplInstructionAttachSetInput",
+          "output_model": "FunctionImplInstructionAttachSetOutput"
+        },
+        {
+          "function_config_id": "8657e5ee-763e-5275-87d2-e19ba4ec508d",
+          "name": "build_via_function_impl",
+          "input_model": "FunctionImplInstructionBuildViaFunctionImplInput",
+          "output_model": "FunctionImplInstructionBuildViaFunctionImplOutput"
+        },
+        {
+          "function_config_id": "dcd115a1-a5c3-5bc1-9506-eed21f4f1d29",
+          "name": "create_value_source",
+          "input_model": "FunctionImplInstructionCreateValueSourceInput",
+          "output_model": "FunctionImplInstructionCreateValueSourceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0e9106d0-99f0-531b-9fd2-1d4e3621d913",
+      "module": "aware_meta_ontology.function.function_impl_instruction_construct",
+      "name": "FunctionImplInstructionConstruct",
+      "aware_class_ref": "aware_meta.function.FunctionImplInstructionConstruct",
+      "functions": [
+        {
+          "function_config_id": "47d8dcde-b961-585c-866e-8959efc66b73",
+          "name": "add_assignment",
+          "input_model": "FunctionImplInstructionConstructAddAssignmentInput",
+          "output_model": "FunctionImplInstructionConstructAddAssignmentOutput"
+        },
+        {
+          "function_config_id": "f89f71d5-d0d5-5c53-83f4-998ea29db64d",
+          "name": "build_via_function_impl_instruction",
+          "input_model": "FunctionImplInstructionConstructBuildViaFunctionImplInstructionInput",
+          "output_model": "FunctionImplInstructionConstructBuildViaFunctionImplInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "666c0708-6e2c-56c4-8346-e0fac9d85c9a",
+      "module": "aware_meta_ontology.function.function_impl_instruction_construct_assignment",
+      "name": "FunctionImplInstructionConstructAssignment",
+      "aware_class_ref": "aware_meta.function.FunctionImplInstructionConstructAssignment",
+      "functions": [
+        {
+          "function_config_id": "71949088-3f49-55cf-acef-bb8437e60b34",
+          "name": "build_via_function_impl_instruction_construct",
+          "input_model": "FunctionImplInstructionConstructAssignmentBuildViaFunctionImplInstructionConstructInput",
+          "output_model": "FunctionImplInstructionConstructAssignmentBuildViaFunctionImplInstructionConstructOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "88a971f5-178f-5b1c-ae29-c562b93c27a6",
+      "module": "aware_meta_ontology.function.function_impl_instruction_delete",
+      "name": "FunctionImplInstructionDelete",
+      "aware_class_ref": "aware_meta.function.FunctionImplInstructionDelete",
+      "functions": [
+        {
+          "function_config_id": "e309b142-c872-501e-b117-8a0f71d191b2",
+          "name": "build_via_function_impl_instruction",
+          "input_model": "FunctionImplInstructionDeleteBuildViaFunctionImplInstructionInput",
+          "output_model": "FunctionImplInstructionDeleteBuildViaFunctionImplInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5c5d7430-9306-5502-96a3-2486aeff5a16",
+      "module": "aware_meta_ontology.function.function_impl_instruction_invoke",
+      "name": "FunctionImplInstructionInvoke",
+      "aware_class_ref": "aware_meta.function.FunctionImplInstructionInvoke",
+      "functions": [
+        {
+          "function_config_id": "66b42a66-9141-51bf-bae9-f9b1fdc550d1",
+          "name": "add_attribute_config",
+          "input_model": "FunctionImplInstructionInvokeAddAttributeConfigInput",
+          "output_model": "FunctionImplInstructionInvokeAddAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "db2679c0-9d6d-5df4-9be8-c41a9583df3e",
+          "name": "build_via_function_impl_instruction",
+          "input_model": "FunctionImplInstructionInvokeBuildViaFunctionImplInstructionInput",
+          "output_model": "FunctionImplInstructionInvokeBuildViaFunctionImplInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "923f7ecf-a644-5d3d-a692-7463c4c792d0",
+      "module": "aware_meta_ontology.function.function_impl_instruction_invoke_attribute_config",
+      "name": "FunctionImplInstructionInvokeAttributeConfig",
+      "aware_class_ref": "aware_meta.function.FunctionImplInstructionInvokeAttributeConfig",
+      "functions": [
+        {
+          "function_config_id": "e6c571a9-9038-5e98-84c0-f6c219da2f15",
+          "name": "create_via_function_impl_instruction_invoke",
+          "input_model": "FunctionImplInstructionInvokeAttributeConfigCreateViaFunctionImplInstructionInvokeInput",
+          "output_model": "FunctionImplInstructionInvokeAttributeConfigCreateViaFunctionImplInstructionInvokeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d2da5a41-edd8-5d16-876e-a06a9252eafc",
+      "module": "aware_meta_ontology.function.function_impl_instruction_let",
+      "name": "FunctionImplInstructionLet",
+      "aware_class_ref": "aware_meta.function.FunctionImplInstructionLet",
+      "functions": [
+        {
+          "function_config_id": "992be436-9886-5797-9a78-825ae36ee2da",
+          "name": "build_via_function_impl_instruction",
+          "input_model": "FunctionImplInstructionLetBuildViaFunctionImplInstructionInput",
+          "output_model": "FunctionImplInstructionLetBuildViaFunctionImplInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0b07fdff-3505-5a6d-906c-51d418182584",
+      "module": "aware_meta_ontology.function.function_impl_instruction_require",
+      "name": "FunctionImplInstructionRequire",
+      "aware_class_ref": "aware_meta.function.FunctionImplInstructionRequire",
+      "functions": [
+        {
+          "function_config_id": "c11e4af0-9b7a-5e6b-8f57-b62d450feebd",
+          "name": "add_operand",
+          "input_model": "FunctionImplInstructionRequireAddOperandInput",
+          "output_model": "FunctionImplInstructionRequireAddOperandOutput"
+        },
+        {
+          "function_config_id": "5694ab03-940e-5b36-9d5d-de44b585f82c",
+          "name": "build_via_function_impl_instruction",
+          "input_model": "FunctionImplInstructionRequireBuildViaFunctionImplInstructionInput",
+          "output_model": "FunctionImplInstructionRequireBuildViaFunctionImplInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f0efabd0-4e1b-5c12-8948-6fbb892e4a16",
+      "module": "aware_meta_ontology.function.function_impl_instruction_require_operand",
+      "name": "FunctionImplInstructionRequireOperand",
+      "aware_class_ref": "aware_meta.function.FunctionImplInstructionRequireOperand",
+      "functions": [
+        {
+          "function_config_id": "bb6897b7-cc63-5614-9dce-c83e56cde100",
+          "name": "create_via_function_impl_instruction_require",
+          "input_model": "FunctionImplInstructionRequireOperandCreateViaFunctionImplInstructionRequireInput",
+          "output_model": "FunctionImplInstructionRequireOperandCreateViaFunctionImplInstructionRequireOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "bf7be671-75b0-5077-bf2a-7029b9fabd0b",
+      "module": "aware_meta_ontology.function.function_impl_instruction_set",
+      "name": "FunctionImplInstructionSet",
+      "aware_class_ref": "aware_meta.function.FunctionImplInstructionSet",
+      "functions": [
+        {
+          "function_config_id": "2918dcbc-9a69-57d6-99ba-a8f4aed84a47",
+          "name": "build_via_function_impl_instruction",
+          "input_model": "FunctionImplInstructionSetBuildViaFunctionImplInstructionInput",
+          "output_model": "FunctionImplInstructionSetBuildViaFunctionImplInstructionOutput"
+        },
+        {
+          "function_config_id": "1d7a2864-cda2-5e4a-9b75-278dd3099be3",
+          "name": "update_assignment",
+          "input_model": "FunctionImplInstructionSetUpdateAssignmentInput",
+          "output_model": "FunctionImplInstructionSetUpdateAssignmentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6664465f-8f9e-518a-84dc-bf87978161ef",
+      "module": "aware_meta_ontology.function.function_impl_value_source",
+      "name": "FunctionImplValueSource",
+      "aware_class_ref": "aware_meta.function.FunctionImplValueSource",
+      "functions": [
+        {
+          "function_config_id": "4de21adc-1ac0-506b-b2cf-252ce9ee3103",
+          "name": "attach_literal_primitive",
+          "input_model": "FunctionImplValueSourceAttachLiteralPrimitiveInput",
+          "output_model": "FunctionImplValueSourceAttachLiteralPrimitiveOutput"
+        },
+        {
+          "function_config_id": "1d15bf5b-de85-58f2-91e4-9a2ba5e53473",
+          "name": "attach_read_path",
+          "input_model": "FunctionImplValueSourceAttachReadPathInput",
+          "output_model": "FunctionImplValueSourceAttachReadPathOutput"
+        },
+        {
+          "function_config_id": "627b9cd6-6e3b-58e7-bbf4-eebc484eb4eb",
+          "name": "attach_transform",
+          "input_model": "FunctionImplValueSourceAttachTransformInput",
+          "output_model": "FunctionImplValueSourceAttachTransformOutput"
+        },
+        {
+          "function_config_id": "435ed5c3-fc12-5845-ac4c-c49e6d984cd8",
+          "name": "build_via_function_impl_instruction",
+          "input_model": "FunctionImplValueSourceBuildViaFunctionImplInstructionInput",
+          "output_model": "FunctionImplValueSourceBuildViaFunctionImplInstructionOutput"
+        },
+        {
+          "function_config_id": "cd9ab86d-e713-5166-9f13-159e2a89d26c",
+          "name": "update_function_input_ref",
+          "input_model": "FunctionImplValueSourceUpdateFunctionInputRefInput",
+          "output_model": "FunctionImplValueSourceUpdateFunctionInputRefOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c38986a2-94b9-53d8-8e27-79313b0a4117",
+      "module": "aware_meta_ontology.function.function_impl_value_source_literal_primitive",
+      "name": "FunctionImplValueSourceLiteralPrimitive",
+      "aware_class_ref": "aware_meta.function.FunctionImplValueSourceLiteralPrimitive",
+      "functions": [
+        {
+          "function_config_id": "aebcb060-9891-5d75-941b-adf54272e971",
+          "name": "build_via_function_impl_value_source",
+          "input_model": "FunctionImplValueSourceLiteralPrimitiveBuildViaFunctionImplValueSourceInput",
+          "output_model": "FunctionImplValueSourceLiteralPrimitiveBuildViaFunctionImplValueSourceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f12a49af-e1d8-53cb-b794-c4585f828384",
+      "module": "aware_meta_ontology.function.function_impl_value_source_read_path",
+      "name": "FunctionImplValueSourceReadPath",
+      "aware_class_ref": "aware_meta.function.FunctionImplValueSourceReadPath",
+      "functions": [
+        {
+          "function_config_id": "a4a0f0e0-418f-54de-9fa7-b21a4b5f2fca",
+          "name": "add_segment",
+          "input_model": "FunctionImplValueSourceReadPathAddSegmentInput",
+          "output_model": "FunctionImplValueSourceReadPathAddSegmentOutput"
+        },
+        {
+          "function_config_id": "4a489675-915b-5159-95ad-ee12efb7733b",
+          "name": "build_via_function_impl_value_source",
+          "input_model": "FunctionImplValueSourceReadPathBuildViaFunctionImplValueSourceInput",
+          "output_model": "FunctionImplValueSourceReadPathBuildViaFunctionImplValueSourceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b43867f9-8d1e-5b66-8fab-9f195d2aeede",
+      "module": "aware_meta_ontology.function.function_impl_value_source_read_path_segment",
+      "name": "FunctionImplValueSourceReadPathSegment",
+      "aware_class_ref": "aware_meta.function.FunctionImplValueSourceReadPathSegment",
+      "functions": [
+        {
+          "function_config_id": "e9f887a1-8948-5a48-97ab-a24f79ec958e",
+          "name": "build_via_function_impl_value_source_read_path",
+          "input_model": "FunctionImplValueSourceReadPathSegmentBuildViaFunctionImplValueSourceReadPathInput",
+          "output_model": "FunctionImplValueSourceReadPathSegmentBuildViaFunctionImplValueSourceReadPathOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9600091b-e605-5278-bdec-348df9469583",
+      "module": "aware_meta_ontology.function.function_impl_value_source_transform",
+      "name": "FunctionImplValueSourceTransform",
+      "aware_class_ref": "aware_meta.function.FunctionImplValueSourceTransform",
+      "functions": [
+        {
+          "function_config_id": "516f6d38-b1c5-5675-b1a3-974a43371b42",
+          "name": "add_operand",
+          "input_model": "FunctionImplValueSourceTransformAddOperandInput",
+          "output_model": "FunctionImplValueSourceTransformAddOperandOutput"
+        },
+        {
+          "function_config_id": "dcb9f180-3f2b-514b-913a-4adda8a90cf0",
+          "name": "build_via_function_impl_value_source",
+          "input_model": "FunctionImplValueSourceTransformBuildViaFunctionImplValueSourceInput",
+          "output_model": "FunctionImplValueSourceTransformBuildViaFunctionImplValueSourceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2d0c5135-02cb-50ab-a243-4792ff2f4e05",
+      "module": "aware_meta_ontology.function.function_impl_value_source_transform_operand",
+      "name": "FunctionImplValueSourceTransformOperand",
+      "aware_class_ref": "aware_meta.function.FunctionImplValueSourceTransformOperand",
+      "functions": [
+        {
+          "function_config_id": "cf4ded15-8d2e-56ef-ab8a-cc0acd0c4281",
+          "name": "build_via_function_impl_value_source_transform",
+          "input_model": "FunctionImplValueSourceTransformOperandBuildViaFunctionImplValueSourceTransformInput",
+          "output_model": "FunctionImplValueSourceTransformOperandBuildViaFunctionImplValueSourceTransformOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "57ae65cc-b16f-5212-8a54-7b15340787a2",
+      "module": "aware_meta_ontology.graph.config.object_config_graph",
+      "name": "ObjectConfigGraph",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraph",
+      "functions": [
+        {
+          "function_config_id": "8dafd2e4-5a7c-5c1a-a961-d7f0052ce36c",
+          "name": "build",
+          "input_model": "ObjectConfigGraphBuildInput",
+          "output_model": "ObjectConfigGraphBuildOutput"
+        },
+        {
+          "function_config_id": "4b5ee92a-0726-5a98-8a65-661701f0941f",
+          "name": "create_node",
+          "input_model": "ObjectConfigGraphCreateNodeInput",
+          "output_model": "ObjectConfigGraphCreateNodeOutput"
+        },
+        {
+          "function_config_id": "41c2d801-54ff-5167-b81c-0e1fa464eff9",
+          "name": "create_object_config_graph_binding",
+          "input_model": "ObjectConfigGraphCreateObjectConfigGraphBindingInput",
+          "output_model": "ObjectConfigGraphCreateObjectConfigGraphBindingOutput"
+        },
+        {
+          "function_config_id": "a44e3b4a-0a6b-5edb-b05f-4c7539b40441",
+          "name": "create_object_config_graph_relationship",
+          "input_model": "ObjectConfigGraphCreateObjectConfigGraphRelationshipInput",
+          "output_model": "ObjectConfigGraphCreateObjectConfigGraphRelationshipOutput"
+        },
+        {
+          "function_config_id": "5f0b44ff-09bf-555d-9632-125819dd9d4c",
+          "name": "create_object_projection_graph",
+          "input_model": "ObjectConfigGraphCreateObjectProjectionGraphInput",
+          "output_model": "ObjectConfigGraphCreateObjectProjectionGraphOutput"
+        },
+        {
+          "function_config_id": "b4136bb8-7d2a-5da9-9958-ce0deea56d34",
+          "name": "delete_node",
+          "input_model": "ObjectConfigGraphDeleteNodeInput",
+          "output_model": "ObjectConfigGraphDeleteNodeOutput"
+        },
+        {
+          "function_config_id": "74775082-1c64-5b10-812f-afba6cece8b2",
+          "name": "get_topology_description",
+          "input_model": "ObjectConfigGraphGetTopologyDescriptionInput",
+          "output_model": "ObjectConfigGraphGetTopologyDescriptionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "17573b06-f91c-58f8-88c6-ca5bebbb5947",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_annotation",
+      "name": "ObjectConfigGraphAnnotation",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphAnnotation",
+      "functions": []
+    },
+    {
+      "class_config_id": "24306491-dfa2-5f5e-8531-3ddfa9d4eca7",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_binding",
+      "name": "ObjectConfigGraphBinding",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphBinding",
+      "functions": [
+        {
+          "function_config_id": "f9c81abb-0019-57e4-8d83-92258c04ffa9",
+          "name": "build_via_object_config_graph",
+          "input_model": "ObjectConfigGraphBindingBuildViaObjectConfigGraphInput",
+          "output_model": "ObjectConfigGraphBindingBuildViaObjectConfigGraphOutput"
+        },
+        {
+          "function_config_id": "d30ca398-7c39-57e2-94ef-be21702b31e4",
+          "name": "create_class",
+          "input_model": "ObjectConfigGraphBindingCreateClassInput",
+          "output_model": "ObjectConfigGraphBindingCreateClassOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "23595872-2435-505b-a693-47e7044c1a96",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_binding_class",
+      "name": "ObjectConfigGraphBindingClass",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphBindingClass",
+      "functions": [
+        {
+          "function_config_id": "bbeeb88f-7200-555a-bebd-3560eee9b0ba",
+          "name": "build_via_object_config_graph_binding",
+          "input_model": "ObjectConfigGraphBindingClassBuildViaObjectConfigGraphBindingInput",
+          "output_model": "ObjectConfigGraphBindingClassBuildViaObjectConfigGraphBindingOutput"
+        },
+        {
+          "function_config_id": "06ca99e1-f07e-5f3b-b860-1d85c0f2b323",
+          "name": "create_formula",
+          "input_model": "ObjectConfigGraphBindingClassCreateFormulaInput",
+          "output_model": "ObjectConfigGraphBindingClassCreateFormulaOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "79e96270-dac3-5814-aac2-0e62a8491b7c",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_binding_formula",
+      "name": "ObjectConfigGraphBindingFormula",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphBindingFormula",
+      "functions": [
+        {
+          "function_config_id": "83e3902d-bf63-56af-b13b-7a950aa90f3e",
+          "name": "build_via_object_config_graph_binding_class",
+          "input_model": "ObjectConfigGraphBindingFormulaBuildViaObjectConfigGraphBindingClassInput",
+          "output_model": "ObjectConfigGraphBindingFormulaBuildViaObjectConfigGraphBindingClassOutput"
+        },
+        {
+          "function_config_id": "142fbe8c-b199-5c9e-a363-bbace390d343",
+          "name": "create_segment_reference",
+          "input_model": "ObjectConfigGraphBindingFormulaCreateSegmentReferenceInput",
+          "output_model": "ObjectConfigGraphBindingFormulaCreateSegmentReferenceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a3ff672b-5ead-51bd-8092-cbde9d868023",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_binding_formula_segment_reference",
+      "name": "ObjectConfigGraphBindingFormulaSegmentReference",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphBindingFormulaSegmentReference",
+      "functions": [
+        {
+          "function_config_id": "4d85a1c6-5fdd-56b5-abe1-fd6c43b08409",
+          "name": "build_via_object_config_graph_binding_formula",
+          "input_model": "ObjectConfigGraphBindingFormulaSegmentReferenceBuildViaObjectConfigGraphBindingFormulaInput",
+          "output_model": "ObjectConfigGraphBindingFormulaSegmentReferenceBuildViaObjectConfigGraphBindingFormulaOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "90669d02-925b-5715-a3b7-fb3c978e6735",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_delta",
+      "name": "ObjectConfigGraphDelta",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphDelta",
+      "functions": []
+    },
+    {
+      "class_config_id": "38fa9612-53b7-50c6-b238-f71ff57be603",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_delta",
+      "name": "ObjectConfigGraphNodeDelta",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphNodeDelta",
+      "functions": []
+    },
+    {
+      "class_config_id": "5ff06af4-0efb-5723-83c4-63e9a2803729",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_identity",
+      "name": "ObjectConfigGraphIdentity",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphIdentity",
+      "functions": [
+        {
+          "function_config_id": "13139ccf-2cad-55cf-aa0c-abd7675358c0",
+          "name": "create",
+          "input_model": "ObjectConfigGraphIdentityCreateInput",
+          "output_model": "ObjectConfigGraphIdentityCreateOutput"
+        },
+        {
+          "function_config_id": "66307f1b-5f0c-58f5-936c-d5dc7896935c",
+          "name": "create_object_projection_graph_identity",
+          "input_model": "ObjectConfigGraphIdentityCreateObjectProjectionGraphIdentityInput",
+          "output_model": "ObjectConfigGraphIdentityCreateObjectProjectionGraphIdentityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "773ee7a3-1db4-5649-b9d4-3c76dbcfe0a2",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_mirror",
+      "name": "ObjectConfigGraphMirror",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphMirror",
+      "functions": []
+    },
+    {
+      "class_config_id": "102207b6-cdea-5c2c-ae69-2ee93be3f704",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_node",
+      "name": "ObjectConfigGraphNode",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphNode",
+      "functions": [
+        {
+          "function_config_id": "497d239f-9e87-5342-b66a-fd41603be903",
+          "name": "create_class",
+          "input_model": "ObjectConfigGraphNodeCreateClassInput",
+          "output_model": "ObjectConfigGraphNodeCreateClassOutput"
+        },
+        {
+          "function_config_id": "eed21f3c-bfc0-5a53-b9d9-76edf4677764",
+          "name": "create_enum",
+          "input_model": "ObjectConfigGraphNodeCreateEnumInput",
+          "output_model": "ObjectConfigGraphNodeCreateEnumOutput"
+        },
+        {
+          "function_config_id": "297cf70e-6879-5ed3-bed4-2102cff9ceb1",
+          "name": "create_via_object_config_graph",
+          "input_model": "ObjectConfigGraphNodeCreateViaObjectConfigGraphInput",
+          "output_model": "ObjectConfigGraphNodeCreateViaObjectConfigGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "dc72e132-aac5-59b3-bf57-e15d0d60270f",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_node_layout",
+      "name": "ObjectConfigGraphNodeLayout",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphNodeLayout",
+      "functions": []
+    },
+    {
+      "class_config_id": "3073f8ef-2129-5ed4-8c56-eabadfaf52bf",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_overlay",
+      "name": "ObjectConfigGraphOverlay",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphOverlay",
+      "functions": []
+    },
+    {
+      "class_config_id": "2e1a491f-f7f1-5036-a44b-9535a9582da3",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_package",
+      "name": "ObjectConfigGraphPackage",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphPackage",
+      "functions": [
+        {
+          "function_config_id": "1ae71940-4538-5d9f-b907-0feb0f16f2f1",
+          "name": "attach_object_config_graph",
+          "input_model": "ObjectConfigGraphPackageAttachObjectConfigGraphInput",
+          "output_model": "ObjectConfigGraphPackageAttachObjectConfigGraphOutput"
+        },
+        {
+          "function_config_id": "e9720632-7b54-56f7-8c77-9e4948ae4579",
+          "name": "build",
+          "input_model": "ObjectConfigGraphPackageBuildInput",
+          "output_model": "ObjectConfigGraphPackageBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2d82ddbb-0e20-5410-815e-9f51339c4ba1",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_package_build",
+      "name": "ObjectConfigGraphPackageBuild",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphPackageBuild",
+      "functions": []
+    },
+    {
+      "class_config_id": "46027c6b-8f73-5a15-89fc-033e359a3a29",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_package_dependency",
+      "name": "ObjectConfigGraphPackageDependency",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphPackageDependency",
+      "functions": []
+    },
+    {
+      "class_config_id": "e67990d9-608c-5755-bacb-c871de3b7cf5",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_package_language_materialization",
+      "name": "ObjectConfigGraphPackageLanguageMaterialization",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphPackageLanguageMaterialization",
+      "functions": []
+    },
+    {
+      "class_config_id": "254bd6c4-b110-5e57-95d2-5a47bf78e05f",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_package_language_materialization_package",
+      "name": "ObjectConfigGraphPackageLanguageMaterializationPackage",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphPackageLanguageMaterializationPackage",
+      "functions": []
+    },
+    {
+      "class_config_id": "405d562c-542d-5b1e-870b-1c552f6e6cb9",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_relationship",
+      "name": "ObjectConfigGraphRelationship",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphRelationship",
+      "functions": [
+        {
+          "function_config_id": "1b23da31-c88b-50d8-887f-2bd4ae0ed456",
+          "name": "build_via_object_config_graph",
+          "input_model": "ObjectConfigGraphRelationshipBuildViaObjectConfigGraphInput",
+          "output_model": "ObjectConfigGraphRelationshipBuildViaObjectConfigGraphOutput"
+        },
+        {
+          "function_config_id": "b59d93cf-6a07-537e-96a9-1a0a4b22ff06",
+          "name": "create_class",
+          "input_model": "ObjectConfigGraphRelationshipCreateClassInput",
+          "output_model": "ObjectConfigGraphRelationshipCreateClassOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a589119f-29a7-51b8-baa4-0982795817c6",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_relationship_class",
+      "name": "ObjectConfigGraphRelationshipClass",
+      "aware_class_ref": "aware_meta.graph.config.ObjectConfigGraphRelationshipClass",
+      "functions": [
+        {
+          "function_config_id": "6868f1b8-51be-54f9-84e3-d8c4007f0567",
+          "name": "build_via_object_config_graph_relationship",
+          "input_model": "ObjectConfigGraphRelationshipClassBuildViaObjectConfigGraphRelationshipInput",
+          "output_model": "ObjectConfigGraphRelationshipClassBuildViaObjectConfigGraphRelationshipOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0d824274-d187-5f2b-bb9f-c5a69a518553",
+      "module": "aware_meta_ontology.graph.instance.object_instance_graph",
+      "name": "ObjectInstanceGraph",
+      "aware_class_ref": "aware_meta.graph.instance.ObjectInstanceGraph",
+      "functions": [
+        {
+          "function_config_id": "fc30f662-f780-5195-9258-7bc1648aa547",
+          "name": "build_via_object_projection_graph",
+          "input_model": "ObjectInstanceGraphBuildViaObjectProjectionGraphInput",
+          "output_model": "ObjectInstanceGraphBuildViaObjectProjectionGraphOutput"
+        },
+        {
+          "function_config_id": "454ee3b5-8e0a-5bb9-a0aa-55462055c498",
+          "name": "create_class_instance",
+          "input_model": "ObjectInstanceGraphCreateClassInstanceInput",
+          "output_model": "ObjectInstanceGraphCreateClassInstanceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ac95ec59-722d-52c9-9f23-3209f09f4da0",
+      "module": "aware_meta_ontology.graph.instance.object_instance_graph_branch",
+      "name": "ObjectInstanceGraphBranch",
+      "aware_class_ref": "aware_meta.graph.instance.ObjectInstanceGraphBranch",
+      "functions": [
+        {
+          "function_config_id": "cd9005d6-7ea9-5e53-b721-984813746887",
+          "name": "attach_branch_relationship",
+          "input_model": "ObjectInstanceGraphBranchAttachBranchRelationshipInput",
+          "output_model": "ObjectInstanceGraphBranchAttachBranchRelationshipOutput"
+        },
+        {
+          "function_config_id": "a9b8123f-3b93-567b-8c29-3acf8568f957",
+          "name": "attach_lane",
+          "input_model": "ObjectInstanceGraphBranchAttachLaneInput",
+          "output_model": "ObjectInstanceGraphBranchAttachLaneOutput"
+        },
+        {
+          "function_config_id": "ea790837-c6e4-53ad-b48f-57f4bb3ff50e",
+          "name": "create_with_lane_and_branch_via_object_instance_graph_identity",
+          "input_model": "ObjectInstanceGraphBranchCreateWithLaneAndBranchViaObjectInstanceGraphIdentityInput",
+          "output_model": "ObjectInstanceGraphBranchCreateWithLaneAndBranchViaObjectInstanceGraphIdentityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a22d2949-c06c-5866-9322-315792108f81",
+      "module": "aware_meta_ontology.graph.instance.object_instance_graph_branch_relationship",
+      "name": "ObjectInstanceGraphBranchRelationship",
+      "aware_class_ref": "aware_meta.graph.instance.ObjectInstanceGraphBranchRelationship",
+      "functions": [
+        {
+          "function_config_id": "f0148d54-7a76-5b69-9afb-9547e579b5c8",
+          "name": "create_via_object_instance_graph_branch",
+          "input_model": "ObjectInstanceGraphBranchRelationshipCreateViaObjectInstanceGraphBranchInput",
+          "output_model": "ObjectInstanceGraphBranchRelationshipCreateViaObjectInstanceGraphBranchOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1c2cd560-5486-5536-89f5-1cde3b2817af",
+      "module": "aware_meta_ontology.graph.instance.object_instance_graph_change",
+      "name": "ObjectInstanceGraphChange",
+      "aware_class_ref": "aware_meta.graph.instance.ObjectInstanceGraphChange",
+      "functions": [
+        {
+          "function_config_id": "c7c1021d-709a-5751-abef-a741fd942003",
+          "name": "create_via_object_instance_graph_identity",
+          "input_model": "ObjectInstanceGraphChangeCreateViaObjectInstanceGraphIdentityInput",
+          "output_model": "ObjectInstanceGraphChangeCreateViaObjectInstanceGraphIdentityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "14e83a49-4b04-5ff9-b5ce-cc72759b43fb",
+      "module": "aware_meta_ontology.graph.instance.object_instance_graph_commit",
+      "name": "ObjectInstanceGraphCommit",
+      "aware_class_ref": "aware_meta.graph.instance.ObjectInstanceGraphCommit",
+      "functions": [
+        {
+          "function_config_id": "ea54eeb3-f145-55bb-a6b6-628f5c20f3bf",
+          "name": "create_via_object_instance_graph_identity",
+          "input_model": "ObjectInstanceGraphCommitCreateViaObjectInstanceGraphIdentityInput",
+          "output_model": "ObjectInstanceGraphCommitCreateViaObjectInstanceGraphIdentityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "785bc927-42bd-53d2-bded-e1ae398c766e",
+      "module": "aware_meta_ontology.graph.instance.object_instance_graph_identity",
+      "name": "ObjectInstanceGraphIdentity",
+      "aware_class_ref": "aware_meta.graph.instance.ObjectInstanceGraphIdentity",
+      "functions": [
+        {
+          "function_config_id": "2f4735c2-a8da-5f17-bd41-f9d2c09230ca",
+          "name": "create_change",
+          "input_model": "ObjectInstanceGraphIdentityCreateChangeInput",
+          "output_model": "ObjectInstanceGraphIdentityCreateChangeOutput"
+        },
+        {
+          "function_config_id": "59452d6f-0d87-5ee4-a8c0-c9d36871f459",
+          "name": "create_class_instance_identity",
+          "input_model": "ObjectInstanceGraphIdentityCreateClassInstanceIdentityInput",
+          "output_model": "ObjectInstanceGraphIdentityCreateClassInstanceIdentityOutput"
+        },
+        {
+          "function_config_id": "c8c1b8dd-9c11-596a-a657-9e57d144df1a",
+          "name": "create_class_instance_relationship_identity",
+          "input_model": "ObjectInstanceGraphIdentityCreateClassInstanceRelationshipIdentityInput",
+          "output_model": "ObjectInstanceGraphIdentityCreateClassInstanceRelationshipIdentityOutput"
+        },
+        {
+          "function_config_id": "4571a86b-5d30-577b-addc-52a9cef8b397",
+          "name": "create_via_object_projection_graph_identity",
+          "input_model": "ObjectInstanceGraphIdentityCreateViaObjectProjectionGraphIdentityInput",
+          "output_model": "ObjectInstanceGraphIdentityCreateViaObjectProjectionGraphIdentityOutput"
+        },
+        {
+          "function_config_id": "b331c2ed-a9ee-5114-b1bd-12d17661bb36",
+          "name": "upsert_history_from_lane_head",
+          "input_model": "ObjectInstanceGraphIdentityUpsertHistoryFromLaneHeadInput",
+          "output_model": "ObjectInstanceGraphIdentityUpsertHistoryFromLaneHeadOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "136e4527-7f39-5dd2-9631-39cfe710ee63",
+      "module": "aware_meta_ontology.graph.instance.object_instance_graph_lane",
+      "name": "ObjectInstanceGraphLane",
+      "aware_class_ref": "aware_meta.graph.instance.ObjectInstanceGraphLane",
+      "functions": [
+        {
+          "function_config_id": "3f328cf9-7d4e-580c-b9b8-91dc8d78a77e",
+          "name": "create_function_call",
+          "input_model": "ObjectInstanceGraphLaneCreateFunctionCallInput",
+          "output_model": "ObjectInstanceGraphLaneCreateFunctionCallOutput"
+        },
+        {
+          "function_config_id": "39cf43df-b173-565e-9c68-7f010a1fb63e",
+          "name": "create_via_object_instance_graph_branch",
+          "input_model": "ObjectInstanceGraphLaneCreateViaObjectInstanceGraphBranchInput",
+          "output_model": "ObjectInstanceGraphLaneCreateViaObjectInstanceGraphBranchOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b9518cdd-006d-5efd-bebc-d1054dd5bea0",
+      "module": "aware_meta_ontology.graph.instance.object_instance_graph_relationship",
+      "name": "ObjectInstanceGraphRelationship",
+      "aware_class_ref": "aware_meta.graph.instance.ObjectInstanceGraphRelationship",
+      "functions": []
+    },
+    {
+      "class_config_id": "0b2f6e6d-0d51-5dce-9fa7-a786782df0f0",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph",
+      "name": "ObjectProjectionGraph",
+      "aware_class_ref": "aware_meta.graph.projection.ObjectProjectionGraph",
+      "functions": [
+        {
+          "function_config_id": "b39a989e-5504-5cad-9b22-445863d59890",
+          "name": "build_via_object_config_graph",
+          "input_model": "ObjectProjectionGraphBuildViaObjectConfigGraphInput",
+          "output_model": "ObjectProjectionGraphBuildViaObjectConfigGraphOutput"
+        },
+        {
+          "function_config_id": "c99f6321-2881-5145-b065-2a3276230780",
+          "name": "create_constructor",
+          "input_model": "ObjectProjectionGraphCreateConstructorInput",
+          "output_model": "ObjectProjectionGraphCreateConstructorOutput"
+        },
+        {
+          "function_config_id": "2396f728-fc54-5b6a-bee8-bb5fc2f8f5d5",
+          "name": "create_edge",
+          "input_model": "ObjectProjectionGraphCreateEdgeInput",
+          "output_model": "ObjectProjectionGraphCreateEdgeOutput"
+        },
+        {
+          "function_config_id": "47bc3595-7e45-5c79-b1fd-c422e563718a",
+          "name": "create_node",
+          "input_model": "ObjectProjectionGraphCreateNodeInput",
+          "output_model": "ObjectProjectionGraphCreateNodeOutput"
+        },
+        {
+          "function_config_id": "64276ec4-98da-5190-b942-f0a2ce38f464",
+          "name": "create_object_instance_graph",
+          "input_model": "ObjectProjectionGraphCreateObjectInstanceGraphInput",
+          "output_model": "ObjectProjectionGraphCreateObjectInstanceGraphOutput"
+        },
+        {
+          "function_config_id": "bf397e77-c23c-520e-89e0-82e863a047f5",
+          "name": "create_relationship",
+          "input_model": "ObjectProjectionGraphCreateRelationshipInput",
+          "output_model": "ObjectProjectionGraphCreateRelationshipOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "03847d0a-cb3f-5366-9808-5195549c62eb",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_binding",
+      "name": "ObjectProjectionGraphBinding",
+      "aware_class_ref": "aware_meta.graph.projection.ObjectProjectionGraphBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "8ce3cbbd-b4e5-50a1-a914-1289ce73d80c",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_constructor",
+      "name": "ObjectProjectionGraphConstructor",
+      "aware_class_ref": "aware_meta.graph.projection.ObjectProjectionGraphConstructor",
+      "functions": [
+        {
+          "function_config_id": "a7e17b53-8337-5210-8fae-db49f48176a0",
+          "name": "build_via_object_projection_graph",
+          "input_model": "ObjectProjectionGraphConstructorBuildViaObjectProjectionGraphInput",
+          "output_model": "ObjectProjectionGraphConstructorBuildViaObjectProjectionGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2aed4242-2577-5da7-9932-a5acd4d51530",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_declaration",
+      "name": "ObjectProjectionGraphDeclaration",
+      "aware_class_ref": "aware_meta.graph.projection.ObjectProjectionGraphDeclaration",
+      "functions": []
+    },
+    {
+      "class_config_id": "c1356253-0a65-5c70-9366-05186b2739b1",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_edge",
+      "name": "ObjectProjectionGraphEdge",
+      "aware_class_ref": "aware_meta.graph.projection.ObjectProjectionGraphEdge",
+      "functions": [
+        {
+          "function_config_id": "9bb8fb1e-fb95-58a9-8dfb-626dc47d852e",
+          "name": "build_via_object_projection_graph",
+          "input_model": "ObjectProjectionGraphEdgeBuildViaObjectProjectionGraphInput",
+          "output_model": "ObjectProjectionGraphEdgeBuildViaObjectProjectionGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a303d44d-53e1-5c85-8511-5e1509ab1021",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_identity",
+      "name": "ObjectProjectionGraphIdentity",
+      "aware_class_ref": "aware_meta.graph.projection.ObjectProjectionGraphIdentity",
+      "functions": [
+        {
+          "function_config_id": "07c3624f-9611-518c-87d2-b5b2bb1c5b2b",
+          "name": "create_object_instance_graph_identity",
+          "input_model": "ObjectProjectionGraphIdentityCreateObjectInstanceGraphIdentityInput",
+          "output_model": "ObjectProjectionGraphIdentityCreateObjectInstanceGraphIdentityOutput"
+        },
+        {
+          "function_config_id": "d32b3fed-8996-58e9-a3b0-1fca572d6fdd",
+          "name": "create_observable",
+          "input_model": "ObjectProjectionGraphIdentityCreateObservableInput",
+          "output_model": "ObjectProjectionGraphIdentityCreateObservableOutput"
+        },
+        {
+          "function_config_id": "e1cd8ea7-a6dd-5651-851e-6c398fe991ea",
+          "name": "create_via_object_config_graph_identity",
+          "input_model": "ObjectProjectionGraphIdentityCreateViaObjectConfigGraphIdentityInput",
+          "output_model": "ObjectProjectionGraphIdentityCreateViaObjectConfigGraphIdentityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f8e2ffa2-6254-5b9d-a822-8f8318707212",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_node",
+      "name": "ObjectProjectionGraphNode",
+      "aware_class_ref": "aware_meta.graph.projection.ObjectProjectionGraphNode",
+      "functions": [
+        {
+          "function_config_id": "415172bb-0ff2-501f-992f-864c80bab3e1",
+          "name": "build_via_object_projection_graph",
+          "input_model": "ObjectProjectionGraphNodeBuildViaObjectProjectionGraphInput",
+          "output_model": "ObjectProjectionGraphNodeBuildViaObjectProjectionGraphOutput"
+        },
+        {
+          "function_config_id": "765460a6-b314-5a0a-a5bf-0b2582ffe8e0",
+          "name": "create_key",
+          "input_model": "ObjectProjectionGraphNodeCreateKeyInput",
+          "output_model": "ObjectProjectionGraphNodeCreateKeyOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "997e714f-61ec-554e-9b32-4ae2a38287d5",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_node_key",
+      "name": "ObjectProjectionGraphNodeKey",
+      "aware_class_ref": "aware_meta.graph.projection.ObjectProjectionGraphNodeKey",
+      "functions": [
+        {
+          "function_config_id": "7062629c-3b75-5445-96cb-2aeba01f777d",
+          "name": "build_via_object_projection_graph_node",
+          "input_model": "ObjectProjectionGraphNodeKeyBuildViaObjectProjectionGraphNodeInput",
+          "output_model": "ObjectProjectionGraphNodeKeyBuildViaObjectProjectionGraphNodeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2c740880-fd3a-5341-a7a4-e5f8cba606e0",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_observable",
+      "name": "ObjectProjectionGraphObservable",
+      "aware_class_ref": "aware_meta.graph.projection.ObjectProjectionGraphObservable",
+      "functions": [
+        {
+          "function_config_id": "fc21c803-a6a4-5d73-ad4f-464bea5838e5",
+          "name": "create_via_object_projection_graph_identity",
+          "input_model": "ObjectProjectionGraphObservableCreateViaObjectProjectionGraphIdentityInput",
+          "output_model": "ObjectProjectionGraphObservableCreateViaObjectProjectionGraphIdentityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3a7d9c8b-251e-594f-83c9-e5239cd5cf9b",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_relationship",
+      "name": "ObjectProjectionGraphRelationship",
+      "aware_class_ref": "aware_meta.graph.projection.ObjectProjectionGraphRelationship",
+      "functions": [
+        {
+          "function_config_id": "b0c00c5b-e9c9-5266-ab94-88499f15f90b",
+          "name": "build_via_object_projection_graph",
+          "input_model": "ObjectProjectionGraphRelationshipBuildViaObjectProjectionGraphInput",
+          "output_model": "ObjectProjectionGraphRelationshipBuildViaObjectProjectionGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "75756839-a4d7-5fa5-8aa0-38888bada3d1",
+      "module": "aware_meta_ontology.primitive.primitive",
+      "name": "Primitive",
+      "aware_class_ref": "aware_meta.primitive.Primitive",
+      "functions": []
+    },
+    {
+      "class_config_id": "203132b1-f26c-53eb-8695-10c3dc68a657",
+      "module": "aware_meta_ontology.primitive.primitive_change",
+      "name": "PrimitiveChange",
+      "aware_class_ref": "aware_meta.primitive.PrimitiveChange",
+      "functions": []
+    },
+    {
+      "class_config_id": "d8ebe67b-b755-53ef-9892-dda94b601b7f",
+      "module": "aware_meta_ontology.primitive.primitive_config",
+      "name": "PrimitiveConfig",
+      "aware_class_ref": "aware_meta.primitive.PrimitiveConfig",
+      "functions": [
+        {
+          "function_config_id": "1afc9c4e-2df9-544b-8c1b-8027a4988943",
+          "name": "create",
+          "input_model": "PrimitiveConfigCreateInput",
+          "output_model": "PrimitiveConfigCreateOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "d66bae9b-ae2c-5fa1-8ac2-e4392d09031a",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_oneof_enums",
+      "name": "CodeSectionAnnotationOneOfMode"
+    },
+    {
+      "enum_config_id": "d603ef26-4cde-5058-b48e-b867fb6d8cc7",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_overlay_enums",
+      "name": "CodeSectionAnnotationOverlayEntity"
+    },
+    {
+      "enum_config_id": "609674e3-a52d-57c8-9abd-24512cde3eb2",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_override_enums",
+      "name": "CodeSectionAnnotationOverrideTarget"
+    },
+    {
+      "enum_config_id": "b48bba68-87cc-5814-bbee-0f7b1e487bed",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_reference_enums",
+      "name": "CodeSectionAnnotationReferenceMode"
+    },
+    {
+      "enum_config_id": "660fcfba-52dc-5105-8833-3bb7cb4c8682",
+      "module": "aware_meta_ontology.annotation.code_section_annotation_storage_enums",
+      "name": "CodeSectionAnnotationStorageOperation"
+    },
+    {
+      "enum_config_id": "e384174b-daa5-5e6d-886e-c50ecc950792",
+      "module": "aware_meta_ontology.attribute.attribute_enums",
+      "name": "AttributeCollectionType"
+    },
+    {
+      "enum_config_id": "7dec715e-05e0-5136-88ea-ec02d8884828",
+      "module": "aware_meta_ontology.attribute.attribute_enums",
+      "name": "AttributeRelationshipRole"
+    },
+    {
+      "enum_config_id": "1be6caf9-cfb3-55fb-9004-007fbf70729c",
+      "module": "aware_meta_ontology.attribute.attribute_type_descriptor_enums",
+      "name": "AttributeTypeDescriptorKind"
+    },
+    {
+      "enum_config_id": "128d75c9-cbc3-5b4a-8c4b-8d88e73b9def",
+      "module": "aware_meta_ontology.attribute.attribute_type_descriptor_enums",
+      "name": "AttributeTypeDescriptorRole"
+    },
+    {
+      "enum_config_id": "983e4f6b-8dde-5ab9-ae4f-d70622b7404b",
+      "module": "aware_meta_ontology.class_.class_config_enums",
+      "name": "ClassIdentityMode"
+    },
+    {
+      "enum_config_id": "82139c17-c502-52ca-9205-d74ad2143e5e",
+      "module": "aware_meta_ontology.class_.class_config_enums",
+      "name": "ClassValueMode"
+    },
+    {
+      "enum_config_id": "3d2308dc-97ac-5864-adfb-c159321e59ce",
+      "module": "aware_meta_ontology.class_.class_config_relationship_enums",
+      "name": "ClassConfigRelationshipAttributeRole"
+    },
+    {
+      "enum_config_id": "8e186a74-a2ae-52ed-9f58-4a1b1363dd18",
+      "module": "aware_meta_ontology.class_.class_config_relationship_enums",
+      "name": "ClassConfigRelationshipDirection"
+    },
+    {
+      "enum_config_id": "b71bd28d-333a-5995-a1fe-52c6bd37780a",
+      "module": "aware_meta_ontology.class_.class_config_relationship_enums",
+      "name": "ClassConfigRelationshipIdentityRail"
+    },
+    {
+      "enum_config_id": "6f019fe8-b021-59fe-a892-8f0a1a56ffe0",
+      "module": "aware_meta_ontology.class_.class_config_relationship_enums",
+      "name": "ClassConfigRelationshipReifiedRole"
+    },
+    {
+      "enum_config_id": "c4c4e15d-2947-536d-a477-895a4e8d6ced",
+      "module": "aware_meta_ontology.class_.class_config_relationship_enums",
+      "name": "ClassConfigRelationshipSideLoadingStrategy"
+    },
+    {
+      "enum_config_id": "48e94b5a-211c-5adc-b07d-8ab089556ebd",
+      "module": "aware_meta_ontology.class_.class_config_relationship_enums",
+      "name": "ClassConfigRelationshipType"
+    },
+    {
+      "enum_config_id": "47112a7d-b8ed-58a6-8a72-da5f8eded685",
+      "module": "aware_meta_ontology.function.function_config_enums",
+      "name": "FunctionAttributeType"
+    },
+    {
+      "enum_config_id": "7f2eafbb-89a7-5f9b-ae77-e7711b9a0f6f",
+      "module": "aware_meta_ontology.function.function_config_enums",
+      "name": "FunctionIdentityKeyOrigin"
+    },
+    {
+      "enum_config_id": "a085511d-5552-50f4-8d8b-9e4543a6245b",
+      "module": "aware_meta_ontology.function.function_config_enums",
+      "name": "FunctionKind"
+    },
+    {
+      "enum_config_id": "9e84457f-69c7-5b50-8ed7-4a2a3ae9d8d0",
+      "module": "aware_meta_ontology.function.function_config_invocation_enums",
+      "name": "FunctionInvocationKind"
+    },
+    {
+      "enum_config_id": "cc373c2c-55cc-5456-8298-2ea1d7c1218e",
+      "module": "aware_meta_ontology.function.function_config_invocation_enums",
+      "name": "FunctionInvocationRootKind"
+    },
+    {
+      "enum_config_id": "e10176ae-b180-5776-9828-7dac17c37ace",
+      "module": "aware_meta_ontology.function.function_impl_enums",
+      "name": "FunctionImplKind"
+    },
+    {
+      "enum_config_id": "0484286e-4b57-54a0-8dd3-cb8c0f95b598",
+      "module": "aware_meta_ontology.function.function_impl_instruction_enums",
+      "name": "FunctionImplDeleteTargetKind"
+    },
+    {
+      "enum_config_id": "21734a38-34ed-5e8f-befe-59c5e580e498",
+      "module": "aware_meta_ontology.function.function_impl_instruction_enums",
+      "name": "FunctionImplInstructionType"
+    },
+    {
+      "enum_config_id": "9e7663c2-3068-5047-bf74-477f73df900e",
+      "module": "aware_meta_ontology.function.function_impl_instruction_enums",
+      "name": "FunctionImplInvokeKind"
+    },
+    {
+      "enum_config_id": "210bb052-1279-57e0-845d-40f26f7b3212",
+      "module": "aware_meta_ontology.function.function_impl_instruction_enums",
+      "name": "FunctionImplRequireCompareOperator"
+    },
+    {
+      "enum_config_id": "ebfd8b6a-2304-5ae0-9666-64a2184a9a60",
+      "module": "aware_meta_ontology.function.function_impl_instruction_enums",
+      "name": "FunctionImplRequireKind"
+    },
+    {
+      "enum_config_id": "ac1e8efa-6b82-5984-922f-c6fd5566eb8a",
+      "module": "aware_meta_ontology.function.function_impl_instruction_enums",
+      "name": "FunctionImplValueSourceKind"
+    },
+    {
+      "enum_config_id": "67b917b6-4dc3-5d3f-b403-f8c481de2066",
+      "module": "aware_meta_ontology.function.function_impl_instruction_enums",
+      "name": "FunctionImplValueSourceReadPathRootKind"
+    },
+    {
+      "enum_config_id": "0fbc5aa6-e58c-58e8-96b4-09b5e42229cf",
+      "module": "aware_meta_ontology.function.function_impl_instruction_enums",
+      "name": "FunctionImplValueTransformKind"
+    },
+    {
+      "enum_config_id": "a53b3669-9a15-54d6-82e6-159e5a044984",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_annotation_enums",
+      "name": "ObjectConfigGraphAnnotationKind"
+    },
+    {
+      "enum_config_id": "33b58f10-ad43-51d4-b345-19cc96b1143a",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_enums",
+      "name": "ObjectConfigGraphNodeType"
+    },
+    {
+      "enum_config_id": "fc7c001c-08cf-535f-839f-fee3f88230b3",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_mirror_enums",
+      "name": "ObjectConfigGraphMirrorTargetKind"
+    },
+    {
+      "enum_config_id": "ffac665a-9e2f-518f-a760-09ab149aed1b",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_package_implementation_policy_enums",
+      "name": "ObjectConfigGraphPackageFunctionImplOwnership"
+    },
+    {
+      "enum_config_id": "21ea7562-c72e-5b6e-b4f1-03205138d55d",
+      "module": "aware_meta_ontology.graph.config.object_config_graph_package_implementation_policy_enums",
+      "name": "ObjectConfigGraphPackageFunctionImplParityPolicy"
+    },
+    {
+      "enum_config_id": "08961bc5-b736-5e3f-8fe3-4c5cb1a12850",
+      "module": "aware_meta_ontology.graph.instance.object_instance_graph_change_enums",
+      "name": "ObjectInstanceGraphChangeType"
+    },
+    {
+      "enum_config_id": "1a04a08f-84d6-5c1e-8767-39ee1c2c9876",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_enums",
+      "name": "ObjectProjectionGraphAttributeRole"
+    },
+    {
+      "enum_config_id": "4bd1514e-2e5b-52af-a9f7-4280aea805ef",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_enums",
+      "name": "ObjectProjectionGraphEdgeInclude"
+    },
+    {
+      "enum_config_id": "e572ac3b-7c3f-5ad5-b794-cd00874b2e73",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_enums",
+      "name": "ObjectProjectionGraphEdgeMultiplicity"
+    },
+    {
+      "enum_config_id": "dd4761e4-50c0-5ec3-b9fd-f5387d359925",
+      "module": "aware_meta_ontology.graph.projection.object_projection_graph_enums",
+      "name": "ObjectProjectionGraphNodeSelection"
+    }
+  ]
+}

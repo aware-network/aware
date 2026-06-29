@@ -1,0 +1,16 @@
+class CodeSectionCommentContent {
+    // Relationships
+    content_part_text_segment aware_content.part.ContentPartTextSegment
+
+    // Attributes
+    position Int key
+
+    fn build construct(position Int key) -> CodeSectionCommentContent {
+        """
+        Build an ordered comment-content item under a comment.
+        """
+    }
+}
+
+// Load content_part_text_segment eagerly
+ann comment.CodeSectionCommentContent::content_part_text_segment load eager

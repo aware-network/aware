@@ -1,0 +1,242 @@
+class ClassConfig {
+    // Relationships
+    class_config_attribute_configs ClassConfigAttributeConfig[]
+    class_config_function_configs ClassConfigFunctionConfig[]
+    class_config_relationships ClassConfigRelationship[]
+    parent_class ClassConfig? = null
+    code_section_class aware_code.class.CodeSectionClass?
+
+    // Attributes
+    class_fqn String key
+    description String?
+    name String
+    is_base Bool = true
+    is_edge Bool = false
+    value_mode ClassValueMode = graph_ref
+    identity_mode ClassIdentityMode = contained
+
+    fn create construct (
+        class_fqn String key,
+        name String,
+        is_base Bool = true,
+        is_edge Bool = false,
+        description String? = null,
+        value_mode ClassValueMode = graph_ref
+    ) -> ClassConfig {
+        """
+        Create deterministic ClassConfig under an ObjectConfigGraphNode.
+        """
+    }
+
+    fn update_config (
+        description String? = null,
+        is_base Bool = true,
+        is_edge Bool = false,
+        value_mode ClassValueMode = graph_ref,
+        identity_mode ClassIdentityMode = contained
+    ) -> {
+        """
+        Update mutable ClassConfig metadata.
+
+        Contract:
+        - `class_fqn` and `name` are identity and are not mutable here.
+        - Attribute, function, and relationship membership changes use their
+          own ontology functions.
+        """
+    }
+
+    fn create_primitive_attribute_config (
+        name String,
+        primitive_base_type aware_code.primitive.CodePrimitiveBaseType = any,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        position Int = 0
+    ) -> attribute.AttributeConfig {
+        """
+        Materialize one AttributeConfig and bind it through ClassConfigAttributeConfig.
+        """
+        let created_link = construct class_config_attribute_configs.create_primitive(
+            owner_key = class_fqn,
+            name = name,
+            primitive_base_type = primitive_base_type,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+            position = position,
+        )
+    }
+
+    fn create_enum_attribute_config (
+        name String,
+        enum_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        position Int = 0
+    ) -> attribute.AttributeConfig {
+        """
+        Materialize one enum AttributeConfig and bind it through ClassConfigAttributeConfig.
+        """
+        let created_link = construct class_config_attribute_configs.create_enum(
+            owner_key = class_fqn,
+            name = name,
+            enum_config_id = enum_config_id,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+            position = position,
+        )
+    }
+
+    fn create_class_attribute_config (
+        name String,
+        type_class_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        position Int = 0
+    ) -> attribute.AttributeConfig {
+        """
+        Materialize one class AttributeConfig and bind it through ClassConfigAttributeConfig.
+        """
+        let created_link = construct class_config_attribute_configs.create_class(
+            owner_key = class_fqn,
+            name = name,
+            type_class_config_id = type_class_config_id,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+            position = position,
+        )
+    }
+
+    fn remove_attribute_config (
+        name String,
+        attribute_config_id UUID? = null
+    ) -> {
+        """
+        Remove one AttributeConfig membership from this ClassConfig.
+
+        Contract:
+        - Mutates only class_config_attribute_configs on this ClassConfig.
+        - Attribute identity comes from committed semantic baseline truth when available.
+        - Rooted OIG commit reachability owns the stale AttributeConfig deletion after the edge is removed.
+        """
+    }
+
+    fn create_function_config (
+        name String,
+        description String? = null,
+        verb String? = null,
+        is_async Bool = false,
+        kind function.FunctionKind = instance,
+        is_public Bool = true,
+        is_constructor Bool = false,
+        position Int = 0
+    ) -> function.FunctionConfig {
+        """
+        Materialize one FunctionConfig and bind it through ClassConfigFunctionConfig.
+        """
+        let created_link = construct class_config_function_configs.create(
+            owner_key = class_fqn,
+            name = name,
+            description = description,
+            verb = verb,
+            is_async = is_async,
+            kind = kind,
+            is_public = is_public,
+            is_constructor = is_constructor,
+            position = position,
+        )
+    }
+
+    fn remove_function_config (
+        name String,
+        function_config_id UUID? = null
+    ) -> {
+        """
+        Remove one FunctionConfig membership from this ClassConfig.
+
+        Contract:
+        - Mutates only class_config_function_configs on this ClassConfig.
+        - Function identity comes from committed semantic baseline truth when available.
+        - Rooted OIG commit reachability owns stale FunctionConfig deletion after membership removal.
+        """
+    }
+
+    fn create_relationship (
+        target_class_config_id UUID,
+        relationship_key String,
+        relationship_type ClassConfigRelationshipType,
+        identity_rail ClassConfigRelationshipIdentityRail? = null,
+        forward_required Bool = false,
+        forward_loading_strategy ClassConfigRelationshipSideLoadingStrategy? = null,
+        reverse_loading_strategy ClassConfigRelationshipSideLoadingStrategy? = null,
+        reified_from_relationship_id UUID? = null,
+        reified_role ClassConfigRelationshipReifiedRole? = null
+    ) -> ClassConfigRelationship {
+        """
+        Materialize one deterministic relationship owned by this ClassConfig.
+
+        Contract:
+        - Parent `ClassConfig` scope is propagated by traversal lowering.
+        - Stable identity derives from parent scope + `(target_class_config_id, relationship_key)`.
+        - Association class metadata is optional, materialized on the child rail, and is not part of stable identity.
+        """
+        let created = construct class_config_relationships.create(
+            target_class_config_id = target_class_config_id,
+            relationship_key = relationship_key,
+            relationship_type = relationship_type,
+            identity_rail = identity_rail,
+            forward_required = forward_required,
+            forward_loading_strategy = forward_loading_strategy,
+            reverse_loading_strategy = reverse_loading_strategy,
+            reified_from_relationship_id = reified_from_relationship_id,
+            reified_role = reified_role,
+        )
+    }
+
+    fn remove_relationship_config (
+        relationship_key String,
+        relationship_config_id UUID? = null
+    ) -> {
+        """
+        Remove one ClassConfigRelationship membership from this ClassConfig.
+
+        Contract:
+        - Mutates only class_config_relationships on this ClassConfig.
+        - Relationship identity comes from committed semantic baseline truth when available.
+        - Rooted OIG commit reachability owns stale relationship object deletion after membership removal.
+        """
+    }
+}
+
+/// Load attribute configs, function configs and relationships eagerly
+ann class.ClassConfig::class_config_attribute_configs load eager
+ann class.ClassConfig::class_config_function_configs load eager
+ann class.ClassConfig::class_config_relationships load eager

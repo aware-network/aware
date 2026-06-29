@@ -1,0 +1,16 @@
+/// Ontology projection.
+///
+/// Purpose:
+/// - Expose actual ontology authority/worldline truth.
+/// - Keep runtime/instance state scoped to the indexed OIGIs.
+projection Ontology is_branchable {
+    root ontology.Ontology
+
+    ontology.Ontology::object_instance_graph_identities aware_meta.ObjectInstanceGraphIdentity
+
+    observable editor instance default {
+        """
+        Concrete ontology authority and indexed OIGI worldlines.
+        """
+    }
+}

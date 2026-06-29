@@ -1,4 +1,4 @@
-"""High-level orchestrator for executing GraphSQL plans."""
+"""High-level environment for executing GraphSQL plans."""
 
 from __future__ import annotations
 

@@ -1,0 +1,5 @@
+class EnumChange {
+    // Relationships
+    change aware_history.change.Change key
+    enum_option EnumOption key
+}

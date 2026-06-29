@@ -1,0 +1,23 @@
+/// Ordered operand slot for `FunctionImplValueSourceTransform`.
+///
+/// Contract:
+/// - Operands are value sources, never raw expression JSON.
+/// - `position` is compiler-owned operand order for transform arity semantics.
+class FunctionImplValueSourceTransformOperand {
+    // Relationships
+    value_source FunctionImplValueSource
+
+    // Attributes
+    position Int key
+
+    fn build construct (
+        position Int key,
+        value_source_id UUID
+    ) -> FunctionImplValueSourceTransformOperand {
+        """
+        Create deterministic operand binding under one transform payload.
+        """
+    }
+}
+
+ann function.FunctionImplValueSourceTransformOperand::value_source load eager

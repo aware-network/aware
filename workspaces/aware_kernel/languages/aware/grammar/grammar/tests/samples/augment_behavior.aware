@@ -1,0 +1,19 @@
+/// Canonical terminal for behavior-only augment test
+class Terminal {
+    name String
+}
+
+/// Overlay augmenting Terminal with behavior only (new class over ontology object)
+class TerminalBehavior augment Terminal {
+    fn activate(env Environment) -> Terminal {
+        """
+        Activates a terminal by registering an overlay action.
+        """
+    }
+
+    async fn deactivate(env Environment) -> Terminal {
+        """
+        Deactivates the terminal.
+        """
+    }
+}

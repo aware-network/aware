@@ -1,0 +1,25 @@
+aware_ontology = 1
+
+[ontology]
+package_name = "history-ontology"
+fqn_prefix = "aware_history"
+version_number = 1
+title = "History"
+description = "SSOT canonical (.aware) sources for history"
+source_manifest = "structure/aware.toml"
+package_root = "."
+sources_root = "structure/aware"
+stable_ids_ownership = "compiler"
+stable_ids_parity_policy = "error"
+stable_ids_resolution_policy = "class_strict"
+
+[runtime]
+manifest = "runtime/python/pyproject.toml"
+project_name = "aware-history"
+import_root = "aware_history"
+
+[layout]
+profile = "ontology_structure_v1"
+
+[[dependencies]]
+package_name = "code-ontology"

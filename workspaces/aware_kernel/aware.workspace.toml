@@ -4,11 +4,21 @@ aware = 1
 handle = "aware_kernel"
 title = "Aware Kernel"
 
-environments = [
-    "aware.environment.toml",
-]
+environments = []
 
 codes = [
+    "languages/aware/grammar/grammar/pyproject.toml",
+    "languages/aware/grammar/tree_sitter/pyproject.toml",
+    "languages/dart/grammar/grammar/pyproject.toml",
+    "languages/dart/grammar/tree_sitter/pyproject.toml",
+    "languages/python/grammar/grammar/pyproject.toml",
+    "languages/python/grammar/tree_sitter/pyproject.toml",
+    "languages/rust/tooling/pyproject.toml",
+    "languages/sql/grammar/grammar/pyproject.toml",
+    "languages/sql/grammar/tree_sitter/pyproject.toml",
+    "libs/model_helpers/dart/aware_model_helpers/pubspec.yaml",
+    "libs/types/python/pyproject.toml",
+    "libs/utils/python/pyproject.toml",
     "libs/orm/pyproject.toml",
 ]
 

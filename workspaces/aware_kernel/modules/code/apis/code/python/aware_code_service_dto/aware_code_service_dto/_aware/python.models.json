@@ -1,0 +1,1406 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "291a04e2-6766-5d55-b8de-e628740980a4",
+      "module": "aware_code_service_dto.code.features.content_plan",
+      "name": "CodeContentPlan",
+      "aware_class_ref": "aware_code_service_dto.code.CodeContentPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "1c176397-ecd8-5394-bfcc-ceda757a053b",
+      "module": "aware_code_service_dto.code.features.content_plan",
+      "name": "CodeSectionAnnotationPlan",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSectionAnnotationPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "239c73b1-767f-55b4-b7ca-67583f00079d",
+      "module": "aware_code_service_dto.code.features.content_plan",
+      "name": "CodeSectionImportNamePlan",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSectionImportNamePlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "2d24f8e9-7f3a-5840-b196-1ad88d6b2030",
+      "module": "aware_code_service_dto.code.features.content_plan",
+      "name": "CodeSectionImportPlan",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSectionImportPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "4aec8061-5db5-5eb1-9411-2fb33695ed1e",
+      "module": "aware_code_service_dto.code.features.content_plan",
+      "name": "CodeSectionPlan",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSectionPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "9963cca9-ae2e-5f19-91fc-759c6cf0bad3",
+      "module": "aware_code_service_dto.code.features.content_plan",
+      "name": "CodeSegmentPlan",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSegmentPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "5b561751-142d-587c-b76e-f0f3788261e7",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "CodeGeneratedMaterializationActionBinding",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGeneratedMaterializationActionBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "59cb41f1-e24a-5c6e-a7f2-e97fe2726280",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "CodeGeneratedMaterializationDeltaEntry",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGeneratedMaterializationDeltaEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "6643da62-74b5-5482-bcbf-82350dd08ca0",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "CodeGeneratedMaterializationDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGeneratedMaterializationDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "3d8754b7-4556-5150-a3db-2ae023ab3371",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "CodeGeneratedMaterializationDeltaResult",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGeneratedMaterializationDeltaResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "c8f2bb9b-62c1-5247-8872-5e28078afcf6",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "CodeGeneratedMaterializationEventRef",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGeneratedMaterializationEventRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "2ff71de4-1961-505b-a7c5-49b47c3a58ac",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "CodeGeneratedMaterializationSkippedTarget",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGeneratedMaterializationSkippedTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "116aa5c8-ff99-521f-aade-a6289be29eb5",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "CodeGeneratedMaterializationTargetRef",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGeneratedMaterializationTargetRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "e85366a6-d970-568a-b9f4-179df2066b64",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "CodeGeneratedRendererAnchorRef",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGeneratedRendererAnchorRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "c7a001a7-639c-560d-bc2d-db76e34e60b2",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "CodeGeneratedRendererDeltaOperation",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGeneratedRendererDeltaOperation",
+      "functions": []
+    },
+    {
+      "class_config_id": "97c77041-103c-54f4-8397-80435f758d6f",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "FingerprintCodeGeneratedMaterializationDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.FingerprintCodeGeneratedMaterializationDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d94175b6-3f9b-51a1-be77-a3a6e1b6e00d",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "FingerprintCodeGeneratedMaterializationDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.FingerprintCodeGeneratedMaterializationDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e84cec60-d0b8-5c38-bfe7-6bbf3d49cd80",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "NormalizeCodeGeneratedMaterializationDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.NormalizeCodeGeneratedMaterializationDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "5607c2fb-7dd8-577b-8f9d-749623c99c71",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "NormalizeCodeGeneratedMaterializationDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.NormalizeCodeGeneratedMaterializationDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "1b7b2eb8-7a2e-5712-8316-cd43c84fd468",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "ResolveCodeGeneratedMaterializationPackageDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeGeneratedMaterializationPackageDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "ed7a3e10-200b-57ae-af14-4e7b31bccfcb",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "ResolveCodeGeneratedMaterializationPackageDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeGeneratedMaterializationPackageDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "8aa8ae3c-1281-511e-9ca2-17b7ffe55be5",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "ValidateCodeGeneratedMaterializationDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodeGeneratedMaterializationDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9f952ba3-9648-56dc-b8ec-b80ccec75a55",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "ValidateCodeGeneratedMaterializationDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodeGeneratedMaterializationDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "5f361d34-294b-5846-a4b0-ee4bc48e4aa1",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "CodeGrammarAnchorBinding",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "b5892c4b-6a46-5a1e-aa72-754e981bf9d0",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "CodeGrammarAnchorFixture",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorFixture",
+      "functions": []
+    },
+    {
+      "class_config_id": "00a7a547-7890-5805-ad33-6a339798036d",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "CodeGrammarAnchorGraphChangeDraft",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorGraphChangeDraft",
+      "functions": []
+    },
+    {
+      "class_config_id": "71d375ce-f07e-564e-ae9e-99ad470a82ad",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "CodeGrammarAnchorTextEvidence",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorTextEvidence",
+      "functions": []
+    },
+    {
+      "class_config_id": "4aed4150-f0ae-5175-a760-d408723a0cda",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "CodeGrammarAnchorTextTargetEvidence",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorTextTargetEvidence",
+      "functions": []
+    },
+    {
+      "class_config_id": "ee9f8f9b-3525-5294-8f4b-1910d5758872",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "CodeGraphAttributeSelector",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGraphAttributeSelector",
+      "functions": []
+    },
+    {
+      "class_config_id": "18a61d7b-e14b-5fc9-b8ac-bf8c5f7cef88",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "CodeGraphFieldSelector",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGraphFieldSelector",
+      "functions": []
+    },
+    {
+      "class_config_id": "72eeae52-7349-5138-99d8-bc19ce75d3aa",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "ResolveCodeGrammarAnchorBindingEvidenceRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeGrammarAnchorBindingEvidenceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "5a67127e-3fa9-518b-9f7b-38df26f9864c",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "ResolveCodeGrammarAnchorBindingEvidenceResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeGrammarAnchorBindingEvidenceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "9786111e-2351-58a5-a14d-b4938cf9f1ea",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "ValidateCodeGrammarAnchorBindingRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodeGrammarAnchorBindingRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "24be9e06-0bb2-584e-a6f5-2e0fa74a66a8",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "ValidateCodeGrammarAnchorBindingResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodeGrammarAnchorBindingResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "9255a9e3-f4a5-5d29-b8ce-85197ce616a5",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+      "name": "CodeGrammarAnchorRenderEntry",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorRenderEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "e7cf36e4-2c73-58c1-b1c0-6050884aa5b1",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+      "name": "CodeGrammarAnchorRenderReplacement",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorRenderReplacement",
+      "functions": []
+    },
+    {
+      "class_config_id": "284c549a-0301-5008-8267-9ce3e3f44f65",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+      "name": "CodeGrammarAnchorRenderSource",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorRenderSource",
+      "functions": []
+    },
+    {
+      "class_config_id": "488891e5-d90f-5425-ba1a-152ee50795d3",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+      "name": "CodeGrammarAnchorRenderSpanTarget",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorRenderSpanTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "45febece-dad6-553e-ada5-14d49c5a95eb",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+      "name": "ResolveCodeGrammarAnchorRenderDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeGrammarAnchorRenderDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d0218a7e-3f71-5c12-b32d-5aef0e52629e",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+      "name": "ResolveCodeGrammarAnchorRenderDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeGrammarAnchorRenderDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c7aab32a-79b0-5258-b53f-b20b962ffca9",
+      "module": "aware_code_service_dto.code.features.grammar_profile",
+      "name": "CodeGrammarAnchorCoverageDiagnostic",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorCoverageDiagnostic",
+      "functions": []
+    },
+    {
+      "class_config_id": "10ebf01a-af86-5183-ae54-447b43192543",
+      "module": "aware_code_service_dto.code.features.grammar_profile",
+      "name": "CodeGrammarBackendDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarBackendDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "0ecf0afd-3d70-5296-b94d-f066edbdc533",
+      "module": "aware_code_service_dto.code.features.grammar_profile",
+      "name": "CodeGrammarProfile",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarProfile",
+      "functions": []
+    },
+    {
+      "class_config_id": "d99cfb89-2326-5301-bcf9-1258f3ce4897",
+      "module": "aware_code_service_dto.code.features.grammar_profile",
+      "name": "CodeGrammarProfileDiagnostic",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarProfileDiagnostic",
+      "functions": []
+    },
+    {
+      "class_config_id": "c87697c4-4f7f-5c47-af01-3b12d66dc84c",
+      "module": "aware_code_service_dto.code.features.grammar_profile",
+      "name": "CodeGrammarRuleBinding",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarRuleBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "ce1e55bf-5f04-5795-b37c-065573ad353f",
+      "module": "aware_code_service_dto.code.features.grammar_profile",
+      "name": "CodeGrammarRuleDeclaration",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarRuleDeclaration",
+      "functions": []
+    },
+    {
+      "class_config_id": "6d854e93-bb97-5981-b1ac-f04722988d4f",
+      "module": "aware_code_service_dto.code.features.grammar_profile",
+      "name": "ResolveCodeGrammarProfileRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeGrammarProfileRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "eaf32d65-8df0-5125-9cb6-c12792f4e885",
+      "module": "aware_code_service_dto.code.features.grammar_profile",
+      "name": "ResolveCodeGrammarProfileResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeGrammarProfileResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "4dff86d7-627d-53e1-bb4e-bcda98b337d6",
+      "module": "aware_code_service_dto.code.features.package_delta",
+      "name": "CodePackageDelta",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageDelta",
+      "functions": []
+    },
+    {
+      "class_config_id": "49e60ae3-db8c-5563-92ff-9a14a8752631",
+      "module": "aware_code_service_dto.code.features.package_delta",
+      "name": "CodePackageDeltaApplyResult",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageDeltaApplyResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "7eea9c6c-108f-5f5d-b5ea-0fc98b8346d6",
+      "module": "aware_code_service_dto.code.features.package_delta",
+      "name": "CodePackageDeltaPath",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageDeltaPath",
+      "functions": []
+    },
+    {
+      "class_config_id": "3ea968a5-e1d7-5142-98b0-1677676a599f",
+      "module": "aware_code_service_dto.code.features.package_delta",
+      "name": "CodePackageDeltaProducerRef",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageDeltaProducerRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "ca94fe25-9f1a-581c-8308-968391351989",
+      "module": "aware_code_service_dto.code.features.package_delta",
+      "name": "CodePackageDeltaProduction",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageDeltaProduction",
+      "functions": []
+    },
+    {
+      "class_config_id": "60a48472-9e43-574d-862f-8a6ed25e972b",
+      "module": "aware_code_service_dto.code.features.package_delta",
+      "name": "FingerprintCodePackageDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.FingerprintCodePackageDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "ed2f8d94-9c8f-5c04-bf04-e2be348bb792",
+      "module": "aware_code_service_dto.code.features.package_delta",
+      "name": "FingerprintCodePackageDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.FingerprintCodePackageDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "66ba7905-706e-557f-80d9-1f6bc47d722e",
+      "module": "aware_code_service_dto.code.features.package_delta",
+      "name": "NormalizeCodePackageDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.NormalizeCodePackageDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "4ba64b95-8dcf-5a2a-ad29-e973a34c13e1",
+      "module": "aware_code_service_dto.code.features.package_delta",
+      "name": "NormalizeCodePackageDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.NormalizeCodePackageDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "8534d6dc-ca65-5db1-b0b3-24556a3533ce",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "CodePackageArtifactLock",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageArtifactLock",
+      "functions": []
+    },
+    {
+      "class_config_id": "c1584bb6-573b-57e8-95f5-152c86811081",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "CodePackageChannelHead",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageChannelHead",
+      "functions": []
+    },
+    {
+      "class_config_id": "7a65206e-416c-5fe4-ad1f-4c7676063bdb",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "CodePackageDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "1f7f93e1-bc46-5337-ba7a-63cca53ae0ad",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "CodePackageDiscoveryEntry",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageDiscoveryEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "931057d6-8bf4-5be1-b9a0-308f469799c6",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "CodePackageRef",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "c09b3cdb-7715-513e-a223-eff1695a442d",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "CodePackageServiceRequest",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a7487030-1525-53ba-ba87-fb7a0798e11f",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "CodePackageServiceResponse",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "a1914664-1efa-5428-b399-94f99118799e",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "DescribeCodePackageRequest",
+      "aware_class_ref": "aware_code_service_dto.code.DescribeCodePackageRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c465284a-68bf-5060-ad94-e0145752a3de",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "DescribeCodePackageResponse",
+      "aware_class_ref": "aware_code_service_dto.code.DescribeCodePackageResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "8639953a-1a8b-5b53-b61d-ab2efa3d6d8b",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "DiscoverCodePackageChannelHeadsRequest",
+      "aware_class_ref": "aware_code_service_dto.code.DiscoverCodePackageChannelHeadsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "aa42bb60-46ae-553f-98b8-afdb0457d5f1",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "DiscoverCodePackageChannelHeadsResponse",
+      "aware_class_ref": "aware_code_service_dto.code.DiscoverCodePackageChannelHeadsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ba68c5de-aaa6-5fac-ab7a-8b0c19415d59",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "DownloadCodePackageRequest",
+      "aware_class_ref": "aware_code_service_dto.code.DownloadCodePackageRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "78f28de7-3e75-54b6-b4cf-e59b42f6362d",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "DownloadCodePackageResponse",
+      "aware_class_ref": "aware_code_service_dto.code.DownloadCodePackageResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e6c421c6-eb39-56e7-8ce8-b108e1807b27",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "PublishCodePackageRequest",
+      "aware_class_ref": "aware_code_service_dto.code.PublishCodePackageRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "0860a715-8e5d-543a-a87b-7a8ddfe67c4b",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "PublishCodePackageResponse",
+      "aware_class_ref": "aware_code_service_dto.code.PublishCodePackageResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c0f125a4-4814-5682-bf7a-079aea119f4e",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "ResolveCodePackageRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodePackageRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "ca2b83a5-e05a-59f5-973e-8f4488554f18",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "ResolveCodePackageResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodePackageResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e8ce9c5a-f191-581a-97e9-f08e0ae1c570",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "SearchCodePackageRequest",
+      "aware_class_ref": "aware_code_service_dto.code.SearchCodePackageRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "0c1ea270-8e02-5aa2-96e9-86203824ce76",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "SearchCodePackageResponse",
+      "aware_class_ref": "aware_code_service_dto.code.SearchCodePackageResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "b60390f1-b73f-53da-a56c-7818c5042e6e",
+      "module": "aware_code_service_dto.code.features.package_layout",
+      "name": "CodePackageLayoutContract",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageLayoutContract",
+      "functions": []
+    },
+    {
+      "class_config_id": "069dd8b7-4bf1-5379-a2a3-f85ad3d359b1",
+      "module": "aware_code_service_dto.code.features.package_layout",
+      "name": "CodePackageLayoutPathRole",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageLayoutPathRole",
+      "functions": []
+    },
+    {
+      "class_config_id": "f3c7c623-0fff-50ec-93a2-98dde3225a85",
+      "module": "aware_code_service_dto.code.features.package_layout",
+      "name": "DescribeCodePackageLayoutRequest",
+      "aware_class_ref": "aware_code_service_dto.code.DescribeCodePackageLayoutRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "e9b042c7-7829-528d-9049-2ac85d05fa9c",
+      "module": "aware_code_service_dto.code.features.package_layout",
+      "name": "DescribeCodePackageLayoutResponse",
+      "aware_class_ref": "aware_code_service_dto.code.DescribeCodePackageLayoutResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7888ecb3-9707-53f1-906f-a857ecf125c9",
+      "module": "aware_code_service_dto.code.features.package_layout",
+      "name": "DiscoverCodePackageLayoutsRequest",
+      "aware_class_ref": "aware_code_service_dto.code.DiscoverCodePackageLayoutsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "e66d731d-5d70-5846-b225-d770d16bb8ac",
+      "module": "aware_code_service_dto.code.features.package_layout",
+      "name": "DiscoverCodePackageLayoutsResponse",
+      "aware_class_ref": "aware_code_service_dto.code.DiscoverCodePackageLayoutsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "afb135f1-b92d-5455-ad07-8e6ac1c5bf87",
+      "module": "aware_code_service_dto.code.features.package_layout",
+      "name": "ValidateCodePackageLayoutRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodePackageLayoutRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b3713a00-691d-5178-a39a-72da90de3ae4",
+      "module": "aware_code_service_dto.code.features.package_layout",
+      "name": "ValidateCodePackageLayoutResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodePackageLayoutResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "f0642517-6ccb-50c9-a41a-60b9a23378b0",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "CodeNestedMemberInsertAnchor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeNestedMemberInsertAnchor",
+      "functions": []
+    },
+    {
+      "class_config_id": "435c95d0-64d4-594e-a03c-e772086c00d6",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "CodeSectionDeltaEntry",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSectionDeltaEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "e00f5830-750e-5455-b40a-2243a94d8951",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "CodeSectionDeltaSet",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSectionDeltaSet",
+      "functions": []
+    },
+    {
+      "class_config_id": "4a46564a-3bc9-58db-94b4-b30ceacbdf5e",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "CodeSectionRef",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSectionRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "e665956d-40ee-5135-b022-23811dfe972f",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "CodeSegmentRef",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSegmentRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "cc8977dc-ee57-5de5-aa66-92184e47ba7c",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "CodeSegmentRenderPolicy",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSegmentRenderPolicy",
+      "functions": []
+    },
+    {
+      "class_config_id": "7c73f312-33ee-59b9-9fc0-df323601205b",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "CodeSegmentRenderPolicyDiagnostic",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSegmentRenderPolicyDiagnostic",
+      "functions": []
+    },
+    {
+      "class_config_id": "74f3ff10-4981-5de1-8ddb-dfb1e1f36c3a",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "FingerprintCodeSectionDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.FingerprintCodeSectionDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "fdea3612-75ed-5b54-835b-40d1a061fc46",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "FingerprintCodeSectionDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.FingerprintCodeSectionDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "56a12e7e-235f-5d36-9d3f-65439aa99fc7",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "NormalizeCodeSectionDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.NormalizeCodeSectionDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "4e48b769-2c80-5646-9640-d3d890526ba3",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "NormalizeCodeSectionDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.NormalizeCodeSectionDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "046fdcd6-4d04-57d4-a73c-602950f5f6bf",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "ResolveCodeSectionDeltaPackageDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSectionDeltaPackageDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d4e57980-2a1f-54b7-bc7f-2a14a9c87a93",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "ResolveCodeSectionDeltaPackageDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSectionDeltaPackageDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c92c9314-bda4-5632-99c1-a0f0977e6976",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "ResolveCodeSegmentRenderPolicyRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSegmentRenderPolicyRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b85a124b-9629-5d0a-98b2-9aae1532751d",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "ResolveCodeSegmentRenderPolicyResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSegmentRenderPolicyResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ecc2105a-2e9a-5bec-a53e-22b9d94e6903",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "ValidateCodeSectionDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodeSectionDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d0bbf353-f85b-5d4e-984d-b268fb08fa8d",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "ValidateCodeSectionDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodeSectionDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "cec87182-f012-5cd4-b460-62c3a65caf68",
+      "module": "aware_code_service_dto.code.features.semantic_analysis",
+      "name": "CodeSemanticActionBinding",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticActionBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "e0e38a3b-496b-5db6-af8c-6fb8d2161d40",
+      "module": "aware_code_service_dto.code.features.semantic_analysis",
+      "name": "CodeSemanticAnalysisChangePreview",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticAnalysisChangePreview",
+      "functions": []
+    },
+    {
+      "class_config_id": "3b933a6b-f98c-5556-abfa-302916e9869c",
+      "module": "aware_code_service_dto.code.features.semantic_analysis",
+      "name": "CodeSemanticAnalysisDependencyRequirement",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticAnalysisDependencyRequirement",
+      "functions": []
+    },
+    {
+      "class_config_id": "c6806140-29eb-5f4d-8c6c-040c447e8db5",
+      "module": "aware_code_service_dto.code.features.semantic_analysis",
+      "name": "CodeSemanticAnalysisDiagnostic",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticAnalysisDiagnostic",
+      "functions": []
+    },
+    {
+      "class_config_id": "345a3b54-a93d-5349-bba0-1df54c1e5bf4",
+      "module": "aware_code_service_dto.code.features.semantic_analysis",
+      "name": "CodeSemanticDelta",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticDelta",
+      "functions": []
+    },
+    {
+      "class_config_id": "966cf5e1-eddc-59d2-b32d-cf66d0524208",
+      "module": "aware_code_service_dto.code.features.semantic_analysis",
+      "name": "CodeSemanticEvent",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "a01864d0-77a3-59ee-83e3-9fdeeb2461ee",
+      "module": "aware_code_service_dto.code.features.semantic_analysis",
+      "name": "CodeSemanticFunctionCallBinding",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticFunctionCallBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "057c5da8-40ff-5903-97fa-ffb90ea030ce",
+      "module": "aware_code_service_dto.code.features.semantic_analysis",
+      "name": "CodeSemanticTypedOperation",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticTypedOperation",
+      "functions": []
+    },
+    {
+      "class_config_id": "7752d21d-cc41-5111-a43a-b0ed52646985",
+      "module": "aware_code_service_dto.code.features.semantic_analysis",
+      "name": "PreviewCodeSemanticAnalysisPackageDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.PreviewCodeSemanticAnalysisPackageDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "62cf1897-20c2-5fe9-92ff-748ce57fbdf0",
+      "module": "aware_code_service_dto.code.features.semantic_analysis",
+      "name": "PreviewCodeSemanticAnalysisPackageDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.PreviewCodeSemanticAnalysisPackageDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ebdf64b6-1646-5714-baba-f81724d1bfcf",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeCapabilityBundleDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeCapabilityBundleDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "0544949c-761a-5182-abc8-30c60744b85b",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeCapabilityExecutionPolicyDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeCapabilityExecutionPolicyDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "33db42b9-39d2-541c-b51c-a34c58eb14e1",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeCapabilityParticipationDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeCapabilityParticipationDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "c133ec8b-e2e2-5b3f-82b2-865816433977",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeCapabilityProfileDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeCapabilityProfileDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "c816ee39-ab1e-520c-8aff-c774de1f8a2c",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticArtifactLeafOwnershipDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticArtifactLeafOwnershipDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "84d6743b-a450-5246-a483-31c879b9a648",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticContract",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticContract",
+      "functions": []
+    },
+    {
+      "class_config_id": "0a0c6b35-9b9a-5be6-9d1c-bd9d0b10bb6a",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticContractSpecDeclaration",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticContractSpecDeclaration",
+      "functions": []
+    },
+    {
+      "class_config_id": "78593d09-d04a-507a-888b-e782c7d5214b",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticContractSpecSection",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticContractSpecSection",
+      "functions": []
+    },
+    {
+      "class_config_id": "cca7245c-8d0c-5271-a786-e82cbc2647cb",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticGeneratedCodePackageDeclaration",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticGeneratedCodePackageDeclaration",
+      "functions": []
+    },
+    {
+      "class_config_id": "0159e9c0-0958-54ef-86a0-35e9ebd49942",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticGrammarRuleDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticGrammarRuleDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "db78dde4-b51e-5c78-8e1a-0de43d890cc6",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticGrammarRuleFieldDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticGrammarRuleFieldDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "b65c5149-316e-5b70-82b2-433381cdc83d",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticManifestResolutionDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticManifestResolutionDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "f8a11bc4-00bf-5628-a7a9-fa0d737dd599",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticManifestResolutionMatch",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticManifestResolutionMatch",
+      "functions": []
+    },
+    {
+      "class_config_id": "2ba6911a-3f19-5de6-95fd-7e2aa56cc2d8",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticMaterializationArtifactOutputDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticMaterializationArtifactOutputDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "c0245be1-c500-5b42-a468-91647511abcc",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticMaterializationCodePackageDeltaOutputDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticMaterializationCodePackageDeltaOutputDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "f3f583e3-8111-510f-b9e4-7ba1e10881ca",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticMaterializationExecutionContextDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticMaterializationExecutionContextDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "c19a1404-1067-579b-8a51-b8484cb458ab",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticMaterializationInputDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticMaterializationInputDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "db3970cd-ada7-5fe0-8377-ca160f1f7db0",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticMaterializationPackageOutputDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticMaterializationPackageOutputDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "ba47f79f-dc05-5e26-a780-ba00a7c247d2",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticMaterializationRuntimeContextDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticMaterializationRuntimeContextDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "5066c3df-1d03-5860-b305-95080d557d08",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticMaterializationRuntimeDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticMaterializationRuntimeDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "3b94ee0d-3ec8-5a1f-b244-b2d227a182ea",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticMaterializationScopeDependency",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticMaterializationScopeDependency",
+      "functions": []
+    },
+    {
+      "class_config_id": "e0bb1b57-b155-5d91-b690-ac299b83dac6",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticPackageRoleDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticPackageRoleDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "195d164e-9931-5cf2-b133-e9cfccb7fe1c",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticProviderBinding",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticProviderBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "0c4b4ecc-0e97-5e82-a2de-8667b06ecb47",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticRuntimeProjectionPackageDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticRuntimeProjectionPackageDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "dbafd124-806c-511b-a99c-70b701ca0cee",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticScopePackageRef",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticScopePackageRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "2e40fbcf-9a82-52d0-a9a1-af8f8cba060f",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticScopeResolution",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticScopeResolution",
+      "functions": []
+    },
+    {
+      "class_config_id": "0485c0cb-3e25-5573-b7ad-8df0dff43cee",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticSyntaxLaneDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticSyntaxLaneDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "1ab1fd3f-f549-5e7a-878a-6746987a1a4f",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticWorkflowDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticWorkflowDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "a63baa35-34ee-5957-bfb2-d7d849ccfe3b",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "CodeSemanticWorkflowInstructionDescriptor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticWorkflowInstructionDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "6155a41b-6f2d-5d35-918b-673dabdc8440",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "DescribeCodeSemanticContractRequest",
+      "aware_class_ref": "aware_code_service_dto.code.DescribeCodeSemanticContractRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9a90b80b-7cd7-5481-9161-c5113d342795",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "DescribeCodeSemanticContractResponse",
+      "aware_class_ref": "aware_code_service_dto.code.DescribeCodeSemanticContractResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c07fcca6-2fac-51ef-ba6d-67ab091a29d1",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "FindCodeSemanticManifestResolutionRequest",
+      "aware_class_ref": "aware_code_service_dto.code.FindCodeSemanticManifestResolutionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "196a530b-6a0f-5c31-96c3-eb1c968aac2e",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "FindCodeSemanticManifestResolutionResponse",
+      "aware_class_ref": "aware_code_service_dto.code.FindCodeSemanticManifestResolutionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "0ffdd35c-0978-51fd-9978-8dda3f4f9354",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "NormalizeCodeSemanticContractRequest",
+      "aware_class_ref": "aware_code_service_dto.code.NormalizeCodeSemanticContractRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "50da0524-536a-5b5f-8b47-a14617be754d",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "NormalizeCodeSemanticContractResponse",
+      "aware_class_ref": "aware_code_service_dto.code.NormalizeCodeSemanticContractResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "249598a0-b4af-59b8-93f2-2bb8220e6012",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "ResolveCodeSemanticScopeRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSemanticScopeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "cf9d381e-13ed-51e1-9fcc-187ca2bd6cc9",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "ResolveCodeSemanticScopeResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSemanticScopeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "11d3896c-4466-5f16-a4c7-6ca4785d6a5d",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "ValidateCodeSemanticContractRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodeSemanticContractRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "67ce91c3-c8b2-5c8e-a7bc-ca9fe4b7336d",
+      "module": "aware_code_service_dto.code.features.semantic_contract",
+      "name": "ValidateCodeSemanticContractResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodeSemanticContractResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "f78bc435-334a-5b56-b15d-b35d22265a81",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "CodeSemanticSourceDeltaMeaningInput",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticSourceDeltaMeaningInput",
+      "functions": []
+    },
+    {
+      "class_config_id": "76eb5d4d-eb4a-5d4f-a905-486280a68e43",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "CodeSemanticSourceIndexRef",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticSourceIndexRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "8cda52a6-7ead-58cd-9dfa-fe3e83b1b508",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "CodeSemanticSourceMeaningBinding",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticSourceMeaningBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "350c0994-e341-598f-9a2c-dac78ff338ed",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "CodeSemanticSourceMeaningContract",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticSourceMeaningContract",
+      "functions": []
+    },
+    {
+      "class_config_id": "1d9c18e5-aac4-59d9-a834-4b3eb48e787c",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "CodeSemanticSourceMeaningSource",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticSourceMeaningSource",
+      "functions": []
+    },
+    {
+      "class_config_id": "1dd92fea-e3c1-5e67-8bfa-0b639ba61e9d",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "ResolveCodeSemanticSourceDeltaMeaningRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSemanticSourceDeltaMeaningRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b111dc22-f036-5c98-b8c5-f503043fb8a4",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "ResolveCodeSemanticSourceDeltaMeaningResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSemanticSourceDeltaMeaningResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "6d61fcc4-1a30-5af8-aff5-fe5752c2856e",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "ResolveCodeSemanticSourceMeaningRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSemanticSourceMeaningRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c0d4336f-6bf6-593a-aa3a-c3055bde95b9",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "ResolveCodeSemanticSourceMeaningResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSemanticSourceMeaningResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "53f1f477-8ded-55b9-86ed-1570f0c27510",
+      "module": "aware_code_service_dto.code.features.semantic_workflow_coverage",
+      "name": "CodeSemanticWorkflowCoverageDiagnostic",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticWorkflowCoverageDiagnostic",
+      "functions": []
+    },
+    {
+      "class_config_id": "afcfdf77-ec50-52c1-a33a-5402fd71a658",
+      "module": "aware_code_service_dto.code.features.semantic_workflow_coverage",
+      "name": "CodeSemanticWorkflowCoverageEntry",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticWorkflowCoverageEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "ce5cd228-9231-50a9-aa54-0dfa02c89b58",
+      "module": "aware_code_service_dto.code.features.semantic_workflow_coverage",
+      "name": "CodeSemanticWorkflowGrammarRuleEvidence",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticWorkflowGrammarRuleEvidence",
+      "functions": []
+    },
+    {
+      "class_config_id": "6bf10704-ebe0-5eb3-ab37-ac18d977a41a",
+      "module": "aware_code_service_dto.code.features.semantic_workflow_coverage",
+      "name": "CodeSemanticWorkflowGraphBindingCoverage",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticWorkflowGraphBindingCoverage",
+      "functions": []
+    },
+    {
+      "class_config_id": "3bc7ddfa-ec58-59a6-a3e9-c988124f6648",
+      "module": "aware_code_service_dto.code.features.semantic_workflow_coverage",
+      "name": "ResolveCodeSemanticWorkflowCoverageRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSemanticWorkflowCoverageRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "29301fb5-0e74-531d-8ad5-d19511157895",
+      "module": "aware_code_service_dto.code.features.semantic_workflow_coverage",
+      "name": "ResolveCodeSemanticWorkflowCoverageResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSemanticWorkflowCoverageResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "25d7087e-3b35-56d9-9cf1-797760477c10",
+      "module": "aware_code_service_dto.code.features.source_ownership",
+      "name": "ClassifyCodeSourceOwnershipRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ClassifyCodeSourceOwnershipRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b909aec9-014b-54c4-9523-aae462334a63",
+      "module": "aware_code_service_dto.code.features.source_ownership",
+      "name": "ClassifyCodeSourceOwnershipResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ClassifyCodeSourceOwnershipResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c0a20089-7b58-506d-8d69-43a29cc24c32",
+      "module": "aware_code_service_dto.code.features.source_ownership",
+      "name": "CodeSourceOwnershipObservedPath",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSourceOwnershipObservedPath",
+      "functions": []
+    },
+    {
+      "class_config_id": "2ad14cbd-2322-5deb-9c49-3825e5767394",
+      "module": "aware_code_service_dto.code.features.source_ownership",
+      "name": "CodeSourceOwnershipPackageBinding",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSourceOwnershipPackageBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "4382436c-d568-510e-b75a-56ce0d796396",
+      "module": "aware_code_service_dto.code.features.source_ownership",
+      "name": "CodeSourceOwnershipPathMatch",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSourceOwnershipPathMatch",
+      "functions": []
+    },
+    {
+      "class_config_id": "e949a3d9-66bf-54cd-a934-fc41ffdf41b1",
+      "module": "aware_code_service_dto.code.features.source_ownership",
+      "name": "CodeSourceOwnershipRequest",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSourceOwnershipRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "e31db1dc-6c22-5e2e-a536-81cbb9998e52",
+      "module": "aware_code_service_dto.code.features.source_ownership",
+      "name": "CodeSourceOwnershipResult",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSourceOwnershipResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "d1c6a1b8-a54c-51a9-af46-15505f764c9b",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "CodeSourceProjectionActionBinding",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSourceProjectionActionBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "2ae1bbb9-84f1-5b4a-8229-6ff17c0cfb8a",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "CodeSourceProjectionEventRef",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSourceProjectionEventRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "813d63e1-32e3-5d53-8020-30ae48fc6844",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "CodeSourceProjectionRequest",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSourceProjectionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "bdfb0969-a669-576c-8827-52ba19929f36",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "CodeSourceProjectionResult",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSourceProjectionResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "20dc38a6-64b6-5378-afb6-cc320afafeb4",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "CodeSourceProjectionSkippedEvent",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSourceProjectionSkippedEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "125323c8-e3ea-5e8d-abec-a5cd76d4bae9",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "FingerprintCodeSourceProjectionRequest",
+      "aware_class_ref": "aware_code_service_dto.code.FingerprintCodeSourceProjectionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "5807f680-d702-5440-85e3-756129dbd594",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "FingerprintCodeSourceProjectionResponse",
+      "aware_class_ref": "aware_code_service_dto.code.FingerprintCodeSourceProjectionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "d1dc9c8f-fea9-5c59-8bd5-ef033480855d",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "NormalizeCodeSourceProjectionRequest",
+      "aware_class_ref": "aware_code_service_dto.code.NormalizeCodeSourceProjectionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "3d30bd9e-e85b-5aee-a6d7-a9153e8c416b",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "NormalizeCodeSourceProjectionResponse",
+      "aware_class_ref": "aware_code_service_dto.code.NormalizeCodeSourceProjectionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "494ebf73-a741-54ed-aa10-3fac435d0d6b",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "ResolveCodeSourceProjectionPackageDeltaRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSourceProjectionPackageDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b5db5893-3791-56f8-adc1-9784d0e3de01",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "ResolveCodeSourceProjectionPackageDeltaResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeSourceProjectionPackageDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7ec5fc7b-61da-51a7-80b3-80b8f6c43684",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "ValidateCodeSourceProjectionRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodeSourceProjectionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "e93586ee-dfda-5568-8a2b-d982c8fa8fc7",
+      "module": "aware_code_service_dto.code.features.source_projection",
+      "name": "ValidateCodeSourceProjectionResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ValidateCodeSourceProjectionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e8c2458d-9477-5a3c-a398-4b3f107cdee2",
+      "module": "aware_code_service_dto.code.service",
+      "name": "CodeServiceRequest",
+      "aware_class_ref": "aware_code_service_dto.code.CodeServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "76b563d9-c419-572b-a9a4-15ed01d581c6",
+      "module": "aware_code_service_dto.code.service",
+      "name": "CodeServiceResponse",
+      "aware_class_ref": "aware_code_service_dto.code.CodeServiceResponse",
+      "functions": []
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "ad0d2a2e-fef8-5fee-9f10-41c0f22997ee",
+      "module": "aware_code_service_dto.code.features.content_plan",
+      "name": "CodeSectionType"
+    },
+    {
+      "enum_config_id": "2db69f2f-be1f-594c-9c3b-76507f1d4ba0",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "CodeGeneratedMaterializationDeltaMode"
+    },
+    {
+      "enum_config_id": "c5e73943-df7f-5be2-83f8-119a6d3f01b6",
+      "module": "aware_code_service_dto.code.features.generated_materialization_delta",
+      "name": "CodeGeneratedRendererDeltaOperationKind"
+    },
+    {
+      "enum_config_id": "6859ce3b-309a-5d22-87dc-c31a467317b3",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "CodeGrammarAnchorBindingDirection"
+    },
+    {
+      "enum_config_id": "c263d5ac-57f6-5da9-8776-8feb50394bb4",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
+      "name": "CodeGrammarAnchorBindingResolutionStatus"
+    },
+    {
+      "enum_config_id": "2ac39855-b811-5180-8c60-034ffc2d2f9a",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+      "name": "CodeGrammarAnchorRenderTargetKind"
+    },
+    {
+      "enum_config_id": "9aaccd6b-d951-5a26-898d-2f85a29e6bfe",
+      "module": "aware_code_service_dto.code.features.grammar_profile",
+      "name": "CodeGrammarProfileResolutionStatus"
+    },
+    {
+      "enum_config_id": "0e449cab-5e02-5bf2-8796-629150008b5f",
+      "module": "aware_code_service_dto.code.features.package_common",
+      "name": "CodePackagePathRole"
+    },
+    {
+      "enum_config_id": "34b5ba2f-1a87-5fae-8ea5-5c6877b40850",
+      "module": "aware_code_service_dto.code.features.package_delta",
+      "name": "CodePackageDeltaAuthorityKind"
+    },
+    {
+      "enum_config_id": "7e954ecc-2bb5-5a28-849d-555945a70f78",
+      "module": "aware_code_service_dto.code.features.package_delta",
+      "name": "CodePackageDeltaKind"
+    },
+    {
+      "enum_config_id": "a440f346-d944-57be-a434-00e2657ae3e3",
+      "module": "aware_code_service_dto.code.features.package_distribution",
+      "name": "CodeLanguage"
+    },
+    {
+      "enum_config_id": "e91ebb2f-f134-57c1-8611-2354f33f8049",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "CodeNestedMemberInsertPosition"
+    },
+    {
+      "enum_config_id": "d8bc47f9-1fc6-5ffb-902e-dc8bcac560c0",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "CodeSectionDeltaOperationKind"
+    },
+    {
+      "enum_config_id": "88ffd15b-75b8-5e94-afbe-8c1e50b99661",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "CodeSegmentContentDomain"
+    },
+    {
+      "enum_config_id": "552acd09-bec3-59f1-b9dd-71b0a01fa0d1",
+      "module": "aware_code_service_dto.code.features.section_delta",
+      "name": "CodeSegmentRenderPolicyResolutionStatus"
+    },
+    {
+      "enum_config_id": "2dacd619-42de-5e73-b20c-48a1edc32b1b",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "CodeSemanticSourceDeltaMeaningResolutionMode"
+    },
+    {
+      "enum_config_id": "5893edeb-1726-5caf-be98-a555a9a16be5",
+      "module": "aware_code_service_dto.code.features.semantic_workflow_coverage",
+      "name": "CodeSemanticWorkflowCoverageStatus"
+    },
+    {
+      "enum_config_id": "285726c2-fd6b-5df3-936a-b74b7edc8722",
+      "module": "aware_code_service_dto.code.features.source_ownership",
+      "name": "CodeSourceOwnershipClassification"
+    }
+  ]
+}

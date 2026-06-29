@@ -1,0 +1,16 @@
+[project]
+name = "tree-sitter-sql"
+version = "0.3.8"
+description = "Tree-sitter Grammar for SQL"
+readme = "README.md"
+authors = [
+  { name = "derek stride" },
+]
+requires-python = ">=3.12"
+
+[build-system]
+requires = ['setuptools>=68', 'wheel']
+build-backend = "setuptools.build_meta"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tree_sitter_sql"]

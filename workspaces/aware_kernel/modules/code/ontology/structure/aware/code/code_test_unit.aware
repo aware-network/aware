@@ -1,0 +1,29 @@
+/// Runnable test unit resolved from CodeSection truth.
+///
+/// Contract:
+/// - Identity is the target CodeSection under the parent CodeTest.
+/// - `selector` is execution/discovery payload, not file-path identity.
+class CodeTestUnit {
+    // Relationships
+    code_section CodeSection key
+
+    // Attributes
+    unit_key String key
+    selector String
+    kind String = "function"
+    name String?
+
+    fn build construct(
+        code_section_id UUID key,
+        unit_key String key,
+        selector String,
+        kind String = "function",
+        name String? = null
+    ) -> CodeTestUnit {
+        """
+        Build one runnable test unit for a concrete CodeSection.
+        """
+    }
+}
+
+ann code.CodeTestUnit::code_section load eager

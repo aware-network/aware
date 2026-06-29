@@ -123,7 +123,10 @@ assert hasattr(module, {attribute_name!r})
 
 
 def _dependency_names(values: list[str]) -> set[str]:
-    return {re.split(r"[<>=!~;\\[]", value, maxsplit=1)[0].strip().lower() for value in values}
+    return {
+        re.split(r"[<>=!~;\\[]", value, maxsplit=1)[0].strip().lower()
+        for value in values
+    }
 
 
 def _metadata_keywords(value: str | None) -> set[str]:
@@ -179,7 +182,9 @@ def test_base_pyproject_declares_honest_public_package_metadata() -> None:
     assert {"asyncpg", "psycopg2-binary"}.issubset(postgres_dependencies)
     assert "sql-grammar" not in _dependency_names(optional_dependencies.get("dev", []))
     assert PUBLIC_REQUIRED_WHEEL_FILES.issubset(set(wheel_target["include"]))
-    assert wheel_target["force-include"] == {name: name for name in PUBLIC_REQUIRED_WHEEL_FILES}
+    assert wheel_target["force-include"] == {
+        name: name for name in PUBLIC_REQUIRED_WHEEL_FILES
+    }
 
 
 def test_readme_states_public_release_contract() -> None:
@@ -199,12 +204,52 @@ def test_readme_states_public_release_contract() -> None:
         assert expected in readme
 
 
+def test_public_runtime_sources_do_not_use_source_repo_discovery() -> None:
+    package_root = Path(__file__).parents[2] / "aware_orm"
+    roots = (
+        package_root / "runtime",
+        package_root / "session",
+    )
+    banned_tokens = (
+        "aware_utils.find_aware_root",
+        "aware_root_discovery",
+        "find_aware_root",
+        "find_aware_repo_root",
+        "AWARE_REPO_ROOT",
+        "AWARE_HOME",
+        "aware.environment.toml",
+        "aware.workspace.toml",
+        "Path.cwd",
+    )
+    offenders: list[str] = []
+
+    support_file = package_root / "_support.py"
+    for token in banned_tokens:
+        if token in support_file.read_text(encoding="utf-8"):
+            offenders.append(
+                f"{support_file.relative_to(package_root).as_posix()}:{token}"
+            )
+
+    for root in roots:
+        for path in sorted(root.rglob("*.py")):
+            text = path.read_text(encoding="utf-8")
+            for token in banned_tokens:
+                if token in text:
+                    offenders.append(
+                        f"{path.relative_to(package_root).as_posix()}:{token}"
+                    )
+
+    assert offenders == []
+
+
 def test_built_wheel_metadata_and_import_boundary(tmp_path: Path) -> None:
     wheel_path, sdist_path = _build_aware_orm_artifacts(tmp_path)
 
     with ZipFile(wheel_path) as wheel:
         wheel_files = set(wheel.namelist())
-        metadata_name = next(name for name in wheel.namelist() if name.endswith(".dist-info/METADATA"))
+        metadata_name = next(
+            name for name in wheel.namelist() if name.endswith(".dist-info/METADATA")
+        )
         metadata = Parser().parsestr(wheel.read(metadata_name).decode("utf-8"))
     with tarfile.open(sdist_path, "r:gz") as sdist:
         sdist_files = set(sdist.getnames())
@@ -233,8 +278,12 @@ def test_built_wheel_metadata_and_import_boundary(tmp_path: Path) -> None:
     assert any(value.endswith("LICENSE") for value in license_files)
     assert PUBLIC_REQUIRED_WHEEL_FILES.issubset(wheel_files)
     assert any(name.endswith(".dist-info/licenses/LICENSE") for name in wheel_files)
-    assert not any("__pycache__" in name or name.endswith(".pyc") for name in wheel_files)
-    assert not any(name.startswith(("docs/", "tests/", "scripts/")) for name in wheel_files)
+    assert not any(
+        "__pycache__" in name or name.endswith(".pyc") for name in wheel_files
+    )
+    assert not any(
+        name.startswith(("docs/", "tests/", "scripts/")) for name in wheel_files
+    )
     assert not any(name.startswith("aware_orm/bootstrap/") for name in wheel_files)
     assert "aware_orm/load/lazy_relationship.py" not in wheel_files
     assert "aware_orm/runtime/binding_dtos.py" not in wheel_files
@@ -256,13 +305,25 @@ def test_built_wheel_metadata_and_import_boundary(tmp_path: Path) -> None:
     assert not any("/tests/" in name for name in sdist_files)
     assert not any("/scripts/" in name for name in sdist_files)
     assert not any("/aware_orm/bootstrap/" in name for name in sdist_files)
-    assert not any(name.endswith("/aware_orm/load/lazy_relationship.py") for name in sdist_files)
-    assert not any(name.endswith("/aware_orm/runtime/binding_dtos.py") for name in sdist_files)
-    assert not any(name.endswith("/aware_orm/runtime/ocg_orm_binding.py") for name in sdist_files)
-    assert not any(name.endswith("/aware_orm/graph/builders.py") for name in sdist_files)
-    assert not any(name.endswith("/aware_orm/projection/builders.py") for name in sdist_files)
+    assert not any(
+        name.endswith("/aware_orm/load/lazy_relationship.py") for name in sdist_files
+    )
+    assert not any(
+        name.endswith("/aware_orm/runtime/binding_dtos.py") for name in sdist_files
+    )
+    assert not any(
+        name.endswith("/aware_orm/runtime/ocg_orm_binding.py") for name in sdist_files
+    )
+    assert not any(
+        name.endswith("/aware_orm/graph/builders.py") for name in sdist_files
+    )
+    assert not any(
+        name.endswith("/aware_orm/projection/builders.py") for name in sdist_files
+    )
     assert not any("/.pytest_cache/" in name for name in sdist_files)
-    assert not any("__pycache__" in name or name.endswith(".pyc") for name in sdist_files)
+    assert not any(
+        "__pycache__" in name or name.endswith(".pyc") for name in sdist_files
+    )
 
     blocked = sorted(PUBLIC_FORBIDDEN_IMPORT_ROOTS)
     code = f"""
@@ -330,14 +391,29 @@ def test_public_core_imports_do_not_import_internals_or_optional_postgres() -> N
         _assert_subprocess_import_clean(module_name, attribute_name)
 
 
-def test_relationship_metadata_registry_import_does_not_import_meta_or_structure(monkeypatch) -> None:
+def test_runtime_public_api_does_not_advertise_environment_bundle_install() -> None:
+    runtime_module = importlib.import_module("aware_orm.runtime")
+
+    assert "install_environment_bundle" not in runtime_module.__all__
+    assert "install_default_environment_bundle" not in runtime_module.__all__
+    assert "resolve_environment_manifest_path" not in runtime_module.__all__
+    assert not hasattr(runtime_module, "install_environment_bundle")
+    assert not hasattr(runtime_module, "install_default_environment_bundle")
+    assert not hasattr(runtime_module, "resolve_environment_manifest_path")
+
+
+def test_relationship_metadata_registry_import_does_not_import_meta_or_structure(
+    monkeypatch,
+) -> None:
     _guard_forbidden_imports(monkeypatch, PUBLIC_FORBIDDEN_IMPORT_ROOTS)
 
     module = importlib.import_module("aware_orm.runtime.relationship_strategies")
 
     assert hasattr(module, "RelationshipMetadata")
     assert hasattr(module, "install_relationship_metadata_from_payload")
-    _assert_subprocess_import_clean("aware_orm.runtime.relationship_strategies", "RelationshipMetadata")
+    _assert_subprocess_import_clean(
+        "aware_orm.runtime.relationship_strategies", "RelationshipMetadata"
+    )
 
 
 def test_projection_imports_do_not_import_meta_or_runtime(monkeypatch) -> None:
@@ -354,7 +430,9 @@ def test_projection_imports_do_not_import_meta_or_runtime(monkeypatch) -> None:
     _assert_subprocess_import_clean("aware_orm.projection", "ProjectionRuntime")
 
 
-def test_graph_binding_snapshot_reader_does_not_import_meta_ontology(monkeypatch) -> None:
+def test_graph_binding_snapshot_reader_does_not_import_meta_ontology(
+    monkeypatch,
+) -> None:
     entity_id = uuid4()
     payload = {
         "version": "v1",
@@ -462,7 +540,9 @@ class Thing(ORMModel):
         Thing = getattr(model_module, "Thing")
         ORMModelRegistry.register_class_stub(Thing)
 
-        install_package_runtime_artifacts(package_prefix=package_root, artifacts_dir="_aware", strict=True)
+        install_package_runtime_artifacts(
+            package_prefix=package_root, artifacts_dir="_aware", strict=True
+        )
 
         bound = Thing.get_class_config()
         assert bound is not None

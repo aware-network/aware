@@ -1,0 +1,15 @@
+class EventSchedule {
+    // Relationships
+    content aware_content.content.Content?
+    event_config EventConfig key
+    events Event[] many
+
+    // Attributes
+    end_time DateTime
+    iteration_count Int? = 0
+    key String key
+    location String?
+    rrule String?
+    start_time DateTime
+    status EventScheduleStatus = active
+}

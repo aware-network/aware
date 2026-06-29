@@ -1,0 +1,72 @@
+/// Storage service operation DTOs.
+///
+/// The generated Product A API is the control-plane boundary. It registers and
+/// resolves commit-backed StorageBlob metadata, then returns media descriptors
+/// for Storage-owned byte transport. Raw media bytes are intentionally absent
+/// from these payloads.
+
+class StorageServiceRequest {
+    operation String
+    request_id UUID?
+    actor_id UUID?
+}
+
+class StorageServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    error String?
+    receipt storage.StorageOperationReceipt?
+}
+
+class RegisterStorageBlobRequest augment storage.StorageServiceRequest {
+    operation String = "register_blob"
+    object_id UUID?
+    sha String
+    mime_type String = "application/octet-stream"
+    size_bytes Int
+    bucket_id UUID?
+    object_key String?
+    path_local String?
+}
+
+class RegisterStorageBlobResponse augment storage.StorageServiceResponse {
+    operation String = "register_blob"
+    metadata storage.StorageBlobMetadata?
+}
+
+class DescribeStorageBlobRequest augment storage.StorageServiceRequest {
+    operation String = "describe_blob"
+    object_id UUID
+}
+
+class DescribeStorageBlobResponse augment storage.StorageServiceResponse {
+    operation String = "describe_blob"
+    metadata storage.StorageBlobMetadata?
+}
+
+class ResolveStorageMediaRequest augment storage.StorageServiceRequest {
+    operation String = "resolve_media"
+    media_ref storage.StorageMediaRef
+    require_ownership Bool = false
+    include_http_url Bool = true
+    preferred_uri_scheme String?
+    filename String?
+    disposition storage.StorageMediaDisposition = inline
+}
+
+class ResolveStorageMediaResponse augment storage.StorageServiceResponse {
+    operation String = "resolve_media"
+    metadata storage.StorageBlobMetadata?
+    resolution storage.StorageMediaResolution?
+}
+
+ann storage.StorageServiceRequest::operation discriminate key
+ann storage.RegisterStorageBlobRequest::operation discriminate tag "register_blob"
+ann storage.DescribeStorageBlobRequest::operation discriminate tag "describe_blob"
+ann storage.ResolveStorageMediaRequest::operation discriminate tag "resolve_media"
+
+ann storage.StorageServiceResponse::operation discriminate key
+ann storage.RegisterStorageBlobResponse::operation discriminate tag "register_blob"
+ann storage.DescribeStorageBlobResponse::operation discriminate tag "describe_blob"
+ann storage.ResolveStorageMediaResponse::operation discriminate tag "resolve_media"

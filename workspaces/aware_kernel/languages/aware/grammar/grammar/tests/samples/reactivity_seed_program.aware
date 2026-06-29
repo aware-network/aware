@@ -1,0 +1,10 @@
+program ReactivitySeed {
+    let schema = {"name": "conversation.created", "version": 1}
+
+    call event.EventConfig.create(
+        name="conversation.created",
+        description="Conversation creation domain event.",
+        event_schema=schema
+    )
+}
+

@@ -1,0 +1,472 @@
+/// Provider-owned capability participation declaration.
+class CodeCapabilityParticipationDescriptor : inline_value {
+    capability String
+    semantic_owner String
+    metadata JsonObject?
+}
+
+/// Provider-owned capability execution policy declaration.
+class CodeCapabilityExecutionPolicyDescriptor : inline_value {
+    capability String
+    semantic_owner String
+    callable_module String?
+    callable_name String?
+    required_semantic_scope_keys String[] = []
+    priority Int = 100
+    applies_when String = "always"
+}
+
+/// Provider-owned capability profile declaration.
+class CodeCapabilityProfileDescriptor : inline_value {
+    capability String
+    name String
+    semantic_owners String[] = []
+    metadata JsonObject?
+}
+
+/// Provider-owned capability bundle declaration.
+class CodeCapabilityBundleDescriptor : inline_value {
+    capability String
+    name String
+    capabilities String[] = []
+    semantic_owners String[] = []
+    metadata JsonObject?
+}
+
+/// Syntax lane truth for semantic tokens and grammar composition.
+class CodeSemanticSyntaxLaneDescriptor : inline_value {
+    lane_key String
+    semantic_owner String
+    compiler_owner String
+    grammar_rules String[] = []
+    semantic_token_types String[] = []
+    semantic_token_modifiers String[] = []
+}
+
+/// Provider-owned grammar field declaration for source-anchor coverage.
+class CodeSemanticGrammarRuleFieldDescriptor : inline_value {
+    field_path String
+    field_role String?
+    value_kind String?
+    required Bool = false
+    child_rule_refs String[] = []
+    token_literals String[] = []
+    provider_payload JsonObject?
+}
+
+/// Provider-owned grammar rule declaration exposed through Code.
+class CodeSemanticGrammarRuleDescriptor : inline_value {
+    semantic_owner String
+    rule_name String
+    language String = "aware"
+    grammar_backend String = "tree_sitter.aware"
+    top_level Bool = false
+    section_type String?
+    fields code.CodeSemanticGrammarRuleFieldDescriptor[] = []
+    child_rule_refs String[] = []
+    literal_tokens String[] = []
+    source_anchor_fields String[] = []
+    generation_status String = "declaration_only"
+    priority Int = 100
+    provider_payload JsonObject?
+}
+
+/// Semantic package role truth exposed through the Code API boundary.
+class CodeSemanticPackageRoleDescriptor : inline_value {
+    role String
+    contract String
+    package_kind String?
+    capabilities String[] = []
+    owns_manifest_kinds String[] = []
+}
+
+/// Provider-owned instruction payload attached to a semantic workflow.
+class CodeSemanticWorkflowInstructionDescriptor : inline_value {
+    instruction_key String
+    title String
+    body String
+    instruction_kind String = "natural_language"
+    audience String = "agent"
+    stage_keys String[] = []
+    required Bool = true
+    source_refs String[] = []
+    metadata JsonObject?
+}
+
+/// Provider-owned semantic workflow descriptor exposed through Code.
+class CodeSemanticWorkflowDescriptor : inline_value {
+    workflow_key String
+    semantic_owner String
+    stage_keys String[] = []
+    instructions code.CodeSemanticWorkflowInstructionDescriptor[] = []
+    description String?
+    instruction_refs String[] = []
+    capability_refs String[] = []
+    capability_profile_refs String[] = []
+    grammar_profile_refs String[] = []
+    source_meaning_refs String[] = []
+    ontology_feature_refs String[] = []
+    graph_binding_refs String[] = []
+    expected_artifact_refs String[] = []
+    expected_proof_refs String[] = []
+    expected_receipt_refs String[] = []
+    diagnostic_refs String[] = []
+    policy_refs String[] = []
+    required Bool = true
+    priority Int = 100
+    provider_payload JsonObject?
+}
+
+/// Generated artifact leaf ownership declaration.
+class CodeSemanticArtifactLeafOwnershipDescriptor : inline_value {
+    semantic_owner String
+    owner_manifest_kinds String[] = []
+    artifact_manifest_kinds String[] = []
+    callable_module String
+    callable_name String
+    priority Int = 100
+    ownership_role String = "semantic_generated_artifact"
+}
+
+/// Materialization input declaration accepted by a semantic provider.
+class CodeSemanticMaterializationInputDescriptor : inline_value {
+    semantic_owner String
+    input_key String
+    input_kind String = "artifact"
+    artifact_family String?
+    artifact_role String?
+    package_family String?
+    semantic_kind String?
+    runtime_contract_version String?
+    callable_module String?
+    callable_name String?
+    required Bool = true
+    priority Int = 100
+    provider_payload JsonObject?
+}
+
+/// Materialization artifact output declaration emitted by a semantic provider.
+class CodeSemanticMaterializationArtifactOutputDescriptor : inline_value {
+    semantic_owner String
+    producer_key String
+    output_key String
+    artifact_family String
+    producer_provider_key String?
+    artifact_role String = "runtime"
+    output_kind String = "artifact"
+    package_output_key String?
+    artifact_relpath String?
+    artifact_path_pattern String?
+    manifest_relpath String?
+    media_type String?
+    runtime_contract_version String?
+    required_for String[] = []
+    required Bool = true
+    priority Int = 100
+    provider_payload JsonObject?
+}
+
+/// Materialization CodePackageDelta output declaration emitted by a semantic provider.
+class CodeSemanticMaterializationCodePackageDeltaOutputDescriptor : inline_value {
+    semantic_owner String
+    producer_key String
+    output_key String
+    producer_provider_key String?
+    authority_kind String = "semantic_materialization"
+    package_output_key String?
+    runtime_contract_version String?
+    required_for String[] = []
+    required Bool = true
+    priority Int = 100
+    provider_payload JsonObject?
+}
+
+/// Concrete generated Code package declaration derived from semantic package truth.
+class CodeSemanticGeneratedCodePackageDeclaration : inline_value {
+    source_manifest_path String?
+    semantic_owner String?
+    role String?
+    language code.CodeLanguage = python
+    package_name String
+    package_root String
+    sources_root String?
+    manifest_kind String
+    manifest_path String
+    code_package_surface String?
+    materialization_source String?
+    renderer_kind String?
+    renderer_profile String?
+    source_is_runtime Bool = false
+    public_checkout_default Bool = false
+    metadata JsonObject?
+}
+
+/// Materialization package output declaration emitted by a semantic provider.
+class CodeSemanticMaterializationPackageOutputDescriptor : inline_value {
+    semantic_owner String
+    producer_key String
+    output_key String
+    target_provider_key String
+    target_input_key String
+    target_semantic_owner String?
+    target_package_family String?
+    target_semantic_kind String?
+    input_artifact_producer_key String?
+    input_artifact_output_key String?
+    input_artifact_family String?
+    runtime_contract_version String?
+    required_for String[] = []
+    required Bool = true
+    priority Int = 100
+    provider_payload JsonObject?
+}
+
+/// Projection ownership for a runtime ontology package.
+class CodeSemanticRuntimeProjectionPackageDescriptor : inline_value {
+    package_name String
+    projection_names String[] = []
+}
+
+/// Provider-owned runtime context requirement for materialization execution.
+class CodeSemanticMaterializationRuntimeDescriptor : inline_value {
+    semantic_owner String
+    runtime_ontology_package_names String[] = []
+    lane_projection_name String?
+    required_projection_names String[] = []
+    runtime_projection_packages code.CodeSemanticRuntimeProjectionPackageDescriptor[] = []
+    environment_handle String?
+    include_package_dependency_closure Bool = false
+    priority Int = 100
+}
+
+/// Provider-owned runtime context resolver declaration.
+class CodeSemanticMaterializationRuntimeContextDescriptor : inline_value {
+    semantic_owner String
+    callable_module String
+    callable_name String
+    required Bool = false
+    priority Int = 100
+    provider_payload JsonObject?
+}
+
+/// Provider-owned execution context resolver declaration.
+class CodeSemanticMaterializationExecutionContextDescriptor : inline_value {
+    semantic_owner String
+    context_key String
+    callable_module String
+    callable_name String
+    required Bool = false
+    priority Int = 100
+    provider_payload JsonObject?
+}
+
+/// Provider-owned manifest resolution declaration for semantic package entrypoints.
+class CodeSemanticManifestResolutionDescriptor : inline_value {
+    semantic_owner String
+    manifest_kind String
+    filename String
+    contract String
+    loader_module String
+    loader_name String
+    workspace_manifest_kind String?
+    package_role String?
+    semantic_package_family String?
+    semantic_package_kind String?
+    semantic_projection_name String?
+    semantic_root_kind String?
+    code_package_surface String?
+    code_package_surface_by_package_kind JsonObject?
+    workspace_materialization_order Int?
+    workspace_materialization_branch String?
+    workspace_materialization_commit Bool?
+    workspace_materialization_primary Bool?
+    copy_code_package_metadata_keys String[] = []
+    semantic_package_metadata JsonObject?
+    priority Int = 100
+}
+
+/// Ordered manifest-resolution match exposed by the Code API boundary.
+class CodeSemanticManifestResolutionMatch : inline_value {
+    provider_key String
+    semantic_contract code.CodeSemanticContract
+    manifest_resolution code.CodeSemanticManifestResolutionDescriptor
+    semantic_contract_module String?
+}
+
+/// Provider-neutral package coordinates accepted by Code semantic scope providers.
+class CodeSemanticScopePackageRef : inline_value {
+    package_name String
+    package_root String = "."
+    manifest_path String
+    language code.CodeLanguage = aware
+    metadata JsonObject?
+    semantic_packages JsonObject[] = []
+}
+
+/// Provider-owned dependency ref required by semantic materialization scope closure.
+class CodeSemanticMaterializationScopeDependency : inline_value {
+    package_name String
+    provider_key String?
+    semantic_owner String?
+    manifest_kind String?
+    dependency_kind String = "semantic_package"
+    required_state String = "materialized"
+    semantic_package_family String?
+    semantic_package_kind String?
+    semantic_package_name String?
+    source_refs String[] = []
+    reason String?
+    metadata JsonObject?
+}
+
+/// Provider-neutral semantic-scope resolution exposed by the Code API boundary.
+class CodeSemanticScopeResolution : inline_value {
+    scope_key String
+    provider_key String
+    payload JsonObject = {}
+    materialization_dependencies code.CodeSemanticMaterializationScopeDependency[] = []
+    metadata JsonObject?
+}
+
+/// API-owned DTO for the full shared Code semantic contract.
+class CodeSemanticContract : inline_value {
+    provider_key String
+    semantic_scope_keys String[] = []
+    capability_participation code.CodeCapabilityParticipationDescriptor[] = []
+    capability_execution_policy code.CodeCapabilityExecutionPolicyDescriptor[] = []
+    capability_profiles code.CodeCapabilityProfileDescriptor[] = []
+    capability_bundles code.CodeCapabilityBundleDescriptor[] = []
+    syntax_lanes code.CodeSemanticSyntaxLaneDescriptor[] = []
+    grammar_rule_declarations code.CodeSemanticGrammarRuleDescriptor[] = []
+    package_roles code.CodeSemanticPackageRoleDescriptor[] = []
+    semantic_workflows code.CodeSemanticWorkflowDescriptor[] = []
+    artifact_leaf_ownership code.CodeSemanticArtifactLeafOwnershipDescriptor[] = []
+    materialization_artifact_outputs code.CodeSemanticMaterializationArtifactOutputDescriptor[] = []
+    materialization_code_package_delta_outputs code.CodeSemanticMaterializationCodePackageDeltaOutputDescriptor[] = []
+    materialization_inputs code.CodeSemanticMaterializationInputDescriptor[] = []
+    materialization_package_outputs code.CodeSemanticMaterializationPackageOutputDescriptor[] = []
+    materialization_runtime code.CodeSemanticMaterializationRuntimeDescriptor[] = []
+    materialization_runtime_context code.CodeSemanticMaterializationRuntimeContextDescriptor[] = []
+    materialization_execution_context code.CodeSemanticMaterializationExecutionContextDescriptor[] = []
+    manifest_resolution code.CodeSemanticManifestResolutionDescriptor[] = []
+    metadata JsonObject?
+}
+
+/// One generated reader-facing SPEC section derived from a Code semantic contract.
+class CodeSemanticContractSpecSection : inline_value {
+    section_key String
+    title String
+    body String
+    item_count Int = 0
+    source_fields String[] = []
+}
+
+/// Generated reader-facing SPEC declaration derived from a Code semantic contract.
+class CodeSemanticContractSpecDeclaration : inline_value {
+    provider_key String
+    title String
+    summary String
+    markdown String
+    sections code.CodeSemanticContractSpecSection[] = []
+    generated_code_packages code.CodeSemanticGeneratedCodePackageDeclaration[] = []
+    source_contract_digest String?
+    metadata JsonObject?
+}
+
+/// API-owned semantic provider/package binding ref.
+class CodeSemanticProviderBinding : inline_value {
+    provider_key String
+    provider_role String?
+    provider_name String?
+    provider_module String?
+    package_fqn String?
+    manifest_kind String?
+    manifest_relative_path String?
+    semantic_package_metadata JsonObject?
+}
+
+/// Describe one semantic contract by provider or package coordinates.
+class DescribeCodeSemanticContractRequest augment code.CodeServiceRequest {
+    operation String = "describe_semantic_contract"
+    provider_key String?
+    package_name String?
+    package_fqn String?
+    include_layout Bool = true
+    include_spec_declaration Bool = false
+}
+
+class DescribeCodeSemanticContractResponse augment code.CodeServiceResponse {
+    operation String = "describe_semantic_contract"
+    semantic_contract code.CodeSemanticContract?
+    layout_contract code.CodePackageLayoutContract?
+    provider_binding code.CodeSemanticProviderBinding?
+    spec_declaration code.CodeSemanticContractSpecDeclaration?
+}
+
+/// Validate an externally supplied Code semantic contract DTO.
+class ValidateCodeSemanticContractRequest augment code.CodeServiceRequest {
+    operation String = "validate_semantic_contract"
+    semantic_contract code.CodeSemanticContract
+    strict Bool = true
+}
+
+class ValidateCodeSemanticContractResponse augment code.CodeServiceResponse {
+    operation String = "validate_semantic_contract"
+    valid Bool = false
+    diagnostics String[] = []
+}
+
+/// Normalize a runtime-adapted semantic contract into the public DTO shape.
+class NormalizeCodeSemanticContractRequest augment code.CodeServiceRequest {
+    operation String = "normalize_semantic_contract"
+    semantic_contract code.CodeSemanticContract
+}
+
+class NormalizeCodeSemanticContractResponse augment code.CodeServiceResponse {
+    operation String = "normalize_semantic_contract"
+    semantic_contract code.CodeSemanticContract?
+}
+
+/// Resolve semantic manifest descriptors through Code-owned contract truth.
+class FindCodeSemanticManifestResolutionRequest augment code.CodeServiceRequest {
+    operation String = "find_manifest_resolution"
+    provider_key String?
+    manifest_kind String?
+    filename String?
+    workspace_manifest_kind String?
+}
+
+class FindCodeSemanticManifestResolutionResponse augment code.CodeServiceResponse {
+    operation String = "find_manifest_resolution"
+    matches code.CodeSemanticManifestResolutionMatch[] = []
+}
+
+/// Resolve provider-owned semantic scope through the Code-owned registry.
+class ResolveCodeSemanticScopeRequest augment code.CodeServiceRequest {
+    operation String = "resolve_semantic_scope"
+    package_ref code.CodeSemanticScopePackageRef
+    workspace_root String = "."
+    provider_keys String[] = []
+    scope_keys String[] = []
+    metadata JsonObject?
+}
+
+class ResolveCodeSemanticScopeResponse augment code.CodeServiceResponse {
+    operation String = "resolve_semantic_scope"
+    resolved Bool = false
+    resolutions code.CodeSemanticScopeResolution[] = []
+    diagnostics String[] = []
+    resolution_count Int = 0
+}
+
+ann code.DescribeCodeSemanticContractRequest::operation discriminate tag "describe_semantic_contract"
+ann code.ValidateCodeSemanticContractRequest::operation discriminate tag "validate_semantic_contract"
+ann code.NormalizeCodeSemanticContractRequest::operation discriminate tag "normalize_semantic_contract"
+ann code.FindCodeSemanticManifestResolutionRequest::operation discriminate tag "find_manifest_resolution"
+ann code.ResolveCodeSemanticScopeRequest::operation discriminate tag "resolve_semantic_scope"
+
+ann code.DescribeCodeSemanticContractResponse::operation discriminate tag "describe_semantic_contract"
+ann code.ValidateCodeSemanticContractResponse::operation discriminate tag "validate_semantic_contract"
+ann code.NormalizeCodeSemanticContractResponse::operation discriminate tag "normalize_semantic_contract"
+ann code.FindCodeSemanticManifestResolutionResponse::operation discriminate tag "find_manifest_resolution"
+ann code.ResolveCodeSemanticScopeResponse::operation discriminate tag "resolve_semantic_scope"

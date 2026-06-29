@@ -1,0 +1,24 @@
+aware = 1
+
+[package]
+package_name = "ontology-service-dto"
+fqn_prefix = "aware_ontology_service_dto"
+kind = "api"
+version_number = 1
+title = "Ontology Service DTO"
+description = "API-owned DTO package for Ontology service GraphOS package, persistence, and graph invocation payloads."
+
+[build]
+environment_slug = "aware_ontology_service_dto"
+
+[[dependencies]]
+package_name = "ontology-ontology"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "history-ontology"

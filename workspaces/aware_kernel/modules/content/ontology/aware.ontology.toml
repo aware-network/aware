@@ -1,0 +1,27 @@
+aware_ontology = 1
+
+[ontology]
+package_name = "content-ontology"
+fqn_prefix = "aware_content"
+version_number = 1
+title = "Content"
+description = "SSOT canonical (.aware) sources for content - The atomic building blocks of all other modules."
+source_manifest = "structure/aware.toml"
+package_root = "."
+sources_root = "structure/aware"
+stable_ids_ownership = "compiler"
+stable_ids_parity_policy = "error"
+stable_ids_resolution_policy = "class_strict"
+function_impl_ownership = "compiler"
+function_impl_parity_policy = "error"
+
+[runtime]
+manifest = "runtime/python/pyproject.toml"
+project_name = "aware-content"
+import_root = "aware_content"
+
+[layout]
+profile = "ontology_structure_v1"
+
+[[dependencies]]
+package_name = "storage-ontology"

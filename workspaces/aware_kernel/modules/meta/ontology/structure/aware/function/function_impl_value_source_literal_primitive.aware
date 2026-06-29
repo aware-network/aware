@@ -1,0 +1,23 @@
+/// Deterministic typed primitive literal payload for function value sources.
+///
+/// Contract:
+/// - Literal identity is anchored by `primitive_config`.
+/// - `value` must be compatible with the selected primitive type.
+class FunctionImplValueSourceLiteralPrimitive {
+    // Relationships
+    primitive_config primitive.PrimitiveConfig
+
+    // Attributes
+    value Json
+
+    fn build construct (
+        primitive_config_id UUID,
+        value Json
+    ) -> FunctionImplValueSourceLiteralPrimitive {
+        """
+        Create deterministic primitive literal payload under one FunctionImplValueSource.
+        """
+    }
+}
+
+ann function.FunctionImplValueSourceLiteralPrimitive::primitive_config load eager

@@ -1,0 +1,23 @@
+/// Deterministic operand slot for `FunctionImplInstructionRequire`.
+///
+/// Contract:
+/// - Operands are explicit typed sources (`FunctionImplValueSource`), never raw expressions.
+/// - `position` is compiler-owned operand order for kind-specific arity semantics.
+class FunctionImplInstructionRequireOperand {
+    // Relationships
+    value_source FunctionImplValueSource
+
+    // Attributes
+    position Int key
+
+    fn create construct (
+        position Int key,
+        value_source_id UUID
+    ) -> FunctionImplInstructionRequireOperand {
+        """
+        Create deterministic operand binding under one `require` payload.
+        """
+    }
+}
+
+ann function.FunctionImplInstructionRequireOperand::value_source load eager

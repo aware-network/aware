@@ -1,0 +1,25 @@
+// Code Module projection (v0)
+//
+// Contract:
+// - CodeModule owns module-level package-slot and dependency membership.
+// - CodePackage remains the package-owned code surface and is reached through
+//   a portal.
+// - CodeModule dependency targets are CodeModule roots reached through a
+//   portal, not embedded dependency internals.
+projection CodeModule {
+    root aware_code.module.CodeModule
+
+    aware_code.module.CodeModule::dependences
+    aware_code.module.CodeModuleDependence::dependence CodeModule
+
+    // Traverse the module-owned package slot, then portal to package-owned
+    // code/test surface from the edge object that owns the CodePackage FK.
+    aware_code.module.CodeModule::packages
+    aware_code.module.CodeModuleCodePackage::code_package CodePackage
+
+    observable home instance default {
+        """
+        Code module package-slot inventory and module dependency surface.
+        """
+    }
+}

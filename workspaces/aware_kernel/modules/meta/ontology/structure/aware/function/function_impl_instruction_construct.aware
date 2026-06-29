@@ -1,0 +1,38 @@
+/// Canonical explicit object-construction payload in function execution rail.
+///
+/// Contract:
+/// - Represents direct object materialization intent (`construct ClassName(...)`).
+/// - Distinct from constructor invocation (`FunctionImplInstructionInvoke(kind=construct)`).
+class FunctionImplInstructionConstruct {
+    // Relationships
+    target_class_config class.ClassConfig
+    assignments FunctionImplInstructionConstructAssignment[]
+
+    fn build construct (
+        target_class_config_id UUID
+    ) -> FunctionImplInstructionConstruct {
+        """
+        Create deterministic explicit construct payload for one FunctionImplInstruction.
+
+        Contract:
+        - Parent context (`function_impl_instruction_id`) is injected by parent-edge lowering.
+        """
+    }
+
+    fn add_assignment (
+        target_class_config_attribute_config_id UUID,
+        value_source_id UUID,
+        position Int? = null
+    ) -> FunctionImplInstructionConstructAssignment {
+        """
+        Attach one deterministic class-attribute assignment under this construct payload.
+        """
+        let created = construct assignments.build(
+            target_class_config_attribute_config_id = target_class_config_attribute_config_id,
+            value_source_id = value_source_id,
+            position = position,
+        )
+    }
+}
+
+ann function.FunctionImplInstructionConstruct::assignments load eager

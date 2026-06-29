@@ -1,0 +1,18 @@
+class ContentPartMultimodalIndex {
+    // Attributes
+    key String key = "default"
+    embedding Vector(1408)?
+
+    fn create_content_part_multimodal_index construct(
+        key String key = "default",
+        embedding Vector(1408)? = null,
+    ) -> ContentPartMultimodalIndex {
+        """
+        Creates a multimodal content-part embedding/index record.
+        """
+        construct ContentPartMultimodalIndex(
+            key = key,
+            embedding = embedding,
+        )
+    }
+}

@@ -1,0 +1,18 @@
+/// Resolved binding between a projection declaration and a canonical class (and optionally member).
+///
+/// Contract:
+/// - Root membership is expressed by `attribute_name == null`.
+/// - Member membership is expressed by `attribute_name != null`.
+/// - Portal relationships are expressed by `target_projection_name != null`.
+class ObjectProjectionGraphBinding {
+    // Location within the canonical graph
+    fqn_prefix String key
+    namespace String key
+    class_name String key
+    attribute_name String?
+
+    // Portal semantics (optional)
+    /// Target projection reference (canonical authored identity, e.g. "Focus" or "aware_identity.Identity").
+    target_projection_name String?
+    side String?
+}

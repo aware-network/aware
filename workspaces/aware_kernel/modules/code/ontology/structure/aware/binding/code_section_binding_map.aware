@@ -1,0 +1,33 @@
+class CodeSectionBindingMap {
+    // Relationships
+    name_segment aware_content.part.ContentPartTextSegment
+    source_segment aware_content.part.ContentPartTextSegment
+    target_segment aware_content.part.ContentPartTextSegment
+    body_segment aware_content.part.ContentPartTextSegment?
+    template_segment aware_content.part.ContentPartTextSegment?
+
+    // Attributes
+    name String key
+    source_ref String
+    target_ref String
+    description String?
+    template_text String?
+
+    fn build construct(
+        name String key,
+        source_ref String,
+        target_ref String,
+        description String? = null,
+        template_text String? = null
+    ) -> CodeSectionBindingMap {
+        """
+        Build a deterministic binding-map entry under a binding.
+        """
+    }
+}
+
+ann binding.CodeSectionBindingMap::name_segment load eager
+ann binding.CodeSectionBindingMap::source_segment load eager
+ann binding.CodeSectionBindingMap::target_segment load eager
+ann binding.CodeSectionBindingMap::body_segment load eager
+ann binding.CodeSectionBindingMap::template_segment load eager

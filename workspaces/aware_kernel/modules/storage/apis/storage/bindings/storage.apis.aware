@@ -1,0 +1,29 @@
+api storage {
+    capability blob {
+        endpoint register aware_storage_service_dto.storage.RegisterStorageBlobRequest {
+            """
+            Register commit-backed StorageBlob metadata for bytes already stored on the Storage data-plane.
+            """
+
+            response aware_storage_service_dto.storage.RegisterStorageBlobResponse
+        }
+
+        endpoint describe aware_storage_service_dto.storage.DescribeStorageBlobRequest {
+            """
+            Describe one StorageBlob metadata record by object id.
+            """
+
+            response aware_storage_service_dto.storage.DescribeStorageBlobResponse
+        }
+    }
+
+    capability media {
+        endpoint resolve aware_storage_service_dto.storage.ResolveStorageMediaRequest {
+            """
+            Resolve one StorageBlob into renderer-safe media descriptors without embedding raw bytes.
+            """
+
+            response aware_storage_service_dto.storage.ResolveStorageMediaResponse
+        }
+    }
+}

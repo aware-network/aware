@@ -1,0 +1,18 @@
+class ChangeDelta {
+    // Attributes
+    position Int key
+    property String?
+    kind ChangeDeltaKind
+    payload Json
+
+    fn create construct (
+        position Int key,
+        kind ChangeDeltaKind,
+        payload Json,
+        property String? = null
+    ) -> ChangeDelta {
+        """
+        Create one delta under this Change.
+        """
+    }
+}

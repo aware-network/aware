@@ -1,0 +1,32 @@
+{
+  "dependency_import_roots": [
+    "aware_storage_ontology_orm_models"
+  ],
+  "modules": [
+    "aware_content_ontology_orm_models.chain.content_chain",
+    "aware_content_ontology_orm_models.chain.content_chain_content",
+    "aware_content_ontology_orm_models.chain.content_chain_section",
+    "aware_content_ontology_orm_models.content.content",
+    "aware_content_ontology_orm_models.content.content_enums",
+    "aware_content_ontology_orm_models.content.content_index",
+    "aware_content_ontology_orm_models.content.content_layout",
+    "aware_content_ontology_orm_models.part.content_part",
+    "aware_content_ontology_orm_models.part.content_part_content",
+    "aware_content_ontology_orm_models.part.content_part_content_layout",
+    "aware_content_ontology_orm_models.part.content_part_enums",
+    "aware_content_ontology_orm_models.part.content_part_file",
+    "aware_content_ontology_orm_models.part.content_part_multimodal_index",
+    "aware_content_ontology_orm_models.part.content_part_text",
+    "aware_content_ontology_orm_models.part.content_part_text_editor_patch",
+    "aware_content_ontology_orm_models.part.content_part_text_index",
+    "aware_content_ontology_orm_models.part.content_part_text_segment",
+    "aware_content_ontology_orm_models.part.content_part_text_segment_translation",
+    "aware_content_ontology_orm_models.part.content_part_text_style",
+    "aware_content_ontology_orm_models.stable_ids"
+  ],
+  "package_prefix": "aware_content_ontology_orm_models",
+  "pydantic_model_dependency_import_roots": [
+    "aware_storage_ontology_orm_models"
+  ],
+  "version": "v1"
+}

@@ -1,0 +1,80 @@
+/// Read-only Meta graph view DTOs for renderable graph canvas snapshots.
+///
+/// Boundary:
+/// - Requests use Meta-native lane/commit coordinates only.
+/// - WorkspaceRevision translation belongs above Meta service.
+/// - Responses expose renderer-safe graph snapshot payloads, not raw runtime
+///   graph/index objects.
+
+class MetaGraphViewRef : inline_value {
+    graph_kind String
+    id String?
+    stable_identity String?
+    fqn String?
+    namespace String?
+    symbol String?
+    label String?
+    metadata JsonObject = {}
+}
+
+class MetaGraphSnapshotNode : inline_value {
+    id String
+    label String
+    fqn String?
+    namespace String?
+    symbol String?
+    object_kind String?
+    stable_identity String?
+    position_hint JsonObject = {}
+    metadata JsonObject = {}
+}
+
+class MetaGraphSnapshotEdge : inline_value {
+    id String
+    source_node_id String
+    target_node_id String
+    relationship_kind String?
+    label String?
+    metadata JsonObject = {}
+}
+
+class MetaGraphSnapshot : inline_value {
+    nodes graph.view.MetaGraphSnapshotNode[] = []
+    edges graph.view.MetaGraphSnapshotEdge[] = []
+    root_identity String?
+    summary String?
+    metadata JsonObject = {}
+}
+
+class MetaGraphResolveGraphViewRequest {
+    actor_id UUID?
+    domain_branch_id UUID
+    domain_projection_hash String
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    projection_name String?
+    view_key String = "graph.canvas.v1"
+    include_attributes Bool = false
+    max_nodes Int?
+}
+
+class MetaGraphResolveGraphViewResponse {
+    status String
+    actor_id UUID?
+    domain_branch_id UUID
+    domain_projection_hash String
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    object_instance_graph_id UUID?
+    object_instance_graph_identity_id UUID?
+    object_instance_graph_branch_id UUID?
+    object_config_graph_ref graph.view.MetaGraphViewRef?
+    object_projection_graph_ref graph.view.MetaGraphViewRef?
+    object_instance_graph_ref graph.view.MetaGraphViewRef?
+    object_instance_graph_branch_ref graph.view.MetaGraphViewRef?
+    object_instance_graph_commit_ref graph.view.MetaGraphViewRef?
+    graph_snapshot graph.view.MetaGraphSnapshot
+    summary String?
+    provenance JsonObject = {}
+    error String?
+}

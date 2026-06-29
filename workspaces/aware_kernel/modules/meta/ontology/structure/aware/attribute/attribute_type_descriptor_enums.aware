@@ -1,0 +1,16 @@
+enum AttributeTypeDescriptorKind {
+    class
+    collection
+    enum
+    mapping
+    primitive
+    tuple
+    union
+}
+
+enum AttributeTypeDescriptorRole {
+    element
+    key
+    member
+    value
+}

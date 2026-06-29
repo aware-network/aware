@@ -1,0 +1,330 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_CONTENT"
+kind = "ns_url"
+value = "aware://content/v1"
+
+[[functions]]
+name = "stable_content_id"
+namespace = "NS_CONTENT"
+template = "aware:content:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_content_chain_id"
+namespace = "NS_CONTENT"
+template = "aware:content_chain:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_content_chain_content_id"
+namespace = "NS_CONTENT"
+template = "aware:content_chain_content:{position}"
+doc = "Compiler-generated from class-attribute identity keys: position"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions]]
+name = "stable_content_chain_section_id"
+namespace = "NS_CONTENT"
+template = "aware:content_chain_section:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_content_index_id"
+namespace = "NS_CONTENT"
+template = "aware:content_index:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_content_layout_id"
+namespace = "NS_CONTENT"
+template = "aware:content_layout:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_content_part_id"
+namespace = "NS_CONTENT"
+template = "aware:content_part:{type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: type"
+
+[[functions.params]]
+name = "type"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "type_norm"
+param = "type"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_content_part_content_id"
+namespace = "NS_CONTENT"
+template = "aware:content_part_content:{position}"
+doc = "Compiler-generated from class-attribute identity keys: position"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions]]
+name = "stable_content_part_content_layout_id"
+namespace = "NS_CONTENT"
+template = "aware:content_part_content_layout:{layout_order}"
+doc = "Compiler-generated from class-attribute identity keys: layout_order"
+
+[[functions.params]]
+name = "layout_order"
+type = "int"
+default = 0
+
+[[functions]]
+name = "stable_content_part_file_id"
+namespace = "NS_CONTENT"
+template = "aware:content_part_file:{modality_type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: modality_type"
+
+[[functions.params]]
+name = "modality_type"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "modality_type_norm"
+param = "modality_type"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_content_part_multimodal_index_id"
+namespace = "NS_CONTENT"
+template = "aware:content_part_multimodal_index:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_content_part_text_id"
+namespace = "NS_CONTENT"
+template = "aware:content_part_text:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_content_part_text_index_id"
+namespace = "NS_CONTENT"
+template = "aware:content_part_text_index:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_content_part_text_segment_id"
+namespace = "NS_CONTENT"
+template = "aware:content_part_text_segment:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_content_part_text_segment_translation_id"
+namespace = "NS_CONTENT"
+template = "aware:content_part_text_segment_translation:{language_norm}"
+doc = "Compiler-generated from class-attribute identity keys: language"
+
+[[functions.params]]
+name = "language"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "language_norm"
+param = "language"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_content_part_text_style_id"
+namespace = "NS_CONTENT"
+template = "aware:content_part_text_style:{background_color_norm}:{block_semantic_type_norm}:{bold_int}:{color_norm}:{font_family_norm}:{font_size}:{italic_int}:{underline_int}"
+doc = "Compiler-generated from class-attribute identity keys: background_color, block_semantic_type, bold, color, font_family, font_size, italic, underline"
+
+[[functions.params]]
+name = "background_color"
+type = "str"
+optional = true
+
+[[functions.params]]
+name = "block_semantic_type"
+type = "str"
+optional = true
+
+[[functions.params]]
+name = "bold"
+type = "bool"
+default = false
+
+[[functions.params]]
+name = "color"
+type = "str"
+optional = true
+
+[[functions.params]]
+name = "font_family"
+type = "str"
+optional = true
+
+[[functions.params]]
+name = "font_size"
+type = "int"
+default = 0
+
+[[functions.params]]
+name = "italic"
+type = "bool"
+default = false
+
+[[functions.params]]
+name = "underline"
+type = "bool"
+default = false
+
+[[functions.lets]]
+op = "normalize"
+name = "background_color_norm"
+param = "background_color"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "block_semantic_type_norm"
+param = "block_semantic_type"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "bool_int"
+name = "bold_int"
+param = "bold"
+
+[[functions.lets]]
+op = "normalize"
+name = "color_norm"
+param = "color"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "font_family_norm"
+param = "font_family"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "bool_int"
+name = "italic_int"
+param = "italic"
+
+[[functions.lets]]
+op = "bool_int"
+name = "underline_int"
+param = "underline"

@@ -1,0 +1,9 @@
+enum FunctionInvocationKind {
+    call
+    construct
+}
+
+enum FunctionInvocationRootKind {
+    owner
+    capture
+}

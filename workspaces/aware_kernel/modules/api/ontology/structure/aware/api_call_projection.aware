@@ -1,0 +1,21 @@
+projection ApiCall {
+    root api.ApiCall
+    api.ApiCall::outcome
+    api.ApiCall::request_model
+    api.ApiCallOutcome::response_model
+    aware_meta.class.InlineValueInstance::class_config ObjectConfigGraph
+    aware_meta.class.InlineValueInstance::attributes
+    aware_meta.class.InlineValueInstanceAttribute::attribute
+    aware_meta.attribute.Attribute::attribute_config ObjectConfigGraph
+    aware_meta.attribute.Attribute::value_root
+    aware_meta.attribute.AttributeValue::type_descriptor ObjectConfigGraph
+    aware_meta.attribute.AttributeValue::child_links
+    aware_meta.attribute.AttributeValueLink::child
+    aware_meta.attribute.AttributeValue::inline_value_instance
+
+    observable api_call {
+        """
+        API call ingress rail with owned inline-value request-model hierarchy.
+        """
+    }
+}

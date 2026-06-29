@@ -1,0 +1,19 @@
+/// Typed event contract beneath one endpoint stream contract.
+class ApiCapabilityEndpointStreamEventConfig {
+    // Relationships
+    class_config aware_meta.class.ClassConfig key
+
+    // Attributes
+    kind ApiCapabilityEndpointStreamEventKind key
+    description String?
+
+    fn create construct (
+        kind ApiCapabilityEndpointStreamEventKind key,
+        class_config_id UUID key,
+        description String? = null
+    ) -> ApiCapabilityEndpointStreamEventConfig {
+        """
+        Create one typed stream event contract beneath ApiCapabilityEndpointStreamConfig.
+        """
+    }
+}

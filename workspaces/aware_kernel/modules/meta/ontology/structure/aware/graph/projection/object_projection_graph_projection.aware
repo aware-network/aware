@@ -1,0 +1,12 @@
+/// OPG Projection
+projection ObjectProjectionGraph {
+    root projection.ObjectProjectionGraph
+
+    /// Nodes
+    projection.ObjectProjectionGraph::object_projection_graph_nodes
+    projection.ObjectProjectionGraphNode::object_projection_graph_node_keys
+    projection.ObjectProjectionGraphNodeKey::object_config_graph_binding_class
+    projection.ObjectProjectionGraph::object_projection_graph_edges
+    projection.ObjectProjectionGraph::object_projection_graph_constructors
+    projection.ObjectProjectionGraph::object_projection_graph_relationships
+}

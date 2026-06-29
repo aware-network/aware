@@ -1,0 +1,199 @@
+/// CodePackage distribution DTOs for Product A consumers.
+///
+/// Contract:
+/// - Hub can expose search/describe/resolve/download/publish over these DTOs.
+/// - The DTOs describe package artifact truth and replay locks, not executable
+///   plugin activation.
+/// - Publish registers an already-staged artifact lock with Hub authority truth;
+///   binary upload/storage transport is intentionally separate.
+/// - CodeModule/module aggregate layout is intentionally out of scope here.
+
+enum CodeLanguage {
+    aware
+    dart
+    python
+    sql
+}
+
+class CodePackageServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class CodePackageServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+}
+
+class CodePackageRef {
+    package_name String
+    language code.CodeLanguage?
+    surface String?
+    channel String = "stable"
+    version String?
+    revision_id String?
+    digest String?
+}
+
+class CodePackageArtifactLock {
+    artifact_url String
+    sha256 String
+    size_bytes Int?
+    media_type String?
+    archive_format String?
+    revision_id String?
+    published_at String?
+}
+
+class CodePackageDescriptor {
+    package_name String
+    language code.CodeLanguage
+    surface String
+    manifest_kind String
+    manifest_relative_path String
+    package_root String
+    sources_root String?
+    fqn_prefix String?
+    version String?
+    revision_id String?
+    digest String?
+    artifact_media_type String?
+    artifact_size_bytes Int?
+    download_handle String?
+    metadata JsonObject = {}
+}
+
+class CodePackageChannelHead {
+    package_name String
+    language code.CodeLanguage?
+    surface String?
+    channel String = "stable"
+    revision_id String
+    updated_at String?
+    publisher_execution_id String?
+    idempotency_key String?
+    metadata JsonObject = {}
+}
+
+class CodePackageDiscoveryEntry {
+    channel_head code.CodePackageChannelHead
+    descriptor code.CodePackageDescriptor?
+    artifact_lock code.CodePackageArtifactLock?
+}
+
+class DiscoverCodePackageChannelHeadsRequest augment code.CodePackageServiceRequest {
+    operation String = "discover_code_package_channel_heads"
+    query String?
+    package_name String?
+    language code.CodeLanguage?
+    surface String?
+    channel String?
+    authority_base_url String?
+    index_url String?
+    limit Int = 50
+}
+
+class DiscoverCodePackageChannelHeadsResponse augment code.CodePackageServiceResponse {
+    operation String = "discover_code_package_channel_heads"
+    authority_source_url String?
+    entries code.CodePackageDiscoveryEntry[] = []
+}
+
+class SearchCodePackageRequest augment code.CodePackageServiceRequest {
+    operation String = "search_code_package"
+    query String?
+    package_name String?
+    language code.CodeLanguage?
+    surface String?
+    channel String = "stable"
+    authority_base_url String?
+    index_url String?
+    limit Int = 50
+}
+
+class SearchCodePackageResponse augment code.CodePackageServiceResponse {
+    operation String = "search_code_package"
+    authority_source_url String?
+    descriptors code.CodePackageDescriptor[] = []
+}
+
+class DescribeCodePackageRequest augment code.CodePackageServiceRequest {
+    operation String = "describe_code_package"
+    selector code.CodePackageRef
+    authority_base_url String?
+    index_url String?
+}
+
+class DescribeCodePackageResponse augment code.CodePackageServiceResponse {
+    operation String = "describe_code_package"
+    authority_source_url String?
+    descriptor code.CodePackageDescriptor?
+}
+
+class ResolveCodePackageRequest augment code.CodePackageServiceRequest {
+    operation String = "resolve_code_package"
+    selector code.CodePackageRef
+    authority_base_url String?
+    index_url String?
+}
+
+class ResolveCodePackageResponse augment code.CodePackageServiceResponse {
+    operation String = "resolve_code_package"
+    authority_source_url String?
+    selector code.CodePackageRef
+    descriptor code.CodePackageDescriptor
+    artifact_lock code.CodePackageArtifactLock
+}
+
+class DownloadCodePackageRequest augment code.CodePackageServiceRequest {
+    operation String = "download_code_package"
+    selector code.CodePackageRef
+    authority_base_url String?
+    index_url String?
+}
+
+class DownloadCodePackageResponse augment code.CodePackageServiceResponse {
+    operation String = "download_code_package"
+    authority_source_url String?
+    selector code.CodePackageRef
+    artifact_lock code.CodePackageArtifactLock
+}
+
+class PublishCodePackageRequest augment code.CodePackageServiceRequest {
+    operation String = "publish_code_package"
+    descriptor code.CodePackageDescriptor
+    artifact_lock code.CodePackageArtifactLock
+    channel String = "stable"
+    authority_base_url String?
+    index_url String?
+    publisher_execution_id String?
+    idempotency_key String?
+}
+
+class PublishCodePackageResponse augment code.CodePackageServiceResponse {
+    operation String = "publish_code_package"
+    authority_source_url String?
+    selector code.CodePackageRef?
+    descriptor code.CodePackageDescriptor?
+    artifact_lock code.CodePackageArtifactLock?
+    accepted Bool = false
+}
+
+ann code.CodePackageServiceRequest::operation discriminate key
+ann code.DiscoverCodePackageChannelHeadsRequest::operation discriminate tag "discover_code_package_channel_heads"
+ann code.SearchCodePackageRequest::operation discriminate tag "search_code_package"
+ann code.DescribeCodePackageRequest::operation discriminate tag "describe_code_package"
+ann code.ResolveCodePackageRequest::operation discriminate tag "resolve_code_package"
+ann code.DownloadCodePackageRequest::operation discriminate tag "download_code_package"
+ann code.PublishCodePackageRequest::operation discriminate tag "publish_code_package"
+
+ann code.CodePackageServiceResponse::operation discriminate key
+ann code.DiscoverCodePackageChannelHeadsResponse::operation discriminate tag "discover_code_package_channel_heads"
+ann code.SearchCodePackageResponse::operation discriminate tag "search_code_package"
+ann code.DescribeCodePackageResponse::operation discriminate tag "describe_code_package"
+ann code.ResolveCodePackageResponse::operation discriminate tag "resolve_code_package"
+ann code.DownloadCodePackageResponse::operation discriminate tag "download_code_package"
+ann code.PublishCodePackageResponse::operation discriminate tag "publish_code_package"

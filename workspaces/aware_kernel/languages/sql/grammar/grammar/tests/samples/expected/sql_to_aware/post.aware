@@ -1,0 +1,6 @@
+type Post {
+    // Attributes
+    content String
+    created_at DateTime = "CURRENT_TIMESTAMP"
+    title String
+}

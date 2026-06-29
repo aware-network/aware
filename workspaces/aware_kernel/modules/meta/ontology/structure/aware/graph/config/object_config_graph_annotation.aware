@@ -1,0 +1,31 @@
+/// Single annotation instance attached to an ObjectConfigGraph
+/// This provides a polymorphic wrapper around verb-specific views such as
+/// CodeSectionAnnotationLoad / CodeSectionAnnotationOverlay, while keeping
+/// primitive models free of meta dependencies.
+class ObjectConfigGraphAnnotation {
+    // Relationships
+    code_section_annotation_discriminate annotation.CodeSectionAnnotationDiscriminate?
+    code_section_annotation_load annotation.CodeSectionAnnotationLoad?
+    code_section_annotation_overlay annotation.CodeSectionAnnotationOverlay?
+    code_section_annotation_override annotation.CodeSectionAnnotationOverride?
+    code_section_annotation_oneof annotation.CodeSectionAnnotationOneOf?
+    code_section_annotation_identity annotation.CodeSectionAnnotationIdentity?
+    code_section_annotation_reference annotation.CodeSectionAnnotationReference?
+    code_section_annotation_index annotation.CodeSectionAnnotationIndex?
+    code_section_annotation_storage annotation.CodeSectionAnnotationStorage?
+
+    // Attributes
+    kind ObjectConfigGraphAnnotationKind key
+}
+
+
+/// Load all annotation relationships eagerly
+ann graph.config.ObjectConfigGraphAnnotation::code_section_annotation_discriminate load eager
+ann graph.config.ObjectConfigGraphAnnotation::code_section_annotation_load load eager
+ann graph.config.ObjectConfigGraphAnnotation::code_section_annotation_overlay load eager
+ann graph.config.ObjectConfigGraphAnnotation::code_section_annotation_override load eager
+ann graph.config.ObjectConfigGraphAnnotation::code_section_annotation_oneof load eager
+ann graph.config.ObjectConfigGraphAnnotation::code_section_annotation_identity load eager
+ann graph.config.ObjectConfigGraphAnnotation::code_section_annotation_reference load eager
+ann graph.config.ObjectConfigGraphAnnotation::code_section_annotation_index load eager
+ann graph.config.ObjectConfigGraphAnnotation::code_section_annotation_storage load eager

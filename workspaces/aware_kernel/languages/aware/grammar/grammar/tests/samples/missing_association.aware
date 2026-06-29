@@ -1,0 +1,11 @@
+/// Missing association edge spec should raise in canonical builder.
+
+class User {
+    name String
+}
+
+class Membership {
+    users User[] @MissingEdge many
+}
+
+

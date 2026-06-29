@@ -1,0 +1,19 @@
+edge ContentChainContent {
+    // Attributes
+    position Int key
+
+    fn create_content_chain_content construct(
+        content_chain_id UUID,
+        content_id UUID,
+        position Int,
+    ) -> ContentChainContent {
+        """
+        Appends a Content to a ContentChain by creating a ContentChainContent edge.
+        """
+        construct ContentChainContent(
+            content_chain_id = content_chain_id,
+            content_id = content_id,
+            position = position,
+        )
+    }
+}

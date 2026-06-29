@@ -1,0 +1,15 @@
+enum ContentSource {
+    agent
+    event
+    instruction
+    memory
+    tool
+    user
+}
+
+enum ModalityType {
+    audio
+    image
+    text
+    video
+}

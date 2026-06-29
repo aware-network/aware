@@ -1,0 +1,12 @@
+aware = 1
+
+[package]
+package_name = "home-ontology"
+fqn_prefix = "aware_home"
+kind = "ontology"
+version_number = 1
+title = "Home Ontology"
+description = "Standalone home ontology fixture for Meta runtime materialization tests."
+
+[build]
+environment_slug = "aware_home"

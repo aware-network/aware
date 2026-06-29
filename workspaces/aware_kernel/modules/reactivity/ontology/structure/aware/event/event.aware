@@ -1,0 +1,91 @@
+class Event {
+    // Relationships
+    actions action.Action[]
+    action_intents action.ActionIntent[]
+    config EventConfig key
+    event_conditions EventCondition[]
+
+    // Attributes
+    activation_id UUID key
+    event_type String
+    source String
+    status EventStatus = raised
+
+    fn create construct(
+        config_id UUID key,
+        activation_id UUID key,
+        event_type String,
+        source String,
+        status EventStatus = raised
+    ) -> Event {
+        """
+        Create runtime event evidence anchored to one activation.
+        """
+    }
+
+    fn add_event_condition(
+        condition_id UUID,
+        config_id UUID,
+        matched Bool = true,
+        evaluation_context JsonObject = {}
+    ) -> EventCondition {
+        """
+        Link one evaluated condition evidence record to this event.
+        """
+        let created = construct event_conditions.create(
+            condition_id = condition_id,
+            config_id = config_id,
+            matched = matched,
+            evaluation_context = evaluation_context,
+        )
+    }
+
+    fn add_action(
+        config_id UUID,
+        execution_context JsonObject = {}
+    ) -> action.Action {
+        """
+        Link one action evidence record to this event.
+        """
+        let created = construct actions.create(
+            config_id = config_id,
+            execution_context = execution_context,
+        )
+    }
+
+    fn add_action_intent(
+        config_id UUID,
+        intent_key String,
+        action_type String? = null,
+        actor_id UUID? = null,
+        target_actor_id UUID? = null,
+        actor_subscription_id UUID? = null,
+        action_payload JsonObject = {},
+        payload_class_config_id UUID? = null,
+        subscription_filter_config JsonObject = {},
+        priority Int = 0,
+        status action.ActionIntentStatus = requested,
+    ) -> action.ActionIntent {
+        """
+        Link one commit-backed action intent evidence record to this event.
+
+        Contract:
+        - `intent_key` is caller-supplied and opaque to Reactivity.
+        - Actor/subscription args are deprecated provenance mirrors retained for
+          bridge compatibility during the C2 cleanup window.
+        """
+        let created = construct action_intents.create(
+            config_id = config_id,
+            intent_key = intent_key,
+            action_type = action_type,
+            actor_id = actor_id,
+            target_actor_id = target_actor_id,
+            actor_subscription_id = actor_subscription_id,
+            action_payload = action_payload,
+            payload_class_config_id = payload_class_config_id,
+            subscription_filter_config = subscription_filter_config,
+            priority = priority,
+            status = status,
+        )
+    }
+}

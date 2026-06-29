@@ -1,12 +1,9 @@
 """`aware_orm.runtime` public API.
 
-This module intentionally separates two rails:
-
-- Package rail (canonical): generated Python package embeds `_aware/*` resources and installs
-  via `bootstrap_orm_package` + `install_package_runtime_artifacts`.
-
-- Bundle rail (dev/runtime): `.aware/environment/*` bundle artifacts install via
-  `install_environment_bundle` (or `install_default_environment_bundle`).
+Generated Python packages embed `_aware/*` resources and install through
+`bootstrap_orm_package` + `install_package_runtime_artifacts`. Environment
+bundle install is retired; executable runtime truth comes from ontology-owned
+package artifacts, not Structure-composed manifests.
 """
 
 from __future__ import annotations
@@ -34,14 +31,6 @@ __all__ = [
     "ORMClassConfigReference",
     "ORMClassResolutionIndex",
     "resolve_orm_class",
-    # Bundle rail (dev/runtime)
-    "install_environment_bundle",
-    "install_default_environment_bundle",
-    "resolve_environment_manifest_path",
-    "canonical_only_enabled",
-    "CANONICAL_ONLY_ENV",
-    "ENVIRONMENT_MANIFEST_ENV",
-    "DEFAULT_MANIFEST_PATH",
     "install_sql_metadata_from_bundle",
     "install_sql_metadata_from_bindings_payload",
     "SQLMetadataInstallResult",
@@ -99,42 +88,21 @@ def __getattr__(name: str) -> Any:  # pragma: no cover
             "resolve_orm_class": resolve_orm_class,
         }[name]
 
-    if name in {"install_bindings_from_bundle", "install_bindings_from_payload", "BindingInstallResult"}:
-        from .bundle_binding import install_bindings_from_bundle, install_bindings_from_payload, BindingInstallResult
+    if name in {
+        "install_bindings_from_bundle",
+        "install_bindings_from_payload",
+        "BindingInstallResult",
+    }:
+        from .bundle_binding import (
+            install_bindings_from_bundle,
+            install_bindings_from_payload,
+            BindingInstallResult,
+        )
 
         return {
             "install_bindings_from_bundle": install_bindings_from_bundle,
             "install_bindings_from_payload": install_bindings_from_payload,
             "BindingInstallResult": BindingInstallResult,
-        }[name]
-
-    if name in {
-        "install_environment_bundle",
-        "install_default_environment_bundle",
-        "resolve_environment_manifest_path",
-        "canonical_only_enabled",
-        "CANONICAL_ONLY_ENV",
-        "ENVIRONMENT_MANIFEST_ENV",
-        "DEFAULT_MANIFEST_PATH",
-    }:
-        from .bundle_runtime_install import (
-            install_environment_bundle,
-            install_default_environment_bundle,
-            resolve_environment_manifest_path,
-            canonical_only_enabled,
-            CANONICAL_ONLY_ENV,
-            ENVIRONMENT_MANIFEST_ENV,
-            DEFAULT_MANIFEST_PATH,
-        )
-
-        return {
-            "install_environment_bundle": install_environment_bundle,
-            "install_default_environment_bundle": install_default_environment_bundle,
-            "resolve_environment_manifest_path": resolve_environment_manifest_path,
-            "canonical_only_enabled": canonical_only_enabled,
-            "CANONICAL_ONLY_ENV": CANONICAL_ONLY_ENV,
-            "ENVIRONMENT_MANIFEST_ENV": ENVIRONMENT_MANIFEST_ENV,
-            "DEFAULT_MANIFEST_PATH": DEFAULT_MANIFEST_PATH,
         }[name]
 
     if name in {

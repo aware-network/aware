@@ -1,0 +1,94 @@
+class ActionIntent {
+    // Relationships
+    action_executions ActionExecution[]
+    config ActionConfig key
+    payload_model aware_meta.class.InlineValueInstance? unique
+
+    // Attributes
+    /// Deprecated compatibility payload mirror.
+    ///
+    /// Canonical typed payload truth is `payload_model`, whose ClassConfig is
+    /// resolved by Experience policy from the bound endpoint request config.
+    action_payload JsonObject = {}
+    action_type String?
+    /// Deprecated actor-provenance mirror.
+    ///
+    /// Reactivity owns lifecycle only. Caller provenance is owned by the
+    /// subscription bridge or Experience program receipt rails.
+    actor_id UUID?
+    /// Deprecated subscription-provenance mirror.
+    ///
+    /// Stable identity migrated to caller-supplied `intent_key`; subscription
+    /// callers derive that key in their bridge layer.
+    actor_subscription_id UUID?
+    /// Caller-supplied opaque idempotency key for this event/action intent.
+    ///
+    /// Reactivity treats this as an uninterpreted primitive. Program,
+    /// subscription, and future caller rails own derivation/provenance.
+    intent_key String key
+    priority Int = 0
+    status ActionIntentStatus = requested
+    /// Deprecated subscription-provenance mirror.
+    ///
+    /// Resolver-owned subscription policy context lives above Reactivity.
+    subscription_filter_config JsonObject = {}
+    /// Deprecated actor-provenance mirror.
+    ///
+    /// Dispatch-time registration, not ActionIntent identity, decides
+    /// fulfillment routing.
+    target_actor_id UUID?
+
+    fn create construct(
+        config_id UUID key,
+        intent_key String key,
+        action_type String? = null,
+        actor_id UUID? = null,
+        target_actor_id UUID? = null,
+        actor_subscription_id UUID? = null,
+        action_payload JsonObject = {},
+        payload_class_config_id UUID? = null,
+        subscription_filter_config JsonObject = {},
+        priority Int = 0,
+        status ActionIntentStatus = requested,
+    ) -> ActionIntent {
+        """
+        Create commit-backed Reactivity action intent evidence for a raised event.
+
+        Contract:
+        - This is the canonical "should react" record.
+        - Stable-id migration B1: deterministic id is derived from event,
+          action config, and caller-supplied `intent_key`; actor subscription no
+          longer participates in identity.
+        - `payload_model` is typed request payload evidence. Its ClassConfig is
+          supplied by the Experience/API resolver; Reactivity remains API-agnostic.
+        - `action_payload` is deprecated compatibility metadata only.
+        - Actor/subscription fields are deprecated provenance mirrors; caller
+          provenance lives in the bridge/Experience receipt rails.
+        """
+    }
+
+    fn start_execution(
+        execution_key String = "primary",
+        status ActionExecutionStatus = created,
+        execution_context JsonObject = {},
+    ) -> ActionExecution {
+        """
+        Create one service-fulfillment execution promise for this intent.
+        """
+        let created = construct action_executions.create(
+            execution_key = execution_key,
+            status = status,
+            execution_context = execution_context,
+        )
+    }
+
+    fn set_status(
+        status ActionIntentStatus,
+    ) -> {
+        """
+        Update intent status without mutating execution lifecycle truth.
+        """
+    }
+}
+
+ann action.ActionIntent::payload_model load eager

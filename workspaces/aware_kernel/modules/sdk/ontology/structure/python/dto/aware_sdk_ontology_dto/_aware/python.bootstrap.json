@@ -1,0 +1,29 @@
+{
+  "dependency_import_roots": [
+    "aware_api_ontology_dto",
+    "aware_code_ontology_dto",
+    "aware_meta_ontology_dto"
+  ],
+  "modules": [
+    "aware_sdk_ontology_dto.sdk.sdk_config",
+    "aware_sdk_ontology_dto.sdk.sdk_operation",
+    "aware_sdk_ontology_dto.sdk.sdk_operation_api_capability_endpoint",
+    "aware_sdk_ontology_dto.sdk.sdk_operation_call",
+    "aware_sdk_ontology_dto.sdk.sdk_operation_dependency",
+    "aware_sdk_ontology_dto.sdk.sdk_package",
+    "aware_sdk_ontology_dto.sdk.sdk_package_api_package",
+    "aware_sdk_ontology_dto.sdk.sdk_package_dependency",
+    "aware_sdk_ontology_dto.sdk.sdk_package_implementation_package",
+    "aware_sdk_ontology_dto.sdk.sdk_package_object_config_graph_package",
+    "aware_sdk_ontology_dto.sdk.sdk_surface",
+    "aware_sdk_ontology_dto.sdk.sdk_surface_method",
+    "aware_sdk_ontology_dto.stable_ids"
+  ],
+  "package_prefix": "aware_sdk_ontology_dto",
+  "pydantic_model_dependency_import_roots": [
+    "aware_api_ontology_dto",
+    "aware_code_ontology_dto",
+    "aware_meta_ontology_dto"
+  ],
+  "version": "v1"
+}

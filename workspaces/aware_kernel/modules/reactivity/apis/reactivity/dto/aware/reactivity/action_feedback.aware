@@ -1,0 +1,29 @@
+/// Canonical DTO for progressive action execution feedback.
+///
+/// Contract:
+/// - `stage` is constrained by `ActionFeedbackStage`.
+/// - `status` is constrained by `ActionFeedbackStatus`.
+/// - Caller attribution lives above this rail in request context or
+///   provenance receipts.
+/// - v0 emits:
+///   - stage=dispatch status=requested
+///   - stage=execute status=running|responded|skipped|failed
+
+class ActionFeedback {
+    action_feedback_id UUID?
+    action_intent_id UUID?
+    action_execution_id UUID
+    event_id UUID
+    sequence Int
+    created_at_unix_ms Int
+    stage ActionFeedbackStage
+    status ActionFeedbackStatus
+    action_binding_id UUID?
+    action_config_id UUID?
+    action_type String?
+    message String?
+    payload JsonValue?
+    executor_ref String?
+    result_info String?
+    execution_request_id UUID?
+}

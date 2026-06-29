@@ -1,0 +1,27 @@
+[project]
+name = "aware-utils"
+version = "1.2.0"
+description = "Selected-kernel utility helpers for the Aware platform."
+readme = "README.md"
+authors = [
+  { name = "Aware Team", email = "info@aware-network.org" },
+]
+requires-python = ">=3.12"
+dependencies = [
+  "colorlog>=6.8.2,<7.0.0",
+  "pydantic>=2.7.1,<3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.1.1,<9.0.0",
+  "coverage>=7.0.0,<8.0.0",
+  "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_utils"]

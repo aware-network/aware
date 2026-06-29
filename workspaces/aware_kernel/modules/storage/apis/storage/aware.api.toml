@@ -1,0 +1,38 @@
+aware_api = 1
+
+[api]
+package_name = "storage-service-api"
+fqn_prefix = "aware_storage_service_api"
+version_number = 1
+title = "Storage Service API"
+description = "Public API boundary for commit-backed StorageBlob metadata and Storage-owned media resolution."
+
+[build]
+sources_dir = "bindings"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+compilation_mode = "api_ontology"
+
+[targets.python]
+root_dir = "python"
+
+[targets.python.public_package]
+package_dir = "aware_storage_service_api"
+
+[targets.python.service_protocol]
+package_dir = "aware_storage_service_protocol"
+
+[targets.dart]
+root_dir = "dart"
+
+[targets.dart.public_package]
+package_dir = "aware_storage_service_api"
+
+[[dependencies]]
+package_name = "storage-service-dto"
+
+[[semantic_package_exports]]
+kind = "api_dto"
+package_name = "storage-service-dto"
+manifest_path = "dto/aware.toml"

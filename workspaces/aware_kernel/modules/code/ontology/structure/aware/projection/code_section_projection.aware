@@ -1,0 +1,65 @@
+class CodeSectionProjection {
+    // Relationships
+    code_section_comments comment.CodeSectionComment[]
+    name_segment aware_content.part.ContentPartTextSegment
+    root_type_segment aware_content.part.ContentPartTextSegment?
+    projection_edges projection.CodeSectionProjectionEdge[]
+    projection_views projection.CodeSectionProjectionView[]
+
+    // Attributes
+    /// Projection symbol name (e.g. `ActorFocus`).
+    name String
+    /// Human-friendly description (derived from doc comments).
+    description String?
+    /// Canonical projection identity name (default: authored projection symbol; overridable via `name "..."` option).
+    projection_name String
+    label String?
+    is_branchable Bool = false
+    /// Root type reference (FQN) for the projection.
+    root_type_ref String?
+
+    fn build construct() -> CodeSectionProjection {
+        """
+        Build the projection payload under a CodeSection.
+        """
+    }
+
+    fn create_edge(
+        member String key,
+        type_ref String,
+        target_projection_ref String? = null
+    ) -> projection.CodeSectionProjectionEdge {
+        """
+        Create a deterministic projection-edge entry under this projection.
+        """
+        let created = construct projection_edges.build(
+            member = member,
+            type_ref = type_ref,
+            target_projection_ref = target_projection_ref,
+        )
+    }
+
+    fn create_view(
+        key String key,
+        kind String,
+        is_default Bool = false,
+        description String? = null
+    ) -> projection.CodeSectionProjectionView {
+        """
+        Create a deterministic projection-view entry under this projection.
+        """
+        let created = construct projection_views.build(
+            key = key,
+            kind = kind,
+            is_default = is_default,
+            description = description,
+        )
+    }
+}
+
+ann projection.CodeSectionProjection::code_section_comments load eager
+ann projection.CodeSectionProjection::code_section_comments override fk nullable
+ann projection.CodeSectionProjection::name_segment load eager
+ann projection.CodeSectionProjection::root_type_segment load eager
+ann projection.CodeSectionProjection::projection_edges load eager
+ann projection.CodeSectionProjection::projection_views load eager

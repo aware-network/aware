@@ -1,0 +1,28 @@
+[project]
+name = "aware-reactivity-sdk"
+version = "0.1.0"
+description = "Reactivity SDK facade over generated Reactivity Service API Client."
+authors = [{ name = "AWARE Team" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aware_reactivity_service_api",
+  "aware_reactivity_service_dto",
+]
+
+[project.optional-dependencies]
+local = [
+  "aware-reactivity",
+]
+test = [
+  "pytest>=8.4.2",
+  "pytest-asyncio>=0.23.7",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_reactivity_sdk"]
+include = ["README.md", "aware_reactivity_sdk/py.typed"]

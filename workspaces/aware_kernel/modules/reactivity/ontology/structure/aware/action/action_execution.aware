@@ -1,0 +1,59 @@
+class ActionExecution {
+    // Relationships
+    action_feedback ActionFeedback[]
+
+    // Attributes
+    execution_context JsonObject = {}
+    execution_key String key = "primary"
+    executor_ref String?
+    result_info String?
+    status ActionExecutionStatus = created
+
+    fn create construct(
+        execution_key String key = "primary",
+        status ActionExecutionStatus = created,
+        execution_context JsonObject = {},
+        executor_ref String? = null,
+        result_info String? = null,
+    ) -> ActionExecution {
+        """
+        Create commit-backed action execution promise/correlation evidence.
+
+        Contract:
+        - This is the canonical "service accepted or will decide on fulfillment" record.
+        - Deterministic id is derived from action intent and execution key.
+        """
+    }
+
+    fn add_feedback(
+        sequence Int key,
+        stage ActionFeedbackStage,
+        status ActionFeedbackStatus,
+        created_at_unix_ms Int = 0,
+        message String? = null,
+        payload JsonObject = {},
+        payload_class_config_id UUID? = null,
+    ) -> ActionFeedback {
+        """
+        Append one lifecycle feedback record for this execution.
+        """
+        let created = construct action_feedback.create(
+            sequence = sequence,
+            stage = stage,
+            status = status,
+            created_at_unix_ms = created_at_unix_ms,
+            message = message,
+            payload = payload,
+            payload_class_config_id = payload_class_config_id,
+        )
+    }
+
+    fn set_status(
+        status ActionExecutionStatus,
+        result_info String? = null,
+    ) -> {
+        """
+        Update execution status after service fulfillment progress.
+        """
+    }
+}

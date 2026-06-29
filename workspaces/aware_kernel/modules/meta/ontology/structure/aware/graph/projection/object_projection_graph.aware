@@ -1,0 +1,142 @@
+class ObjectProjectionGraph {
+    // Relationships
+    /// Canonical membership edges declared under this projection graph.
+    object_projection_graph_edges ObjectProjectionGraphEdge[]
+    object_projection_graph_nodes ObjectProjectionGraphNode[]
+    object_projection_graph_constructors ObjectProjectionGraphConstructor[]
+    object_projection_graph_relationships ObjectProjectionGraphRelationship[]
+    object_instance_graphs instance.ObjectInstanceGraph[]
+
+    // Attributes
+    description String?
+    language aware_code.code.CodeLanguage
+    name String key
+    projection_hash String unique
+    supports_virtual_build Bool = true
+
+    fn build construct (
+        name String key,
+        projection_hash String,
+        language aware_code.code.CodeLanguage = aware,
+        description String? = null,
+        supports_virtual_build Bool = true
+    ) -> ObjectProjectionGraph {
+        """
+        Create deterministic ObjectProjectionGraph root for runtime proof composition.
+
+        Contract:
+        - Parent `object_config_graph_id` is propagated by constructor lowering.
+        - Identity resolves from `(object_config_graph_id via path, name)`.
+        - `projection_hash` is snapshot metadata and must not participate in stable identity.
+        """
+    }
+
+    fn create_node(
+        class_config_id UUID key,
+        is_root Bool = false,
+        required_for_validity Bool = false,
+        selection ObjectProjectionGraphNodeSelection = all,
+        top_n Int? = null,
+        selector_condition_id UUID? = null,
+        policy_refs String[] = []
+    ) -> ObjectProjectionGraphNode {
+        """
+        Create deterministic ObjectProjectionGraphNode under this ObjectProjectionGraph.
+        """
+        let created = construct object_projection_graph_nodes.build(
+            class_config_id = class_config_id,
+            is_root = is_root,
+            required_for_validity = required_for_validity,
+            selection = selection,
+            top_n = top_n,
+            selector_condition_id = selector_condition_id,
+            policy_refs = policy_refs,
+        )
+    }
+
+    fn create_edge(
+        class_config_relationship_id UUID key,
+        include ObjectProjectionGraphEdgeInclude = required,
+        multiplicity ObjectProjectionGraphEdgeMultiplicity = many,
+        traversal_direction class.ClassConfigRelationshipDirection = forward,
+        depth_limit Int? = null,
+        attribute_role ObjectProjectionGraphAttributeRole = reference,
+        loading_override class.ClassConfigRelationshipSideLoadingStrategy? = null
+    ) -> ObjectProjectionGraphEdge {
+        """
+        Create deterministic ObjectProjectionGraphEdge under this ObjectProjectionGraph.
+        """
+        let created = construct object_projection_graph_edges.build(
+            class_config_relationship_id = class_config_relationship_id,
+            include = include,
+            multiplicity = multiplicity,
+            traversal_direction = traversal_direction,
+            depth_limit = depth_limit,
+            attribute_role = attribute_role,
+            loading_override = loading_override,
+        )
+    }
+
+    fn create_constructor(
+        root_node_id UUID key,
+        function_constructor_id UUID key
+    ) -> ObjectProjectionGraphConstructor {
+        """
+        Create deterministic ObjectProjectionGraphConstructor under this ObjectProjectionGraph.
+        """
+        let created = construct object_projection_graph_constructors.build(
+            root_node_id = root_node_id,
+            function_constructor_id = function_constructor_id,
+        )
+    }
+
+    fn create_relationship(
+        target_object_projection_graph_id UUID key,
+        class_config_relationship_id UUID key,
+        source_object_projection_graph_node_id UUID key,
+        target_object_projection_graph_node_id UUID key
+    ) -> ObjectProjectionGraphRelationship {
+        """
+        Create deterministic ObjectProjectionGraphRelationship under this ObjectProjectionGraph.
+        """
+        let created = construct object_projection_graph_relationships.build(
+            target_object_projection_graph_id = target_object_projection_graph_id,
+            class_config_relationship_id = class_config_relationship_id,
+            source_object_projection_graph_node_id = source_object_projection_graph_node_id,
+            target_object_projection_graph_node_id = target_object_projection_graph_node_id,
+        )
+    }
+
+    fn create_object_instance_graph(
+        key String key,
+        root_class_config_id UUID,
+        root_source_object_id UUID,
+        name String,
+        description String? = null,
+        hash String = ""
+    ) -> instance.ObjectInstanceGraph {
+        """
+        Create deterministic ObjectInstanceGraph under this ObjectProjectionGraph.
+
+        Contract:
+        - Parent `object_projection_graph_id` is propagated by constructor lowering.
+        - Child identity resolves from `(object_projection_graph_id via path, key)`.
+        - Root ClassInstance is created eagerly at construction time; empty OIGs are not allowed.
+        - `name` is mutable payload metadata; `hash` is snapshot metadata only.
+        """
+        let created = construct object_instance_graphs.build(
+            key = key,
+            root_class_config_id = root_class_config_id,
+            root_source_object_id = root_source_object_id,
+            name = name,
+            description = description,
+            hash = hash,
+        )
+    }
+}
+
+/// Bring edges, nodes and relationships eagerly while giving lazy access to OPG as reverse.
+ann projection.ObjectProjectionGraph::object_projection_graph_edges load forward eager reverse lazy
+ann projection.ObjectProjectionGraph::object_projection_graph_nodes load forward eager reverse lazy
+ann projection.ObjectProjectionGraph::object_projection_graph_constructors load forward eager reverse lazy
+ann projection.ObjectProjectionGraph::object_projection_graph_relationships load forward eager reverse lazy

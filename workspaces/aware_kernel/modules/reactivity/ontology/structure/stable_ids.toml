@@ -1,0 +1,350 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_REACTIVITY"
+kind = "ns_url"
+value = "aware://reactivity/v1"
+
+[[functions]]
+name = "stable_action_id"
+namespace = "NS_REACTIVITY"
+template = "aware:action:{event_id}:{config_id}"
+doc = "Compiler-generated from class-attribute identity keys: event_id, config_id"
+
+[[functions.params]]
+name = "event_id"
+type = "uuid"
+
+[[functions.params]]
+name = "config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_action_config_id"
+namespace = "NS_REACTIVITY"
+template = "aware:action_config:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_action_execution_id"
+namespace = "NS_REACTIVITY"
+template = "aware:action_execution:{action_intent_id}:{execution_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: action_intent_id, execution_key"
+
+[[functions.params]]
+name = "action_intent_id"
+type = "uuid"
+
+[[functions.params]]
+name = "execution_key"
+type = "str"
+default = "primary"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "execution_key_norm"
+param = "execution_key"
+normalize = ["casefold", "strip"]
+default = "primary"
+
+[[functions]]
+name = "stable_action_feedback_id"
+namespace = "NS_REACTIVITY"
+template = "aware:action_feedback:{action_execution_id}:{sequence}"
+doc = "Compiler-generated from class-attribute identity keys: action_execution_id, sequence"
+
+[[functions.params]]
+name = "action_execution_id"
+type = "uuid"
+
+[[functions.params]]
+name = "sequence"
+type = "int"
+
+[[functions]]
+name = "stable_action_intent_id"
+namespace = "NS_REACTIVITY"
+template = "aware:action_intent:{event_id}:{config_id}:{actor_subscription_id}"
+doc = "Compiler-generated from class-attribute identity keys: event_id, config_id, actor_subscription_id"
+
+[[functions.params]]
+name = "event_id"
+type = "uuid"
+
+[[functions.params]]
+name = "config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "actor_subscription_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_condition_id"
+namespace = "NS_REACTIVITY"
+template = "aware:condition:{config_id}:{activation_id}"
+doc = "Compiler-generated from class-attribute identity keys: config_id, activation_id"
+
+[[functions.params]]
+name = "config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "activation_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_condition_config_id"
+namespace = "NS_REACTIVITY"
+template = "aware:condition_config:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_condition_config_attribute_config_id"
+namespace = "NS_REACTIVITY"
+template = "aware:condition_config_attribute_config:{condition_config_class_config_id}:{attribute_config_id}:{operator_norm}:{negate_int}"
+doc = "Compiler-generated from class-attribute identity keys: condition_config_class_config_id, attribute_config_id, operator, negate"
+
+[[functions.params]]
+name = "condition_config_class_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "operator"
+type = "str"
+
+[[functions.params]]
+name = "negate"
+type = "bool"
+default = false
+
+[[functions.lets]]
+op = "normalize"
+name = "operator_norm"
+param = "operator"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "bool_int"
+name = "negate_int"
+param = "negate"
+
+[[functions]]
+name = "stable_condition_config_class_config_id"
+namespace = "NS_REACTIVITY"
+template = "aware:condition_config_class_config:{condition_config_id}:{class_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: condition_config_id, class_config_id"
+
+[[functions.params]]
+name = "condition_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_condition_config_enum_config_id"
+namespace = "NS_REACTIVITY"
+template = "aware:condition_config_enum_config:{condition_config_attribute_config_id}:{enum_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: condition_config_attribute_config_id, enum_config_id"
+
+[[functions.params]]
+name = "condition_config_attribute_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "enum_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_condition_config_enum_option_id"
+namespace = "NS_REACTIVITY"
+template = "aware:condition_config_enum_option:{condition_config_enum_config_id}:{enum_option_id}"
+doc = "Compiler-generated from class-attribute identity keys: condition_config_enum_config_id, enum_option_id"
+
+[[functions.params]]
+name = "condition_config_enum_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "enum_option_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_condition_config_primitive_config_id"
+namespace = "NS_REACTIVITY"
+template = "aware:condition_config_primitive_config:{condition_config_attribute_config_id}:{primitive_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: condition_config_attribute_config_id, primitive_config_id"
+
+[[functions.params]]
+name = "condition_config_attribute_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "primitive_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_condition_config_relationship_config_id"
+namespace = "NS_REACTIVITY"
+template = "aware:condition_config_relationship_config:{condition_config_attribute_config_id}:{class_config_relationship_id}"
+doc = "Compiler-generated from class-attribute identity keys: condition_config_attribute_config_id, class_config_relationship_id"
+
+[[functions.params]]
+name = "condition_config_attribute_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_relationship_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_event_id"
+namespace = "NS_REACTIVITY"
+template = "aware:event:{config_id}:{activation_id}"
+doc = "Compiler-generated from class-attribute identity keys: config_id, activation_id"
+
+[[functions.params]]
+name = "config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "activation_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_event_condition_id"
+namespace = "NS_REACTIVITY"
+template = "aware:event_condition:{event_id}:{condition_id}:{config_id}"
+doc = "Compiler-generated from class-attribute identity keys: event_id, condition_id, config_id"
+
+[[functions.params]]
+name = "event_id"
+type = "uuid"
+
+[[functions.params]]
+name = "condition_id"
+type = "uuid"
+
+[[functions.params]]
+name = "config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_event_config_id"
+namespace = "NS_REACTIVITY"
+template = "aware:event_config:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_event_config_action_config_id"
+namespace = "NS_REACTIVITY"
+template = "aware:event_config_action_config:{event_config_id}:{action_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: event_config_id, action_config_id"
+
+[[functions.params]]
+name = "event_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "action_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_event_config_condition_config_id"
+namespace = "NS_REACTIVITY"
+template = "aware:event_config_condition_config:{event_config_id}:{condition_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: event_config_id, condition_config_id"
+
+[[functions.params]]
+name = "event_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "condition_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_event_config_condition_config_scope_id"
+namespace = "NS_REACTIVITY"
+template = "aware:event_config_condition_config_scope:{event_config_condition_config_id}:{object_instance_graph_identity_id}"
+doc = "Compiler-generated from class-attribute identity keys: event_config_condition_config_id, object_instance_graph_identity_id"
+
+[[functions.params]]
+name = "event_config_condition_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_instance_graph_identity_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_event_config_condition_config_scope_event_id"
+namespace = "NS_REACTIVITY"
+template = "aware:event_config_condition_config_scope_event:{event_config_condition_config_scope_id}:{event_id}"
+doc = "Compiler-generated from class-attribute identity keys: event_config_condition_config_scope_id, event_id"
+
+[[functions.params]]
+name = "event_config_condition_config_scope_id"
+type = "uuid"
+
+[[functions.params]]
+name = "event_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_event_schedule_id"
+namespace = "NS_REACTIVITY"
+template = "aware:event_schedule:{event_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: event_config_id, key"
+
+[[functions.params]]
+name = "event_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]

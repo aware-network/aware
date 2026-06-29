@@ -128,3 +128,59 @@ def test_resolve_orm_class_uses_python_models_manifest_fallback(
         )
     finally:
         ORMModelRegistry.restore_state(registry_snapshot)
+
+
+def test_resolve_orm_class_uses_manifest_aware_class_ref_for_new_class_id(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    registry_snapshot = ORMModelRegistry.snapshot_state()
+    try:
+        ORMModelRegistry.clear_registry()
+        package_root = tmp_path / "aware_resolver_demo_ontology"
+        aware_root = package_root / "_aware"
+        aware_root.mkdir(parents=True)
+        (package_root / "__init__.py").write_text("", encoding="utf-8")
+        (package_root / "models.py").write_text(
+            "from aware_orm.models.orm_model import ORMModel\n\n"
+            "class ManifestAwareRefModel(ORMModel):\n"
+            "    name: str | None = None\n",
+            encoding="utf-8",
+        )
+        generated_class_config_id = uuid4()
+        current_class_config_id = uuid4()
+        current_class_fqn = "aware_resolver_demo.namespace.ManifestAwareRefModel"
+        manifest = ModelsManifest(
+            language="python",
+            classes=[
+                ClassModelEntry(
+                    class_config_id=generated_class_config_id,
+                    module="aware_resolver_demo_ontology.models",
+                    name="ManifestAwareRefModel",
+                    aware_class_ref=current_class_fqn,
+                )
+            ],
+        )
+        (aware_root / "python.models.json").write_text(
+            manifest.model_dump_json(indent=2),
+            encoding="utf-8",
+        )
+
+        monkeypatch.syspath_prepend(str(tmp_path))
+
+        resolved = resolve_orm_class(
+            class_config_id=current_class_config_id,
+            class_resolution_index=ORMClassResolutionIndex.from_class_configs_by_id(
+                {
+                    current_class_config_id: SimpleNamespace(
+                        id=current_class_config_id,
+                        class_fqn=current_class_fqn,
+                    )
+                },
+            ),
+        )
+
+        module = import_module("aware_resolver_demo_ontology.models")
+        assert resolved is module.ManifestAwareRefModel
+    finally:
+        ORMModelRegistry.restore_state(registry_snapshot)

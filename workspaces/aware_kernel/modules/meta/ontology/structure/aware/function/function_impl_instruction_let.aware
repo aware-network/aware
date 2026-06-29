@@ -1,0 +1,18 @@
+/// Function-local deterministic binding instruction payload.
+class FunctionImplInstructionLet {
+    // Attributes
+    name String
+    value_expr JsonObject
+
+    fn build construct (
+        name String,
+        value_expr JsonObject
+    ) -> FunctionImplInstructionLet {
+        """
+        Create deterministic `let` payload for one FunctionImplInstruction.
+
+        Contract:
+        - Parent context (`function_impl_instruction_id`) is injected by parent-edge lowering.
+        """
+    }
+}

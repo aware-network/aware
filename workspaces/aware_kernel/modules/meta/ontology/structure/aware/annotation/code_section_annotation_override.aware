@@ -1,0 +1,28 @@
+/// Ontology-level view of an `override` ANN.
+/// This sits on top of the generic CodeSectionAnnotation and captures
+/// deterministic overrides without requiring the grammar/user to reason about "sides".
+///
+/// It is intentionally grammar-agnostic: the compiler only knows about
+/// CodeSectionAnnotation entries where `verb == "override"`.
+class CodeSectionAnnotationOverride {
+    // Relationships
+    code_section_annotation aware_code.annotation.CodeSectionAnnotation?
+
+    /// Location within the canonical graph
+    fqn_prefix String key
+    namespace String key
+    class_name String key
+    attribute_name String key
+    edge_name String?
+
+    /// Override target (first arg), currently FK.
+    target CodeSectionAnnotationOverrideTarget key
+
+    /// Override semantics (apply to the target that is materialized for this relationship).
+    /// Canonical default is required FK truth from relationship semantics.
+    /// For required `one_to_many`, reverse-owned FK is required by default.
+    /// `nullable = true` is the explicit opt-out (`ann ... override fk nullable`).
+    /// Load strategy (`load eager|lazy`) does not change this requiredness truth.
+    nullable Bool key = false
+    name String?
+}

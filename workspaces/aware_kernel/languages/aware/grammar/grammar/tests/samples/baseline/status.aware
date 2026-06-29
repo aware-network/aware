@@ -1,0 +1,5 @@
+/// Status enumeration
+class Status {
+    ACTIVE
+    INACTIVE
+}

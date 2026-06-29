@@ -1,0 +1,8 @@
+// ActionConfig projection (policy lane)
+//
+// Goal:
+// - Model action trigger wiring canonically.
+
+projection ActionConfig {
+    root action.ActionConfig
+}

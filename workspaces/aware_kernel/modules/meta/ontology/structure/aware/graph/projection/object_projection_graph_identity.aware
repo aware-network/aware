@@ -1,0 +1,74 @@
+/// Stable identity for a family of ObjectProjectionGraphs under an ObjectConfigGraphIdentity.
+///
+/// This object is intended to be created by the compiler (environment-artifacts)
+/// and remain stable even as projection snapshots evolve.
+class ObjectProjectionGraphIdentity {
+    // Relationships
+    object_projection_graph ObjectProjectionGraph key
+    object_instance_graph_identities instance.ObjectInstanceGraphIdentity[]
+    object_projection_graph_observables ObjectProjectionGraphObservable[]
+
+    projection_name String
+    label String?
+    is_branchable Bool = false
+
+    fn create construct (
+        object_projection_graph_id UUID key,
+        projection_name String,
+        label String? = null
+    ) -> ObjectProjectionGraphIdentity {
+        """
+        Create deterministic ObjectProjectionGraphIdentity for one stable OPG payload.
+
+        Contract:
+        - Identity resolves from `(object_config_graph_identity_id via path, object_projection_graph_id)`.
+        - `object_projection_graph` is the boundary pointer to the stable payload and must not be
+          traversed inside the identity projection payload.
+        """
+    }
+
+    fn create_object_instance_graph_identity (
+        object_instance_graph_id UUID key,
+        label String? = null
+    ) -> instance.ObjectInstanceGraphIdentity {
+        """
+        Create deterministic ObjectInstanceGraphIdentity under this ObjectProjectionGraphIdentity.
+        """
+        let created = construct object_instance_graph_identities.create(
+            object_instance_graph_id = object_instance_graph_id,
+            label = label,
+        )
+    }
+
+    fn create_observable (
+        observable_key String,
+        key String,
+        kind String? = null,
+        label String? = null,
+        description String? = null,
+        position Int? = null,
+        is_default Bool = false
+    ) -> ObjectProjectionGraphObservable {
+        """
+        Creates (or ensures) a new ObjectProjectionGraphObservable under this identity.
+
+        Contract:
+        - `ObjectProjectionGraphObservable.id` is deterministic for `(self.id, observable_key)`.
+        - `ObjectProjectionGraphObservable.key` is the caller-materialized canonical key:
+          "{projection_name}:{observable_key}".
+        """
+        let created = construct object_projection_graph_observables.create(
+            observable_key = observable_key,
+            key = key,
+            kind = kind,
+            label = label,
+            description = description,
+            position = position,
+            is_default = is_default,
+        )
+    }
+}
+
+// Load observables eagerly
+ann projection.ObjectProjectionGraphIdentity::object_instance_graph_identities load eager
+ann projection.ObjectProjectionGraphIdentity::object_projection_graph_observables load eager

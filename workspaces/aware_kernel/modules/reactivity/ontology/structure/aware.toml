@@ -1,0 +1,18 @@
+aware = 1
+
+[package]
+package_name = "reactivity-ontology"
+fqn_prefix = "aware_reactivity"
+kind = "ontology"
+version_number = 1
+title = "Reactivity"
+description = "SSOT canonical (.aware) sources for reactivity"
+
+[build]
+environment_slug = "aware_reactivity"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "content-ontology"

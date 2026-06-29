@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
 
-import msgpack
 import pytest
 from uuid import uuid4
 
@@ -18,19 +16,6 @@ from aware_meta_ontology.graph.config.object_config_graph_node import (
     ObjectConfigGraphNode,
 )
 from aware_code_ontology.code.code_enums import CodeLanguage
-
-from aware_structure.environment_config.manifest.schema.environment_manifest import (
-    EnvironmentDescriptor,
-    EnvironmentManifest,
-    ManifestArtifact,
-)
-from aware_structure.environment_config.manifest.schema.ocg_manifest import (
-    OCGSnapshotManifest,
-)
-from aware_structure.environment_config.manifest.schema.opg_manifest import (
-    OPGIndexManifest,
-)
-from aware_structure.environment_config.bundle import EnvironmentBundle
 
 from aware_orm.models.orm_model import ORMModel
 from aware_orm.registry import ORMModelRegistry
@@ -78,7 +63,9 @@ def _build_graph() -> ObjectConfigGraph:
 async def test_push_requires_sql_metadata_when_skip_db_false(tmp_path: Path) -> None:
     graph = _build_graph()
     user_cls = next(
-        n.class_config for n in graph.object_config_graph_nodes if n.class_config and n.class_config.name == "User"
+        n.class_config
+        for n in graph.object_config_graph_nodes
+        if n.class_config and n.class_config.name == "User"
     )
     assert user_cls is not None and user_cls.id is not None
 
@@ -99,35 +86,12 @@ async def test_push_requires_sql_metadata_when_skip_db_false(tmp_path: Path) -> 
         ],
     }
 
-    manifest = EnvironmentManifest(
-        version="1.0",
-        built_at=datetime.now(timezone.utc),
-        environment=EnvironmentDescriptor(
-            id="00000000-0000-0000-0000-000000000000",
-            title=None,
-            canonical_language="aware",
-        ),
-        ocg=OCGSnapshotManifest(
-            canonical_id="00000000-0000-0000-0000-000000000000",
-            hash="sha256:x",
-            snapshot="ocg.snapshot.msgpack",
-        ),
-        ocg_binding_snapshot=ManifestArtifact(file="orm.graph.binding.msgpack", hash="sha256:x"),
-        overlays={},
-        opg_index=OPGIndexManifest(file="opg.index.json", entries=[]),
-        graphsql=None,
-        bindings=None,
-    )
-    bundle = EnvironmentBundle(
-        manifest=manifest,
-        base_path=tmp_path,
-        ocg_bytes=msgpack.packb(graph.model_dump(mode="json", exclude_none=True), use_bin_type=True) or b"",
+    bundle = SimpleNamespace(
         orm_graph_binding_snapshot_bytes=(
-            dump_orm_graph_binding_snapshot_msgpack_from_object_config_graph(object_config_graph=graph)
+            dump_orm_graph_binding_snapshot_msgpack_from_object_config_graph(
+                object_config_graph=graph
+            )
         ),
-        overlays={},
-        opgs={},
-        graphsql=None,
         bindings=json.dumps(bindings).encode("utf-8"),
     )
 
@@ -188,7 +152,9 @@ async def test_push_prefers_sql_metadata_over_default_schema_class_config() -> N
 
 
 @pytest.mark.asyncio
-async def test_upsert_requires_class_fqn_sql_metadata_and_does_not_guess_by_table_name() -> None:
+async def test_upsert_requires_class_fqn_sql_metadata_and_does_not_guess_by_table_name() -> (
+    None
+):
     clear_sql_metadata_registry()
 
     class ServiceModel(ORMModel):
@@ -219,7 +185,9 @@ async def test_upsert_requires_class_fqn_sql_metadata_and_does_not_guess_by_tabl
         session = Session(skip_db=False, backend_name="noop")
         with set_session(session):
             model = ServiceModel(name="ontology")
-            with pytest.raises(ValueError, match=r"Missing SQL metadata for ServiceModel"):
+            with pytest.raises(
+                ValueError, match=r"Missing SQL metadata for ServiceModel"
+            ):
                 await model.upsert()
     finally:
         ServiceModel._class_config = original_class_config

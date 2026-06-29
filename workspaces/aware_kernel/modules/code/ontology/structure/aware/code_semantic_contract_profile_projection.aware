@@ -1,0 +1,21 @@
+// Code Semantic Contract Profile projection (v0)
+//
+// Contract:
+// - Code owns semantic contract profile, provider registration, and package
+//   binding truth.
+// - Workspace selects/resolves profile records into receipts; it does not
+//   author this contract surface.
+projection CodeSemanticContractProfile {
+    root semantic.CodeSemanticContractProfile
+
+    semantic.CodeSemanticContractProfile::semantic_provider_registrations CodeSemanticProviderRegistration
+    semantic.CodeSemanticContractProfile::profile_imports
+    semantic.CodeSemanticContractProfileImport::imported_profile CodeSemanticContractProfile
+
+    observable home instance default {
+        """
+        Code-owned semantic contract profile composition and provider package
+        binding surface.
+        """
+    }
+}

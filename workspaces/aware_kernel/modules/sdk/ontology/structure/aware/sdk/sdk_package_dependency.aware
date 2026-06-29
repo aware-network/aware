@@ -1,0 +1,39 @@
+/// SDK package to SDK package dependency bridge.
+///
+/// The authored `aware.sdk.toml` dependency row is selector truth. The resolved
+/// OIG commit pin, when present, is exact reproducibility authority for Hub and
+/// WorkspaceRevision consumers.
+class SdkPackageDependency {
+    // Relationships
+    target_sdk_package SdkPackage key
+    target_sdk_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    target_package_name String
+    target_version_number Int?
+    expected_hash_sha256 String?
+    description String?
+
+    fn build construct (
+        target_sdk_package_id UUID key,
+        target_package_name String,
+        target_sdk_package_object_instance_graph_commit_id UUID? = null,
+        target_version_number Int? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null
+    ) -> SdkPackageDependency {
+        """
+        Create one package-level SDK dependency edge.
+
+        Contract:
+        - Parent `SdkPackage` scope is injected by propagation.
+        - Identity is keyed by the target `SdkPackage`; package name is retained as authored selector text.
+        - `target_version_number` is compatibility/selector metadata, not reproducibility authority.
+        - `target_sdk_package_object_instance_graph_commit_id`, when present, pins exact semantic package truth.
+        - This bridge enables later SDK operation composition without turning API endpoints into orchestration truth.
+        """
+    }
+}
+
+ann sdk.SdkPackageDependency::target_sdk_package load eager
+ann sdk.SdkPackageDependency::target_sdk_package_object_instance_graph_commit load eager

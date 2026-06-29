@@ -1,0 +1,40 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_STORAGE"
+kind = "ns_url"
+value = "aware://storage/v1"
+
+[[functions]]
+name = "stable_storage_blob_id"
+namespace = "NS_STORAGE"
+template = "aware:storage_blob:{sha_norm}"
+doc = "Compiler-generated from constructor identity keys: sha"
+
+[[functions.params]]
+name = "sha"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "sha_norm"
+param = "sha"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_storage_bucket_id"
+namespace = "NS_STORAGE"
+template = "aware:storage_bucket:{name_norm}"
+doc = "Compiler-generated from constructor identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]

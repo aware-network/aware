@@ -1,0 +1,54 @@
+/// Deterministic read-only member traversal payload for `FunctionImplValueSource`.
+///
+/// Contract:
+/// - Parent `FunctionImplValueSource.kind` must be `read_path`.
+/// - The root is one of: function input, prior let binding, or invoked target attribute.
+/// - Segments are compiler-resolved `AttributeConfig` hops and are evaluated as JSON reads.
+/// - This payload never authorizes mutation outside the invoked target.
+class FunctionImplValueSourceReadPath {
+    // Relationships
+    /// Function contract attribute root when `root_kind == function_input`.
+    root_function_config_attribute_config FunctionConfigAttributeConfig?
+    /// Prior deterministic let-binding root when `root_kind == let_binding`.
+    root_instruction_let FunctionImplInstructionLet?
+    /// Invoked target attribute root when `root_kind == target_attribute`.
+    root_class_config_attribute_config class.ClassConfigAttributeConfig?
+    /// Ordered compiler-resolved member segments.
+    segments FunctionImplValueSourceReadPathSegment[]
+
+    // Attributes
+    root_kind FunctionImplValueSourceReadPathRootKind
+
+    fn build construct (
+        root_kind FunctionImplValueSourceReadPathRootKind,
+        root_function_config_attribute_config_id UUID? = null,
+        root_instruction_let_id UUID? = null,
+        root_class_config_attribute_config_id UUID? = null
+    ) -> FunctionImplValueSourceReadPath {
+        """
+        Create deterministic read-path payload under one FunctionImplValueSource.
+
+        Contract:
+        - Parent context (`function_impl_value_source_id`) is injected by parent-edge lowering.
+        - Exactly one root relationship must match `root_kind`.
+        """
+    }
+
+    fn add_segment (
+        position Int key,
+        attribute_config_id UUID
+    ) -> FunctionImplValueSourceReadPathSegment {
+        """
+        Add one deterministic member segment to the read-only traversal.
+        """
+        let created = construct segments.build(
+            position = position,
+            attribute_config_id = attribute_config_id,
+        )
+    }
+}
+
+ann function.FunctionImplValueSourceReadPath::root_function_config_attribute_config load eager
+ann function.FunctionImplValueSourceReadPath::root_instruction_let load eager
+ann function.FunctionImplValueSourceReadPath::root_class_config_attribute_config load eager
+ann function.FunctionImplValueSourceReadPath::segments load eager

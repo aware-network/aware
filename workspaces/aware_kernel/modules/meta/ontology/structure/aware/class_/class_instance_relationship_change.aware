@@ -1,0 +1,10 @@
+class ClassInstanceRelationshipChange {
+    // Relationships
+    change aware_history.change.Change key
+    class_config_relationship class.ClassConfigRelationship key
+    source_class_instance ClassInstance key
+    target_class_instance ClassInstance key
+}
+
+/// Load change eagerly
+ann class.ClassInstanceRelationshipChange::change load eager

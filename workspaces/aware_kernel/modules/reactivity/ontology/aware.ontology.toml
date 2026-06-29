@@ -1,0 +1,28 @@
+aware_ontology = 1
+
+[ontology]
+package_name = "reactivity-ontology"
+fqn_prefix = "aware_reactivity"
+version_number = 1
+title = "Reactivity"
+description = "SSOT canonical (.aware) sources for reactivity"
+source_manifest = "structure/aware.toml"
+package_root = "."
+sources_root = "structure/aware"
+stable_ids_ownership = "compiler"
+stable_ids_parity_policy = "error"
+stable_ids_resolution_policy = "class_strict"
+
+[runtime]
+manifest = "runtime/python/pyproject.toml"
+project_name = "aware-reactivity"
+import_root = "aware_reactivity"
+
+[layout]
+profile = "ontology_structure_v1"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "content-ontology"

@@ -1,0 +1,703 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_CODE"
+kind = "ns_url"
+value = "aware://code/v1"
+
+[[functions]]
+name = "stable_code_id"
+namespace = "NS_CODE"
+template = "aware:code:{code_package_code_id}:{relative_path_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_package_code_id, relative_path"
+
+[[functions.params]]
+name = "code_package_code_id"
+type = "uuid"
+
+[[functions.params]]
+name = "relative_path"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "relative_path_norm"
+param = "relative_path"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_module_id"
+namespace = "NS_CODE"
+template = "aware:code_module:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_module_code_package_id"
+namespace = "NS_CODE"
+template = "aware:code_module_code_package:{code_package_id}:{code_module_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_package_id, code_module_id"
+
+[[functions.params]]
+name = "code_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_module_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_module_dependence_id"
+namespace = "NS_CODE"
+template = "aware:code_module_dependence:{code_module_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_module_id, name"
+
+[[functions.params]]
+name = "code_module_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_package_id"
+namespace = "NS_CODE"
+template = "aware:code_package:{package_name_norm}:{language_norm}"
+doc = "Compiler-generated from class-attribute identity keys: package_name, language"
+
+[[functions.params]]
+name = "package_name"
+type = "str"
+
+[[functions.params]]
+name = "language"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "package_name_norm"
+param = "package_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "language_norm"
+param = "language"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_package_code_id"
+namespace = "NS_CODE"
+template = "aware:code_package_code:{code_package_id}:{relative_path_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_package_id, relative_path"
+
+[[functions.params]]
+name = "code_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "relative_path"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "relative_path_norm"
+param = "relative_path"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_package_delta_producer_id"
+namespace = "NS_CODE"
+template = "aware:code_package_delta_producer:{code_package_id}:{provider_key_norm}:{producer_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_package_id, provider_key, producer_key"
+
+[[functions.params]]
+name = "code_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "provider_key"
+type = "str"
+
+[[functions.params]]
+name = "producer_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "provider_key_norm"
+param = "provider_key"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "producer_key_norm"
+param = "producer_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_package_delta_producer_code_id"
+namespace = "NS_CODE"
+template = "aware:code_package_delta_producer_code:{code_package_code_id}:{code_package_delta_producer_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_package_code_id, code_package_delta_producer_id"
+
+[[functions.params]]
+name = "code_package_code_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_package_delta_producer_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_package_test_id"
+namespace = "NS_CODE"
+template = "aware:code_package_test:{code_package_id}:{code_test_id}:{relative_path_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_package_id, code_test_id, relative_path"
+
+[[functions.params]]
+name = "code_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_test_id"
+type = "uuid"
+
+[[functions.params]]
+name = "relative_path"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "relative_path_norm"
+param = "relative_path"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_package_test_framework_id"
+namespace = "NS_CODE"
+template = "aware:code_package_test_framework:{code_test_framework_id}:{code_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_test_framework_id, code_package_id"
+
+[[functions.params]]
+name = "code_test_framework_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_package_test_run_id"
+namespace = "NS_CODE"
+template = "aware:code_package_test_run:{code_package_test_id}:{run_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_package_test_id, run_key"
+
+[[functions.params]]
+name = "code_package_test_id"
+type = "uuid"
+
+[[functions.params]]
+name = "run_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "run_key_norm"
+param = "run_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_primitive_type_id"
+namespace = "NS_CODE"
+template = "aware:code_primitive_type:{signature_norm}"
+doc = "Compiler-generated from class-attribute identity keys: signature"
+
+[[functions.params]]
+name = "signature"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "signature_norm"
+param = "signature"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_primitive_type_element_type_id"
+namespace = "NS_CODE"
+template = "aware:code_primitive_type_element_type:{code_primitive_type_id}:{position}"
+doc = "Compiler-generated from class-attribute identity keys: code_primitive_type_id, position"
+
+[[functions.params]]
+name = "code_primitive_type_id"
+type = "uuid"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions]]
+name = "stable_code_primitive_type_union_type_id"
+namespace = "NS_CODE"
+template = "aware:code_primitive_type_union_type:{code_primitive_type_id}:{position}"
+doc = "Compiler-generated from class-attribute identity keys: code_primitive_type_id, position"
+
+[[functions.params]]
+name = "code_primitive_type_id"
+type = "uuid"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions]]
+name = "stable_code_section_id"
+namespace = "NS_CODE"
+template = "aware:code_section:{code_id}:{section_key_norm}:{type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_id, section_key, type"
+
+[[functions.params]]
+name = "code_id"
+type = "uuid"
+
+[[functions.params]]
+name = "section_key"
+type = "str"
+
+[[functions.params]]
+name = "type"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "section_key_norm"
+param = "section_key"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "type_norm"
+param = "type"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_section_annotation_id"
+namespace = "NS_CODE"
+template = "aware:code_section_annotation:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_attribute_id"
+namespace = "NS_CODE"
+template = "aware:code_section_attribute:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_binding_id"
+namespace = "NS_CODE"
+template = "aware:code_section_binding:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_binding_map_id"
+namespace = "NS_CODE"
+template = "aware:code_section_binding_map:{code_section_binding_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_binding_id, name"
+
+[[functions.params]]
+name = "code_section_binding_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_section_class_id"
+namespace = "NS_CODE"
+template = "aware:code_section_class:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_class_attribute_id"
+namespace = "NS_CODE"
+template = "aware:code_section_class_attribute:{code_section_class_id}:{code_section_attribute_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_class_id, code_section_attribute_id"
+
+[[functions.params]]
+name = "code_section_class_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_section_attribute_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_class_base_id"
+namespace = "NS_CODE"
+template = "aware:code_section_class_base:{code_section_class_id}:{base_ref_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_class_id, base_ref"
+
+[[functions.params]]
+name = "code_section_class_id"
+type = "uuid"
+
+[[functions.params]]
+name = "base_ref"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "base_ref_norm"
+param = "base_ref"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_section_class_function_id"
+namespace = "NS_CODE"
+template = "aware:code_section_class_function:{code_section_class_id}:{code_section_function_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_class_id, code_section_function_id"
+
+[[functions.params]]
+name = "code_section_class_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_section_function_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_comment_id"
+namespace = "NS_CODE"
+template = "aware:code_section_comment:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_comment_content_id"
+namespace = "NS_CODE"
+template = "aware:code_section_comment_content:{code_section_comment_id}:{position}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_comment_id, position"
+
+[[functions.params]]
+name = "code_section_comment_id"
+type = "uuid"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions]]
+name = "stable_code_section_decorator_id"
+namespace = "NS_CODE"
+template = "aware:code_section_decorator:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_decorator_expression_id"
+namespace = "NS_CODE"
+template = "aware:code_section_decorator_expression:{code_section_decorator_id}:{position}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_decorator_id, position"
+
+[[functions.params]]
+name = "code_section_decorator_id"
+type = "uuid"
+
+[[functions.params]]
+name = "position"
+type = "int"
+default = 0
+
+[[functions]]
+name = "stable_code_section_enum_id"
+namespace = "NS_CODE"
+template = "aware:code_section_enum:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_enum_value_id"
+namespace = "NS_CODE"
+template = "aware:code_section_enum_value:{code_section_id}:{value_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id, value"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions.params]]
+name = "value"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "value_norm"
+param = "value"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_section_event_id"
+namespace = "NS_CODE"
+template = "aware:code_section_event:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_event_binding_id"
+namespace = "NS_CODE"
+template = "aware:code_section_event_binding:{code_section_event_id}:{position}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_event_id, position"
+
+[[functions.params]]
+name = "code_section_event_id"
+type = "uuid"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions]]
+name = "stable_code_section_expression_id"
+namespace = "NS_CODE"
+template = "aware:code_section_expression:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_function_id"
+namespace = "NS_CODE"
+template = "aware:code_section_function:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_function_attribute_id"
+namespace = "NS_CODE"
+template = "aware:code_section_function_attribute:{code_section_function_id}:{code_section_attribute_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_function_id, code_section_attribute_id"
+
+[[functions.params]]
+name = "code_section_function_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_section_attribute_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_import_id"
+namespace = "NS_CODE"
+template = "aware:code_section_import:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_import_name_id"
+namespace = "NS_CODE"
+template = "aware:code_section_import_name:{code_section_import_id}:{name_text_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_import_id, name_text"
+
+[[functions.params]]
+name = "code_section_import_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name_text"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_text_norm"
+param = "name_text"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_section_mirror_id"
+namespace = "NS_CODE"
+template = "aware:code_section_mirror:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_program_id"
+namespace = "NS_CODE"
+template = "aware:code_section_program:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_projection_id"
+namespace = "NS_CODE"
+template = "aware:code_section_projection:{code_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_id"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_projection_edge_id"
+namespace = "NS_CODE"
+template = "aware:code_section_projection_edge:{code_section_projection_id}:{member_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_projection_id, member"
+
+[[functions.params]]
+name = "code_section_projection_id"
+type = "uuid"
+
+[[functions.params]]
+name = "member"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "member_norm"
+param = "member"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_section_projection_view_id"
+namespace = "NS_CODE"
+template = "aware:code_section_projection_view:{code_section_projection_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_section_projection_id"
+
+[[functions.params]]
+name = "code_section_projection_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_test_id"
+namespace = "NS_CODE"
+template = "aware:code_test:{code_id}:{framework_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_id, framework_id"
+
+[[functions.params]]
+name = "code_id"
+type = "uuid"
+
+[[functions.params]]
+name = "framework_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_test_framework_id"
+namespace = "NS_CODE"
+template = "aware:code_test_framework:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_test_unit_id"
+namespace = "NS_CODE"
+template = "aware:code_test_unit:{code_test_id}:{code_section_id}:{unit_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: code_test_id, code_section_id, unit_key"
+
+[[functions.params]]
+name = "code_test_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_section_id"
+type = "uuid"
+
+[[functions.params]]
+name = "unit_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "unit_key_norm"
+param = "unit_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_test_unit_run_id"
+namespace = "NS_CODE"
+template = "aware:code_test_unit_run:{code_package_test_run_id}:{code_test_unit_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_package_test_run_id, code_test_unit_id"
+
+[[functions.params]]
+name = "code_package_test_run_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_test_unit_id"
+type = "uuid"

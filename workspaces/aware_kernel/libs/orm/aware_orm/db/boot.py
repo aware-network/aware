@@ -1,4 +1,4 @@
-"""Canonical ORM DB boot planner + adapter orchestrator.
+"""Canonical ORM DB boot planner + adapter environment.
 
 Ownership split:
 - Planning/discovery: this module (backend-agnostic)

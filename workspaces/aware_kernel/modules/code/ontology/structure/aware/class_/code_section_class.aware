@@ -1,0 +1,50 @@
+class CodeSectionClass {
+    // Relationships
+    code_section_attributes attribute.CodeSectionAttribute[] @CodeSectionClassAttribute key
+    code_section_functions function.CodeSectionFunction[] @CodeSectionClassFunction key
+    code_section_class_bases CodeSectionClassBase[]
+    code_section_comments comment.CodeSectionComment[]
+    code_section_decorators decorator.CodeSectionDecorator[]
+    name_segment aware_content.part.ContentPartTextSegment
+    keyword_segment aware_content.part.ContentPartTextSegment?
+    modifiers_segment aware_content.part.ContentPartTextSegment?
+
+    // Attributes
+    name String
+    description String?
+    verb String?
+    verb_target String?
+    is_edge Bool = false
+    is_inline_value Bool = false
+
+    fn build construct() -> CodeSectionClass {
+        """
+        Build the class payload under a CodeSection.
+        """
+    }
+
+    fn create_base(
+        base_ref String key,
+        is_augment Bool = false
+    ) -> class.CodeSectionClassBase {
+        """
+        Create a deterministic base entry under this class.
+        """
+        let created = construct code_section_class_bases.build(
+            base_ref = base_ref,
+            is_augment = is_augment,
+        )
+    }
+}
+
+/// Eager name segment
+ann class.CodeSectionClass::name_segment load eager
+ann class.CodeSectionClass::keyword_segment load eager
+ann class.CodeSectionClass::modifiers_segment load eager
+ann class.CodeSectionClass::code_section_attributes::CodeSectionClassAttribute load eager
+ann class.CodeSectionClass::code_section_functions::CodeSectionClassFunction load eager
+ann class.CodeSectionClass::code_section_class_bases load eager
+ann class.CodeSectionClass::code_section_comments load eager
+ann class.CodeSectionClass::code_section_comments override fk nullable
+ann class.CodeSectionClass::code_section_decorators load eager
+ann class.CodeSectionClass::code_section_decorators override fk nullable

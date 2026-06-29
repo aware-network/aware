@@ -1,0 +1,9 @@
+/// Connection between entities
+edge Connection {
+    // Relationships
+    from_entity default.User
+    to_entity default.Post
+
+    // Attributes
+    weight Float?
+}

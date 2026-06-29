@@ -1,0 +1,24 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_code_service_dto.code.features.content_plan",
+    "aware_code_service_dto.code.features.generated_materialization_delta",
+    "aware_code_service_dto.code.features.grammar_anchor_binding",
+    "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+    "aware_code_service_dto.code.features.grammar_profile",
+    "aware_code_service_dto.code.features.package_common",
+    "aware_code_service_dto.code.features.package_delta",
+    "aware_code_service_dto.code.features.package_distribution",
+    "aware_code_service_dto.code.features.package_layout",
+    "aware_code_service_dto.code.features.section_delta",
+    "aware_code_service_dto.code.features.semantic_analysis",
+    "aware_code_service_dto.code.features.semantic_contract",
+    "aware_code_service_dto.code.features.semantic_source_meaning",
+    "aware_code_service_dto.code.features.semantic_workflow_coverage",
+    "aware_code_service_dto.code.features.source_ownership",
+    "aware_code_service_dto.code.features.source_projection",
+    "aware_code_service_dto.code.service"
+  ],
+  "package_prefix": "aware_code_service_dto",
+  "version": "v1"
+}

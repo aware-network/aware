@@ -1,0 +1,26 @@
+class CodePackageConfigRuntimeContext {
+    // Attributes
+    context_key String key
+    kind CodePackageConfigRuntimeContextKind
+    package_name String?
+    projection_name String?
+    runtime_contract_version String?
+    required Bool = true
+
+    fn build construct (
+        context_key String key,
+        kind CodePackageConfigRuntimeContextKind,
+        package_name String? = null,
+        projection_name String? = null,
+        runtime_contract_version String? = null,
+        required Bool = true
+    ) -> CodePackageConfigRuntimeContext {
+        """
+        Create one CodePackageConfig-scoped runtime context contract row.
+
+        Contract:
+        - Parent CodePackageConfig context is propagated by constructor lowering.
+        - This records runtime context shape; provider routing and deployment lifecycle stay outside Code.
+        """
+    }
+}

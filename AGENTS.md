@@ -58,6 +58,9 @@ Goal: alignment first, issue-driven execution, canonical engineering only.
   - set `Owner`
   - set `Status: In Progress`
   - append one dated bullet in `Updates`
+- For local markdown-backed issues, the issue file is the agent-facing issue
+  authority. `.aware/workflow_issue/state.json` is only a local cache for CLI
+  enforcement and must not be edited or treated as SSOT.
 
 ### C) FEED is the live team snapshot
 
@@ -75,7 +78,8 @@ Goal: alignment first, issue-driven execution, canonical engineering only.
   - `Recently closed (today)`
   - `Alignment checks`
   - `Pulse log (append-only)`
-- Per-issue files are SSOT. FEED is the coordination snapshot.
+- Per-issue files are SSOT for local markdown-backed issues. FEED is the
+  coordination snapshot.
 
 ### D) Git governance (critical)
 
@@ -88,6 +92,10 @@ Goal: alignment first, issue-driven execution, canonical engineering only.
     - canonical issue ownership scope bound
     - explicit owned `--path` entries only
     - run `--dry-run` preflight first
+  - Commit preflight refreshes the local issue-state cache from the current
+    issue authority before enforcing owner/status/scope. Agents should not run
+    manual `issue sync` as a normal commit prerequisite; use it only as recovery
+    if the authority projection is unavailable or malformed.
   - `Closed` issues are immutable on the normal rail. Canonical ordering is:
     - implementation commit(s) while the issue remains `In Progress`
     - final receipt/closeout commit that records implementation evidence and flips the issue doc to `Closed`
@@ -149,17 +157,34 @@ Goal: alignment first, issue-driven execution, canonical engineering only.
 - [Live Feed](./docs/feed/FEED.md)
 - [Active Goals (Latest)](./docs/goals/LATEST.md)
 
-Canonical only via `.aware`. `aware.toml` is SSOT for Aware packages and pipeline runs via:
-- [Aware Environment Artifacts - Workflows](./libs/environment-artifacts/aware_environment_artifacts/pipeline/run_workflow_cli.py)
+Canonical source remains `.aware` plus the minimal TOML SSOT files. Product
+and workspace package materialization runs through Workspace materialize:
+
+```bash
+uv run aware-cli workspace materialize --workspace-toml workspaces/<workspace>/aware.workspace.toml --package <package_name> --plan
+```
+
+Use the equivalent `aware-dev materialize` / Workspace SDK or Workspace service
+facade only when the issue or spec names that facade and it records the same
+Workspace materialize receipt. `libs/environment-artifacts` and compile-pack
+paths are deprecation/bridge targets, not product-lane materialization rails.
 
 ## 2) Canonical development loop (the only path)
 
 1. Structure SSOT: edit `.aware` sources and minimal TOMLs.
-2. Compile: `aware-cli compile module <module_id>`.
+2. Materialize workspace/package changes through Workspace materialize:
+   plan first with `uv run aware-cli workspace materialize --workspace-toml workspaces/<workspace>/aware.workspace.toml --package <package_name> --plan`, then execute the issue-scoped materialization when generated artifacts are explicitly in scope.
 3. Runtime: implement handlers only inside allowed `impl` sections.
 4. Tests: update/add module proof tests.
 5. Representation: align panes with declared projection views.
 6. Human validation: verify behavior in Interface runtime.
+
+For DTO/API/package/module product work, select the owning semantic package with
+`--package` and record the Workspace materialize receipt in the issue. Do not
+use `aware-cli compile package`, `aware-cli compile api`, or direct
+environment-artifacts commands as product-lane proof. `aware-cli compile module`
+is a narrow compiler-maintenance exception only when no Workspace materialize
+rail exists, and the issue must state why.
 
 ## 3) What you may edit vs generated read-only
 
@@ -194,21 +219,49 @@ Canonical only via `.aware`. `aware.toml` is SSOT for Aware packages and pipelin
 
 Do not edit generated artifacts manually.
 
-## 4) Compile and lock discipline
+## 4) Materialize and lock discipline
 
-### Normal module loop
+### Normal workspace/package loop
+
+```bash
+uv run aware-cli workspace materialize --workspace-toml workspaces/<workspace>/aware.workspace.toml --package <package_name> --plan
+```
+
+If the plan is accepted and generated/materialized artifacts are in scope, run
+the same bounded package selection through the issue-approved execution mode,
+for example:
+
+```bash
+uv run aware-cli workspace materialize --workspace-toml workspaces/<workspace>/aware.workspace.toml --package <package_name> --execute-heavy-semantic-materialization --json
+```
+
+Record the Workspace materialize receipt path/status in the issue. If Workspace
+materialize is blocked, record the blocked receipt or blocker and stop; do not
+fall back to retired compile rails.
+
+### Retired and bridge-only rails
+
+- `aware-cli compile package` is retired/bridge-only and is not validation for active workspace/package product work.
+- `aware-cli compile api`, direct `libs/environment-artifacts`, and compile-pack commands are bridge/deprecation paths unless an explicit compiler-bridge issue owns them.
+- Generated/materialized artifacts must come from Workspace materialize or an issue-named canonical generator, never from manual edits.
+
+### Narrow compiler maintenance exception
+
+Use module compile only for isolated compiler/module maintenance when the issue
+states why Workspace materialize is not the applicable rail:
 
 ```bash
 aware-cli compile module <module_id>
 ```
 
-### Intentional lock/ledger advance
+Intentional lock/ledger advance remains explicit:
 
 ```bash
 aware-cli compile --update-lock --update-ledger module <module_id>
 ```
 
-### Environment compile (rare, lock a composed kernel version)
+Environment compile is rare and only for locking a composed kernel version, not
+for package product materialization:
 
 ```bash
 aware-cli compile environment <environment_handle>
@@ -228,7 +281,8 @@ Do not hand-edit lock/ledger outputs.
   - Cross-object changes require invoking that target object's public method.
 
 Reference:
-- `libs/runtime/aware_runtime/function_call/mutation_boundary.py`
+- Meta runtime handler execution and service/module public invocation facades
+  own the current mutation boundary. Do not add new `aware_runtime` imports.
 
 ## 6) Projection and representation invariants
 
@@ -246,14 +300,14 @@ References:
 - Module proof contract must hold.
 
 References:
-- `libs/runtime/tests/test_module_proof_contract.py`
-- `modules/identity/runtime/tests/test_identity_module_proof.py`
+- Existing module proof tests under the owning module/workspace runtime tests.
+- Meta runtime proof helpers in `aware_meta.runtime.testing`.
 
 ## 8) Troubleshooting quick checks
 
 - Missing runtime manifest during environment compile:
-  - compile missing module(s) first.
+  - materialize the owning workspace package first, or document a narrow module compile exception in the issue.
 - `Cross-object mutation detected`:
   - fix handler to obey mutation boundary.
 - Projection view not appearing:
-  - verify view declaration in `.aware`, recompile, confirm deterministic default view configuration.
+  - verify view declaration in `.aware`, run Workspace materialize for the owning package, confirm deterministic default view configuration.

@@ -1,0 +1,31 @@
+/// Canonical DTO for one reactivity action execution correlation.
+///
+/// Ownership:
+/// - Reactivity API owns lifecycle correlation contracts.
+/// - Runtime dispatchers produce this payload.
+/// - Action executors consume the correlated context.
+/// - Caller attribution lives above this rail in request context or
+///   provenance receipts.
+
+class ActionExecution {
+    action_execution_id UUID?
+    action_intent_id UUID
+    event_id UUID
+    event_type String
+    source String
+    branch_id UUID
+    projection_hash String
+    commit_id UUID
+    event_config_condition_config_id UUID?
+    action_binding_id UUID?
+    action_config_id UUID?
+    action_type String?
+    root_object_id UUID?
+    object_instance_graph_id UUID?
+    graph_hash_post String?
+    execution_key String = "primary"
+    status ActionExecutionStatus = created
+    execution_context JsonValue?
+    executor_ref String?
+    result_info String?
+}

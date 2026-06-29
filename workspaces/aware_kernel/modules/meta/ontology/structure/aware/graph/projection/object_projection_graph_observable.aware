@@ -1,0 +1,44 @@
+/// Stable observable descriptor for an ObjectProjectionGraphIdentity.
+///
+/// Purpose:
+/// - Provide a canonical, network-shared list of observables (shared-attention selectors)
+///   under a projection identity.
+/// - Observables are projection-scoped descriptors that can be selected by FocusScope.
+///
+/// Notes:
+/// - Observables are expected to be compiler-owned or system-seeded (deterministic IDs/keys).
+/// - Experience packages bind observables to views.
+/// - Interface packages bind Experience views to concrete panes.
+class ObjectProjectionGraphObservable {
+    /// Stable key for this observable (recommended: "{opg_identity.key}:{observable_key}").
+    key String unique
+    /// Short selector for an observable within a projection family.
+    observable_key String key
+    /// Observable kind:
+    /// - "construct": no branch state required (gate-friendly)
+    /// - "instance": requires branch state (materialized OIGB)
+    kind String? = null
+    label String?
+    description String?
+    position Int? = null
+    is_default Bool = false
+
+    fn create construct (
+        observable_key String key,
+        key String,
+        kind String? = null,
+        label String? = null,
+        description String? = null,
+        position Int? = null,
+        is_default Bool = false
+    ) -> ObjectProjectionGraphObservable {
+        """
+        Creates a new ObjectProjectionGraphObservable.
+
+        Contract:
+        - Parent `ObjectProjectionGraphIdentity` scope is propagated by traversal lowering.
+        - Deterministic identity derives from parent scope + `(observable_key)`.
+        - `key` is the caller-materialized canonical projection key.
+        """
+    }
+}

@@ -1,0 +1,45 @@
+class CodePackageDeltaProducer {
+    // Relationships
+    code_package_codes CodePackageCode[] @CodePackageDeltaProducerCode
+
+    // Attributes
+    provider_key String key
+    producer_key String key
+    producer_kind String?
+    provider_payload JsonObject?
+
+    fn build construct(
+        provider_key String key,
+        producer_key String key,
+        producer_kind String? = null,
+        provider_payload JsonObject? = null
+    ) -> CodePackageDeltaProducer {
+        """
+        Create one package-local raw delta producer identity.
+        """
+    }
+
+    fn link_code(
+        code_package_code_id UUID key,
+        input_code_package_id UUID? = null,
+        input_object_instance_graph_commit_id UUID? = null,
+        input_digest String? = null,
+        output_digest String? = null,
+        emission_payload JsonObject? = null
+    ) -> CodePackageDeltaProducerCode {
+        """
+        Link one producer emission to package-owned Code.
+        """
+        let created = construct code_package_codes.build(
+            code_package_code_id = code_package_code_id,
+            input_code_package_id = input_code_package_id,
+            input_object_instance_graph_commit_id = input_object_instance_graph_commit_id,
+            input_digest = input_digest,
+            output_digest = output_digest,
+            emission_payload = emission_payload,
+        )
+    }
+}
+
+ann package.CodePackageDeltaProducer::code_package_codes::CodePackageDeltaProducerCode load eager
+ann package.CodePackageDeltaProducer::code_package_codes load eager

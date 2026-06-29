@@ -1,0 +1,14 @@
+/// Package-level FunctionImpl execution authority for an ObjectConfigGraphPackage.
+enum ObjectConfigGraphPackageFunctionImplOwnership {
+    /// Authored/generated language handlers remain execution authority.
+    authored
+    /// `.aware` FunctionImpl instruction bodies are execution authority.
+    compiler
+}
+
+/// Package-level parity gate for FunctionImpl migration/proofs.
+enum ObjectConfigGraphPackageFunctionImplParityPolicy {
+    off
+    warn
+    error
+}

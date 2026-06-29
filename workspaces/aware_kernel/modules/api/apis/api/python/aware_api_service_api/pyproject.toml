@@ -1,0 +1,22 @@
+[project]
+name = "aware_api_service_api"
+version = "0.1.0"
+description = "Canonical API boundary for API ingress operation DTO ownership and future API service capabilities."
+authors = [{ name = "Aware Automations" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aware_api_service_dto",
+    "aware-api-client",
+    "aware-types",
+    "aware-utils",
+    "pydantic>=2.8.0,<3.0.0"
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_api_service_api"]
+include = ["README.md", "aware_api_service_api/py.typed"]

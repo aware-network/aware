@@ -1,68 +1,96 @@
 # Aware Kernel
 
-Aware Kernel is a WorkspaceRevision-backed public kernel checkout.
+**Aware turns code changes into canonical graph reality.**
+*One shared truth for humans and their AI agents.*
 
-This Git repository is a filesystem surface materialized from Aware workspace
-truth. `workspaces/aware_kernel` is the selected kernel workspace: the smallest
-graph operating substrate that can describe code packages, hold revision truth,
-materialize runtime state, and publish receipt-backed outputs.
+Humans and AI agents already build software together through Git — and Git works
+because everyone agrees on one canonical history: a commit head you replay to
+rebuild the exact code. That contract stops at the text. Past it, every layer
+keeps its own version of what the system is — an ORM bridges database and
+runtime, an IDL translates the wire, an API draws a boundary, the database holds
+the latest snapshot — each owns a slice, none owns the whole. Noise, drift, and
+duplication are the symptom; the missing end-to-end contract is the root.
 
-## Meta Is The Kernel Control Package
+Aware gives software that contract: an ontology graph. You write semantic source
+in `.aware`; Aware translates each text change into ontology-graph mutations and
+records them as commits. Like Git, any system replays the commits to reconstruct
+state — but the state is structured graph reality, not text. Runtime, database
+projections, APIs, services, and interfaces all derive from or fulfill one
+canonical model; humans and their agents build on it instead of re-describing it
+by hand.
 
-Meta is the package that lets Aware describe and safely change itself.
+The payoff is immediate: instead of making an ORM, an IDL, an API, and docs each
+carry their own version of truth, you write `.aware` — and you and your agents
+coordinate over one shared reality, ontology-graph commits, rather than chasing
+scattered artifacts.
 
-It turns `.aware` source into ObjectConfigGraph package truth, projection and
-runtime graph views, FunctionCall execution contracts, ObjectInstanceGraph
-commits, generated artifacts, and receipts. Generated files are therefore
-materialized outputs, not source authority.
+`aware_kernel` is the smallest substrate that makes this possible: Storage,
+Content, Code, History, Meta, Ontology, and Reactivity.
 
-For public kernel OSS, this makes Meta the change-control layer: package
-semantics, graph identity, runtime execution, materialization, and receipts all
-have to pass through Meta-owned contracts before kernel changes can be treated
-as stable.
+## What this gives you
 
-## What Is Here
+- **No-reset evolution** — truth is commit lineage, not the latest snapshot, so
+  upgrades and migrations are replayable and auditable.
+- **Network-native** — systems and peers converge by replaying commits, with no
+  shared database.
+- **One model, many surfaces** — the same graph drives runtime, storage, APIs,
+  and interface projections instead of being re-described in each.
 
-- `workspaces/aware_kernel/aware.workspace.toml`: selected workspace descriptor.
-- `workspaces/aware_kernel/aware.environment.toml`: selected environment
-  descriptor for kernel materialization.
-- `workspaces/aware_kernel/docs/WORKSPACE.md`: public checkout rules and current
-  package boundary.
-- `workspaces/aware_kernel/docs/ONTOLOGY_MIGRATION_MATRIX.md`: module-by-module
-  migration from root packages into workspace-local kernel packages.
-- `workspaces/aware_kernel/modules/storage`: first workspace-local migrated
-  kernel module seed.
+## The engine: Meta
 
-## WorkspaceRevision Truth
+Meta is the package that lets Aware describe and change itself. It owns the three
+views every graph has — Configuration (what may exist), Projection (the lens you
+observe and select through), and Instance (the live state) — and, at runtime,
+evolves the Instance as branches advancing through commits.
 
-Aware development is driven by WorkspaceRevision truth. Git is the public
-developer surface for inspection, review, and contribution; the canonical
-release path materializes selected workspaces from committed revision state.
+That branch-and-commit mechanism is the whole codec: **Meta is the graph-commit
+protocol — the codec for Configuration / Projection / Instance (OCG / OPG / OIG)
+state.** The mechanism in depth lives in Meta's own module README.
 
-The public mirror is intentionally selected. It does not include private product
-workspaces or agent/workspace runtime packages.
+## The spine: Code → Graph → Ontology
 
-## Stability Direction
+The kernel is six modules in four moves.
 
-Stable kernel publication follows this order:
+**Substrate — the durable ground the graph rests on.**
+- **Storage** — immutable bytes, addressed by their content.
+- **Content** — structured, branchable content over those bytes.
+- **History** — lineage: how branches and commits are identified and ordered.
 
-1. Meta correctness: source semantics, graph identity, FunctionCall execution,
-   OIG commits, materialized outputs, and receipts stay green as one system.
-2. Coverage: key package dynamics are proven through focused Meta tests and
-   WorkspaceRevision materialization receipts.
-3. Performance: provider-delta and runtime-context paths stay incremental, so
-   kernel changes do not require broad rematerialization when scoped deltas are
-   enough.
+**Semantic source — human-readable meaning.**
+- **Code** — source that describes graph meaning: code packages and their
+  deltas.
 
-## Current Boundary
+**Graph engine — meaning becomes mutation.**
+- **Meta** — the Configuration/Projection/Instance engine; evolves the Instance
+  as branches via commits.
 
-This seed publishes the public kernel workspace first. Product workspaces can be
-added later as separate selected workspaces once their public boundaries are
-ready.
+**First modeled semantic world — the protocol, applied.**
+- **Ontology** — the self-describing schema catalog that runtime builds and runs
+  from.
 
-Start with:
+**Kernel event semantics — reactions over graph commits.**
+- **Reactivity** — consumer-agnostic Condition/Event/Action semantics over
+  commit-backed graph state. Identity, Attention, Environment, Service, and
+  Experience use Reactivity; they do not define the kernel event substrate.
 
-```bash
-ls workspaces/aware_kernel
-cat workspaces/aware_kernel/docs/WORKSPACE.md
-```
+## What the kernel is
+
+`aware_kernel` is that codec proven on its first real targets. The kernel uses
+the graph mechanism to model **Ontology** — the self-describing schema layer —
+and **Reactivity** — the shared event/reaction substrate over graph commits.
+It draws its boundary at the smallest system that can carry semantic source,
+hold lineage, evolve self-describing ontologies, and react to canonical graph
+changes without importing network or product identity semantics.
+
+Everything above this line is the *same mechanism applied to other domains* —
+network dynamics such as SDK/API/Service, Identity, Attention,
+Interface/Pane/Renderer, and Node/services. Those layers live above the kernel
+and are out of scope for this checkout; they are named here only to show the
+kernel is the floor they stand on.
+
+## Navigate
+
+- Each module tells its link in the spine: `modules/<module>/README.md` —
+  Storage, Content, Code, History, Meta, Ontology.
+- The engine in depth: `modules/meta/README.md`.
+- This checkout's boundary and rules: `docs/WORKSPACE.md`.

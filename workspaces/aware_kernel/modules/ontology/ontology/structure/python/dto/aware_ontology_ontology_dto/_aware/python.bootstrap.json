@@ -1,0 +1,20 @@
+{
+  "dependency_import_roots": [
+    "aware_code_ontology_dto",
+    "aware_meta_ontology_dto"
+  ],
+  "modules": [
+    "aware_ontology_ontology_dto.ontology.ontology",
+    "aware_ontology_ontology_dto.ontology.ontology_config",
+    "aware_ontology_ontology_dto.ontology.ontology_package",
+    "aware_ontology_ontology_dto.ontology.ontology_package_dependency",
+    "aware_ontology_ontology_dto.ontology.ontology_package_runtime_code_package",
+    "aware_ontology_ontology_dto.stable_ids"
+  ],
+  "package_prefix": "aware_ontology_ontology_dto",
+  "pydantic_model_dependency_import_roots": [
+    "aware_code_ontology_dto",
+    "aware_meta_ontology_dto"
+  ],
+  "version": "v1"
+}

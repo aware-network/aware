@@ -1,0 +1,69 @@
+class CodeSemanticContractProfilePackage {
+    // Relationships
+    code_package package.CodePackage? key
+    semantic_contract_profile CodeSemanticContractProfile key
+    runtime_imports CodeSemanticContractRuntimeImport[]
+
+    // Attributes
+    manifest_relative_path String?
+    profile_key String
+    profile_package_key String key
+    runtime_import_mode String = "dynamic_contract_module"
+    runtime_import_required Bool = true
+    source_workspace_handle String?
+    status String = "active"
+
+    fn build construct(
+        code_package_id UUID key,
+        semantic_contract_profile_id UUID key,
+        profile_package_key String key,
+        profile_key String,
+        source_workspace_handle String? = null,
+        manifest_relative_path String? = null,
+        runtime_import_mode String = "dynamic_contract_module",
+        runtime_import_required Bool = true,
+        status String = "active"
+    ) -> CodeSemanticContractProfilePackage {
+        """
+        Bind one manifest-backed Code package/artifact to a semantic contract
+        profile.
+
+        Contract:
+        - Each workspace publishes profile packages for its own provider
+          surface.
+        - Cross-workspace activation targets these package artifacts through
+          Workspace dependency/profile resolution.
+        - `runtime_import_required` records the current handler-backed bridge:
+          semantic contract modules still need dynamic import availability even
+          when no product package import is granted.
+        """
+    }
+
+    fn attach_runtime_import(
+        provider_key String key,
+        semantic_contract_module String key,
+        import_role String key = "semantic_contract",
+        owned_manifest_kinds String[] = [],
+        capabilities String[] = [],
+        required Bool = true,
+        status String = "active"
+    ) -> CodeSemanticContractRuntimeImport {
+        """
+        Attach one dynamic semantic contract module import under this profile
+        package.
+        """
+        let created = construct runtime_imports.build(
+            provider_key = provider_key,
+            semantic_contract_module = semantic_contract_module,
+            import_role = import_role,
+            owned_manifest_kinds = owned_manifest_kinds,
+            capabilities = capabilities,
+            required = required,
+            status = status,
+        )
+    }
+}
+
+ann semantic.CodeSemanticContractProfilePackage::code_package load eager
+ann semantic.CodeSemanticContractProfilePackage::semantic_contract_profile load eager
+ann semantic.CodeSemanticContractProfilePackage::runtime_imports load eager

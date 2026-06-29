@@ -1,0 +1,56 @@
+-- coverage:ignore-file
+-- GENERATED CODE - DO NOT MODIFY BY HAND
+
+CREATE TABLE content_part_content_layout (
+  -- PRIMARY KEY
+  branch_id TEXT NOT NULL,
+  projection_hash TEXT NOT NULL,
+  id TEXT NOT NULL,
+  -- RELATIONSHIPS
+  content_part_content_id TEXT NOT NULL,
+  content_layout_id TEXT NOT NULL,
+  -- ATTRIBUTES
+  aspect_ratio REAL,
+  depth_unit TEXT,
+  depth_value REAL,
+  height_unit TEXT NOT NULL,
+  height_value REAL NOT NULL,
+  is_responsive INTEGER NOT NULL,
+  layout_order INTEGER NOT NULL,
+  margin_bottom REAL,
+  margin_left REAL,
+  margin_right REAL,
+  margin_top REAL,
+  max_height_unit TEXT,
+  max_height_value REAL,
+  max_width_unit TEXT,
+  max_width_value REAL,
+  min_height_unit TEXT,
+  min_height_value REAL,
+  min_width_unit TEXT,
+  min_width_value REAL,
+  opacity REAL NOT NULL,
+  padding_bottom REAL,
+  padding_left REAL,
+  padding_right REAL,
+  padding_top REAL,
+  position_x_unit TEXT NOT NULL,
+  position_x_value REAL NOT NULL,
+  position_y_unit TEXT NOT NULL,
+  position_y_value REAL NOT NULL,
+  position_z_unit TEXT,
+  position_z_value REAL,
+  rotation_x REAL,
+  rotation_y REAL,
+  rotation_z REAL,
+  scale_x REAL,
+  scale_y REAL,
+  scale_z REAL,
+  width_unit TEXT NOT NULL,
+  width_value REAL NOT NULL,
+  -- CONSTRAINTS
+  PRIMARY KEY (branch_id, projection_hash, id),
+  UNIQUE (branch_id, projection_hash, content_part_content_id, content_layout_id, layout_order),
+  FOREIGN KEY (branch_id, projection_hash, content_part_content_id) REFERENCES content_part_content(branch_id, projection_hash, id),
+  FOREIGN KEY (branch_id, projection_hash, content_layout_id) REFERENCES content_layout(branch_id, projection_hash, id)
+);

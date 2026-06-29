@@ -1,0 +1,29 @@
+/// Relationship type matrix sample (canonical)
+
+class User {
+    posts Post[]            // ONE_TO_MANY (collection)
+    profile Image unique    // ONE_TO_ONE (unique scalar)
+}
+
+class Post {
+    author User             // MANY_TO_ONE (non-unique scalar)
+}
+
+class Image {
+    url String
+}
+
+class Group {
+    name String
+}
+
+class Membership {
+    users User[] @UserGroupEdge many  // MANY_TO_MANY (association)
+}
+
+edge UserGroupEdge {
+    status String
+    joinedAt DateTime
+}
+
+

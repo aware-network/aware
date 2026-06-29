@@ -1,0 +1,35 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "75cfca4d-b054-5ac9-9a0e-5f8407fd73bb",
+      "node_type": "class",
+      "entity_id": "043af7f1-9107-5933-b6cb-fcc86f658424",
+      "relative_path": "ontology/ontology.py"
+    },
+    {
+      "node_id": "7e3a07ad-4304-598b-9afe-f0b4f24c0a24",
+      "node_type": "class",
+      "entity_id": "bead5bba-40ce-5bef-8e0e-200caf0615b0",
+      "relative_path": "ontology/ontology_config.py"
+    },
+    {
+      "node_id": "9f50616b-8182-5ca5-b4d7-ec62770fc0f3",
+      "node_type": "class",
+      "entity_id": "d76251eb-85fe-56fb-8eea-154d30f22e5b",
+      "relative_path": "ontology/ontology_package.py"
+    },
+    {
+      "node_id": "79afbff3-e2ce-5f33-adad-f55f57f4247b",
+      "node_type": "class",
+      "entity_id": "0b865742-53d4-5022-a869-f9d322547c21",
+      "relative_path": "ontology/ontology_package_dependency.py"
+    },
+    {
+      "node_id": "93c6c58b-72a2-5d1a-8e28-a078b7f07ba4",
+      "node_type": "class",
+      "entity_id": "6f05623c-8965-5768-85ba-03a41d8b9803",
+      "relative_path": "ontology/ontology_package_runtime_code_package.py"
+    }
+  ]
+}

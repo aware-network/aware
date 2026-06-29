@@ -1,0 +1,70 @@
+/// Storage media DTOs.
+///
+/// Contract:
+/// - Blob bytes are data-plane payloads and are not embedded in generated API
+///   JSON requests or responses.
+/// - StorageBlob metadata remains the commit-backed reference truth.
+/// - Renderers resolve media through Storage API descriptors and then fetch
+///   bytes through a Storage-owned data-plane transport.
+
+enum StorageMediaDisposition {
+    inline
+    attachment
+}
+
+class StorageBlobRef {
+    object_id UUID?
+    sha String?
+}
+
+class StorageMediaRef {
+    object_id UUID
+    uri String?
+    uri_scheme String = "storage"
+    media_kind String?
+    mime_type String?
+    sha String?
+    variant_key String?
+    rendition_key String?
+    filename String?
+    metadata JsonObject = {}
+}
+
+class StorageBlobMetadata {
+    object_id UUID
+    sha String
+    mime_type String = "application/octet-stream"
+    size_bytes Int = 0
+    object_key String?
+    path_local String?
+    bucket_id UUID?
+}
+
+class StorageMediaResolution {
+    media_ref StorageMediaRef
+    object_id UUID
+    sha String
+    mime_type String = "application/octet-stream"
+    size_bytes Int = 0
+    uri String
+    uri_scheme String = "storage"
+    http_url String?
+    cache_control String?
+    etag String?
+    content_disposition String?
+    filename String?
+    expires_at String?
+    metadata JsonObject = {}
+}
+
+class StorageOperationReceipt {
+    operation String
+    status String = "succeeded"
+    object_id UUID?
+    sha String?
+    size_bytes Int?
+    mime_type String?
+    backend_kind String = "storage-service"
+    data_plane String = "storage"
+    metadata JsonObject = {}
+}

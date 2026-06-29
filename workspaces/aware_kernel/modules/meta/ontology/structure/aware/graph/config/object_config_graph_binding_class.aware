@@ -1,0 +1,55 @@
+/// One concrete class-level cross-OCG binding anchor.
+///
+/// Contract:
+/// - Source may be `Class` or `Class.attr`.
+/// - Target must terminate at `Class.attr`.
+/// - ProjectionKey later sits on top of this rail for executable identity resolution.
+class ObjectConfigGraphBindingClass {
+    // Relationships
+    binding_formula ObjectConfigGraphBindingFormula? unique
+    source_class class.ClassConfig key
+    source_attr class.ClassConfigAttributeConfig?
+    target_class class.ClassConfig key
+    target_attribute class.ClassConfigAttributeConfig key
+
+    // Attributes
+    name String
+    description String?
+
+    fn build construct(
+        name String,
+        source_class_id UUID key,
+        target_class_id UUID key,
+        target_attribute_id UUID key,
+        source_attr_id UUID? = null,
+    ) -> ObjectConfigGraphBindingClass {
+        """
+        Build deterministic ObjectConfigGraphBindingClass within an ObjectConfigGraphBinding scope.
+
+        Contract:
+        - Parent binding scope is propagated via `ObjectConfigGraphBinding -> ObjectConfigGraphBindingClass`.
+        - Stable identity resolves from `(object_config_graph_binding_id via path, source_class_id, target_class_id, target_attribute_id)`.
+        - `source_attr_id` is optional and does not participate in v0 stable identity.
+        """
+    }
+
+    fn create_formula(
+        key String key = "default",
+        content_part_text_id UUID? = null,
+    ) -> ObjectConfigGraphBindingFormula {
+        """
+        Create deterministic formula ownership under this binding-class scope.
+
+        Contract:
+        - Parent binding-class scope is propagated by constructor lowering.
+        - Formula identity resolves from `(object_config_graph_binding_class_id via path, key)`.
+        - `content_part_text_id` may be attached later or during construction.
+        """
+        let created = construct binding_formula.build(
+            key = key,
+            content_part_text_id = content_part_text_id,
+        )
+    }
+}
+
+ann config.ObjectConfigGraphBindingClass::binding_formula load eager

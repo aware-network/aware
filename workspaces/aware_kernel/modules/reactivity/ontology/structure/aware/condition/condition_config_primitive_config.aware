@@ -1,0 +1,20 @@
+class ConditionConfigPrimitiveConfig {
+    // Relationships
+    primitive_config aware_meta.primitive.PrimitiveConfig key
+
+    // Attributes
+    primitive_value String
+    range_max String?
+    range_min String?
+
+    fn create construct(
+        primitive_config_id UUID key,
+        primitive_value String,
+        range_min String? = null,
+        range_max String? = null
+    ) -> ConditionConfigPrimitiveConfig {
+        """
+        Create a primitive payload condition node.
+        """
+    }
+}

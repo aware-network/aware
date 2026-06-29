@@ -1,0 +1,31 @@
+class FunctionCallResponse {
+    // Relationships
+    root_class_instance_identity class.ClassInstanceIdentity?
+    attributes attribute.Attribute[] @FunctionCallResponseAttribute many key
+    commits graph.instance.ObjectInstanceGraphCommit[] @FunctionCallResponseCommit many key
+
+    // Attributes
+    graph_hash_post String?
+    error_message String?
+    execution_time_ms Int = 0
+    success Bool = true
+
+    fn build construct(
+        success Bool = true,
+        error_message String? = null,
+        execution_time_ms Int = 0,
+        graph_hash_post String? = null,
+        root_class_instance_identity_id UUID? = null
+    ) -> FunctionCallResponse {
+        """
+        Build a deterministic response envelope under a FunctionCall scope.
+        """
+    }
+}
+
+/// Load response edges eagerly
+ann function.FunctionCallResponse::root_class_instance_identity load eager
+ann function.FunctionCallResponse::attributes load eager
+ann function.FunctionCallResponse::attributes::FunctionCallResponseAttribute load eager
+ann function.FunctionCallResponse::commits load eager
+ann function.FunctionCallResponse::commits::FunctionCallResponseCommit load eager

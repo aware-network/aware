@@ -1,0 +1,16 @@
+[project]
+name = "tree-sitter-aware"
+version = "0.0.1"
+description = "Tree-sitter grammar for the Aware language"
+readme = "README.md"
+authors = [
+  { name = "Luis Lechuga", email = "luis@aware.run" },
+]
+requires-python = ">=3.12"
+
+[build-system]
+requires = ['setuptools>=68', 'wheel']
+build-backend = "setuptools.build_meta"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tree_sitter_aware"]

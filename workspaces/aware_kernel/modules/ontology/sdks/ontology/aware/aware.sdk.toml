@@ -1,0 +1,26 @@
+aware_sdk = 1
+
+[sdk]
+package_name = "ontology-sdk"
+fqn_prefix = "aware_ontology_sdk"
+version_number = 1
+title = "Ontology SDK"
+description = "Canonical Ontology SDK operations over the Ontology service API."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+force_fresh_scan = false
+compilation_mode = "sdk_ontology"
+
+[targets.python]
+root_dir = "python"
+
+[targets.python.public_package]
+package_dir = "aware_ontology_sdk"
+
+[[dependencies]]
+kind = "api_package"
+package_name = "ontology-service-api"
+version_number = 1

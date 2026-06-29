@@ -1,0 +1,394 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "0f8eded0-c183-57c5-9033-3516cfba14c5",
+      "module": "aware_content_ontology.chain.content_chain",
+      "name": "ContentChain",
+      "aware_class_ref": "aware_content.chain.ContentChain",
+      "functions": [
+        {
+          "function_config_id": "365c6c47-045c-5a51-844d-8750bdd6be21",
+          "name": "append_content",
+          "input_model": "ContentChainAppendContentInput",
+          "output_model": "ContentChainAppendContentOutput"
+        },
+        {
+          "function_config_id": "fbdc1132-775c-51e1-9fac-49b9261e924a",
+          "name": "append_inline_text",
+          "input_model": "ContentChainAppendInlineTextInput",
+          "output_model": "ContentChainAppendInlineTextOutput"
+        },
+        {
+          "function_config_id": "b8d4d387-8aee-53ed-921e-7722f88a55af",
+          "name": "build",
+          "input_model": "ContentChainBuildInput",
+          "output_model": "ContentChainBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "03b2e8f1-ae21-5b2d-8bcf-8e0ecc92cb58",
+      "module": "aware_content_ontology.chain.content_chain_content",
+      "name": "ContentChainContent",
+      "aware_class_ref": "aware_content.chain.ContentChainContent",
+      "functions": [
+        {
+          "function_config_id": "48f2c0e9-61e4-5a53-b6fd-d5a0631c6a1f",
+          "name": "create_content_chain_content_via_content_chain",
+          "input_model": "ContentChainContentCreateContentChainContentViaContentChainInput",
+          "output_model": "ContentChainContentCreateContentChainContentViaContentChainOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f1acfad3-7a85-5ad9-ac2c-f0da52d2e302",
+      "module": "aware_content_ontology.chain.content_chain_section",
+      "name": "ContentChainSection",
+      "aware_class_ref": "aware_content.chain.ContentChainSection",
+      "functions": [
+        {
+          "function_config_id": "ba0ec678-dfa0-5ccb-ae83-0fee8a2ac7b5",
+          "name": "build_via_content_chain",
+          "input_model": "ContentChainSectionBuildViaContentChainInput",
+          "output_model": "ContentChainSectionBuildViaContentChainOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "10b11ef0-7b72-519a-9ef2-3cafe22165f6",
+      "module": "aware_content_ontology.content.content",
+      "name": "Content",
+      "aware_class_ref": "aware_content.content.Content",
+      "functions": [
+        {
+          "function_config_id": "930e9424-6ee0-5270-8023-56a4d560cb8f",
+          "name": "create_content",
+          "input_model": "ContentCreateContentInput",
+          "output_model": "ContentCreateContentOutput"
+        },
+        {
+          "function_config_id": "65120c1d-af91-5f35-9bf5-2809417b9adb",
+          "name": "set_title",
+          "input_model": "ContentSetTitleInput",
+          "output_model": "ContentSetTitleOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "cef18a06-8871-5127-bcbb-830eb67b0396",
+      "module": "aware_content_ontology.content.content_index",
+      "name": "ContentIndex",
+      "aware_class_ref": "aware_content.content.ContentIndex",
+      "functions": [
+        {
+          "function_config_id": "87d2c8e0-47d9-5295-874c-e0c4ba597c37",
+          "name": "create_content_index_via_content",
+          "input_model": "ContentIndexCreateContentIndexViaContentInput",
+          "output_model": "ContentIndexCreateContentIndexViaContentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d33cdd96-63f0-529f-86a4-09e75e0c1adc",
+      "module": "aware_content_ontology.content.content_layout",
+      "name": "ContentLayout",
+      "aware_class_ref": "aware_content.content.ContentLayout",
+      "functions": [
+        {
+          "function_config_id": "050cbe9e-b61d-5059-b841-79574441b6c8",
+          "name": "add_part_layout",
+          "input_model": "ContentLayoutAddPartLayoutInput",
+          "output_model": "ContentLayoutAddPartLayoutOutput"
+        },
+        {
+          "function_config_id": "5a4c6286-e928-514b-83f2-1059691dcb03",
+          "name": "create_content_layout_via_content",
+          "input_model": "ContentLayoutCreateContentLayoutViaContentInput",
+          "output_model": "ContentLayoutCreateContentLayoutViaContentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8cd14d4b-78c4-582b-a15f-bbeaf4175500",
+      "module": "aware_content_ontology.part.content_part",
+      "name": "ContentPart",
+      "aware_class_ref": "aware_content.part.ContentPart",
+      "functions": [
+        {
+          "function_config_id": "4a33da36-3636-5c94-a1ee-b8f6fa4c88ad",
+          "name": "attach_file",
+          "input_model": "ContentPartAttachFileInput",
+          "output_model": "ContentPartAttachFileOutput"
+        },
+        {
+          "function_config_id": "4386c1ed-0dfd-5c70-8dde-925e0cf41c4d",
+          "name": "create_content_part_via_content_part_content",
+          "input_model": "ContentPartCreateContentPartViaContentPartContentInput",
+          "output_model": "ContentPartCreateContentPartViaContentPartContentOutput"
+        },
+        {
+          "function_config_id": "38540906-e81f-537d-b6be-95e3169d231e",
+          "name": "create_text_part_via_content_part_content",
+          "input_model": "ContentPartCreateTextPartViaContentPartContentInput",
+          "output_model": "ContentPartCreateTextPartViaContentPartContentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f1bc3d6c-237f-5a2f-b040-d080010b51e0",
+      "module": "aware_content_ontology.part.content_part_content",
+      "name": "ContentPartContent",
+      "aware_class_ref": "aware_content.part.ContentPartContent",
+      "functions": [
+        {
+          "function_config_id": "67f6055b-335d-56ca-8c29-a4ce1bcf0015",
+          "name": "create_content_part_content",
+          "input_model": "ContentPartContentCreateContentPartContentInput",
+          "output_model": "ContentPartContentCreateContentPartContentOutput"
+        },
+        {
+          "function_config_id": "e6422fb5-d8d5-5445-b9f5-7f93c87a4894",
+          "name": "create_text_part_content_via_content",
+          "input_model": "ContentPartContentCreateTextPartContentViaContentInput",
+          "output_model": "ContentPartContentCreateTextPartContentViaContentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3d9f6e13-2569-5193-adc2-55703f6fde1d",
+      "module": "aware_content_ontology.part.content_part_content_layout",
+      "name": "ContentPartContentLayout",
+      "aware_class_ref": "aware_content.part.ContentPartContentLayout",
+      "functions": [
+        {
+          "function_config_id": "27bcf215-187a-5d23-9655-c932a038552e",
+          "name": "create_content_part_content_layout_via_content_layout",
+          "input_model": "ContentPartContentLayoutCreateContentPartContentLayoutViaContentLayoutInput",
+          "output_model": "ContentPartContentLayoutCreateContentPartContentLayoutViaContentLayoutOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "20cccfaa-af38-5821-86a7-608381982308",
+      "module": "aware_content_ontology.part.content_part_file",
+      "name": "ContentPartFile",
+      "aware_class_ref": "aware_content.part.ContentPartFile",
+      "functions": [
+        {
+          "function_config_id": "8970e94e-cdc2-5304-88be-99d931b33d26",
+          "name": "create_content_part_file_via_content_part",
+          "input_model": "ContentPartFileCreateContentPartFileViaContentPartInput",
+          "output_model": "ContentPartFileCreateContentPartFileViaContentPartOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e7624595-09eb-5598-a824-78f667bfb7c2",
+      "module": "aware_content_ontology.part.content_part_multimodal_index",
+      "name": "ContentPartMultimodalIndex",
+      "aware_class_ref": "aware_content.part.ContentPartMultimodalIndex",
+      "functions": [
+        {
+          "function_config_id": "09dc6e65-6746-58c6-ae78-30faefd43ed8",
+          "name": "create_content_part_multimodal_index_via_content_part",
+          "input_model": "ContentPartMultimodalIndexCreateContentPartMultimodalIndexViaContentPartInput",
+          "output_model": "ContentPartMultimodalIndexCreateContentPartMultimodalIndexViaContentPartOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d34752f4-de30-5cc3-b7d0-be6a7d0f720d",
+      "module": "aware_content_ontology.part.content_part_text",
+      "name": "ContentPartText",
+      "aware_class_ref": "aware_content.part.ContentPartText",
+      "functions": [
+        {
+          "function_config_id": "c96b407a-3a6d-5afe-888f-aefb8ec220f1",
+          "name": "add_segment",
+          "input_model": "ContentPartTextAddSegmentInput",
+          "output_model": "ContentPartTextAddSegmentOutput"
+        },
+        {
+          "function_config_id": "0d9ac054-0c57-525b-84e1-9773427e11a8",
+          "name": "apply_editor_patch",
+          "input_model": "ContentPartTextApplyEditorPatchInput",
+          "output_model": "ContentPartTextApplyEditorPatchOutput"
+        },
+        {
+          "function_config_id": "9f7782af-dcef-53b1-9e36-3c68dcdbfd7d",
+          "name": "create_content_part_text_via_content_part",
+          "input_model": "ContentPartTextCreateContentPartTextViaContentPartInput",
+          "output_model": "ContentPartTextCreateContentPartTextViaContentPartOutput"
+        },
+        {
+          "function_config_id": "6cd026cb-e751-5329-8c3f-09d5441d43f4",
+          "name": "delete",
+          "input_model": "ContentPartTextDeleteInput",
+          "output_model": "ContentPartTextDeleteOutput"
+        },
+        {
+          "function_config_id": "af7d7e95-36e8-519f-a393-a459b33a4e0e",
+          "name": "set_inline_text",
+          "input_model": "ContentPartTextSetInlineTextInput",
+          "output_model": "ContentPartTextSetInlineTextOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "69ff782b-879a-5c30-9376-b445aab1896b",
+      "module": "aware_content_ontology.part.content_part_text_editor_patch",
+      "name": "ContentPartTextEditorPatch",
+      "aware_class_ref": "aware_content.part.ContentPartTextEditorPatch",
+      "functions": []
+    },
+    {
+      "class_config_id": "17b78dd5-e3c1-59ba-ac53-2aa7183a4e9f",
+      "module": "aware_content_ontology.part.content_part_text_editor_patch",
+      "name": "ContentPartTextSegmentDetach",
+      "aware_class_ref": "aware_content.part.ContentPartTextSegmentDetach",
+      "functions": []
+    },
+    {
+      "class_config_id": "d894d3d5-6b10-5bfc-acd1-3c66008e54bb",
+      "module": "aware_content_ontology.part.content_part_text_editor_patch",
+      "name": "ContentPartTextSegmentOp",
+      "aware_class_ref": "aware_content.part.ContentPartTextSegmentOp",
+      "functions": []
+    },
+    {
+      "class_config_id": "d016b075-f0fc-584c-b043-6eb7ab52d1ce",
+      "module": "aware_content_ontology.part.content_part_text_editor_patch",
+      "name": "ContentPartTextSegmentUpsert",
+      "aware_class_ref": "aware_content.part.ContentPartTextSegmentUpsert",
+      "functions": []
+    },
+    {
+      "class_config_id": "a083bfcd-08cd-51ce-8b0d-62dd10e2a853",
+      "module": "aware_content_ontology.part.content_part_text_editor_patch",
+      "name": "ContentPartTextStyleSpec",
+      "aware_class_ref": "aware_content.part.ContentPartTextStyleSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "61baf80f-9d09-5efc-b2e3-1c2876d85502",
+      "module": "aware_content_ontology.part.content_part_text_editor_patch",
+      "name": "ContentTextPatch",
+      "aware_class_ref": "aware_content.part.ContentTextPatch",
+      "functions": []
+    },
+    {
+      "class_config_id": "b285b1b6-ca58-5dc8-ba9a-b94fdc7aa0cb",
+      "module": "aware_content_ontology.part.content_part_text_index",
+      "name": "ContentPartTextIndex",
+      "aware_class_ref": "aware_content.part.ContentPartTextIndex",
+      "functions": [
+        {
+          "function_config_id": "264fb093-d109-5603-abba-9eab9067929d",
+          "name": "create_content_part_text_index_via_content_part_text",
+          "input_model": "ContentPartTextIndexCreateContentPartTextIndexViaContentPartTextInput",
+          "output_model": "ContentPartTextIndexCreateContentPartTextIndexViaContentPartTextOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2416f11d-10b3-5732-9021-da4722b0d912",
+      "module": "aware_content_ontology.part.content_part_text_segment",
+      "name": "ContentPartTextSegment",
+      "aware_class_ref": "aware_content.part.ContentPartTextSegment",
+      "functions": [
+        {
+          "function_config_id": "8a7dcbb4-dad6-5df8-a0ed-b3d18afdb553",
+          "name": "add_translation",
+          "input_model": "ContentPartTextSegmentAddTranslationInput",
+          "output_model": "ContentPartTextSegmentAddTranslationOutput"
+        },
+        {
+          "function_config_id": "4f45c946-9d2f-50b2-b9c3-0985fe2ebe4e",
+          "name": "apply_style",
+          "input_model": "ContentPartTextSegmentApplyStyleInput",
+          "output_model": "ContentPartTextSegmentApplyStyleOutput"
+        },
+        {
+          "function_config_id": "37d81ed6-352d-5fc9-8cae-8404dfee18da",
+          "name": "delete_segment",
+          "input_model": "ContentPartTextSegmentDeleteSegmentInput",
+          "output_model": "ContentPartTextSegmentDeleteSegmentOutput"
+        },
+        {
+          "function_config_id": "0de11324-825e-58ec-8c9c-11e99494b0a6",
+          "name": "update_segment",
+          "input_model": "ContentPartTextSegmentUpdateSegmentInput",
+          "output_model": "ContentPartTextSegmentUpdateSegmentOutput"
+        },
+        {
+          "function_config_id": "132520c2-3291-5e47-9190-5891c65c0513",
+          "name": "upsert_via_content_part_text",
+          "input_model": "ContentPartTextSegmentUpsertViaContentPartTextInput",
+          "output_model": "ContentPartTextSegmentUpsertViaContentPartTextOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fa4289ed-55f0-597f-926e-08fa512481b8",
+      "module": "aware_content_ontology.part.content_part_text_segment_translation",
+      "name": "ContentPartTextSegmentTranslation",
+      "aware_class_ref": "aware_content.part.ContentPartTextSegmentTranslation",
+      "functions": [
+        {
+          "function_config_id": "2335d117-2c18-5201-be04-b163b44c7ff8",
+          "name": "create_translation_via_content_part_text_segment",
+          "input_model": "ContentPartTextSegmentTranslationCreateTranslationViaContentPartTextSegmentInput",
+          "output_model": "ContentPartTextSegmentTranslationCreateTranslationViaContentPartTextSegmentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9eb60876-520f-5eb4-a82d-310c69c393f1",
+      "module": "aware_content_ontology.part.content_part_text_style",
+      "name": "ContentPartTextStyle",
+      "aware_class_ref": "aware_content.part.ContentPartTextStyle",
+      "functions": [
+        {
+          "function_config_id": "77f82bc9-5486-57c5-8414-8ffe074d7903",
+          "name": "create_or_get_style_via_content_part_text_segment",
+          "input_model": "ContentPartTextStyleCreateOrGetStyleViaContentPartTextSegmentInput",
+          "output_model": "ContentPartTextStyleCreateOrGetStyleViaContentPartTextSegmentOutput"
+        },
+        {
+          "function_config_id": "929f1d19-4b7b-55a9-bb60-e05c0c9310f7",
+          "name": "delete_if_unreferenced",
+          "input_model": "ContentPartTextStyleDeleteIfUnreferencedInput",
+          "output_model": "ContentPartTextStyleDeleteIfUnreferencedOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "5f9f9a35-964d-55d4-a7d6-19ca78ecaa29",
+      "module": "aware_content_ontology.content.content_enums",
+      "name": "ContentSource"
+    },
+    {
+      "enum_config_id": "a978744a-a47c-5d12-a040-041e77655e31",
+      "module": "aware_content_ontology.content.content_enums",
+      "name": "ModalityType"
+    },
+    {
+      "enum_config_id": "ddb23658-1a39-5534-997a-fedf36ddddb8",
+      "module": "aware_content_ontology.part.content_part_enums",
+      "name": "ContentPartLayoutUnit"
+    },
+    {
+      "enum_config_id": "d4015d5d-a350-52b3-88d3-65ef7cb86226",
+      "module": "aware_content_ontology.part.content_part_enums",
+      "name": "ContentPartType"
+    },
+    {
+      "enum_config_id": "72c0768e-6926-5a5e-9329-81a8638ba138",
+      "module": "aware_content_ontology.part.content_part_text_editor_patch",
+      "name": "ContentTextPatchOp"
+    }
+  ]
+}

@@ -1,0 +1,227 @@
+class FunctionConfig {
+    // Relationships
+    function_config_attribute_configs FunctionConfigAttributeConfig[]
+    invocations FunctionConfigInvocation[]
+    function_impl FunctionImpl? unique
+    code_section_function aware_code.function.CodeSectionFunction?
+
+    // Attributes
+    owner_key String key
+    name String key
+    description String?
+    verb String?
+    is_async Bool = false
+    kind FunctionKind key = instance
+
+    fn create construct (
+        owner_key String key,
+        name String key,
+        description String? = null,
+        verb String? = null,
+        is_async Bool = false,
+        kind FunctionKind key = instance
+    ) -> FunctionConfig {
+        """
+        Create deterministic FunctionConfig.
+
+        Contract:
+        - Function identity is semantic and standalone on `(owner_key, name, kind)`.
+        - Traversal may still materialize this function through membership edges such as
+          `ClassConfigFunctionConfig`, but parent propagation must not enter the function stable-id formula.
+        """
+    }
+
+    fn update_config (
+        description String? = null,
+        verb String? = null,
+        is_async Bool = false
+    ) -> {
+        """
+        Update mutable FunctionConfig metadata for an existing function.
+
+        Contract:
+        - `owner_key`, `name`, and `kind` are identity keys and are not mutable here.
+        - Class membership metadata (`is_public`, `is_constructor`, `position`) lives on
+          ClassConfigFunctionConfig and requires its own edge-level function.
+        - This full-payload update treats nullable arguments as current semantic truth.
+        """
+    }
+
+    fn add_primitive_attribute_config (
+        name String,
+        primitive_base_type aware_code.primitive.CodePrimitiveBaseType = any,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        type FunctionAttributeType = input,
+        position Int = 0,
+        is_identity_key Bool = false
+    ) -> FunctionConfigAttributeConfig {
+        """
+        Attach one pre-existing typed AttributeConfig contract edge under this FunctionConfig.
+
+        Contract:
+        - Represents canonical function I/O schema intent.
+        - Materializes/ensures a reusable primitive AttributeConfig via semantic standalone keys.
+        - Idempotent per `(function_config_id, name, type)`.
+        """
+        let created = construct function_config_attribute_configs.create_primitive(
+            owner_key = owner_key,
+            name = name,
+            primitive_base_type = primitive_base_type,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+            type = type,
+            position = position,
+            is_identity_key = is_identity_key,
+        )
+    }
+
+    fn add_enum_attribute_config (
+        name String,
+        enum_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        type FunctionAttributeType = input,
+        position Int = 0,
+        is_identity_key Bool = false
+    ) -> FunctionConfigAttributeConfig {
+        """
+        Attach one pre-existing typed enum AttributeConfig contract edge under this FunctionConfig.
+        """
+        let created = construct function_config_attribute_configs.create_enum(
+            owner_key = owner_key,
+            name = name,
+            enum_config_id = enum_config_id,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+            type = type,
+            position = position,
+            is_identity_key = is_identity_key,
+        )
+    }
+
+    fn add_class_attribute_config (
+        name String,
+        type_class_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        type FunctionAttributeType = input,
+        position Int = 0,
+        is_identity_key Bool = false
+    ) -> FunctionConfigAttributeConfig {
+        """
+        Attach one pre-existing typed class AttributeConfig contract edge under this FunctionConfig.
+        """
+        let created = construct function_config_attribute_configs.create_class(
+            owner_key = owner_key,
+            name = name,
+            type_class_config_id = type_class_config_id,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+            type = type,
+            position = position,
+            is_identity_key = is_identity_key,
+        )
+    }
+
+    fn remove_attribute_config (
+        name String,
+        type FunctionAttributeType = input,
+        attribute_config_id UUID? = null
+    ) -> {
+        """
+        Remove one AttributeConfig membership from this FunctionConfig.
+
+        Contract:
+        - Mutates only function_config_attribute_configs on this FunctionConfig.
+        - Attribute identity comes from committed semantic baseline truth when available.
+        - Rooted OIG commit reachability owns the stale AttributeConfig deletion after the edge is removed.
+        """
+    }
+
+    fn create_function_impl (
+        key String = "default",
+        impl_kind FunctionImplKind = instruction_body
+    ) -> FunctionImpl {
+        """
+        Create or return the canonical execution rail (`FunctionImpl`) for this FunctionConfig.
+
+        Contract:
+        - Parent (`FunctionConfig`) owns `function_impl` propagation.
+        - One rail per FunctionConfig (idempotent under parent scope).
+        - `impl_kind` carries whether this rail is an instruction body or an auto constructor template.
+        """
+        let created = construct function_impl.build(
+            key = key,
+            kind = impl_kind,
+        )
+    }
+
+    fn create_invocation (
+        position Int,
+        kind FunctionInvocationKind,
+        target_function_config_id UUID,
+        relationship_fingerprint String = "owner",
+        class_config_relationship_id UUID? = null,
+        root_invocation_id UUID? = null,
+        root_kind FunctionInvocationRootKind = owner,
+        capture_name String? = null
+    ) -> FunctionConfigInvocation {
+        """
+        Create one deterministic invocation-plan step under this FunctionConfig.
+
+        Contract:
+        - Parent (`FunctionConfig`) owns invocation membership propagation.
+        - Identity is constructor-keyed on
+          `(function_config_id via parent path, position, kind, target_function_config_id, relationship_fingerprint)`.
+        - `class_config_relationship_id` remains explicit traversal metadata; owner-local invocations use
+          `relationship_fingerprint = owner` and `class_config_relationship_id = null`.
+        """
+        let created = construct invocations.create(
+            position = position,
+            kind = kind,
+            target_function_config_id = target_function_config_id,
+            relationship_fingerprint = relationship_fingerprint,
+            class_config_relationship_id = class_config_relationship_id,
+            root_invocation_id = root_invocation_id,
+            root_kind = root_kind,
+            capture_name = capture_name,
+        )
+    }
+}
+
+/// Load attribute configs eagerly
+ann function.FunctionConfig::function_config_attribute_configs load eager
+ann function.FunctionConfig::invocations load eager
+ann function.FunctionConfig::function_impl load eager
+ann function.FunctionConfig identity standalone

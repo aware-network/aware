@@ -83,9 +83,11 @@ ObjectConfigGraph/ClassConfig producer shapes into that representation.
 | 16 | QuerySpec AST contract | Done | Public typed query AST compiles through safe metadata-bound identifiers, backend/dialect emitters, and explicit unsupported-operator failures. | `docs/issues/2026/05/31/fb-2026-05-31-aware-orm-queryspec-contract-v0.md` |
 | 16.1 | QuerySpec model API contract | Done | Generated ORM models expose strict `query`, `first_query`, and `count_query` methods; Session exposes a structured QuerySpec backend hook with SQL fallback so service consumers do not call SQLGenerator directly. | `docs/issues/2026/06/02/fb-2026-06-02-aware-orm-queryspec-model-api-contract-v0.md` |
 | 16.2 | Model query builder ergonomics | Done | Generated ORM models expose `Model.f.<field>` field refs and a fluent `Model.query().where(...).order_by(...).limit(...).all/first/count` API that compiles to `QuerySpec`. | `docs/issues/2026/06/03/fb-2026-06-03-aware-orm-model-query-builder-ergonomics-v0.md` |
+| 16.3 | Agent-first exact-match ergonomics | Done | Generated ORM models expose `by_id`, `one`, `first`, `where`, `many`, and chainable `match` helpers for service/ontology-replica exact-match reads without raw QuerySpec or SQLGenerator calls. | `docs/issues/2026/06/15/fb-2026-06-15-aware-orm-agent-first-query-sugar-v0.md`, `docs/issues/2026/06/15/fb-2026-06-15-aware-orm-chainable-match-ergonomics-v0.md` |
 | 17 | Graph retrieval contract | Done | Backend-aware graph SQL supports nested relationships, cardinality, depth/cycle policy, branch/projection scope, and identity-map reuse. | `docs/issues/2026/05/31/fb-2026-05-31-aware-orm-graph-retrieval-contract-v0.md` |
 | 18 | Service-state E2E proof | Done | Service-owned OCG/state package installs a local SQLite schema, seeds rows, runs dynamic queries, and reports health/drift receipts. | `docs/issues/2026/05/31/fb-2026-05-31-aware-orm-service-state-e2e-v0.md` |
 | 19 | Public docs cleanup | Done | Stale production-positioning and Repository-era docs are removed from the public ORM docs tree before OSS publication. | `docs/issues/2026/06/01/fb-2026-06-01-aware-orm-deprecated-surface-removal-v0.md` |
+| 19.1 | Public README release contract | Done | README is structured as the public package contract: install posture, package boundary, generated-model query ergonomics, service ontology-replica usage, session ownership, DB boot/runtime artifacts, compatibility notes, release gates, and future semantic-contract publication direction. | `docs/issues/2026/06/17/fb-2026-06-17-aware-orm-public-readme-release-pass-v0.md` |
 | 20 | Build artifact audit | Done | `uv build --package aware-orm` from the selected-kernel path produces a narrow wheel and sdist: package source plus README/changelog/license/metadata, with `aware_orm/bootstrap`, repo-only docs/tests/scripts, and caches excluded. | `docs/issues/2026/06/01/fb-2026-06-01-aware-orm-deprecated-surface-removal-v0.md` |
 | 21 | Binding DTO / terminology cleanup | Done | Persistence requires class-FQN SQLRuntimeMetadata, removed shims/loaders are absent from public artifacts, and stale object-config terminology is out of ORM runtime APIs. | `docs/issues/2026/06/01/fb-2026-06-01-aware-orm-binding-dto-terminology-cleanup-v0.md` |
 | 22 | Native ORM graph artifact boundary | Done | ORM owns `graph_artifacts` / `graph_binding` and `_aware/orm.graph.binding.msgpack`; Meta owns ObjectConfigGraph/ClassConfig to ORM artifact translation; Python plugin writes package artifacts; Structure writes environment bundle artifacts; API/DTO workspace package rendering does not fall through to committed-OIG hydration. | `docs/issues/2026/06/01/fb-2026-06-01-aware-orm-native-graph-artifact-contract-v0.md` |
@@ -108,6 +110,18 @@ ObjectConfigGraph/ClassConfig producer shapes into that representation.
   authors field-ref ergonomics.
 - Focused public boundary gate passed: `8 passed`.
 - Full ORM suite passed from the selected-kernel path: `247 passed, 6 skipped`.
+
+2026-06-17 public README release pass:
+
+- README now leads with public install/release posture, package boundary,
+  generated-model read ergonomics, service ontology-replica usage, host/session
+  ownership, DB boot/runtime artifacts, compatibility notes, and release gates.
+- The agent-first query surface is documented as the preferred service
+  consumer contract: `by_id`, `one`, `first`, `where`, `many`, `match`,
+  `match_if_present`, `match_when`, and `match_unless`.
+- README records the future semantic-contract publication direction without
+  making semantic metadata a current runtime dependency.
+- TestPyPI and Git/PyPI release rows remain `Not started`.
 
 ## Release Gates
 

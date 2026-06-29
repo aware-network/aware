@@ -1,0 +1,18 @@
+class ObjectInstanceGraphBranchRelationship {
+    // Relationships
+    target_object_instance_graph_branch ObjectInstanceGraphBranch key
+
+    fn create construct (
+        target_object_instance_graph_branch_id UUID key
+    ) -> ObjectInstanceGraphBranchRelationship {
+        """
+        Creates a Branch→Branch relationship join (idempotent).
+
+        Contract:
+        - Source branch identity is parent-propagated when invoked via
+          `ObjectInstanceGraphBranch.attach_branch_relationship`.
+        - Deterministic id derived from parent source scope + `(target_oigb_id)`.
+        - Used by runtime to make portal branch routing commit-backed (no consumer guessing).
+        """
+    }
+}

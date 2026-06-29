@@ -1,0 +1,40 @@
+sdk reactivity_sdk {
+    "Canonical Reactivity SDK operations over the Reactivity service API."
+
+    api reactivity;
+
+    operation get_status {
+        "Read Reactivity service runtime status without graph-store access."
+        endpoint reactivity.status.get_status;
+    }
+
+    operation subscribe_events {
+        "Subscribe to Reactivity-owned semantic bridge events for actor-scoped consumers."
+        endpoint reactivity.event.subscribe_events;
+    }
+
+    operation resolve_action_intents {
+        "Resolve actor-subscription-backed action intents for one matched Reactivity policy event."
+        endpoint reactivity.action.resolve_intents;
+    }
+
+    operation publish_action_lifecycle {
+        "Publish ontology-backed action lifecycle evidence without making Reactivity the executor."
+        endpoint reactivity.action.publish_lifecycle;
+    }
+
+    operation subscribe_action_lifecycle {
+        "Subscribe to Reactivity-owned action execution lifecycle events."
+        endpoint reactivity.action.subscribe_lifecycle;
+    }
+
+    operation ensure_policy_bundle {
+        "Register or verify a deterministic Reactivity policy bundle."
+        endpoint reactivity.policy.ensure_bundle;
+    }
+
+    operation list_policy_bundles {
+        "List Reactivity policy bundles known to this service instance."
+        endpoint reactivity.policy.list_bundles;
+    }
+}

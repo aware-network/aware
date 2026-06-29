@@ -1,0 +1,49 @@
+class Content {
+    // Relationships
+    content_index ContentIndex? unique
+    content_layouts ContentLayout[]
+    content_part_contents part.ContentPartContent[]
+
+    // Attributes
+    key String key
+    title String?
+    source ContentSource
+    token_count Int?
+
+    fn create_content construct(
+        key String key = "default",
+        title String? = null,
+        source ContentSource = user,
+        token_count Int? = null,
+        seed_inline_text String? = null,
+        seed_part_position Int = 0,
+    ) -> Content {
+        """
+        Creates a new content container.
+        """
+        let content_index = construct content_index.create_content_index()
+        let content_layout = construct content_layouts.create_content_layout(name = key)
+        let content_part_content = construct content_part_contents.create_text_part_content(
+            position = seed_part_position,
+            seed_inline_text = seed_inline_text,
+        )
+        construct Content(
+            key = key,
+            title = title,
+            source = source,
+            token_count = token_count,
+        )
+    }
+
+    fn set_title(title String? = null) -> {
+        """
+        Sets (or clears) the content title.
+        """
+        set title = title
+    }
+
+}
+
+/// Eager content parts so SystemInstruction->Content can be rendered without extra fetches.
+ann content.Content::content_part_contents load eager
+ann content.Content identity standalone

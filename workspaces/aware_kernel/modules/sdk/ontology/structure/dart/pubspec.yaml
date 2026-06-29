@@ -1,0 +1,33 @@
+name: aware_sdk_ontology
+description: Auto-generated Dart package for sdk-ontology.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+
+dependencies:
+  aware_api_ontology:
+    path: ../../../api/structure/ontology/dart
+  aware_code_ontology:
+    path: ../../../code/structure/ontology/dart
+  aware_content_ontology:
+    path: ../../../content/structure/ontology/dart
+  aware_history_ontology:
+    path: ../../../history/structure/ontology/dart
+  aware_meta_ontology:
+    path: ../../../meta/structure/ontology/dart
+  aware_storage_ontology:
+    path: ../../../storage/structure/ontology/dart
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+  uuid: ^4.5.1
+  aware_model_helpers:
+    path: ../../../../../libs/model_helpers/dart/aware_model_helpers
+  aware_api:
+    path: ../../../../api/libs/api/dart
+
+dev_dependencies:
+  build_runner: ^2.4.11
+  freezed: ^3.0.0
+  json_serializable: ^6.8.0

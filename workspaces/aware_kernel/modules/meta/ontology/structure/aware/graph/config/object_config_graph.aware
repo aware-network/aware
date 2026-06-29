@@ -1,0 +1,145 @@
+class ObjectConfigGraph {
+    // Relationships
+    /// Stable identity for this config graph family (compiler-owned).
+    object_config_graph_identity ObjectConfigGraphIdentity?
+    object_config_graph_annotations ObjectConfigGraphAnnotation[]
+    object_config_graph_mirrors ObjectConfigGraphMirror[]
+    object_config_graph_nodes ObjectConfigGraphNode[]
+    object_config_graph_overlays ObjectConfigGraphOverlay[]
+    /// Cross-layer binding rails (source scope is this OCG; target scope is the child binding key).
+    object_config_graph_bindings ObjectConfigGraphBinding[]
+    object_config_graph_relationships ObjectConfigGraphRelationship[]
+    /// Compiler-owned projection declarations (hashable SSOT for OPG membership/portals).
+    object_projection_graph_declarations projection.ObjectProjectionGraphDeclaration[]
+    object_projection_graphs projection.ObjectProjectionGraph[]
+
+    // Attributes
+    name String unique
+    description String?
+    hash String unique
+    /// Stable hash that includes layout metadata (relative paths + ordering).
+    /// Used to invalidate materialization caches when files move without semantic changes.
+    layout_hash String?
+    /// Stable FQN prefix used as the root namespace for all FQNs in this graph.
+    ///
+    /// NOTE: `package_name` (installable package identity) is modeled on
+    /// ObjectConfigGraphPackage. This field is purely for deterministic FQN
+    /// construction and cross-OCG linking.
+    fqn_prefix String key
+    language aware_code.code.CodeLanguage key
+
+    fn build construct (
+        name String,
+        hash String,
+        fqn_prefix String key,
+        language aware_code.code.CodeLanguage key = aware,
+        object_config_graph_id UUID? = null,
+        object_config_graph_identity_id UUID? = null,
+        description String? = null,
+        layout_hash String? = null
+    ) -> ObjectConfigGraph {
+        """
+        Create deterministic ObjectConfigGraph root for runtime proof composition.
+
+        Contract:
+        - Identity contract is keyed by `(fqn_prefix, language)`.
+        - `object_config_graph_id` is optional compatibility input; when provided it must match
+          compiler/runtime deterministic derivation for `(fqn_prefix, language)`.
+        """
+    }
+
+    fn create_node (
+        type ObjectConfigGraphNodeType,
+        node_key String
+    ) -> ObjectConfigGraphNode {
+        """
+        Create one node under this ObjectConfigGraph.
+        """
+        let created = construct object_config_graph_nodes.create(
+            type = type,
+            node_key = node_key,
+        )
+    }
+
+    fn delete_node(
+        type ObjectConfigGraphNodeType,
+        node_key String,
+        object_config_graph_node_id UUID? = null
+    ) -> {
+        """
+        Remove one node from this ObjectConfigGraph.
+
+        Contract:
+        - The target node identity must match `(type, node_key)` inside this graph.
+        - `object_config_graph_node_id` is optional identity evidence for delete deltas.
+        - Delete mutates only this graph's `object_config_graph_nodes` membership.
+        """
+    }
+
+    fn create_object_projection_graph(
+        name String key,
+        projection_hash String,
+        language aware_code.code.CodeLanguage = aware,
+        description String? = null,
+        supports_virtual_build Bool = true
+    ) -> projection.ObjectProjectionGraph {
+        """
+        Create deterministic ObjectProjectionGraph under this ObjectConfigGraph.
+
+        Contract:
+        - Parent `object_config_graph_id` is propagated by constructor lowering.
+        - Child identity resolves from `(object_config_graph_id via path, name)`.
+        - `projection_hash` is snapshot metadata and must not participate in stable identity.
+        """
+        let created = construct object_projection_graphs.build(
+            name = name,
+            projection_hash = projection_hash,
+            language = language,
+            description = description,
+            supports_virtual_build = supports_virtual_build,
+        )
+    }
+
+    fn get_topology_description () -> String {
+        """
+        Returns a description of the ObjectConfigGraph topology.
+        """
+    }
+
+    fn create_object_config_graph_relationship(
+        target_object_config_graph_id UUID key,
+    ) -> ObjectConfigGraphRelationship {
+        """
+        Create deterministic ObjectConfigGraphRelationship under this ObjectConfigGraph.
+        """
+        let created = construct object_config_graph_relationships.build(
+            target_object_config_graph_id = target_object_config_graph_id,
+        )
+    }
+
+    fn create_object_config_graph_binding(
+        target_object_config_graph_id UUID key,
+    ) -> ObjectConfigGraphBinding {
+        """
+        Create deterministic ObjectConfigGraphBinding under this ObjectConfigGraph.
+
+        Contract:
+        - Source OCG scope is propagated through parent containment.
+        - Child identity resolves from `(object_config_graph_id via path, target_object_config_graph_id)`.
+        """
+        let created = construct object_config_graph_bindings.build(
+            target_object_config_graph_id = target_object_config_graph_id,
+        )
+    }
+}
+
+/// Load all annotations, nodes, overlays, projection graphs, bindings, and object config graph relationships eagerly
+ann config.ObjectConfigGraph::object_config_graph_identity load eager
+ann config.ObjectConfigGraph::object_config_graph_annotations load eager
+ann config.ObjectConfigGraph::object_config_graph_mirrors load eager
+ann config.ObjectConfigGraph::object_config_graph_nodes load eager
+ann config.ObjectConfigGraph::object_config_graph_overlays load eager
+ann config.ObjectConfigGraph::object_config_graph_bindings load eager
+ann config.ObjectConfigGraph::object_config_graph_relationships load eager
+ann config.ObjectConfigGraph::object_projection_graph_declarations load eager
+ann config.ObjectConfigGraph::object_projection_graphs load eager

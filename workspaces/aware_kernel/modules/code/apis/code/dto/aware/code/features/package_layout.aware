@@ -1,0 +1,66 @@
+/// One semantic path-role pattern inside a package layout contract.
+class CodePackageLayoutPathRole : inline_value {
+    role code.CodePackagePathRole
+    include_patterns String[] = []
+    exclude_patterns String[] = []
+    semantic_owner_hints String[] = []
+    metadata JsonObject?
+}
+
+/// API-owned package layout contract used by local FileSystem SDK classification.
+class CodePackageLayoutContract : inline_value {
+    package_name String?
+    package_root String
+    sources_root String?
+    surface String?
+    generated_roots String[] = []
+    manifest_relative_path String?
+    path_roles code.CodePackageLayoutPathRole[] = []
+    metadata JsonObject?
+}
+
+/// Describe one package layout contract by package coordinates.
+class DescribeCodePackageLayoutRequest augment code.CodeServiceRequest {
+    operation String = "describe_package_layout"
+    package_name String?
+    package_root String?
+    package_fqn String?
+}
+
+class DescribeCodePackageLayoutResponse augment code.CodeServiceResponse {
+    operation String = "describe_package_layout"
+    layout_contract code.CodePackageLayoutContract?
+}
+
+/// Discover package layout contracts from explicit manifest paths.
+class DiscoverCodePackageLayoutsRequest augment code.CodeServiceRequest {
+    operation String = "discover_code_package_layouts"
+    workspace_root String = "."
+    manifest_paths String[] = []
+}
+
+class DiscoverCodePackageLayoutsResponse augment code.CodeServiceResponse {
+    operation String = "discover_code_package_layouts"
+    layout_contracts code.CodePackageLayoutContract[] = []
+    diagnostics String[] = []
+}
+
+/// Validate path-role/layout truth before local filesystem classification.
+class ValidateCodePackageLayoutRequest augment code.CodeServiceRequest {
+    operation String = "validate_package_layout"
+    layout_contract code.CodePackageLayoutContract
+}
+
+class ValidateCodePackageLayoutResponse augment code.CodeServiceResponse {
+    operation String = "validate_package_layout"
+    valid Bool = false
+    diagnostics String[] = []
+}
+
+ann code.DescribeCodePackageLayoutRequest::operation discriminate tag "describe_package_layout"
+ann code.DiscoverCodePackageLayoutsRequest::operation discriminate tag "discover_code_package_layouts"
+ann code.ValidateCodePackageLayoutRequest::operation discriminate tag "validate_package_layout"
+
+ann code.DescribeCodePackageLayoutResponse::operation discriminate tag "describe_package_layout"
+ann code.DiscoverCodePackageLayoutsResponse::operation discriminate tag "discover_code_package_layouts"
+ann code.ValidateCodePackageLayoutResponse::operation discriminate tag "validate_package_layout"

@@ -1,0 +1,36 @@
+class Home {
+    // Relationships
+    doors Door[]
+    tvs Tv[]
+
+    // Attributes
+    name String = "My Home"
+
+    fn build construct (name String key = "home") -> Home {
+        """
+        Create a Home root.
+        """
+        let created = construct Home(name = name)
+    }
+
+    fn add_door (label String, is_locked Bool = true, is_open Bool = false) -> Door {
+        """
+        Attach a Door to this Home.
+        """
+        let created = construct doors.create(
+            label = label,
+            is_locked = is_locked,
+            is_open = is_open,
+        )
+    }
+
+    fn add_tv (name String = "living-room-tv", is_on Bool = false) -> Tv {
+        """
+        Attach a Tv to this Home.
+        """
+        let created = construct tvs.create(
+            name = name,
+            is_on = is_on,
+        )
+    }
+}

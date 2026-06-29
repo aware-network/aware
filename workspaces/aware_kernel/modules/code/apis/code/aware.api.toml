@@ -1,0 +1,32 @@
+aware_api = 1
+
+[api]
+package_name = "code-service-api"
+fqn_prefix = "aware_code_service_api"
+version_number = 1
+title = "Code Service API"
+description = "Canonical API boundary for Code semantic contracts, package deltas, package layout contracts, and local/remote semantic materialization coordination."
+
+[build]
+sources_dir = "bindings"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+compilation_mode = "api_ontology"
+
+[targets.python]
+root_dir = "python"
+
+[targets.python.public_package]
+package_dir = "aware_code_service_api"
+
+[targets.python.service_protocol]
+package_dir = "aware_code_service_protocol"
+
+[[dependencies]]
+package_name = "code-service-dto"
+
+[[semantic_package_exports]]
+kind = "api_dto"
+package_name = "code-service-dto"
+manifest_path = "dto/aware.toml"

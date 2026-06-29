@@ -1,0 +1,61 @@
+class ContentChain {
+    // Relationships
+    content_chain_contents content.Content[] @ContentChainContent
+    content_chain_section ContentChainSection? unique
+
+    // Attributes
+    key String key = "default"
+
+    fn build construct(
+        key String key = "default",
+    ) -> ContentChain {
+        """
+        Creates a new content chain.
+
+        Used by other modules (e.g. Conversation.build) to allocate a chain root.
+        """
+        let section = construct content_chain_section.build()
+        construct ContentChain(key = key)
+    }
+
+    fn append_content(content_id UUID, position Int = 0) -> UUID {
+        """
+        Appends a Content to this ContentChain.
+
+        Canonical mutation boundary:
+        - Callers must invoke this instance function (mutate-self-only) instead of constructing
+          ContentChainContent directly from another object's handler.
+        """
+        let edge = construct content_chain_contents.create_content_chain_content(
+            content_chain_id = id,
+            content_id = content_id,
+            position = position,
+        )
+    }
+
+    fn append_inline_text(
+        seed_inline_text String,
+        source content.ContentSource = user,
+        token_count Int? = null,
+        title String? = null,
+        position Int = 0,
+    ) -> UUID {
+        """
+        Appends inline text to this ContentChain by creating Content + ContentChainContent.
+
+        Canonical mutation boundary:
+        - Parent handlers must call this instance function instead of creating Content directly.
+        """
+        let content = construct Content.create_content(
+            title = title,
+            source = source,
+            token_count = token_count,
+            seed_inline_text = seed_inline_text,
+        )
+        let edge = construct content_chain_contents.create_content_chain_content(
+            content_chain_id = id,
+            content_id = content.id,
+            position = position,
+        )
+    }
+}

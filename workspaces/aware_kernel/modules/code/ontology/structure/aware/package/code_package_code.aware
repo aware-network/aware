@@ -1,0 +1,59 @@
+edge CodePackageCode {
+    // Attributes
+    relative_path String key
+    path_role aware_code.code.CodePackagePathRole = authored_source
+
+    fn create construct(
+        relative_path String key,
+        plan aware_code.code.CodeContentPlan,
+        path_role aware_code.code.CodePackagePathRole = authored_source,
+        delta_production aware_code.code.CodePackageDeltaProduction? = null
+    ) -> CodePackageCode {
+        """
+        Create a deterministic package-owned code attachment and owned Code from a canonical content plan.
+        """
+        let created_code = construct code.create(
+            relative_path = relative_path,
+            plan = plan,
+        )
+    }
+
+    fn sync_test_unit(
+        framework_id UUID key,
+        code_section_id UUID key,
+        unit_key String key,
+        selector String,
+        kind String = "function",
+        name String? = null,
+        discovery_kind String = "language_plugin",
+        selector_prefix String? = null
+    ) -> aware_code.code.CodeTestUnit {
+        """
+        Upsert one runnable Code test unit through the package-code bridge.
+        """
+        let created = call code.sync_test_unit(
+            framework_id = framework_id,
+            code_section_id = code_section_id,
+            unit_key = unit_key,
+            selector = selector,
+            kind = kind,
+            name = name,
+            discovery_kind = discovery_kind,
+            selector_prefix = selector_prefix,
+        )
+    }
+
+    fn update_path_role(
+        path_role aware_code.code.CodePackagePathRole
+    ) -> CodePackageCode {
+        """
+        Update this package-code edge path role through its own mutation boundary.
+        """
+    }
+
+    fn delete() -> {
+        """
+        Delete this package-owned code attachment and its owned Code.
+        """
+    }
+}

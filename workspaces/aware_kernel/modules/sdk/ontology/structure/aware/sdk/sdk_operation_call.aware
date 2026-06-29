@@ -1,0 +1,41 @@
+/// SDK-owned operation invocation receipt.
+///
+/// Contract:
+/// - `SdkOperation` is reusable configuration.
+/// - `SdkOperationCall` is one concrete SDK dispatch attempt.
+/// - API ingress remains API-owned; `api_call` only links to the API receipt
+///   emitted by this SDK dispatch when the operation crosses the API boundary.
+class SdkOperationCall {
+    // Relationships
+    api_call aware_api.api.ApiCall?
+
+    // Attributes
+    /// Stable external/request identity for one SDK dispatch attempt.
+    call_key UUID key
+    description String?
+    request_hash String
+    context_hash String?
+    status String = "pending"
+
+    fn create construct (
+        call_key UUID key,
+        request_hash String,
+        description String? = null,
+        context_hash String? = null,
+        status String = "pending",
+        api_call_id UUID? = null
+    ) -> SdkOperationCall {
+        """
+        Create one SDK operation call receipt under SdkOperation.
+
+        Contract:
+        - Parent `SdkOperation` scope is propagated by constructor lowering.
+        - `request_hash` is the durable payload fingerprint until typed SDK request
+          value instances are introduced.
+        - `api_call_id` links to API ingress provenance without making API own SDK
+          dispatch truth.
+        """
+    }
+}
+
+ann sdk.SdkOperationCall::api_call load eager

@@ -41,8 +41,25 @@ Public release candidate for the installable Aware ORM core.
   refs and `Model.query().where(...).order_by(...).limit(...).all/first/count`
   so services can express advanced reads without raw SQLGenerator or
   string-heavy QuerySpec setup.
+- Added agent-first exact-match read helpers with `Model.by_id(...)`,
+  `Model.one(...)`, `Model.first(...)`, `Model.where(...).all()`, and
+  `Model.many(...)`, all compiled through the QuerySpec-backed builder path for
+  service/ontology-replica consumers.
+- Added chainable exact-match query composition helpers with
+  `query.match(...)`, `query.match_if_present(...)`, `query.match_when(...)`,
+  and `query.match_unless(...)` so service consumers can append optional
+  filters without field-ref ceremony while preserving explicit advanced
+  predicates.
 - Proved the same service-owned query corpus against SQLite and PostgreSQL, with
   optional Postgres migration/runtime proof kept outside the base install.
+
+### Public Documentation
+
+- Reworked the README into the release-facing public contract for the ORM:
+  install posture, package boundary, generated-model query ergonomics,
+  service ontology-replica usage, session ownership, DB boot/runtime artifacts,
+  compatibility notes, release gates, and the future semantic-contract
+  publication direction.
 
 ### Release Evidence
 

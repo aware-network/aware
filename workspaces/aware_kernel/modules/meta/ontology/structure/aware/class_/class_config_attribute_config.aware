@@ -1,0 +1,122 @@
+class ClassConfigAttributeConfig {
+    // Relationships
+    attribute_config attribute.AttributeConfig key
+
+    // Attributes
+    position Int = 0
+    is_identity_key Bool = false
+
+    fn update_config (
+        position Int = 0,
+        is_identity_key Bool = false
+    ) -> {
+        """
+        Update mutable class-attribute membership metadata.
+
+        Contract:
+        - `class_config_id` and `attribute_config_id` are identity keys and are not mutable here.
+        - Attribute scalar/type descriptor metadata lives on AttributeConfig.update_*.
+        - This full-payload update treats position and identity-key membership metadata as current semantic truth.
+        """
+    }
+
+    fn create_primitive construct (
+        owner_key String,
+        name String,
+        primitive_base_type aware_code.primitive.CodePrimitiveBaseType = any,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        position Int = 0,
+        is_identity_key Bool = false
+    ) -> ClassConfigAttributeConfig {
+        """
+        Create deterministic ClassConfigAttributeConfig link.
+
+        Contract:
+        - Parent `ClassConfig` scope is propagated by traversal lowering.
+        - AttributeConfig is ensured via semantic standalone keys derived from the parent class context.
+        - Deterministic edge identity derives from parent scope + `attribute_config_id`.
+        """
+        let created = construct attribute_config.create_primitive(
+            owner_key = owner_key,
+            name = name,
+            primitive_base_type = primitive_base_type,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+        )
+    }
+
+    fn create_enum construct (
+        owner_key String,
+        name String,
+        enum_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        position Int = 0,
+        is_identity_key Bool = false
+    ) -> ClassConfigAttributeConfig {
+        """
+        Create deterministic ClassConfigAttributeConfig link for an enum attribute.
+        """
+        let created = construct attribute_config.create_enum(
+            owner_key = owner_key,
+            name = name,
+            enum_config_id = enum_config_id,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+        )
+    }
+
+    fn create_class construct (
+        owner_key String,
+        name String,
+        type_class_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        position Int = 0,
+        is_identity_key Bool = false
+    ) -> ClassConfigAttributeConfig {
+        """
+        Create deterministic ClassConfigAttributeConfig link for a class attribute.
+        """
+        let created = construct attribute_config.create_class(
+            owner_key = owner_key,
+            name = name,
+            type_class_config_id = type_class_config_id,
+            description = description,
+            default_value = default_value,
+            is_primary = is_primary,
+            is_public = is_public,
+            is_required = is_required,
+            is_unique = is_unique,
+            is_virtual = is_virtual,
+        )
+    }
+}
+
+ann class.ClassConfigAttributeConfig::attribute_config load eager

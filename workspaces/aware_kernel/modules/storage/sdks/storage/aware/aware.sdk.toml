@@ -1,0 +1,32 @@
+aware_sdk = 1
+
+[sdk]
+package_name = "storage-sdk"
+fqn_prefix = "aware_storage_sdk"
+version_number = 1
+title = "Storage SDK"
+description = "Canonical Storage SDK operations over the Storage service API."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+force_fresh_scan = false
+compilation_mode = "sdk_ontology"
+
+[targets.python]
+root_dir = "python"
+
+[targets.python.public_package]
+package_dir = "aware_storage_sdk"
+
+[targets.dart]
+root_dir = "dart"
+
+[targets.dart.public_package]
+package_dir = "aware_storage_sdk"
+
+[[dependencies]]
+kind = "api_package"
+package_name = "storage-service-api"
+version_number = 1

@@ -1,0 +1,156 @@
+class AttributeConfig {
+    // Relationships
+    type_descriptor AttributeTypeDescriptor
+    code_section_attribute aware_code.attribute.CodeSectionAttribute?
+
+    // Attributes
+    owner_key String key
+    name String key
+    description String?
+    default_value String?
+    is_primary Bool = false
+    is_public Bool = true
+    is_required Bool = false
+    is_unique Bool = false
+    is_virtual Bool = false
+    /// When true, this attribute is excluded from the canonical representation's serialization
+    /// (Pydantic `Field(..., exclude=True)` in Python).
+    ///
+    /// Contract (current):
+    /// - This flag is set by transformers when applying canonical loading semantics to relationship pointers.
+    /// - Renderers must be emit-only: they read this flag and do not re-derive it from loading strategy.
+    /// - Round-trippability is mandatory: load semantics == serialization semantics for the canonical model.
+    exclude_serialization Bool = false
+
+    fn create_primitive construct(
+        owner_key String key,
+        name String key,
+        primitive_base_type aware_code.primitive.CodePrimitiveBaseType = any,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false
+    ) -> AttributeConfig {
+        """
+        Create deterministic primitive AttributeConfig and materialize descriptor chain.
+
+        Contract:
+        - Primitive descriptors are materialized from canonical primitive type semantics.
+        - Parent traversal may materialize this standalone primitive, but parent propagation
+          must not enter the AttributeConfig stable-id formula.
+        """
+        let created = construct type_descriptor.create_primitive(
+            primitive_base_type = primitive_base_type,
+        )
+    }
+
+    fn create_enum construct(
+        owner_key String key,
+        name String key,
+        enum_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false
+    ) -> AttributeConfig {
+        """
+        Create deterministic enum AttributeConfig and materialize descriptor chain.
+        """
+        let created = construct type_descriptor.create_enum(
+            enum_config_id = enum_config_id,
+        )
+    }
+
+    fn create_class construct(
+        owner_key String key,
+        name String key,
+        type_class_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false
+    ) -> AttributeConfig {
+        """
+        Create deterministic class AttributeConfig and materialize descriptor chain.
+        """
+        let created = construct type_descriptor.create_class(
+            class_config_id = type_class_config_id,
+        )
+    }
+
+    fn update_primitive(
+        primitive_base_type aware_code.primitive.CodePrimitiveBaseType = any,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        exclude_serialization Bool = false
+    ) -> {
+        """
+        Update the mutable scalar contract for an existing primitive AttributeConfig.
+
+        Contract:
+        - `owner_key` and `name` are identity keys and are not mutable here.
+        - The descriptor is replaced through ontology runtime semantics, never by raw OIG patching.
+        - Owner-edge fields such as position/function I/O type are updated on their edge objects.
+        """
+    }
+
+    fn update_enum(
+        enum_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        exclude_serialization Bool = false
+    ) -> {
+        """
+        Update the mutable scalar contract for an existing enum AttributeConfig.
+
+        Contract:
+        - `owner_key` and `name` are identity keys and are not mutable here.
+        - The enum target must already exist as committed ontology truth.
+        - Owner-edge fields such as position/function I/O type are updated on their edge objects.
+        """
+    }
+
+    fn update_class(
+        type_class_config_id UUID,
+        description String? = null,
+        default_value String? = null,
+        is_primary Bool = false,
+        is_public Bool = true,
+        is_required Bool = false,
+        is_unique Bool = false,
+        is_virtual Bool = false,
+        exclude_serialization Bool = false
+    ) -> {
+        """
+        Update the mutable scalar contract for an existing class AttributeConfig.
+
+        Contract:
+        - `owner_key` and `name` are identity keys and are not mutable here.
+        - The class target must already exist as committed ontology truth.
+        - Owner-edge fields such as position/function I/O type are updated on their edge objects.
+        """
+    }
+}
+
+/// Load root descriptor eagerly.
+ann attribute.AttributeConfig::type_descriptor load eager
+ann attribute.AttributeConfig identity standalone

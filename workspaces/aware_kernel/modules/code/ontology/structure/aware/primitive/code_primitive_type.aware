@@ -1,0 +1,108 @@
+/// Primitive type representation.
+///
+/// Rich representation of primitive types supporting nested structures.
+///
+/// This class can represent complex nested types like:
+/// - Lists of dictionaries
+/// - Dictionaries with specific key/value types
+/// - Union types
+/// - And more
+class CodePrimitiveType {
+    signature String key
+    base_type CodePrimitiveBaseType
+
+    // For arrays/lists/sets
+    item_type CodePrimitiveType? = null
+
+    // For dictionaries
+    key_type CodePrimitiveType? = null
+    value_type CodePrimitiveType? = null
+
+    // For tuple types with heterogeneous elements
+    element_types CodePrimitiveType[] @CodePrimitiveTypeElementType
+
+    // For union types
+    union_types CodePrimitiveType[] @CodePrimitiveTypeUnionType
+
+    // For additional type parameters (like min/max length, pattern, etc.)
+    constraints JsonObject?
+
+    fn create construct(
+        signature String key,
+        base_type CodePrimitiveBaseType,
+        constraints JsonObject? = null
+    ) -> CodePrimitiveType {
+        """
+        Create deterministic primitive type root from canonical structural signature.
+        """
+    }
+
+    fn create_item_type(
+        signature String key,
+        base_type CodePrimitiveBaseType,
+        constraints JsonObject? = null
+    ) -> CodePrimitiveType {
+        """
+        Create the item type for array/set-like primitive shapes.
+        """
+        let created = construct item_type.create(
+            signature = signature,
+            base_type = base_type,
+            constraints = constraints
+        )
+    }
+
+    fn create_key_type(
+        signature String key,
+        base_type CodePrimitiveBaseType,
+        constraints JsonObject? = null
+    ) -> CodePrimitiveType {
+        """
+        Create the key type for dict-like primitive shapes.
+        """
+        let created = construct key_type.create(
+            signature = signature,
+            base_type = base_type,
+            constraints = constraints
+        )
+    }
+
+    fn create_value_type(
+        signature String key,
+        base_type CodePrimitiveBaseType,
+        constraints JsonObject? = null
+    ) -> CodePrimitiveType {
+        """
+        Create the value type for dict-like primitive shapes.
+        """
+        let created = construct value_type.create(
+            signature = signature,
+            base_type = base_type,
+            constraints = constraints
+        )
+    }
+
+    fn create_element_slot(position Int key) -> CodePrimitiveTypeElementType {
+        """
+        Create one ordered tuple element slot under this primitive type.
+        """
+        let created = construct element_types.build(position = position)
+    }
+
+    fn create_union_slot(position Int key) -> CodePrimitiveTypeUnionType {
+        """
+        Create one ordered union member slot under this primitive type.
+        """
+        let created = construct union_types.build(position = position)
+    }
+}
+
+ann primitive.CodePrimitiveType identity standalone
+
+/// Load tuple/union edges eagerly so codec consumers can traverse without separate fetches.
+ann primitive.CodePrimitiveType::element_types::CodePrimitiveTypeElementType load eager
+ann primitive.CodePrimitiveType::union_types::CodePrimitiveTypeUnionType load eager
+
+/// Self-edge disambiguation: association endpoint role name + derived FK naming.
+ann primitive.CodePrimitiveType::element_types::CodePrimitiveTypeElementType override relationship name element_type
+ann primitive.CodePrimitiveType::union_types::CodePrimitiveTypeUnionType override relationship name union_type

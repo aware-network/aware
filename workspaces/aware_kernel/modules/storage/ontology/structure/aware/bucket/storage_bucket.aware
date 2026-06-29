@@ -3,7 +3,7 @@ class StorageBucket {
     allowed_mime_types String[]
     backend StorageBackend = local
     config JsonObject?
-    name String
+    name String key
 
     fn build construct (
         name String key,

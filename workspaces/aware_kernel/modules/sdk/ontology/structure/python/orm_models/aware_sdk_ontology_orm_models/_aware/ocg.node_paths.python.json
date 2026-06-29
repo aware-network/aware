@@ -1,0 +1,77 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "e5dc7c14-c154-531c-8355-68abfb42c819",
+      "node_type": "class",
+      "entity_id": "146f1646-6a3d-58ab-96b9-7ffa3667ca3b",
+      "relative_path": "sdk/sdk_config.py"
+    },
+    {
+      "node_id": "aa670113-3f81-5759-a767-4a78478f9dc4",
+      "node_type": "class",
+      "entity_id": "26b1b986-3ece-54d5-ad7b-5d50436a38b2",
+      "relative_path": "sdk/sdk_operation.py"
+    },
+    {
+      "node_id": "02755dd0-0400-5164-9295-a2ecf87e84f0",
+      "node_type": "class",
+      "entity_id": "393837f2-331c-5068-80ec-b7dabde71b75",
+      "relative_path": "sdk/sdk_operation_api_capability_endpoint.py"
+    },
+    {
+      "node_id": "a6653b7e-1df1-52f7-b1d6-fee964f0d7ef",
+      "node_type": "class",
+      "entity_id": "157c5c91-4bfd-50d6-8541-3307e2f11cb4",
+      "relative_path": "sdk/sdk_operation_call.py"
+    },
+    {
+      "node_id": "26ace5b8-eb08-50fc-a963-d69478c7beae",
+      "node_type": "class",
+      "entity_id": "f8e16ae4-b241-5e8f-93d0-1298a9b22ecf",
+      "relative_path": "sdk/sdk_operation_dependency.py"
+    },
+    {
+      "node_id": "65f7e291-ba1e-5ead-aaf2-b71176a302e1",
+      "node_type": "class",
+      "entity_id": "8c1aaa28-8aa8-5530-8e54-4209a6a67a71",
+      "relative_path": "sdk/sdk_package.py"
+    },
+    {
+      "node_id": "8b59436d-64ab-56ce-913c-d34c32a4f0c8",
+      "node_type": "class",
+      "entity_id": "a09c72bf-fcda-5317-8550-aca8ec000ab8",
+      "relative_path": "sdk/sdk_package_api_package.py"
+    },
+    {
+      "node_id": "80901c6c-4b24-5a23-8fb2-73b12ca874c6",
+      "node_type": "class",
+      "entity_id": "8d2242d6-e2e0-59fa-b4b2-e70894d4c6ce",
+      "relative_path": "sdk/sdk_package_dependency.py"
+    },
+    {
+      "node_id": "880e0dad-85a7-588e-b36e-9f5f73a2f107",
+      "node_type": "class",
+      "entity_id": "38c2d232-24ca-5d8a-b0e6-02023f9eb88c",
+      "relative_path": "sdk/sdk_package_implementation_package.py"
+    },
+    {
+      "node_id": "c173e5c1-e556-5bb7-9ab0-84da9c935e75",
+      "node_type": "class",
+      "entity_id": "fb4700b5-da13-5947-b9fc-af5e2b582aa3",
+      "relative_path": "sdk/sdk_package_object_config_graph_package.py"
+    },
+    {
+      "node_id": "5ae88c7c-19f6-5407-96be-003c1c627681",
+      "node_type": "class",
+      "entity_id": "a828776e-f2f7-5982-8797-1d9c59abb857",
+      "relative_path": "sdk/sdk_surface.py"
+    },
+    {
+      "node_id": "e8e882ad-16db-580b-bc82-47fd168cd81c",
+      "node_type": "class",
+      "entity_id": "ce242d31-16cd-5493-86f9-2fba0f873932",
+      "relative_path": "sdk/sdk_surface_method.py"
+    }
+  ]
+}

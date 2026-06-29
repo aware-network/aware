@@ -1,0 +1,24 @@
+// Code Package Config projection (v0)
+//
+// Contract:
+// - CodePackageConfig is the Code-owned package config/materialization contract root.
+// - Config input/output/runtime-context rows stay local contract vocabulary.
+// - Concrete package instances are reached through an explicit portal to CodePackage.
+// - This projection does not duplicate package-owned code/test internals.
+projection CodePackageConfig {
+    root aware_code.package.CodePackageConfig
+
+    aware_code.package.CodePackageConfig::inputs
+    aware_code.package.CodePackageConfig::outputs
+    aware_code.package.CodePackageConfig::runtime_contexts
+
+    // Portal to the package-owned code/test surface.
+    aware_code.package.CodePackageConfig::packages CodePackage
+
+    observable home instance default {
+        """
+        Code package config contract surface with typed materialization
+        vocabulary and portal-backed concrete package instances.
+        """
+    }
+}

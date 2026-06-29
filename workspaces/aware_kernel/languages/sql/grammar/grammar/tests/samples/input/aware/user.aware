@@ -1,0 +1,6 @@
+type User {
+    // Attributes
+    name String
+    email String unique
+    age Int?
+}

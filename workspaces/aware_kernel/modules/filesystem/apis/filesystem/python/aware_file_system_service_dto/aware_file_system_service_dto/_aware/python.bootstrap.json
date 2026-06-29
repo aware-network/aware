@@ -1,0 +1,9 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_file_system_service_dto.file_system.service_operation",
+    "aware_file_system_service_dto.file_system.types"
+  ],
+  "package_prefix": "aware_file_system_service_dto",
+  "version": "v1"
+}

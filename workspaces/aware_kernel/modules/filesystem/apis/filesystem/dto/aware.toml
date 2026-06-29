@@ -1,0 +1,12 @@
+aware = 1
+
+[package]
+package_name = "file-system-service-dto"
+fqn_prefix = "aware_file_system_service_dto"
+kind = "api"
+version_number = 1
+title = "FileSystem Service DTO"
+description = "API-owned OCG DTO package for FileSystem service payloads and receipts."
+
+[build]
+environment_slug = "aware_file_system_service_dto"

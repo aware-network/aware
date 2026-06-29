@@ -1,0 +1,43 @@
+class Api {
+    // Relationships
+    api_graphs ApiGraph[]
+    api_capabilities ApiCapability[]
+
+    // Attributes
+    name String key
+    description String?
+
+    fn create construct (name String key, description String? = null) -> Api {
+        """
+        Create deterministic public/vendor API identity.
+        """
+    }
+
+    fn create_api_graph (
+        object_config_graph_id UUID,
+        description String? = null
+    ) -> ApiGraph {
+        """
+        Create one API graph bridge under this Api.
+        """
+        let created = construct api_graphs.create(
+            object_config_graph_id = object_config_graph_id,
+            description = description,
+        )
+    }
+
+    fn create_capability (
+        name String,
+        description String? = null
+    ) -> ApiCapability {
+        """
+        Create one named reusable API capability contract under this Api identity.
+        """
+        let created = construct api_capabilities.create(
+            name = name,
+            description = description,
+        )
+    }
+}
+
+ann api.Api identity standalone

@@ -1,0 +1,27 @@
+class CodeSectionProjectionView {
+    // Relationships
+    key_segment aware_content.part.ContentPartTextSegment
+    body_segment aware_content.part.ContentPartTextSegment
+
+    // Attributes
+    /// Fully qualified view key within the projection (e.g. `onboarding.welcome`).
+    key String
+    /// One of: `construct`, `instance`.
+    kind String
+    is_default Bool = false
+    description String?
+
+    fn build construct(
+        key String key,
+        kind String,
+        is_default Bool = false,
+        description String? = null
+    ) -> CodeSectionProjectionView {
+        """
+        Build a deterministic projection-view entry under a projection.
+        """
+    }
+}
+
+ann projection.CodeSectionProjectionView::key_segment load eager
+ann projection.CodeSectionProjectionView::body_segment load eager

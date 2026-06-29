@@ -1,0 +1,6 @@
+enum MigrationStatus {
+    applied
+    failed
+    pending
+    validated
+}

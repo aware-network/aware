@@ -1,0 +1,22 @@
+// Code Semantic Contract Profile Package projection (v0)
+//
+// Contract:
+// - Code owns manifest-backed semantic contract profile package artifacts.
+// - Workspace dependency/profile resolution may target this package artifact
+//   without granting product package imports.
+// - Runtime imports are explicit while semantic contract handlers remain a
+//   dynamic import substrate.
+projection CodeSemanticContractProfilePackage {
+    root semantic.CodeSemanticContractProfilePackage
+
+    semantic.CodeSemanticContractProfilePackage::code_package CodePackage
+    semantic.CodeSemanticContractProfilePackage::semantic_contract_profile CodeSemanticContractProfile
+    semantic.CodeSemanticContractProfilePackage::runtime_imports
+
+    observable home instance default {
+        """
+        Manifest-backed semantic contract profile package and dynamic runtime
+        import surface.
+        """
+    }
+}

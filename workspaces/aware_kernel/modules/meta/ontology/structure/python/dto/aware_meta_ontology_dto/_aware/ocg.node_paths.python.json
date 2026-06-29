@@ -1,0 +1,899 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "be371384-7f4e-56d0-8669-229ba716629f",
+      "node_type": "class",
+      "entity_id": "855ea5ea-6eba-56bd-8b12-fe91007efc72",
+      "relative_path": "annotation/code_section_annotation_discriminate.py"
+    },
+    {
+      "node_id": "8e7060b4-30d5-5a84-846c-08b02236f18b",
+      "node_type": "class",
+      "entity_id": "6f953f9b-e7b4-5a5d-a0c4-62f62c46f95c",
+      "relative_path": "annotation/code_section_annotation_identity.py"
+    },
+    {
+      "node_id": "0bba417d-717c-5981-b2b9-4028fc9380be",
+      "node_type": "class",
+      "entity_id": "3d3ba553-602b-547d-ae2c-189ae4bb0bf0",
+      "relative_path": "annotation/code_section_annotation_index.py"
+    },
+    {
+      "node_id": "d2c8672a-f172-58d1-b2a1-6ca39e741de2",
+      "node_type": "class",
+      "entity_id": "4f9c37d5-21aa-5d31-ac0c-4a6c5d9aface",
+      "relative_path": "annotation/code_section_annotation_load.py"
+    },
+    {
+      "node_id": "755cc3a7-ce8d-5f1f-88fe-d47e15703003",
+      "node_type": "class",
+      "entity_id": "f917db54-4b11-5a71-8de7-deaba58276af",
+      "relative_path": "annotation/code_section_annotation_oneof.py"
+    },
+    {
+      "node_id": "c1ba8f8d-7186-562c-bef4-d95b4f6d2620",
+      "node_type": "class",
+      "entity_id": "657b7a54-7c82-59c6-a1bd-c271524b6b82",
+      "relative_path": "annotation/code_section_annotation_overlay.py"
+    },
+    {
+      "node_id": "8c130bae-fb8b-5b08-9fd1-43d137010aa8",
+      "node_type": "class",
+      "entity_id": "fe0cb225-4f38-5346-8f07-b1569cd2fc38",
+      "relative_path": "annotation/code_section_annotation_override.py"
+    },
+    {
+      "node_id": "d8bbd800-006d-5996-a49e-d1db6b675435",
+      "node_type": "class",
+      "entity_id": "13697706-4c3a-53f4-8f44-7b510bc19201",
+      "relative_path": "annotation/code_section_annotation_reference.py"
+    },
+    {
+      "node_id": "ee85b0ba-7510-5d8c-a7ea-eedca0792806",
+      "node_type": "class",
+      "entity_id": "7e13f938-4ddc-5efb-b3f4-04bee9625992",
+      "relative_path": "annotation/code_section_annotation_storage.py"
+    },
+    {
+      "node_id": "b33731f9-3e76-5dc5-a8bf-488d8199bc9d",
+      "node_type": "class",
+      "entity_id": "8a206f1e-584b-5740-8d9b-81329d618097",
+      "relative_path": "attribute/attribute.py"
+    },
+    {
+      "node_id": "1fab994e-8afa-55db-88ea-fd6db50c1d39",
+      "node_type": "class",
+      "entity_id": "36aaefc9-fdae-5aa5-bf35-5bfe834fd274",
+      "relative_path": "attribute/attribute_change.py"
+    },
+    {
+      "node_id": "e87018a7-09ca-5364-a599-dedccef5c58c",
+      "node_type": "class",
+      "entity_id": "615953a6-9d3f-50fa-b385-08a8343d22fa",
+      "relative_path": "attribute/attribute_config.py"
+    },
+    {
+      "node_id": "b5912968-1074-554d-b895-d32daccb0bae",
+      "node_type": "class",
+      "entity_id": "ce74cc33-075b-56fb-b039-4026690bb13d",
+      "relative_path": "attribute/attribute_config_overlay.py"
+    },
+    {
+      "node_id": "d8d5601f-2e6b-53be-a67a-6c4effe5a79f",
+      "node_type": "class",
+      "entity_id": "d3fac7a1-b0db-5840-8fa8-b3d30f3ab9df",
+      "relative_path": "attribute/attribute_type_descriptor.py"
+    },
+    {
+      "node_id": "c4fce0e9-6a1a-592a-a276-a61e08774bdc",
+      "node_type": "class",
+      "entity_id": "22abd186-841e-52d6-ac87-272e757af4be",
+      "relative_path": "attribute/attribute_type_descriptor_link.py"
+    },
+    {
+      "node_id": "4201b0e8-9988-5bd4-b81c-41d78785462a",
+      "node_type": "class",
+      "entity_id": "60ff07e7-650c-5e3b-9104-6db5bb1d115e",
+      "relative_path": "attribute/attribute_value.py"
+    },
+    {
+      "node_id": "79aba3a8-5a23-57be-a915-df92c8d2c2a8",
+      "node_type": "class",
+      "entity_id": "a3373b45-8bc1-52d2-b668-b4dfed009484",
+      "relative_path": "attribute/attribute_value_change.py"
+    },
+    {
+      "node_id": "903567f8-cf52-5202-b93e-56702d192d66",
+      "node_type": "class",
+      "entity_id": "8953423d-af05-5b44-b6de-34e8b2ac6dd2",
+      "relative_path": "attribute/attribute_value_link.py"
+    },
+    {
+      "node_id": "e2a147fd-9395-54cb-9b48-cb63646dee10",
+      "node_type": "class",
+      "entity_id": "a44f6edd-0d2c-558b-b687-91f5eb609471",
+      "relative_path": "attribute/attribute_value_link_change.py"
+    },
+    {
+      "node_id": "7c109a83-a8c9-55d2-8567-e71e1061fe56",
+      "node_type": "class",
+      "entity_id": "ac3205d2-d898-5380-bfca-b2998c43d978",
+      "relative_path": "class_/class_config.py"
+    },
+    {
+      "node_id": "053e82ec-9566-5892-a1cb-d307d6f4e7e6",
+      "node_type": "class",
+      "entity_id": "d53964f4-3a0b-582d-9bc2-91f401f6dca7",
+      "relative_path": "class_/class_config_attribute_config.py"
+    },
+    {
+      "node_id": "1b94892c-64f9-5f18-929d-474a004cef85",
+      "node_type": "class",
+      "entity_id": "4bcf8bf7-3fcd-5d03-a0aa-f4e3c7be86b1",
+      "relative_path": "class_/class_config_function_config.py"
+    },
+    {
+      "node_id": "430e5f61-e850-5f28-a182-09a5baca68e4",
+      "node_type": "class",
+      "entity_id": "9d268813-f20b-56ff-bb38-b0a9a4567d10",
+      "relative_path": "class_/class_config_overlay.py"
+    },
+    {
+      "node_id": "766aac48-de40-59d6-8982-e752aead9286",
+      "node_type": "class",
+      "entity_id": "ceb3aa47-df0e-5429-ad25-99dae61bacd7",
+      "relative_path": "class_/class_config_relationship.py"
+    },
+    {
+      "node_id": "3c60dc70-9e69-5722-8cb1-19d578b91017",
+      "node_type": "class",
+      "entity_id": "24d12de6-3c84-5c50-9c83-97b913ae90ef",
+      "relative_path": "class_/class_config_relationship_association.py"
+    },
+    {
+      "node_id": "5fc4086a-97d1-5821-ab11-f5acb6d8a3cc",
+      "node_type": "class",
+      "entity_id": "9c3fecaf-6630-52f8-98ba-98829d593a8f",
+      "relative_path": "class_/class_config_relationship_attribute.py"
+    },
+    {
+      "node_id": "0f28b52e-e15b-59bb-9874-b5d00093f8d8",
+      "node_type": "class",
+      "entity_id": "386f612d-244d-5b3a-bf29-95644d517f79",
+      "relative_path": "class_/class_instance.py"
+    },
+    {
+      "node_id": "09723826-8892-555e-90fd-146851ce9535",
+      "node_type": "class",
+      "entity_id": "fe60c6b0-a162-5115-8d5a-ffc399acc232",
+      "relative_path": "class_/class_instance_attribute.py"
+    },
+    {
+      "node_id": "072bf512-0187-530d-945c-9e37d8d6fd39",
+      "node_type": "class",
+      "entity_id": "026e43b7-fcc2-52fd-ab7b-abea0df320b6",
+      "relative_path": "class_/class_instance_change.py"
+    },
+    {
+      "node_id": "8bb28081-a60c-5f7c-a621-87ca124fcd27",
+      "node_type": "class",
+      "entity_id": "c6619ca6-b035-599b-9498-e7c9258e17d8",
+      "relative_path": "class_/class_instance_identity.py"
+    },
+    {
+      "node_id": "d50bc0da-24d1-5348-81fe-889fc4e9e44f",
+      "node_type": "class",
+      "entity_id": "4f887c7d-5b6a-5791-8731-2a9208b49c27",
+      "relative_path": "class_/class_instance_relationship.py"
+    },
+    {
+      "node_id": "6a2916bf-f5b6-5718-ac3b-a86abe1d3388",
+      "node_type": "class",
+      "entity_id": "55a89728-a7fc-59e1-bd80-88d30b0ae531",
+      "relative_path": "class_/class_instance_relationship_change.py"
+    },
+    {
+      "node_id": "915898ab-4059-5a98-9005-673012af458c",
+      "node_type": "class",
+      "entity_id": "fa742756-9b18-504c-b5dd-428542f3841e",
+      "relative_path": "class_/class_instance_relationship_identity.py"
+    },
+    {
+      "node_id": "d8aa07be-1c08-5d89-b83a-44edb8bbd194",
+      "node_type": "class",
+      "entity_id": "a78f4526-f95d-5aba-9ff7-2b40463209d7",
+      "relative_path": "class_/inline_value_instance.py"
+    },
+    {
+      "node_id": "3c01d054-cde9-5c88-b63d-cba94a7580cc",
+      "node_type": "class",
+      "entity_id": "16086af4-f646-5a3b-b78d-3d1559a7ff1e",
+      "relative_path": "class_/inline_value_instance_attribute.py"
+    },
+    {
+      "node_id": "185fe505-947c-5497-b805-d3fa73693440",
+      "node_type": "class",
+      "entity_id": "04785c94-a9dc-55b2-8d80-d5ae02788c94",
+      "relative_path": "enum/enum.py"
+    },
+    {
+      "node_id": "94531906-896e-5070-8fe1-32ac44722c3b",
+      "node_type": "class",
+      "entity_id": "01df40c5-84e7-55b9-b16f-66fa73f4e6b6",
+      "relative_path": "enum/enum_change.py"
+    },
+    {
+      "node_id": "4fabc622-bee3-52bd-b108-757a60760922",
+      "node_type": "class",
+      "entity_id": "282599c0-61dc-5e72-a457-a343989277fd",
+      "relative_path": "enum/enum_config.py"
+    },
+    {
+      "node_id": "53a86f03-aff6-5a07-809d-292a8573e99c",
+      "node_type": "class",
+      "entity_id": "bdb44936-c458-5d9c-a9f5-67212acd1159",
+      "relative_path": "enum/enum_config_overlay.py"
+    },
+    {
+      "node_id": "f76f2e0d-670d-5bd5-b2e0-bb51fff84f23",
+      "node_type": "class",
+      "entity_id": "ea70b7f4-8092-591d-9eed-56b518828b8c",
+      "relative_path": "enum/enum_option.py"
+    },
+    {
+      "node_id": "a80a7e82-dd4b-5346-8829-d4bfadee9de4",
+      "node_type": "class",
+      "entity_id": "f08b68c3-ff3e-5f18-9979-c8a4fcf23745",
+      "relative_path": "enum/enum_option_overlay.py"
+    },
+    {
+      "node_id": "a0ff13ad-909c-5f78-b3c5-b48670543869",
+      "node_type": "class",
+      "entity_id": "2b11f642-38bd-5869-b67b-c8cf5d524cd8",
+      "relative_path": "function/function_call.py"
+    },
+    {
+      "node_id": "c75267ed-4c1d-5daf-b012-76425ac3ef28",
+      "node_type": "class",
+      "entity_id": "322bedbb-2f65-5dab-b5e0-68cb502cde4a",
+      "relative_path": "function/function_call_argument.py"
+    },
+    {
+      "node_id": "16cc6f8b-7cb7-5f77-bf37-c4e0d6ee2a41",
+      "node_type": "class",
+      "entity_id": "95b54c55-c785-5fcf-a84d-4c2d49b6c7dd",
+      "relative_path": "function/function_call_response.py"
+    },
+    {
+      "node_id": "0f286d0a-c3c8-5977-b8ff-c5bd2fdd7835",
+      "node_type": "class",
+      "entity_id": "545796bf-2f3a-55da-bf12-17e3a6e22f65",
+      "relative_path": "function/function_call_response_attribute.py"
+    },
+    {
+      "node_id": "b21467a6-b176-5c06-846a-59bfaf828e05",
+      "node_type": "class",
+      "entity_id": "c5552197-3cad-5275-87a1-d47ef3b1e619",
+      "relative_path": "function/function_call_response_commit.py"
+    },
+    {
+      "node_id": "5b7887bf-121d-5994-94cb-9a1f4399b48d",
+      "node_type": "class",
+      "entity_id": "be3308e7-f15c-550b-8ce2-bb6305423c02",
+      "relative_path": "function/function_config.py"
+    },
+    {
+      "node_id": "00a25b83-8f46-59c0-9a7c-7d17f61f7762",
+      "node_type": "class",
+      "entity_id": "c7ad7495-ce85-5e58-a538-6cbc4aaeb937",
+      "relative_path": "function/function_config_attribute_config.py"
+    },
+    {
+      "node_id": "3fd7e2b4-7945-5ffd-84a6-483b3698025b",
+      "node_type": "class",
+      "entity_id": "a4df4f29-a955-5f78-8aaa-9841c84c35e5",
+      "relative_path": "function/function_config_invocation.py"
+    },
+    {
+      "node_id": "bcebf886-9d68-5b36-b2e6-32ed8eae997f",
+      "node_type": "class",
+      "entity_id": "dd145668-20fa-54d8-a17c-d39f9cb27cc5",
+      "relative_path": "function/function_config_overlay.py"
+    },
+    {
+      "node_id": "2dd54726-7145-5c08-846a-5808edaff18b",
+      "node_type": "class",
+      "entity_id": "37e775bf-2989-5f1c-bdfd-b6ca72544db5",
+      "relative_path": "function/function_impl.py"
+    },
+    {
+      "node_id": "fd2b6fb1-42e5-5f69-9ec0-2cb10515301f",
+      "node_type": "class",
+      "entity_id": "523af0e8-2e37-56f7-8b2c-d6c8f5eaa3cd",
+      "relative_path": "function/function_impl_instruction.py"
+    },
+    {
+      "node_id": "8a87df68-a2ec-5705-92f6-8a43ec3d4831",
+      "node_type": "class",
+      "entity_id": "0e9106d0-99f0-531b-9fd2-1d4e3621d913",
+      "relative_path": "function/function_impl_instruction_construct.py"
+    },
+    {
+      "node_id": "35b4deea-3dee-5cc9-80c8-7f07d489de8b",
+      "node_type": "class",
+      "entity_id": "666c0708-6e2c-56c4-8346-e0fac9d85c9a",
+      "relative_path": "function/function_impl_instruction_construct_assignment.py"
+    },
+    {
+      "node_id": "9c424a07-0fbd-5f72-b9ad-bda5a6e6b827",
+      "node_type": "class",
+      "entity_id": "88a971f5-178f-5b1c-ae29-c562b93c27a6",
+      "relative_path": "function/function_impl_instruction_delete.py"
+    },
+    {
+      "node_id": "b95706d1-c52c-5fc8-bb99-901e3dddfa1d",
+      "node_type": "class",
+      "entity_id": "5c5d7430-9306-5502-96a3-2486aeff5a16",
+      "relative_path": "function/function_impl_instruction_invoke.py"
+    },
+    {
+      "node_id": "44e08342-79bb-528e-99db-c30b846396bc",
+      "node_type": "class",
+      "entity_id": "923f7ecf-a644-5d3d-a692-7463c4c792d0",
+      "relative_path": "function/function_impl_instruction_invoke_attribute_config.py"
+    },
+    {
+      "node_id": "d3fabfd0-f878-5148-bb2f-77eed915fc51",
+      "node_type": "class",
+      "entity_id": "d2da5a41-edd8-5d16-876e-a06a9252eafc",
+      "relative_path": "function/function_impl_instruction_let.py"
+    },
+    {
+      "node_id": "7355b7c3-b941-59ab-9486-49e3c7bba0bf",
+      "node_type": "class",
+      "entity_id": "0b07fdff-3505-5a6d-906c-51d418182584",
+      "relative_path": "function/function_impl_instruction_require.py"
+    },
+    {
+      "node_id": "c013cb43-15c3-55dd-8757-2e5195048641",
+      "node_type": "class",
+      "entity_id": "f0efabd0-4e1b-5c12-8948-6fbb892e4a16",
+      "relative_path": "function/function_impl_instruction_require_operand.py"
+    },
+    {
+      "node_id": "167ab94f-e7ec-5028-9858-a05ece0d468e",
+      "node_type": "class",
+      "entity_id": "bf7be671-75b0-5077-bf2a-7029b9fabd0b",
+      "relative_path": "function/function_impl_instruction_set.py"
+    },
+    {
+      "node_id": "1c724344-35a7-57af-88ab-b4a6ca062df9",
+      "node_type": "class",
+      "entity_id": "6664465f-8f9e-518a-84dc-bf87978161ef",
+      "relative_path": "function/function_impl_value_source.py"
+    },
+    {
+      "node_id": "1675a4f8-8c5c-585b-9801-99d02c13b65a",
+      "node_type": "class",
+      "entity_id": "c38986a2-94b9-53d8-8e27-79313b0a4117",
+      "relative_path": "function/function_impl_value_source_literal_primitive.py"
+    },
+    {
+      "node_id": "963ab4c6-6e60-520e-b612-c34ea1357928",
+      "node_type": "class",
+      "entity_id": "f12a49af-e1d8-53cb-b794-c4585f828384",
+      "relative_path": "function/function_impl_value_source_read_path.py"
+    },
+    {
+      "node_id": "0406e126-610a-5054-8894-12d4e1097762",
+      "node_type": "class",
+      "entity_id": "b43867f9-8d1e-5b66-8fab-9f195d2aeede",
+      "relative_path": "function/function_impl_value_source_read_path_segment.py"
+    },
+    {
+      "node_id": "70248a12-ed1f-542f-a632-0ab92b5d5c63",
+      "node_type": "class",
+      "entity_id": "9600091b-e605-5278-bdec-348df9469583",
+      "relative_path": "function/function_impl_value_source_transform.py"
+    },
+    {
+      "node_id": "39566847-649c-51b8-aeaf-0d5e066af26c",
+      "node_type": "class",
+      "entity_id": "2d0c5135-02cb-50ab-a243-4792ff2f4e05",
+      "relative_path": "function/function_impl_value_source_transform_operand.py"
+    },
+    {
+      "node_id": "f95da426-38fc-54f6-9ddc-127c734af83d",
+      "node_type": "class",
+      "entity_id": "57ae65cc-b16f-5212-8a54-7b15340787a2",
+      "relative_path": "graph/config/object_config_graph.py"
+    },
+    {
+      "node_id": "677cce7d-f08f-5694-a0b9-dd7d123b34db",
+      "node_type": "class",
+      "entity_id": "17573b06-f91c-58f8-88c6-ca5bebbb5947",
+      "relative_path": "graph/config/object_config_graph_annotation.py"
+    },
+    {
+      "node_id": "7fdb2c05-c7cc-502e-8669-eb87a7363883",
+      "node_type": "class",
+      "entity_id": "24306491-dfa2-5f5e-8531-3ddfa9d4eca7",
+      "relative_path": "graph/config/object_config_graph_binding.py"
+    },
+    {
+      "node_id": "eb500ff3-0adb-50e7-a121-dece91499c7b",
+      "node_type": "class",
+      "entity_id": "23595872-2435-505b-a693-47e7044c1a96",
+      "relative_path": "graph/config/object_config_graph_binding_class.py"
+    },
+    {
+      "node_id": "31bf907e-937d-50b8-afca-113b081662b9",
+      "node_type": "class",
+      "entity_id": "79e96270-dac3-5814-aac2-0e62a8491b7c",
+      "relative_path": "graph/config/object_config_graph_binding_formula.py"
+    },
+    {
+      "node_id": "279e25ae-a255-5057-8225-6e0b4ca1d44e",
+      "node_type": "class",
+      "entity_id": "a3ff672b-5ead-51bd-8092-cbde9d868023",
+      "relative_path": "graph/config/object_config_graph_binding_formula_segment_reference.py"
+    },
+    {
+      "node_id": "7c8572be-d22c-5346-bbb5-169e90142a5b",
+      "node_type": "class",
+      "entity_id": "38fa9612-53b7-50c6-b238-f71ff57be603",
+      "relative_path": "graph/config/object_config_graph_delta.py"
+    },
+    {
+      "node_id": "2c63ef81-7388-5aca-89bf-5a08921b8f6f",
+      "node_type": "class",
+      "entity_id": "90669d02-925b-5715-a3b7-fb3c978e6735",
+      "relative_path": "graph/config/object_config_graph_delta.py"
+    },
+    {
+      "node_id": "2e276b85-1477-5c07-b076-a3f1c18184be",
+      "node_type": "class",
+      "entity_id": "5ff06af4-0efb-5723-83c4-63e9a2803729",
+      "relative_path": "graph/config/object_config_graph_identity.py"
+    },
+    {
+      "node_id": "7f4617c6-dc54-5a22-932b-e08115b95eaa",
+      "node_type": "class",
+      "entity_id": "773ee7a3-1db4-5649-b9d4-3c76dbcfe0a2",
+      "relative_path": "graph/config/object_config_graph_mirror.py"
+    },
+    {
+      "node_id": "8758ad3b-4361-5457-9b0a-c0850d2537ce",
+      "node_type": "class",
+      "entity_id": "102207b6-cdea-5c2c-ae69-2ee93be3f704",
+      "relative_path": "graph/config/object_config_graph_node.py"
+    },
+    {
+      "node_id": "c5567200-1751-53f0-9a7b-86a343342f12",
+      "node_type": "class",
+      "entity_id": "dc72e132-aac5-59b3-bf57-e15d0d60270f",
+      "relative_path": "graph/config/object_config_graph_node_layout.py"
+    },
+    {
+      "node_id": "0fe6fd6e-9cd3-5825-98a4-622b5e84ba77",
+      "node_type": "class",
+      "entity_id": "3073f8ef-2129-5ed4-8c56-eabadfaf52bf",
+      "relative_path": "graph/config/object_config_graph_overlay.py"
+    },
+    {
+      "node_id": "6c9c1aa4-1ecc-5024-8b5f-cc486a15c6c2",
+      "node_type": "class",
+      "entity_id": "2e1a491f-f7f1-5036-a44b-9535a9582da3",
+      "relative_path": "graph/config/object_config_graph_package.py"
+    },
+    {
+      "node_id": "bdc2fedc-03aa-5421-9fab-9fdeea0b0c33",
+      "node_type": "class",
+      "entity_id": "2d82ddbb-0e20-5410-815e-9f51339c4ba1",
+      "relative_path": "graph/config/object_config_graph_package_build.py"
+    },
+    {
+      "node_id": "f7056704-f1cf-5b00-a811-eea1d28500fc",
+      "node_type": "class",
+      "entity_id": "46027c6b-8f73-5a15-89fc-033e359a3a29",
+      "relative_path": "graph/config/object_config_graph_package_dependency.py"
+    },
+    {
+      "node_id": "c6eab8a8-7cec-541e-a319-bae00bfe7a79",
+      "node_type": "class",
+      "entity_id": "e67990d9-608c-5755-bacb-c871de3b7cf5",
+      "relative_path": "graph/config/object_config_graph_package_language_materialization.py"
+    },
+    {
+      "node_id": "68be0068-9f46-5472-bd0e-6cc8b8daaed9",
+      "node_type": "class",
+      "entity_id": "254bd6c4-b110-5e57-95d2-5a47bf78e05f",
+      "relative_path": "graph/config/object_config_graph_package_language_materialization_package.py"
+    },
+    {
+      "node_id": "6f030706-9902-5cd2-9f92-e097f96cc7e3",
+      "node_type": "class",
+      "entity_id": "405d562c-542d-5b1e-870b-1c552f6e6cb9",
+      "relative_path": "graph/config/object_config_graph_relationship.py"
+    },
+    {
+      "node_id": "4ecc75db-348f-5470-a642-4b923aae1f61",
+      "node_type": "class",
+      "entity_id": "a589119f-29a7-51b8-baa4-0982795817c6",
+      "relative_path": "graph/config/object_config_graph_relationship_class.py"
+    },
+    {
+      "node_id": "92ee25a2-1cdc-5777-a9a2-bb0eb408be90",
+      "node_type": "class",
+      "entity_id": "0d824274-d187-5f2b-bb9f-c5a69a518553",
+      "relative_path": "graph/instance/object_instance_graph.py"
+    },
+    {
+      "node_id": "419ae349-0fa1-5f2c-93f6-b2bafd0f7df2",
+      "node_type": "class",
+      "entity_id": "ac95ec59-722d-52c9-9f23-3209f09f4da0",
+      "relative_path": "graph/instance/object_instance_graph_branch.py"
+    },
+    {
+      "node_id": "5fb26089-a2a7-5f5c-9d0d-b02b30bf2656",
+      "node_type": "class",
+      "entity_id": "a22d2949-c06c-5866-9322-315792108f81",
+      "relative_path": "graph/instance/object_instance_graph_branch_relationship.py"
+    },
+    {
+      "node_id": "0c7dc6be-9c34-58cf-a432-476d6f09464c",
+      "node_type": "class",
+      "entity_id": "1c2cd560-5486-5536-89f5-1cde3b2817af",
+      "relative_path": "graph/instance/object_instance_graph_change.py"
+    },
+    {
+      "node_id": "75861d2a-eb0d-5818-b743-b49418886f58",
+      "node_type": "class",
+      "entity_id": "14e83a49-4b04-5ff9-b5ce-cc72759b43fb",
+      "relative_path": "graph/instance/object_instance_graph_commit.py"
+    },
+    {
+      "node_id": "74d3b600-a2d4-5c7c-9c52-aa98f8312fe9",
+      "node_type": "class",
+      "entity_id": "785bc927-42bd-53d2-bded-e1ae398c766e",
+      "relative_path": "graph/instance/object_instance_graph_identity.py"
+    },
+    {
+      "node_id": "eda4075f-c7ca-5441-9b05-72e4eb2d3aec",
+      "node_type": "class",
+      "entity_id": "136e4527-7f39-5dd2-9631-39cfe710ee63",
+      "relative_path": "graph/instance/object_instance_graph_lane.py"
+    },
+    {
+      "node_id": "87e96d79-bd4a-5099-a831-71c75a196f1b",
+      "node_type": "class",
+      "entity_id": "b9518cdd-006d-5efd-bebc-d1054dd5bea0",
+      "relative_path": "graph/instance/object_instance_graph_relationship.py"
+    },
+    {
+      "node_id": "ff60e603-c752-52dd-8870-f3035b8c3825",
+      "node_type": "class",
+      "entity_id": "0b2f6e6d-0d51-5dce-9fa7-a786782df0f0",
+      "relative_path": "graph/projection/object_projection_graph.py"
+    },
+    {
+      "node_id": "49e81464-3edb-5ade-8294-a9cd67c8fa04",
+      "node_type": "class",
+      "entity_id": "03847d0a-cb3f-5366-9808-5195549c62eb",
+      "relative_path": "graph/projection/object_projection_graph_binding.py"
+    },
+    {
+      "node_id": "968cbbe2-c5a5-5eb0-b951-7035c5a7c791",
+      "node_type": "class",
+      "entity_id": "8ce3cbbd-b4e5-50a1-a914-1289ce73d80c",
+      "relative_path": "graph/projection/object_projection_graph_constructor.py"
+    },
+    {
+      "node_id": "f9db1299-0406-5bca-bc6e-dbdb51df0278",
+      "node_type": "class",
+      "entity_id": "2aed4242-2577-5da7-9932-a5acd4d51530",
+      "relative_path": "graph/projection/object_projection_graph_declaration.py"
+    },
+    {
+      "node_id": "59c127cc-3412-52b4-bb7a-a780b204d424",
+      "node_type": "class",
+      "entity_id": "c1356253-0a65-5c70-9366-05186b2739b1",
+      "relative_path": "graph/projection/object_projection_graph_edge.py"
+    },
+    {
+      "node_id": "2e318f81-38e3-535d-95e9-e8c777c5243f",
+      "node_type": "class",
+      "entity_id": "a303d44d-53e1-5c85-8511-5e1509ab1021",
+      "relative_path": "graph/projection/object_projection_graph_identity.py"
+    },
+    {
+      "node_id": "9de2d20a-eb26-5d43-b61a-53968f882f79",
+      "node_type": "class",
+      "entity_id": "f8e2ffa2-6254-5b9d-a822-8f8318707212",
+      "relative_path": "graph/projection/object_projection_graph_node.py"
+    },
+    {
+      "node_id": "003892ec-7f11-53fd-b65b-0fd170dafd02",
+      "node_type": "class",
+      "entity_id": "997e714f-61ec-554e-9b32-4ae2a38287d5",
+      "relative_path": "graph/projection/object_projection_graph_node_key.py"
+    },
+    {
+      "node_id": "219d67d2-8eb0-520d-a5b2-99e5b1b11360",
+      "node_type": "class",
+      "entity_id": "2c740880-fd3a-5341-a7a4-e5f8cba606e0",
+      "relative_path": "graph/projection/object_projection_graph_observable.py"
+    },
+    {
+      "node_id": "1069792b-bcdf-58f7-ae30-410ad584b138",
+      "node_type": "class",
+      "entity_id": "3a7d9c8b-251e-594f-83c9-e5239cd5cf9b",
+      "relative_path": "graph/projection/object_projection_graph_relationship.py"
+    },
+    {
+      "node_id": "626c99f8-07a7-5a93-90ae-3b62ac927666",
+      "node_type": "class",
+      "entity_id": "75756839-a4d7-5fa5-8aa0-38888bada3d1",
+      "relative_path": "primitive/primitive.py"
+    },
+    {
+      "node_id": "e9791a3f-2efd-50b4-ac48-c84b5de9c842",
+      "node_type": "class",
+      "entity_id": "203132b1-f26c-53eb-8695-10c3dc68a657",
+      "relative_path": "primitive/primitive_change.py"
+    },
+    {
+      "node_id": "3fa73593-97dc-54d3-aaee-fb91b8ec53e5",
+      "node_type": "class",
+      "entity_id": "d8ebe67b-b755-53ef-9892-dda94b601b7f",
+      "relative_path": "primitive/primitive_config.py"
+    },
+    {
+      "node_id": "1632d4bc-b7c7-549f-a44b-7ab017d3254e",
+      "node_type": "enum",
+      "entity_id": "d66bae9b-ae2c-5fa1-8ac2-e4392d09031a",
+      "relative_path": "annotation/code_section_annotation_oneof_enums.py"
+    },
+    {
+      "node_id": "6da4fa55-0654-5a65-83fa-cf34a6f899a4",
+      "node_type": "enum",
+      "entity_id": "d603ef26-4cde-5058-b48e-b867fb6d8cc7",
+      "relative_path": "annotation/code_section_annotation_overlay_enums.py"
+    },
+    {
+      "node_id": "1c04fd25-15bc-5e91-b065-01f96adb3732",
+      "node_type": "enum",
+      "entity_id": "609674e3-a52d-57c8-9abd-24512cde3eb2",
+      "relative_path": "annotation/code_section_annotation_override_enums.py"
+    },
+    {
+      "node_id": "74ab4077-ecd1-5aaa-a945-36971867e95c",
+      "node_type": "enum",
+      "entity_id": "b48bba68-87cc-5814-bbee-0f7b1e487bed",
+      "relative_path": "annotation/code_section_annotation_reference_enums.py"
+    },
+    {
+      "node_id": "2f7dd75c-f6a8-5653-9a8b-84c7b94a41ff",
+      "node_type": "enum",
+      "entity_id": "660fcfba-52dc-5105-8833-3bb7cb4c8682",
+      "relative_path": "annotation/code_section_annotation_storage_enums.py"
+    },
+    {
+      "node_id": "e52e9871-143a-52e6-8cbd-bdc03a0fbd95",
+      "node_type": "enum",
+      "entity_id": "7dec715e-05e0-5136-88ea-ec02d8884828",
+      "relative_path": "attribute/attribute_enums.py"
+    },
+    {
+      "node_id": "05a45436-25f3-5827-a367-82a878c2daf3",
+      "node_type": "enum",
+      "entity_id": "e384174b-daa5-5e6d-886e-c50ecc950792",
+      "relative_path": "attribute/attribute_enums.py"
+    },
+    {
+      "node_id": "0766b4cb-db72-591d-ad52-808184a7ed6c",
+      "node_type": "enum",
+      "entity_id": "128d75c9-cbc3-5b4a-8c4b-8d88e73b9def",
+      "relative_path": "attribute/attribute_type_descriptor_enums.py"
+    },
+    {
+      "node_id": "f79b36d1-f99f-5dd5-b901-c555d245ee91",
+      "node_type": "enum",
+      "entity_id": "1be6caf9-cfb3-55fb-9004-007fbf70729c",
+      "relative_path": "attribute/attribute_type_descriptor_enums.py"
+    },
+    {
+      "node_id": "b610b0c6-9711-5a07-98f1-68ef82fba8dc",
+      "node_type": "enum",
+      "entity_id": "82139c17-c502-52ca-9205-d74ad2143e5e",
+      "relative_path": "class_/class_config_enums.py"
+    },
+    {
+      "node_id": "4cb6ac3d-2605-5997-a715-876f47a68fef",
+      "node_type": "enum",
+      "entity_id": "983e4f6b-8dde-5ab9-ae4f-d70622b7404b",
+      "relative_path": "class_/class_config_enums.py"
+    },
+    {
+      "node_id": "947ae048-d1db-5593-80a4-559ac5cd538d",
+      "node_type": "enum",
+      "entity_id": "3d2308dc-97ac-5864-adfb-c159321e59ce",
+      "relative_path": "class_/class_config_relationship_enums.py"
+    },
+    {
+      "node_id": "d1b24146-b193-5a8f-92bb-57557f77501c",
+      "node_type": "enum",
+      "entity_id": "48e94b5a-211c-5adc-b07d-8ab089556ebd",
+      "relative_path": "class_/class_config_relationship_enums.py"
+    },
+    {
+      "node_id": "3b45a32b-1702-535f-be80-93806cc7d826",
+      "node_type": "enum",
+      "entity_id": "6f019fe8-b021-59fe-a892-8f0a1a56ffe0",
+      "relative_path": "class_/class_config_relationship_enums.py"
+    },
+    {
+      "node_id": "6e3cc919-1820-53ec-a6b9-75efc554807f",
+      "node_type": "enum",
+      "entity_id": "8e186a74-a2ae-52ed-9f58-4a1b1363dd18",
+      "relative_path": "class_/class_config_relationship_enums.py"
+    },
+    {
+      "node_id": "b02a7632-c17d-52c3-8d3f-77b19c152830",
+      "node_type": "enum",
+      "entity_id": "b71bd28d-333a-5995-a1fe-52c6bd37780a",
+      "relative_path": "class_/class_config_relationship_enums.py"
+    },
+    {
+      "node_id": "05e87196-9fae-5989-b523-35b5d85c7e09",
+      "node_type": "enum",
+      "entity_id": "c4c4e15d-2947-536d-a477-895a4e8d6ced",
+      "relative_path": "class_/class_config_relationship_enums.py"
+    },
+    {
+      "node_id": "59861ff6-b9f8-5eb5-a217-b84222d86799",
+      "node_type": "enum",
+      "entity_id": "47112a7d-b8ed-58a6-8a72-da5f8eded685",
+      "relative_path": "function/function_config_enums.py"
+    },
+    {
+      "node_id": "a6d40145-e014-5f59-bec1-fce3300e3187",
+      "node_type": "enum",
+      "entity_id": "7f2eafbb-89a7-5f9b-ae77-e7711b9a0f6f",
+      "relative_path": "function/function_config_enums.py"
+    },
+    {
+      "node_id": "930de55d-0f4d-53d4-9ba2-c3013c3e3566",
+      "node_type": "enum",
+      "entity_id": "a085511d-5552-50f4-8d8b-9e4543a6245b",
+      "relative_path": "function/function_config_enums.py"
+    },
+    {
+      "node_id": "cfa8b3e5-2df7-5a09-b6b4-e3292ce0d3d3",
+      "node_type": "enum",
+      "entity_id": "9e84457f-69c7-5b50-8ed7-4a2a3ae9d8d0",
+      "relative_path": "function/function_config_invocation_enums.py"
+    },
+    {
+      "node_id": "0135ef3a-2f94-5fe7-ae62-6c5cbb75ed52",
+      "node_type": "enum",
+      "entity_id": "cc373c2c-55cc-5456-8298-2ea1d7c1218e",
+      "relative_path": "function/function_config_invocation_enums.py"
+    },
+    {
+      "node_id": "e4ac35d9-ce04-5d36-a3da-8af04d1d39b6",
+      "node_type": "enum",
+      "entity_id": "e10176ae-b180-5776-9828-7dac17c37ace",
+      "relative_path": "function/function_impl_enums.py"
+    },
+    {
+      "node_id": "4a548a8b-71c7-5679-86de-5911c97d3b3b",
+      "node_type": "enum",
+      "entity_id": "0484286e-4b57-54a0-8dd3-cb8c0f95b598",
+      "relative_path": "function/function_impl_instruction_enums.py"
+    },
+    {
+      "node_id": "d2cc5b79-4c3f-5156-b54f-d80215b35efe",
+      "node_type": "enum",
+      "entity_id": "0fbc5aa6-e58c-58e8-96b4-09b5e42229cf",
+      "relative_path": "function/function_impl_instruction_enums.py"
+    },
+    {
+      "node_id": "501869bc-eb2f-5764-a047-f19c80fc0dda",
+      "node_type": "enum",
+      "entity_id": "210bb052-1279-57e0-845d-40f26f7b3212",
+      "relative_path": "function/function_impl_instruction_enums.py"
+    },
+    {
+      "node_id": "75e06368-aba0-5a89-9ddb-2eae5bafc99c",
+      "node_type": "enum",
+      "entity_id": "21734a38-34ed-5e8f-befe-59c5e580e498",
+      "relative_path": "function/function_impl_instruction_enums.py"
+    },
+    {
+      "node_id": "649a5c3d-f47d-58f1-aa92-cba261f6693a",
+      "node_type": "enum",
+      "entity_id": "67b917b6-4dc3-5d3f-b403-f8c481de2066",
+      "relative_path": "function/function_impl_instruction_enums.py"
+    },
+    {
+      "node_id": "7eab785c-1e7a-5b65-81ce-b4aff09c7843",
+      "node_type": "enum",
+      "entity_id": "9e7663c2-3068-5047-bf74-477f73df900e",
+      "relative_path": "function/function_impl_instruction_enums.py"
+    },
+    {
+      "node_id": "4a4bc480-18fe-5959-bacb-006591402c6f",
+      "node_type": "enum",
+      "entity_id": "ac1e8efa-6b82-5984-922f-c6fd5566eb8a",
+      "relative_path": "function/function_impl_instruction_enums.py"
+    },
+    {
+      "node_id": "75fdce3d-4923-5e9d-ab2c-0087000fbc84",
+      "node_type": "enum",
+      "entity_id": "ebfd8b6a-2304-5ae0-9666-64a2184a9a60",
+      "relative_path": "function/function_impl_instruction_enums.py"
+    },
+    {
+      "node_id": "5f03102e-8fde-5874-b683-a9cd45a7beb2",
+      "node_type": "enum",
+      "entity_id": "a53b3669-9a15-54d6-82e6-159e5a044984",
+      "relative_path": "graph/config/object_config_graph_annotation_enums.py"
+    },
+    {
+      "node_id": "054d2957-74ac-5726-8171-80a70e01ab0b",
+      "node_type": "enum",
+      "entity_id": "33b58f10-ad43-51d4-b345-19cc96b1143a",
+      "relative_path": "graph/config/object_config_graph_enums.py"
+    },
+    {
+      "node_id": "7a65fa76-8513-5b68-a6a9-de5591d30d8c",
+      "node_type": "enum",
+      "entity_id": "fc7c001c-08cf-535f-839f-fee3f88230b3",
+      "relative_path": "graph/config/object_config_graph_mirror_enums.py"
+    },
+    {
+      "node_id": "d340729a-489d-5a4b-8efd-d77fb79cb03e",
+      "node_type": "enum",
+      "entity_id": "21ea7562-c72e-5b6e-b4f1-03205138d55d",
+      "relative_path": "graph/config/object_config_graph_package_implementation_policy_enums.py"
+    },
+    {
+      "node_id": "27592123-eb3a-54fc-89e2-324b36e6dd8f",
+      "node_type": "enum",
+      "entity_id": "ffac665a-9e2f-518f-a760-09ab149aed1b",
+      "relative_path": "graph/config/object_config_graph_package_implementation_policy_enums.py"
+    },
+    {
+      "node_id": "f1a627fe-9948-5064-8089-5d8007db0c0c",
+      "node_type": "enum",
+      "entity_id": "08961bc5-b736-5e3f-8fe3-4c5cb1a12850",
+      "relative_path": "graph/instance/object_instance_graph_change_enums.py"
+    },
+    {
+      "node_id": "5276de8a-b36e-527e-9b53-5975e61b7a85",
+      "node_type": "enum",
+      "entity_id": "1a04a08f-84d6-5c1e-8767-39ee1c2c9876",
+      "relative_path": "graph/projection/object_projection_graph_enums.py"
+    },
+    {
+      "node_id": "2387b5f8-4b7d-5ca5-85c7-c70b9761c228",
+      "node_type": "enum",
+      "entity_id": "4bd1514e-2e5b-52af-a9f7-4280aea805ef",
+      "relative_path": "graph/projection/object_projection_graph_enums.py"
+    },
+    {
+      "node_id": "a49cabd1-0696-5e2d-862f-7e1b159fe4f7",
+      "node_type": "enum",
+      "entity_id": "dd4761e4-50c0-5ec3-b9fd-f5387d359925",
+      "relative_path": "graph/projection/object_projection_graph_enums.py"
+    },
+    {
+      "node_id": "36d95842-2683-561f-969a-89656e1f5483",
+      "node_type": "enum",
+      "entity_id": "e572ac3b-7c3f-5ad5-b794-cd00874b2e73",
+      "relative_path": "graph/projection/object_projection_graph_enums.py"
+    }
+  ]
+}

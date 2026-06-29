@@ -1,0 +1,13 @@
+/// Simple edge sample for transformer tests
+///
+class Child {
+    name String
+}
+
+class Parent {
+    child Child @ParentChild
+}
+
+edge ParentChild {
+    note String?
+}

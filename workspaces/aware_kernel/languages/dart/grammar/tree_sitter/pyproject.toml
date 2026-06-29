@@ -1,0 +1,16 @@
+[project]
+name = "tree-sitter-dart"
+version = "0.0.1"
+description = "Dart grammar for tree-sitter"
+readme = "README.md"
+authors = [
+  { name = "Aware Team" },
+]
+requires-python = ">=3.12"
+
+[build-system]
+requires = ['setuptools>=68', 'wheel']
+build-backend = "setuptools.build_meta"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tree_sitter_dart"]

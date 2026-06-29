@@ -1,0 +1,48 @@
+class EventConfigConditionConfig {
+    // Relationships
+    condition_config condition.ConditionConfig key
+    event_config_condition_config_scopes EventConfigConditionConfigScope[]
+
+    // Attributes
+    cache_result Bool = false
+    cache_ttl_seconds Int? = null
+    continue_on_fail Bool = true
+    execution_order Int = 0
+    is_enabled Bool = true
+    is_required Bool = false
+    priority Int = 0
+    stop_on_match Bool = false
+
+    fn create construct(
+        condition_config_id UUID key,
+        execution_order Int = 0,
+        priority Int = 0,
+        is_enabled Bool = true,
+        is_required Bool = false,
+        continue_on_fail Bool = true,
+        stop_on_match Bool = false,
+        cache_result Bool = false,
+        cache_ttl_seconds Int? = null
+    ) -> EventConfigConditionConfig {
+        """
+        Create a canonical event-to-condition binding policy node.
+
+        Contract:
+        - Constructor-owned creation path for event-condition links.
+        - Binding references are explicit via event_config_id and condition_config_id.
+        """
+    }
+
+    fn create_scope(
+        object_instance_graph_identity_id UUID,
+        object_instance_graph_branch_id UUID? = null
+    ) -> EventConfigConditionConfigScope {
+        """
+        Create one scope rail under this event-condition policy binding.
+        """
+        let created = construct event_config_condition_config_scopes.create(
+            object_instance_graph_identity_id = object_instance_graph_identity_id,
+            object_instance_graph_branch_id = object_instance_graph_branch_id,
+        )
+    }
+}

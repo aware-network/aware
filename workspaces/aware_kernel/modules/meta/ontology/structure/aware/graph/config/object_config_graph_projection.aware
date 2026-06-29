@@ -1,0 +1,122 @@
+// ObjectConfigGraph projection (v0)
+//
+// Contract:
+// - Canonical config snapshot for meta seeding (OCG -> OIG commit).
+// - Must be derivable from serialized OCG alone (no .aware-only analysis).
+// - Includes all config topology needed for runtime + codegen:
+//   nodes, relationships, overlays, annotations, namespace metadata,
+//   cross-OCG links, and OPG definitions.
+// - Excludes instance graphs and runtime state.
+projection ObjectConfigGraph {
+    root config.ObjectConfigGraph
+    config.ObjectConfigGraph::object_config_graph_identity ObjectConfigGraphIdentity
+
+    /// Nodes
+    config.ObjectConfigGraph::object_config_graph_nodes
+    config.ObjectConfigGraphNode::class_config
+    config.ObjectConfigGraphNode::class_config_relationship
+    config.ObjectConfigGraphNode::enum_config
+    config.ObjectConfigGraphNode::layouts
+
+    /// Enums
+    enum.EnumConfig::enum_options
+
+    /// Class Config Hierarchy
+    class.ClassConfig::class_config_relationships
+    class.ClassConfigRelationship::class_config_relationship_attributes
+    class.ClassConfigRelationship::class_config_relationship_association
+    class.ClassConfigRelationshipAttribute::attribute_config
+    class.ClassConfig::class_config_function_configs
+    class.ClassConfigFunctionConfig::function_config
+    function.FunctionConfig::function_config_attribute_configs
+    function.FunctionConfigAttributeConfig::attribute_config
+    function.FunctionConfig::invocations
+    function.FunctionConfigInvocation::target_function_config
+    function.FunctionConfigInvocation::root_invocation
+    function.FunctionConfigInvocation::class_config_relationship
+
+    /// Function Impl Hierarchy (execution rail; optional during migration)
+    function.FunctionConfig::function_impl
+    function.FunctionImpl::instructions
+    function.FunctionImplInstruction::instruction_let
+    function.FunctionImplInstruction::instruction_invoke
+    function.FunctionImplInstruction::instruction_construct
+    function.FunctionImplInstruction::instruction_set
+    function.FunctionImplInstruction::instruction_require
+    function.FunctionImplInstruction::value_sources
+    function.FunctionImplInstructionInvoke::target_function_config
+    function.FunctionImplInstructionInvoke::class_config_relationship
+    function.FunctionImplInstructionInvoke::attribute_configs
+    function.FunctionImplInstructionInvokeAttributeConfig::attribute_config
+    function.FunctionImplInstructionConstruct::target_class_config
+    function.FunctionImplInstructionConstruct::assignments
+    function.FunctionImplInstructionConstructAssignment::target_class_config_attribute_config
+    function.FunctionImplInstructionConstructAssignment::value_source
+    function.FunctionImplInstructionSet::target_class_config_attribute_config
+    function.FunctionImplInstructionSet::value_source
+    function.FunctionImplInstructionRequire::operands
+    function.FunctionImplInstructionRequireOperand::value_source
+    function.FunctionImplValueSource::source_function_config_attribute_config
+    function.FunctionImplValueSource::source_instruction_let
+    function.FunctionImplValueSource::source_literal_primitive
+    function.FunctionImplValueSource::source_transform
+    function.FunctionImplValueSourceLiteralPrimitive::primitive_config
+    function.FunctionImplValueSourceTransform::output_primitive_config
+    function.FunctionImplValueSourceTransform::operands
+    function.FunctionImplValueSourceTransformOperand::value_source
+
+    class.ClassConfig::class_config_attribute_configs
+    class.ClassConfigAttributeConfig::attribute_config
+    attribute.AttributeConfig::type_descriptor
+    attribute.AttributeTypeDescriptor::child_links
+    attribute.AttributeTypeDescriptorLink::child
+    attribute.AttributeTypeDescriptor::primitive_config
+    primitive.PrimitiveConfig::primitive_type
+
+    /// Overlays
+    config.ObjectConfigGraph::object_config_graph_overlays
+    config.ObjectConfigGraphOverlay::classes
+    config.ObjectConfigGraphOverlay::functions
+    config.ObjectConfigGraphOverlay::attributes
+    config.ObjectConfigGraphOverlay::enums
+    config.ObjectConfigGraphOverlay::enum_options
+
+    /// Annotations
+    config.ObjectConfigGraph::object_config_graph_annotations
+    config.ObjectConfigGraphAnnotation::code_section_annotation_discriminate
+    config.ObjectConfigGraphAnnotation::code_section_annotation_load
+    config.ObjectConfigGraphAnnotation::code_section_annotation_overlay
+    config.ObjectConfigGraphAnnotation::code_section_annotation_override
+    config.ObjectConfigGraphAnnotation::code_section_annotation_oneof
+    config.ObjectConfigGraphAnnotation::code_section_annotation_reference
+    config.ObjectConfigGraphAnnotation::code_section_annotation_index
+
+    /// Projection Declarations (compiler-owned SSOT for OPG membership/portals)
+    config.ObjectConfigGraph::object_projection_graph_declarations
+    projection.ObjectProjectionGraphDeclaration::object_projection_graph_bindings
+
+    /// Mirrors
+    config.ObjectConfigGraph::object_config_graph_mirrors
+
+    /// Cross-OCG Relationships
+    config.ObjectConfigGraph::object_config_graph_bindings ObjectConfigGraphBinding
+    config.ObjectConfigGraph::object_config_graph_relationships
+    config.ObjectConfigGraphRelationship::object_config_graph_relationship_classes
+    config.ObjectConfigGraphRelationshipClass::class_config
+    config.ObjectConfigGraphRelationship::class_config_relationships
+
+    /// OCG<->OPG via cross-OPG relationship
+    config.ObjectConfigGraph::object_projection_graphs ObjectProjectionGraph
+
+    observable classes instance {
+        """
+        ClassConfig-first surface over ObjectConfigGraph class nodes and attributes.
+        """
+    }
+
+    observable editor instance default {
+        """
+        Commit-driven ObjectConfigGraph editor/viewer surface for Workspace graph navigation.
+        """
+    }
+}

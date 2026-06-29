@@ -1,0 +1,10 @@
+{
+  "dependency_import_roots": [
+    "aware_code_service_dto"
+  ],
+  "modules": [
+    "aware_code_service_protocol.protocols"
+  ],
+  "package_prefix": "aware_code_service_protocol",
+  "version": "v1"
+}

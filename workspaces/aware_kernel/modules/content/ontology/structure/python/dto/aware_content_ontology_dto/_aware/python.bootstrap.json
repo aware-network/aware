@@ -1,0 +1,32 @@
+{
+  "dependency_import_roots": [
+    "aware_storage_ontology_dto"
+  ],
+  "modules": [
+    "aware_content_ontology_dto.chain.content_chain",
+    "aware_content_ontology_dto.chain.content_chain_content",
+    "aware_content_ontology_dto.chain.content_chain_section",
+    "aware_content_ontology_dto.content.content",
+    "aware_content_ontology_dto.content.content_enums",
+    "aware_content_ontology_dto.content.content_index",
+    "aware_content_ontology_dto.content.content_layout",
+    "aware_content_ontology_dto.part.content_part",
+    "aware_content_ontology_dto.part.content_part_content",
+    "aware_content_ontology_dto.part.content_part_content_layout",
+    "aware_content_ontology_dto.part.content_part_enums",
+    "aware_content_ontology_dto.part.content_part_file",
+    "aware_content_ontology_dto.part.content_part_multimodal_index",
+    "aware_content_ontology_dto.part.content_part_text",
+    "aware_content_ontology_dto.part.content_part_text_editor_patch",
+    "aware_content_ontology_dto.part.content_part_text_index",
+    "aware_content_ontology_dto.part.content_part_text_segment",
+    "aware_content_ontology_dto.part.content_part_text_segment_translation",
+    "aware_content_ontology_dto.part.content_part_text_style",
+    "aware_content_ontology_dto.stable_ids"
+  ],
+  "package_prefix": "aware_content_ontology_dto",
+  "pydantic_model_dependency_import_roots": [
+    "aware_storage_ontology_dto"
+  ],
+  "version": "v1"
+}

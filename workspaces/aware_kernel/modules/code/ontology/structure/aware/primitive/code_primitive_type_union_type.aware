@@ -1,0 +1,17 @@
+/// Edge linking a union-like CodePrimitiveType to its member types.
+///
+/// Modeled as an explicit edge to support:
+/// - self-referential unions without ambiguous FK names
+/// - sharing member nodes across multiple parents (M2M semantics)
+/// - stable ordering for deterministic renders via `position` (optional)
+edge CodePrimitiveTypeUnionType {
+    // Attributes
+    position Int key
+
+    fn build construct(position Int key) -> CodePrimitiveTypeUnionType {
+        """
+        Create one ordered union member slot under a CodePrimitiveType.
+        """
+    }
+}
+

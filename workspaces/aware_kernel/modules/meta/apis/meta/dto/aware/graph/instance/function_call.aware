@@ -1,0 +1,146 @@
+/// Canonical Meta graph function-call DTOs.
+///
+/// These payloads are the Graph-OS protocol boundary for Product A clients and
+/// Product B services. Graph commit authority remains Meta-owned; environment,
+/// process, thread, node, and service orchestration belongs to higher service
+/// adapters, not to graph function-call payloads.
+
+class MetaGraphInvokeFunctionRequest {
+    actor_id UUID
+    domain_branch_id UUID?
+    domain_projection_hash String?
+    call_target graph.instance.MetaGraphFunctionCallTarget = instance
+    target_object_id UUID?
+    object_projection_graph_id UUID?
+    function_id UUID
+    args JsonArray = []
+    kwargs JsonObject = {}
+    expected_graph_hash_pre String?
+    expected_head_commit_id UUID?
+    commit Bool = true
+    publish Bool = false
+}
+
+class MetaGraphInvokeFunctionResponse {
+    status String
+    actor_id UUID?
+    domain_branch_id UUID?
+    domain_projection_hash String?
+    payload JsonValue?
+    error String?
+    logs String[] = []
+    execution_time_ms Int?
+    root_object_id UUID?
+    graph_hash_pre String?
+    graph_hash_post String?
+    changes JsonArray = []
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    function_call_id UUID?
+    function_call_response_id UUID?
+    required_meta_reactions graph.instance.MetaRequiredReactionReceipt[] = []
+    commit_event graph.instance.MetaCommitEventEnvelope?
+}
+
+class MetaGraphInvokeTemporalFunctionRequest {
+    actor_id UUID
+    domain_branch_id UUID
+    domain_projection_hash String
+    call_target graph.instance.MetaGraphFunctionCallTarget = instance
+    target_object_id UUID?
+    object_projection_graph_id UUID?
+    function_id UUID
+    before_oig JsonObject
+    args JsonArray = []
+    kwargs JsonObject = {}
+    expected_graph_hash_pre String?
+    expected_head_commit_id UUID?
+}
+
+class MetaGraphInvokeTemporalFunctionResponse {
+    status String
+    actor_id UUID?
+    domain_branch_id UUID?
+    domain_projection_hash String?
+    payload JsonValue?
+    error String?
+    logs String[] = []
+    execution_time_ms Int?
+    root_object_id UUID?
+    graph_hash_pre String?
+    graph_hash_post String?
+    changes JsonArray = []
+    before_oig JsonObject?
+    after_oig JsonObject?
+    function_call_id UUID?
+    function_call_response_id UUID?
+}
+
+class MetaGraphGetLaneHeadRequest {
+    actor_id UUID?
+    domain_branch_id UUID
+    domain_projection_hash String
+}
+
+class MetaGraphGetLaneHeadResponse {
+    status String
+    actor_id UUID?
+    domain_branch_id UUID
+    domain_projection_hash String
+    error String?
+    domain_commit_id UUID?
+    graph_hash_post String?
+    object_instance_graph_id UUID?
+    root_object_id UUID?
+    head_version Int?
+}
+
+class MetaGraphGetObjectInstanceGraphCommitRequest {
+    actor_id UUID?
+    domain_branch_id UUID
+    domain_projection_hash String
+    domain_commit_id UUID
+}
+
+class MetaGraphGetObjectInstanceGraphCommitResponse {
+    status String
+    actor_id UUID?
+    domain_branch_id UUID
+    domain_projection_hash String
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    object_instance_graph_id UUID?
+    object_instance_graph_identity_id UUID?
+    root_object_id UUID?
+    graph_hash_pre String?
+    graph_hash_post String?
+    source_language String?
+    commit_author_id UUID?
+    commit_created_at_unix_ms Int?
+    commit JsonObject?
+    error String?
+}
+
+class MetaGraphResolveProjectionRequest {
+    actor_id UUID?
+    projection_name String?
+    projection_hash String?
+    object_projection_graph_id UUID?
+    include_available Bool = false
+}
+
+class MetaGraphResolveProjectionResponse {
+    status String
+    actor_id UUID?
+    projection_name String?
+    projection_hash String?
+    object_projection_graph_id UUID?
+    object_projection_graph_identity_id UUID?
+    object_config_graph_id UUID?
+    object_config_graph_identity_id UUID?
+    language String?
+    supports_virtual_build Bool?
+    matched_projection_hashes String[] = []
+    available_projection_names String[] = []
+    error String?
+}

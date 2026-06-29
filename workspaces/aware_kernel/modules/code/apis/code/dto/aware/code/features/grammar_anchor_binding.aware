@@ -1,0 +1,156 @@
+/// Direction supported by one grammar-anchor graph binding.
+enum CodeGrammarAnchorBindingDirection {
+    bidirectional
+    source_to_graph
+    graph_to_source
+}
+
+/// Resolution status for grammar-anchor graph binding evidence.
+enum CodeGrammarAnchorBindingResolutionStatus {
+    resolved
+    blocked
+    skipped
+}
+
+/// Code-owned graph selector for one semantic graph field.
+class CodeGraphFieldSelector : inline_value {
+    provider_key String?
+    semantic_owner String?
+    subject_kind String?
+    subject_type String?
+    semantic_key String?
+    object_key String?
+    field_path String?
+    field_name String?
+    class_config_id UUID?
+    class_fqn String?
+    class_name String?
+    class_config_attribute_config_id UUID?
+    attribute_config_id UUID?
+    attribute_name String?
+    attribute_path String?
+    metadata JsonObject?
+}
+
+/// Compatibility selector for one OCG class attribute field.
+class CodeGraphAttributeSelector augment code.CodeGraphFieldSelector {
+    compatibility_selector_kind String = "ocg_attribute"
+}
+
+/// Binding from one tree-sitter grammar rule field anchor to one graph selector.
+class CodeGrammarAnchorBinding : inline_value {
+    binding_key String
+    language String = "aware"
+    grammar_profile_key String?
+    provider_key String?
+    lane_key String?
+    grammar_rule_name String
+    anchor_field_path String
+    anchor_role String = "graph_attribute_value"
+    graph_selector code.CodeGraphFieldSelector
+    value_domain String = "text"
+    direction code.CodeGrammarAnchorBindingDirection = bidirectional
+    renderer_key String?
+    render_policy_key String?
+    compatibility_section_type String?
+    compatibility_segment_name String?
+    metadata JsonObject?
+}
+
+/// Source fixture used to prove a grammar anchor resolves through the parser.
+class CodeGrammarAnchorFixture : inline_value {
+    fixture_key String
+    source_text String
+    binding_key String?
+    expected_text String?
+    metadata JsonObject?
+}
+
+/// Resolved parser evidence for one grammar-anchor graph binding.
+class CodeGrammarAnchorTextEvidence : inline_value {
+    binding_key String
+    fixture_key String?
+    language String = "aware"
+    grammar_rule_name String
+    anchor_field_path String
+    parser_node_kind String?
+    anchor_node_kind String?
+    relative_path String?
+    content_part_text_id UUID?
+    content_part_text_segment_id UUID?
+    byte_start Int
+    byte_end Int
+    text String?
+    text_hash String?
+    resolved_object_key String?
+    resolved_attribute_id UUID?
+    metadata JsonObject?
+}
+
+/// Draft graph change implied by a source text change over a grammar anchor.
+class CodeGrammarAnchorGraphChangeDraft : inline_value {
+    binding_key String
+    operation String = "update"
+    graph_selector code.CodeGraphFieldSelector
+    before_value String?
+    after_value String?
+    text_evidence code.CodeGrammarAnchorTextEvidence?
+    metadata JsonObject?
+}
+
+/// Text target evidence for a graph-to-source update over a grammar anchor.
+class CodeGrammarAnchorTextTargetEvidence : inline_value {
+    binding_key String
+    graph_selector code.CodeGraphFieldSelector
+    text_evidence code.CodeGrammarAnchorTextEvidence?
+    replacement_text String?
+    before_hash String?
+    after_hash String?
+    metadata JsonObject?
+}
+
+/// Validate grammar-anchor graph bindings and optional parse fixtures.
+class ValidateCodeGrammarAnchorBindingRequest augment code.CodeServiceRequest {
+    operation String = "validate_grammar_anchor_binding"
+    bindings code.CodeGrammarAnchorBinding[] = []
+    fixtures code.CodeGrammarAnchorFixture[] = []
+    strict Bool = true
+}
+
+class ValidateCodeGrammarAnchorBindingResponse augment code.CodeServiceResponse {
+    operation String = "validate_grammar_anchor_binding"
+    valid Bool = false
+    status code.CodeGrammarAnchorBindingResolutionStatus = blocked
+    diagnostics String[] = []
+    binding_count Int = 0
+    fixture_count Int = 0
+    evidence code.CodeGrammarAnchorTextEvidence[] = []
+}
+
+/// Resolve grammar-anchor fixtures into byte evidence and read-only graph/text drafts.
+class ResolveCodeGrammarAnchorBindingEvidenceRequest augment code.CodeServiceRequest {
+    operation String = "resolve_grammar_anchor_binding_evidence"
+    bindings code.CodeGrammarAnchorBinding[] = []
+    fixtures code.CodeGrammarAnchorFixture[] = []
+    replacement_values JsonObject?
+    strict Bool = true
+}
+
+class ResolveCodeGrammarAnchorBindingEvidenceResponse augment code.CodeServiceResponse {
+    operation String = "resolve_grammar_anchor_binding_evidence"
+    resolved Bool = false
+    status code.CodeGrammarAnchorBindingResolutionStatus = blocked
+    diagnostics String[] = []
+    evidence code.CodeGrammarAnchorTextEvidence[] = []
+    graph_change_drafts code.CodeGrammarAnchorGraphChangeDraft[] = []
+    text_targets code.CodeGrammarAnchorTextTargetEvidence[] = []
+    binding_count Int = 0
+    fixture_count Int = 0
+    evidence_count Int = 0
+}
+
+ann code.ValidateCodeGrammarAnchorBindingRequest::operation discriminate tag "validate_grammar_anchor_binding"
+ann code.ResolveCodeGrammarAnchorBindingEvidenceRequest::operation discriminate tag "resolve_grammar_anchor_binding_evidence"
+
+ann code.ValidateCodeGrammarAnchorBindingResponse::operation discriminate tag "validate_grammar_anchor_binding"
+ann code.ResolveCodeGrammarAnchorBindingEvidenceResponse::operation discriminate tag "resolve_grammar_anchor_binding_evidence"

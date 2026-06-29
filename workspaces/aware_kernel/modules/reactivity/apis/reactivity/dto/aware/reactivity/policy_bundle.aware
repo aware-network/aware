@@ -1,0 +1,229 @@
+/// Reactivity policy bundle registration DTOs.
+///
+/// Contract:
+/// - Producers describe condition/event/action policy bundles through the
+///   Reactivity API.
+/// - Reactivity owns deterministic id resolution and policy installation.
+/// - v0 service tests may use an in-memory registry; durable installation must
+///   later write config graph truth through generated Meta/Environment rails.
+
+class ReactivityPolicyPrimitivePredicateSpec {
+    value JsonValue?
+    range_min JsonValue?
+    range_max JsonValue?
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyEnumPredicateSpec {
+    enum_config_id UUID?
+    enum_config_ref String?
+    enum_option_ids UUID[] = []
+    enum_option_refs String[] = []
+    match_mode String = "any_of"
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyRelationshipPredicateSpec {
+    class_config_relationship_id UUID?
+    relationship_ref String?
+    eval_mode String = "exists"
+    count_threshold Int?
+    nested_condition_config_id UUID?
+    nested_condition_name String?
+    nested_condition ReactivityPolicyConditionPredicateSpec?
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyAttributePredicateSpec {
+    attribute_config_id UUID?
+    attribute_ref String?
+    operator String = "equals"
+    negate Bool = false
+    primitive ReactivityPolicyPrimitivePredicateSpec?
+    enum ReactivityPolicyEnumPredicateSpec?
+    relationship ReactivityPolicyRelationshipPredicateSpec?
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyClassPredicateSpec {
+    class_config_id UUID?
+    class_ref String?
+    class_selection String = "base_class"
+    class_logic String = "all"
+    require_existence Bool = true
+    attributes ReactivityPolicyAttributePredicateSpec[] = []
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyConditionPredicateSpec {
+    logic_strategy String = "all"
+    classes ReactivityPolicyClassPredicateSpec[] = []
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyConditionConfigSpec {
+    name String
+    description String
+    logic_strategy String = "all"
+    is_enabled Bool = true
+    is_system Bool = false
+    config_id UUID?
+    predicate ReactivityPolicyConditionPredicateSpec?
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyEventConfigSpec {
+    name String
+    description String
+    event_type String = "condition"
+    delivery_mode String = "immediate"
+    priority String = "normal"
+    is_enabled Bool = true
+    is_system Bool = false
+    require_authentication Bool = true
+    valid_sources String[] = []
+    allowed_roles String[] = []
+    event_schema JsonObject = {}
+    batch_window_ms Int?
+    config_id UUID?
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyActionConfigSpec {
+    name String
+    description String
+    action_type String
+    is_enabled Bool = true
+    is_system Bool = false
+    require_authentication Bool = true
+    allowed_roles String[] = []
+    action_schema JsonObject = {}
+    config_id UUID?
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyEventConditionBindingSpec {
+    event_config_name String?
+    condition_config_name String?
+    event_config_id UUID?
+    condition_config_id UUID?
+    execution_order Int = 0
+    priority Int = 0
+    is_enabled Bool = true
+    is_required Bool = false
+    continue_on_fail Bool = true
+    stop_on_match Bool = false
+    cache_result Bool = false
+    cache_ttl_seconds Int?
+    binding_id UUID?
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyEventActionBindingSpec {
+    event_config_name String?
+    action_config_name String?
+    event_config_id UUID?
+    action_config_id UUID?
+    execution_order Int = 0
+    priority Int = 0
+    is_enabled Bool = true
+    is_required Bool = false
+    continue_on_fail Bool = true
+    binding_id UUID?
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyBundleSpec {
+    owner_ref String
+    policy_key String
+    version Int = 1
+    semantic_source_ref String?
+    profile_key String?
+    idempotency_key String?
+    condition_configs ReactivityPolicyConditionConfigSpec[] = []
+    event_configs ReactivityPolicyEventConfigSpec[] = []
+    action_configs ReactivityPolicyActionConfigSpec[] = []
+    event_condition_bindings ReactivityPolicyEventConditionBindingSpec[] = []
+    event_action_bindings ReactivityPolicyEventActionBindingSpec[] = []
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyInstalledConditionConfig {
+    name String
+    condition_config_id UUID
+    status String = "ensured"
+}
+
+class ReactivityPolicyInstalledEventConfig {
+    name String
+    event_config_id UUID
+    status String = "ensured"
+}
+
+class ReactivityPolicyInstalledActionConfig {
+    name String
+    action_config_id UUID
+    action_type String
+    status String = "ensured"
+}
+
+class ReactivityPolicyInstalledEventConditionBinding {
+    event_config_id UUID
+    condition_config_id UUID
+    event_config_condition_config_id UUID
+    status String = "ensured"
+}
+
+class ReactivityPolicyInstalledEventActionBinding {
+    event_config_id UUID
+    action_config_id UUID
+    event_config_action_config_id UUID
+    status String = "ensured"
+}
+
+class ReactivityPolicyBundleReceipt {
+    bundle_id UUID
+    owner_ref String
+    policy_key String
+    version Int
+    semantic_source_ref String?
+    idempotency_key String?
+    condition_configs ReactivityPolicyInstalledConditionConfig[] = []
+    event_configs ReactivityPolicyInstalledEventConfig[] = []
+    action_configs ReactivityPolicyInstalledActionConfig[] = []
+    event_condition_bindings ReactivityPolicyInstalledEventConditionBinding[] = []
+    event_action_bindings ReactivityPolicyInstalledEventActionBinding[] = []
+    metadata JsonObject = {}
+}
+
+class ReactivityPolicyBundleEnsureRequest {
+    request_id UUID?
+    subscriber_id String?
+    bundle ReactivityPolicyBundleSpec
+    validate_only Bool = false
+}
+
+class ReactivityPolicyBundleEnsureResponse {
+    request_id UUID?
+    accepted Bool = true
+    validate_only Bool = false
+    status String = "ensured"
+    receipt ReactivityPolicyBundleReceipt?
+    info String?
+    error String?
+}
+
+class ReactivityPolicyBundleListRequest {
+    request_id UUID?
+    subscriber_id String?
+    owner_ref String?
+    policy_key String?
+}
+
+class ReactivityPolicyBundleListResponse {
+    request_id UUID?
+    accepted Bool = true
+    receipts ReactivityPolicyBundleReceipt[] = []
+    info String?
+    error String?
+}

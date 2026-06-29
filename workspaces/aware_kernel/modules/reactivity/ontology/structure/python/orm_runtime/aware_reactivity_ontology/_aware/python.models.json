@@ -1,0 +1,483 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "3fcc925b-0fec-5bb6-a730-7f69d3ea35c6",
+      "module": "aware_reactivity_ontology.action.action",
+      "name": "Action",
+      "aware_class_ref": "aware_reactivity.action.Action",
+      "functions": [
+        {
+          "function_config_id": "623b23e8-7c6b-5b8a-bda7-37a499d34943",
+          "name": "create_via_event",
+          "input_model": "ActionCreateViaEventInput",
+          "output_model": "ActionCreateViaEventOutput"
+        },
+        {
+          "function_config_id": "f06a179a-3149-5428-99dd-57c85ecb1b0a",
+          "name": "set_status",
+          "input_model": "ActionSetStatusInput",
+          "output_model": "ActionSetStatusOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ee737ee5-7ddd-5c57-add0-85ffaff346ae",
+      "module": "aware_reactivity_ontology.action.action_config",
+      "name": "ActionConfig",
+      "aware_class_ref": "aware_reactivity.action.ActionConfig",
+      "functions": [
+        {
+          "function_config_id": "be1ffe1a-a087-540e-81a1-bb7050763653",
+          "name": "create",
+          "input_model": "ActionConfigCreateInput",
+          "output_model": "ActionConfigCreateOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5c9eb8d9-0406-52af-bbd0-95fbb3c0bc98",
+      "module": "aware_reactivity_ontology.action.action_execution",
+      "name": "ActionExecution",
+      "aware_class_ref": "aware_reactivity.action.ActionExecution",
+      "functions": [
+        {
+          "function_config_id": "cb1f3fb8-0d7e-544e-9f40-38bf53aec140",
+          "name": "add_feedback",
+          "input_model": "ActionExecutionAddFeedbackInput",
+          "output_model": "ActionExecutionAddFeedbackOutput"
+        },
+        {
+          "function_config_id": "7f8c5855-ff61-5f26-87c9-32ae115bc8d7",
+          "name": "create_via_action_intent",
+          "input_model": "ActionExecutionCreateViaActionIntentInput",
+          "output_model": "ActionExecutionCreateViaActionIntentOutput"
+        },
+        {
+          "function_config_id": "a7498469-da70-53d5-a6ed-da968e6bbe87",
+          "name": "set_status",
+          "input_model": "ActionExecutionSetStatusInput",
+          "output_model": "ActionExecutionSetStatusOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "17951659-8fcd-5925-9655-326b91b68e75",
+      "module": "aware_reactivity_ontology.action.action_feedback",
+      "name": "ActionFeedback",
+      "aware_class_ref": "aware_reactivity.action.ActionFeedback",
+      "functions": [
+        {
+          "function_config_id": "3789597c-05d9-5798-b4b0-c886c3e0f53e",
+          "name": "create_via_action_execution",
+          "input_model": "ActionFeedbackCreateViaActionExecutionInput",
+          "output_model": "ActionFeedbackCreateViaActionExecutionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0faf2317-32da-5417-b7b2-4803be6280db",
+      "module": "aware_reactivity_ontology.action.action_intent",
+      "name": "ActionIntent",
+      "aware_class_ref": "aware_reactivity.action.ActionIntent",
+      "functions": [
+        {
+          "function_config_id": "c01c2a13-db41-5eb4-a9d7-e0258d698f93",
+          "name": "create_via_event",
+          "input_model": "ActionIntentCreateViaEventInput",
+          "output_model": "ActionIntentCreateViaEventOutput"
+        },
+        {
+          "function_config_id": "3e3904da-cfd2-5dd5-ac70-dc140a7ea87f",
+          "name": "set_status",
+          "input_model": "ActionIntentSetStatusInput",
+          "output_model": "ActionIntentSetStatusOutput"
+        },
+        {
+          "function_config_id": "8ea8d082-338d-5a13-be2b-4bf01255888b",
+          "name": "start_execution",
+          "input_model": "ActionIntentStartExecutionInput",
+          "output_model": "ActionIntentStartExecutionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "83f84aaa-53fe-5982-940b-2ea82c41d6c8",
+      "module": "aware_reactivity_ontology.condition.condition",
+      "name": "Condition",
+      "aware_class_ref": "aware_reactivity.condition.Condition",
+      "functions": [
+        {
+          "function_config_id": "899fee67-2067-5c21-9d3f-e45f119ca213",
+          "name": "create",
+          "input_model": "ConditionCreateInput",
+          "output_model": "ConditionCreateOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4ee96aab-24ad-5bec-be0f-46ef4e7ee8a5",
+      "module": "aware_reactivity_ontology.condition.condition_config",
+      "name": "ConditionConfig",
+      "aware_class_ref": "aware_reactivity.condition.ConditionConfig",
+      "functions": [
+        {
+          "function_config_id": "e3b7d40d-4e44-5562-9e50-a9e91aa77e2c",
+          "name": "add_class_config",
+          "input_model": "ConditionConfigAddClassConfigInput",
+          "output_model": "ConditionConfigAddClassConfigOutput"
+        },
+        {
+          "function_config_id": "f1861b0b-39e1-52ff-9220-93245154f1d3",
+          "name": "create",
+          "input_model": "ConditionConfigCreateInput",
+          "output_model": "ConditionConfigCreateOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b84c4b54-fb17-5668-ba7e-172a58d19d41",
+      "module": "aware_reactivity_ontology.condition.condition_config_attribute_config",
+      "name": "ConditionConfigAttributeConfig",
+      "aware_class_ref": "aware_reactivity.condition.ConditionConfigAttributeConfig",
+      "functions": [
+        {
+          "function_config_id": "95784162-3a8f-59c8-aadd-fe686918b06a",
+          "name": "create_via_condition_config_class_config",
+          "input_model": "ConditionConfigAttributeConfigCreateViaConditionConfigClassConfigInput",
+          "output_model": "ConditionConfigAttributeConfigCreateViaConditionConfigClassConfigOutput"
+        },
+        {
+          "function_config_id": "7662a5fd-cc7a-539d-b025-4466c01cee0b",
+          "name": "set_enum_config",
+          "input_model": "ConditionConfigAttributeConfigSetEnumConfigInput",
+          "output_model": "ConditionConfigAttributeConfigSetEnumConfigOutput"
+        },
+        {
+          "function_config_id": "7376ca2c-6088-5cf5-ba14-7343100cb150",
+          "name": "set_primitive_config",
+          "input_model": "ConditionConfigAttributeConfigSetPrimitiveConfigInput",
+          "output_model": "ConditionConfigAttributeConfigSetPrimitiveConfigOutput"
+        },
+        {
+          "function_config_id": "f9c4773a-328c-5173-adef-bffd8caad042",
+          "name": "set_relationship_config",
+          "input_model": "ConditionConfigAttributeConfigSetRelationshipConfigInput",
+          "output_model": "ConditionConfigAttributeConfigSetRelationshipConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5c2601fc-d9e5-5790-a289-6d0502e8eb4d",
+      "module": "aware_reactivity_ontology.condition.condition_config_class_config",
+      "name": "ConditionConfigClassConfig",
+      "aware_class_ref": "aware_reactivity.condition.ConditionConfigClassConfig",
+      "functions": [
+        {
+          "function_config_id": "15a0436e-74a9-5863-8509-3f314b061486",
+          "name": "add_attribute_config",
+          "input_model": "ConditionConfigClassConfigAddAttributeConfigInput",
+          "output_model": "ConditionConfigClassConfigAddAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "e62ca5a0-4d31-5d20-81ad-efe042933a1e",
+          "name": "create_via_condition_config",
+          "input_model": "ConditionConfigClassConfigCreateViaConditionConfigInput",
+          "output_model": "ConditionConfigClassConfigCreateViaConditionConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "dc27b639-66c8-5bca-9136-c00bc988ecdf",
+      "module": "aware_reactivity_ontology.condition.condition_config_enum_config",
+      "name": "ConditionConfigEnumConfig",
+      "aware_class_ref": "aware_reactivity.condition.ConditionConfigEnumConfig",
+      "functions": [
+        {
+          "function_config_id": "f7c20b16-288c-5353-a83a-c8634e4ba26d",
+          "name": "add_enum_option",
+          "input_model": "ConditionConfigEnumConfigAddEnumOptionInput",
+          "output_model": "ConditionConfigEnumConfigAddEnumOptionOutput"
+        },
+        {
+          "function_config_id": "f16cd817-52e9-54ae-879d-def8eab8144b",
+          "name": "create_via_condition_config_attribute_config",
+          "input_model": "ConditionConfigEnumConfigCreateViaConditionConfigAttributeConfigInput",
+          "output_model": "ConditionConfigEnumConfigCreateViaConditionConfigAttributeConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "745afee4-c250-5f5b-b9bf-d0c37f8a90a9",
+      "module": "aware_reactivity_ontology.condition.condition_config_enum_option",
+      "name": "ConditionConfigEnumOption",
+      "aware_class_ref": "aware_reactivity.condition.ConditionConfigEnumOption",
+      "functions": [
+        {
+          "function_config_id": "54bad343-dfcd-5ff0-8031-b4bb6e6665d3",
+          "name": "create_via_condition_config_enum_config",
+          "input_model": "ConditionConfigEnumOptionCreateViaConditionConfigEnumConfigInput",
+          "output_model": "ConditionConfigEnumOptionCreateViaConditionConfigEnumConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f9430ace-376f-5409-bc22-b6608d20ed27",
+      "module": "aware_reactivity_ontology.condition.condition_config_primitive_config",
+      "name": "ConditionConfigPrimitiveConfig",
+      "aware_class_ref": "aware_reactivity.condition.ConditionConfigPrimitiveConfig",
+      "functions": [
+        {
+          "function_config_id": "afcd4b60-9048-57b2-873e-0c5fab0b2a27",
+          "name": "create_via_condition_config_attribute_config",
+          "input_model": "ConditionConfigPrimitiveConfigCreateViaConditionConfigAttributeConfigInput",
+          "output_model": "ConditionConfigPrimitiveConfigCreateViaConditionConfigAttributeConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "50bd4b3a-42b7-5914-afbb-9fb5cca5f192",
+      "module": "aware_reactivity_ontology.condition.condition_config_relationship_config",
+      "name": "ConditionConfigRelationshipConfig",
+      "aware_class_ref": "aware_reactivity.condition.ConditionConfigRelationshipConfig",
+      "functions": [
+        {
+          "function_config_id": "a766f008-c052-5c02-a6b1-3e058c913cc5",
+          "name": "create_via_condition_config_attribute_config",
+          "input_model": "ConditionConfigRelationshipConfigCreateViaConditionConfigAttributeConfigInput",
+          "output_model": "ConditionConfigRelationshipConfigCreateViaConditionConfigAttributeConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5d257356-b469-51eb-bbf3-9b21d86d8227",
+      "module": "aware_reactivity_ontology.event.event",
+      "name": "Event",
+      "aware_class_ref": "aware_reactivity.event.Event",
+      "functions": [
+        {
+          "function_config_id": "39a2d405-f73b-5024-93f2-38db08f4958b",
+          "name": "add_action",
+          "input_model": "EventAddActionInput",
+          "output_model": "EventAddActionOutput"
+        },
+        {
+          "function_config_id": "9ba77fbf-7bcc-5174-acd7-4c9bc41d07b9",
+          "name": "add_action_intent",
+          "input_model": "EventAddActionIntentInput",
+          "output_model": "EventAddActionIntentOutput"
+        },
+        {
+          "function_config_id": "043c9983-c8ef-55e2-944a-11e575b9960c",
+          "name": "add_event_condition",
+          "input_model": "EventAddEventConditionInput",
+          "output_model": "EventAddEventConditionOutput"
+        },
+        {
+          "function_config_id": "2701a309-9e4f-5c6c-9909-e9f3af9e7707",
+          "name": "create",
+          "input_model": "EventCreateInput",
+          "output_model": "EventCreateOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ab2007f3-c925-5120-b72b-a746eb05a59b",
+      "module": "aware_reactivity_ontology.event.event_condition",
+      "name": "EventCondition",
+      "aware_class_ref": "aware_reactivity.event.EventCondition",
+      "functions": [
+        {
+          "function_config_id": "a7e574be-390e-5fd9-9ca8-f4fb0886a784",
+          "name": "create_via_event",
+          "input_model": "EventConditionCreateViaEventInput",
+          "output_model": "EventConditionCreateViaEventOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "91fbd6a2-1659-5716-b7a0-65fcd2a5cdbf",
+      "module": "aware_reactivity_ontology.event.event_config",
+      "name": "EventConfig",
+      "aware_class_ref": "aware_reactivity.event.EventConfig",
+      "functions": [
+        {
+          "function_config_id": "1195dbe0-b7ed-5557-80c8-daf621023ec8",
+          "name": "add_action_config",
+          "input_model": "EventConfigAddActionConfigInput",
+          "output_model": "EventConfigAddActionConfigOutput"
+        },
+        {
+          "function_config_id": "5efebbcd-df3a-51da-a8b8-563ae89998b6",
+          "name": "add_condition_config",
+          "input_model": "EventConfigAddConditionConfigInput",
+          "output_model": "EventConfigAddConditionConfigOutput"
+        },
+        {
+          "function_config_id": "d558ec6b-8fd1-5eb5-b2ae-49a995811f0f",
+          "name": "create",
+          "input_model": "EventConfigCreateInput",
+          "output_model": "EventConfigCreateOutput"
+        },
+        {
+          "function_config_id": "902b2303-a47e-5468-8d8f-5c0788a13bd1",
+          "name": "update_sources",
+          "input_model": "EventConfigUpdateSourcesInput",
+          "output_model": "EventConfigUpdateSourcesOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2080e6e6-492b-5cc8-9e48-1adb875e4930",
+      "module": "aware_reactivity_ontology.event.event_config_action_config",
+      "name": "EventConfigActionConfig",
+      "aware_class_ref": "aware_reactivity.event.EventConfigActionConfig",
+      "functions": [
+        {
+          "function_config_id": "b0184ee1-edcd-519e-a2f5-255ebe2942e5",
+          "name": "create_via_event_config",
+          "input_model": "EventConfigActionConfigCreateViaEventConfigInput",
+          "output_model": "EventConfigActionConfigCreateViaEventConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3b5e95e6-71ec-5c22-a155-d58387b016c6",
+      "module": "aware_reactivity_ontology.event.event_config_condition_config",
+      "name": "EventConfigConditionConfig",
+      "aware_class_ref": "aware_reactivity.event.EventConfigConditionConfig",
+      "functions": [
+        {
+          "function_config_id": "7c4a9556-c69c-54a2-8a25-8e7cc75c133e",
+          "name": "create_scope",
+          "input_model": "EventConfigConditionConfigCreateScopeInput",
+          "output_model": "EventConfigConditionConfigCreateScopeOutput"
+        },
+        {
+          "function_config_id": "cdd35096-ae79-5e7d-b9a1-4d7c17be3df2",
+          "name": "create_via_event_config",
+          "input_model": "EventConfigConditionConfigCreateViaEventConfigInput",
+          "output_model": "EventConfigConditionConfigCreateViaEventConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "46116ca2-dc07-5464-9489-f19ad4368939",
+      "module": "aware_reactivity_ontology.event.event_config_condition_config_scope",
+      "name": "EventConfigConditionConfigScope",
+      "aware_class_ref": "aware_reactivity.event.EventConfigConditionConfigScope",
+      "functions": [
+        {
+          "function_config_id": "23596d64-716b-5bf5-99c9-be7897004046",
+          "name": "add_event",
+          "input_model": "EventConfigConditionConfigScopeAddEventInput",
+          "output_model": "EventConfigConditionConfigScopeAddEventOutput"
+        },
+        {
+          "function_config_id": "8fea1f51-0cea-50f9-8572-22b5bf38384e",
+          "name": "create_via_event_config_condition_config",
+          "input_model": "EventConfigConditionConfigScopeCreateViaEventConfigConditionConfigInput",
+          "output_model": "EventConfigConditionConfigScopeCreateViaEventConfigConditionConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8f9f10c8-f162-5ba9-b5f3-e2138970dea6",
+      "module": "aware_reactivity_ontology.event.event_config_condition_config_scope_event",
+      "name": "EventConfigConditionConfigScopeEvent",
+      "aware_class_ref": "aware_reactivity.event.EventConfigConditionConfigScopeEvent",
+      "functions": [
+        {
+          "function_config_id": "6bf0a0a9-9055-5953-b756-3933091d46a4",
+          "name": "create_via_event_config_condition_config_scope",
+          "input_model": "EventConfigConditionConfigScopeEventCreateViaEventConfigConditionConfigScopeInput",
+          "output_model": "EventConfigConditionConfigScopeEventCreateViaEventConfigConditionConfigScopeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "734865fb-b02f-55f7-b8f7-7580794a2e7f",
+      "module": "aware_reactivity_ontology.event.event_schedule",
+      "name": "EventSchedule",
+      "aware_class_ref": "aware_reactivity.event.EventSchedule",
+      "functions": []
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "b357f341-f2be-5e6c-9314-5753633fd9eb",
+      "module": "aware_reactivity_ontology.action.action_enums",
+      "name": "ActionExecutionStatus"
+    },
+    {
+      "enum_config_id": "0c135de3-8b30-5f6c-8ea7-b8db5247bab8",
+      "module": "aware_reactivity_ontology.action.action_enums",
+      "name": "ActionFeedbackStage"
+    },
+    {
+      "enum_config_id": "db4ee1ac-fa8a-5eb5-9c6f-20ab796fe376",
+      "module": "aware_reactivity_ontology.action.action_enums",
+      "name": "ActionFeedbackStatus"
+    },
+    {
+      "enum_config_id": "7b0ba5f5-4590-5f62-a674-33cfecf21ad6",
+      "module": "aware_reactivity_ontology.action.action_enums",
+      "name": "ActionIntentStatus"
+    },
+    {
+      "enum_config_id": "76fabb68-d0b7-5342-9335-439ce432a4b7",
+      "module": "aware_reactivity_ontology.action.action_enums",
+      "name": "ActionStatus"
+    },
+    {
+      "enum_config_id": "29262cab-6b8c-54f7-8746-ef2783a68bbe",
+      "module": "aware_reactivity_ontology.condition.condition_enums",
+      "name": "ClassSelectionMode"
+    },
+    {
+      "enum_config_id": "0de0a6c0-e93e-5ed6-aa00-7e25c82937e0",
+      "module": "aware_reactivity_ontology.condition.condition_enums",
+      "name": "ConditionLogicStrategy"
+    },
+    {
+      "enum_config_id": "aed6091e-f487-5c6d-bd69-b49e614ce3be",
+      "module": "aware_reactivity_ontology.condition.condition_enums",
+      "name": "ConditionOperator"
+    },
+    {
+      "enum_config_id": "f77722f3-e95e-5d8c-9e00-6b9e89242da3",
+      "module": "aware_reactivity_ontology.condition.condition_enums",
+      "name": "EnumMatchMode"
+    },
+    {
+      "enum_config_id": "31c2864f-59f3-5d8c-a14d-d126af271c7b",
+      "module": "aware_reactivity_ontology.condition.condition_enums",
+      "name": "RelationshipEvalMode"
+    },
+    {
+      "enum_config_id": "6c5c93e9-f84c-5d4b-8f95-19352af2b892",
+      "module": "aware_reactivity_ontology.event.event_enums",
+      "name": "EventDeliveryMode"
+    },
+    {
+      "enum_config_id": "967b0fdb-f881-5be2-8472-33c7390ab753",
+      "module": "aware_reactivity_ontology.event.event_enums",
+      "name": "EventPriority"
+    },
+    {
+      "enum_config_id": "0616439e-d9e0-5369-bf40-94926d4703c0",
+      "module": "aware_reactivity_ontology.event.event_enums",
+      "name": "EventScheduleStatus"
+    },
+    {
+      "enum_config_id": "de8a433d-dc34-5cd3-a786-9b3c6af0399c",
+      "module": "aware_reactivity_ontology.event.event_enums",
+      "name": "EventStatus"
+    },
+    {
+      "enum_config_id": "746b2af7-9deb-5e4f-982a-4cf17f528acb",
+      "module": "aware_reactivity_ontology.event.event_enums",
+      "name": "EventType"
+    }
+  ]
+}

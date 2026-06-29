@@ -1,0 +1,240 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "146f1646-6a3d-58ab-96b9-7ffa3667ca3b",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_config",
+      "name": "SdkConfig",
+      "aware_class_ref": "aware_sdk.sdk.SdkConfig",
+      "functions": [
+        {
+          "function_config_id": "5644e011-a024-5c5a-83a1-5fbcb69d87f9",
+          "name": "add_operation",
+          "input_model": "SdkConfigAddOperationInput",
+          "output_model": "SdkConfigAddOperationOutput"
+        },
+        {
+          "function_config_id": "d8b3d587-0888-5d5c-97f1-515b2f2ac534",
+          "name": "add_surface",
+          "input_model": "SdkConfigAddSurfaceInput",
+          "output_model": "SdkConfigAddSurfaceOutput"
+        },
+        {
+          "function_config_id": "5fe4df40-e959-5ac1-87d0-f6a6080c24d3",
+          "name": "build",
+          "input_model": "SdkConfigBuildInput",
+          "output_model": "SdkConfigBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "26b1b986-3ece-54d5-ad7b-5d50436a38b2",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_operation",
+      "name": "SdkOperation",
+      "aware_class_ref": "aware_sdk.sdk.SdkOperation",
+      "functions": [
+        {
+          "function_config_id": "36067ad5-d0f2-55e7-8a79-22904daa45f9",
+          "name": "bind_api_capability_endpoint",
+          "input_model": "SdkOperationBindApiCapabilityEndpointInput",
+          "output_model": "SdkOperationBindApiCapabilityEndpointOutput"
+        },
+        {
+          "function_config_id": "c0c3ddf4-3f03-5e49-8558-22f4d251ce11",
+          "name": "bind_sdk_operation_dependency",
+          "input_model": "SdkOperationBindSdkOperationDependencyInput",
+          "output_model": "SdkOperationBindSdkOperationDependencyOutput"
+        },
+        {
+          "function_config_id": "96751bc3-2bd4-5ea6-9c79-e0ecacd8a2a9",
+          "name": "build_via_sdk_config",
+          "input_model": "SdkOperationBuildViaSdkConfigInput",
+          "output_model": "SdkOperationBuildViaSdkConfigOutput"
+        },
+        {
+          "function_config_id": "9709fbbc-b8d9-53a6-8131-533bea60ef71",
+          "name": "create_call",
+          "input_model": "SdkOperationCreateCallInput",
+          "output_model": "SdkOperationCreateCallOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "393837f2-331c-5068-80ec-b7dabde71b75",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_operation_api_capability_endpoint",
+      "name": "SdkOperationApiCapabilityEndpoint",
+      "aware_class_ref": "aware_sdk.sdk.SdkOperationApiCapabilityEndpoint",
+      "functions": [
+        {
+          "function_config_id": "ee3505c1-2cf2-5a00-a8ee-b71507c46220",
+          "name": "create_via_sdk_operation",
+          "input_model": "SdkOperationApiCapabilityEndpointCreateViaSdkOperationInput",
+          "output_model": "SdkOperationApiCapabilityEndpointCreateViaSdkOperationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "157c5c91-4bfd-50d6-8541-3307e2f11cb4",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_operation_call",
+      "name": "SdkOperationCall",
+      "aware_class_ref": "aware_sdk.sdk.SdkOperationCall",
+      "functions": [
+        {
+          "function_config_id": "e4e1be9d-03ac-5d80-866a-3da0ab1711fb",
+          "name": "create_via_sdk_operation",
+          "input_model": "SdkOperationCallCreateViaSdkOperationInput",
+          "output_model": "SdkOperationCallCreateViaSdkOperationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f8e16ae4-b241-5e8f-93d0-1298a9b22ecf",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_operation_dependency",
+      "name": "SdkOperationDependency",
+      "aware_class_ref": "aware_sdk.sdk.SdkOperationDependency",
+      "functions": [
+        {
+          "function_config_id": "83cff491-014f-5cff-aa63-a20e08615124",
+          "name": "create_via_sdk_operation",
+          "input_model": "SdkOperationDependencyCreateViaSdkOperationInput",
+          "output_model": "SdkOperationDependencyCreateViaSdkOperationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8c1aaa28-8aa8-5530-8e54-4209a6a67a71",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_package",
+      "name": "SdkPackage",
+      "aware_class_ref": "aware_sdk.sdk.SdkPackage",
+      "functions": [
+        {
+          "function_config_id": "41a7f04e-fc48-5933-ac08-45c8849f4be5",
+          "name": "attach_api_package",
+          "input_model": "SdkPackageAttachApiPackageInput",
+          "output_model": "SdkPackageAttachApiPackageOutput"
+        },
+        {
+          "function_config_id": "37e7cdbd-95f6-5624-90fa-5d0be9bcae99",
+          "name": "attach_implementation_package",
+          "input_model": "SdkPackageAttachImplementationPackageInput",
+          "output_model": "SdkPackageAttachImplementationPackageOutput"
+        },
+        {
+          "function_config_id": "1121e771-ecd1-5ad4-9e11-f64902877cc0",
+          "name": "attach_object_config_graph_package",
+          "input_model": "SdkPackageAttachObjectConfigGraphPackageInput",
+          "output_model": "SdkPackageAttachObjectConfigGraphPackageOutput"
+        },
+        {
+          "function_config_id": "c6607aab-19f4-5774-9066-59594cca017d",
+          "name": "attach_sdk_package_dependency",
+          "input_model": "SdkPackageAttachSdkPackageDependencyInput",
+          "output_model": "SdkPackageAttachSdkPackageDependencyOutput"
+        },
+        {
+          "function_config_id": "9526fbeb-d7b2-55d3-b988-1204cd97a2ba",
+          "name": "build",
+          "input_model": "SdkPackageBuildInput",
+          "output_model": "SdkPackageBuildOutput"
+        },
+        {
+          "function_config_id": "a6c0efa8-b99b-5d9c-a6d1-acf6b04e9d60",
+          "name": "sync_manifest_truth",
+          "input_model": "SdkPackageSyncManifestTruthInput",
+          "output_model": "SdkPackageSyncManifestTruthOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a09c72bf-fcda-5317-8550-aca8ec000ab8",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_package_api_package",
+      "name": "SdkPackageApiPackage",
+      "aware_class_ref": "aware_sdk.sdk.SdkPackageApiPackage",
+      "functions": [
+        {
+          "function_config_id": "fcb62516-b9c0-59d8-af8a-362c693002b2",
+          "name": "build_via_sdk_package",
+          "input_model": "SdkPackageApiPackageBuildViaSdkPackageInput",
+          "output_model": "SdkPackageApiPackageBuildViaSdkPackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8d2242d6-e2e0-59fa-b4b2-e70894d4c6ce",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_package_dependency",
+      "name": "SdkPackageDependency",
+      "aware_class_ref": "aware_sdk.sdk.SdkPackageDependency",
+      "functions": [
+        {
+          "function_config_id": "c79fe867-29be-530b-8eac-749f2544f7ae",
+          "name": "build_via_sdk_package",
+          "input_model": "SdkPackageDependencyBuildViaSdkPackageInput",
+          "output_model": "SdkPackageDependencyBuildViaSdkPackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "38c2d232-24ca-5d8a-b0e6-02023f9eb88c",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_package_implementation_package",
+      "name": "SdkPackageImplementationPackage",
+      "aware_class_ref": "aware_sdk.sdk.SdkPackageImplementationPackage",
+      "functions": [
+        {
+          "function_config_id": "698e82b1-fdf9-51b9-87a7-25799b687c4b",
+          "name": "build_via_sdk_package",
+          "input_model": "SdkPackageImplementationPackageBuildViaSdkPackageInput",
+          "output_model": "SdkPackageImplementationPackageBuildViaSdkPackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fb4700b5-da13-5947-b9fc-af5e2b582aa3",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_package_object_config_graph_package",
+      "name": "SdkPackageObjectConfigGraphPackage",
+      "aware_class_ref": "aware_sdk.sdk.SdkPackageObjectConfigGraphPackage",
+      "functions": [
+        {
+          "function_config_id": "4dc89cc2-598b-5ec7-8fc4-49ff39b85bc0",
+          "name": "build_via_sdk_package",
+          "input_model": "SdkPackageObjectConfigGraphPackageBuildViaSdkPackageInput",
+          "output_model": "SdkPackageObjectConfigGraphPackageBuildViaSdkPackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a828776e-f2f7-5982-8797-1d9c59abb857",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_surface",
+      "name": "SdkSurface",
+      "aware_class_ref": "aware_sdk.sdk.SdkSurface",
+      "functions": [
+        {
+          "function_config_id": "afd93a15-cd10-573a-bd41-c6864cdb6ac8",
+          "name": "add_method",
+          "input_model": "SdkSurfaceAddMethodInput",
+          "output_model": "SdkSurfaceAddMethodOutput"
+        },
+        {
+          "function_config_id": "8eb890c1-ad4f-5c6d-a266-fdc5c9c50425",
+          "name": "build_via_sdk_config",
+          "input_model": "SdkSurfaceBuildViaSdkConfigInput",
+          "output_model": "SdkSurfaceBuildViaSdkConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ce242d31-16cd-5493-86f9-2fba0f873932",
+      "module": "aware_sdk_ontology_orm_models.sdk.sdk_surface_method",
+      "name": "SdkSurfaceMethod",
+      "aware_class_ref": "aware_sdk.sdk.SdkSurfaceMethod",
+      "functions": [
+        {
+          "function_config_id": "0cf64c3e-6581-54a4-8c43-45b0680400ab",
+          "name": "create_via_sdk_surface",
+          "input_model": "SdkSurfaceMethodCreateViaSdkSurfaceInput",
+          "output_model": "SdkSurfaceMethodCreateViaSdkSurfaceOutput"
+        }
+      ]
+    }
+  ],
+  "enums": []
+}

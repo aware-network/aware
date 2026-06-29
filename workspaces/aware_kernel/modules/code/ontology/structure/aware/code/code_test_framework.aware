@@ -1,0 +1,20 @@
+/// Canonical test framework identity.
+///
+/// Framework is intentionally an object instead of an enum so languages and
+/// installations can later attach compatibility/capability contracts.
+class CodeTestFramework {
+    // Attributes
+    name String key
+    title String?
+
+    fn build construct(
+        name String key,
+        title String? = null
+    ) -> CodeTestFramework {
+        """
+        Create deterministic test framework identity by canonical framework name.
+        """
+    }
+}
+
+ann code.CodeTestFramework identity standalone

@@ -1,0 +1,39 @@
+{
+  "dependency_import_roots": [
+    "aware_content_ontology_orm_models",
+    "aware_meta_ontology_orm_models"
+  ],
+  "modules": [
+    "aware_reactivity_ontology_orm_models.action.action",
+    "aware_reactivity_ontology_orm_models.action.action_config",
+    "aware_reactivity_ontology_orm_models.action.action_enums",
+    "aware_reactivity_ontology_orm_models.action.action_execution",
+    "aware_reactivity_ontology_orm_models.action.action_feedback",
+    "aware_reactivity_ontology_orm_models.action.action_intent",
+    "aware_reactivity_ontology_orm_models.condition.condition",
+    "aware_reactivity_ontology_orm_models.condition.condition_config",
+    "aware_reactivity_ontology_orm_models.condition.condition_config_attribute_config",
+    "aware_reactivity_ontology_orm_models.condition.condition_config_class_config",
+    "aware_reactivity_ontology_orm_models.condition.condition_config_enum_config",
+    "aware_reactivity_ontology_orm_models.condition.condition_config_enum_option",
+    "aware_reactivity_ontology_orm_models.condition.condition_config_primitive_config",
+    "aware_reactivity_ontology_orm_models.condition.condition_config_relationship_config",
+    "aware_reactivity_ontology_orm_models.condition.condition_enums",
+    "aware_reactivity_ontology_orm_models.event.event",
+    "aware_reactivity_ontology_orm_models.event.event_condition",
+    "aware_reactivity_ontology_orm_models.event.event_config",
+    "aware_reactivity_ontology_orm_models.event.event_config_action_config",
+    "aware_reactivity_ontology_orm_models.event.event_config_condition_config",
+    "aware_reactivity_ontology_orm_models.event.event_config_condition_config_scope",
+    "aware_reactivity_ontology_orm_models.event.event_config_condition_config_scope_event",
+    "aware_reactivity_ontology_orm_models.event.event_enums",
+    "aware_reactivity_ontology_orm_models.event.event_schedule",
+    "aware_reactivity_ontology_orm_models.stable_ids"
+  ],
+  "package_prefix": "aware_reactivity_ontology_orm_models",
+  "pydantic_model_dependency_import_roots": [
+    "aware_content_ontology_orm_models",
+    "aware_meta_ontology_orm_models"
+  ],
+  "version": "v1"
+}

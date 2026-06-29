@@ -1,0 +1,18 @@
+// EventConfig projection (policy lane)
+//
+// Goal:
+// - Model event trigger wiring canonically.
+// - Portal to ConditionConfig so event policies remain decoupled from condition policy evolution.
+
+projection EventConfig {
+    root event.EventConfig
+
+    event.EventConfig::event_config_action_configs
+    event.EventConfig::event_config_condition_configs
+
+    // Portal: event policy edge -> action policy lane
+    event.EventConfigActionConfig::action_config action.ActionConfig
+
+    // Portal: event policy edge -> condition policy lane
+    event.EventConfigConditionConfig::condition_config condition.ConditionConfig
+}

@@ -1,0 +1,36 @@
+class CodeSectionFunction {
+    // Relationships
+    name_segment aware_content.part.ContentPartTextSegment ?
+    body_segment aware_content.part.ContentPartTextSegment?
+    signature_segment aware_content.part.ContentPartTextSegment
+    return_type_segment aware_content.part.ContentPartTextSegment?
+    code_section_attributes attribute.CodeSectionAttribute[] @CodeSectionFunctionAttribute key
+    code_section_comments comment.CodeSectionComment[]
+    code_section_decorators decorator.CodeSectionDecorator[]
+
+    // Attributes
+    name String
+    description String?
+    is_async Bool
+    is_public Bool
+    is_static Bool = false
+    is_classmethod Bool = false
+    verb String?
+
+    fn build construct() -> CodeSectionFunction {
+        """
+        Build the function payload under a CodeSection.
+        """
+    }
+}
+
+/// Eager body segment + attributes
+ann function.CodeSectionFunction::body_segment load eager
+ann function.CodeSectionFunction::code_section_attributes::CodeSectionFunctionAttribute load eager
+ann function.CodeSectionFunction::code_section_comments load eager
+ann function.CodeSectionFunction::code_section_comments override fk nullable
+ann function.CodeSectionFunction::code_section_decorators load eager
+ann function.CodeSectionFunction::code_section_decorators override fk nullable
+ann function.CodeSectionFunction::name_segment load eager
+ann function.CodeSectionFunction::return_type_segment load eager
+ann function.CodeSectionFunction::signature_segment load eager

@@ -1,0 +1,26 @@
+aware_sdk = 1
+
+[sdk]
+package_name = "meta-sdk"
+fqn_prefix = "aware_meta_sdk"
+version_number = 1
+title = "Meta SDK"
+description = "Canonical Meta SDK facade over the generated Meta service API."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+force_fresh_scan = false
+compilation_mode = "sdk_ontology"
+
+[targets.python]
+root_dir = "python"
+
+[targets.python.public_package]
+package_dir = "aware_meta_sdk"
+
+[[dependencies]]
+kind = "api_package"
+package_name = "meta-service-api"
+version_number = 1

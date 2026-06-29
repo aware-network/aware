@@ -1,0 +1,49 @@
+class ObjectInstanceGraphLane {
+    /// Lane Identity
+    lane aware_history.lane.Lane key
+
+    /// Function-call execution history for this lane.
+    function_calls function.FunctionCall[]
+
+    fn create construct (
+        lane_id UUID key
+    ) -> ObjectInstanceGraphLane {
+        """
+        Creates a linkage meta.ObjectInstanceGraphBranch to history.lane.
+
+        Contract:
+        - Parent ObjectInstanceGraphBranch path context is propagated by traversal lowering.
+        - Deterministic identity is constructor-keyed on `(lane_id)` plus parent path.
+        """
+    }
+
+    fn create_function_call(
+        call_key UUID key,
+        function_config_id UUID key,
+        target_class_instance_identity_id UUID? = null,
+        base_commit_id UUID? = null,
+        graph_hash_pre String? = null
+    ) -> function.FunctionCall {
+        """
+        Create one durable function-call request envelope under this OIG lane.
+
+        Contract:
+        - Parent ObjectInstanceGraphLane path context is propagated by traversal lowering.
+        - `call_key` is the per-invocation identity; repeated calls on the same
+          lane/function must not collapse.
+        - FunctionCall is the Meta-owned execution root. Generic OIGOperation
+          wrappers are intentionally not part of the clean rail.
+        """
+        let created = construct function_calls.build(
+            call_key = call_key,
+            function_config_id = function_config_id,
+            target_class_instance_identity_id = target_class_instance_identity_id,
+            base_commit_id = base_commit_id,
+            graph_hash_pre = graph_hash_pre,
+        )
+    }
+}
+
+/// Load lane eagerly
+ann instance.ObjectInstanceGraphLane::lane load eager
+ann instance.ObjectInstanceGraphLane::function_calls load eager

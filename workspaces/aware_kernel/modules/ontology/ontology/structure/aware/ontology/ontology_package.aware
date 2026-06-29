@@ -1,0 +1,134 @@
+/// Semantic owner for one ontology package.
+///
+/// `ObjectConfigGraphPackage` remains the raw Meta representation package.
+/// `CodePackage` remains the raw source/runtime package owner. `OntologyPackage`
+/// is the semantic package root that binds those lower-level package truths into
+/// the ontology domain so environments can compose ontology meaning instead of
+/// raw graph leaves.
+class OntologyPackage {
+    // Relationships
+    ontology_config OntologyConfig?
+    ontology_config_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+    source_code_package aware_code.package.CodePackage?
+    object_config_graph_package aware_meta.graph.config.ObjectConfigGraphPackage?
+    object_config_graph_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+    object_config_graph_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+    runtime_code_packages OntologyPackageRuntimeCodePackage[]
+    dependencies OntologyPackageDependency[]
+
+    // Attributes
+    description String?
+    fqn_prefix String key
+    manifest_relative_path String?
+    name String key
+    package_root String = "."
+    sources_root String = "modules"
+    title String?
+    version_number Int = 1
+
+    fn build construct(
+        name String key,
+        fqn_prefix String key,
+        ontology_config_id UUID? = null,
+        ontology_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        object_config_graph_package_id UUID? = null,
+        object_config_graph_package_object_instance_graph_commit_id UUID? = null,
+        object_config_graph_object_instance_graph_commit_id UUID? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = "modules",
+    ) -> OntologyPackage {
+        """
+        Create the canonical ontology-owned semantic package root.
+
+        Contract:
+        - Identity is keyed by ontology package `name` and `fqn_prefix`.
+        - `ontology_config_id` points to Ontology-owned config/schema truth.
+        - `source_code_package_id` points to Code-owned source package truth.
+        - `object_config_graph_package_id` points to Meta-owned raw OCG package
+          representation truth.
+        - OIG commit pins let WorkspaceRevision/Environment consumers replay
+          exact ontology package and graph truth without reopening source TOMLs.
+        - Environment composition should select `OntologyPackage`; raw
+          `ObjectConfigGraphPackage` membership is representation detail and
+          compatibility fallback only.
+        """
+    }
+
+    fn attach_runtime_code_package(
+        code_package_id UUID key,
+        package_name String,
+        language aware_code.code.CodeLanguage,
+        import_root String,
+        manifest_relative_path String,
+        package_root String = ".",
+        role String = "runtime",
+        object_instance_graph_commit_id UUID? = null,
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+    ) -> OntologyPackageRuntimeCodePackage {
+        """
+        Attach one runtime/implementation CodePackage to this OntologyPackage.
+
+        Contract:
+        - Parent `OntologyPackage` scope is injected by propagation.
+        - The attached `CodePackage` is implementation/runtime truth, not the
+          ontology package source package unless it also appears in
+          `source_code_package`.
+        - Consumers must use this explicit package contract instead of inferring
+          runtime import roots from repository layout.
+        """
+        let created = construct runtime_code_packages.build(
+            code_package_id = code_package_id,
+            package_name = package_name,
+            language = language,
+            import_root = import_root,
+            manifest_relative_path = manifest_relative_path,
+            package_root = package_root,
+            role = role,
+            object_instance_graph_commit_id = object_instance_graph_commit_id,
+            include_paths = include_paths,
+            exclude_paths = exclude_paths,
+        )
+    }
+
+    fn attach_dependency(
+        target_ontology_package_id UUID key,
+        target_package_name String,
+        target_ontology_package_object_instance_graph_commit_id UUID? = null,
+        target_version_number Int? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null,
+    ) -> OntologyPackageDependency {
+        """
+        Attach one ontology package dependency.
+
+        Contract:
+        - Parent `OntologyPackage` scope is injected by propagation.
+        - Dependencies are ontology package dependencies, not raw OCG dependency
+          shortcuts. Raw graph dependency closure is resolved through the target
+          `OntologyPackage -> ObjectConfigGraphPackage` bridge.
+        """
+        let created = construct dependencies.build(
+            target_ontology_package_id = target_ontology_package_id,
+            target_package_name = target_package_name,
+            target_ontology_package_object_instance_graph_commit_id = target_ontology_package_object_instance_graph_commit_id,
+            target_version_number = target_version_number,
+            expected_hash_sha256 = expected_hash_sha256,
+            description = description,
+        )
+    }
+}
+
+ann ontology.OntologyPackage::ontology_config load eager
+ann ontology.OntologyPackage::ontology_config_object_instance_graph_commit load eager
+ann ontology.OntologyPackage::source_code_package load eager
+ann ontology.OntologyPackage::object_config_graph_package load eager
+ann ontology.OntologyPackage::object_config_graph_package_object_instance_graph_commit load eager
+ann ontology.OntologyPackage::object_config_graph_object_instance_graph_commit load eager
+ann ontology.OntologyPackage::runtime_code_packages load eager
+ann ontology.OntologyPackage::dependencies load forward eager reverse lazy

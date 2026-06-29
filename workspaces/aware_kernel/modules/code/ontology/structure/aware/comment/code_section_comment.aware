@@ -1,0 +1,25 @@
+class CodeSectionComment {
+    // Relationships
+    code_section_comment_contents comment.CodeSectionCommentContent[]
+
+    // Attributes
+    type CodeSectionCommentType
+
+    fn build construct(type CodeSectionCommentType) -> CodeSectionComment {
+        """
+        Build the comment payload under a CodeSection.
+        """
+    }
+
+    fn create_content(position Int key) -> comment.CodeSectionCommentContent {
+        """
+        Create an ordered comment-content item under this comment.
+        """
+        let created = construct code_section_comment_contents.build(
+            position = position,
+        )
+    }
+}
+
+/// Eager contents
+ann comment.CodeSectionComment::code_section_comment_contents load eager

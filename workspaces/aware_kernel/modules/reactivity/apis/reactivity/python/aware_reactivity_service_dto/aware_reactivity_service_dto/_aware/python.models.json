@@ -1,0 +1,319 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "50cdb3ba-6106-5ee0-ab9b-f0cf38097066",
+      "module": "aware_reactivity_service_dto.reactivity.action_execution",
+      "name": "ActionExecution",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ActionExecution",
+      "functions": []
+    },
+    {
+      "class_config_id": "5b029b10-9a6e-5ad9-b330-df2dbe86156a",
+      "module": "aware_reactivity_service_dto.reactivity.action_feedback",
+      "name": "ActionFeedback",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ActionFeedback",
+      "functions": []
+    },
+    {
+      "class_config_id": "7a9a5a82-5b81-58cb-baed-95dac107f4a6",
+      "module": "aware_reactivity_service_dto.reactivity.action_intent",
+      "name": "ReactivityActionIntent",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionIntent",
+      "functions": []
+    },
+    {
+      "class_config_id": "477b359f-9e86-5249-8a3f-f28c32f8cb62",
+      "module": "aware_reactivity_service_dto.reactivity.action_intent",
+      "name": "ReactivityActionIntentResolveRequest",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionIntentResolveRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b2d36a8a-f35d-5336-9c68-801ea6eeaaf8",
+      "module": "aware_reactivity_service_dto.reactivity.action_intent",
+      "name": "ReactivityActionIntentResolveResponse",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionIntentResolveResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "69893225-dfbb-5ae4-9bf3-841955339a42",
+      "module": "aware_reactivity_service_dto.reactivity.action_request",
+      "name": "ReactivityActionExecutionRequest",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionExecutionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c2efaac1-9244-5212-882f-a1e9063c6878",
+      "module": "aware_reactivity_service_dto.reactivity.action_request",
+      "name": "ReactivityActionExecutionResult",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionExecutionResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "ba6c2293-3e1f-53e0-adcd-f73abd24feb5",
+      "module": "aware_reactivity_service_dto.reactivity.action_terminal",
+      "name": "ActionTerminal",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ActionTerminal",
+      "functions": []
+    },
+    {
+      "class_config_id": "c39cde10-87ca-5eb3-ac7d-db91142c922c",
+      "module": "aware_reactivity_service_dto.reactivity.bridge_event",
+      "name": "ActorReactivityBridgeEvent",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ActorReactivityBridgeEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "07c298d5-6977-5de4-b82d-b317adb662b5",
+      "module": "aware_reactivity_service_dto.reactivity.event_action_binding",
+      "name": "EventActionBinding",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.EventActionBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "1f4d1c94-ba3a-5a32-a645-869fd9147ab0",
+      "module": "aware_reactivity_service_dto.reactivity.event_condition_binding_resolution",
+      "name": "EventConditionBindingResolution",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.EventConditionBindingResolution",
+      "functions": []
+    },
+    {
+      "class_config_id": "e4fb475c-8ea4-59e3-9573-8fda3315e7cf",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyActionConfigSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyActionConfigSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "3685ed90-75ec-5359-8072-c9b6b0b1fd25",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyAttributePredicateSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyAttributePredicateSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "0806a924-cd4e-544b-af1a-6d149a25f56d",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyBundleEnsureRequest",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyBundleEnsureRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "93a92fff-f5ee-5d52-ab92-70715c5b0ac4",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyBundleEnsureResponse",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyBundleEnsureResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "5e9473cc-d872-531c-89a2-a9c8655732ee",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyBundleListRequest",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyBundleListRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b5c70f53-58c6-558a-be8f-48f89de03b62",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyBundleListResponse",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyBundleListResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "349c22bd-988c-5e2b-9800-a80e8d8256ae",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyBundleReceipt",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyBundleReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "c6b14255-6c08-58c2-afcf-83633f2f3c0f",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyBundleSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyBundleSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "3ed13044-d978-59c7-afe7-e52fa1a7e119",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyClassPredicateSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyClassPredicateSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "9e0047d3-4f81-568c-bba1-f5902cc9365a",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyConditionConfigSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyConditionConfigSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "35fda7d3-6ad6-5d19-b602-6c487b7b128f",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyConditionPredicateSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyConditionPredicateSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "6bdb1fc9-595f-5b8f-879d-129ad694223a",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyEnumPredicateSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyEnumPredicateSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "9c387c31-e73a-567e-ab2e-941a468fd1e1",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyEventActionBindingSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyEventActionBindingSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "349c3d54-fd54-5552-8c91-8c3ab858c99a",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyEventConditionBindingSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyEventConditionBindingSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "01448eea-4145-5259-9198-3641b39a728e",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyEventConfigSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyEventConfigSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "46d15b04-6501-5af3-bdb4-ab662f9af7eb",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyInstalledActionConfig",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyInstalledActionConfig",
+      "functions": []
+    },
+    {
+      "class_config_id": "f299dbb0-5003-5b4b-9ebc-4c70f1a43684",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyInstalledConditionConfig",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyInstalledConditionConfig",
+      "functions": []
+    },
+    {
+      "class_config_id": "e1b0e848-6487-5bea-af86-0abcfb96d829",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyInstalledEventActionBinding",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyInstalledEventActionBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "521be718-7bc1-5a94-9be5-57f3478d77cd",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyInstalledEventConditionBinding",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyInstalledEventConditionBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "bbb3ea32-de19-56c6-a5e2-3442faaa7b8d",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyInstalledEventConfig",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyInstalledEventConfig",
+      "functions": []
+    },
+    {
+      "class_config_id": "cc6b8812-52a5-59ac-b3aa-49609257cef0",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyPrimitivePredicateSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyPrimitivePredicateSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "babb799f-ce29-5a9a-b3ff-59734b84928d",
+      "module": "aware_reactivity_service_dto.reactivity.policy_bundle",
+      "name": "ReactivityPolicyRelationshipPredicateSpec",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityPolicyRelationshipPredicateSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "b61d2a2a-78df-59cc-a164-b5ce007ef33b",
+      "module": "aware_reactivity_service_dto.reactivity.service_operation",
+      "name": "ReactivityActionLifecyclePublishRequest",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionLifecyclePublishRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8e272024-3b10-58f6-b0c5-380ef3bca5f6",
+      "module": "aware_reactivity_service_dto.reactivity.service_operation",
+      "name": "ReactivityActionLifecyclePublishResponse",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionLifecyclePublishResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "71e38ece-11c0-510c-8d36-21f436f368c1",
+      "module": "aware_reactivity_service_dto.reactivity.service_operation",
+      "name": "ReactivityActionLifecycleSubscriptionRequest",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionLifecycleSubscriptionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "869ac0ba-e01c-57a5-8ee1-f7e10ae054a0",
+      "module": "aware_reactivity_service_dto.reactivity.service_operation",
+      "name": "ReactivityActionLifecycleSubscriptionResponse",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionLifecycleSubscriptionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "4cf7cdd5-d4ad-5538-ab70-c21af8296a5c",
+      "module": "aware_reactivity_service_dto.reactivity.service_operation",
+      "name": "ReactivityEventSubscriptionRequest",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityEventSubscriptionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "ec97a36a-434e-56e4-915b-7625b91ccaa6",
+      "module": "aware_reactivity_service_dto.reactivity.service_operation",
+      "name": "ReactivityEventSubscriptionResponse",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityEventSubscriptionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e66a18b3-8128-58c9-8ebd-7fde80fa5dcc",
+      "module": "aware_reactivity_service_dto.reactivity.service_operation",
+      "name": "ReactivityServiceStatusRequest",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityServiceStatusRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "30083bec-8496-5a8b-b2ad-4e2f9cae0e8e",
+      "module": "aware_reactivity_service_dto.reactivity.service_operation",
+      "name": "ReactivityServiceStatusResponse",
+      "aware_class_ref": "aware_reactivity_service_dto.reactivity.ReactivityServiceStatusResponse",
+      "functions": []
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "c3307088-7ea5-5551-8a6b-fb9d85f97851",
+      "module": "aware_reactivity_service_dto.reactivity.action_feedback_enums",
+      "name": "ActionExecutionStatus"
+    },
+    {
+      "enum_config_id": "810e6a31-55fb-56d8-b6d9-a8c472ab90d5",
+      "module": "aware_reactivity_service_dto.reactivity.action_feedback_enums",
+      "name": "ActionFeedbackStage"
+    },
+    {
+      "enum_config_id": "9601c10b-1ea5-57ba-9fb0-db040ecfb7b6",
+      "module": "aware_reactivity_service_dto.reactivity.action_feedback_enums",
+      "name": "ActionFeedbackStatus"
+    },
+    {
+      "enum_config_id": "8f76a992-e3b1-57a5-9682-4b8393193bc6",
+      "module": "aware_reactivity_service_dto.reactivity.action_feedback_enums",
+      "name": "ActionIntentStatus"
+    },
+    {
+      "enum_config_id": "3ffa7c5e-2b3f-56cf-bc0c-3d3e2abc0825",
+      "module": "aware_reactivity_service_dto.reactivity.action_feedback_enums",
+      "name": "ActionTerminalStatus"
+    }
+  ]
+}

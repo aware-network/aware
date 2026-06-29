@@ -1,0 +1,69 @@
+/// Canonical run for one package-owned CodeTest surface.
+///
+/// Contract:
+/// - CodePackageTest owns the run envelope.
+/// - Unit receipts compose through CodeTestUnitRun -> CodeTestUnit.
+/// - OIG commit ids are not attributes here; the commit envelope is emitted
+///   by the normal graph commit rail when this run graph is materialized.
+class CodePackageTestRun {
+    // Relationships
+    unit_runs aware_code.code.CodeTestUnitRun[]
+
+    // Attributes
+    run_key String key
+    backend_kind String
+    status aware_code.code.CodeTestRunStatus
+    started_at_utc DateTime?
+    finished_at_utc DateTime?
+    duration_s Float?
+    selected_unit_count Int = 0
+    total_tests Int = 0
+    passed_tests Int = 0
+    failed_tests Int = 0
+    skipped_tests Int = 0
+    unsupported_tests Int = 0
+    error String?
+
+    fn build construct(
+        run_key String key,
+        backend_kind String,
+        status aware_code.code.CodeTestRunStatus,
+        started_at_utc DateTime? = null,
+        finished_at_utc DateTime? = null,
+        duration_s Float? = null,
+        selected_unit_count Int = 0,
+        total_tests Int = 0,
+        passed_tests Int = 0,
+        failed_tests Int = 0,
+        skipped_tests Int = 0,
+        unsupported_tests Int = 0,
+        error String? = null
+    ) -> CodePackageTestRun {
+        """
+        Build one canonical run envelope for a package-owned CodeTest.
+        """
+    }
+
+    fn create_unit_run(
+        code_test_unit_id UUID key,
+        status aware_code.code.CodeTestRunStatus,
+        selector String,
+        failures JsonArray,
+        duration_s Float? = null,
+        error String? = null
+    ) -> aware_code.code.CodeTestUnitRun {
+        """
+        Attach one canonical unit run receipt to this package test run.
+        """
+        let created = construct unit_runs.build(
+            code_test_unit_id = code_test_unit_id,
+            status = status,
+            selector = selector,
+            failures = failures,
+            duration_s = duration_s,
+            error = error,
+        )
+    }
+}
+
+ann package.CodePackageTestRun::unit_runs load eager

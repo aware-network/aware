@@ -19,6 +19,12 @@ Alignment docs should state durable invariants and current topic locks. They
 should not duplicate issue updates, test logs, or implementation details that
 belong in issue files.
 
+Real-time reviews use alignment as their lock source. A review may inspect an
+active issue's dirty worktree evidence and flag drift against cited
+conversation, goal, issue, or alignment locks, but it must not take ownership of
+the target implementation issue or edit target implementation files unless the
+issue is explicitly handed off.
+
 ## Current Surface
 
 - [PROTOCOL.md](PROTOCOL.md) is the required alignment loop for shared
@@ -86,6 +92,14 @@ issues, packages, or integration proofs exist.
 `A-014`: `CURRENT.md` is mutable aggregate truth. Daily alignment tracks collect
 fresh receipt movement so later maintainers or services can promote stable
 current coordinates.
+
+`A-015`: Real-time review is alignment-derived. Review findings must cite the
+active issue, the lock source, and the observed evidence. A review flag is not a
+replacement for the target issue owner, implementation receipt, or commit rail.
+
+`A-016`: Attribution receipts must distinguish ownership from observation. Until
+the agent harness emits edit-event receipts, local dirty-delta or watcher output
+is observer evidence only; it cannot prove which Codex session wrote a file.
 
 ## Update Rules
 

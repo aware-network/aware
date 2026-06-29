@@ -1,6 +1,9 @@
 # Protocol — Issues (simple, single-file)
 
-Goal: each issue is tracked in **one** Markdown file with a stable tag so we can close the feedback loop.
+Goal: each issue is tracked through one canonical issue authority with a stable
+tag so we can close the feedback loop. Today the local markdown issue file is
+that authority; when the remote issue service is active, the service becomes
+authority and markdown is a projection.
 
 ## Create an issue
 
@@ -49,7 +52,8 @@ Use this loop whenever the maintainer pings for status:
 Rules:
 
 - Keep FEED bullets short and path-first.
-- Per-issue files remain SSOT; agent FEED is the coordination snapshot.
+- For local markdown-backed issues, per-issue files remain SSOT; agent FEED is
+  the coordination snapshot.
 - If mismatch exists, do not hide it: list it under `Alignment checks` and resolve on next pulse.
 
 ## Required header fields (top of file)
@@ -89,6 +93,20 @@ Ownership scope rule (commit rail):
   - or dedicated section:
     - `## Ownership Scope`
     - one `- <repo-relative-path>` entry per line.
+
+Issue authority and local state cache:
+
+- `.aware/workflow_issue/state.json` is a local CLI enforcement cache, not an
+  agent-facing source of truth.
+- `aware-cli commit` refreshes that local cache from the current issue authority
+  before owner/status/scope validation. Agents should not need to run
+  `aware-cli issue sync` before ordinary dry-run or commit preflight.
+- If commit preflight reports malformed or unavailable issue authority, fix the
+  issue authority first. Use `aware-cli issue sync` only as a recovery command
+  for a stale/broken local cache, not as a normal lifecycle step.
+- As issue ownership moves to the remote service, the same commit preflight
+  boundary should read from that service authority and refresh local projections
+  instead of requiring agents to edit/cache-sync state files manually.
 
 Canonical commit governance rule:
 

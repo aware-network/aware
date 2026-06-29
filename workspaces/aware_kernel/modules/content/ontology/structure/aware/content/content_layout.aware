@@ -1,0 +1,43 @@
+class ContentLayout {
+    // Relationships
+    content_part_contents part.ContentPartContent[] @part.ContentPartContentLayout
+
+    // Attributes
+    background_color String?
+    description String?
+    name String key
+    viewport_height Float?
+    viewport_width Float?
+
+    fn create_content_layout construct(
+        name String key,
+        background_color String? = null,
+        description String? = null,
+        viewport_height Float? = null,
+        viewport_width Float? = null,
+    ) -> ContentLayout {
+        """
+        Creates a named content layout.
+        """
+        construct ContentLayout(
+            name = name,
+            background_color = background_color,
+            description = description,
+            viewport_height = viewport_height,
+            viewport_width = viewport_width,
+        )
+    }
+
+    fn add_part_layout(
+        content_part_content_id UUID key,
+        layout_order Int key = 0,
+    ) -> part.ContentPartContentLayout {
+        """
+        Creates placement metadata for an existing content part in this content layout.
+        """
+        let created = construct content_part_contents.create_content_part_content_layout(
+            content_part_content_id = content_part_content_id,
+            layout_order = layout_order,
+        )
+    }
+}

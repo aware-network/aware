@@ -1,0 +1,105 @@
+/// Deterministic value-source payload for function instruction assignment rails.
+///
+/// Contract:
+/// - `set` does not evaluate expressions; it assigns from a typed source.
+/// - Exactly one source payload must be populated according to `kind`.
+/// - Transforms are pure value-source payloads; they are not FunctionImpl instructions.
+/// - Read paths are typed, read-only value sources and never mutation targets.
+class FunctionImplValueSource {
+    // Relationships
+    /// Function contract attribute source (must belong to FunctionImpl.function_config).
+    source_function_config_attribute_config FunctionConfigAttributeConfig?
+    /// Prior deterministic let-binding source.
+    source_instruction_let FunctionImplInstructionLet?
+    /// Typed primitive literal payload (used only when `kind == literal`).
+    source_literal_primitive FunctionImplValueSourceLiteralPrimitive? unique
+    /// Typed pure transform payload (used only when `kind == transform`).
+    source_transform FunctionImplValueSourceTransform? unique
+    /// Typed read-only member traversal payload (used only when `kind == read_path`).
+    source_read_path FunctionImplValueSourceReadPath? unique
+
+    // Attributes
+    key String key
+    kind FunctionImplValueSourceKind
+
+    fn build construct (
+        key String key,
+        kind FunctionImplValueSourceKind,
+        source_function_config_attribute_config_id UUID? = null,
+        source_instruction_let_id UUID? = null
+    ) -> FunctionImplValueSource {
+        """
+        Create deterministic value-source payload under one FunctionImplInstruction.
+
+        Contract:
+        - Parent context (`function_impl_instruction_id`) is injected by parent-edge lowering.
+        - Identity is parent-scoped via stable `key`.
+        """
+    }
+
+    fn attach_literal_primitive (
+        primitive_config_id UUID,
+        value Json
+    ) -> FunctionImplValueSourceLiteralPrimitive {
+        """
+        Attach deterministic primitive literal payload when `kind == literal`.
+        """
+        let created = construct source_literal_primitive.build(
+            primitive_config_id = primitive_config_id,
+            value = value,
+        )
+    }
+
+    fn attach_transform (
+        operation FunctionImplValueTransformKind,
+        output_primitive_config_id UUID? = null
+    ) -> FunctionImplValueSourceTransform {
+        """
+        Attach deterministic pure-transform payload when `kind == transform`.
+        """
+        let created = construct source_transform.build(
+            operation = operation,
+            output_primitive_config_id = output_primitive_config_id,
+        )
+    }
+
+    fn attach_read_path (
+        root_kind FunctionImplValueSourceReadPathRootKind,
+        root_function_config_attribute_config_id UUID? = null,
+        root_instruction_let_id UUID? = null,
+        root_class_config_attribute_config_id UUID? = null
+    ) -> FunctionImplValueSourceReadPath {
+        """
+        Attach deterministic read-only traversal payload when `kind == read_path`.
+
+        Contract:
+        - The read path only produces a JSON-like value for the owning instruction.
+        - Dotted mutation targets remain unsupported; this payload is assignment-source only.
+        """
+        let created = construct source_read_path.build(
+            root_kind = root_kind,
+            root_function_config_attribute_config_id = root_function_config_attribute_config_id,
+            root_instruction_let_id = root_instruction_let_id,
+            root_class_config_attribute_config_id = root_class_config_attribute_config_id,
+        )
+    }
+
+    fn update_function_input_ref (
+        source_function_config_attribute_config_id UUID
+    ) -> {
+        """
+        Update an existing function-input value source to point at another input edge.
+
+        Contract:
+        - The value source identity and key remain stable.
+        - Only `function_input_ref` sources are mutable on this rail.
+        - Literal and let-ref replacement require their own explicit ontology functions.
+        """
+    }
+}
+
+ann function.FunctionImplValueSource::source_function_config_attribute_config load eager
+ann function.FunctionImplValueSource::source_instruction_let load eager
+ann function.FunctionImplValueSource::source_literal_primitive load eager
+ann function.FunctionImplValueSource::source_transform load eager
+ann function.FunctionImplValueSource::source_read_path load eager

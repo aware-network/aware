@@ -40,7 +40,7 @@ workspace rails, but they are not OSS/PyPI release-front APIs:
 | Surface | Classification | Rationale |
 | --- | --- | --- |
 | `aware_orm.bootstrap` | Legacy kernel/workspace bootstrap adapter, excluded from public artifacts | Uses SQL grammar and older kernel bootstrap concepts. New public callers should use `aware_orm.db`; the bootstrap package and `bootstrap` extra are no longer shipped. |
-| `aware_orm.runtime.bundle_runtime_install` | Structure adapter bridge | Lazily imports Structure only when a Structure environment bundle install is explicitly requested. Package-local runtime artifacts remain the public rail. |
+| `aware_orm.runtime.bundle_runtime_install` | Retired Environment bundle rail | Fails closed with a retired-rail error; package-local ontology artifacts remain the public rail. |
 | `aware_orm.projection.projector` | Removed public shim | Meta owns OIG commit/change interpretation. Projector tests live under Meta and import `aware_meta.graph.instance.orm_projector` directly. ORM owns only generic projection primitives. |
 | `aware_orm.load.lazy_relationship` | Removed legacy loader | The old loader consumed object-config relationship shapes directly. Current relationship/query behavior is driven by ClassConfig binding metadata and package-local relationship metadata registries. |
 | `aware_orm.runtime.binding_dtos` and `aware_orm.runtime.ocg_orm_binding` | Removed producer-shaped binding rail | Meta translates ObjectConfigGraph/ClassConfig producer shapes into ORM graph artifacts. ORM loads only `aware_orm.runtime.graph_artifacts` / `aware_orm.runtime.graph_binding`. |

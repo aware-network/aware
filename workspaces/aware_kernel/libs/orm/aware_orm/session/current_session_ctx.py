@@ -55,7 +55,7 @@ def use_runtime_session_context_var(var: ContextVar[Any]) -> Iterator[None]:
 
 
 # Local SessionContext for tests/CLI/tools that want explicit scoping without
-# importing orchestrator/runtime or structure/env contexts.
+# importing environment/runtime or structure/env contexts.
 _local_ctx: ContextVar[SessionContext] = ContextVar("_local_session_ctx")
 
 

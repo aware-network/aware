@@ -1,0 +1,30 @@
+class ObjectInstanceGraphChange {
+    // Relationships
+    /// Explicit payload worldline target for this change tree.
+    object_instance_graph ObjectInstanceGraph
+    change aware_history.change.Change key
+    class_instance_changes class.ClassInstanceChange[] many
+    class_instance_relationship_changes class.ClassInstanceRelationshipChange[] many
+
+    // Attributes
+    type ObjectInstanceGraphChangeType
+
+    fn create construct (
+        change_id UUID key,
+        type ObjectInstanceGraphChangeType
+    ) -> ObjectInstanceGraphChange {
+        """
+        Create one deterministic ObjectInstanceGraphChange under this ObjectInstanceGraphIdentity.
+
+        Contract:
+        - Parent `object_instance_graph_identity_id` is propagated by traversal lowering.
+        - The payload `object_instance_graph` is copied from the parent OIGI boundary pointer.
+        - Deterministic identity resolves from `(object_instance_graph_identity_id via path, change_id)`.
+        """
+    }
+}
+
+/// Load nested changes eagerly for recursive hydration.
+ann instance.ObjectInstanceGraphChange::change load eager
+ann instance.ObjectInstanceGraphChange::class_instance_changes load eager
+ann instance.ObjectInstanceGraphChange::class_instance_relationship_changes load eager

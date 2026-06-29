@@ -1,0 +1,39 @@
+class ObjectInstanceGraphCommit {
+    // Relationships
+    object_instance_graph ObjectInstanceGraph
+    commit aware_history.commit.Commit key
+    object_instance_graph_changes ObjectInstanceGraphChange[] many
+
+    // Attributes
+    object_instance_graph_key String
+    object_instance_graph_name String
+    object_instance_graph_description String?
+    root_class_config_id UUID
+    root_source_object_id UUID
+    graph_hash_post String
+    graph_hash_pre String
+    projection_hash String?
+    source_language aware_code.code.CodeLanguage
+
+    fn create construct (
+        commit_id UUID key,
+        domain_branch_id UUID,
+        domain_projection_hash String,
+    ) -> ObjectInstanceGraphCommit {
+        """
+        Materialize a history-plane OIG commit wrapper for a domain commit.
+
+        Canonical v0:
+        - Reads the domain commit payload from the commit store (SSOT).
+        - Creates (or reuses) the underlying history Commit + CommitParent objects.
+        - Parent ObjectInstanceGraphIdentity path context is propagated by traversal lowering.
+        - Deterministic identity is constructor-keyed on `(commit_id)` plus parent path.
+        - Domain commit payload must carry rooted OIG bootstrap metadata so materialization
+          never synthesizes an empty ObjectInstanceGraph.
+        """
+    }
+}
+
+/// Load commit and changes eagerly
+ann instance.ObjectInstanceGraphCommit::commit load eager
+ann instance.ObjectInstanceGraphCommit::object_instance_graph_changes load eager

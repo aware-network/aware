@@ -1,0 +1,18 @@
+/// Delta-only change node for an AttributeValueLink entity (value tree edge).
+///
+/// The link identifies the child slot semantically via:
+/// - role
+/// - position (LIST/TUPLE/UNION)
+/// - identity_key (SET/MAPPING)
+///
+/// This change node targets the concrete AttributeValueLink instance (via FK)
+/// so commits can be applied deterministically without parsing path strings.
+class AttributeValueLinkChange {
+    // Relationships
+    change aware_history.change.Change key
+    child_attribute_value_change AttributeValueChange? unique
+}
+
+/// Load nested changes eagerly for recursive hydration.
+ann attribute.AttributeValueLinkChange::change load eager
+ann attribute.AttributeValueLinkChange::child_attribute_value_change load eager

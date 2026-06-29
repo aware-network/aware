@@ -16,16 +16,13 @@ def fs_runtime_dir(tmp_path, monkeypatch):
     aware_root = tmp_path / "aware_root"
     (aware_root / ".aware").mkdir(parents=True, exist_ok=True)
     (aware_root / "pyproject.toml").write_text('[tool.poetry]\nname = "aware"\n', encoding="utf-8")
-
-    def _fake_find_root():
-        return aware_root
-
-    monkeypatch.setattr("aware_orm.session.backends.fs_backend.find_aware_root", _fake_find_root)
+    monkeypatch.setenv("AWARE_ROOT", str(aware_root))
 
     try:
         yield aware_root / ".aware" / "runtime" / "orm"
     finally:
         monkeypatch.delenv("AWARE_PERSISTENCE_BACKEND", raising=False)
+        monkeypatch.delenv("AWARE_ROOT", raising=False)
 
 
 @pytest.mark.asyncio

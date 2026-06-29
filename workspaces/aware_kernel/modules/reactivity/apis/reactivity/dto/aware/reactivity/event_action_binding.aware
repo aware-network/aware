@@ -1,0 +1,16 @@
+/// Canonical DTO for one action binding resolved from EventConfig.
+///
+/// Ownership:
+/// - Reactivity API owns cross-module binding contracts.
+/// - Runtime implementations must import this DTO instead of local dataclasses.
+
+class EventActionBinding {
+    id UUID
+    action_config_id UUID
+    action_type String? = null
+    execution_order Int
+    priority Int
+    is_enabled Bool
+    is_required Bool
+    continue_on_fail Bool
+}

@@ -1,0 +1,19 @@
+// Code Semantic Provider Registration projection (v0)
+//
+// Contract:
+// - CodeSemanticProviderRegistration owns provider participation for one
+//   CodeModule.
+// - CodeModule and package bindings are reached through portals, not expanded
+//   as caller-owned internals.
+projection CodeSemanticProviderRegistration {
+    root semantic.CodeSemanticProviderRegistration
+
+    semantic.CodeSemanticProviderRegistration::code_module CodeModule
+    semantic.CodeSemanticProviderRegistration::semantic_package_bindings CodeSemanticPackageBinding
+
+    observable home instance default {
+        """
+        Code-owned semantic provider registration surface.
+        """
+    }
+}

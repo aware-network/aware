@@ -1,0 +1,283 @@
+api code {
+    capability semantic_contract {
+        endpoint describe aware_code_service_dto.code.DescribeCodeSemanticContractRequest {
+            """
+            Describe one Code semantic contract by provider, package, or package FQN.
+            """
+
+            response aware_code_service_dto.code.DescribeCodeSemanticContractResponse
+        }
+
+        endpoint validate aware_code_service_dto.code.ValidateCodeSemanticContractRequest {
+            """
+            Validate an externally supplied Code semantic contract DTO before local or remote use.
+            """
+
+            response aware_code_service_dto.code.ValidateCodeSemanticContractResponse
+        }
+
+        endpoint normalize aware_code_service_dto.code.NormalizeCodeSemanticContractRequest {
+            """
+            Normalize a runtime-adapted semantic contract into the public Code API DTO shape.
+            """
+
+            response aware_code_service_dto.code.NormalizeCodeSemanticContractResponse
+        }
+
+        endpoint find_manifest_resolution aware_code_service_dto.code.FindCodeSemanticManifestResolutionRequest {
+            """
+            Find semantic manifest-resolution descriptors through Code-owned contract truth.
+            """
+
+            response aware_code_service_dto.code.FindCodeSemanticManifestResolutionResponse
+        }
+
+        endpoint resolve_semantic_scope aware_code_service_dto.code.ResolveCodeSemanticScopeRequest {
+            """
+            Resolve provider-owned semantic scope through the Code-owned semantic scope registry.
+            """
+
+            response aware_code_service_dto.code.ResolveCodeSemanticScopeResponse
+        }
+    }
+
+    capability semantic_analysis {
+        endpoint preview_package_delta aware_code_service_dto.code.PreviewCodeSemanticAnalysisPackageDeltaRequest {
+            """
+            Preview provider-owned semantic meaning for one CodePackageDelta without materialization.
+            """
+
+            response aware_code_service_dto.code.PreviewCodeSemanticAnalysisPackageDeltaResponse
+        }
+    }
+
+    capability semantic_source_meaning {
+        endpoint resolve aware_code_service_dto.code.ResolveCodeSemanticSourceMeaningRequest {
+            """
+            Resolve declarative source meaning through Code-owned grammar source indexes.
+            """
+
+            response aware_code_service_dto.code.ResolveCodeSemanticSourceMeaningResponse
+        }
+
+        endpoint resolve_delta aware_code_service_dto.code.ResolveCodeSemanticSourceDeltaMeaningRequest {
+            """
+            Resolve declarative source meaning from CodePackageDelta plus explicit baseline context.
+            """
+
+            response aware_code_service_dto.code.ResolveCodeSemanticSourceDeltaMeaningResponse
+        }
+    }
+
+    capability grammar_profile {
+        endpoint resolve aware_code_service_dto.code.ResolveCodeGrammarProfileRequest {
+            """
+            Resolve a Code-owned grammar profile from semantic-contract syntax lanes.
+            """
+
+            response aware_code_service_dto.code.ResolveCodeGrammarProfileResponse
+        }
+    }
+
+    capability semantic_workflow_coverage {
+        endpoint resolve aware_code_service_dto.code.ResolveCodeSemanticWorkflowCoverageRequest {
+            """
+            Resolve Code-owned semantic workflow grammar/source/graph-binding coverage.
+            """
+
+            response aware_code_service_dto.code.ResolveCodeSemanticWorkflowCoverageResponse
+        }
+    }
+
+    capability grammar_anchor_binding {
+        endpoint validate aware_code_service_dto.code.ValidateCodeGrammarAnchorBindingRequest {
+            """
+            Validate grammar rule-field anchors that bind parsed source text to graph selectors.
+            """
+
+            response aware_code_service_dto.code.ValidateCodeGrammarAnchorBindingResponse
+        }
+
+        endpoint resolve_evidence aware_code_service_dto.code.ResolveCodeGrammarAnchorBindingEvidenceRequest {
+            """
+            Resolve grammar anchor fixtures into byte evidence and read-only graph/text drafts.
+            """
+
+            response aware_code_service_dto.code.ResolveCodeGrammarAnchorBindingEvidenceResponse
+        }
+    }
+
+    capability grammar_anchor_render_delta {
+        endpoint resolve_delta aware_code_service_dto.code.ResolveCodeGrammarAnchorRenderDeltaRequest {
+            """
+            Resolve grammar-anchor graph-to-source replacements into guarded Code package deltas.
+            """
+
+            response aware_code_service_dto.code.ResolveCodeGrammarAnchorRenderDeltaResponse
+        }
+    }
+
+    capability package_delta {
+        endpoint normalize aware_code_service_dto.code.NormalizeCodePackageDeltaRequest {
+            """
+            Normalize raw package delta input into the public CodePackageDelta DTO shape.
+            """
+
+            response aware_code_service_dto.code.NormalizeCodePackageDeltaResponse
+        }
+
+        endpoint fingerprint aware_code_service_dto.code.FingerprintCodePackageDeltaRequest {
+            """
+            Fingerprint one CodePackageDelta for cache, status, materialization, and receipt correlation.
+            """
+
+            response aware_code_service_dto.code.FingerprintCodePackageDeltaResponse
+        }
+    }
+
+    capability package_layout {
+        endpoint describe aware_code_service_dto.code.DescribeCodePackageLayoutRequest {
+            """
+            Describe package layout and path-role contract truth for local filesystem classification.
+            """
+
+            response aware_code_service_dto.code.DescribeCodePackageLayoutResponse
+        }
+
+        endpoint discover aware_code_service_dto.code.DiscoverCodePackageLayoutsRequest {
+            """
+            Discover package layout contract truth for explicit manifest paths.
+            """
+
+            response aware_code_service_dto.code.DiscoverCodePackageLayoutsResponse
+        }
+
+        endpoint validate aware_code_service_dto.code.ValidateCodePackageLayoutRequest {
+            """
+            Validate package layout and path-role contract truth before local filesystem classification.
+            """
+
+            response aware_code_service_dto.code.ValidateCodePackageLayoutResponse
+        }
+    }
+
+    capability section_delta {
+        endpoint validate aware_code_service_dto.code.ValidateCodeSectionDeltaRequest {
+            """
+            Validate section/segment delta intent before Code resolver execution.
+            """
+
+            response aware_code_service_dto.code.ValidateCodeSectionDeltaResponse
+        }
+
+        endpoint normalize aware_code_service_dto.code.NormalizeCodeSectionDeltaRequest {
+            """
+            Normalize section/segment delta intent into the public Code API DTO shape.
+            """
+
+            response aware_code_service_dto.code.NormalizeCodeSectionDeltaResponse
+        }
+
+        endpoint fingerprint aware_code_service_dto.code.FingerprintCodeSectionDeltaRequest {
+            """
+            Fingerprint one CodeSectionDeltaSet for semantic event and resolver receipts.
+            """
+
+            response aware_code_service_dto.code.FingerprintCodeSectionDeltaResponse
+        }
+
+        endpoint resolve_package_delta aware_code_service_dto.code.ResolveCodeSectionDeltaPackageDeltaRequest {
+            """
+            Resolve one CodeSectionDeltaSet into a CodePackageDelta through a Code resolver.
+            """
+
+            response aware_code_service_dto.code.ResolveCodeSectionDeltaPackageDeltaResponse
+        }
+
+        endpoint resolve_render_policy aware_code_service_dto.code.ResolveCodeSegmentRenderPolicyRequest {
+            """
+            Resolve Code-owned segment render policies for section-delta value domains.
+            """
+
+            response aware_code_service_dto.code.ResolveCodeSegmentRenderPolicyResponse
+        }
+    }
+
+    capability source_projection {
+        endpoint validate aware_code_service_dto.code.ValidateCodeSourceProjectionRequest {
+            """
+            Validate semantic source-projection request and result evidence before provider or consumer use.
+            """
+
+            response aware_code_service_dto.code.ValidateCodeSourceProjectionResponse
+        }
+
+        endpoint normalize aware_code_service_dto.code.NormalizeCodeSourceProjectionRequest {
+            """
+            Normalize semantic source-projection request and result evidence into stable Code API DTO shape.
+            """
+
+            response aware_code_service_dto.code.NormalizeCodeSourceProjectionResponse
+        }
+
+        endpoint fingerprint aware_code_service_dto.code.FingerprintCodeSourceProjectionRequest {
+            """
+            Fingerprint semantic source-projection request and result evidence for preview and receipt correlation.
+            """
+
+            response aware_code_service_dto.code.FingerprintCodeSourceProjectionResponse
+        }
+
+        endpoint resolve_package_delta aware_code_service_dto.code.ResolveCodeSourceProjectionPackageDeltaRequest {
+            """
+            Resolve provider-produced source-projection result evidence into a CodePackageDelta.
+            """
+
+            response aware_code_service_dto.code.ResolveCodeSourceProjectionPackageDeltaResponse
+        }
+    }
+
+    capability generated_materialization_delta {
+        endpoint validate aware_code_service_dto.code.ValidateCodeGeneratedMaterializationDeltaRequest {
+            """
+            Validate renderer-generated materialization delta request and result evidence before provider or consumer use.
+            """
+
+            response aware_code_service_dto.code.ValidateCodeGeneratedMaterializationDeltaResponse
+        }
+
+        endpoint normalize aware_code_service_dto.code.NormalizeCodeGeneratedMaterializationDeltaRequest {
+            """
+            Normalize renderer-generated materialization delta request and result evidence into stable Code API DTO shape.
+            """
+
+            response aware_code_service_dto.code.NormalizeCodeGeneratedMaterializationDeltaResponse
+        }
+
+        endpoint fingerprint aware_code_service_dto.code.FingerprintCodeGeneratedMaterializationDeltaRequest {
+            """
+            Fingerprint renderer-generated materialization delta request and result evidence for preview and receipt correlation.
+            """
+
+            response aware_code_service_dto.code.FingerprintCodeGeneratedMaterializationDeltaResponse
+        }
+
+        endpoint resolve_package_delta aware_code_service_dto.code.ResolveCodeGeneratedMaterializationPackageDeltaRequest {
+            """
+            Resolve renderer-generated materialization delta result evidence into a CodePackageDelta.
+            """
+
+            response aware_code_service_dto.code.ResolveCodeGeneratedMaterializationPackageDeltaResponse
+        }
+    }
+
+    capability source_ownership {
+        endpoint classify aware_code_service_dto.code.ClassifyCodeSourceOwnershipRequest {
+            """
+            Classify observed paths against package ownership boundaries through Code-owned rules.
+            """
+
+            response aware_code_service_dto.code.ClassifyCodeSourceOwnershipResponse
+        }
+    }
+}

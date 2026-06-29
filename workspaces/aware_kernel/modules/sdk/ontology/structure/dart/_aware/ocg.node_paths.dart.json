@@ -1,0 +1,71 @@
+{
+  "language": "dart",
+  "nodes": [
+    {
+      "node_id": "2912ac9d-fd83-5048-ae4e-7172d30773de",
+      "node_type": "class",
+      "entity_id": "37fc5e77-e6db-514f-8e5c-f3dbafdffd43",
+      "relative_path": "sdk/sdk_config.dart"
+    },
+    {
+      "node_id": "5b8aca9f-56ed-5bf7-a543-22ca70658885",
+      "node_type": "class",
+      "entity_id": "22992994-2422-5022-b234-311ee1f67670",
+      "relative_path": "sdk/sdk_operation.dart"
+    },
+    {
+      "node_id": "eb7e6623-38bb-512b-8d7b-085c6b6bd3ab",
+      "node_type": "class",
+      "entity_id": "0e3f2e84-53b1-5da7-91f7-7bad820ad5fd",
+      "relative_path": "sdk/sdk_operation_api_capability_endpoint.dart"
+    },
+    {
+      "node_id": "9b9b5372-d10f-5026-a8ca-6f4dd564a7d3",
+      "node_type": "class",
+      "entity_id": "c63b88a2-234a-51aa-a87c-660605d8a269",
+      "relative_path": "sdk/sdk_operation_dependency.dart"
+    },
+    {
+      "node_id": "1c6b5a60-d965-5065-ae33-89fa44dd1b73",
+      "node_type": "class",
+      "entity_id": "c8a58222-1188-5f09-869e-021d1a2387d7",
+      "relative_path": "sdk/sdk_package.dart"
+    },
+    {
+      "node_id": "381abd86-85ca-5d54-97b5-5aae3de960a7",
+      "node_type": "class",
+      "entity_id": "c75b3301-4878-56b8-add3-e57a6622149c",
+      "relative_path": "sdk/sdk_package_api_package.dart"
+    },
+    {
+      "node_id": "9d16324e-a9f9-561c-85b0-60b9f61e6e0e",
+      "node_type": "class",
+      "entity_id": "954fcee9-1692-5b23-b7e1-7fcf8c03539a",
+      "relative_path": "sdk/sdk_package_dependency.dart"
+    },
+    {
+      "node_id": "153cea75-fb5d-5de1-897e-e010f1a20c22",
+      "node_type": "class",
+      "entity_id": "62c3d2ca-0cfd-554d-8d71-424fcf23db02",
+      "relative_path": "sdk/sdk_package_implementation_package.dart"
+    },
+    {
+      "node_id": "389bdd56-8f4c-5500-84ca-2b359914dbb5",
+      "node_type": "class",
+      "entity_id": "a2b26cf7-8fda-5ee3-9dad-3c72c14c82a6",
+      "relative_path": "sdk/sdk_package_object_config_graph_package.dart"
+    },
+    {
+      "node_id": "5c79565c-89ef-55c7-b06d-d2f208bc94d1",
+      "node_type": "class",
+      "entity_id": "bee19a48-0001-561b-bd58-6bde1953bc1d",
+      "relative_path": "sdk/sdk_surface.dart"
+    },
+    {
+      "node_id": "29111e6d-9754-5201-b77f-ce5ea722159c",
+      "node_type": "class",
+      "entity_id": "5cf3736e-c872-5d1e-8bb0-1dcc4d997ca9",
+      "relative_path": "sdk/sdk_surface_method.dart"
+    }
+  ]
+}

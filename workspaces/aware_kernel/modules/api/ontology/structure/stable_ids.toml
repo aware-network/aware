@@ -1,0 +1,294 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_API"
+kind = "ns_url"
+value = "aware://api/v1"
+
+[[functions]]
+name = "stable_api_id"
+namespace = "NS_API"
+template = "aware:api:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_api_call_id"
+namespace = "NS_API"
+template = "aware:api_call:{api_capability_endpoint_id}:{call_key}"
+doc = "Compiler-generated from class-attribute identity keys: api_capability_endpoint_id, call_key"
+
+[[functions.params]]
+name = "api_capability_endpoint_id"
+type = "uuid"
+
+[[functions.params]]
+name = "call_key"
+type = "uuid"
+
+[[functions]]
+name = "stable_api_call_outcome_id"
+namespace = "NS_API"
+template = "aware:api_call_outcome:{api_call_id}"
+doc = "Compiler-generated from class-attribute identity keys: api_call_id"
+
+[[functions.params]]
+name = "api_call_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_api_capability_id"
+namespace = "NS_API"
+template = "aware:api_capability:{api_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: api_id, name"
+
+[[functions.params]]
+name = "api_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_api_capability_endpoint_id"
+namespace = "NS_API"
+template = "aware:api_capability_endpoint:{api_capability_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: api_capability_id, name"
+
+[[functions.params]]
+name = "api_capability_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_api_capability_endpoint_function_id"
+namespace = "NS_API"
+template = "aware:api_capability_endpoint_function:{api_capability_endpoint_id}:{api_graph_capability_function_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: api_capability_endpoint_id, api_graph_capability_function_id, name"
+
+[[functions.params]]
+name = "api_capability_endpoint_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_graph_capability_function_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_api_capability_endpoint_request_config_id"
+namespace = "NS_API"
+template = "aware:api_capability_endpoint_request_config:{api_capability_endpoint_id}:{class_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: api_capability_endpoint_id, class_config_id"
+
+[[functions.params]]
+name = "api_capability_endpoint_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_api_capability_endpoint_response_config_id"
+namespace = "NS_API"
+template = "aware:api_capability_endpoint_response_config:{api_capability_endpoint_request_config_id}:{class_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: api_capability_endpoint_request_config_id, class_config_id"
+
+[[functions.params]]
+name = "api_capability_endpoint_request_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_api_capability_endpoint_stream_config_id"
+namespace = "NS_API"
+template = "aware:api_capability_endpoint_stream_config:{api_capability_endpoint_request_config_id}:{stream_mode_norm}"
+doc = "Compiler-generated from class-attribute identity keys: api_capability_endpoint_request_config_id, stream_mode"
+
+[[functions.params]]
+name = "api_capability_endpoint_request_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "stream_mode"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "stream_mode_norm"
+param = "stream_mode"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_api_capability_endpoint_stream_event_config_id"
+namespace = "NS_API"
+template = "aware:api_capability_endpoint_stream_event_config:{api_capability_endpoint_stream_config_id}:{class_config_id}:{kind_norm}"
+doc = "Compiler-generated from class-attribute identity keys: api_capability_endpoint_stream_config_id, class_config_id, kind"
+
+[[functions.params]]
+name = "api_capability_endpoint_stream_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "kind"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "kind_norm"
+param = "kind"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_api_graph_id"
+namespace = "NS_API"
+template = "aware:api_graph:{api_id}:{object_config_graph_id}"
+doc = "Compiler-generated from class-attribute identity keys: api_id, object_config_graph_id"
+
+[[functions.params]]
+name = "api_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_config_graph_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_api_graph_capability_id"
+namespace = "NS_API"
+template = "aware:api_graph_capability:{api_graph_id}:{api_capability_id}"
+doc = "Compiler-generated from class-attribute identity keys: api_graph_id, api_capability_id"
+
+[[functions.params]]
+name = "api_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_capability_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_api_graph_capability_function_id"
+namespace = "NS_API"
+template = "aware:api_graph_capability_function:{api_graph_capability_id}:{api_graph_function_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: api_graph_capability_id, api_graph_function_id, name"
+
+[[functions.params]]
+name = "api_graph_capability_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_graph_function_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_api_graph_function_id"
+namespace = "NS_API"
+template = "aware:api_graph_function:{api_graph_id}:{class_config_function_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: api_graph_id, class_config_function_config_id"
+
+[[functions.params]]
+name = "api_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_function_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_api_graph_projection_id"
+namespace = "NS_API"
+template = "aware:api_graph_projection:{api_graph_id}:{object_projection_graph_id}"
+doc = "Compiler-generated from class-attribute identity keys: api_graph_id, object_projection_graph_id"
+
+[[functions.params]]
+name = "api_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_projection_graph_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_api_package_id"
+namespace = "NS_API"
+template = "aware:api_package:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_api_package_language_package_id"
+namespace = "NS_API"
+template = "aware:api_package_language_package:{api_package_id}:{code_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: api_package_id, code_package_id"
+
+[[functions.params]]
+name = "api_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_package_id"
+type = "uuid"

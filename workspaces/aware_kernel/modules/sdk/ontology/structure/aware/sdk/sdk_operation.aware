@@ -1,0 +1,124 @@
+/// SDK-local operation truth.
+///
+/// One operation may coordinate one or more API capability endpoints. The API
+/// endpoint remains the canonical ingress contract for request/response/stream
+/// payloads.
+class SdkOperation {
+    // Relationships
+    api_capability_endpoints SdkOperationApiCapabilityEndpoint[]
+    sdk_operation_dependencies SdkOperationDependency[]
+    sdk_operation_calls SdkOperationCall[]
+
+    // Attributes
+    name String key
+    title String?
+    description String?
+    implementation_ref String?
+
+    fn build construct (
+        name String key,
+        title String? = null,
+        description String? = null,
+        implementation_ref String? = null
+    ) -> SdkOperation {
+        """
+        Create one SDK-owned operation.
+
+        Contract:
+        - Identity is scoped by parent `SdkConfig` and operation `name`.
+        - `implementation_ref` is a local adapter hint, not API contract truth.
+        - Endpoint binding remains explicit through `bind_api_capability_endpoint`.
+        """
+    }
+
+    fn bind_api_capability_endpoint (
+        name String key,
+        api_capability_endpoint_id UUID key,
+        endpoint_ref String? = null,
+        discriminant String? = null,
+        role String = "primary",
+        order Int = 1,
+        required Bool = true
+    ) -> SdkOperationApiCapabilityEndpoint {
+        """
+        Bind this SDK operation to one API capability endpoint.
+
+        Contract:
+        - `api_capability_endpoint_id` points at API-owned invocation truth.
+        - `endpoint_ref` preserves authored `api.capability.endpoint` syntax when available.
+        - `role`, `order`, and `required` are SDK orchestration metadata only.
+        """
+        let created = construct api_capability_endpoints.create(
+            name = name,
+            api_capability_endpoint_id = api_capability_endpoint_id,
+            endpoint_ref = endpoint_ref,
+            discriminant = discriminant,
+            role = role,
+            order = order,
+            required = required,
+        )
+    }
+
+    fn bind_sdk_operation_dependency (
+        target_sdk_operation_id UUID key,
+        target_operation_ref String,
+        target_sdk_name String,
+        target_operation_name String,
+        target_package_name String? = null,
+        role String = "dependency",
+        order Int = 1,
+        required Bool = true,
+        description String? = null
+    ) -> SdkOperationDependency {
+        """
+        Bind this SDK operation to another SDK operation.
+
+        Contract:
+        - This is SDK operation composition truth, not API endpoint ingress truth.
+        - Local operation refs target the same `SdkConfig`; external refs must come from
+          the package dependency closure declared by `SdkPackageDependency`.
+        - `target_operation_ref` preserves authored `sdk_name.operation_name` syntax.
+        """
+        let created = construct sdk_operation_dependencies.create(
+            target_sdk_operation_id = target_sdk_operation_id,
+            target_operation_ref = target_operation_ref,
+            target_sdk_name = target_sdk_name,
+            target_operation_name = target_operation_name,
+            target_package_name = target_package_name,
+            role = role,
+            order = order,
+            required = required,
+            description = description,
+        )
+    }
+
+    fn create_call (
+        call_key UUID key,
+        request_hash String,
+        description String? = null,
+        context_hash String? = null,
+        status String = "pending",
+        api_call_id UUID? = null
+    ) -> SdkOperationCall {
+        """
+        Create one SDK operation invocation receipt anchored on this operation.
+
+        Contract:
+        - `SdkOperation` is the configuration rail; `SdkOperationCall` is the actual invocation.
+        - `call_key` must be stable for one client dispatch attempt.
+        - `api_call_id` optionally links the SDK call to the API ingress receipt it produced.
+        """
+        let created = construct sdk_operation_calls.create(
+            call_key = call_key,
+            request_hash = request_hash,
+            description = description,
+            context_hash = context_hash,
+            status = status,
+            api_call_id = api_call_id,
+        )
+    }
+}
+
+ann sdk.SdkOperation::api_capability_endpoints load eager
+ann sdk.SdkOperation::sdk_operation_dependencies load eager
+ann sdk.SdkOperation::sdk_operation_calls load eager

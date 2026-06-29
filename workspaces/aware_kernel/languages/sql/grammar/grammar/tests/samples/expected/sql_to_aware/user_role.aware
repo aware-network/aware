@@ -1,0 +1,17 @@
+type Role {
+    // Relationships
+    permissions public.Permission[] many
+
+    // Attributes
+    name String unique
+}
+
+type UserRole {
+    // Relationships
+    permissions public.Permission[] @public.UserRolePermissionAudit many
+    role public.Role
+
+    // Attributes
+    assigned_at DateTime = "CURRENT_TIMESTAMP"
+    is_active Bool = true
+}

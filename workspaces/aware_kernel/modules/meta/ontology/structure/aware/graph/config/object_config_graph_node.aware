@@ -1,0 +1,75 @@
+class ObjectConfigGraphNode {
+    // Relationships
+    enum_config enum.EnumConfig? unique
+    class_config class.ClassConfig? unique
+    class_config_relationship class.ClassConfigRelationship? unique
+    layouts ObjectConfigGraphNodeLayout[]
+
+    // Attributes
+    type ObjectConfigGraphNodeType key
+    /// Canonical semantic identity for this node lane.
+    ///
+    /// Examples:
+    /// - class node: class FQN
+    /// - enum node: enum FQN
+    /// - relationship node: canonical relationship fingerprint
+    node_key String key
+
+    fn create construct(
+        type ObjectConfigGraphNodeType key,
+        node_key String key
+    ) -> ObjectConfigGraphNode {
+        """
+        Create deterministic node shell under an ObjectConfigGraph.
+
+        Contract:
+        - Parent `ObjectConfigGraph` scope is propagated by traversal lowering.
+        - Canonical stable identity derives from parent scope + `(type, node_key)`.
+        - Contained entities derive under this node instead of being the node identity source.
+        """
+    }
+
+    fn create_class(
+        class_fqn String key,
+        name String,
+        is_base Bool = true,
+        is_edge Bool = false,
+        description String? = null,
+        value_mode class.ClassValueMode = graph_ref
+    ) -> class.ClassConfig {
+        """
+        Materialize ClassConfig under this node.
+        """
+        let created = construct class_config.create(
+            class_fqn = class_fqn,
+            name = name,
+            is_base = is_base,
+            is_edge = is_edge,
+            description = description,
+            value_mode = value_mode,
+        )
+    }
+
+    fn create_enum(
+        enum_fqn String key,
+        name String,
+        description String? = null,
+        values String[] = []
+    ) -> enum.EnumConfig {
+        """
+        Materialize EnumConfig under this node.
+        """
+        let created = construct enum_config.create(
+            enum_fqn = enum_fqn,
+            name = name,
+            description = description,
+            values = values,
+        )
+    }
+}
+
+/// Load nodes eagerly
+ann config.ObjectConfigGraphNode::enum_config load eager
+ann config.ObjectConfigGraphNode::class_config load eager
+ann config.ObjectConfigGraphNode::class_config_relationship load eager
+ann config.ObjectConfigGraphNode::layouts load eager

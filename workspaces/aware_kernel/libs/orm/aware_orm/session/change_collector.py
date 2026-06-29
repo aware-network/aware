@@ -439,6 +439,19 @@ class TrackedList(list[Any]):
         except Exception:
             return
 
+    @staticmethod
+    def _record_added_reference(collector: ORMChangeCollector, item: Any) -> None:
+        if item is None or isinstance(item, UUID):
+            return
+        try:
+            is_new = bool(getattr(item, "is_new", False))
+        except Exception:
+            is_new = False
+        if is_new:
+            collector.record_create(item)
+            return
+        TrackedList._record_reference(collector, item)
+
     def append(self, item: Any) -> None:  # type: ignore[override]
         collector = self._collector()
         if collector is None:
@@ -449,7 +462,7 @@ class TrackedList(list[Any]):
             return None
 
         self._touch(collector)
-        self._record_reference(collector, item)
+        self._record_added_reference(collector, item)
         item_ref = stable_ref(item)
         counts: dict[UUID, int] | None = None
         prev = 0
@@ -485,7 +498,7 @@ class TrackedList(list[Any]):
         refs_to_add: set[UUID] = set()
         counts: dict[UUID, int] | None = None
         for item in items_list:
-            self._record_reference(collector, item)
+            self._record_added_reference(collector, item)
             item_ref = stable_ref(item)
             if not isinstance(item_ref, UUID):
                 continue
@@ -549,7 +562,7 @@ class TrackedList(list[Any]):
             return None
 
         self._touch(collector)
-        self._record_reference(collector, item)
+        self._record_added_reference(collector, item)
         item_ref = stable_ref(item)
         counts: dict[UUID, int] | None = None
         prev = 0
@@ -665,7 +678,7 @@ class TrackedList(list[Any]):
             for item in old_values:
                 self._record_reference(collector, item)
             for item in new_values:
-                self._record_reference(collector, item)
+                self._record_added_reference(collector, item)
 
         old_uuid_refs = [ref for ref in (stable_ref(v) for v in old_values) if isinstance(ref, UUID)]
         new_uuid_refs = [ref for ref in (stable_ref(v) for v in new_values) if isinstance(ref, UUID)]

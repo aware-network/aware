@@ -1,0 +1,69 @@
+/// Canonical config/schema root for one ontology.
+///
+/// `OntologyPackage` remains package/distribution truth and points at
+/// `ObjectConfigGraphPackage`. `OntologyConfig` is the ontology-owned config
+/// root that points at the actual `ObjectConfigGraph` schema it configures.
+class OntologyConfig {
+    // Relationships
+    object_config_graph aware_meta.graph.config.ObjectConfigGraph?
+    object_config_graph_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+    ontologies Ontology[]
+
+    // Attributes
+    description String?
+    fqn_prefix String key
+    name String key
+    schema_hash String?
+    title String?
+    version_number Int = 1
+
+    fn build construct(
+        name String key,
+        fqn_prefix String key,
+        object_config_graph_id UUID? = null,
+        object_config_graph_object_instance_graph_commit_id UUID? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        schema_hash String? = null,
+    ) -> OntologyConfig {
+        """
+        Create the ontology-owned config/schema root.
+
+        Contract:
+        - Identity is keyed by `(name, fqn_prefix)` and intentionally matches
+          the package-level semantic identity.
+        - `object_config_graph_id` points at Meta-owned schema truth.
+        - `object_config_graph_object_instance_graph_commit_id` pins the exact
+          OCG root commit used to replay this config.
+        - Package-level OCG package replay stays on `OntologyPackage`; the
+          config root owns the direct OCG relationship.
+        """
+    }
+
+    fn create_ontology(
+        key String key,
+        title String? = null,
+        description String? = null,
+        status String = "active",
+    ) -> Ontology {
+        """
+        Create one concrete ontology authority/worldline for this config.
+
+        Contract:
+        - Parent `OntologyConfig` scope is injected by propagation.
+        - OIGI membership is registered through the Ontology authority surface;
+          this constructor only creates the ontology authority root.
+        """
+        let created = construct ontologies.build(
+            key = key,
+            title = title,
+            description = description,
+            status = status,
+        )
+    }
+}
+
+ann ontology.OntologyConfig::object_config_graph load eager
+ann ontology.OntologyConfig::object_config_graph_object_instance_graph_commit load eager
+ann ontology.OntologyConfig::ontologies load forward eager reverse lazy

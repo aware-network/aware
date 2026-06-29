@@ -1,0 +1,55 @@
+class ApiGraph {
+    // Relationships
+    object_config_graph aware_meta.graph.config.ObjectConfigGraph key
+    api_graph_functions ApiGraphFunction[]
+    api_graph_projections ApiGraphProjection[]
+    api_graph_capabilities ApiGraphCapability[]
+
+    // Attributes
+    description String?
+
+    fn create construct (object_config_graph_id UUID key, description String? = null) -> ApiGraph {
+        """
+        Create one deterministic API graph bridge to one target ObjectConfigGraph.
+        """
+    }
+
+    fn create_graph_function (
+        class_config_function_config_id UUID,
+        description String? = null
+    ) -> ApiGraphFunction {
+        """
+        Create one standalone API graph callable target under this ApiGraph.
+        """
+        let created = construct api_graph_functions.create(
+            class_config_function_config_id = class_config_function_config_id,
+            description = description,
+        )
+    }
+
+    fn create_graph_projection (
+        object_projection_graph_id UUID,
+        description String? = null
+    ) -> ApiGraphProjection {
+        """
+        Create one graph-scoped projection mapping bridge under this ApiGraph.
+        """
+        let created = construct api_graph_projections.create(
+            object_projection_graph_id = object_projection_graph_id,
+            description = description,
+        )
+    }
+
+    fn create_graph_capability (
+        api_capability_id UUID,
+        description String? = null
+    ) -> ApiGraphCapability {
+        """
+        Bind one declared ApiCapability to this ApiGraph.
+        """
+        let created = construct api_graph_capabilities.create(
+            api_capability_id = api_capability_id,
+            description = description,
+        )
+    }
+}

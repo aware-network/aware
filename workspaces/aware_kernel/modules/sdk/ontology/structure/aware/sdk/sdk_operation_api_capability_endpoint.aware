@@ -1,0 +1,30 @@
+/// SDK operation to API endpoint bridge.
+class SdkOperationApiCapabilityEndpoint {
+    // Relationships
+    api_capability_endpoint aware_api.api.ApiCapabilityEndpoint key
+
+    // Attributes
+    name String key
+    endpoint_ref String?
+    discriminant String?
+    role String = "primary"
+    order Int = 1
+    required Bool = true
+
+    fn create construct (
+        name String key,
+        api_capability_endpoint_id UUID key,
+        endpoint_ref String? = null,
+        discriminant String? = null,
+        role String = "primary",
+        order Int = 1,
+        required Bool = true
+    ) -> SdkOperationApiCapabilityEndpoint {
+        """
+        Create one deterministic SDK operation binding to one API capability endpoint.
+        """
+    }
+}
+
+ann sdk.SdkOperationApiCapabilityEndpoint::api_capability_endpoint load eager
+

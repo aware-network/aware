@@ -1,0 +1,96 @@
+class EventConfig {
+    // Relationships
+    event_config_action_configs EventConfigActionConfig[]
+    event_config_condition_configs EventConfigConditionConfig[]
+
+    // Attributes
+    allowed_roles String[]
+    batch_window_ms Int? = null
+    delivery_mode EventDeliveryMode = immediate
+    description String
+    event_schema JsonObject = {}
+    event_type EventType = condition
+    is_enabled Bool = true
+    is_system Bool = false
+    name String key
+    priority EventPriority = normal
+    require_authentication Bool = true
+    valid_sources String[]
+
+    fn create construct(
+        name String key,
+        description String,
+        event_type EventType = condition,
+        delivery_mode EventDeliveryMode = immediate,
+        priority EventPriority = normal,
+        is_enabled Bool = true,
+        is_system Bool = false,
+        require_authentication Bool = true,
+        valid_sources String[] = [],
+        allowed_roles String[] = [],
+        event_schema JsonObject = {},
+        batch_window_ms Int? = null
+    ) -> EventConfig {
+        """
+        Create a canonical event policy root.
+        """
+    }
+
+    fn add_condition_config(
+        condition_config_id UUID,
+        execution_order Int = 0,
+        priority Int = 0,
+        is_enabled Bool = true,
+        is_required Bool = false,
+        continue_on_fail Bool = true,
+        stop_on_match Bool = false,
+        cache_result Bool = false,
+        cache_ttl_seconds Int? = null
+    ) -> EventConfigConditionConfig {
+        """
+        Link this EventConfig to a ConditionConfig via a canonical binding edge.
+        """
+        let created = construct event_config_condition_configs.create(
+            condition_config_id = condition_config_id,
+            execution_order = execution_order,
+            priority = priority,
+            is_enabled = is_enabled,
+            is_required = is_required,
+            continue_on_fail = continue_on_fail,
+            stop_on_match = stop_on_match,
+            cache_result = cache_result,
+            cache_ttl_seconds = cache_ttl_seconds,
+        )
+    }
+
+    fn add_action_config(
+        action_config_id UUID,
+        execution_order Int = 0,
+        priority Int = 0,
+        is_enabled Bool = true,
+        is_required Bool = false,
+        continue_on_fail Bool = true
+    ) -> EventConfigActionConfig {
+        """
+        Link this EventConfig to an ActionConfig via a canonical binding edge.
+        """
+        let created = construct event_config_action_configs.create(
+            action_config_id = action_config_id,
+            execution_order = execution_order,
+            priority = priority,
+            is_enabled = is_enabled,
+            is_required = is_required,
+            continue_on_fail = continue_on_fail,
+        )
+    }
+
+    fn update_sources(p_event_config_id UUID, p_valid_sources String[]) -> {
+        """
+        Updates the valid sources for an event config, ensuring uniqueness and order.
+        Parameters: p_event_config_id: The UUID of the event config to update.
+        p_valid_sources: Array of valid source identifiers.
+        Returns: void
+        """
+    }
+
+}

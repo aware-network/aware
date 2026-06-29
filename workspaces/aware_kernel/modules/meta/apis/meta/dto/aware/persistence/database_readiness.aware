@@ -1,0 +1,53 @@
+/// Meta persistence DB readiness DTOs.
+///
+/// Meta owns OCG-backed DB readiness behind this generated API surface.
+/// Higher orchestration adapters may decide when this route is called, but
+/// Environment identity is not part of this lower-level contract.
+
+class MetaDatabaseArtifactRef {
+    path String
+    hash String
+}
+
+class MetaDatabaseArtifactReceipt {
+    meta_package_id UUID?
+    meta_manifest_ref persistence.MetaDatabaseArtifactRef?
+    ocg_id UUID
+    ocg_hash String
+    ocg_head_commit_id UUID?
+    ocg_lane_branch_id UUID?
+    ocg_lane_projection_hash String?
+    db_schema_registry_ref persistence.MetaDatabaseArtifactRef
+    db_schema_hash String
+    db_backend_target String = "postgres"
+    db_package_kind String = "ontology"
+    sql_roots String[] = []
+    meta_lock_ref persistence.MetaDatabaseArtifactRef?
+    ocg_lane_index_ref persistence.MetaDatabaseArtifactRef?
+}
+
+class MetaPersistenceEnsureDatabaseReadyRequest {
+    actor_id UUID?
+    database_artifact_receipt persistence.MetaDatabaseArtifactReceipt
+    database_url_ref String?
+    boot_policy String = "migrate"
+}
+
+class MetaPersistenceEnsureDatabaseReadyResponse {
+    status String
+    error String?
+    actor_id UUID?
+    meta_package_id UUID?
+    ocg_id UUID?
+    ocg_hash String?
+    db_schema_hash String?
+    db_schema_registry_hash String?
+    installed Bool = false
+    migrated Bool = false
+    marker_ocg_hash String?
+    marker_head_commit_id UUID?
+    sql_root_count Int = 0
+    step_count Int = 0
+    seeded_ocg_config Bool = false
+    hydrated_domain_lanes String[] = []
+}

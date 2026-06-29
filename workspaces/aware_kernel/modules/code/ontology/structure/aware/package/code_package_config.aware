@@ -1,0 +1,166 @@
+class CodePackageConfig {
+    // Relationships
+    packages CodePackage[]
+    inputs CodePackageConfigInput[]
+    outputs CodePackageConfigOutput[]
+    runtime_contexts CodePackageConfigRuntimeContext[]
+
+    // Attributes
+    config_key String key
+    provider_key String
+    semantic_owner String
+    contract String
+    package_role String?
+    manifest_kind String
+    manifest_filename String
+    semantic_package_family String?
+    semantic_package_kind String?
+    semantic_projection_name String?
+    semantic_root_kind String?
+    default_surface String?
+    materialization_capability String?
+
+    fn build construct (
+        config_key String key,
+        provider_key String,
+        semantic_owner String,
+        contract String,
+        manifest_kind String,
+        manifest_filename String,
+        package_role String? = null,
+        semantic_package_family String? = null,
+        semantic_package_kind String? = null,
+        semantic_projection_name String? = null,
+        semantic_root_kind String? = null,
+        default_surface String? = null,
+        materialization_capability String? = null
+    ) -> CodePackageConfig {
+        """
+        Create one Code-owned package configuration contract.
+
+        Contract:
+        - Identity is stable by `config_key`.
+        - Config owns semantic package kind, manifest kind, and materialization contract vocabulary.
+        - Workspace consumes this contract but owns deployment selection, planning, execution, and receipts.
+        - Concrete CodePackage rows are constructed under `packages` so package identity is config-scoped.
+        """
+    }
+
+    fn create_package (
+        package_name String key,
+        language aware_code.code.CodeLanguage key,
+        manifest_relative_path String,
+        package_root String,
+        sources_root String? = null,
+        fqn_prefix String? = null,
+        surface String? = null
+    ) -> CodePackage {
+        """
+        Create one concrete CodePackage under this CodePackageConfig.
+
+        Contract:
+        - Parent CodePackageConfig context is propagated by constructor lowering.
+        - Runtime package layout remains instance payload.
+        - `surface` is an optional package override; consumers fall back to `default_surface`.
+        """
+        let created = construct packages.build(
+            package_name = package_name,
+            language = language,
+            manifest_relative_path = manifest_relative_path,
+            package_root = package_root,
+            sources_root = sources_root,
+            fqn_prefix = fqn_prefix,
+            surface = surface,
+        )
+    }
+
+    fn add_input (
+        input_key String key,
+        kind CodePackageConfigInputKind,
+        artifact_family String? = null,
+        artifact_role String? = null,
+        package_family String? = null,
+        semantic_kind String? = null,
+        runtime_contract_version String? = null,
+        required Bool = true
+    ) -> CodePackageConfigInput {
+        """
+        Declare one typed materialization input accepted by this package config.
+        """
+        let created = construct inputs.build(
+            input_key = input_key,
+            kind = kind,
+            artifact_family = artifact_family,
+            artifact_role = artifact_role,
+            package_family = package_family,
+            semantic_kind = semantic_kind,
+            runtime_contract_version = runtime_contract_version,
+            required = required,
+        )
+    }
+
+    fn add_output (
+        output_key String key,
+        kind CodePackageConfigOutputKind,
+        producer_key String? = null,
+        artifact_family String? = null,
+        artifact_role String? = null,
+        package_output_key String? = null,
+        target_provider_key String? = null,
+        target_input_key String? = null,
+        target_semantic_owner String? = null,
+        target_package_family String? = null,
+        target_semantic_kind String? = null,
+        media_type String? = null,
+        runtime_contract_version String? = null,
+        required_for String[] = [],
+        required Bool = true
+    ) -> CodePackageConfigOutput {
+        """
+        Declare one typed materialization output emitted by this package config.
+        """
+        let created = construct outputs.build(
+            output_key = output_key,
+            kind = kind,
+            producer_key = producer_key,
+            artifact_family = artifact_family,
+            artifact_role = artifact_role,
+            package_output_key = package_output_key,
+            target_provider_key = target_provider_key,
+            target_input_key = target_input_key,
+            target_semantic_owner = target_semantic_owner,
+            target_package_family = target_package_family,
+            target_semantic_kind = target_semantic_kind,
+            media_type = media_type,
+            runtime_contract_version = runtime_contract_version,
+            required_for = required_for,
+            required = required,
+        )
+    }
+
+    fn add_runtime_context (
+        context_key String key,
+        kind CodePackageConfigRuntimeContextKind,
+        package_name String? = null,
+        projection_name String? = null,
+        runtime_contract_version String? = null,
+        required Bool = true
+    ) -> CodePackageConfigRuntimeContext {
+        """
+        Declare one typed runtime context required by this package config.
+        """
+        let created = construct runtime_contexts.build(
+            context_key = context_key,
+            kind = kind,
+            package_name = package_name,
+            projection_name = projection_name,
+            runtime_contract_version = runtime_contract_version,
+            required = required,
+        )
+    }
+}
+
+ann package.CodePackageConfig::packages load eager
+ann package.CodePackageConfig::inputs load eager
+ann package.CodePackageConfig::outputs load eager
+ann package.CodePackageConfig::runtime_contexts load eager

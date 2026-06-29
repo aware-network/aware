@@ -1,7 +1,7 @@
 """Shared DB boot adapter contracts.
 
 Adapters own backend-specific execution semantics (postgres/sqlite/etc).
-The owner boot module (`aware_orm.db.boot`) remains planner/orchestrator only.
+The owner boot module (`aware_orm.db.boot`) remains planner/environment only.
 """
 
 from __future__ import annotations

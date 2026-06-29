@@ -1,0 +1,21 @@
+edge CodePackageDeltaProducerCode {
+    // Attributes
+    input_code_package_id UUID?
+    input_object_instance_graph_commit_id UUID?
+    input_digest String?
+    output_digest String?
+    emission_payload JsonObject?
+
+    fn build construct(
+        code_package_code_id UUID key,
+        input_code_package_id UUID? = null,
+        input_object_instance_graph_commit_id UUID? = null,
+        input_digest String? = null,
+        output_digest String? = null,
+        emission_payload JsonObject? = null
+    ) -> CodePackageDeltaProducerCode {
+        """
+        Attach one producer emission to package-owned Code.
+        """
+    }
+}

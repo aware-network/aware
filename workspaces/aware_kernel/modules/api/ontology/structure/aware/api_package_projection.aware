@@ -1,0 +1,16 @@
+/// ApiPackage projection
+///
+/// Purpose:
+/// - Expose the API-owned package rail for Workspace/package consumers.
+/// - Keep `Api` as the semantic API root under the package boundary.
+/// - Keep generated API client/protocol packages explicit through `ApiPackageLanguagePackage`.
+/// - Avoid collapsing package truth and API semantics into one object.
+projection ApiPackage is_branchable {
+    root api.ApiPackage
+
+    api.ApiPackage::api Api
+    api.ApiPackage::api_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    api.ApiPackage::language_packages
+    api.ApiPackageLanguagePackage::code_package aware_code.CodePackage
+    aware_meta.graph.instance.ObjectInstanceGraphCommit::commit
+}

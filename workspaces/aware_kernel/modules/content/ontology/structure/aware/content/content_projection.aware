@@ -1,0 +1,33 @@
+/// Content Projection (v0)
+///
+/// Contract:
+/// - Content is SSOT for ordered multi-part representations (text + files).
+/// - The projection is branchable so Content can be used as a first-class lane.
+/// - Views are declared in `.aware` and seeded canonically (no host minting).
+
+projection Content is_branchable {
+    root aware_content.content.Content
+
+    // Core graph (renderable surface)
+    aware_content.content.Content::content_index
+    aware_content.content.Content::content_layouts
+    aware_content.content.ContentLayout::content_part_contents
+    aware_content.content.Content::content_part_contents
+    aware_content.part.ContentPartContent::content_part
+
+    // Part specializations (text + file/media)
+    aware_content.part.ContentPart::content_part_multimodal_index
+    aware_content.part.ContentPart::content_part_text
+    aware_content.part.ContentPartText::index
+    aware_content.part.ContentPartText::segments
+    aware_content.part.ContentPartTextSegment::style
+    aware_content.part.ContentPartTextSegment::content_part_text_segment_translations
+    aware_content.part.ContentPart::storage_blobs
+
+    // Views (compiler-seeded, FocusScope-driven)
+    view editor instance default {
+        """
+        Content editor + renderer (canonical layout).
+        """
+    }
+}

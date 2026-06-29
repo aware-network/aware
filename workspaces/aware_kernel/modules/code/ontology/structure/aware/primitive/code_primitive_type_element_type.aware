@@ -1,0 +1,17 @@
+/// Edge linking a tuple-like CodePrimitiveType to its element types.
+///
+/// Modeled as an explicit edge to support:
+/// - self-referential element lists without ambiguous FK names
+/// - sharing element nodes across multiple parents (M2M semantics)
+/// - stable ordering via `position`
+edge CodePrimitiveTypeElementType {
+    // Attributes
+    position Int key
+
+    fn build construct(position Int key) -> CodePrimitiveTypeElementType {
+        """
+        Create one ordered tuple element slot under a CodePrimitiveType.
+        """
+    }
+}
+

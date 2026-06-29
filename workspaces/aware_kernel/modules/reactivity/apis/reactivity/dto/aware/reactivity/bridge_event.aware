@@ -1,0 +1,19 @@
+/// Canonical DTO for reactivity bridge semantic events.
+///
+/// Ownership:
+/// - Reactivity API owns semantic bridge events.
+/// - Caller attribution lives above the rail in caller-plane receipts/context.
+
+class ActorReactivityBridgeEvent {
+    event_id UUID
+    event_type String
+    source String
+    created_at_unix_ms Int
+    branch_id UUID
+    projection_hash String
+    commit_id UUID
+    event_config_condition_config_id UUID?
+    root_object_id UUID?
+    object_instance_graph_id UUID?
+    graph_hash_post String?
+}

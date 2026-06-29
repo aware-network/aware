@@ -1,0 +1,233 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "99c80e9e-6a76-55bd-a037-e93dbec744e1",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "ApplyFileSystemDeltaRequest",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.ApplyFileSystemDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8f25208f-ff02-5d10-85d5-bcf5cd7ae6f6",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "ApplyFileSystemDeltaResponse",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.ApplyFileSystemDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "2e2687ff-1f29-5e07-a542-ebe456960637",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "CollectFileSystemDeltaRequest",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.CollectFileSystemDeltaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "0f149eb7-f1fa-583b-97d8-d9e3a3a5ff66",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "CollectFileSystemDeltaResponse",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.CollectFileSystemDeltaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "29483ab4-5a6a-5322-b1f5-3cf8b40e7bf8",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "FileSystemServiceRequest",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b403b516-bd67-50cb-8065-c3af6d72352d",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "FileSystemServiceResponse",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e6d8fb99-e389-5db5-8fd9-224d8b0da6da",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "ResolveFileSystemBackendCapabilitiesRequest",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.ResolveFileSystemBackendCapabilitiesRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "aae8dfd7-0778-55ae-bf77-0b9abd84e111",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "ResolveFileSystemBackendCapabilitiesResponse",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.ResolveFileSystemBackendCapabilitiesResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "cc88ca90-b728-5182-a3de-e63de5ddc246",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "ScanFileSystemSnapshotRequest",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.ScanFileSystemSnapshotRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9fd7aeb8-d07e-534e-867a-c38b23a71e0e",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "ScanFileSystemSnapshotResponse",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.ScanFileSystemSnapshotResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "a99da8b1-ec2b-5e2c-a6f5-292bc06cb1ea",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "VerifyFileSystemRootRequest",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.VerifyFileSystemRootRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "84475f4f-63bd-5efc-b84d-2af7fdffd935",
+      "module": "aware_file_system_service_dto.file_system.service_operation",
+      "name": "VerifyFileSystemRootResponse",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.VerifyFileSystemRootResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "b9be720e-a7c6-5b7f-a8fd-1cf03264cf6e",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemApplyPolicy",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemApplyPolicy",
+      "functions": []
+    },
+    {
+      "class_config_id": "da69ef67-f890-5319-9367-fc80d652c3d6",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemApplyReceipt",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemApplyReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "f777ef82-c11e-5f4d-abeb-2b8db8b07c58",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemArtifactReceipt",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemArtifactReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "98533d4b-c7a0-534f-af3d-80b257d51e87",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemBackendCapabilities",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemBackendCapabilities",
+      "functions": []
+    },
+    {
+      "class_config_id": "2f4cceb3-12a8-565b-944e-fccd8f939bf9",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemBackendCapability",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemBackendCapability",
+      "functions": []
+    },
+    {
+      "class_config_id": "2d80548e-6afa-51e2-bee2-1bc430cc65ee",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemBackendReceipt",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemBackendReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "6fc716bb-2c13-5a92-a73d-877d3f59ef02",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemContentDigest",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemContentDigest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b3f250d6-f038-5f5b-a86d-4f0c8c145994",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemDeltaEntry",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemDeltaEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "64f2925d-8770-53fe-b13d-959f6eb27f6f",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemDeltaSet",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemDeltaSet",
+      "functions": []
+    },
+    {
+      "class_config_id": "e767e52a-a0e4-57b4-ae0f-00094f9db933",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemDeltaTotals",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemDeltaTotals",
+      "functions": []
+    },
+    {
+      "class_config_id": "ac0cfeca-6242-53ea-92d1-62c8ed548ffd",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemEntryMetadata",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemEntryMetadata",
+      "functions": []
+    },
+    {
+      "class_config_id": "c90cd28f-584e-51df-965a-b736b3acc094",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemEntrySnapshot",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemEntrySnapshot",
+      "functions": []
+    },
+    {
+      "class_config_id": "f7206bb8-40b2-5a87-b849-5e750ed524ca",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemRelativePath",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemRelativePath",
+      "functions": []
+    },
+    {
+      "class_config_id": "c482fbbb-d51e-597d-8a01-22390b7f9721",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemRootRef",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemRootRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "496a789b-92a3-5bb7-b5f7-df7d49e5f465",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemScanStats",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemScanStats",
+      "functions": []
+    },
+    {
+      "class_config_id": "69e6ce6a-8b26-5b43-b227-46567bedcf4f",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemSnapshot",
+      "aware_class_ref": "aware_file_system_service_dto.file_system.FileSystemSnapshot",
+      "functions": []
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "11ce1bfb-eec8-578d-bd91-9c0f4bb4b3d1",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemBackendKind"
+    },
+    {
+      "enum_config_id": "b7bbbe3e-6bfa-536a-9c2d-61e13a46a70e",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemDeltaOperation"
+    },
+    {
+      "enum_config_id": "1f62c599-9690-50ba-9214-90b57da7ab4a",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemDigestAlgorithm"
+    },
+    {
+      "enum_config_id": "51f408e3-7677-5f7b-bd2b-43e2fb389cfd",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemEntryKind"
+    },
+    {
+      "enum_config_id": "1a9cf999-f3ff-55ff-964d-e896225f1e55",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemFilterProfile"
+    },
+    {
+      "enum_config_id": "a960fccc-f222-529b-abe7-5fb5996a8ecc",
+      "module": "aware_file_system_service_dto.file_system.types",
+      "name": "FileSystemPathSafetyMode"
+    }
+  ]
+}

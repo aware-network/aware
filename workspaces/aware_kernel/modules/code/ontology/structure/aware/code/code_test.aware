@@ -1,0 +1,48 @@
+/// Canonical test surface for one Code object.
+///
+/// Contract:
+/// - Code owns test surfaces.
+/// - Framework identity is relational, not enum-backed.
+/// - Runnable test units live below this surface and point at concrete
+///   CodeSection truth.
+class CodeTest {
+    // Relationships
+    framework CodeTestFramework key
+    units CodeTestUnit[]
+
+    // Attributes
+    discovery_kind String
+    selector_prefix String?
+
+    fn build construct(
+        framework_id UUID key,
+        discovery_kind String = "language_plugin",
+        selector_prefix String? = null
+    ) -> CodeTest {
+        """
+        Build one framework-specific test surface under a Code object.
+        """
+    }
+
+    fn create_unit(
+        code_section_id UUID key,
+        unit_key String key,
+        selector String,
+        kind String = "function",
+        name String? = null
+    ) -> CodeTestUnit {
+        """
+        Attach one runnable test unit to a concrete CodeSection.
+        """
+        let created = construct units.build(
+            code_section_id = code_section_id,
+            unit_key = unit_key,
+            selector = selector,
+            kind = kind,
+            name = name,
+        )
+    }
+}
+
+ann code.CodeTest::framework load eager
+ann code.CodeTest::units load eager

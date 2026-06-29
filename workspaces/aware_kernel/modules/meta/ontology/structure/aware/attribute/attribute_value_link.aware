@@ -1,0 +1,19 @@
+/// Edge in the AttributeValue tree.
+///
+/// This mirrors AttributeTypeDescriptorLink, but adds `identity_key` for
+/// non-positional collections:
+/// - SET: identity_key = fingerprint(element subtree)
+/// - MAPPING: identity_key = fingerprint(key subtree) (shared by KEY and VALUE)
+class AttributeValueLink {
+    // Relationships
+    attribute_value_link_changes AttributeValueLinkChange[]
+    child AttributeValue key
+
+    // Attributes
+    role AttributeTypeDescriptorRole
+    position Int?
+    identity_key String?
+}
+
+/// Load child eagerly
+ann attribute.AttributeValueLink::child load eager

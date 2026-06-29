@@ -1,0 +1,20 @@
+class EventCondition {
+    // Relationships
+    condition condition.Condition key
+    config EventConfigConditionConfig key
+
+    // Attributes
+    evaluation_context JsonObject = {}
+    matched Bool = true
+
+    fn create construct(
+        condition_id UUID key,
+        config_id UUID key,
+        matched Bool = true,
+        evaluation_context JsonObject = {}
+    ) -> EventCondition {
+        """
+        Create canonical condition-match evidence for a raised event.
+        """
+    }
+}

@@ -1,0 +1,30 @@
+class ObjectProjectionGraphEdge {
+    // Relationships
+    class_config_relationship class.ClassConfigRelationship key
+
+    // Attributes
+    attribute_role ObjectProjectionGraphAttributeRole = reference
+    depth_limit Int? = null
+    include ObjectProjectionGraphEdgeInclude = required
+    loading_override class.ClassConfigRelationshipSideLoadingStrategy? = null
+    multiplicity ObjectProjectionGraphEdgeMultiplicity = many
+    traversal_direction class.ClassConfigRelationshipDirection = forward
+
+    fn build construct(
+        class_config_relationship_id UUID key,
+        include ObjectProjectionGraphEdgeInclude = required,
+        multiplicity ObjectProjectionGraphEdgeMultiplicity = many,
+        traversal_direction class.ClassConfigRelationshipDirection = forward,
+        depth_limit Int? = null,
+        attribute_role ObjectProjectionGraphAttributeRole = reference,
+        loading_override class.ClassConfigRelationshipSideLoadingStrategy? = null
+    ) -> ObjectProjectionGraphEdge {
+        """
+        Create deterministic ObjectProjectionGraphEdge under one ObjectProjectionGraph.
+
+        Contract:
+        - Parent `object_projection_graph_id` is propagated by constructor lowering.
+        - Identity is always OPG-scoped.
+        """
+    }
+}

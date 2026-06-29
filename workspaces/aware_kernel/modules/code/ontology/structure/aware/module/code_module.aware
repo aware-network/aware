@@ -1,0 +1,78 @@
+class CodeModule {
+    // Relationships
+    dependences CodeModuleDependence[]
+    packages package.CodePackage[] @CodeModuleCodePackage
+
+    // Attributes
+    aware_module_version Int = 1
+    languages aware_code.code.CodeLanguage[]
+    manifest_hash String?
+    manifest_relative_path String = "aware.module.toml"
+    name String key
+
+    fn build construct (
+        name String key,
+        languages aware_code.code.CodeLanguage[],
+        aware_module_version Int = 1,
+        manifest_relative_path String = "aware.module.toml",
+        manifest_hash String? = null
+    ) -> CodeModule {
+        """
+        Create deterministic CodeModule identity by name.
+        """
+    }
+
+    fn create_dependency (name String) -> CodeModuleDependence {
+        """
+        Create a deterministic dependency edge to another CodeModule.
+        """
+        let created = construct dependences.build(
+            name = name,
+        )
+    }
+
+    fn attach_package (
+        code_package_id UUID key,
+        module_package_id String? = null,
+        module_package_kind String? = null,
+        module_relative_package_root String? = null,
+        manifest_relative_path String? = null,
+        visibility String = "module",
+        semantic_contract_role String? = null,
+        semantic_contract_name String? = null,
+        semantic_contract_provider_key String? = null,
+        semantic_contract_module String? = null,
+        semantic_contract_owns_manifest_kinds String[] = [],
+        semantic_contract_capabilities String[] = [],
+        mirrors_ontology Bool = false
+    ) -> CodeModuleCodePackage {
+        """
+        Attach an existing CodePackage under this CodeModule.
+
+        Contract:
+        - `CodeModule` is a semantic package bundle only.
+        - `CodePackage` remains standalone package truth.
+        - `CodeModuleCodePackage` carries module-local package slot metadata so
+          Workspace can mount resolved module packages without owning semantic
+          package-family vocabulary.
+        """
+        let created_package = construct packages.build(
+            code_package_id = code_package_id,
+            module_package_id = module_package_id,
+            module_package_kind = module_package_kind,
+            module_relative_package_root = module_relative_package_root,
+            manifest_relative_path = manifest_relative_path,
+            visibility = visibility,
+            semantic_contract_role = semantic_contract_role,
+            semantic_contract_name = semantic_contract_name,
+            semantic_contract_provider_key = semantic_contract_provider_key,
+            semantic_contract_module = semantic_contract_module,
+            semantic_contract_owns_manifest_kinds = semantic_contract_owns_manifest_kinds,
+            semantic_contract_capabilities = semantic_contract_capabilities,
+            mirrors_ontology = mirrors_ontology,
+        )
+    }
+}
+
+ann module.CodeModule::packages::CodeModuleCodePackage load eager
+ann module.CodeModule::packages load eager

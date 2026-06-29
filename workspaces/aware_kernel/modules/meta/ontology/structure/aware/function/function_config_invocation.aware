@@ -1,0 +1,49 @@
+/// Canonical invocation-plan step owned by FunctionConfig.
+///
+/// Contract:
+/// - `FunctionConfig::invocations` defines ordered propagation truth for a function.
+/// - Steps represent invocation intent (`call` / `construct`) and resolved target function.
+/// - Receiver traversal is one-hop only and represented by canonical
+///   `class_config_relationship` when cross-object (no multi-hop path segments).
+/// - Owner-local calls keep `class_config_relationship` empty.
+/// - For identity-standalone targets, public constructor names stay path-agnostic; containment/path truth still
+///   lives on `class_config_relationship` and runtime propagation state.
+class FunctionConfigInvocation {
+    // Relationships
+    target_function_config FunctionConfig key
+    root_invocation FunctionConfigInvocation?
+    class_config_relationship class.ClassConfigRelationship?
+
+    // Attributes
+    position Int key
+    kind FunctionInvocationKind key
+    relationship_fingerprint String key = "owner"
+    root_kind FunctionInvocationRootKind = owner
+    capture_name String?
+
+    fn create construct (
+        position Int key,
+        kind FunctionInvocationKind key,
+        target_function_config_id UUID key,
+        relationship_fingerprint String key = "owner",
+        class_config_relationship_id UUID? = null,
+        root_invocation_id UUID? = null,
+        root_kind FunctionInvocationRootKind = owner,
+        capture_name String? = null
+    ) -> FunctionConfigInvocation {
+        """
+        Create deterministic FunctionConfigInvocation under a parent FunctionConfig path.
+
+        Contract:
+        - Parent FunctionConfig ownership is propagated by traversal lowering.
+        - Constructor identity keys are
+          `(position, kind, target_function_config_id, relationship_fingerprint)` plus propagated parent context.
+        - `class_config_relationship_id` remains relationship metadata (nullable for owner-local invocations).
+        - Standalone target constructors still rely on `class_config_relationship_id` for caller-owned
+          containment/path routing even when the target function name itself stays semantic (no `_via_*` requirement).
+        """
+    }
+}
+
+/// Load receiver traversal metadata eagerly
+ann function.FunctionConfigInvocation::class_config_relationship load eager

@@ -1,0 +1,22 @@
+from __future__ import annotations
+
+# Standard
+from typing import TYPE_CHECKING
+
+# Third-party
+from pydantic import (
+    BaseModel,
+    Field,
+)
+
+if TYPE_CHECKING:
+    from aware_content_ontology_dto.part.content_part_text_segment import ContentPartTextSegment
+
+
+class CodeSectionClassBase(BaseModel):
+    # Relationships
+    segment: ContentPartTextSegment | None = Field(default=None)
+
+    # Attributes
+    base_ref: str
+    is_augment: bool = Field(default=False)

@@ -1,0 +1,34 @@
+{
+  "dependency_import_roots": [
+    "aware_code_ontology_orm_models",
+    "aware_meta_ontology_orm_models"
+  ],
+  "modules": [
+    "aware_api_ontology_orm_models.api.api",
+    "aware_api_ontology_orm_models.api.api_call",
+    "aware_api_ontology_orm_models.api.api_call_enums",
+    "aware_api_ontology_orm_models.api.api_call_outcome",
+    "aware_api_ontology_orm_models.api.api_capability",
+    "aware_api_ontology_orm_models.api.api_capability_endpoint",
+    "aware_api_ontology_orm_models.api.api_capability_endpoint_function",
+    "aware_api_ontology_orm_models.api.api_capability_endpoint_request_config",
+    "aware_api_ontology_orm_models.api.api_capability_endpoint_response_config",
+    "aware_api_ontology_orm_models.api.api_capability_endpoint_stream_config",
+    "aware_api_ontology_orm_models.api.api_capability_endpoint_stream_enums",
+    "aware_api_ontology_orm_models.api.api_capability_endpoint_stream_event_config",
+    "aware_api_ontology_orm_models.api.api_graph",
+    "aware_api_ontology_orm_models.api.api_graph_capability",
+    "aware_api_ontology_orm_models.api.api_graph_capability_function",
+    "aware_api_ontology_orm_models.api.api_graph_function",
+    "aware_api_ontology_orm_models.api.api_graph_projection",
+    "aware_api_ontology_orm_models.api.api_package",
+    "aware_api_ontology_orm_models.api.api_package_language_package",
+    "aware_api_ontology_orm_models.stable_ids"
+  ],
+  "package_prefix": "aware_api_ontology_orm_models",
+  "pydantic_model_dependency_import_roots": [
+    "aware_code_ontology_orm_models",
+    "aware_meta_ontology_orm_models"
+  ],
+  "version": "v1"
+}

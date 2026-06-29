@@ -1,0 +1,28 @@
+/// Ontology-level view of a `discriminate` ANN.
+///
+/// This represents discrimination union semantics for DTO/wire projections.
+/// It is produced from CodeSectionAnnotation entries where `verb == "discriminate"`.
+///
+/// Canonical forms (path + args):
+/// - Base key:    ann <TypeRef>::<attribute> discriminate key
+/// - Variant tag: ann <TypeRef>::<attribute> discriminate tag <tag_value>
+class CodeSectionAnnotationDiscriminate {
+    // Relationships
+    code_section_annotation aware_code.annotation.CodeSectionAnnotation?
+
+    /// Location within the canonical graph
+    fqn_prefix String key
+    namespace String key
+    class_name String key
+    attribute_name String key
+
+    /// Discrimination semantics
+    /// - "key": declares the discriminator key field on the base type
+    /// - "tag": declares the wire tag value for a variant type
+    mode String key
+    tag_value String? = null
+
+    /// Optional source position (byte offset) for deterministic tag ordering.
+    /// Only populated for mode="tag" annotations.
+    source_position Int? = null
+}

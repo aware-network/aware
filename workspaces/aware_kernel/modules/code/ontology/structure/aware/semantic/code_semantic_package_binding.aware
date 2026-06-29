@@ -1,0 +1,47 @@
+class CodeSemanticPackageBinding {
+    // Relationships
+    code_package package.CodePackage? key
+
+    // Attributes
+    code_package_config_key String?
+    code_module_name String?
+    capabilities String[] = []
+    manifest_relative_path String?
+    module_package_id String key
+    module_package_kind String?
+    module_relative_package_root String?
+    owned_manifest_kinds String[] = []
+    semantic_contract_module String?
+    semantic_contract_name String key
+    semantic_contract_role String key
+    status String = "bound"
+
+    fn build construct(
+        code_package_id UUID key,
+        module_package_id String key,
+        semantic_contract_role String key,
+        semantic_contract_name String key,
+        code_package_config_key String? = null,
+        code_module_name String? = null,
+        module_package_kind String? = null,
+        module_relative_package_root String? = null,
+        manifest_relative_path String? = null,
+        semantic_contract_module String? = null,
+        owned_manifest_kinds String[] = [],
+        capabilities String[] = [],
+        status String = "bound"
+    ) -> CodeSemanticPackageBinding {
+        """
+        Record one Code-owned package-slot semantic contract binding.
+
+        Contract:
+        - The source CodePackage remains standalone package truth.
+        - Semantic fields are derived from CodePackageConfig and
+          CodeModuleCodePackage package-slot metadata.
+        - Workspace may reference this binding in resolution receipts, but does
+          not author or duplicate the binding.
+        """
+    }
+}
+
+ann semantic.CodeSemanticPackageBinding::code_package load eager

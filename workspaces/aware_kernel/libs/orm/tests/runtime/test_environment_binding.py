@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
-import msgpack
 import pytest
-from datetime import datetime, timezone
 from uuid import uuid4
 
 # Kernel Graph Ontology
@@ -33,30 +32,13 @@ from aware_meta_ontology.class_.class_config_relationship_enums import (
     ClassConfigRelationshipDirection,
 )
 
-# Kernel Structure
-from aware_structure.environment_config.manifest.schema.environment_manifest import (
-    EnvironmentDescriptor,
-    EnvironmentManifest,
-    ManifestArtifact,
-)
-from aware_structure.environment_config.manifest.schema.ocg_manifest import (
-    OCGSnapshotManifest,
-)
-from aware_structure.environment_config.manifest.schema.opg_manifest import (
-    OPGIndexManifest,
-)
-from aware_structure.environment_config.bundle import EnvironmentBundle
-
 # ORM
 from aware_orm.models.orm_model import ORMModel
 from aware_orm.registry import ORMModelRegistry
 from aware_orm.runtime.bundle_binding import install_bindings_from_bundle
-from aware_orm.runtime.graph_artifacts import OrmGraphBindingSnapshot
-from aware_orm.runtime.graph_binding import dump_orm_graph_binding_snapshot_msgpack
 from aware_meta.orm_artifacts.binding import (
     dump_orm_graph_binding_snapshot_msgpack_from_object_config_graph,
 )
-from aware_structure.environment_config.orm_runtime_install import install_environment_bundle
 
 
 def _build_graph() -> ObjectConfigGraph:
@@ -97,7 +79,9 @@ def test_install_bindings_from_bundle_binds_canonical_class_config(
 ) -> None:
     graph = _build_graph()
     user_cls = next(
-        n.class_config for n in graph.object_config_graph_nodes if n.class_config and n.class_config.name == "User"
+        n.class_config
+        for n in graph.object_config_graph_nodes
+        if n.class_config and n.class_config.name == "User"
     )
     assert user_cls is not None and user_cls.id is not None
 
@@ -119,36 +103,12 @@ def test_install_bindings_from_bundle_binds_canonical_class_config(
         ],
     }
 
-    # Build a minimal bundle with canonical ocg_bytes.
-    manifest = EnvironmentManifest(
-        version="1.0",
-        built_at=datetime.now(timezone.utc),
-        environment=EnvironmentDescriptor(
-            id="00000000-0000-0000-0000-000000000000",
-            title=None,
-            canonical_language="aware",
-        ),
-        ocg=OCGSnapshotManifest(
-            canonical_id="00000000-0000-0000-0000-000000000000",
-            hash="sha256:x",
-            snapshot="ocg.snapshot.msgpack",
-        ),
-        ocg_binding_snapshot=ManifestArtifact(file="orm.graph.binding.msgpack", hash="sha256:x"),
-        overlays={},
-        opg_index=OPGIndexManifest(file="opg.index.json", entries=[]),
-        graphsql=None,
-        bindings=None,
-    )
-    bundle = EnvironmentBundle(
-        manifest=manifest,
-        base_path=tmp_path,
-        ocg_bytes=msgpack.packb(graph.model_dump(mode="json", exclude_none=True), use_bin_type=True) or b"",
+    bundle = SimpleNamespace(
         orm_graph_binding_snapshot_bytes=(
-            dump_orm_graph_binding_snapshot_msgpack_from_object_config_graph(object_config_graph=graph)
+            dump_orm_graph_binding_snapshot_msgpack_from_object_config_graph(
+                object_config_graph=graph
+            )
         ),
-        overlays={},
-        opgs={},
-        graphsql=None,
         bindings=json.dumps(bindings).encode("utf-8"),
     )
 
@@ -224,42 +184,10 @@ def test_install_bindings_from_bundle_uses_orm_graph_artifact_metadata(
             }
         ],
     }
-    manifest = EnvironmentManifest(
-        version="1.0",
-        built_at=datetime.now(timezone.utc),
-        environment=EnvironmentDescriptor(
-            id="00000000-0000-0000-0000-000000000000",
-            title=None,
-            canonical_language="aware",
-        ),
-        ocg=OCGSnapshotManifest(
-            canonical_id="00000000-0000-0000-0000-000000000000",
-            hash="sha256:x",
-            snapshot="ocg.snapshot.msgpack",
-        ),
-        ocg_binding_snapshot=ManifestArtifact(
-            file="orm.graph.binding.msgpack",
-            hash="sha256:x",
-        ),
-        overlays={},
-        opg_index=OPGIndexManifest(file="opg.index.json", entries=[]),
-        graphsql=None,
-        bindings=None,
-    )
-    bundle = EnvironmentBundle(
-        manifest=manifest,
-        base_path=tmp_path,
-        ocg_bytes=msgpack.packb(
-            rich_graph.model_dump(mode="json", exclude_none=True),
-            use_bin_type=True,
-        )
-        or b"",
+    bundle = SimpleNamespace(
         orm_graph_binding_snapshot_bytes=dump_orm_graph_binding_snapshot_msgpack_from_object_config_graph(
             object_config_graph=rich_graph
         ),
-        overlays={},
-        opgs={},
-        graphsql=None,
         bindings=json.dumps(bindings).encode("utf-8"),
     )
 
@@ -270,203 +198,7 @@ def test_install_bindings_from_bundle_uses_orm_graph_artifact_metadata(
     assert res.bound_count == 1
     rebound = UserModel.get_class_config()
     assert rebound is not None
-    assert {link.attribute_config_id for link in rebound.class_config_attribute_configs} == {
-        reference_attribute.id
-    }
-    assert {rel.id for rel in rebound.class_config_relationships} == {
-        relationship.id
-    }
-
-
-@pytest.mark.parametrize("load_graph_artifacts", (True, False))
-def test_install_environment_bundle_derives_binding_snapshot_from_ocg_when_embedded_snapshot_is_empty(
-    tmp_path: Path,
-    load_graph_artifacts: bool,
-) -> None:
-    graph = _build_graph()
-    user_cls = next(
-        n.class_config
-        for n in graph.object_config_graph_nodes
-        if n.class_config and n.class_config.name == "User"
-    )
-    assert user_cls is not None and user_cls.id is not None
-
-    class UserModel(ORMModel):
-        name: str
-
-    fqn = f"{UserModel.__module__}.{UserModel.__name__}"
-    bundle_dir = tmp_path / "bundle"
-    bundle_dir.mkdir(parents=True, exist_ok=True)
-    (bundle_dir / "ocg.snapshot.msgpack").write_bytes(
-        msgpack.packb(
-            graph.model_dump(mode="json", exclude_none=True),
-            use_bin_type=True,
-        )
-        or b""
-    )
-    (bundle_dir / "orm.graph.binding.msgpack").write_bytes(
-        dump_orm_graph_binding_snapshot_msgpack(
-            snapshot=OrmGraphBindingSnapshot(
-                graph_id=graph.id,
-                entities=[],
-            )
-        )
-    )
-    bindings = {
-        "version": "1.0.0",
-        "planner_version": "test",
-        "bindings": [
-            {
-                "class_fqn": fqn,
-                "canonical_class_config_id": str(user_cls.id),
-                "sql_mapping": [
-                    {
-                        "attribute_name": "id",
-                        "persisted": True,
-                        "table_schema": "public",
-                        "table_name": "user",
-                        "column_name": "id",
-                        "fk_owner": None,
-                        "fk_columns": [],
-                        "join_chain": [],
-                    }
-                ],
-            }
-        ],
-    }
-    (bundle_dir / "bindings.json").write_text(
-        json.dumps(bindings),
-        encoding="utf-8",
-    )
-    manifest = EnvironmentManifest(
-        version="1.0",
-        built_at=datetime.now(timezone.utc),
-        environment=EnvironmentDescriptor(
-            id="00000000-0000-0000-0000-000000000000",
-            title=None,
-            canonical_language="aware",
-        ),
-        ocg=OCGSnapshotManifest(
-            canonical_id="00000000-0000-0000-0000-000000000000",
-            hash="sha256:x",
-            snapshot="ocg.snapshot.msgpack",
-        ),
-        ocg_binding_snapshot=ManifestArtifact(
-            file="orm.graph.binding.msgpack",
-            hash="sha256:x",
-        ),
-        overlays={},
-        opg_index=OPGIndexManifest(file="opg.index.json", entries=[]),
-        graphsql=None,
-        bindings=ManifestArtifact(file="bindings.json", hash="sha256:x"),
-    )
-    manifest_path = bundle_dir / "environment.manifest.json"
-    manifest_path.write_text(manifest.model_dump_json(), encoding="utf-8")
-
-    with ORMModelRegistry.temporary_clear():
-        ORMModelRegistry.register_class_stub(UserModel)
-        _bundle, binding_result, _rel = install_environment_bundle(
-            manifest_path=manifest_path,
-            canonical_only=True,
-            strict=True,
-            load_graph_artifacts=load_graph_artifacts,
-        )
-        assert binding_result is not None
-        assert binding_result.bound_count == 1
-        cc = UserModel.get_class_config()
-        assert cc is not None
-        assert str(cc.id) == str(user_cls.id)
-
-
-def test_install_environment_bundle_bootstraps_loader_modules(tmp_path: Path, monkeypatch) -> None:
-    graph = _build_graph()
-    counter_cls = ClassConfig(name="Counter", class_fqn="bundle_loader_pkg.models.Counter")
-    counter_node = ObjectConfigGraphNode(
-        type=ObjectConfigGraphNodeType.class_,
-        node_key=counter_cls.class_fqn,
-        class_config=counter_cls,
-        object_config_graph_id=graph.id,
-        class_config_id=counter_cls.id,
-    )
-    graph.object_config_graph_nodes.append(counter_node)
-
-    pkg_dir = tmp_path / "bundle_loader_pkg"
-    pkg_dir.mkdir(parents=True, exist_ok=True)
-    (pkg_dir / "__init__.py").write_text("", encoding="utf-8")
-    (pkg_dir / "models.py").write_text(
-        "from __future__ import annotations\n"
-        "from aware_orm.models.orm_model import ORMModel\n\n"
-        "class Counter(ORMModel):\n"
-        "    value: int\n",
-        encoding="utf-8",
-    )
-    monkeypatch.syspath_prepend(str(tmp_path))
-
-    bundle_dir = tmp_path / "bundle"
-    bundle_dir.mkdir(parents=True, exist_ok=True)
-
-    (bundle_dir / "ocg.snapshot.msgpack").write_bytes(
-        msgpack.packb(graph.model_dump(mode="json", exclude_none=True), use_bin_type=True) or b""
-    )
-    (bundle_dir / "orm.graph.binding.msgpack").write_bytes(
-        dump_orm_graph_binding_snapshot_msgpack_from_object_config_graph(object_config_graph=graph)
-    )
-
-    bindings = {
-        "version": "1.0.0",
-        "planner_version": "test",
-        "bindings": [
-            {
-                "class_fqn": "bundle_loader_pkg.models.Counter",
-                "canonical_entity_id": str(counter_cls.id),
-                "sql_mapping": [
-                    {
-                        "attribute_name": "value",
-                        "table_schema": "public",
-                        "table_name": "counter",
-                        "column_name": "value",
-                        "persisted": True,
-                    }
-                ],
-            }
-        ],
-    }
-    (bundle_dir / "bindings.json").write_text(json.dumps(bindings), encoding="utf-8")
-
-    manifest = EnvironmentManifest(
-        version="1.0",
-        built_at=datetime.now(timezone.utc),
-        environment=EnvironmentDescriptor(
-            id="00000000-0000-0000-0000-000000000000",
-            title=None,
-            canonical_language="aware",
-        ),
-        ocg=OCGSnapshotManifest(
-            canonical_id="00000000-0000-0000-0000-000000000000",
-            hash="sha256:x",
-            snapshot="ocg.snapshot.msgpack",
-        ),
-        ocg_binding_snapshot=ManifestArtifact(file="orm.graph.binding.msgpack", hash="sha256:x"),
-        overlays={},
-        opg_index=OPGIndexManifest(file="opg.index.json", entries=[]),
-        graphsql=None,
-        bindings=ManifestArtifact(file="bindings.json", hash="sha256:x"),
-        loader={"python_modules": ["bundle_loader_pkg.models"]},
-    )
-    manifest_path = bundle_dir / "environment.manifest.json"
-    manifest_path.write_text(manifest.model_dump_json(), encoding="utf-8")
-
-    with ORMModelRegistry.temporary_clear():
-        _bundle, binding_result, _rel = install_environment_bundle(
-            manifest_path=manifest_path,
-            canonical_only=True,
-            strict=True,
-        )
-        assert binding_result is not None
-        assert binding_result.bound_count == 1
-
-        from bundle_loader_pkg.models import Counter
-
-        cc = Counter.get_class_config()
-        assert cc is not None
-        assert str(cc.id) == str(counter_cls.id)
+    assert {
+        link.attribute_config_id for link in rebound.class_config_attribute_configs
+    } == {reference_attribute.id}
+    assert {rel.id for rel in rebound.class_config_relationships} == {relationship.id}

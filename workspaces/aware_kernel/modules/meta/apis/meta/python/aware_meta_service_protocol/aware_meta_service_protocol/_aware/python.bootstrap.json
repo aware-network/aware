@@ -1,0 +1,10 @@
+{
+  "dependency_import_roots": [
+    "aware_meta_service_dto"
+  ],
+  "modules": [
+    "aware_meta_service_protocol.protocols"
+  ],
+  "package_prefix": "aware_meta_service_protocol",
+  "version": "v1"
+}

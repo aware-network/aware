@@ -1,0 +1,34 @@
+// Action projection (runtime evidence lane)
+//
+// Goal:
+// - Keep triggered action evidence canonical and queryable.
+
+projection Action {
+    root action.Action
+
+    // Portals: runtime action -> action policy root
+    action.Action::config action.ActionConfig
+}
+
+// ActionIntent projection (runtime intent lane)
+//
+// Goal:
+// - Keep "should react" evidence commit-backed and queryable.
+// - Bridge intent to execution promises and feedback.
+
+projection ActionIntent {
+    root action.ActionIntent
+
+    // Portal: intent -> action policy root
+    action.ActionIntent::config action.ActionConfig
+    // Typed request payload evidence.
+    action.ActionIntent::payload_model
+    // Execution promises created by action-owning services.
+    action.ActionIntent::action_executions
+    // Typed stream feedback payload evidence.
+    action.ActionFeedback::payload_model
+    action.ActionExecution::action_feedback
+    aware_meta.class.InlineValueInstance::class_config ObjectConfigGraph
+    aware_meta.class.InlineValueInstance::attributes
+    aware_meta.class.InlineValueInstanceAttribute::attribute
+}

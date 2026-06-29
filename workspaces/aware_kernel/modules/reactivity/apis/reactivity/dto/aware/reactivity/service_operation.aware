@@ -1,0 +1,79 @@
+/// Canonical Reactivity service API operation DTOs.
+///
+/// These operations expose Reactivity-owned event/action streams. Upstream
+/// commit truth is consumed by the service through Meta lane fanout, not
+/// through local graph store access.
+
+class ReactivityServiceStatusRequest {
+    request_id UUID?
+    subscriber_id String?
+}
+
+class ReactivityServiceStatusResponse {
+    request_id UUID?
+    service_id String = "reactivity"
+    active Bool = true
+    upstream_source String = "meta_lane_fanout"
+    info String?
+    error String?
+}
+
+class ReactivityEventSubscriptionRequest {
+    subscriber_id String
+    event_type_filters String[] = []
+    branch_filters UUID[] = []
+    projection_hash_filters String[] = []
+    object_instance_graph_filters UUID[] = []
+    include_replay Bool = true
+    resume_after_event_id UUID?
+}
+
+class ReactivityEventSubscriptionResponse {
+    subscriber_id String
+    accepted Bool = true
+    upstream_source String = "meta_lane_fanout"
+    resume_after_event_id UUID?
+    info String?
+    error String?
+}
+
+class ReactivityActionLifecycleSubscriptionRequest {
+    subscriber_id String
+    event_id_filters UUID[] = []
+    action_intent_id_filters UUID[] = []
+    action_execution_id_filters UUID[] = []
+    action_type_filters String[] = []
+    branch_filters UUID[] = []
+    projection_hash_filters String[] = []
+    include_replay Bool = true
+    resume_after_action_execution_id UUID?
+}
+
+class ReactivityActionLifecycleSubscriptionResponse {
+    subscriber_id String
+    accepted Bool = true
+    upstream_source String = "meta_lane_fanout"
+    resume_after_action_execution_id UUID?
+    info String?
+    error String?
+}
+
+class ReactivityActionLifecyclePublishRequest {
+    request_id UUID?
+    publisher_id String
+    intent ReactivityActionIntent?
+    execution ActionExecution?
+    feedback ActionFeedback?
+    terminal ActionTerminal?
+}
+
+class ReactivityActionLifecyclePublishResponse {
+    request_id UUID?
+    accepted Bool = true
+    published_count Int = 0
+    action_intent_id UUID?
+    action_execution_id UUID?
+    action_feedback_id UUID?
+    info String?
+    error String?
+}

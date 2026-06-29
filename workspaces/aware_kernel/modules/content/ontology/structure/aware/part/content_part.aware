@@ -1,0 +1,57 @@
+class ContentPart {
+    // Relationships
+    content_part_multimodal_index ContentPartMultimodalIndex? unique
+    content_part_text ContentPartText? unique
+    storage_blobs aware_storage.blob.StorageBlob? @ContentPartFile
+
+    // Attributes
+    type ContentPartType key
+
+    fn create_content_part construct(
+        type ContentPartType,
+        content_part_text_id UUID? = null,
+    ) -> ContentPart {
+        """
+        Creates a new content part.
+        """
+        let text_part = construct content_part_text.create_content_part_text()
+        let index = construct content_part_multimodal_index.create_content_part_multimodal_index()
+        construct ContentPart(type = type)
+    }
+
+    fn create_text_part construct(
+        seed_inline_text String? = null,
+        type ContentPartType = text,
+    ) -> ContentPart {
+        """
+        Creates a text content part and its text child.
+        """
+        let text_part = construct content_part_text.create_content_part_text(
+            inline_text = seed_inline_text,
+        )
+        construct ContentPart(type = type)
+    }
+
+    fn attach_file(
+        modality_type content.ModalityType key,
+        mime_type String,
+        inline_data Bytes? = null,
+        provider_id String? = null,
+        raw_path String? = null,
+    ) -> ContentPartFile {
+        """
+        Attaches file/media metadata to this content part.
+        """
+        let file = construct storage_blobs.create_content_part_file(
+            modality_type = modality_type,
+            mime_type = mime_type,
+            inline_data = inline_data,
+            provider_id = provider_id,
+            raw_path = raw_path,
+        )
+    }
+}
+
+/// Eager content part content
+ann part.ContentPart::content_part_multimodal_index load eager
+ann part.ContentPart::content_part_text load eager

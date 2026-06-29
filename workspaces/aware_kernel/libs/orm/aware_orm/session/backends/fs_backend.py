@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 from uuid import UUID
 
-from aware_orm._support import find_aware_root, logger
+from aware_orm._support import logger, require_aware_root
 
 from .protocol import PersistenceBackendProtocol, QueryResult, SessionBackendState
 
@@ -53,7 +53,7 @@ class FsPersistenceBackend(PersistenceBackendProtocol):
     def __init__(self, session: SessionBackendState):
         self._session = session
         self._operations: List[FsOperation] = []
-        self._aware_root = find_aware_root()
+        self._aware_root = require_aware_root(purpose="aware-orm filesystem backend")
         self._base_path = self._aware_root / ".aware" / "runtime" / "orm"
         self._base_path.mkdir(parents=True, exist_ok=True)
 

@@ -54,6 +54,7 @@ class BaseORMModel(BaseModel):
     _branch_id: UUID = PrivateAttr(default_factory=lambda: UUID("00000000-0000-0000-0000-000000000000"))
     _bound_session: Session | None = PrivateAttr(default=None)
     _is_new: bool = PrivateAttr(True)
+    _graph_invocation_target_id: UUID | None = PrivateAttr(default=None)
 
     # ==================== Class Metadata ====================
     _class_config: ClassVar[ClassConfig] | None = None
@@ -313,6 +314,15 @@ class BaseORMModel(BaseModel):
     def get_branch_id(self) -> UUID:
         """Get the branch ID for this model."""
         return self._branch_id
+
+    @property
+    def graph_invocation_target_id(self) -> UUID:
+        """Return the graph runtime target identity for instance invocations."""
+        return self._graph_invocation_target_id or self.id
+
+    def bind_graph_invocation_target_id(self, target_id: UUID) -> None:
+        """Bind this ORM object to its graph-level invocation target."""
+        self._graph_invocation_target_id = target_id
 
     @classmethod
     def get_class_config(cls) -> ClassConfig | None:

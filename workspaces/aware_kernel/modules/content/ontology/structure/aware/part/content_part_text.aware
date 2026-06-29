@@ -1,0 +1,64 @@
+class ContentPartText {
+    // Relationships
+    blob aware_storage.blob.StorageBlob?
+    index ContentPartTextIndex? unique
+    segments ContentPartTextSegment[]
+
+    // Attributes
+    key String key = "default"
+    inline_text String?
+
+    fn create_content_part_text construct(
+        key String key = "default",
+        inline_text String? = null,
+    ) -> ContentPartText {
+        """
+        Creates a new text content part container.
+        """
+        let text_index = construct index.create_content_part_text_index()
+        construct ContentPartText(key = key, inline_text = inline_text)
+    }
+
+    fn set_inline_text(inline_text String) -> {
+        """
+        Updates the inline_text for this ContentPartText (v0 editor persistence).
+        """
+        set inline_text = inline_text
+    }
+
+    fn apply_editor_patch(patch ContentPartTextEditorPatch) -> {
+        """
+        Applies a canonical editor patch (v1).
+
+        Contract:
+        - `patch.text_after` or `patch.text_patches` update `inline_text`.
+        - `patch.segment_ops` upserts/deletes `ContentPartTextSegment` objects.
+        - Segment `byte_*` ranges are UTF-8 byte offsets into `inline_text`.
+        """
+    }
+
+    fn delete() -> {
+        """
+        Deletes this text content part and all owned segments.
+        """
+    }
+
+    fn add_segment(
+        segment_key String key = "default",
+        byte_start Int? = null,
+        byte_end Int? = null,
+    ) -> ContentPartTextSegment {
+        """
+        Adds a segment under this text content part.
+        """
+        let segment = construct segments.upsert(
+            key = segment_key,
+            byte_start = byte_start,
+            byte_end = byte_end,
+        )
+    }
+
+}
+
+// Allow content_part_text_segment to load content_part_text eagerly so byte pointers can resolve actual text segment.
+ann part.ContentPartText::segments load reverse eager

@@ -1,0 +1,16 @@
+/// Delta-only change node for an AttributeValue entity (value tree node).
+///
+/// This mirrors the canonical Attribute.value_root tree:
+/// AttributeChange
+///   -> value_root_change (AttributeValueChange)
+///       -> attribute_value_link_changes (AttributeValueLinkChange[])
+///           -> child_attribute_value_change (AttributeValueChange)
+class AttributeValueChange {
+    // Relationships
+    change aware_history.change.Change key
+    attribute_value_link_changes AttributeValueLinkChange[]
+}
+
+/// Load child changes eagerly to support recursive materialization.
+ann attribute.AttributeValueChange::change load eager
+ann attribute.AttributeValueChange::attribute_value_link_changes load eager

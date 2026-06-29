@@ -1,0 +1,57 @@
+/// Ontology-owned ObjectConfigGraph package ensure DTOs.
+///
+/// This is the public boundary for asking Ontology service to establish OCG
+/// package truth from ontology sources. Meta may perform commit mechanics
+/// internally, but the service contract remains Ontology-owned.
+
+class OntologyObjectConfigGraphPackageDependencyRef {
+    package_name String?
+    fqn_prefix String?
+    object_config_graph_package_id UUID?
+    object_config_graph_id UUID?
+    object_config_graph_commit_id UUID?
+    object_config_graph_object_instance_graph_commit_id UUID?
+    object_config_graph JsonObject?
+}
+
+class OntologyObjectConfigGraphPackageEnsureRequest {
+    actor_id UUID?
+    workspace_root String?
+    aware_toml_path String
+    parent_branch_id UUID?
+    package_branch_id UUID?
+    source_code_package_id UUID?
+    object_config_graph_package_id UUID?
+    dependency_refs graph.config.OntologyObjectConfigGraphPackageDependencyRef[] = []
+    include_object_config_graph Bool = false
+    collect_telemetry Bool = true
+}
+
+class OntologyObjectConfigGraphPackageEnsureResponse {
+    status String
+    actor_id UUID?
+    workspace_root String?
+    aware_toml_path String?
+    package_name String?
+    fqn_prefix String?
+    package_branch_id UUID?
+    source_code_package_id UUID?
+    code_package_commit_id UUID?
+    code_package_head_commit_id UUID?
+    code_package_object_instance_graph_commit_id UUID?
+    object_config_graph_id UUID?
+    object_config_graph_hash String?
+    object_config_graph_commit_id UUID?
+    object_config_graph_head_commit_id UUID?
+    object_config_graph_object_instance_graph_commit_id UUID?
+    object_config_graph_package_id UUID?
+    object_config_graph_package_commit_id UUID?
+    object_config_graph_package_head_commit_id UUID?
+    object_config_graph_package_object_instance_graph_commit_id UUID?
+    owned_file_paths String[] = []
+    dependency_refs graph.config.OntologyObjectConfigGraphPackageDependencyRef[] = []
+    object_config_graph JsonObject?
+    timings JsonObject = {}
+    telemetry JsonObject = {}
+    error String?
+}

@@ -1,0 +1,24 @@
+class SdkPackageApiPackage {
+    // Relationships
+    api_package aware_api.api.ApiPackage key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        api_package_id UUID key,
+        description String? = null
+    ) -> SdkPackageApiPackage {
+        """
+        Create one package-level SDK bridge to one API package.
+
+        Contract:
+        - Parent `SdkPackage` scope is injected by propagation.
+        - Identity is keyed by the attached `ApiPackage`.
+        - This is package/import truth; operation endpoint routing remains operation-owned.
+        """
+    }
+}
+
+ann sdk.SdkPackageApiPackage::api_package load eager
+

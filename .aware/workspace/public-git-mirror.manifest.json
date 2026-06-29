@@ -1,7 +1,7 @@
 {
-  "byte_count": 1118932,
-  "file_count": 215,
-  "json_file_count": 10,
+  "byte_count": 66834384,
+  "file_count": 4928,
+  "json_file_count": 135,
   "manifest_version": "aware.workspace.public_git_mirror.v1",
   "policy": {
     "base_authority": "workspace_revision_filesystem",
@@ -19,5 +19,5 @@
     "secret_looking_files": "rejected"
   },
   "status": "ready",
-  "workspace_revision_id": "8b5a7628-c6ec-52b6-9402-bc8535b7a553"
+  "workspace_revision_id": "be5721d9-bd44-5bd2-81d0-aad218d3db0e"
 }

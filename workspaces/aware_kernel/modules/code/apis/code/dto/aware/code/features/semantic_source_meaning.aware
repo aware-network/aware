@@ -1,0 +1,137 @@
+/// Declarative source-to-semantic meaning binding over a grammar anchor.
+class CodeSemanticSourceMeaningBinding : inline_value {
+    binding_key String
+    language String = "aware"
+    grammar_profile_key String?
+    grammar_rule_name String
+    anchor_field_path String
+    graph_selector code.CodeGraphFieldSelector
+    semantic_subject_type String
+    semantic_key_template String
+    semantic_field String
+    anchor_role String?
+    value_domain String?
+    event_key_template String?
+    event_type String = "semantic_change"
+    condition_keys String[] = []
+    required Bool = true
+    metadata JsonObject?
+}
+
+/// Code-owned source meaning contract consumed by Workspace and SDK clients.
+class CodeSemanticSourceMeaningContract : inline_value {
+    contract_version String = "aware.code.semantic-source-meaning-binding.v1"
+    provider_key String
+    semantic_owner String
+    grammar_profile_key String?
+    supported_languages String[] = []
+    bindings code.CodeSemanticSourceMeaningBinding[] = []
+    metadata JsonObject?
+}
+
+/// Source text accepted by the semantic source meaning resolver.
+class CodeSemanticSourceMeaningSource : inline_value {
+    source_key String
+    source_text String
+    language String = "aware"
+    grammar_profile_key String?
+    relative_path String?
+    before_hash String?
+    metadata JsonObject?
+}
+
+/// How Code resolved semantic source meaning for a delta-shaped request.
+enum CodeSemanticSourceDeltaMeaningResolutionMode {
+    source_pair_snapshot
+    delta_with_snapshot_fallback
+    delta_with_index_ref
+    blocked
+}
+
+/// Opaque source-index reference supplied by Workspace/service session state.
+class CodeSemanticSourceIndexRef : inline_value {
+    ref_kind String
+    cache_kind String?
+    cache_key String?
+    source_session_id String?
+    source_delta_fingerprint String?
+    package_name String?
+    source_revision_id String?
+    source_keys String[] = []
+    source_hashes JsonObject?
+    metadata JsonObject?
+}
+
+/// Delta-shaped source meaning input with explicit source/index context.
+class CodeSemanticSourceDeltaMeaningInput : inline_value {
+    delta code.CodePackageDelta
+    baseline_source_index_ref code.CodeSemanticSourceIndexRef?
+    current_source_index_ref code.CodeSemanticSourceIndexRef?
+    baseline_sources code.CodeSemanticSourceMeaningSource[] = []
+    current_sources code.CodeSemanticSourceMeaningSource[] = []
+    metadata JsonObject?
+}
+
+/// Resolve declarative source meaning through Code-owned grammar source indexes.
+class ResolveCodeSemanticSourceMeaningRequest augment code.CodeServiceRequest {
+    operation String = "resolve_semantic_source_meaning"
+    contract code.CodeSemanticSourceMeaningContract
+    current_sources code.CodeSemanticSourceMeaningSource[] = []
+    baseline_sources code.CodeSemanticSourceMeaningSource[] = []
+    include_noop Bool = false
+    metadata JsonObject?
+}
+
+class ResolveCodeSemanticSourceMeaningResponse augment code.CodeServiceResponse {
+    operation String = "resolve_semantic_source_meaning"
+    resolved Bool = false
+    status String = "blocked"
+    diagnostics String[] = []
+    contract_version String?
+    provider_key String?
+    semantic_owner String?
+    binding_count Int = 0
+    resolved_binding_count Int = 0
+    changed_binding_count Int = 0
+    semantic_deltas code.CodeSemanticDelta[] = []
+    semantic_events code.CodeSemanticEvent[] = []
+    typed_operations code.CodeSemanticTypedOperation[] = []
+    change_preview code.CodeSemanticAnalysisChangePreview?
+    source_index_evidence JsonObject = {}
+    metadata JsonObject?
+}
+
+/// Resolve declarative source meaning from a CodePackageDelta plus baseline context.
+class ResolveCodeSemanticSourceDeltaMeaningRequest augment code.CodeServiceRequest {
+    operation String = "resolve_semantic_source_delta_meaning"
+    contract code.CodeSemanticSourceMeaningContract
+    input code.CodeSemanticSourceDeltaMeaningInput
+    include_noop Bool = false
+    metadata JsonObject?
+}
+
+class ResolveCodeSemanticSourceDeltaMeaningResponse augment code.CodeServiceResponse {
+    operation String = "resolve_semantic_source_delta_meaning"
+    resolved Bool = false
+    status String = "blocked"
+    meaning_resolution_mode code.CodeSemanticSourceDeltaMeaningResolutionMode = blocked
+    diagnostics String[] = []
+    required_context String[] = []
+    contract_version String?
+    provider_key String?
+    semantic_owner String?
+    binding_count Int = 0
+    resolved_binding_count Int = 0
+    changed_binding_count Int = 0
+    semantic_deltas code.CodeSemanticDelta[] = []
+    semantic_events code.CodeSemanticEvent[] = []
+    typed_operations code.CodeSemanticTypedOperation[] = []
+    change_preview code.CodeSemanticAnalysisChangePreview?
+    source_index_evidence JsonObject = {}
+    metadata JsonObject?
+}
+
+ann code.ResolveCodeSemanticSourceMeaningRequest::operation discriminate tag "resolve_semantic_source_meaning"
+ann code.ResolveCodeSemanticSourceMeaningResponse::operation discriminate tag "resolve_semantic_source_meaning"
+ann code.ResolveCodeSemanticSourceDeltaMeaningRequest::operation discriminate tag "resolve_semantic_source_delta_meaning"
+ann code.ResolveCodeSemanticSourceDeltaMeaningResponse::operation discriminate tag "resolve_semantic_source_delta_meaning"

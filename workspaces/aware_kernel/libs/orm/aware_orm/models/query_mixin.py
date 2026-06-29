@@ -1,15 +1,16 @@
 """
-Query Mixin for Model Convenience Methods
+Query Mixin for generated-model reads.
 
-This mixin provides clean query methods that use SQLGenerator directly
-for consistent SQL generation across all ORM operations.
+The canonical service-consumer rail is QuerySpec-backed:
+- User.by_id(uuid)
+- User.one(email="alice@example.com")
+- User.where(status="active").all()
+- User.where(account_id=account_id).match_if_present(region_id=region_id).all()
 
-This allows users to continue using familiar patterns like:
-- User.get_by_id(uuid)
-- User.get(field_name="email", field_value="alice@example.com")
-- User.get_list(filters=[eq("status", "active")])
-
-Now using unified SQLGenerator architecture for consistency with write operations.
+The older get/get_list/find/count helpers remain compatibility-only until their
+callers are migrated. New Service ontology-replica and product service code
+should not use them because they can route through generated SQL strings or
+implicit eager GraphSQL.
 """
 
 # @doc-ref: ../../docs/graph/query_mixin.md
@@ -38,13 +39,29 @@ class QueryMixin(BaseORMModel):
     """
     Mixin that provides convenience query methods for ORM models.
 
-    This mixin inherits from BaseORMModel and adds class methods for querying
-    that use SQLGenerator directly for consistent SQL generation.
+    Service code should use the QuerySpec-backed exact-match helpers and
+    ModelQuery builder. The legacy helper block near the bottom of this mixin is
+    retained for old runtime callers only.
     """
 
     f: ClassVar[QueryFieldNamespace] = QueryFieldNamespace()
 
     # ==================== Core Query Methods ====================
+
+    @classmethod
+    def _exact_match_predicates(cls, fields: dict[str, Any]) -> tuple[EqFilter, ...]:
+        predicates: list[EqFilter] = []
+        for field_name, value in fields.items():
+            if not isinstance(field_name, str) or not field_name.strip():
+                raise ValueError(f"{cls.__name__}.where() received an empty field name")
+            normalized_field_name = field_name.strip()
+            if normalized_field_name not in cls.model_fields:
+                raise ValueError(
+                    f"{cls.__name__}.where() received unknown field "
+                    f"{normalized_field_name!r}."
+                )
+            predicates.append(EqFilter(column=normalized_field_name, value=value))
+        return tuple(predicates)
 
     @classmethod
     def _graph_queries_supported_for_session(cls, session: Any, graph_spec: GraphSpec | None = None) -> bool:
@@ -125,6 +142,58 @@ class QueryMixin(BaseORMModel):
         return cls._query_spec(query_spec, cache_valid=cache_valid)
 
     @classmethod
+    def where(
+        cls: type[Self],
+        *,
+        cache_valid: bool = True,
+        **eq_fields: Any,
+    ) -> ModelQuery[Self]:
+        """Build an exact-match query for common agent-authored reads."""
+        query = ModelQuery(cls, cache_valid=cache_valid)
+        predicates = cls._exact_match_predicates(eq_fields)
+        return query.where(*predicates) if predicates else query
+
+    @classmethod
+    async def one(
+        cls: type[Self],
+        *,
+        cache_valid: bool = True,
+        **eq_fields: Any,
+    ) -> Self | None:
+        """Return the first model matching exact field values."""
+        return await cls.where(cache_valid=cache_valid, **eq_fields).first()
+
+    @classmethod
+    async def first(
+        cls: type[Self],
+        *,
+        cache_valid: bool = True,
+        **eq_fields: Any,
+    ) -> Self | None:
+        """Alias for one(...) for service code that reads more naturally."""
+        return await cls.one(cache_valid=cache_valid, **eq_fields)
+
+    @classmethod
+    async def by_id(
+        cls: type[Self],
+        obj_id: UUID,
+        *,
+        cache_valid: bool = True,
+    ) -> Self | None:
+        """Return one model by primary id through the QuerySpec-backed path."""
+        return await cls.one(cache_valid=cache_valid, id=obj_id)
+
+    @classmethod
+    async def many(
+        cls: type[Self],
+        *,
+        cache_valid: bool = True,
+        **eq_fields: Any,
+    ) -> list[Self]:
+        """Return all models matching exact field values."""
+        return await cls.where(cache_valid=cache_valid, **eq_fields).all()
+
+    @classmethod
     async def _query_spec(
         cls: type[Self],
         query_spec: QuerySpec,
@@ -196,7 +265,10 @@ class QueryMixin(BaseORMModel):
     @classmethod
     async def get_by_id(cls: type[Self], obj_id: UUID, cache_valid: bool = True, eager: bool = True) -> Self | None:
         """
-        Get an object by its UUID.
+        Legacy compatibility helper for UUID lookup.
+
+        New service/product code should use by_id(...), which compiles through
+        QuerySpec and cannot implicitly choose eager GraphSQL.
 
         CRITICAL FIX: Always check identity map FIRST, then apply skip_db protection.
         This ensures skip_db sessions can find objects that were loaded during bootstrap
@@ -325,7 +397,10 @@ class QueryMixin(BaseORMModel):
         eager: bool = True,
     ) -> Self | None:
         """
-        Get a single model instance by field or filters.
+        Legacy compatibility helper for single-row string/filter reads.
+
+        New service/product code should use one(...), first(...), or
+        where(...).first() so reads compile through QuerySpec.
 
         Behavior:
         - Always anchor by current session branch_id to ensure branch isolation
@@ -404,7 +479,10 @@ class QueryMixin(BaseORMModel):
         eager: bool = True,
     ) -> list[Self]:
         """
-        Get a list of model instances matching filters with pagination.
+        Legacy compatibility helper for list reads.
+
+        New service/product code should use where(...).all(), many(...), or the
+        explicit ModelQuery builder so reads compile through QuerySpec.
 
         Args:
             field_name: Field to filter on (optional)
@@ -771,12 +849,15 @@ class QueryMixin(BaseORMModel):
             logger.error(f"Graph data: {graph_data}")
             return None
 
-    # ==================== Existing Methods ====================
+    # ==================== Legacy Compatibility Methods ====================
 
     @classmethod
     async def batch_get(cls: type[Self], ids: list[UUID]) -> list[Self]:
         """
-        Get multiple instances by their IDs in a single operation.
+        Legacy compatibility helper for multiple ID lookup.
+
+        New service/product code should prefer QuerySpec-backed exact-match or
+        builder reads. This helper still routes through get_list/get_by_id.
 
         Args:
             ids: List of UUIDs to retrieve
@@ -807,7 +888,10 @@ class QueryMixin(BaseORMModel):
     @classmethod
     async def count(cls: type[Self], filters: list[FilterType] | None = None) -> int:
         """
-        Count instances matching filters.
+        Legacy compatibility helper for filter-list counts.
+
+        New service/product code should use where(...).count() or
+        query().where(...).count().
 
         Args:
             filters: List of FilterType objects (optional)
@@ -849,7 +933,10 @@ class QueryMixin(BaseORMModel):
     @classmethod
     async def exists(cls: type[Self], obj_id: UUID) -> bool:
         """
-        Check if an instance exists by ID.
+        Legacy compatibility helper for existence checks.
+
+        New service/product code should use by_id(...) is not None, or an
+        explicit QuerySpec-backed count when count semantics matter.
 
         Args:
             obj_id: The UUID to check
@@ -867,12 +954,12 @@ class QueryMixin(BaseORMModel):
 
     @classmethod
     async def find_by_id(cls: type[Self], obj_id: UUID) -> Self | None:
-        """Alias for get_by_id for backward compatibility."""
+        """Legacy alias for get_by_id for backward compatibility."""
         return await cls.get_by_id(obj_id)
 
     @classmethod
     async def find(cls: type[Self], field_name: str | None = None, field_value: Any | None = None) -> Self | None:
-        """Find a single instance by keyword arguments."""
+        """Legacy string-field helper; use one(...) or where(...).first()."""
         if not field_name or not field_value:
             return None
 
@@ -884,7 +971,7 @@ class QueryMixin(BaseORMModel):
 
     @classmethod
     async def find_all(cls: type[Self], field_name: str | None = None, field_value: Any | None = None) -> list[Self]:
-        """Find all instances matching keyword arguments."""
+        """Legacy string-field helper; use where(...).all() or many(...)."""
         if not field_name or not field_value:
             return await cls.get_list()
 

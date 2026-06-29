@@ -1,0 +1,10 @@
+class ClassInstanceRelationship {
+    // Relationships
+    class_config_relationship class.ClassConfigRelationship key
+    class_instance_relationship_identity ClassInstanceRelationshipIdentity?
+    source_class_instance class.ClassInstance key
+    target_class_instance class.ClassInstance key
+}
+
+/// Load relationship identity eagerly for stable identity-path hydration.
+ann class.ClassInstanceRelationship::class_instance_relationship_identity load eager

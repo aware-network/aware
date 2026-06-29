@@ -1,0 +1,18 @@
+class ContentPartTextSegmentTranslation {
+    // Attributes
+    language String key
+    text String
+
+    fn create_translation construct(
+        language String key,
+        text String,
+    ) -> ContentPartTextSegmentTranslation {
+        """
+        Creates a translated text segment value.
+        """
+        construct ContentPartTextSegmentTranslation(
+            language = language,
+            text = text,
+        )
+    }
+}

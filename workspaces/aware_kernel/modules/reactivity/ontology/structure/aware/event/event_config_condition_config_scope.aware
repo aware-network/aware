@@ -1,0 +1,28 @@
+class EventConfigConditionConfigScope {
+    // Relationships
+    event_config_condition_config_scope_events EventConfigConditionConfigScopeEvent[]
+    object_instance_graph_identity aware_meta.graph.instance.ObjectInstanceGraphIdentity key
+    object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch?
+
+    fn create construct (
+        object_instance_graph_identity_id UUID key,
+        object_instance_graph_branch_id UUID? = null
+    ) -> EventConfigConditionConfigScope {
+        """
+        Create a canonical lane scope for one EventConfigConditionConfig binding.
+
+        Contract:
+        - Event-first scope rail for condition activation matching.
+        - Deterministic id derived from binding id + OIGI + optional OIGB.
+        """
+    }
+
+    fn add_event(event_id UUID) -> EventConfigConditionConfigScopeEvent {
+        """
+        Attach one runtime event evidence record to this scope lane.
+        """
+        let created = construct event_config_condition_config_scope_events.create(
+            event_id = event_id,
+        )
+    }
+}

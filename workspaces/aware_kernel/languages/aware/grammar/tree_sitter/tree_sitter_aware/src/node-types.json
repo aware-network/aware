@@ -1,0 +1,10373 @@
+[
+  {
+    "type": "action_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "params": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "program_params",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "action_doc_stmt",
+          "named": true
+        },
+        {
+          "type": "action_program_stmt",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "action_doc_stmt",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "action_program_stmt",
+    "named": true,
+    "fields": {
+      "args": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "call_args",
+            "named": true
+          }
+        ]
+      },
+      "program": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "actor_decl_stmt",
+    "named": true,
+    "fields": {
+      "actor": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "actor_def",
+    "named": true,
+    "fields": {
+      "kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "actor_doc_stmt",
+          "named": true
+        },
+        {
+          "type": "actor_role_stmt",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "actor_doc_stmt",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "actor_role_stmt",
+    "named": true,
+    "fields": {
+      "role": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "ann_arg",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "ident",
+          "named": true
+        },
+        {
+          "type": "literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ann_def",
+    "named": true,
+    "fields": {
+      "arg": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "ann_arg",
+            "named": true
+          }
+        ]
+      },
+      "path": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ann_path",
+            "named": true
+          }
+        ]
+      },
+      "verb": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "ann_path",
+    "named": true,
+    "fields": {
+      "class": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "member": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "member_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "api_capability_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "api_capability_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_capability_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "api_capability_block",
+            "named": true
+          }
+        ]
+      },
+      "capability_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "api_capability_endpoint_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "api_capability_endpoint_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_capability_endpoint_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "api_capability_endpoint_block",
+            "named": true
+          }
+        ]
+      },
+      "endpoint_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "request": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "api_capability_endpoint_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "api_capability_endpoint_response_def",
+          "named": true
+        },
+        {
+          "type": "api_capability_endpoint_stream_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_capability_endpoint_response_def",
+    "named": true,
+    "fields": {
+      "response": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "api_capability_endpoint_stream_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "api_capability_endpoint_stream_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_capability_endpoint_stream_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "api_capability_endpoint_stream_block",
+            "named": true
+          }
+        ]
+      },
+      "stream_mode": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "api_capability_endpoint_stream_event_def",
+    "named": true,
+    "fields": {
+      "class": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "api_capability_endpoint_stream_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "api_capability_endpoint_stream_event_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_capability_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "api_capability_endpoint_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "api_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_graph_capability_def",
+    "named": true,
+    "fields": {
+      "capability_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "api_graph_capability_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_graph_capability_function_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "api_graph_capability_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "api_graph_capability_function_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_graph_def",
+    "named": true,
+    "fields": {
+      "graph": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "api_graph_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_graph_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "api_graph_capability_def",
+          "named": true
+        },
+        {
+          "type": "api_graph_projection_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_graph_projection_binding_def",
+    "named": true,
+    "fields": {
+      "anchor": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "api_projection_anchor",
+            "named": true
+          }
+        ]
+      },
+      "binding": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "api_graph_projection_def",
+    "named": true,
+    "fields": {
+      "projection": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "api_graph_projection_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_graph_projection_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "api_graph_projection_binding_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "api_capability_def",
+          "named": true
+        },
+        {
+          "type": "api_graph_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_projection_anchor",
+    "named": true,
+    "fields": {
+      "parent": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "relationship": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "attention_layout_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "attention_layout_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "attention_layout_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "attention_layout_block",
+            "named": true
+          }
+        ]
+      },
+      "default_marker": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "default_marker",
+            "named": true
+          }
+        ]
+      },
+      "layout_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "attention_layout_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "attention_section_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "attention_section_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "attention_section_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "attention_section_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "attention_section_block",
+            "named": true
+          }
+        ]
+      },
+      "section_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "attention_section_description_stmt",
+    "named": true,
+    "fields": {
+      "description": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "attention_section_flex_stmt",
+    "named": true,
+    "fields": {
+      "flex": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "number_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "attention_section_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "attention_section_description_stmt",
+          "named": true
+        },
+        {
+          "type": "attention_section_flex_stmt",
+          "named": true
+        },
+        {
+          "type": "attention_section_order_stmt",
+          "named": true
+        },
+        {
+          "type": "attention_section_title_stmt",
+          "named": true
+        },
+        {
+          "type": "attention_section_visible_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "attention_section_order_stmt",
+    "named": true,
+    "fields": {
+      "order": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "number_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "attention_section_title_stmt",
+    "named": true,
+    "fields": {
+      "title": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "attention_section_visible_stmt",
+    "named": true,
+    "fields": {
+      "is_visible": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "boolean_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "attr_def",
+    "named": true,
+    "fields": {
+      "cardinality": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "many_kw",
+            "named": true
+          },
+          {
+            "type": "unique_kw",
+            "named": true
+          }
+        ]
+      },
+      "default": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "default_value",
+            "named": true
+          }
+        ]
+      },
+      "identity_key": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identity_key_marker",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_ref",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "bind_stmt",
+    "named": true,
+    "fields": {
+      "port": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "view": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "binding_def",
+    "named": true,
+    "fields": {
+      "source_graph": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "target_graph": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "binding_map_def",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "binding_map_body",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "binding_map_template_def",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "binding_map_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "binding_map_body",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "source": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "binding_map_template_body",
+    "named": true,
+    "fields": {
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "binding_map_template_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "binding_map_template_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "binding_map_template_body",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "binding_map_template_literal",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "dollar_string_literal",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "block",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "fn_stmt",
+          "named": true
+        },
+        {
+          "type": "literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "boolean_literal",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "call_arg",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "json_array",
+            "named": true
+          },
+          {
+            "type": "json_object",
+            "named": true
+          },
+          {
+            "type": "literal",
+            "named": true
+          },
+          {
+            "type": "program_call",
+            "named": true
+          },
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "call_args",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "call_arg",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "call_stmt",
+    "named": true,
+    "fields": {
+      "actor": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "call": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "program_call",
+            "named": true
+          }
+        ]
+      },
+      "object": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "class_attr",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "class_def",
+    "named": true,
+    "fields": {
+      "modifiers": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "class_mods",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "verb": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "class_verb",
+            "named": true
+          }
+        ]
+      },
+      "verb_target": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "type_ref",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "attr_def",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "fn_def",
+          "named": true
+        },
+        {
+          "type": "id_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "class_mods",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "class_attr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "connector_actuator_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "connector_actuator_item",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "connector_actuator_def",
+    "named": true,
+    "fields": {
+      "actuator_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "connector_actuator_block",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_actuator_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "connector_description_decl",
+          "named": true
+        },
+        {
+          "type": "connector_invocation_def",
+          "named": true
+        },
+        {
+          "type": "connector_kind_decl",
+          "named": true
+        },
+        {
+          "type": "connector_label_decl",
+          "named": true
+        },
+        {
+          "type": "connector_payload_schema_ref_decl",
+          "named": true
+        },
+        {
+          "type": "connector_target_ref_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "connector_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "connector_item",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "connector_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "connector_block",
+            "named": true
+          }
+        ]
+      },
+      "connector_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_description_decl",
+    "named": true,
+    "fields": {
+      "description": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_invocation_action_kind",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "connector_invocation_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_view_action_confirmation_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_view_action_label_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_view_action_optimistic_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_view_action_receipt_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "connector_invocation_def",
+    "named": true,
+    "fields": {
+      "action_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "action_kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "connector_invocation_action_kind",
+            "named": true
+          }
+        ]
+      },
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "connector_invocation_block",
+            "named": true
+          }
+        ]
+      },
+      "target_ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "connector_actuator_def",
+          "named": true
+        },
+        {
+          "type": "connector_description_decl",
+          "named": true
+        },
+        {
+          "type": "connector_kind_decl",
+          "named": true
+        },
+        {
+          "type": "connector_label_decl",
+          "named": true
+        },
+        {
+          "type": "connector_provider_def",
+          "named": true
+        },
+        {
+          "type": "connector_sensor_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "connector_kind_decl",
+    "named": true,
+    "fields": {
+      "kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "connector_value",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_label_decl",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_payload_schema_ref_decl",
+    "named": true,
+    "fields": {
+      "payload_schema_ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "connector_value",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_provider_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "connector_provider_item",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "connector_provider_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "connector_provider_block",
+            "named": true
+          }
+        ]
+      },
+      "provider_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_provider_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "connector_description_decl",
+          "named": true
+        },
+        {
+          "type": "connector_kind_decl",
+          "named": true
+        },
+        {
+          "type": "connector_label_decl",
+          "named": true
+        },
+        {
+          "type": "connector_ref_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "connector_ref_decl",
+    "named": true,
+    "fields": {
+      "ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "connector_value",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_sensor_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "connector_sensor_item",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "connector_sensor_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "connector_sensor_block",
+            "named": true
+          }
+        ]
+      },
+      "sensor_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_sensor_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "connector_description_decl",
+          "named": true
+        },
+        {
+          "type": "connector_invocation_def",
+          "named": true
+        },
+        {
+          "type": "connector_kind_decl",
+          "named": true
+        },
+        {
+          "type": "connector_label_decl",
+          "named": true
+        },
+        {
+          "type": "connector_payload_schema_ref_decl",
+          "named": true
+        },
+        {
+          "type": "connector_source_ref_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "connector_source_ref_decl",
+    "named": true,
+    "fields": {
+      "source_ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "connector_value",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_target_ref_decl",
+    "named": true,
+    "fields": {
+      "target_ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "connector_value",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "connector_value",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "qualified_name",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "default_call",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "default_marker",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "default_value",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "default_call",
+          "named": true
+        },
+        {
+          "type": "ident",
+          "named": true
+        },
+        {
+          "type": "json_array",
+          "named": true
+        },
+        {
+          "type": "json_object",
+          "named": true
+        },
+        {
+          "type": "literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "edge_def",
+    "named": true,
+    "fields": {
+      "modifiers": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "edge_mods",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "attr_def",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "fn_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "edge_mods",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "class_attr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "edge_spec_ref",
+    "named": true,
+    "fields": {
+      "edge_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "enum_def",
+    "named": true,
+    "fields": {
+      "modifiers": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "enum_mods",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "enum_value_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "enum_mods",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "class_attr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "enum_value_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "environment_actor_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "environment_actor_doc_stmt",
+          "named": true
+        },
+        {
+          "type": "environment_actor_role_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "environment_actor_doc_stmt",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "environment_actor_role_stmt",
+    "named": true,
+    "fields": {
+      "role": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "environment_actor_stmt",
+    "named": true,
+    "fields": {
+      "actor": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "environment_actor_block",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "environment_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "environment_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "environment_event_action_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "environment_event_action_doc_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "environment_event_action_doc_stmt",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "environment_event_action_stmt",
+    "named": true,
+    "fields": {
+      "action": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "environment_event_action_block",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "environment_event_stmt",
+    "named": true,
+    "fields": {
+      "event": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "environment_event_action_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "environment_experience_stmt",
+    "named": true,
+    "fields": {
+      "experience": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "environment_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "environment_actor_stmt",
+          "named": true
+        },
+        {
+          "type": "environment_event_stmt",
+          "named": true
+        },
+        {
+          "type": "environment_experience_stmt",
+          "named": true
+        },
+        {
+          "type": "environment_program_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "environment_program_stmt",
+    "named": true,
+    "fields": {
+      "program_config": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "program_impl": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "event_binding",
+    "named": true,
+    "fields": {
+      "attribute": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "operation": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "event_operation",
+            "named": true
+          }
+        ]
+      },
+      "projection": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "event_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "options": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "event_options",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "event_binding",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "event_operation",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "event_option",
+    "named": true,
+    "fields": {
+      "description": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      },
+      "event_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      },
+      "renderer_key": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      },
+      "title": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "event_options",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "event_option",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "expect_requirement",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "expect_stmt",
+    "named": true,
+    "fields": {
+      "ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "json_array",
+            "named": true
+          },
+          {
+            "type": "json_object",
+            "named": true
+          },
+          {
+            "type": "literal",
+            "named": true
+          },
+          {
+            "type": "program_call",
+            "named": true
+          },
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "requirement": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "expect_requirement",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_branch",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "projection": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "experience_branch",
+          "named": true
+        },
+        {
+          "type": "experience_node_def",
+          "named": true
+        },
+        {
+          "type": "experience_observable_group",
+          "named": true
+        },
+        {
+          "type": "experience_surface_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_node_def",
+    "named": true,
+    "fields": {
+      "node_ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ann_path",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_node_identity_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_node_identity_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "block",
+            "named": true
+          }
+        ]
+      },
+      "key_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_observable_group",
+    "named": true,
+    "fields": {
+      "observable": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_view_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_profile_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "experience_profile_block",
+            "named": true
+          }
+        ]
+      },
+      "key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_description_stmt",
+    "named": true,
+    "fields": {
+      "description": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "experience_profile_description_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_narrative_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_process_def",
+          "named": true
+        },
+        {
+          "type": "experience_profile_title_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_transition_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_narrative_stmt",
+    "named": true,
+    "fields": {
+      "narrative": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_process_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_profile_process_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_process_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "experience_profile_process_block",
+            "named": true
+          }
+        ]
+      },
+      "key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_process_description_stmt",
+    "named": true,
+    "fields": {
+      "description": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_process_intent_stmt",
+    "named": true,
+    "fields": {
+      "intent": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_process_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "experience_profile_process_description_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_process_intent_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_process_narrative_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_process_position_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_process_shape_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_process_title_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_thread_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_process_narrative_stmt",
+    "named": true,
+    "fields": {
+      "narrative": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_process_position_stmt",
+    "named": true,
+    "fields": {
+      "position": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "number_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_process_shape_stmt",
+    "named": true,
+    "fields": {
+      "shape": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_process_title_stmt",
+    "named": true,
+    "fields": {
+      "title": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_scope_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_profile_scope_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_scope_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "experience_profile_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_thread_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_profile_thread_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_thread_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "experience_profile_thread_block",
+            "named": true
+          }
+        ]
+      },
+      "key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_thread_description_stmt",
+    "named": true,
+    "fields": {
+      "description": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_thread_intent_stmt",
+    "named": true,
+    "fields": {
+      "intent": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_thread_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "experience_profile_thread_description_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_thread_intent_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_thread_layout_def",
+          "named": true
+        },
+        {
+          "type": "experience_profile_thread_narrative_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_thread_position_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_thread_projection_def",
+          "named": true
+        },
+        {
+          "type": "experience_profile_thread_state_prompt_template_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_thread_title_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_thread_workspace_view_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_thread_layout_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_profile_thread_layout_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_thread_layout_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "experience_profile_thread_layout_block",
+            "named": true
+          }
+        ]
+      },
+      "layout_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_thread_layout_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "experience_profile_thread_layout_section_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_thread_layout_section_def",
+    "named": true,
+    "fields": {
+      "binding_key": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      },
+      "experience": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      },
+      "section_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      },
+      "view_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_thread_narrative_stmt",
+    "named": true,
+    "fields": {
+      "narrative": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_thread_position_stmt",
+    "named": true,
+    "fields": {
+      "position": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "number_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_thread_projection_def",
+    "named": true,
+    "fields": {
+      "experience": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      },
+      "view_key": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_thread_state_prompt_template_stmt",
+    "named": true,
+    "fields": {
+      "state_prompt_template": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_thread_title_stmt",
+    "named": true,
+    "fields": {
+      "title": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_thread_workspace_view_stmt",
+    "named": true,
+    "fields": {
+      "workspace_view": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_title_stmt",
+    "named": true,
+    "fields": {
+      "title": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_transition_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_profile_transition_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_transition_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "experience_profile_transition_block",
+            "named": true
+          }
+        ]
+      },
+      "key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_transition_idempotency_policy_stmt",
+    "named": true,
+    "fields": {
+      "idempotency_policy": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_transition_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "experience_profile_transition_idempotency_policy_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_transition_name_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_transition_rationale_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_transition_source_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_transition_target_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_profile_transition_trigger_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_profile_transition_name_stmt",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_transition_rationale_stmt",
+    "named": true,
+    "fields": {
+      "rationale": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_transition_source_stmt",
+    "named": true,
+    "fields": {
+      "experience": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      },
+      "view_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_transition_target_stmt",
+    "named": true,
+    "fields": {
+      "binding_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      },
+      "experience": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_profile_transition_trigger_stmt",
+    "named": true,
+    "fields": {
+      "event": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_surface_def",
+    "named": true,
+    "fields": {
+      "surface_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_surface_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_surface_graph_anchor_decl",
+    "named": true,
+    "fields": {
+      "graph_identity": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_surface_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "experience_surface_graph_anchor_decl",
+          "named": true
+        },
+        {
+          "type": "experience_surface_node_anchor_decl",
+          "named": true
+        },
+        {
+          "type": "experience_surface_section_decl",
+          "named": true
+        },
+        {
+          "type": "experience_surface_source_decl",
+          "named": true
+        },
+        {
+          "type": "experience_surface_view_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_surface_node_anchor_decl",
+    "named": true,
+    "fields": {
+      "node_identity": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_surface_section_decl",
+    "named": true,
+    "fields": {
+      "section_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_surface_source_decl",
+    "named": true,
+    "fields": {
+      "source_surface": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_surface_view_decl",
+    "named": true,
+    "fields": {
+      "view_ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_view_action_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_view_action_confirmation_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_view_action_label_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_view_action_optimistic_stmt",
+          "named": true
+        },
+        {
+          "type": "experience_view_action_receipt_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_view_action_confirmation_stmt",
+    "named": true,
+    "fields": {
+      "policy": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_view_action_def",
+    "named": true,
+    "fields": {
+      "action_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "action_kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "experience_view_action_kind",
+            "named": true
+          }
+        ]
+      },
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "experience_view_action_block",
+            "named": true
+          }
+        ]
+      },
+      "target_ref": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_view_action_kind",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "experience_view_action_label_stmt",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_view_action_optimistic_stmt",
+    "named": true,
+    "fields": {
+      "policy": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_view_action_receipt_stmt",
+    "named": true,
+    "fields": {
+      "policy": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "experience_view_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "experience_view_action_def",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "experience_view_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "experience_view_block",
+            "named": true
+          }
+        ]
+      },
+      "state_model": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ann_path",
+            "named": true
+          }
+        ]
+      },
+      "state_provider": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ann_path",
+            "named": true
+          }
+        ]
+      },
+      "view_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "fn_call_expr",
+    "named": true,
+    "fields": {
+      "capture": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "fn_invoke_target",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "fn_call_stmt",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "fn_call_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "fn_construct_expr",
+    "named": true,
+    "fields": {
+      "capture": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "fn_invoke_target",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "fn_construct_stmt",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "fn_construct_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "fn_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "sig": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "signature",
+            "named": true
+          }
+        ]
+      },
+      "verb": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "fn_delete_stmt",
+    "named": true,
+    "fields": {
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "self",
+            "named": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "fn_invoke_target",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "fn_local_invoke",
+          "named": true
+        },
+        {
+          "type": "fn_member_invoke",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "fn_let_stmt",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "fn_stmt_expr",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "fn_local_invoke",
+    "named": true,
+    "fields": {
+      "args": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "call_args",
+            "named": true
+          }
+        ]
+      },
+      "function": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "fn_member_invoke",
+    "named": true,
+    "fields": {
+      "args": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "call_args",
+            "named": true
+          }
+        ]
+      },
+      "function": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "receiver": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "member_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "fn_require_message",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "fn_require_operands",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "fn_stmt_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "fn_require_stmt",
+    "named": true,
+    "fields": {
+      "kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "message": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "fn_require_message",
+            "named": true
+          }
+        ]
+      },
+      "operands": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "fn_require_operands",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "fn_set_stmt",
+    "named": true,
+    "fields": {
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "fn_stmt_expr",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "fn_stmt",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "fn_call_stmt",
+          "named": true
+        },
+        {
+          "type": "fn_construct_stmt",
+          "named": true
+        },
+        {
+          "type": "fn_delete_stmt",
+          "named": true
+        },
+        {
+          "type": "fn_let_stmt",
+          "named": true
+        },
+        {
+          "type": "fn_require_stmt",
+          "named": true
+        },
+        {
+          "type": "fn_set_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "fn_stmt_expr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "fn_call_expr",
+          "named": true
+        },
+        {
+          "type": "fn_construct_expr",
+          "named": true
+        },
+        {
+          "type": "literal",
+          "named": true
+        },
+        {
+          "type": "program_call",
+          "named": true
+        },
+        {
+          "type": "qualified_name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "graph_def",
+    "named": true,
+    "fields": {
+      "experience": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "graph_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "graph_edge_stmt",
+    "named": true,
+    "fields": {
+      "child": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "graph_node_identity_ref",
+            "named": true
+          }
+        ]
+      },
+      "parent": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "graph_node_identity_ref",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "graph_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "graph_edge_stmt",
+          "named": true
+        },
+        {
+          "type": "graph_root_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "graph_node_identity_ref",
+    "named": true,
+    "fields": {
+      "identity": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "graph_root_stmt",
+    "named": true,
+    "fields": {
+      "ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "graph_node_identity_ref",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "id_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "id_let_stmt",
+          "named": true
+        },
+        {
+          "type": "id_namespace_stmt",
+          "named": true
+        },
+        {
+          "type": "id_template_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "id_decl",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "id_block",
+            "named": true
+          }
+        ]
+      },
+      "key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "params": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "program_params",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "id_let_stmt",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "json_array",
+            "named": true
+          },
+          {
+            "type": "json_object",
+            "named": true
+          },
+          {
+            "type": "literal",
+            "named": true
+          },
+          {
+            "type": "program_call",
+            "named": true
+          },
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "id_namespace_stmt",
+    "named": true,
+    "fields": {
+      "namespace": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "id_template_stmt",
+    "named": true,
+    "fields": {
+      "template": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "import_stmt",
+    "named": true,
+    "fields": {
+      "alias": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "import_target",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "import_target",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ident",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "input_attr",
+    "named": true,
+    "fields": {
+      "default": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "default_value",
+            "named": true
+          }
+        ]
+      },
+      "identity_key": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "key",
+            "named": false
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_ref",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "input_stmt",
+    "named": true,
+    "fields": {
+      "default": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "json_array",
+            "named": true
+          },
+          {
+            "type": "json_object",
+            "named": true
+          },
+          {
+            "type": "literal",
+            "named": true
+          },
+          {
+            "type": "program_call",
+            "named": true
+          },
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "source": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "intent_stmt",
+    "named": true,
+    "fields": {
+      "action_ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "json_array",
+            "named": true
+          },
+          {
+            "type": "json_object",
+            "named": true
+          },
+          {
+            "type": "literal",
+            "named": true
+          },
+          {
+            "type": "program_call",
+            "named": true
+          },
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "event_ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "json_array",
+            "named": true
+          },
+          {
+            "type": "json_object",
+            "named": true
+          },
+          {
+            "type": "literal",
+            "named": true
+          },
+          {
+            "type": "program_call",
+            "named": true
+          },
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "interface_api_decl",
+    "named": true,
+    "fields": {
+      "api": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "interface_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "interface_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "interface_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "interface_block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "interface_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "interface_api_decl",
+          "named": true
+        },
+        {
+          "type": "interface_pane_def",
+          "named": true
+        },
+        {
+          "type": "interface_window_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "interface_layout_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "interface_layout_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "interface_layout_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "interface_layout_block",
+            "named": true
+          }
+        ]
+      },
+      "default_marker": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "default_marker",
+            "named": true
+          }
+        ]
+      },
+      "layout_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "interface_layout_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "interface_layout_section_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "interface_layout_section_def",
+    "named": true,
+    "fields": {
+      "section_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "interface_pane_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "interface_pane_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "interface_pane_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "interface_pane_block",
+            "named": true
+          }
+        ]
+      },
+      "pane_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "interface_pane_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "interface_pane_mount_def",
+          "named": true
+        },
+        {
+          "type": "interface_pane_narrative_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "interface_pane_mount_def",
+    "named": true,
+    "fields": {
+      "default_marker": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "default_marker",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "view": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "interface_pane_narrative_def",
+    "named": true,
+    "fields": {
+      "narrative": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "interface_window_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "interface_layout_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "interface_window_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "interface_window_block",
+            "named": true
+          }
+        ]
+      },
+      "window_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "json_array",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "json_value",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "json_boolean_literal",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "json_null_literal",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "json_object",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "json_pair",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "json_pair",
+    "named": true,
+    "fields": {
+      "key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "json_string_literal",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "json_value",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "json_string_literal",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "json_escape_sequence",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "json_value",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "json_array",
+          "named": true
+        },
+        {
+          "type": "json_boolean_literal",
+          "named": true
+        },
+        {
+          "type": "json_null_literal",
+          "named": true
+        },
+        {
+          "type": "json_number_literal",
+          "named": true
+        },
+        {
+          "type": "json_object",
+          "named": true
+        },
+        {
+          "type": "json_string_literal",
+          "named": true
+        },
+        {
+          "type": "number_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "layout_decl_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "layout_decl_stmt",
+          "named": true
+        },
+        {
+          "type": "section_decl_stmt",
+          "named": true
+        },
+        {
+          "type": "slot_decl_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "layout_decl_stmt",
+    "named": true,
+    "fields": {
+      "args": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "call_args",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "let_stmt",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "json_array",
+            "named": true
+          },
+          {
+            "type": "json_object",
+            "named": true
+          },
+          {
+            "type": "literal",
+            "named": true
+          },
+          {
+            "type": "program_call",
+            "named": true
+          },
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "literal",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "boolean_literal",
+          "named": true
+        },
+        {
+          "type": "dollar_string_literal",
+          "named": true
+        },
+        {
+          "type": "null_literal",
+          "named": true
+        },
+        {
+          "type": "number_literal",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "mapping_type",
+    "named": true,
+    "fields": {
+      "key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_ref",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_ref",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "member_path",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ident",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "mirror_stmt",
+    "named": true,
+    "fields": {
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "node_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "node_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "node_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "node_block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "node_environment_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "node_environment_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "node_environment_decl",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "node_environment_block",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "node_environment_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "node_environment_profile_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "node_environment_profile_decl",
+    "named": true,
+    "fields": {
+      "package": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      },
+      "profile": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "node_include_decl",
+    "named": true,
+    "fields": {
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "node_interface_decl",
+    "named": true,
+    "fields": {
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "node_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "node_environment_decl",
+          "named": true
+        },
+        {
+          "type": "node_include_decl",
+          "named": true
+        },
+        {
+          "type": "node_interface_decl",
+          "named": true
+        },
+        {
+          "type": "node_ontology_decl",
+          "named": true
+        },
+        {
+          "type": "node_service_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "node_ontology_decl",
+    "named": true,
+    "fields": {
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "node_service_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "node_service_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "node_service_code_package_decl",
+    "named": true,
+    "fields": {
+      "package": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      },
+      "slot": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "node_service_decl",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "node_service_block",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "node_service_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "node_service_code_package_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "null_literal",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "output_attr",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_ref",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "pane_item",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pane_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "pane_block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_endpoint_def",
+    "named": true,
+    "fields": {
+      "endpoint": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "pane_endpoint_def",
+          "named": true
+        },
+        {
+          "type": "pane_kind_decl",
+          "named": true
+        },
+        {
+          "type": "pane_operation_def",
+          "named": true
+        },
+        {
+          "type": "pane_render_def",
+          "named": true
+        },
+        {
+          "type": "pane_view_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pane_kind_decl",
+    "named": true,
+    "fields": {
+      "kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_operation_def",
+    "named": true,
+    "fields": {
+      "operation": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_action_binding_def",
+    "named": true,
+    "fields": {
+      "action": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "action_kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "pane_render_action_kind",
+            "named": true
+          }
+        ]
+      },
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "pane_render_action_block",
+            "named": true
+          }
+        ]
+      },
+      "event": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_action_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "pane_render_action_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pane_render_action_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "pane_render_input_binding_stmt",
+          "named": true
+        },
+        {
+          "type": "pane_render_receipt_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pane_render_action_kind",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "pane_render_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "pane_render_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pane_render_compact_semantic_role",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "pane_render_component_stmt",
+    "named": true,
+    "fields": {
+      "component_ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "pane_render_block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_fallback_stmt",
+    "named": true,
+    "fields": {
+      "fallback_node_kind": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "fallback_text": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_input_binding_stmt",
+    "named": true,
+    "fields": {
+      "payload_path": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "source": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "pane_render_node_def",
+          "named": true
+        },
+        {
+          "type": "pane_render_require_decl",
+          "named": true
+        },
+        {
+          "type": "pane_render_root_decl",
+          "named": true
+        },
+        {
+          "type": "pane_render_version_decl",
+          "named": true
+        },
+        {
+          "type": "pane_render_view_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pane_render_label_stmt",
+    "named": true,
+    "fields": {
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_node_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "pane_render_node_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pane_render_node_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "pane_render_node_block",
+            "named": true
+          }
+        ]
+      },
+      "implicit_semantic_role": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "pane_render_compact_semantic_role",
+            "named": true
+          }
+        ]
+      },
+      "node_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "node_kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "pane_render_node_option",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pane_render_node_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "pane_render_action_binding_def",
+          "named": true
+        },
+        {
+          "type": "pane_render_component_stmt",
+          "named": true
+        },
+        {
+          "type": "pane_render_fallback_stmt",
+          "named": true
+        },
+        {
+          "type": "pane_render_label_stmt",
+          "named": true
+        },
+        {
+          "type": "pane_render_placeholder_stmt",
+          "named": true
+        },
+        {
+          "type": "pane_render_state_binding_stmt",
+          "named": true
+        },
+        {
+          "type": "pane_render_style_stmt",
+          "named": true
+        },
+        {
+          "type": "pane_render_text_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pane_render_node_option",
+    "named": true,
+    "fields": {
+      "order": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "number_literal",
+            "named": true
+          }
+        ]
+      },
+      "parent_node_key": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "semantic_role": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "slot": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_placeholder_stmt",
+    "named": true,
+    "fields": {
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_receipt_stmt",
+    "named": true,
+    "fields": {
+      "policy": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_require_decl",
+    "named": true,
+    "fields": {
+      "capability_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "capability_kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_root_decl",
+    "named": true,
+    "fields": {
+      "node": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_state_binding_stmt",
+    "named": true,
+    "fields": {
+      "component_input_port_key": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "fallback": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      },
+      "state_attribute": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "state_path": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "target_property": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "transform": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_style_stmt",
+    "named": true,
+    "fields": {
+      "token": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_text_stmt",
+    "named": true,
+    "fields": {
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_version_decl",
+    "named": true,
+    "fields": {
+      "version": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_render_view_decl",
+    "named": true,
+    "fields": {
+      "view": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "pane_view_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pane_view_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "pane_view_block",
+            "named": true
+          }
+        ]
+      },
+      "default_marker": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "default_marker",
+            "named": true
+          }
+        ]
+      },
+      "view": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "parametric_type",
+    "named": true,
+    "fields": {
+      "base_type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "parameters": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "ident",
+            "named": true
+          },
+          {
+            "type": "number_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "port_decl_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "port_decl_description_stmt",
+          "named": true
+        },
+        {
+          "type": "port_decl_field_stmt",
+          "named": true
+        },
+        {
+          "type": "port_decl_node_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "port_decl_description_stmt",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "port_decl_field_stmt",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "json_array",
+            "named": true
+          },
+          {
+            "type": "json_object",
+            "named": true
+          },
+          {
+            "type": "literal",
+            "named": true
+          },
+          {
+            "type": "program_call",
+            "named": true
+          },
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "port_decl_node_stmt",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "params": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "port_decl_params",
+            "named": true
+          }
+        ]
+      },
+      "ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ann_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "port_decl_param",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "json_array",
+            "named": true
+          },
+          {
+            "type": "json_object",
+            "named": true
+          },
+          {
+            "type": "literal",
+            "named": true
+          },
+          {
+            "type": "program_call",
+            "named": true
+          },
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "port_decl_params",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "port_decl_param",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "port_decl_stmt",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "port_decl_block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "params": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "port_decl_params",
+            "named": true
+          }
+        ]
+      },
+      "ref": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "program_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "actor_decl_stmt",
+          "named": true
+        },
+        {
+          "type": "bind_stmt",
+          "named": true
+        },
+        {
+          "type": "call_stmt",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "expect_stmt",
+          "named": true
+        },
+        {
+          "type": "input_stmt",
+          "named": true
+        },
+        {
+          "type": "intent_stmt",
+          "named": true
+        },
+        {
+          "type": "layout_decl_block",
+          "named": true
+        },
+        {
+          "type": "let_stmt",
+          "named": true
+        },
+        {
+          "type": "port_decl_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "program_call",
+    "named": true,
+    "fields": {
+      "args": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "call_args",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "program_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "program_block",
+            "named": true
+          }
+        ]
+      },
+      "impl": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "params": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "program_params",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "program_param",
+    "named": true,
+    "fields": {
+      "default": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "json_array",
+            "named": true
+          },
+          {
+            "type": "json_object",
+            "named": true
+          },
+          {
+            "type": "literal",
+            "named": true
+          },
+          {
+            "type": "program_call",
+            "named": true
+          },
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_ref",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "program_params",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "program_param",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "projection_branch",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "projection_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "options": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "projection_options",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "projection_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "projection_edge",
+    "named": true,
+    "fields": {
+      "member": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "projection_target",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "projection_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "projection_branch",
+          "named": true
+        },
+        {
+          "type": "projection_edge",
+          "named": true
+        },
+        {
+          "type": "projection_root",
+          "named": true
+        },
+        {
+          "type": "projection_view_def",
+          "named": true
+        },
+        {
+          "type": "projection_view_group",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "projection_observation_kw",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "projection_option",
+    "named": true,
+    "fields": {
+      "is_branchable": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "branchable_flag",
+            "named": true
+          }
+        ]
+      },
+      "label": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      },
+      "projection_id": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "projection_options",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "projection_option",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "projection_root",
+    "named": true,
+    "fields": {
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "projection_target",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "qualified_name",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "projection_view_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "block",
+            "named": true
+          }
+        ]
+      },
+      "keyword": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "projection_observation_kw",
+            "named": true
+          }
+        ]
+      },
+      "kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_kind",
+            "named": true
+          }
+        ]
+      },
+      "view_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "projection_view_group",
+    "named": true,
+    "fields": {
+      "keyword": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "projection_observation_kw",
+            "named": true
+          }
+        ]
+      },
+      "prefix": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "projection_view_def",
+          "named": true
+        },
+        {
+          "type": "projection_view_group",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "qualified_name",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ident",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "return_clause",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "return_tuple",
+          "named": true
+        },
+        {
+          "type": "type_ref",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "return_tuple",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "output_attr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "role_capability_stmt",
+    "named": true,
+    "fields": {
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "role_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "role_capability_stmt",
+          "named": true
+        },
+        {
+          "type": "role_doc_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "role_doc_stmt",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "sdk_api_decl",
+    "named": true,
+    "fields": {
+      "api": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "sdk_item",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "sdk_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "sdk_api_decl",
+          "named": true
+        },
+        {
+          "type": "sdk_operation_def",
+          "named": true
+        },
+        {
+          "type": "sdk_surface_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "sdk_operation_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "sdk_operation_item",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "sdk_operation_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "sdk_operation_block",
+            "named": true
+          }
+        ]
+      },
+      "operation_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_operation_dependency_def",
+    "named": true,
+    "fields": {
+      "operation": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_operation_endpoint_def",
+    "named": true,
+    "fields": {
+      "endpoint": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_operation_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "sdk_operation_dependency_def",
+          "named": true
+        },
+        {
+          "type": "sdk_operation_endpoint_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "sdk_surface_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "sdk_surface_item",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "sdk_surface_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "sdk_surface_block",
+            "named": true
+          }
+        ]
+      },
+      "surface_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_surface_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "sdk_surface_method_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "sdk_surface_method_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "sdk_surface_method_item",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "sdk_surface_method_confirmation_policy_decl",
+    "named": true,
+    "fields": {
+      "confirmation_policy": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_surface_method_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "sdk_surface_method_block",
+            "named": true
+          }
+        ]
+      },
+      "method_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_surface_method_effect_decl",
+    "named": true,
+    "fields": {
+      "effect": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_surface_method_execution_mode_decl",
+    "named": true,
+    "fields": {
+      "execution_mode": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_surface_method_family_decl",
+    "named": true,
+    "fields": {
+      "method_family": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_surface_method_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "sdk_surface_method_confirmation_policy_decl",
+          "named": true
+        },
+        {
+          "type": "sdk_surface_method_effect_decl",
+          "named": true
+        },
+        {
+          "type": "sdk_surface_method_execution_mode_decl",
+          "named": true
+        },
+        {
+          "type": "sdk_surface_method_family_decl",
+          "named": true
+        },
+        {
+          "type": "sdk_surface_method_mutation_scope_decl",
+          "named": true
+        },
+        {
+          "type": "sdk_surface_method_operation_decl",
+          "named": true
+        },
+        {
+          "type": "sdk_surface_method_runtime_binding_kind_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "sdk_surface_method_mutation_scope_decl",
+    "named": true,
+    "fields": {
+      "mutation_scope": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_surface_method_operation_decl",
+    "named": true,
+    "fields": {
+      "operation": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "sdk_surface_method_runtime_binding_kind_decl",
+    "named": true,
+    "fields": {
+      "runtime_binding_kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "section_decl_stmt",
+    "named": true,
+    "fields": {
+      "args": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "call_args",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_api_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "service_api_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_api_decl",
+    "named": true,
+    "fields": {
+      "api": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "service_api_block",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_api_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "service_api_projection_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_api_projection_decl",
+    "named": true,
+    "fields": {
+      "projection": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_code_package_config_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "service_code_package_config_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_code_package_config_cardinality_decl",
+    "named": true,
+    "fields": {
+      "cardinality": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_code_package_config_decl",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "service_code_package_config_block",
+            "named": true
+          }
+        ]
+      },
+      "slot": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_code_package_config_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "service_code_package_config_cardinality_decl",
+          "named": true
+        },
+        {
+          "type": "service_code_package_config_manifest_decl",
+          "named": true
+        },
+        {
+          "type": "service_code_package_config_required_decl",
+          "named": true
+        },
+        {
+          "type": "service_code_package_config_surface_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_code_package_config_manifest_decl",
+    "named": true,
+    "fields": {
+      "manifest_kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_code_package_config_required_decl",
+    "named": true,
+    "fields": {
+      "required": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "boolean_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_code_package_config_surface_decl",
+    "named": true,
+    "fields": {
+      "surface": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_contract_actor_role_grant_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "service_role_gate_block",
+            "named": true
+          }
+        ]
+      },
+      "role": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_contract_config_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "service_contract_config_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_contract_config_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "service_contract_config_block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_contract_config_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "service_contract_actor_role_grant_def",
+          "named": true
+        },
+        {
+          "type": "service_contract_kind_decl",
+          "named": true
+        },
+        {
+          "type": "service_contract_operation_grant_def",
+          "named": true
+        },
+        {
+          "type": "service_contract_projection_experience_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_contract_kind_decl",
+    "named": true,
+    "fields": {
+      "contract_kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_contract_operation_grant_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "service_contract_operation_grant_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_contract_operation_grant_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "service_contract_operation_grant_block",
+            "named": true
+          }
+        ]
+      },
+      "operation": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_contract_operation_grant_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "service_role_access_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_contract_projection_experience_decl",
+    "named": true,
+    "fields": {
+      "projection_experience": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "service_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_experience_decl",
+    "named": true,
+    "fields": {
+      "experience": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "service_api_decl",
+          "named": true
+        },
+        {
+          "type": "service_code_package_config_decl",
+          "named": true
+        },
+        {
+          "type": "service_contract_config_def",
+          "named": true
+        },
+        {
+          "type": "service_experience_decl",
+          "named": true
+        },
+        {
+          "type": "service_operation_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_operation_admission_policy_decl",
+    "named": true,
+    "fields": {
+      "admission_mode": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "service_operation_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_operation_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "service_operation_block",
+            "named": true
+          }
+        ]
+      },
+      "operation_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_endpoint_def",
+    "named": true,
+    "fields": {
+      "endpoint": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "service_operation_admission_policy_decl",
+          "named": true
+        },
+        {
+          "type": "service_operation_endpoint_def",
+          "named": true
+        },
+        {
+          "type": "service_operation_price_def",
+          "named": true
+        },
+        {
+          "type": "service_operation_receipt_policy_decl",
+          "named": true
+        },
+        {
+          "type": "service_operation_role_requirement_def",
+          "named": true
+        },
+        {
+          "type": "service_operation_settlement_decl",
+          "named": true
+        },
+        {
+          "type": "service_operation_view_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_operation_price_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "service_operation_price_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_operation_price_coin_decl",
+    "named": true,
+    "fields": {
+      "coin_symbol": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_price_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "service_operation_price_block",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_price_effective_from_decl",
+    "named": true,
+    "fields": {
+      "effective_from": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_price_effective_until_decl",
+    "named": true,
+    "fields": {
+      "effective_until": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_price_fixed_amount_decl",
+    "named": true,
+    "fields": {
+      "fixed_amount": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "number_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_price_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "service_operation_price_coin_decl",
+          "named": true
+        },
+        {
+          "type": "service_operation_price_effective_from_decl",
+          "named": true
+        },
+        {
+          "type": "service_operation_price_effective_until_decl",
+          "named": true
+        },
+        {
+          "type": "service_operation_price_fixed_amount_decl",
+          "named": true
+        },
+        {
+          "type": "service_operation_price_markup_percentage_decl",
+          "named": true
+        },
+        {
+          "type": "service_operation_price_policy_def",
+          "named": true
+        },
+        {
+          "type": "service_operation_price_type_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_operation_price_markup_percentage_decl",
+    "named": true,
+    "fields": {
+      "markup_percentage": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "number_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_price_policy_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "service_operation_price_policy_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_operation_price_policy_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "service_operation_price_policy_block",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_price_policy_fail_closed_decl",
+    "named": true,
+    "fields": {
+      "fail_closed": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "boolean_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_price_policy_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "service_operation_price_policy_fail_closed_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_operation_price_type_decl",
+    "named": true,
+    "fields": {
+      "price_type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_receipt_policy_decl",
+    "named": true,
+    "fields": {
+      "receipt_policy": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_role_requirement_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "service_role_gate_block",
+            "named": true
+          }
+        ]
+      },
+      "role": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_settlement_decl",
+    "named": true,
+    "fields": {
+      "settlement_policy": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_view_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "service_operation_view_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_operation_view_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "service_operation_view_block",
+            "named": true
+          }
+        ]
+      },
+      "view": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_operation_view_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "service_operation_view_provider_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_operation_view_provider_decl",
+    "named": true,
+    "fields": {
+      "provider_kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          },
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_role_access_decl",
+    "named": true,
+    "fields": {
+      "access_scope": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_role_assignment_binding_required_decl",
+    "named": true,
+    "fields": {
+      "role_assignment_binding_required": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "boolean_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_role_class_instance_identity_required_decl",
+    "named": true,
+    "fields": {
+      "class_instance_identity_required": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "boolean_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "service_role_gate_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "service_role_gate_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_role_gate_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "service_role_access_decl",
+          "named": true
+        },
+        {
+          "type": "service_role_assignment_binding_required_decl",
+          "named": true
+        },
+        {
+          "type": "service_role_class_instance_identity_required_decl",
+          "named": true
+        },
+        {
+          "type": "service_role_scope_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "service_role_scope_decl",
+    "named": true,
+    "fields": {
+      "scope_kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "scope_ref": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          },
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "signature",
+    "named": true,
+    "fields": {
+      "return_clause": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "return_clause",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "input_attr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "skill_api_decl",
+    "named": true,
+    "fields": {
+      "api": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "skill_def",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "skill_item",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "skill_endpoint_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "skill_endpoint_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "skill_endpoint_block",
+            "named": true
+          }
+        ]
+      },
+      "endpoint": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "endpoint_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "skill_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "skill_api_decl",
+          "named": true
+        },
+        {
+          "type": "skill_endpoint_def",
+          "named": true
+        },
+        {
+          "type": "skill_step_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "skill_step_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "skill_step_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "skill_step_block",
+            "named": true
+          }
+        ]
+      },
+      "endpoint_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "position": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "number_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "slot_decl_stmt",
+    "named": true,
+    "fields": {
+      "args": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "call_args",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "source_file",
+    "named": true,
+    "root": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "action_def",
+          "named": true
+        },
+        {
+          "type": "actor_def",
+          "named": true
+        },
+        {
+          "type": "ann_def",
+          "named": true
+        },
+        {
+          "type": "api_def",
+          "named": true
+        },
+        {
+          "type": "attention_layout_def",
+          "named": true
+        },
+        {
+          "type": "binding_def",
+          "named": true
+        },
+        {
+          "type": "class_def",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "connector_def",
+          "named": true
+        },
+        {
+          "type": "edge_def",
+          "named": true
+        },
+        {
+          "type": "enum_def",
+          "named": true
+        },
+        {
+          "type": "environment_def",
+          "named": true
+        },
+        {
+          "type": "event_def",
+          "named": true
+        },
+        {
+          "type": "experience_def",
+          "named": true
+        },
+        {
+          "type": "experience_profile_scope_def",
+          "named": true
+        },
+        {
+          "type": "fn_def",
+          "named": true
+        },
+        {
+          "type": "graph_def",
+          "named": true
+        },
+        {
+          "type": "import_stmt",
+          "named": true
+        },
+        {
+          "type": "interface_def",
+          "named": true
+        },
+        {
+          "type": "mirror_stmt",
+          "named": true
+        },
+        {
+          "type": "node_def",
+          "named": true
+        },
+        {
+          "type": "pane_def",
+          "named": true
+        },
+        {
+          "type": "program_def",
+          "named": true
+        },
+        {
+          "type": "projection_def",
+          "named": true
+        },
+        {
+          "type": "role_def",
+          "named": true
+        },
+        {
+          "type": "sdk_def",
+          "named": true
+        },
+        {
+          "type": "service_def",
+          "named": true
+        },
+        {
+          "type": "skill_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_ref",
+    "named": true,
+    "fields": {
+      "base": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "mapping": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "mapping_type",
+            "named": true
+          }
+        ]
+      },
+      "parametric": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "parametric_type",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "edge_spec_ref",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "view_kind",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "view_path",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "view_segment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "\"",
+    "named": false
+  },
+  {
+    "type": "\"\"\"",
+    "named": false
+  },
+  {
+    "type": "(",
+    "named": false
+  },
+  {
+    "type": ")",
+    "named": false
+  },
+  {
+    "type": "*",
+    "named": false
+  },
+  {
+    "type": ",",
+    "named": false
+  },
+  {
+    "type": "->",
+    "named": false
+  },
+  {
+    "type": ".",
+    "named": false
+  },
+  {
+    "type": ":",
+    "named": false
+  },
+  {
+    "type": "::",
+    "named": false
+  },
+  {
+    "type": ";",
+    "named": false
+  },
+  {
+    "type": "=",
+    "named": false
+  },
+  {
+    "type": "?",
+    "named": false
+  },
+  {
+    "type": "@",
+    "named": false
+  },
+  {
+    "type": "Dict",
+    "named": false
+  },
+  {
+    "type": "[",
+    "named": false
+  },
+  {
+    "type": "]",
+    "named": false
+  },
+  {
+    "type": "access",
+    "named": false
+  },
+  {
+    "type": "action",
+    "named": false
+  },
+  {
+    "type": "action_config",
+    "named": false
+  },
+  {
+    "type": "actor",
+    "named": false
+  },
+  {
+    "type": "actor_role",
+    "named": false
+  },
+  {
+    "type": "actuator",
+    "named": false
+  },
+  {
+    "type": "admission",
+    "named": false
+  },
+  {
+    "type": "ann",
+    "named": false
+  },
+  {
+    "type": "api",
+    "named": false
+  },
+  {
+    "type": "as",
+    "named": false
+  },
+  {
+    "type": "async",
+    "named": false
+  },
+  {
+    "type": "attr",
+    "named": false
+  },
+  {
+    "type": "bind",
+    "named": false
+  },
+  {
+    "type": "binding",
+    "named": false
+  },
+  {
+    "type": "branch",
+    "named": false
+  },
+  {
+    "type": "branchable_flag",
+    "named": true
+  },
+  {
+    "type": "call",
+    "named": false
+  },
+  {
+    "type": "capability",
+    "named": false
+  },
+  {
+    "type": "cardinality",
+    "named": false
+  },
+  {
+    "type": "class",
+    "named": false
+  },
+  {
+    "type": "class_instance_identity_required",
+    "named": false
+  },
+  {
+    "type": "class_verb",
+    "named": true
+  },
+  {
+    "type": "coin",
+    "named": false
+  },
+  {
+    "type": "comment",
+    "named": true
+  },
+  {
+    "type": "component",
+    "named": false
+  },
+  {
+    "type": "confirmation",
+    "named": false
+  },
+  {
+    "type": "confirmation_policy",
+    "named": false
+  },
+  {
+    "type": "connector",
+    "named": false
+  },
+  {
+    "type": "construct",
+    "named": false
+  },
+  {
+    "type": "contract",
+    "named": false
+  },
+  {
+    "type": "create",
+    "named": false
+  },
+  {
+    "type": "default",
+    "named": false
+  },
+  {
+    "type": "delete",
+    "named": false
+  },
+  {
+    "type": "description",
+    "named": false
+  },
+  {
+    "type": "dollar_string_literal",
+    "named": true
+  },
+  {
+    "type": "edge",
+    "named": false
+  },
+  {
+    "type": "effect",
+    "named": false
+  },
+  {
+    "type": "effective_from",
+    "named": false
+  },
+  {
+    "type": "effective_until",
+    "named": false
+  },
+  {
+    "type": "endpoint",
+    "named": false
+  },
+  {
+    "type": "enum",
+    "named": false
+  },
+  {
+    "type": "environment",
+    "named": false
+  },
+  {
+    "type": "event",
+    "named": false
+  },
+  {
+    "type": "event_config",
+    "named": false
+  },
+  {
+    "type": "execution_mode",
+    "named": false
+  },
+  {
+    "type": "expect",
+    "named": false
+  },
+  {
+    "type": "experience",
+    "named": false
+  },
+  {
+    "type": "fail_closed",
+    "named": false
+  },
+  {
+    "type": "fallback",
+    "named": false
+  },
+  {
+    "type": "fallback_node_kind",
+    "named": false
+  },
+  {
+    "type": "fallback_text",
+    "named": false
+  },
+  {
+    "type": "false",
+    "named": false
+  },
+  {
+    "type": "fixed_amount",
+    "named": false
+  },
+  {
+    "type": "flex",
+    "named": false
+  },
+  {
+    "type": "fn",
+    "named": false
+  },
+  {
+    "type": "from",
+    "named": false
+  },
+  {
+    "type": "function",
+    "named": false
+  },
+  {
+    "type": "grant",
+    "named": false
+  },
+  {
+    "type": "graph",
+    "named": false
+  },
+  {
+    "type": "heading",
+    "named": false
+  },
+  {
+    "type": "id",
+    "named": false
+  },
+  {
+    "type": "idempotency_policy",
+    "named": false
+  },
+  {
+    "type": "ident",
+    "named": true
+  },
+  {
+    "type": "identity_key_marker",
+    "named": true
+  },
+  {
+    "type": "impl",
+    "named": false
+  },
+  {
+    "type": "import",
+    "named": false
+  },
+  {
+    "type": "include",
+    "named": false
+  },
+  {
+    "type": "inline_value",
+    "named": false
+  },
+  {
+    "type": "input",
+    "named": false
+  },
+  {
+    "type": "instance",
+    "named": false
+  },
+  {
+    "type": "intent",
+    "named": false
+  },
+  {
+    "type": "interface",
+    "named": false
+  },
+  {
+    "type": "invocation",
+    "named": false
+  },
+  {
+    "type": "is_visible",
+    "named": false
+  },
+  {
+    "type": "json_escape_sequence",
+    "named": true
+  },
+  {
+    "type": "json_number_literal",
+    "named": true
+  },
+  {
+    "type": "key",
+    "named": false
+  },
+  {
+    "type": "kind",
+    "named": false
+  },
+  {
+    "type": "label",
+    "named": false
+  },
+  {
+    "type": "layout",
+    "named": false
+  },
+  {
+    "type": "layouts",
+    "named": false
+  },
+  {
+    "type": "let",
+    "named": false
+  },
+  {
+    "type": "manifest",
+    "named": false
+  },
+  {
+    "type": "many_kw",
+    "named": true
+  },
+  {
+    "type": "map",
+    "named": false
+  },
+  {
+    "type": "markup_percentage",
+    "named": false
+  },
+  {
+    "type": "message",
+    "named": false
+  },
+  {
+    "type": "metadata",
+    "named": false
+  },
+  {
+    "type": "method",
+    "named": false
+  },
+  {
+    "type": "method_family",
+    "named": false
+  },
+  {
+    "type": "metric",
+    "named": false
+  },
+  {
+    "type": "mirror",
+    "named": false
+  },
+  {
+    "type": "mount",
+    "named": false
+  },
+  {
+    "type": "mutation_scope",
+    "named": false
+  },
+  {
+    "type": "name",
+    "named": false
+  },
+  {
+    "type": "namespace",
+    "named": false
+  },
+  {
+    "type": "narrative",
+    "named": false
+  },
+  {
+    "type": "node",
+    "named": false
+  },
+  {
+    "type": "null",
+    "named": false
+  },
+  {
+    "type": "number_literal",
+    "named": true
+  },
+  {
+    "type": "observable",
+    "named": false
+  },
+  {
+    "type": "observation",
+    "named": false
+  },
+  {
+    "type": "on",
+    "named": false
+  },
+  {
+    "type": "ontology",
+    "named": false
+  },
+  {
+    "type": "operation",
+    "named": false
+  },
+  {
+    "type": "optimistic",
+    "named": false
+  },
+  {
+    "type": "optional",
+    "named": false
+  },
+  {
+    "type": "order",
+    "named": false
+  },
+  {
+    "type": "package",
+    "named": false
+  },
+  {
+    "type": "pane",
+    "named": false
+  },
+  {
+    "type": "paragraph",
+    "named": false
+  },
+  {
+    "type": "parent",
+    "named": false
+  },
+  {
+    "type": "payload_schema_ref",
+    "named": false
+  },
+  {
+    "type": "placeholder",
+    "named": false
+  },
+  {
+    "type": "policy",
+    "named": false
+  },
+  {
+    "type": "port",
+    "named": false
+  },
+  {
+    "type": "position",
+    "named": false
+  },
+  {
+    "type": "price",
+    "named": false
+  },
+  {
+    "type": "process",
+    "named": false
+  },
+  {
+    "type": "profile",
+    "named": false
+  },
+  {
+    "type": "program",
+    "named": false
+  },
+  {
+    "type": "projection",
+    "named": false
+  },
+  {
+    "type": "projection_experience",
+    "named": false
+  },
+  {
+    "type": "provider",
+    "named": false
+  },
+  {
+    "type": "rationale",
+    "named": false
+  },
+  {
+    "type": "receipt",
+    "named": false
+  },
+  {
+    "type": "ref",
+    "named": false
+  },
+  {
+    "type": "render",
+    "named": false
+  },
+  {
+    "type": "renderer",
+    "named": false
+  },
+  {
+    "type": "require",
+    "named": false
+  },
+  {
+    "type": "required",
+    "named": false
+  },
+  {
+    "type": "response",
+    "named": false
+  },
+  {
+    "type": "role",
+    "named": false
+  },
+  {
+    "type": "role_assignment_binding_required",
+    "named": false
+  },
+  {
+    "type": "root",
+    "named": false
+  },
+  {
+    "type": "runtime_binding_kind",
+    "named": false
+  },
+  {
+    "type": "scope",
+    "named": false
+  },
+  {
+    "type": "sdk",
+    "named": false
+  },
+  {
+    "type": "section",
+    "named": false
+  },
+  {
+    "type": "self",
+    "named": false
+  },
+  {
+    "type": "sensor",
+    "named": false
+  },
+  {
+    "type": "service",
+    "named": false
+  },
+  {
+    "type": "set",
+    "named": false
+  },
+  {
+    "type": "settlement",
+    "named": false
+  },
+  {
+    "type": "shape",
+    "named": false
+  },
+  {
+    "type": "skill",
+    "named": false
+  },
+  {
+    "type": "slot",
+    "named": false
+  },
+  {
+    "type": "source",
+    "named": false
+  },
+  {
+    "type": "source_ref",
+    "named": false
+  },
+  {
+    "type": "state",
+    "named": false
+  },
+  {
+    "type": "state_prompt_template",
+    "named": false
+  },
+  {
+    "type": "status",
+    "named": false
+  },
+  {
+    "type": "step",
+    "named": false
+  },
+  {
+    "type": "stream",
+    "named": false
+  },
+  {
+    "type": "string_literal",
+    "named": true
+  },
+  {
+    "type": "style",
+    "named": false
+  },
+  {
+    "type": "surface",
+    "named": false
+  },
+  {
+    "type": "target",
+    "named": false
+  },
+  {
+    "type": "target_ref",
+    "named": false
+  },
+  {
+    "type": "template",
+    "named": false
+  },
+  {
+    "type": "text",
+    "named": false
+  },
+  {
+    "type": "thread",
+    "named": false
+  },
+  {
+    "type": "title",
+    "named": false
+  },
+  {
+    "type": "transform",
+    "named": false
+  },
+  {
+    "type": "transition",
+    "named": false
+  },
+  {
+    "type": "trigger",
+    "named": false
+  },
+  {
+    "type": "triple_string_literal",
+    "named": true
+  },
+  {
+    "type": "true",
+    "named": false
+  },
+  {
+    "type": "type",
+    "named": false
+  },
+  {
+    "type": "unique_kw",
+    "named": true
+  },
+  {
+    "type": "update",
+    "named": false
+  },
+  {
+    "type": "version",
+    "named": false
+  },
+  {
+    "type": "view",
+    "named": false
+  },
+  {
+    "type": "view_segment",
+    "named": true
+  },
+  {
+    "type": "visible",
+    "named": false
+  },
+  {
+    "type": "window",
+    "named": false
+  },
+  {
+    "type": "workspace_view",
+    "named": false
+  },
+  {
+    "type": "{",
+    "named": false
+  },
+  {
+    "type": "}",
+    "named": false
+  }
+]

@@ -1,0 +1,56 @@
+class ClassConfigFunctionConfig {
+    // Relationships
+    function_config function.FunctionConfig key
+
+    // Attributes
+    is_public Bool = true
+    is_constructor Bool = false
+    position Int = 0
+
+    fn create construct (
+        owner_key String,
+        name String,
+        description String? = null,
+        verb String? = null,
+        is_async Bool = false,
+        kind function.FunctionKind = instance,
+        is_public Bool = true,
+        is_constructor Bool = false,
+        position Int = 0
+    ) -> ClassConfigFunctionConfig {
+        """
+        Create deterministic ClassConfigFunctionConfig link.
+
+        Contract:
+        - Parent `ClassConfig` scope is propagated by traversal lowering.
+        - FunctionConfig is ensured via semantic standalone keys (`owner_key`, `name`, `kind`).
+        - Deterministic edge identity derives from parent scope + `function_config_id`.
+        """
+        let created = construct function_config.create(
+            owner_key = owner_key,
+            name = name,
+            description = description,
+            verb = verb,
+            is_async = is_async,
+            kind = kind,
+        )
+    }
+
+    fn update_config (
+        is_public Bool = true,
+        is_constructor Bool = false,
+        position Int = 0
+    ) -> {
+        """
+        Update mutable class-function membership metadata.
+
+        Contract:
+        - `class_config_id` and `function_config_id` are identity keys and are not mutable here.
+        - Function scalar metadata lives on FunctionConfig.update_config.
+        - This full-payload update treats booleans and position as current semantic truth.
+        """
+    }
+}
+
+/// Load function config eagerly.
+ann class.ClassConfigFunctionConfig::function_config load eager

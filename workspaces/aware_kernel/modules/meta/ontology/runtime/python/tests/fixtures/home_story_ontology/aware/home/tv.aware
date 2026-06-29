@@ -1,0 +1,46 @@
+class Tv {
+    // Relationships
+    channels TvChannel[]
+    active_channel TvChannel?
+
+    // Attributes
+    name String key
+    is_on Bool = false
+
+    fn create construct(name String key, is_on Bool = false) -> Tv {
+        """
+        Create a Tv under a Home.
+        """
+    }
+
+    fn add_channel(name String, number Int) -> TvChannel {
+        """
+        Add a channel to this Tv.
+        """
+        let created = construct channels.create(
+            name = name,
+            number = number,
+        )
+    }
+
+    fn turn_on() -> Tv {
+        """
+        Turn on this Tv.
+        """
+        set is_on = true
+    }
+
+    fn turn_off() -> Tv {
+        """
+        Turn off this Tv.
+        """
+        set is_on = false
+    }
+
+    fn set_active_channel(active_channel_id UUID) -> Tv {
+        """
+        Set active channel by id.
+        """
+        set active_channel = active_channel_id
+    }
+}

@@ -1,0 +1,40 @@
+class ActionFeedback {
+    // Relationships
+    payload_model aware_meta.class.InlineValueInstance? unique
+
+    // Attributes
+    created_at_unix_ms Int = 0
+    message String?
+    /// Deprecated compatibility payload mirror.
+    ///
+    /// Canonical typed feedback payload truth is `payload_model`, whose
+    /// ClassConfig is resolved from the bound endpoint stream event config.
+    payload JsonObject = {}
+    sequence Int key
+    stage ActionFeedbackStage
+    status ActionFeedbackStatus
+
+    fn create construct(
+        sequence Int key,
+        stage ActionFeedbackStage,
+        status ActionFeedbackStatus,
+        created_at_unix_ms Int = 0,
+        message String? = null,
+        payload JsonObject = {},
+        payload_class_config_id UUID? = null,
+    ) -> ActionFeedback {
+        """
+        Create commit-backed lifecycle feedback evidence for one action execution.
+
+        Contract:
+        - This is append-only feedback truth under an ActionExecution.
+        - Deterministic id is derived from action execution and sequence.
+        - `payload_model` is typed stream feedback payload evidence. Its
+          ClassConfig is supplied by the Experience/API resolver; Reactivity
+          remains API-agnostic.
+        - `payload` is deprecated compatibility metadata only.
+        """
+    }
+}
+
+ann action.ActionFeedback::payload_model load eager

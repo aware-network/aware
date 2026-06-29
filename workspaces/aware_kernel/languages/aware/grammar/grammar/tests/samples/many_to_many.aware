@@ -1,0 +1,18 @@
+class User {
+    name String
+}
+
+class Group {
+    name String
+}
+
+class Membership {
+    users User[] @UserGroupEdge many
+}
+
+edge UserGroupEdge {
+    status String
+    joinedAt DateTime
+}
+
+

@@ -1,0 +1,31 @@
+aware_sdk = 1
+
+[sdk]
+package_name = "filesystem-sdk"
+fqn_prefix = "aware_file_system_sdk"
+version_number = 1
+title = "FileSystem SDK"
+description = "Canonical FileSystem SDK operations over FileSystem API deltas, roots, snapshots, and backend receipts."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+force_fresh_scan = false
+compilation_mode = "sdk_ontology"
+
+[targets.python]
+root_dir = "python"
+
+[targets.python.public_package]
+package_dir = "aware_file_system_sdk"
+
+[[dependencies]]
+kind = "api_package"
+package_name = "file-system-service-api"
+version_number = 1
+
+[[dependencies]]
+kind = "api_package"
+package_name = "code-service-api"
+version_number = 1

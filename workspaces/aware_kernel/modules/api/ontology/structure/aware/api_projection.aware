@@ -1,0 +1,34 @@
+projection Api {
+    root api.Api
+    api.ApiCall::outcome
+    api.Api::api_graphs
+    api.Api::api_capabilities
+    api.ApiCall::request_model
+    api.ApiCallOutcome::response_model
+    api.ApiCapability::api_capability_endpoints
+    api.ApiCapabilityEndpoint::api_capability_endpoint_functions
+    api.ApiCapabilityEndpoint::api_calls
+    api.ApiCapabilityEndpointFunction::api_graph_capability_function
+    api.ApiCapabilityEndpoint::request_config
+    api.ApiCapabilityEndpointRequestConfig::class_config ObjectConfigGraph
+    api.ApiCapabilityEndpointRequestConfig::response_config
+    api.ApiCapabilityEndpointResponseConfig::class_config ObjectConfigGraph
+    api.ApiCapabilityEndpointRequestConfig::stream_config
+    api.ApiCapabilityEndpointStreamConfig::api_capability_endpoint_stream_event_configs
+    api.ApiCapabilityEndpointStreamEventConfig::class_config ObjectConfigGraph
+    api.ApiGraph::object_config_graph ObjectConfigGraph
+    api.ApiGraph::api_graph_functions
+    api.ApiGraph::api_graph_projections
+    api.ApiGraph::api_graph_capabilities
+    api.ApiGraphCapability::api_capability
+    api.ApiGraphCapability::api_graph_capability_functions
+    api.ApiGraphCapabilityFunction::api_graph_function
+    api.ApiGraphFunction::class_config_function_config ObjectConfigGraph
+    api.ApiGraphProjection::object_projection_graph ObjectProjectionGraph
+
+    observable api {
+        """
+        API registry, graph-scoped projection mapping, and graph-scoped callable capability surface.
+        """
+    }
+}

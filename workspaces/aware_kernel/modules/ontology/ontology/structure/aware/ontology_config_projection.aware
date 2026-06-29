@@ -1,0 +1,19 @@
+/// OntologyConfig projection.
+///
+/// Purpose:
+/// - Expose ontology config/schema truth without leaking package ownership into
+///   EnvironmentConfig.
+/// - Keep the direct `ObjectConfigGraph` pointer at the config layer.
+projection OntologyConfig is_branchable {
+    root ontology.OntologyConfig
+
+    ontology.OntologyConfig::object_config_graph ObjectConfigGraph
+    ontology.OntologyConfig::object_config_graph_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    ontology.OntologyConfig::ontologies
+
+    observable editor instance default {
+        """
+        Ontology config/schema root and concrete ontology authorities.
+        """
+    }
+}

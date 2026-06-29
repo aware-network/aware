@@ -1,0 +1,130 @@
+class ApiPackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    api Api unique
+    api_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+    language_packages ApiPackageLanguagePackage[]
+
+    // Attributes
+    aware_api_version Int = 1
+    compilation_mode String = "raw_xor"
+    dependencies JsonArray = []
+    description String?
+    exclude_paths JsonArray = []
+    force_fresh_scan Bool = true
+    fqn_prefix String?
+    include_paths JsonArray = []
+    manifest_relative_path String?
+    name String key
+    package_root String = "."
+    sources_root String = "apis"
+    targets JsonObject = {}
+    title String?
+    version_number Int = 1
+
+    fn build construct(
+        name String key,
+        api_id UUID,
+        api_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_api_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = "apis",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        compilation_mode String = "raw_xor",
+        dependencies JsonArray = [],
+        targets JsonObject = {}
+    ) -> ApiPackage {
+        """
+        Create the canonical API-owned package root over an existing `Api`.
+
+        Contract:
+        - Identity is keyed by API package `name`.
+        - `ApiPackage` is the package/public root over an existing canonical `Api`.
+        - `api_id` must point at the canonical Api stable id for this package root.
+        - `api_object_instance_graph_commit_id` pins the historical ObjectInstanceGraphCommit for the
+          semantic Api root so package consumers can replay the exact API truth without resolving branch head.
+        - `source_code_package_id` is the explicit raw-source provenance link for this semantic leaf
+        package.
+        - Manifest/build/dependency/target attributes mirror `aware.api.toml` so committed package truth can
+          drive Workspace, Service protocol, and runtime resolution without reopening authoring TOML.
+        - Workspace will later mount `ApiPackage`, not raw `Api`.
+        """
+    }
+
+    fn sync_manifest_truth(
+        api_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_api_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = "apis",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        compilation_mode String = "raw_xor",
+        dependencies JsonArray = [],
+        targets JsonObject = {}
+    ) -> ApiPackage {
+        """
+        Sync mutable manifest/build/dependency/target truth onto an existing ApiPackage root.
+
+        This keeps `build` create-only for empty package lanes while allowing committed package truth to
+        follow the latest parsed `aware.api.toml` snapshot and pinned semantic Api commit.
+        """
+    }
+
+    fn attach_language_package (
+        code_package_id UUID key,
+        package_name String,
+        language aware_code.code.CodeLanguage,
+        import_root String,
+        manifest_relative_path String,
+        package_root String = ".",
+        role String = "public_package",
+        output_key String = "python.public_package",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = []
+    ) -> ApiPackageLanguagePackage {
+        """
+        Attach one generated language package owned by this ApiPackage.
+
+        Contract:
+        - API generated clients and service protocols are explicit package truth.
+        - WorkspaceRevision checkout and SDK/service consumers must resolve API
+          generated language roots from this bridge, not from target-table or
+          filesystem inference.
+        - `code_package_id` points at the canonical CodePackage for the generated
+          package root.
+        - `role` distinguishes API client and service protocol package outputs.
+        """
+        let created = construct language_packages.build(
+            code_package_id = code_package_id,
+            package_name = package_name,
+            language = language,
+            import_root = import_root,
+            manifest_relative_path = manifest_relative_path,
+            package_root = package_root,
+            role = role,
+            output_key = output_key,
+            include_paths = include_paths,
+            exclude_paths = exclude_paths,
+        )
+    }
+}
+
+ann api.ApiPackage::source_code_package load eager
+ann api.ApiPackage::api load eager
+ann api.ApiPackage::api_object_instance_graph_commit load eager
+ann api.ApiPackage::language_packages load eager

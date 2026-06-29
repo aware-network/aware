@@ -1,0 +1,120 @@
+/// Ontology runtime artifact-set DTOs.
+///
+/// This is the ontology-owned descriptor for artifacts produced by ontology
+/// materialization and later carried by WorkspaceRevision or Hub. Resolving an
+/// artifact set is provenance-only; it does not activate or upgrade a running
+/// service runtime.
+
+class OntologyRuntimeArtifactRef {
+    artifact_family String
+    artifact_key String
+    artifact_role String = "runtime"
+    output_key String?
+    output_kind String?
+    required_for String[] = []
+    status String = "available"
+    producer_provider_key String?
+    producer_key String?
+    producer_kind String?
+    package_name String?
+    fqn_prefix String?
+    digest String?
+    digest_algorithm String = "sha256"
+    uri String?
+    workspace_relative_path String?
+    manifest_path String?
+    media_type String?
+    size_bytes Int?
+    runtime_contract_version String?
+    provider_payload JsonObject = {}
+    receipt JsonObject = {}
+    error String?
+}
+
+class OntologyMaterializedSemanticRootRef {
+    semantic_root_kind String
+    semantic_projection_name String
+    semantic_projection_hash String?
+    semantic_package_id UUID?
+    semantic_root_id UUID?
+    semantic_head_commit_id UUID?
+    semantic_object_instance_graph_commit_id UUID?
+    semantic_root_object_instance_graph_commit_id UUID?
+}
+
+class OntologyRuntimeArtifactSetProvenance {
+    source_kind String = "ontology_materialization"
+    workspace_revision_id String?
+    workspace_revision_commit_id String?
+    workspace_deployment_revision_id String?
+    workspace_deployment_channel String?
+    workspace_deployment_artifact_key String?
+    hub_artifact_revision_id String?
+    materialization_ref String?
+    materialization_index Int?
+    ontology_config_id UUID?
+    ontology_config_commit_id UUID?
+    ontology_config_head_commit_id UUID?
+    ontology_config_object_instance_graph_commit_id UUID?
+    ontology_package_id UUID?
+    ontology_package_commit_id UUID?
+    ontology_package_head_commit_id UUID?
+    ontology_package_object_instance_graph_commit_id UUID?
+    object_config_graph_id UUID?
+    object_config_graph_commit_id UUID?
+    object_config_graph_package_id UUID?
+    source_code_package_id UUID?
+    source_code_package_commit_id UUID?
+    source_manifest_path String?
+    ontology_manifest_path String?
+    producer_receipt JsonObject = {}
+}
+
+class OntologyRuntimeProjectionDescriptor {
+    projection_name String
+    projection_hash String?
+    object_projection_graph_id UUID?
+    constructor_function_id UUID?
+    object_config_graph_id UUID?
+    opg_hashes String[] = []
+    required_for String[] = []
+    metadata JsonObject = {}
+}
+
+class OntologyRuntimeArtifactSet {
+    schema_version Int = 1
+    artifact_set_id String
+    package_name String
+    fqn_prefix String
+    runtime_contract_version String = "aware.ontology.runtime_artifact_set.v1"
+    lifecycle_state String = "produced"
+    activation_allowed Bool = false
+    activation_policy String = "workspace_revision_or_service_lifecycle_required"
+    artifacts runtime.OntologyRuntimeArtifactRef[] = []
+    required_artifact_roles String[] = []
+    runtime_projection_descriptors runtime.OntologyRuntimeProjectionDescriptor[] = []
+    materialized_semantic_roots runtime.OntologyMaterializedSemanticRootRef[] = []
+    provenance runtime.OntologyRuntimeArtifactSetProvenance
+    metadata JsonObject = {}
+}
+
+class OntologyRuntimeArtifactSetResolveRequest {
+    actor_id UUID?
+    package_name String?
+    fqn_prefix String?
+    artifact_set_id String?
+    workspace_revision_id String?
+    materialization_ref String?
+    include_artifacts Bool = true
+    source_payload JsonObject?
+}
+
+class OntologyRuntimeArtifactSetResolveResponse {
+    status String
+    error String?
+    actor_id UUID?
+    package_name String?
+    fqn_prefix String?
+    artifact_set runtime.OntologyRuntimeArtifactSet?
+    evidence JsonObject = {}
+}

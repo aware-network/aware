@@ -6,7 +6,7 @@ class StorageBlob {
     mime_type String
     object_key String?
     path_local String?
-    sha String
+    sha String key
     size_bytes Int
 
     fn create construct (sha String key, mime_type String, size_bytes Int) -> StorageBlob {

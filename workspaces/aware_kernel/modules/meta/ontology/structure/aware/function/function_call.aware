@@ -1,0 +1,55 @@
+class FunctionCall {
+    // Relationships
+    function_config FunctionConfig key
+    target_class_instance_identity class.ClassInstanceIdentity?
+    base_commit graph.instance.ObjectInstanceGraphCommit?
+    attributes attribute.Attribute[] @FunctionCallArgument many key
+    function_call_response FunctionCallResponse? unique key
+
+    // Attributes
+    call_key UUID key
+    graph_hash_pre String?
+
+    fn build construct(
+        call_key UUID key,
+        function_config_id UUID key,
+        target_class_instance_identity_id UUID? = null,
+        base_commit_id UUID? = null,
+        graph_hash_pre String? = null
+    ) -> FunctionCall {
+        """
+        Build one durable FunctionCall envelope under an ObjectInstanceGraphLane.
+
+        Contract:
+        - Parent ObjectInstanceGraphLane ownership is propagated by traversal lowering.
+        - `call_key` is the per-invocation identity and is required.
+        - `function_config` is execution contract truth.
+        - `target_class_instance_identity` is null for constructor calls until
+          response materialization identifies the created root identity.
+        """
+    }
+
+    fn create_response(
+        success Bool = true,
+        error_message String? = null,
+        execution_time_ms Int = 0,
+        graph_hash_post String? = null,
+        root_class_instance_identity_id UUID? = null
+    ) -> FunctionCallResponse {
+        let created = construct function_call_response.build(
+            success = success,
+            error_message = error_message,
+            execution_time_ms = execution_time_ms,
+            graph_hash_post = graph_hash_post,
+            root_class_instance_identity_id = root_class_instance_identity_id,
+        )
+    }
+}
+
+/// Load attributes eagerly
+ann function.FunctionCall::function_config load eager
+ann function.FunctionCall::target_class_instance_identity load eager
+ann function.FunctionCall::base_commit load eager
+ann function.FunctionCall::attributes load eager
+ann function.FunctionCall::attributes::FunctionCallArgument load eager
+ann function.FunctionCall::function_call_response load eager

@@ -5,27 +5,39 @@ from pathlib import Path
 import pytest
 
 from aware_orm.runtime.bundle_runtime_install import (
-    DEFAULT_MANIFEST_PATH,
-    ENVIRONMENT_MANIFEST_ENV,
+    install_default_environment_bundle,
+    install_environment_bundle,
     resolve_environment_manifest_path,
 )
-from aware_orm._support import find_aware_root
+from aware_orm.runtime.errors import BundleInstallError
 
 
-def test_resolve_environment_manifest_default(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv(ENVIRONMENT_MANIFEST_ENV, raising=False)
-    path = resolve_environment_manifest_path()
-    assert path.is_absolute()
-    assert path == find_aware_root() / DEFAULT_MANIFEST_PATH
+@pytest.mark.parametrize(
+    "call",
+    (
+        lambda tmp_path: resolve_environment_manifest_path(),
+        lambda tmp_path: resolve_environment_manifest_path(
+            tmp_path / "environment.manifest.json"
+        ),
+        lambda tmp_path: install_environment_bundle(
+            manifest_path=tmp_path / "environment.manifest.json"
+        ),
+        lambda tmp_path: install_default_environment_bundle(),
+    ),
+)
+def test_environment_bundle_install_helpers_are_retired(tmp_path: Path, call) -> None:
+    with pytest.raises(
+        BundleInstallError, match="Environment bundle installation is retired"
+    ):
+        call(tmp_path)
 
 
-def test_resolve_environment_manifest_env_override(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setenv(ENVIRONMENT_MANIFEST_ENV, "relative/path/environment.manifest.json")
-    path = resolve_environment_manifest_path()
-    assert path == find_aware_root() / Path("relative/path/environment.manifest.json")
+def test_environment_bundle_installer_does_not_import_structure() -> None:
+    source_path = (
+        Path(__file__).parents[2]
+        / "aware_orm"
+        / "runtime"
+        / "bundle_runtime_install.py"
+    )
 
-    monkeypatch.setenv(ENVIRONMENT_MANIFEST_ENV, str(Path("/tmp") / "manifest.json"))
-    path = resolve_environment_manifest_path()
-    assert path == Path("/tmp/manifest.json")
+    assert "aware_structure" not in source_path.read_text(encoding="utf-8")

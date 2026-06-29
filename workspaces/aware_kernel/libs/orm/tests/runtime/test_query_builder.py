@@ -97,7 +97,9 @@ async def test_model_query_builder_all_uses_field_refs_and_queryspec(monkeypatch
     )
     from aware_orm.session import current_session_ctx
 
-    monkeypatch.setattr(current_session_ctx, "current_session", lambda kind="any": session)
+    monkeypatch.setattr(
+        current_session_ctx, "current_session", lambda kind="any": session
+    )
 
     results = await (
         BuilderModel.query()
@@ -139,7 +141,9 @@ async def test_model_query_builder_first_and_count(monkeypatch):
     )
     from aware_orm.session import current_session_ctx
 
-    monkeypatch.setattr(current_session_ctx, "current_session", lambda kind="any": session)
+    monkeypatch.setattr(
+        current_session_ctx, "current_session", lambda kind="any": session
+    )
 
     first = await BuilderModel.query().where(BuilderModel.f.status.eq("active")).first()
     count = await BuilderModel.query().where(BuilderModel.f.status.eq("active")).count()
@@ -147,6 +151,110 @@ async def test_model_query_builder_first_and_count(monkeypatch):
     assert first and first.id == sample_id
     assert count == 7
     assert session.last_count is True
+
+
+@pytest.mark.asyncio
+async def test_model_query_agent_sugar_uses_queryspec_backend(monkeypatch):
+    clear_sql_metadata_registry()
+    _bind_builder_metadata()
+    sample_id = uuid4()
+    session = BuilderSession(
+        [
+            {
+                "id": str(sample_id),
+                "display_name": "Alice",
+                "displayname": "Alice",
+                "status": "active",
+                "total": 25,
+            }
+        ],
+        count=1,
+    )
+    from aware_orm.session import current_session_ctx
+
+    monkeypatch.setattr(
+        current_session_ctx, "current_session", lambda kind="any": session
+    )
+
+    by_id = await BuilderModel.by_id(sample_id)
+
+    assert by_id and by_id.id == sample_id
+    assert session.last_query_spec is not None
+    assert isinstance(session.last_query_spec.where, EqFilter)
+    assert session.last_query_spec.where.column == "id"
+    assert session.last_query_spec.where.value == sample_id
+    assert session.last_query_spec.page == QueryPage(limit=1)
+
+    first = await BuilderModel.one(status="active", displayname="Alice")
+
+    assert first and first.id == sample_id
+    assert isinstance(session.last_query_spec.where, PredicateGroup)
+    assert session.last_query_spec.where.op == "and"
+    assert [
+        (predicate.column, predicate.value)
+        for predicate in session.last_query_spec.where.predicates
+    ] == [("status", "active"), ("displayname", "Alice")]
+    assert session.last_query_spec.page == QueryPage(limit=1)
+
+    alias_first = await BuilderModel.first(status="active")
+    assert alias_first and alias_first.id == sample_id
+
+    rows = await (
+        BuilderModel.where(status="active")
+        .order_by(BuilderModel.f.total.desc())
+        .limit(10)
+        .all()
+    )
+    many = await BuilderModel.many(status="active")
+    count = await BuilderModel.where(status="active").count()
+
+    assert [row.id for row in rows] == [sample_id]
+    assert [row.id for row in many] == [sample_id]
+    assert count == 1
+    assert session.last_count is True
+
+
+def test_model_query_agent_sugar_rejects_unknown_fields():
+    with pytest.raises(ValueError, match="unknown field 'missing'"):
+        BuilderModel.where(missing="value")
+
+
+def test_model_query_match_helpers_compose_exact_filters():
+    query_spec = (
+        BuilderModel.where(status="active")
+        .match(total=10)
+        .match_if_present(displayname="", id=None)
+        .match_when(True, total=25)
+        .match_when(False, total=999)
+        .match_unless(False, displayname="Alice")
+        .match_unless(True, status="archived")
+        .spec()
+    )
+
+    assert isinstance(query_spec.where, PredicateGroup)
+    assert [
+        (predicate.column, predicate.value) for predicate in query_spec.where.predicates
+    ] == [
+        ("status", "active"),
+        ("total", 10),
+        ("displayname", ""),
+        ("total", 25),
+        ("displayname", "Alice"),
+    ]
+
+
+def test_model_query_match_helpers_reject_unknown_fields():
+    with pytest.raises(ValueError, match=r"BuilderModel\.match\(\).*'missing'"):
+        BuilderModel.where(status="active").match(missing="value")
+    with pytest.raises(
+        ValueError,
+        match=r"BuilderModel\.match_if_present\(\).*'missing'",
+    ):
+        BuilderModel.query().match_if_present(missing=None)
+    with pytest.raises(ValueError, match=r"BuilderModel\.match_when\(\).*'missing'"):
+        BuilderModel.query().match_when(False, missing="value")
+    with pytest.raises(ValueError, match=r"BuilderModel\.match_unless\(\).*'missing'"):
+        BuilderModel.query().match_unless(True, missing="value")
 
 
 def test_model_query_builder_spec_and_relation_field_refs():
@@ -188,7 +296,9 @@ async def test_model_query_keeps_queryspec_await_compatibility(monkeypatch):
     )
     from aware_orm.session import current_session_ctx
 
-    monkeypatch.setattr(current_session_ctx, "current_session", lambda kind="any": session)
+    monkeypatch.setattr(
+        current_session_ctx, "current_session", lambda kind="any": session
+    )
     spec = QuerySpec(where=EqFilter(column="status", value="active"))
 
     results = await BuilderModel.query(spec)

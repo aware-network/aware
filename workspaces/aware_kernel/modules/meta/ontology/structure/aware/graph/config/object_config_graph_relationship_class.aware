@@ -1,0 +1,13 @@
+/// One concrete cross-OCG relationship to reference a ClassConfig
+class ObjectConfigGraphRelationshipClass {
+    // Relationships
+    class_config class.ClassConfig key
+
+    fn build construct(
+        class_config_id UUID key,
+    ) -> ObjectConfigGraphRelationshipClass {
+        """
+        Build deterministic ObjectConfigGraphRelationshipClass within a relationship scope.
+        """
+    }
+}

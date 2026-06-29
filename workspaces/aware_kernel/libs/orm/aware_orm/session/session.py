@@ -554,7 +554,7 @@ async def create_session(
     )
     try:
         # Provide a local SessionContext so ORM helpers that rely on current_session()
-        # work in tools/tests without orchestrator/runtime or env scopes.
+        # work in tools/tests without environment/runtime or env scopes.
         from aware_orm.session.current_session_ctx import set_session
 
         with set_session(session):

@@ -1,0 +1,26 @@
+aware_sdk = 1
+
+[sdk]
+package_name = "code-sdk"
+fqn_prefix = "aware_code_sdk"
+version_number = 1
+title = "Code SDK"
+description = "Canonical Code SDK operations over Code API DTOs for semantic contract and package layout resolution."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+force_fresh_scan = false
+compilation_mode = "sdk_ontology"
+
+[targets.python]
+root_dir = "python"
+
+[targets.python.public_package]
+package_dir = "aware_code_sdk"
+
+[[dependencies]]
+kind = "api_package"
+package_name = "code-service-api"
+version_number = 1

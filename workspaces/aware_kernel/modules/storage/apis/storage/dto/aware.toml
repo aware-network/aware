@@ -1,0 +1,12 @@
+aware = 1
+
+[package]
+package_name = "storage-service-dto"
+fqn_prefix = "aware_storage_service_dto"
+kind = "api"
+version_number = 1
+title = "Storage Service DTO"
+description = "API-owned DTO package for Storage blob metadata, media resolution, and data-plane receipts."
+
+[build]
+environment_slug = "aware_storage_service_dto"

@@ -1,0 +1,62 @@
+class AttributeTypeDescriptor {
+    // Relationships
+    class_config class.ClassConfig?
+    enum_config enum.EnumConfig?
+    primitive_config primitive.PrimitiveConfig?
+    child_links AttributeTypeDescriptorLink[]
+
+    // Attributes
+    collection_kind AttributeCollectionType key = single
+    kind AttributeTypeDescriptorKind key
+
+    fn create_primitive construct(
+        primitive_base_type aware_code.primitive.CodePrimitiveBaseType
+    ) -> AttributeTypeDescriptor {
+        """
+        Create deterministic primitive descriptor chain.
+        """
+    }
+
+    fn create_enum construct(
+        enum_config_id UUID key
+    ) -> AttributeTypeDescriptor {
+        """
+        Create deterministic enum descriptor from predeclared EnumConfig truth.
+        """
+    }
+
+    fn create_class construct(
+        class_config_id UUID key
+    ) -> AttributeTypeDescriptor {
+        """
+        Create deterministic class descriptor from predeclared ClassConfig truth.
+        """
+    }
+
+    fn create_child_link(
+        child_id UUID key,
+        role AttributeTypeDescriptorRole key,
+        position Int key = 0
+    ) -> AttributeTypeDescriptorLink {
+        """
+        Create deterministic descriptor child link under this AttributeTypeDescriptor.
+
+        Contract:
+        - Parent `attribute_type_descriptor_id` is propagated by constructor lowering.
+        - The child link stable id must resolve from
+          `(attribute_type_descriptor_id via path, child_id, role, position)`.
+        """
+        let created = construct child_links.build(
+            child_id = child_id,
+            role = role,
+            position = position,
+        )
+    }
+}
+
+/// Load child links, enum config, and primitive config eagerly
+ann attribute.AttributeTypeDescriptor identity standalone structural child_links
+ann attribute.AttributeTypeDescriptor oneof identity class_config enum_config primitive_config discriminator kind class class_config enum enum_config primitive primitive_config
+ann attribute.AttributeTypeDescriptor::child_links load eager
+ann attribute.AttributeTypeDescriptor::enum_config load eager
+ann attribute.AttributeTypeDescriptor::primitive_config load eager

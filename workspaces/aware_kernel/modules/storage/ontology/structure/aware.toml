@@ -1,0 +1,14 @@
+aware = 1
+
+[package]
+package_name = "storage-ontology"
+fqn_prefix = "aware_storage"
+kind = "ontology"
+version_number = 1
+title = "Storage"
+description = "SSOT canonical (.aware) sources for storage."
+function_impl_ownership = "compiler"
+function_impl_parity_policy = "error"
+
+[build]
+environment_slug = "aware_storage"

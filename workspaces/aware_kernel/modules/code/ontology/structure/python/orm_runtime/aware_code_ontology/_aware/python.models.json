@@ -1,0 +1,1261 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "a372216f-2df0-546f-9a52-2185d7d7953e",
+      "module": "aware_code_ontology.annotation.code_section_annotation",
+      "name": "CodeSectionAnnotation",
+      "aware_class_ref": "aware_code.annotation.CodeSectionAnnotation",
+      "functions": [
+        {
+          "function_config_id": "812ad722-fbc6-548d-84cc-17c54ff065cc",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionAnnotationBuildViaCodeSectionInput",
+          "output_model": "CodeSectionAnnotationBuildViaCodeSectionOutput"
+        },
+        {
+          "function_config_id": "57283b51-e166-5066-994e-ddcbe0cb0f6c",
+          "name": "delete",
+          "input_model": "CodeSectionAnnotationDeleteInput",
+          "output_model": "CodeSectionAnnotationDeleteOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8185614d-1e5f-50b5-bfd8-9adff184bd56",
+      "module": "aware_code_ontology.attribute.code_section_attribute",
+      "name": "CodeSectionAttribute",
+      "aware_class_ref": "aware_code.attribute.CodeSectionAttribute",
+      "functions": [
+        {
+          "function_config_id": "e6ddf125-6c28-5323-b055-cca54e772357",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionAttributeBuildViaCodeSectionInput",
+          "output_model": "CodeSectionAttributeBuildViaCodeSectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "499bb348-e06d-543d-b99b-b35a670eafdc",
+      "module": "aware_code_ontology.binding.code_section_binding",
+      "name": "CodeSectionBinding",
+      "aware_class_ref": "aware_code.binding.CodeSectionBinding",
+      "functions": [
+        {
+          "function_config_id": "0ce25144-1f92-54b1-bc77-83de796b1b43",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionBindingBuildViaCodeSectionInput",
+          "output_model": "CodeSectionBindingBuildViaCodeSectionOutput"
+        },
+        {
+          "function_config_id": "1670c672-6ca4-55b5-b365-471c779f5c08",
+          "name": "create_map",
+          "input_model": "CodeSectionBindingCreateMapInput",
+          "output_model": "CodeSectionBindingCreateMapOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "40210d15-5a8c-55c8-8538-e2b0abaea17c",
+      "module": "aware_code_ontology.binding.code_section_binding_map",
+      "name": "CodeSectionBindingMap",
+      "aware_class_ref": "aware_code.binding.CodeSectionBindingMap",
+      "functions": [
+        {
+          "function_config_id": "4612c2af-5f24-53b7-89ac-0809638bfba8",
+          "name": "build_via_code_section_binding",
+          "input_model": "CodeSectionBindingMapBuildViaCodeSectionBindingInput",
+          "output_model": "CodeSectionBindingMapBuildViaCodeSectionBindingOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ada356a8-38a4-568d-8993-1906c58f2ada",
+      "module": "aware_code_ontology.class_.code_section_class",
+      "name": "CodeSectionClass",
+      "aware_class_ref": "aware_code.class.CodeSectionClass",
+      "functions": [
+        {
+          "function_config_id": "4438bf80-4c5b-5b00-9c92-ff1be0600a32",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionClassBuildViaCodeSectionInput",
+          "output_model": "CodeSectionClassBuildViaCodeSectionOutput"
+        },
+        {
+          "function_config_id": "99540d45-6702-50ad-b286-f66e6e3d9df1",
+          "name": "create_base",
+          "input_model": "CodeSectionClassCreateBaseInput",
+          "output_model": "CodeSectionClassCreateBaseOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "38ca7c1c-cc9b-5085-a8e3-e6628790e824",
+      "module": "aware_code_ontology.class_.code_section_class_attribute",
+      "name": "CodeSectionClassAttribute",
+      "aware_class_ref": "aware_code.class.CodeSectionClassAttribute",
+      "functions": []
+    },
+    {
+      "class_config_id": "cab5c1fd-0a4f-58d7-ac85-9d3ca1bb34b3",
+      "module": "aware_code_ontology.class_.code_section_class_base",
+      "name": "CodeSectionClassBase",
+      "aware_class_ref": "aware_code.class.CodeSectionClassBase",
+      "functions": [
+        {
+          "function_config_id": "d9e10dc2-9d82-5112-b953-2fa9d3ff4200",
+          "name": "build_via_code_section_class",
+          "input_model": "CodeSectionClassBaseBuildViaCodeSectionClassInput",
+          "output_model": "CodeSectionClassBaseBuildViaCodeSectionClassOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d461e602-7f9a-5ce7-8c01-16ca9c7ae18e",
+      "module": "aware_code_ontology.class_.code_section_class_function",
+      "name": "CodeSectionClassFunction",
+      "aware_class_ref": "aware_code.class.CodeSectionClassFunction",
+      "functions": []
+    },
+    {
+      "class_config_id": "08033a11-9e49-53da-953d-69ee9957d60e",
+      "module": "aware_code_ontology.code.code",
+      "name": "Code",
+      "aware_class_ref": "aware_code.code.Code",
+      "functions": [
+        {
+          "function_config_id": "47e4c795-c1bf-55d4-bca6-0ba635a7ac74",
+          "name": "apply_content_plan",
+          "input_model": "CodeApplyContentPlanInput",
+          "output_model": "CodeApplyContentPlanOutput"
+        },
+        {
+          "function_config_id": "cfe73d52-f20f-5799-9af3-6c1f816ae5aa",
+          "name": "create_section",
+          "input_model": "CodeCreateSectionInput",
+          "output_model": "CodeCreateSectionOutput"
+        },
+        {
+          "function_config_id": "56e6e65f-0241-5cea-914c-78039b7e08d2",
+          "name": "create_test",
+          "input_model": "CodeCreateTestInput",
+          "output_model": "CodeCreateTestOutput"
+        },
+        {
+          "function_config_id": "af891fb7-578a-5dbb-bbe5-7f721bbb95fc",
+          "name": "create_via_code_package_code",
+          "input_model": "CodeCreateViaCodePackageCodeInput",
+          "output_model": "CodeCreateViaCodePackageCodeOutput"
+        },
+        {
+          "function_config_id": "82ac0135-72bd-5f6d-8f7e-ae2611d7208e",
+          "name": "delete",
+          "input_model": "CodeDeleteInput",
+          "output_model": "CodeDeleteOutput"
+        },
+        {
+          "function_config_id": "50cde843-ebe5-59b3-a3df-aec8ff90d2ac",
+          "name": "replace_content",
+          "input_model": "CodeReplaceContentInput",
+          "output_model": "CodeReplaceContentOutput"
+        },
+        {
+          "function_config_id": "5460a5ea-5c71-5950-a410-8ce1e317682f",
+          "name": "sync_test_unit",
+          "input_model": "CodeSyncTestUnitInput",
+          "output_model": "CodeSyncTestUnitOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d1fe82e2-aeec-5560-9fa4-e81199f47b15",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodeContentPlan",
+      "aware_class_ref": "aware_code.code.CodeContentPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "d6c3f7f1-8267-524f-9644-3770dfc17e7c",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodePackageDelta",
+      "aware_class_ref": "aware_code.code.CodePackageDelta",
+      "functions": []
+    },
+    {
+      "class_config_id": "6d79dacf-1f77-5141-ac15-0e3e259f3191",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodePackageDeltaApplyResult",
+      "aware_class_ref": "aware_code.code.CodePackageDeltaApplyResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "8459d480-dc8d-5f16-9a6a-54f068a55aeb",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodePackageDeltaPath",
+      "aware_class_ref": "aware_code.code.CodePackageDeltaPath",
+      "functions": []
+    },
+    {
+      "class_config_id": "52723a55-eb31-57e4-90c3-458b0aa82312",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodePackageDeltaProducerRef",
+      "aware_class_ref": "aware_code.code.CodePackageDeltaProducerRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "3ba52a2d-58ee-586f-bb20-845fde319909",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodePackageDeltaProduction",
+      "aware_class_ref": "aware_code.code.CodePackageDeltaProduction",
+      "functions": []
+    },
+    {
+      "class_config_id": "38e8057b-9612-58d3-9167-767eea3489bf",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodeSectionAnnotationPlan",
+      "aware_class_ref": "aware_code.code.CodeSectionAnnotationPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "21f8740b-ebab-5ce0-b786-4c0dbdebfd33",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodeSectionImportNamePlan",
+      "aware_class_ref": "aware_code.code.CodeSectionImportNamePlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "dd9a06b0-e988-57ab-9ce0-09af0f4b4359",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodeSectionImportPlan",
+      "aware_class_ref": "aware_code.code.CodeSectionImportPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "65656fd0-1b2e-5f42-b292-02f38eb874e1",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodeSectionPlan",
+      "aware_class_ref": "aware_code.code.CodeSectionPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "85fd2b37-dc15-56b4-874c-5acd9f157d2f",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodeSegmentPlan",
+      "aware_class_ref": "aware_code.code.CodeSegmentPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "89f72fe5-e174-59f5-98e2-a414fd5e1df0",
+      "module": "aware_code_ontology.code.code_section",
+      "name": "CodeSection",
+      "aware_class_ref": "aware_code.code.CodeSection",
+      "functions": [
+        {
+          "function_config_id": "d9495189-7e99-560e-bcb4-5b2e703a5466",
+          "name": "build_via_code",
+          "input_model": "CodeSectionBuildViaCodeInput",
+          "output_model": "CodeSectionBuildViaCodeOutput"
+        },
+        {
+          "function_config_id": "eefb9025-0222-5a7a-b45e-3b3953689b83",
+          "name": "create_annotation",
+          "input_model": "CodeSectionCreateAnnotationInput",
+          "output_model": "CodeSectionCreateAnnotationOutput"
+        },
+        {
+          "function_config_id": "66323835-755c-5507-b6c3-00d2b574aeec",
+          "name": "create_attribute",
+          "input_model": "CodeSectionCreateAttributeInput",
+          "output_model": "CodeSectionCreateAttributeOutput"
+        },
+        {
+          "function_config_id": "4badd281-33be-5385-9b38-35ded3b3e063",
+          "name": "create_binding",
+          "input_model": "CodeSectionCreateBindingInput",
+          "output_model": "CodeSectionCreateBindingOutput"
+        },
+        {
+          "function_config_id": "83467079-9e12-5883-933c-fc7c7ecb1868",
+          "name": "create_class",
+          "input_model": "CodeSectionCreateClassInput",
+          "output_model": "CodeSectionCreateClassOutput"
+        },
+        {
+          "function_config_id": "17689928-8611-57f4-80ad-0452dbb3817c",
+          "name": "create_comment",
+          "input_model": "CodeSectionCreateCommentInput",
+          "output_model": "CodeSectionCreateCommentOutput"
+        },
+        {
+          "function_config_id": "5be01691-5bc1-51e2-86e2-589915735ce4",
+          "name": "create_decorator",
+          "input_model": "CodeSectionCreateDecoratorInput",
+          "output_model": "CodeSectionCreateDecoratorOutput"
+        },
+        {
+          "function_config_id": "d1418edb-2e3b-5b82-9c9a-25608454e56e",
+          "name": "create_enum",
+          "input_model": "CodeSectionCreateEnumInput",
+          "output_model": "CodeSectionCreateEnumOutput"
+        },
+        {
+          "function_config_id": "a85d75aa-8ab3-5b86-a1f4-ee59a554155b",
+          "name": "create_enum_value",
+          "input_model": "CodeSectionCreateEnumValueInput",
+          "output_model": "CodeSectionCreateEnumValueOutput"
+        },
+        {
+          "function_config_id": "2c845814-8aac-55ba-b0f9-8ff6c2080c68",
+          "name": "create_expression",
+          "input_model": "CodeSectionCreateExpressionInput",
+          "output_model": "CodeSectionCreateExpressionOutput"
+        },
+        {
+          "function_config_id": "4eee7abd-6916-5826-9bae-5474d2f7f15a",
+          "name": "create_function",
+          "input_model": "CodeSectionCreateFunctionInput",
+          "output_model": "CodeSectionCreateFunctionOutput"
+        },
+        {
+          "function_config_id": "c4240e37-84cb-5b1b-926a-96d3df67ab80",
+          "name": "create_import",
+          "input_model": "CodeSectionCreateImportInput",
+          "output_model": "CodeSectionCreateImportOutput"
+        },
+        {
+          "function_config_id": "6975dea2-853f-5aa9-b42e-21f14d4a4da4",
+          "name": "create_mirror",
+          "input_model": "CodeSectionCreateMirrorInput",
+          "output_model": "CodeSectionCreateMirrorOutput"
+        },
+        {
+          "function_config_id": "249c9817-79a3-591b-ad2d-e1ef7d2921a6",
+          "name": "create_projection",
+          "input_model": "CodeSectionCreateProjectionInput",
+          "output_model": "CodeSectionCreateProjectionOutput"
+        },
+        {
+          "function_config_id": "c92903f0-396d-54d1-b97d-468997171c2f",
+          "name": "delete",
+          "input_model": "CodeSectionDeleteInput",
+          "output_model": "CodeSectionDeleteOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fdb9f534-220c-5507-98f2-a5a2e11a3559",
+      "module": "aware_code_ontology.code.code_test",
+      "name": "CodeTest",
+      "aware_class_ref": "aware_code.code.CodeTest",
+      "functions": [
+        {
+          "function_config_id": "0f47f915-7e7f-5ef8-a827-89bd9764e45c",
+          "name": "build_via_code",
+          "input_model": "CodeTestBuildViaCodeInput",
+          "output_model": "CodeTestBuildViaCodeOutput"
+        },
+        {
+          "function_config_id": "181a21c5-5231-54f0-8d23-73d2de505d80",
+          "name": "create_unit",
+          "input_model": "CodeTestCreateUnitInput",
+          "output_model": "CodeTestCreateUnitOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "719985d1-d20b-58fa-bad7-2e382b0dd4e7",
+      "module": "aware_code_ontology.code.code_test_framework",
+      "name": "CodeTestFramework",
+      "aware_class_ref": "aware_code.code.CodeTestFramework",
+      "functions": [
+        {
+          "function_config_id": "7bc47312-0aed-5fe3-a336-1a823e33d6c4",
+          "name": "build",
+          "input_model": "CodeTestFrameworkBuildInput",
+          "output_model": "CodeTestFrameworkBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "64e125db-f4df-59cd-ac66-5ef2f53df6f8",
+      "module": "aware_code_ontology.code.code_test_unit",
+      "name": "CodeTestUnit",
+      "aware_class_ref": "aware_code.code.CodeTestUnit",
+      "functions": [
+        {
+          "function_config_id": "2150eb53-e071-5078-87f0-8d5d5668397f",
+          "name": "build_via_code_test",
+          "input_model": "CodeTestUnitBuildViaCodeTestInput",
+          "output_model": "CodeTestUnitBuildViaCodeTestOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "75d8aa0d-09db-5103-b55d-d4c02734d6f8",
+      "module": "aware_code_ontology.code.code_test_unit_run",
+      "name": "CodeTestUnitRun",
+      "aware_class_ref": "aware_code.code.CodeTestUnitRun",
+      "functions": [
+        {
+          "function_config_id": "232b5fee-7f67-52c1-8a25-d752096eb8a2",
+          "name": "build_via_code_package_test_run",
+          "input_model": "CodeTestUnitRunBuildViaCodePackageTestRunInput",
+          "output_model": "CodeTestUnitRunBuildViaCodePackageTestRunOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8bdaf849-747b-5f54-8da5-7eade5dd0faa",
+      "module": "aware_code_ontology.comment.code_section_comment",
+      "name": "CodeSectionComment",
+      "aware_class_ref": "aware_code.comment.CodeSectionComment",
+      "functions": [
+        {
+          "function_config_id": "dce17dc4-6d81-57e1-a968-7d50f9ad133f",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionCommentBuildViaCodeSectionInput",
+          "output_model": "CodeSectionCommentBuildViaCodeSectionOutput"
+        },
+        {
+          "function_config_id": "13982586-dc1d-5437-b707-724e2c3f7096",
+          "name": "create_content",
+          "input_model": "CodeSectionCommentCreateContentInput",
+          "output_model": "CodeSectionCommentCreateContentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1901a2f0-0668-55f9-8a5d-44803640bcbf",
+      "module": "aware_code_ontology.comment.code_section_comment_content",
+      "name": "CodeSectionCommentContent",
+      "aware_class_ref": "aware_code.comment.CodeSectionCommentContent",
+      "functions": [
+        {
+          "function_config_id": "7b71ccba-7e5f-5de6-ada0-285ffe0b9e98",
+          "name": "build_via_code_section_comment",
+          "input_model": "CodeSectionCommentContentBuildViaCodeSectionCommentInput",
+          "output_model": "CodeSectionCommentContentBuildViaCodeSectionCommentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "aa341420-8bf3-58d7-ac69-5f01fc49313e",
+      "module": "aware_code_ontology.decorator.code_section_decorator",
+      "name": "CodeSectionDecorator",
+      "aware_class_ref": "aware_code.decorator.CodeSectionDecorator",
+      "functions": [
+        {
+          "function_config_id": "e3c8dc26-60be-59ba-af17-7e4b9573104e",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionDecoratorBuildViaCodeSectionInput",
+          "output_model": "CodeSectionDecoratorBuildViaCodeSectionOutput"
+        },
+        {
+          "function_config_id": "7ee573ce-b2f9-5180-9988-712e7c361fb2",
+          "name": "create_expression",
+          "input_model": "CodeSectionDecoratorCreateExpressionInput",
+          "output_model": "CodeSectionDecoratorCreateExpressionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "54c9bdb7-c956-5286-b3a8-682677347090",
+      "module": "aware_code_ontology.decorator.code_section_decorator_expression",
+      "name": "CodeSectionDecoratorExpression",
+      "aware_class_ref": "aware_code.decorator.CodeSectionDecoratorExpression",
+      "functions": [
+        {
+          "function_config_id": "be93c040-4895-5339-9d06-b6502128b24c",
+          "name": "build_via_code_section_decorator",
+          "input_model": "CodeSectionDecoratorExpressionBuildViaCodeSectionDecoratorInput",
+          "output_model": "CodeSectionDecoratorExpressionBuildViaCodeSectionDecoratorOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7d383e9d-f8cf-5d19-aeb2-d2de1aa674e5",
+      "module": "aware_code_ontology.enum.code_section_enum",
+      "name": "CodeSectionEnum",
+      "aware_class_ref": "aware_code.enum.CodeSectionEnum",
+      "functions": [
+        {
+          "function_config_id": "f71b66be-df4b-51e4-ad0a-272dbbe11568",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionEnumBuildViaCodeSectionInput",
+          "output_model": "CodeSectionEnumBuildViaCodeSectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "56e0131f-9f1a-5db0-9f59-8eb78e369f0c",
+      "module": "aware_code_ontology.enum.code_section_enum_value",
+      "name": "CodeSectionEnumValue",
+      "aware_class_ref": "aware_code.enum.CodeSectionEnumValue",
+      "functions": [
+        {
+          "function_config_id": "b366ed61-daba-5b8f-bd11-209608fc5f2d",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionEnumValueBuildViaCodeSectionInput",
+          "output_model": "CodeSectionEnumValueBuildViaCodeSectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a6a87e97-1b11-5d3a-b507-babef7190f25",
+      "module": "aware_code_ontology.expression.code_section_expression",
+      "name": "CodeSectionExpression",
+      "aware_class_ref": "aware_code.expression.CodeSectionExpression",
+      "functions": [
+        {
+          "function_config_id": "988c353b-1233-5343-b4ff-0519203e776b",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionExpressionBuildViaCodeSectionInput",
+          "output_model": "CodeSectionExpressionBuildViaCodeSectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8d12567a-a166-5dfb-a30a-00bbb9122301",
+      "module": "aware_code_ontology.function.code_section_function",
+      "name": "CodeSectionFunction",
+      "aware_class_ref": "aware_code.function.CodeSectionFunction",
+      "functions": [
+        {
+          "function_config_id": "851c1c59-fdff-58b0-9d9a-7904c1f4795b",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionFunctionBuildViaCodeSectionInput",
+          "output_model": "CodeSectionFunctionBuildViaCodeSectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d1ef0f09-098b-51bd-9a01-b1cf93c58653",
+      "module": "aware_code_ontology.function.code_section_function_attribute",
+      "name": "CodeSectionFunctionAttribute",
+      "aware_class_ref": "aware_code.function.CodeSectionFunctionAttribute",
+      "functions": []
+    },
+    {
+      "class_config_id": "94b36386-5ad5-50df-9f34-7f8deccacebe",
+      "module": "aware_code_ontology.import_.code_section_import",
+      "name": "CodeSectionImport",
+      "aware_class_ref": "aware_code.import.CodeSectionImport",
+      "functions": [
+        {
+          "function_config_id": "dd617e2a-8fb9-5af9-984c-c458774299d9",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionImportBuildViaCodeSectionInput",
+          "output_model": "CodeSectionImportBuildViaCodeSectionOutput"
+        },
+        {
+          "function_config_id": "431b4058-7393-56c0-bb5e-972ecb9fef6f",
+          "name": "create_name",
+          "input_model": "CodeSectionImportCreateNameInput",
+          "output_model": "CodeSectionImportCreateNameOutput"
+        },
+        {
+          "function_config_id": "f13e7688-532b-5716-af07-ffe3ce73380f",
+          "name": "delete",
+          "input_model": "CodeSectionImportDeleteInput",
+          "output_model": "CodeSectionImportDeleteOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d0590187-6b97-5abd-b5ff-d8149d0b5a78",
+      "module": "aware_code_ontology.import_.code_section_import_name",
+      "name": "CodeSectionImportName",
+      "aware_class_ref": "aware_code.import.CodeSectionImportName",
+      "functions": [
+        {
+          "function_config_id": "23e3a006-027c-5b0c-84e0-c993aa07fece",
+          "name": "build_via_code_section_import",
+          "input_model": "CodeSectionImportNameBuildViaCodeSectionImportInput",
+          "output_model": "CodeSectionImportNameBuildViaCodeSectionImportOutput"
+        },
+        {
+          "function_config_id": "49bfd129-691d-507d-aa22-0fb76dfafbc8",
+          "name": "delete",
+          "input_model": "CodeSectionImportNameDeleteInput",
+          "output_model": "CodeSectionImportNameDeleteOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "79e7c979-b53d-590d-a0c4-5ae9b3c0855d",
+      "module": "aware_code_ontology.mirror.code_section_mirror",
+      "name": "CodeSectionMirror",
+      "aware_class_ref": "aware_code.mirror.CodeSectionMirror",
+      "functions": [
+        {
+          "function_config_id": "42d3a523-665d-5a4d-9d19-063aa9eef8f6",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionMirrorBuildViaCodeSectionInput",
+          "output_model": "CodeSectionMirrorBuildViaCodeSectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "94eb99a0-c78e-54cc-93f3-88fe55d78202",
+      "module": "aware_code_ontology.module.code_module",
+      "name": "CodeModule",
+      "aware_class_ref": "aware_code.module.CodeModule",
+      "functions": [
+        {
+          "function_config_id": "e03a3a09-0ba4-5569-8b15-adedb07b843f",
+          "name": "attach_package",
+          "input_model": "CodeModuleAttachPackageInput",
+          "output_model": "CodeModuleAttachPackageOutput"
+        },
+        {
+          "function_config_id": "04b94fa8-6049-5b63-92cd-7cc32f1b7c42",
+          "name": "build",
+          "input_model": "CodeModuleBuildInput",
+          "output_model": "CodeModuleBuildOutput"
+        },
+        {
+          "function_config_id": "2acc7621-85df-5b8b-97b8-979821c6882c",
+          "name": "create_dependency",
+          "input_model": "CodeModuleCreateDependencyInput",
+          "output_model": "CodeModuleCreateDependencyOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "54a68390-817e-5570-8663-00442fe3b105",
+      "module": "aware_code_ontology.module.code_module_code_package",
+      "name": "CodeModuleCodePackage",
+      "aware_class_ref": "aware_code.module.CodeModuleCodePackage",
+      "functions": [
+        {
+          "function_config_id": "73d1f5bc-868d-5c15-8ac4-3a0eb84b96ee",
+          "name": "build_via_code_module",
+          "input_model": "CodeModuleCodePackageBuildViaCodeModuleInput",
+          "output_model": "CodeModuleCodePackageBuildViaCodeModuleOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b62ce2d8-813e-5147-abb6-15f8028d0a1f",
+      "module": "aware_code_ontology.module.code_module_dependence",
+      "name": "CodeModuleDependence",
+      "aware_class_ref": "aware_code.module.CodeModuleDependence",
+      "functions": [
+        {
+          "function_config_id": "6144b1aa-36e2-5efa-9410-8bd4e337c76b",
+          "name": "build_via_code_module",
+          "input_model": "CodeModuleDependenceBuildViaCodeModuleInput",
+          "output_model": "CodeModuleDependenceBuildViaCodeModuleOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2d81d51c-a191-5801-a3d2-f0e281f79578",
+      "module": "aware_code_ontology.package.code_package",
+      "name": "CodePackage",
+      "aware_class_ref": "aware_code.package.CodePackage",
+      "functions": [
+        {
+          "function_config_id": "0e02afb3-bf09-5f93-bea8-aeb162d539f0",
+          "name": "apply_delta",
+          "input_model": "CodePackageApplyDeltaInput",
+          "output_model": "CodePackageApplyDeltaOutput"
+        },
+        {
+          "function_config_id": "6f850688-8e2e-5508-9ecb-3d95b92c28b2",
+          "name": "attach_artifact",
+          "input_model": "CodePackageAttachArtifactInput",
+          "output_model": "CodePackageAttachArtifactOutput"
+        },
+        {
+          "function_config_id": "76c9eec5-e6d7-5463-a8be-ba4c0907f8f4",
+          "name": "attach_test",
+          "input_model": "CodePackageAttachTestInput",
+          "output_model": "CodePackageAttachTestOutput"
+        },
+        {
+          "function_config_id": "5b2e2cf3-7c7e-53d8-9ea8-f6e3ebd40d45",
+          "name": "attach_test_framework",
+          "input_model": "CodePackageAttachTestFrameworkInput",
+          "output_model": "CodePackageAttachTestFrameworkOutput"
+        },
+        {
+          "function_config_id": "5a990b39-e68e-57f8-9924-0a018761021b",
+          "name": "build_via_code_package_config",
+          "input_model": "CodePackageBuildViaCodePackageConfigInput",
+          "output_model": "CodePackageBuildViaCodePackageConfigOutput"
+        },
+        {
+          "function_config_id": "1ad26a42-9859-5dce-8d27-9b52e0ff3918",
+          "name": "create_code",
+          "input_model": "CodePackageCreateCodeInput",
+          "output_model": "CodePackageCreateCodeOutput"
+        },
+        {
+          "function_config_id": "0905e245-8f41-5ee0-97a5-9f8b53e7fc17",
+          "name": "create_code_from_text",
+          "input_model": "CodePackageCreateCodeFromTextInput",
+          "output_model": "CodePackageCreateCodeFromTextOutput"
+        },
+        {
+          "function_config_id": "3df51746-bb2b-5a2e-bd66-643ab4a6369d",
+          "name": "delete_code",
+          "input_model": "CodePackageDeleteCodeInput",
+          "output_model": "CodePackageDeleteCodeOutput"
+        },
+        {
+          "function_config_id": "b2f2313f-478b-592d-a1b7-e977d6b7acce",
+          "name": "sync_tests",
+          "input_model": "CodePackageSyncTestsInput",
+          "output_model": "CodePackageSyncTestsOutput"
+        },
+        {
+          "function_config_id": "007b60d0-fa8b-56dd-8614-247d17a0dc93",
+          "name": "upsert_code",
+          "input_model": "CodePackageUpsertCodeInput",
+          "output_model": "CodePackageUpsertCodeOutput"
+        },
+        {
+          "function_config_id": "1130c786-ed76-5057-aa4d-ed59304c38a5",
+          "name": "upsert_code_from_text",
+          "input_model": "CodePackageUpsertCodeFromTextInput",
+          "output_model": "CodePackageUpsertCodeFromTextOutput"
+        },
+        {
+          "function_config_id": "1a804fc7-abac-5579-a837-27b99f5a5075",
+          "name": "upsert_codes_from_text",
+          "input_model": "CodePackageUpsertCodesFromTextInput",
+          "output_model": "CodePackageUpsertCodesFromTextOutput"
+        },
+        {
+          "function_config_id": "77b8022b-7de7-595b-9ba7-5b731e055b14",
+          "name": "upsert_delta_producer",
+          "input_model": "CodePackageUpsertDeltaProducerInput",
+          "output_model": "CodePackageUpsertDeltaProducerOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c3de4ab3-0445-53ff-8b1d-af6f224ffed1",
+      "module": "aware_code_ontology.package.code_package_artifact",
+      "name": "CodePackageArtifact",
+      "aware_class_ref": "aware_code.package.CodePackageArtifact",
+      "functions": [
+        {
+          "function_config_id": "5afb33fc-c0c0-5dcb-8591-18ca63913d74",
+          "name": "build_via_code_package",
+          "input_model": "CodePackageArtifactBuildViaCodePackageInput",
+          "output_model": "CodePackageArtifactBuildViaCodePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "932c740d-1c81-5b15-9f49-1ba6d2d26fd9",
+      "module": "aware_code_ontology.package.code_package_artifact",
+      "name": "CodePackageArtifactRef",
+      "aware_class_ref": "aware_code.package.CodePackageArtifactRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "d64b6151-70f3-587b-9ea4-ff29fac0f765",
+      "module": "aware_code_ontology.package.code_package_code",
+      "name": "CodePackageCode",
+      "aware_class_ref": "aware_code.package.CodePackageCode",
+      "functions": [
+        {
+          "function_config_id": "f9e2802d-a6b3-5321-92ba-66c430e117b3",
+          "name": "create_via_code_package",
+          "input_model": "CodePackageCodeCreateViaCodePackageInput",
+          "output_model": "CodePackageCodeCreateViaCodePackageOutput"
+        },
+        {
+          "function_config_id": "d30e71b1-40af-56d2-926e-342da6d4e15a",
+          "name": "delete",
+          "input_model": "CodePackageCodeDeleteInput",
+          "output_model": "CodePackageCodeDeleteOutput"
+        },
+        {
+          "function_config_id": "b54ccda9-70d0-5b75-9457-8404f8f8a38d",
+          "name": "sync_test_unit",
+          "input_model": "CodePackageCodeSyncTestUnitInput",
+          "output_model": "CodePackageCodeSyncTestUnitOutput"
+        },
+        {
+          "function_config_id": "1e879839-26f5-5c15-801e-c591d2d2e004",
+          "name": "update_path_role",
+          "input_model": "CodePackageCodeUpdatePathRoleInput",
+          "output_model": "CodePackageCodeUpdatePathRoleOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "70607493-0034-52cb-8cce-dde32057c1ab",
+      "module": "aware_code_ontology.package.code_package_config",
+      "name": "CodePackageConfig",
+      "aware_class_ref": "aware_code.package.CodePackageConfig",
+      "functions": [
+        {
+          "function_config_id": "1408f51a-c3f0-5fa6-97ff-11a4884ff3a1",
+          "name": "add_input",
+          "input_model": "CodePackageConfigAddInputInput",
+          "output_model": "CodePackageConfigAddInputOutput"
+        },
+        {
+          "function_config_id": "b0e328ac-4a70-52b9-a600-83d1d4383bc0",
+          "name": "add_output",
+          "input_model": "CodePackageConfigAddOutputInput",
+          "output_model": "CodePackageConfigAddOutputOutput"
+        },
+        {
+          "function_config_id": "34e9323e-fb8a-57ea-a023-7a64724203f5",
+          "name": "add_runtime_context",
+          "input_model": "CodePackageConfigAddRuntimeContextInput",
+          "output_model": "CodePackageConfigAddRuntimeContextOutput"
+        },
+        {
+          "function_config_id": "0f56de76-b5bd-5083-b378-033363299622",
+          "name": "build",
+          "input_model": "CodePackageConfigBuildInput",
+          "output_model": "CodePackageConfigBuildOutput"
+        },
+        {
+          "function_config_id": "e908746d-86bb-5cf6-b6e3-60a713c3d436",
+          "name": "create_package",
+          "input_model": "CodePackageConfigCreatePackageInput",
+          "output_model": "CodePackageConfigCreatePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b1bac4aa-7ab9-5fd2-a13b-4da38bdc5576",
+      "module": "aware_code_ontology.package.code_package_config_input",
+      "name": "CodePackageConfigInput",
+      "aware_class_ref": "aware_code.package.CodePackageConfigInput",
+      "functions": [
+        {
+          "function_config_id": "c4d7e6c6-a796-5205-9c63-9c7f1556ce73",
+          "name": "build_via_code_package_config",
+          "input_model": "CodePackageConfigInputBuildViaCodePackageConfigInput",
+          "output_model": "CodePackageConfigInputBuildViaCodePackageConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "09b1ce0f-f833-50fe-a7ac-7d8c56740cd3",
+      "module": "aware_code_ontology.package.code_package_config_output",
+      "name": "CodePackageConfigOutput",
+      "aware_class_ref": "aware_code.package.CodePackageConfigOutput",
+      "functions": [
+        {
+          "function_config_id": "ccda0eb6-f569-5c61-9f75-1fa02b944f9f",
+          "name": "build_via_code_package_config",
+          "input_model": "CodePackageConfigOutputBuildViaCodePackageConfigInput",
+          "output_model": "CodePackageConfigOutputBuildViaCodePackageConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b36b975c-a474-5b7c-a9d4-7954ea186808",
+      "module": "aware_code_ontology.package.code_package_config_runtime_context",
+      "name": "CodePackageConfigRuntimeContext",
+      "aware_class_ref": "aware_code.package.CodePackageConfigRuntimeContext",
+      "functions": [
+        {
+          "function_config_id": "f86c2e4c-fb50-5df4-adac-fa15d69fb197",
+          "name": "build_via_code_package_config",
+          "input_model": "CodePackageConfigRuntimeContextBuildViaCodePackageConfigInput",
+          "output_model": "CodePackageConfigRuntimeContextBuildViaCodePackageConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9c77698f-6562-5d0c-a64f-9fb24ced7c2f",
+      "module": "aware_code_ontology.package.code_package_delta_producer",
+      "name": "CodePackageDeltaProducer",
+      "aware_class_ref": "aware_code.package.CodePackageDeltaProducer",
+      "functions": [
+        {
+          "function_config_id": "f88657de-e4eb-587f-9dcb-6780bc576e7a",
+          "name": "build_via_code_package",
+          "input_model": "CodePackageDeltaProducerBuildViaCodePackageInput",
+          "output_model": "CodePackageDeltaProducerBuildViaCodePackageOutput"
+        },
+        {
+          "function_config_id": "cac46b9c-3b88-50f7-a0d5-ef4a5ba023a7",
+          "name": "link_code",
+          "input_model": "CodePackageDeltaProducerLinkCodeInput",
+          "output_model": "CodePackageDeltaProducerLinkCodeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c9dffc2b-dcd3-5c6c-a620-4dcac33ce410",
+      "module": "aware_code_ontology.package.code_package_delta_producer_code",
+      "name": "CodePackageDeltaProducerCode",
+      "aware_class_ref": "aware_code.package.CodePackageDeltaProducerCode",
+      "functions": [
+        {
+          "function_config_id": "c5823310-6f40-57ad-bfae-5c14254054f6",
+          "name": "build_via_code_package_delta_producer",
+          "input_model": "CodePackageDeltaProducerCodeBuildViaCodePackageDeltaProducerInput",
+          "output_model": "CodePackageDeltaProducerCodeBuildViaCodePackageDeltaProducerOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8de0762a-f9e7-58e7-ae74-a489f5dab4d5",
+      "module": "aware_code_ontology.package.code_package_test",
+      "name": "CodePackageTest",
+      "aware_class_ref": "aware_code.package.CodePackageTest",
+      "functions": [
+        {
+          "function_config_id": "f4d128a3-3b27-5ae5-8d65-d4491b021121",
+          "name": "build_via_code_package",
+          "input_model": "CodePackageTestBuildViaCodePackageInput",
+          "output_model": "CodePackageTestBuildViaCodePackageOutput"
+        },
+        {
+          "function_config_id": "927ed544-1e18-51ff-8dc8-57db00f32df1",
+          "name": "create_run",
+          "input_model": "CodePackageTestCreateRunInput",
+          "output_model": "CodePackageTestCreateRunOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fc24c11c-d977-5eff-a51e-261374dd878d",
+      "module": "aware_code_ontology.package.code_package_test_framework",
+      "name": "CodePackageTestFramework",
+      "aware_class_ref": "aware_code.package.CodePackageTestFramework",
+      "functions": [
+        {
+          "function_config_id": "707fba84-a19c-5c4d-b8cd-b85766824c6b",
+          "name": "build_via_code_package",
+          "input_model": "CodePackageTestFrameworkBuildViaCodePackageInput",
+          "output_model": "CodePackageTestFrameworkBuildViaCodePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ee3a2837-bb0c-5862-be63-e8605badc69a",
+      "module": "aware_code_ontology.package.code_package_test_run",
+      "name": "CodePackageTestRun",
+      "aware_class_ref": "aware_code.package.CodePackageTestRun",
+      "functions": [
+        {
+          "function_config_id": "6c542140-5d19-5193-83f7-91ba50483392",
+          "name": "build_via_code_package_test",
+          "input_model": "CodePackageTestRunBuildViaCodePackageTestInput",
+          "output_model": "CodePackageTestRunBuildViaCodePackageTestOutput"
+        },
+        {
+          "function_config_id": "c0b7c979-0160-5449-86be-12fb9d56f6df",
+          "name": "create_unit_run",
+          "input_model": "CodePackageTestRunCreateUnitRunInput",
+          "output_model": "CodePackageTestRunCreateUnitRunOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "65e7c135-e48a-5044-8206-972b08f10102",
+      "module": "aware_code_ontology.primitive.code_primitive_type",
+      "name": "CodePrimitiveType",
+      "aware_class_ref": "aware_code.primitive.CodePrimitiveType",
+      "functions": [
+        {
+          "function_config_id": "ee0202ef-56d4-58da-90ca-7a30bb1b8ff4",
+          "name": "create",
+          "input_model": "CodePrimitiveTypeCreateInput",
+          "output_model": "CodePrimitiveTypeCreateOutput"
+        },
+        {
+          "function_config_id": "5e4f9fe4-d846-5f54-8f5f-533cb1e6e1dc",
+          "name": "create_element_slot",
+          "input_model": "CodePrimitiveTypeCreateElementSlotInput",
+          "output_model": "CodePrimitiveTypeCreateElementSlotOutput"
+        },
+        {
+          "function_config_id": "fbd7eebc-e9c4-5f8a-8d86-7020ba77d321",
+          "name": "create_item_type",
+          "input_model": "CodePrimitiveTypeCreateItemTypeInput",
+          "output_model": "CodePrimitiveTypeCreateItemTypeOutput"
+        },
+        {
+          "function_config_id": "8d340759-a17e-53b8-9715-24f7a98ff118",
+          "name": "create_key_type",
+          "input_model": "CodePrimitiveTypeCreateKeyTypeInput",
+          "output_model": "CodePrimitiveTypeCreateKeyTypeOutput"
+        },
+        {
+          "function_config_id": "34d0494b-dc2c-5a66-ae22-66b33b19d28f",
+          "name": "create_union_slot",
+          "input_model": "CodePrimitiveTypeCreateUnionSlotInput",
+          "output_model": "CodePrimitiveTypeCreateUnionSlotOutput"
+        },
+        {
+          "function_config_id": "25a8fd62-fb4e-5398-9511-1b7d97a9bbfd",
+          "name": "create_value_type",
+          "input_model": "CodePrimitiveTypeCreateValueTypeInput",
+          "output_model": "CodePrimitiveTypeCreateValueTypeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9bb25f70-bc6d-591f-bbb1-265abbdc1a2d",
+      "module": "aware_code_ontology.primitive.code_primitive_type_element_type",
+      "name": "CodePrimitiveTypeElementType",
+      "aware_class_ref": "aware_code.primitive.CodePrimitiveTypeElementType",
+      "functions": [
+        {
+          "function_config_id": "9f607fc4-f079-5bc5-8517-06c06c358658",
+          "name": "build_via_code_primitive_type",
+          "input_model": "CodePrimitiveTypeElementTypeBuildViaCodePrimitiveTypeInput",
+          "output_model": "CodePrimitiveTypeElementTypeBuildViaCodePrimitiveTypeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "24ca9328-ee2c-5722-846e-8ade433dced0",
+      "module": "aware_code_ontology.primitive.code_primitive_type_union_type",
+      "name": "CodePrimitiveTypeUnionType",
+      "aware_class_ref": "aware_code.primitive.CodePrimitiveTypeUnionType",
+      "functions": [
+        {
+          "function_config_id": "761ed137-c1dd-50cf-bc18-5d3c7fd861d7",
+          "name": "build_via_code_primitive_type",
+          "input_model": "CodePrimitiveTypeUnionTypeBuildViaCodePrimitiveTypeInput",
+          "output_model": "CodePrimitiveTypeUnionTypeBuildViaCodePrimitiveTypeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ff8cab24-38f3-5b75-b4f9-c800bb499556",
+      "module": "aware_code_ontology.projection.code_section_projection",
+      "name": "CodeSectionProjection",
+      "aware_class_ref": "aware_code.projection.CodeSectionProjection",
+      "functions": [
+        {
+          "function_config_id": "d3a126b4-cb44-5aba-ab68-c8a619d4086f",
+          "name": "build_via_code_section",
+          "input_model": "CodeSectionProjectionBuildViaCodeSectionInput",
+          "output_model": "CodeSectionProjectionBuildViaCodeSectionOutput"
+        },
+        {
+          "function_config_id": "d8dab08b-d125-5cf8-af2f-024113b1aeff",
+          "name": "create_edge",
+          "input_model": "CodeSectionProjectionCreateEdgeInput",
+          "output_model": "CodeSectionProjectionCreateEdgeOutput"
+        },
+        {
+          "function_config_id": "8d532b40-104f-51c8-b193-e6bd65617cd6",
+          "name": "create_view",
+          "input_model": "CodeSectionProjectionCreateViewInput",
+          "output_model": "CodeSectionProjectionCreateViewOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2eee02e1-b6cd-5f9b-8a85-e79f45c81347",
+      "module": "aware_code_ontology.projection.code_section_projection_edge",
+      "name": "CodeSectionProjectionEdge",
+      "aware_class_ref": "aware_code.projection.CodeSectionProjectionEdge",
+      "functions": [
+        {
+          "function_config_id": "b4e42cce-2197-5ab7-b7b9-bda121baaa9d",
+          "name": "build_via_code_section_projection",
+          "input_model": "CodeSectionProjectionEdgeBuildViaCodeSectionProjectionInput",
+          "output_model": "CodeSectionProjectionEdgeBuildViaCodeSectionProjectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b6045bf6-1a8b-51e2-841e-b13ecdd3b5f8",
+      "module": "aware_code_ontology.projection.code_section_projection_view",
+      "name": "CodeSectionProjectionView",
+      "aware_class_ref": "aware_code.projection.CodeSectionProjectionView",
+      "functions": [
+        {
+          "function_config_id": "f1fc3002-d7d2-5455-83b2-7efcb340ca3a",
+          "name": "build_via_code_section_projection",
+          "input_model": "CodeSectionProjectionViewBuildViaCodeSectionProjectionInput",
+          "output_model": "CodeSectionProjectionViewBuildViaCodeSectionProjectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a78c1acb-e6d3-5b87-83fd-f3f2e3ed4708",
+      "module": "aware_code_ontology.semantic.code_semantic_contract_profile",
+      "name": "CodeSemanticContractProfile",
+      "aware_class_ref": "aware_code.semantic.CodeSemanticContractProfile",
+      "functions": [
+        {
+          "function_config_id": "b0e7241d-c5d8-5ef0-8ae9-8ce0fe27caa7",
+          "name": "attach_semantic_provider",
+          "input_model": "CodeSemanticContractProfileAttachSemanticProviderInput",
+          "output_model": "CodeSemanticContractProfileAttachSemanticProviderOutput"
+        },
+        {
+          "function_config_id": "42f3f71b-6990-5f25-bac0-50263e1d0968",
+          "name": "build",
+          "input_model": "CodeSemanticContractProfileBuildInput",
+          "output_model": "CodeSemanticContractProfileBuildOutput"
+        },
+        {
+          "function_config_id": "353de503-b6ab-56e4-ad25-291b838f370f",
+          "name": "import_profile",
+          "input_model": "CodeSemanticContractProfileImportProfileInput",
+          "output_model": "CodeSemanticContractProfileImportProfileOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "43c16ea8-3d4e-53f1-a624-78e35b9b150e",
+      "module": "aware_code_ontology.semantic.code_semantic_contract_profile_import",
+      "name": "CodeSemanticContractProfileImport",
+      "aware_class_ref": "aware_code.semantic.CodeSemanticContractProfileImport",
+      "functions": [
+        {
+          "function_config_id": "ac979eb5-f331-58a5-9e34-106f24b3e49c",
+          "name": "build_via_code_semantic_contract_profile",
+          "input_model": "CodeSemanticContractProfileImportBuildViaCodeSemanticContractProfileInput",
+          "output_model": "CodeSemanticContractProfileImportBuildViaCodeSemanticContractProfileOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "bc1502c0-e635-51b5-95f0-421f0dd00cab",
+      "module": "aware_code_ontology.semantic.code_semantic_contract_profile_package",
+      "name": "CodeSemanticContractProfilePackage",
+      "aware_class_ref": "aware_code.semantic.CodeSemanticContractProfilePackage",
+      "functions": [
+        {
+          "function_config_id": "d09fb380-a0ac-5299-ae78-42a8197acb13",
+          "name": "attach_runtime_import",
+          "input_model": "CodeSemanticContractProfilePackageAttachRuntimeImportInput",
+          "output_model": "CodeSemanticContractProfilePackageAttachRuntimeImportOutput"
+        },
+        {
+          "function_config_id": "4c0d6c9d-1bef-54b9-b21b-a8b70d3b0afe",
+          "name": "build",
+          "input_model": "CodeSemanticContractProfilePackageBuildInput",
+          "output_model": "CodeSemanticContractProfilePackageBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b6e7e841-be1a-559a-a875-9e4f8b37915f",
+      "module": "aware_code_ontology.semantic.code_semantic_contract_runtime_import",
+      "name": "CodeSemanticContractRuntimeImport",
+      "aware_class_ref": "aware_code.semantic.CodeSemanticContractRuntimeImport",
+      "functions": [
+        {
+          "function_config_id": "af0a19b1-7f22-567d-99db-ba3c84654d2d",
+          "name": "build_via_code_semantic_contract_profile_package",
+          "input_model": "CodeSemanticContractRuntimeImportBuildViaCodeSemanticContractProfilePackageInput",
+          "output_model": "CodeSemanticContractRuntimeImportBuildViaCodeSemanticContractProfilePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "dd80e22d-36cc-5ade-a9fb-1665ab2ad3a5",
+      "module": "aware_code_ontology.semantic.code_semantic_package_binding",
+      "name": "CodeSemanticPackageBinding",
+      "aware_class_ref": "aware_code.semantic.CodeSemanticPackageBinding",
+      "functions": [
+        {
+          "function_config_id": "ef7ea758-92a0-519d-b5a9-f3c872195520",
+          "name": "build_via_code_semantic_provider_registration",
+          "input_model": "CodeSemanticPackageBindingBuildViaCodeSemanticProviderRegistrationInput",
+          "output_model": "CodeSemanticPackageBindingBuildViaCodeSemanticProviderRegistrationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "17d68c10-ff12-50c6-87b0-b6eb17d7f4ee",
+      "module": "aware_code_ontology.semantic.code_semantic_provider_registration",
+      "name": "CodeSemanticProviderRegistration",
+      "aware_class_ref": "aware_code.semantic.CodeSemanticProviderRegistration",
+      "functions": [
+        {
+          "function_config_id": "1a29aec4-db1a-5038-9024-e5dba50575e5",
+          "name": "bind_semantic_package",
+          "input_model": "CodeSemanticProviderRegistrationBindSemanticPackageInput",
+          "output_model": "CodeSemanticProviderRegistrationBindSemanticPackageOutput"
+        },
+        {
+          "function_config_id": "3391b931-9324-5030-a331-01f6f41ee54a",
+          "name": "build",
+          "input_model": "CodeSemanticProviderRegistrationBuildInput",
+          "output_model": "CodeSemanticProviderRegistrationBuildOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "3d0d3172-2990-58cd-a4e6-0ad6deaf6856",
+      "module": "aware_code_ontology.code.code_enums",
+      "name": "CodeLanguage"
+    },
+    {
+      "enum_config_id": "0dcac172-502a-5e30-9ad1-45d15985d4ae",
+      "module": "aware_code_ontology.code.code_enums",
+      "name": "CodeTestRunStatus"
+    },
+    {
+      "enum_config_id": "62008b97-051e-5a21-923d-a32d0ee131e9",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodePackageDeltaAuthorityKind"
+    },
+    {
+      "enum_config_id": "f3bee6ac-e140-5b62-91af-3a15909364f2",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodePackageDeltaKind"
+    },
+    {
+      "enum_config_id": "188f6239-b783-593f-bf27-5426831bd8b3",
+      "module": "aware_code_ontology.code.code_plan",
+      "name": "CodePackagePathRole"
+    },
+    {
+      "enum_config_id": "21121e71-08af-5968-b501-a43f0a894a3a",
+      "module": "aware_code_ontology.code.code_section_enums",
+      "name": "CodeSectionType"
+    },
+    {
+      "enum_config_id": "075069fa-b9a2-5f66-9411-a643b70e8055",
+      "module": "aware_code_ontology.comment.code_section_comment_enums",
+      "name": "CodeSectionCommentType"
+    },
+    {
+      "enum_config_id": "41b4ac84-738c-5bd6-8c4e-29c4343fb6e8",
+      "module": "aware_code_ontology.expression.code_section_expression_enums",
+      "name": "CodeSectionExpressionType"
+    },
+    {
+      "enum_config_id": "6ad5a5b5-fb3d-5706-bef1-1f1df471f4ee",
+      "module": "aware_code_ontology.package.code_package_enums",
+      "name": "CodePackageArtifactStatus"
+    },
+    {
+      "enum_config_id": "48c78961-ab35-5d99-8734-bddbd4a47d9c",
+      "module": "aware_code_ontology.package.code_package_enums",
+      "name": "CodePackageConfigInputKind"
+    },
+    {
+      "enum_config_id": "3fb9ea6a-2d41-58a3-9cfe-c531168b22c8",
+      "module": "aware_code_ontology.package.code_package_enums",
+      "name": "CodePackageConfigOutputKind"
+    },
+    {
+      "enum_config_id": "d19a5134-deb9-5a56-a507-4861396625aa",
+      "module": "aware_code_ontology.package.code_package_enums",
+      "name": "CodePackageConfigRuntimeContextKind"
+    },
+    {
+      "enum_config_id": "7fb29b6b-4592-5d32-92b2-589f19911210",
+      "module": "aware_code_ontology.primitive.code_primitive_enums",
+      "name": "CodePrimitiveBaseType"
+    }
+  ]
+}

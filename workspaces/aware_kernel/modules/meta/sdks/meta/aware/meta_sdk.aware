@@ -1,0 +1,40 @@
+sdk meta_sdk {
+    "Canonical Meta SDK operations over the Meta service API."
+
+    api meta;
+
+    operation ensure_object_config_graph_package {
+        "Ensure one Meta-owned ObjectConfigGraphPackage through Meta service authority."
+        endpoint meta.package.ensure_object_config_graph_package;
+    }
+
+    operation ensure_database_ready {
+        "Ensure Meta OCG-backed persistence is ready through Meta service authority."
+        endpoint meta.persistence.ensure_database_ready;
+    }
+
+    operation describe_workspace {
+        "Read Meta-owned runtime read-model truth for Workspace and module proof consumers."
+        endpoint meta.runtime_read_model.describe_workspace;
+    }
+
+    operation get_lane_head {
+        "Read the current committed Meta graph lane head."
+        endpoint meta.graph.get_lane_head;
+    }
+
+    operation get_object_instance_graph_commit {
+        "Read one committed ObjectInstanceGraphCommit through Meta service authority."
+        endpoint meta.graph.get_object_instance_graph_commit;
+    }
+
+    operation resolve_projection {
+        "Resolve Meta runtime projection coordinates without mutating graph state."
+        endpoint meta.graph.resolve_projection;
+    }
+
+    operation invoke_function {
+        "Invoke one graph function through Meta-owned GraphOS commit authority."
+        endpoint meta.graph.invoke_function;
+    }
+}

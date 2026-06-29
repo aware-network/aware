@@ -1,0 +1,30 @@
+sdk code_sdk {
+    "Canonical Code SDK operations over the Code service API DTO contract."
+
+    api code;
+
+    operation describe_semantic_contract {
+        "Describe Code semantic contract DTO truth for local and remote consumers."
+        endpoint code.semantic_contract.describe;
+    }
+
+    operation validate_semantic_contract {
+        "Validate Code semantic contract DTO truth before local or remote use."
+        endpoint code.semantic_contract.validate;
+    }
+
+    operation normalize_semantic_contract {
+        "Normalize Code semantic contract DTO truth before local or remote use."
+        endpoint code.semantic_contract.normalize;
+    }
+
+    operation describe_package_layout {
+        "Describe Code package layout DTO truth for filesystem classification."
+        endpoint code.package_layout.describe;
+    }
+
+    operation validate_package_layout {
+        "Validate Code package layout DTO truth before filesystem classification."
+        endpoint code.package_layout.validate;
+    }
+}

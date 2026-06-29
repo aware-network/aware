@@ -1,0 +1,109 @@
+api meta {
+    capability diagnostics {
+        endpoint analyze_object_config_graph_completeness aware_meta_service_dto.diagnostics.MetaCompletenessAnalyzeRequest {
+            """
+            Analyze one Meta ObjectConfigGraph package for constructor/projection completeness without mutating graph state.
+            """
+
+            response aware_meta_service_dto.diagnostics.MetaCompletenessAnalyzeResponse
+        }
+    }
+
+    capability package {
+        endpoint ensure_object_config_graph_package aware_meta_service_dto.graph.config.MetaObjectConfigGraphPackageEnsureRequest {
+            """
+            Ensure one canonical ObjectConfigGraphPackage through Meta Service authority.
+            """
+
+            response aware_meta_service_dto.graph.config.MetaObjectConfigGraphPackageEnsureResponse
+        }
+    }
+
+    capability persistence {
+        endpoint ensure_database_ready aware_meta_service_dto.persistence.MetaPersistenceEnsureDatabaseReadyRequest {
+            """
+            Ensure the OCG-backed database is ready from a Structure-resolved environment DB artifact receipt.
+            """
+
+            response aware_meta_service_dto.persistence.MetaPersistenceEnsureDatabaseReadyResponse
+        }
+    }
+
+    capability runtime_read_model {
+        endpoint describe_workspace aware_meta_service_dto.runtime.MetaRuntimeReadModelRequest {
+            """
+            Describe Meta-owned runtime read-model truth for Workspace-required projections without exposing raw runtime/index objects.
+            """
+
+            response aware_meta_service_dto.runtime.MetaRuntimeReadModelResponse
+        }
+    }
+
+    capability graph {
+        endpoint invoke_function aware_meta_service_dto.graph.instance.MetaGraphInvokeFunctionRequest {
+            """
+            Invoke one graph function through the canonical Meta commit authority boundary.
+            """
+
+            response aware_meta_service_dto.graph.instance.MetaGraphInvokeFunctionResponse
+        }
+
+        endpoint invoke_temporal_function aware_meta_service_dto.graph.instance.MetaGraphInvokeTemporalFunctionRequest {
+            """
+            Invoke one graph function against an explicit temporal overlay without committing durable graph state.
+            """
+
+            response aware_meta_service_dto.graph.instance.MetaGraphInvokeTemporalFunctionResponse
+        }
+
+        endpoint get_lane_head aware_meta_service_dto.graph.instance.MetaGraphGetLaneHeadRequest {
+            """
+            Read the current committed graph lane head through Meta service authority.
+            """
+
+            response aware_meta_service_dto.graph.instance.MetaGraphGetLaneHeadResponse
+        }
+
+        endpoint get_object_instance_graph_commit aware_meta_service_dto.graph.instance.MetaGraphGetObjectInstanceGraphCommitRequest {
+            """
+            Read one committed ObjectInstanceGraphCommit through Meta service authority.
+            """
+
+            response aware_meta_service_dto.graph.instance.MetaGraphGetObjectInstanceGraphCommitResponse
+        }
+
+        endpoint resolve_projection aware_meta_service_dto.graph.instance.MetaGraphResolveProjectionRequest {
+            """
+            Resolve runtime projection coordinates through Meta service authority without mutating graph state.
+            """
+
+            response aware_meta_service_dto.graph.instance.MetaGraphResolveProjectionResponse
+        }
+
+        endpoint resolve_graph_view aware_meta_service_dto.graph.view.MetaGraphResolveGraphViewRequest {
+            """
+            Resolve a renderer-safe Meta graph view from lane and commit coordinates without mutating graph state.
+            """
+
+            response aware_meta_service_dto.graph.view.MetaGraphResolveGraphViewResponse
+        }
+    }
+
+    capability commit {
+        endpoint subscribe aware_meta_service_dto.graph.instance.MetaCommitSubscriptionRequest {
+            """
+            Subscribe to remote-safe Meta commit fan-out events.
+            """
+
+            response aware_meta_service_dto.graph.instance.MetaCommitSubscriptionResponse
+
+            stream server {
+                """
+                Canonical Meta commit events emitted after domain commit and required Meta reactions complete.
+                """
+
+                event delta aware_meta_service_dto.graph.instance.MetaCommitEventEnvelope;
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+enum ObjectConfigGraphAnnotationKind {
+    load
+    overlay
+    override
+    project
+    discriminate
+    oneof
+    identity
+    reference
+    index
+    storage
+}

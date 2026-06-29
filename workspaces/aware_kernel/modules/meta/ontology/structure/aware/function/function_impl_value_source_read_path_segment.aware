@@ -1,0 +1,23 @@
+/// Ordered typed member segment for `FunctionImplValueSourceReadPath`.
+///
+/// Contract:
+/// - `attribute_config` is compiler-resolved from the previous class-valued hop.
+/// - `position` is compiler-owned path order.
+class FunctionImplValueSourceReadPathSegment {
+    // Relationships
+    attribute_config attribute.AttributeConfig
+
+    // Attributes
+    position Int key
+
+    fn build construct (
+        position Int key,
+        attribute_config_id UUID
+    ) -> FunctionImplValueSourceReadPathSegment {
+        """
+        Create deterministic read-path segment under one read-path payload.
+        """
+    }
+}
+
+ann function.FunctionImplValueSourceReadPathSegment::attribute_config load eager

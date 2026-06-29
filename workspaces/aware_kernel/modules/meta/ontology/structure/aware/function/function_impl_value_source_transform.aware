@@ -1,0 +1,45 @@
+/// Deterministic pure transform payload for `FunctionImplValueSource`.
+///
+/// Contract:
+/// - Parent `FunctionImplValueSource.kind` must be `transform`.
+/// - The transform is pure and deterministic over explicit operand value sources.
+/// - Transform evaluation is fail-closed on unsupported arity or operand types.
+class FunctionImplValueSourceTransform {
+    // Relationships
+    /// Optional primitive output declaration used by lowering/type checks.
+    output_primitive_config primitive.PrimitiveConfig?
+    /// Ordered operand sources local to the transform value-source tree.
+    operands FunctionImplValueSourceTransformOperand[]
+
+    // Attributes
+    operation FunctionImplValueTransformKind
+
+    fn build construct (
+        operation FunctionImplValueTransformKind,
+        output_primitive_config_id UUID? = null
+    ) -> FunctionImplValueSourceTransform {
+        """
+        Create deterministic transform payload under one FunctionImplValueSource.
+
+        Contract:
+        - Parent context (`function_impl_value_source_id`) is injected by parent-edge lowering.
+        - Identity is parent-scoped and unique for the owning value source.
+        """
+    }
+
+    fn add_operand (
+        position Int key,
+        value_source_id UUID
+    ) -> FunctionImplValueSourceTransformOperand {
+        """
+        Add one deterministic transform operand source.
+        """
+        let created = construct operands.build(
+            position = position,
+            value_source_id = value_source_id,
+        )
+    }
+}
+
+ann function.FunctionImplValueSourceTransform::output_primitive_config load eager
+ann function.FunctionImplValueSourceTransform::operands load eager

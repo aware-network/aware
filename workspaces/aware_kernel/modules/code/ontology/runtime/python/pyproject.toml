@@ -1,0 +1,61 @@
+[project]
+name = "aware-code"
+version = "0.2.0"
+description = "Aware code infrastructure for the Aware platform."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [
+  { name = "AWARE Team" }
+]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Developers"
+]
+keywords = ["aware", "code", "infrastructure"]
+dependencies = [
+  "aware-types",
+  "aware-code-ontology",
+  "aware-content",
+  "aware-content-ontology",
+  "aware-grammar",
+  "aware-meta",
+  "aware-meta-ontology",
+  "aware-orm",
+  "aware-storage",
+  "aware-storage-ontology",
+  "aware-utils",
+  "python-grammar",
+  "pyyaml>=6.0.2,<7.0.0",
+  "sql-grammar",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.4.2"
+]
+
+[project.urls]
+Homepage = "https://pypi.org/project/aware-code/"
+Source = "https://github.com/aware-network/aware-sdk"
+Documentation = "https://github.com/aware-network/aware-sdk/tree/main/libs/code/README.md"
+Changelog = "https://github.com/aware-network/aware-sdk/tree/main/libs/code/CHANGELOG.md"
+Issues = "https://github.com/aware-network/aware-sdk/issues"
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_code"]
+include = [
+  "README.md",
+  "CHANGELOG.md",
+  "LICENSE"
+]
+
+[tool.aware.tests]
+requires_module = "code"

@@ -1,0 +1,32 @@
+/// Descriptor-driven value representation for Attributes.
+///
+/// AttributeValue is a node in a value tree whose shape MUST match the
+/// AttributeTypeDescriptor tree referenced by `type_descriptor`.
+///
+/// - Container nodes (COLLECTION/MAPPING/TUPLE/UNION) store no leaf payload and
+///   express structure via `child_links`.
+/// - Leaf nodes store exactly one payload kind (primitive_value / enum_option /
+///   class_instance / inline_value_instance) consistent with `type_descriptor.kind`.
+///
+/// Canonical identity for children is expressed on the *link*:
+/// - LIST/TUPLE/UNION: `position` is the stable slot key.
+/// - SET/MAPPING: `identity_key` is the stable slot key (e.g., key fingerprint).
+class AttributeValue {
+    // Relationships
+    attribute_value_changes AttributeValueChange[]
+    type_descriptor AttributeTypeDescriptor key
+    child_links AttributeValueLink[]
+
+    // Leaf relationships (optional; enforced by validator against type_descriptor.kind)
+    enum_option enum.EnumOption?
+    class_instance class.ClassInstance?
+    inline_value_instance class.InlineValueInstance?
+
+    // Leaf scalar payload (optional; enforced by validator against type_descriptor.kind)
+    primitive_value JsonObject?
+}
+
+/// Load descriptor and child links eagerly to support recursive value hydration.
+ann attribute.AttributeValue::type_descriptor load eager
+ann attribute.AttributeValue::child_links load eager
+ann attribute.AttributeValue::inline_value_instance load eager

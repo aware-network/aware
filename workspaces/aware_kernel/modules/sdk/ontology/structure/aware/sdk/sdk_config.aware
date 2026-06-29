@@ -1,0 +1,66 @@
+/// Canonical SDK semantic root.
+///
+/// SDKs are local orchestration surfaces over committed API contracts. They do
+/// not own API ingress truth; operation endpoint bindings point back to
+/// `ApiCapabilityEndpoint`.
+class SdkConfig {
+    // Relationships
+    operations SdkOperation[]
+    surfaces SdkSurface[]
+
+    // Attributes
+    name String key
+    title String?
+    description String?
+
+    fn build construct (
+        name String key,
+        title String? = null,
+        description String? = null
+    ) -> SdkConfig {
+        """
+        Create one canonical reusable SDK definition.
+
+        Contract:
+        - `SdkConfig` is the semantic orchestration root for generated/handwritten SDK surfaces.
+        - `SdkOperation` is SDK-owned local operation truth.
+        - `SdkOperationApiCapabilityEndpoint` binds each SDK operation to API-owned endpoint truth.
+        - Runtime language adapters consume this config; they do not invent SDK/API contracts.
+        """
+    }
+
+    fn add_operation (
+        name String key,
+        title String? = null,
+        description String? = null,
+        implementation_ref String? = null
+    ) -> SdkOperation {
+        """
+        Add one SDK-owned operation under this SDK config.
+        """
+        let created = construct operations.build(
+            name = name,
+            title = title,
+            description = description,
+            implementation_ref = implementation_ref,
+        )
+    }
+
+    fn add_surface (
+        name String key,
+        title String? = null,
+        description String? = null
+    ) -> SdkSurface {
+        """
+        Add one SDK-owned conceptual surface under this SDK config.
+        """
+        let created = construct surfaces.build(
+            name = name,
+            title = title,
+            description = description,
+        )
+    }
+}
+
+ann sdk.SdkConfig::operations load eager
+ann sdk.SdkConfig::surfaces load eager

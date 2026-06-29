@@ -1,0 +1,156 @@
+/// Status enumeration for posts
+/// Represents the current state of a post
+///
+enum Status {
+    active
+    inactive
+    pending
+}
+
+/// Represents a comment on a post or content
+/// Comments can be approved or unapproved for moderation
+///
+class Comment {
+    // Attributes
+    createdAt DateTime = "2023-01-01T00:00:00Z"
+    isApproved Bool = false  // Whether the comment has been approved by moderators
+    text String  // The actual comment content
+}
+
+/// Represents an image or media attachment
+///
+class Image {
+    // Attributes
+    height Int  // Image height in pixels
+    url String  // URL where the image is stored
+    width Int  // Image width in pixels
+}
+
+/// Represents a blog post or article
+/// Posts can be published or kept as drafts
+///
+class Post {
+    // Attributes
+    content String  // Main content of the post
+    isDraft Bool = true  // Whether this post is still a draft
+    publishedAt DateTime?  // When the post was published, if at all
+    status Status  // Current status of the post
+    title String  // Post title or headline
+    viewCount Int = 0  // Number of times this post has been viewed
+
+    // Relationship declared on User; reverse accessor is handled by language overlays
+
+    fn incrementViews() -> Int {
+        """
+        Increments the view count for this post
+        """
+    }
+
+    fn publish() -> Bool {
+        """
+        Publishes the post and sets publishedAt timestamp
+        """
+    }
+
+}
+
+/// Represents a user in the system
+/// Users can create posts and comments
+///
+class User {
+    // Attributes
+    email String?  // User's email address (optional)
+    isActive Bool = true  // Whether the user account is active
+    loginCount Int = 0  // Number of times user has logged in
+    name String = "Anonymous User"  // Display name for the user
+    registeredAt DateTime = "2023-01-01T00:00:00Z"  // When user registered
+
+    // Relationships
+    posts Post[]  // All posts authored by this user
+    profilePicture Image?  // Optional profile picture
+
+    fn getFullName() -> String {
+        """
+        Gets the full display name of the user
+        """
+    }
+
+    async fn sendEmail(subject String, body String, priority Int = 1) -> Bool {
+        """
+        Sends an email to the user
+        """
+    }
+
+    fn buildUser construct(email String?) -> User {
+        """
+        Constructor-style function declared on User for verb tests.
+        """
+    }
+
+}
+
+/// Represents a relationship between user and comment
+///
+edge UserComment {
+    // Attributes
+    likes Int = 0  // Number of likes on this comment
+}
+
+/// Represents a relationship between user and post
+///
+edge UserPost {
+    // Attributes
+    createdAt DateTime = "2023-01-01T00:00:00Z"  // When the relationship was created
+    isPinned Bool = false  // Whether this post is pinned for the user
+
+    fn pin() -> Bool {
+        """
+        Pins this post for the user
+        """
+    }
+
+}
+
+fn addUser(role Status = active, isActive Bool = true, metadata String? = null) -> Bool {
+    """
+    Adds a new user to the system
+    """
+}
+
+fn processUserData(userData String, options JsonObject?) -> Bool {
+    """
+    Processes user data with optional configuration.
+
+    Args:
+        userData: The user data to process
+        options: Optional configuration parameters
+
+    Returns:
+        True if processing was successful, False otherwise
+    """
+}
+
+fn scheduleTask(name String, startTime DateTime, endTime DateTime?, priority Int = 1) -> Bool {
+    """
+    Schedules a task to be executed later
+    """
+}
+
+async fn sendNotification(userId UUID, message String, urgency Status = active, retryCount Int? = null) -> Bool {
+    """
+    Sends a notification to a user
+    """
+}
+
+fn resolveUserArtifacts(userId UUID) -> (user User, post Post, comment Comment) {
+    """
+    Returns the user alongside their most recent post and comment to test tuple returns.
+    """
+}
+
+
+fn validateEmail(email String?, checkDomain Bool = true, timeout Int? = null) -> Bool {
+    """
+    Validates an email address format
+    """
+}

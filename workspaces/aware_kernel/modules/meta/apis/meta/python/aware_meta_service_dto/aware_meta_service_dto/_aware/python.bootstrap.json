@@ -1,0 +1,21 @@
+{
+  "dependency_import_roots": [
+    "aware_code_ontology",
+    "aware_history_ontology"
+  ],
+  "modules": [
+    "aware_meta_service_dto.diagnostics.completeness",
+    "aware_meta_service_dto.graph.config.object_config_graph_delta",
+    "aware_meta_service_dto.graph.config.object_config_graph_enums",
+    "aware_meta_service_dto.graph.config.package_compile",
+    "aware_meta_service_dto.graph.instance.commit_event",
+    "aware_meta_service_dto.graph.instance.function_call",
+    "aware_meta_service_dto.graph.instance.function_call_target",
+    "aware_meta_service_dto.graph.view.graph_view",
+    "aware_meta_service_dto.persistence.database_readiness",
+    "aware_meta_service_dto.runtime.read_model",
+    "aware_meta_service_dto.runtime.temporal_mutation_service_operation"
+  ],
+  "package_prefix": "aware_meta_service_dto",
+  "version": "v1"
+}

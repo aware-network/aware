@@ -1,0 +1,29 @@
+class ApiGraphCapability {
+    // Relationships
+    api_capability ApiCapability key
+    api_graph_capability_functions ApiGraphCapabilityFunction[]
+
+    // Attributes
+    description String?
+
+    fn create construct (api_capability_id UUID key, description String? = null) -> ApiGraphCapability {
+        """
+        Create one graph-scoped binding for one declared ApiCapability.
+        """
+    }
+
+    fn create_function (
+        name String,
+        api_graph_function_id UUID,
+        description String? = null
+    ) -> ApiGraphCapabilityFunction {
+        """
+        Create one named graph-scoped capability function binding to one ApiGraphFunction.
+        """
+        let created = construct api_graph_capability_functions.create(
+            name = name,
+            api_graph_function_id = api_graph_function_id,
+            description = description,
+        )
+    }
+}

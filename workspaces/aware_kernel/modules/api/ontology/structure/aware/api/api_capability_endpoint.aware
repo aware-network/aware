@@ -1,0 +1,105 @@
+/// Public API caller hit surface.
+///
+/// Caller-facing truth:
+/// - the caller hits one endpoint
+/// - the caller provides payload through this endpoint's request contract DTO `ClassConfig`
+/// - stage-one `ApiCall` anchors here, not on endpoint-function fulfillment
+///
+/// This object is ingress contract truth, not graph-call fulfillment truth.
+/// Endpoint identity stays on the public port rail (`api_capability_id + name`).
+/// The required request contract is created beneath that one endpoint rail during
+/// endpoint construction; it is not a second public authoring step.
+class ApiCapabilityEndpoint {
+    // Relationships
+    api_calls ApiCall[]
+    request_config ApiCapabilityEndpointRequestConfig unique
+    api_capability_endpoint_functions ApiCapabilityEndpointFunction[]
+
+    // Attributes
+    name String key
+    description String?
+
+    fn create construct (
+        name String key,
+        request_class_config_id UUID,
+        description String? = null
+    ) -> ApiCapabilityEndpoint {
+        """
+        Create one deterministic external/public endpoint rail under ApiCapability
+        and materialize its required request contract in the same constructor path.
+        """
+    }
+
+    fn create_call (
+        call_key UUID key,
+        description String? = null
+    ) -> ApiCall {
+        """
+        Create one stage-one API call receipt anchored on this endpoint.
+        """
+        let created = construct api_calls.create(
+            call_key = call_key,
+            request_class_config_id = request_config.class_config.id,
+            description = description,
+        )
+    }
+
+    fn create_function (
+        name String,
+        api_graph_capability_function_id UUID,
+        description String? = null
+    ) -> ApiCapabilityEndpointFunction {
+        """
+        Create one named endpoint-owned callable binding to one graph-scoped capability function.
+        """
+        let created = construct api_capability_endpoint_functions.create(
+            name = name,
+            api_graph_capability_function_id = api_graph_capability_function_id,
+            description = description,
+        )
+    }
+
+    fn ensure_request_config (
+        request_class_config_id UUID,
+        description String? = null
+    ) -> ApiCapabilityEndpointRequestConfig {
+        """
+        Ensure the required request contract beneath this endpoint.
+
+        Contract:
+        - Endpoint creation must materialize this rail already.
+        - This function exists so the endpoint -> request_config relationship remains
+          an explicit containment propagation rail in canonical `.aware`.
+        """
+        let created = construct request_config.build(
+            class_config_id = request_class_config_id,
+            description = description,
+        )
+    }
+
+    fn create_response_config (
+        class_config_id UUID,
+        description String? = null
+    ) -> ApiCapabilityEndpointResponseConfig {
+        """
+        Create one optional response contract beneath this endpoint's request contract.
+        """
+        let created = call request_config.create_response_config(
+            class_config_id = class_config_id,
+            description = description,
+        )
+    }
+
+    fn create_stream_config (
+        stream_mode ApiCapabilityEndpointStreamMode,
+        description String? = null
+    ) -> ApiCapabilityEndpointStreamConfig {
+        """
+        Create one optional stream contract beneath this endpoint's request contract.
+        """
+        let created = call request_config.create_stream_config(
+            stream_mode = stream_mode,
+            description = description,
+        )
+    }
+}

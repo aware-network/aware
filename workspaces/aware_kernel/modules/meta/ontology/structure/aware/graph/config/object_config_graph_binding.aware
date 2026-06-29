@@ -1,0 +1,47 @@
+/// Entry linking one source ObjectConfigGraph scope to one target ObjectConfigGraph
+/// through cross-layer zoom/binding semantics.
+class ObjectConfigGraphBinding {
+    // Relationships
+    /// Target OCG for this binding. Source OCG scope is propagated by parent containment.
+    target_object_config_graph ObjectConfigGraph key
+    object_config_graph_binding_classes ObjectConfigGraphBindingClass[]
+
+    fn build construct(
+        target_object_config_graph_id UUID key,
+    ) -> ObjectConfigGraphBinding {
+        """
+        Build deterministic ObjectConfigGraphBinding within an ObjectConfigGraph scope.
+
+        Contract:
+        - Source OCG scope is propagated via `ObjectConfigGraph -> ObjectConfigGraphBinding`.
+        - Binding identity resolves from `(object_config_graph_id via path, target_object_config_graph_id)`.
+        """
+    }
+
+    fn create_class(
+        name String,
+        source_class_id UUID key,
+        target_class_id UUID key,
+        target_attribute_id UUID key,
+        source_attr_id UUID? = null,
+    ) -> ObjectConfigGraphBindingClass {
+        """
+        Create deterministic ObjectConfigGraphBindingClass under this binding.
+
+        Contract:
+        - Parent binding scope is propagated by constructor lowering.
+        - `source_attr_id` is optional at the binding layer and does not widen source-scope identity.
+        - `target_attribute_id` is required as the target anchor.
+        """
+        let created = construct object_config_graph_binding_classes.build(
+            name = name,
+            source_class_id = source_class_id,
+            source_attr_id = source_attr_id,
+            target_class_id = target_class_id,
+            target_attribute_id = target_attribute_id,
+        )
+    }
+}
+
+ann config.ObjectConfigGraphBinding::target_object_config_graph load eager
+ann config.ObjectConfigGraphBinding::object_config_graph_binding_classes load eager

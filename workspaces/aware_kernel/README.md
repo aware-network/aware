@@ -9,17 +9,12 @@ kernel package boundary.
 The first public target is intentionally small:
 
 - Workspace-local modules selected through `[[workspace.modules]]`.
-- Core ontology substrate: Storage, Content, Code, History, Meta.
-- Runtime construction substrate: Ontology and Structure.
-- Orchestrator only if the minimal graph OS proof requires program, process, or
-  thread runtime in the base kernel.
+- Core ontology substrate: Storage, Content, Code, History, Meta, and Ontology.
 
-API contracts, SDK contracts, service implementations, node descriptors,
-network topology, and product/operator experience contracts are above the
-minimal kernel unless a concrete kernel proof requires them.
-
-The environment descriptor is `aware.environment.toml`. It defines the public
-kernel module set used by this workspace.
+Environment, Identity, Attention, API contracts, SDK contracts, service
+implementations, node descriptors, network topology, and product/operator
+experience contracts are above the minimal kernel unless a concrete kernel
+proof requires them.
 
 The ontology migration matrix is
 `workspaces/aware_kernel/docs/ONTOLOGY_MIGRATION_MATRIX.md`. It tracks the
@@ -47,6 +42,5 @@ A ready public checkout has:
 - `README.md` at repository root.
 - `workspaces/aware_kernel/README.md`.
 - `workspaces/aware_kernel/aware.workspace.toml`.
-- `workspaces/aware_kernel/aware.environment.toml`.
 - No local absolute paths in public JSON manifests.
 - No private product or agent/workspace package roots.

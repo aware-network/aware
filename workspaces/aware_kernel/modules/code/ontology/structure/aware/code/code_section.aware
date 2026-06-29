@@ -1,0 +1,188 @@
+class CodeSection {
+    // Relationships
+    content_part_text_segment aware_content.part.ContentPartTextSegment
+
+    // Polymorphic Relationships
+    // Best practice: these polymorphic pointers are one-to-one slots.
+    // Mark as `unique` so reverse views are SINGLE (not lists) when materialized.
+    code_section_annotation annotation.CodeSectionAnnotation? unique
+    code_section_attribute attribute.CodeSectionAttribute? unique
+    code_section_binding binding.CodeSectionBinding? unique
+    code_section_class class.CodeSectionClass? unique
+    code_section_comment comment.CodeSectionComment? unique
+    code_section_decorator decorator.CodeSectionDecorator? unique
+    code_section_enum enum.CodeSectionEnum? unique
+    code_section_enum_value enum.CodeSectionEnumValue? unique
+    code_section_expression expression.CodeSectionExpression? unique
+    code_section_function function.CodeSectionFunction? unique
+    code_section_import import.CodeSectionImport? unique
+    code_section_mirror mirror.CodeSectionMirror? unique
+    code_section_projection projection.CodeSectionProjection? unique
+
+    // Attributes
+    identity_hash String
+    metadata JsonObject?
+    qualname String
+    section_key String key
+    type CodeSectionType key
+
+    fn build construct(
+        section_key String key,
+        qualname String,
+        type CodeSectionType key,
+        identity_hash String,
+        byte_start Int,
+        byte_end Int,
+        metadata JsonObject? = null
+    ) -> CodeSection {
+        """
+        Build a deterministic CodeSection under a Code snapshot.
+        """
+    }
+
+    fn delete() -> {
+        """
+        Delete this CodeSection through its owned handler rail.
+        """
+    }
+
+    fn create_annotation(
+        path String,
+        verb String,
+        args String[]
+    ) -> annotation.CodeSectionAnnotation {
+        """
+        Create the annotation payload for this section.
+        """
+        let created = construct code_section_annotation.build(
+            path = path,
+            verb = verb,
+            args = args,
+        )
+    }
+
+    fn create_attribute() -> attribute.CodeSectionAttribute {
+        """
+        Create the attribute payload for this section.
+        """
+        let created = construct code_section_attribute.build()
+    }
+
+    fn create_binding() -> binding.CodeSectionBinding {
+        """
+        Create the binding payload for this section.
+        """
+        let created = construct code_section_binding.build()
+    }
+
+    fn create_class() -> class.CodeSectionClass {
+        """
+        Create the class payload for this section.
+        """
+        let created = construct code_section_class.build()
+    }
+
+    fn create_comment(type comment.CodeSectionCommentType) -> comment.CodeSectionComment {
+        """
+        Create the comment payload for this section.
+        """
+        let created = construct code_section_comment.build(
+            type = type,
+        )
+    }
+
+    fn create_decorator() -> decorator.CodeSectionDecorator {
+        """
+        Create the decorator payload for this section.
+        """
+        let created = construct code_section_decorator.build()
+    }
+
+    fn create_enum() -> enum.CodeSectionEnum {
+        """
+        Create the enum payload for this section.
+        """
+        let created = construct code_section_enum.build()
+    }
+
+    fn create_enum_value(value String key, position Int = 0) -> enum.CodeSectionEnumValue {
+        """
+        Create the enum-value payload for this section.
+        """
+        let created = construct code_section_enum_value.build(
+            value = value,
+            position = position,
+        )
+    }
+
+    fn create_expression(type expression.CodeSectionExpressionType) -> expression.CodeSectionExpression {
+        """
+        Create the expression payload for this section.
+        """
+        let created = construct code_section_expression.build(
+            type = type,
+        )
+    }
+
+    fn create_function() -> function.CodeSectionFunction {
+        """
+        Create the function payload for this section.
+        """
+        let created = construct code_section_function.build()
+    }
+
+    fn create_import(
+        module_text String,
+        is_from_import Bool,
+        module_slot_key String,
+        module_byte_start Int,
+        module_byte_end Int,
+        is_star_import Bool = false,
+        relative_level Int = 0
+    ) -> import.CodeSectionImport {
+        """
+        Create the import payload for this section.
+        """
+        let created = construct code_section_import.build(
+            module_text = module_text,
+            is_from_import = is_from_import,
+            is_star_import = is_star_import,
+            relative_level = relative_level,
+            module_slot_key = module_slot_key,
+            module_byte_start = module_byte_start,
+            module_byte_end = module_byte_end,
+        )
+    }
+
+    fn create_mirror() -> mirror.CodeSectionMirror {
+        """
+        Create the mirror payload for this section.
+        """
+        let created = construct code_section_mirror.build()
+    }
+
+    fn create_projection() -> projection.CodeSectionProjection {
+        """
+        Create the projection payload for this section.
+        """
+        let created = construct code_section_projection.build()
+    }
+}
+
+/// Eager content part text segment
+ann code.CodeSection::content_part_text_segment load eager
+
+/// Set code section on eager for reverse polymorphism relationships
+ann code.CodeSection::code_section_annotation load reverse eager
+ann code.CodeSection::code_section_attribute load reverse eager
+ann code.CodeSection::code_section_binding load reverse eager
+ann code.CodeSection::code_section_class load reverse eager
+ann code.CodeSection::code_section_comment load reverse eager
+ann code.CodeSection::code_section_decorator load reverse eager
+ann code.CodeSection::code_section_enum load reverse eager
+ann code.CodeSection::code_section_enum_value load reverse eager
+ann code.CodeSection::code_section_expression load reverse eager
+ann code.CodeSection::code_section_function load reverse eager
+ann code.CodeSection::code_section_import load reverse eager
+ann code.CodeSection::code_section_mirror load reverse eager
+ann code.CodeSection::code_section_projection load reverse eager

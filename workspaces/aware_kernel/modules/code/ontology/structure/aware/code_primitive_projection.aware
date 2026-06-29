@@ -1,0 +1,12 @@
+// Code Primitive Type projections (v0)
+//
+// - `CodePrimitiveType` is an independent projection root for type-shape graph usage.
+projection CodePrimitiveType {
+    root primitive.CodePrimitiveType
+
+    primitive.CodePrimitiveType::item_type
+    primitive.CodePrimitiveType::key_type
+    primitive.CodePrimitiveType::value_type
+    primitive.CodePrimitiveType::element_types
+    primitive.CodePrimitiveType::union_types
+}

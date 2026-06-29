@@ -1,0 +1,26 @@
+projection Home is_branchable {
+    root home.Home
+
+    home.Home::doors
+    home.Home::tvs
+    home.Tv::channels
+    home.Tv::active_channel
+
+    observable overview instance {
+        """
+        Global home state.
+        """
+    }
+
+    observable security instance default {
+        """
+        Door and access state.
+        """
+    }
+
+    observable entertainment instance {
+        """
+        Tv and channel state.
+        """
+    }
+}

@@ -1,0 +1,167 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "7de75a85-ade4-5836-879c-a47a6412973c",
+      "node_type": "class",
+      "entity_id": "0f8eded0-c183-57c5-9033-3516cfba14c5",
+      "relative_path": "chain/content_chain.py"
+    },
+    {
+      "node_id": "38ba54f5-7011-5231-9ba5-6379609bef78",
+      "node_type": "class",
+      "entity_id": "03b2e8f1-ae21-5b2d-8bcf-8e0ecc92cb58",
+      "relative_path": "chain/content_chain_content.py"
+    },
+    {
+      "node_id": "8cc11fcc-63d1-5a0a-bbd5-ba75fd138944",
+      "node_type": "class",
+      "entity_id": "f1acfad3-7a85-5ad9-ac2c-f0da52d2e302",
+      "relative_path": "chain/content_chain_section.py"
+    },
+    {
+      "node_id": "fc49979d-d98d-5e08-9373-6a3802d95212",
+      "node_type": "class",
+      "entity_id": "10b11ef0-7b72-519a-9ef2-3cafe22165f6",
+      "relative_path": "content/content.py"
+    },
+    {
+      "node_id": "815b9c24-3a6d-5353-b5b3-341df728e82a",
+      "node_type": "class",
+      "entity_id": "cef18a06-8871-5127-bcbb-830eb67b0396",
+      "relative_path": "content/content_index.py"
+    },
+    {
+      "node_id": "6f67deb6-b447-555d-a83d-ead19a63d918",
+      "node_type": "class",
+      "entity_id": "d33cdd96-63f0-529f-86a4-09e75e0c1adc",
+      "relative_path": "content/content_layout.py"
+    },
+    {
+      "node_id": "84a1eb7b-4744-50d8-be68-34ffb546b3ea",
+      "node_type": "class",
+      "entity_id": "8cd14d4b-78c4-582b-a15f-bbeaf4175500",
+      "relative_path": "part/content_part.py"
+    },
+    {
+      "node_id": "bb35a902-9019-5c28-bbc7-7156633ea396",
+      "node_type": "class",
+      "entity_id": "f1bc3d6c-237f-5a2f-b040-d080010b51e0",
+      "relative_path": "part/content_part_content.py"
+    },
+    {
+      "node_id": "cdfd792b-85e8-581e-bd1d-04f13c01220b",
+      "node_type": "class",
+      "entity_id": "3d9f6e13-2569-5193-adc2-55703f6fde1d",
+      "relative_path": "part/content_part_content_layout.py"
+    },
+    {
+      "node_id": "c06e1ed1-38ec-5eb1-b72e-6da78ce38354",
+      "node_type": "class",
+      "entity_id": "20cccfaa-af38-5821-86a7-608381982308",
+      "relative_path": "part/content_part_file.py"
+    },
+    {
+      "node_id": "7555efc5-f104-5302-8a82-ed09f383910c",
+      "node_type": "class",
+      "entity_id": "e7624595-09eb-5598-a824-78f667bfb7c2",
+      "relative_path": "part/content_part_multimodal_index.py"
+    },
+    {
+      "node_id": "c39cde4b-2bb4-55f7-85df-74d17bae1266",
+      "node_type": "class",
+      "entity_id": "d34752f4-de30-5cc3-b7d0-be6a7d0f720d",
+      "relative_path": "part/content_part_text.py"
+    },
+    {
+      "node_id": "2fe31452-380a-51a7-917f-f09ede6ade02",
+      "node_type": "class",
+      "entity_id": "17b78dd5-e3c1-59ba-ac53-2aa7183a4e9f",
+      "relative_path": "part/content_part_text_editor_patch.py"
+    },
+    {
+      "node_id": "a05738e7-50ca-5ced-b879-954e42044f4e",
+      "node_type": "class",
+      "entity_id": "61baf80f-9d09-5efc-b2e3-1c2876d85502",
+      "relative_path": "part/content_part_text_editor_patch.py"
+    },
+    {
+      "node_id": "702c8d8f-9634-509d-b3fe-f604bd4b0804",
+      "node_type": "class",
+      "entity_id": "69ff782b-879a-5c30-9376-b445aab1896b",
+      "relative_path": "part/content_part_text_editor_patch.py"
+    },
+    {
+      "node_id": "c606879b-c5ab-5c4b-9319-aa421602e7fe",
+      "node_type": "class",
+      "entity_id": "a083bfcd-08cd-51ce-8b0d-62dd10e2a853",
+      "relative_path": "part/content_part_text_editor_patch.py"
+    },
+    {
+      "node_id": "7558b34d-6f7e-5e67-8012-82348d562b0c",
+      "node_type": "class",
+      "entity_id": "d016b075-f0fc-584c-b043-6eb7ab52d1ce",
+      "relative_path": "part/content_part_text_editor_patch.py"
+    },
+    {
+      "node_id": "6ad45f51-3ae6-50b3-8806-3bfb5c6841c8",
+      "node_type": "class",
+      "entity_id": "d894d3d5-6b10-5bfc-acd1-3c66008e54bb",
+      "relative_path": "part/content_part_text_editor_patch.py"
+    },
+    {
+      "node_id": "e613dc9d-938a-5f2c-83e9-27fd4d8e36e4",
+      "node_type": "class",
+      "entity_id": "b285b1b6-ca58-5dc8-ba9a-b94fdc7aa0cb",
+      "relative_path": "part/content_part_text_index.py"
+    },
+    {
+      "node_id": "ce3dc97a-6ccc-50f2-b26c-1d0a29f565a9",
+      "node_type": "class",
+      "entity_id": "2416f11d-10b3-5732-9021-da4722b0d912",
+      "relative_path": "part/content_part_text_segment.py"
+    },
+    {
+      "node_id": "d1e4fd9e-cb1b-56c0-902d-5bf3b9f9dda8",
+      "node_type": "class",
+      "entity_id": "fa4289ed-55f0-597f-926e-08fa512481b8",
+      "relative_path": "part/content_part_text_segment_translation.py"
+    },
+    {
+      "node_id": "ad962d3a-03a9-5708-b643-780d9c3cfb20",
+      "node_type": "class",
+      "entity_id": "9eb60876-520f-5eb4-a82d-310c69c393f1",
+      "relative_path": "part/content_part_text_style.py"
+    },
+    {
+      "node_id": "1a19a07d-bdf8-5076-a568-106391678752",
+      "node_type": "enum",
+      "entity_id": "5f9f9a35-964d-55d4-a7d6-19ca78ecaa29",
+      "relative_path": "content/content_enums.py"
+    },
+    {
+      "node_id": "b2cf1d98-1683-57e4-92bc-46cc44ce0dd7",
+      "node_type": "enum",
+      "entity_id": "a978744a-a47c-5d12-a040-041e77655e31",
+      "relative_path": "content/content_enums.py"
+    },
+    {
+      "node_id": "dbfc1f8d-a35b-5c28-9cf0-007832346132",
+      "node_type": "enum",
+      "entity_id": "d4015d5d-a350-52b3-88d3-65ef7cb86226",
+      "relative_path": "part/content_part_enums.py"
+    },
+    {
+      "node_id": "6b87016f-0ae0-56ca-b003-fa7ead62b68d",
+      "node_type": "enum",
+      "entity_id": "ddb23658-1a39-5534-997a-fedf36ddddb8",
+      "relative_path": "part/content_part_enums.py"
+    },
+    {
+      "node_id": "46ce957d-507a-5683-a4df-d103b8c5a339",
+      "node_type": "enum",
+      "entity_id": "72c0768e-6926-5a5e-9329-81a8638ba138",
+      "relative_path": "part/content_part_text_editor_patch.py"
+    }
+  ]
+}

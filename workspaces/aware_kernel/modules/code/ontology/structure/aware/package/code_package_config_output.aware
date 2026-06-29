@@ -1,0 +1,46 @@
+class CodePackageConfigOutput {
+    // Attributes
+    output_key String key
+    kind CodePackageConfigOutputKind
+    producer_key String?
+    artifact_family String?
+    artifact_role String?
+    package_output_key String?
+    target_provider_key String?
+    target_input_key String?
+    target_semantic_owner String?
+    target_package_family String?
+    target_semantic_kind String?
+    media_type String?
+    runtime_contract_version String?
+    required_for String[] = []
+    required Bool = true
+
+    fn build construct (
+        output_key String key,
+        kind CodePackageConfigOutputKind,
+        producer_key String? = null,
+        artifact_family String? = null,
+        artifact_role String? = null,
+        package_output_key String? = null,
+        target_provider_key String? = null,
+        target_input_key String? = null,
+        target_semantic_owner String? = null,
+        target_package_family String? = null,
+        target_semantic_kind String? = null,
+        media_type String? = null,
+        runtime_contract_version String? = null,
+        required_for String[] = [],
+        required Bool = true
+    ) -> CodePackageConfigOutput {
+        """
+        Create one CodePackageConfig-scoped materialization output contract row.
+
+        Contract:
+        - Parent CodePackageConfig context is propagated by constructor lowering.
+        - This describes declared outputs only.
+        - CodePackageArtifact owns package output evidence emitted for a concrete CodePackage.
+        - Workspace owns revision pins, materialization envelopes, and publication envelopes.
+        """
+    }
+}

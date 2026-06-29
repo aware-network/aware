@@ -1,0 +1,102 @@
+/// FileSystem service operation DTOs (transport-only).
+///
+/// These operation payloads define the future API boundary. They do not imply
+/// a service implementation exists yet.
+
+class FileSystemServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class FileSystemServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+    backend_receipt file_system.FileSystemBackendReceipt?
+}
+
+class ScanFileSystemSnapshotRequest augment file_system.FileSystemServiceRequest {
+    operation String = "scan_snapshot"
+    root file_system.FileSystemRootRef
+    filter_profile file_system.FileSystemFilterProfile = canonical_source
+    include_paths String[] = []
+    exclude_paths String[] = []
+    include_hashes Bool = false
+    force_refresh Bool = false
+    backend_kind file_system.FileSystemBackendKind = unknown
+}
+
+class ScanFileSystemSnapshotResponse augment file_system.FileSystemServiceResponse {
+    operation String = "scan_snapshot"
+    snapshot file_system.FileSystemSnapshot?
+}
+
+class CollectFileSystemDeltaRequest augment file_system.FileSystemServiceRequest {
+    operation String = "collect_delta"
+    root file_system.FileSystemRootRef
+    base_snapshot file_system.FileSystemSnapshot?
+    changed_paths file_system.FileSystemRelativePath[] = []
+    filter_profile file_system.FileSystemFilterProfile = canonical_source
+    include_content Bool = false
+    include_hashes Bool = true
+    backend_kind file_system.FileSystemBackendKind = unknown
+}
+
+class CollectFileSystemDeltaResponse augment file_system.FileSystemServiceResponse {
+    operation String = "collect_delta"
+    delta_set file_system.FileSystemDeltaSet?
+}
+
+class ApplyFileSystemDeltaRequest augment file_system.FileSystemServiceRequest {
+    operation String = "apply_delta"
+    root file_system.FileSystemRootRef
+    delta_set file_system.FileSystemDeltaSet
+    policy file_system.FileSystemApplyPolicy?
+    dry_run Bool = false
+    backend_kind file_system.FileSystemBackendKind = unknown
+}
+
+class ApplyFileSystemDeltaResponse augment file_system.FileSystemServiceResponse {
+    operation String = "apply_delta"
+    receipt file_system.FileSystemApplyReceipt?
+}
+
+class VerifyFileSystemRootRequest augment file_system.FileSystemServiceRequest {
+    operation String = "verify_root"
+    root file_system.FileSystemRootRef
+    relative_paths file_system.FileSystemRelativePath[] = []
+    reject_path_escape Bool = true
+}
+
+class VerifyFileSystemRootResponse augment file_system.FileSystemServiceResponse {
+    operation String = "verify_root"
+    root_ok Bool = false
+    rejected_paths file_system.FileSystemRelativePath[] = []
+}
+
+class ResolveFileSystemBackendCapabilitiesRequest augment file_system.FileSystemServiceRequest {
+    operation String = "backend_capabilities"
+    requested_backend_kind file_system.FileSystemBackendKind = unknown
+    require_native Bool = false
+}
+
+class ResolveFileSystemBackendCapabilitiesResponse augment file_system.FileSystemServiceResponse {
+    operation String = "backend_capabilities"
+    capabilities file_system.FileSystemBackendCapabilities?
+}
+
+ann file_system.FileSystemServiceRequest::operation discriminate key
+ann file_system.ScanFileSystemSnapshotRequest::operation discriminate tag "scan_snapshot"
+ann file_system.CollectFileSystemDeltaRequest::operation discriminate tag "collect_delta"
+ann file_system.ApplyFileSystemDeltaRequest::operation discriminate tag "apply_delta"
+ann file_system.VerifyFileSystemRootRequest::operation discriminate tag "verify_root"
+ann file_system.ResolveFileSystemBackendCapabilitiesRequest::operation discriminate tag "backend_capabilities"
+
+ann file_system.FileSystemServiceResponse::operation discriminate key
+ann file_system.ScanFileSystemSnapshotResponse::operation discriminate tag "scan_snapshot"
+ann file_system.CollectFileSystemDeltaResponse::operation discriminate tag "collect_delta"
+ann file_system.ApplyFileSystemDeltaResponse::operation discriminate tag "apply_delta"
+ann file_system.VerifyFileSystemRootResponse::operation discriminate tag "verify_root"
+ann file_system.ResolveFileSystemBackendCapabilitiesResponse::operation discriminate tag "backend_capabilities"

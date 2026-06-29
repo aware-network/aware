@@ -1,0 +1,13 @@
+/// Layout metadata for an ObjectConfigGraphNode.
+///
+/// This keeps canonical ordering + file placement deterministic without
+/// coupling OCGs to code sections.
+class ObjectConfigGraphNodeLayout {
+    // Attributes
+    /// Layout kind identifier (canonical default: "aware").
+    layout_kind String key = "aware"
+    /// Relative path within the canonical source layout (POSIX).
+    relative_path String key
+    /// Optional byte offset within the source file for deterministic ordering.
+    source_position Int? = null
+}

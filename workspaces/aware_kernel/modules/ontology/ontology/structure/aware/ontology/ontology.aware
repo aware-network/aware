@@ -1,0 +1,37 @@
+/// Concrete ontology authority/worldline.
+///
+/// `Ontology` is the instance/runtime layer materialized under
+/// `OntologyConfig.ontologies`; it indexes the ObjectInstanceGraphIdentity
+/// worldlines that exist under this ontology authority.
+class Ontology {
+    // Relationships
+    object_instance_graph_identities aware_meta.graph.instance.ObjectInstanceGraphIdentity[] many
+
+    // Attributes
+    description String?
+    key String key
+    status String = "active"
+    title String?
+
+    fn build construct(
+        key String key,
+        title String? = null,
+        description String? = null,
+        status String = "active",
+    ) -> Ontology {
+        """
+        Create one concrete ontology authority/worldline.
+
+        Contract:
+        - Parent `OntologyConfig` scope is injected by propagation.
+        - Identity is parent-scoped by `OntologyConfig.ontologies` plus `key`;
+          the child does not author a reverse config reference.
+        - `object_instance_graph_identities` is a reference/index surface for
+          all OIGIs known to belong under this ontology authority.
+        - Head/commit selection remains Meta/history truth and is not modeled
+          as a shortcut on `Ontology`.
+        """
+    }
+}
+
+ann ontology.Ontology::object_instance_graph_identities load eager

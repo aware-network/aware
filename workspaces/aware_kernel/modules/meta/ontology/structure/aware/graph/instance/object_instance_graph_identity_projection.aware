@@ -1,0 +1,48 @@
+/// ObjectInstanceGraphIdentity projection
+///
+/// Purpose:
+/// - Provide a stable, commit-backed identity object for instance graph worldlines.
+/// - Kept separate from OS/environment projections to avoid coupling OS payload to identity internals.
+projection ObjectInstanceGraphIdentity {
+    root instance.ObjectInstanceGraphIdentity
+    instance.ObjectInstanceGraphIdentity::class_instance_identities
+    instance.ObjectInstanceGraphIdentity::class_instance_relationship_identities
+    class.ClassInstanceRelationshipIdentity::class_instance_relationship
+
+    instance.ObjectInstanceGraphIdentity::object_instance_graph_branches
+    instance.ObjectInstanceGraphBranch::branch
+    aware_history.branch.Branch::lanes
+    aware_history.lane.Lane::head_commit
+    instance.ObjectInstanceGraphBranch::object_instance_graph_lanes
+    instance.ObjectInstanceGraphLane::lane
+    instance.ObjectInstanceGraphLane::function_calls
+    function.FunctionCall::function_config ObjectConfigGraph
+    function.FunctionCall::target_class_instance_identity ObjectInstanceGraphIdentity
+    function.FunctionCall::base_commit
+    function.FunctionCall::attributes
+    function.FunctionCall::function_call_response
+    function.FunctionCallResponse::root_class_instance_identity ObjectInstanceGraphIdentity
+    function.FunctionCallResponse::attributes
+    function.FunctionCallResponse::commits
+
+    instance.ObjectInstanceGraphBranch::object_instance_graph_branch_relationships
+    instance.ObjectInstanceGraphBranchRelationship::target_object_instance_graph_branch
+
+    instance.ObjectInstanceGraphIdentity::object_instance_graph_commits
+    instance.ObjectInstanceGraphCommit::commit
+    aware_history.commit.Commit::commit_parents
+    aware_history.commit.CommitParent::parent_commit
+
+    view history {
+        view timeline instance default {
+            """
+            Commit timeline for the selected lane.
+            """
+        }
+        view branches instance {
+            """
+            Branch list for the selected lane.
+            """
+        }
+    }
+}

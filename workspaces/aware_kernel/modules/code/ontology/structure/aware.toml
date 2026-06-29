@@ -1,0 +1,15 @@
+aware = 1
+
+[package]
+package_name = "code-ontology"
+fqn_prefix = "aware_code"
+kind = "ontology"
+version_number = 1
+title = "Code"
+description = "SSOT canonical (.aware) sources for code"
+
+[build]
+environment_slug = "aware_code"
+
+[[dependencies]]
+package_name = "content-ontology"

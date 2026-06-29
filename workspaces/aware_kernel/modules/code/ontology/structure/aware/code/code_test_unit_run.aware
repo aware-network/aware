@@ -1,0 +1,32 @@
+/// Canonical execution receipt for one CodeTestUnit.
+///
+/// Contract:
+/// - The identity points to a concrete CodeTestUnit, not a file path.
+/// - Parent CodePackageTestRun provides the execution/run envelope.
+/// - Failure payload stays descriptive; test identity remains relational.
+class CodeTestUnitRun {
+    // Relationships
+    code_test_unit CodeTestUnit key
+
+    // Attributes
+    status CodeTestRunStatus
+    selector String
+    duration_s Float?
+    failures JsonArray = []
+    error String?
+
+    fn build construct(
+        code_test_unit_id UUID key,
+        status CodeTestRunStatus,
+        selector String,
+        failures JsonArray,
+        duration_s Float? = null,
+        error String? = null
+    ) -> CodeTestUnitRun {
+        """
+        Build one canonical run receipt for a concrete CodeTestUnit.
+        """
+    }
+}
+
+ann code.CodeTestUnitRun::code_test_unit load eager

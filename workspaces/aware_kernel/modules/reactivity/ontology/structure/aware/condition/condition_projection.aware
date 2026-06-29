@@ -1,0 +1,13 @@
+// Condition projection (runtime evidence lane)
+//
+// Goal:
+// - Keep evaluated condition evidence canonical and queryable.
+
+projection Condition {
+    root condition.Condition
+
+    // Portal: runtime condition -> policy root
+    condition.Condition::config condition.ConditionConfig
+    // Portal: runtime condition -> triggering commit provenance (meta history plane)
+    condition.Condition::trigger_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+}

@@ -1,0 +1,40 @@
+class SdkPackageImplementationPackage {
+    // Relationships
+    code_package aware_code.package.CodePackage key
+
+    // Attributes
+    entrypoint String?
+    exclude_paths JsonArray = []
+    import_root String
+    include_paths JsonArray = []
+    language aware_code.code.CodeLanguage
+    manifest_relative_path String
+    package_name String
+    package_root String = "."
+    role String = "public_package"
+
+    fn build construct (
+        code_package_id UUID key,
+        package_name String,
+        language aware_code.code.CodeLanguage,
+        import_root String,
+        manifest_relative_path String,
+        package_root String = ".",
+        entrypoint String? = null,
+        role String = "public_package",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = []
+    ) -> SdkPackageImplementationPackage {
+        """
+        Create one SDK-owned language implementation package declaration.
+
+        Contract:
+        - Parent `SdkPackage` scope is injected by propagation.
+        - Identity is keyed by the attached implementation `CodePackage`.
+        - The payload is the canonical import/install contract for SDK consumers.
+        - Consumers must not infer SDK implementation packages from local layout or target JSON alone.
+        """
+    }
+}
+
+ann sdk.SdkPackageImplementationPackage::code_package load eager

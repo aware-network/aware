@@ -1,0 +1,18 @@
+// Event projection (runtime evidence lane)
+//
+// Goal:
+// - Keep raised event evidence canonical and queryable.
+// - Bridge to matched conditions through EventCondition records.
+
+projection Event {
+    root event.Event
+    // Portal: raised event -> event policy root
+    event.Event::config event.EventConfig
+    // Portal: raised event -> runtime action evidence
+    event.Event::actions action.Action
+    // Portal: raised event -> runtime action intent evidence
+    event.Event::action_intents action.ActionIntent
+    // Conditions: event -> matched condition evidence
+    event.Event::event_conditions
+    event.EventCondition::condition condition.Condition
+}

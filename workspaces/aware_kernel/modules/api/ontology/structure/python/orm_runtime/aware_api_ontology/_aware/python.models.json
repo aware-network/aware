@@ -1,0 +1,368 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "2ae826c7-5759-5612-8647-856a91b2574b",
+      "module": "aware_api_ontology.api.api",
+      "name": "Api",
+      "aware_class_ref": "aware_api.api.Api",
+      "functions": [
+        {
+          "function_config_id": "1e6dbcc3-058f-5ade-9a4c-94c4521aaadc",
+          "name": "create",
+          "input_model": "ApiCreateInput",
+          "output_model": "ApiCreateOutput"
+        },
+        {
+          "function_config_id": "77b14405-fa54-5448-86d5-c933feafb1ba",
+          "name": "create_api_graph",
+          "input_model": "ApiCreateApiGraphInput",
+          "output_model": "ApiCreateApiGraphOutput"
+        },
+        {
+          "function_config_id": "9dfef63a-36f1-5124-a6b3-759b6e6be986",
+          "name": "create_capability",
+          "input_model": "ApiCreateCapabilityInput",
+          "output_model": "ApiCreateCapabilityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a6f5fa70-14fe-5f17-8a85-f123a0078e8e",
+      "module": "aware_api_ontology.api.api_call",
+      "name": "ApiCall",
+      "aware_class_ref": "aware_api.api.ApiCall",
+      "functions": [
+        {
+          "function_config_id": "a48407f4-044a-56f6-a6ae-de5e8808f695",
+          "name": "create_outcome",
+          "input_model": "ApiCallCreateOutcomeInput",
+          "output_model": "ApiCallCreateOutcomeOutput"
+        },
+        {
+          "function_config_id": "ccd10a23-e036-500c-8216-8c4e5912041f",
+          "name": "create_via_api_capability_endpoint",
+          "input_model": "ApiCallCreateViaApiCapabilityEndpointInput",
+          "output_model": "ApiCallCreateViaApiCapabilityEndpointOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "995a05e1-ec54-51ad-9d12-af5574f10732",
+      "module": "aware_api_ontology.api.api_call_outcome",
+      "name": "ApiCallOutcome",
+      "aware_class_ref": "aware_api.api.ApiCallOutcome",
+      "functions": [
+        {
+          "function_config_id": "d971509f-65b5-5396-a086-b51effe4e413",
+          "name": "build_via_api_call",
+          "input_model": "ApiCallOutcomeBuildViaApiCallInput",
+          "output_model": "ApiCallOutcomeBuildViaApiCallOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "09aec6a2-69e2-5aa3-9e7f-aef4fa6fe347",
+      "module": "aware_api_ontology.api.api_capability",
+      "name": "ApiCapability",
+      "aware_class_ref": "aware_api.api.ApiCapability",
+      "functions": [
+        {
+          "function_config_id": "14907a63-b5c4-5be7-8d17-eb69ed262f8b",
+          "name": "create_endpoint",
+          "input_model": "ApiCapabilityCreateEndpointInput",
+          "output_model": "ApiCapabilityCreateEndpointOutput"
+        },
+        {
+          "function_config_id": "891c047a-cb4f-537d-bcd5-bb5ee63425d0",
+          "name": "create_via_api",
+          "input_model": "ApiCapabilityCreateViaApiInput",
+          "output_model": "ApiCapabilityCreateViaApiOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "cedefaa4-9c7a-59d0-8984-bfdab7138c3b",
+      "module": "aware_api_ontology.api.api_capability_endpoint",
+      "name": "ApiCapabilityEndpoint",
+      "aware_class_ref": "aware_api.api.ApiCapabilityEndpoint",
+      "functions": [
+        {
+          "function_config_id": "c769eae6-5ca5-5677-9d6f-09a03e3dd520",
+          "name": "create_call",
+          "input_model": "ApiCapabilityEndpointCreateCallInput",
+          "output_model": "ApiCapabilityEndpointCreateCallOutput"
+        },
+        {
+          "function_config_id": "27e6f1d5-8cfa-58b6-b1d4-5ff35299026c",
+          "name": "create_function",
+          "input_model": "ApiCapabilityEndpointCreateFunctionInput",
+          "output_model": "ApiCapabilityEndpointCreateFunctionOutput"
+        },
+        {
+          "function_config_id": "f6a78a85-b116-523c-9209-2f1122da0d82",
+          "name": "create_response_config",
+          "input_model": "ApiCapabilityEndpointCreateResponseConfigInput",
+          "output_model": "ApiCapabilityEndpointCreateResponseConfigOutput"
+        },
+        {
+          "function_config_id": "6e964c62-9a14-5d59-9f95-7163090c0e29",
+          "name": "create_stream_config",
+          "input_model": "ApiCapabilityEndpointCreateStreamConfigInput",
+          "output_model": "ApiCapabilityEndpointCreateStreamConfigOutput"
+        },
+        {
+          "function_config_id": "71a90bb1-3fd5-53e0-be0d-ab2903a03650",
+          "name": "create_via_api_capability",
+          "input_model": "ApiCapabilityEndpointCreateViaApiCapabilityInput",
+          "output_model": "ApiCapabilityEndpointCreateViaApiCapabilityOutput"
+        },
+        {
+          "function_config_id": "c5708375-0c9d-59b6-bbb8-2a5fa4d02217",
+          "name": "ensure_request_config",
+          "input_model": "ApiCapabilityEndpointEnsureRequestConfigInput",
+          "output_model": "ApiCapabilityEndpointEnsureRequestConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d2e5d5c4-48c1-56f6-ae22-10d7d69ade1d",
+      "module": "aware_api_ontology.api.api_capability_endpoint_function",
+      "name": "ApiCapabilityEndpointFunction",
+      "aware_class_ref": "aware_api.api.ApiCapabilityEndpointFunction",
+      "functions": [
+        {
+          "function_config_id": "0871bdb7-498a-5457-aa8e-b557432caa93",
+          "name": "create_via_api_capability_endpoint",
+          "input_model": "ApiCapabilityEndpointFunctionCreateViaApiCapabilityEndpointInput",
+          "output_model": "ApiCapabilityEndpointFunctionCreateViaApiCapabilityEndpointOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "356e7a31-925d-505c-8809-cdadec28eb64",
+      "module": "aware_api_ontology.api.api_capability_endpoint_request_config",
+      "name": "ApiCapabilityEndpointRequestConfig",
+      "aware_class_ref": "aware_api.api.ApiCapabilityEndpointRequestConfig",
+      "functions": [
+        {
+          "function_config_id": "42b09405-a236-5d40-90be-d9b93bd9ff61",
+          "name": "build_via_api_capability_endpoint",
+          "input_model": "ApiCapabilityEndpointRequestConfigBuildViaApiCapabilityEndpointInput",
+          "output_model": "ApiCapabilityEndpointRequestConfigBuildViaApiCapabilityEndpointOutput"
+        },
+        {
+          "function_config_id": "7d813e8a-6325-5f6c-bf69-0ef98a93c3fb",
+          "name": "create_response_config",
+          "input_model": "ApiCapabilityEndpointRequestConfigCreateResponseConfigInput",
+          "output_model": "ApiCapabilityEndpointRequestConfigCreateResponseConfigOutput"
+        },
+        {
+          "function_config_id": "41335186-7fec-5a68-a573-71ca87cb4b02",
+          "name": "create_stream_config",
+          "input_model": "ApiCapabilityEndpointRequestConfigCreateStreamConfigInput",
+          "output_model": "ApiCapabilityEndpointRequestConfigCreateStreamConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a4b3359e-ea13-5b0a-9d6e-19d843275d4b",
+      "module": "aware_api_ontology.api.api_capability_endpoint_response_config",
+      "name": "ApiCapabilityEndpointResponseConfig",
+      "aware_class_ref": "aware_api.api.ApiCapabilityEndpointResponseConfig",
+      "functions": [
+        {
+          "function_config_id": "ff3e3264-ab65-5e6d-8a5e-c81cc43ce927",
+          "name": "build_via_api_capability_endpoint_request_config",
+          "input_model": "ApiCapabilityEndpointResponseConfigBuildViaApiCapabilityEndpointRequestConfigInput",
+          "output_model": "ApiCapabilityEndpointResponseConfigBuildViaApiCapabilityEndpointRequestConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8295b3d1-cc94-591d-b783-8aeeea66f454",
+      "module": "aware_api_ontology.api.api_capability_endpoint_stream_config",
+      "name": "ApiCapabilityEndpointStreamConfig",
+      "aware_class_ref": "aware_api.api.ApiCapabilityEndpointStreamConfig",
+      "functions": [
+        {
+          "function_config_id": "a2cffa5f-b512-509e-860e-45f9b95d4851",
+          "name": "build_via_api_capability_endpoint_request_config",
+          "input_model": "ApiCapabilityEndpointStreamConfigBuildViaApiCapabilityEndpointRequestConfigInput",
+          "output_model": "ApiCapabilityEndpointStreamConfigBuildViaApiCapabilityEndpointRequestConfigOutput"
+        },
+        {
+          "function_config_id": "818177bf-74a9-5224-aeda-0881dabb50a8",
+          "name": "create_event_config",
+          "input_model": "ApiCapabilityEndpointStreamConfigCreateEventConfigInput",
+          "output_model": "ApiCapabilityEndpointStreamConfigCreateEventConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "aca1fbe2-4ac7-5acc-9106-327be1974a8f",
+      "module": "aware_api_ontology.api.api_capability_endpoint_stream_event_config",
+      "name": "ApiCapabilityEndpointStreamEventConfig",
+      "aware_class_ref": "aware_api.api.ApiCapabilityEndpointStreamEventConfig",
+      "functions": [
+        {
+          "function_config_id": "c36f4c51-5183-58db-a729-d07b37f283f2",
+          "name": "create_via_api_capability_endpoint_stream_config",
+          "input_model": "ApiCapabilityEndpointStreamEventConfigCreateViaApiCapabilityEndpointStreamConfigInput",
+          "output_model": "ApiCapabilityEndpointStreamEventConfigCreateViaApiCapabilityEndpointStreamConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ace608e1-36d7-55ac-9f44-156ab8d32398",
+      "module": "aware_api_ontology.api.api_graph",
+      "name": "ApiGraph",
+      "aware_class_ref": "aware_api.api.ApiGraph",
+      "functions": [
+        {
+          "function_config_id": "377233f6-25ea-5c5d-a102-8b341dd1e529",
+          "name": "create_graph_capability",
+          "input_model": "ApiGraphCreateGraphCapabilityInput",
+          "output_model": "ApiGraphCreateGraphCapabilityOutput"
+        },
+        {
+          "function_config_id": "4f13af94-0b4e-5b1a-a913-070a5285d153",
+          "name": "create_graph_function",
+          "input_model": "ApiGraphCreateGraphFunctionInput",
+          "output_model": "ApiGraphCreateGraphFunctionOutput"
+        },
+        {
+          "function_config_id": "7eeba1da-8943-5876-8c12-387c721f91ba",
+          "name": "create_graph_projection",
+          "input_model": "ApiGraphCreateGraphProjectionInput",
+          "output_model": "ApiGraphCreateGraphProjectionOutput"
+        },
+        {
+          "function_config_id": "4357b60d-fa2d-57ba-a8fa-bd26af1d8b70",
+          "name": "create_via_api",
+          "input_model": "ApiGraphCreateViaApiInput",
+          "output_model": "ApiGraphCreateViaApiOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "faf109d9-545f-5a4f-8657-1b328c2b83b4",
+      "module": "aware_api_ontology.api.api_graph_capability",
+      "name": "ApiGraphCapability",
+      "aware_class_ref": "aware_api.api.ApiGraphCapability",
+      "functions": [
+        {
+          "function_config_id": "cc07d1ba-f8ac-50ec-b5ba-0f51d9ca2cb8",
+          "name": "create_function",
+          "input_model": "ApiGraphCapabilityCreateFunctionInput",
+          "output_model": "ApiGraphCapabilityCreateFunctionOutput"
+        },
+        {
+          "function_config_id": "3691909a-8306-5396-8db3-7b2de96b55ff",
+          "name": "create_via_api_graph",
+          "input_model": "ApiGraphCapabilityCreateViaApiGraphInput",
+          "output_model": "ApiGraphCapabilityCreateViaApiGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d0886596-c800-5eb9-a18f-d426401bdeee",
+      "module": "aware_api_ontology.api.api_graph_capability_function",
+      "name": "ApiGraphCapabilityFunction",
+      "aware_class_ref": "aware_api.api.ApiGraphCapabilityFunction",
+      "functions": [
+        {
+          "function_config_id": "06301754-7b3b-5815-91a5-98f89bcb5b09",
+          "name": "create_via_api_graph_capability",
+          "input_model": "ApiGraphCapabilityFunctionCreateViaApiGraphCapabilityInput",
+          "output_model": "ApiGraphCapabilityFunctionCreateViaApiGraphCapabilityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ce21aee7-d1ea-5acb-bd0a-6237568cfa93",
+      "module": "aware_api_ontology.api.api_graph_function",
+      "name": "ApiGraphFunction",
+      "aware_class_ref": "aware_api.api.ApiGraphFunction",
+      "functions": [
+        {
+          "function_config_id": "f482edab-8091-5054-8a4a-13a75195a236",
+          "name": "create_via_api_graph",
+          "input_model": "ApiGraphFunctionCreateViaApiGraphInput",
+          "output_model": "ApiGraphFunctionCreateViaApiGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f2fbb2c0-f386-5af0-be11-2ec718b519f8",
+      "module": "aware_api_ontology.api.api_graph_projection",
+      "name": "ApiGraphProjection",
+      "aware_class_ref": "aware_api.api.ApiGraphProjection",
+      "functions": [
+        {
+          "function_config_id": "413b966d-6809-5f8d-a618-3034962d1ca1",
+          "name": "create_via_api_graph",
+          "input_model": "ApiGraphProjectionCreateViaApiGraphInput",
+          "output_model": "ApiGraphProjectionCreateViaApiGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3404e083-0719-5698-aa97-0239d9d0d656",
+      "module": "aware_api_ontology.api.api_package",
+      "name": "ApiPackage",
+      "aware_class_ref": "aware_api.api.ApiPackage",
+      "functions": [
+        {
+          "function_config_id": "04dfd85b-c342-5aa5-84c4-3f27bd8fee28",
+          "name": "attach_language_package",
+          "input_model": "ApiPackageAttachLanguagePackageInput",
+          "output_model": "ApiPackageAttachLanguagePackageOutput"
+        },
+        {
+          "function_config_id": "ece66d6f-050c-5d85-814b-cbbf37791633",
+          "name": "build",
+          "input_model": "ApiPackageBuildInput",
+          "output_model": "ApiPackageBuildOutput"
+        },
+        {
+          "function_config_id": "6d559111-c8c7-5f03-9584-7475ef5fec94",
+          "name": "sync_manifest_truth",
+          "input_model": "ApiPackageSyncManifestTruthInput",
+          "output_model": "ApiPackageSyncManifestTruthOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "359f3452-0eb5-5b4b-abf7-e3984e45a45e",
+      "module": "aware_api_ontology.api.api_package_language_package",
+      "name": "ApiPackageLanguagePackage",
+      "aware_class_ref": "aware_api.api.ApiPackageLanguagePackage",
+      "functions": [
+        {
+          "function_config_id": "7f740a8f-6fe0-514f-b3e6-973995657edc",
+          "name": "build_via_api_package",
+          "input_model": "ApiPackageLanguagePackageBuildViaApiPackageInput",
+          "output_model": "ApiPackageLanguagePackageBuildViaApiPackageOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "52ac1ea5-02c8-5800-b33c-49232917ff4c",
+      "module": "aware_api_ontology.api.api_call_enums",
+      "name": "ApiCallOutcomeStatus"
+    },
+    {
+      "enum_config_id": "bb750bd0-18be-584e-9e4f-2b620e304399",
+      "module": "aware_api_ontology.api.api_capability_endpoint_stream_enums",
+      "name": "ApiCapabilityEndpointStreamEventKind"
+    },
+    {
+      "enum_config_id": "e9e9b312-e3a3-541a-a896-0166b0127224",
+      "module": "aware_api_ontology.api.api_capability_endpoint_stream_enums",
+      "name": "ApiCapabilityEndpointStreamMode"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+/// ObjectConfigGraphIdentity projection
+///
+/// Purpose:
+/// - Provide a stable, commit-backed identity object for config graph families.
+/// - Kept separate from `object_config_graph` to avoid coupling config payload to identity internals.
+projection ObjectConfigGraphIdentity {
+    root config.ObjectConfigGraphIdentity
+    config.ObjectConfigGraphIdentity::object_projection_graph_identities
+}

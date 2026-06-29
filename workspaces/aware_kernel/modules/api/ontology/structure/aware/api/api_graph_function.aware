@@ -1,0 +1,16 @@
+class ApiGraphFunction {
+    // Relationships
+    class_config_function_config aware_meta.class.ClassConfigFunctionConfig key
+
+    // Attributes
+    description String?
+
+    fn create construct (
+        class_config_function_config_id UUID key,
+        description String? = null
+    ) -> ApiGraphFunction {
+        """
+        Create one standalone API-owned callable graph target.
+        """
+    }
+}

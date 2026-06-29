@@ -1,0 +1,43 @@
+class Change {
+    // Relationships
+    change_deltas ChangeDelta[]
+
+    // Attributes
+    key String key
+    created_at DateTime
+    type ChangeType
+
+    fn create construct (
+        key String key,
+        created_at DateTime,
+        type ChangeType
+    ) -> Change {
+        """
+        Create a standalone canonical change envelope.
+        """
+    }
+
+    fn create_delta (
+        position Int key,
+        kind ChangeDeltaKind,
+        payload Json,
+        property String? = null
+    ) -> ChangeDelta {
+        """
+        Create one delta under this Change.
+
+        Contract:
+        - Parent `change_id` is propagated by traversal lowering.
+        - Stable identity is keyed by `(change_id, position)`.
+        """
+        let created_delta = construct change_deltas.create(
+            position = position,
+            kind = kind,
+            payload = payload,
+            property = property,
+        )
+    }
+}
+
+/// Load deltas eagerly
+ann change.Change::change_deltas load eager

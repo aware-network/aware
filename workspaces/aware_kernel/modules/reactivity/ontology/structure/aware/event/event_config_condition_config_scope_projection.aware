@@ -1,0 +1,18 @@
+// EventConfigConditionConfigScope projection (scope policy + scope event trail)
+//
+// Goal:
+// - Keep "what can happen" and "what happened on this scope" in one projection lane.
+
+projection EventConfigConditionConfigScope {
+    root event.EventConfigConditionConfigScope
+
+    event.EventConfigConditionConfigScope::event_config_condition_config_scope_events
+
+    // Portal: scope -> watched lane graph identity anchor
+    event.EventConfigConditionConfigScope::object_instance_graph_identity aware_meta.ObjectInstanceGraphIdentity
+    // Portal: scope -> optional watched lane branch anchor
+    event.EventConfigConditionConfigScope::object_instance_graph_branch aware_meta.ObjectInstanceGraphIdentity
+
+    // Portal: scope trail entry -> raised runtime event evidence
+    event.EventConfigConditionConfigScopeEvent::event Event
+}

@@ -1,0 +1,34 @@
+/// Canonical ProjectionKey owner rail under one ObjectProjectionGraphNode.
+///
+/// Contract:
+/// - Binds one projected node to one canonical OCG binding-class anchor.
+/// - Consumes binding + formula semantics without reintroducing encode logic here.
+/// - Must fail closed if the binding-class target class/attr is incompatible with the projected node.
+class ObjectProjectionGraphNodeKey {
+    // Relationships
+    object_config_graph_binding_class config.ObjectConfigGraphBindingClass key
+
+    // Attributes
+    key String key
+    position Int? = null
+    required Bool = true
+
+    fn build construct(
+        object_config_graph_binding_class_id UUID key,
+        key String key,
+        position Int? = null,
+        required Bool = true
+    ) -> ObjectProjectionGraphNodeKey {
+        """
+        Create deterministic ObjectProjectionGraphNodeKey under one ObjectProjectionGraphNode.
+
+        Contract:
+        - Parent `object_projection_graph_node_id` is propagated by constructor lowering.
+        - Identity resolves from `(object_projection_graph_node_id via path, object_config_graph_binding_class_id, key)`.
+        - The binding-class target class must match the projected node class.
+        - The binding-class target attribute must be an identity-resolution anchor.
+        """
+    }
+}
+
+ann projection.ObjectProjectionGraphNodeKey::object_config_graph_binding_class load eager

@@ -1,0 +1,78 @@
+/// Code-owned classification for observed source paths.
+enum CodeSourceOwnershipClassification {
+    source_owned
+    generated_fallout
+    unmapped
+}
+
+/// One package boundary accepted by the Code source_ownership capability.
+class CodeSourceOwnershipPackageBinding : inline_value {
+    package_name String
+    package_root String
+    sources_root String?
+    manifest_relative_path String?
+    language String?
+    surface String?
+    manifest_kind String?
+    generated_roots String[] = []
+    owned_file_paths String[] = []
+    metadata JsonObject?
+}
+
+/// One observed workspace-relative path to classify against package bindings.
+class CodeSourceOwnershipObservedPath : inline_value {
+    path String
+    language String?
+    is_structural Bool?
+    metadata JsonObject?
+}
+
+/// Code-owned classification result for one observed path.
+class CodeSourceOwnershipPathMatch : inline_value {
+    path String
+    classification code.CodeSourceOwnershipClassification
+    package_name String?
+    manifest_relative_path String?
+    package_root String?
+    sources_root String?
+    package_relative_path String?
+    binding_index Int?
+    language String?
+    is_structural Bool?
+    metadata JsonObject?
+}
+
+/// Request envelope for Code-owned source ownership classification.
+class CodeSourceOwnershipRequest : inline_value {
+    workspace_root String?
+    package_bindings code.CodeSourceOwnershipPackageBinding[] = []
+    observed_paths code.CodeSourceOwnershipObservedPath[] = []
+    strict Bool = true
+    metadata JsonObject?
+}
+
+/// Result envelope for Code-owned source ownership classification.
+class CodeSourceOwnershipResult : inline_value {
+    matches code.CodeSourceOwnershipPathMatch[] = []
+    diagnostics String[] = []
+    package_count Int = 0
+    path_count Int = 0
+    source_owned_path_count Int = 0
+    generated_fallout_path_count Int = 0
+    unmapped_path_count Int = 0
+    metadata JsonObject?
+}
+
+/// Classify observed paths through Code-owned package boundary rules.
+class ClassifyCodeSourceOwnershipRequest augment code.CodeServiceRequest {
+    operation String = "classify_source_ownership"
+    ownership_request code.CodeSourceOwnershipRequest
+}
+
+class ClassifyCodeSourceOwnershipResponse augment code.CodeServiceResponse {
+    operation String = "classify_source_ownership"
+    ownership_result code.CodeSourceOwnershipResult?
+}
+
+ann code.ClassifyCodeSourceOwnershipRequest::operation discriminate tag "classify_source_ownership"
+ann code.ClassifyCodeSourceOwnershipResponse::operation discriminate tag "classify_source_ownership"

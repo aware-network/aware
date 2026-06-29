@@ -1,0 +1,208 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "029049e3-5be9-533a-9c74-607b102ed4ef",
+      "module": "aware_ontology_service_dto.graph.config.package_compile",
+      "name": "OntologyObjectConfigGraphPackageDependencyRef",
+      "aware_class_ref": "aware_ontology_service_dto.graph.config.OntologyObjectConfigGraphPackageDependencyRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "da23cb4e-974c-5d31-aa11-e252dc56c856",
+      "module": "aware_ontology_service_dto.graph.config.package_compile",
+      "name": "OntologyObjectConfigGraphPackageEnsureRequest",
+      "aware_class_ref": "aware_ontology_service_dto.graph.config.OntologyObjectConfigGraphPackageEnsureRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9f4d404b-0734-5037-a29c-b520c2bc6588",
+      "module": "aware_ontology_service_dto.graph.config.package_compile",
+      "name": "OntologyObjectConfigGraphPackageEnsureResponse",
+      "aware_class_ref": "aware_ontology_service_dto.graph.config.OntologyObjectConfigGraphPackageEnsureResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c1c580dd-a988-5542-97a1-c022f11ec6ee",
+      "module": "aware_ontology_service_dto.graph.instance.commit_event",
+      "name": "OntologyCommitArtifactRef",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyCommitArtifactRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "c9daaaf6-2a56-54fe-9d14-3649195a8dd9",
+      "module": "aware_ontology_service_dto.graph.instance.commit_event",
+      "name": "OntologyCommitEventEnvelope",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyCommitEventEnvelope",
+      "functions": []
+    },
+    {
+      "class_config_id": "996d232d-8f01-5cb3-b181-1f10be4096ce",
+      "module": "aware_ontology_service_dto.graph.instance.commit_event",
+      "name": "OntologyCommitSubscriptionRequest",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyCommitSubscriptionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "fdc1ebb4-2142-50a5-ae62-dc9fee5e49aa",
+      "module": "aware_ontology_service_dto.graph.instance.commit_event",
+      "name": "OntologyCommitSubscriptionResponse",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyCommitSubscriptionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "6a379852-b2f4-56d6-b675-b87c0d462a5a",
+      "module": "aware_ontology_service_dto.graph.instance.commit_event",
+      "name": "OntologyGraphCommitActionMetadata",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyGraphCommitActionMetadata",
+      "functions": []
+    },
+    {
+      "class_config_id": "a0e845b1-365f-58c5-987f-2bb7efa94523",
+      "module": "aware_ontology_service_dto.graph.instance.commit_event",
+      "name": "OntologyRequiredReactionReceipt",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyRequiredReactionReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "9146eaa5-55c1-54bc-a083-62ef316e9f6e",
+      "module": "aware_ontology_service_dto.graph.instance.function_call",
+      "name": "OntologyGraphGetLaneHeadRequest",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyGraphGetLaneHeadRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "32140740-1163-5a2b-804d-00bff999f6fe",
+      "module": "aware_ontology_service_dto.graph.instance.function_call",
+      "name": "OntologyGraphGetLaneHeadResponse",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyGraphGetLaneHeadResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "dd6fb862-f09c-5776-87e8-7112f41e7151",
+      "module": "aware_ontology_service_dto.graph.instance.function_call",
+      "name": "OntologyGraphGetObjectInstanceGraphCommitRequest",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyGraphGetObjectInstanceGraphCommitRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "f6366698-c827-5450-b3b7-e16756635ca8",
+      "module": "aware_ontology_service_dto.graph.instance.function_call",
+      "name": "OntologyGraphGetObjectInstanceGraphCommitResponse",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyGraphGetObjectInstanceGraphCommitResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ea48041c-aae9-53ab-9b08-61bcf26edd1d",
+      "module": "aware_ontology_service_dto.graph.instance.function_call",
+      "name": "OntologyGraphInvokeFunctionRequest",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyGraphInvokeFunctionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "bcda3a39-bdb2-5632-a252-289c7bf20cc0",
+      "module": "aware_ontology_service_dto.graph.instance.function_call",
+      "name": "OntologyGraphInvokeFunctionResponse",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyGraphInvokeFunctionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "4ca6136e-1547-5d51-8ec7-a6e53f7c9159",
+      "module": "aware_ontology_service_dto.graph.instance.function_call",
+      "name": "OntologyGraphResolveProjectionRequest",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyGraphResolveProjectionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d11e12d4-c5a2-5dfb-bb66-e1f2bf9145c2",
+      "module": "aware_ontology_service_dto.graph.instance.function_call",
+      "name": "OntologyGraphResolveProjectionResponse",
+      "aware_class_ref": "aware_ontology_service_dto.graph.instance.OntologyGraphResolveProjectionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "3be998d5-4617-5f01-a706-4fdcd9530e45",
+      "module": "aware_ontology_service_dto.persistence.readiness",
+      "name": "OntologyDatabaseArtifactReceipt",
+      "aware_class_ref": "aware_ontology_service_dto.persistence.OntologyDatabaseArtifactReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "3700457d-7555-5431-946b-86d235699e95",
+      "module": "aware_ontology_service_dto.persistence.readiness",
+      "name": "OntologyDatabaseArtifactRef",
+      "aware_class_ref": "aware_ontology_service_dto.persistence.OntologyDatabaseArtifactRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "067536f5-86c3-59df-8c38-75b780786c88",
+      "module": "aware_ontology_service_dto.persistence.readiness",
+      "name": "OntologyPersistenceEnsureReadyRequest",
+      "aware_class_ref": "aware_ontology_service_dto.persistence.OntologyPersistenceEnsureReadyRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9204db17-eaa3-5e95-a3f4-57e8bac800ef",
+      "module": "aware_ontology_service_dto.persistence.readiness",
+      "name": "OntologyPersistenceEnsureReadyResponse",
+      "aware_class_ref": "aware_ontology_service_dto.persistence.OntologyPersistenceEnsureReadyResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "0f380272-eb22-5978-8b7f-c4dcaf7d460e",
+      "module": "aware_ontology_service_dto.runtime.artifact_set",
+      "name": "OntologyMaterializedSemanticRootRef",
+      "aware_class_ref": "aware_ontology_service_dto.runtime.OntologyMaterializedSemanticRootRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "366d467a-3868-5aab-895d-03de4a3c8e1e",
+      "module": "aware_ontology_service_dto.runtime.artifact_set",
+      "name": "OntologyRuntimeArtifactRef",
+      "aware_class_ref": "aware_ontology_service_dto.runtime.OntologyRuntimeArtifactRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "b35f0650-c3b2-5dbf-b99c-f1262feaeb12",
+      "module": "aware_ontology_service_dto.runtime.artifact_set",
+      "name": "OntologyRuntimeArtifactSet",
+      "aware_class_ref": "aware_ontology_service_dto.runtime.OntologyRuntimeArtifactSet",
+      "functions": []
+    },
+    {
+      "class_config_id": "a9b93779-17a2-59a5-adc6-649a31fdbd26",
+      "module": "aware_ontology_service_dto.runtime.artifact_set",
+      "name": "OntologyRuntimeArtifactSetProvenance",
+      "aware_class_ref": "aware_ontology_service_dto.runtime.OntologyRuntimeArtifactSetProvenance",
+      "functions": []
+    },
+    {
+      "class_config_id": "0937a61c-26a0-506e-b99f-7081e1b112aa",
+      "module": "aware_ontology_service_dto.runtime.artifact_set",
+      "name": "OntologyRuntimeArtifactSetResolveRequest",
+      "aware_class_ref": "aware_ontology_service_dto.runtime.OntologyRuntimeArtifactSetResolveRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "7723a410-bf07-5aaa-bf77-5f857709dd1e",
+      "module": "aware_ontology_service_dto.runtime.artifact_set",
+      "name": "OntologyRuntimeArtifactSetResolveResponse",
+      "aware_class_ref": "aware_ontology_service_dto.runtime.OntologyRuntimeArtifactSetResolveResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ad150fe0-0d36-54bd-8e7a-d63abe433d5a",
+      "module": "aware_ontology_service_dto.runtime.artifact_set",
+      "name": "OntologyRuntimeProjectionDescriptor",
+      "aware_class_ref": "aware_ontology_service_dto.runtime.OntologyRuntimeProjectionDescriptor",
+      "functions": []
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "0e91b254-94ef-5f50-b708-3450188377c2",
+      "module": "aware_ontology_service_dto.graph.instance.function_call_target",
+      "name": "OntologyGraphFunctionCallTarget"
+    }
+  ]
+}

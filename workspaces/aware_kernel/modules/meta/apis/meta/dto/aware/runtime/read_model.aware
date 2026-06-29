@@ -1,0 +1,75 @@
+/// Runtime read-model API DTOs for Meta-owned Workspace projection/index truth.
+///
+/// These DTOs intentionally expose stable read-model facts and opaque handles
+/// only. Raw Meta runtime contexts and index snapshots stay inside Meta service
+/// and runtime implementation packages.
+
+class MetaRuntimeReadModelProjectionRef : inline_value {
+    projection_name String
+    projection_hash String?
+    object_projection_graph_id UUID?
+    object_projection_graph_identity_id UUID?
+}
+
+class MetaRuntimeReadModelGraphRef : inline_value {
+    graph_id UUID
+    graph_role String
+    package_name String?
+    fqn_prefix String?
+}
+
+class MetaRuntimeReadModelPackageTiming : inline_value {
+    package_name String
+    manifest_path String
+    cache_status String
+    cache_miss_reason String?
+    phase_timings_s JsonObject?
+}
+
+class MetaWorkspaceCommitTruthSummary : inline_value {
+    summary_source String?
+    revision_count Int = 0
+    compilation_count Int = 0
+    materialization_count Int = 0
+    build_count Int = 0
+    latest_revision JsonObject?
+    latest_compilation JsonObject?
+    latest_materialization JsonObject?
+    latest_successful_materialization JsonObject?
+    latest_build JsonObject?
+    latest_successful_build JsonObject?
+}
+
+class MetaRuntimeReadModelRequest {
+    actor_id UUID?
+    workspace_root String?
+    repo_root String?
+    aware_root String?
+    required_projection_names String[] = []
+    force_refresh Bool = false
+    include_timings Bool = true
+    include_package_timings Bool = true
+    include_workspace_commit_truth Bool = false
+}
+
+class MetaRuntimeReadModelResponse {
+    status String
+    actor_id UUID?
+    read_model_version String?
+    workspace_root String?
+    repo_root String?
+    aware_root String?
+    required_projection_names String[] = []
+    projections runtime.MetaRuntimeReadModelProjectionRef[] = []
+    runtime_graphs runtime.MetaRuntimeReadModelGraphRef[] = []
+    source_graphs runtime.MetaRuntimeReadModelGraphRef[] = []
+    cache_status String?
+    provider_duration_s Float?
+    phase_timings_s JsonObject?
+    package_timings runtime.MetaRuntimeReadModelPackageTiming[] = []
+    workspace_commit_truth runtime.MetaWorkspaceCommitTruthSummary?
+    read_model_handle String?
+    handle_expires_at_unix_ms Int?
+    diagnostics String[] = []
+    error String?
+}

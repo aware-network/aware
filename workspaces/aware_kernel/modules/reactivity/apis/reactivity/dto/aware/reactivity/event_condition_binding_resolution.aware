@@ -1,0 +1,15 @@
+/// Canonical DTO for condition-binding resolution used by receipt evaluators.
+///
+/// Ownership:
+/// - Reactivity API owns cross-module binding contracts.
+/// - Runtime and node rails consume this DTO as the typed boundary.
+
+class EventConditionBindingResolution {
+    id UUID
+    event_config_id UUID
+    condition_config_id UUID
+    is_enabled Bool
+    continue_on_fail Bool
+    is_required Bool
+    action_bindings EventActionBinding[]
+}

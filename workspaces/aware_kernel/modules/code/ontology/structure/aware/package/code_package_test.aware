@@ -1,0 +1,61 @@
+/// Package-level inventory object for one Code test surface.
+///
+/// Contract:
+/// - CodePackageTest is a first-class object, not an association edge.
+/// - `code_test` is the direct target to Code-owned test identity.
+/// - Runs live only under this package-owned test surface.
+class CodePackageTest {
+    // Relationships
+    code_test aware_code.code.CodeTest key
+    runs CodePackageTestRun[]
+
+    // Attributes
+    relative_path String key
+
+    fn build construct(
+        code_test_id UUID key,
+        relative_path String key
+    ) -> CodePackageTest {
+        """
+        Attach an existing CodeTest under this CodePackage inventory.
+        """
+    }
+
+    fn create_run(
+        run_key String key,
+        backend_kind String,
+        status aware_code.code.CodeTestRunStatus,
+        started_at_utc DateTime? = null,
+        finished_at_utc DateTime? = null,
+        duration_s Float? = null,
+        selected_unit_count Int = 0,
+        total_tests Int = 0,
+        passed_tests Int = 0,
+        failed_tests Int = 0,
+        skipped_tests Int = 0,
+        unsupported_tests Int = 0,
+        error String? = null
+    ) -> CodePackageTestRun {
+        """
+        Create one canonical run envelope for this package-owned CodeTest.
+        """
+        let created = construct runs.build(
+            run_key = run_key,
+            backend_kind = backend_kind,
+            status = status,
+            started_at_utc = started_at_utc,
+            finished_at_utc = finished_at_utc,
+            duration_s = duration_s,
+            selected_unit_count = selected_unit_count,
+            total_tests = total_tests,
+            passed_tests = passed_tests,
+            failed_tests = failed_tests,
+            skipped_tests = skipped_tests,
+            unsupported_tests = unsupported_tests,
+            error = error,
+        )
+    }
+}
+
+ann package.CodePackageTest::code_test load eager
+ann package.CodePackageTest::runs load eager

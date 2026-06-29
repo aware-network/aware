@@ -1,0 +1,26 @@
+aware_sdk = 1
+
+[sdk]
+package_name = "reactivity-sdk"
+fqn_prefix = "aware_reactivity_sdk"
+version_number = 1
+title = "Reactivity SDK"
+description = "Canonical Reactivity SDK operations over the Reactivity service API."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+force_fresh_scan = false
+compilation_mode = "sdk_ontology"
+
+[targets.python]
+root_dir = "python"
+
+[targets.python.public_package]
+package_dir = "aware_reactivity_sdk"
+
+[[dependencies]]
+kind = "api_package"
+package_name = "reactivity-service-api"
+version_number = 1

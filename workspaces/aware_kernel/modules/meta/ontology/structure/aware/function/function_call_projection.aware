@@ -1,0 +1,35 @@
+/// FunctionCall projection
+///
+/// Purpose:
+/// - Expose Meta-owned function-call execution truth as the clean consumer portal.
+/// - Rooted at FunctionCall, with terminal response and produced OIG commits.
+/// - Identity ActorFunctionCall should portal here, not to Environment or a
+///   generic operation wrapper.
+projection FunctionCall {
+    root function.FunctionCall
+
+    function.FunctionCall::function_config ObjectConfigGraph
+    function.FunctionCall::target_class_instance_identity ObjectInstanceGraphIdentity
+    function.FunctionCall::base_commit
+    function.FunctionCall::attributes
+    function.FunctionCallArgument::attribute
+    attribute.Attribute::attribute_config ObjectConfigGraph
+    attribute.Attribute::value_root
+    attribute.AttributeValue::type_descriptor ObjectConfigGraph
+    attribute.AttributeValue::child_links
+    attribute.AttributeValueLink::child
+    attribute.AttributeValue::inline_value_instance
+
+    function.FunctionCall::function_call_response
+    function.FunctionCallResponse::root_class_instance_identity ObjectInstanceGraphIdentity
+    function.FunctionCallResponse::attributes
+    function.FunctionCallResponseAttribute::attribute
+    function.FunctionCallResponse::commits
+    function.FunctionCallResponseCommit::object_instance_graph_commit ObjectInstanceGraphIdentity
+
+    observable function_call {
+        """
+        Meta-owned function-call execution history with response and commit results.
+        """
+    }
+}

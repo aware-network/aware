@@ -22,6 +22,14 @@ class _UuidOwner(ORMModel):
     values: list[UUID] = Field(default_factory=list)
 
 
+class _Child(ORMModel):
+    label: str = ""
+
+
+class _ChildOwner(ORMModel):
+    children: list[_Child] = Field(default_factory=list)
+
+
 def test_disable_tracked_list_wrapping_context_skips_wrapping() -> None:
     with disable_tracked_list_wrapping():
         owner = _Owner(values=[1, 2, 3])
@@ -141,6 +149,50 @@ def test_tracked_list_uuid_append_records_deltas_without_snapshot(monkeypatch) -
 
     key = (owner.id, "values")
     assert change_set.list_added.get(key) == {u1}
+
+
+def test_tracked_list_add_operations_record_new_orm_children_as_creates() -> None:
+    owner = _ChildOwner()
+    owner.mark_persisted()
+    existing = _Child(label="existing")
+    existing.mark_persisted()
+    owner.children.append(existing)
+
+    appended = _Child(label="appended")
+    extended = _Child(label="extended")
+    inserted = _Child(label="inserted")
+    replaced = _Child(label="replaced")
+
+    with scoped_change_collection() as collector:
+        owner.children.append(appended)
+        owner.children.extend([extended])
+        owner.children.insert(0, inserted)
+        owner.children[1] = replaced
+        change_set = collector.snapshot()
+
+    key = (owner.id, "children")
+    created_ids = {appended.id, extended.id, inserted.id, replaced.id}
+    assert created_ids <= set(change_set.created_ids)
+    assert change_set.list_added.get(key) == created_ids
+    assert change_set.list_removed.get(key) == {existing.id}
+    for child in (appended, extended, inserted, replaced):
+        assert change_set.objects_by_id[child.id] is child
+
+
+def test_tracked_list_persisted_orm_child_append_records_reference_only() -> None:
+    owner = _ChildOwner()
+    owner.mark_persisted()
+    child = _Child(label="persisted")
+    child.mark_persisted()
+
+    with scoped_change_collection() as collector:
+        owner.children.append(child)
+        change_set = collector.snapshot()
+
+    key = (owner.id, "children")
+    assert child.id not in change_set.created_ids
+    assert change_set.objects_by_id[child.id] is child
+    assert change_set.list_added.get(key) == {child.id}
 
 
 def test_tracked_list_iadd_records_deltas_without_snapshot(monkeypatch) -> None:

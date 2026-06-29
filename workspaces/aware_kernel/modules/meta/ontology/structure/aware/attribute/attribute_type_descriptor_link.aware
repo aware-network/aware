@@ -1,0 +1,25 @@
+class AttributeTypeDescriptorLink {
+    // Relationships
+    child AttributeTypeDescriptor key
+
+    // Attributes
+    role AttributeTypeDescriptorRole key
+    position Int key = 0
+
+    fn build construct(
+        child_id UUID key,
+        role AttributeTypeDescriptorRole key,
+        position Int key = 0
+    ) -> AttributeTypeDescriptorLink {
+        """
+        Create deterministic descriptor child link under one AttributeTypeDescriptor.
+
+        Contract:
+        - Parent `attribute_type_descriptor_id` is propagated by constructor lowering.
+        - Identity resolves from `(attribute_type_descriptor_id via path, child_id, role, position)`.
+        """
+    }
+}
+
+/// Load child eagerly
+ann attribute.AttributeTypeDescriptorLink::child load eager

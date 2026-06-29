@@ -1,0 +1,29 @@
+class ApiCapability {
+    // Relationships
+    api_capability_endpoints ApiCapabilityEndpoint[]
+
+    // Attributes
+    name String key
+    description String?
+
+    fn create construct (name String key, description String? = null) -> ApiCapability {
+        """
+        Create one named reusable API capability contract under Api.
+        """
+    }
+
+    fn create_endpoint (
+        name String,
+        request_class_config_id UUID,
+        description String? = null
+    ) -> ApiCapabilityEndpoint {
+        """
+        Create one external/public endpoint rail under this ApiCapability.
+        """
+        let created = construct api_capability_endpoints.create(
+            name = name,
+            request_class_config_id = request_class_config_id,
+            description = description,
+        )
+    }
+}

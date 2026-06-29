@@ -1,0 +1,18 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_reactivity_service_dto.reactivity.action_execution",
+    "aware_reactivity_service_dto.reactivity.action_feedback",
+    "aware_reactivity_service_dto.reactivity.action_feedback_enums",
+    "aware_reactivity_service_dto.reactivity.action_intent",
+    "aware_reactivity_service_dto.reactivity.action_request",
+    "aware_reactivity_service_dto.reactivity.action_terminal",
+    "aware_reactivity_service_dto.reactivity.bridge_event",
+    "aware_reactivity_service_dto.reactivity.event_action_binding",
+    "aware_reactivity_service_dto.reactivity.event_condition_binding_resolution",
+    "aware_reactivity_service_dto.reactivity.policy_bundle",
+    "aware_reactivity_service_dto.reactivity.service_operation"
+  ],
+  "package_prefix": "aware_reactivity_service_dto",
+  "version": "v1"
+}

@@ -1,0 +1,86 @@
+api reactivity {
+    capability status {
+        endpoint get_status aware_reactivity_service_dto.reactivity.ReactivityServiceStatusRequest {
+            """
+            Read Reactivity service runtime status without graph-store access.
+            """
+
+            response aware_reactivity_service_dto.reactivity.ReactivityServiceStatusResponse
+        }
+    }
+
+    capability event {
+        endpoint subscribe_events aware_reactivity_service_dto.reactivity.ReactivityEventSubscriptionRequest {
+            """
+            Subscribe to Reactivity-owned semantic bridge events.
+            """
+
+            response aware_reactivity_service_dto.reactivity.ReactivityEventSubscriptionResponse
+
+            stream server {
+                """
+                Reactivity events emitted after Meta/environment fanout input is evaluated.
+                """
+
+                event delta aware_reactivity_service_dto.reactivity.ActorReactivityBridgeEvent;
+            }
+        }
+    }
+
+    capability action {
+        endpoint resolve_intents aware_reactivity_service_dto.reactivity.ReactivityActionIntentResolveRequest {
+            """
+            Resolve actor-subscription-backed action intents for one matched
+            Reactivity policy event without fulfilling the actions.
+            """
+
+            response aware_reactivity_service_dto.reactivity.ReactivityActionIntentResolveResponse
+        }
+
+        endpoint publish_lifecycle aware_reactivity_service_dto.reactivity.ReactivityActionLifecyclePublishRequest {
+            """
+            Publish ontology-backed action lifecycle evidence from an action
+            service back to Reactivity without making Reactivity the executor.
+            """
+
+            response aware_reactivity_service_dto.reactivity.ReactivityActionLifecyclePublishResponse
+        }
+
+        endpoint subscribe_lifecycle aware_reactivity_service_dto.reactivity.ReactivityActionLifecycleSubscriptionRequest {
+            """
+            Subscribe to Reactivity-owned action execution lifecycle events.
+            """
+
+            response aware_reactivity_service_dto.reactivity.ReactivityActionLifecycleSubscriptionResponse
+
+            stream server {
+                """
+                Action lifecycle events emitted by the Reactivity dispatch authority.
+                """
+
+                event notice aware_reactivity_service_dto.reactivity.ReactivityActionIntent;
+                event snapshot aware_reactivity_service_dto.reactivity.ActionExecution;
+                event delta aware_reactivity_service_dto.reactivity.ActionFeedback;
+                event complete aware_reactivity_service_dto.reactivity.ActionTerminal;
+            }
+        }
+    }
+
+    capability policy {
+        endpoint ensure_bundle aware_reactivity_service_dto.reactivity.ReactivityPolicyBundleEnsureRequest {
+            """
+            Register or verify a deterministic Reactivity policy bundle.
+            """
+
+            response aware_reactivity_service_dto.reactivity.ReactivityPolicyBundleEnsureResponse
+        }
+
+        endpoint list_bundles aware_reactivity_service_dto.reactivity.ReactivityPolicyBundleListRequest {
+            """
+            List Reactivity policy bundles known to this service instance.
+            """
+
+            response aware_reactivity_service_dto.reactivity.ReactivityPolicyBundleListResponse
+        }
+    }
+}

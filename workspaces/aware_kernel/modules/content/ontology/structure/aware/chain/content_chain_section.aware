@@ -1,0 +1,18 @@
+class ContentChainSection {
+    // Relationships
+    newest_content_chain_content ContentChainContent?
+    oldest_content_chain_content ContentChainContent?
+
+    // Attributes
+    key String key = "default"
+
+    fn build construct(
+        key String key = "default",
+    ) -> ContentChainSection {
+        """
+        Creates a content-chain section cursor.
+        """
+        construct ContentChainSection(key = key)
+    }
+
+}
