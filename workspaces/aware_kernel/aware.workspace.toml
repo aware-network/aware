@@ -4,6 +4,8 @@ aware = 1
 handle = "aware_kernel"
 title = "Aware Kernel"
 
+# Public kernel checkout descriptor. The checkout root is
+# `workspaces/aware_kernel`, so package paths are workspace-relative.
 environments = []
 
 codes = [
@@ -21,25 +23,74 @@ codes = [
     "libs/utils/python/pyproject.toml",
     "libs/orm/pyproject.toml",
 ]
-
-ontologies = []
-
 apis = []
-
 services = []
-
 experiences = []
-
-interfaces = []
-
-attentions = []
-
-panes = []
-
 nodes = []
-
 sdks = []
-
+interfaces = []
+attentions = []
+panes = []
 economies = []
-
 inferences = []
+
+# The selected-kernel WorkspaceRevision closes at Ontology plus Reactivity's
+# kernel event/reaction substrate, raw kernel code capabilities, API client
+# boundary packages, and public SDK facades. Service, transport, interface,
+# node, and experience capabilities belong to workspace-scoped module manifests
+# in above-kernel workspaces for the same shared module identities.
+[[workspace.modules]]
+id = "storage"
+path = "modules/storage"
+
+# Next selected-kernel module after Storage. Content depends on
+# `storage-ontology` and is enabled only after source/native coverage
+# hardening passed.
+[[workspace.modules]]
+id = "content"
+path = "modules/content"
+
+# Next selected-kernel revisions, disabled until their proof gates land:
+[[workspace.modules]]
+id = "code"
+path = "modules/code"
+
+# Kernel support module with raw filesystem code capability only.
+[[workspace.modules]]
+id = "filesystem"
+path = "modules/filesystem"
+
+[[workspace.modules]]
+id = "api"
+path = "modules/api"
+
+[[workspace.modules]]
+id = "sdk"
+path = "modules/sdk"
+
+# Next selected-kernel module after Code. History depends on `code-ontology`
+# and is enabled only after selected Code materialization/projection parity
+# landed on the workspace-local rail.
+[[workspace.modules]]
+id = "history"
+path = "modules/history"
+
+# Next selected-kernel module after History. Meta depends on Code, Content,
+# and History and is enabled only on the workspace-local rail; root Meta
+# runtime/provider migration remains a separate boundary.
+[[workspace.modules]]
+id = "meta"
+path = "modules/meta"
+
+# Next selected-kernel module after Meta. Ontology depends on selected Meta and
+# Code and is enabled only on the workspace-local rail.
+[[workspace.modules]]
+id = "ontology"
+path = "modules/ontology"
+
+# Kernel event/reaction substrate over GraphOS commits. Product identity,
+# attention, service, and environment consumers live above this in
+# `aware_network`.
+[[workspace.modules]]
+id = "reactivity"
+path = "modules/reactivity"

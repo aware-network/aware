@@ -8,11 +8,45 @@ import pytest
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_history_ontology.commit.commit import Commit
 from aware_history_ontology.commit.commit_enums import CommitStatus
-from aware_meta.graph.instance.commit.fs_store import FSCommitStore
+from aware_meta.graph.instance.commit.fs_store import FSCommitStore, FSSnapshotStore
 from aware_meta_ontology.graph.instance.object_instance_graph_commit import (
     ObjectInstanceGraphCommit,
 )
 from aware_meta_ontology.stable_ids import stable_object_instance_graph_commit_id
+
+
+def test_commit_store_requires_explicit_root_or_aware_root_env(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("AWARE_ROOT", raising=False)
+
+    with pytest.raises(
+        RuntimeError,
+        match="FSCommitStore requires explicit root_dir or AWARE_ROOT",
+    ):
+        FSCommitStore()
+
+
+def test_snapshot_store_requires_explicit_root_or_aware_root_env(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("AWARE_ROOT", raising=False)
+
+    with pytest.raises(
+        RuntimeError,
+        match="FSCommitStore requires explicit root_dir or AWARE_ROOT",
+    ):
+        FSSnapshotStore()
+
+
+def test_commit_store_uses_aware_root_env(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("AWARE_ROOT", str(tmp_path))
+
+    assert FSCommitStore().aware_root == tmp_path.resolve()
+    assert FSSnapshotStore().aware_root == tmp_path.resolve()
 
 
 @pytest.mark.asyncio

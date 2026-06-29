@@ -4,6 +4,8 @@ from pathlib import Path
 
 from aware_api_runtime.manifest.loader import load_aware_api_toml_spec
 from aware_api_runtime.semantic_contract import (
+    AWARE_API_SEMANTIC_CONTRACT,
+    API_CAPABILITY_PARTICIPATION,
     API_MANIFEST_RESOLUTION,
     API_MATERIALIZATION_INPUTS,
     API_MATERIALIZATION_REQUIRED_PROJECTIONS,
@@ -11,6 +13,21 @@ from aware_api_runtime.semantic_contract import (
     API_MATERIALIZATION_RUNTIME_CONTEXT,
     API_MATERIALIZATION_RUNTIME_ONTOLOGY_PACKAGE_NAMES,
     API_PROVIDER_OWNER,
+    API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_METADATA,
+    API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_PARTICIPATION,
+    API_SEMANTIC_WORKFLOWS,
+)
+from aware_api_runtime.semantic_function_refs import (
+    API_CAPABILITY_CREATE_ENDPOINT_FUNCTION_REF,
+    API_CAPABILITY_ENDPOINT_CREATE_OPERATION,
+    API_CAPABILITY_CREATE_OPERATION,
+    API_CREATE_FUNCTION_REF,
+    API_CREATE_OPERATION,
+    API_SEMANTIC_FUNCTION_CALL_BINDING_REFS,
+    API_SEMANTIC_FUNCTION_REFS,
+    API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY,
+    API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CONTRACT_VERSION,
+    API_SEMANTIC_OPERATION_TYPES,
 )
 from aware_api_runtime.semantic_package import api_semantic_package_metadata
 from aware_code.module_plugin_registry import AwareModulePluginRegistry
@@ -47,6 +64,73 @@ def test_api_declares_compile_plan_materialization_input() -> None:
     assert descriptor.runtime_contract_version == "aware.api.compile_plan.v1"
 
 
+def test_api_declares_meta_side_semantic_operation_contract() -> None:
+    contract = AWARE_API_SEMANTIC_CONTRACT
+
+    assert contract.capability_participation == API_CAPABILITY_PARTICIPATION
+    operation_resolution = (
+        API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_PARTICIPATION[0]
+    )
+    assert operation_resolution.capability == (
+        API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY
+    )
+    assert operation_resolution.semantic_owner == API_PROVIDER_OWNER
+    assert operation_resolution.metadata == (
+        API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_METADATA
+    )
+    assert operation_resolution.metadata["contract_version"] == (
+        API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CONTRACT_VERSION
+    )
+    assert operation_resolution.metadata["callable_module"] == (
+        "aware_api_runtime.semantic_functions.resolution"
+    )
+    assert operation_resolution.metadata["callable_name"] == (
+        "resolve_api_semantic_function_call_plan_previews"
+    )
+    assert operation_resolution.metadata["supported_semantic_operation_types"] == (
+        API_SEMANTIC_OPERATION_TYPES
+    )
+    assert operation_resolution.metadata["semantic_operation_type_refs"] == (
+        API_SEMANTIC_OPERATION_TYPES
+    )
+    assert {
+        API_CREATE_OPERATION,
+        API_CAPABILITY_CREATE_OPERATION,
+        API_CAPABILITY_ENDPOINT_CREATE_OPERATION,
+    }.issubset(set(operation_resolution.metadata["semantic_operation_type_refs"]))
+    assert operation_resolution.metadata["function_call_binding_refs"] == (
+        API_SEMANTIC_FUNCTION_CALL_BINDING_REFS
+    )
+    assert operation_resolution.metadata["ontology_function_refs"] == tuple(
+        sorted(API_SEMANTIC_FUNCTION_REFS)
+    )
+    assert {
+        API_CREATE_FUNCTION_REF,
+        API_CAPABILITY_CREATE_ENDPOINT_FUNCTION_REF,
+    }.issubset(set(operation_resolution.metadata["ontology_function_refs"]))
+    assert operation_resolution.metadata["semantic_apply_boundary"] == (
+        "ontology_function_call"
+    )
+    assert operation_resolution.metadata["mutates"] is False
+    assert operation_resolution.metadata["execution_status"] == "not_requested"
+    workflow = API_SEMANTIC_WORKFLOWS[0]
+    assert API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY in (
+        workflow.capability_refs
+    )
+    assert "api.semantic_function_call.plan_preview" in workflow.expected_proof_refs
+    assert "api.semantic_operation_function_call_resolution" in (
+        workflow.expected_receipt_refs
+    )
+    assert workflow.grammar_profile_refs == (
+        "workspace.code.grammar_profile.semantic_contracts",
+    )
+    assert workflow.source_meaning_refs == ("aware_api.semantic_source_meaning",)
+    assert not any(
+        str(ref).startswith("aware_meta.")
+        for ref in operation_resolution.metadata["semantic_operation_type_refs"]
+    )
+
+
 def test_api_compile_plan_input_resolves_through_registry() -> None:
     _bootstrap_api_module_plugin()
     descriptors = (
@@ -62,6 +146,24 @@ def test_api_compile_plan_input_resolves_through_registry() -> None:
     )
 
     assert descriptors == API_MATERIALIZATION_INPUTS
+
+
+def test_api_meta_mutation_contract_resolves_through_registry() -> None:
+    _bootstrap_api_module_plugin()
+    contract = AwareModulePluginRegistry.module_semantic_contract_for_provider_key(
+        "aware_api"
+    )
+
+    assert contract is not None
+    assert (
+        API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_PARTICIPATION[0]
+        in contract.capability_participation
+    )
+    provider_role = contract.package_role_for(role=API_PROVIDER_OWNER)
+    assert provider_role is not None
+    assert API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY in (
+        provider_role.capabilities
+    )
 
 
 def test_api_materialization_runtime_uses_ontology_package_names() -> None:

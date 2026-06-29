@@ -45,6 +45,10 @@ def test_ontology_semantic_contract_declares_package_roles_and_runtime(
         META_LANGUAGE_MATERIALIZATION_PACKAGE_OUTPUT_KEY,
         META_LANGUAGE_MATERIALIZATION_PRODUCER_KEY,
         META_MATERIALIZATION_REQUIRED_PROJECTIONS,
+        META_OBJECT_CONFIG_GRAPH_SEMANTIC_OPERATION_TYPES,
+        META_OBJECT_CONFIG_GRAPH_SUPPORTED_FUNCTION_CALL_OPERATION_TYPES,
+        META_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_METADATA,
+        META_SEMANTIC_PROJECTION_MUTATION_SCOPE_PAYLOADS,
     )
     from aware_ontology.semantic_contract import (
         AWARE_ONTOLOGY_SEMANTIC_CONTRACT,
@@ -76,9 +80,18 @@ def test_ontology_semantic_contract_declares_package_roles_and_runtime(
         ONTOLOGY_RUNTIME_ARTIFACT_SET_REQUIRED_FOR,
     )
     from aware_meta.semantic_operation_resolution import (
+        META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_CREATE_OPERATION,
         META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_TYPE_UPDATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_CLASS_CREATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_ENUM_CREATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_FUNCTION_SIGNATURE_UPDATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_RELATIONSHIP_CREATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_RELATIONSHIP_LOAD_POLICY_UPDATE_OPERATION,
         META_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY,
         META_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CONTRACT_VERSION,
+    )
+    from aware_meta.semantic_projection_mutation_scope import (
+        META_SEMANTIC_PROJECTION_MUTATION_SCOPES_METADATA_KEY,
     )
 
     contract = AWARE_ONTOLOGY_SEMANTIC_CONTRACT
@@ -261,8 +274,58 @@ def test_ontology_semantic_contract_declares_package_roles_and_runtime(
         "resolve_meta_semantic_operation_function_call_plan_previews"
     )
     assert operation_resolution.metadata["supported_semantic_operation_types"] == (
-        META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_TYPE_UPDATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_SUPPORTED_FUNCTION_CALL_OPERATION_TYPES
     )
+    assert operation_resolution.metadata["semantic_operation_type_refs"] == (
+        META_OBJECT_CONFIG_GRAPH_SEMANTIC_OPERATION_TYPES
+    )
+    assert operation_resolution.metadata[
+        META_SEMANTIC_PROJECTION_MUTATION_SCOPES_METADATA_KEY
+    ] == (META_SEMANTIC_PROJECTION_MUTATION_SCOPE_PAYLOADS)
+    projection_scopes = operation_resolution.metadata[
+        META_SEMANTIC_PROJECTION_MUTATION_SCOPES_METADATA_KEY
+    ]
+    assert isinstance(projection_scopes, tuple)
+    projection_scope = projection_scopes[0]
+    assert isinstance(projection_scope, dict)
+    assert projection_scope["projection_name"] == "ObjectConfigGraphPackage"
+    assert "ObjectConfigGraph" in projection_scope["projection_refs"]
+    assert "ObjectProjectionGraph" in projection_scope["projection_refs"]
+    assert "ObjectInstanceGraph" in projection_scope["object_graph_refs"]
+    assert projection_scope["package_selectors"] == {
+        "manifest_kind": "aware_toml",
+        "package_kind": "ontology",
+        "semantic_kind": "object_config_graph_package",
+    }
+    assert (
+        operation_resolution.metadata["supported_semantic_operation_types"]
+        == META_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_METADATA[
+            "supported_semantic_operation_types"
+        ]
+    )
+    assert (
+        operation_resolution.metadata["semantic_operation_type_refs"]
+        == META_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_METADATA[
+            "semantic_operation_type_refs"
+        ]
+    )
+    supported_operation_types = set(
+        operation_resolution.metadata["supported_semantic_operation_types"]
+    )
+    assert {
+        META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_TYPE_UPDATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_CLASS_CREATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_ENUM_CREATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_FUNCTION_SIGNATURE_UPDATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_RELATIONSHIP_LOAD_POLICY_UPDATE_OPERATION,
+    }.issubset(supported_operation_types)
+    semantic_operation_refs = set(
+        operation_resolution.metadata["semantic_operation_type_refs"]
+    )
+    assert {
+        META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_CREATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_RELATIONSHIP_CREATE_OPERATION,
+    }.issubset(semantic_operation_refs)
     assert operation_resolution.metadata["bridge_provider_key"] == "aware_meta"
     assert (
         operation_resolution.metadata["bridge_semantic_owner"]

@@ -31,6 +31,13 @@ from aware_code.semantic_package.schemas import (
     CapabilityParticipationDescriptor,
     CapabilityProfileDescriptor,
 )
+from aware_api_runtime.semantic_function_refs import (
+    API_SEMANTIC_FUNCTION_CALL_BINDING_REFS,
+    API_SEMANTIC_FUNCTION_REFS,
+    API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY,
+    API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CONTRACT_VERSION,
+    API_SEMANTIC_OPERATION_TYPES,
+)
 
 
 API_PROVIDER_OWNER = "aware_api.provider"
@@ -103,6 +110,36 @@ API_MATERIALIZATION_CAPABILITY_PARTICIPATION = tuple(
     for semantic_owner in API_MATERIALIZATION_OWNER_SEQUENCE
 )
 
+API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_METADATA: dict[
+    str,
+    object,
+] = {
+    "contract_version": (
+        API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CONTRACT_VERSION
+    ),
+    "callable_module": "aware_api_runtime.semantic_functions.resolution",
+    "callable_name": "resolve_api_semantic_function_call_plan_previews",
+    "supported_semantic_operation_types": API_SEMANTIC_OPERATION_TYPES,
+    "semantic_operation_type_refs": API_SEMANTIC_OPERATION_TYPES,
+    "function_call_binding_refs": API_SEMANTIC_FUNCTION_CALL_BINDING_REFS,
+    "ontology_function_refs": tuple(sorted(API_SEMANTIC_FUNCTION_REFS)),
+    "semantic_apply_boundary": "ontology_function_call",
+    "mutates": False,
+    "execution_status": "not_requested",
+    "provider_contract": (
+        "API owns API-domain semantic operation vocabulary and FunctionCall "
+        "bindings. Code owns source/grammar evidence; Meta owns the ontology "
+        "FunctionCall execution boundary consumed by Workspace."
+    ),
+}
+API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_PARTICIPATION = (
+    CapabilityParticipationDescriptor(
+        capability=API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY,
+        semantic_owner=API_PROVIDER_OWNER,
+        metadata=(API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_METADATA),
+    ),
+)
+
 API_DIAGNOSTICS_CAPABILITY_PARTICIPATION = tuple(
     CapabilityParticipationDescriptor(
         capability="diagnostics",
@@ -122,6 +159,7 @@ API_SEMANTIC_TOKENS_CAPABILITY_PARTICIPATION = tuple(
 API_CAPABILITY_PARTICIPATION = (
     *API_SEMANTIC_ANALYSIS_CAPABILITY_PARTICIPATION,
     *API_MATERIALIZATION_CAPABILITY_PARTICIPATION,
+    *API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_PARTICIPATION,
     *API_DIAGNOSTICS_CAPABILITY_PARTICIPATION,
     *API_SEMANTIC_TOKENS_CAPABILITY_PARTICIPATION,
 )
@@ -370,6 +408,7 @@ API_PACKAGE_ROLES = (
             SEMANTIC_ANALYSIS_CAPABILITY,
             "diagnostics",
             "semantic_tokens",
+            API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY,
             SEMANTIC_MATERIALIZATION_CAPABILITY,
         ),
         owns_manifest_kinds=("aware_api_toml",),
@@ -557,6 +596,7 @@ API_SEMANTIC_WORKFLOWS = (
         capability_refs=(
             SEMANTIC_ANALYSIS_CAPABILITY,
             SEMANTIC_MATERIALIZATION_CAPABILITY,
+            API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY,
             "diagnostics",
             "semantic_tokens",
         ),
@@ -582,11 +622,13 @@ API_SEMANTIC_WORKFLOWS = (
         ),
         expected_proof_refs=(
             "api_service_protocol.hash",
+            "api.semantic_function_call.plan_preview",
             "workspace.semantic_materialization.receipt",
         ),
         expected_receipt_refs=(
             "workspace.semantic_materialization",
             "code.semantic_contract.describe",
+            "api.semantic_operation_function_call_resolution",
         ),
         diagnostic_refs=(
             "code.grammar_profile.resolve",
@@ -653,6 +695,8 @@ __all__ = [
     "API_SEMANTIC_ANALYSIS_CAPABILITY_EXECUTION_POLICY",
     "API_SEMANTIC_ANALYSIS_CAPABILITY_PROFILES",
     "API_SEMANTIC_ANALYSIS_OWNER_SEQUENCE",
+    "API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_METADATA",
+    "API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_PARTICIPATION",
     "API_SEMANTIC_TOKENS_CAPABILITY_PARTICIPATION",
     "API_SEMANTIC_TOKENS_CAPABILITY_EXECUTION_POLICY",
     "API_SEMANTIC_TOKENS_CAPABILITY_PROFILES",
