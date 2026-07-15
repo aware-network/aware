@@ -1,0 +1,80 @@
+/// Identity-backed Attention session over graph/layout focus state.
+///
+/// Contract:
+/// - AttentionSession is the lowest shared Attention primitive over Graph OS.
+/// - It bridges to Identity Session for actor participation.
+/// - It owns layout/section/focus transition state without importing higher
+///   application layers, DTO/API, service, or SDK surfaces.
+class AttentionSession {
+    // Relationships
+    identity_session aware_identity.session.Session key
+    layouts AttentionSessionLayout[]
+    active_layout AttentionSessionLayout?
+
+    // Metadata
+    key String?
+    title String?
+    description String?
+    purpose String?
+    status String = "active"
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject? = {}
+
+    fn build construct (
+        identity_session_id UUID key,
+        key String? = null,
+        title String? = null,
+        description String? = null,
+        purpose String? = null,
+        status String = "active",
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> AttentionSession {
+        """
+        Construct one AttentionSession over an Identity Session.
+
+        Contract:
+        - Stable identity is the linked Identity Session.
+        - Identity owns actor membership/role/provider participation.
+        - Attention owns layout/section/focus transition state only.
+        """
+    }
+
+    fn mount_layout (
+        layout_id UUID key,
+        layout_config_id UUID? = null,
+        key String? = null,
+        order Int = 0,
+        is_active Bool = true
+    ) -> AttentionSessionLayout {
+        """
+        Mount one Attention Layout into this AttentionSession.
+
+        Contract:
+        - Parent AttentionSession scope is injected by propagation.
+        - Layout topology remains Attention-owned.
+        - This is session-local layout state.
+        """
+        let mounted = construct layouts.create(
+            layout_id = layout_id,
+            layout_config_id = layout_config_id,
+            key = key,
+            order = order,
+            is_active = is_active,
+        )
+    }
+
+    fn set_active_layout (
+        attention_session_layout_id UUID
+    ) -> AttentionSessionLayout {
+        """
+        Select the active session-local layout.
+        """
+    }
+}
+
+ann session.AttentionSession::identity_session load eager
+ann session.AttentionSession::layouts load eager
+ann session.AttentionSession::active_layout load eager

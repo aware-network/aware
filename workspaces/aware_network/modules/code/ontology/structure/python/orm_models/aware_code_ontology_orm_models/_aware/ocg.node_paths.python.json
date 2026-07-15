@@ -1,0 +1,473 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "a0a71497-5e42-5dfe-bf9d-167bd0b35704",
+      "node_type": "class",
+      "entity_id": "a372216f-2df0-546f-9a52-2185d7d7953e",
+      "relative_path": "annotation/code_section_annotation.py"
+    },
+    {
+      "node_id": "357ee030-4f18-50ab-80fd-5d10e2f14e9f",
+      "node_type": "class",
+      "entity_id": "8185614d-1e5f-50b5-bfd8-9adff184bd56",
+      "relative_path": "attribute/code_section_attribute.py"
+    },
+    {
+      "node_id": "cfb3e5f2-84a6-51b6-a55f-5dfa2e76a577",
+      "node_type": "class",
+      "entity_id": "499bb348-e06d-543d-b99b-b35a670eafdc",
+      "relative_path": "binding/code_section_binding.py"
+    },
+    {
+      "node_id": "7feca82d-6c2e-5e82-b0a2-39e277260177",
+      "node_type": "class",
+      "entity_id": "40210d15-5a8c-55c8-8538-e2b0abaea17c",
+      "relative_path": "binding/code_section_binding_map.py"
+    },
+    {
+      "node_id": "4ecae0ea-ff76-5637-86a1-d45dcf747d2e",
+      "node_type": "class",
+      "entity_id": "ada356a8-38a4-568d-8993-1906c58f2ada",
+      "relative_path": "class_/code_section_class.py"
+    },
+    {
+      "node_id": "a16fc010-9f83-54a1-a626-da772e3838d9",
+      "node_type": "class",
+      "entity_id": "38ca7c1c-cc9b-5085-a8e3-e6628790e824",
+      "relative_path": "class_/code_section_class_attribute.py"
+    },
+    {
+      "node_id": "aac8361f-61cb-5734-9940-cd9790fa3b0b",
+      "node_type": "class",
+      "entity_id": "cab5c1fd-0a4f-58d7-ac85-9d3ca1bb34b3",
+      "relative_path": "class_/code_section_class_base.py"
+    },
+    {
+      "node_id": "62c54e03-116f-55f6-bf57-631aae44228d",
+      "node_type": "class",
+      "entity_id": "d461e602-7f9a-5ce7-8c01-16ca9c7ae18e",
+      "relative_path": "class_/code_section_class_function.py"
+    },
+    {
+      "node_id": "1c93d443-4589-541e-bed2-e30476335847",
+      "node_type": "class",
+      "entity_id": "08033a11-9e49-53da-953d-69ee9957d60e",
+      "relative_path": "code/code.py"
+    },
+    {
+      "node_id": "a662ba9b-8f96-5bf8-a4ec-f5ddc8441061",
+      "node_type": "class",
+      "entity_id": "21f8740b-ebab-5ce0-b786-4c0dbdebfd33",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "8035b170-3038-5c4e-b86f-ea4c9e8f4a69",
+      "node_type": "class",
+      "entity_id": "38e8057b-9612-58d3-9167-767eea3489bf",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "7cf0e28a-6d56-5fd0-8a7e-f984ef09e641",
+      "node_type": "class",
+      "entity_id": "3ba52a2d-58ee-586f-bb20-845fde319909",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "794005e2-98ea-5efc-952a-a5af6c07cf4f",
+      "node_type": "class",
+      "entity_id": "52723a55-eb31-57e4-90c3-458b0aa82312",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "68dd1f83-2ed9-554e-99bf-f3af3fd0b748",
+      "node_type": "class",
+      "entity_id": "65656fd0-1b2e-5f42-b292-02f38eb874e1",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "a5c588db-7347-5d26-bffb-0bf8c7566432",
+      "node_type": "class",
+      "entity_id": "6d79dacf-1f77-5141-ac15-0e3e259f3191",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "4f25c2e7-59d2-5194-a30a-dda1817e8eed",
+      "node_type": "class",
+      "entity_id": "8459d480-dc8d-5f16-9a6a-54f068a55aeb",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "5dff6100-f4a9-52fb-b026-7b00e1936486",
+      "node_type": "class",
+      "entity_id": "85fd2b37-dc15-56b4-874c-5acd9f157d2f",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "63fdefe4-545e-529b-922c-47aeca88ff26",
+      "node_type": "class",
+      "entity_id": "d1fe82e2-aeec-5560-9fa4-e81199f47b15",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "9d6c5088-23e8-57fa-b511-486ab2218c34",
+      "node_type": "class",
+      "entity_id": "d6c3f7f1-8267-524f-9644-3770dfc17e7c",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "1e31368c-2cc7-5cd2-8fb7-5415c639114c",
+      "node_type": "class",
+      "entity_id": "dd9a06b0-e988-57ab-9ce0-09af0f4b4359",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "e82df7e1-665e-59ed-8315-f9d467e25d6e",
+      "node_type": "class",
+      "entity_id": "89f72fe5-e174-59f5-98e2-a414fd5e1df0",
+      "relative_path": "code/code_section.py"
+    },
+    {
+      "node_id": "b16fe6f1-be32-56b4-b544-9db15be66b44",
+      "node_type": "class",
+      "entity_id": "fdb9f534-220c-5507-98f2-a5a2e11a3559",
+      "relative_path": "code/code_test.py"
+    },
+    {
+      "node_id": "64a3eef0-56dd-5084-bd7b-0d67c67e2c14",
+      "node_type": "class",
+      "entity_id": "719985d1-d20b-58fa-bad7-2e382b0dd4e7",
+      "relative_path": "code/code_test_framework.py"
+    },
+    {
+      "node_id": "1a3195d1-4130-521b-b602-e0b5bbd92655",
+      "node_type": "class",
+      "entity_id": "64e125db-f4df-59cd-ac66-5ef2f53df6f8",
+      "relative_path": "code/code_test_unit.py"
+    },
+    {
+      "node_id": "885c1b2a-214d-5761-ad80-6d28bb6054c7",
+      "node_type": "class",
+      "entity_id": "75d8aa0d-09db-5103-b55d-d4c02734d6f8",
+      "relative_path": "code/code_test_unit_run.py"
+    },
+    {
+      "node_id": "adc313ba-7699-57bd-8df1-6caf4996f6a4",
+      "node_type": "class",
+      "entity_id": "8bdaf849-747b-5f54-8da5-7eade5dd0faa",
+      "relative_path": "comment/code_section_comment.py"
+    },
+    {
+      "node_id": "54c19c1c-4a60-5cfd-afcb-9013ec4a72a9",
+      "node_type": "class",
+      "entity_id": "1901a2f0-0668-55f9-8a5d-44803640bcbf",
+      "relative_path": "comment/code_section_comment_content.py"
+    },
+    {
+      "node_id": "1e105f79-8e38-5e43-8c20-76af2dd47d87",
+      "node_type": "class",
+      "entity_id": "aa341420-8bf3-58d7-ac69-5f01fc49313e",
+      "relative_path": "decorator/code_section_decorator.py"
+    },
+    {
+      "node_id": "95eb43a0-7304-51d5-a82d-20b74308fe49",
+      "node_type": "class",
+      "entity_id": "54c9bdb7-c956-5286-b3a8-682677347090",
+      "relative_path": "decorator/code_section_decorator_expression.py"
+    },
+    {
+      "node_id": "94aaa7ff-967b-5390-9952-ad8542cdb0df",
+      "node_type": "class",
+      "entity_id": "7d383e9d-f8cf-5d19-aeb2-d2de1aa674e5",
+      "relative_path": "enum/code_section_enum.py"
+    },
+    {
+      "node_id": "8276ff3e-20f6-55d5-827a-be25f89347e3",
+      "node_type": "class",
+      "entity_id": "56e0131f-9f1a-5db0-9f59-8eb78e369f0c",
+      "relative_path": "enum/code_section_enum_value.py"
+    },
+    {
+      "node_id": "800758d6-b699-5197-aecb-c9357ddf132f",
+      "node_type": "class",
+      "entity_id": "a6a87e97-1b11-5d3a-b507-babef7190f25",
+      "relative_path": "expression/code_section_expression.py"
+    },
+    {
+      "node_id": "c78bc896-c78c-52be-ad5d-9cf37e37dffd",
+      "node_type": "class",
+      "entity_id": "8d12567a-a166-5dfb-a30a-00bbb9122301",
+      "relative_path": "function/code_section_function.py"
+    },
+    {
+      "node_id": "da99fc08-5c1b-591b-b8d2-3de2cc73a9b9",
+      "node_type": "class",
+      "entity_id": "d1ef0f09-098b-51bd-9a01-b1cf93c58653",
+      "relative_path": "function/code_section_function_attribute.py"
+    },
+    {
+      "node_id": "db80af64-32cd-58a4-91a9-a12de47ba4f7",
+      "node_type": "class",
+      "entity_id": "94b36386-5ad5-50df-9f34-7f8deccacebe",
+      "relative_path": "import_/code_section_import.py"
+    },
+    {
+      "node_id": "1f5cdc02-750f-5425-9b9b-8e042d29e1d6",
+      "node_type": "class",
+      "entity_id": "d0590187-6b97-5abd-b5ff-d8149d0b5a78",
+      "relative_path": "import_/code_section_import_name.py"
+    },
+    {
+      "node_id": "40b0a3b2-916c-52ed-a5e3-53f60b682ba7",
+      "node_type": "class",
+      "entity_id": "79e7c979-b53d-590d-a0c4-5ae9b3c0855d",
+      "relative_path": "mirror/code_section_mirror.py"
+    },
+    {
+      "node_id": "841f5534-9462-535b-89eb-cc86f881d9f8",
+      "node_type": "class",
+      "entity_id": "94eb99a0-c78e-54cc-93f3-88fe55d78202",
+      "relative_path": "module/code_module.py"
+    },
+    {
+      "node_id": "084452bf-4033-5669-9178-4d8902541aa6",
+      "node_type": "class",
+      "entity_id": "54a68390-817e-5570-8663-00442fe3b105",
+      "relative_path": "module/code_module_code_package.py"
+    },
+    {
+      "node_id": "43098f94-c17d-5fdc-ae57-f499d157ebdd",
+      "node_type": "class",
+      "entity_id": "b62ce2d8-813e-5147-abb6-15f8028d0a1f",
+      "relative_path": "module/code_module_dependence.py"
+    },
+    {
+      "node_id": "21793d91-8c10-5eaf-9bc7-8eb327f565ac",
+      "node_type": "class",
+      "entity_id": "2d81d51c-a191-5801-a3d2-f0e281f79578",
+      "relative_path": "package/code_package.py"
+    },
+    {
+      "node_id": "e9a0219d-e3ad-500b-9c17-faf066f671ad",
+      "node_type": "class",
+      "entity_id": "932c740d-1c81-5b15-9f49-1ba6d2d26fd9",
+      "relative_path": "package/code_package_artifact.py"
+    },
+    {
+      "node_id": "f9bf5f9e-5398-5f62-9e43-5454284ef9d9",
+      "node_type": "class",
+      "entity_id": "c3de4ab3-0445-53ff-8b1d-af6f224ffed1",
+      "relative_path": "package/code_package_artifact.py"
+    },
+    {
+      "node_id": "2dcff592-d51b-5b5f-a277-63832efeaa24",
+      "node_type": "class",
+      "entity_id": "d64b6151-70f3-587b-9ea4-ff29fac0f765",
+      "relative_path": "package/code_package_code.py"
+    },
+    {
+      "node_id": "26ccacc9-c7c7-515a-8b94-cbc1e2d2273b",
+      "node_type": "class",
+      "entity_id": "70607493-0034-52cb-8cce-dde32057c1ab",
+      "relative_path": "package/code_package_config.py"
+    },
+    {
+      "node_id": "88418711-93e6-53a9-9191-9c28721e26fa",
+      "node_type": "class",
+      "entity_id": "b1bac4aa-7ab9-5fd2-a13b-4da38bdc5576",
+      "relative_path": "package/code_package_config_input.py"
+    },
+    {
+      "node_id": "f623538e-c5db-5df2-9bfc-d8e1428e217e",
+      "node_type": "class",
+      "entity_id": "09b1ce0f-f833-50fe-a7ac-7d8c56740cd3",
+      "relative_path": "package/code_package_config_output.py"
+    },
+    {
+      "node_id": "2b5cbcb1-b411-58f2-b369-ae0e31037680",
+      "node_type": "class",
+      "entity_id": "b36b975c-a474-5b7c-a9d4-7954ea186808",
+      "relative_path": "package/code_package_config_runtime_context.py"
+    },
+    {
+      "node_id": "c1da9170-c8d1-5559-b7c4-67e7ee00993d",
+      "node_type": "class",
+      "entity_id": "9c77698f-6562-5d0c-a64f-9fb24ced7c2f",
+      "relative_path": "package/code_package_delta_producer.py"
+    },
+    {
+      "node_id": "2186a0f7-cd97-5ec4-8ff6-807564f5c152",
+      "node_type": "class",
+      "entity_id": "c9dffc2b-dcd3-5c6c-a620-4dcac33ce410",
+      "relative_path": "package/code_package_delta_producer_code.py"
+    },
+    {
+      "node_id": "a0d66fb7-56ce-5a6f-8d78-12d458e427d4",
+      "node_type": "class",
+      "entity_id": "8de0762a-f9e7-58e7-ae74-a489f5dab4d5",
+      "relative_path": "package/code_package_test.py"
+    },
+    {
+      "node_id": "8d178630-6cde-5915-81cf-416d88b5d566",
+      "node_type": "class",
+      "entity_id": "fc24c11c-d977-5eff-a51e-261374dd878d",
+      "relative_path": "package/code_package_test_framework.py"
+    },
+    {
+      "node_id": "d4caf942-9493-5484-a8c5-28be15fb6b12",
+      "node_type": "class",
+      "entity_id": "ee3a2837-bb0c-5862-be63-e8605badc69a",
+      "relative_path": "package/code_package_test_run.py"
+    },
+    {
+      "node_id": "8bec9f91-b171-5d98-bbf7-7a8da7e60286",
+      "node_type": "class",
+      "entity_id": "65e7c135-e48a-5044-8206-972b08f10102",
+      "relative_path": "primitive/code_primitive_type.py"
+    },
+    {
+      "node_id": "3d508e4a-2fe0-5ffe-a786-09303771deae",
+      "node_type": "class",
+      "entity_id": "9bb25f70-bc6d-591f-bbb1-265abbdc1a2d",
+      "relative_path": "primitive/code_primitive_type_element_type.py"
+    },
+    {
+      "node_id": "28b15b46-5096-55c9-afa8-a8a2d8b1bbed",
+      "node_type": "class",
+      "entity_id": "24ca9328-ee2c-5722-846e-8ade433dced0",
+      "relative_path": "primitive/code_primitive_type_union_type.py"
+    },
+    {
+      "node_id": "32f3a942-344d-58d0-aa41-a740b3e90514",
+      "node_type": "class",
+      "entity_id": "ff8cab24-38f3-5b75-b4f9-c800bb499556",
+      "relative_path": "projection/code_section_projection.py"
+    },
+    {
+      "node_id": "0247b82b-d87d-5888-abd4-2180c8d7f54b",
+      "node_type": "class",
+      "entity_id": "2eee02e1-b6cd-5f9b-8a85-e79f45c81347",
+      "relative_path": "projection/code_section_projection_edge.py"
+    },
+    {
+      "node_id": "7438b1d2-9d9b-5266-943e-de73944836b3",
+      "node_type": "class",
+      "entity_id": "b6045bf6-1a8b-51e2-841e-b13ecdd3b5f8",
+      "relative_path": "projection/code_section_projection_view.py"
+    },
+    {
+      "node_id": "eef073be-76b5-508c-8d2c-943ea090b418",
+      "node_type": "class",
+      "entity_id": "a78c1acb-e6d3-5b87-83fd-f3f2e3ed4708",
+      "relative_path": "semantic/code_semantic_contract_profile.py"
+    },
+    {
+      "node_id": "ab5bb29d-954f-5c88-aa32-ba413abc935e",
+      "node_type": "class",
+      "entity_id": "43c16ea8-3d4e-53f1-a624-78e35b9b150e",
+      "relative_path": "semantic/code_semantic_contract_profile_import.py"
+    },
+    {
+      "node_id": "dc232e6d-3749-510d-8030-5fe9e0add620",
+      "node_type": "class",
+      "entity_id": "bc1502c0-e635-51b5-95f0-421f0dd00cab",
+      "relative_path": "semantic/code_semantic_contract_profile_package.py"
+    },
+    {
+      "node_id": "9ec4fac5-dfbc-55d9-8cb4-c544f86f7be1",
+      "node_type": "class",
+      "entity_id": "b6e7e841-be1a-559a-a875-9e4f8b37915f",
+      "relative_path": "semantic/code_semantic_contract_runtime_import.py"
+    },
+    {
+      "node_id": "da6ac6a4-023f-5539-b40d-ceaac66d7f36",
+      "node_type": "class",
+      "entity_id": "dd80e22d-36cc-5ade-a9fb-1665ab2ad3a5",
+      "relative_path": "semantic/code_semantic_package_binding.py"
+    },
+    {
+      "node_id": "b606cc68-6cb1-5dd5-bdc1-714808bb2914",
+      "node_type": "class",
+      "entity_id": "17d68c10-ff12-50c6-87b0-b6eb17d7f4ee",
+      "relative_path": "semantic/code_semantic_provider_registration.py"
+    },
+    {
+      "node_id": "3caba66d-484f-5246-88ec-8c893f7bd5e2",
+      "node_type": "enum",
+      "entity_id": "0dcac172-502a-5e30-9ad1-45d15985d4ae",
+      "relative_path": "code/code_enums.py"
+    },
+    {
+      "node_id": "cbbbc4b6-9a9b-5ab3-b52f-455be9ba9ad8",
+      "node_type": "enum",
+      "entity_id": "3d0d3172-2990-58cd-a4e6-0ad6deaf6856",
+      "relative_path": "code/code_enums.py"
+    },
+    {
+      "node_id": "6d81eb9a-1717-559e-8c29-0acdb62c97bf",
+      "node_type": "enum",
+      "entity_id": "188f6239-b783-593f-bf27-5426831bd8b3",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "2f4cb3a6-468f-5646-81b6-7ebc6e7d4849",
+      "node_type": "enum",
+      "entity_id": "62008b97-051e-5a21-923d-a32d0ee131e9",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "933d4062-a047-5113-838e-cadd513d009f",
+      "node_type": "enum",
+      "entity_id": "f3bee6ac-e140-5b62-91af-3a15909364f2",
+      "relative_path": "code/code_plan.py"
+    },
+    {
+      "node_id": "ddf24cae-633c-506a-b1ba-894e7c52f1c2",
+      "node_type": "enum",
+      "entity_id": "21121e71-08af-5968-b501-a43f0a894a3a",
+      "relative_path": "code/code_section_enums.py"
+    },
+    {
+      "node_id": "59d4f45b-0208-56bf-8566-3da38e93d884",
+      "node_type": "enum",
+      "entity_id": "075069fa-b9a2-5f66-9411-a643b70e8055",
+      "relative_path": "comment/code_section_comment_enums.py"
+    },
+    {
+      "node_id": "9540403f-5ae8-532a-853b-00ccc998a656",
+      "node_type": "enum",
+      "entity_id": "41b4ac84-738c-5bd6-8c4e-29c4343fb6e8",
+      "relative_path": "expression/code_section_expression_enums.py"
+    },
+    {
+      "node_id": "e484e34f-a196-5422-b32e-0407ddb27201",
+      "node_type": "enum",
+      "entity_id": "3fb9ea6a-2d41-58a3-9cfe-c531168b22c8",
+      "relative_path": "package/code_package_enums.py"
+    },
+    {
+      "node_id": "dc7af192-ca44-5813-b3f3-deb0bac2d48c",
+      "node_type": "enum",
+      "entity_id": "48c78961-ab35-5d99-8734-bddbd4a47d9c",
+      "relative_path": "package/code_package_enums.py"
+    },
+    {
+      "node_id": "54364eb8-61aa-58d5-848b-c389348f70bc",
+      "node_type": "enum",
+      "entity_id": "6ad5a5b5-fb3d-5706-bef1-1f1df471f4ee",
+      "relative_path": "package/code_package_enums.py"
+    },
+    {
+      "node_id": "656dcac2-13e6-51e9-8d1a-c5bf4eaf3849",
+      "node_type": "enum",
+      "entity_id": "d19a5134-deb9-5a56-a507-4861396625aa",
+      "relative_path": "package/code_package_enums.py"
+    },
+    {
+      "node_id": "a5c95a9b-f8d2-5d12-976e-bdf5ca1126a0",
+      "node_type": "enum",
+      "entity_id": "7fb29b6b-4592-5d32-92b2-589f19911210",
+      "relative_path": "primitive/code_primitive_enums.py"
+    }
+  ]
+}

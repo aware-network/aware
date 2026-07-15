@@ -1,0 +1,5 @@
+/// Per-language overrides for FunctionConfig entities.
+edge FunctionConfigOverlay {
+    rendered_name String?
+    lang_flags JsonObject?
+}

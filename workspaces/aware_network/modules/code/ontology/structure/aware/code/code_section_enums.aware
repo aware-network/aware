@@ -1,0 +1,15 @@
+enum CodeSectionType {
+    binding
+    attribute
+    class
+    comment
+    decorator
+    enum
+    enum_value
+    expression
+    function
+    import
+    mirror
+    annotation
+    projection
+}

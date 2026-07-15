@@ -1,0 +1,37 @@
+projection ProjectionExperience {
+    root projection.ProjectionExperience
+    projection.ProjectionExperience::object_projection_graph_identity aware_meta.ObjectProjectionGraphIdentity
+    projection.ProjectionExperience::projection_experience_branches
+    projection.ProjectionExperience::projection_experience_nodes
+    projection.ProjectionExperience::projection_experience_oigis ProjectionExperienceOIGI
+    projection.ProjectionExperience::projection_experience_sections
+    projection.ProjectionExperienceSection::section aware_attention.Section
+    projection.ProjectionExperienceSection::section_views
+    projection.ProjectionExperienceSectionView::projection_experience_view_instance ProjectionExperience
+    projection.ProjectionExperience::projection_experience_section_graph_bindings ProjectionExperienceSectionGraphBinding
+    projection.ProjectionExperience::projection_experience_layout_graph_bindings ProjectionExperienceLayoutGraphBinding
+    projection.ProjectionExperience::projection_experience_graphs ProjectionExperienceGraph
+    projection.ProjectionExperience::invocation_action_configs ExperienceInvocationActionConfig
+    projection.ProjectionExperienceNode::object_projection_graph_node aware_meta.ObjectProjectionGraph
+    projection.ProjectionExperienceNode::projection_experience_node_identities
+    projection.ProjectionExperienceNode::projection_experience_node_keys
+    projection.ProjectionExperienceNodeKey::object_projection_graph_node_key aware_meta.ObjectProjectionGraph
+    projection.ProjectionExperience::projection_experience_views
+    projection.ProjectionExperienceView::api_view aware_api.Api
+    projection.ProjectionExperienceView::invocation_action_configs
+    projection.ProjectionExperienceViewInvocationActionConfig::api_view_capability_endpoint aware_api.Api
+    projection.ProjectionExperienceViewInvocationActionConfig::sdk_operation_api_view_capability_endpoint aware_sdk.SdkConfig
+    projection.ProjectionExperienceViewInvocationActionConfig::experience_invocation_action_config ExperienceInvocationActionConfig
+    projection.ProjectionExperienceView::view_instances
+    projection.ProjectionExperienceViewInstance::section_graph_binding ProjectionExperienceSectionGraphBinding
+    projection.ProjectionExperienceViewInstance::object_instance_graph_branch aware_meta.ObjectInstanceGraphIdentity
+    projection.ProjectionExperienceViewInstance::invocation_actions
+    projection.ProjectionExperienceViewInvocationAction::view_invocation_action_config
+    projection.ProjectionExperienceViewInvocationAction::experience_invocation_action ExperienceInvocationAction
+
+    observable projection_experience {
+        """
+        Projection experience shell surface (OPG identity, branch bindings, node identities, graph portals, OIGI portals, invocation action config portals, section view-instance resolver, section-graph-binding registry, layout graph binding registry, API view registry, view-instance registry, and view action invocation registry).
+        """
+    }
+}

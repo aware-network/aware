@@ -18,7 +18,7 @@ from aware_code.language.plugin import (
 from aware_code.language.operational_workspace import (
     CodeLanguageOperationalWorkspaceBuilder,
 )
-from aware_code.language.schemas import StructuralFilterDecision
+from aware_code.language.contracts import StructuralFilterDecision
 from aware_code.language.test_discovery import CodeLanguageTestDiscovery
 from aware_code.language.tooling import CodeLanguageToolSpec
 from aware_code.node.adapter import CodeNodeAdapter

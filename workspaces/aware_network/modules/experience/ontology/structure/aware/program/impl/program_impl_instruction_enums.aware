@@ -1,0 +1,15 @@
+/// Polymorphic instruction for program impl construction.
+enum ProgramImplInstructionType {
+    input
+    let
+    bind
+    invoke
+    expect
+    intent
+}
+
+/// Canonical runtime target selection for invoke instructions.
+enum ProgramImplInvokeTargetKind {
+    instance
+    construct
+}

@@ -1,0 +1,7 @@
+/// A Relationship between two OIGs with optional related nodes.
+class ObjectInstanceGraphRelationship {
+    // Relationships
+    target_object_instance_graph ObjectInstanceGraph key
+    source_class_instance class.ClassInstance key
+    target_class_instance class.ClassInstance key
+}

@@ -1,0 +1,35 @@
+class RoleConfigClassConfig {
+    // Relationships
+    role_config_class_config_function_configs RoleConfigClassConfigFunctionConfig[]
+    class_config aware_meta.class.ClassConfig key
+
+    // Attributes
+    access_level AccessLevelType
+
+    fn create construct (class_config_id UUID key, access_level AccessLevelType) -> RoleConfigClassConfig {
+        """
+        Create a RoleConfigClassConfig policy node (commit-backed).
+
+        Runtime invariants:
+        - Must be created via a constructor invocation (propagation), not by direct instantiation inside an instance handler.
+        - Stable id is derived from (role_config_id, class_config_id).
+        """
+    }
+
+    fn upsert_function_config_policy (
+        function_config_id UUID,
+        access_level AccessLevelType
+    ) -> RoleConfigClassConfigFunctionConfig {
+        """
+        Upsert a function-level policy edge for this class-level policy node.
+
+        Notes:
+        - `function_config_id` refers to `aware_meta.function.FunctionConfig`.
+        - Idempotent by (`role_config_class_config_id`, `function_config_id`).
+        """
+        let created_edge = construct role_config_class_config_function_configs.create(
+            function_config_id = function_config_id,
+            access_level = access_level,
+        )
+    }
+}

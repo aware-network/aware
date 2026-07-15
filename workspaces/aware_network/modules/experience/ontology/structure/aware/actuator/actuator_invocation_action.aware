@@ -1,0 +1,31 @@
+/// Actuator-owned provenance bridge for one concrete invocation action.
+///
+/// Contract:
+/// - `ActuatorInvocationActionConfig` is actuator-level configuration.
+/// - `ExperienceInvocationAction` is the actual invocation receipt.
+/// - This bridge records that the invocation happened through one concrete
+///   Actuator instance.
+class ActuatorInvocationAction {
+    // Relationships
+    actuator_invocation_action_config ActuatorInvocationActionConfig key
+    experience_invocation_action invocation.ExperienceInvocationAction key
+
+    fn build construct (
+        actuator_id UUID key,
+        actuator_invocation_action_config_id UUID key,
+        experience_invocation_action_id UUID key
+    ) -> ActuatorInvocationAction {
+        """
+        Create one deterministic Actuator provenance bridge under an Actuator.
+
+        Contract:
+        - `actuator_id` is explicit provenance for the concrete Actuator instance.
+        - `actuator_invocation_action_config` proves the action was exposed by
+          the Actuator config.
+        - `experience_invocation_action` carries the actual invocation receipt.
+        """
+    }
+}
+
+ann actuator.ActuatorInvocationAction::actuator_invocation_action_config load eager
+ann actuator.ActuatorInvocationAction::experience_invocation_action load eager

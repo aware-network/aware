@@ -10,6 +10,7 @@ but emits *generated, non-editable* artifacts:
 
 # Standard
 import json
+import keyword
 import re
 import textwrap
 from contextlib import contextmanager
@@ -1577,14 +1578,20 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                                 (
                                     "None"
                                     if item is None or item in {"NULL", "None"}
-                                    else f"{type_info.enum_config.name}.{item}"
+                                    else (
+                                        f"{type_info.enum_config.name}."
+                                        f"{self._enum_option_rendered_name(type_info.enum_config, item)}"
+                                    )
                                 )
                             )
                         default_expr = "[" + ", ".join(rendered_items) + "]"
                     elif default_value is None or default_value in {"NULL", "None"}:
                         default_expr = "None"
                     else:
-                        default_expr = f"{type_info.enum_config.name}.{default_value}"
+                        default_expr = (
+                            f"{type_info.enum_config.name}."
+                            f"{self._enum_option_rendered_name(type_info.enum_config, default_value)}"
+                        )
                 else:
                     default_expr = _PRIMITIVE_CODEC.to_literal_string(default_value)
             elif not getattr(attr, "is_required", True):
@@ -2114,7 +2121,10 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             if default_value == "NULL":
                 formatted_value = "None"
             else:
-                formatted_value = f"{enum_config.name}.{default_value}"
+                formatted_value = (
+                    f"{enum_config.name}."
+                    f"{self._enum_option_rendered_name(enum_config, default_value)}"
+                )
             default_section = f"default={formatted_value}"
         elif type_info.kind == AttributeTypeDescriptorKind.class_:
             # Class relationships - typically None or use factory for lists
@@ -2176,7 +2186,10 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             if default_value is None or default_value in {"NULL", "None"}:
                 formatted_value = "None"
             else:
-                formatted_value = f"{enum_config.name}.{default_value}"
+                formatted_value = (
+                    f"{enum_config.name}."
+                    f"{self._enum_option_rendered_name(enum_config, default_value)}"
+                )
             default_section = f"default={formatted_value}"
         elif type_info.kind == AttributeTypeDescriptorKind.class_:
             if type_info.is_collection:
@@ -2315,8 +2328,10 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                     enum_config.enum_options or [],
                     key=lambda opt: (opt.position, (opt.label or opt.value)),
                 )
+                rendered_option_names: dict[str, str] = {}
                 for option in options:
-                    label = option.label or option.value
+                    raw_label = option.label or option.value
+                    label = _safe_python_enum_option_name(raw_label)
                     value = option.value
                     option_desc = self._public_description(option.description)
 
@@ -2327,6 +2342,15 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             label = overlay.rendered_name
                         if overlay.wire_name:
                             value = overlay.wire_name
+                    label = _safe_python_enum_option_name(label)
+                    previous_value = rendered_option_names.get(label)
+                    if previous_value is not None and previous_value != str(option.value):
+                        raise ValueError(
+                            "Python enum option names collide after rendering: "
+                            f"enum={enum_config.name!r} rendered_name={label!r} "
+                            f"values={previous_value!r},{option.value!r}"
+                        )
+                    rendered_option_names[label] = str(option.value)
 
                     # Format the value based on type
                     formatted_val = f'"{value}"'.lower()
@@ -2343,6 +2367,40 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             value_literal=formatted_val,
                             description=option_desc,
                         )
+
+    def _enum_option_rendered_name(
+        self,
+        enum_config: EnumConfig,
+        wire_value: object,
+    ) -> str:
+        raw_wire_value = str(wire_value)
+        for option in enum_config.enum_options or []:
+            candidate_values = {str(option.value), str(option.label or "")}
+            label = option.label or option.value
+            overlay = self.get_overlay_by_entity_id(
+                CodeSectionAnnotationOverlayEntity.enum_option,
+                option.id,
+            )
+            if overlay is not None and isinstance(overlay, EnumOptionOverlay):
+                if overlay.wire_name:
+                    candidate_values.add(str(overlay.wire_name))
+                if overlay.rendered_name:
+                    candidate_values.add(str(overlay.rendered_name))
+                    label = overlay.rendered_name
+            if raw_wire_value not in candidate_values:
+                continue
+            return _safe_python_enum_option_name(label)
+        known_values = ", ".join(
+            sorted(
+                str(option.value)
+                for option in enum_config.enum_options or []
+            )
+        )
+        raise ValueError(
+            "Enum default does not match a declared option: "
+            f"enum={enum_config.name!r} default={raw_wire_value!r} "
+            f"known_values=[{known_values}]"
+        )
 
     def _gather_imports(
         self,
@@ -2830,3 +2888,15 @@ def _scrub_public_api_client_text(value: str) -> str:
         .replace("product A", "generated API client")
         .replace("product B", "service protocol")
     )
+
+
+def _safe_python_enum_option_name(value: object) -> str:
+    candidate = str(value or "").strip()
+    if not candidate:
+        candidate = "value"
+    candidate = re.sub(r"\W", "_", candidate)
+    if candidate[0].isdigit():
+        candidate = f"_{candidate}"
+    if keyword.iskeyword(candidate) or candidate in {"name", "value"}:
+        candidate = f"{candidate}_"
+    return candidate

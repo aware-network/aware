@@ -1,0 +1,74 @@
+// Identity projection (v1)
+//
+// Canonical SINGLE-LANE projection for the identity domain.
+//
+// Contract:
+// - Rooted at Identity.
+// - All Actor-narrative objects (ActorRole, ActorCommit, ActorSubscription,
+//   ActorSubscriptionEvent) are MEMBERS of this projection — they share the
+//   same identity lane.
+// - Cross-module / cross-OCG relationships use portals (Role, RoleConfig,
+//   Organization, StorageBlob, ObjectInstanceGraphIdentity (meta),
+//   EventConfig (reactivity)).
+// - The previous sub-projections ActorRole / ActorCommit / ActorSubscription /
+//   ActorSubscriptionEvent were folded here
+//   on 2026-05-11 under fb/2026-05-11/aware-actor-thread-experience-v0.
+// - Actor focus now belongs to Attention; memory lanes now belong to Memory.
+projection Identity {
+    root identity.Identity
+
+    identity.Identity::human
+    identity.Identity::identity_profile
+    identity.IdentityProfile::image aware_storage.StorageBlob
+
+    identity.Identity::identity_patterns
+
+    human.Human::actor
+    actor.Actor::identity
+
+    /// Actor-owned personal history over durable lane commits
+    /// (folded from ActorCommit projection)
+    actor.Actor::actor_commits
+    actor.ActorCommit::object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+
+    /// Identity-owned credential profiles (organization is Identity.type=organization)
+    identity.Identity::credential_profiles
+    credential.CredentialProfile::secret_material_refs
+    credential.CredentialProfile::grants
+    credential.CredentialProfile::readiness_receipts
+    credential.CredentialProfile::usage_receipts
+
+    /// Actor role bindings (folded from ActorRole projection)
+    actor.Actor::actor_roles
+    actor.ActorRole::role
+    role.Role::role_config RoleConfig
+    role.Role::role_class_instances
+    role.RoleClassInstance::class_instance_identity ObjectInstanceGraphIdentity
+    role.RoleClassInstance::role_config_class_config RoleConfig
+
+    /// Actor subscriptions + activation events
+    /// (folded from ActorSubscription / ActorSubscriptionEvent projections).
+    /// Subscription events are now contained under ActorSubscription via
+    /// `actor_subscription_events`, per clean-rail containment doctrine.
+    actor.Actor::actor_subscriptions
+    actor.ActorSubscription::event_config_condition_config_scope aware_reactivity.EventConfigConditionConfigScope
+    actor.ActorSubscription::event_config_action_configs aware_reactivity.EventConfig
+    actor.ActorSubscription::actor_subscription_events
+    actor.ActorSubscriptionEvent::event_config_condition_config_scope_event aware_reactivity.EventConfigConditionConfigScope
+
+    identity.Identity::organization Organization
+
+    observable identity instance {
+        """
+        Identity root scope for admission, profile readiness, and actor attachment views.
+        """
+    }
+
+    observable actor instance {
+        """
+        Actor scope inside the Identity projection — surfaces the actor's
+        roles, commits, subscriptions, and focus for the post-admission
+        Actor Thread experience (aware-actor).
+        """
+    }
+}

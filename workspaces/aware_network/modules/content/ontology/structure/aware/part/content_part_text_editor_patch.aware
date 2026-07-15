@@ -1,0 +1,75 @@
+/// Canonical Content editor patch payloads (inline values).
+///
+/// Contract:
+/// - Operation-driven: no full before/after graph snapshots.
+/// - Inline values only: not graph entities (no ids/reachability).
+/// - Intended to be applied by `ContentPartText.apply_editor_patch(...)`.
+
+enum ContentTextPatchOp {
+    insert
+    delete
+    replace
+}
+
+/// Byte-level text patch operation (aligned with meta attribute delta semantics).
+///
+/// Notes:
+/// - `pos` and `len` are UTF-8 byte offsets/lengths.
+/// - `text` is a UTF-8 string that will be inserted/replaced at `pos`.
+class ContentTextPatch : inline_value {
+    op ContentTextPatchOp
+    pos Int
+    len Int?
+    text String?
+}
+
+/// Style spec (inline) used by content editor patches.
+///
+/// Mirrors `ContentPartTextStyle` attributes.
+class ContentPartTextStyleSpec : inline_value {
+    background_color String?
+    block_semantic_type String?
+    bold Bool? = false
+    color String?
+    font_family String?
+    font_size Int?
+    italic Bool? = false
+    underline Bool? = false
+}
+
+/// Segment upsert operation (byte ranges + style).
+class ContentPartTextSegmentUpsert : inline_value {
+    segment_id UUID
+    byte_start Int
+    byte_end Int
+    parent_id UUID?
+    style ContentPartTextStyleSpec?
+}
+
+/// Segment detach operation (deletes the segment).
+class ContentPartTextSegmentDetach : inline_value {
+    segment_id UUID
+}
+
+/// Segment operation union.
+class ContentPartTextSegmentOp : inline_value {
+    upsert ContentPartTextSegmentUpsert?
+    detach ContentPartTextSegmentDetach?
+}
+
+ann part.ContentPartTextSegmentOp oneof upsert detach
+
+/// Patch for ContentPartText editor persistence (v1).
+class ContentPartTextEditorPatch : inline_value {
+    // Patch payload schema version for local/editor compatibility.
+    schema_version Int = 1
+
+    // Optional full text replacement (preferred for v1 bootstrap).
+    text_after String?
+
+    // Optional byte-level text patches (future: lower-bandwidth).
+    text_patches ContentTextPatch[] = []
+
+    // Segment deltas (upserts/deletes).
+    segment_ops ContentPartTextSegmentOp[] = []
+}

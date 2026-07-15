@@ -1,0 +1,21 @@
+/// Stable identity rail for ClassInstanceRelationship truth.
+///
+/// Contract:
+/// - One identity id maps to one logical class-instance relationship worldline.
+/// - Commits/receipts should reference this id for parent-chain attribution truth.
+class ClassInstanceRelationshipIdentity {
+    // Relationships
+    class_instance_relationship ClassInstanceRelationship key
+
+    // Attributes
+    label String?
+
+    fn create construct (
+        class_instance_relationship_id UUID key,
+        label String? = null
+    ) -> ClassInstanceRelationshipIdentity {
+        """
+        Create a deterministic ClassInstanceRelationshipIdentity worldline row.
+        """
+    }
+}

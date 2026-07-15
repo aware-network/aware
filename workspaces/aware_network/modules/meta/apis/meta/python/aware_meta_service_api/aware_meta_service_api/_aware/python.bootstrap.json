@@ -1,0 +1,11 @@
+{
+  "dependency_import_roots": [
+    "aware_meta_service_dto"
+  ],
+  "modules": [
+    "aware_meta_service_api._bindings",
+    "aware_meta_service_api.client"
+  ],
+  "package_prefix": "aware_meta_service_api",
+  "version": "v1"
+}

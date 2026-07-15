@@ -1,0 +1,101 @@
+/// Identity-owned reusable actor-session policy.
+///
+/// Contract:
+/// - SessionConfig is domain-neutral participation vocabulary.
+/// - Environment, Experience, Attention, and other providers bridge to it
+///   instead of owning separate actor-session role lifecycles.
+/// - ActorConfig remains the reusable actor archetype vocabulary.
+/// - Concrete sessions and member ActorRole evidence stay Identity-owned.
+class SessionConfig {
+    // Relationships
+    actor_configs SessionConfigActorConfig[]
+    sessions Session[]
+
+    // Attributes
+    key String key
+    title String?
+    description String?
+    purpose String?
+    status String = "active"
+    metadata_json JsonObject? = {}
+
+    fn create construct (
+        key String key,
+        title String? = null,
+        description String? = null,
+        purpose String? = null,
+        status String = "active",
+        metadata_json JsonObject? = {}
+    ) -> SessionConfig {
+        """
+        Create one deterministic Identity SessionConfig.
+
+        Contract:
+        - Stable identity is derived from `key`.
+        - This is policy vocabulary only; it does not admit or grant an actor.
+        """
+    }
+
+    fn add_actor_config (
+        actor_config_id UUID key,
+        status String = "active",
+        purpose String? = null,
+        metadata_json JsonObject? = {}
+    ) -> SessionConfigActorConfig {
+        """
+        Attach one ActorConfig as eligible for this SessionConfig.
+
+        Contract:
+        - The edge is session participation policy only.
+        - Concrete membership is SessionMember.
+        - Concrete permission evidence is SessionMemberActorRole.
+        """
+        let created = construct actor_configs.create(
+            actor_config_id = actor_config_id,
+            status = status,
+            purpose = purpose,
+            metadata_json = metadata_json,
+        )
+    }
+
+    fn start_session (
+        key String key,
+        parent_session_scope_key String key = "root",
+        parent_session_id UUID? = null,
+        title String? = null,
+        description String? = null,
+        purpose String? = null,
+        status String = "active",
+        created_by_actor_id UUID? = null,
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> Session {
+        """
+        Start one concrete Session under this SessionConfig.
+
+        Contract:
+        - Stable identity is SessionConfig path + `key` + `parent_session_scope_key`.
+        - Root sessions use `parent_session_scope_key = "root"` and
+          `parent_session_id = null`.
+        - Child sessions use `parent_session_scope_key = parent_session_id`.
+        - Domains may reference this Session, but Identity owns membership.
+        """
+        let session = construct sessions.build(
+            key = key,
+            parent_session_scope_key = parent_session_scope_key,
+            parent_session_id = parent_session_id,
+            title = title,
+            description = description,
+            purpose = purpose,
+            status = status,
+            created_by_actor_id = created_by_actor_id,
+            source_kind = source_kind,
+            source_ref = source_ref,
+            metadata_json = metadata_json,
+        )
+    }
+}
+
+ann session.SessionConfig::actor_configs load eager
+ann session.SessionConfig::sessions load eager

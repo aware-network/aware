@@ -27,6 +27,14 @@ class CommitStateRow:
 
 
 @dataclass(frozen=True, slots=True)
+class CommitStateRowMaps:
+    class_config_ids_by_class_instance_id: Mapping[UUID, UUID]
+    class_state_rows_by_id: Mapping[UUID, tuple[CommitStateRow, ...]]
+    class_state_rows_by_raw_id: Mapping[str, tuple[CommitStateRow, ...]]
+    relationship_keys: frozenset[tuple[UUID, UUID, UUID]]
+
+
+@dataclass(frozen=True, slots=True)
 class CommitStateIndex:
     rows: tuple[CommitStateRow, ...]
 
@@ -44,6 +52,71 @@ class CommitStateIndex:
 
     def compute_hash(self) -> str:
         return compute_commit_state_rows_hash(self.rows)
+
+    def row_maps(
+        self,
+        *,
+        include_relationship_keys: bool = True,
+    ) -> CommitStateRowMaps:
+        class_config_ids_by_raw_id: dict[str, UUID] = {}
+        class_state_row_lists_by_raw_id: dict[str, list[CommitStateRow]] = {}
+        relationship_keys: set[tuple[UUID, UUID, UUID]] = set()
+
+        for row in self.rows:
+            if row.kind == "NODE":
+                class_config_id = UUID(row.key)
+                class_instance_id = UUID(row.value)
+                raw_class_instance_id = str(class_instance_id)
+                previous_class_config_id = class_config_ids_by_raw_id.get(
+                    raw_class_instance_id,
+                )
+                if (
+                    previous_class_config_id is not None
+                    and previous_class_config_id != class_config_id
+                ):
+                    raise ValueError(
+                        "CommitStateIndex rows contain conflicting NODE rows for "
+                        f"ClassInstance {class_instance_id}"
+                    )
+                class_config_ids_by_raw_id[raw_class_instance_id] = class_config_id
+                class_state_row_lists_by_raw_id.setdefault(
+                    raw_class_instance_id,
+                    [],
+                ).append(row)
+                continue
+            if row.kind == "ATTR":
+                class_state_row_lists_by_raw_id.setdefault(row.key, []).append(row)
+                continue
+            if row.kind == "EDGE":
+                if not include_relationship_keys:
+                    continue
+                raw_source_id, separator, raw_target_id = row.value.partition("->")
+                if not separator:
+                    raise ValueError(f"Malformed relationship state row: {row.value!r}")
+                relationship_keys.add(
+                    (UUID(row.key), UUID(raw_source_id), UUID(raw_target_id)),
+                )
+                continue
+            raise ValueError(f"Unsupported CommitStateRow kind: {row.kind!r}")
+
+        class_state_rows_by_raw_id = {
+            class_instance_id: tuple(rows)
+            for class_instance_id, rows in class_state_row_lists_by_raw_id.items()
+        }
+        return CommitStateRowMaps(
+            class_config_ids_by_class_instance_id={
+                UUID(class_instance_id): class_config_id
+                for class_instance_id, class_config_id in (
+                    class_config_ids_by_raw_id.items()
+                )
+            },
+            class_state_rows_by_id={
+                UUID(class_instance_id): rows
+                for class_instance_id, rows in class_state_rows_by_raw_id.items()
+            },
+            class_state_rows_by_raw_id=class_state_rows_by_raw_id,
+            relationship_keys=frozenset(relationship_keys),
+        )
 
 
 def compute_commit_state_rows_hash(rows: Iterable[CommitStateRow]) -> str:
@@ -90,6 +163,17 @@ def _class_instance_state_rows(
             )
         )
     return tuple(rows)
+
+
+def build_class_instance_state_rows(
+    class_instance: ClassInstance,
+) -> tuple[CommitStateRow, ...]:
+    """Build canonical NODE/ATTR rows for one ClassInstance.
+
+    This is the object-shaped compatibility adapter. Delta-first callers should
+    produce equivalent rows directly and feed `apply_commit_state_index_row_changes`.
+    """
+    return _class_instance_state_rows(class_instance)
 
 
 def _relationship_state_row(
@@ -210,12 +294,36 @@ def apply_commit_state_index_changes(
     attribute updates.
     """
 
+    return apply_commit_state_index_row_changes(
+        pre_state_index=pre_state_index,
+        changes=changes,
+        post_class_state_rows_by_id={
+            class_instance_id: _class_instance_state_rows(class_instance)
+            for class_instance_id, class_instance in post_class_instances_by_id.items()
+        },
+    )
+
+
+def apply_commit_state_index_row_changes(
+    *,
+    pre_state_index: CommitStateIndex,
+    changes: Iterable[ObjectInstanceGraphChange],
+    post_class_state_rows_by_id: Mapping[UUID, Iterable[CommitStateRow]],
+) -> CommitStateIndex:
+    """Apply OIG changes to compact state rows using caller-supplied post rows.
+
+    This is the delta-first primitive. It does not require post-state
+    ClassInstance objects; callers can emit canonical NODE/ATTR rows from a
+    semantic operation, state witness, or package-specific source row contract.
+    """
+
     rows = set(pre_state_index.rows)
 
     class_instance_ids_to_delete: set[str] = set()
     class_instance_ids_to_replace: set[UUID] = set()
 
-    for change_tree in changes:
+    change_trees = tuple(changes)
+    for change_tree in change_trees:
         for class_change in change_tree.class_instance_changes:
             operation = _change_type(class_change.change.type)
             class_instance_id = class_change.class_instance_id
@@ -226,7 +334,7 @@ def apply_commit_state_index_changes(
                 class_instance_ids_to_replace.add(class_instance_id)
                 continue
             raise ValueError(
-                "Unsupported ClassInstance change type for state index apply: "
+                "Unsupported ClassInstance change type for state index row apply: "
                 f"{operation}"
             )
 
@@ -249,12 +357,16 @@ def apply_commit_state_index_changes(
 
     for class_instance_id in sorted(class_instance_ids_to_replace, key=str):
         class_instance_id_text = str(class_instance_id)
-        class_instance = post_class_instances_by_id.get(class_instance_id)
-        if class_instance is None:
+        post_rows = tuple(post_class_state_rows_by_id.get(class_instance_id, ()))
+        if not post_rows:
             raise ValueError(
-                "Post-state ClassInstance missing for state index apply: "
+                "Post-state ClassInstance rows missing for state index row apply: "
                 f"{class_instance_id}"
             )
+        _validate_class_instance_state_rows(
+            class_instance_id=class_instance_id,
+            rows=post_rows,
+        )
         rows = {
             row
             for row in rows
@@ -263,9 +375,9 @@ def apply_commit_state_index_changes(
                 or (row.kind == "ATTR" and row.key == class_instance_id_text)
             )
         }
-        rows.update(_class_instance_state_rows(class_instance))
+        rows.update(post_rows)
 
-    for change_tree in changes:
+    for change_tree in change_trees:
         for relationship_change in change_tree.class_instance_relationship_changes:
             operation = _change_type(relationship_change.change.type)
             row = _relationship_state_row(
@@ -287,11 +399,37 @@ def apply_commit_state_index_changes(
     return _canonical_commit_state_index(rows)
 
 
+def _validate_class_instance_state_rows(
+    *,
+    class_instance_id: UUID,
+    rows: Iterable[CommitStateRow],
+) -> None:
+    class_instance_id_text = str(class_instance_id)
+    has_node = False
+    for row in rows:
+        if row.kind == "NODE" and row.value == class_instance_id_text:
+            has_node = True
+            continue
+        if row.kind == "ATTR" and row.key == class_instance_id_text:
+            continue
+        raise ValueError(
+            "Post-state ClassInstance rows target unexpected state member: "
+            f"class_instance_id={class_instance_id} row={row}"
+        )
+    if not has_node:
+        raise ValueError(
+            "Post-state ClassInstance rows missing NODE row for " f"{class_instance_id}"
+        )
+
+
 __all__ = [
+    "apply_commit_state_index_row_changes",
     "CommitStateIndex",
     "CommitStateRow",
+    "CommitStateRowMaps",
     "CommitStateRowKind",
     "apply_commit_state_index_changes",
+    "build_class_instance_state_rows",
     "build_commit_state_index",
     "compute_commit_state_rows_hash",
 ]

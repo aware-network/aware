@@ -1,0 +1,35 @@
+/// Stable identity for a family of ObjectConfigGraphs.
+///
+/// This object is intended to be created by the compiler (environment-artifacts)
+/// and remain stable even as config graph snapshots evolve.
+class ObjectConfigGraphIdentity {
+    // Relationships
+    object_projection_graph_identities projection.ObjectProjectionGraphIdentity[]
+
+    /// Stable key for this config graph family (e.g. fqn_prefix).
+    key String unique key
+    label String?
+
+    fn create construct (key String key, label String? = null) -> ObjectConfigGraphIdentity {
+        """
+        Create deterministic ObjectConfigGraphIdentity from semantic key only.
+        """
+    }
+
+    fn create_object_projection_graph_identity (
+        object_projection_graph_id UUID key,
+        projection_name String,
+        label String? = null
+    ) -> projection.ObjectProjectionGraphIdentity {
+        """
+        Create deterministic ObjectProjectionGraphIdentity under this ObjectConfigGraphIdentity.
+        """
+        let created = construct object_projection_graph_identities.create(
+            object_projection_graph_id = object_projection_graph_id,
+            projection_name = projection_name,
+            label = label,
+        )
+    }
+}
+
+ann config.ObjectConfigGraphIdentity::object_projection_graph_identities load eager

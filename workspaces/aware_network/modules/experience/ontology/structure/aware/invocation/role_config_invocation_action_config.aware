@@ -1,0 +1,29 @@
+/// Experience action-entrypoint policy for admitted Identity roles.
+///
+/// Contract:
+/// - Experience owns this policy because public consumers invoke Experience
+///   action configs, not ontology functions directly.
+/// - Identity owns `RoleConfig` and concrete `ActorRole` materialization.
+/// - Service/Ontology mutation policy remains the lower graph mutation gate.
+class RoleConfigInvocationActionConfig {
+    // Relationships
+    role_config aware_identity.role.RoleConfig key
+
+    // Attributes
+    policy_key String key = "invoke"
+    requirement_kind String = "admitted_actor_role"
+    description String?
+
+    fn build construct (
+        role_config_id UUID key,
+        policy_key String key = "invoke",
+        requirement_kind String = "admitted_actor_role",
+        description String? = null
+    ) -> RoleConfigInvocationActionConfig {
+        """
+        Bind one RoleConfig to the parent ExperienceInvocationActionConfig.
+        """
+    }
+}
+
+ann invocation.RoleConfigInvocationActionConfig::role_config load eager

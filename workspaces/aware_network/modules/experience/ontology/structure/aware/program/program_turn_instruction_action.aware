@@ -1,0 +1,35 @@
+/// Canonical per-turn program intent receipt.
+///
+/// Contract:
+/// - Anchors one `ProgramImplInstructionIntent` execution under one
+///   `ProgramTurnInstruction`.
+/// - Stores program provenance for the actor-free Reactivity `ActionIntent`.
+/// - Does not dispatch, fulfill, or mutate action lifecycle state.
+class ProgramTurnInstructionAction {
+    // Relationships
+    program_impl_instruction_intent aware_experience.program.impl.ProgramImplInstructionIntent key
+    action_config aware_reactivity.action.ActionConfig key
+    event_config aware_reactivity.event.EventConfig key
+
+    // Attributes
+    action_intent_id UUID
+    intent_key String key
+
+    fn build construct (
+        program_impl_instruction_intent_id UUID key,
+        action_config_id UUID key,
+        event_config_id UUID key,
+        action_intent_id UUID,
+        intent_key String key
+    ) -> ProgramTurnInstructionAction {
+        """
+        Create deterministic ProgramTurnInstructionAction under one instruction.
+
+        Contract:
+        - Parent context (`program_turn_instruction_id`) is injected by
+          parent-edge lowering.
+        - `intent_key` is the same opaque key supplied to Reactivity
+          `ActionIntent.create`.
+        """
+    }
+}

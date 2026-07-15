@@ -830,13 +830,18 @@ def stable_object_projection_graph_id(*, object_config_graph_id: UUID, name: str
     return uuid5(NS_META, f"aware:object_projection_graph:{object_config_graph_id}:{name_norm}")
 
 
-def stable_object_projection_graph_binding_id(*, fqn_prefix: str, namespace: str, class_name: str) -> UUID:
-    """Compiler-generated from class-attribute identity keys: fqn_prefix, namespace, class_name"""
+def stable_object_projection_graph_binding_id(
+    *, object_projection_graph_declaration_id: UUID, fqn_prefix: str, namespace: str, class_name: str
+) -> UUID:
+    """Compiler-generated from class-attribute identity keys: object_projection_graph_declaration_id, fqn_prefix, namespace, class_name"""
 
     fqn_prefix_norm = (fqn_prefix or "").casefold().strip()
     namespace_norm = (namespace or "").casefold().strip()
     class_name_norm = (class_name or "").casefold().strip()
-    return uuid5(NS_META, f"aware:object_projection_graph_binding:{fqn_prefix_norm}:{namespace_norm}:{class_name_norm}")
+    return uuid5(
+        NS_META,
+        f"aware:object_projection_graph_binding:{object_projection_graph_declaration_id}:{fqn_prefix_norm}:{namespace_norm}:{class_name_norm}",
+    )
 
 
 def stable_object_projection_graph_constructor_id(
@@ -850,11 +855,11 @@ def stable_object_projection_graph_constructor_id(
     )
 
 
-def stable_object_projection_graph_declaration_id(*, projection_name: str) -> UUID:
-    """Compiler-generated from class-attribute identity keys: projection_name"""
+def stable_object_projection_graph_declaration_id(*, object_config_graph_id: UUID, projection_name: str) -> UUID:
+    """Compiler-generated from class-attribute identity keys: object_config_graph_id, projection_name"""
 
     projection_name_norm = (projection_name or "").casefold().strip()
-    return uuid5(NS_META, f"aware:object_projection_graph_declaration:{projection_name_norm}")
+    return uuid5(NS_META, f"aware:object_projection_graph_declaration:{object_config_graph_id}:{projection_name_norm}")
 
 
 def stable_object_projection_graph_edge_id(
@@ -942,6 +947,10 @@ def stable_primitive_config_id(*, primitive_type_id: UUID) -> UUID:
 
 
 CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID: dict[str, tuple[str, tuple[str, ...]]] = {
+    "03847d0a-cb3f-5366-9808-5195549c62eb": (
+        "stable_object_projection_graph_binding_id",
+        ("object_projection_graph_declaration_id", "fqn_prefix", "namespace", "class_name"),
+    ),
     "0b07fdff-3505-5a6d-906c-51d418182584": (
         "stable_function_impl_instruction_require_id",
         ("function_impl_instruction_id",),

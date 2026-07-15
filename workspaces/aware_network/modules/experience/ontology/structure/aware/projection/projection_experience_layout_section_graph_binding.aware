@@ -1,0 +1,20 @@
+/// Section graph binding row under ProjectionExperienceLayoutGraphBinding.
+///
+/// Contract:
+/// - Groups one existing ProjectionExperienceSectionGraphBinding under one
+///   layout graph binding.
+/// - Does not duplicate section, view, graph, or order fields.
+/// - The parent layout binding validates that the section binding targets a
+///   section inside the parent Attention LayoutConfig.
+class ProjectionExperienceLayoutSectionGraphBinding {
+    // Relationships
+    section_graph_binding ProjectionExperienceSectionGraphBinding key
+
+    fn build construct (
+        section_graph_binding_id UUID key
+    ) -> ProjectionExperienceLayoutSectionGraphBinding {
+        """
+        Create deterministic ProjectionExperienceLayoutSectionGraphBinding.
+        """
+    }
+}

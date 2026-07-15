@@ -1,0 +1,23 @@
+/// OntologyPackage projection.
+///
+/// Purpose:
+/// - Expose ontology-owned package meaning to Environment and Workspace.
+/// - Keep Meta OCG package truth as representation detail.
+/// - Keep CodePackage source/runtime truth explicit and commit-pinnable.
+projection OntologyPackage is_branchable {
+    root ontology.OntologyPackage
+
+    ontology.OntologyPackage::ontology_config OntologyConfig
+    ontology.OntologyPackage::ontology_config_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    ontology.OntologyPackage::source_code_package CodePackage
+    ontology.OntologyPackage::object_config_graph_package ObjectConfigGraphPackage
+    ontology.OntologyPackage::object_config_graph_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    ontology.OntologyPackage::object_config_graph_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    ontology.OntologyPackage::runtime_code_packages
+    ontology.OntologyPackageRuntimeCodePackage::code_package CodePackage
+    ontology.OntologyPackageRuntimeCodePackage::object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    ontology.OntologyPackage::dependencies
+    ontology.OntologyPackageDependency::target_ontology_package OntologyPackage
+    ontology.OntologyPackageDependency::target_ontology_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    aware_meta.graph.instance.ObjectInstanceGraphCommit::commit
+}

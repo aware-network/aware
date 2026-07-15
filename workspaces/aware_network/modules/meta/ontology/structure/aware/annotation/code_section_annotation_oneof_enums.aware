@@ -1,0 +1,6 @@
+enum CodeSectionAnnotationOneOfMode {
+    /// Oneof is a payload validation rail (renderer/runtime validation semantics).
+    validation
+    /// Oneof is an identity rail (stable-id polymorphic key resolution semantics).
+    identity
+}

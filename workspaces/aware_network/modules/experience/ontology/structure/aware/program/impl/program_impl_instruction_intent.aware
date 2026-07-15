@@ -1,0 +1,88 @@
+/// Program intent contract step.
+///
+/// Contract:
+/// - Declares intended ActionConfig vocabulary.
+/// - Runtime owns action dispatch/outcomes.
+class ProgramImplInstructionIntent {
+    // Relationships
+    action_config aware_reactivity.action.ActionConfig
+    event_config aware_reactivity.event.EventConfig
+    api_capability_endpoint aware_api.api.ApiCapabilityEndpoint?
+    request_class_config aware_meta.class.ClassConfig?
+    response_class_config aware_meta.class.ClassConfig?
+    activation_field_bindings ProgramImplInstructionIntentActivationFieldBinding[]
+    outcome_field_bindings ProgramImplInstructionIntentOutcomeFieldBinding[]
+    receipt_field_bindings ProgramImplInstructionIntentReceiptFieldBinding[]
+
+    // Attributes
+    continuation_key String?
+
+    fn build construct (
+        action_config_id UUID,
+        event_config_id UUID
+    ) -> ProgramImplInstructionIntent {
+        """
+        Create deterministic intent payload for one ProgramImplInstruction.
+
+        Contract:
+        - Parent context (`program_impl_instruction_id`) is injected by parent-edge lowering.
+        """
+    }
+
+    fn add_activation_field_binding (
+        source_class_config_id UUID,
+        source_attribute_config_id UUID,
+        target_request_attribute_config_id UUID,
+        source_input_key String,
+        required Bool = true,
+        position Int? = null
+    ) -> ProgramImplInstructionIntentActivationFieldBinding {
+        let created = construct activation_field_bindings.build(
+            source_class_config_id = source_class_config_id,
+            source_attribute_config_id = source_attribute_config_id,
+            target_request_attribute_config_id = target_request_attribute_config_id,
+            source_input_key = source_input_key,
+            required = required,
+            position = position,
+        )
+    }
+
+    fn add_outcome_field_binding (
+        source_program_impl_instruction_intent_id UUID,
+        source_response_attribute_config_id UUID,
+        target_request_attribute_config_id UUID,
+        required Bool = true,
+        position Int? = null
+    ) -> ProgramImplInstructionIntentOutcomeFieldBinding {
+        let created = construct outcome_field_bindings.build(
+            source_program_impl_instruction_intent_id = source_program_impl_instruction_intent_id,
+            source_response_attribute_config_id = source_response_attribute_config_id,
+            target_request_attribute_config_id = target_request_attribute_config_id,
+            required = required,
+            position = position,
+        )
+    }
+
+    fn add_receipt_field_binding (
+        source_program_impl_instruction_intent_id UUID,
+        source_receipt_class_config_id UUID,
+        source_receipt_attribute_config_id UUID,
+        target_request_attribute_config_id UUID,
+        required Bool = true,
+        position Int? = null
+    ) -> ProgramImplInstructionIntentReceiptFieldBinding {
+        let created = construct receipt_field_bindings.build(
+            source_program_impl_instruction_intent_id = source_program_impl_instruction_intent_id,
+            source_receipt_class_config_id = source_receipt_class_config_id,
+            source_receipt_attribute_config_id = source_receipt_attribute_config_id,
+            target_request_attribute_config_id = target_request_attribute_config_id,
+            required = required,
+            position = position,
+        )
+    }
+
+}
+
+ann program.impl.ProgramImplInstructionIntent::activation_field_bindings load eager
+ann program.impl.ProgramImplInstructionIntent::outcome_field_bindings load eager
+ann program.impl.ProgramImplInstructionIntent::receipt_field_bindings load eager

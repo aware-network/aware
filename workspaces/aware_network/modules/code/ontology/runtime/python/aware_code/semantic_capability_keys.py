@@ -1,0 +1,10 @@
+from __future__ import annotations
+
+
+SEMANTIC_ANALYSIS_CAPABILITY = "semantic_analysis"
+SEMANTIC_MATERIALIZATION_CAPABILITY = "materialize"
+
+__all__ = [
+    "SEMANTIC_ANALYSIS_CAPABILITY",
+    "SEMANTIC_MATERIALIZATION_CAPABILITY",
+]

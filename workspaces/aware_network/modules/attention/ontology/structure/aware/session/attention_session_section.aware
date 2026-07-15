@@ -1,0 +1,89 @@
+/// Session-local section state for Attention focus transitions.
+///
+/// Contract:
+/// - Parent constructor is AttentionSessionLayout.
+/// - This row grounds transition history by LayoutSection -> Section.
+/// - Section.active_focus_scope remains legacy/global current state; replayable
+///   session focus truth is the transition list under this row.
+class AttentionSessionSection {
+    // Relationships
+    layout_section layout.LayoutSection key
+    section section.Section key
+    transitions AttentionFocusTransition[]
+    active_transition AttentionFocusTransition?
+
+    // Metadata
+    section_key String?
+    order Int = 0
+    is_active Bool = true
+
+    fn create construct (
+        layout_section_id UUID key,
+        section_id UUID key,
+        section_key String? = null,
+        order Int = 0,
+        is_active Bool = true
+    ) -> AttentionSessionSection {
+        """
+        Create one session-local section state row.
+        """
+    }
+
+    fn append_transition (
+        transition_key String key,
+        focus_scope_id UUID key,
+        focus_id UUID? = null,
+        observable_id UUID? = null,
+        object_projection_graph_identity_id UUID? = null,
+        object_instance_graph_branch_id UUID? = null,
+        object_instance_graph_commit_id UUID? = null,
+        previous_transition_id UUID? = null,
+        sequence Int = 0,
+        projection_hash String? = null,
+        transition_kind String = "focus",
+        rationale String? = null,
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> AttentionFocusTransition {
+        """
+        Append one replayable focus transition under this session section.
+
+        Contract:
+        - This is source truth for replay.
+        - It is not an all-in-one read snapshot.
+        - Consumers may later derive read DTOs from this row plus session
+          layout/section state.
+        """
+        let transition = construct transitions.create(
+            transition_key = transition_key,
+            focus_scope_id = focus_scope_id,
+            focus_id = focus_id,
+            observable_id = observable_id,
+            object_projection_graph_identity_id = object_projection_graph_identity_id,
+            object_instance_graph_branch_id = object_instance_graph_branch_id,
+            object_instance_graph_commit_id = object_instance_graph_commit_id,
+            previous_transition_id = previous_transition_id,
+            sequence = sequence,
+            projection_hash = projection_hash,
+            transition_kind = transition_kind,
+            rationale = rationale,
+            source_kind = source_kind,
+            source_ref = source_ref,
+            metadata_json = metadata_json,
+        )
+    }
+
+    fn set_active_transition (
+        attention_focus_transition_id UUID
+    ) -> AttentionFocusTransition {
+        """
+        Select the active transition for this session-local section.
+        """
+    }
+}
+
+ann session.AttentionSessionSection::layout_section load eager
+ann session.AttentionSessionSection::section load eager
+ann session.AttentionSessionSection::transitions load eager
+ann session.AttentionSessionSection::active_transition load eager

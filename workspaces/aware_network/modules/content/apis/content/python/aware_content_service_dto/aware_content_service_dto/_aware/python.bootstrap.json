@@ -1,0 +1,8 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_content_service_dto.content.content_service_operation"
+  ],
+  "package_prefix": "aware_content_service_dto",
+  "version": "v1"
+}

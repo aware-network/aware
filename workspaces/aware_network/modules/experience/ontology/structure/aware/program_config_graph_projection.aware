@@ -1,0 +1,26 @@
+/// ProgramConfigGraph projection
+///
+/// Contract:
+/// - Experience-level graph that binds environment program config to one meta ObjectConfigGraph.
+projection ProgramConfigGraph {
+    root program.ProgramConfigGraph
+
+    /// Program config membership under this graph.
+    program.ProgramConfigGraph::program_configs
+    program.ProgramConfigGraphProgramConfig::program_config ProgramConfig
+    program.ProgramConfigGraphProgramConfig::port_projection_experience_node_classes
+    program.ProgramConfigGraphProgramConfigPortProjectionExperienceNodeClass::program_config_port_projection_experience_node ProgramConfig
+    program.ProgramConfigGraphProgramConfigPortProjectionExperienceNodeClass::projection_experience_node_class_identity ProjectionExperienceOIGI
+    program.ProgramConfigGraph::projection_experience_oigis
+    program.ProgramConfigGraphProjectionExperienceOIGI::projection_experience_oigi ProjectionExperienceOIGI
+
+    /// Canonical portal to meta config graph truth.
+    program.ProgramConfigGraph::object_config_graphs
+    program.ProgramConfigGraphObjectConfigGraph::object_config_graph aware_meta.ObjectConfigGraph
+
+    observable program_config_graph {
+        """
+        Program config graph planner surface (structure + config membership).
+        """
+    }
+}

@@ -1,0 +1,25 @@
+/// Generic Experience invocation action receipt projection.
+///
+/// Contract:
+/// - Actual action receipts are the common interaction surface for views,
+///   sensors, actuators, SDK calls, API calls, commits, events, and
+///   propagation chains.
+projection ExperienceInvocationAction {
+    root invocation.ExperienceInvocationAction
+    invocation.ExperienceInvocationAction::actor aware_identity.Identity
+    invocation.ExperienceInvocationAction::api_call aware_api.Api
+    invocation.ExperienceInvocationAction::sdk_operation_call aware_sdk.SdkConfig
+    invocation.ExperienceInvocationAction::commits
+    invocation.ExperienceInvocationActionCommit::object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    invocation.ExperienceInvocationActionCommit::events
+    invocation.ExperienceInvocationActionCommitEvent::event aware_reactivity.Event
+    invocation.ExperienceInvocationAction::propagations
+    invocation.ExperienceInvocationActionPropagation::target_invocation_action ExperienceInvocationAction
+
+    observable experience_invocation_action {
+        """
+        Generic Experience invocation action receipt with actor, commit, event,
+        and propagation provenance.
+        """
+    }
+}

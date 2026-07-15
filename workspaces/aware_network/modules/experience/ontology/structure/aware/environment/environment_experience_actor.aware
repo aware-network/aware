@@ -1,0 +1,13 @@
+class EnvironmentExperienceActorConfig {
+    // Relationships
+    actor_config aware_identity.actor.ActorConfig key
+
+    // Attributes
+    fn build construct (
+        actor_config_id UUID key
+    ) -> EnvironmentExperienceActorConfig {
+        """
+        Create a deterministic EnvironmentExperienceActorConfig association edge.
+        """
+    }
+}

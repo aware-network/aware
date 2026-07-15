@@ -1,0 +1,41 @@
+/// Experience-owned provider action binding.
+///
+/// Contract:
+/// - This is the public Experience action slot a provider may fulfill later.
+/// - Experience binds to ExperienceInvocationActionConfig only.
+/// - Concrete provider operation and contract fulfillment is declared by the
+///   provider ontology, not here.
+class ExperienceProviderActionBinding {
+    // Relationships
+    experience_invocation_action_config invocation.ExperienceInvocationActionConfig key
+
+    // Attributes
+    binding_key String key
+    description String?
+    provider_action_ref String?
+    required_contract_scope String = "operation"
+    selection_policy String = "contract_required"
+    status String = "active"
+
+    fn build construct (
+        binding_key String key,
+        experience_invocation_action_config_id UUID key,
+        provider_action_ref String? = null,
+        required_contract_scope String = "operation",
+        selection_policy String = "contract_required",
+        status String = "active",
+        description String? = null
+    ) -> ExperienceProviderActionBinding {
+        """
+        Create one provider action binding under an ExperienceProvider.
+
+        Contract:
+        - Parent ExperienceProvider scope is propagated by constructor lowering.
+        - Stable identity is `(experience_provider_id, binding_key)`.
+        - The bound action stays Experience-owned; provider-owned operations bind
+          to this object in the fulfillment migration.
+        """
+    }
+}
+
+ann provider.ExperienceProviderActionBinding::experience_invocation_action_config load eager

@@ -1,0 +1,129 @@
+/// Source text context accepted by the grammar-anchor renderer.
+class CodeGrammarAnchorRenderSource : inline_value {
+    source_key String
+    language code.CodeLanguage = aware
+    relative_path String?
+    source_text String?
+    before_hash String?
+    metadata JsonObject?
+}
+
+/// Render target resolution mode for one grammar-anchor render replacement.
+enum CodeGrammarAnchorRenderTargetKind {
+    grammar_anchor
+    text_span
+}
+
+/// Semantic operation requested over one resolved grammar anchor.
+enum CodeGrammarAnchorRenderAction {
+    replace
+    delete
+}
+
+/// Discriminant for a provider-neutral semantic value rendered by Code.
+enum CodeGrammarAnchorRenderSemanticValueKind {
+    string
+    boolean
+    integer
+    float
+    null
+    json
+    type_ref
+}
+
+/// Provider-neutral primitive type reference rendered by a grammar value codec.
+class CodeGrammarAnchorRenderTypeRefValue : inline_value {
+    type_name String
+    nullable Bool = false
+}
+
+/// Typed semantic value accepted by a Code-owned grammar value codec.
+class CodeGrammarAnchorRenderSemanticValue : inline_value {
+    kind code.CodeGrammarAnchorRenderSemanticValueKind
+    string_value String?
+    boolean_value Bool?
+    integer_value Int?
+    float_value Float?
+    json_value JsonValue?
+    type_ref_value code.CodeGrammarAnchorRenderTypeRefValue?
+}
+
+/// Typed byte-span target for render deltas that cannot yet use parser anchors.
+class CodeGrammarAnchorRenderSpanTarget : inline_value {
+    target_key String?
+    source_key String?
+    relative_path String?
+    language code.CodeLanguage?
+    byte_start Int
+    byte_end Int
+    before_text_hash String?
+    before_source_hash String?
+    graph_selector code.CodeGraphFieldSelector?
+    metadata JsonObject?
+}
+
+/// Replacement requested for one grammar-anchor binding.
+class CodeGrammarAnchorRenderReplacement : inline_value {
+    replacement_key String?
+    binding_key String?
+    source_key String?
+    target_kind code.CodeGrammarAnchorRenderTargetKind = grammar_anchor
+    span_target code.CodeGrammarAnchorRenderSpanTarget?
+    action code.CodeGrammarAnchorRenderAction = replace
+    semantic_value code.CodeGrammarAnchorRenderSemanticValue?
+    /// Representation text is accepted only for explicit text-span targets.
+    replacement_text String?
+    before_text_hash String?
+    event_ref String?
+    semantic_key String?
+    metadata JsonObject?
+}
+
+/// One resolved grammar-anchor render operation.
+class CodeGrammarAnchorRenderEntry : inline_value {
+    replacement_key String?
+    binding_key String?
+    source_key String?
+    relative_path String?
+    target_kind code.CodeGrammarAnchorRenderTargetKind = grammar_anchor
+    span_target code.CodeGrammarAnchorRenderSpanTarget?
+    text_evidence code.CodeGrammarAnchorTextEvidence?
+    text_target code.CodeGrammarAnchorTextTargetEvidence?
+    before_source_hash String?
+    after_source_hash String?
+    applied Bool = false
+    skipped_reason String?
+    metadata JsonObject?
+}
+
+/// Resolve grammar-anchor graph-to-source replacements into guarded Code deltas.
+class ResolveCodeGrammarAnchorRenderDeltaRequest augment code.CodeServiceRequest {
+    operation String = "resolve_grammar_anchor_render_delta"
+    package_name String?
+    package_root String?
+    sources_root String?
+    baseline_fingerprint String?
+    baseline_fingerprint_algorithm String = "sha256"
+    bindings code.CodeGrammarAnchorBinding[] = []
+    sources code.CodeGrammarAnchorRenderSource[] = []
+    replacements code.CodeGrammarAnchorRenderReplacement[] = []
+    strict Bool = true
+    metadata JsonObject?
+}
+
+class ResolveCodeGrammarAnchorRenderDeltaResponse augment code.CodeServiceResponse {
+    operation String = "resolve_grammar_anchor_render_delta"
+    resolved Bool = false
+    status code.CodeGrammarAnchorBindingResolutionStatus = blocked
+    diagnostics String[] = []
+    render_entries code.CodeGrammarAnchorRenderEntry[] = []
+    package_delta code.CodePackageDelta?
+    binding_count Int = 0
+    source_count Int = 0
+    replacement_count Int = 0
+    render_entry_count Int = 0
+    path_count Int = 0
+}
+
+ann code.ResolveCodeGrammarAnchorRenderDeltaRequest::operation discriminate tag "resolve_grammar_anchor_render_delta"
+ann code.ResolveCodeGrammarAnchorRenderDeltaResponse::operation discriminate tag "resolve_grammar_anchor_render_delta"

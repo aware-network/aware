@@ -27,9 +27,6 @@ from aware_code_ontology.code.code_plan import (
     CodePackageDeltaKind,
     CodePackageDeltaPath,
 )
-from aware_workspace.features.semantic_materialization.delta_contract import (
-    WorkspaceSemanticMaterializationProviderDeltaRequest,
-)
 
 
 class _RecordingApiExecutionBackend:
@@ -97,8 +94,8 @@ def _write_simple_api_delta_fixture(workspace_root: Path) -> Path:
 def _api_provider_delta_request(
     *,
     api_toml_path: Path,
-) -> WorkspaceSemanticMaterializationProviderDeltaRequest:
-    return WorkspaceSemanticMaterializationProviderDeltaRequest.model_validate(
+) -> SemanticProviderDeltaRequest:
+    return SemanticProviderDeltaRequest.model_validate(
         {
             "package": {
                 "package_name": "demo-api",
@@ -193,10 +190,7 @@ def _baseline_ref_payload(*, api_toml_path: Path) -> dict[str, object]:
 
 
 def _execution_request(
-    base_request: (
-        WorkspaceSemanticMaterializationProviderDeltaRequest
-        | SemanticProviderDeltaRequest
-    ),
+    base_request: SemanticProviderDeltaRequest,
     **overrides: object,
 ) -> SimpleNamespace:
     fields: dict[str, object] = {
@@ -229,9 +223,9 @@ async def test_api_provider_delta_accepts_code_owned_request_contract(
     tmp_path: Path,
 ) -> None:
     api_toml_path = _write_simple_api_delta_fixture(tmp_path)
-    workspace_request = _api_provider_delta_request(api_toml_path=api_toml_path)
+    provider_delta_request = _api_provider_delta_request(api_toml_path=api_toml_path)
     code_request = SemanticProviderDeltaRequest.model_validate(
-        workspace_request.model_dump(mode="json")
+        provider_delta_request.model_dump(mode="json")
     )
 
     result = await workspace_provider.materialize_delta(

@@ -1,0 +1,24 @@
+class CodeSectionEnumValue {
+    // Relationships
+    value_segment aware_content.part.ContentPartTextSegment
+    code_section_comments comment.CodeSectionComment[]
+
+    // Attributes
+    value String key
+    description String?
+    position Int = 0
+
+    fn build construct(
+        value String key,
+        position Int = 0
+    ) -> CodeSectionEnumValue {
+        """
+        Build the enum-value payload under a CodeSection.
+        """
+    }
+}
+
+/// Eager value segment
+ann enum.CodeSectionEnumValue::value_segment load eager
+ann enum.CodeSectionEnumValue::code_section_comments load eager
+ann enum.CodeSectionEnumValue::code_section_comments override fk nullable

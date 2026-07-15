@@ -1,0 +1,45 @@
+/// Provider-neutral grant over an EnvironmentProfileConfig scope.
+///
+/// Contract:
+/// - Environment owns the grant contract.
+/// - Experience may bind to the grant, but Environment never references Experience.
+/// - Service/provider fulfillment remains outside this ontology.
+class EnvironmentProviderGrant {
+    // Relationships
+    process_config process.ProcessConfig?
+    thread_config thread.ThreadConfig?
+    object_projection_graph aware_meta.graph.projection.ObjectProjectionGraph?
+
+    // Attributes
+    action_scope String?
+    description String?
+    grant_key String key
+    metadata_json JsonObject? = {}
+    scope_kind String = "profile"
+    status String = "active"
+
+    fn build construct (
+        grant_key String key,
+        scope_kind String = "profile",
+        process_config_id UUID? = null,
+        thread_config_id UUID? = null,
+        object_projection_graph_id UUID? = null,
+        action_scope String? = null,
+        status String = "active",
+        description String? = null,
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentProviderGrant {
+        """
+        Create one Environment provider grant.
+
+        Contract:
+        - Stable identity is `(environment_provider_id, grant_key)`.
+        - Optional scope refs constrain the granted Environment surface.
+        - No Experience or Service class reference is allowed here.
+        """
+    }
+}
+
+ann environment.EnvironmentProviderGrant::process_config load eager
+ann environment.EnvironmentProviderGrant::thread_config load eager
+ann environment.EnvironmentProviderGrant::object_projection_graph load eager

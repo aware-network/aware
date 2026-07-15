@@ -1,0 +1,40 @@
+/// ContentPackage Projection (v0)
+///
+/// Contract:
+/// - ContentPackage is the Content-owned package authority for shared content.
+/// - It is parallel to CodePackage, but it owns Content membership rather than
+///   Code membership.
+/// - WorkspaceRevision pins and Goal provider adapters are follow-on rails.
+projection ContentPackage is_branchable {
+    root aware_content.package.ContentPackage
+
+    aware_content.package.ContentPackage::contents
+    aware_content.package.ContentPackageContent::content Content
+    aware_content.package.ContentPackage::artifacts
+
+    // Renderable Content graph
+    aware_content.content.Content::content_index
+    aware_content.content.Content::content_layouts
+    aware_content.content.ContentLayout::content_part_contents
+    aware_content.content.Content::content_part_contents
+    aware_content.part.ContentPartContent::content_part
+    aware_content.part.ContentPart::content_part_multimodal_index
+    aware_content.part.ContentPart::content_part_text
+    aware_content.part.ContentPartText::index
+    aware_content.part.ContentPartText::segments
+    aware_content.part.ContentPartTextSegment::style
+    aware_content.part.ContentPartTextSegment::content_part_text_segment_translations
+    aware_content.part.ContentPart::storage_blobs
+
+    observable contents {
+        """
+        Package-owned content membership and checkout materialization surface.
+        """
+    }
+
+    observable home {
+        """
+        ContentPackage manifest-backed package ownership surface.
+        """
+    }
+}

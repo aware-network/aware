@@ -1,0 +1,69 @@
+/// Generic provider descriptor for Identity session attachments.
+///
+/// Contract:
+/// - Provider is not a Service, Environment, Conversation, Goal, Workspace, or
+///   Attention object.
+/// - Identity stores provider keys/contracts so actors can discover active
+///   session capabilities without Identity importing provider domains.
+/// - Concrete domain behavior remains provider-owned and is reached outside
+///   Identity through the provider contract.
+class SessionProvider {
+    // Relationships
+    session_provider_session_configs SessionProviderSessionConfig[]
+
+    // Attributes
+    provider_key String key
+    provider_kind String = "provider"
+    title String?
+    status String = "active"
+    contract_ref String?
+    metadata_json JsonObject? = {}
+
+    fn register construct (
+        provider_key String key,
+        provider_kind String = "provider",
+        title String? = null,
+        status String = "active",
+        contract_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> SessionProvider {
+        """
+        Register one provider-neutral session capability descriptor.
+
+        Contract:
+        - Stable identity is derived from `provider_key`.
+        - This does not grant actors access and does not activate provider
+          behavior.
+        """
+    }
+
+    fn bind_session_config (
+        config_key String key,
+        session_config_id UUID key,
+        title String? = null,
+        status String = "active",
+        provider_contract_ref String? = null,
+        selection_policy String = "contract_required",
+        metadata_json JsonObject? = {}
+    ) -> SessionProviderSessionConfig {
+        """
+        Declare that this provider can attach concrete provider sessions under
+        one Identity SessionConfig.
+
+        Contract:
+        - This is provider/config eligibility vocabulary only.
+        - A concrete attachment is `SessionProviderSession` under `Session`.
+        """
+        let binding = construct session_provider_session_configs.create(
+            config_key = config_key,
+            session_config_id = session_config_id,
+            title = title,
+            status = status,
+            provider_contract_ref = provider_contract_ref,
+            selection_policy = selection_policy,
+            metadata_json = metadata_json,
+        )
+    }
+}
+
+ann session.SessionProvider::session_provider_session_configs load eager

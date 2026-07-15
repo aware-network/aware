@@ -5,7 +5,10 @@ from uuid import uuid4
 
 import pytest
 
+from aware_history_ontology.change.change_enums import ChangeType
 from aware_code_ontology.code.code_enums import CodeLanguage
+from aware_meta.attribute.instance.value.stable_ids import stable_attribute_value_id
+from aware_meta.graph.config.stable_ids import stable_attribute_id
 from aware_history.stable_ids import stable_lane_id
 from aware_history_ontology.commit.commit import Commit
 from aware_history_ontology.commit.commit_parent import CommitParent
@@ -15,10 +18,28 @@ from aware_history_ontology.stable_ids import (
     stable_commit_id,
     stable_commit_parent_id,
 )
+import aware_meta.runtime.commit.identity_history as identity_history_mod
+from aware_meta.graph.instance.commit.state_index import build_commit_state_index
 from aware_meta.runtime.commit.identity_history import (
     _canonicalize_domain_commit_identity_for_history,
+    _materialize_oigi_history_head_with_recovery,
+    _oigi_history_head_state_hash_mismatch,
+    _oigi_primitive_leaf_value_fingerprint,
     _project_oigi_history_direct,
+    _try_build_oigi_history_primitive_leaf_attribute_change,
+    _try_build_oigi_primitive_leaf_attribute,
+    _try_emit_oigi_model_free_primitive_leaf_source_row,
 )
+from aware_meta.test_support import make_attribute_config, test_class_fqn
+from aware_meta_ontology.attribute.attribute_type_descriptor import (
+    AttributeTypeDescriptor,
+)
+from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
+    AttributeTypeDescriptorKind,
+)
+from aware_meta_ontology.class_.class_instance_change import ClassInstanceChange
+from aware_meta_ontology.class_.class_instance import ClassInstance
+from aware_meta_ontology.graph.instance.object_instance_graph import ObjectInstanceGraph
 from aware_meta_ontology.graph.instance.object_instance_graph_commit import (
     ObjectInstanceGraphCommit,
 )
@@ -27,6 +48,381 @@ from aware_meta_ontology.graph.instance.object_instance_graph_identity import (
 )
 from aware_meta_ontology.stable_ids import stable_object_instance_graph_commit_id
 from aware_orm.session.session import Session
+
+
+def _primitive_attribute_config(name: str = "label"):
+    descriptor = AttributeTypeDescriptor(
+        kind=AttributeTypeDescriptorKind.primitive,
+        child_links=[],
+    )
+    return make_attribute_config(
+        owner_key=test_class_fqn("OigiRowBackedPrimitive"),
+        name=name,
+        type_descriptor=descriptor,
+        type_descriptor_id=descriptor.id,
+    )
+
+
+def _minimal_oig(*, graph_hash: str) -> ObjectInstanceGraph:
+    graph_id = uuid4()
+    class_instance_id = uuid4()
+    class_instance = ClassInstance(
+        id=class_instance_id,
+        class_config_id=uuid4(),
+        source_object_id=class_instance_id,
+        object_instance_graph_id=graph_id,
+        attributes=[],
+        class_instance_relationships=[],
+    )
+    return ObjectInstanceGraph(
+        id=graph_id,
+        key="oigi",
+        name="OIGI",
+        description=None,
+        object_projection_graph_id=uuid4(),
+        root_class_instance_id=class_instance.id,
+        root_class_instance=class_instance,
+        class_instances=[class_instance],
+        class_instance_relationships=[],
+        hash=graph_hash,
+    )
+
+
+def test_oigi_history_head_state_hash_mismatch_detects_invalid_head() -> None:
+    graph = _minimal_oig(graph_hash="invalid")
+
+    mismatch = _oigi_history_head_state_hash_mismatch(before_oig=graph)
+
+    assert mismatch is not None
+    state_index_hash, graph_hash = mismatch
+    assert graph_hash == "invalid"
+    assert state_index_hash != graph_hash
+
+
+@pytest.mark.asyncio
+async def test_oigi_history_materialized_head_hash_mismatch_resets_lane(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    invalid_graph = _minimal_oig(graph_hash="invalid")
+    valid_graph_base = _minimal_oig(graph_hash="")
+    valid_graph = valid_graph_base.model_copy(
+        update={"hash": build_commit_state_index(valid_graph_base).compute_hash()}
+    )
+    original_head_commit_id = uuid4()
+    original_head_oig_id = invalid_graph.id
+    reseeded_head_commit_id = uuid4()
+    reseeded_head_oig_id = valid_graph.id
+    reset_calls: list[dict[str, object]] = []
+    ensure_calls: list[dict[str, object]] = []
+
+    class _Materializer:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        async def get(self, **_: object):
+            self.calls += 1
+            if self.calls == 1:
+                return invalid_graph, {}
+            return valid_graph, {}
+
+    class _Store:
+        aware_root = tmp_path
+
+        async def head(self, **_: object):
+            return {
+                "commit_id": str(reseeded_head_commit_id),
+                "object_instance_graph_id": str(reseeded_head_oig_id),
+            }
+
+    class _Index:
+        ocg = object()
+        attribute_configs_by_id: dict[object, object] = {}
+        class_configs_by_id: dict[object, object] = {}
+
+    def _reset(**kwargs: object) -> None:
+        reset_calls.append(kwargs)
+
+    async def _ensure(**kwargs: object) -> None:
+        ensure_calls.append(kwargs)
+
+    monkeypatch.setattr(
+        identity_history_mod,
+        "reset_invalid_object_instance_graph_identity_lane",
+        _reset,
+    )
+    monkeypatch.setattr(
+        identity_history_mod,
+        "ensure_object_instance_graph_identity_lane_head",
+        _ensure,
+    )
+    perf_ms: dict[str, int] = {}
+
+    materialized = await _materialize_oigi_history_head_with_recovery(
+        materializer=_Materializer(),  # type: ignore[arg-type]
+        lane_materializer=None,
+        store=_Store(),  # type: ignore[arg-type]
+        index=_Index(),  # type: ignore[arg-type]
+        oigi_opg=object(),  # type: ignore[arg-type]
+        domain_oig_id=uuid4(),
+        domain_projection_hash="domain-hash",
+        oigi_projection_hash="oigi-hash",
+        head_commit_id=original_head_commit_id,
+        head_oig_id=original_head_oig_id,
+        author_id=uuid4(),
+        perf_ms=perf_ms,
+        perf_metric_prefix="test",
+    )
+
+    assert materialized.before_oig is valid_graph
+    assert materialized.head_commit_id == reseeded_head_commit_id
+    assert materialized.head_oig_id == reseeded_head_oig_id
+    assert len(reset_calls) == 1
+    assert len(ensure_calls) == 1
+    assert perf_ms["test_invalid_oigi_head_reset_count"] == 1
+    assert perf_ms["test_invalid_oigi_head_state_hash_reset_count"] == 1
+
+
+def test_oigi_primitive_row_backed_prestate_reuses_existing_attribute() -> None:
+    owner_key = uuid4()
+    attribute_config = _primitive_attribute_config()
+    before_fingerprint = _oigi_primitive_leaf_value_fingerprint(
+        type_descriptor=attribute_config.type_descriptor,
+        primitive_value={"value": "same"},
+    )
+    assert before_fingerprint is not None
+
+    emission = _try_emit_oigi_model_free_primitive_leaf_source_row(
+        owner_key=owner_key,
+        attribute_config=attribute_config,
+        value="same",
+        before_attributes_by_id={},
+        before_attribute_fingerprints_by_config_id={
+            attribute_config.id: before_fingerprint,
+        },
+        created_at=datetime.now(UTC),
+    )
+
+    expected_attribute_id = stable_attribute_id(
+        owner_key=owner_key,
+        attribute_config_id=attribute_config.id,
+    )
+    assert emission.attribute_id == expected_attribute_id
+    assert emission.attribute_change_draft is None
+    assert emission.reused_before_fingerprint is True
+    assert emission.row_backed_before_attribute is True
+
+
+def test_oigi_primitive_row_backed_prestate_emits_update_not_create() -> None:
+    owner_key = uuid4()
+    attribute_config = _primitive_attribute_config()
+    before_fingerprint = _oigi_primitive_leaf_value_fingerprint(
+        type_descriptor=attribute_config.type_descriptor,
+        primitive_value={"value": "before"},
+    )
+    assert before_fingerprint is not None
+
+    emission = _try_emit_oigi_model_free_primitive_leaf_source_row(
+        owner_key=owner_key,
+        attribute_config=attribute_config,
+        value="after",
+        before_attributes_by_id={},
+        before_attribute_fingerprints_by_config_id={
+            attribute_config.id: before_fingerprint,
+        },
+        created_at=datetime.now(UTC),
+    )
+
+    expected_attribute_id = stable_attribute_id(
+        owner_key=owner_key,
+        attribute_config_id=attribute_config.id,
+    )
+    assert emission.attribute_id == expected_attribute_id
+    assert emission.attribute_change_draft is not None
+    assert emission.attribute_change_draft.operation == ChangeType.update
+    assert emission.attribute_change_draft.value_root_change.operation == (
+        ChangeType.update
+    )
+    assert emission.attribute_change_draft.value_root_change.attribute_value_id == (
+        stable_attribute_value_id(
+            parent_value_id=expected_attribute_id,
+            role="member",
+            position=0,
+            identity_key="root",
+        )
+    )
+    assert emission.row_backed_before_attribute is True
+
+
+def test_oigi_required_primitive_without_prestate_emits_create() -> None:
+    owner_key = uuid4()
+    attribute_config = _primitive_attribute_config()
+    attribute_config.is_required = True
+
+    emission = _try_emit_oigi_model_free_primitive_leaf_source_row(
+        owner_key=owner_key,
+        attribute_config=attribute_config,
+        value="after",
+        before_attributes_by_id={},
+        before_attribute_fingerprints_by_config_id={},
+        created_at=datetime.now(UTC),
+    )
+
+    expected_attribute_id = stable_attribute_id(
+        owner_key=owner_key,
+        attribute_config_id=attribute_config.id,
+    )
+    assert emission.attribute_id == expected_attribute_id
+    assert emission.attribute_change_draft is not None
+    assert emission.attribute_change_draft.operation == ChangeType.create
+    assert emission.attribute_change_draft.value_root_change.operation == (
+        ChangeType.create
+    )
+    assert emission.attribute_change_draft.value_root_change.attribute_value_id == (
+        stable_attribute_value_id(
+            parent_value_id=expected_attribute_id,
+            role="member",
+            position=0,
+            identity_key="root",
+        )
+    )
+    assert emission.row_backed_before_attribute is False
+
+
+def test_oigi_optional_primitive_without_prestate_emits_create() -> None:
+    owner_key = uuid4()
+    attribute_config = _primitive_attribute_config()
+
+    emission = _try_emit_oigi_model_free_primitive_leaf_source_row(
+        owner_key=owner_key,
+        attribute_config=attribute_config,
+        value="after",
+        before_attributes_by_id={},
+        before_attribute_fingerprints_by_config_id={},
+        created_at=datetime.now(UTC),
+    )
+
+    assert emission.attribute_change_draft is not None
+    assert emission.attribute_change_draft.operation == ChangeType.create
+    assert emission.attribute_change_draft.value_root_change.operation == (
+        ChangeType.create
+    )
+    assert emission.row_backed_before_attribute is False
+
+
+def test_oigi_primitive_generic_row_backed_prestate_emits_update_not_create() -> None:
+    owner_key = uuid4()
+    attribute_config = _primitive_attribute_config()
+    before_fingerprint = _oigi_primitive_leaf_value_fingerprint(
+        type_descriptor=attribute_config.type_descriptor,
+        primitive_value={"value": "before"},
+    )
+    assert before_fingerprint is not None
+    attribute = _try_build_oigi_primitive_leaf_attribute(
+        owner_key=owner_key,
+        attribute_config=attribute_config,
+        value="after",
+    )
+    assert attribute is not None
+    value_fingerprint = _oigi_primitive_leaf_value_fingerprint(
+        type_descriptor=attribute_config.type_descriptor,
+        primitive_value={"value": "after"},
+    )
+    parent = ClassInstanceChange.model_construct(id=uuid4())
+
+    change = _try_build_oigi_history_primitive_leaf_attribute_change(
+        before_attribute=None,
+        before_value_fingerprint=before_fingerprint,
+        attribute=attribute,
+        value_fingerprint=value_fingerprint,
+        parent=parent,
+        created_at=datetime.now(UTC),
+        row_backed_before_attribute=True,
+    )
+
+    expected_attribute_id = stable_attribute_id(
+        owner_key=owner_key,
+        attribute_config_id=attribute_config.id,
+    )
+    assert change is not None
+    assert change.attribute_id == expected_attribute_id
+    assert change.change.type == ChangeType.update
+    assert change.value_root_change.change.type == ChangeType.update
+    assert change.value_root_change.attribute_value_id == stable_attribute_value_id(
+        parent_value_id=expected_attribute_id,
+        role="member",
+        position=0,
+        identity_key="root",
+    )
+
+
+def test_oigi_primitive_generic_without_prestate_emits_create() -> None:
+    owner_key = uuid4()
+    attribute_config = _primitive_attribute_config()
+    attribute = _try_build_oigi_primitive_leaf_attribute(
+        owner_key=owner_key,
+        attribute_config=attribute_config,
+        value="after",
+    )
+    assert attribute is not None
+    value_fingerprint = _oigi_primitive_leaf_value_fingerprint(
+        type_descriptor=attribute_config.type_descriptor,
+        primitive_value={"value": "after"},
+    )
+    parent = ClassInstanceChange.model_construct(id=uuid4())
+
+    change = _try_build_oigi_history_primitive_leaf_attribute_change(
+        before_attribute=None,
+        before_value_fingerprint=None,
+        attribute=attribute,
+        value_fingerprint=value_fingerprint,
+        parent=parent,
+        created_at=datetime.now(UTC),
+    )
+
+    expected_attribute_id = stable_attribute_id(
+        owner_key=owner_key,
+        attribute_config_id=attribute_config.id,
+    )
+    assert change is not None
+    assert change.attribute_id == expected_attribute_id
+    assert change.change.type == ChangeType.create
+    assert change.value_root_change.change.type == ChangeType.create
+    assert change.value_root_change.attribute_value_id == stable_attribute_value_id(
+        parent_value_id=expected_attribute_id,
+        role="member",
+        position=0,
+        identity_key="root",
+    )
+
+
+def test_oigi_primitive_generic_row_backed_prestate_returns_no_change() -> None:
+    owner_key = uuid4()
+    attribute_config = _primitive_attribute_config()
+    before_fingerprint = _oigi_primitive_leaf_value_fingerprint(
+        type_descriptor=attribute_config.type_descriptor,
+        primitive_value={"value": "same"},
+    )
+    assert before_fingerprint is not None
+    attribute = _try_build_oigi_primitive_leaf_attribute(
+        owner_key=owner_key,
+        attribute_config=attribute_config,
+        value="same",
+    )
+    assert attribute is not None
+    parent = ClassInstanceChange.model_construct(id=uuid4())
+
+    change = _try_build_oigi_history_primitive_leaf_attribute_change(
+        before_attribute=None,
+        before_value_fingerprint=before_fingerprint,
+        attribute=attribute,
+        value_fingerprint=before_fingerprint,
+        parent=parent,
+        created_at=datetime.now(UTC),
+        row_backed_before_attribute=True,
+    )
+
+    assert change is None
 
 
 @pytest.mark.asyncio

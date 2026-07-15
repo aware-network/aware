@@ -1,0 +1,24 @@
+[project]
+name = "rust-tooling"
+version = "0.1.0"
+description = "Aware Rust toolchain provider."
+readme = { text = "Aware Rust toolchain provider.", content-type = "text/markdown" }
+requires-python = ">=3.12"
+dependencies = [
+  "aware-code",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.4.2",
+]
+
+[tool.uv.sources]
+aware-code = { workspace = true }
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["rust_tooling"]

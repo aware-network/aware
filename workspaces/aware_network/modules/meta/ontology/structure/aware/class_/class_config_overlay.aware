@@ -1,0 +1,6 @@
+/// Per-language overrides for ClassConfig entities.
+edge ClassConfigOverlay {
+    // Attributes
+    rendered_name String?
+    lang_flags JsonObject?
+}

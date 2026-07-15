@@ -41,6 +41,9 @@ from aware_code.semantic_package.schemas import (
     CapabilityParticipationDescriptor,
     CapabilityProfileDescriptor,
 )
+from aware_meta.generated_materialization_contract import (
+    generated_materialization_intent_target_metadata as _generated_materialization_intent_target_metadata,
+)
 from aware_meta.semantic_operation_resolution import (
     ATTRIBUTE_CONFIG_UPDATE_CLASS_FUNCTION_REF,
     ATTRIBUTE_CONFIG_UPDATE_ENUM_FUNCTION_REF,
@@ -59,9 +62,11 @@ from aware_meta.semantic_operation_resolution import (
     META_CLASS_CREATE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION,
     META_CLASS_DELETE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION,
     META_CLASS_DESCRIPTION_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION,
+    META_CLASS_PARENT_UPDATE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION,
     META_OBJECT_CONFIG_GRAPH_CLASS_CREATE_OPERATION,
     META_OBJECT_CONFIG_GRAPH_CLASS_DELETE_OPERATION,
     META_OBJECT_CONFIG_GRAPH_CLASS_DESCRIPTION_UPDATE_OPERATION,
+    META_OBJECT_CONFIG_GRAPH_CLASS_PARENT_UPDATE_OPERATION,
     META_OBJECT_CONFIG_GRAPH_ENUM_CREATE_OPERATION,
     META_OBJECT_CONFIG_GRAPH_ENUM_DELETE_OPERATION,
     META_OBJECT_CONFIG_GRAPH_ENUM_DESCRIPTION_UPDATE_OPERATION,
@@ -154,6 +159,9 @@ META_OCG_MIGRATION_ARTIFACT_REQUIRED_FOR = (
 META_OCG_MIGRATION_LANE_INDEX_OUTPUT_KEY = "ocg_migration_lane_index"
 META_OCG_MIGRATION_DELTA_OUTPUT_KEY = "ocg_migration_delta"
 META_OCG_MIGRATION_DIALECT_OUTPUT_KEY = "ocg_migration_dialect"
+META_OCG_PACKAGE_DELTA_FIRST_READINESS_PROOF_KEY = (
+    "aware_meta.ocg_package_delta_first_readiness_proof"
+)
 META_MATERIALIZATION_RUNTIME_ONTOLOGY_PACKAGE_NAMES = (
     "storage-ontology",
     "content-ontology",
@@ -173,12 +181,31 @@ META_SEMANTIC_SCOPE_KEYS: tuple[str, ...] = (
 )
 
 
+def generated_materialization_intent_target_metadata(
+    *,
+    policy_key: str,
+    materialization_target: str,
+) -> dict[str, object]:
+    return _generated_materialization_intent_target_metadata(
+        policy_key=policy_key,
+        materialization_target=materialization_target,
+    )
+
+
 def _meta_ocg_delta_product_readiness_payload() -> dict[str, object]:
     from aware_meta.materialization.deltas.coverage_matrix import (
         meta_ocg_delta_product_readiness_payload,
     )
 
     return meta_ocg_delta_product_readiness_payload()
+
+
+def _meta_ocg_package_delta_first_readiness_proof_payload() -> dict[str, object]:
+    from aware_meta.materialization.deltas.ocg_package_readiness import (
+        meta_ocg_package_delta_first_readiness_proof_payload,
+    )
+
+    return meta_ocg_package_delta_first_readiness_proof_payload()
 
 
 META_DIAGNOSTICS_OWNER_SEQUENCE = (
@@ -517,12 +544,11 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                                 "generated_materialization_provider_key": (
                                     "aware_meta"
                                 ),
-                                "renderer_key": "python.orm.attribute.field",
-                                "policy_key": (
-                                    "aware_meta.python_orm.attribute.create"
-                                ),
-                                "materialization_target": (
-                                    "python_orm_attribute_field"
+                                **generated_materialization_intent_target_metadata(
+                                    policy_key=(
+                                        "aware_meta.generated_materialization.attribute.create"
+                                    ),
+                                    materialization_target="attribute_field",
                                 ),
                             },
                         },
@@ -556,12 +582,11 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                                 "generated_materialization_provider_key": (
                                     "aware_meta"
                                 ),
-                                "renderer_key": "python.orm.attribute.field",
-                                "policy_key": (
-                                    "aware_meta.python_orm.attribute.delete"
-                                ),
-                                "materialization_target": (
-                                    "python_orm_attribute_field"
+                                **generated_materialization_intent_target_metadata(
+                                    policy_key=(
+                                        "aware_meta.generated_materialization.attribute.delete"
+                                    ),
+                                    materialization_target="attribute_field",
                                 ),
                             },
                         },
@@ -714,9 +739,12 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                                 "generated_materialization_provider_key": (
                                     "aware_meta"
                                 ),
-                                "renderer_key": "python.orm.function",
-                                "policy_key": ("aware_meta.python_orm.function.delete"),
-                                "materialization_target": ("python_orm_function"),
+                                **generated_materialization_intent_target_metadata(
+                                    policy_key=(
+                                        "aware_meta.generated_materialization.function.delete"
+                                    ),
+                                    materialization_target="function",
+                                ),
                             },
                         },
                     },
@@ -822,9 +850,12 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                                 "generated_materialization_provider_key": (
                                     "aware_meta"
                                 ),
-                                "renderer_key": "python.orm.class",
-                                "policy_key": ("aware_meta.python_orm.class.delete"),
-                                "materialization_target": "python_orm_class",
+                                **generated_materialization_intent_target_metadata(
+                                    policy_key=(
+                                        "aware_meta.generated_materialization.class.delete"
+                                    ),
+                                    materialization_target="class",
+                                ),
                             },
                         },
                     },
@@ -835,9 +866,10 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                         META_CLASS_CREATE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
                     ),
                     "generated_materialization_provider_key": "aware_meta",
-                    "renderer_key": "python.orm.class",
-                    "policy_key": "aware_meta.python_orm.class.create",
-                    "materialization_target": "python_orm_class",
+                    **generated_materialization_intent_target_metadata(
+                        policy_key="aware_meta.generated_materialization.class.create",
+                        materialization_target="class",
+                    ),
                 },
             },
         },
@@ -1288,12 +1320,11 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                                 "generated_materialization_provider_key": (
                                     "aware_meta"
                                 ),
-                                "renderer_key": ("python.orm.relationship.load_policy"),
-                                "policy_key": (
-                                    "aware_meta.python_orm.relationship.create"
-                                ),
-                                "materialization_target": (
-                                    "python_orm_relationship_field"
+                                **generated_materialization_intent_target_metadata(
+                                    policy_key=(
+                                        "aware_meta.generated_materialization.relationship.create"
+                                    ),
+                                    materialization_target="relationship_field",
                                 ),
                             },
                         },
@@ -1327,12 +1358,11 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                                 "generated_materialization_provider_key": (
                                     "aware_meta"
                                 ),
-                                "renderer_key": ("python.orm.relationship.load_policy"),
-                                "policy_key": (
-                                    "aware_meta.python_orm.relationship.delete"
-                                ),
-                                "materialization_target": (
-                                    "python_orm_relationship_field"
+                                **generated_materialization_intent_target_metadata(
+                                    policy_key=(
+                                        "aware_meta.generated_materialization.relationship.delete"
+                                    ),
+                                    materialization_target="relationship_field",
                                 ),
                             },
                         },
@@ -1630,6 +1660,7 @@ META_OBJECT_CONFIG_GRAPH_SUPPORTED_FUNCTION_CALL_OPERATION_TYPES = (
     META_OBJECT_CONFIG_GRAPH_CLASS_CREATE_OPERATION,
     META_OBJECT_CONFIG_GRAPH_CLASS_DELETE_OPERATION,
     META_OBJECT_CONFIG_GRAPH_CLASS_DESCRIPTION_UPDATE_OPERATION,
+    META_OBJECT_CONFIG_GRAPH_CLASS_PARENT_UPDATE_OPERATION,
     META_OBJECT_CONFIG_GRAPH_ENUM_CREATE_OPERATION,
     META_OBJECT_CONFIG_GRAPH_ENUM_DELETE_OPERATION,
     META_OBJECT_CONFIG_GRAPH_ENUM_DESCRIPTION_UPDATE_OPERATION,
@@ -1652,6 +1683,7 @@ META_OBJECT_CONFIG_GRAPH_GENERATED_MATERIALIZATION_INTENT_REFS = (
     META_CLASS_CREATE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION,
     META_CLASS_DELETE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION,
     META_CLASS_DESCRIPTION_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION,
+    META_CLASS_PARENT_UPDATE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION,
     META_ENUM_CREATE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION,
     META_ENUM_DELETE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION,
     META_ENUM_DESCRIPTION_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION,
@@ -1839,6 +1871,9 @@ META_MATERIALIZATION_DELTA_ADAPTER_METADATA: dict[str, object] = {
     ),
     SEMANTIC_PROVIDER_DELTA_PRODUCT_READINESS_KEY: (
         _meta_ocg_delta_product_readiness_payload()
+    ),
+    META_OCG_PACKAGE_DELTA_FIRST_READINESS_PROOF_KEY: (
+        _meta_ocg_package_delta_first_readiness_proof_payload()
     ),
     "semantic_projection_portal_policy": (META_OCG_GENESIS_PROJECTION_PORTAL_POLICY),
     "semantic_projection_portal_policies": (META_OCG_GENESIS_PROJECTION_PORTAL_POLICY,),
@@ -2091,7 +2126,6 @@ META_SYNTAX_LANES = (
             "projection_def",
             "projection_root",
             "projection_edge",
-            "projection_view_group",
             "projection_view_def",
         ),
         semantic_token_types=("keyword", "class", "type", "property"),
@@ -2654,6 +2688,7 @@ __all__ = [
     "META_OCG_MIGRATION_DELTA_OUTPUT_KEY",
     "META_OCG_MIGRATION_DIALECT_OUTPUT_KEY",
     "META_OCG_MIGRATION_LANE_INDEX_OUTPUT_KEY",
+    "META_OCG_PACKAGE_DELTA_FIRST_READINESS_PROOF_KEY",
     "META_GRAPH_RUNTIME_CONTEXT_KEY",
     "META_GRAMMAR_RULE_DECLARATIONS",
     "META_MATERIALIZATION_EXECUTION_CONTEXT",

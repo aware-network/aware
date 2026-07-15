@@ -1,0 +1,8 @@
+class ActorEvent {
+    // Relationships
+    actor Actor key
+    event aware_reactivity.event.Event key
+
+    // Attributes
+    role ActorEventRole key
+}

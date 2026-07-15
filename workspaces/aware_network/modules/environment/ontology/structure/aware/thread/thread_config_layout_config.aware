@@ -1,0 +1,67 @@
+/// Deterministic ThreadConfig -> Attention LayoutConfig association edge.
+///
+/// Contract:
+/// - ThreadConfig is the Environment-owned availability source.
+/// - LayoutConfig is Attention-owned topology config.
+/// - Runtime provisioning lowers this edge into Thread -> ThreadLayout -> Layout.
+class ThreadConfigLayoutConfig {
+    // Relationships
+    layout_config aware_attention.layout.LayoutConfig key
+    sections ThreadConfigLayoutConfigSection[]
+
+    // Attributes
+    /// Optional stable association key under the parent ThreadConfig.
+    key String?
+    /// Ordering hint for thread layout selectors.
+    position Int? = null
+    /// Narrative text for why this layout belongs to the thread.
+    narrative String?
+    /// Short canonical intent for the layout option.
+    intent String?
+
+    fn create construct (
+        layout_config_id UUID key,
+        key String? = null,
+        position Int? = null,
+        narrative String? = null,
+        intent String? = null
+    ) -> ThreadConfigLayoutConfig {
+        """
+        Create a deterministic ThreadConfigLayoutConfig association edge.
+
+        Contract:
+        - Identity is `(thread_config_id, layout_config_id)`.
+        - Constructor is idempotent for repeated calls with the same pair.
+        """
+    }
+
+    fn add_section (
+        layout_config_section_config_id UUID key,
+        object_projection_graph_id UUID? = null,
+        key String? = null,
+        position Int? = null,
+        is_default Bool = false,
+        narrative String? = null,
+        intent String? = null
+    ) -> ThreadConfigLayoutConfigSection {
+        """
+        Create a deterministic layout-section placement for this ThreadConfig layout.
+
+        Contract:
+        - Binds an Attention LayoutConfig section to an optional hosted projection graph.
+        - Does not reference ProjectionExperienceSectionGraphBinding.
+        """
+        let created = construct sections.create(
+            layout_config_section_config_id = layout_config_section_config_id,
+            object_projection_graph_id = object_projection_graph_id,
+            key = key,
+            position = position,
+            is_default = is_default,
+            narrative = narrative,
+            intent = intent,
+        )
+    }
+}
+
+ann thread.ThreadConfigLayoutConfig::layout_config load eager
+ann thread.ThreadConfigLayoutConfig::sections load eager

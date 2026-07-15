@@ -20,6 +20,12 @@
       "relative_path": "sdk/sdk_operation_api_capability_endpoint.py"
     },
     {
+      "node_id": "26b6b2b5-0c91-5ed7-94b7-0ebd91747d85",
+      "node_type": "class",
+      "entity_id": "b0574e8b-47c9-5fad-ae81-312923af68d1",
+      "relative_path": "sdk/sdk_operation_api_view_capability_endpoint.py"
+    },
+    {
       "node_id": "a6653b7e-1df1-52f7-b1d6-fee964f0d7ef",
       "node_type": "class",
       "entity_id": "157c5c91-4bfd-50d6-8541-3307e2f11cb4",

@@ -60,6 +60,22 @@ def validate_attribute_value_tree(root: AttributeValue) -> None:
     validate_attribute_value_tree_with_context(root, class_configs_by_id=None)
 
 
+def validate_attribute_value_tree_against_descriptor(
+    root: AttributeValue,
+    *,
+    expected: AttributeTypeDescriptor,
+    class_configs_by_id: Mapping[UUID, ClassConfig] | None = None,
+) -> None:
+    """Validate a value tree using its owning AttributeConfig descriptor as schema."""
+
+    _validate_node(
+        root,
+        expected=expected,
+        path=_Path(),
+        class_configs_by_id=class_configs_by_id,
+    )
+
+
 def validate_attribute_value_tree_with_context(
     root: AttributeValue, *, class_configs_by_id: Mapping[UUID, ClassConfig] | None
 ) -> None:
@@ -70,7 +86,9 @@ def validate_attribute_value_tree_with_context(
     `class_config` relationship is not populated (common when loading OCG from msgpack).
     """
     if root.type_descriptor is None:
-        raise AttributeValueTreeValidationError("AttributeValue missing type_descriptor")
+        raise AttributeValueTreeValidationError(
+            "AttributeValue missing type_descriptor"
+        )
     _validate_node(
         root,
         expected=root.type_descriptor,
@@ -88,7 +106,9 @@ def _canonicalize_node(node: AttributeValue) -> None:
     for link in list(getattr(node, "child_links", []) or []):
         _canonicalize_node(link.child)
 
-    node.child_links = sorted(node.child_links or [], key=lambda l: _link_sort_key(desc, l))
+    node.child_links = sorted(
+        node.child_links or [], key=lambda l: _link_sort_key(desc, l)
+    )
 
 
 def _link_sort_key(desc: AttributeTypeDescriptor, link: AttributeValueLink) -> tuple:
@@ -130,10 +150,15 @@ def _validate_node(
 ) -> None:
     actual = node.type_descriptor
     if actual is None:
-        raise AttributeValueTreeValidationError(f"{path.render()}: value node missing type_descriptor")
+        raise AttributeValueTreeValidationError(
+            f"{path.render()}: value node missing type_descriptor"
+        )
 
     # Strong identity check when IDs are available.
-    if getattr(actual, "id", None) is not None and getattr(expected, "id", None) is not None:
+    if (
+        getattr(actual, "id", None) is not None
+        and getattr(expected, "id", None) is not None
+    ):
         if actual.id != expected.id:
             raise AttributeValueTreeValidationError(
                 f"{path.render()}: descriptor mismatch value={actual.id} expected={expected.id}"
@@ -149,11 +174,17 @@ def _validate_node(
     # Container invariants: no leaf payload.
     if kind in (Kind.collection, Kind.mapping, Kind.tuple, Kind.union):
         if node.primitive_value is not None:
-            raise AttributeValueTreeValidationError(f"{path.render()}: container node must not set primitive_value")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: container node must not set primitive_value"
+            )
         if node.enum_option_id is not None:
-            raise AttributeValueTreeValidationError(f"{path.render()}: container node must not set enum_option_id")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: container node must not set enum_option_id"
+            )
         if node.class_instance_id is not None:
-            raise AttributeValueTreeValidationError(f"{path.render()}: container node must not set class_instance_id")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: container node must not set class_instance_id"
+            )
         if node.inline_value_instance_id is not None:
             raise AttributeValueTreeValidationError(
                 f"{path.render()}: container node must not set inline_value_instance_id"
@@ -163,13 +194,17 @@ def _validate_node(
     if kind == Kind.primitive:
         _require_no_children(node, path)
         if node.enum_option_id is not None or node.class_instance_id is not None:
-            raise AttributeValueTreeValidationError(f"{path.render()}: primitive leaf must not set enum/class payload")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: primitive leaf must not set enum/class payload"
+            )
         return
 
     if kind == Kind.enum:
         _require_no_children(node, path)
         if node.enum_option_id is None:
-            raise AttributeValueTreeValidationError(f"{path.render()}: enum leaf must set enum_option_id")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: enum leaf must set enum_option_id"
+            )
         if (
             node.primitive_value is not None
             or node.class_instance_id is not None
@@ -189,25 +224,42 @@ def _validate_node(
             type_descriptor=expected,
             class_configs_by_id=class_configs_by_id,
         )
-        value_mode = class_config.value_mode if class_config is not None else ClassValueMode.graph_ref
+        value_mode = (
+            class_config.value_mode
+            if class_config is not None
+            else ClassValueMode.graph_ref
+        )
 
         if value_mode == ClassValueMode.inline_value:
             inline_value_instance_id = node.inline_value_instance_id
-            if inline_value_instance_id is None and node.inline_value_instance is not None:
+            if (
+                inline_value_instance_id is None
+                and node.inline_value_instance is not None
+            ):
                 inline_value_instance_id = node.inline_value_instance.id
             if inline_value_instance_id is None:
                 raise AttributeValueTreeValidationError(
                     f"{path.render()}: inline class payload must set inline_value_instance_id"
                 )
-            if node.class_instance_id is not None or node.enum_option_id is not None or node.primitive_value is not None:
+            if (
+                node.class_instance_id is not None
+                or node.enum_option_id is not None
+                or node.primitive_value is not None
+            ):
                 raise AttributeValueTreeValidationError(
                     f"{path.render()}: inline class payload must not set class/enum/primitive payload"
                 )
             return
 
         if node.class_instance_id is None:
-            raise AttributeValueTreeValidationError(f"{path.render()}: class leaf must set class_instance_id")
-        if node.primitive_value is not None or node.enum_option_id is not None or node.inline_value_instance_id is not None:
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: class leaf must set class_instance_id"
+            )
+        if (
+            node.primitive_value is not None
+            or node.enum_option_id is not None
+            or node.inline_value_instance_id is not None
+        ):
             raise AttributeValueTreeValidationError(
                 f"{path.render()}: class leaf must not set primitive/enum/inline payload"
             )
@@ -229,12 +281,16 @@ def _validate_node(
         _validate_union(node, expected, path, class_configs_by_id)
         return
 
-    raise AttributeValueTreeValidationError(f"{path.render()}: unsupported descriptor kind: {kind}")
+    raise AttributeValueTreeValidationError(
+        f"{path.render()}: unsupported descriptor kind: {kind}"
+    )
 
 
 def _require_no_children(node: AttributeValue, path: _Path) -> None:
     if node.child_links:
-        raise AttributeValueTreeValidationError(f"{path.render()}: leaf node must not have child_links")
+        raise AttributeValueTreeValidationError(
+            f"{path.render()}: leaf node must not have child_links"
+        )
 
 
 def _iter_links(node: AttributeValue) -> Iterable[AttributeValueLink]:
@@ -261,26 +317,38 @@ def _validate_collection(
 ) -> None:
     ck = desc.collection_kind
     if ck is None:
-        raise AttributeValueTreeValidationError(f"{path.render()}: collection descriptor missing collection_kind")
+        raise AttributeValueTreeValidationError(
+            f"{path.render()}: collection descriptor missing collection_kind"
+        )
 
     element_desc = _pick_role_child(desc, Role.element)
     if element_desc is None:
-        raise AttributeValueTreeValidationError(f"{path.render()}: collection descriptor missing ELEMENT child")
+        raise AttributeValueTreeValidationError(
+            f"{path.render()}: collection descriptor missing ELEMENT child"
+        )
 
     for link in _iter_links(node):
         if link.role != Role.element:
-            raise AttributeValueTreeValidationError(f"{path.render()}: collection child role must be ELEMENT")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: collection child role must be ELEMENT"
+            )
 
         if ck == AttributeCollectionType.set:
             if not link.identity_key:
-                raise AttributeValueTreeValidationError(f"{path.render()}: SET element missing identity_key")
+                raise AttributeValueTreeValidationError(
+                    f"{path.render()}: SET element missing identity_key"
+                )
             if link.position is not None:
-                raise AttributeValueTreeValidationError(f"{path.render()}: SET element must not set position")
+                raise AttributeValueTreeValidationError(
+                    f"{path.render()}: SET element must not set position"
+                )
             slot = f"E:{link.identity_key}"
         else:
             # LIST / SINGLE: positional ordering; identity_key is allowed but optional.
             if link.position is None:
-                raise AttributeValueTreeValidationError(f"{path.render()}: LIST element missing position")
+                raise AttributeValueTreeValidationError(
+                    f"{path.render()}: LIST element missing position"
+                )
             slot = f"E:{link.position}"
 
         _validate_node(
@@ -300,17 +368,25 @@ def _validate_mapping(
     key_desc = _pick_role_child(desc, Role.key)
     value_desc = _pick_role_child(desc, Role.value_)
     if key_desc is None or value_desc is None:
-        raise AttributeValueTreeValidationError(f"{path.render()}: mapping descriptor must have KEY and VALUE children")
+        raise AttributeValueTreeValidationError(
+            f"{path.render()}: mapping descriptor must have KEY and VALUE children"
+        )
 
     # Group links by identity_key.
     by_ident: dict[str, list[AttributeValueLink]] = {}
     for link in _iter_links(node):
         if link.role not in (Role.key, Role.value_):
-            raise AttributeValueTreeValidationError(f"{path.render()}: mapping child role must be KEY or VALUE")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: mapping child role must be KEY or VALUE"
+            )
         if link.position is not None:
-            raise AttributeValueTreeValidationError(f"{path.render()}: mapping links must not set position")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: mapping links must not set position"
+            )
         if not link.identity_key:
-            raise AttributeValueTreeValidationError(f"{path.render()}: mapping links must set identity_key")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: mapping links must set identity_key"
+            )
         by_ident.setdefault(link.identity_key, []).append(link)
 
     for ident, links in by_ident.items():
@@ -343,23 +419,35 @@ def _validate_tuple(
 ) -> None:
     members = _member_descriptors(desc)
     if not members:
-        raise AttributeValueTreeValidationError(f"{path.render()}: tuple descriptor missing MEMBER children")
+        raise AttributeValueTreeValidationError(
+            f"{path.render()}: tuple descriptor missing MEMBER children"
+        )
 
     links_by_pos: dict[int, AttributeValueLink] = {}
     for link in _iter_links(node):
         if link.role != Role.member:
-            raise AttributeValueTreeValidationError(f"{path.render()}: tuple child role must be MEMBER")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: tuple child role must be MEMBER"
+            )
         if link.identity_key is not None:
-            raise AttributeValueTreeValidationError(f"{path.render()}: tuple links must not set identity_key")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: tuple links must not set identity_key"
+            )
         if link.position is None:
-            raise AttributeValueTreeValidationError(f"{path.render()}: tuple MEMBER missing position")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: tuple MEMBER missing position"
+            )
         if link.position in links_by_pos:
-            raise AttributeValueTreeValidationError(f"{path.render()}: duplicate tuple MEMBER position={link.position}")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: duplicate tuple MEMBER position={link.position}"
+            )
         links_by_pos[link.position] = link
 
     for pos, mem_desc in members.items():
         if pos not in links_by_pos:
-            raise AttributeValueTreeValidationError(f"{path.render()}: tuple missing MEMBER position={pos}")
+            raise AttributeValueTreeValidationError(
+                f"{path.render()}: tuple missing MEMBER position={pos}"
+            )
         _validate_node(
             links_by_pos[pos].child,
             expected=mem_desc,
@@ -376,18 +464,28 @@ def _validate_union(
 ) -> None:
     members = _member_descriptors(desc)
     if not members:
-        raise AttributeValueTreeValidationError(f"{path.render()}: union descriptor missing MEMBER children")
+        raise AttributeValueTreeValidationError(
+            f"{path.render()}: union descriptor missing MEMBER children"
+        )
 
     links = list(_iter_links(node))
     if len(links) != 1:
-        raise AttributeValueTreeValidationError(f"{path.render()}: union value must select exactly one MEMBER")
+        raise AttributeValueTreeValidationError(
+            f"{path.render()}: union value must select exactly one MEMBER"
+        )
     link = links[0]
     if link.role != Role.member:
-        raise AttributeValueTreeValidationError(f"{path.render()}: union child role must be MEMBER")
+        raise AttributeValueTreeValidationError(
+            f"{path.render()}: union child role must be MEMBER"
+        )
     if link.identity_key is not None:
-        raise AttributeValueTreeValidationError(f"{path.render()}: union links must not set identity_key")
+        raise AttributeValueTreeValidationError(
+            f"{path.render()}: union links must not set identity_key"
+        )
     if link.position is None:
-        raise AttributeValueTreeValidationError(f"{path.render()}: union MEMBER missing position")
+        raise AttributeValueTreeValidationError(
+            f"{path.render()}: union MEMBER missing position"
+        )
     if link.position not in members:
         raise AttributeValueTreeValidationError(
             f"{path.render()}: union selected MEMBER position={link.position} invalid"
@@ -400,7 +498,9 @@ def _validate_union(
     )
 
 
-def _pick_role_child(desc: AttributeTypeDescriptor, role: Role) -> AttributeTypeDescriptor | None:
+def _pick_role_child(
+    desc: AttributeTypeDescriptor, role: Role
+) -> AttributeTypeDescriptor | None:
     for link in desc.child_links or []:
         if link.role == role:
             return link.child
@@ -425,4 +525,5 @@ __all__ = [
     "AttributeValueTreeValidationError",
     "canonicalize_attribute_value_tree",
     "validate_attribute_value_tree",
+    "validate_attribute_value_tree_against_descriptor",
 ]

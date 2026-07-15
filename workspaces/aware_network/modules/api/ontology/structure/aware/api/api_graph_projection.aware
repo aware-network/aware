@@ -1,0 +1,16 @@
+class ApiGraphProjection {
+    // Relationships
+    object_projection_graph aware_meta.graph.projection.ObjectProjectionGraph key
+
+    // Attributes
+    description String?
+
+    fn create construct (
+        object_projection_graph_id UUID key,
+        description String? = null
+    ) -> ApiGraphProjection {
+        """
+        Create deterministic graph-scoped projection bridge.
+        """
+    }
+}

@@ -1,0 +1,26 @@
+/// Experience-owned view-state provider binding.
+///
+/// Contract:
+/// - There is one effective provider per ProjectionExperienceView.
+/// - The provider is a pure read transformation from host-owned materialized state to the view state model.
+/// - Runtime callables and SDK functions are implementation adapters selected by this canonical binding.
+class ProjectionExperienceViewStateProvider {
+    // Attributes
+    provider_ref String
+    provider_kind String = "runtime_callable"
+    purity String = "pure_read"
+
+    fn build construct (
+        provider_ref String,
+        provider_kind String = "runtime_callable",
+        purity String = "pure_read"
+    ) -> ProjectionExperienceViewStateProvider {
+        """
+        Create the deterministic provider binding under one ProjectionExperienceView.
+
+        Contract:
+        - Parent ProjectionExperienceView scope is propagated by constructor lowering.
+        - Identity is the parent view; changing provider_ref is a semantic migration.
+        """
+    }
+}

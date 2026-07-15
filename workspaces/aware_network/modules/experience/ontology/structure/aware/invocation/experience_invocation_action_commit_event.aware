@@ -1,0 +1,26 @@
+/// Event provenance emitted from an Experience invocation action commit.
+class ExperienceInvocationActionCommitEvent {
+    // Relationships
+    event aware_reactivity.event.Event key
+
+    // Attributes
+    event_role String = "emitted"
+    description String?
+
+    fn build construct (
+        event_id UUID key,
+        event_role String = "emitted",
+        description String? = null
+    ) -> ExperienceInvocationActionCommitEvent {
+        """
+        Link one Reactivity event to one invocation-action commit edge.
+
+        Contract:
+        - Parent `ExperienceInvocationActionCommit` scope is propagated by
+          constructor lowering.
+        - The event remains Reactivity-owned runtime evidence.
+        """
+    }
+}
+
+ann invocation.ExperienceInvocationActionCommitEvent::event load eager

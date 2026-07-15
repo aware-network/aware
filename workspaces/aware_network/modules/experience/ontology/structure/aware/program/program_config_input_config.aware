@@ -1,0 +1,39 @@
+/// Declarative program input configuration unit under a ProgramConfig.
+///
+/// Contract:
+/// - Declares runtime-injected symbols.
+/// - Pure config (no runtime effects).
+class ProgramConfigInputConfig {
+    // Relationships
+    attribute_configs program.ProgramConfigInputConfigAttributeConfig[]
+
+    // Attributes
+    name String key
+    source String key
+    required Bool = true
+    default_expr JsonObject?
+
+    fn build construct (
+        name String key,
+        source String key,
+        required Bool = true,
+        default_expr JsonObject? = null
+    ) -> ProgramConfigInputConfig {
+        """
+        Create deterministic ProgramConfigInputConfig under one ProgramConfig.
+        """
+    }
+
+    fn add_attribute_config (
+        attribute_config_id UUID,
+        position Int? = null
+    ) -> ProgramConfigInputConfigAttributeConfig {
+        """
+        Attach one typed input signature attribute under this ProgramConfigInputConfig.
+        """
+        let created = construct attribute_configs.build(
+            attribute_config_id = attribute_config_id,
+            position = position,
+        )
+    }
+}

@@ -1,0 +1,59 @@
+/// EnvironmentSession-local Thread/Layout resolution row.
+///
+/// Contract:
+/// - This row pins a Thread + ThreadLayout for one EnvironmentSession.
+/// - EnvironmentNavigationContext selects one row as its current target.
+/// - Optional attention_session links to an EnvironmentSessionAttentionSession
+///   row, not directly into Attention internals.
+/// - EnvironmentSession owns these rows; no global active session-thread exists.
+class EnvironmentSessionThread {
+    // Relationships
+    thread thread.Thread key
+    thread_layout thread.ThreadLayout key
+    attention_session EnvironmentSessionAttentionSession?
+
+    // Attributes
+    key String?
+    title String?
+    status String = "active"
+    metadata_json JsonObject? = {}
+
+    fn build construct (
+        thread_id UUID key,
+        thread_layout_id UUID key,
+        attention_session_id UUID? = null,
+        key String? = null,
+        title String? = null,
+        status String = "active",
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentSessionThread {
+        """
+        Construct one session-local Thread/Layout resolution row.
+
+        Contract:
+        - Stable identity is EnvironmentSession path + Thread + ThreadLayout.
+        - `thread_layout_id` points at a Thread-owned layout attachment.
+        - `attention_session_id` points at an Environment-owned
+          EnvironmentSessionAttentionSession row.
+        - Mutating attention pointer on this row records session-local attention
+          resolution history through commits.
+        """
+    }
+
+    fn select_attention_session (
+        attention_session_id UUID? = null
+    ) -> EnvironmentSessionThread {
+        """
+        Select the session-local AttentionSession resolution for this pin.
+
+        Contract:
+        - Mutates only the invoked EnvironmentSessionThread.
+        - Does not mutate Thread, ThreadLayout, AttentionSession, or
+          EnvironmentNavigationContext.
+        """
+    }
+}
+
+ann environment.EnvironmentSessionThread::thread load eager
+ann environment.EnvironmentSessionThread::thread_layout load eager
+ann environment.EnvironmentSessionThread::attention_session load eager

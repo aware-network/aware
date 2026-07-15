@@ -1,0 +1,18 @@
+aware = 1
+
+[package]
+package_name = "ontology-ontology"
+fqn_prefix = "aware_ontology"
+kind = "ontology"
+version_number = 1
+title = "Ontology"
+description = "SSOT canonical (.aware) sources for ontology package ownership."
+
+[build]
+environment_slug = "aware_ontology"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"

@@ -1,0 +1,34 @@
+class CodeSectionImportName {
+    // Relationships
+    name_segment aware_content.part.ContentPartTextSegment
+    alias_segment aware_content.part.ContentPartTextSegment?
+
+    // Attributes
+    name_text String key
+    alias_text String?
+
+    fn build construct(
+        name_text String key,
+        name_slot_key String,
+        name_byte_start Int,
+        name_byte_end Int,
+        alias_text String? = null,
+        alias_slot_key String? = null,
+        alias_byte_start Int? = null,
+        alias_byte_end Int? = null
+    ) -> CodeSectionImportName {
+        """
+        Build a deterministic import-name entry under an import section.
+        """
+    }
+
+    fn delete() -> {
+        """
+        Delete this import-name payload through its owned handler rail.
+        """
+    }
+}
+
+/// Eager alias segment + name segment
+ann import.CodeSectionImportName::alias_segment load eager
+ann import.CodeSectionImportName::name_segment load eager

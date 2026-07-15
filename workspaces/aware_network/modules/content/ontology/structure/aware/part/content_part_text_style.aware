@@ -1,0 +1,51 @@
+class ContentPartTextStyle {
+    // Attributes
+    background_color String? key
+    block_semantic_type String? key
+    bold Bool? key = false
+    color String? key
+    font_family String? key
+    font_size Int? key = 0
+    italic Bool? key = false
+    underline Bool? key = false
+
+    fn create_or_get_style construct(
+        font_family String? = null,
+        font_size Int? = null,
+        bold Bool? = false,
+        italic Bool? = false,
+        underline Bool? = false,
+        color String? = null,
+        background_color String? = null,
+        block_semantic_type String? = null
+    ) -> ContentPartTextStyle {
+        """
+        Creates or retrieves a text style.
+        Parameters: font_family: The font family.
+        font_size: The font size.
+        bold: Whether the text is bold.
+        italic: Whether the text is italic.
+        underline: Whether the text is underlined.
+        color: The text color.
+        background_color: The background color.
+        block_semantic_type: Optional block semantic type tag (e.g. header/list/task/table).
+        """
+        construct ContentPartTextStyle(
+            font_family = font_family,
+            font_size = font_size,
+            bold = bold,
+            italic = italic,
+            underline = underline,
+            color = color,
+            background_color = background_color,
+            block_semantic_type = block_semantic_type,
+        )
+    }
+
+    fn delete_if_unreferenced() -> {
+        """
+        Deletes this text style when no text segment in the current lane references it.
+        """
+    }
+
+}

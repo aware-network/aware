@@ -1,0 +1,5 @@
+enum CodeSectionExpressionType {
+    call
+    identifier
+    literal
+}

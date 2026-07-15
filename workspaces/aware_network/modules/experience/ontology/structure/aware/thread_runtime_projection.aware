@@ -1,0 +1,18 @@
+/// Thread runtime projection
+///
+/// Contract:
+/// - Experience owns the ThreadProgram binding surface.
+/// - Environment owns the target runtime Thread topology.
+/// - Program runtime remains Experience-owned.
+projection ThreadRuntime {
+    root thread.ThreadProgram
+
+    thread.ThreadProgram::thread aware_environment.Thread
+    thread.ThreadProgram::program ProgramRuntime
+
+    observable thread_program.runtime {
+        """
+        Experience-owned binding from an Environment Thread to a Program runtime.
+        """
+    }
+}

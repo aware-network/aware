@@ -1,0 +1,45 @@
+/// Canonical invoke step in function execution rail.
+///
+/// Contract:
+/// - Target function is resolved by relationship (`target_function_config`), not strings.
+/// - Argument bindings remain explicit through `attribute_configs`.
+class FunctionImplInstructionInvoke {
+    // Relationships
+    target_function_config FunctionConfig
+    class_config_relationship class.ClassConfigRelationship?
+    attribute_configs FunctionImplInstructionInvokeAttributeConfig[]
+
+    // Attributes
+    kind FunctionImplInvokeKind = call
+
+    fn build construct (
+        target_function_config_id UUID,
+        class_config_relationship_id UUID? = null,
+        kind FunctionImplInvokeKind = call
+    ) -> FunctionImplInstructionInvoke {
+        """
+        Create deterministic `invoke` payload for one FunctionImplInstruction.
+
+        Contract:
+        - Parent context (`function_impl_instruction_id`) is injected by parent-edge lowering.
+        """
+    }
+
+    fn add_attribute_config (
+        attribute_config_id UUID,
+        value_expr JsonObject,
+        position Int? = null
+    ) -> FunctionImplInstructionInvokeAttributeConfig {
+        """
+        Attach one deterministic invoke argument binding by AttributeConfig contract.
+        """
+        let created = construct attribute_configs.create(
+            attribute_config_id = attribute_config_id,
+            value_expr = value_expr,
+            position = position,
+        )
+    }
+}
+
+ann function.FunctionImplInstructionInvoke::class_config_relationship load eager
+ann function.FunctionImplInstructionInvoke::attribute_configs load eager

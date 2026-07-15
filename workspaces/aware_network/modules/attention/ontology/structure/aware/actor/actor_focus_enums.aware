@@ -1,0 +1,15 @@
+enum ActorFocusRequestStatus {
+    accepted
+    expired
+    pending
+    rejected
+}
+
+/// Coarse actor-facing attention priority bucket.
+enum ActorFocusLevelType {
+    critical
+    high
+    low
+    medium
+    none
+}

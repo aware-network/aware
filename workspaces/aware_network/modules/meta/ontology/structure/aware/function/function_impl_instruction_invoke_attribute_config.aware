@@ -1,0 +1,19 @@
+/// Signature/value binding slot for `FunctionImplInstructionInvoke`.
+class FunctionImplInstructionInvokeAttributeConfig {
+    // Relationships
+    attribute_config attribute.AttributeConfig key
+
+    // Attributes
+    value_expr JsonObject
+    position Int? = null
+
+    fn create construct (
+        attribute_config_id UUID key,
+        value_expr JsonObject,
+        position Int? = null
+    ) -> FunctionImplInstructionInvokeAttributeConfig {
+        """
+        Create deterministic invoke-argument binding under one invoke payload.
+        """
+    }
+}

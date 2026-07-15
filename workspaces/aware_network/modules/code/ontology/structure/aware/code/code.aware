@@ -1,0 +1,93 @@
+class Code {
+    // Relationships
+    code_sections CodeSection[]
+    content_part_text aware_content.part.ContentPartText
+    tests CodeTest[]
+
+    // Attributes
+    relative_path String key
+    language aware_code.code.CodeLanguage?
+
+    fn create construct (relative_path String key, plan code.CodeContentPlan) -> Code {
+        """
+        Create a Code instance under one CodePackage from a canonical content plan.
+        """
+    }
+
+    fn create_section (
+        section_key String key,
+        qualname String,
+        type CodeSectionType key,
+        identity_hash String,
+        byte_start Int,
+        byte_end Int,
+        metadata JsonObject? = null
+    ) -> CodeSection {
+        """
+        Create a deterministic CodeSection under this Code snapshot.
+        """
+        let created = construct code_sections.build(
+            section_key = section_key,
+            qualname = qualname,
+            type = type,
+            identity_hash = identity_hash,
+            byte_start = byte_start,
+            byte_end = byte_end,
+            metadata = metadata,
+        )
+    }
+
+    fn create_test (
+        framework_id UUID key,
+        discovery_kind String = "language_plugin",
+        selector_prefix String? = null
+    ) -> CodeTest {
+        """
+        Create one canonical test surface for this Code object and framework.
+        """
+        let created = construct tests.build(
+            framework_id = framework_id,
+            discovery_kind = discovery_kind,
+            selector_prefix = selector_prefix,
+        )
+    }
+
+    fn sync_test_unit (
+        framework_id UUID key,
+        code_section_id UUID key,
+        unit_key String key,
+        selector String,
+        kind String = "function",
+        name String? = null,
+        discovery_kind String = "language_plugin",
+        selector_prefix String? = null
+    ) -> CodeTestUnit {
+        """
+        Upsert one framework-specific test unit under this Code object.
+
+        This is the Code-owned inventory mutation rail used by CodePackage sync.
+        """
+    }
+
+    fn apply_content_plan (plan CodeContentPlan) -> Any {
+        """
+        Apply a canonical code content materialization plan through the owned Code handler rail.
+        """
+    }
+
+    fn delete () -> Any {
+        """
+        Delete this Code subtree and owned content payloads.
+        """
+    }
+
+    fn replace_content (content_text String, language aware_code.code.CodeLanguage? = null) -> Any {
+        """
+        Compatibility wrapper that parses inline text and delegates to `apply_content_plan(...)`.
+        """
+    }
+}
+
+/// Eager content part text
+ann code.Code::content_part_text load eager
+ann code.Code::tests load eager

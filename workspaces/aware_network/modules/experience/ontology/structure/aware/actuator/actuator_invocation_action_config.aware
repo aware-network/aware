@@ -1,0 +1,46 @@
+/// Actuator-owned binding to one generic Experience invocation action config.
+///
+/// Contract:
+/// - An Actuator config can expose one or more reusable invocation action targets.
+/// - API/SDK/service target metadata lives on `ExperienceInvocationActionConfig`.
+/// - Actual invocation receipts are linked to concrete Actuator instances by
+///   `ActuatorInvocationAction`.
+class ActuatorInvocationActionConfig {
+    // Relationships
+    experience_invocation_action_config invocation.ExperienceInvocationActionConfig key
+
+    fn build construct (
+        experience_invocation_action_config_id UUID key
+    ) -> ActuatorInvocationActionConfig {
+        """
+        Bind one generic invocation action config under an ActuatorConfig.
+
+        Contract:
+        - Parent `ActuatorConfig` scope is propagated by constructor lowering.
+        - This object only says that the actuator config can invoke that reusable
+          Experience action target.
+        """
+    }
+
+    fn record_invocation (
+        invocation_key UUID key,
+        actor_id UUID? = null,
+        api_call_id UUID? = null,
+        sdk_operation_call_id UUID? = null,
+        request_ref String? = null,
+        receipt_ref String? = null,
+        status String = "pending"
+    ) -> invocation.ExperienceInvocationAction {
+        """
+        Record one actual invocation handled through this actuator action config.
+
+        Contract:
+        - Parentage is `ActuatorConfig -> ActuatorInvocationActionConfig`.
+        - `ExperienceInvocationActionConfig` remains target metadata only.
+        - Concrete Actuator instance provenance is recorded by `ActuatorInvocationAction`,
+          which links to the actual Experience invocation receipt.
+        """
+    }
+}
+
+ann actuator.ActuatorInvocationActionConfig::experience_invocation_action_config load eager

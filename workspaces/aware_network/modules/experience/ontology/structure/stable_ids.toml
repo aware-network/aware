@@ -1,0 +1,1387 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_EXPERIENCE"
+kind = "ns_url"
+value = "aware://experience/v1"
+
+[[functions]]
+name = "stable_action_experience_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:action_experience:{action_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: action_config_id"
+
+[[functions.params]]
+name = "action_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_action_experience_program_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:action_experience_program:{action_experience_id}:{program_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: action_experience_id, program_config_id"
+
+[[functions.params]]
+name = "action_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "program_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_actor_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:actor_config:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_actor_config_role_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:actor_config_role_config:{actor_config_id}:{role_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: actor_config_id, role_config_id"
+
+[[functions.params]]
+name = "actor_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "role_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_environment_experience_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_experience:{fqn_prefix_norm}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_experience_actor_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_experience_actor_config:{environment_experience_profile_id}:{actor_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: environment_experience_profile_id, actor_config_id"
+
+[[functions.params]]
+name = "environment_experience_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "actor_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_environment_experience_event_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_experience_event:{environment_experience_profile_id}:{event_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: environment_experience_profile_id, event_config_id"
+
+[[functions.params]]
+name = "environment_experience_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "event_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_environment_experience_event_action_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_experience_event_action:{environment_experience_event_id}:{action_experience_id}"
+doc = "Compiler-generated from class-attribute identity keys: environment_experience_event_id, action_experience_id"
+
+[[functions.params]]
+name = "environment_experience_event_id"
+type = "uuid"
+
+[[functions.params]]
+name = "action_experience_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_environment_experience_profile_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_experience_profile:{environment_experience_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_experience_id, key"
+
+[[functions.params]]
+name = "environment_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_experience_program_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_experience_program:{environment_experience_profile_id}:{program_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: environment_experience_profile_id, program_config_id"
+
+[[functions.params]]
+name = "environment_experience_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "program_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_environment_experience_program_apply_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_experience_program_apply:{environment_experience_profile_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_experience_profile_id, key"
+
+[[functions.params]]
+name = "environment_experience_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_experience_projection_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_experience_projection:{environment_experience_profile_id}:{projection_experience_id}"
+doc = "Compiler-generated from class-attribute identity keys: environment_experience_profile_id, projection_experience_id"
+
+[[functions.params]]
+name = "environment_experience_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_environment_experience_view_event_transition_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_experience_view_event_transition:{environment_experience_profile_id}:{source_view_id}:{trigger_event_id}:{target_section_graph_binding_id}:{transition_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_experience_profile_id, source_view_id, trigger_event_id, target_section_graph_binding_id, transition_key"
+
+[[functions.params]]
+name = "environment_experience_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "source_view_id"
+type = "uuid"
+
+[[functions.params]]
+name = "trigger_event_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_section_graph_binding_id"
+type = "uuid"
+
+[[functions.params]]
+name = "transition_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "transition_key_norm"
+param = "transition_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_topology_process_seed_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_topology_process_seed:{environment_topology_seed_id}:{process_config_id}:{process_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_topology_seed_id, process_config_id, process_key"
+
+[[functions.params]]
+name = "environment_topology_seed_id"
+type = "uuid"
+
+[[functions.params]]
+name = "process_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "process_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "process_key_norm"
+param = "process_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_topology_seed_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_topology_seed:{environment_experience_id}:{environment_experience_profile_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_experience_id, environment_experience_profile_id, key"
+
+[[functions.params]]
+name = "environment_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "environment_experience_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_topology_thread_layout_seed_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_topology_thread_layout_seed:{environment_topology_thread_seed_id}:{layout_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: environment_topology_thread_seed_id, layout_config_id"
+
+[[functions.params]]
+name = "environment_topology_thread_seed_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_environment_topology_thread_seed_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:environment_topology_thread_seed:{environment_topology_process_seed_id}:{thread_config_id}:{thread_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_topology_process_seed_id, thread_config_id, thread_key"
+
+[[functions.params]]
+name = "environment_topology_process_seed_id"
+type = "uuid"
+
+[[functions.params]]
+name = "thread_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "thread_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "thread_key_norm"
+param = "thread_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_experience_package_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:experience_package:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_experience_package_api_package_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:experience_package_api_package:{experience_package_id}:{api_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: experience_package_id, api_package_id"
+
+[[functions.params]]
+name = "experience_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_experience_package_attention_package_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:experience_package_attention_package:{experience_package_id}:{attention_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: experience_package_id, attention_package_id"
+
+[[functions.params]]
+name = "experience_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attention_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_experience_package_dependency_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:experience_package_dependency:{experience_package_id}:{target_experience_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: experience_package_id, target_experience_package_id"
+
+[[functions.params]]
+name = "experience_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_experience_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_experience_package_sdk_package_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:experience_package_sdk_package:{experience_package_id}:{sdk_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: experience_package_id, sdk_package_id"
+
+[[functions.params]]
+name = "experience_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "sdk_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_experience_invocation_action_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:experience_invocation_action_config:{projection_experience_id}:{action_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_id, action_key"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "action_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "action_key_norm"
+param = "action_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_experience_invocation_action_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:experience_invocation_action:{projection_experience_view_invocation_action_config_id}:{invocation_key}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_view_invocation_action_config_id, invocation_key"
+
+[[functions.params]]
+name = "projection_experience_view_invocation_action_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "invocation_key"
+type = "uuid"
+
+[[functions]]
+name = "stable_experience_invocation_action_commit_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:experience_invocation_action_commit:{experience_invocation_action_id}:{object_instance_graph_commit_id}"
+doc = "Compiler-generated from class-attribute identity keys: experience_invocation_action_id, object_instance_graph_commit_id"
+
+[[functions.params]]
+name = "experience_invocation_action_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_instance_graph_commit_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_experience_invocation_action_commit_event_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:experience_invocation_action_commit_event:{experience_invocation_action_commit_id}:{event_id}"
+doc = "Compiler-generated from class-attribute identity keys: experience_invocation_action_commit_id, event_id"
+
+[[functions.params]]
+name = "experience_invocation_action_commit_id"
+type = "uuid"
+
+[[functions.params]]
+name = "event_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_experience_invocation_action_propagation_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:experience_invocation_action_propagation:{experience_invocation_action_id}:{target_invocation_action_id}"
+doc = "Compiler-generated from class-attribute identity keys: experience_invocation_action_id, target_invocation_action_id"
+
+[[functions.params]]
+name = "experience_invocation_action_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_invocation_action_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_process_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:process_config:{environment_experience_profile_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_experience_profile_id, key"
+
+[[functions.params]]
+name = "environment_experience_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_program_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_program_config_actor_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_actor_config:{program_config_id}:{alias_norm}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_id, alias"
+
+[[functions.params]]
+name = "program_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "alias"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "alias_norm"
+param = "alias"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_program_config_attribute_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_attribute_config:{program_config_id}:{attribute_config_id}:{type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_id, attribute_config_id, type"
+
+[[functions.params]]
+name = "program_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "type"
+type = "str"
+default = "input"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "type_norm"
+param = "type"
+normalize = ["casefold", "strip"]
+default = "input"
+
+[[functions]]
+name = "stable_program_config_graph_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_graph:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_program_config_graph_object_config_graph_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_graph_object_config_graph:{program_config_graph_id}:{object_config_graph_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_graph_id, object_config_graph_id"
+
+[[functions.params]]
+name = "program_config_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_config_graph_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_config_graph_program_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_graph_program_config:{program_config_graph_id}:{program_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_graph_id, program_config_id"
+
+[[functions.params]]
+name = "program_config_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "program_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_config_graph_program_config_port_projection_experience_node_class_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_graph_program_config_port_projection_experience_node_class:{program_config_graph_program_config_id}:{projection_experience_node_class_identity_id}:{program_config_port_projection_experience_node_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_graph_program_config_id, projection_experience_node_class_identity_id, program_config_port_projection_experience_node_id"
+
+[[functions.params]]
+name = "program_config_graph_program_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_node_class_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "program_config_port_projection_experience_node_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_config_graph_projection_experience_oigi_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_graph_projection_experience_oigi:{program_config_graph_id}:{projection_experience_oigi_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_graph_id, projection_experience_oigi_id"
+
+[[functions.params]]
+name = "program_config_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_oigi_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_config_input_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_input_config:{program_config_id}:{name_norm}:{source_norm}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_id, name, source"
+
+[[functions.params]]
+name = "program_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.params]]
+name = "source"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "source_norm"
+param = "source"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_program_config_input_config_attribute_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_input_config_attribute_config:{program_config_input_config_id}:{attribute_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_input_config_id, attribute_config_id"
+
+[[functions.params]]
+name = "program_config_input_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_config_layout_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_layout:{program_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_id, key"
+
+[[functions.params]]
+name = "program_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_program_config_layout_port_section_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_layout_port_section:{program_config_layout_id}:{program_config_port_id}:{layout_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_layout_id, program_config_port_id, layout_section_id"
+
+[[functions.params]]
+name = "program_config_layout_id"
+type = "uuid"
+
+[[functions.params]]
+name = "program_config_port_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_config_port_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_port:{program_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_id, key"
+
+[[functions.params]]
+name = "program_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+optional = true
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_program_config_port_projection_experience_node_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_port_projection_experience_node:{program_config_port_id}:{projection_experience_node_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_port_id, projection_experience_node_id, key"
+
+[[functions.params]]
+name = "program_config_port_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_program_config_port_projection_experience_node_identity_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_config_port_projection_experience_node_identity:{program_config_port_projection_experience_node_id}:{projection_experience_node_identity_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_port_projection_experience_node_id, projection_experience_node_identity_id, key"
+
+[[functions.params]]
+name = "program_config_port_projection_experience_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_node_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_program_impl_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_impl:{program_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: program_config_id, key"
+
+[[functions.params]]
+name = "program_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_program_impl_instruction_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_impl_instruction:{program_impl_id}:{sequence}"
+doc = "Compiler-generated from class-attribute identity keys: program_impl_id, sequence"
+
+[[functions.params]]
+name = "program_impl_id"
+type = "uuid"
+
+[[functions.params]]
+name = "sequence"
+type = "int"
+
+[[functions]]
+name = "stable_program_impl_instruction_bind_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_impl_instruction_bind:{program_impl_instruction_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_impl_instruction_id"
+
+[[functions.params]]
+name = "program_impl_instruction_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_impl_instruction_expect_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_impl_instruction_expect:{program_impl_instruction_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_impl_instruction_id"
+
+[[functions.params]]
+name = "program_impl_instruction_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_impl_instruction_input_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_impl_instruction_input:{program_impl_instruction_id}:{program_config_input_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_impl_instruction_id, program_config_input_config_id"
+
+[[functions.params]]
+name = "program_impl_instruction_id"
+type = "uuid"
+
+[[functions.params]]
+name = "program_config_input_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_impl_instruction_intent_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_impl_instruction_intent:{program_impl_instruction_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_impl_instruction_id"
+
+[[functions.params]]
+name = "program_impl_instruction_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_impl_instruction_invoke_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_impl_instruction_invoke:{program_impl_instruction_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_impl_instruction_id"
+
+[[functions.params]]
+name = "program_impl_instruction_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_impl_instruction_invoke_attribute_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_impl_instruction_invoke_attribute_config:{program_impl_instruction_invoke_id}:{attribute_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_impl_instruction_invoke_id, attribute_config_id"
+
+[[functions.params]]
+name = "program_impl_instruction_invoke_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_program_impl_instruction_let_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:program_impl_instruction_let:{program_impl_instruction_id}"
+doc = "Compiler-generated from class-attribute identity keys: program_impl_instruction_id"
+
+[[functions.params]]
+name = "program_impl_instruction_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience:{object_projection_graph_identity_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: object_projection_graph_identity_id, name"
+
+[[functions.params]]
+name = "object_projection_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_projection_experience_branch_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_branch:{projection_experience_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_id, name"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_projection_experience_graph_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_graph:{projection_experience_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_id, name"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_projection_experience_graph_identity_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_graph_identity:{projection_experience_graph_id}:{projection_experience_node_identity_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_graph_id, projection_experience_node_identity_id, key"
+
+[[functions.params]]
+name = "projection_experience_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_node_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_projection_experience_graph_identity_edge_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_graph_identity_edge:{projection_experience_graph_id}:{child_projection_experience_graph_identity_id}:{parent_projection_experience_graph_identity_id}:{projection_experience_node_identity_edge_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_graph_id, child_projection_experience_graph_identity_id, parent_projection_experience_graph_identity_id, projection_experience_node_identity_edge_id"
+
+[[functions.params]]
+name = "projection_experience_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "child_projection_experience_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "parent_projection_experience_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_node_identity_edge_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_graph_identity_profile_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_graph_identity_profile:{projection_experience_graph_identity_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_graph_identity_id"
+
+[[functions.params]]
+name = "projection_experience_graph_identity_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_graph_identity_profile_exemplar_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_graph_identity_profile_exemplar:{projection_experience_graph_identity_profile_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_graph_identity_profile_id, key"
+
+[[functions.params]]
+name = "projection_experience_graph_identity_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_projection_experience_node_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_node:{projection_experience_id}:{object_projection_graph_node_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_id, object_projection_graph_node_id, key"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_projection_graph_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_projection_experience_node_class_identity_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_node_class_identity:{projection_experience_oigi_id}:{projection_experience_node_identity_id}:{class_instance_identity_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_oigi_id, projection_experience_node_identity_id, class_instance_identity_id, key"
+
+[[functions.params]]
+name = "projection_experience_oigi_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_node_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_instance_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_projection_experience_node_class_identity_edge_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_node_class_identity_edge:{projection_experience_oigi_id}:{child_node_class_identity_id}:{parent_node_class_identity_id}:{class_instance_relationship_identity_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_oigi_id, child_node_class_identity_id, parent_node_class_identity_id, class_instance_relationship_identity_id"
+
+[[functions.params]]
+name = "projection_experience_oigi_id"
+type = "uuid"
+
+[[functions.params]]
+name = "child_node_class_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "parent_node_class_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_instance_relationship_identity_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_node_class_identity_key_binding_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_node_class_identity_key_binding:{projection_experience_node_class_identity_id}:{projection_experience_node_key_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_node_class_identity_id, projection_experience_node_key_id"
+
+[[functions.params]]
+name = "projection_experience_node_class_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_node_key_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_node_identity_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_node_identity:{projection_experience_node_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_node_id, key"
+
+[[functions.params]]
+name = "projection_experience_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_projection_experience_node_identity_edge_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_node_identity_edge:{projection_experience_graph_id}:{child_projection_experience_node_identity_id}:{parent_projection_experience_node_identity_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_graph_id, child_projection_experience_node_identity_id, parent_projection_experience_node_identity_id"
+
+[[functions.params]]
+name = "projection_experience_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "child_projection_experience_node_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "parent_projection_experience_node_identity_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_node_key_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_node_key:{projection_experience_node_id}:{object_projection_graph_node_key_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_node_id, object_projection_graph_node_key_id"
+
+[[functions.params]]
+name = "projection_experience_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_projection_graph_node_key_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_oigi_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_oigi:{projection_experience_id}:{object_instance_graph_identity_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_id, object_instance_graph_identity_id"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_instance_graph_identity_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_section_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_section:{projection_experience_id}:{section_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_id, section_id"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_section_graph_binding_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_section_graph_binding:{projection_experience_id}:{layout_config_section_config_id}:{projection_experience_view_id}:{projection_experience_graph_identity_id}:{binding_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_id, layout_config_section_config_id, projection_experience_view_id, projection_experience_graph_identity_id, binding_key"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_config_section_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_view_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "binding_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "binding_key_norm"
+param = "binding_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_projection_experience_section_view_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_section_view:{projection_experience_section_id}:{object_projection_graph_observable_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_section_id, object_projection_graph_observable_id"
+
+[[functions.params]]
+name = "projection_experience_section_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_projection_graph_observable_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_view_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_view:{projection_experience_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_id, name"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_projection_experience_view_instance_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_view_instance:{projection_experience_view_id}:{section_graph_binding_id}:{view_instance_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_view_id, section_graph_binding_id, view_instance_key"
+
+[[functions.params]]
+name = "projection_experience_view_id"
+type = "uuid"
+
+[[functions.params]]
+name = "section_graph_binding_id"
+type = "uuid"
+
+[[functions.params]]
+name = "view_instance_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "view_instance_key_norm"
+param = "view_instance_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_projection_experience_view_invocation_action_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_view_invocation_action_config:{projection_experience_view_id}:{experience_invocation_action_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_view_id, experience_invocation_action_config_id"
+
+[[functions.params]]
+name = "projection_experience_view_id"
+type = "uuid"
+
+[[functions.params]]
+name = "experience_invocation_action_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_view_invocation_action_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_view_invocation_action:{projection_experience_view_instance_id}:{view_invocation_action_config_id}:{experience_invocation_action_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_view_instance_id, view_invocation_action_config_id, experience_invocation_action_id"
+
+[[functions.params]]
+name = "projection_experience_view_instance_id"
+type = "uuid"
+
+[[functions.params]]
+name = "view_invocation_action_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "experience_invocation_action_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_projection_experience_view_state_provider_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:projection_experience_view_state_provider:{projection_experience_view_id}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_view_id"
+
+[[functions.params]]
+name = "projection_experience_view_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_thread_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:thread_config:{process_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: process_config_id, key"
+
+[[functions.params]]
+name = "process_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_thread_config_layout_config_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:thread_config_layout_config:{thread_config_id}:{layout_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: thread_config_id, layout_config_id"
+
+[[functions.params]]
+name = "thread_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_thread_config_layout_config_section_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:thread_config_layout_config_section:{thread_config_layout_config_id}:{projection_experience_section_graph_binding_id}"
+doc = "Compiler-generated from class-attribute identity keys: thread_config_layout_config_id, projection_experience_section_graph_binding_id"
+
+[[functions.params]]
+name = "thread_config_layout_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_section_graph_binding_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_thread_config_program_config_graph_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:thread_config_program_config_graph:{thread_config_id}:{program_config_graph_id}"
+doc = "Compiler-generated from class-attribute identity keys: thread_config_id, program_config_graph_id"
+
+[[functions.params]]
+name = "thread_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "program_config_graph_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_thread_config_projection_experience_id"
+namespace = "NS_EXPERIENCE"
+template = "aware:thread_config_projection_experience:{thread_config_id}:{projection_experience_id}"
+doc = "Compiler-generated from class-attribute identity keys: thread_config_id, projection_experience_id"
+
+[[functions.params]]
+name = "thread_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"

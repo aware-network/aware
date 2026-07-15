@@ -1,0 +1,39 @@
+/// ProjectionExperience node contract edge.
+///
+/// Contract:
+/// - Anchors one ProjectionExperience to one structural projection node.
+/// - Owns human-stable identity names for that node.
+/// - Consumes canonical resolver key schema from Meta `ObjectProjectionGraphNodeKey`.
+class ProjectionExperienceNode {
+    // Relationships
+    object_projection_graph_node aware_meta.graph.projection.ObjectProjectionGraphNode key
+    projection_experience_node_identities ProjectionExperienceNodeIdentity[]
+    projection_experience_node_keys ProjectionExperienceNodeKey[]
+
+    // Attributes
+    key String key
+
+    fn build construct (object_projection_graph_node_id UUID key, key String key) -> ProjectionExperienceNode {
+        """
+        Create deterministic ProjectionExperienceNode association edge.
+        """
+    }
+
+    fn create_identity (key String) -> ProjectionExperienceNodeIdentity {
+        """
+        Attach one human-stable identity under this ProjectionExperienceNode.
+        """
+        let created = construct projection_experience_node_identities.build(
+            key = key,
+        )
+    }
+
+    fn add_key (object_projection_graph_node_key_id UUID) -> ProjectionExperienceNodeKey {
+        """
+        Attach one canonical ProjectionKey consumer row under this ProjectionExperienceNode.
+        """
+        let created = construct projection_experience_node_keys.build(
+            object_projection_graph_node_key_id = object_projection_graph_node_key_id,
+        )
+    }
+}

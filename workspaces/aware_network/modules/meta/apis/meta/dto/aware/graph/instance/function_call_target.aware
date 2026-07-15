@@ -1,0 +1,6 @@
+/// Function-call target variants supported by the Meta graph authority API.
+
+enum MetaGraphFunctionCallTarget {
+    instance
+    opg_constructor
+}

@@ -1,0 +1,38 @@
+/// Direct dependency from one EnvironmentProfilePackage to another.
+///
+/// This models reusable OS profile package composition as Environment semantic
+/// package truth. It is separate from concrete EnvironmentProfile session links.
+class EnvironmentProfilePackageDependency {
+    // Relationships
+    target_environment_profile_package EnvironmentProfilePackage key
+    target_environment_profile_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    description String?
+    expected_hash_sha256 String?
+    target_package_name String
+    target_version_number Int?
+
+    fn build construct(
+        target_environment_profile_package_id UUID key,
+        target_package_name String,
+        target_environment_profile_package_object_instance_graph_commit_id UUID? = null,
+        target_version_number Int? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null,
+    ) -> EnvironmentProfilePackageDependency {
+        """
+        Create one package-level EnvironmentProfilePackage dependency edge.
+
+        Contract:
+        - Parent `EnvironmentProfilePackage` scope is injected by propagation.
+        - Identity is keyed by the target package.
+        - `target_package_name` is retained as authored selector text.
+        - The optional OIG commit pin is the exact reproducibility authority for
+          WorkspaceRevision and Hub consumers.
+        """
+    }
+}
+
+ann environment.EnvironmentProfilePackageDependency::target_environment_profile_package load eager
+ann environment.EnvironmentProfilePackageDependency::target_environment_profile_package_object_instance_graph_commit load eager

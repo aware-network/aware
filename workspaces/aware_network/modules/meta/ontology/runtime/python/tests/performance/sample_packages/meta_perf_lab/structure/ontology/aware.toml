@@ -1,0 +1,15 @@
+aware = 1
+
+[package]
+package_name = "meta-perf-lab-ontology"
+fqn_prefix = "aware_meta_perf_lab"
+kind = "ontology"
+version_number = 1
+title = "Meta Performance Lab Ontology"
+description = "Source manifest for Meta-owned performance samples."
+
+[build]
+environment_slug = "aware_meta_perf_lab"
+sources_dir = "aware"
+include_paths = ["**/*.aware"]
+exclude_paths = []

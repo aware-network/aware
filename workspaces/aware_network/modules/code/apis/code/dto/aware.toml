@@ -1,0 +1,15 @@
+aware = 1
+
+[package]
+package_name = "code-service-dto"
+fqn_prefix = "aware_code_service_dto"
+kind = "api"
+version_number = 1
+title = "Code Service DTO"
+description = "API-owned OCG DTO package for Code semantic contract, package delta, and layout service payloads."
+
+[build]
+environment_slug = "aware_code_service_dto"
+
+[build.namespace]
+"code/**/*.aware" = "code"

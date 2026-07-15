@@ -1,0 +1,13 @@
+enum ApiCapabilityEndpointStreamMode {
+    server
+    client
+    bidirectional
+}
+
+enum ApiCapabilityEndpointStreamEventKind {
+    snapshot
+    delta
+    notice
+    complete
+    error
+}

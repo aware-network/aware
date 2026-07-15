@@ -13,7 +13,7 @@ Alignment docs are not the execution rail.
 - Goals remain product targets across issues: `docs/goals/PROTOCOL.md`.
 - Conversations remain long-form mental-model capture: `docs/conversations`.
 - Skills are the procedural automation layer: `skills/README.md`.
-- Public product usage starts at the SDK rail: `apps/aware-sdk/README.md`.
+- Public product usage starts at the SDK rail: `workspaces/aware_network/modules/interface/sdks/aware/README.md`.
 
 Alignment docs should state durable invariants and current topic locks. They
 should not duplicate issue updates, test logs, or implementation details that
@@ -29,15 +29,31 @@ issue is explicitly handed off.
 
 - [PROTOCOL.md](PROTOCOL.md) is the required alignment loop for shared
   coordinates and invariant promotion.
-- [CURRENT.md](CURRENT.md) is the mutable private current-topic board for this
-  workspace.
-- [PUBLIC.md](PUBLIC.md) is the public-safe current-topic surface used by the
+- [CURRENT.md](CURRENT.md) is the mutable private current-topic synthesis for
+  this workspace.
+- [PUBLIC.md](PUBLIC.md) is the public-safe current synthesis used by the
   `aware-network/aware` facade.
 - `daily/YYYY/MM/DD.md` entries aggregate receipt movement before maintainers
   promote it into `CURRENT.md`.
 - Topic statements should cite issue/protocol/SDK refs where possible.
 - If an invariant changes, update `CURRENT.md` through an issue-first workflow
   and append the reason in that issue's `Updates`.
+
+## Alignment Center Contract
+
+The alignment center is this index plus the current/public/daily alignment
+surfaces. It synthesizes where the system is going; it does not own execution.
+
+- Issues own work, status, ownership, and commit scope.
+- FEED owns live coordination pulses.
+- Goals own product target lanes and issue rows.
+- Specs own long-lived implementation contracts.
+- Alignment owns durable shared coordinates and current synthesis.
+
+Agents keep the center alive by appending issue-derived daily alignment
+receipts and promoting only receipt-backed coordinates into this index,
+`CURRENT.md`, or `PUBLIC.md`. `AGENTS.md` remains the bootstrap contract that
+points agents here.
 
 ## Global Invariants
 
@@ -49,9 +65,12 @@ ontology first.
 protocol docs -> canonical skill packs -> service/API automation, not ad hoc
 agent memory.
 
-`A-003`: The durable product rail is SDK-first:
-`SDK -> CLI renderer -> Interface -> API -> Services`. Product workflows should
-not bypass `apps/aware-sdk` into service internals.
+`A-003`: The durable product rail is Interface-SDK-first:
+`aware-sdk -> interface-sdk -> Interface -> Experience -> API/Services`, while
+Flutter/platform renderers consume the same `interface-sdk` boundary directly.
+Product workflows must not bypass
+`workspaces/aware_network/modules/interface/sdks/aware` into domain SDKs,
+service internals, or a separate agent-only door.
 
 `A-004`: Every meaningful action should leave a receipt. Receipts are the
 provenance surface for agents, humans, services, and later UI panes.
@@ -100,6 +119,13 @@ replacement for the target issue owner, implementation receipt, or commit rail.
 `A-016`: Attribution receipts must distinguish ownership from observation. Until
 the agent harness emits edit-event receipts, local dirty-delta or watcher output
 is observer evidence only; it cannot prove which Codex session wrote a file.
+
+`A-017`: The alignment center is maintained by receipt-backed synthesis, not by
+copying current direction into `AGENTS.md` or generated checkout targets.
+
+`A-018`: External and common-agent contribution should converge on
+`aware-dev`/service-backed SDK/API rails while alignment remains the shared
+semantic coordinate surface.
 
 ## Update Rules
 

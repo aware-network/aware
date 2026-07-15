@@ -1,0 +1,10 @@
+/// Actuator instance projection.
+projection Actuator {
+    root actuator.Actuator
+
+    observable actuator {
+        """
+        Actuator instance surface for runtime connector action fulfillments.
+        """
+    }
+}

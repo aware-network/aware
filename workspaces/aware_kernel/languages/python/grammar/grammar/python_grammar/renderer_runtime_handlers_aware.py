@@ -200,12 +200,8 @@ def _parse_user_imports(src: str) -> str:
     """Return the raw user-imports block (without markers)."""
     lines = src.splitlines(keepends=True)
     try:
-        start = next(
-            i for i, line in enumerate(lines) if line.strip() == _USER_IMPORTS_START
-        )
-        end = next(
-            i for i, line in enumerate(lines) if line.strip() == _USER_IMPORTS_END
-        )
+        start = next(i for i, line in enumerate(lines) if line.strip() == _USER_IMPORTS_START)
+        end = next(i for i, line in enumerate(lines) if line.strip() == _USER_IMPORTS_END)
     except StopIteration:
         return ""
     if end <= start:
@@ -223,11 +219,7 @@ def _parse_logic_blocks(src: str) -> dict[str, str]:
         if stripped.startswith("# --- AWARE: LOGIC START "):
             name = stripped.removeprefix("# --- AWARE: LOGIC START ").strip()
             try:
-                end_idx = next(
-                    j
-                    for j in range(i + 1, len(lines))
-                    if lines[j].strip() == _logic_end(name)
-                )
+                end_idx = next(j for j in range(i + 1, len(lines)) if lines[j].strip() == _logic_end(name))
             except StopIteration:
                 i += 1
                 continue
@@ -300,22 +292,12 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         policy_map = policy if isinstance(policy, dict) else {}
         ownership_raw = policy_map.get("function_impl_ownership")
         parity_raw = policy_map.get("function_impl_parity_policy")
-        ownership = (
-            str(ownership_raw).strip().lower()
-            if ownership_raw is not None
-            else "authored"
-        )
+        ownership = str(ownership_raw).strip().lower() if ownership_raw is not None else "authored"
         parity = str(parity_raw).strip().lower() if parity_raw is not None else "off"
         if ownership not in {"authored", "compiler"}:
-            raise ValueError(
-                "function_impl_ownership must be one of: authored, compiler "
-                + f"(got {ownership!r})"
-            )
+            raise ValueError("function_impl_ownership must be one of: authored, compiler " + f"(got {ownership!r})")
         if parity not in {"off", "warn", "error"}:
-            raise ValueError(
-                "function_impl_parity_policy must be one of: off, warn, error "
-                + f"(got {parity!r})"
-            )
+            raise ValueError("function_impl_parity_policy must be one of: off, warn, error " + f"(got {parity!r})")
         self._function_impl_ownership = ownership
         self._function_impl_parity_policy = parity
 
@@ -358,9 +340,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             impl_name_by_fn = self._compute_impl_names_for_class(fn_links=fn_links)
             self._impl_name_by_function_id.update(impl_name_by_fn)
 
-    def _compute_impl_names_for_class(
-        self, *, fn_links: list[ClassConfigFunctionConfig]
-    ) -> dict[UUID, str]:
+    def _compute_impl_names_for_class(self, *, fn_links: list[ClassConfigFunctionConfig]) -> dict[UUID, str]:
         proposed_by_fn_id: dict[UUID, str] = {}
         used_names: dict[str, list[UUID]] = {}
 
@@ -381,9 +361,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                 out[fn_id] = _safe_identifier(f"{base_name}_{suffix}")
         return out
 
-    def _propose_impl_name(
-        self, *, fn: FunctionConfig, fn_link: ClassConfigFunctionConfig
-    ) -> str:
+    def _propose_impl_name(self, *, fn: FunctionConfig, fn_link: ClassConfigFunctionConfig) -> str:
         fn_name = _safe_identifier(fn.name)
         if not fn_link.is_constructor:
             return fn_name
@@ -404,15 +382,11 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         raw = getattr(value, "value", value)
         return str(raw).strip().lower()
 
-    def _resolve_relationship_member_name(
-        self, relationship: object | None
-    ) -> str | None:
+    def _resolve_relationship_member_name(self, relationship: object | None) -> str | None:
         if relationship is None:
             return None
         best: tuple[int, str] | None = None
-        for rel_attr in (
-            getattr(relationship, "class_config_relationship_attributes", []) or []
-        ):
+        for rel_attr in getattr(relationship, "class_config_relationship_attributes", []) or []:
             attr_cfg = getattr(rel_attr, "attribute_config", None)
             attr_name = getattr(attr_cfg, "name", None)
             if not attr_name:
@@ -442,18 +416,14 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
     ) -> str | None:
         if relationship is None:
             return None
-        for rel_attr in (
-            getattr(relationship, "class_config_relationship_attributes", []) or []
-        ):
+        for rel_attr in getattr(relationship, "class_config_relationship_attributes", []) or []:
             attr_cfg = getattr(rel_attr, "attribute_config", None)
             attr_name = getattr(attr_cfg, "name", None)
             if attr_name != member_name:
                 continue
             descriptor = getattr(attr_cfg, "type_descriptor", None)
             kind = self._enum_token(getattr(descriptor, "kind", ""))
-            collection_kind = self._enum_token(
-                getattr(descriptor, "collection_kind", "")
-            )
+            collection_kind = self._enum_token(getattr(descriptor, "collection_kind", ""))
             if collection_kind == "set":
                 return "set"
             if kind == "collection" or collection_kind == "list":
@@ -473,10 +443,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
     ) -> None:
         raw_member_name = self._resolve_relationship_member_name(relationship)
         if not raw_member_name:
-            raise ValueError(
-                f"{line_context}: cannot resolve relationship member name for "
-                "construct attachment"
-            )
+            raise ValueError(f"{line_context}: cannot resolve relationship member name for " "construct attachment")
         member_name = _safe_identifier(raw_member_name)
         member_expr = f"{receiver_expr}.{member_name}"
         collection_kind = self._relationship_member_collection_kind(
@@ -505,10 +472,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         lines.append("    else:")
         lines.append(
             "        raise RuntimeError("
-            + repr(
-                f"{line_context}: relationship member '{member_name}' is not "
-                "appendable"
-            )
+            + repr(f"{line_context}: relationship member '{member_name}' is not " "appendable")
             + ")"
         )
 
@@ -521,17 +485,12 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         relationships = []
         for relationship in class_config.class_config_relationships:
             has_forward_reference = False
-            for rel_attr in (
-                getattr(relationship, "class_config_relationship_attributes", []) or []
-            ):
+            for rel_attr in getattr(relationship, "class_config_relationship_attributes", []) or []:
                 if self._enum_token(getattr(rel_attr, "direction", "")) != "forward":
                     continue
                 if self._enum_token(getattr(rel_attr, "role", "")) != "reference":
                     continue
-                if (
-                    getattr(rel_attr, "attribute_config_id", None)
-                    == reference_attribute_config_id
-                ):
+                if getattr(rel_attr, "attribute_config_id", None) == reference_attribute_config_id:
                     has_forward_reference = True
                     break
             if has_forward_reference:
@@ -546,9 +505,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             )
 
         foreign_key_names: list[str] = []
-        for rel_attr in (
-            getattr(relationships[0], "class_config_relationship_attributes", []) or []
-        ):
+        for rel_attr in getattr(relationships[0], "class_config_relationship_attributes", []) or []:
             if self._enum_token(getattr(rel_attr, "direction", "")) != "forward":
                 continue
             if self._enum_token(getattr(rel_attr, "role", "")) != "foreign_key":
@@ -559,8 +516,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     (
                         link.attribute_config
                         for link in class_config.class_config_attribute_configs
-                        if link.attribute_config_id
-                        == getattr(rel_attr, "attribute_config_id", None)
+                        if link.attribute_config_id == getattr(rel_attr, "attribute_config_id", None)
                     ),
                     None,
                 )
@@ -644,9 +600,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         if not bindings:
             return {}
 
-        runtime_imports.setdefault("aware_meta.runtime.handler_context", set()).add(
-            "current_handler_session"
-        )
+        runtime_imports.setdefault("aware_meta.runtime.handler_context", set()).add("current_handler_session")
         lines.append("_aware_handler_session = current_handler_session()")
         hydrated: dict[str, str] = {}
         for binding in bindings:
@@ -665,18 +619,13 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             lines.append(f"if {binding.member_identifier} is None:")
             lines.append(
                 "    raise RuntimeError("
-                + repr(
-                    f"{line_context} requires existing {binding.target_class.name}: "
-                    f"{binding.input_name}="
-                )
+                + repr(f"{line_context} requires existing {binding.target_class.name}: " f"{binding.input_name}=")
                 + f" + str({binding.input_name}))"
             )
             hydrated[binding.member_identifier] = binding.member_identifier
         return hydrated
 
-    def _resolve_stable_ids_module_for_class(
-        self, class_config: ClassConfig
-    ) -> str | None:
+    def _resolve_stable_ids_module_for_class(self, class_config: ClassConfig) -> str | None:
         class_module = (self.import_overrides or {}).get(str(class_config.id))
         if not class_module:
             return None
@@ -695,24 +644,18 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         line_context: str,
     ) -> str:
         if not isinstance(value_expr, dict):
-            raise ValueError(
-                f"{line_context}: invoke argument value expression must be JsonObject"
-            )
+            raise ValueError(f"{line_context}: invoke argument value expression must be JsonObject")
         kind = str(value_expr.get("kind", "")).strip().lower()
         if kind == "reference":
             name = str(value_expr.get("name", "")).strip()
             if not name:
-                raise ValueError(
-                    f"{line_context}: invoke reference value expression requires non-empty name"
-                )
+                raise ValueError(f"{line_context}: invoke reference value expression requires non-empty name")
             return _safe_identifier(name)
         if kind == "self_id":
             return "__aware_self_id__"
         if kind == "literal":
             return self._render_json_literal(value_expr.get("value"))
-        raise ValueError(
-            f"{line_context}: unsupported invoke argument value expression kind {kind!r}"
-        )
+        raise ValueError(f"{line_context}: unsupported invoke argument value expression kind {kind!r}")
 
     def _render_value_source_expr(
         self,
@@ -722,45 +665,27 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
     ) -> str:
         kind = self._enum_token(getattr(value_source, "kind", ""))
         if kind == "function_input_ref":
-            link = getattr(
-                value_source, "source_function_config_attribute_config", None
-            )
-            attr_cfg = (
-                getattr(link, "attribute_config", None) if link is not None else None
-            )
+            link = getattr(value_source, "source_function_config_attribute_config", None)
+            attr_cfg = getattr(link, "attribute_config", None) if link is not None else None
             attr_name = getattr(attr_cfg, "name", None)
             if not attr_name:
-                raise ValueError(
-                    f"{line_context}: function_input_ref is missing AttributeConfig.name"
-                )
+                raise ValueError(f"{line_context}: function_input_ref is missing AttributeConfig.name")
             return _safe_identifier(str(attr_name))
         if kind == "let_ref":
             let_payload = getattr(value_source, "source_instruction_let", None)
             let_name = getattr(let_payload, "name", None)
             if not let_name:
-                raise ValueError(
-                    f"{line_context}: let_ref is missing instruction_let.name"
-                )
+                raise ValueError(f"{line_context}: let_ref is missing instruction_let.name")
             return _safe_identifier(str(let_name))
         if kind == "literal":
             literal_payload = getattr(value_source, "source_literal_primitive", None)
-            literal_box = (
-                getattr(literal_payload, "value", None)
-                if literal_payload is not None
-                else None
-            )
-            literal_value = (
-                literal_box.get("value")
-                if isinstance(literal_box, dict)
-                else literal_box
-            )
+            literal_box = getattr(literal_payload, "value", None) if literal_payload is not None else None
+            literal_value = literal_box.get("value") if isinstance(literal_box, dict) else literal_box
             return self._render_json_literal(literal_value)
         if kind == "transform":
             transform = getattr(value_source, "source_transform", None)
             if transform is None:
-                raise ValueError(
-                    f"{line_context}: transform is missing source_transform payload"
-                )
+                raise ValueError(f"{line_context}: transform is missing source_transform payload")
             operation = self._enum_token(getattr(transform, "operation", ""))
             operands = sorted(
                 getattr(transform, "operands", ()),
@@ -788,9 +713,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                 if len(rendered_operands) != 1:
                     raise ValueError(f"{line_context}: text.strip expects 1 operand")
                 return f"{text_expr(rendered_operands[0])}.strip()"
-            if operation == self._enum_token(
-                FunctionImplValueTransformKind.text_casefold
-            ):
+            if operation == self._enum_token(FunctionImplValueTransformKind.text_casefold):
                 if len(rendered_operands) != 1:
                     raise ValueError(f"{line_context}: text.casefold expects 1 operand")
                 return f"{text_expr(rendered_operands[0])}.casefold()"
@@ -798,42 +721,25 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                 if len(rendered_operands) != 1:
                     raise ValueError(f"{line_context}: text.lower expects 1 operand")
                 return f"{text_expr(rendered_operands[0])}.lower()"
-            if operation == self._enum_token(
-                FunctionImplValueTransformKind.text_default_if_blank
-            ):
+            if operation == self._enum_token(FunctionImplValueTransformKind.text_default_if_blank):
                 if len(rendered_operands) != 2:
-                    raise ValueError(
-                        f"{line_context}: text.default_if_blank expects 2 operands"
-                    )
+                    raise ValueError(f"{line_context}: text.default_if_blank expects 2 operands")
                 value_expr = text_expr(rendered_operands[0])
                 default_expr = text_expr(rendered_operands[1])
-                return (
-                    f"({default_expr} if {value_expr}.strip() == '' else {value_expr})"
-                )
+                return f"({default_expr} if {value_expr}.strip() == '' else {value_expr})"
             if operation == self._enum_token(FunctionImplValueTransformKind.text_slice):
                 if len(rendered_operands) not in {2, 3}:
-                    raise ValueError(
-                        f"{line_context}: text.slice expects 2 or 3 operands"
-                    )
+                    raise ValueError(f"{line_context}: text.slice expects 2 or 3 operands")
                 end_expr = "" if len(rendered_operands) == 2 else rendered_operands[2]
                 return f"{text_expr(rendered_operands[0])}[{rendered_operands[1]}:{end_expr}]"
-            if operation == self._enum_token(
-                FunctionImplValueTransformKind.text_concat
-            ):
+            if operation == self._enum_token(FunctionImplValueTransformKind.text_concat):
                 if not rendered_operands:
-                    raise ValueError(
-                        f"{line_context}: text.concat expects at least 1 operand"
-                    )
+                    raise ValueError(f"{line_context}: text.concat expects at least 1 operand")
                 return (
-                    '"".join("" if operand is None else operand '
-                    f"for operand in ({', '.join(rendered_operands)},))"
+                    '"".join("" if operand is None else operand ' f"for operand in ({', '.join(rendered_operands)},))"
                 )
-            raise ValueError(
-                f"{line_context}: unsupported transform operation {operation!r}"
-            )
-        raise ValueError(
-            f"{line_context}: unsupported FunctionImplValueSource kind {kind!r}"
-        )
+            raise ValueError(f"{line_context}: unsupported transform operation {operation!r}")
+        raise ValueError(f"{line_context}: unsupported FunctionImplValueSource kind {kind!r}")
 
     @override
     def extra_output_paths(self) -> list[Path]:
@@ -863,18 +769,14 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         # Emit generated registry for:
         # - explicit extra output path (empty meta_objects), and
         # - function-mapped generated path (meta_objects contains FunctionConfig entries).
-        if not meta_objects or all(
-            isinstance(obj, FunctionConfig) for obj in meta_objects
-        ):
+        if not meta_objects or all(isinstance(obj, FunctionConfig) for obj in meta_objects):
             self._emit_generated_handlers_file(writer=writer)
         return
 
     # ---------------------------------------------------------------------
     # Impl stubs
     # ---------------------------------------------------------------------
-    def _emit_impl_file(
-        self, *, writer: CodeSectionWriter, class_config: ClassConfig
-    ) -> None:
+    def _emit_impl_file(self, *, writer: CodeSectionWriter, class_config: ClassConfig) -> None:
         self._rendered_class_by_id[class_config.id] = class_config
         fn_links = sorted(
             class_config.class_config_function_configs,
@@ -892,9 +794,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             layout_strategy=self.layout_strategy,
             class_config=class_config,
         )
-        output_path = (
-            Path(self.layout_strategy.base_dir).resolve() / file_path
-        ).resolve()
+        output_path = (Path(self.layout_strategy.base_dir).resolve() / file_path).resolve()
 
         existing_src = ""
         if output_path.exists():
@@ -911,9 +811,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         for link in fn_links:
             fn = link.function_config
             allowed_logic_names.add(_safe_identifier(fn.name))
-            allowed_logic_names.add(
-                impl_name_by_fn_id.get(fn.id, _safe_identifier(fn.name))
-            )
+            allowed_logic_names.add(impl_name_by_fn_id.get(fn.id, _safe_identifier(fn.name)))
         unknown_logic_names = set(preserved_logic.keys()) - allowed_logic_names
         if unknown_logic_names:
             message = (
@@ -952,11 +850,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                 if p.default_expr is None:
                     continue
                 # Enum defaults are emitted as `EnumName.VALUE` and must be importable at runtime.
-                if (
-                    p.type_id
-                    and p.type_name
-                    and p.default_expr.startswith(f"{p.type_name}.")
-                ):
+                if p.type_id and p.type_name and p.default_expr.startswith(f"{p.type_name}."):
                     mod = self._resolve_type_module_by_id(p.type_id)
                     if mod:
                         runtime_imports.setdefault(mod, set()).add(p.type_name)
@@ -974,9 +868,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             fn = link.function_config
             sig = self._render_signature(fn=fn)
             for p in sig.params:
-                self._collect_type_imports(
-                    type_imports, type_annotation=p.type_annotation
-                )
+                self._collect_type_imports(type_imports, type_annotation=p.type_annotation)
                 self._collect_type_imports_by_id(
                     type_imports,
                     type_id=p.type_id,
@@ -1069,22 +961,14 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             iw.write(f"{_logic_start(logic_name)}\n")
 
             if generated_logic is not None:
-                generated = (
-                    generated_logic.body
-                    if generated_logic.body.endswith("\n")
-                    else generated_logic.body + "\n"
-                )
+                generated = generated_logic.body if generated_logic.body.endswith("\n") else generated_logic.body + "\n"
                 iw.write(generated)
             elif preserved_logic.strip():
                 if self._function_impl_ownership == "compiler":
                     self._warnings.append(
                         f"FunctionImpl compiler ownership unresolved for {class_config.name}.{fn.name}: using preserved manual logic"
                     )
-                preserved = (
-                    preserved_logic
-                    if preserved_logic.endswith("\n")
-                    else preserved_logic + "\n"
-                )
+                preserved = preserved_logic if preserved_logic.endswith("\n") else preserved_logic + "\n"
                 iw.write(preserved)
             else:
                 if self._function_impl_ownership == "compiler":
@@ -1095,9 +979,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                         "# AWARE: compiler-owned FunctionImpl lowering unavailable for this function; "
                         "manual implementation required until support lands.\n"
                     )
-                iw.write(
-                    'raise NotImplementedError("AWARE: implement handler logic")\n'
-                )
+                iw.write('raise NotImplementedError("AWARE: implement handler logic")\n')
 
             iw.write(f"{_logic_end(logic_name)}\n")
 
@@ -1120,9 +1002,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     fail_on_unresolved=True,
                 )
             except Exception as exc:
-                self._warnings.append(
-                    f"FunctionImpl lowering unavailable for {class_config.name}.{fn.name}: {exc}"
-                )
+                self._warnings.append(f"FunctionImpl lowering unavailable for {class_config.name}.{fn.name}: {exc}")
                 function_impl = None
             if function_impl is None:
                 function_impl = fn.function_impl
@@ -1136,9 +1016,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                         fail_on_unresolved=True,
                     )
                 except Exception as exc:
-                    self._warnings.append(
-                        f"FunctionImpl lowering unavailable for {class_config.name}.{fn.name}: {exc}"
-                    )
+                    self._warnings.append(f"FunctionImpl lowering unavailable for {class_config.name}.{fn.name}: {exc}")
                     function_impl = None
         if function_impl is None:
             try:
@@ -1158,14 +1036,12 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             key=lambda ins: (int(ins.sequence), str(ins.id)),
         )
         capture_name_by_sequence = {
-            int(inv.position): (inv.capture_name.strip() if inv.capture_name else None)
-            for inv in fn.invocations
+            int(inv.position): (inv.capture_name.strip() if inv.capture_name else None) for inv in fn.invocations
         }
         input_edges = [
             edge
             for edge in fn.function_config_attribute_configs
-            if edge.type == FunctionAttributeType.input
-            and edge.attribute_config is not None
+            if edge.type == FunctionAttributeType.input and edge.attribute_config is not None
         ]
         input_edges.sort(key=lambda edge: (int(edge.position), str(edge.id)))
         runtime_imports: dict[str, set[str]] = {}
@@ -1179,8 +1055,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         class_attribute_names = {
             _safe_identifier(link.attribute_config.name)
             for link in class_config.class_config_attribute_configs
-            if link.attribute_config is not None
-            and getattr(link.attribute_config, "name", None)
+            if link.attribute_config is not None and getattr(link.attribute_config, "name", None)
         }
         constructor_self_id_emitted = False
         constructor_self_id_name = "_aware_self_id"
@@ -1196,8 +1071,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             return {
                 _safe_identifier(link.attribute_config.name)
                 for link in target_class.class_config_attribute_configs
-                if link.attribute_config is not None
-                and getattr(link.attribute_config, "name", None)
+                if link.attribute_config is not None and getattr(link.attribute_config, "name", None)
             }
 
         def _ensure_constructor_self_id(line_context: str) -> str:
@@ -1209,8 +1083,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             stable_ids_module = self._resolve_stable_ids_module_for_class(class_config)
             if stable_ids_module is None:
                 raise ValueError(
-                    f"{line_context}: constructor self_id requires stable-id bindings "
-                    f"for {class_config.name}"
+                    f"{line_context}: constructor self_id requires stable-id bindings " f"for {class_config.name}"
                 )
             runtime_imports.setdefault("importlib", set()).add("import_module")
             runtime_imports.setdefault(stable_ids_module, set()).add(
@@ -1225,15 +1098,13 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             lines.append(f"_aware_self_values = {{{values_expr}}}")
             lines.append(
                 "_aware_self_binding = "
-                "CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("
-                + f"{str(class_config.id)!r})"
+                "CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get(" + f"{str(class_config.id)!r})"
             )
             lines.append("if _aware_self_binding is None:")
             lines.append(
                 "    raise RuntimeError("
                 + repr(
-                    f"{class_config.name}.{fn.name} cannot resolve constructor self id: "
-                    "missing stable-id binding"
+                    f"{class_config.name}.{fn.name} cannot resolve constructor self id: " "missing stable-id binding"
                 )
                 + ")"
             )
@@ -1298,9 +1169,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                         )
                     let_kind = str(let_expr.get("kind", "")).strip().lower()
                     if let_kind == "reference":
-                        ref_name = _safe_identifier(
-                            str(let_expr.get("name", "")).strip()
-                        )
+                        ref_name = _safe_identifier(str(let_expr.get("name", "")).strip())
                         if not ref_name:
                             raise ValueError(
                                 f"{class_config.name}.{fn.name} sequence={instruction.sequence}: let reference name is empty"
@@ -1311,16 +1180,13 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                             and ref_name not in signature_input_names
                         ):
                             lines.append(
-                                f"{let_name} = getattr({self_name}.{ref_name}, "
-                                f"'value', {self_name}.{ref_name})"
+                                f"{let_name} = getattr({self_name}.{ref_name}, " f"'value', {self_name}.{ref_name})"
                             )
                             continue
                         lines.append(f"{let_name} = {ref_name}")
                         continue
                     if let_kind == "literal":
-                        lines.append(
-                            f"{let_name} = {self._render_json_literal(let_expr.get('value'))}"
-                        )
+                        lines.append(f"{let_name} = {self._render_json_literal(let_expr.get('value'))}")
                         continue
                     if let_kind == "value_source":
                         value_sources = list(getattr(instruction, "value_sources", ()))
@@ -1352,8 +1218,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                                 link.function_config
                                 for owner in self._class_by_id.values()
                                 for link in owner.class_config_function_configs
-                                if link.function_config_id
-                                == payload.target_function_config_id
+                                if link.function_config_id == payload.target_function_config_id
                             ),
                             None,
                         )
@@ -1374,11 +1239,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     invoke_bindings = sorted(
                         payload.attribute_configs,
                         key=lambda binding: (
-                            (
-                                int(binding.position)
-                                if binding.position is not None
-                                else 999999
-                            ),
+                            (int(binding.position) if binding.position is not None else 999999),
                             str(binding.id),
                         ),
                     )
@@ -1390,8 +1251,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                                 (
                                     edge.attribute_config
                                     for edge in target_fn.function_config_attribute_configs
-                                    if edge.attribute_config_id
-                                    == binding.attribute_config_id
+                                    if edge.attribute_config_id == binding.attribute_config_id
                                 ),
                                 None,
                             )
@@ -1419,9 +1279,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     target_is_constructor = bool(target_link.is_constructor)
                     relationship_construct_attachment = None
                     call_expr: str
-                    if invoke_kind == self._enum_token(
-                        FunctionImplInvokeKind.construct
-                    ):
+                    if invoke_kind == self._enum_token(FunctionImplInvokeKind.construct):
                         if not target_is_constructor:
                             raise ValueError(
                                 f"{class_config.name}.{fn.name} sequence={instruction.sequence}: construct invoke target is not constructor"
@@ -1432,9 +1290,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                                     f"{class_config.name}.{fn.name} sequence={instruction.sequence}: "
                                     "relationship construct requires instance context"
                                 )
-                            relationship_construct_attachment = (
-                                payload.class_config_relationship
-                            )
+                            relationship_construct_attachment = payload.class_config_relationship
                         call_expr = (
                             f"await {target_owner.name}.{target_fn.name}({args_text})"
                             if args_text
@@ -1443,9 +1299,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     else:
                         if payload.class_config_relationship_id is None:
                             if target_is_constructor:
-                                relationship_construct_attachment = (
-                                    payload.class_config_relationship
-                                )
+                                relationship_construct_attachment = payload.class_config_relationship
                                 call_expr = (
                                     f"await {target_owner.name}.{target_fn.name}({args_text})"
                                     if args_text
@@ -1462,9 +1316,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                                     else f"await {self_name}.{target_fn.name}()"
                                 )
                         else:
-                            rel_member = self._resolve_relationship_member_name(
-                                payload.class_config_relationship
-                            )
+                            rel_member = self._resolve_relationship_member_name(payload.class_config_relationship)
                             if not rel_member:
                                 raise ValueError(
                                     f"{class_config.name}.{fn.name} sequence={instruction.sequence}: cannot resolve relationship member name for invoke"
@@ -1482,18 +1334,11 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                                     )
                                     or []
                                 ):
-                                    attr_cfg = getattr(
-                                        rel_attr, "attribute_config", None
-                                    )
+                                    attr_cfg = getattr(rel_attr, "attribute_config", None)
                                     if getattr(attr_cfg, "name", None) != rel_member:
                                         continue
-                                    descriptor = getattr(
-                                        attr_cfg, "type_descriptor", None
-                                    )
-                                    if (
-                                        getattr(descriptor, "collection_kind", None)
-                                        is not None
-                                    ):
+                                    descriptor = getattr(attr_cfg, "type_descriptor", None)
+                                    if getattr(descriptor, "collection_kind", None) is not None:
                                         raise ValueError(
                                             f"{class_config.name}.{fn.name} sequence={instruction.sequence}: "
                                             f"relationship member '{rel_member}' is a collection and cannot be used "
@@ -1522,9 +1367,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                                     else f"await {rel_expr}.{target_fn.name}()"
                                 )
 
-                    capture_name = capture_name_by_sequence.get(
-                        int(instruction.sequence)
-                    )
+                    capture_name = capture_name_by_sequence.get(int(instruction.sequence))
                     if relationship_construct_attachment is not None:
                         constructed_expr = (
                             _safe_identifier(capture_name)
@@ -1538,10 +1381,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                             relationship=relationship_construct_attachment,
                             constructed_expr=constructed_expr,
                             attachment_key=f"instruction_{int(instruction.sequence)}",
-                            line_context=(
-                                f"{class_config.name}.{fn.name} "
-                                f"sequence={instruction.sequence}"
-                            ),
+                            line_context=(f"{class_config.name}.{fn.name} " f"sequence={instruction.sequence}"),
                         )
                         last_value_expr = constructed_expr
                     elif capture_name:
@@ -1560,9 +1400,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                         )
                     target_class = payload.target_class_config
                     if target_class is None:
-                        target_class = self._class_by_id.get(
-                            payload.target_class_config_id
-                        )
+                        target_class = self._class_by_id.get(payload.target_class_config_id)
                     if target_class is None:
                         raise ValueError(
                             f"{class_config.name}.{fn.name} sequence={instruction.sequence}: cannot resolve construct target class"
@@ -1573,26 +1411,14 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     assignments = sorted(
                         payload.assignments,
                         key=lambda assignment: (
-                            (
-                                int(assignment.position)
-                                if assignment.position is not None
-                                else 999999
-                            ),
+                            (int(assignment.position) if assignment.position is not None else 999999),
                             str(assignment.id),
                         ),
                     )
                     for assignment in assignments:
                         target_link = assignment.target_class_config_attribute_config
-                        target_attr = (
-                            target_link.attribute_config
-                            if target_link is not None
-                            else None
-                        )
-                        target_name = (
-                            _safe_identifier(target_attr.name)
-                            if target_attr is not None
-                            else ""
-                        )
+                        target_attr = target_link.attribute_config if target_link is not None else None
+                        target_name = _safe_identifier(target_attr.name) if target_attr is not None else ""
                         if not target_name:
                             raise ValueError(
                                 f"{class_config.name}.{fn.name} sequence={instruction.sequence}: construct assignment target is unresolved"
@@ -1619,33 +1445,19 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     constructed_name = f"_aware_constructed_{int(instruction.sequence)}"
                     values_name = f"_aware_construct_values_{int(instruction.sequence)}"
                     lines.append(f"{values_name} = {{{', '.join(rendered_args)}}}")
-                    stable_ids_module = self._resolve_stable_ids_module_for_class(
-                        target_class
-                    )
+                    stable_ids_module = self._resolve_stable_ids_module_for_class(target_class)
                     if stable_ids_module is not None:
-                        runtime_imports.setdefault("importlib", set()).add(
-                            "import_module"
-                        )
+                        runtime_imports.setdefault("importlib", set()).add("import_module")
                         runtime_imports.setdefault(stable_ids_module, set()).add(
                             "CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID"
                         )
-                        binding_name = (
-                            f"_aware_stable_binding_{int(instruction.sequence)}"
-                        )
+                        binding_name = f"_aware_stable_binding_{int(instruction.sequence)}"
                         stable_fn_name = f"_aware_stable_fn_{int(instruction.sequence)}"
-                        stable_key_names = (
-                            f"_aware_stable_key_names_{int(instruction.sequence)}"
-                        )
-                        missing_name = (
-                            f"_aware_missing_stable_keys_{int(instruction.sequence)}"
-                        )
+                        stable_key_names = f"_aware_stable_key_names_{int(instruction.sequence)}"
+                        missing_name = f"_aware_missing_stable_keys_{int(instruction.sequence)}"
                         identity_values_name = f"_aware_construct_identity_values_{int(instruction.sequence)}"
-                        stable_values_name = (
-                            f"_aware_stable_values_{int(instruction.sequence)}"
-                        )
-                        construct_id_name = (
-                            f"_aware_construct_id_{int(instruction.sequence)}"
-                        )
+                        stable_values_name = f"_aware_stable_values_{int(instruction.sequence)}"
+                        construct_id_name = f"_aware_construct_id_{int(instruction.sequence)}"
                         identity_input_args = [
                             f"{_safe_identifier(param.name)!r}: {_safe_identifier(param.name)}"
                             for param in sig.params
@@ -1653,9 +1465,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                         ]
                         if identity_input_args:
                             lines.append(
-                                f"{identity_values_name} = {{**{values_name}, "
-                                + ", ".join(identity_input_args)
-                                + "}"
+                                f"{identity_values_name} = {{**{values_name}, " + ", ".join(identity_input_args) + "}"
                             )
                         else:
                             lines.append(f"{identity_values_name} = {values_name}")
@@ -1663,9 +1473,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                             f"{binding_name} = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get({str(target_class.id)!r})"
                         )
                         lines.append(f"if {binding_name} is not None:")
-                        lines.append(
-                            f"    {stable_fn_name}, {stable_key_names} = {binding_name}"
-                        )
+                        lines.append(f"    {stable_fn_name}, {stable_key_names} = {binding_name}")
                         lines.append(
                             f"    {missing_name} = [key for key in {stable_key_names} if key not in {identity_values_name}]"
                         )
@@ -1684,21 +1492,15 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                         lines.append(
                             f"    {construct_id_name} = getattr(import_module({stable_ids_module!r}), {stable_fn_name})(**{stable_values_name})"
                         )
-                        lines.append(
-                            f"    {constructed_name} = {target_class.name}.get_by_id_cached({construct_id_name})"
-                        )
+                        lines.append(f"    {constructed_name} = {target_class.name}.by_id_cached({construct_id_name})")
                         lines.append(f"    if {constructed_name} is None:")
                         lines.append(
                             f"        {constructed_name} = {target_class.name}(id={construct_id_name}, **{values_name})"
                         )
                         lines.append("else:")
-                        lines.append(
-                            f"    {constructed_name} = {target_class.name}(**{values_name})"
-                        )
+                        lines.append(f"    {constructed_name} = {target_class.name}(**{values_name})")
                     else:
-                        lines.append(
-                            f"{constructed_name} = {target_class.name}(**{values_name})"
-                        )
+                        lines.append(f"{constructed_name} = {target_class.name}(**{values_name})")
                     last_value_expr = constructed_name
                     continue
 
@@ -1714,11 +1516,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                             f"{class_config.name}.{fn.name} sequence={instruction.sequence}: set target link is unresolved"
                         )
                     target_attr = target_link.attribute_config
-                    target_name = (
-                        _safe_identifier(target_attr.name)
-                        if target_attr is not None
-                        else ""
-                    )
+                    target_name = _safe_identifier(target_attr.name) if target_attr is not None else ""
                     if not target_name:
                         raise ValueError(
                             f"{class_config.name}.{fn.name} sequence={instruction.sequence}: set target attribute is unresolved"
@@ -1736,9 +1534,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                         reference_attribute_config_id=target_link.attribute_config_id,
                     )
                     if relationship_fk_name is not None:
-                        lines.append(
-                            f"{self_name}.{_safe_identifier(relationship_fk_name)} = {value_expr}"
-                        )
+                        lines.append(f"{self_name}.{_safe_identifier(relationship_fk_name)} = {value_expr}")
                         lines.append(f"{self_name}.{target_name} = None")
                     else:
                         lines.append(f"{self_name}.{target_name} = {value_expr}")
@@ -1768,88 +1564,46 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     condition: str
                     if require_kind == self._enum_token(FunctionImplRequireKind.exists):
                         condition = f"{rendered_operands[0]} is not None"
-                    elif require_kind == self._enum_token(
-                        FunctionImplRequireKind.equals
-                    ):
+                    elif require_kind == self._enum_token(FunctionImplRequireKind.equals):
                         condition = f"{rendered_operands[0]} == {rendered_operands[1]}"
-                    elif require_kind == self._enum_token(
-                        FunctionImplRequireKind.member
-                    ):
+                    elif require_kind == self._enum_token(FunctionImplRequireKind.member):
                         condition = f"{rendered_operands[0]} in {rendered_operands[1]}"
-                    elif require_kind == self._enum_token(
-                        FunctionImplRequireKind.unique
-                    ):
+                    elif require_kind == self._enum_token(FunctionImplRequireKind.unique):
                         condition = f"len(set({rendered_operands[0]})) == len({rendered_operands[0]})"
-                    elif require_kind == self._enum_token(
-                        FunctionImplRequireKind.compare
-                    ):
+                    elif require_kind == self._enum_token(FunctionImplRequireKind.compare):
                         op_map = {
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.eq
-                            ): "==",
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.neq
-                            ): "!=",
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.gt
-                            ): ">",
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.gte
-                            ): ">=",
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.lt
-                            ): "<",
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.lte
-                            ): "<=",
+                            self._enum_token(FunctionImplRequireCompareOperator.eq): "==",
+                            self._enum_token(FunctionImplRequireCompareOperator.neq): "!=",
+                            self._enum_token(FunctionImplRequireCompareOperator.gt): ">",
+                            self._enum_token(FunctionImplRequireCompareOperator.gte): ">=",
+                            self._enum_token(FunctionImplRequireCompareOperator.lt): "<",
+                            self._enum_token(FunctionImplRequireCompareOperator.lte): "<=",
                         }
-                        compare_op = op_map.get(
-                            self._enum_token(payload.compare_operator)
-                        )
+                        compare_op = op_map.get(self._enum_token(payload.compare_operator))
                         if compare_op is None:
                             raise ValueError(
                                 f"{class_config.name}.{fn.name} sequence={instruction.sequence}: unsupported compare operator"
                             )
                         condition = f"{rendered_operands[0]} {compare_op} {rendered_operands[1]}"
-                    elif require_kind == self._enum_token(
-                        FunctionImplRequireKind.cardinality
-                    ):
+                    elif require_kind == self._enum_token(FunctionImplRequireKind.cardinality):
                         op_map = {
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.eq
-                            ): "==",
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.neq
-                            ): "!=",
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.gt
-                            ): ">",
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.gte
-                            ): ">=",
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.lt
-                            ): "<",
-                            self._enum_token(
-                                FunctionImplRequireCompareOperator.lte
-                            ): "<=",
+                            self._enum_token(FunctionImplRequireCompareOperator.eq): "==",
+                            self._enum_token(FunctionImplRequireCompareOperator.neq): "!=",
+                            self._enum_token(FunctionImplRequireCompareOperator.gt): ">",
+                            self._enum_token(FunctionImplRequireCompareOperator.gte): ">=",
+                            self._enum_token(FunctionImplRequireCompareOperator.lt): "<",
+                            self._enum_token(FunctionImplRequireCompareOperator.lte): "<=",
                         }
-                        compare_op = op_map.get(
-                            self._enum_token(payload.compare_operator)
-                        )
+                        compare_op = op_map.get(self._enum_token(payload.compare_operator))
                         if compare_op is None or payload.expected_count is None:
                             raise ValueError(
                                 f"{class_config.name}.{fn.name} sequence={instruction.sequence}: cardinality require is missing operator/expected_count"
                             )
                         condition = f"len({rendered_operands[0]}) {compare_op} {int(payload.expected_count)}"
-                    elif require_kind == self._enum_token(
-                        FunctionImplRequireKind.all_or_none
-                    ):
+                    elif require_kind == self._enum_token(FunctionImplRequireKind.all_or_none):
                         terms = ", ".join(rendered_operands)
                         condition = f"(all([{terms}]) or not any([{terms}]))"
-                    elif require_kind == self._enum_token(
-                        FunctionImplRequireKind.text_matches_regex
-                    ):
+                    elif require_kind == self._enum_token(FunctionImplRequireKind.text_matches_regex):
                         if len(rendered_operands) != 2:
                             raise ValueError(
                                 f"{class_config.name}.{fn.name} sequence={instruction.sequence}: "
@@ -1864,9 +1618,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                             f"{class_config.name}.{fn.name} sequence={instruction.sequence}: unsupported require kind {require_kind!r}"
                         )
 
-                    message = payload.message or (
-                        f"{class_config.name}.{fn.name} require {require_kind} failed"
-                    )
+                    message = payload.message or (f"{class_config.name}.{fn.name} require {require_kind} failed")
                     lines.append(f"if not ({condition}):")
                     lines.append(f"    raise RuntimeError({repr(message)})")
                     continue
@@ -1892,13 +1644,9 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     for edge in input_edges
                     if edge.attribute_config is not None
                 }
-                stable_ids_module = self._resolve_stable_ids_module_for_class(
-                    class_config
-                )
+                stable_ids_module = self._resolve_stable_ids_module_for_class(class_config)
                 if stable_ids_module is not None:
-                    constructor_id_expr = _ensure_constructor_self_id(
-                        f"{class_config.name}.{fn.name}"
-                    )
+                    constructor_id_expr = _ensure_constructor_self_id(f"{class_config.name}.{fn.name}")
                     ctor_kw_pairs.insert(0, f"id={constructor_id_expr}")
                 relationship_kwargs = self._emit_constructor_relationship_hydration(
                     lines=lines,
@@ -1907,10 +1655,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     input_names=input_names,
                     line_context=f"{class_config.name}.{fn.name}",
                 )
-                ctor_kw_pairs.extend(
-                    f"{name}={expr}"
-                    for name, expr in sorted(relationship_kwargs.items())
-                )
+                ctor_kw_pairs.extend(f"{name}={expr}" for name, expr in sorted(relationship_kwargs.items()))
                 ctor_args = ", ".join(ctor_kw_pairs)
                 if ctor_args:
                     lines.append(f"return {class_config.name}({ctor_args})")
@@ -1929,9 +1674,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         if expects_return and not has_return_stmt:
             captured = [
                 _safe_identifier(name)
-                for _, name in sorted(
-                    capture_name_by_sequence.items(), key=lambda kv: kv[0]
-                )
+                for _, name in sorted(capture_name_by_sequence.items(), key=lambda kv: kv[0])
                 if name
             ]
             if last_value_expr is not None:
@@ -1971,9 +1714,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         - Missing required constructor args fail closed.
         """
 
-        invocations = sorted(
-            fn.invocations, key=lambda inv: (int(inv.position), str(inv.id))
-        )
+        invocations = sorted(fn.invocations, key=lambda inv: (int(inv.position), str(inv.id)))
         sig = self._render_signature(fn=fn)
         expects_return = sig.return_type != "None"
         self_name = _safe_identifier(to_snake_case(class_config.name))
@@ -2000,22 +1741,19 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             input_names = [
                 _safe_identifier(edge.attribute_config.name)
                 for edge in fn.function_config_attribute_configs
-                if edge.type == FunctionAttributeType.input
-                and edge.attribute_config is not None
+                if edge.type == FunctionAttributeType.input and edge.attribute_config is not None
             ]
             values_expr = ", ".join(f"{name!r}: {name}" for name in input_names)
             lines.append(f"_aware_self_values = {{{values_expr}}}")
             lines.append(
                 "_aware_self_binding = "
-                "CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("
-                + f"{str(class_config.id)!r})"
+                "CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get(" + f"{str(class_config.id)!r})"
             )
             lines.append("if _aware_self_binding is None:")
             lines.append(
                 "    raise RuntimeError("
                 + repr(
-                    f"{class_config.name}.{fn.name} cannot resolve constructor self id: "
-                    "missing stable-id binding"
+                    f"{class_config.name}.{fn.name} cannot resolve constructor self id: " "missing stable-id binding"
                 )
                 + ")"
             )
@@ -2054,8 +1792,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                 constructor_input_edges = [
                     edge
                     for edge in fn.function_config_attribute_configs
-                    if edge.type == FunctionAttributeType.input
-                    and edge.attribute_config is not None
+                    if edge.type == FunctionAttributeType.input and edge.attribute_config is not None
                 ]
                 ctor_kw_pairs = [
                     f"{_safe_identifier(edge.attribute_config.name)}={_safe_identifier(edge.attribute_config.name)}"
@@ -2068,29 +1805,19 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     lines=lines,
                     runtime_imports=runtime_imports,
                     class_config=class_config,
-                    input_names={
-                        _safe_identifier(edge.attribute_config.name)
-                        for edge in constructor_input_edges
-                    },
+                    input_names={_safe_identifier(edge.attribute_config.name) for edge in constructor_input_edges},
                     line_context=f"{class_config.name}.{fn.name}",
                 )
-                ctor_kw_pairs.extend(
-                    f"{name}={expr}"
-                    for name, expr in sorted(relationship_kwargs.items())
-                )
+                ctor_kw_pairs.extend(f"{name}={expr}" for name, expr in sorted(relationship_kwargs.items()))
                 ctor_args = ", ".join(ctor_kw_pairs)
                 if ctor_args:
                     lines.append(f"return {class_config.name}({ctor_args})")
                 else:
                     lines.append(f"return {class_config.name}()")
-                return _GeneratedImplLogic(
-                    body="\n".join(lines), runtime_imports=runtime_imports
-                )
+                return _GeneratedImplLogic(body="\n".join(lines), runtime_imports=runtime_imports)
             if expects_return and sig.return_type == class_config.name:
                 lines.append(f"return {self_name}")
-                return _GeneratedImplLogic(
-                    body="\n".join(lines), runtime_imports=runtime_imports
-                )
+                return _GeneratedImplLogic(body="\n".join(lines), runtime_imports=runtime_imports)
             return None
 
         captured: list[str] = []
@@ -2102,9 +1829,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     f"(got {kind!r} at position={inv.position})"
                 )
 
-            target_fn = inv.target_function_config or self._function_by_id.get(
-                inv.target_function_config_id
-            )
+            target_fn = inv.target_function_config or self._function_by_id.get(inv.target_function_config_id)
             if target_fn is None:
                 raise ValueError(
                     f"{class_config.name}.{fn.name} cannot resolve target function id={inv.target_function_config_id}"
@@ -2112,9 +1837,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             target_owner = self._owner_by_function_id.get(target_fn.id)
             target_link = self._link_by_function_id.get(target_fn.id)
             if target_owner is None or target_link is None:
-                raise ValueError(
-                    f"{class_config.name}.{fn.name} cannot resolve owner/link for target {target_fn.name}"
-                )
+                raise ValueError(f"{class_config.name}.{fn.name} cannot resolve owner/link for target {target_fn.name}")
             if not target_link.is_constructor:
                 raise ValueError(
                     f"{class_config.name}.{fn.name} construct invocation target {target_owner.name}.{target_fn.name} "
@@ -2127,8 +1850,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             if relationship is not None:
                 if fn_link.is_constructor:
                     raise ValueError(
-                        f"{class_config.name}.{fn.name} relationship construct "
-                        "requires instance context"
+                        f"{class_config.name}.{fn.name} relationship construct " "requires instance context"
                     )
                 rel_source_id = getattr(relationship, "class_config_id", None)
                 if rel_source_id is not None:
@@ -2140,8 +1862,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                 [
                     edge
                     for edge in target_fn.function_config_attribute_configs
-                    if edge.type == FunctionAttributeType.input
-                    and edge.attribute_config is not None
+                    if edge.type == FunctionAttributeType.input and edge.attribute_config is not None
                 ],
                 key=lambda edge: (int(edge.position), str(edge.id)),
             )
@@ -2154,22 +1875,14 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     continue
                 # Canonical propagation rail: `_via_<owner>` constructors receive owner identity
                 # from the invoking instance (`self`) through `<owner>_id`.
-                source_id_param = _safe_identifier(
-                    f"{to_snake_case(source_class.name)}_id"
-                )
-                if (
-                    not fn_link.is_constructor
-                    and source_class.id == class_config.id
-                    and target_name == source_id_param
-                ):
+                source_id_param = _safe_identifier(f"{to_snake_case(source_class.name)}_id")
+                if not fn_link.is_constructor and source_class.id == class_config.id and target_name == source_id_param:
                     rendered_args.append(f"{target_name}={self_name}.id")
                     continue
                 # No explicit binding rail on invocation rows; if target input has no default
                 # and no same-name source input, this fallback must fail closed.
                 type_info = resolve_type_info(edge.attribute_config)
-                default_expr = self._render_default_expr(
-                    edge.attribute_config, type_info=type_info
-                )
+                default_expr = self._render_default_expr(edge.attribute_config, type_info=type_info)
                 if default_expr is None:
                     raise ValueError(
                         f"{class_config.name}.{fn.name} missing required constructor arg '{target_name}' "
@@ -2186,9 +1899,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             capture_name = _safe_identifier(inv.capture_name or "")
             if relationship is not None:
                 constructed_expr = (
-                    capture_name
-                    if capture_name
-                    else f"_aware_constructed_invocation_{int(inv.position)}"
+                    capture_name if capture_name else f"_aware_constructed_invocation_{int(inv.position)}"
                 )
                 lines.append(f"{constructed_expr} = {call_expr}")
                 self._append_relationship_construct_attachment(
@@ -2197,10 +1908,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     relationship=relationship,
                     constructed_expr=constructed_expr,
                     attachment_key=f"invocation_{int(inv.position)}",
-                    line_context=(
-                        f"{class_config.name}.{fn.name} "
-                        f"invocation position={inv.position}"
-                    ),
+                    line_context=(f"{class_config.name}.{fn.name} " f"invocation position={inv.position}"),
                 )
                 captured.append(constructed_expr)
             elif capture_name:
@@ -2220,25 +1928,15 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     f"{class_config.name}.{fn.name} cannot resolve deterministic return value from invocation fallback"
                 )
 
-        return _GeneratedImplLogic(
-            body="\n".join(lines), runtime_imports=runtime_imports
-        )
+        return _GeneratedImplLogic(body="\n".join(lines), runtime_imports=runtime_imports)
 
     def _render_signature(
         self,
         *,
         fn: FunctionConfig,
     ) -> _RenderedSignature:
-        input_edges = [
-            e
-            for e in fn.function_config_attribute_configs
-            if e.type == FunctionAttributeType.input
-        ]
-        output_edges = [
-            e
-            for e in fn.function_config_attribute_configs
-            if e.type == FunctionAttributeType.output
-        ]
+        input_edges = [e for e in fn.function_config_attribute_configs if e.type == FunctionAttributeType.input]
+        output_edges = [e for e in fn.function_config_attribute_configs if e.type == FunctionAttributeType.output]
         input_edges.sort(key=lambda e: int(e.position))
         output_edges.sort(key=lambda e: int(e.position))
 
@@ -2281,28 +1979,16 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             return_type_name=return_type_name,
         )
 
-    def _render_type_annotation(
-        self, attr: AttributeConfig, *, type_info: AttributeTypeInfo | None = None
-    ) -> str:
+    def _render_type_annotation(self, attr: AttributeConfig, *, type_info: AttributeTypeInfo | None = None) -> str:
         type_info = type_info or resolve_type_info(attr)
 
         base_type = "Any"
-        if (
-            type_info.kind == AttributeTypeDescriptorKind.primitive
-            and type_info.primitive_config
-        ):
-            prim = CodePrimitiveType.model_validate(
-                type_info.primitive_config.primitive_type
-            )
+        if type_info.kind == AttributeTypeDescriptorKind.primitive and type_info.primitive_config:
+            prim = CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type)
             base_type = _PRIMITIVE_CODEC.render(prim) or "Any"
-        elif (
-            type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config
-        ):
+        elif type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config:
             base_type = type_info.enum_config.name
-        elif (
-            type_info.kind == AttributeTypeDescriptorKind.class_
-            and type_info.class_config
-        ):
+        elif type_info.kind == AttributeTypeDescriptorKind.class_ and type_info.class_config:
             base_type = type_info.class_config.name
 
         type_annotation = base_type
@@ -2333,10 +2019,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         type_info = type_info or resolve_type_info(attr)
         if attr.default_value is not None:
             default_value = cast(object, json.loads(attr.default_value))
-            if (
-                type_info.kind == AttributeTypeDescriptorKind.enum
-                and type_info.enum_config
-            ):
+            if type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config:
                 if default_value is None or default_value in {"NULL", "None"}:
                     return "None"
                 return f"{type_info.enum_config.name}.{default_value}"
@@ -2349,21 +2032,14 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         # No default.
         return None
 
-    def _type_ref_from_info(
-        self, type_info: AttributeTypeInfo
-    ) -> tuple[UUID | None, str | None]:
-        if (
-            type_info.kind == AttributeTypeDescriptorKind.class_
-            and type_info.class_config
-        ):
+    def _type_ref_from_info(self, type_info: AttributeTypeInfo) -> tuple[UUID | None, str | None]:
+        if type_info.kind == AttributeTypeDescriptorKind.class_ and type_info.class_config:
             return type_info.class_config.id, type_info.class_config.name
         if type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config:
             return type_info.enum_config.id, type_info.enum_config.name
         return None, None
 
-    def _collect_type_imports(
-        self, imports: dict[str, set[str]], *, type_annotation: str
-    ) -> None:
+    def _collect_type_imports(self, imports: dict[str, set[str]], *, type_annotation: str) -> None:
         # Very small parser: extract identifiers that are likely class/enum names.
         # We rely on `import_overrides` to provide module paths for ClassConfig/EnumConfig ids.
         tokens: list[str] = []
@@ -2456,9 +2132,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         _emit_token(writer, "from __future__ import annotations\n\n")
 
         # Stable ordering: class name then function position then function name.
-        entries: list[
-            tuple[str, int, str, ClassConfig, ClassConfigFunctionConfig, FunctionConfig]
-        ] = []
+        entries: list[tuple[str, int, str, ClassConfig, ClassConfigFunctionConfig, FunctionConfig]] = []
         class_pool = (
             list(self._rendered_class_by_id.values())
             if self._rendered_class_by_id
@@ -2470,9 +2144,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                 owner.class_config_function_configs,
                 key=lambda link: (link.position, str(link.function_config_id)),
             )
-            impl_name_by_fn.update(
-                self._compute_impl_names_for_class(fn_links=fn_links)
-            )
+            impl_name_by_fn.update(self._compute_impl_names_for_class(fn_links=fn_links))
             for link in fn_links:
                 fn = link.function_config
                 pos = link.position
@@ -2546,13 +2218,9 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             _emit_token(writer, "\n\n")
 
             if link.is_constructor:
-                handler_rows.append(
-                    f"    constructor({class_fqn!r}, {fn.name!r}, {wrapper_name}),"
-                )
+                handler_rows.append(f"    constructor({class_fqn!r}, {fn.name!r}, {wrapper_name}),")
             else:
-                handler_rows.append(
-                    f"    instance({class_fqn!r}, {fn.name!r}, {wrapper_name}),"
-                )
+                handler_rows.append(f"    instance({class_fqn!r}, {fn.name!r}, {wrapper_name}),")
 
         _emit_token(writer, "AWARE_HANDLERS = [\n")
         for row in handler_rows:
@@ -2572,11 +2240,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
         fn: FunctionConfig,
     ) -> None:
         sig = self._render_signature(fn=fn)
-        input_edges = [
-            e
-            for e in fn.function_config_attribute_configs
-            if e.type == FunctionAttributeType.input
-        ]
+        input_edges = [e for e in fn.function_config_attribute_configs if e.type == FunctionAttributeType.input]
         input_edges.sort(key=lambda e: int(e.position))
 
         # Wrapper signature is internal to the runtime registry: do not change.
@@ -2606,9 +2270,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             # Import types needed for TypeAdapter expressions.
             needed_imports: dict[str, set[str]] = {}
             for p in sig.params:
-                self._collect_type_imports(
-                    needed_imports, type_annotation=p.type_annotation
-                )
+                self._collect_type_imports(needed_imports, type_annotation=p.type_annotation)
                 self._collect_type_imports_by_id(
                     needed_imports,
                     type_id=p.type_id,
@@ -2641,12 +2303,8 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     with iw.indent():
                         iw.write(f"_raw_{name} = {default_expr}\n")
                 if "| None" in type_annotation:
-                    validated_expr = (
-                        f"TypeAdapter({type_annotation}).validate_python(_raw_{name})"
-                    )
-                    iw.write(
-                        f"{name}: {type_annotation} = cast({type_annotation}, {validated_expr})\n"
-                    )
+                    validated_expr = f"TypeAdapter({type_annotation}).validate_python(_raw_{name})"
+                    iw.write(f"{name}: {type_annotation} = cast({type_annotation}, {validated_expr})\n")
                 else:
                     iw.write(
                         f"{name}: {type_annotation} = TypeAdapter({type_annotation}).validate_python(_raw_{name})\n"
@@ -2658,11 +2316,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     f"{_safe_identifier(e.attribute_config.name)}={_safe_identifier(e.attribute_config.name)}"
                     for e in input_edges
                 )  # type: ignore[union-attr]
-                iw.write(
-                    f"result = await _impl({call_args})\n"
-                    if call_args
-                    else "result = await _impl()\n"
-                )
+                iw.write(f"result = await _impl({call_args})\n" if call_args else "result = await _impl()\n")
                 iw.write("return result, result\n")
             else:
                 self_name = _safe_identifier(to_snake_case(class_config.name))
@@ -2671,9 +2325,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                     for e in input_edges
                 )  # type: ignore[union-attr]
                 if call_args:
-                    iw.write(
-                        f"result = await _impl({self_name}=orm_model, {call_args})\n"
-                    )
+                    iw.write(f"result = await _impl({self_name}=orm_model, {call_args})\n")
                 else:
                     iw.write(f"result = await _impl({self_name}=orm_model)\n")
                 iw.write("return result\n")
@@ -2739,9 +2391,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                 merged.setdefault(module, set()).update(symbols)
         return merged
 
-    def _emit_grouped_imports(
-        self, *, writer: CodeSectionWriter, imports: dict[str, set[str]]
-    ) -> None:
+    def _emit_grouped_imports(self, *, writer: CodeSectionWriter, imports: dict[str, set[str]]) -> None:
         if not imports:
             return
         package_groups = group_python_imports(
@@ -2750,9 +2400,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
                 semantic_import_roots=semantic_import_roots_from_renderer_inputs(
                     import_root=self.layout_strategy.import_root,
                     import_overrides=self.import_overrides,
-                    external_graph_fqn_prefixes=(
-                        graph.fqn_prefix for graph in self.external_graphs
-                    ),
+                    external_graph_fqn_prefixes=(graph.fqn_prefix for graph in self.external_graphs),
                 ),
                 support_import_roots=DEFAULT_ORM_SUPPORT_IMPORT_ROOTS,
             ),
@@ -2766,9 +2414,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
 
             for module in sorted(package_imports.keys(), key=_module_sort_key):
                 items = sorted(package_imports[module])
-                _emit_token(
-                    writer, self._render_from_import(module=module, items=items)
-                )
+                _emit_token(writer, self._render_from_import(module=module, items=items))
             _emit_token(writer, "\n")
 
     def _render_from_import(self, *, module: str, items: list[str]) -> str:
@@ -2801,11 +2447,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             return items[0]
         item_indent = "        " if nested else "    "
         close_indent = "    " if nested else ""
-        return (
-            "(\n"
-            + "".join([f"{item_indent}{item},\n" for item in items])
-            + f"{close_indent})"
-        )
+        return "(\n" + "".join([f"{item_indent}{item},\n" for item in items]) + f"{close_indent})"
 
     def _render_wrapped_from_import_module(
         self,
@@ -2824,10 +2466,7 @@ class PythonRendererRuntimeHandlersAware(ObjectConfigGraphRendererLanguage):
             is_last = index == len(parts) - 1
             suffix = f" import {first_line_item}" if is_last else ".\\"
             candidate = f"{current}.{part}"
-            if (
-                len(candidate + suffix) > _MAX_IMPORT_LINE_LENGTH
-                and current != f"from {parts[0]}"
-            ):
+            if len(candidate + suffix) > _MAX_IMPORT_LINE_LENGTH and current != f"from {parts[0]}":
                 lines.append(f"{current}.\\")
                 current = f"    {part}"
             else:

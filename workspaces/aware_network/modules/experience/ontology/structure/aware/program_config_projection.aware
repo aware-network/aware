@@ -1,0 +1,48 @@
+/// ProgramConfig projection
+///
+/// Contract:
+/// - Per-program declarative config with explicit projection-port bindings.
+projection ProgramConfig {
+    root program.ProgramConfig
+
+    // Actor aliases
+    program.ProgramConfig::actor_configs
+    program.ProgramConfigActorConfig::actor_config aware_identity.ActorConfig
+
+    // Inputs
+    program.ProgramConfig::input_configs
+    program.ProgramConfigInputConfig::attribute_configs
+    program.ProgramConfigInputConfigAttributeConfig::attribute_config
+
+    // Attributes
+    program.ProgramConfig::attribute_configs
+    program.ProgramConfigAttributeConfig::attribute_config
+    aware_meta.attribute.AttributeConfig::type_descriptor
+    aware_meta.attribute.AttributeTypeDescriptor::primitive_config
+    aware_meta.primitive.PrimitiveConfig::primitive_type
+    aware_meta.attribute.AttributeTypeDescriptor::enum_config aware_meta.ObjectConfigGraph
+    aware_meta.attribute.AttributeTypeDescriptor::class_config aware_meta.ObjectConfigGraph
+    aware_meta.enum.EnumConfig::enum_options
+
+    // Ports
+    program.ProgramConfig::ports
+    // Canonical port node+identity reference contract.
+    program.ProgramConfigPort::projection_nodes
+    program.ProgramConfigPortProjectionExperienceNode::projection_experience_node ProjectionExperience
+    program.ProgramConfigPortProjectionExperienceNode::projection_node_identity
+    program.ProgramConfigPortProjectionExperienceNodeIdentity::projection_experience_node_identity ProjectionExperience
+    // Port projection target semantics.
+    program.ProgramConfigPort::projection ProjectionExperience
+    // Layout declarations (config-only topology contract).
+    program.ProgramConfig::layouts
+    program.ProgramConfigLayout::layout aware_attention.Layout
+    program.ProgramConfigLayout::port_sections
+    program.ProgramConfigLayoutPortSection::program_config_port
+    program.ProgramConfigLayoutPortSection::layout_section aware_attention.Layout
+
+    observable program_config {
+        """
+        Per-program configuration surface with projection-port intent bindings.
+        """
+    }
+}

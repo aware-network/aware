@@ -17,6 +17,13 @@ from aware_meta.materialization.deltas.typed_operation_contracts import (
 
 @dataclass(frozen=True, slots=True)
 class MetaLanguageGeneratedMaterializationTargetHint:
+    descriptor_key: str | None = None
+    capability_key: str | None = None
+    target_language: str | None = None
+    target_language_plugin_id: str | None = None
+    renderer_profile: str | None = None
+    materialization_source: str | None = None
+    product_intent: str | None = None
     semantic_key: str | None = None
     owner_key: str | None = None
     target_key: str | None = None
@@ -32,6 +39,7 @@ class MetaLanguageGeneratedMaterializationDeltaContext:
     package_root: str | None = None
     sources_root: str | None = None
     target_language: str | None = None
+    target_language_plugin_id: str | None = None
     renderer_profile: str | None = None
     materialization_source: str | None = None
     product_intent: str | None = None
@@ -57,7 +65,9 @@ class MetaLanguageGeneratedMaterializationDeltaContext:
             package_name=context.package_name,
             package_root=context.package_root,
             sources_root=context.sources_root,
-            target_language=context.target_language,
+            target_language=context.target_language_plugin_id
+            or context.target_language,
+            target_language_plugin_id=context.target_language_plugin_id,
             renderer_profile=renderer_profile,
             materialization_source=materialization_source,
             product_intent=product_intent,
@@ -124,14 +134,12 @@ class MetaLanguageGeneratedMaterializationDeltaRenderer(Protocol):
     def supports_generated_materialization_delta(
         self,
         request: MetaLanguageGeneratedMaterializationDeltaRenderRequest,
-    ) -> bool:
-        ...
+    ) -> bool: ...
 
     def render_generated_materialization_delta(
         self,
         request: MetaLanguageGeneratedMaterializationDeltaRenderRequest,
-    ) -> MetaLanguageGeneratedMaterializationDeltaRenderResult:
-        ...
+    ) -> MetaLanguageGeneratedMaterializationDeltaRenderResult: ...
 
 
 __all__ = [

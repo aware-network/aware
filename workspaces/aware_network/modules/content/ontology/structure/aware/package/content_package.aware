@@ -1,0 +1,143 @@
+class ContentPackage {
+    // Relationships
+    contents content.Content[] @ContentPackageContent
+    artifacts ContentPackageArtifact[]
+
+    // Attributes
+    package_name String key
+    package_root String?
+    manifest_relative_path String?
+    title String?
+    package_kind String? = "content"
+    source_provider_key String?
+    source_ref String?
+    runtime_contract_version String?
+    provider_payload JsonObject?
+
+    fn build construct(
+        package_name String key,
+        package_root String? = null,
+        manifest_relative_path String? = null,
+        title String? = null,
+        package_kind String? = "content",
+        source_provider_key String? = null,
+        source_ref String? = null,
+        runtime_contract_version String? = null,
+        provider_payload JsonObject? = null
+    ) -> ContentPackage {
+        """
+        Create a deterministic ContentPackage.
+
+        Contract:
+        - ContentPackage is the Content-owned package authority, parallel to
+          CodePackage but not owned by Code.
+        - Identity is package-scoped by `package_name`.
+        - Content membership is over Content objects; checkout paths and
+          filesystem artifacts are materialization coordinates.
+        - WorkspaceRevisionContentPackage will later pin package commits under
+          WorkspaceRevision. WorkspaceRevisionArtifactRef remains an output
+          receipt, not package authority.
+        """
+        construct ContentPackage(
+            package_name = package_name,
+            package_root = package_root,
+            manifest_relative_path = manifest_relative_path,
+            title = title,
+            package_kind = package_kind,
+            source_provider_key = source_provider_key,
+            source_ref = source_ref,
+            runtime_contract_version = runtime_contract_version,
+            provider_payload = provider_payload,
+        )
+    }
+
+    fn attach_content(
+        content_id UUID key,
+        relative_path String key,
+        content_role String key = "content",
+        position Int? = null,
+        media_type String? = null,
+        title String? = null,
+        source_ref String? = null,
+        provider_payload JsonObject? = null,
+        receipt_payload JsonObject? = null
+    ) -> ContentPackageContent {
+        """
+        Attach existing Content to this package through package-owned
+        membership metadata.
+        """
+        let created = construct contents.build(
+            content_id = content_id,
+            relative_path = relative_path,
+            content_role = content_role,
+            position = position,
+            media_type = media_type,
+            title = title,
+            source_ref = source_ref,
+            provider_payload = provider_payload,
+            receipt_payload = receipt_payload,
+        )
+    }
+
+    fn attach_artifact(
+        output_key String key,
+        artifact_key String key,
+        status ContentPackageArtifactStatus = available,
+        artifact_family String? = null,
+        artifact_role String? = null,
+        required_for String[] = [],
+        producer_provider_key String? = null,
+        producer_key String? = null,
+        producer_kind String? = null,
+        materialization_index Int? = null,
+        source_content_package_id UUID? = null,
+        source_object_instance_graph_commit_id UUID? = null,
+        input_content_package_id UUID? = null,
+        input_object_instance_graph_commit_id UUID? = null,
+        digest String? = null,
+        digest_algorithm String? = "sha256",
+        relative_path String? = null,
+        uri String? = null,
+        media_type String? = null,
+        size_bytes Int? = null,
+        runtime_contract_version String? = null,
+        provider_payload JsonObject? = null,
+        receipt_payload JsonObject? = null,
+        error String? = null
+    ) -> ContentPackageArtifact {
+        """
+        Attach one package-owned artifact evidence row.
+
+        Contract:
+        - This is package output evidence.
+        - WorkspaceRevision should hydrate artifacts through the pinned
+          WorkspaceRevisionContentPackage commit once that rail exists.
+        """
+        let created = construct artifacts.build(
+            output_key = output_key,
+            artifact_key = artifact_key,
+            status = status,
+            artifact_family = artifact_family,
+            artifact_role = artifact_role,
+            required_for = required_for,
+            producer_provider_key = producer_provider_key,
+            producer_key = producer_key,
+            producer_kind = producer_kind,
+            materialization_index = materialization_index,
+            source_content_package_id = source_content_package_id,
+            source_object_instance_graph_commit_id = source_object_instance_graph_commit_id,
+            input_content_package_id = input_content_package_id,
+            input_object_instance_graph_commit_id = input_object_instance_graph_commit_id,
+            digest = digest,
+            digest_algorithm = digest_algorithm,
+            relative_path = relative_path,
+            uri = uri,
+            media_type = media_type,
+            size_bytes = size_bytes,
+            runtime_contract_version = runtime_contract_version,
+            provider_payload = provider_payload,
+            receipt_payload = receipt_payload,
+            error = error,
+        )
+    }
+}

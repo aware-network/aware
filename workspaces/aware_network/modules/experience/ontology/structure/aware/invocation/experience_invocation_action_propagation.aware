@@ -1,0 +1,31 @@
+/// Causal propagation edge between two Experience invocation actions.
+///
+/// Contract:
+/// - Actions can invoke or delegate to other actions without collapsing their
+///   receipts.
+/// - Each action owns its own API/SDK/service call, actor, commit, and event
+///   provenance.
+class ExperienceInvocationActionPropagation {
+    // Relationships
+    target_invocation_action ExperienceInvocationAction key
+
+    // Attributes
+    propagation_kind String = "invokes"
+    description String?
+
+    fn build construct (
+        target_invocation_action_id UUID key,
+        propagation_kind String = "invokes",
+        description String? = null
+    ) -> ExperienceInvocationActionPropagation {
+        """
+        Link this invocation action to a target invocation action it caused.
+
+        Contract:
+        - Parent `ExperienceInvocationAction` is the source action.
+        - Target action keeps its own receipts and graph/event provenance.
+        """
+    }
+}
+
+ann invocation.ExperienceInvocationActionPropagation::target_invocation_action load eager

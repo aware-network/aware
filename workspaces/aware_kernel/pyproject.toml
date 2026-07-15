@@ -17,10 +17,15 @@ aware-code-sdk = { workspace = true }
 aware-code-service-api = { workspace = true }
 aware-code-service-dto = { workspace = true }
 aware-code-service-protocol = { workspace = true }
+aware-command-runtime = { workspace = true }
 aware-content = { workspace = true }
 aware-content-ontology = { workspace = true }
 aware-content-ontology-dto = { workspace = true }
 aware-content-ontology-orm-models = { workspace = true }
+aware-content-sdk = { workspace = true }
+aware-content-service-api = { workspace = true }
+aware-content-service-dto = { workspace = true }
+aware-content-service-protocol = { workspace = true }
 aware-file-system = { workspace = true }
 aware-file-system-sdk = { workspace = true }
 aware-file-system-service-api = { workspace = true }
@@ -91,6 +96,7 @@ members = [
     "languages/rust/tooling",
     "languages/sql/grammar/grammar",
     "languages/sql/grammar/tree_sitter",
+    "libs/command_runtime/python",
     "libs/orm",
     "libs/types/python",
     "libs/utils/python",
@@ -110,10 +116,14 @@ members = [
     "modules/code/ontology/structure/python/orm_models",
     "modules/code/ontology/structure/python/orm_runtime",
     "modules/code/sdks/code/python",
+    "modules/content/apis/content/python/aware_content_service_api",
+    "modules/content/apis/content/python/aware_content_service_dto",
+    "modules/content/apis/content/python/aware_content_service_protocol",
     "modules/content/ontology/runtime/python",
     "modules/content/ontology/structure/python/dto",
     "modules/content/ontology/structure/python/orm_models",
     "modules/content/ontology/structure/python/orm_runtime",
+    "modules/content/sdks/content/python",
     "modules/filesystem/apis/filesystem/python/aware_file_system_service_api",
     "modules/filesystem/apis/filesystem/python/aware_file_system_service_dto",
     "modules/filesystem/apis/filesystem/python/aware_file_system_service_protocol",

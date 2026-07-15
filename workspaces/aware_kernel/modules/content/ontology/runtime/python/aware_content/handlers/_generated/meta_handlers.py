@@ -37,6 +37,10 @@ from aware_content_ontology.content.content import Content
 from aware_content_ontology.content.content_enums import ContentSource, ModalityType
 from aware_content_ontology.content.content_index import ContentIndex
 from aware_content_ontology.content.content_layout import ContentLayout
+from aware_content_ontology.package.content_package import ContentPackage
+from aware_content_ontology.package.content_package_artifact import ContentPackageArtifact
+from aware_content_ontology.package.content_package_content import ContentPackageContent
+from aware_content_ontology.package.content_package_enums import ContentPackageArtifactStatus
 from aware_content_ontology.part.content_part import ContentPart
 from aware_content_ontology.part.content_part_content import ContentPartContent
 from aware_content_ontology.part.content_part_content_layout import ContentPartContentLayout
@@ -573,7 +577,7 @@ async def _call_content_chain_section__build_via_content_chain(
             _aware_construct_id_0 = getattr(import_module("aware_content_ontology.stable_ids"), _aware_stable_fn_0)(
                 **_aware_stable_values_0
             )
-            _aware_constructed_0 = ContentChainSection.get_by_id_cached(_aware_construct_id_0)
+            _aware_constructed_0 = ContentChainSection.by_id_cached(_aware_construct_id_0)
             if _aware_constructed_0 is None:
                 _aware_constructed_0 = ContentChainSection(id=_aware_construct_id_0, **_aware_construct_values_0)
         else:
@@ -648,7 +652,7 @@ async def _call_content_index__create_content_index_via_content(
             _aware_construct_id_0 = getattr(import_module("aware_content_ontology.stable_ids"), _aware_stable_fn_0)(
                 **_aware_stable_values_0
             )
-            _aware_constructed_0 = ContentIndex.get_by_id_cached(_aware_construct_id_0)
+            _aware_constructed_0 = ContentIndex.by_id_cached(_aware_construct_id_0)
             if _aware_constructed_0 is None:
                 _aware_constructed_0 = ContentIndex(id=_aware_construct_id_0, **_aware_construct_values_0)
         else:
@@ -768,7 +772,7 @@ async def _call_content_layout__create_content_layout_via_content(
             _aware_construct_id_0 = getattr(import_module("aware_content_ontology.stable_ids"), _aware_stable_fn_0)(
                 **_aware_stable_values_0
             )
-            _aware_constructed_0 = ContentLayout.get_by_id_cached(_aware_construct_id_0)
+            _aware_constructed_0 = ContentLayout.by_id_cached(_aware_construct_id_0)
             if _aware_constructed_0 is None:
                 _aware_constructed_0 = ContentLayout(id=_aware_construct_id_0, **_aware_construct_values_0)
         else:
@@ -820,6 +824,602 @@ def _root_id_content_layout__create_content_layout_via_content(
     if _aware_missing_self_keys:
         raise MetaGraphLanguageHandlerExecutionError(
             "Missing stable-id input for generated Meta constructor bootstrap: ContentLayout.create_content_layout_via_content"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_content_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
+def _bind_content_package__build(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "package_name",
+            "package_root",
+            "manifest_relative_path",
+            "title",
+            "package_kind",
+            "source_provider_key",
+            "source_ref",
+            "runtime_contract_version",
+            "provider_payload",
+        ),
+        function_name="build",
+    )
+
+
+async def _call_content_package__build(*, bound_input: JsonObject, target: ORMModel | None = None) -> ORMModel:
+    async def _impl(
+        package_name: str,
+        package_root: str | None = None,
+        manifest_relative_path: str | None = None,
+        title: str | None = None,
+        package_kind: str | None = "content",
+        source_provider_key: str | None = None,
+        source_ref: str | None = None,
+        runtime_contract_version: str | None = None,
+        provider_payload: JsonObject | None = None,
+    ) -> ContentPackage:
+        _aware_construct_values_0 = {
+            "package_name": package_name,
+            "package_root": package_root,
+            "manifest_relative_path": manifest_relative_path,
+            "title": title,
+            "package_kind": package_kind,
+            "source_provider_key": source_provider_key,
+            "source_ref": source_ref,
+            "runtime_contract_version": runtime_contract_version,
+            "provider_payload": provider_payload,
+        }
+        _aware_construct_identity_values_0 = _aware_construct_values_0
+        _aware_stable_binding_0 = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get(
+            "9ec4d14f-138f-5672-8561-a927e1b6e458"
+        )
+        if _aware_stable_binding_0 is not None:
+            _aware_stable_fn_0, _aware_stable_key_names_0 = _aware_stable_binding_0
+            _aware_missing_stable_keys_0 = [
+                key for key in _aware_stable_key_names_0 if key not in _aware_construct_identity_values_0
+            ]
+            if _aware_missing_stable_keys_0:
+                raise RuntimeError(
+                    "ContentPackage.build cannot construct ContentPackage: missing stable identity values"
+                    + f": {_aware_missing_stable_keys_0}"
+                )
+            _aware_stable_values_0 = {key: _aware_construct_identity_values_0[key] for key in _aware_stable_key_names_0}
+            _aware_construct_id_0 = getattr(import_module("aware_content_ontology.stable_ids"), _aware_stable_fn_0)(
+                **_aware_stable_values_0
+            )
+            _aware_constructed_0 = ContentPackage.by_id_cached(_aware_construct_id_0)
+            if _aware_constructed_0 is None:
+                _aware_constructed_0 = ContentPackage(id=_aware_construct_id_0, **_aware_construct_values_0)
+        else:
+            _aware_constructed_0 = ContentPackage(**_aware_construct_values_0)
+        return _aware_constructed_0
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_content_package__build(*, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject):
+    from importlib import import_module
+    from aware_content_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    package_name = bound_input.get("package_name")
+    package_root = bound_input.get("package_root")
+    if package_root is None:
+        package_root = None
+    manifest_relative_path = bound_input.get("manifest_relative_path")
+    if manifest_relative_path is None:
+        manifest_relative_path = None
+    title = bound_input.get("title")
+    if title is None:
+        title = None
+    package_kind = bound_input.get("package_kind")
+    if package_kind is None:
+        package_kind = "content"
+    source_provider_key = bound_input.get("source_provider_key")
+    if source_provider_key is None:
+        source_provider_key = None
+    source_ref = bound_input.get("source_ref")
+    if source_ref is None:
+        source_ref = None
+    runtime_contract_version = bound_input.get("runtime_contract_version")
+    if runtime_contract_version is None:
+        runtime_contract_version = None
+    provider_payload = bound_input.get("provider_payload")
+    if provider_payload is None:
+        provider_payload = None
+    _aware_self_values = {
+        "package_name": package_name,
+        "package_root": package_root,
+        "manifest_relative_path": manifest_relative_path,
+        "title": title,
+        "package_kind": package_kind,
+        "source_provider_key": source_provider_key,
+        "source_ref": source_ref,
+        "runtime_contract_version": runtime_contract_version,
+        "provider_payload": provider_payload,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("9ec4d14f-138f-5672-8561-a927e1b6e458")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: ContentPackage.build"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: ContentPackage.build"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_content_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
+def _bind_content_package__attach_content(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "content_id",
+            "relative_path",
+            "content_role",
+            "position",
+            "media_type",
+            "title",
+            "source_ref",
+            "provider_payload",
+            "receipt_payload",
+        ),
+        function_name="attach_content",
+    )
+
+
+async def _call_content_package__attach_content(*, bound_input: JsonObject, target: ORMModel | None = None) -> object:
+    from aware_content.handlers.impl.package.content_package import attach_content as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: ContentPackage.attach_content"
+        )
+    result = await _impl(content_package=target, **call_kwargs)
+    return result
+
+
+def _bind_content_package__attach_artifact(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "output_key",
+            "artifact_key",
+            "status",
+            "artifact_family",
+            "artifact_role",
+            "required_for",
+            "producer_provider_key",
+            "producer_key",
+            "producer_kind",
+            "materialization_index",
+            "source_content_package_id",
+            "source_object_instance_graph_commit_id",
+            "input_content_package_id",
+            "input_object_instance_graph_commit_id",
+            "digest",
+            "digest_algorithm",
+            "relative_path",
+            "uri",
+            "media_type",
+            "size_bytes",
+            "runtime_contract_version",
+            "provider_payload",
+            "receipt_payload",
+            "error",
+        ),
+        function_name="attach_artifact",
+    )
+
+
+async def _call_content_package__attach_artifact(*, bound_input: JsonObject, target: ORMModel | None = None) -> object:
+    from aware_content.handlers.impl.package.content_package import attach_artifact as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: ContentPackage.attach_artifact"
+        )
+    result = await _impl(content_package=target, **call_kwargs)
+    return result
+
+
+def _bind_content_package_artifact__build_via_content_package(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "content_package_id",
+            "output_key",
+            "artifact_key",
+            "status",
+            "artifact_family",
+            "artifact_role",
+            "required_for",
+            "producer_provider_key",
+            "producer_key",
+            "producer_kind",
+            "materialization_index",
+            "source_content_package_id",
+            "source_object_instance_graph_commit_id",
+            "input_content_package_id",
+            "input_object_instance_graph_commit_id",
+            "digest",
+            "digest_algorithm",
+            "relative_path",
+            "uri",
+            "media_type",
+            "size_bytes",
+            "runtime_contract_version",
+            "provider_payload",
+            "receipt_payload",
+            "error",
+        ),
+        function_name="build_via_content_package",
+    )
+
+
+async def _call_content_package_artifact__build_via_content_package(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    async def _impl(
+        content_package_id: UUID,
+        output_key: str,
+        artifact_key: str,
+        status: ContentPackageArtifactStatus = ContentPackageArtifactStatus.available,
+        artifact_family: str | None = None,
+        artifact_role: str | None = None,
+        required_for: list[str] = [],
+        producer_provider_key: str | None = None,
+        producer_key: str | None = None,
+        producer_kind: str | None = None,
+        materialization_index: int | None = None,
+        source_content_package_id: UUID | None = None,
+        source_object_instance_graph_commit_id: UUID | None = None,
+        input_content_package_id: UUID | None = None,
+        input_object_instance_graph_commit_id: UUID | None = None,
+        digest: str | None = None,
+        digest_algorithm: str | None = "sha256",
+        relative_path: str | None = None,
+        uri: str | None = None,
+        media_type: str | None = None,
+        size_bytes: int | None = None,
+        runtime_contract_version: str | None = None,
+        provider_payload: JsonObject | None = None,
+        receipt_payload: JsonObject | None = None,
+        error: str | None = None,
+    ) -> ContentPackageArtifact:
+        _aware_construct_values_0 = {
+            "output_key": output_key,
+            "artifact_key": artifact_key,
+            "status": status,
+            "artifact_family": artifact_family,
+            "artifact_role": artifact_role,
+            "required_for": required_for,
+            "producer_provider_key": producer_provider_key,
+            "producer_key": producer_key,
+            "producer_kind": producer_kind,
+            "materialization_index": materialization_index,
+            "source_content_package_id": source_content_package_id,
+            "source_object_instance_graph_commit_id": source_object_instance_graph_commit_id,
+            "input_content_package_id": input_content_package_id,
+            "input_object_instance_graph_commit_id": input_object_instance_graph_commit_id,
+            "digest": digest,
+            "digest_algorithm": digest_algorithm,
+            "relative_path": relative_path,
+            "uri": uri,
+            "media_type": media_type,
+            "size_bytes": size_bytes,
+            "runtime_contract_version": runtime_contract_version,
+            "provider_payload": provider_payload,
+            "receipt_payload": receipt_payload,
+            "error": error,
+            "content_package_id": content_package_id,
+        }
+        _aware_construct_identity_values_0 = _aware_construct_values_0
+        _aware_stable_binding_0 = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get(
+            "98714846-7e9f-5aa6-a7f3-cfa4a2f22919"
+        )
+        if _aware_stable_binding_0 is not None:
+            _aware_stable_fn_0, _aware_stable_key_names_0 = _aware_stable_binding_0
+            _aware_missing_stable_keys_0 = [
+                key for key in _aware_stable_key_names_0 if key not in _aware_construct_identity_values_0
+            ]
+            if _aware_missing_stable_keys_0:
+                raise RuntimeError(
+                    "ContentPackageArtifact.build_via_content_package cannot construct ContentPackageArtifact: missing stable identity values"
+                    + f": {_aware_missing_stable_keys_0}"
+                )
+            _aware_stable_values_0 = {key: _aware_construct_identity_values_0[key] for key in _aware_stable_key_names_0}
+            _aware_construct_id_0 = getattr(import_module("aware_content_ontology.stable_ids"), _aware_stable_fn_0)(
+                **_aware_stable_values_0
+            )
+            _aware_constructed_0 = ContentPackageArtifact.by_id_cached(_aware_construct_id_0)
+            if _aware_constructed_0 is None:
+                _aware_constructed_0 = ContentPackageArtifact(id=_aware_construct_id_0, **_aware_construct_values_0)
+        else:
+            _aware_constructed_0 = ContentPackageArtifact(**_aware_construct_values_0)
+        return _aware_constructed_0
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_content_package_artifact__build_via_content_package(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_content_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    content_package_id = bound_input.get("content_package_id")
+    output_key = bound_input.get("output_key")
+    artifact_key = bound_input.get("artifact_key")
+    status = bound_input.get("status")
+    if status is None:
+        status = "available"
+    artifact_family = bound_input.get("artifact_family")
+    if artifact_family is None:
+        artifact_family = None
+    artifact_role = bound_input.get("artifact_role")
+    if artifact_role is None:
+        artifact_role = None
+    required_for = bound_input.get("required_for")
+    if required_for is None:
+        required_for = []
+    producer_provider_key = bound_input.get("producer_provider_key")
+    if producer_provider_key is None:
+        producer_provider_key = None
+    producer_key = bound_input.get("producer_key")
+    if producer_key is None:
+        producer_key = None
+    producer_kind = bound_input.get("producer_kind")
+    if producer_kind is None:
+        producer_kind = None
+    materialization_index = bound_input.get("materialization_index")
+    if materialization_index is None:
+        materialization_index = None
+    source_content_package_id = bound_input.get("source_content_package_id")
+    if source_content_package_id is None:
+        source_content_package_id = None
+    source_object_instance_graph_commit_id = bound_input.get("source_object_instance_graph_commit_id")
+    if source_object_instance_graph_commit_id is None:
+        source_object_instance_graph_commit_id = None
+    input_content_package_id = bound_input.get("input_content_package_id")
+    if input_content_package_id is None:
+        input_content_package_id = None
+    input_object_instance_graph_commit_id = bound_input.get("input_object_instance_graph_commit_id")
+    if input_object_instance_graph_commit_id is None:
+        input_object_instance_graph_commit_id = None
+    digest = bound_input.get("digest")
+    if digest is None:
+        digest = None
+    digest_algorithm = bound_input.get("digest_algorithm")
+    if digest_algorithm is None:
+        digest_algorithm = "sha256"
+    relative_path = bound_input.get("relative_path")
+    if relative_path is None:
+        relative_path = None
+    uri = bound_input.get("uri")
+    if uri is None:
+        uri = None
+    media_type = bound_input.get("media_type")
+    if media_type is None:
+        media_type = None
+    size_bytes = bound_input.get("size_bytes")
+    if size_bytes is None:
+        size_bytes = None
+    runtime_contract_version = bound_input.get("runtime_contract_version")
+    if runtime_contract_version is None:
+        runtime_contract_version = None
+    provider_payload = bound_input.get("provider_payload")
+    if provider_payload is None:
+        provider_payload = None
+    receipt_payload = bound_input.get("receipt_payload")
+    if receipt_payload is None:
+        receipt_payload = None
+    error = bound_input.get("error")
+    if error is None:
+        error = None
+    _aware_self_values = {
+        "content_package_id": content_package_id,
+        "output_key": output_key,
+        "artifact_key": artifact_key,
+        "status": status,
+        "artifact_family": artifact_family,
+        "artifact_role": artifact_role,
+        "required_for": required_for,
+        "producer_provider_key": producer_provider_key,
+        "producer_key": producer_key,
+        "producer_kind": producer_kind,
+        "materialization_index": materialization_index,
+        "source_content_package_id": source_content_package_id,
+        "source_object_instance_graph_commit_id": source_object_instance_graph_commit_id,
+        "input_content_package_id": input_content_package_id,
+        "input_object_instance_graph_commit_id": input_object_instance_graph_commit_id,
+        "digest": digest,
+        "digest_algorithm": digest_algorithm,
+        "relative_path": relative_path,
+        "uri": uri,
+        "media_type": media_type,
+        "size_bytes": size_bytes,
+        "runtime_contract_version": runtime_contract_version,
+        "provider_payload": provider_payload,
+        "receipt_payload": receipt_payload,
+        "error": error,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("98714846-7e9f-5aa6-a7f3-cfa4a2f22919")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: ContentPackageArtifact.build_via_content_package"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: ContentPackageArtifact.build_via_content_package"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_content_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
+def _bind_content_package_content__build_via_content_package(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "content_package_id",
+            "content_id",
+            "relative_path",
+            "content_role",
+            "position",
+            "media_type",
+            "title",
+            "source_ref",
+            "provider_payload",
+            "receipt_payload",
+        ),
+        function_name="build_via_content_package",
+    )
+
+
+async def _call_content_package_content__build_via_content_package(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    async def _impl(
+        content_package_id: UUID,
+        content_id: UUID,
+        relative_path: str,
+        content_role: str = "content",
+        position: int | None = None,
+        media_type: str | None = None,
+        title: str | None = None,
+        source_ref: str | None = None,
+        provider_payload: JsonObject | None = None,
+        receipt_payload: JsonObject | None = None,
+    ) -> ContentPackageContent:
+        _aware_construct_values_0 = {
+            "content_id": content_id,
+            "relative_path": relative_path,
+            "content_role": content_role,
+            "position": position,
+            "media_type": media_type,
+            "title": title,
+            "source_ref": source_ref,
+            "provider_payload": provider_payload,
+            "receipt_payload": receipt_payload,
+            "content_package_id": content_package_id,
+        }
+        _aware_construct_identity_values_0 = _aware_construct_values_0
+        _aware_stable_binding_0 = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get(
+            "adc589fd-2ff0-5ae0-8514-c67bdcce836d"
+        )
+        if _aware_stable_binding_0 is not None:
+            _aware_stable_fn_0, _aware_stable_key_names_0 = _aware_stable_binding_0
+            _aware_missing_stable_keys_0 = [
+                key for key in _aware_stable_key_names_0 if key not in _aware_construct_identity_values_0
+            ]
+            if _aware_missing_stable_keys_0:
+                raise RuntimeError(
+                    "ContentPackageContent.build_via_content_package cannot construct ContentPackageContent: missing stable identity values"
+                    + f": {_aware_missing_stable_keys_0}"
+                )
+            _aware_stable_values_0 = {key: _aware_construct_identity_values_0[key] for key in _aware_stable_key_names_0}
+            _aware_construct_id_0 = getattr(import_module("aware_content_ontology.stable_ids"), _aware_stable_fn_0)(
+                **_aware_stable_values_0
+            )
+            _aware_constructed_0 = ContentPackageContent.by_id_cached(_aware_construct_id_0)
+            if _aware_constructed_0 is None:
+                _aware_constructed_0 = ContentPackageContent(id=_aware_construct_id_0, **_aware_construct_values_0)
+        else:
+            _aware_constructed_0 = ContentPackageContent(**_aware_construct_values_0)
+        return _aware_constructed_0
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_content_package_content__build_via_content_package(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_content_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    content_package_id = bound_input.get("content_package_id")
+    content_id = bound_input.get("content_id")
+    relative_path = bound_input.get("relative_path")
+    content_role = bound_input.get("content_role")
+    if content_role is None:
+        content_role = "content"
+    position = bound_input.get("position")
+    if position is None:
+        position = None
+    media_type = bound_input.get("media_type")
+    if media_type is None:
+        media_type = None
+    title = bound_input.get("title")
+    if title is None:
+        title = None
+    source_ref = bound_input.get("source_ref")
+    if source_ref is None:
+        source_ref = None
+    provider_payload = bound_input.get("provider_payload")
+    if provider_payload is None:
+        provider_payload = None
+    receipt_payload = bound_input.get("receipt_payload")
+    if receipt_payload is None:
+        receipt_payload = None
+    _aware_self_values = {
+        "content_package_id": content_package_id,
+        "content_id": content_id,
+        "relative_path": relative_path,
+        "content_role": content_role,
+        "position": position,
+        "media_type": media_type,
+        "title": title,
+        "source_ref": source_ref,
+        "provider_payload": provider_payload,
+        "receipt_payload": receipt_payload,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("adc589fd-2ff0-5ae0-8514-c67bdcce836d")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: ContentPackageContent.build_via_content_package"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: ContentPackageContent.build_via_content_package"
             + f": {_aware_missing_self_keys}"
         )
     _aware_self_stable_values = {
@@ -1149,7 +1749,7 @@ async def _call_content_part_content_layout__create_content_part_content_layout_
             _aware_construct_id_0 = getattr(import_module("aware_content_ontology.stable_ids"), _aware_stable_fn_0)(
                 **_aware_stable_values_0
             )
-            _aware_constructed_0 = ContentPartContentLayout.get_by_id_cached(_aware_construct_id_0)
+            _aware_constructed_0 = ContentPartContentLayout.by_id_cached(_aware_construct_id_0)
             if _aware_constructed_0 is None:
                 _aware_constructed_0 = ContentPartContentLayout(id=_aware_construct_id_0, **_aware_construct_values_0)
         else:
@@ -1376,7 +1976,7 @@ async def _call_content_part_multimodal_index__create_content_part_multimodal_in
             _aware_construct_id_0 = getattr(import_module("aware_content_ontology.stable_ids"), _aware_stable_fn_0)(
                 **_aware_stable_values_0
             )
-            _aware_constructed_0 = ContentPartMultimodalIndex.get_by_id_cached(_aware_construct_id_0)
+            _aware_constructed_0 = ContentPartMultimodalIndex.by_id_cached(_aware_construct_id_0)
             if _aware_constructed_0 is None:
                 _aware_constructed_0 = ContentPartMultimodalIndex(id=_aware_construct_id_0, **_aware_construct_values_0)
         else:
@@ -1626,7 +2226,7 @@ async def _call_content_part_text_index__create_content_part_text_index_via_cont
             _aware_construct_id_0 = getattr(import_module("aware_content_ontology.stable_ids"), _aware_stable_fn_0)(
                 **_aware_stable_values_0
             )
-            _aware_constructed_0 = ContentPartTextIndex.get_by_id_cached(_aware_construct_id_0)
+            _aware_constructed_0 = ContentPartTextIndex.by_id_cached(_aware_construct_id_0)
             if _aware_constructed_0 is None:
                 _aware_constructed_0 = ContentPartTextIndex(id=_aware_construct_id_0, **_aware_construct_values_0)
         else:
@@ -1931,7 +2531,7 @@ async def _call_content_part_text_segment_translation__create_translation_via_co
             _aware_construct_id_0 = getattr(import_module("aware_content_ontology.stable_ids"), _aware_stable_fn_0)(
                 **_aware_stable_values_0
             )
-            _aware_constructed_0 = ContentPartTextSegmentTranslation.get_by_id_cached(_aware_construct_id_0)
+            _aware_constructed_0 = ContentPartTextSegmentTranslation.by_id_cached(_aware_construct_id_0)
             if _aware_constructed_0 is None:
                 _aware_constructed_0 = ContentPartTextSegmentTranslation(
                     id=_aware_construct_id_0, **_aware_construct_values_0
@@ -2488,6 +3088,205 @@ def content_layout__create_content_layout_via_content__empty_lane_bootstrap(
         root_object_id=root_object_id,
         name="ContentLayout",
         description="Meta constructor bootstrap for ContentLayout.",
+    )
+
+
+async def content_package__build__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_content_package__build(positional=positional, keyword=keyword)
+    result = await _call_content_package__build(bound_input=bound_input)
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="ContentPackage")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def content_package__build__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_content_package__build(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_content_package__build(request=request, bound_input=bound_input)
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="ContentPackage",
+        description="Meta constructor bootstrap for ContentPackage.",
+    )
+
+
+async def content_package__attach_content__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_content_package__attach_content(positional=positional, keyword=keyword)
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="ContentPackage",
+    )
+    result = await _call_content_package__attach_content(bound_input=bound_input, target=target)
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
+async def content_package__attach_artifact__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_content_package__attach_artifact(positional=positional, keyword=keyword)
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="ContentPackage",
+    )
+    result = await _call_content_package__attach_artifact(bound_input=bound_input, target=target)
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
+async def content_package_artifact__build_via_content_package__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_content_package_artifact__build_via_content_package(positional=positional, keyword=keyword)
+    result = await _call_content_package_artifact__build_via_content_package(bound_input=bound_input)
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="ContentPackageArtifact")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def content_package_artifact__build_via_content_package__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_content_package_artifact__build_via_content_package(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_content_package_artifact__build_via_content_package(
+        request=request, bound_input=bound_input
+    )
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="ContentPackageArtifact",
+        description="Meta constructor bootstrap for ContentPackageArtifact.",
+    )
+
+
+async def content_package_content__build_via_content_package__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_content_package_content__build_via_content_package(positional=positional, keyword=keyword)
+    result = await _call_content_package_content__build_via_content_package(bound_input=bound_input)
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="ContentPackageContent")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def content_package_content__build_via_content_package__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_content_package_content__build_via_content_package(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_content_package_content__build_via_content_package(
+        request=request, bound_input=bound_input
+    )
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="ContentPackageContent",
+        description="Meta constructor bootstrap for ContentPackageContent.",
     )
 
 
@@ -3531,6 +4330,82 @@ async def content_layout__create_content_layout_via_content__invocation_handler(
     return await _call_content_layout__create_content_layout_via_content(bound_input=bound_input)
 
 
+async def content_package__build__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_content_package__build(positional=positional, keyword=keyword)
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_content_package__build(bound_input=bound_input)
+
+
+async def content_package__attach_content__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_content_package__attach_content(positional=positional, keyword=keyword)
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_content_package__attach_content(bound_input=bound_input, target=target)
+
+
+async def content_package__attach_artifact__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_content_package__attach_artifact(positional=positional, keyword=keyword)
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_content_package__attach_artifact(bound_input=bound_input, target=target)
+
+
+async def content_package_artifact__build_via_content_package__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_content_package_artifact__build_via_content_package(positional=positional, keyword=keyword)
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_content_package_artifact__build_via_content_package(bound_input=bound_input)
+
+
+async def content_package_content__build_via_content_package__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_content_package_content__build_via_content_package(positional=positional, keyword=keyword)
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_content_package_content__build_via_content_package(bound_input=bound_input)
+
+
 async def content_part__attach_file__invocation_handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -3963,6 +4838,41 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
         owner_class_name="ContentLayout",
     ): content_layout__create_content_layout_via_content__handler,
     MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackage",
+        function_name="build",
+        is_constructor=True,
+        owner_class_fqn="aware_content.package.ContentPackage",
+        owner_class_name="ContentPackage",
+    ): content_package__build__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackage",
+        function_name="attach_content",
+        is_constructor=False,
+        owner_class_fqn="aware_content.package.ContentPackage",
+        owner_class_name="ContentPackage",
+    ): content_package__attach_content__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackage",
+        function_name="attach_artifact",
+        is_constructor=False,
+        owner_class_fqn="aware_content.package.ContentPackage",
+        owner_class_name="ContentPackage",
+    ): content_package__attach_artifact__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackageArtifact",
+        function_name="build_via_content_package",
+        is_constructor=True,
+        owner_class_fqn="aware_content.package.ContentPackageArtifact",
+        owner_class_name="ContentPackageArtifact",
+    ): content_package_artifact__build_via_content_package__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackageContent",
+        function_name="build_via_content_package",
+        is_constructor=True,
+        owner_class_fqn="aware_content.package.ContentPackageContent",
+        owner_class_name="ContentPackageContent",
+    ): content_package_content__build_via_content_package__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_content.part.ContentPart",
         function_name="attach_file",
         is_constructor=False,
@@ -4192,6 +5102,41 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
         owner_class_name="ContentLayout",
     ): content_layout__create_content_layout_via_content__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackage",
+        function_name="build",
+        is_constructor=True,
+        owner_class_fqn="aware_content.package.ContentPackage",
+        owner_class_name="ContentPackage",
+    ): content_package__build__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackage",
+        function_name="attach_content",
+        is_constructor=False,
+        owner_class_fqn="aware_content.package.ContentPackage",
+        owner_class_name="ContentPackage",
+    ): content_package__attach_content__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackage",
+        function_name="attach_artifact",
+        is_constructor=False,
+        owner_class_fqn="aware_content.package.ContentPackage",
+        owner_class_name="ContentPackage",
+    ): content_package__attach_artifact__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackageArtifact",
+        function_name="build_via_content_package",
+        is_constructor=True,
+        owner_class_fqn="aware_content.package.ContentPackageArtifact",
+        owner_class_name="ContentPackageArtifact",
+    ): content_package_artifact__build_via_content_package__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackageContent",
+        function_name="build_via_content_package",
+        is_constructor=True,
+        owner_class_fqn="aware_content.package.ContentPackageContent",
+        owner_class_name="ContentPackageContent",
+    ): content_package_content__build_via_content_package__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_content.part.ContentPart",
         function_name="attach_file",
         is_constructor=False,
@@ -4392,6 +5337,27 @@ AWARE_META_GRAPH_EMPTY_LANE_BOOTSTRAPS: dict[
         owner_class_fqn="aware_content.content.ContentLayout",
         owner_class_name="ContentLayout",
     ): content_layout__create_content_layout_via_content__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackage",
+        function_name="build",
+        is_constructor=True,
+        owner_class_fqn="aware_content.package.ContentPackage",
+        owner_class_name="ContentPackage",
+    ): content_package__build__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackageArtifact",
+        function_name="build_via_content_package",
+        is_constructor=True,
+        owner_class_fqn="aware_content.package.ContentPackageArtifact",
+        owner_class_name="ContentPackageArtifact",
+    ): content_package_artifact__build_via_content_package__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_content.package.ContentPackageContent",
+        function_name="build_via_content_package",
+        is_constructor=True,
+        owner_class_fqn="aware_content.package.ContentPackageContent",
+        owner_class_name="ContentPackageContent",
+    ): content_package_content__build_via_content_package__empty_lane_bootstrap,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_content.part.ContentPart",
         function_name="create_content_part_via_content_part_content",

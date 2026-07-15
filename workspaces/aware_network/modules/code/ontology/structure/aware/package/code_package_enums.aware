@@ -1,0 +1,28 @@
+enum CodePackageConfigInputKind {
+    manifest
+    artifact
+    package
+    graph
+    delta
+}
+
+enum CodePackageConfigOutputKind {
+    artifact
+    code_package_delta
+    package
+}
+
+enum CodePackageArtifactStatus {
+    available
+    missing
+    stale
+    optional
+    failed
+}
+
+enum CodePackageConfigRuntimeContextKind {
+    ontology_package
+    projection
+    environment
+    execution_context
+}

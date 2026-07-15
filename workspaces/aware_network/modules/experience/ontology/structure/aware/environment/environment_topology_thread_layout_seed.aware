@@ -1,0 +1,31 @@
+/// Runtime ThreadLayout seed inside an EnvironmentTopologyThreadSeed.
+class EnvironmentTopologyThreadLayoutSeed {
+    // Relationships
+    layout_config aware_attention.layout.LayoutConfig key
+
+    // Attributes
+    /// Optional layout seed key; defaults to the LayoutConfig key when omitted.
+    key String?
+    position Int? = null
+    /// Whether provisioning should set this layout active for the runtime Thread.
+    activate_on_seed Bool = false
+    narrative String?
+    intent String?
+
+    fn build construct (
+        layout_config_id UUID key,
+        key String? = null,
+        position Int? = null,
+        activate_on_seed Bool = false,
+        narrative String? = null,
+        intent String? = null
+    ) -> EnvironmentTopologyThreadLayoutSeed {
+        """
+        Construct one thread-layout seed.
+
+        Contract:
+        - `layout_config_id` must be allowed by the referenced ThreadConfig candidate set.
+        - Attention still owns the LayoutConfig/SectionConfig topology.
+        """
+    }
+}

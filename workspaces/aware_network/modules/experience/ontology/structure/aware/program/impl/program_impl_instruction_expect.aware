@@ -1,0 +1,24 @@
+/// Program expectation contract step.
+///
+/// Contract:
+/// - Declares expected EventConfig vocabulary.
+/// - Program does not emit events; runtime owns Event truth.
+class ProgramImplInstructionExpect {
+    // Relationships
+    event_config aware_reactivity.event.EventConfig
+
+    // Attributes
+    required Bool = true
+
+    fn build construct (
+        event_config_id UUID,
+        required Bool = true
+    ) -> ProgramImplInstructionExpect {
+        """
+        Create deterministic expect payload for one ProgramImplInstruction.
+
+        Contract:
+        - Parent context (`program_impl_instruction_id`) is injected by parent-edge lowering.
+        """
+    }
+}

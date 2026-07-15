@@ -1,0 +1,35 @@
+/// API-facing transport contract for invoking one Experience view action.
+///
+/// Contract:
+/// - Generated Experience view APIs use this as endpoint request shape.
+/// - The actual invocation is still handled by the Experience service rail and
+///   recorded as `ExperienceInvocationAction`.
+/// - This type exists in the Experience ontology graph so generated view APIs do
+///   not depend on service DTO package materialization.
+class ExperienceViewInvocationActionRequest : inline_value {
+    experience_name String
+    projection_experience_view_instance_id UUID?
+    view_invocation_action_config_id UUID?
+    invocation_key UUID?
+    actor_id UUID?
+    action_key String?
+    request_ref String?
+    receipt_ref String?
+    request_payload JsonObject = {}
+}
+
+/// API-facing transport response for one Experience view action invocation.
+///
+/// Contract:
+/// - Generated Experience view APIs use this as endpoint response shape.
+/// - Concrete receipt truth remains on `ExperienceInvocationAction` and related
+///   API/SDK receipts.
+class ExperienceViewInvocationActionResponse : inline_value {
+    success Bool = false
+    status String = "pending"
+    experience_invocation_action_id UUID?
+    api_call_id UUID?
+    sdk_operation_call_id UUID?
+    error String?
+    receipt_payload JsonObject = {}
+}

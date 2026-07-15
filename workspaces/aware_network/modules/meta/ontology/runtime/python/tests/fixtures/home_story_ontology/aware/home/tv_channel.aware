@@ -1,0 +1,11 @@
+class TvChannel {
+    // Attributes
+    name String
+    number Int key
+
+    fn create construct(name String, number Int key) -> TvChannel {
+        """
+        Create a Tv channel.
+        """
+    }
+}

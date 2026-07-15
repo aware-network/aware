@@ -1,0 +1,170 @@
+/// Canonical runtime turn execution state (mailbox lifecycle truth).
+///
+/// Contract:
+/// - Runtime owns lifecycle transitions (`accepted -> running -> terminal`).
+/// - Domain adapters submit/query turns via runtime APIs; they do not own a second state machine.
+/// - No hard coupling to `thread` in v0; thread alignment is a later explicit contract.
+class Turn {
+    // Relationships
+    feedbacks TurnFeedback[]
+
+    // Identity
+    environment_id UUID key
+    key String key
+    mailbox_key String
+
+    // State
+    state TurnExecutionState = accepted
+    terminal_status TurnExecutionTerminalStatus?
+
+    // Actor
+    target_actor_id UUID key
+
+    // Lane resolution
+    resolved_branch_id UUID?
+    resolved_projection_hash String?
+    lane_resolution_source String?
+
+    // Lifecycle
+    created_at_unix_ms Int
+    accepted_at_unix_ms Int
+    started_at_unix_ms Int?
+    terminal_at_unix_ms Int?
+
+    // Idempotency
+    idempotency_key String?
+
+    // Reactivity
+    cause_event_id UUID?
+    cause_action_execution_id UUID?
+
+    // Execution
+    attempt_count Int = 0
+    max_attempts Int = 1
+
+    // Lease
+    lease_owner String?
+    lease_expires_at_unix_ms Int?
+
+    // Error
+    error_code String?
+    error_message String?
+
+    // Result
+    result_summary String?
+    result_commit_ids UUID[] = []
+
+    // Payload
+    payload JsonObject?
+
+    fn build construct (
+        environment_id UUID key,
+        target_actor_id UUID key,
+        key String key,
+        mailbox_key String,
+        max_attempts Int = 1,
+        created_at_unix_ms Int? = null,
+        accepted_at_unix_ms Int? = null,
+        idempotency_key String? = null,
+        cause_event_id UUID? = null,
+        cause_action_execution_id UUID? = null,
+        payload JsonObject? = null,
+        resolved_branch_id UUID? = null,
+        resolved_projection_hash String? = null,
+        lane_resolution_source String? = null
+    ) -> Turn {
+        """
+        Construct a deterministic Turn instance for runtime turn execution lifecycle.
+
+        Contract:
+        - Identity is derived from `(environment_id, target_actor_id, key)`.
+        - Constructor is idempotent for repeated calls with the same identity tuple.
+        """
+    }
+
+    fn add_feedback (
+        sequence Int,
+        stage String,
+        status String,
+        created_at_unix_ms Int,
+        message String? = null,
+        payload JsonObject? = null
+    ) -> TurnFeedback {
+        """
+        Append one feedback record under this Turn.
+
+        Contract:
+        - Mutates only this Turn membership (`feedbacks`).
+        - Feedback identity is deterministic per `(turn_id, sequence)`.
+        """
+        let created_feedback = construct feedbacks.create(
+            sequence = sequence,
+            stage = stage,
+            status = status,
+            created_at_unix_ms = created_at_unix_ms,
+            message = message,
+            payload = payload,
+        )
+    }
+
+    fn set_lane_resolution (
+        resolved_branch_id UUID,
+        resolved_projection_hash String,
+        lane_resolution_source String? = null
+    ) -> Turn {
+        """
+        Persist runtime-resolved execution lane on this Turn.
+
+        Contract:
+        - Runtime-owned lane resolution metadata only.
+        - Idempotent for repeated writes of the same lane resolution.
+        """
+    }
+
+    fn claim_running (
+        attempt_count Int,
+        started_at_unix_ms Int,
+        lease_owner String? = null,
+        lease_expires_at_unix_ms Int? = null
+    ) -> Turn {
+        """
+        Transition this Turn to `running` for an execution attempt.
+
+        Contract:
+        - State becomes `running`.
+        - `attempt_count` is runtime-owned and must be monotonic.
+        """
+    }
+
+    fn mark_retry_pending (
+        attempt_count Int,
+        accepted_at_unix_ms Int,
+        error_code String,
+        error_message String? = null
+    ) -> Turn {
+        """
+        Transition this Turn back to `accepted` after a retryable failure.
+
+        Contract:
+        - State becomes `accepted`.
+        - Terminal fields are cleared.
+        """
+    }
+
+    fn finish_terminal (
+        terminal_status TurnExecutionTerminalStatus,
+        terminal_at_unix_ms Int,
+        result_summary String? = null,
+        error_code String? = null,
+        error_message String? = null,
+        result_commit_ids UUID[] = []
+    ) -> Turn {
+        """
+        Transition this Turn to terminal.
+
+        Contract:
+        - State becomes `terminal`.
+        - Terminal status and timing are written canonically on this Turn.
+        """
+    }
+}

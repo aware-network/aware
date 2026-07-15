@@ -1,0 +1,54 @@
+enum ClassSelectionMode {
+    all_classes
+    base_class
+    specific_class
+}
+
+enum ConditionLogicStrategy {
+    all
+    any
+    none
+    sequence
+}
+
+enum ConditionOperator {
+    changed
+    create
+    contains
+    decreased
+    ends_with
+    equals
+    exists
+    greater_or_equal
+    greater_than
+    in
+    increased
+    is_not_null
+    is_null
+    less_or_equal
+    less_than
+    matches_regex
+    not_changed
+    not_contains
+    not_equals
+    not_exists
+    not_in
+    starts_with
+}
+
+enum EnumMatchMode {
+    all_of
+    any_of
+    none_of
+}
+
+enum RelationshipEvalMode {
+    all_match
+    any_match
+    count_equals
+    count_greater
+    count_less
+    exists
+    none_match
+    not_exists
+}

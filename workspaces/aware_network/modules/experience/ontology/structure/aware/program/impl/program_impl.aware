@@ -1,0 +1,110 @@
+class ProgramImpl {
+    // Relationships
+    program_config aware_experience.program.ProgramConfig key
+    instructions ProgramImplInstruction[]
+
+    // Attributes
+    key String key
+
+    fn build construct (program_config_id UUID key, key String key) -> ProgramImpl {
+        """
+        Create a deterministic ProgramImpl.
+        """
+    }
+
+    fn create_input_instruction (
+        sequence Int,
+        program_config_input_config_id UUID
+    ) -> ProgramImplInstruction {
+        """
+        Create one `input` instruction under this ProgramImpl.
+        """
+        let created_instruction = construct instructions.create_input(
+            sequence = sequence,
+            program_config_input_config_id = program_config_input_config_id,
+        )
+    }
+
+    fn create_let_instruction (
+        sequence Int,
+        name String,
+        value_expr JsonObject
+    ) -> ProgramImplInstruction {
+        """
+        Create one `let` instruction under this ProgramImpl.
+        """
+        let created_instruction = construct instructions.create_let(
+            sequence = sequence,
+            name = name,
+            value_expr = value_expr,
+        )
+    }
+
+    fn create_bind_instruction (
+        sequence Int,
+        program_config_port_id UUID,
+        view_key String,
+        is_active Bool = true
+    ) -> ProgramImplInstruction {
+        """
+        Create one `bind` instruction under this ProgramImpl.
+        """
+        let created_instruction = construct instructions.create_bind(
+            sequence = sequence,
+            program_config_port_id = program_config_port_id,
+            view_key = view_key,
+            is_active = is_active,
+        )
+    }
+
+    fn create_invoke_instruction (
+        sequence Int,
+        function_config_id UUID,
+        program_config_actor_config_id UUID,
+        program_config_port_projection_experience_node_id UUID,
+        target_kind ProgramImplInvokeTargetKind = instance
+    ) -> ProgramImplInstruction {
+        """
+        Create one `invoke` instruction under this ProgramImpl.
+        """
+        let created_instruction = construct instructions.create_invoke(
+            sequence = sequence,
+            function_config_id = function_config_id,
+            program_config_actor_config_id = program_config_actor_config_id,
+            program_config_port_projection_experience_node_id = program_config_port_projection_experience_node_id,
+            target_kind = target_kind,
+        )
+    }
+
+    fn create_expect_instruction (
+        sequence Int,
+        event_config_id UUID,
+        required Bool = true
+    ) -> ProgramImplInstruction {
+        """
+        Create one `expect` instruction under this ProgramImpl.
+        """
+        let created_instruction = construct instructions.create_expect(
+            sequence = sequence,
+            event_config_id = event_config_id,
+            required = required,
+        )
+    }
+
+    fn create_intent_instruction (
+        sequence Int,
+        action_config_id UUID,
+        event_config_id UUID
+    ) -> ProgramImplInstruction {
+        """
+        Create one `intent` instruction under this ProgramImpl.
+        """
+        let created_instruction = construct instructions.create_intent(
+            sequence = sequence,
+            action_config_id = action_config_id,
+            event_config_id = event_config_id,
+        )
+    }
+}
+
+ann program.impl.ProgramImpl::instructions load eager

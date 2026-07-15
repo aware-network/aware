@@ -1,0 +1,26 @@
+/// SdkPackage projection
+///
+/// Purpose:
+/// - Expose the SDK-owned semantic package rail for Workspace/package consumers.
+/// - Keep `SdkConfig` as the semantic configuration root under the package boundary.
+/// - Keep API package imports explicit through `SdkPackageApiPackage`.
+/// - Keep SDK implementation/output packages explicit through `SdkPackageImplementationPackage`.
+/// - Keep SDK-owned OCG/state packages explicit through `SdkPackageObjectConfigGraphPackage`.
+/// - Keep SDK package dependencies explicit and optionally OIG commit-pinned for reproducible consumers.
+projection SdkPackage is_branchable {
+    root sdk.SdkPackage
+
+    sdk.SdkPackage::api_packages
+    sdk.SdkPackageApiPackage::api_package aware_api.ApiPackage
+    sdk.SdkPackage::implementation_packages
+    sdk.SdkPackageImplementationPackage::code_package aware_code.CodePackage
+    sdk.SdkPackage::object_config_graph_packages
+    sdk.SdkPackageObjectConfigGraphPackage::object_config_graph_package ObjectConfigGraphPackage
+    sdk.SdkPackageObjectConfigGraphPackage::object_config_graph_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    sdk.SdkPackage::sdk_package_dependencies
+    sdk.SdkPackageDependency::target_sdk_package SdkPackage
+    sdk.SdkPackageDependency::target_sdk_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    sdk.SdkPackage::sdk_config SdkConfig
+    sdk.SdkPackage::sdk_config_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    aware_meta.graph.instance.ObjectInstanceGraphCommit::commit
+}

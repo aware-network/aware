@@ -1,0 +1,18 @@
+class ObjectConfigGraphOverlay {
+    // Relationships
+    classes class.ClassConfig[] @class.ClassConfigOverlay key
+    functions function.FunctionConfig[] @function.FunctionConfigOverlay key
+    attributes attribute.AttributeConfig[] @attribute.AttributeConfigOverlay key
+    enums enum.EnumConfig[] @enum.EnumConfigOverlay key
+    enum_options enum.EnumOption[] @enum.EnumOptionOverlay key
+
+    // Attributes
+    language aware_code.code.CodeLanguage key
+}
+
+/// Load all overlays eagerly
+ann config.ObjectConfigGraphOverlay::classes load eager
+ann config.ObjectConfigGraphOverlay::functions load eager
+ann config.ObjectConfigGraphOverlay::attributes load eager
+ann config.ObjectConfigGraphOverlay::enums load eager
+ann config.ObjectConfigGraphOverlay::enum_options load eager

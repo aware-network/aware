@@ -1,0 +1,47 @@
+/// A focus request actor to actor
+class ActorFocusRequest {
+    sender aware_identity.actor.Actor key
+    receiver aware_identity.actor.Actor key
+    focus focus.Focus key
+    response ActorFocusRequestResponse?
+
+    // Attributes
+    suggested_level ActorFocusLevelType
+    rationale String
+    status ActorFocusRequestStatus = pending
+    confidence Float?
+    expires_at DateTime?
+    response_message String?
+
+    fn build construct (
+        sender_id UUID,
+        receiver_id UUID,
+        focus_id UUID,
+        suggested_level ActorFocusLevelType,
+        rationale String,
+        confidence Float?,
+        expires_at DateTime?
+    ) -> ActorFocusRequest {
+        """
+        Builds a new ActorFocusRequest.
+        """
+    }
+
+    fn accept (decided_by_id UUID) -> ActorFocusRequestResponse {
+        """
+        Accepts the request if it is pending and has not expired.
+        """
+    }
+
+    fn expire () -> Int {
+        """
+        Expires the request if it has expired.
+        """
+    }
+
+    fn reject (decided_by_id UUID) -> ActorFocusRequestResponse {
+        """
+        Rejects the request if it is pending and has not expired.
+        """
+    }
+}

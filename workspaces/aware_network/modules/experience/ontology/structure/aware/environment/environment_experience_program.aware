@@ -1,0 +1,23 @@
+/// Canonical installed program contract for an EnvironmentExperienceThreadConfig.
+///
+/// Purpose:
+/// - Declare which ProgramConfig contracts are available under one experience
+///   thread config bridge.
+/// - Keep install/availability separate from later seed/apply execution declarations.
+class EnvironmentExperienceProgram {
+    // Relationships
+    program_config program.ProgramConfig key
+
+    // Attributes
+    fn build construct (
+        program_config_id UUID key
+    ) -> EnvironmentExperienceProgram {
+        """
+        Construct the canonical EnvironmentExperienceProgram for an environment territory.
+
+        Contract:
+        - Identity is derived from `(environment_experience_thread_config_id, program_config_id)`.
+        - Constructor does not mutate EnvironmentExperienceThreadConfig directly.
+        """
+    }
+}

@@ -1,0 +1,79 @@
+{
+  "aware_lock": 4,
+  "packages": {
+    "code-ontology": {
+      "dependencies": [
+        "content-ontology"
+      ],
+      "fqn_prefix": "aware_code",
+      "ocg_commit_id": null,
+      "ocg_hash": "1898f2343f48edcc9713e2e09d42496548ba8a75fc7a0103e1b39464e701cdad",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "code-ontology",
+      "version_number": 1
+    },
+    "content-ontology": {
+      "dependencies": [
+        "storage-ontology"
+      ],
+      "fqn_prefix": "aware_content",
+      "ocg_commit_id": "765cbe1a-06b3-57b4-9501-95a8ab8e26c1",
+      "ocg_hash": "93534362c3541143c110849de1676a0523d1be039f46329805238f1086cb404d",
+      "ocg_lane_branch_id": "bd337f20-85ed-574b-bc77-603d5e4bd648",
+      "ocg_lane_projection_hash": "a41380b76d9a87bf3cbfee59dd38748729b2ad3b7308f084482422e62a94b3fe",
+      "package_name": "content-ontology",
+      "version_number": 1
+    },
+    "history-ontology": {
+      "dependencies": [
+        "code-ontology"
+      ],
+      "fqn_prefix": "aware_history",
+      "ocg_commit_id": null,
+      "ocg_hash": "64a6ea9e69a80c5f6566bf1d848e30ac05d038ba731be1ee0515c0a961be6b7d",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "history-ontology",
+      "version_number": 1
+    },
+    "meta-ontology": {
+      "dependencies": [
+        "code-ontology",
+        "content-ontology",
+        "history-ontology"
+      ],
+      "fqn_prefix": "aware_meta",
+      "ocg_commit_id": "bff86b31-64f9-56ef-b909-0bb1264c0c45",
+      "ocg_hash": "90095e09aee20ef80aa81e187afcba472691caf70cdb76e7442cd2033cf3e3ad",
+      "ocg_lane_branch_id": "03a180f2-225f-5cd3-adb4-594321c0bf9b",
+      "ocg_lane_projection_hash": "be578547c3884eea68813cb2f1652dab2fd0a2be2b436d271ce01797c4a5ba74",
+      "package_name": "meta-ontology",
+      "version_number": 1
+    },
+    "reactivity-ontology": {
+      "dependencies": [
+        "content-ontology",
+        "meta-ontology"
+      ],
+      "fqn_prefix": "aware_reactivity",
+      "ocg_commit_id": "73a6877c-e697-5411-9f15-b40cd1ef8ba2",
+      "ocg_hash": "4372238dc53952e58d9bc1beb7b5cf1cb61cfba9ade95d2c5ccfeb2ad6df5c57",
+      "ocg_lane_branch_id": "7f300721-5568-54b2-ae82-01c05ef94c60",
+      "ocg_lane_projection_hash": "be578547c3884eea68813cb2f1652dab2fd0a2be2b436d271ce01797c4a5ba74",
+      "package_name": "reactivity-ontology",
+      "version_number": 1
+    },
+    "storage-ontology": {
+      "dependencies": [],
+      "fqn_prefix": "aware_storage",
+      "ocg_commit_id": null,
+      "ocg_hash": "53ea2dad440455afdd18d7acc682f9d5d3951e2590afae2642507aa0aa600905",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "storage-ontology",
+      "version_number": 1
+    }
+  },
+  "root_package_name": "reactivity-ontology"
+}

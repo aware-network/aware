@@ -33,6 +33,7 @@ from aware_meta.materialization.deltas.code_dto import (
 from aware_meta.materialization.deltas.coercion import (
     mapping_value,
     optional_text,
+    tuple_mappings,
     tuple_text,
 )
 from aware_meta.materialization.deltas.generated_materialization_spans import (
@@ -50,6 +51,10 @@ from aware_meta.materialization.deltas.typed_operation_contracts import (
     MetaProviderDeltaTypedOperation,
 )
 from aware_types import JsonObject
+from python_grammar.renderer_delta_orm_targets import (
+    ORM_RUNTIME_PRODUCT_INTENT,
+    orm_runtime_target_payload,
+)
 from python_grammar.renderer_delta_orm_class import (
     render_python_orm_class_generated_delta,
     supports_python_orm_class_generated_delta,
@@ -71,14 +76,12 @@ from python_grammar.renderer_delta_orm_relationship import (
 PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME = "python_orm_runtime"
 PYTHON_ORM_GENERATED_MATERIALIZATION_PROVIDER_KEY = "aware_meta"
 PYTHON_ORM_GENERATED_MATERIALIZATION_SEMANTIC_OWNER = "aware_meta.ocg"
-PYTHON_ORM_GENERATED_MATERIALIZATION_PRODUCT_INTENT = "python_orm_runtime"
+PYTHON_ORM_GENERATED_MATERIALIZATION_PRODUCT_INTENT = ORM_RUNTIME_PRODUCT_INTENT
 PYTHON_ORM_RENDERER_PROFILE = "orm_runtime"
 PYTHON_ORM_MATERIALIZATION_SOURCE = "ontology_orm_models"
 PYTHON_ORM_ATTRIBUTE_TYPE_RENDERER_KEY = "python.orm.attribute.type"
 PYTHON_ORM_ATTRIBUTE_TYPE_ANCHOR_KEY = "python.orm.attribute.type_annotation"
-PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_RENDERER_KEY = (
-    "python.orm.attribute.default_value"
-)
+PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_RENDERER_KEY = "python.orm.attribute.default_value"
 PYTHON_ORM_ATTRIBUTE_FIELD_RENDERER_KEY = "python.orm.attribute.field"
 PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_ANCHOR_KEY = "python.orm.attribute.default_value"
 PYTHON_ORM_ATTRIBUTE_FIELD_ANCHOR_KEY = "python.orm.attribute.field"
@@ -89,9 +92,7 @@ PYTHON_ORM_ATTRIBUTE_TYPE_EVIDENCE_ONLY_DIAGNOSTIC = (
 PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_EVIDENCE_ONLY_DIAGNOSTIC = (
     "meta_python_orm_attribute_default_value_renderer_operation_evidence_only"
 )
-PYTHON_ORM_ATTRIBUTE_FIELD_EVIDENCE_ONLY_DIAGNOSTIC = (
-    "meta_python_orm_attribute_field_renderer_operation_evidence_only"
-)
+PYTHON_ORM_ATTRIBUTE_FIELD_EVIDENCE_ONLY_DIAGNOSTIC = "meta_python_orm_attribute_field_renderer_operation_evidence_only"
 PYTHON_ORM_ATTRIBUTE_TYPE_TARGET_RELATIVE_PATH_MISSING_DIAGNOSTIC = (
     "meta_python_orm_generated_target_relative_path_missing"
 )
@@ -101,9 +102,7 @@ PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_TARGET_RELATIVE_PATH_MISSING_DIAGNOSTIC = (
 PYTHON_ORM_ATTRIBUTE_FIELD_TARGET_RELATIVE_PATH_MISSING_DIAGNOSTIC = (
     "meta_python_orm_attribute_field_generated_target_relative_path_missing"
 )
-PYTHON_ORM_ATTRIBUTE_TYPE_BASELINE_HASH_MISSING_DIAGNOSTIC = (
-    "meta_python_orm_attribute_type_baseline_hash_missing"
-)
+PYTHON_ORM_ATTRIBUTE_TYPE_BASELINE_HASH_MISSING_DIAGNOSTIC = "meta_python_orm_attribute_type_baseline_hash_missing"
 PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_BASELINE_HASH_MISSING_DIAGNOSTIC = (
     "meta_python_orm_attribute_default_value_baseline_hash_missing"
 )
@@ -116,14 +115,11 @@ PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_UNSUPPORTED_REASON = (
 PYTHON_ORM_ATTRIBUTE_FIELD_UNSUPPORTED_REASON = (
     "meta_python_orm_attribute_field_requires_renderable_primitive_type_descriptor"
 )
-PYTHON_ORM_ATTRIBUTE_FIELD_SPAN_MISSING_DIAGNOSTIC = (
-    "meta_python_orm_attribute_field_span_missing"
-)
-PYTHON_ORM_ATTRIBUTE_TYPE_NOT_REQUIRED_REASON = (
-    "meta_python_orm_attribute_type_delta_not_required"
-)
-PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_NOT_REQUIRED_REASON = (
-    "meta_python_orm_attribute_default_value_delta_not_required"
+PYTHON_ORM_ATTRIBUTE_FIELD_SPAN_MISSING_DIAGNOSTIC = "meta_python_orm_attribute_field_span_missing"
+PYTHON_ORM_ATTRIBUTE_TYPE_NOT_REQUIRED_REASON = "meta_python_orm_attribute_type_delta_not_required"
+PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_NOT_REQUIRED_REASON = "meta_python_orm_attribute_default_value_delta_not_required"
+PYTHON_ORM_ATTRIBUTE_MEMBERSHIP_NOT_REQUIRED_REASON = (
+    "meta_python_orm_attribute_membership_generated_materialization_not_required"
 )
 
 _PYTHON_PRIMITIVE_TYPE_TEXT = {
@@ -136,7 +132,7 @@ _PYTHON_PRIMITIVE_TYPE_TEXT = {
     "float": "float",
     "integer": "int",
     "int": "int",
-    "json": "Any",
+    "json": "JsonObject",
     "string": "str",
     "uuid": "UUID",
 }
@@ -152,9 +148,7 @@ class _PythonOrmAttributeStructuralDeltaEvidence:
     mode_reason: str
 
 
-class PythonOrmRuntimeGeneratedDeltaRenderer(
-    MetaLanguageGeneratedMaterializationDeltaRenderer
-):
+class PythonOrmRuntimeGeneratedDeltaRenderer(MetaLanguageGeneratedMaterializationDeltaRenderer):
     renderer_key = PYTHON_ORM_ATTRIBUTE_TYPE_RENDERER_KEY
     renderer_profile = PYTHON_ORM_RENDERER_PROFILE
     materialization_source = PYTHON_ORM_MATERIALIZATION_SOURCE
@@ -170,7 +164,7 @@ class PythonOrmRuntimeGeneratedDeltaRenderer(
             or supports_python_orm_function_generated_delta(request)
             or supports_python_orm_relationship_generated_delta(request)
             or (
-                operation.ontology_subject_kind == "attribute"
+                operation.ontology_subject_kind in {"attribute", "attribute_membership"}
                 and operation.operation_family in {"create", "delete", "update"}
             )
         )
@@ -201,7 +195,14 @@ class PythonOrmRuntimeGeneratedDeltaRenderer(
             event_key=event_key,
             target=target,
         )
-        if _attribute_structural_required(operation=operation):
+        if operation.ontology_subject_kind == "attribute_membership":
+            result = _attribute_membership_not_required_result(
+                context=context,
+                event_key=event_key,
+                target=target,
+            )
+            reason = "python_orm_runtime_attribute_membership_generated_delta_not_required"
+        elif _attribute_structural_required(operation=operation):
             result = _attribute_structural_result(
                 operation=operation,
                 context=context,
@@ -235,22 +236,79 @@ class PythonOrmRuntimeGeneratedDeltaRenderer(
 def _context_with_defaults(
     context: MetaLanguageGeneratedMaterializationDeltaContext,
 ) -> MetaLanguageGeneratedMaterializationDeltaContext:
+    sources_root = _python_orm_sources_root(
+        package_name=context.package_name,
+        sources_root=context.sources_root,
+    )
     return MetaLanguageGeneratedMaterializationDeltaContext(
         package_name=context.package_name,
-        package_root=context.package_root,
-        sources_root=context.sources_root,
+        package_root=_python_orm_package_root(
+            package_root=context.package_root,
+            source_sources_root=context.sources_root,
+            generated_sources_root=sources_root,
+        ),
+        sources_root=sources_root,
         target_language=context.target_language or "python",
         renderer_profile=context.renderer_profile or PYTHON_ORM_RENDERER_PROFILE,
-        materialization_source=(
-            context.materialization_source or PYTHON_ORM_MATERIALIZATION_SOURCE
-        ),
-        product_intent=(
-            context.product_intent or PYTHON_ORM_GENERATED_MATERIALIZATION_PRODUCT_INTENT
-        ),
+        materialization_source=(context.materialization_source or PYTHON_ORM_MATERIALIZATION_SOURCE),
+        product_intent=(context.product_intent or PYTHON_ORM_GENERATED_MATERIALIZATION_PRODUCT_INTENT),
         artifact_family=context.artifact_family or "ocg_language_materialization",
         artifact_role=context.artifact_role or "python_orm_model",
         target_hints=context.target_hints,
     )
+
+
+def _python_orm_package_root(
+    *,
+    package_root: str | None,
+    source_sources_root: str | None,
+    generated_sources_root: str | None,
+) -> str | None:
+    normalized_package_root = _normalized_path(package_root)
+    if normalized_package_root is None:
+        return None
+    if normalized_package_root.endswith("/python/orm_runtime"):
+        return normalized_package_root
+    if _is_authored_aware_sources_root(source_sources_root):
+        if normalized_package_root.endswith("/python"):
+            return f"{normalized_package_root}/orm_runtime"
+        return f"{normalized_package_root}/python/orm_runtime"
+    if normalized_package_root.endswith("/python"):
+        return normalized_package_root
+    if generated_sources_root is not None and (_normalized_path(source_sources_root) == generated_sources_root):
+        return normalized_package_root
+    return normalized_package_root
+
+
+def _python_orm_sources_root(
+    *,
+    package_name: str | None,
+    sources_root: str | None,
+) -> str | None:
+    normalized_sources_root = _normalized_path(sources_root)
+    if not _is_authored_aware_sources_root(normalized_sources_root):
+        return normalized_sources_root
+    generated_root = _python_orm_sources_root_from_package_name(package_name)
+    return generated_root or normalized_sources_root
+
+
+def _python_orm_sources_root_from_package_name(
+    package_name: str | None,
+) -> str | None:
+    normalized_package_name = optional_text(package_name)
+    if normalized_package_name is None:
+        return None
+    package_base = normalized_package_name
+    if package_base.endswith("-ontology"):
+        package_base = package_base[: -len("-ontology")]
+    package_base = package_base.replace("-", "_").strip("_")
+    if not package_base:
+        return None
+    return f"aware_{package_base}_ontology"
+
+
+def _is_authored_aware_sources_root(sources_root: str | None) -> bool:
+    return sources_root is None or sources_root == "aware"
 
 
 def _delta_request(
@@ -287,19 +345,14 @@ def _delta_request(
         ],
         action_bindings=[
             CodeGeneratedMaterializationActionBinding(
-                action_key=(
-                    "aware_meta.python_orm.generated_materialization."
-                    f"{operation.operation_key}"
-                ),
+                action_key=("aware_meta.python_orm.generated_materialization." f"{operation.operation_key}"),
                 event_key=event_key,
                 target=target,
                 policy_key=f"aware_meta.python_orm.attribute_{field_key}",
                 renderer_key=renderer_key,
                 metadata=_json_object(
                     {
-                        "source": (
-                            "python_grammar.python_orm_runtime_generated_delta_renderer"
-                        ),
+                        "source": ("python_grammar.python_orm_runtime_generated_delta_renderer"),
                         "operation_key": operation.operation_key,
                     }
                 ),
@@ -311,9 +364,35 @@ def _delta_request(
                 "source": "python_grammar.python_orm_runtime_generated_delta_request",
                 "renderer_profile": context.renderer_profile,
                 "materialization_source": context.materialization_source,
-                "language_plugin_delta_renderer": (
-                    PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                ),
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
+            }
+        ),
+    )
+
+
+def _attribute_membership_not_required_result(
+    *,
+    context: MetaLanguageGeneratedMaterializationDeltaContext,
+    event_key: str,
+    target: CodeGeneratedMaterializationTargetRef,
+) -> CodeGeneratedMaterializationDeltaResult:
+    return CodeGeneratedMaterializationDeltaResult(
+        provider_key=PYTHON_ORM_GENERATED_MATERIALIZATION_PROVIDER_KEY,
+        semantic_owner=PYTHON_ORM_GENERATED_MATERIALIZATION_SEMANTIC_OWNER,
+        available=True,
+        mode=CodeGeneratedMaterializationDeltaMode.not_required,
+        skipped_targets=[
+            CodeGeneratedMaterializationSkippedTarget(
+                target=target,
+                reason=PYTHON_ORM_ATTRIBUTE_MEMBERSHIP_NOT_REQUIRED_REASON,
+                event_refs=[event_key],
+            )
+        ],
+        metadata=_json_object(
+            {
+                "renderer_profile": context.renderer_profile,
+                "materialization_source": context.materialization_source,
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
             }
         ),
     )
@@ -341,9 +420,7 @@ def _attribute_type_result(
             ],
             metadata=_json_object(
                 {
-                    "language_plugin_delta_renderer": (
-                        PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                    ),
+                    "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
                 }
             ),
         )
@@ -374,9 +451,7 @@ def _attribute_type_result(
             diagnostics=[PYTHON_ORM_ATTRIBUTE_TYPE_UNSUPPORTED_REASON],
             metadata=_json_object(
                 {
-                    "language_plugin_delta_renderer": (
-                        PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                    ),
+                    "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
                 }
             ),
         )
@@ -386,16 +461,8 @@ def _attribute_type_result(
         payload=operation.baseline,
     )
     operation_diagnostics = [
-        *(
-            [PYTHON_ORM_ATTRIBUTE_TYPE_TARGET_RELATIVE_PATH_MISSING_DIAGNOSTIC]
-            if target.relative_path is None
-            else []
-        ),
-        *(
-            [PYTHON_ORM_ATTRIBUTE_TYPE_BASELINE_HASH_MISSING_DIAGNOSTIC]
-            if baseline_text is None
-            else []
-        ),
+        *([PYTHON_ORM_ATTRIBUTE_TYPE_TARGET_RELATIVE_PATH_MISSING_DIAGNOSTIC] if target.relative_path is None else []),
+        *([PYTHON_ORM_ATTRIBUTE_TYPE_BASELINE_HASH_MISSING_DIAGNOSTIC] if baseline_text is None else []),
     ]
     has_section_delta = target.relative_path is not None and baseline_text is not None
     if not has_section_delta:
@@ -415,9 +482,7 @@ def _attribute_type_result(
         anchor=_anchor_ref(operation=operation, context=context),
         renderer_key=PYTHON_ORM_ATTRIBUTE_TYPE_RENDERER_KEY,
         renderer_profile=context.renderer_profile,
-        before_hash=(
-            _sha256_digest(baseline_text) if baseline_text is not None else None
-        ),
+        before_hash=(_sha256_digest(baseline_text) if baseline_text is not None else None),
         after_hash=_sha256_digest(replacement_text),
         content_text=replacement_text,
         replacement_text=replacement_text,
@@ -426,17 +491,13 @@ def _attribute_type_result(
         diagnostics=operation_diagnostics,
         metadata=_json_object(
             {
-                "source": (
-                    "python_grammar.python_orm_runtime_attribute_type_operation"
-                ),
+                "source": ("python_grammar.python_orm_runtime_attribute_type_operation"),
                 "operation_key": operation.operation_key,
                 "operation_family": operation.operation_family,
                 "provider_operation_type": operation.provider_operation_type,
                 "baseline_rendered_text": baseline_text,
                 "current_rendered_text": replacement_text,
-                "language_plugin_delta_renderer": (
-                    PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                ),
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
             }
         ),
     )
@@ -475,9 +536,7 @@ def _attribute_type_result(
                     if has_section_delta
                     else "renderer_operation_evidence_without_package_delta"
                 ),
-                "language_plugin_delta_renderer": (
-                    PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                ),
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
             }
         ),
     )
@@ -495,9 +554,7 @@ def _attribute_type_result(
                 "renderer_operation_count": 1,
                 "package_delta_emitted": False,
                 "section_delta_emitted": has_section_delta,
-                "language_plugin_delta_renderer": (
-                    PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                ),
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
             }
         ),
     )
@@ -533,9 +590,7 @@ def _attribute_default_value_result(
             diagnostics=[PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_UNSUPPORTED_REASON],
             metadata=_json_object(
                 {
-                    "language_plugin_delta_renderer": (
-                        PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                    ),
+                    "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
                 }
             ),
         )
@@ -547,11 +602,7 @@ def _attribute_default_value_result(
             if target.relative_path is None
             else []
         ),
-        *(
-            [PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_BASELINE_HASH_MISSING_DIAGNOSTIC]
-            if baseline_text is None
-            else []
-        ),
+        *([PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_BASELINE_HASH_MISSING_DIAGNOSTIC] if baseline_text is None else []),
     ]
     has_section_delta = target.relative_path is not None and baseline_text is not None
     if not has_section_delta:
@@ -565,18 +616,13 @@ def _attribute_default_value_result(
         else CodeGeneratedMaterializationDeltaMode.fallback_full_render
     )
     renderer_operation = CodeGeneratedRendererDeltaOperation(
-        operation_key=(
-            "aware_meta.python_orm.attribute.default_value:"
-            f"{operation.operation_key}"
-        ),
+        operation_key=("aware_meta.python_orm.attribute.default_value:" f"{operation.operation_key}"),
         kind=CodeGeneratedRendererDeltaOperationKind.replace_anchor,
         target=target,
         anchor=_default_value_anchor_ref(operation=operation, context=context),
         renderer_key=PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_RENDERER_KEY,
         renderer_profile=context.renderer_profile,
-        before_hash=(
-            _sha256_digest(baseline_text) if baseline_text is not None else None
-        ),
+        before_hash=(_sha256_digest(baseline_text) if baseline_text is not None else None),
         after_hash=_sha256_digest(replacement_text),
         content_text=replacement_text,
         replacement_text=replacement_text,
@@ -585,26 +631,18 @@ def _attribute_default_value_result(
         diagnostics=operation_diagnostics,
         metadata=_json_object(
             {
-                "source": (
-                    "python_grammar."
-                    "python_orm_runtime_attribute_default_value_operation"
-                ),
+                "source": ("python_grammar." "python_orm_runtime_attribute_default_value_operation"),
                 "operation_key": operation.operation_key,
                 "operation_family": operation.operation_family,
                 "provider_operation_type": operation.provider_operation_type,
                 "baseline_rendered_text": baseline_text,
                 "current_rendered_text": replacement_text,
-                "language_plugin_delta_renderer": (
-                    PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                ),
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
             }
         ),
     )
     entry = CodeGeneratedMaterializationDeltaEntry(
-        entry_key=(
-            "aware_meta.python_orm.attribute.default_value:"
-            f"{operation.operation_key}"
-        ),
+        entry_key=("aware_meta.python_orm.attribute.default_value:" f"{operation.operation_key}"),
         mode=entry_mode,
         target=target,
         section_delta=(
@@ -638,9 +676,7 @@ def _attribute_default_value_result(
                     if has_section_delta
                     else "renderer_operation_evidence_without_package_delta"
                 ),
-                "language_plugin_delta_renderer": (
-                    PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                ),
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
             }
         ),
     )
@@ -658,9 +694,7 @@ def _attribute_default_value_result(
                 "renderer_operation_count": 1,
                 "package_delta_emitted": False,
                 "section_delta_emitted": has_section_delta,
-                "language_plugin_delta_renderer": (
-                    PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                ),
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
             }
         ),
     )
@@ -680,8 +714,15 @@ def _attribute_structural_result(
             target=target,
             event_key=event_key,
         )
-    else:
+    elif operation.operation_family == "delete":
         delta_evidence = _attribute_delete_delta_evidence(
+            operation=operation,
+            context=context,
+            target=target,
+            event_key=event_key,
+        )
+    else:
+        delta_evidence = _attribute_update_delta_evidence(
             operation=operation,
             context=context,
             target=target,
@@ -733,13 +774,9 @@ def _attribute_structural_result(
                 "operation_family": operation.operation_family,
                 "provider_operation_type": operation.provider_operation_type,
                 "mode_reason": (
-                    delta_evidence.mode_reason
-                    if has_delta
-                    else "python_orm_attribute_field_guarded_delta_missing"
+                    delta_evidence.mode_reason if has_delta else "python_orm_attribute_field_guarded_delta_missing"
                 ),
-                "language_plugin_delta_renderer": (
-                    PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                ),
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
             }
         ),
     )
@@ -748,9 +785,7 @@ def _attribute_structural_result(
         mode=entry_mode,
         target=target,
         grammar_anchor_render_delta=(
-            delta_evidence.grammar_anchor_render_delta
-            if delta_evidence is not None
-            else None
+            delta_evidence.grammar_anchor_render_delta if delta_evidence is not None else None
         ),
         artifact_family=context.artifact_family,
         artifact_role=context.artifact_role,
@@ -769,9 +804,7 @@ def _attribute_structural_result(
                 "package_delta_emitted": False,
                 "section_delta_emitted": False,
                 "grammar_anchor_render_delta_emitted": has_delta,
-                "language_plugin_delta_renderer": (
-                    PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                ),
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
             }
         ),
     )
@@ -790,9 +823,7 @@ def _attribute_structural_result(
                 "package_delta_emitted": False,
                 "section_delta_emitted": False,
                 "grammar_anchor_render_delta_emitted": has_delta,
-                "language_plugin_delta_renderer": (
-                    PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                ),
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
             }
         ),
     )
@@ -831,10 +862,7 @@ def _attribute_type_section_delta(
                     source_refs=list(_sorted_unique(operation.source_refs)),
                     metadata=_json_object(
                         {
-                            "source": (
-                                "python_grammar."
-                                "python_orm_runtime_attribute_type_section_ref"
-                            ),
+                            "source": ("python_grammar." "python_orm_runtime_attribute_type_section_ref"),
                             "operation_key": operation.operation_key,
                             "target_relative_path": target.relative_path,
                         }
@@ -842,17 +870,10 @@ def _attribute_type_section_delta(
                 ),
                 segment_ref=CodeSegmentRef(
                     segment_name="type",
-                    before_segment_hash=(
-                        _sha256_digest(baseline_text)
-                        if baseline_text is not None
-                        else None
-                    ),
+                    before_segment_hash=(_sha256_digest(baseline_text) if baseline_text is not None else None),
                     metadata=_json_object(
                         {
-                            "source": (
-                                "python_grammar."
-                                "python_orm_runtime_attribute_type_segment_ref"
-                            ),
+                            "source": ("python_grammar." "python_orm_runtime_attribute_type_segment_ref"),
                             "anchor_key": PYTHON_ORM_ATTRIBUTE_TYPE_ANCHOR_KEY,
                         }
                     ),
@@ -864,10 +885,7 @@ def _attribute_type_section_delta(
                 provider_key=PYTHON_ORM_GENERATED_MATERIALIZATION_PROVIDER_KEY,
                 metadata=_json_object(
                     {
-                        "source": (
-                            "python_grammar."
-                            "python_orm_runtime_attribute_type_section_delta"
-                        ),
+                        "source": ("python_grammar." "python_orm_runtime_attribute_type_section_delta"),
                         "operation_key": operation.operation_key,
                         "renderer_key": PYTHON_ORM_ATTRIBUTE_TYPE_RENDERER_KEY,
                         "renderer_profile": context.renderer_profile,
@@ -919,10 +937,7 @@ def _attribute_default_value_section_delta(
                     source_refs=list(_sorted_unique(operation.source_refs)),
                     metadata=_json_object(
                         {
-                            "source": (
-                                "python_grammar."
-                                "python_orm_runtime_default_value_section_ref"
-                            ),
+                            "source": ("python_grammar." "python_orm_runtime_default_value_section_ref"),
                             "operation_key": operation.operation_key,
                             "target_relative_path": target.relative_path,
                         }
@@ -930,20 +945,11 @@ def _attribute_default_value_section_delta(
                 ),
                 segment_ref=CodeSegmentRef(
                     segment_name="default_value",
-                    before_segment_hash=(
-                        _sha256_digest(baseline_text)
-                        if baseline_text is not None
-                        else None
-                    ),
+                    before_segment_hash=(_sha256_digest(baseline_text) if baseline_text is not None else None),
                     metadata=_json_object(
                         {
-                            "source": (
-                                "python_grammar."
-                                "python_orm_runtime_default_value_segment_ref"
-                            ),
-                            "anchor_key": (
-                                PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_ANCHOR_KEY
-                            ),
+                            "source": ("python_grammar." "python_orm_runtime_default_value_segment_ref"),
+                            "anchor_key": (PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_ANCHOR_KEY),
                         }
                     ),
                 ),
@@ -954,10 +960,7 @@ def _attribute_default_value_section_delta(
                 provider_key=PYTHON_ORM_GENERATED_MATERIALIZATION_PROVIDER_KEY,
                 metadata=_json_object(
                     {
-                        "source": (
-                            "python_grammar."
-                            "python_orm_runtime_attribute_default_value_section_delta"
-                        ),
+                        "source": ("python_grammar." "python_orm_runtime_attribute_default_value_section_delta"),
                         "operation_key": operation.operation_key,
                         "renderer_key": PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_RENDERER_KEY,
                         "renderer_profile": context.renderer_profile,
@@ -991,14 +994,9 @@ def _attribute_create_delta_evidence(
         return None
     attribute_name = _attribute_name(operation=operation)
     owner_name = _owner_name(operation=operation)
-    replacement_text = _python_field_text(operation=operation)
+    field_text = _python_field_text(operation=operation)
     source_state = _generated_source_state(context=context, target=target)
-    if (
-        attribute_name is None
-        or owner_name is None
-        or replacement_text is None
-        or source_state is None
-    ):
+    if attribute_name is None or owner_name is None or field_text is None or source_state is None:
         return None
     relative_path, source_text = source_state
     span = _python_attribute_create_insert_span(
@@ -1008,7 +1006,11 @@ def _attribute_create_delta_evidence(
     )
     if span is None:
         return None
-    byte_start, byte_end, before_text = span
+    byte_start, byte_end, before_text, placement = span
+    replacement_text = _python_attribute_create_text(
+        field_text=field_text,
+        placement=placement,
+    )
     grammar_anchor_render_delta = _attribute_field_grammar_anchor_render_delta(
         operation=operation,
         context=context,
@@ -1087,6 +1089,60 @@ def _attribute_delete_delta_evidence(
     )
 
 
+def _attribute_update_delta_evidence(
+    *,
+    operation: MetaProviderDeltaTypedOperation,
+    context: MetaLanguageGeneratedMaterializationDeltaContext,
+    target: CodeGeneratedMaterializationTargetRef,
+    event_key: str,
+) -> _PythonOrmAttributeStructuralDeltaEvidence | None:
+    if (
+        operation.ontology_subject_kind != "attribute"
+        or operation.operation_family != "update"
+        or not _attribute_type_update_requires_field_delta(operation=operation)
+        or target.relative_path is None
+    ):
+        return None
+    attribute_name = _attribute_name(operation=operation)
+    owner_name = _owner_name(operation=operation)
+    field_text = _python_field_text(operation=operation)
+    source_state = _generated_source_state(context=context, target=target)
+    if attribute_name is None or owner_name is None or field_text is None or source_state is None:
+        return None
+    relative_path, source_text = source_state
+    span = _python_attribute_delete_span(
+        source_text=source_text,
+        class_name=owner_name,
+        attribute_name=attribute_name,
+    )
+    if span is None:
+        return None
+    byte_start, byte_end, before_text = span
+    grammar_anchor_render_delta = _attribute_field_grammar_anchor_render_delta(
+        operation=operation,
+        context=context,
+        target=target,
+        relative_path=relative_path,
+        source_text=source_text,
+        byte_start=byte_start,
+        byte_end=byte_end,
+        before_text=before_text,
+        replacement_text=field_text,
+        event_key=event_key,
+        operation_label="update",
+    )
+    if grammar_anchor_render_delta is None:
+        return None
+    return _PythonOrmAttributeStructuralDeltaEvidence(
+        grammar_anchor_render_delta=grammar_anchor_render_delta,
+        anchor=_field_anchor_ref(operation=operation, context=context),
+        content_text=field_text,
+        before_hash=_sha256_digest(before_text),
+        after_hash=_sha256_digest(field_text),
+        mode_reason="python_orm_attribute_update_grammar_anchor_render_delta_ready",
+    )
+
+
 def _attribute_field_grammar_anchor_render_delta(
     *,
     operation: MetaProviderDeltaTypedOperation,
@@ -1126,8 +1182,7 @@ def _attribute_field_grammar_anchor_render_delta(
             meta_generated_materialization_text_span_replacement(
                 context=span_context,
                 replacement_key=(
-                    "aware_meta.python_orm.attribute.field."
-                    f"{operation_label}:{operation.operation_key}"
+                    "aware_meta.python_orm.attribute.field." f"{operation_label}:{operation.operation_key}"
                 ),
                 byte_start=byte_start,
                 byte_end=byte_end,
@@ -1140,26 +1195,19 @@ def _attribute_field_grammar_anchor_render_delta(
                         "operation_key": operation.operation_key,
                         "attribute_name": _attribute_name(operation=operation),
                         "owner_key": _owner_key(operation=operation),
-                        "language_plugin_delta_renderer": (
-                            PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                        ),
+                        "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
                     }
                 ),
             )
         ],
         metadata=_json_object(
             {
-                "source": (
-                    "python_grammar."
-                    "python_orm_attribute_field_grammar_anchor_render_delta"
-                ),
+                "source": ("python_grammar." "python_orm_attribute_field_grammar_anchor_render_delta"),
                 "operation_key": operation.operation_key,
                 "target_kind": CodeGrammarAnchorRenderTargetKind.text_span.value,
                 "renderer_key": PYTHON_ORM_ATTRIBUTE_FIELD_RENDERER_KEY,
                 "renderer_profile": context.renderer_profile,
-                "language_plugin_delta_renderer": (
-                    PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
-                ),
+                "language_plugin_delta_renderer": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME),
             }
         ),
     )
@@ -1172,9 +1220,7 @@ def _attribute_field_graph_selector(
     owner_key = _owner_key(operation=operation)
     owner_name = _owner_name(operation=operation)
     attribute_name = _attribute_name(operation=operation)
-    field_path = ".".join(
-        part for part in (owner_name, attribute_name, "__field__") if part
-    )
+    field_path = ".".join(part for part in (owner_name, attribute_name, "__field__") if part)
     return CodeGraphFieldSelector(
         provider_key=PYTHON_ORM_GENERATED_MATERIALIZATION_PROVIDER_KEY,
         semantic_owner=PYTHON_ORM_GENERATED_MATERIALIZATION_SEMANTIC_OWNER,
@@ -1204,12 +1250,8 @@ def _attribute_structural_diagnostics(
 ) -> tuple[str, ...]:
     diagnostics = [PYTHON_ORM_ATTRIBUTE_FIELD_EVIDENCE_ONLY_DIAGNOSTIC]
     if target.relative_path is None:
-        diagnostics.append(
-            PYTHON_ORM_ATTRIBUTE_FIELD_TARGET_RELATIVE_PATH_MISSING_DIAGNOSTIC
-        )
-    if _python_field_text(operation=operation) is None and (
-        operation.operation_family == "create"
-    ):
+        diagnostics.append(PYTHON_ORM_ATTRIBUTE_FIELD_TARGET_RELATIVE_PATH_MISSING_DIAGNOSTIC)
+    if _python_field_text(operation=operation) is None and (operation.operation_family in {"create", "update"}):
         diagnostics.append(PYTHON_ORM_ATTRIBUTE_FIELD_UNSUPPORTED_REASON)
     else:
         diagnostics.append(PYTHON_ORM_ATTRIBUTE_FIELD_SPAN_MISSING_DIAGNOSTIC)
@@ -1280,9 +1322,7 @@ def _anchor_ref(
     owner_key = _owner_key(operation=operation)
     owner_name = _owner_name(operation=operation)
     attribute_name = _attribute_name(operation=operation)
-    anchor_path = ".".join(
-        part for part in (owner_name, attribute_name, "type") if part
-    )
+    anchor_path = ".".join(part for part in (owner_name, attribute_name, "type") if part)
     return CodeGeneratedRendererAnchorRef(
         anchor_key=PYTHON_ORM_ATTRIBUTE_TYPE_ANCHOR_KEY,
         anchor_path=anchor_path,
@@ -1321,9 +1361,7 @@ def _default_value_anchor_ref(
     owner_key = _owner_key(operation=operation)
     owner_name = _owner_name(operation=operation)
     attribute_name = _attribute_name(operation=operation)
-    anchor_path = ".".join(
-        part for part in (owner_name, attribute_name, "default_value") if part
-    )
+    anchor_path = ".".join(part for part in (owner_name, attribute_name, "default_value") if part)
     return CodeGeneratedRendererAnchorRef(
         anchor_key=PYTHON_ORM_ATTRIBUTE_DEFAULT_VALUE_ANCHOR_KEY,
         anchor_path=anchor_path,
@@ -1346,10 +1384,7 @@ def _default_value_anchor_ref(
         ),
         metadata=_json_object(
             {
-                "source": (
-                    "python_grammar."
-                    "python_orm_runtime_attribute_default_value_anchor"
-                ),
+                "source": ("python_grammar." "python_orm_runtime_attribute_default_value_anchor"),
                 "operation_key": operation.operation_key,
                 "semantic_key": operation.semantic_key,
             }
@@ -1365,9 +1400,7 @@ def _field_anchor_ref(
     owner_key = _owner_key(operation=operation)
     owner_name = _owner_name(operation=operation)
     attribute_name = _attribute_name(operation=operation)
-    anchor_path = ".".join(
-        part for part in (owner_name, attribute_name, "__field__") if part
-    )
+    anchor_path = ".".join(part for part in (owner_name, attribute_name, "__field__") if part)
     return CodeGeneratedRendererAnchorRef(
         anchor_key=PYTHON_ORM_ATTRIBUTE_FIELD_ANCHOR_KEY,
         anchor_path=anchor_path,
@@ -1402,17 +1435,34 @@ def _attribute_structural_required(
     *,
     operation: MetaProviderDeltaTypedOperation,
 ) -> bool:
-    return (
-        operation.ontology_subject_kind == "attribute"
-        and operation.operation_family in {"create", "delete"}
+    return operation.ontology_subject_kind == "attribute" and (
+        operation.operation_family in {"create", "delete"}
+        or _attribute_type_update_requires_field_delta(operation=operation)
     )
 
 
-def _attribute_type_changed(*, operation: MetaProviderDeltaTypedOperation) -> bool:
+def _attribute_type_update_requires_field_delta(
+    *,
+    operation: MetaProviderDeltaTypedOperation,
+) -> bool:
     if (
         operation.ontology_subject_kind != "attribute"
         or operation.operation_family != "update"
+        or not _attribute_type_changed(operation=operation)
     ):
+        return False
+    if (
+        _python_type_annotation(operation=operation, payload=operation.current) is None
+        or _python_type_annotation(operation=operation, payload=operation.baseline) is None
+    ):
+        return False
+    return _python_field_default_expression(
+        payload=operation.current,
+    ) != _python_field_default_expression(payload=operation.baseline)
+
+
+def _attribute_type_changed(*, operation: MetaProviderDeltaTypedOperation) -> bool:
+    if operation.ontology_subject_kind != "attribute" or operation.operation_family != "update":
         return False
     current_text = _python_type_annotation(
         operation=operation,
@@ -1423,13 +1473,7 @@ def _attribute_type_changed(*, operation: MetaProviderDeltaTypedOperation) -> bo
         payload=operation.baseline,
     )
     if current_text is None:
-        return bool(
-            mapping_value(
-                _attribute_signature(payload=operation.current).get(
-                    "type_descriptor"
-                )
-            )
-        )
+        return bool(mapping_value(_attribute_signature(payload=operation.current).get("type_descriptor")))
     return current_text != baseline_text
 
 
@@ -1437,10 +1481,7 @@ def _attribute_default_value_changed(
     *,
     operation: MetaProviderDeltaTypedOperation,
 ) -> bool:
-    if (
-        operation.ontology_subject_kind != "attribute"
-        or operation.operation_family != "update"
-    ):
+    if operation.ontology_subject_kind != "attribute" or operation.operation_family != "update":
         return False
     current_raw = _default_value_raw(payload=operation.current)
     baseline_raw = _default_value_raw(payload=operation.baseline)
@@ -1481,16 +1522,9 @@ def _python_type_annotation(
     _ = operation
     signature = _attribute_signature(payload=payload)
     descriptor = mapping_value(signature.get("type_descriptor"))
-    if optional_text(descriptor.get("kind")) != "primitive":
+    rendered = _python_type_text_from_descriptor(descriptor)
+    if rendered is None:
         return None
-    primitive = _python_primitive_type_text(descriptor.get("primitive_base_type"))
-    if primitive is None:
-        return None
-    rendered = (
-        f"list[{primitive}]"
-        if _is_collection(signature=signature, descriptor=descriptor)
-        else primitive
-    )
     if signature.get("is_required") is False and not rendered.startswith("list["):
         rendered = f"{rendered} | None"
     return rendered
@@ -1508,9 +1542,18 @@ def _python_default_value_expression(
         try:
             parsed_value = json.loads(raw_value)
         except json.JSONDecodeError:
-            return None
+            parsed_value = raw_value
     else:
         parsed_value = raw_value
+    signature = _attribute_signature(payload=payload)
+    descriptor = mapping_value(signature.get("type_descriptor"))
+    type_text = _python_type_text_from_descriptor(descriptor)
+    if (
+        optional_text(descriptor.get("kind")) == "enum"
+        and isinstance(parsed_value, str)
+        and type_text is not None
+    ):
+        return f"{type_text}.{_python_enum_option_name(parsed_value)}"
     return _python_literal(parsed_value)
 
 
@@ -1537,9 +1580,27 @@ def _python_field_text(*, operation: MetaProviderDeltaTypedOperation) -> str | N
     )
     if attribute_name is None or type_text is None:
         return None
-    default_text = _python_default_value_expression(payload=operation.current)
+    default_text = _python_field_default_expression(payload=operation.current)
     suffix = f" = {default_text}" if default_text is not None else ""
     return f"    {attribute_name}: {type_text}{suffix}\n"
+
+
+def _python_field_default_expression(
+    *,
+    payload: Mapping[str, object],
+) -> str | None:
+    signature = _attribute_signature(payload=payload)
+    descriptor = mapping_value(signature.get("type_descriptor"))
+    if _is_collection(signature=signature, descriptor=descriptor):
+        return "Field(default_factory=list)"
+    if _default_value_raw(payload=payload) is not None:
+        default_text = _python_default_value_expression(payload=payload)
+        if default_text is None:
+            return None
+        return f"Field(default={default_text})"
+    if signature.get("is_required") is False:
+        return "Field(default=None)"
+    return None
 
 
 def _attribute_signature(*, payload: Mapping[str, object]) -> Mapping[str, object]:
@@ -1566,6 +1627,100 @@ def _python_primitive_type_text(value: object) -> str | None:
     return _PYTHON_PRIMITIVE_TYPE_TEXT.get(key)
 
 
+def _python_type_text_from_descriptor(
+    descriptor: Mapping[str, object],
+) -> str | None:
+    descriptor_kind = optional_text(descriptor.get("kind"))
+    if descriptor_kind == "primitive":
+        return _python_primitive_type_text(descriptor.get("primitive_base_type"))
+    if descriptor_kind == "enum":
+        return _fqn_leaf(descriptor.get("enum_fqn"))
+    if descriptor_kind == "class":
+        return _fqn_leaf(descriptor.get("class_fqn"))
+    if descriptor_kind == "collection":
+        child_text = _python_first_child_type_text(descriptor=descriptor)
+        if child_text is None:
+            return None
+        return f"list[{child_text}]"
+    if descriptor_kind == "union":
+        child_text = _python_single_non_null_child_type_text(descriptor=descriptor)
+        if child_text is None:
+            return None
+        return f"{child_text} | None"
+    return None
+
+
+def _python_first_child_type_text(
+    *,
+    descriptor: Mapping[str, object],
+) -> str | None:
+    child_descriptors = tuple_mappings(descriptor.get("child_descriptors"))
+    if child_descriptors:
+        return _python_type_text_from_descriptor(child_descriptors[0])
+    child_links = tuple_mappings(descriptor.get("child_links"))
+    if child_links:
+        child = mapping_value(child_links[0].get("child"))
+        return _python_type_text_from_descriptor(child)
+    element_primitive = descriptor.get("element_primitive_base_type")
+    if element_primitive is not None:
+        return _python_primitive_type_text(element_primitive)
+    return None
+
+
+def _python_single_non_null_child_type_text(
+    *,
+    descriptor: Mapping[str, object],
+) -> str | None:
+    child_descriptors = tuple_mappings(descriptor.get("child_descriptors"))
+    child_links = tuple_mappings(descriptor.get("child_links"))
+    children = (
+        child_descriptors
+        or tuple(mapping_value(link.get("child")) for link in child_links)
+    )
+    child_texts = tuple(
+        text
+        for child in children
+        if optional_text(child.get("primitive_base_type")) != "null"
+        for text in (_python_type_text_from_descriptor(child),)
+        if text is not None
+    )
+    if len(child_texts) != 1:
+        return None
+    return child_texts[0]
+
+
+def _fqn_leaf(value: object) -> str | None:
+    text = optional_text(value)
+    if text is None:
+        return None
+    return text.rsplit(".", maxsplit=1)[-1]
+
+
+def _python_enum_option_name(value: str) -> str:
+    return _python_snake_case(value)
+
+
+def _python_snake_case(value: str) -> str:
+    chars: list[str] = []
+    previous_lower = False
+    for char in value:
+        if char.isalnum():
+            if char.isupper() and previous_lower:
+                chars.append("_")
+            chars.append(char.lower())
+            previous_lower = char.islower() or char.isdigit()
+        else:
+            if chars and chars[-1] != "_":
+                chars.append("_")
+            previous_lower = False
+    text = "".join(chars).strip("_")
+    if not text:
+        return "_"
+    if text[0].isdigit():
+        return f"_{text}"
+    return text
+
+
 def _is_collection(
     *,
     signature: Mapping[str, object],
@@ -1579,8 +1734,7 @@ def _is_collection(
         or descriptor.get("is_collection") is True
         or (
             collection_kind is not None
-            and collection_kind.rsplit(".", maxsplit=1)[-1].lower()
-            not in {"single", "scalar", "none"}
+            and collection_kind.rsplit(".", maxsplit=1)[-1].lower() not in {"single", "scalar", "none"}
         )
     )
 
@@ -1589,9 +1743,7 @@ def _owner_key(*, operation: MetaProviderDeltaTypedOperation) -> str | None:
     return (
         optional_text(operation.current.get("owner_key"))
         or optional_text(operation.current.get("owner_semantic_key"))
-        or optional_text(
-            _attribute_signature(payload=operation.current).get("owner_key")
-        )
+        or optional_text(_attribute_signature(payload=operation.current).get("owner_key"))
         or _owner_key_from_semantic_key(operation.semantic_key)
     )
 
@@ -1630,16 +1782,13 @@ def _attribute_name_from_semantic_key(semantic_key: str) -> str | None:
     return raw_attribute.rsplit("/", maxsplit=1)[-1].rsplit(":", maxsplit=1)[-1]
 
 
-def _generated_relative_path(
-    *, operation: MetaProviderDeltaTypedOperation
-) -> str | None:
+def _generated_relative_path(*, operation: MetaProviderDeltaTypedOperation) -> str | None:
     for payload in (
         operation.current,
         operation.semantic_change_projection or {},
         operation.extra,
     ):
-        generated = mapping_value(payload.get("generated_materialization"))
-        python_orm = mapping_value(generated.get("python_orm"))
+        python_orm = orm_runtime_target_payload(payload)
         relative_path = optional_text(python_orm.get("relative_path"))
         if relative_path is not None:
             return relative_path
@@ -1691,9 +1840,7 @@ def _generated_target_relative_path(
         return None
     sources_root = _normalized_relative_path(context.sources_root)
     parts = tuple(part for part in normalized.split("/") if part)
-    if sources_root is not None and (
-        normalized == sources_root or normalized.startswith(f"{sources_root}/")
-    ):
+    if sources_root is not None and (normalized == sources_root or normalized.startswith(f"{sources_root}/")):
         return normalized
     if sources_root is not None and sources_root in parts:
         source_root_index = parts.index(sources_root)
@@ -1741,7 +1888,7 @@ def _python_attribute_create_insert_span(
     source_text: str,
     class_name: str,
     attribute_name: str,
-) -> tuple[int, int, str] | None:
+) -> tuple[int, int, str, str] | None:
     class_node = _python_class_node(source_text=source_text, class_name=class_name)
     if class_node is None or _python_class_has_attribute(
         class_node=class_node,
@@ -1753,7 +1900,11 @@ def _python_attribute_create_insert_span(
         None,
     )
     if pass_node is not None and len(class_node.body) == 1:
-        return _node_line_span(source_text=source_text, node=pass_node)
+        span = _node_line_span(source_text=source_text, node=pass_node)
+        if span is None:
+            return None
+        byte_start, byte_end, before_text = span
+        return byte_start, byte_end, before_text, "replace_pass"
     end_lineno_value = getattr(class_node, "end_lineno", None)
     if not isinstance(end_lineno_value, int):
         return None
@@ -1761,7 +1912,13 @@ def _python_attribute_create_insert_span(
     if end_lineno_value <= 0 or end_lineno_value > len(lines):
         return None
     insert_at = len("".join(lines[:end_lineno_value]).encode("utf-8"))
-    return insert_at, insert_at, ""
+    return insert_at, insert_at, "", "append"
+
+
+def _python_attribute_create_text(*, field_text: str, placement: str) -> str:
+    if placement == "replace_pass":
+        return f"    # Attributes\n{field_text}"
+    return field_text
 
 
 def _python_attribute_delete_span(
@@ -1788,11 +1945,7 @@ def _python_class_node(*, source_text: str, class_name: str) -> ast.ClassDef | N
     except SyntaxError:
         return None
     return next(
-        (
-            node
-            for node in ast.walk(tree)
-            if isinstance(node, ast.ClassDef) and node.name == class_name
-        ),
+        (node for node in ast.walk(tree) if isinstance(node, ast.ClassDef) and node.name == class_name),
         None,
     )
 
@@ -1854,13 +2007,9 @@ def _section_delta_relative_path(
         return None
     normalized_relative_path = relative_path.strip().lstrip("/")
     normalized_sources_root = (
-        sources_root.strip().strip("/")
-        if isinstance(sources_root, str) and sources_root.strip()
-        else None
+        sources_root.strip().strip("/") if isinstance(sources_root, str) and sources_root.strip() else None
     )
-    if normalized_sources_root is not None and normalized_relative_path.startswith(
-        f"{normalized_sources_root}/"
-    ):
+    if normalized_sources_root is not None and normalized_relative_path.startswith(f"{normalized_sources_root}/"):
         return normalized_relative_path[len(normalized_sources_root) + 1 :]
     return normalized_relative_path
 

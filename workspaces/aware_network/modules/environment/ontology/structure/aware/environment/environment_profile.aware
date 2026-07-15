@@ -1,0 +1,63 @@
+/// Applied Environment profile under a concrete Environment.
+///
+/// Contract:
+/// - Reusable OS topology config lives on EnvironmentProfileConfig.
+/// - This object is the concrete Environment application of that config.
+/// - Runtime Process instances live here; ProcessConfig is only the reusable key.
+/// - Runtime sessions are Environment-owned and resolve profile provenance
+///   through selected Process/Thread paths.
+class EnvironmentProfile {
+    // Relationships
+    profile_config EnvironmentProfileConfig key
+    processes process.Process[]
+
+    // Attributes
+    title String?
+    status String = "active"
+    description String?
+    metadata_json JsonObject? = {}
+
+    fn build construct (
+        profile_config_id UUID key,
+        title String? = null,
+        description String? = null,
+        status String = "active",
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentProfile {
+        """
+        Construct one applied EnvironmentProfile under an Environment.
+
+        Contract:
+        - Identity is derived from parent Environment path + ProfileConfig.
+        - This owns concrete runtime Process membership.
+        - It does not own process/thread/session reusable config topology.
+        - It links concrete Environment runtime state back to reusable config.
+        """
+    }
+
+    fn create_process (
+        process_config_id UUID key,
+        key String key,
+        title String,
+        description String? = null
+    ) -> process.Process {
+        """
+        Instantiate one runtime Process under this applied EnvironmentProfile.
+
+        Contract:
+        - EnvironmentProfile owns runtime Process membership.
+        - ProcessConfig remains a reusable config portal/key.
+        - Runtime identity is `(environment_profile_id via path, process_config_id, key)`.
+        """
+        let process = construct processes.build(
+            process_config_id = process_config_id,
+            key = key,
+            title = title,
+            description = description,
+        )
+    }
+
+}
+
+ann environment.EnvironmentProfile::profile_config load eager
+ann environment.EnvironmentProfile::processes load eager

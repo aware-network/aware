@@ -45,14 +45,21 @@ from aware_api_runtime.ir import (  # noqa: E402
     build_api_compile_plan,
     emit_api_compile_plan_artifact,
 )
+from aware_api_runtime.view_bindings import (  # noqa: E402
+    api_view_capability_endpoint_bindings_from_compile_plan,
+)
 from aware_api_runtime.compile import (  # noqa: E402
     compile_api_accessible_dependency_graphs_via_meta_runtime,
     compile_api_workspace,
 )
 from aware_api_runtime.ontology_graph.materialization import (  # noqa: E402
+    APIOntologyMaterializationSpec,
     build_api_ontology_materialization_plan,
     materialize_api_graph_ontology,
     resolve_api_ontology_materialization_specs,
+)
+from aware_api_runtime.ontology_graph.materialization.service import (  # noqa: E402
+    _build_api_plan_snapshot_objects,
 )
 from aware_api_runtime.ontology_graph.materialization.resolution import (  # noqa: E402
     _collect_accessible_object_config_graphs,
@@ -98,6 +105,13 @@ from aware_api_ontology.api.api_capability import ApiCapability  # noqa: E402
 from aware_api_ontology.api.api_capability_endpoint import (
     ApiCapabilityEndpoint,
 )  # noqa: E402
+from aware_api_ontology.api.api_view import ApiView  # noqa: E402
+from aware_api_ontology.api.api_view_capability_endpoint import (  # noqa: E402
+    ApiViewCapabilityEndpoint,
+)
+from aware_api_ontology.stable_ids import (  # noqa: E402
+    stable_api_view_capability_endpoint_id,
+)
 from aware_meta_ontology.graph.config.object_config_graph import (
     ObjectConfigGraph,
 )  # noqa: E402
@@ -116,9 +130,26 @@ from aware_meta_ontology.graph.projection.object_projection_graph_declaration im
 from aware_meta_ontology.graph.projection.object_projection_graph_binding import (  # noqa: E402
     ObjectProjectionGraphBinding,
 )
+from aware_meta_ontology.graph.config.object_config_graph_identity import (  # noqa: E402
+    ObjectConfigGraphIdentity,
+)
+from aware_meta_ontology.graph.projection.object_projection_graph import (  # noqa: E402
+    ObjectProjectionGraph,
+)
+from aware_meta_ontology.graph.projection.object_projection_graph_identity import (  # noqa: E402
+    ObjectProjectionGraphIdentity,
+)
+from aware_meta_ontology.graph.projection.object_projection_graph_observable import (  # noqa: E402
+    ObjectProjectionGraphObservable,
+)
 from aware_meta.materialization import (
     stable_object_config_graph_package_branch_id,
 )  # noqa: E402
+from aware_meta_ontology.stable_ids import (  # noqa: E402
+    stable_object_config_graph_identity_id,
+    stable_object_projection_graph_identity_id,
+    stable_object_projection_graph_observable_id,
+)
 from aware_meta_ontology.class_.class_config import ClassConfig  # noqa: E402
 
 _API_META_HANDLERS_ANY: Any = api_meta_handlers
@@ -132,8 +163,21 @@ _API_META_BOOTSTRAP_MODULE = cast(
 )
 
 
-def _fake_meta_leaf_result(graph: ObjectConfigGraph) -> SimpleNamespace:
-    return SimpleNamespace(object_config_graph=graph)
+def _fake_meta_leaf_result(
+    graph: ObjectConfigGraph,
+    *,
+    phase_timings_s: Mapping[str, float] | None = None,
+    semantic_commit_phase_timings_s: Mapping[str, float] | None = None,
+    semantic_commit_strategy: str = "",
+    semantic_commit_fallback_reset: bool = False,
+) -> SimpleNamespace:
+    return SimpleNamespace(
+        object_config_graph=graph,
+        phase_timings_s=phase_timings_s or {},
+        semantic_commit_phase_timings_s=semantic_commit_phase_timings_s or {},
+        semantic_commit_strategy=semantic_commit_strategy,
+        semantic_commit_fallback_reset=semantic_commit_fallback_reset,
+    )
 
 
 def _api_meta_package_manifest_paths(repo_root: Path) -> tuple[Path, ...]:
@@ -601,6 +645,7 @@ def _home_api_context_graph(
     request_class_config_id: UUID | None = None,
     response_class_config_id: UUID | None = None,
     include_source_layouts: bool = True,
+    extra_class_fqns: tuple[str, ...] = (),
 ) -> ObjectConfigGraph:
     graph_id = uuid4()
     request_class = ClassConfig(
@@ -649,6 +694,32 @@ def _home_api_context_graph(
             )
         ]
     nodes = [request_node, response_node]
+    for index, class_fqn in enumerate(extra_class_fqns, start=1):
+        class_name = class_fqn.rsplit(".", 1)[-1]
+        extra_class = ClassConfig(
+            id=uuid4(),
+            class_fqn=class_fqn,
+            name=class_name,
+            is_base=True,
+            class_config_attribute_configs=[],
+        )
+        extra_node = ObjectConfigGraphNode(
+            type=ObjectConfigGraphNodeType.class_,
+            node_key=extra_class.class_fqn,
+            object_config_graph_id=graph_id,
+            class_config=extra_class,
+        )
+        extra_class.object_config_graph_node_id = extra_node.id
+        if include_source_layouts:
+            extra_node.layouts = [
+                ObjectConfigGraphNodeLayout(
+                    object_config_graph_node_id=extra_node.id,
+                    layout_kind="aware",
+                    relative_path="door/views.aware",
+                    source_position=100 + index,
+                )
+            ]
+        nodes.append(extra_node)
     return ObjectConfigGraph(
         id=graph_id,
         name="home-api",
@@ -683,6 +754,14 @@ def _home_ontology_context_graph() -> ObjectConfigGraph:
             ),
         ],
     )
+
+
+def _without_namespace_identity(graph: ObjectConfigGraph) -> ObjectConfigGraph:
+    copied = graph.model_copy(deep=True)
+    for node in copied.object_config_graph_nodes:
+        node.class_config = None
+        node.enum_config = None
+    return copied
 
 
 def test_runtime_dependency_source_digest_ignores_runtime_tree(tmp_path: Path) -> None:
@@ -1305,6 +1384,37 @@ def test_api_dependency_graph_context_does_not_reuse_layoutless_source_owned_wor
     assert graphs is None
 
 
+def test_api_dependency_graph_context_does_not_reuse_namespace_less_source_owned_workspace_context(
+    tmp_path: Path,
+) -> None:
+    toml_path = _write_dependency_class_config_workspace(tmp_path)
+    with toml_path.open("a", encoding="utf-8") as handle:
+        handle.write(
+            "\n".join(
+                [
+                    "",
+                    "[[semantic_package_exports]]",
+                    'kind = "api_dto"',
+                    'package_name = "home-api"',
+                    'manifest_path = "apis/types/home/aware.toml"',
+                    "",
+                ]
+            )
+        )
+    snapshot = compile_api_workspace(toml_path=toml_path, repo_root=tmp_path).snapshot
+    namespace_less_api_graph = _without_namespace_identity(_home_api_context_graph())
+    ontology_graph = _home_ontology_context_graph()
+
+    graphs = api_materialization_service._api_dependency_graph_context_reusable_graphs_for_materialization(  # noqa: SLF001
+        snapshot=snapshot,
+        accessible_graphs=(ontology_graph, namespace_less_api_graph),
+        source="workspace_semantic_context",
+        dependency_repo_roots=(),
+    )
+
+    assert graphs is None
+
+
 @pytest.mark.asyncio
 async def test_source_owned_api_dto_pre_resolve_reuses_complete_runtime_graph_cache(
     tmp_path: Path,
@@ -1325,6 +1435,7 @@ async def test_source_owned_api_dto_pre_resolve_reuses_complete_runtime_graph_ca
             )
         )
     api_graph = _home_api_context_graph()
+    stale_workspace_api_graph = _without_namespace_identity(_home_api_context_graph())
     ontology_graph = _home_ontology_context_graph()
 
     monkeypatch.setattr(
@@ -1368,6 +1479,7 @@ async def test_source_owned_api_dto_pre_resolve_reuses_complete_runtime_graph_ca
         branch_id=uuid4(),
         workspace_root=tmp_path,
         api_toml_path=toml_path,
+        accessible_graphs=(stale_workspace_api_graph,),
     )
 
     assert graphs == (ontology_graph, api_graph)
@@ -1416,6 +1528,269 @@ async def test_source_owned_api_dto_pre_resolve_refreshes_only_stale_export_grap
         api_materialization_service,
         "_source_owned_api_dto_graph_cache_is_fresh_for_inputs",
         lambda **_: False,
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "find_meta_graph_projection_hash_by_name",
+        lambda **_: "projection-hash",
+    )
+
+    async def _refresh_via_meta(
+        *,
+        accessible_graphs: tuple[ObjectConfigGraph, ...],
+        **_: object,
+    ) -> tuple[ObjectConfigGraph, ...]:
+        refresh_inputs.append(tuple(graph.name for graph in accessible_graphs))
+        return (ontology_graph, refreshed_api_graph)
+
+    monkeypatch.setattr(
+        api_materialization_service,
+        "build_api_accessible_dependency_graphs_via_meta_runtime",
+        _refresh_via_meta,
+    )
+
+    graphs = await api_materialization_service.resolve_source_owned_api_dto_export_accessible_graphs(
+        runtime=cast(Any, object()),
+        index=cast(Any, object()),
+        actor_id=None,
+        branch_id=uuid4(),
+        workspace_root=tmp_path,
+        api_toml_path=toml_path,
+    )
+
+    assert refresh_inputs == [("home-ontology",)]
+    assert graphs == (ontology_graph, refreshed_api_graph)
+
+
+@pytest.mark.asyncio
+async def test_source_owned_api_dto_pre_resolve_replaces_stale_workspace_context_graph(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    toml_path = _write_dependency_class_config_workspace(tmp_path)
+    with toml_path.open("a", encoding="utf-8") as handle:
+        handle.write(
+            "\n".join(
+                [
+                    "",
+                    "[[semantic_package_exports]]",
+                    'kind = "api_dto"',
+                    'package_name = "home-api"',
+                    'manifest_path = "apis/types/home/aware.toml"',
+                    "",
+                ]
+            )
+        )
+    stale_workspace_api_graph = _without_namespace_identity(_home_api_context_graph())
+    stale_runtime_api_graph = _home_api_context_graph()
+    refreshed_api_graph = _home_api_context_graph()
+    ontology_graph = _home_ontology_context_graph()
+    refresh_inputs: list[tuple[str | None, ...]] = []
+
+    monkeypatch.setattr(
+        api_materialization_service,
+        "_complete_dependency_context_graphs_from_runtime_artifact",
+        lambda **_: (ontology_graph, stale_runtime_api_graph),
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "_compute_runtime_dependency_source_digest",
+        lambda **_: "current-digest",
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "load_api_accessible_dependency_graph_source_digests",
+        lambda **_: {"home-api": "stale-digest"},
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "_source_owned_api_dto_graph_cache_is_fresh_for_inputs",
+        lambda **_: False,
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "find_meta_graph_projection_hash_by_name",
+        lambda **_: "projection-hash",
+    )
+
+    async def _refresh_via_meta(
+        *,
+        accessible_graphs: tuple[ObjectConfigGraph, ...],
+        **_: object,
+    ) -> tuple[ObjectConfigGraph, ...]:
+        refresh_inputs.append(tuple(graph.name for graph in accessible_graphs))
+        return (ontology_graph, refreshed_api_graph)
+
+    monkeypatch.setattr(
+        api_materialization_service,
+        "build_api_accessible_dependency_graphs_via_meta_runtime",
+        _refresh_via_meta,
+    )
+
+    graphs = await api_materialization_service.resolve_source_owned_api_dto_export_accessible_graphs(
+        runtime=cast(Any, object()),
+        index=cast(Any, object()),
+        actor_id=None,
+        branch_id=uuid4(),
+        workspace_root=tmp_path,
+        api_toml_path=toml_path,
+        accessible_graphs=(stale_workspace_api_graph,),
+    )
+
+    assert refresh_inputs == [("home-ontology",)]
+    assert graphs == (ontology_graph, refreshed_api_graph)
+
+
+@pytest.mark.asyncio
+async def test_source_owned_api_dto_pre_resolve_keeps_only_authoritative_refresh_graph(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    toml_path = _write_dependency_class_config_workspace(tmp_path)
+    with toml_path.open("a", encoding="utf-8") as handle:
+        handle.write(
+            "\n".join(
+                [
+                    "",
+                    "[[semantic_package_exports]]",
+                    'kind = "api_dto"',
+                    'package_name = "home-api"',
+                    'manifest_path = "apis/types/home/aware.toml"',
+                    "",
+                ]
+            )
+        )
+    stale_runtime_api_graph = _home_api_context_graph()
+    stale_refresh_echo_graph = _without_namespace_identity(_home_api_context_graph())
+    refreshed_api_graph = _home_api_context_graph()
+    ontology_graph = _home_ontology_context_graph()
+
+    monkeypatch.setattr(
+        api_materialization_service,
+        "_complete_dependency_context_graphs_from_runtime_artifact",
+        lambda **_: (ontology_graph, stale_runtime_api_graph),
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "_compute_runtime_dependency_source_digest",
+        lambda **_: "current-digest",
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "load_api_accessible_dependency_graph_source_digests",
+        lambda **_: {"home-api": "stale-digest"},
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "_source_owned_api_dto_graph_cache_is_fresh_for_inputs",
+        lambda **_: False,
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "find_meta_graph_projection_hash_by_name",
+        lambda **_: "projection-hash",
+    )
+
+    async def _refresh_via_meta(**_: object) -> tuple[ObjectConfigGraph, ...]:
+        return (ontology_graph, stale_refresh_echo_graph, refreshed_api_graph)
+
+    monkeypatch.setattr(
+        api_materialization_service,
+        "build_api_accessible_dependency_graphs_via_meta_runtime",
+        _refresh_via_meta,
+    )
+
+    graphs = await api_materialization_service.resolve_source_owned_api_dto_export_accessible_graphs(
+        runtime=cast(Any, object()),
+        index=cast(Any, object()),
+        actor_id=None,
+        branch_id=uuid4(),
+        workspace_root=tmp_path,
+        api_toml_path=toml_path,
+    )
+
+    assert graphs == (ontology_graph, refreshed_api_graph)
+
+
+@pytest.mark.asyncio
+async def test_source_owned_api_dto_pre_resolve_refreshes_cache_missing_current_api_view_state(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    toml_path = _write_dependency_class_config_workspace(tmp_path)
+    with toml_path.open("a", encoding="utf-8") as handle:
+        handle.write(
+            "\n".join(
+                [
+                    "",
+                    "[[semantic_package_exports]]",
+                    'kind = "api_dto"',
+                    'package_name = "home-api"',
+                    'manifest_path = "apis/types/home/aware.toml"',
+                    "",
+                ]
+            )
+        )
+    (tmp_path / "bindings" / "service.apis.aware").write_text(
+        "\n".join(
+            [
+                "api dependency_proof {",
+                "    view door_panel on aware_home.Door.default state aware_home_api.door.DoorPanelViewState {",
+                "        stream snapshot",
+                "        endpoint refresh lock_door.lock_door",
+                "    }",
+                "    capability lock_door {",
+                "        endpoint lock_door aware_home_api.door.LockDoor {",
+                "            response aware_home_api.door.LockDoorResult",
+                "        }",
+                "    }",
+                "}",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (
+        tmp_path / "apis" / "types" / "home" / "aware" / "door" / "views.aware"
+    ).write_text(
+        "\n".join(
+            [
+                "class DoorPanelViewState {",
+                "    title String",
+                "}",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    stale_api_graph = _home_api_context_graph()
+    refreshed_api_graph = _home_api_context_graph(
+        extra_class_fqns=("aware_home_api.door.DoorPanelViewState",),
+    )
+    ontology_graph = _home_ontology_context_graph()
+    refresh_inputs: list[tuple[str | None, ...]] = []
+
+    monkeypatch.setattr(
+        api_materialization_service,
+        "_complete_dependency_context_graphs_from_runtime_artifact",
+        lambda **_: (ontology_graph, stale_api_graph),
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "_compute_runtime_dependency_source_digest",
+        lambda **_: "current-digest",
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "load_api_accessible_dependency_graph_source_digests",
+        lambda **_: {"home-api": "current-digest"},
+    )
+    monkeypatch.setattr(
+        api_materialization_service,
+        "_available_dependency_context_graphs_from_runtime_artifacts",
+        lambda **_: (_ for _ in ()).throw(
+            AssertionError("complete cache should refresh through semantic context")
+        ),
     )
     monkeypatch.setattr(
         api_materialization_service,
@@ -1586,8 +1961,7 @@ def _attach_home_door_projection(graph: ObjectConfigGraph) -> None:
                 ObjectProjectionGraphBinding.model_construct(
                     id=uuid4(),
                     fqn_prefix="aware_home",
-                    domain_name="default",
-                    schema_name="home",
+                    namespace="default.home",
                     class_name="Door",
                     attribute_name=None,
                     target_projection_name=None,
@@ -1721,6 +2095,78 @@ async def test_api_accessible_dependency_graphs_use_meta_runtime_package_materia
 
 
 @pytest.mark.asyncio
+async def test_api_accessible_dependency_graphs_reuse_direct_materialization_session_cache(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    toml_path = _write_dependency_class_config_workspace(tmp_path)
+    snapshot = compile_api_workspace(toml_path=toml_path, repo_root=tmp_path).snapshot
+    calls: list[str] = []
+
+    async def _fake_materialize_meta_package(**kwargs: object) -> SimpleNamespace:
+        aware_toml_path = Path(str(kwargs["aware_toml_path"]))
+        spec = load_aware_toml_spec(toml_path=aware_toml_path)
+        package_name = spec.package.package_name
+        calls.append(package_name)
+        if package_name == "home-api":
+            dependency_graphs = cast(list[ObjectConfigGraph], kwargs["external_graphs"])
+            assert [graph.name for graph in dependency_graphs] == ["home-ontology"]
+        graph = _test_object_config_graph(
+            package_name=package_name,
+            fqn_prefix=spec.package.fqn_prefix,
+        )
+        return _fake_meta_leaf_result(graph)
+
+    monkeypatch.setattr(
+        "aware_api_runtime.compile_materialization.service.materialize_object_config_graph_package_leaf_from_manifest",
+        _fake_materialize_meta_package,
+    )
+    api_materialization_service._API_DIRECT_DEPENDENCY_MATERIALIZATION_CACHE.clear()  # noqa: SLF001
+    branch_id = uuid4()
+    try:
+        first_graphs = await build_api_accessible_dependency_graphs_via_meta_runtime(
+            snapshot=snapshot,
+            runtime=cast(Any, object()),
+            index=cast(Any, SimpleNamespace(opg_by_hash={})),
+            actor_id=None,
+            branch_id=branch_id,
+            target_projection_hash="ObjectConfigGraphPackage",
+            object_config_graph_projection_hash="",
+            include_object_config_graph=True,
+        )
+        second_phase_timings: dict[str, float] = {}
+        second_graphs = await build_api_accessible_dependency_graphs_via_meta_runtime(
+            snapshot=snapshot,
+            runtime=cast(Any, object()),
+            index=cast(Any, SimpleNamespace(opg_by_hash={})),
+            actor_id=None,
+            branch_id=branch_id,
+            target_projection_hash="ObjectConfigGraphPackage",
+            object_config_graph_projection_hash="",
+            include_object_config_graph=True,
+            phase_timings_s=second_phase_timings,
+        )
+    finally:
+        api_materialization_service._API_DIRECT_DEPENDENCY_MATERIALIZATION_CACHE.clear()  # noqa: SLF001
+
+    assert calls == ["home-ontology", "home-api"]
+    assert [graph.name for graph in first_graphs] == ["home-ontology", "home-api"]
+    assert [graph.name for graph in second_graphs] == ["home-ontology", "home-api"]
+    assert (
+        second_phase_timings[
+            "api_dependency_direct_materialization.home-ontology.session_cache_hit"
+        ]
+        == 1.0
+    )
+    assert (
+        second_phase_timings[
+            "api_dependency_direct_materialization.home-api.session_cache_hit"
+        ]
+        == 1.0
+    )
+
+
+@pytest.mark.asyncio
 async def test_api_meta_runtime_materialization_reuses_available_dependency_graphs(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1772,6 +2218,103 @@ async def test_api_meta_runtime_materialization_reuses_available_dependency_grap
         for call in calls
     ] == ["home-api"]
     assert [graph.name for graph in graphs] == ["home-ontology", "home-api"]
+
+
+@pytest.mark.asyncio
+async def test_api_meta_runtime_materialization_records_direct_leaf_timings(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    toml_path = _write_dependency_class_config_workspace(tmp_path)
+    snapshot = compile_api_workspace(toml_path=toml_path, repo_root=tmp_path).snapshot
+    home_ontology = _test_object_config_graph(
+        package_name="home-ontology",
+        fqn_prefix="aware_home",
+        class_fqns=("aware_home.default.home.Door",),
+    )
+    phase_timings_s: dict[str, float] = {}
+    direct_details: list[Mapping[str, object]] = []
+
+    async def _fake_materialize_meta_package(**kwargs: object) -> SimpleNamespace:
+        aware_toml_path = Path(str(kwargs["aware_toml_path"]))
+        spec = load_aware_toml_spec(toml_path=aware_toml_path)
+        assert spec.package.package_name == "home-api"
+        graph = _test_object_config_graph(
+            package_name=spec.package.package_name,
+            fqn_prefix=spec.package.fqn_prefix,
+        )
+        return _fake_meta_leaf_result(
+            graph,
+            phase_timings_s={
+                "total": 1.25,
+                "build_object_config_graph_from_code": 0.33,
+            },
+            semantic_commit_phase_timings_s={
+                "total": 0.71,
+                "ensure_ocg_seeded_lane": 0.22,
+            },
+            semantic_commit_strategy="explicit_delta",
+            semantic_commit_fallback_reset=True,
+        )
+
+    monkeypatch.setattr(
+        "aware_api_runtime.compile_materialization.service.materialize_object_config_graph_package_leaf_from_manifest",
+        _fake_materialize_meta_package,
+    )
+
+    graphs = await build_api_accessible_dependency_graphs_via_meta_runtime(
+        snapshot=snapshot,
+        runtime=cast(Any, object()),
+        index=cast(Any, SimpleNamespace(opg_by_hash={})),
+        actor_id=None,
+        branch_id=uuid4(),
+        target_projection_hash="ObjectConfigGraphPackage",
+        object_config_graph_projection_hash="",
+        include_object_config_graph=True,
+        accessible_graphs=(home_ontology,),
+        phase_timings_s=phase_timings_s,
+        direct_dependency_materialization_details=direct_details,
+    )
+
+    assert [graph.name for graph in graphs] == ["home-ontology", "home-api"]
+    assert (
+        phase_timings_s[
+            "api_dependency_direct_materialization.home-api.meta_leaf.total"
+        ]
+        == 1.25
+    )
+    assert (
+        phase_timings_s[
+            "api_dependency_direct_materialization.home-api.meta_leaf."
+            "build_object_config_graph_from_code"
+        ]
+        == 0.33
+    )
+    assert (
+        phase_timings_s[
+            "api_dependency_direct_materialization.home-api.semantic_commit.total"
+        ]
+        == 0.71
+    )
+    assert direct_details == [
+        {
+            "package_name": "home-api",
+            "graph_id": str(graphs[1].id),
+            "graph_name": "home-api",
+            "graph_fqn_prefix": "aware_home_api",
+            "graph_node_count": len(graphs[1].object_config_graph_nodes),
+            "semantic_commit_strategy": "explicit_delta",
+            "semantic_commit_fallback_reset": True,
+            "phase_timings_s": {
+                "build_object_config_graph_from_code": 0.33,
+                "total": 1.25,
+            },
+            "semantic_commit_phase_timings_s": {
+                "ensure_ocg_seeded_lane": 0.22,
+                "total": 0.71,
+            },
+        }
+    ]
 
 
 @pytest.mark.asyncio
@@ -2341,6 +2884,524 @@ def test_api_materialization_specs_and_plan_from_compile_payload(
     assert api_payload["name"] == "api_anchor"
 
 
+@pytest.mark.asyncio
+async def test_api_plan_snapshot_objects_materialize_api_view(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "api_view_workspace"
+    root.mkdir(parents=True, exist_ok=True)
+    _ = (root / "aware.api.toml").write_text(
+        "\n".join(
+            [
+                "aware_api = 1",
+                "",
+                "[api]",
+                'package_name = "meta-graph-api"',
+                'fqn_prefix = "aware_meta_api"',
+                "",
+                "[build]",
+                'sources_dir = "bindings"',
+                'include_paths = ["**/*.aware"]',
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    bindings = root / "bindings"
+    bindings.mkdir(parents=True)
+    _ = (bindings / "meta_graph.apis.aware").write_text(
+        "\n".join(
+            [
+                "api meta_graph {",
+                "    view graph_canvas on aware_meta.MetaGraph.graph state aware_meta_api.graph.MetaGraphCanvasViewState {",
+                "        stream snapshot",
+                "        endpoint select_graph_canvas view_action.select_graph_canvas",
+                "    }",
+                "    capability view_action {",
+                "        endpoint select_graph_canvas aware_meta_api.graph.SelectGraphCanvasViewRequest {",
+                "            response aware_meta_api.graph.SelectGraphCanvasViewResponse;",
+                "        }",
+                "    }",
+                "}",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    state_model = ClassConfig(
+        id=uuid4(),
+        class_fqn="aware_meta_api.graph.MetaGraphCanvasViewState",
+        name="MetaGraphCanvasViewState",
+        is_base=True,
+        class_config_attribute_configs=[],
+    )
+    request_model_id = uuid4()
+    response_model_id = uuid4()
+    compile_result = compile_api_workspace(
+        toml_path=root / "aware.api.toml",
+        repo_root=root,
+    )
+    compile_plan = build_api_compile_plan(
+        snapshot=compile_result.snapshot,
+        dependency_class_config_ids={
+            state_model.class_fqn: state_model.id,
+            "aware_meta_api.graph.SelectGraphCanvasViewRequest": request_model_id,
+            "aware_meta_api.graph.SelectGraphCanvasViewResponse": response_model_id,
+        },
+    )
+    api_plan = compile_plan.api_ontology[0]
+    spec = APIOntologyMaterializationSpec(
+        api_name=api_plan.api.name,
+        source_path=api_plan.api.source_path,
+        plan=api_plan,
+    )
+
+    graph_id = uuid4()
+    opg = ObjectProjectionGraph(
+        id=uuid4(),
+        object_config_graph_id=graph_id,
+        language=CodeLanguage.aware,
+        name="MetaGraph",
+        projection_hash="sha256:meta_graph",
+        object_projection_graph_nodes=[],
+        object_projection_graph_edges=[],
+        object_projection_graph_constructors=[],
+        object_projection_graph_relationships=[],
+        object_instance_graphs=[],
+    )
+    ocgi_id = stable_object_config_graph_identity_id(key="aware_meta")
+    opgi_id = stable_object_projection_graph_identity_id(
+        object_config_graph_identity_id=ocgi_id,
+        object_projection_graph_id=opg.id,
+    )
+    observable_id = stable_object_projection_graph_observable_id(
+        object_projection_graph_identity_id=opgi_id,
+        observable_key="graph",
+    )
+    observable = ObjectProjectionGraphObservable(
+        id=observable_id,
+        object_projection_graph_identity_id=opgi_id,
+        key="MetaGraph:graph",
+        observable_key="graph",
+        kind="instance",
+    )
+    opgi = ObjectProjectionGraphIdentity(
+        id=opgi_id,
+        object_config_graph_identity_id=ocgi_id,
+        object_projection_graph_id=opg.id,
+        object_projection_graph=opg,
+        projection_name="MetaGraph",
+        object_projection_graph_observables=[observable],
+        object_instance_graph_identities=[],
+    )
+    ocgi = ObjectConfigGraphIdentity(
+        id=ocgi_id,
+        key="aware_meta",
+        label="ocg:aware_meta",
+        object_projection_graph_identities=[opgi],
+    )
+    graph = ObjectConfigGraph(
+        id=graph_id,
+        name="aware_meta",
+        fqn_prefix="aware_meta",
+        hash="sha256:aware_meta",
+        language=CodeLanguage.aware,
+        object_config_graph_nodes=[],
+        object_projection_graphs=[opg],
+        object_config_graph_identity=ocgi,
+    )
+    index = SimpleNamespace(
+        ocg=graph,
+        class_configs_by_id={state_model.id: state_model},
+        opg_by_id={opg.id: opg},
+        opg_by_hash={opg.projection_hash: opg},
+    )
+
+    api, objects_by_id = await _build_api_plan_snapshot_objects(
+        index=cast(Any, index),
+        spec=spec,
+        accessible_graphs=(graph,),
+    )
+
+    assert len(api.api_views) == 1
+    api_view = api.api_views[0]
+    assert isinstance(api_view, ApiView)
+    assert objects_by_id[api_view.id] is api_view
+    assert api_view.name == "graph_canvas"
+    assert api_view.object_projection_graph_observable_id == observable.id
+    assert api_view.state_model_id == state_model.id
+    assert api_view.view_ref == "meta_graph.graph_canvas"
+    assert api_view.view_key == "graph_canvas"
+    assert api_view.stream_policy is not None
+    assert api_view.stream_policy.stream_mode.value == "snapshot"
+    assert len(api.api_capabilities) == 1
+    capability = api.api_capabilities[0]
+    assert isinstance(capability, ApiCapability)
+    assert len(capability.api_capability_endpoints) == 1
+    endpoint = capability.api_capability_endpoints[0]
+    assert isinstance(endpoint, ApiCapabilityEndpoint)
+    assert endpoint.name == "select_graph_canvas"
+    assert len(api_view.capability_endpoints) == 1
+    view_endpoint = api_view.capability_endpoints[0]
+    assert isinstance(view_endpoint, ApiViewCapabilityEndpoint)
+    assert objects_by_id[view_endpoint.id] is view_endpoint
+    assert view_endpoint.id == stable_api_view_capability_endpoint_id(
+        api_view_id=api_view.id,
+        api_capability_endpoint_id=endpoint.id,
+    )
+    assert view_endpoint.api_view_id == api_view.id
+    assert view_endpoint.api_capability_endpoint_id == endpoint.id
+    assert view_endpoint.action_key == "select_graph_canvas"
+    assert view_endpoint.endpoint_ref == "meta_graph.view_action.select_graph_canvas"
+
+    bindings_from_compile_plan = (
+        api_view_capability_endpoint_bindings_from_compile_plan(
+            plan=compile_plan,
+            index=cast(Any, index),
+            accessible_graphs=(graph,),
+        )
+    )
+    assert len(bindings_from_compile_plan) == 1
+    compile_plan_binding = bindings_from_compile_plan[0]
+    assert compile_plan_binding.api_ref == "meta_graph"
+    assert compile_plan_binding.api_view_ref == "meta_graph.graph_canvas"
+    assert (
+        compile_plan_binding.endpoint_ref
+        == "meta_graph.view_action.select_graph_canvas"
+    )
+    assert compile_plan_binding.action_key == "select_graph_canvas"
+    assert compile_plan_binding.api_view_id == api_view.id
+    assert compile_plan_binding.api_capability_endpoint_id == endpoint.id
+    assert compile_plan_binding.api_view_capability_endpoint_id == view_endpoint.id
+
+
+@pytest.mark.asyncio
+async def test_api_plan_snapshot_objects_resolve_api_view_observable_from_accessible_graph_identity(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "api_view_accessible_graph_workspace"
+    root.mkdir(parents=True, exist_ok=True)
+    _ = (root / "aware.api.toml").write_text(
+        "\n".join(
+            [
+                "aware_api = 1",
+                "",
+                "[api]",
+                'package_name = "network-service-api"',
+                'fqn_prefix = "aware_network_service_api"',
+                "",
+                "[build]",
+                'sources_dir = "bindings"',
+                'include_paths = ["**/*.aware"]',
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    bindings = root / "bindings"
+    bindings.mkdir(parents=True)
+    _ = (bindings / "network.apis.aware").write_text(
+        "\n".join(
+            [
+                "api network {",
+                "    view territory_discovery on NetworkNode.territory state aware_network_service_dto.comms.view.NetworkTerritoryDiscoveryViewStateV1 {",
+                "        stream snapshot",
+                "        endpoint discover_territory discovery.discover_territory",
+                "    }",
+                "    capability discovery {",
+                "        endpoint discover_territory aware_network_service_dto.comms.models.NetworkDiscoverTerritoryRequest {",
+                "            response aware_network_service_dto.comms.models.NetworkDiscoverTerritoryResponse",
+                "        }",
+                "    }",
+                "}",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    state_model = ClassConfig(
+        id=uuid4(),
+        class_fqn=(
+            "aware_network_service_dto.comms.view."
+            "NetworkTerritoryDiscoveryViewStateV1"
+        ),
+        name="NetworkTerritoryDiscoveryViewStateV1",
+        is_base=True,
+        class_config_attribute_configs=[],
+    )
+    request_model_id = uuid4()
+    response_model_id = uuid4()
+    compile_result = compile_api_workspace(
+        toml_path=root / "aware.api.toml",
+        repo_root=root,
+    )
+    compile_plan = build_api_compile_plan(
+        snapshot=compile_result.snapshot,
+        dependency_class_config_ids={
+            state_model.class_fqn: state_model.id,
+            "aware_network_service_dto.comms.models.NetworkDiscoverTerritoryRequest": (
+                request_model_id
+            ),
+            "aware_network_service_dto.comms.models.NetworkDiscoverTerritoryResponse": (
+                response_model_id
+            ),
+        },
+    )
+    api_plan = compile_plan.api_ontology[0]
+    spec = APIOntologyMaterializationSpec(
+        api_name=api_plan.api.name,
+        source_path=api_plan.api.source_path,
+        plan=api_plan,
+    )
+
+    api_graph = ObjectConfigGraph(
+        id=uuid4(),
+        name="aware_network_service_api",
+        fqn_prefix="aware_network_service_api",
+        hash="sha256:aware_network_service_api",
+        language=CodeLanguage.aware,
+        object_config_graph_nodes=[],
+        object_projection_graphs=[],
+        object_config_graph_identity=ObjectConfigGraphIdentity(
+            id=stable_object_config_graph_identity_id(key="aware_network_service_api"),
+            key="aware_network_service_api",
+            label="ocg:aware_network_service_api",
+            object_projection_graph_identities=[],
+        ),
+    )
+    network_graph_id = uuid4()
+    network_opg = ObjectProjectionGraph(
+        id=uuid4(),
+        object_config_graph_id=network_graph_id,
+        language=CodeLanguage.aware,
+        name="NetworkNode",
+        projection_hash="sha256:network_node",
+        object_projection_graph_nodes=[],
+        object_projection_graph_edges=[],
+        object_projection_graph_constructors=[],
+        object_projection_graph_relationships=[],
+        object_instance_graphs=[],
+    )
+    network_ocgi_id = stable_object_config_graph_identity_id(key="aware_network")
+    network_opgi_id = stable_object_projection_graph_identity_id(
+        object_config_graph_identity_id=network_ocgi_id,
+        object_projection_graph_id=network_opg.id,
+    )
+    network_observable_id = stable_object_projection_graph_observable_id(
+        object_projection_graph_identity_id=network_opgi_id,
+        observable_key="territory",
+    )
+    network_observable = ObjectProjectionGraphObservable(
+        id=network_observable_id,
+        object_projection_graph_identity_id=network_opgi_id,
+        key="NetworkNode:territory",
+        observable_key="territory",
+        kind="instance",
+    )
+    network_opgi = ObjectProjectionGraphIdentity(
+        id=network_opgi_id,
+        object_config_graph_identity_id=network_ocgi_id,
+        object_projection_graph_id=network_opg.id,
+        object_projection_graph=network_opg,
+        projection_name="NetworkNode",
+        object_projection_graph_observables=[network_observable],
+        object_instance_graph_identities=[],
+    )
+    network_graph = ObjectConfigGraph(
+        id=network_graph_id,
+        name="aware_network",
+        fqn_prefix="aware_network",
+        hash="sha256:aware_network",
+        language=CodeLanguage.aware,
+        object_config_graph_nodes=[],
+        object_projection_graphs=[network_opg],
+        object_config_graph_identity=ObjectConfigGraphIdentity(
+            id=network_ocgi_id,
+            key="aware_network",
+            label="ocg:aware_network",
+            object_projection_graph_identities=[network_opgi],
+        ),
+    )
+    index = SimpleNamespace(
+        ocg=api_graph,
+        class_configs_by_id={state_model.id: state_model},
+        opg_by_id={},
+        opg_by_hash={},
+    )
+
+    api, _objects_by_id = await _build_api_plan_snapshot_objects(
+        index=cast(Any, index),
+        spec=spec,
+        accessible_graphs=(api_graph, network_graph),
+    )
+
+    assert len(api.api_views) == 1
+    api_view = api.api_views[0]
+    assert isinstance(api_view, ApiView)
+    assert api_view.name == "territory_discovery"
+    assert api_view.object_projection_graph_observable_id == network_observable.id
+    assert len(api_view.capability_endpoints) == 1
+    view_endpoint = api_view.capability_endpoints[0]
+    assert view_endpoint.action_key == "discover_territory"
+    assert view_endpoint.endpoint_ref == "network.discovery.discover_territory"
+
+
+@pytest.mark.asyncio
+async def test_api_plan_snapshot_objects_resolve_dotted_api_view_observable_key(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "api_view_dotted_observable_workspace"
+    root.mkdir(parents=True, exist_ok=True)
+    _ = (root / "aware.api.toml").write_text(
+        "\n".join(
+            [
+                "aware_api = 1",
+                "",
+                "[api]",
+                'package_name = "workspace-service-api"',
+                'fqn_prefix = "aware_workspace_service_api"',
+                "",
+                "[build]",
+                'sources_dir = "bindings"',
+                'include_paths = ["**/*.aware"]',
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    bindings = root / "bindings"
+    bindings.mkdir(parents=True)
+    _ = (bindings / "workspace.apis.aware").write_text(
+        "\n".join(
+            [
+                "api workspace {",
+                "    view control on Workspace.control.main state aware_workspace_service_dto.workspace.view.WorkspaceControlViewStateV1 {",
+                "        stream snapshot",
+                "        endpoint status status.status",
+                "    }",
+                "    capability status {",
+                "        endpoint status aware_workspace_service_dto.workspace.WorkspaceStatusRequest {",
+                "            response aware_workspace_service_dto.workspace.WorkspaceStatusResponse",
+                "        }",
+                "    }",
+                "}",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    state_model = ClassConfig(
+        id=uuid4(),
+        class_fqn=(
+            "aware_workspace_service_dto.workspace.view." "WorkspaceControlViewStateV1"
+        ),
+        name="WorkspaceControlViewStateV1",
+        is_base=True,
+        class_config_attribute_configs=[],
+    )
+    request_model_id = uuid4()
+    response_model_id = uuid4()
+    compile_result = compile_api_workspace(
+        toml_path=root / "aware.api.toml",
+        repo_root=root,
+    )
+    compile_plan = build_api_compile_plan(
+        snapshot=compile_result.snapshot,
+        dependency_class_config_ids={
+            state_model.class_fqn: state_model.id,
+            "aware_workspace_service_dto.workspace.WorkspaceStatusRequest": (
+                request_model_id
+            ),
+            "aware_workspace_service_dto.workspace.WorkspaceStatusResponse": (
+                response_model_id
+            ),
+        },
+    )
+    api_plan = compile_plan.api_ontology[0]
+    spec = APIOntologyMaterializationSpec(
+        api_name=api_plan.api.name,
+        source_path=api_plan.api.source_path,
+        plan=api_plan,
+    )
+
+    graph_id = uuid4()
+    opg = ObjectProjectionGraph(
+        id=uuid4(),
+        object_config_graph_id=graph_id,
+        language=CodeLanguage.aware,
+        name="Workspace",
+        projection_hash="sha256:workspace",
+        object_projection_graph_nodes=[],
+        object_projection_graph_edges=[],
+        object_projection_graph_constructors=[],
+        object_projection_graph_relationships=[],
+        object_instance_graphs=[],
+    )
+    ocgi_id = stable_object_config_graph_identity_id(key="aware_workspace")
+    opgi_id = stable_object_projection_graph_identity_id(
+        object_config_graph_identity_id=ocgi_id,
+        object_projection_graph_id=opg.id,
+    )
+    observable_id = stable_object_projection_graph_observable_id(
+        object_projection_graph_identity_id=opgi_id,
+        observable_key="control.main",
+    )
+    observable = ObjectProjectionGraphObservable(
+        id=observable_id,
+        object_projection_graph_identity_id=opgi_id,
+        key="Workspace:control.main",
+        observable_key="control.main",
+        kind="instance",
+    )
+    opgi = ObjectProjectionGraphIdentity(
+        id=opgi_id,
+        object_config_graph_identity_id=ocgi_id,
+        object_projection_graph_id=opg.id,
+        object_projection_graph=opg,
+        projection_name="Workspace",
+        object_projection_graph_observables=[observable],
+        object_instance_graph_identities=[],
+    )
+    graph = ObjectConfigGraph(
+        id=graph_id,
+        name="aware_workspace",
+        fqn_prefix="aware_workspace",
+        hash="sha256:aware_workspace",
+        language=CodeLanguage.aware,
+        object_config_graph_nodes=[],
+        object_projection_graphs=[opg],
+        object_config_graph_identity=ObjectConfigGraphIdentity(
+            id=ocgi_id,
+            key="aware_workspace",
+            label="ocg:aware_workspace",
+            object_projection_graph_identities=[opgi],
+        ),
+    )
+    index = SimpleNamespace(
+        ocg=graph,
+        class_configs_by_id={state_model.id: state_model},
+        opg_by_id={opg.id: opg},
+        opg_by_hash={opg.projection_hash: opg},
+    )
+
+    api, _objects_by_id = await _build_api_plan_snapshot_objects(
+        index=cast(Any, index),
+        spec=spec,
+        accessible_graphs=(graph,),
+    )
+
+    assert len(api.api_views) == 1
+    api_view = api.api_views[0]
+    assert isinstance(api_view, ApiView)
+    assert api_view.name == "control"
+    assert api_view.object_projection_graph_observable_id == observable.id
+    assert api_view.state_model_id == state_model.id
+    assert len(api_view.capability_endpoints) == 1
+    view_endpoint = api_view.capability_endpoints[0]
+    assert view_endpoint.action_key == "status"
+    assert view_endpoint.endpoint_ref == "workspace.status.status"
+
+
 def test_projection_match_requires_canonical_projection_identity() -> None:
     graph = SimpleNamespace(fqn_prefix="aware_attention")
     opg = SimpleNamespace(name="FocusScope")
@@ -2432,6 +3493,95 @@ def test_accessible_graph_collection_prefers_runtime_artifact_projection_detail(
         ).name
         == "FocusScope"
     )
+
+
+def test_accessible_graph_collection_prefers_observable_identity_detail() -> None:
+    graph_id = uuid4()
+    opg = ObjectProjectionGraph(
+        id=uuid4(),
+        object_config_graph_id=graph_id,
+        language=CodeLanguage.aware,
+        name="NetworkNode",
+        projection_hash="sha256:network-node",
+        object_projection_graph_nodes=[],
+        object_projection_graph_edges=[],
+        object_projection_graph_constructors=[],
+        object_projection_graph_relationships=[],
+        object_instance_graphs=[],
+    )
+    ocgi_id = stable_object_config_graph_identity_id(key="aware_network")
+    opgi_id = stable_object_projection_graph_identity_id(
+        object_config_graph_identity_id=ocgi_id,
+        object_projection_graph_id=opg.id,
+    )
+    observable = ObjectProjectionGraphObservable(
+        id=stable_object_projection_graph_observable_id(
+            object_projection_graph_identity_id=opgi_id,
+            observable_key="territory",
+        ),
+        object_projection_graph_identity_id=opgi_id,
+        key="NetworkNode:territory",
+        observable_key="territory",
+        kind="instance",
+    )
+    graph_with_observable_identity = SimpleNamespace(
+        id=graph_id,
+        name="aware_network",
+        fqn_prefix="aware_network",
+        object_projection_graphs=(opg,),
+        object_config_graph_nodes=(),
+        object_config_graph_bindings=(),
+        object_config_graph_relationships=(),
+        object_config_graph_identity=ObjectConfigGraphIdentity(
+            id=ocgi_id,
+            key="aware_network",
+            label="ocg:aware_network",
+            object_projection_graph_identities=[
+                ObjectProjectionGraphIdentity(
+                    id=opgi_id,
+                    object_config_graph_identity_id=ocgi_id,
+                    object_projection_graph_id=opg.id,
+                    object_projection_graph=opg,
+                    projection_name="NetworkNode",
+                    object_projection_graph_observables=[observable],
+                    object_instance_graph_identities=[],
+                )
+            ],
+        ),
+    )
+    graph_without_observable_identity = SimpleNamespace(
+        id=graph_id,
+        name="aware_network",
+        fqn_prefix="aware_network",
+        object_projection_graphs=(opg,),
+        object_config_graph_nodes=(object(), object()),
+        object_config_graph_bindings=(),
+        object_config_graph_relationships=(),
+        object_config_graph_identity=None,
+    )
+    root_graph = SimpleNamespace(
+        id=uuid4(),
+        name="sdk",
+        fqn_prefix="aware_sdk",
+        object_projection_graphs=(),
+        object_config_graph_nodes=(),
+        object_config_graph_bindings=(),
+        object_config_graph_relationships=(
+            SimpleNamespace(
+                target_object_config_graph=graph_without_observable_identity,
+            ),
+        ),
+        object_config_graph_identity=None,
+    )
+    index = SimpleNamespace(ocg=root_graph)
+
+    accessible_graphs = _collect_accessible_object_config_graphs(
+        index=cast(Any, index),
+        extra_graphs=(cast(Any, graph_with_observable_identity),),
+    )
+
+    assert graph_with_observable_identity in accessible_graphs
+    assert graph_without_observable_identity not in accessible_graphs
 
 
 def test_api_endpoint_catalog_detects_partial_committed_api_lane() -> None:
@@ -2780,7 +3930,7 @@ def test_api_product_materialization_uses_meta_graph_transform_service(
     assert result.files == [tmp_path / "generated.py"]
 
 
-def test_api_dto_full_render_cleans_stale_runtime_and_python_package_output(
+def test_api_dto_full_render_cleans_nested_runtime_without_predeleting_package_output(
     tmp_path: Path,
 ) -> None:
     from aware_api_runtime.packages import materialization as product_materialization
@@ -2792,7 +3942,13 @@ def test_api_dto_full_render_cleans_stale_runtime_and_python_package_output(
 
     aware_root = tmp_path
     runtime_output_dir = (
-        aware_root / ".aware" / "api" / "runtime" / "environment-service-dto"
+        aware_root
+        / "workspaces"
+        / "aware_kernel"
+        / ".aware"
+        / "api"
+        / "runtime"
+        / "environment-service-dto"
     )
     stale_runtime_file = runtime_output_dir / "render" / "stale.py"
     stale_runtime_file.parent.mkdir(parents=True, exist_ok=True)
@@ -2835,7 +3991,89 @@ def test_api_dto_full_render_cleans_stale_runtime_and_python_package_output(
     )
 
     assert not stale_runtime_file.exists()
-    assert not stale_package_file.exists()
+    assert stale_package_file.exists()
+
+
+def test_api_dto_render_contract_rejects_missing_declared_entity_files(
+    tmp_path: Path,
+) -> None:
+    from aware_api_runtime.packages import materialization as product_materialization
+    from aware_meta.graph.config.package_strategy import ObjectConfigGraphPackageSpec
+    from aware_meta.materialization.schemas import (
+        MaterializationConfig,
+        MaterializationSource,
+    )
+
+    graph_id = uuid4()
+    class_config = ClassConfig.model_construct(
+        id=uuid4(),
+        class_fqn="aware_environment_service_dto.environment.EnvironmentRequest",
+        name="EnvironmentRequest",
+        class_config_attribute_configs=[],
+        class_config_function_configs=[],
+        class_config_relationships=[],
+    )
+    language_graph = ObjectConfigGraph.model_construct(
+        id=graph_id,
+        name="environment-service-dto",
+        fqn_prefix="aware_environment_service_dto",
+        language=CodeLanguage.python,
+        object_config_graph_nodes=[
+            ObjectConfigGraphNode.model_construct(
+                id=uuid4(),
+                object_config_graph_id=graph_id,
+                type=ObjectConfigGraphNodeType.class_,
+                node_key=class_config.class_fqn,
+                class_config=class_config,
+                enum_config=None,
+                layouts=[],
+            )
+        ],
+    )
+
+    class _FakePythonLayout:
+        language = CodeLanguage.python
+
+        def get_class_file_path(self, class_config: ClassConfig) -> Path:
+            _ = class_config
+            return Path("environment/request.py")
+
+        def get_enum_file_path(self, enum_config: object) -> Path:
+            _ = enum_config
+            return Path("environment/request_enums.py")
+
+    materialization_config = MaterializationConfig(
+        name="environment-service-dto",
+        target_language=CodeLanguage.python,
+        target_output_dir=tmp_path / "render",
+        source_package_name="environment-service-dto",
+        import_root="aware_environment_service_dto",
+        source=MaterializationSource.api,
+        packages=[
+            ObjectConfigGraphPackageSpec(
+                name="environment-service-dto",
+                package_name="environment-service-dto",
+                package_root=tmp_path / "python",
+                import_root="aware_environment_service_dto",
+                metadata={"aware_package_kind": "api_dto"},
+            )
+        ],
+    )
+
+    with pytest.raises(RuntimeError, match="did not produce declared entity files"):
+        product_materialization._validate_api_dto_rendered_entity_files(
+            layout_strategy=cast(Any, _FakePythonLayout()),
+            language_graph=language_graph,
+            materialization_config=materialization_config,
+            rendered_files=(),
+        )
+
+    product_materialization._validate_api_dto_rendered_entity_files(
+        layout_strategy=cast(Any, _FakePythonLayout()),
+        language_graph=language_graph,
+        materialization_config=materialization_config,
+        rendered_files=(tmp_path / "render" / "environment" / "request.py",),
+    )
 
 
 def _generated_view_api_compile_plan_payload() -> dict[str, object]:
@@ -2978,19 +4216,24 @@ async def test_home_sample_api_runtime_resolution_includes_workspace_api_depende
         for node in graph.object_config_graph_nodes
         if node.class_config is not None and node.class_config.class_fqn
     }
-    assert "aware_home_api.default.door.DoorByLabel" in class_fqns
-    dependency_class_config_ids = await asyncio.to_thread(
-        load_api_dependency_class_config_ids,
-        snapshot=compile_result.snapshot,
-    )
-    door_by_label_id = dependency_class_config_ids["aware_home_api.door.DoorByLabel"]
+    assert "aware_home_api.door.DoorByLabel" in class_fqns
     graph_class_config_ids = {
         node.class_config.id
         for graph in dependency_graphs
         for node in graph.object_config_graph_nodes
         if node.class_config is not None
     }
-    assert door_by_label_id in graph_class_config_ids
+    assert compile_result.compile_plan is not None
+    door_by_label_ids = {
+        endpoint.request_config.class_config_id
+        for api in compile_result.compile_plan.api_ownership
+        for capability in api.capabilities
+        for endpoint in capability.endpoints
+        if endpoint.request_config.class_ref == "aware_home_api.door.DoorByLabel"
+        and endpoint.request_config.class_config_id is not None
+    }
+    assert door_by_label_ids
+    assert door_by_label_ids <= graph_class_config_ids
 
 
 def test_api_runtime_dependency_build_is_externalized() -> None:

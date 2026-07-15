@@ -1,0 +1,25 @@
+/// Graph-level binding edge for one program port-node contract.
+///
+/// Contract:
+/// - Wires one ProgramConfigPortProjectionExperienceNode requirement to one
+///   shared projection node-class identity bridge.
+/// - Keeps ProgramConfig pure contract while enabling deterministic runtime resolution.
+class ProgramConfigGraphProgramConfigPortProjectionExperienceNodeClass {
+    // Relationships
+    projection_experience_node_class_identity aware_experience.projection.ProjectionExperienceNodeClassIdentity key
+    program_config_port_projection_experience_node aware_experience.program.ProgramConfigPortProjectionExperienceNode key
+
+    // Attributes
+    key String?
+
+    fn build construct (
+        program_config_port_projection_experience_node_id UUID key,
+        projection_experience_node_class_identity_id UUID key,
+        key String? = null
+    ) -> ProgramConfigGraphProgramConfigPortProjectionExperienceNodeClass {
+        """
+        Create deterministic ProgramConfigGraphProgramConfigPortProjectionExperienceNodeClass
+        under ProgramConfigGraphProgramConfig.
+        """
+    }
+}

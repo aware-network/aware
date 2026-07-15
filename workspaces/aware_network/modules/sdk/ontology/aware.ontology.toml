@@ -1,0 +1,39 @@
+aware_ontology = 1
+
+[ontology]
+package_name = "sdk-ontology"
+fqn_prefix = "aware_sdk"
+version_number = 1
+title = "SDK Ontology"
+description = "Canonical SDK module for local orchestration over API capability endpoints."
+source_manifest = "structure/aware.toml"
+package_root = "."
+sources_root = "structure/aware"
+stable_ids_ownership = "compiler"
+stable_ids_parity_policy = "error"
+stable_ids_resolution_policy = "class_strict"
+
+[layout]
+profile = "ontology_structure_v1"
+runtime_dir = "runtime/python"
+
+[runtime]
+manifest = "runtime/python/pyproject.toml"
+project_name = "aware-sdk-runtime"
+import_root = "aware_sdk_runtime"
+
+[semantic_contract]
+provider_key = "aware_sdk"
+role = "aware_sdk.provider"
+module = "aware_sdk_runtime.semantic_contract"
+owns_manifest_kinds = ["aware_sdk_toml"]
+capabilities = ["semantic_tokens"]
+
+[[dependencies]]
+package_name = "api-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "meta-ontology"

@@ -386,6 +386,34 @@ async def _call_api__create_capability(*, bound_input: JsonObject, target: ORMMo
     return result
 
 
+def _bind_api__create_view(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "name",
+            "object_projection_graph_observable_id",
+            "state_model_id",
+            "view_ref",
+            "view_key",
+            "description",
+        ),
+        function_name="create_view",
+    )
+
+
+async def _call_api__create_view(*, bound_input: JsonObject, target: ORMModel | None = None) -> object:
+    from aware_api_runtime.handlers.impl.api.api import create_view as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: Api.create_view"
+        )
+    result = await _impl(api=target, **call_kwargs)
+    return result
+
+
 def _bind_api_call__create_outcome(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
     return _bind_keyword_payload(
         positional=positional,
@@ -402,6 +430,27 @@ async def _call_api_call__create_outcome(*, bound_input: JsonObject, target: ORM
     if target is None:
         raise MetaGraphLanguageHandlerExecutionError(
             "Generated Meta instance invocation requires target: ApiCall.create_outcome"
+        )
+    result = await _impl(api_call=target, **call_kwargs)
+    return result
+
+
+def _bind_api_call__record_stream_event(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=("sequence", "api_capability_endpoint_stream_event_config_id", "description"),
+        function_name="record_stream_event",
+    )
+
+
+async def _call_api_call__record_stream_event(*, bound_input: JsonObject, target: ORMModel | None = None) -> object:
+    from aware_api_runtime.handlers.impl.api.api_call import record_stream_event as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: ApiCall.record_stream_event"
         )
     result = await _impl(api_call=target, **call_kwargs)
     return result
@@ -509,6 +558,63 @@ def _root_id_api_call_outcome__build_via_api_call(
     if _aware_missing_self_keys:
         raise MetaGraphLanguageHandlerExecutionError(
             "Missing stable-id input for generated Meta constructor bootstrap: ApiCallOutcome.build_via_api_call"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_api_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
+def _bind_api_call_stream_event__create_via_api_call(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=("api_call_id", "sequence", "api_capability_endpoint_stream_event_config_id", "description"),
+        function_name="create_via_api_call",
+    )
+
+
+async def _call_api_call_stream_event__create_via_api_call(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    from aware_api_runtime.handlers.impl.api.api_call_stream_event import create_via_api_call as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_api_call_stream_event__create_via_api_call(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_api_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    api_call_id = bound_input.get("api_call_id")
+    sequence = bound_input.get("sequence")
+    api_capability_endpoint_stream_event_config_id = bound_input.get("api_capability_endpoint_stream_event_config_id")
+    description = bound_input.get("description")
+    if description is None:
+        description = None
+    _aware_self_values = {
+        "api_call_id": api_call_id,
+        "sequence": sequence,
+        "api_capability_endpoint_stream_event_config_id": api_capability_endpoint_stream_event_config_id,
+        "description": description,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("62b646d0-907e-57be-a122-205dc839e8e1")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: ApiCallStreamEvent.create_via_api_call"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: ApiCallStreamEvent.create_via_api_call"
             + f": {_aware_missing_self_keys}"
         )
     _aware_self_stable_values = {
@@ -1797,6 +1903,229 @@ def _root_id_api_package_language_package__build_via_api_package(
     return getattr(import_module("aware_api_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
 
 
+def _bind_api_view__set_stream_policy(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=("stream_mode", "description"),
+        function_name="set_stream_policy",
+    )
+
+
+async def _call_api_view__set_stream_policy(*, bound_input: JsonObject, target: ORMModel | None = None) -> object:
+    from aware_api_runtime.handlers.impl.api.api_view import set_stream_policy as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: ApiView.set_stream_policy"
+        )
+    result = await _impl(api_view=target, **call_kwargs)
+    return result
+
+
+def _bind_api_view__bind_capability_endpoint(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=("action_key", "api_capability_endpoint_id", "endpoint_ref", "description"),
+        function_name="bind_capability_endpoint",
+    )
+
+
+async def _call_api_view__bind_capability_endpoint(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> object:
+    from aware_api_runtime.handlers.impl.api.api_view import bind_capability_endpoint as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: ApiView.bind_capability_endpoint"
+        )
+    result = await _impl(api_view=target, **call_kwargs)
+    return result
+
+
+def _bind_api_view__create_via_api(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "api_id",
+            "object_projection_graph_observable_id",
+            "name",
+            "state_model_id",
+            "view_ref",
+            "view_key",
+            "description",
+        ),
+        function_name="create_via_api",
+    )
+
+
+async def _call_api_view__create_via_api(*, bound_input: JsonObject, target: ORMModel | None = None) -> ORMModel:
+    from aware_api_runtime.handlers.impl.api.api_view import create_via_api as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_api_view__create_via_api(*, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject):
+    from importlib import import_module
+    from aware_api_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    api_id = bound_input.get("api_id")
+    object_projection_graph_observable_id = bound_input.get("object_projection_graph_observable_id")
+    name = bound_input.get("name")
+    state_model_id = bound_input.get("state_model_id")
+    view_ref = bound_input.get("view_ref")
+    view_key = bound_input.get("view_key")
+    if view_key is None:
+        view_key = None
+    description = bound_input.get("description")
+    if description is None:
+        description = None
+    _aware_self_values = {
+        "api_id": api_id,
+        "object_projection_graph_observable_id": object_projection_graph_observable_id,
+        "name": name,
+        "state_model_id": state_model_id,
+        "view_ref": view_ref,
+        "view_key": view_key,
+        "description": description,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("4997a134-251f-58a7-a23d-cbe5b3e683f6")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: ApiView.create_via_api"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: ApiView.create_via_api"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_api_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
+def _bind_api_view_capability_endpoint__build_via_api_view(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=("api_view_id", "action_key", "api_capability_endpoint_id", "endpoint_ref", "description"),
+        function_name="build_via_api_view",
+    )
+
+
+async def _call_api_view_capability_endpoint__build_via_api_view(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    from aware_api_runtime.handlers.impl.api.api_view_capability_endpoint import build_via_api_view as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_api_view_capability_endpoint__build_via_api_view(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_api_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    api_view_id = bound_input.get("api_view_id")
+    action_key = bound_input.get("action_key")
+    api_capability_endpoint_id = bound_input.get("api_capability_endpoint_id")
+    endpoint_ref = bound_input.get("endpoint_ref")
+    description = bound_input.get("description")
+    if description is None:
+        description = None
+    _aware_self_values = {
+        "api_view_id": api_view_id,
+        "action_key": action_key,
+        "api_capability_endpoint_id": api_capability_endpoint_id,
+        "endpoint_ref": endpoint_ref,
+        "description": description,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("634a6db1-f04f-5db8-a6ef-b1790472e47d")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: ApiViewCapabilityEndpoint.build_via_api_view"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: ApiViewCapabilityEndpoint.build_via_api_view"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_api_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
+def _bind_api_view_stream_policy__build_via_api_view(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=("api_view_id", "stream_mode", "description"),
+        function_name="build_via_api_view",
+    )
+
+
+async def _call_api_view_stream_policy__build_via_api_view(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    from aware_api_runtime.handlers.impl.api.api_view_stream_policy import build_via_api_view as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_api_view_stream_policy__build_via_api_view(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_api_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    api_view_id = bound_input.get("api_view_id")
+    stream_mode = bound_input.get("stream_mode")
+    description = bound_input.get("description")
+    if description is None:
+        description = None
+    _aware_self_values = {"api_view_id": api_view_id, "stream_mode": stream_mode, "description": description}
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("ab47e10d-8d6e-51e6-8bc9-04b5e109920e")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: ApiViewStreamPolicy.build_via_api_view"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: ApiViewStreamPolicy.build_via_api_view"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_api_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
 async def api__create__handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -1898,6 +2227,33 @@ async def api__create_capability__handler(
     )
 
 
+async def api__create_view__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_api__create_view(positional=positional, keyword=keyword)
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="Api",
+    )
+    result = await _call_api__create_view(bound_input=bound_input, target=target)
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
 async def api_call__create_outcome__handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -1911,6 +2267,33 @@ async def api_call__create_outcome__handler(
         expected_class_name="ApiCall",
     )
     result = await _call_api_call__create_outcome(bound_input=bound_input, target=target)
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
+async def api_call__record_stream_event__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_api_call__record_stream_event(positional=positional, keyword=keyword)
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="ApiCall",
+    )
+    result = await _call_api_call__record_stream_event(bound_input=bound_input, target=target)
     changes, constructed_class_instance_ids = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
@@ -2016,6 +2399,53 @@ def api_call_outcome__build_via_api_call__empty_lane_bootstrap(
         root_object_id=root_object_id,
         name="ApiCallOutcome",
         description="Meta constructor bootstrap for ApiCallOutcome.",
+    )
+
+
+async def api_call_stream_event__create_via_api_call__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_api_call_stream_event__create_via_api_call(positional=positional, keyword=keyword)
+    result = await _call_api_call_stream_event__create_via_api_call(bound_input=bound_input)
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="ApiCallStreamEvent")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def api_call_stream_event__create_via_api_call__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_api_call_stream_event__create_via_api_call(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_api_call_stream_event__create_via_api_call(request=request, bound_input=bound_input)
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="ApiCallStreamEvent",
+        description="Meta constructor bootstrap for ApiCallStreamEvent.",
     )
 
 
@@ -3132,6 +3562,201 @@ def api_package_language_package__build_via_api_package__empty_lane_bootstrap(
     )
 
 
+async def api_view__set_stream_policy__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_api_view__set_stream_policy(positional=positional, keyword=keyword)
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="ApiView",
+    )
+    result = await _call_api_view__set_stream_policy(bound_input=bound_input, target=target)
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
+async def api_view__bind_capability_endpoint__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_api_view__bind_capability_endpoint(positional=positional, keyword=keyword)
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="ApiView",
+    )
+    result = await _call_api_view__bind_capability_endpoint(bound_input=bound_input, target=target)
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
+async def api_view__create_via_api__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_api_view__create_via_api(positional=positional, keyword=keyword)
+    result = await _call_api_view__create_via_api(bound_input=bound_input)
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="ApiView")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def api_view__create_via_api__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_api_view__create_via_api(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_api_view__create_via_api(request=request, bound_input=bound_input)
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="ApiView",
+        description="Meta constructor bootstrap for ApiView.",
+    )
+
+
+async def api_view_capability_endpoint__build_via_api_view__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_api_view_capability_endpoint__build_via_api_view(positional=positional, keyword=keyword)
+    result = await _call_api_view_capability_endpoint__build_via_api_view(bound_input=bound_input)
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="ApiViewCapabilityEndpoint")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def api_view_capability_endpoint__build_via_api_view__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_api_view_capability_endpoint__build_via_api_view(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_api_view_capability_endpoint__build_via_api_view(request=request, bound_input=bound_input)
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="ApiViewCapabilityEndpoint",
+        description="Meta constructor bootstrap for ApiViewCapabilityEndpoint.",
+    )
+
+
+async def api_view_stream_policy__build_via_api_view__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_api_view_stream_policy__build_via_api_view(positional=positional, keyword=keyword)
+    result = await _call_api_view_stream_policy__build_via_api_view(bound_input=bound_input)
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="ApiViewStreamPolicy")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def api_view_stream_policy__build_via_api_view__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_api_view_stream_policy__build_via_api_view(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_api_view_stream_policy__build_via_api_view(request=request, bound_input=bound_input)
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="ApiViewStreamPolicy",
+        description="Meta constructor bootstrap for ApiViewStreamPolicy.",
+    )
+
+
 async def api__create__invocation_handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -3176,6 +3801,20 @@ async def api__create_capability__invocation_handler(
     return await _call_api__create_capability(bound_input=bound_input, target=target)
 
 
+async def api__create_view__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_api__create_view(positional=positional, keyword=keyword)
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_api__create_view(bound_input=bound_input, target=target)
+
+
 async def api_call__create_outcome__invocation_handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -3188,6 +3827,20 @@ async def api_call__create_outcome__invocation_handler(
     if not isinstance(target, ORMModel):
         raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
     return await _call_api_call__create_outcome(bound_input=bound_input, target=target)
+
+
+async def api_call__record_stream_event__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_api_call__record_stream_event(positional=positional, keyword=keyword)
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_api_call__record_stream_event(bound_input=bound_input, target=target)
 
 
 async def api_call__create_via_api_capability_endpoint__invocation_handler(
@@ -3220,6 +3873,22 @@ async def api_call_outcome__build_via_api_call__invocation_handler(
             "Generated Meta constructor invocation requires ORMModel class target."
         )
     return await _call_api_call_outcome__build_via_api_call(bound_input=bound_input)
+
+
+async def api_call_stream_event__create_via_api_call__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_api_call_stream_event__create_via_api_call(positional=positional, keyword=keyword)
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_api_call_stream_event__create_via_api_call(bound_input=bound_input)
 
 
 async def api_capability__create_endpoint__invocation_handler(
@@ -3688,6 +4357,82 @@ async def api_package_language_package__build_via_api_package__invocation_handle
     return await _call_api_package_language_package__build_via_api_package(bound_input=bound_input)
 
 
+async def api_view__set_stream_policy__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_api_view__set_stream_policy(positional=positional, keyword=keyword)
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_api_view__set_stream_policy(bound_input=bound_input, target=target)
+
+
+async def api_view__bind_capability_endpoint__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_api_view__bind_capability_endpoint(positional=positional, keyword=keyword)
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_api_view__bind_capability_endpoint(bound_input=bound_input, target=target)
+
+
+async def api_view__create_via_api__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_api_view__create_via_api(positional=positional, keyword=keyword)
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_api_view__create_via_api(bound_input=bound_input)
+
+
+async def api_view_capability_endpoint__build_via_api_view__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_api_view_capability_endpoint__build_via_api_view(positional=positional, keyword=keyword)
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_api_view_capability_endpoint__build_via_api_view(bound_input=bound_input)
+
+
+async def api_view_stream_policy__build_via_api_view__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_api_view_stream_policy__build_via_api_view(positional=positional, keyword=keyword)
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_api_view_stream_policy__build_via_api_view(bound_input=bound_input)
+
+
 AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphGeneratedLanguageHandlerCallable] = {
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_api.api.Api",
@@ -3711,12 +4456,26 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
         owner_class_name="Api",
     ): api__create_capability__handler,
     MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.Api",
+        function_name="create_view",
+        is_constructor=False,
+        owner_class_fqn="aware_api.api.Api",
+        owner_class_name="Api",
+    ): api__create_view__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_api.api.ApiCall",
         function_name="create_outcome",
         is_constructor=False,
         owner_class_fqn="aware_api.api.ApiCall",
         owner_class_name="ApiCall",
     ): api_call__create_outcome__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiCall",
+        function_name="record_stream_event",
+        is_constructor=False,
+        owner_class_fqn="aware_api.api.ApiCall",
+        owner_class_name="ApiCall",
+    ): api_call__record_stream_event__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_api.api.ApiCall",
         function_name="create_via_api_capability_endpoint",
@@ -3731,6 +4490,13 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
         owner_class_fqn="aware_api.api.ApiCallOutcome",
         owner_class_name="ApiCallOutcome",
     ): api_call_outcome__build_via_api_call__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiCallStreamEvent",
+        function_name="create_via_api_call",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiCallStreamEvent",
+        owner_class_name="ApiCallStreamEvent",
+    ): api_call_stream_event__create_via_api_call__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_api.api.ApiCapability",
         function_name="create_endpoint",
@@ -3934,6 +4700,41 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
         owner_class_fqn="aware_api.api.ApiPackageLanguagePackage",
         owner_class_name="ApiPackageLanguagePackage",
     ): api_package_language_package__build_via_api_package__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiView",
+        function_name="set_stream_policy",
+        is_constructor=False,
+        owner_class_fqn="aware_api.api.ApiView",
+        owner_class_name="ApiView",
+    ): api_view__set_stream_policy__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiView",
+        function_name="bind_capability_endpoint",
+        is_constructor=False,
+        owner_class_fqn="aware_api.api.ApiView",
+        owner_class_name="ApiView",
+    ): api_view__bind_capability_endpoint__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiView",
+        function_name="create_via_api",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiView",
+        owner_class_name="ApiView",
+    ): api_view__create_via_api__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiViewCapabilityEndpoint",
+        function_name="build_via_api_view",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiViewCapabilityEndpoint",
+        owner_class_name="ApiViewCapabilityEndpoint",
+    ): api_view_capability_endpoint__build_via_api_view__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiViewStreamPolicy",
+        function_name="build_via_api_view",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiViewStreamPolicy",
+        owner_class_name="ApiViewStreamPolicy",
+    ): api_view_stream_policy__build_via_api_view__handler,
 }
 
 AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
@@ -3961,12 +4762,26 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
         owner_class_name="Api",
     ): api__create_capability__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.Api",
+        function_name="create_view",
+        is_constructor=False,
+        owner_class_fqn="aware_api.api.Api",
+        owner_class_name="Api",
+    ): api__create_view__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_api.api.ApiCall",
         function_name="create_outcome",
         is_constructor=False,
         owner_class_fqn="aware_api.api.ApiCall",
         owner_class_name="ApiCall",
     ): api_call__create_outcome__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiCall",
+        function_name="record_stream_event",
+        is_constructor=False,
+        owner_class_fqn="aware_api.api.ApiCall",
+        owner_class_name="ApiCall",
+    ): api_call__record_stream_event__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_api.api.ApiCall",
         function_name="create_via_api_capability_endpoint",
@@ -3981,6 +4796,13 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
         owner_class_fqn="aware_api.api.ApiCallOutcome",
         owner_class_name="ApiCallOutcome",
     ): api_call_outcome__build_via_api_call__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiCallStreamEvent",
+        function_name="create_via_api_call",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiCallStreamEvent",
+        owner_class_name="ApiCallStreamEvent",
+    ): api_call_stream_event__create_via_api_call__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_api.api.ApiCapability",
         function_name="create_endpoint",
@@ -4184,6 +5006,41 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
         owner_class_fqn="aware_api.api.ApiPackageLanguagePackage",
         owner_class_name="ApiPackageLanguagePackage",
     ): api_package_language_package__build_via_api_package__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiView",
+        function_name="set_stream_policy",
+        is_constructor=False,
+        owner_class_fqn="aware_api.api.ApiView",
+        owner_class_name="ApiView",
+    ): api_view__set_stream_policy__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiView",
+        function_name="bind_capability_endpoint",
+        is_constructor=False,
+        owner_class_fqn="aware_api.api.ApiView",
+        owner_class_name="ApiView",
+    ): api_view__bind_capability_endpoint__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiView",
+        function_name="create_via_api",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiView",
+        owner_class_name="ApiView",
+    ): api_view__create_via_api__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiViewCapabilityEndpoint",
+        function_name="build_via_api_view",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiViewCapabilityEndpoint",
+        owner_class_name="ApiViewCapabilityEndpoint",
+    ): api_view_capability_endpoint__build_via_api_view__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiViewStreamPolicy",
+        function_name="build_via_api_view",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiViewStreamPolicy",
+        owner_class_name="ApiViewStreamPolicy",
+    ): api_view_stream_policy__build_via_api_view__invocation_handler,
 }
 
 AWARE_META_GRAPH_EMPTY_LANE_BOOTSTRAPS: dict[
@@ -4210,6 +5067,13 @@ AWARE_META_GRAPH_EMPTY_LANE_BOOTSTRAPS: dict[
         owner_class_fqn="aware_api.api.ApiCallOutcome",
         owner_class_name="ApiCallOutcome",
     ): api_call_outcome__build_via_api_call__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiCallStreamEvent",
+        function_name="create_via_api_call",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiCallStreamEvent",
+        owner_class_name="ApiCallStreamEvent",
+    ): api_call_stream_event__create_via_api_call__empty_lane_bootstrap,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_api.api.ApiCapability",
         function_name="create_via_api",
@@ -4308,6 +5172,27 @@ AWARE_META_GRAPH_EMPTY_LANE_BOOTSTRAPS: dict[
         owner_class_fqn="aware_api.api.ApiPackageLanguagePackage",
         owner_class_name="ApiPackageLanguagePackage",
     ): api_package_language_package__build_via_api_package__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiView",
+        function_name="create_via_api",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiView",
+        owner_class_name="ApiView",
+    ): api_view__create_via_api__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiViewCapabilityEndpoint",
+        function_name="build_via_api_view",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiViewCapabilityEndpoint",
+        owner_class_name="ApiViewCapabilityEndpoint",
+    ): api_view_capability_endpoint__build_via_api_view__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_api.api.ApiViewStreamPolicy",
+        function_name="build_via_api_view",
+        is_constructor=True,
+        owner_class_fqn="aware_api.api.ApiViewStreamPolicy",
+        owner_class_name="ApiViewStreamPolicy",
+    ): api_view_stream_policy__build_via_api_view__empty_lane_bootstrap,
 }
 
 __all__ = [

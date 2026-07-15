@@ -1,0 +1,80 @@
+/// Registry for execution/session tokens.
+///
+/// Contract:
+/// - AuthTokenRegistry is scoped to APT execution credentials.
+/// - Identity-owned API keys and publish credentials use credential.CredentialProfile.
+/// - Plaintext token material is returned once and never stored in commits.
+class AuthTokenRegistry {
+    // Relationships
+    tokens AuthToken[]
+
+    // Attributes
+    key String key = "v1"
+
+    fn ensure_registry construct(key String key = "v1") -> AuthTokenRegistry {
+        """
+        Ensure the canonical execution-token registry root.
+
+        Contract:
+        - Registry id is stable (one per environment).
+        - Tokens are APT execution/session credentials.
+        - Public Identity credentials are modeled separately by CredentialProfile.
+        """
+    }
+
+    fn create_token (
+        actor_id UUID,
+        public_key String,
+        issued_by_actor_id UUID,
+        issued_at DateTime,
+        context_environment_id UUID,
+        context_process_id UUID,
+        context_thread_id UUID,
+        sha256 String,
+        label String? = null,
+        scopes String[] = [],
+        expires_at DateTime? = null,
+        token_id UUID? = null
+    ) -> AuthToken {
+        """
+        Materialize an execution/session AuthToken under this registry via parent-path propagation.
+        """
+        let created_token = construct tokens.create_apt(
+            actor_id = actor_id,
+            public_key = public_key,
+            issued_by_actor_id = issued_by_actor_id,
+            issued_at = issued_at,
+            context_environment_id = context_environment_id,
+            context_process_id = context_process_id,
+            context_thread_id = context_thread_id,
+            sha256 = sha256,
+            label = label,
+            scopes = scopes,
+            expires_at = expires_at,
+            token_id = token_id,
+        )
+    }
+
+    fn issue_apt_token(
+        actor_id UUID,
+        public_key String,
+        context_environment_id UUID,
+        context_process_id UUID,
+        context_thread_id UUID,
+        label String? = null,
+        scopes String[] = [],
+        expires_at DateTime? = null,
+        token_id UUID? = null,
+        secret_b64url String? = null,
+    ) -> JsonObject {
+        """
+        Issue a revocable execution bearer token for an AgentProcessThread (APT).
+
+        Security contract:
+        - Returned `token` is plaintext and must be shown once; only its sha256 is stored.
+        - `actor_id` must match `public_key` stable-id derivation (anti-claim).
+        - Context binding is required (env+process+thread) and must be enforced at transport.
+        """
+    }
+
+}

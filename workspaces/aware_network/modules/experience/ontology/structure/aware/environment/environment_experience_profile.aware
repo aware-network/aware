@@ -1,0 +1,48 @@
+/// Applied Experience profile over one concrete Environment EnvironmentProfile.
+///
+/// Purpose:
+/// - Bridge reusable Experience profile config to an applied EnvironmentProfile.
+/// - Keep reusable actor/projection/event/process/thread policy on
+///   EnvironmentExperienceProfileConfig.
+/// - Provide the applied profile id that later Environment/Experience sessions
+///   and mounts can target.
+///
+/// Contract:
+/// - This object references applied Environment EnvironmentProfile and
+///   reusable EnvironmentExperienceProfileConfig truth.
+/// - It does not own reusable Experience policy.
+/// - Session/mount ownership is intentionally added in the next rail after this
+///   config/applied split is proven end to end.
+class EnvironmentExperienceProfile {
+    // Relationships
+    profile_config EnvironmentExperienceProfileConfig key
+    environment_profile aware_environment.environment.EnvironmentProfile key
+
+    // Attributes
+    title String?
+    status String = "active"
+    description String?
+    metadata_json JsonObject? = {}
+
+    fn build construct (
+        profile_config_id UUID key,
+        environment_profile_id UUID key,
+        status String = "active",
+        title String? = null,
+        description String? = null,
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentExperienceProfile {
+        """
+        Construct one applied EnvironmentExperienceProfile under EnvironmentExperience.
+
+        Contract:
+        - Identity is derived from parent EnvironmentExperience path plus
+          `(profile_config_id, environment_profile_id)`.
+        - `profile_config_id` owns reusable Experience policy.
+        - `environment_profile_id` owns concrete Environment session topology.
+        """
+    }
+}
+
+ann environment.EnvironmentExperienceProfile::profile_config load eager
+ann environment.EnvironmentExperienceProfile::environment_profile load eager

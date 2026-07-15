@@ -1,0 +1,37 @@
+/// Runtime Environment to Ontology authority bridge.
+///
+/// Contract:
+/// - Environment records which Ontology authorities are available in this
+///   runtime territory.
+/// - Ontology owns ObjectInstanceGraphIdentity inventory discovery.
+/// - This bridge must not duplicate OIG/OIGI membership.
+class EnvironmentOntology {
+    // Relationships
+    ontology aware_ontology.ontology.Ontology key
+
+    // Attributes
+    role String = "runtime"
+    status String = "active"
+    title String?
+    description String?
+
+    fn build construct (
+        ontology_id UUID key,
+        role String = "runtime",
+        status String = "active",
+        title String? = null,
+        description String? = null
+    ) -> EnvironmentOntology {
+        """
+        Construct one Environment-owned Ontology membership.
+
+        Contract:
+        - Parent Environment scope is injected by propagation.
+        - Identity is Environment path plus target Ontology.
+        - `ontology_id` points to the Ontology authority root.
+        - OIGI inventory remains reachable only from the linked Ontology.
+        """
+    }
+}
+
+ann environment.EnvironmentOntology::ontology load eager

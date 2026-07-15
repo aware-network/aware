@@ -34,6 +34,7 @@ from aware_meta_ontology.graph.projection.object_projection_graph_enums import (
 from aware_meta_ontology.graph.projection.object_projection_graph_node import (
     ObjectProjectionGraphNode,
 )
+from aware_meta_ontology.graph.instance.object_instance_graph import ObjectInstanceGraph
 from aware_code_ontology.code.code_enums import CodeLanguage
 
 from aware_meta.class_.instance.builder import build_class_instance
@@ -85,6 +86,57 @@ def _read_json_object(path: Path) -> dict[str, object]:
 
 def _primitive_desc() -> AttributeTypeDescriptor:
     return AttributeTypeDescriptor(kind=Kind.primitive, child_links=[])
+
+
+def test_lane_hash_state_normalization_uses_bounded_oig_clone(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    source_ref_cfg = make_attribute_config(
+        owner_key=_USER_FQN,
+        name="code_section_source_id",
+        is_required=True,
+        type_descriptor=_primitive_desc(),
+    )
+    ocg, opg, user_cc = _make_ocg_and_opg(name_cfg=source_ref_cfg)
+
+    from aware_orm.models.base_model import BaseORMModel
+
+    class User(BaseORMModel):
+        code_section_source_id: str
+
+    graph_id: UUID = uuid4()
+    user_id: UUID = uuid4()
+    class_instance = build_class_instance(
+        object_instance_graph_id=graph_id,
+        class_config=user_cc,
+        source=User(id=user_id, code_section_source_id=str(uuid4())),
+    )
+    graph = build_object_instance_graph_from_class_instances(
+        name="g",
+        description="d",
+        object_config_graph_id=ocg.id,
+        object_projection_graph_id=opg.id,
+        root_class_instance=class_instance,
+        class_instances=[class_instance],
+        class_instance_relationships=[],
+        oig_id=graph_id,
+    )
+    original_model_copy = ObjectInstanceGraph.model_copy
+
+    def fail_deep_model_copy(self, *, update=None, deep: bool = False):
+        if deep:
+            raise AssertionError("lane hash normalization must not deep-copy OIGs")
+        return original_model_copy(self, update=update, deep=deep)
+
+    monkeypatch.setattr(ObjectInstanceGraph, "model_copy", fail_deep_model_copy)
+
+    hash_state = compute_oig_lane_hash_state(
+        graph=graph,
+        schema_attribute_configs_by_id={source_ref_cfg.id: source_ref_cfg},
+    )
+
+    assert hash_state.volatile_source_reference_attrs_removed == 1
+    assert hash_state.lane_hash != hash_state.raw_hash
 
 
 def _make_ocg_and_opg(
@@ -312,54 +364,16 @@ async def test_lane_committer_appends_and_materializes(
         / "commits"
         / f"{c2_id}.json"
     )
-    stale_oigi_id = uuid4()
-    stale_oig_commit_id = stable_object_instance_graph_commit_id(
-        object_instance_graph_identity_id=stale_oigi_id,
-        commit_id=c2_id,
-    )
-    stale_commit_payload = _read_json_object(commitf)
-    stale_commit_payload["id"] = str(stale_oig_commit_id)
-    stale_commit_payload["object_instance_graph_identity_id"] = str(stale_oigi_id)
-    commitf.write_text(
-        json.dumps(stale_commit_payload, separators=(",", ":"), sort_keys=True),
-        encoding="utf-8",
-    )
-    stale_head_payload = _read_json_object(headf)
-    stale_head_payload["object_instance_graph_commit_id"] = str(stale_oig_commit_id)
-    headf.write_text(
-        json.dumps(stale_head_payload, separators=(",", ":"), sort_keys=True),
-        encoding="utf-8",
-    )
-
-    c2_repaired_retry = await committer.commit(
-        branch_id=branch_id,
-        projection_hash=opg.projection_hash,
-        object_instance_graph_identity_id=_TEST_OIGI_ID,
-        object_instance_graph_id=graph_id,
-        before_oig=g1,
-        changes=changes2,
-        graph_hash_pre=g1.hash,
-        graph_hash_post=g2.hash,
-        author_id=author_id,
-        commit_id=c2_id,
-        source_language=ocg.language,
-    )
-    assert c2_repaired_retry is not None
+    envelope_payload = _read_json_object(commitf)
     expected_oig_commit_id = stable_object_instance_graph_commit_id(
         object_instance_graph_identity_id=_TEST_OIGI_ID,
         commit_id=c2_id,
     )
-    assert c2_repaired_retry.id == expected_oig_commit_id
-    assert c2_repaired_retry.object_instance_graph_identity_id == _TEST_OIGI_ID
-    c2_repair_perf = committer.last_commit_perf_profile_snapshot()
-    assert c2_repair_perf.get("idempotent_head_hit", 0) == 1
-    assert c2_repair_perf.get("idempotent_repaired_commit_identity_metadata", 0) == 1
-
-    repaired_commit_payload = _read_json_object(commitf)
-    assert repaired_commit_payload["id"] == str(expected_oig_commit_id)
-    assert repaired_commit_payload["object_instance_graph_identity_id"] == str(
-        _TEST_OIGI_ID
+    assert envelope_payload["object_instance_graph_commit_id"] == str(
+        expected_oig_commit_id
     )
+    assert envelope_payload["object_instance_graph_identity_id"] == str(_TEST_OIGI_ID)
+    assert "object_instance_graph_changes" not in envelope_payload
 
     # HEAD is lane-scoped and records the OIG id for fast consistency checks.
     head = _read_json_object(headf)

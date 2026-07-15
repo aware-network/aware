@@ -1,0 +1,32 @@
+class CodeSemanticContractRuntimeImport {
+    // Attributes
+    capabilities String[] = []
+    import_role String key = "semantic_contract"
+    owned_manifest_kinds String[] = []
+    provider_key String key
+    required Bool = true
+    semantic_contract_module String key
+    status String = "active"
+
+    fn build construct(
+        provider_key String key,
+        semantic_contract_module String key,
+        import_role String key = "semantic_contract",
+        owned_manifest_kinds String[] = [],
+        capabilities String[] = [],
+        required Bool = true,
+        status String = "active"
+    ) -> CodeSemanticContractRuntimeImport {
+        """
+        Record one dynamic semantic contract runtime import required by a
+        CodeSemanticContractProfilePackage.
+
+        Contract:
+        - This is runtime/provider activation truth, not product package import
+          permission.
+        - The current materializer still imports semantic contract handler
+          modules, so profile packages must expose these dynamic runtime imports
+          until the full contract surface becomes declarative.
+        """
+    }
+}

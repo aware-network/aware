@@ -1,0 +1,39 @@
+class CodeSectionBinding {
+    // Relationships
+    source_graph_segment aware_content.part.ContentPartTextSegment
+    target_graph_segment aware_content.part.ContentPartTextSegment
+    code_section_binding_maps binding.CodeSectionBindingMap[]
+
+    // Attributes
+    source_graph_ref String
+    target_graph_ref String
+
+    fn build construct() -> CodeSectionBinding {
+        """
+        Build the binding payload under a CodeSection.
+        """
+    }
+
+    fn create_map(
+        name String key,
+        source_ref String,
+        target_ref String,
+        description String? = null,
+        template_text String? = null
+    ) -> binding.CodeSectionBindingMap {
+        """
+        Create a deterministic binding-map entry under this binding.
+        """
+        let created = construct code_section_binding_maps.build(
+            name = name,
+            source_ref = source_ref,
+            target_ref = target_ref,
+            description = description,
+            template_text = template_text,
+        )
+    }
+}
+
+ann binding.CodeSectionBinding::source_graph_segment load eager
+ann binding.CodeSectionBinding::target_graph_segment load eager
+ann binding.CodeSectionBinding::code_section_binding_maps load eager

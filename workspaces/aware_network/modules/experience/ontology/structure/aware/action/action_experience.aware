@@ -1,0 +1,47 @@
+class ActionExperience {
+    // Relationships
+    action_config aware_reactivity.action.ActionConfig key
+    action_experience_programs ActionExperienceProgram[]
+    action_experience_invocations ActionExperienceInvocation[]
+
+    // Attributes
+    fn build construct (
+        action_config_id UUID key
+    ) -> ActionExperience {
+        """
+        Create a deterministic ActionExperience association edge with associated program configs.
+
+        Contract:
+        - ActionExperience identity is scoped by `action_config_id`.
+        - Thread-scoped program availability belongs under
+          EnvironmentExperienceThreadConfig, not a hidden action parent context.
+        """
+    }
+
+    fn add_program_config (program_config_id UUID) -> ActionExperienceProgram {
+        """
+        Add a program config to the action experience.
+        """
+        let created = construct action_experience_programs.build(
+            program_config_id = program_config_id,
+        )
+    }
+
+    fn add_invocation_action_config (
+        experience_invocation_action_config_id UUID
+    ) -> ActionExperienceInvocation {
+        """
+        Bind an Experience invocation action config to this action experience.
+
+        Contract:
+        - Reactivity stays API-agnostic; this edge lives in Experience.
+        - Dispatch-time selection among many invocation configs is a later
+          concern.
+        - The bound ExperienceInvocationActionConfig resolves the typed
+          request/response/stream contract through API/SDK target metadata.
+        """
+        let created = construct action_experience_invocations.build(
+            experience_invocation_action_config_id = experience_invocation_action_config_id,
+        )
+    }
+}

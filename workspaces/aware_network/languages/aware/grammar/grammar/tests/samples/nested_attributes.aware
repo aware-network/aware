@@ -1,0 +1,27 @@
+class TestType {
+    // Basic types
+    stringAttr String = "test"
+    intAttr Int = 42
+    boolAttr Bool = true
+    floatAttr Float = 3.14
+    uuidAttr UUID
+    dateAttr DateTime = "2023-01-01T00:00:00Z"
+    
+    // Optional types
+    optionalString String?
+    optionalInt Int? = null
+    
+    // Array types
+    stringArray String[]
+    intArray Int[] = [1, 2, 3]
+    
+    // Vector types
+    basicVector Vector
+    dimensionVector Vector(1536)
+    optionalVector Vector(512)?
+    vectorArray Vector(256)[]
+    
+    // Complex combinations
+    optionalStringArray String[]
+    arrayOfOptionalStrings String[]
+}

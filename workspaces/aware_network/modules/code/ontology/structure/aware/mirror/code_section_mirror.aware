@@ -1,0 +1,20 @@
+/// Canonical mirror directive (API transport allowlist).
+///
+/// Mirrors are explicit, file-level statements that mark which ontology symbols
+/// are copied into an API OCG for DTO materialization.
+class CodeSectionMirror {
+    // Relationships
+    target_segment aware_content.part.ContentPartTextSegment
+
+    // Attributes
+    target_text String
+
+    fn build construct() -> CodeSectionMirror {
+        """
+        Build the mirror payload under a CodeSection.
+        """
+    }
+}
+
+/// Eager target segment
+ann mirror.CodeSectionMirror::target_segment load eager

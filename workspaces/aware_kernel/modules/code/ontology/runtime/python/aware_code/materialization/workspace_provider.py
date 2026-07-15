@@ -243,6 +243,9 @@ async def _materialize_code_package_delta_snapshot(
         fqn_prefix=_optional_text(code_package.metadata.get("fqn_prefix")),
         source_texts_by_relative_path={},
         unparsed_texts_by_relative_path=source_texts,
+        changed_relative_paths=_code_package_delta_changed_relative_paths(
+            code_package_delta,
+        ),
     )
     commit_refs = {
         "package_key": code_package.name,
@@ -253,9 +256,7 @@ async def _materialize_code_package_delta_snapshot(
         "semantic_contract_module": semantic_contract_payload.get("module"),
         "semantic_contract_name": semantic_contract_payload.get("name"),
         "semantic_contract_role": semantic_contract_payload.get("role"),
-        "semantic_contract_provider_key": semantic_contract_payload.get(
-            "provider_key"
-        ),
+        "semantic_contract_provider_key": semantic_contract_payload.get("provider_key"),
         "semantic_branch_id": str(branch_id),
         "semantic_projection_name": "CodePackage",
         "semantic_projection_hash": projection_hash,
@@ -447,6 +448,17 @@ def _source_texts_with_delta_overlay(
             )
         texts_by_path[relative_path] = content_text
     return texts_by_path
+
+
+def _code_package_delta_changed_relative_paths(
+    code_package_delta: CodePackageDelta,
+) -> tuple[str, ...]:
+    return tuple(
+        relative_path
+        for path in code_package_delta.paths
+        for relative_path in (str(path.relative_path or "").strip().strip("/"),)
+        if relative_path
+    )
 
 
 def _existing_commit_refs_from_request(*, request: object) -> dict[str, object]:

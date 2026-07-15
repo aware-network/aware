@@ -1,0 +1,14 @@
+/// Actuator config projection.
+projection ActuatorConfig {
+    root actuator.ActuatorConfig
+    actuator.ActuatorConfig::affected_state_nodes
+    actuator.ActuatorConfigStateNode::object_projection_graph_node aware_meta.ObjectProjectionGraph
+    actuator.ActuatorConfig::actuators Actuator
+
+    observable actuator_config {
+        """
+        Actuator config surface with affected state-node footprint portals and
+        portal-backed Actuator instances.
+        """
+    }
+}

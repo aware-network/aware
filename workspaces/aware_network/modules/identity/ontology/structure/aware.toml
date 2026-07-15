@@ -1,0 +1,27 @@
+aware = 1
+
+[package]
+package_name = "identity-ontology"
+fqn_prefix = "aware_identity"
+kind = "ontology"
+version_number = 1
+title = "Identity"
+description = "SSOT canonical (.aware) sources for identity."
+
+[build]
+environment_slug = "aware_identity"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "reactivity-ontology"
+
+[[dependencies]]
+package_name = "storage-ontology"
+
+[[dependencies]]
+package_name = "content-ontology"
+
+[[dependencies]]
+package_name = "history-ontology"

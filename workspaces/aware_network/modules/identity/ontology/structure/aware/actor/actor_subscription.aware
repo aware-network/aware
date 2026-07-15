@@ -1,0 +1,80 @@
+class ActorSubscription {
+    // Relationships
+    event_config_condition_config_scope aware_reactivity.event.EventConfigConditionConfigScope key
+    event_config_action_configs aware_reactivity.event.EventConfigActionConfig[] many
+
+    /// Activation lifecycle ledger — contained under this subscription.
+    /// Containment rail: ActorSubscriptionEvent identity propagates parent
+    /// context through this member path per
+    /// `languages/aware/grammar/docs/STABLE_IDS.md`.
+    actor_subscription_events ActorSubscriptionEvent[]
+
+    // Attributes
+    addressing_policy SubscriptionAddressingPolicy = any
+    batch_mode Bool = false
+    batch_window_ms Int = 1000
+    check_ownership Bool = true
+    description String? = null
+    action_type String? = null
+    filter_config JsonObject? = null
+    filter_mode SubscriptionFilterMode = all_instances
+    is_enabled Bool = true
+    max_batch_size Int = 100
+    name String key
+    priority Int = 0
+    rate_limit_per_hour Int? = null
+    rate_limit_per_minute Int? = null
+    require_read_access Bool = true
+    status SubscriptionStatus = active
+
+    fn create construct (
+        event_config_condition_config_scope_id UUID key,
+        name String key,
+        description String? = null,
+        action_type String? = null,
+        event_config_action_config_ids UUID[] = [],
+        addressing_policy SubscriptionAddressingPolicy = any,
+        is_enabled Bool = true,
+        status SubscriptionStatus = active,
+        filter_mode SubscriptionFilterMode = all_instances,
+        filter_config JsonObject? = null,
+        priority Int = 0,
+        batch_mode Bool = false,
+        batch_window_ms Int = 1000,
+        max_batch_size Int = 100,
+        require_read_access Bool = true,
+        check_ownership Bool = true,
+        rate_limit_per_minute Int? = null,
+        rate_limit_per_hour Int? = null
+    ) -> ActorSubscription {
+        """
+        Create an Actor subscription policy binding.
+
+        Contract:
+        - Canonical constructor-owned mutation path for subscription policy.
+        - Deterministic id derived from (actor_id, event_config_condition_config_scope_id, name).
+        - `event_config_action_config_ids` seeds optional `event_config_action_configs` scope.
+          If empty, runtime treats all enabled event actions as eligible.
+        """
+    }
+
+    fn record_event (
+        event_config_condition_config_scope_event_id UUID key,
+        status SubscriptionActivationStatus = ready,
+        reason String? = null
+    ) -> ActorSubscriptionEvent {
+        """
+        Record an activation lifecycle entry for this subscription against
+        a scope-level event. Containment-rail constructor: identity flows
+        through the `actor_subscription_events` member path.
+        """
+        let created_event = construct actor_subscription_events.build(
+            event_config_condition_config_scope_event_id = event_config_condition_config_scope_event_id,
+            status = status,
+            reason = reason,
+        )
+    }
+}
+
+/// Load selected action bindings eagerly for deterministic subscription resolution.
+ann actor.ActorSubscription::event_config_action_configs load eager

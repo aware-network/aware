@@ -1,0 +1,63 @@
+from __future__ import annotations
+
+# Standard
+from typing import TYPE_CHECKING
+from uuid import UUID
+
+# Third-party
+from pydantic import Field
+
+# Orm
+from aware_orm.models.orm_model import ORMModel
+
+if TYPE_CHECKING:
+    from aware_api_ontology_orm_models.api.api_call import ApiCall
+    from aware_experience_ontology_orm_models.invocation.experience_invocation_action_commit import (
+        ExperienceInvocationActionCommit,
+    )
+    from aware_experience_ontology_orm_models.invocation.experience_invocation_action_config import (
+        ExperienceInvocationActionConfig,
+    )
+    from aware_experience_ontology_orm_models.invocation.experience_invocation_action_propagation import (
+        ExperienceInvocationActionPropagation,
+    )
+    from aware_identity_ontology_orm_models.actor.actor import Actor
+    from aware_sdk_ontology_orm_models.sdk.sdk_operation_call import SdkOperationCall
+
+
+class ExperienceInvocationAction(ORMModel):
+    """
+    Experience-owned record of one actual invocation action.
+    Contract:
+    - `ExperienceInvocationActionConfig` is reusable configuration.
+    - `ExperienceInvocationAction` is the single standalone invocation receipt.
+    - Surface provenance (view, sensor, actuator, action-experience policy)
+    attaches through surface-specific bridge objects; surfaces must not create
+    separate receipt identities for the same crossing.
+    - API and SDK receipts stay module-owned and are linked here for
+    cross-surface provenance.
+    """
+
+    # Relationships
+    experience_invocation_action_config: ExperienceInvocationActionConfig | None = Field(default=None, exclude=True)
+    actor: Actor | None = Field(default=None)
+    api_call: ApiCall | None = Field(default=None)
+    commits: list[ExperienceInvocationActionCommit] = Field(default_factory=list)
+    propagations: list[ExperienceInvocationActionPropagation] = Field(default_factory=list)
+    sdk_operation_call: SdkOperationCall | None = Field(default=None)
+
+    # Attributes
+    invocation_key: UUID
+    request_ref: str | None = Field(default=None)
+    receipt_ref: str | None = Field(default=None)
+    status: str = Field(default="pending")
+
+    # Foreign Keys
+    experience_invocation_action_config_id: UUID = Field(
+        description="Foreign key for ExperienceInvocationAction.experience_invocation_action_config"
+    )
+    actor_id: UUID | None = Field(default=None, description="Foreign key for ExperienceInvocationAction.actor")
+    api_call_id: UUID | None = Field(default=None, description="Foreign key for ExperienceInvocationAction.api_call")
+    sdk_operation_call_id: UUID | None = Field(
+        default=None, description="Foreign key for ExperienceInvocationAction.sdk_operation_call"
+    )

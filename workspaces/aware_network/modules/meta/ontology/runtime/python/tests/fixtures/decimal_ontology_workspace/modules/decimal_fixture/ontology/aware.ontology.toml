@@ -1,0 +1,21 @@
+aware_ontology = 1
+
+[ontology]
+package_name = "decimal-fixture-ontology"
+fqn_prefix = "aware_decimal_fixture"
+version_number = 1
+title = "Decimal Fixture"
+description = "Isolated exact Decimal primitive materialization fixture."
+source_manifest = "structure/aware.toml"
+package_root = "."
+sources_root = "structure/aware"
+stable_ids_ownership = "compiler"
+stable_ids_parity_policy = "error"
+stable_ids_resolution_policy = "class_strict"
+
+[layout]
+profile = "ontology_structure_v1"
+
+[layout.outputs.dart]
+ontology = "structure/dart/orm_runtime"
+dto = "structure/dart/dto"

@@ -60,7 +60,8 @@ from aware_meta.graph.instance.commit.builder import (
     build_object_instance_graph_commit_from_changes,
 )
 from aware_meta.graph.instance.commit.hash_contract import compute_oig_lane_hash_state
-from aware_meta.graph.instance.commit.fs_store import FSCommitStore, FSSnapshotStore
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+from aware_meta.graph.instance.commit.fs_snapshot_store import FSSnapshotStore
 from aware_meta.graph.instance.commit.materializer import (
     MaterializerPostHashMismatchError,
     OIGMaterializer,

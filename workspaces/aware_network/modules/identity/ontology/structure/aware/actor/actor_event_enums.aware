@@ -1,0 +1,4 @@
+enum ActorEventRole {
+    receiver
+    sender
+}

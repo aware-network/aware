@@ -1,0 +1,34 @@
+/// Runtime section state under one ProgramWindowLayout.
+///
+/// Contract:
+/// - Stores current branch/view targeting for one visible section.
+/// - No reverse ProgramWindowLayout reference is declared in this child class.
+class ProgramLayoutSection {
+    // Relationships
+    port_section aware_experience.program.ProgramConfigLayoutPortSection?
+    program_branch ProgramBranch?
+
+    // Attributes
+    key String key
+    order Int = 0
+    is_visible Bool = true
+    flex Float? = null
+    is_active Bool = false
+    view_key String? = null
+
+    fn build construct (
+        layout_id UUID,
+        key String,
+        order Int = 0,
+        is_visible Bool = true,
+        flex Float? = null,
+        is_active Bool = false,
+        view_key String? = null,
+        program_branch_id UUID? = null,
+        port_section_id UUID? = null
+    ) -> ProgramLayoutSection {
+        """
+        Create a deterministic ProgramLayoutSection under a Program.
+        """
+    }
+}

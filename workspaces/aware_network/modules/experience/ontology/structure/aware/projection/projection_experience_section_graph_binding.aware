@@ -1,0 +1,37 @@
+/// ProjectionExperience-owned section graph binding contract.
+///
+/// Contract:
+/// - Declares one stable coordination agreement between an Attention layout section,
+///   one Experience view, and one ProjectionExperienceGraphIdentity.
+/// - Keeps the graph-occurrence anchor explicit without coupling Interface pane
+///   mounts to one focused runtime object.
+class ProjectionExperienceSectionGraphBinding {
+    // Relationships
+    layout_config_section_config aware_attention.layout.LayoutConfigSectionConfig key
+    projection_experience_view ProjectionExperienceView key
+    projection_experience_graph_identity ProjectionExperienceGraphIdentity key
+
+    // Attributes
+    binding_key String key
+    /// Denormalized lookup key derived from the target Attention layout section.
+    /// Authoritative section topology is `layout_config_section_config`.
+    section_key String
+
+    fn build construct (
+        layout_config_section_config_id UUID key,
+        projection_experience_view_id UUID key,
+        projection_experience_graph_identity_id UUID key,
+        binding_key String key,
+        section_key String
+    ) -> ProjectionExperienceSectionGraphBinding {
+        """
+        Create deterministic ProjectionExperienceSectionGraphBinding under one ProjectionExperience.
+
+        Contract:
+        - `binding_key` is the stable service-facing coordination handle.
+        - `layout_config_section_config` is the canonical portal to Attention-owned layout section truth.
+        - `section_key` is a denormalized lookup/cache key for service filters and must match the target layout section.
+        - `projection_experience_graph_identity` is the explicit occurrence anchor for lawful coordination.
+        """
+    }
+}

@@ -1,0 +1,79 @@
+aware_repo = 1
+
+[repo]
+handle = "aware"
+workspaces_dir = "workspaces"
+
+[[workspaces]]
+handle = "aware_kernel"
+path = "aware_kernel"
+
+[[workspaces]]
+handle = "aware_network"
+path = "aware_network"
+
+[[repository_files]]
+role = "readme"
+source_path = "README.md"
+target_path = "README.md"
+
+[[repository_files]]
+role = "agent_coordination_surface:AGENTS.md"
+source_path = "AGENTS.md"
+target_path = "AGENTS.md"
+overlay = "agent_coordination_surface"
+
+[[repository_files]]
+role = "agent_coordination_surface:alignment_protocol"
+source_path = "docs/alignment/PROTOCOL.md"
+target_path = "docs/alignment/PROTOCOL.md"
+overlay = "agent_coordination_surface"
+
+[[repository_files]]
+role = "agent_coordination_surface:alignment_readme"
+source_path = "docs/alignment/README.md"
+target_path = "docs/alignment/README.md"
+overlay = "agent_coordination_surface"
+
+[[repository_files]]
+role = "agent_coordination_surface:alignment_current"
+source_path = "docs/alignment/PUBLIC.md"
+target_path = "docs/alignment/CURRENT.md"
+overlay = "agent_coordination_surface"
+
+[[repository_files]]
+role = "agent_coordination_surface:issues_protocol"
+source_path = "docs/issues/PROTOCOL.md"
+target_path = "docs/issues/PROTOCOL.md"
+overlay = "agent_coordination_surface"
+
+[[repository_files]]
+role = "agent_coordination_surface:feed_protocol"
+source_path = "docs/feed/PROTOCOL.md"
+target_path = "docs/feed/PROTOCOL.md"
+overlay = "agent_coordination_surface"
+
+[[repository_files]]
+role = "agent_coordination_surface:goals_protocol"
+source_path = "docs/goals/PROTOCOL.md"
+target_path = "docs/goals/PROTOCOL.md"
+overlay = "agent_coordination_surface"
+
+[[repository_files]]
+role = "agent_coordination_surface:specs_protocol"
+source_path = "docs/specs/PROTOCOL.md"
+target_path = "docs/specs/PROTOCOL.md"
+overlay = "agent_coordination_surface"
+
+[[semantic_contract_profile_sets]]
+key = "network.default"
+profile_refs = ["workspace://aware_kernel#kernel.default"]
+default_for = ["aware_network"]
+
+[[checkout_profile_sets]]
+key = "public_kernel"
+workspace_handles = ["aware_kernel"]
+
+[[checkout_profile_sets]]
+key = "agentic_public_workspace"
+workspace_handles = ["aware_kernel", "aware_network"]

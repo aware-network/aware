@@ -1,0 +1,44 @@
+class FocusScopeRequest {
+    // Relationships
+    focus Focus key
+    response FocusScopeRequestResponse? unique
+
+    // Attributes
+    rationale String?
+    state FocusScopeRequestStatus = pending
+
+    /// Response
+    response_rationale String?
+
+    fn create construct (focus_id UUID key, rationale String?) -> FocusScopeRequest {
+        """
+        Builds a new FocusScopeRequest
+        """
+    }
+
+    fn accept (decided_by_id UUID, message String?) -> FocusScopeRequestResponse {
+        """
+        Accepts the request if it is pending and has not expired.
+        """
+        let created_response = construct response.build(
+            success = true,
+            message = message,
+        )
+    }
+
+    fn expire () -> Int {
+        """
+        Expires the request if it has expired.
+        """
+    }
+
+    fn reject (decided_by_id UUID, message String?) -> FocusScopeRequestResponse {
+        """
+        Rejects the request if it is pending and has not expired.
+        """
+        let created_response = construct response.build(
+            success = false,
+            message = message,
+        )
+    }
+}

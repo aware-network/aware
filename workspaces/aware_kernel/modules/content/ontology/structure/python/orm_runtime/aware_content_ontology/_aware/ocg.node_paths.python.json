@@ -38,6 +38,30 @@
       "relative_path": "content/content_layout.py"
     },
     {
+      "node_id": "129f58ca-7d96-5844-849c-88c07930cd8d",
+      "node_type": "class",
+      "entity_id": "9ec4d14f-138f-5672-8561-a927e1b6e458",
+      "relative_path": "package/content_package.py"
+    },
+    {
+      "node_id": "f534ff2a-f158-5693-8282-9fa6a6cbe575",
+      "node_type": "class",
+      "entity_id": "98714846-7e9f-5aa6-a7f3-cfa4a2f22919",
+      "relative_path": "package/content_package_artifact.py"
+    },
+    {
+      "node_id": "06bb53fe-9406-54a3-8c93-d53790f4a91d",
+      "node_type": "class",
+      "entity_id": "cd37039e-f3a0-5e53-a573-3ea822a1ffca",
+      "relative_path": "package/content_package_artifact.py"
+    },
+    {
+      "node_id": "a1702c62-db46-5813-a7fd-d3e6f31dec29",
+      "node_type": "class",
+      "entity_id": "adc589fd-2ff0-5ae0-8514-c67bdcce836d",
+      "relative_path": "package/content_package_content.py"
+    },
+    {
       "node_id": "84a1eb7b-4744-50d8-be68-34ffb546b3ea",
       "node_type": "class",
       "entity_id": "8cd14d4b-78c4-582b-a15f-bbeaf4175500",
@@ -144,6 +168,12 @@
       "node_type": "enum",
       "entity_id": "a978744a-a47c-5d12-a040-041e77655e31",
       "relative_path": "content/content_enums.py"
+    },
+    {
+      "node_id": "f472ba31-85aa-5981-a0e5-645f10b35c73",
+      "node_type": "enum",
+      "entity_id": "a747f8dd-05da-5117-8e33-e648658f2806",
+      "relative_path": "package/content_package_enums.py"
     },
     {
       "node_id": "dbfc1f8d-a35b-5c28-9cf0-007832346132",

@@ -16,6 +16,7 @@ from aware_orm._support import logger
 
 from aware_orm.models.base_model import BaseORMModel
 
+
 def _token(value: Any) -> str:
     raw = getattr(value, "value", value)
     return str(raw).rsplit(".", 1)[-1].lower()
@@ -77,7 +78,7 @@ class RelationshipMixin(BaseORMModel):
 
     @model_validator(mode="before")
     @classmethod
-    def set_foreign_keys(cls, data: dict[str, Any]) -> dict[str, Any]:
+    def set_foreign_keys(cls, data: Any) -> Any:
         """
         Set foreign key fields based on related objects using bound ClassConfig relationship metadata.
 
@@ -94,18 +95,29 @@ class RelationshipMixin(BaseORMModel):
         First-pass FK resolution happens during model validation. For complex object graphs,
         use propagate_ids() before saving to ensure all relationships are properly connected.
         """
+        if isinstance(data, cls):
+            return data
+        if data is not None and not isinstance(data, dict):
+            return data
+
         # Handle None data case
         if data is None:
-            logger.error(f"CRITICAL: set_foreign_keys received None data for {cls.__name__}")
+            logger.error(
+                f"CRITICAL: set_foreign_keys received None data for {cls.__name__}"
+            )
             logger.error(
                 f"Model fields: {list(cls.model_fields.keys()) if hasattr(cls, 'model_fields') else 'No model_fields'}"
             )
-            logger.error("This usually indicates a constructor call with invalid arguments")
+            logger.error(
+                "This usually indicates a constructor call with invalid arguments"
+            )
             # Return empty dict with defaults applied
             data = {}
 
         try:
-            from aware_orm.session.change_collector import is_change_tracking_hooks_enabled
+            from aware_orm.session.change_collector import (
+                is_change_tracking_hooks_enabled,
+            )
 
             if not bool(is_change_tracking_hooks_enabled()):
                 if data.get("id") is None:
@@ -129,7 +141,9 @@ class RelationshipMixin(BaseORMModel):
         return data
 
     @classmethod
-    def _process_class_config_relationships(cls, data: dict[str, Any], obj_id: Optional[UUID]) -> None:
+    def _process_class_config_relationships(
+        cls, data: dict[str, Any], obj_id: Optional[UUID]
+    ) -> None:
         """
         Process canonical relationships declared on the bound ClassConfig.
 
@@ -183,10 +197,18 @@ class RelationshipMixin(BaseORMModel):
                 role="foreign_key",
             )
 
-            fwd_ref_name = name_by_id.get(fwd_ref_id) if isinstance(fwd_ref_id, UUID) else None
-            fwd_fk_name = name_by_id.get(fwd_fk_id) if isinstance(fwd_fk_id, UUID) else None
-            rev_ref_name = name_by_id.get(rev_ref_id) if isinstance(rev_ref_id, UUID) else None
-            rev_fk_name = name_by_id.get(rev_fk_id) if isinstance(rev_fk_id, UUID) else None
+            fwd_ref_name = (
+                name_by_id.get(fwd_ref_id) if isinstance(fwd_ref_id, UUID) else None
+            )
+            fwd_fk_name = (
+                name_by_id.get(fwd_fk_id) if isinstance(fwd_fk_id, UUID) else None
+            )
+            rev_ref_name = (
+                name_by_id.get(rev_ref_id) if isinstance(rev_ref_id, UUID) else None
+            )
+            rev_fk_name = (
+                name_by_id.get(rev_fk_id) if isinstance(rev_fk_id, UUID) else None
+            )
 
             # --- Forward FK propagation (this object owns FK) ---
             if isinstance(fwd_ref_name, str) and isinstance(fwd_fk_name, str):
@@ -200,7 +222,9 @@ class RelationshipMixin(BaseORMModel):
 
                     # Only set if FK isn't already set.
                     if data.get(fwd_fk_name) is None:
-                        if isinstance(related_obj, BaseModel) and hasattr(related_obj, "id"):
+                        if isinstance(related_obj, BaseModel) and hasattr(
+                            related_obj, "id"
+                        ):
                             data[fwd_fk_name] = getattr(related_obj, "id", None)
                         elif isinstance(related_obj, dict) and "id" in related_obj:
                             data[fwd_fk_name] = related_obj.get("id")
@@ -223,7 +247,10 @@ class RelationshipMixin(BaseORMModel):
                         if isinstance(child, BaseModel):
                             # Only assign if the field exists on the child; otherwise skip to avoid
                             # Pydantic "no field" errors when relationship metadata is asymmetric.
-                            if hasattr(child, rev_fk_name) and getattr(child, rev_fk_name, None) is None:
+                            if (
+                                hasattr(child, rev_fk_name)
+                                and getattr(child, rev_fk_name, None) is None
+                            ):
                                 setattr(child, rev_fk_name, obj_id)
                             else:
                                 logger.debug(
@@ -344,7 +371,9 @@ class RelationshipMixin(BaseORMModel):
         before persistence operations.
         """
         if not self.id:
-            logger.warning(f"Cannot propagate IDs for {self.__class__.__name__} without ID")
+            logger.warning(
+                f"Cannot propagate IDs for {self.__class__.__name__} without ID"
+            )
             return
 
         obj_id = self.id
@@ -353,7 +382,9 @@ class RelationshipMixin(BaseORMModel):
         propagation_context = getattr(self.__class__, "_propagation_context", set())
 
         if obj_id in propagation_context:
-            logger.debug(f"Skipping already processed object {self.__class__.__name__} {obj_id}")
+            logger.debug(
+                f"Skipping already processed object {self.__class__.__name__} {obj_id}"
+            )
             return
 
         # Mark this object as processed
@@ -410,9 +441,15 @@ class RelationshipMixin(BaseORMModel):
                 role="foreign_key",
             )
 
-            fwd_ref_name = name_by_id.get(fwd_ref_id) if isinstance(fwd_ref_id, UUID) else None
-            fwd_fk_name = name_by_id.get(fwd_fk_id) if isinstance(fwd_fk_id, UUID) else None
-            rev_fk_name = name_by_id.get(rev_fk_id) if isinstance(rev_fk_id, UUID) else None
+            fwd_ref_name = (
+                name_by_id.get(fwd_ref_id) if isinstance(fwd_ref_id, UUID) else None
+            )
+            fwd_fk_name = (
+                name_by_id.get(fwd_fk_id) if isinstance(fwd_fk_id, UUID) else None
+            )
+            rev_fk_name = (
+                name_by_id.get(rev_fk_id) if isinstance(rev_fk_id, UUID) else None
+            )
 
             if not isinstance(fwd_ref_name, str):
                 continue
@@ -428,14 +465,21 @@ class RelationshipMixin(BaseORMModel):
                 for child in related:
                     if child is None:
                         continue
-                    if hasattr(child, rev_fk_name) and getattr(child, rev_fk_name) is None:
+                    if (
+                        hasattr(child, rev_fk_name)
+                        and getattr(child, rev_fk_name) is None
+                    ):
                         setattr(child, rev_fk_name, obj_id)
                     if hasattr(child, "propagate_ids"):
                         child.propagate_ids()
                 continue
 
             # Scalar → FK likely lives on this object (forward FK attribute).
-            if isinstance(fwd_fk_name, str) and hasattr(self, fwd_fk_name) and getattr(self, fwd_fk_name) is None:
+            if (
+                isinstance(fwd_fk_name, str)
+                and hasattr(self, fwd_fk_name)
+                and getattr(self, fwd_fk_name) is None
+            ):
                 if isinstance(related, BaseModel) and hasattr(related, "id"):
                     setattr(self, fwd_fk_name, getattr(related, "id", None))
                 elif isinstance(related, dict) and "id" in related:

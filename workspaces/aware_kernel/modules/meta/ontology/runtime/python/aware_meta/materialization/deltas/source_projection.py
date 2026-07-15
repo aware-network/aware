@@ -46,12 +46,21 @@ from aware_meta.attribute.config.deltas.typed_operations import (
 from aware_meta.function.config.deltas.typed_operations import (
     function_config_delete_typed_operation,
 )
+from aware_meta.class_.config.relationship.deltas.typed_operations import (
+    ANNOTATION_EFFECT_TYPED_OPERATION_CONTRACT_VERSION,
+    RELATIONSHIP_LOAD_POLICY_ANNOTATION_UPDATE_PROVIDER_OPERATION_TYPE,
+)
 from aware_meta.materialization.deltas.feature_contracts import (
     MetaProviderDeltaSourceProjectionContext,
     MetaProviderDeltaSourceProjectionFeatureResult,
 )
 from aware_meta.materialization.deltas.feature_registry import (
     source_projection_feature_results_from_typed_operation,
+)
+from aware_meta.materialization.deltas.target_profiles import (
+    GeneratedMaterializationTargetProfile,
+    default_generated_materialization_target_profile,
+    generated_materialization_target_profile_from_payload,
 )
 from aware_meta.materialization.deltas.typed_operation_contracts import (
     MetaProviderDeltaTypedOperationPlan,
@@ -70,6 +79,9 @@ META_SEMANTIC_APPLY_SOURCE_PROJECTION_EVIDENCE_CONTRACT_VERSION = (
 )
 META_OBJECT_CONFIG_GRAPH_CLASS_DESCRIPTION_UPDATE_OPERATION = (
     "aware_meta.object_config_graph.class.description.update"
+)
+META_OBJECT_CONFIG_GRAPH_CLASS_PARENT_UPDATE_OPERATION = (
+    "aware_meta.object_config_graph.class.parent.update"
 )
 META_OBJECT_CONFIG_GRAPH_CLASS_CREATE_OPERATION = (
     "aware_meta.object_config_graph.class.create"
@@ -141,6 +153,7 @@ def provider_delta_source_projection_stage(
     provider_delta_semantic_change_report: Mapping[str, object],
     provider_delta_typed_operation_plan: Mapping[str, object],
     code_package_delta: object | None = None,
+    generated_materialization_target_profile: object | None = None,
 ) -> dict[str, object]:
     """Build Meta provider-local source-projection evidence for Workspace/Code."""
 
@@ -192,6 +205,11 @@ def provider_delta_source_projection_stage(
         package_root=projection.package_root,
         sources_root=projection.sources_root,
         target_language=projection.target_language,
+        generated_materialization_target_profile=(
+            _selected_generated_materialization_target_profile(
+                generated_materialization_target_profile
+            )
+        ),
         require_ready=False,
     )
     result = code_source_projection_result_from_meta_feature_results(
@@ -276,9 +294,9 @@ def provider_delta_result_from_semantic_apply_source_projection_evidence(
     commit_ids: Sequence[str] = (),
     head_commit_ids: Sequence[str] = (),
     current_delta_fingerprint: str | None = None,
-    baseline_semantic_object_index: (
-        Mapping[str, Mapping[str, object]] | None
-    ) = None,
+    baseline_semantic_object_index: Mapping[str, Mapping[str, object]] | None = None,
+    generated_materialization_target_profile: object | None = None,
+    generated_materialization_code_package_delta: Mapping[str, object] | None = None,
     metadata: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     """Build provider_delta source_projection evidence from semantic_apply output."""
@@ -301,6 +319,9 @@ def provider_delta_result_from_semantic_apply_source_projection_evidence(
         semantic_status=semantic_status,
         default_source_refs=resolved_source_refs,
         typed_operations=typed_operations,
+        generated_materialization_target_profile=(
+            generated_materialization_target_profile
+        ),
     )
     report = _provider_delta_semantic_change_report(
         semantic_dirty_diff={
@@ -334,6 +355,9 @@ def provider_delta_result_from_semantic_apply_source_projection_evidence(
                 for source_ref in resolved_source_refs
             ),
         },
+        generated_materialization_target_profile=(
+            generated_materialization_target_profile
+        ),
     )
     stage = _semantic_apply_source_projection_stage_with_context(
         stage=stage,
@@ -344,6 +368,23 @@ def provider_delta_result_from_semantic_apply_source_projection_evidence(
         head_commit_ids=head_commit_ids,
         metadata=metadata,
     )
+    result_metadata: dict[str, object] = {
+        "contract_version": (
+            META_SEMANTIC_APPLY_SOURCE_PROJECTION_EVIDENCE_CONTRACT_VERSION
+        ),
+        "source": "aware_meta.semantic_apply.source_projection_evidence",
+        "semantic_apply_status": semantic_apply.get("status"),
+        "semantic_apply_commit_ids": tuple(commit_ids),
+        "semantic_apply_head_commit_ids": tuple(head_commit_ids),
+        "caller_metadata": (
+            {str(key): value for key, value in metadata.items()} if metadata else {}
+        ),
+    }
+    if generated_materialization_code_package_delta:
+        result_metadata["generated_materialization_code_package_delta"] = dict(
+            generated_materialization_code_package_delta
+        )
+
     return {
         "semantic_contract": {
             "provider_key": META_SOURCE_PROJECTION_PROVIDER_KEY,
@@ -352,20 +393,10 @@ def provider_delta_result_from_semantic_apply_source_projection_evidence(
         "package": {"package_name": package_name},
         "current_delta_fingerprint": source_delta_fingerprint,
         "semantic_source_session_context": dict(source_session_context or {}),
-        "metadata": {
-            "contract_version": (
-                META_SEMANTIC_APPLY_SOURCE_PROJECTION_EVIDENCE_CONTRACT_VERSION
-            ),
-            "source": "aware_meta.semantic_apply.source_projection_evidence",
-            "semantic_apply_status": semantic_apply.get("status"),
-            "semantic_apply_commit_ids": tuple(commit_ids),
-            "semantic_apply_head_commit_ids": tuple(head_commit_ids),
-            "caller_metadata": (
-                {str(key): value for key, value in metadata.items()} if metadata else {}
-            ),
-        },
+        "metadata": result_metadata,
         "details": {
             "provider_delta_source_projection": stage,
+            "provider_delta_typed_operation_plan": typed_plan,
         },
     }
 
@@ -389,10 +420,39 @@ def _semantic_source_operation_with_baseline_index(
     operation: Mapping[str, object],
     baseline_semantic_object_index: Mapping[str, Mapping[str, object]],
 ) -> Mapping[str, object]:
-    if (
-        optional_text(operation.get("semantic_operation_type"))
-        != META_OBJECT_CONFIG_GRAPH_FUNCTION_SIGNATURE_UPDATE_OPERATION
-    ):
+    semantic_operation_type = optional_text(operation.get("semantic_operation_type"))
+    if semantic_operation_type in {
+        META_OBJECT_CONFIG_GRAPH_CLASS_DESCRIPTION_UPDATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_CLASS_PARENT_UPDATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_CLASS_IDENTITY_RENAME_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_CLASS_DELETE_OPERATION,
+    }:
+        identity = _class_baseline_identity_for_semantic_source_operation(
+            operation=operation,
+            baseline_semantic_object_index=baseline_semantic_object_index,
+        )
+        if not identity:
+            return operation
+        enriched = dict(operation)
+        before_payload = dict(mapping_value(enriched.get("before_payload")))
+        after_payload = dict(mapping_value(enriched.get("after_payload")))
+        for payload in (before_payload, after_payload):
+            _enrich_class_payload_with_baseline_identity(
+                payload=payload,
+                identity=identity,
+            )
+        enriched["before_payload"] = before_payload
+        enriched["after_payload"] = after_payload
+        semantic_source_object_id = _first_text(
+            identity.get("semantic_source_object_id"),
+            identity.get("class_config_id"),
+            identity.get("entity_id"),
+            identity.get("object_id"),
+        )
+        if semantic_source_object_id is not None:
+            enriched.setdefault("semantic_source_object_id", semantic_source_object_id)
+        return enriched
+    if semantic_operation_type != META_OBJECT_CONFIG_GRAPH_FUNCTION_SIGNATURE_UPDATE_OPERATION:
         return operation
     identity = _function_baseline_identity_for_semantic_source_operation(
         operation=operation,
@@ -428,6 +488,146 @@ def _semantic_source_operation_with_baseline_index(
             semantic_apply_receiver_object_id,
         )
     return enriched
+
+
+def _class_baseline_identity_for_semantic_source_operation(
+    *,
+    operation: Mapping[str, object],
+    baseline_semantic_object_index: Mapping[str, Mapping[str, object]],
+) -> Mapping[str, object]:
+    semantic_key = optional_text(operation.get("semantic_key")) or ""
+    direct_identity = baseline_semantic_object_index.get(semantic_key)
+    if direct_identity is not None:
+        return direct_identity
+    after_payload = mapping_value(operation.get("after_payload"))
+    before_payload = mapping_value(operation.get("before_payload"))
+    class_name = _first_text(
+        after_payload.get("class_name"),
+        after_payload.get("name"),
+        before_payload.get("class_name"),
+        before_payload.get("name"),
+        _class_name_from_class_semantic_key(semantic_key),
+    )
+    class_fqn = _first_text(
+        after_payload.get("class_fqn"),
+        after_payload.get("node_key"),
+        before_payload.get("class_fqn"),
+        before_payload.get("node_key"),
+        _class_fqn_from_class_semantic_key(semantic_key),
+    )
+    matches = tuple(
+        identity
+        for identity_key, identity in baseline_semantic_object_index.items()
+        if _class_baseline_identity_matches(
+            identity_key=identity_key,
+            identity=identity,
+            class_name=class_name,
+            class_fqn=class_fqn,
+        )
+    )
+    if len(matches) == 1:
+        return matches[0]
+    match_keys = {
+        _class_baseline_identity_key(identity=identity)
+        for identity in matches
+        if _class_baseline_identity_key(identity=identity) is not None
+    }
+    if len(match_keys) == 1 and matches:
+        return matches[0]
+    return {}
+
+
+def _class_baseline_identity_matches(
+    *,
+    identity_key: str,
+    identity: Mapping[str, object],
+    class_name: str | None,
+    class_fqn: str | None,
+) -> bool:
+    identity_class_fqn = _first_text(
+        identity.get("class_fqn"),
+        identity.get("node_key"),
+        _class_fqn_from_class_semantic_key(identity_key),
+    )
+    if class_fqn is not None and identity_class_fqn == class_fqn:
+        return True
+    identity_class_name = _first_text(
+        identity.get("class_name"),
+        identity.get("name"),
+        identity.get("entity_name"),
+        _last_dotted_token(identity_class_fqn),
+        _class_name_from_class_semantic_key(identity_key),
+    )
+    return class_name is not None and identity_class_name == class_name
+
+
+def _class_baseline_identity_key(
+    *,
+    identity: Mapping[str, object],
+) -> tuple[str, str] | None:
+    object_id = _first_text(
+        identity.get("semantic_source_object_id"),
+        identity.get("class_config_id"),
+        identity.get("entity_id"),
+        identity.get("object_id"),
+    )
+    class_fqn = _first_text(identity.get("class_fqn"), identity.get("node_key"))
+    if object_id is None and class_fqn is None:
+        return None
+    return (object_id or "", class_fqn or "")
+
+
+def _enrich_class_payload_with_baseline_identity(
+    *,
+    payload: dict[str, object],
+    identity: Mapping[str, object],
+) -> None:
+    for field_name in (
+        "object_id",
+        "entity_id",
+        "class_config_id",
+        "semantic_source_object_id",
+        "object_config_graph_node_id",
+        "node_id",
+        "class_name",
+        "name",
+        "entity_name",
+        "class_fqn",
+        "node_key",
+        "source_ref",
+        "source_refs",
+        "graph_semantic_key",
+        "owner_semantic_key",
+        "parent_semantic_key",
+    ):
+        if _payload_field_missing(payload.get(field_name)) and field_name in identity:
+            payload[field_name] = identity[field_name]
+    identity_generated = mapping_value(identity.get("generated_materialization"))
+    payload_generated = mapping_value(payload.get("generated_materialization"))
+    if identity_generated or payload_generated:
+        payload["generated_materialization"] = _merged_generated_materialization(
+            baseline=identity_generated,
+            payload=payload_generated,
+        )
+
+
+def _payload_field_missing(value: object) -> bool:
+    return value is None or value == "" or value == {}
+
+
+def _merged_generated_materialization(
+    *,
+    baseline: Mapping[str, object],
+    payload: Mapping[str, object],
+) -> dict[str, object]:
+    merged = dict(baseline)
+    merged.update(payload)
+    baseline_targets = mapping_value(baseline.get("targets"))
+    payload_targets = mapping_value(payload.get("targets"))
+    targets = {**baseline_targets, **payload_targets}
+    if targets:
+        merged["targets"] = targets
+    return merged
 
 
 def _function_baseline_identity_for_semantic_source_operation(
@@ -545,7 +745,11 @@ def typed_operation_plan_from_semantic_source_meaning(
     semantic_status: Mapping[str, object],
     default_source_refs: Sequence[str] = (),
     typed_operations: Sequence[Mapping[str, object]] | None = None,
+    generated_materialization_target_profile: object | None = None,
 ) -> dict[str, object]:
+    target_profile = _selected_generated_materialization_target_profile(
+        generated_materialization_target_profile
+    )
     operations: list[dict[str, object]] = []
     blocked_operations: list[dict[str, object]] = []
     semantic_source_operations = _coalesced_semantic_source_operations(
@@ -573,6 +777,7 @@ def typed_operation_plan_from_semantic_source_meaning(
                 _meta_typed_operation_from_semantic_source_operation(
                     provider_operation,
                     default_source_refs=default_source_refs,
+                    generated_materialization_target_profile=target_profile,
                 )
             )
     status = (
@@ -998,7 +1203,9 @@ def _attribute_identity_rename_before_class_name(
     before_payload: Mapping[str, object],
     after_payload: Mapping[str, object],
 ) -> str | None:
-    return _first_text(before_payload.get("class_name"), after_payload.get("class_name"))
+    return _first_text(
+        before_payload.get("class_name"), after_payload.get("class_name")
+    )
 
 
 def _attribute_identity_rename_after_class_name(
@@ -1006,7 +1213,9 @@ def _attribute_identity_rename_after_class_name(
     before_payload: Mapping[str, object],
     after_payload: Mapping[str, object],
 ) -> str | None:
-    return _first_text(after_payload.get("class_name"), before_payload.get("class_name"))
+    return _first_text(
+        after_payload.get("class_name"), before_payload.get("class_name")
+    )
 
 
 def _attribute_identity_rename_before_attribute_name(
@@ -1596,6 +1805,9 @@ def _meta_typed_operation_from_semantic_source_operation(
     operation: Mapping[str, object],
     *,
     default_source_refs: Sequence[str],
+    generated_materialization_target_profile: (
+        GeneratedMaterializationTargetProfile | None
+    ),
 ) -> dict[str, object]:
     semantic_key = optional_text(operation.get("semantic_key")) or ""
     semantic_operation_type = optional_text(operation.get("semantic_operation_type"))
@@ -1610,6 +1822,9 @@ def _meta_typed_operation_from_semantic_source_operation(
             operation,
             default_source_refs=default_source_refs,
             semantic_key=semantic_key,
+            generated_materialization_target_profile=(
+                generated_materialization_target_profile
+            ),
         )
     if semantic_operation_type == META_OBJECT_CONFIG_GRAPH_CLASS_CREATE_OPERATION:
         return _meta_class_create_typed_operation_from_semantic_source_operation(
@@ -1628,12 +1843,18 @@ def _meta_typed_operation_from_semantic_source_operation(
             operation,
             default_source_refs=default_source_refs,
             semantic_key=semantic_key,
+            generated_materialization_target_profile=(
+                generated_materialization_target_profile
+            ),
         )
     if semantic_operation_type == META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_DELETE_OPERATION:
         return _meta_attribute_delete_typed_operation_from_semantic_source_operation(
             operation,
             default_source_refs=default_source_refs,
             semantic_key=semantic_key,
+            generated_materialization_target_profile=(
+                generated_materialization_target_profile
+            ),
         )
     if (
         semantic_operation_type
@@ -1655,7 +1876,10 @@ def _meta_typed_operation_from_semantic_source_operation(
         )
     if (
         semantic_operation_type
-        == META_OBJECT_CONFIG_GRAPH_CLASS_DESCRIPTION_UPDATE_OPERATION
+        in {
+            META_OBJECT_CONFIG_GRAPH_CLASS_DESCRIPTION_UPDATE_OPERATION,
+            META_OBJECT_CONFIG_GRAPH_CLASS_PARENT_UPDATE_OPERATION,
+        }
     ):
         return _meta_class_update_typed_operation_from_semantic_source_operation(
             operation,
@@ -1827,9 +2051,7 @@ def _meta_attribute_membership_update_typed_operation_from_semantic_source_opera
                 current_signature=current_signature,
             )
         ),
-        "attribute_membership_mutable_update_fields": (
-            "is_identity_key",
-        ),
+        "attribute_membership_mutable_update_fields": ("is_identity_key",),
         "attribute_membership_identity_replacement_fields": (),
         "attribute_membership_replacement_required": False,
         "payload": dict(after_payload),
@@ -1929,6 +2151,46 @@ def _meta_relationship_update_typed_operation_from_semantic_source_operation(
         relationship_key=relationship_key,
         relationship_type=relationship_type,
     )
+    relationship_config_id = _first_text(
+        operation.get("relationship_config_id"),
+        operation.get("class_config_relationship_id"),
+        operation.get("semantic_source_object_id"),
+        before_payload.get("relationship_config_id"),
+        before_payload.get("class_config_relationship_id"),
+        before_payload.get("semantic_source_object_id"),
+        before_payload.get("entity_id"),
+        before_payload.get("object_id"),
+        after_payload.get("relationship_config_id"),
+        after_payload.get("class_config_relationship_id"),
+        after_payload.get("semantic_source_object_id"),
+        after_payload.get("entity_id"),
+        after_payload.get("object_id"),
+    )
+    source_class_config_id = _first_text(
+        operation.get("source_class_config_id"),
+        operation.get("class_config_id"),
+        after_payload.get("source_class_config_id"),
+        after_payload.get("class_config_id"),
+        current_signature.get("source_class_config_id"),
+        current_signature.get("class_config_id"),
+        before_payload.get("source_class_config_id"),
+        before_payload.get("class_config_id"),
+        baseline_signature.get("source_class_config_id"),
+        baseline_signature.get("class_config_id"),
+    )
+    target_class_config_id = _first_text(
+        operation.get("target_class_config_id"),
+        after_payload.get("target_class_config_id"),
+        current_signature.get("target_class_config_id"),
+        before_payload.get("target_class_config_id"),
+        baseline_signature.get("target_class_config_id"),
+    )
+    for signature in (baseline_signature, current_signature):
+        if source_class_config_id is not None:
+            signature.setdefault("source_class_config_id", source_class_config_id)
+            signature.setdefault("class_config_id", source_class_config_id)
+        if target_class_config_id is not None:
+            signature.setdefault("target_class_config_id", target_class_config_id)
     current: dict[str, object] = {
         "semantic_key": semantic_key,
         "object_kind": "relationship",
@@ -1941,7 +2203,37 @@ def _meta_relationship_update_typed_operation_from_semantic_source_operation(
         "relationship_type": relationship_type,
         "relationship_signature": current_signature,
     }
+    baseline_object: dict[str, object] = {
+        "relationship_key": relationship_key,
+        "source_class_fqn": source_class_fqn,
+        "target_class_fqn": target_class_fqn,
+        "relationship_type": relationship_type,
+        "relationship_signature": baseline_signature,
+    }
+    if relationship_config_id is not None:
+        for target in (baseline_object, current):
+            target["relationship_config_id"] = relationship_config_id
+            target["class_config_relationship_id"] = relationship_config_id
+            target["entity_id"] = relationship_config_id
+            target["object_id"] = relationship_config_id
+            target["semantic_source_object_id"] = relationship_config_id
+    if source_class_config_id is not None:
+        for target in (baseline_object, current):
+            target["source_class_config_id"] = source_class_config_id
+            target["class_config_id"] = source_class_config_id
+    if target_class_config_id is not None:
+        for target in (baseline_object, current):
+            target["target_class_config_id"] = target_class_config_id
+    generated_materialization = (
+        mapping_value(operation.get("generated_materialization"))
+        or mapping_value(after_payload.get("generated_materialization"))
+        or mapping_value(before_payload.get("generated_materialization"))
+    )
+    if generated_materialization:
+        baseline_object["generated_materialization"] = dict(generated_materialization)
+        current["generated_materialization"] = dict(generated_materialization)
     current.update(_relationship_loading_strategy_fields(payload=after_payload))
+    current.update(_relationship_annotation_effect_fields(operation=operation))
     return {
         "operation_kind": "meta_ocg_provider_delta_typed_operation",
         "operation_key": (
@@ -1949,20 +2241,15 @@ def _meta_relationship_update_typed_operation_from_semantic_source_operation(
             or f"semantic_apply.{class_name}.{relationship_key}.{operation_family}"
         ),
         "operation_family": operation_family,
-        "provider_operation_type": f"meta_ocg.relationship.{operation_family}",
+        "provider_operation_type": _relationship_provider_operation_type(
+            operation=operation,
+            operation_family=operation_family,
+        ),
         "semantic_key": semantic_key,
         "semantic_subject_type": "aware_meta.ClassConfigRelationship",
         "ontology_subject_kind": "relationship",
         "source_refs": list(source_refs),
-        "baseline": {
-            "object": {
-                "relationship_key": relationship_key,
-                "source_class_fqn": source_class_fqn,
-                "target_class_fqn": target_class_fqn,
-                "relationship_type": relationship_type,
-                "relationship_signature": baseline_signature,
-            }
-        },
+        "baseline": {"object": baseline_object},
         "current": {**current, "payload": current},
         "source_semantic_change": {
             "event_ref": operation.get("event_key"),
@@ -1971,6 +2258,57 @@ def _meta_relationship_update_typed_operation_from_semantic_source_operation(
             "semantic_source_operation": dict(operation),
         },
     }
+
+
+def _relationship_provider_operation_type(
+    *,
+    operation: Mapping[str, object],
+    operation_family: str,
+) -> str:
+    if _is_relationship_load_policy_annotation_effect(operation):
+        return RELATIONSHIP_LOAD_POLICY_ANNOTATION_UPDATE_PROVIDER_OPERATION_TYPE
+    return f"meta_ocg.relationship.{operation_family}"
+
+
+def _relationship_annotation_effect_fields(
+    *,
+    operation: Mapping[str, object],
+) -> dict[str, object]:
+    if not _is_relationship_load_policy_annotation_effect(operation):
+        return {}
+    return {
+        "annotation_semantics_consumed": True,
+        "annotation_semantics_contract_version": (
+            ANNOTATION_EFFECT_TYPED_OPERATION_CONTRACT_VERSION
+        ),
+        "annotation_effect_kind": "relationship_load_policy",
+        "annotation_to_relationship_mutation_policy": (
+            "class_config_relationship.update_config"
+        ),
+        "annotation_source_field_path": optional_text(operation.get("field_path"))
+        or "load_policy_args",
+    }
+
+
+def _is_relationship_load_policy_annotation_effect(
+    operation: Mapping[str, object],
+) -> bool:
+    if (
+        optional_text(operation.get("semantic_operation_type"))
+        == META_OBJECT_CONFIG_GRAPH_RELATIONSHIP_LOAD_POLICY_UPDATE_OPERATION
+    ):
+        return True
+    if optional_text(operation.get("field_path")) in {
+        "load_policy_args",
+        "load_policy",
+        "forward_loading_strategy",
+        "reverse_loading_strategy",
+    }:
+        return True
+    return (
+        optional_text(operation.get("provider_operation_type"))
+        == RELATIONSHIP_LOAD_POLICY_ANNOTATION_UPDATE_PROVIDER_OPERATION_TYPE
+    )
 
 
 def _meta_class_create_typed_operation_from_semantic_source_operation(
@@ -2026,6 +2364,13 @@ def _meta_class_create_typed_operation_from_semantic_source_operation(
     ).evidence_payload()
     current = mapping_value(operation_payload.get("current"))
     payload = mapping_value(current.get("payload"))
+    generated_materialization = (
+        mapping_value(operation.get("generated_materialization"))
+        or mapping_value(after_payload.get("generated_materialization"))
+    )
+    if generated_materialization:
+        current["generated_materialization"] = dict(generated_materialization)
+        payload["generated_materialization"] = dict(generated_materialization)
     if object_config_graph_node_id is not None:
         current["object_config_graph_node_id"] = object_config_graph_node_id
         payload["object_config_graph_node_id"] = object_config_graph_node_id
@@ -2148,6 +2493,9 @@ def _meta_attribute_create_typed_operation_from_semantic_source_operation(
     *,
     default_source_refs: Sequence[str],
     semantic_key: str,
+    generated_materialization_target_profile: (
+        GeneratedMaterializationTargetProfile | None
+    ),
 ) -> dict[str, object]:
     after_payload = mapping_value(operation.get("after_payload"))
     class_name = (
@@ -2197,16 +2545,42 @@ def _meta_attribute_create_typed_operation_from_semantic_source_operation(
         description=optional_text(after_payload.get("description")),
     ).evidence_payload()
     current = mapping_value(operation_payload.get("current"))
-    signature = mapping_value(current.get("attribute_signature"))
+    semantic_attribute_payload = _semantic_apply_attribute_payload(
+        attribute_name=attribute_name,
+        owner_key=class_fqn,
+        field_path=optional_text(operation.get("field_path")) or "definition",
+        payload=after_payload,
+    )
+    raw_semantic_signature = mapping_value(
+        semantic_attribute_payload.get("attribute_signature")
+    )
+    semantic_signature = _string_default_value_contract_signature(
+        raw_semantic_signature,
+    )
+    raw_semantic_descriptor = mapping_value(
+        raw_semantic_signature.get("type_descriptor")
+    )
+    semantic_descriptor = mapping_value(semantic_signature.get("type_descriptor"))
+    signature = (
+        dict(raw_semantic_signature)
+        if raw_semantic_descriptor.get("kind") is not None
+        else semantic_signature
+        if semantic_descriptor.get("kind") is not None
+        else dict(mapping_value(current.get("attribute_signature")))
+    )
     signature.update(
         {
             "owner_key": class_fqn,
             "class_name": class_name,
-            "type": optional_text(after_payload.get("type")) or "String",
         }
     )
+    if optional_text(after_payload.get("type")) is not None:
+        signature["type"] = optional_text(after_payload.get("type"))
     if after_payload.get("default_value") is not None:
         signature["default_value"] = after_payload["default_value"]
+    target_source_ref = _selected_target_source_ref_from_source_refs(
+        source_refs=source_refs,
+    )
     current.update(
         {
             "owner_key": class_fqn,
@@ -2215,14 +2589,11 @@ def _meta_attribute_create_typed_operation_from_semantic_source_operation(
             "attribute_config_id": attribute_config_id,
             "entity_id": attribute_config_id,
             "attribute_signature": signature,
-            "generated_materialization": {
-                "python_orm": {
-                    "relative_path": _python_orm_relative_path_from_source_refs(
-                        source_refs=source_refs,
-                        package_name=optional_text(operation.get("package_name")),
-                    ),
-                },
-            },
+            "generated_materialization": _generated_materialization_targets(
+                source_ref=target_source_ref,
+                owner_key=class_fqn,
+                target_profile=generated_materialization_target_profile,
+            ),
         }
     )
     operation_payload["current"] = current
@@ -2244,6 +2615,9 @@ def _meta_attribute_delete_typed_operation_from_semantic_source_operation(
     *,
     default_source_refs: Sequence[str],
     semantic_key: str,
+    generated_materialization_target_profile: (
+        GeneratedMaterializationTargetProfile | None
+    ),
 ) -> dict[str, object]:
     before_payload = mapping_value(operation.get("before_payload"))
     after_payload = mapping_value(operation.get("after_payload"))
@@ -2303,6 +2677,9 @@ def _meta_attribute_delete_typed_operation_from_semantic_source_operation(
             "primitive_base_type": primitive_base_type,
         },
     }
+    target_source_ref = _selected_target_source_ref_from_source_refs(
+        source_refs=source_refs,
+    )
     baseline_object = {
         "object_kind": "attribute",
         "object_id": attribute_config_id,
@@ -2318,14 +2695,11 @@ def _meta_attribute_delete_typed_operation_from_semantic_source_operation(
         "attribute_name": attribute_name,
         "attribute_config_id": attribute_config_id,
         "attribute_signature": attribute_signature,
-        "generated_materialization": {
-            "python_orm": {
-                "relative_path": _python_orm_relative_path_from_source_refs(
-                    source_refs=source_refs,
-                    package_name=optional_text(operation.get("package_name")),
-                ),
-            },
-        },
+        "generated_materialization": _generated_materialization_targets(
+            source_ref=target_source_ref,
+            owner_key=class_fqn,
+            target_profile=generated_materialization_target_profile,
+        ),
     }
     current = {
         "semantic_key": semantic_key,
@@ -2388,14 +2762,78 @@ def _meta_class_update_typed_operation_from_semantic_source_operation(
     current_description = optional_text(
         after_payload.get("description")
     ) or optional_text(after_payload.get("class_description"))
+    baseline_parent_class_id = optional_text(before_payload.get("parent_class_id"))
+    baseline_parent_class_fqn = optional_text(before_payload.get("parent_class_fqn"))
+    baseline_parent_class_semantic_key = optional_text(
+        before_payload.get("parent_class_semantic_key")
+    )
+    current_parent_class_id = optional_text(after_payload.get("parent_class_id"))
+    current_parent_class_fqn = optional_text(after_payload.get("parent_class_fqn"))
+    current_parent_class_semantic_key = optional_text(
+        after_payload.get("parent_class_semantic_key")
+    )
+    semantic_scope_closure = (
+        operation.get("semantic_scope_closure")
+        or after_payload.get("semantic_scope_closure")
+        or before_payload.get("semantic_scope_closure")
+    )
+    generated_materialization = mapping_value(
+        after_payload.get("generated_materialization")
+        or before_payload.get("generated_materialization")
+    )
     source_refs = tuple_text(operation.get("source_refs")) or tuple(default_source_refs)
+    class_config_id = _first_text(
+        operation.get("semantic_source_object_id"),
+        operation.get("class_config_id"),
+        after_payload.get("semantic_source_object_id"),
+        after_payload.get("class_config_id"),
+        after_payload.get("entity_id"),
+        after_payload.get("object_id"),
+        before_payload.get("semantic_source_object_id"),
+        before_payload.get("class_config_id"),
+        before_payload.get("entity_id"),
+        before_payload.get("object_id"),
+    )
+    object_config_graph_node_id = _first_text(
+        operation.get("object_config_graph_node_id"),
+        operation.get("node_id"),
+        after_payload.get("object_config_graph_node_id"),
+        after_payload.get("node_id"),
+        before_payload.get("object_config_graph_node_id"),
+        before_payload.get("node_id"),
+    )
     operation_family = optional_text(operation.get("operation_family")) or "update"
+    semantic_operation_type = optional_text(operation.get("semantic_operation_type"))
+    parent_update = (
+        semantic_operation_type == META_OBJECT_CONFIG_GRAPH_CLASS_PARENT_UPDATE_OPERATION
+    )
+    provider_operation_type = (
+        "meta_ocg.class.parent.update" if parent_update else "meta_ocg.class.update"
+    )
+    default_operation_key = (
+        f"semantic_apply.{class_name}.parent.update"
+        if parent_update
+        else f"semantic_apply.{class_name}.description.update"
+    )
     baseline_object = {
         "class_name": class_name,
         "name": class_name,
         "entity_name": class_name,
         "class_fqn": owner_key,
         "description": baseline_description,
+        "parent_class_id": baseline_parent_class_id,
+        "parent_class_fqn": baseline_parent_class_fqn,
+        "parent_class_semantic_key": baseline_parent_class_semantic_key,
+        "generated_materialization": generated_materialization,
+    }
+    class_signature: dict[str, object] = {
+        "class_name": class_name,
+        "name": class_name,
+        "class_fqn": owner_key,
+        "description": current_description,
+        "parent_class_id": current_parent_class_id,
+        "parent_class_fqn": current_parent_class_fqn,
+        "parent_class_semantic_key": current_parent_class_semantic_key,
     }
     current = {
         "semantic_key": semantic_key,
@@ -2405,21 +2843,34 @@ def _meta_class_update_typed_operation_from_semantic_source_operation(
         "entity_name": class_name,
         "class_fqn": owner_key,
         "description": current_description,
-        "class_signature": {
-            "class_name": class_name,
-            "name": class_name,
-            "class_fqn": owner_key,
-            "description": current_description,
-        },
+        "parent_class_id": current_parent_class_id,
+        "parent_class_fqn": current_parent_class_fqn,
+        "parent_class_semantic_key": current_parent_class_semantic_key,
+        "previous_parent_class_id": baseline_parent_class_id,
+        "previous_parent_class_fqn": baseline_parent_class_fqn,
+        "previous_parent_class_semantic_key": baseline_parent_class_semantic_key,
+        "semantic_scope_closure": semantic_scope_closure,
+        "generated_materialization": generated_materialization,
+        "class_signature": class_signature,
     }
+    if class_config_id is not None:
+        for target in (baseline_object, current):
+            target["class_config_id"] = class_config_id
+            target["entity_id"] = class_config_id
+            target["object_id"] = class_config_id
+            target["semantic_source_object_id"] = class_config_id
+        class_signature["class_config_id"] = class_config_id
+    if object_config_graph_node_id is not None:
+        for target in (baseline_object, current):
+            target["object_config_graph_node_id"] = object_config_graph_node_id
+            target["node_id"] = object_config_graph_node_id
+        class_signature["object_config_graph_node_id"] = object_config_graph_node_id
     return {
         "operation_kind": "meta_ocg_provider_delta_typed_operation",
-        "operation_key": (
-            optional_text(operation.get("operation_key"))
-            or f"semantic_apply.{class_name}.description.update"
-        ),
+        "operation_key": optional_text(operation.get("operation_key"))
+        or default_operation_key,
         "operation_family": operation_family,
-        "provider_operation_type": "meta_ocg.class.update",
+        "provider_operation_type": provider_operation_type,
         "semantic_key": semantic_key,
         "semantic_subject_type": "aware_meta.ClassConfig",
         "ontology_subject_kind": "class",
@@ -2469,7 +2920,7 @@ def _meta_enum_update_typed_operation_from_semantic_source_operation(
         "entity_name": enum_name,
         "description": baseline_description,
     }
-    current = {
+    current: dict[str, object] = {
         "semantic_key": semantic_key,
         "object_kind": "enum",
         "enum_fqn": enum_fqn,
@@ -2531,7 +2982,7 @@ def _meta_enum_create_typed_operation_from_semantic_source_operation(
         or optional_text(operation.get("graph_semantic_key"))
         or _graph_semantic_key_from_enum_semantic_key(semantic_key)
     )
-    current = {
+    current: dict[str, object] = {
         "semantic_key": semantic_key,
         "object_kind": "enum",
         "graph_semantic_key": graph_semantic_key,
@@ -2552,6 +3003,11 @@ def _meta_enum_create_typed_operation_from_semantic_source_operation(
         ),
         "values": tuple_text(after_payload.get("values")),
     }
+    generated_materialization = mapping_value(
+        operation.get("generated_materialization")
+    ) or mapping_value(after_payload.get("generated_materialization"))
+    if generated_materialization:
+        current["generated_materialization"] = dict(generated_materialization)
     return {
         "operation_kind": "meta_ocg_provider_delta_typed_operation",
         "operation_key": (
@@ -2936,7 +3392,13 @@ def _meta_function_update_typed_operation_from_semantic_source_operation(
     source_refs = tuple_text(operation.get("source_refs")) or tuple(default_source_refs)
     operation_family = optional_text(operation.get("operation_family")) or "update"
     field_path = optional_text(operation.get("field_path"))
-    if field_path in {"class_config_id", "function_config_id", "is_public", "is_constructor", "position"}:
+    if field_path in {
+        "class_config_id",
+        "function_config_id",
+        "is_public",
+        "is_constructor",
+        "position",
+    }:
         return _meta_function_membership_update_typed_operation_from_semantic_source_operation(
             operation,
             default_source_refs=default_source_refs,
@@ -2968,6 +3430,31 @@ def _meta_function_update_typed_operation_from_semantic_source_operation(
         "is_async": current_signature["is_async"],
         "function_signature": current_signature,
     }
+    function_config_id = _first_text(
+        operation.get("semantic_source_object_id"),
+        operation.get("entity_id"),
+        operation.get("object_id"),
+        after_payload.get("function_config_id"),
+        after_payload.get("semantic_source_object_id"),
+        after_payload.get("entity_id"),
+        after_payload.get("object_id"),
+        before_payload.get("function_config_id"),
+        before_payload.get("semantic_source_object_id"),
+        before_payload.get("entity_id"),
+        before_payload.get("object_id"),
+    )
+    if function_config_id is not None:
+        current["function_config_id"] = function_config_id
+        current["entity_id"] = function_config_id
+        current["object_id"] = function_config_id
+        current["semantic_source_object_id"] = function_config_id
+    generated_materialization = (
+        mapping_value(operation.get("generated_materialization"))
+        or mapping_value(after_payload.get("generated_materialization"))
+        or mapping_value(before_payload.get("generated_materialization"))
+    )
+    if generated_materialization:
+        current["generated_materialization"] = dict(generated_materialization)
     return {
         "operation_kind": "meta_ocg_provider_delta_typed_operation",
         "operation_key": (
@@ -3092,6 +3579,9 @@ def _meta_function_delete_typed_operation_from_semantic_source_operation(
     *,
     default_source_refs: Sequence[str],
     semantic_key: str,
+    generated_materialization_target_profile: (
+        GeneratedMaterializationTargetProfile | None
+    ),
 ) -> dict[str, object]:
     before_payload = mapping_value(operation.get("before_payload"))
     after_payload = mapping_value(operation.get("after_payload"))
@@ -3142,6 +3632,11 @@ def _meta_function_delete_typed_operation_from_semantic_source_operation(
         mapping_value(operation.get("generated_materialization"))
         or mapping_value(before_payload.get("generated_materialization"))
         or mapping_value(after_payload.get("generated_materialization"))
+    )
+    generated_materialization = _generated_materialization_targets_from_mapping(
+        generated_materialization,
+        owner_key=owner_key,
+        target_profile=generated_materialization_target_profile,
     )
     function_config_id = (
         semantic_source_object_id
@@ -3238,15 +3733,18 @@ def _meta_function_create_typed_operation_from_semantic_source_operation(
         after_payload.get("function_description")
     ) or optional_text(after_payload.get("description"))
     source_refs = tuple_text(operation.get("source_refs")) or tuple(default_source_refs)
-    function_signature = {
-        "owner_key": owner_key,
-        "name": function_name,
-        "kind": optional_text(after_payload.get("kind")) or "instance",
-        "description": description,
-        "verb": optional_text(after_payload.get("verb")),
-        "is_async": after_payload.get("is_async") is True,
-    }
-    current = {
+    function_signature = _string_default_value_contract_signature(
+        _semantic_apply_function_signature_payload(
+            payload=after_payload,
+            owner_key=owner_key,
+            function_name=function_name,
+        )
+    )
+    function_signature.setdefault("description", description)
+    function_signature.setdefault("kind", optional_text(after_payload.get("kind")))
+    function_signature.setdefault("verb", optional_text(after_payload.get("verb")))
+    function_signature["is_constructor"] = after_payload.get("is_constructor") is True
+    current: dict[str, object] = {
         "semantic_key": semantic_key,
         "object_kind": "function",
         "owner_semantic_key": f"meta.class:{class_name}",
@@ -3256,15 +3754,21 @@ def _meta_function_create_typed_operation_from_semantic_source_operation(
         "entity_name": function_name,
         "function_name": function_name,
         "owner_key": owner_key,
-        "kind": function_signature["kind"],
-        "description": description,
-        "verb": function_signature["verb"],
-        "is_async": function_signature["is_async"],
+        "kind": function_signature.get("kind"),
+        "description": function_signature.get("description"),
+        "verb": function_signature.get("verb"),
+        "is_async": function_signature.get("is_async") is True,
         "is_public": after_payload.get("is_public") is not False,
         "is_constructor": after_payload.get("is_constructor") is True,
         "position": _int_value(after_payload.get("position")) or 0,
         "function_signature": function_signature,
     }
+    generated_materialization = (
+        mapping_value(operation.get("generated_materialization"))
+        or mapping_value(after_payload.get("generated_materialization"))
+    )
+    if generated_materialization:
+        current["generated_materialization"] = dict(generated_materialization)
     return {
         "operation_kind": "meta_ocg_provider_delta_typed_operation",
         "operation_key": (
@@ -3314,6 +3818,28 @@ def _semantic_apply_relationship_signature_payload(
     }
     signature.update(_relationship_loading_strategy_fields(payload=payload))
     return signature
+
+
+def _string_default_value_contract_signature(
+    signature: Mapping[str, object],
+) -> dict[str, object]:
+    """Keep semantic signatures compatible with current Meta default String? APIs."""
+
+    cleaned = dict(signature)
+    if (
+        "default_value" in cleaned
+        and cleaned["default_value"] is not None
+        and not isinstance(cleaned["default_value"], str)
+    ):
+        cleaned.pop("default_value")
+    for child_key in ("inputs", "outputs"):
+        if child_key not in cleaned:
+            continue
+        cleaned[child_key] = tuple(
+            _string_default_value_contract_signature(mapping_value(child))
+            for child in _object_sequence(cleaned.get(child_key))
+        )
+    return cleaned
 
 
 def _relationship_loading_strategy_fields(
@@ -3438,8 +3964,7 @@ def _semantic_apply_function_membership_signature_payload(
     )
     return {
         "class_config_id": (
-            optional_text(signature_payload.get("class_config_id"))
-            or class_config_id
+            optional_text(signature_payload.get("class_config_id")) or class_config_id
         ),
         "function_config_id": (
             optional_text(signature_payload.get("function_config_id"))
@@ -3614,24 +4139,93 @@ def _semantic_apply_attribute_payload(
     field_path: str,
     payload: Mapping[str, object],
 ) -> dict[str, object]:
-    type_text = optional_text(payload.get("type"))
-    primitive_base_type, is_required = _primitive_type_descriptor_from_text(type_text)
-    signature: dict[str, object] = {
-        "name": attribute_name,
-        "owner_key": owner_key,
-        "is_required": is_required,
-        "type_descriptor": {
-            "kind": "primitive",
-            "primitive_base_type": primitive_base_type,
-        },
-    }
+    signature_payload = mapping_value(payload.get("attribute_signature"))
+    type_text = optional_text(payload.get("type")) or optional_text(
+        signature_payload.get("type")
+    )
+    type_descriptor = _semantic_apply_attribute_type_descriptor(
+        payload=payload,
+        signature_payload=signature_payload,
+        type_text=type_text,
+    )
+    _primitive_base_type, inferred_is_required = _primitive_type_descriptor_from_text(
+        type_text
+    )
+    is_required = (
+        _optional_bool(payload.get("is_required"))
+        if _optional_bool(payload.get("is_required")) is not None
+        else _optional_bool(signature_payload.get("is_required"))
+    )
+    signature: dict[str, object] = dict(signature_payload)
+    signature.update(
+        {
+            "name": attribute_name,
+            "owner_key": owner_key,
+            "is_required": (
+                is_required if is_required is not None else inferred_is_required
+            ),
+            "type_descriptor": type_descriptor,
+        }
+    )
+    if type_text is not None:
+        signature.setdefault("type", type_text)
     if field_path == "default_value" and "default_value" in payload:
         signature["default_value"] = payload["default_value"]
-    return {
+    result: dict[str, object] = {
         "attribute_name": attribute_name,
         "owner_key": owner_key,
         "attribute_signature": signature,
     }
+    for field_name in (
+        "attribute_config_id",
+        "entity_id",
+        "object_id",
+        "semantic_source_object_id",
+        "receiver_object_id",
+        "semantic_apply_receiver_object_id",
+    ):
+        value = optional_text(payload.get(field_name))
+        if value is not None:
+            result[field_name] = value
+    semantic_source_object_id = optional_text(result.get("semantic_source_object_id"))
+    if semantic_source_object_id is not None:
+        result.setdefault("entity_id", semantic_source_object_id)
+        result.setdefault("object_id", semantic_source_object_id)
+        result.setdefault("attribute_config_id", semantic_source_object_id)
+    generated_materialization = mapping_value(payload.get("generated_materialization"))
+    if generated_materialization:
+        result["generated_materialization"] = dict(generated_materialization)
+    return result
+
+
+def _semantic_apply_attribute_type_descriptor(
+    *,
+    payload: Mapping[str, object],
+    signature_payload: Mapping[str, object],
+    type_text: str | None,
+) -> dict[str, object]:
+    descriptor = mapping_value(payload.get("type_descriptor")) or mapping_value(
+        signature_payload.get("type_descriptor")
+    )
+    if descriptor:
+        return descriptor
+    primitive_base_type, _is_required = _primitive_type_descriptor_from_text(type_text)
+    return {
+        "kind": "primitive",
+        "primitive_base_type": primitive_base_type,
+    }
+
+
+def _optional_bool(value: object) -> bool | None:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"1", "true", "yes"}:
+            return True
+        if normalized in {"0", "false", "no"}:
+            return False
+    return None
 
 
 def _primitive_type_descriptor_from_text(
@@ -3987,39 +4581,76 @@ def _stable_attribute_config_id(
     return str(stable_attribute_config_id(owner_key=owner_key, name=attribute_name))
 
 
-def _python_orm_relative_path_from_source_refs(
+def _selected_target_source_ref_from_source_refs(
     *,
     source_refs: Sequence[str],
-    package_name: str | None,
 ) -> str | None:
-    sources_root = _python_orm_sources_root_from_package_name(package_name)
     for source_ref in source_refs:
         normalized = source_ref.replace("\\", "/").strip("/")
         if not normalized.endswith(".aware"):
             continue
-        parts = tuple(part for part in normalized.split("/") if part)
-        if "aware" in parts:
-            parts = parts[parts.index("aware") + 1 :]
-        if not parts:
-            continue
-        python_path = "/".join(parts)[: -len(".aware")] + ".py"
-        return (
-            python_path
-            if sources_root is None or python_path.startswith(f"{sources_root}/")
-            else f"{sources_root}/{python_path}"
-        )
+        return normalized
     return None
 
 
-def _python_orm_sources_root_from_package_name(package_name: str | None) -> str | None:
-    if package_name is None or not package_name.endswith("-ontology"):
-        return None
-    package_base = package_name[: -len("-ontology")].replace("-", "_").strip("_")
-    if not package_base:
-        return None
-    if package_base.startswith("aware_"):
-        return f"{package_base}_ontology"
-    return f"aware_{package_base}_ontology"
+def _generated_materialization_targets(
+    *,
+    source_ref: str | None,
+    owner_key: str | None,
+    target_profile: GeneratedMaterializationTargetProfile | None,
+) -> dict[str, object]:
+    source_ref = optional_text(source_ref)
+    if source_ref is None or target_profile is None:
+        return {}
+    targets: dict[str, object] = {}
+    target = dict(mapping_value(targets.get(target_profile.target_key)))
+    target_profile.apply_to_target(target)
+    if owner_key is not None:
+        target.setdefault("owner_key", owner_key)
+    target.setdefault("source_ref", source_ref)
+    target.setdefault("source_relative_path", _source_relative_path(source_ref))
+    targets[target_profile.target_key] = target
+    return {"targets": targets}
+
+
+def _generated_materialization_targets_from_mapping(
+    generated_materialization: Mapping[str, object],
+    *,
+    owner_key: str | None,
+    target_profile: GeneratedMaterializationTargetProfile | None,
+) -> dict[str, object]:
+    targets = mapping_value(generated_materialization.get("targets"))
+    if target_profile is None:
+        return {"targets": targets} if targets else {}
+    target = dict(mapping_value(targets.get(target_profile.target_key)))
+    if not target:
+        return {"targets": targets} if targets else {}
+    target_profile.apply_to_target(target)
+    if owner_key is not None:
+        target.setdefault("owner_key", owner_key)
+    source_ref = optional_text(target.get("source_ref"))
+    if source_ref is not None:
+        target.setdefault("source_relative_path", _source_relative_path(source_ref))
+    targets[target_profile.target_key] = target
+    return {"targets": targets}
+
+
+def _source_relative_path(source_ref: str) -> str:
+    parts = tuple(
+        part for part in source_ref.replace("\\", "/").strip("/").split("/") if part
+    )
+    if "aware" in parts:
+        return "/".join(parts[parts.index("aware") + 1 :])
+    return "/".join(parts)
+
+
+def _selected_generated_materialization_target_profile(
+    value: object | None,
+) -> GeneratedMaterializationTargetProfile | None:
+    return generated_materialization_target_profile_from_payload(
+        value,
+        default=default_generated_materialization_target_profile(),
+    )
 
 
 def _first_text(*values: object) -> str | None:
@@ -4444,6 +5075,7 @@ def code_section_delta_entries_from_meta_function_impl_typed_operations(
     *,
     package_name: str | None = None,
     target_language: object | None = None,
+    generated_materialization_target_profile: object | None = None,
     require_ready: bool = True,
 ) -> tuple[CodeSectionDeltaEntry, ...]:
     """Build Code-owned section deltas from explicit FunctionImpl projection hints."""
@@ -4464,6 +5096,9 @@ def code_section_delta_entries_from_meta_function_impl_typed_operations(
                 provider_delta_typed_operation_plan,
                 package_name=package_name,
                 target_language=target_language,
+                generated_materialization_target_profile=(
+                    generated_materialization_target_profile
+                ),
                 require_ready=require_ready,
             )
         )
@@ -4478,6 +5113,7 @@ def source_projection_feature_results_from_meta_typed_operations(
     package_root: str | None = None,
     sources_root: str | None = None,
     target_language: object | None = None,
+    generated_materialization_target_profile: object | None = None,
     require_ready: bool = True,
 ) -> tuple[MetaProviderDeltaSourceProjectionFeatureResult, ...]:
     """Build per-feature source-projection evidence from Meta typed operations."""
@@ -4497,6 +5133,11 @@ def source_projection_feature_results_from_meta_typed_operations(
         package_root=package_root,
         sources_root=sources_root,
         target_language=optional_text(target_language),
+        generated_materialization_target_profile=(
+            _selected_generated_materialization_target_profile(
+                generated_materialization_target_profile
+            )
+        ),
     )
     for operation in typed_plan.typed_operations:
         results.extend(

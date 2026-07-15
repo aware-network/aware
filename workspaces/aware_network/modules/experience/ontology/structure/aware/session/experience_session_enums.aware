@@ -1,0 +1,5 @@
+enum ExperienceSessionState {
+    active
+    suspended
+    closed
+}

@@ -13,12 +13,14 @@ import pytest
 
 from aware_code.types import JsonArray, JsonObject
 from aware_meta.runtime import factory as runtime_factory
+from aware_meta.runtime import (
+    generated_handler_discovery as generated_handler_discovery_module,
+)
 from aware_meta.runtime.generated_handler_discovery import (
     discover_meta_graph_generated_handler_provider_set,
 )
 from aware_meta.runtime.generated_impl_delegation import (
     meta_graph_impl_delegating_invocation_handler_resolver,
-    meta_graph_impl_delegating_language_handler_resolver,
     resolve_meta_handler_impl,
 )
 from aware_meta.runtime.generated_handler_resolver_chain import (
@@ -97,10 +99,10 @@ def test_generated_meta_handlers_include_class_config_update_config() -> None:
     )
 
     key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_meta.default.class.ClassConfig",
+        owner_key="aware_meta.class.ClassConfig",
         function_name="update_config",
         is_constructor=False,
-        owner_class_fqn="aware_meta.default.class.ClassConfig",
+        owner_class_fqn="aware_meta.class.ClassConfig",
         owner_class_name="ClassConfig",
     )
 
@@ -119,10 +121,10 @@ def test_meta_impl_delegation_resolves_relationship_constructor_without_bridge()
     None
 ):
     key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_meta.default.class.ClassConfigRelationship",
+        owner_key="aware_meta.class.ClassConfigRelationship",
         function_name="create_via_class_config",
         is_constructor=True,
-        owner_class_fqn="aware_meta.default.class.ClassConfigRelationship",
+        owner_class_fqn="aware_meta.class.ClassConfigRelationship",
         owner_class_name="ClassConfigRelationship",
     )
 
@@ -246,10 +248,10 @@ def test_meta_impl_delegation_resolves_relationship_top_level_language_handler()
     None
 ):
     key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_meta.default.class.ClassConfig",
+        owner_key="aware_meta.class.ClassConfig",
         function_name="create_relationship",
         is_constructor=False,
-        owner_class_fqn="aware_meta.default.class.ClassConfig",
+        owner_class_fqn="aware_meta.class.ClassConfig",
         owner_class_name="ClassConfig",
     )
 
@@ -259,7 +261,7 @@ def test_meta_impl_delegation_resolves_relationship_top_level_language_handler()
     assert class_config_schema_id is not None
     owner_class_config = ClassConfig(
         id=class_config_schema_id,
-        class_fqn="aware_meta.default.class.ClassConfig",
+        class_fqn="aware_meta.class.ClassConfig",
         name="ClassConfig",
     )
     function_config = FunctionConfig(
@@ -306,13 +308,13 @@ def test_meta_impl_delegation_resolves_relationship_top_level_language_handler()
     assert relationship_schema_id is not None
     relationship_constructor = FunctionConfig(
         id=uuid4(),
-        owner_key="aware_meta.default.class.ClassConfigRelationship",
+        owner_key="aware_meta.class.ClassConfigRelationship",
         name="create_via_class_config",
         kind=FunctionKind.class_,
     )
     relationship_owner_class_config = ClassConfig(
         id=relationship_schema_id,
-        class_fqn="aware_meta.default.class.ClassConfigRelationship",
+        class_fqn="aware_meta.class.ClassConfigRelationship",
         name="ClassConfigRelationship",
         class_config_function_configs=[
             ClassConfigFunctionConfig(
@@ -399,6 +401,9 @@ def test_meta_impl_delegation_resolves_relationship_top_level_language_handler()
     staged_call = SimpleNamespace(
         lane_scope=lane_scope,
         function_call=FunctionCall.model_construct(id=uuid4()),
+        resolved_target=SimpleNamespace(
+            operation_label="ClassConfig.create_relationship"
+        ),
     )
     request = cast(
         Any,
@@ -415,6 +420,7 @@ def test_meta_impl_delegation_resolves_relationship_top_level_language_handler()
                 target_object_id=source_class_config.id,
                 call_target=SimpleNamespace(value="opg_instance"),
                 actor_id=uuid4(),
+                domain_projection_hash=opg.projection_hash,
             ),
             invoke_function=None,
         ),
@@ -460,10 +466,10 @@ def test_meta_impl_delegation_resolves_relationship_top_level_language_handler()
 
 def test_meta_impl_delegation_resolves_constructor_top_level_language_handler() -> None:
     key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_meta.default.class.ClassConfigRelationship",
+        owner_key="aware_meta.class.ClassConfigRelationship",
         function_name="create_via_class_config",
         is_constructor=True,
-        owner_class_fqn="aware_meta.default.class.ClassConfigRelationship",
+        owner_class_fqn="aware_meta.class.ClassConfigRelationship",
         owner_class_name="ClassConfigRelationship",
     )
 
@@ -473,7 +479,7 @@ def test_meta_impl_delegation_resolves_constructor_top_level_language_handler() 
     assert relationship_schema_id is not None
     owner_class_config = ClassConfig(
         id=relationship_schema_id,
-        class_fqn="aware_meta.default.class.ClassConfigRelationship",
+        class_fqn="aware_meta.class.ClassConfigRelationship",
         name="ClassConfigRelationship",
     )
     function_config = FunctionConfig(
@@ -654,10 +660,10 @@ def test_meta_impl_delegation_resolves_function_config_create_with_strict_invoca
     None
 ):
     key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_meta.default.class.ClassConfig",
+        owner_key="aware_meta.class.ClassConfig",
         function_name="create_function_config",
         is_constructor=False,
-        owner_class_fqn="aware_meta.default.class.ClassConfig",
+        owner_class_fqn="aware_meta.class.ClassConfig",
         owner_class_name="ClassConfig",
     )
 
@@ -667,7 +673,7 @@ def test_meta_impl_delegation_resolves_function_config_create_with_strict_invoca
     assert class_config_schema_id is not None
     owner_class_config = ClassConfig(
         id=class_config_schema_id,
-        class_fqn="aware_meta.default.class.ClassConfig",
+        class_fqn="aware_meta.class.ClassConfig",
         name="ClassConfig",
     )
     function_config = FunctionConfig(
@@ -717,13 +723,13 @@ def test_meta_impl_delegation_resolves_function_config_create_with_strict_invoca
     assert function_membership_schema_id is not None
     function_membership_constructor = FunctionConfig(
         id=uuid4(),
-        owner_key="aware_meta.default.class.ClassConfigFunctionConfig",
+        owner_key="aware_meta.class.ClassConfigFunctionConfig",
         name="create_via_class_config",
         kind=FunctionKind.class_,
     )
     function_membership_owner_class_config = ClassConfig(
         id=function_membership_schema_id,
-        class_fqn="aware_meta.default.class.ClassConfigFunctionConfig",
+        class_fqn="aware_meta.class.ClassConfigFunctionConfig",
         name="ClassConfigFunctionConfig",
         class_config_function_configs=[
             ClassConfigFunctionConfig(
@@ -741,7 +747,7 @@ def test_meta_impl_delegation_resolves_function_config_create_with_strict_invoca
     assert function_config_schema_id is not None
     function_config_owner_class_config = ClassConfig(
         id=function_config_schema_id,
-        class_fqn="aware_meta.default.function.FunctionConfig",
+        class_fqn="aware_meta.function.FunctionConfig",
         name="FunctionConfig",
     )
     runtime_index = SimpleNamespace(
@@ -834,10 +840,10 @@ def test_meta_impl_delegation_resolves_function_config_delete_with_strict_invoca
     )
 
     key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_meta.default.class.ClassConfig",
+        owner_key="aware_meta.class.ClassConfig",
         function_name="remove_function_config",
         is_constructor=False,
-        owner_class_fqn="aware_meta.default.class.ClassConfig",
+        owner_class_fqn="aware_meta.class.ClassConfig",
         owner_class_name="ClassConfig",
     )
     function_config = FunctionConfig(
@@ -848,7 +854,7 @@ def test_meta_impl_delegation_resolves_function_config_delete_with_strict_invoca
     )
     owner_class_config = ClassConfig(
         id=uuid4(),
-        class_fqn="aware_meta.default.class.ClassConfig",
+        class_fqn="aware_meta.class.ClassConfig",
         name="ClassConfig",
     )
     descriptor = MetaGraphFunctionImplementationDescriptor(
@@ -959,24 +965,24 @@ def test_meta_generated_handlers_include_class_config_attribute_lifecycle_stubs(
 
     for key in (
         MetaGraphGeneratedLanguageHandlerKey(
-            owner_key="aware_meta.default.class.ClassConfig",
+            owner_key="aware_meta.class.ClassConfig",
             function_name="create_primitive_attribute_config",
             is_constructor=False,
-            owner_class_fqn="aware_meta.default.class.ClassConfig",
+            owner_class_fqn="aware_meta.class.ClassConfig",
             owner_class_name="ClassConfig",
         ),
         MetaGraphGeneratedLanguageHandlerKey(
-            owner_key="aware_meta.default.class.ClassConfigAttributeConfig",
+            owner_key="aware_meta.class.ClassConfigAttributeConfig",
             function_name="create_primitive_via_class_config",
             is_constructor=True,
-            owner_class_fqn="aware_meta.default.class.ClassConfigAttributeConfig",
+            owner_class_fqn="aware_meta.class.ClassConfigAttributeConfig",
             owner_class_name="ClassConfigAttributeConfig",
         ),
         MetaGraphGeneratedLanguageHandlerKey(
-            owner_key="aware_meta.default.class.ClassConfig",
+            owner_key="aware_meta.class.ClassConfig",
             function_name="remove_attribute_config",
             is_constructor=False,
-            owner_class_fqn="aware_meta.default.class.ClassConfig",
+            owner_class_fqn="aware_meta.class.ClassConfig",
             owner_class_name="ClassConfig",
         ),
     ):
@@ -1072,7 +1078,7 @@ def test_generated_handler_discovery_uses_python_meta_handler_provider_descripto
 
 def test_generated_handler_discovery_accepts_explicit_owner_prefixes() -> None:
     key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_workspace_perf_test.default.workspace.Workspace",
+        owner_key="aware_workspace_perf_test.workspace.Workspace",
         function_name="append_materialization",
         is_constructor=False,
         owner_class_fqn="aware_workspace_perf_test.workspace.workspace.Workspace",
@@ -1091,7 +1097,7 @@ def test_generated_handler_discovery_accepts_explicit_owner_prefixes() -> None:
     )
     try:
         provider_set = discover_meta_graph_generated_handler_provider_set(
-            index=_runtime_index_for_owner_key("aware_unrelated.default.foo.Foo"),
+            index=_runtime_index_for_owner_key("aware_unrelated.foo.Foo"),
             handler_owner_prefixes=("aware_workspace_perf_test",),
         )
     finally:
@@ -1112,10 +1118,10 @@ def test_generated_handler_discovery_accepts_explicit_owner_prefixes() -> None:
 
 def test_generated_handler_discovery_tries_runtime_import_root() -> None:
     key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_api_test.default.api.ApiCall",
+        owner_key="aware_api_test.api.ApiCall",
         function_name="create_via_api_capability_endpoint",
         is_constructor=True,
-        owner_class_fqn="aware_api_test.default.api.ApiCall",
+        owner_class_fqn="aware_api_test.api.ApiCall",
         owner_class_name="ApiCall",
     )
 
@@ -1170,12 +1176,79 @@ def test_generated_handler_discovery_tries_runtime_import_root() -> None:
     )
 
 
+def test_generated_handler_discovery_uses_namespace_native_owner_prefix() -> None:
+    key = MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_identity.identity.Identity",
+        function_name="signup_via_profile",
+        is_constructor=True,
+        owner_class_fqn="aware_identity.identity.Identity",
+        owner_class_name="Identity",
+    )
+
+    def _handler(*args: object, **kwargs: object) -> MetaGraphLanguageHandlerExecution:
+        _ = (args, kwargs)
+        return MetaGraphLanguageHandlerExecution(success=True)
+
+    def _bootstrap(request: object) -> object:
+        _ = request
+        return MetaGraphEmptyLaneBootstrap(root_object_id=uuid4())
+
+    installed = _install_generated_handler_module(
+        module_name="aware_identity.handlers._generated.meta_handlers",
+        handlers={key: _handler},
+        invocation_handlers={},
+        bootstraps={key: _bootstrap},
+    )
+    try:
+        provider_set = discover_meta_graph_generated_handler_provider_set(
+            index=_runtime_index_for_owner_key(key.owner_key),
+        )
+    finally:
+        for module_name in installed:
+            sys.modules.pop(module_name, None)
+
+    assert provider_set is not None
+    assert provider_set.provider_module_names == (
+        "aware_identity.handlers._generated.meta_handlers",
+    )
+    descriptor = _implementation_descriptor_for_key(key)
+    assert (
+        provider_set.handler_resolver.resolve_generated_language_handler(
+            descriptor,
+        )
+        is _handler
+    )
+    bootstrap_resolver = cast(
+        MetaGraphGeneratedConstructorBootstrapRegistry,
+        provider_set.empty_lane_bootstrap_resolver,
+    )
+    assert bootstrap_resolver is not None
+    assert (
+        bootstrap_resolver.resolve_empty_lane_bootstrap(
+            cast(
+                Any,
+                SimpleNamespace(
+                    execution_plan=SimpleNamespace(implementation=descriptor),
+                ),
+            )
+        )
+        is not None
+    )
+
+
+def test_generated_handler_discovery_has_no_default_namespace_special_case() -> None:
+    source_path = Path(cast(str, generated_handler_discovery_module.__file__))
+    source = source_path.read_text(encoding="utf-8")
+
+    assert ".default." not in source
+
+
 def test_generated_handler_discovery_prefers_index_runtime_provider_roots() -> None:
     key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_service_api_test.default.api.ApiCall",
+        owner_key="aware_service_api_test.api.ApiCall",
         function_name="create_via_api_capability_endpoint",
         is_constructor=True,
-        owner_class_fqn="aware_service_api_test.default.api.ApiCall",
+        owner_class_fqn="aware_service_api_test.api.ApiCall",
         owner_class_name="ApiCall",
     )
 
@@ -1210,10 +1283,10 @@ def test_generated_handler_discovery_prefers_index_runtime_provider_roots() -> N
 
 def test_generated_handler_discovery_dedupes_runtime_provider_module_names() -> None:
     key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_api.default.api.Api",
+        owner_key="aware_api.api.Api",
         function_name="build",
         is_constructor=True,
-        owner_class_fqn="aware_api.default.api.Api",
+        owner_class_fqn="aware_api.api.Api",
         owner_class_name="Api",
     )
 
@@ -1250,17 +1323,17 @@ def test_generated_handler_discovery_prefers_explicit_runtime_provider_over_owne
     None
 ):
     duplicate_key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_service.default.service.Service",
+        owner_key="aware_service.service.Service",
         function_name="create_operation",
         is_constructor=False,
-        owner_class_fqn="aware_service.default.service.Service",
+        owner_class_fqn="aware_service.service.Service",
         owner_class_name="Service",
     )
     runtime_only_key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_service.default.service.ServicePackage",
+        owner_key="aware_service.service.ServicePackage",
         function_name="attach_ontology_package",
         is_constructor=False,
-        owner_class_fqn="aware_service.default.service.ServicePackage",
+        owner_class_fqn="aware_service.service.ServicePackage",
         owner_class_name="ServicePackage",
     )
 
@@ -1420,10 +1493,10 @@ def test_runtime_factory_prefers_authored_impl_delegation_over_delegate_resolver
     tmp_path: Path,
 ) -> None:
     key = MetaGraphGeneratedLanguageHandlerKey(
-        owner_key="aware_meta.default.function.FunctionImplInstructionSet",
+        owner_key="aware_meta.function.FunctionImplInstructionSet",
         function_name="update_assignment",
         is_constructor=False,
-        owner_class_fqn="aware_meta.default.function.FunctionImplInstructionSet",
+        owner_class_fqn="aware_meta.function.FunctionImplInstructionSet",
         owner_class_name="FunctionImplInstructionSet",
     )
 

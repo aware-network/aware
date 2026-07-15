@@ -26,7 +26,9 @@ from aware_code.semantic_materialization import (
 from aware_code.types import JsonArray
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_code_ontology.code.code_plan import CodePackageDelta
-from aware_meta.manifest.loader import load_aware_toml_spec
+from aware_meta.graph.package.manifest_contract import (
+    load_object_config_graph_package_manifest,
+)
 from aware_ontology.manifest.loader import load_aware_ontology_toml_spec
 from aware_meta.graph.instance.builder import (
     build_rooted_object_instance_graph_base,
@@ -35,10 +37,8 @@ from aware_meta.graph.instance.commit.committer import (
     FSLaneCommitter,
     LaneHeadPreHashMismatchError,
 )
-from aware_meta.graph.instance.commit.fs_store import (
-    CommitActionDescriptor,
-    FSCommitStore,
-)
+from aware_meta.graph.instance.commit.contract import CommitActionDescriptor
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 from aware_meta.graph.instance.commit.materialization_cache import (
     get_shared_materialization_cache,
 )
@@ -585,6 +585,15 @@ async def materialize(
             artifact_set=artifact_set,
         ),
     )
+    semantic_package_detail = _semantic_package_detail_from_leaf_result(
+        source=source,
+        leaf_result=leaf_result,
+        workspace_root=request.workspace_root,
+        receipt_context=_workspace_semantic_package_receipt_context(
+            context=request.context,
+        ),
+        materialized_language_packages=materialized_language_packages,
+    )
     return SemanticPackageMaterializationResult(
         details=details,
         bundle_packages=(
@@ -633,6 +642,9 @@ async def materialize(
                     (runtime_code_package_snapshot.bundle_ref(),)
                     if runtime_code_package_snapshot is not None
                     else ()
+                ),
+                semantic_packages=(
+                    (semantic_package_detail,) if semantic_package_detail else ()
                 ),
             ),
         ),
@@ -860,7 +872,9 @@ def _ontology_package_function_impl_policy(
     *,
     source: _OntologyPackageSource,
 ) -> dict[str, str]:
-    package_spec = load_aware_toml_spec(toml_path=source.source_manifest_path)
+    package_spec = load_object_config_graph_package_manifest(
+        toml_path=source.source_manifest_path
+    )
     package = getattr(package_spec, "package", None)
     return {
         "ownership": str(getattr(package, "function_impl_ownership", "authored")),
@@ -1726,7 +1740,9 @@ def _resolve_ontology_package_source_from_path(
         label="aware.ontology.toml source_manifest",
     )
 
-    aware_spec = load_aware_toml_spec(toml_path=source_manifest_path)
+    aware_spec = load_object_config_graph_package_manifest(
+        toml_path=source_manifest_path
+    )
     if aware_spec.package.package_name != ontology_spec.ontology.package_name:
         raise RuntimeError(
             "aware.ontology.toml package_name does not match source "
@@ -2545,7 +2561,7 @@ def _target_runtime_object_config_graph_from_manifest_closure(
         if runtime_graph is not None:
             return runtime_graph
 
-    runtime_context = build_meta_graph_runtime_context_for_aware_package_manifests(
+    runtime_context = _build_runtime_only_context_for_package_manifests(
         package_manifest_paths=package_manifest_paths,
         workspace_root=request.workspace_root,
         composite_name=(
@@ -2561,6 +2577,33 @@ def _target_runtime_object_config_graph_from_manifest_closure(
         if str(getattr(graph, "fqn_prefix", "") or "") == source.fqn_prefix:
             return graph
     return None
+
+
+def _build_runtime_only_context_for_package_manifests(
+    *,
+    package_manifest_paths: Iterable[Path],
+    workspace_root: Path,
+    composite_name: str,
+) -> Any:
+    kwargs = {
+        "package_manifest_paths": package_manifest_paths,
+        "workspace_root": workspace_root,
+        "composite_name": composite_name,
+    }
+    try:
+        return build_meta_graph_runtime_context_for_aware_package_manifests(
+            **kwargs,
+            strict_package_graph_cache=True,
+            load_source_graph_payloads=False,
+        )
+    except RuntimeError as exc:
+        if not _is_strict_runtime_only_context_cache_miss(exc):
+            raise
+    return build_meta_graph_runtime_context_for_aware_package_manifests(**kwargs)
+
+
+def _is_strict_runtime_only_context_cache_miss(exc: RuntimeError) -> bool:
+    return str(exc).startswith("Strict Meta package graph cache")
 
 
 def _request_context_with_execution_context_entries(
@@ -2635,7 +2678,7 @@ def _dependency_package_names_for_manifest_paths(
     seen: set[str] = set()
     for manifest_path in package_manifest_paths:
         try:
-            spec = load_aware_toml_spec(toml_path=manifest_path)
+            spec = load_object_config_graph_package_manifest(toml_path=manifest_path)
         except Exception:
             continue
         package_name = str(spec.package.package_name).strip()
@@ -3067,6 +3110,148 @@ def _non_empty_string(value: object) -> str | None:
 
 def _uuid_string(value: UUID | None) -> str | None:
     return str(value) if value is not None else None
+
+
+def _uuidish_string(value: object) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, UUID):
+        return str(value)
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def _workspace_relative_path(*, path: Path, workspace_root: Path) -> str:
+    try:
+        return path.resolve().relative_to(workspace_root.resolve()).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def _workspace_relative_joined_path(
+    *,
+    root: Path,
+    relative_path: str,
+    workspace_root: Path,
+) -> str:
+    path = Path(relative_path)
+    absolute_path = path if path.is_absolute() else root / path
+    return _workspace_relative_path(path=absolute_path, workspace_root=workspace_root)
+
+
+def _workspace_semantic_package_receipt_context(
+    *,
+    context: Mapping[str, object],
+) -> Mapping[str, object]:
+    value = context.get("workspace_semantic_package_receipt")
+    return value if isinstance(value, Mapping) else {}
+
+
+def _semantic_package_detail_from_leaf_result(
+    *,
+    source: _OntologyPackageSource,
+    leaf_result: ObjectConfigGraphPackageLeafMaterializationResult,
+    workspace_root: Path,
+    receipt_context: Mapping[str, object],
+    materialized_language_packages: tuple[Mapping[str, object], ...] = (),
+) -> dict[str, object] | None:
+    module_name = _non_empty_string(receipt_context.get("module_name"))
+    if module_name is None:
+        return None
+    source_manifest_path = _workspace_relative_path(
+        path=source.source_manifest_path,
+        workspace_root=workspace_root,
+    )
+    ontology_manifest_path = _workspace_relative_path(
+        path=source.ontology_toml_path,
+        workspace_root=workspace_root,
+    )
+    package_root = _workspace_relative_joined_path(
+        root=source.ontology_toml_path.parent,
+        relative_path=source.package_root,
+        workspace_root=workspace_root,
+    )
+    sources_root = _workspace_relative_joined_path(
+        root=source.ontology_toml_path.parent,
+        relative_path=source.sources_root,
+        workspace_root=workspace_root,
+    )
+    code_package = leaf_result.code_package
+    object_config_graph_package = leaf_result.object_config_graph_package
+    object_config_graph = leaf_result.object_config_graph
+    semantic_contract_module_relative_package_root = _non_empty_string(
+        receipt_context.get("semantic_contract_module_relative_package_root")
+    )
+    payload: dict[str, object] = {
+        "module_name": module_name,
+        "aware_toml_path": source_manifest_path,
+        "manifest_path": source_manifest_path,
+        "source_manifest_path": source_manifest_path,
+        "semantic_contract_manifest_relative_path": ontology_manifest_path,
+        "manifest_relative_path": ontology_manifest_path,
+        "package_root": package_root,
+        "workspace_package_root": package_root,
+        "sources_root": sources_root,
+        "package_name": object_config_graph_package.package_name,
+        "fqn_prefix": object_config_graph_package.fqn_prefix,
+        "semantic_branch_id": str(leaf_result.package_branch_id),
+        "semantic_head_commit_id": _uuid_string(
+            leaf_result.object_config_graph_package_head_commit_id,
+        ),
+        "code_package_id": str(code_package.id),
+        "code_package_head_commit_id": _uuidish_string(
+            getattr(leaf_result, "code_package_head_commit_id", None),
+        ),
+        "code_package_object_instance_graph_commit_id": _uuidish_string(
+            getattr(leaf_result, "code_package_object_instance_graph_commit_id", None),
+        ),
+        "object_config_graph_package_id": str(object_config_graph_package.id),
+        "object_config_graph_package_head_commit_id": _uuid_string(
+            leaf_result.object_config_graph_package_head_commit_id,
+        ),
+        "object_config_graph_package_object_instance_graph_commit_id": _uuid_string(
+            leaf_result.object_config_graph_package_object_instance_graph_commit_id,
+        ),
+        "object_config_graph_id": str(object_config_graph.id),
+        "object_config_graph_head_commit_id": _uuidish_string(
+            getattr(leaf_result, "object_config_graph_head_commit_id", None),
+        ),
+        "object_config_graph_object_instance_graph_commit_id": _uuidish_string(
+            getattr(
+                leaf_result,
+                "object_config_graph_object_instance_graph_commit_id",
+                None,
+            ),
+        ),
+        "semantic_root_object_instance_graph_commit_id": _uuidish_string(
+            getattr(
+                leaf_result,
+                "object_config_graph_object_instance_graph_commit_id",
+                None,
+            ),
+        ),
+        "phase_timings_s": dict(
+            sorted(_object_payload(getattr(leaf_result, "phase_timings_s", {})).items())
+        ),
+        "semantic_commit_strategy": leaf_result.semantic_commit_strategy,
+        "semantic_commit_fallback_reset": leaf_result.semantic_commit_fallback_reset,
+        "semantic_commit_phase_timings_s": dict(
+            sorted(
+                _object_payload(
+                    getattr(leaf_result, "semantic_commit_phase_timings_s", {})
+                ).items()
+            )
+        ),
+        "materialized_language_packages": tuple(
+            dict(item) for item in materialized_language_packages
+        ),
+    }
+    if semantic_contract_module_relative_package_root is not None:
+        payload["semantic_contract_module_relative_package_root"] = (
+            semantic_contract_module_relative_package_root
+        )
+    return payload
 
 
 def _leaf_ocg_package_oig_commit_id(

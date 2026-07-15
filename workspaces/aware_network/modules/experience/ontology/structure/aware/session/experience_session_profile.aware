@@ -1,0 +1,28 @@
+/// Session-local mount of one applied Experience profile.
+///
+/// Contract:
+/// - EnvironmentExperienceProfile remains reusable applied profile truth.
+/// - This row records participation/provenance within one ExperienceSession.
+/// - It carries no global active-profile or active-projection semantics.
+class ExperienceSessionProfile {
+    // Relationships
+    profile environment.EnvironmentExperienceProfile key
+
+    // Attributes
+    status String = "active"
+    metadata_json JsonObject? = {}
+
+    fn build construct (
+        profile_id UUID key,
+        status String = "active",
+        metadata_json JsonObject? = {}
+    ) -> ExperienceSessionProfile {
+        """
+        Mount one applied Experience profile under ExperienceSession.
+
+        Stable identity is ExperienceSession plus applied profile.
+        """
+    }
+}
+
+ann session.ExperienceSessionProfile::profile load eager

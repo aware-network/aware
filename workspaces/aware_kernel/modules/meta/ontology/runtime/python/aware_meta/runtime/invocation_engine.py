@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable, Sequence
+from collections.abc import Awaitable, Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Protocol
@@ -67,6 +67,8 @@ class MetaGraphCommitReceipt:
     commit_id: UUID | None
     object_instance_graph_commit_id: UUID | None
     commit_action: MetaInvocationCommitAction | None = None
+    perf_trace_duration_ms: float | None = None
+    perf_trace_summary: Mapping[str, Mapping[str, float | int]] | None = None
 
 
 class MetaGraphInvocationBackend(Protocol):

@@ -1,0 +1,62 @@
+/// Execution/session token for an AgentProcessThread.
+///
+/// Contract:
+/// - This rail is bound to env/process/thread execution context.
+/// - Public Identity/API credentials are modeled by credential.CredentialProfile.
+/// - Plaintext token material is never stored in commits.
+class AuthToken {
+    // Attributes
+    token_type AuthTokenType
+    actor_id UUID
+    public_key String
+    issued_by_actor_id UUID
+    issued_at DateTime
+    label String?
+    scopes String[] = []
+
+    /// Context binding (v1: APT tokens bind to env+process+thread).
+    context_environment_id UUID?
+    context_process_id UUID?
+    context_thread_id UUID?
+
+    expires_at DateTime?
+    revoked_at DateTime?
+
+    /// SHA256(secret) hex. Plaintext secret is never stored in commits.
+    sha256 String
+
+    fn create_apt construct(
+        actor_id UUID,
+        public_key String,
+        issued_by_actor_id UUID,
+        issued_at DateTime,
+        context_environment_id UUID,
+        context_process_id UUID,
+        context_thread_id UUID,
+        sha256 String,
+        label String? = null,
+        scopes String[] = [],
+        expires_at DateTime? = null,
+        token_id UUID? = null
+    ) -> AuthToken {
+        """
+        Create a new APT (AgentProcessThread) auth token.
+
+        Contract:
+        - Parent `AuthTokenRegistry` ownership is propagated by constructor path (`_via_auth_token_registry`).
+        - `token_id` is random by default; may be provided for deterministic tests.
+        - `sha256` is SHA256(secret) hex; plaintext secret is never stored in commits.
+        - Context binding is required (env+process+thread) and enforced at transport.
+        """
+    }
+
+    fn revoke() -> AuthToken {
+        """
+        Revoke this token.
+
+        Contract:
+        - Mutate-self-only: may only update this token instance.
+        - Idempotent: revoking an already revoked token is a no-op.
+        """
+    }
+}

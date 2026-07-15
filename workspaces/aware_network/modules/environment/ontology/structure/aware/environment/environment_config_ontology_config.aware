@@ -1,0 +1,29 @@
+class EnvironmentConfigOntologyConfig {
+    // Relationships
+    ontology_config aware_ontology.ontology.OntologyConfig?
+    ontology_config_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    fqn_prefix String key
+    name String key
+
+    fn build construct(
+        name String key,
+        fqn_prefix String key,
+        ontology_config_object_instance_graph_commit_id UUID? = null,
+    ) -> EnvironmentConfigOntologyConfig {
+        """
+        Create a deterministic EnvironmentConfig-owned edge to one OntologyConfig.
+
+        Contract:
+        - Parent `EnvironmentConfig` scope is injected by propagation.
+        - Target OntologyConfig identity is resolved from `(name, fqn_prefix)`.
+        - OCG authority remains on `OntologyConfig.object_config_graph`.
+        - The optional commit pin lets runtime replay exact ontology config truth
+          without reopening source manifests.
+        """
+    }
+}
+
+ann environment.EnvironmentConfigOntologyConfig::ontology_config load eager
+ann environment.EnvironmentConfigOntologyConfig::ontology_config_object_instance_graph_commit load eager

@@ -1,0 +1,18 @@
+class CodeSectionDecoratorExpression {
+    // Relationships
+    code_section_expression expression.CodeSectionExpression
+    name_segment aware_content.part.ContentPartTextSegment?
+
+    // Attributes
+    position Int key = 0
+
+    fn build construct(position Int key = 0) -> CodeSectionDecoratorExpression {
+        """
+        Build an ordered decorator-expression entry under a decorator.
+        """
+    }
+}
+
+/// Eager expression + name segment
+ann decorator.CodeSectionDecoratorExpression::code_section_expression load eager
+ann decorator.CodeSectionDecoratorExpression::name_segment load eager

@@ -1,0 +1,65 @@
+/// Connector provider configuration.
+///
+/// Contract:
+/// - A ConnectorProvider identifies a concrete provider for a ConnectorConfig
+///   capability family.
+/// - Provider config is reusable and does not represent a live login/session.
+/// - ConnectorSession records concrete provider fulfillment context and links
+///   to the runtime Connector instance.
+class ConnectorProvider {
+    // Relationships
+    sessions ConnectorSession[]
+
+    // Attributes
+    provider_key String key
+    provider_kind String
+    provider_ref String?
+    label String?
+    description String?
+
+    fn build construct (
+        provider_key String key,
+        provider_kind String,
+        provider_ref String? = null,
+        label String? = null,
+        description String? = null
+    ) -> ConnectorProvider {
+        """
+        Create one deterministic provider config under a ConnectorConfig.
+
+        Contract:
+        - Parent `ConnectorConfig` scope is propagated by constructor lowering.
+        - `provider_key` is stable within the Connector config.
+        - `provider_kind` identifies the concrete external provider.
+        """
+    }
+
+    fn create_session (
+        connector_id UUID key,
+        session_key String key,
+        session_ref String? = null,
+        host_ref String? = null,
+        principal_ref String? = null,
+        status String = "active"
+    ) -> ConnectorSession {
+        """
+        Create one concrete provider session bound to a Connector instance.
+
+        Contract:
+        - Provider config stays reusable.
+        - Session identity captures the concrete fulfillment context, e.g.
+          a YouTube Music session on the FutureHills clinic computer.
+        - The linked Connector owns fulfilled Sensor/Actuator instances.
+        """
+        let created = construct sessions.build(
+            connector_id = connector_id,
+            session_key = session_key,
+            session_ref = session_ref,
+            host_ref = host_ref,
+            principal_ref = principal_ref,
+            status = status,
+        )
+    }
+}
+
+ann connector.ConnectorProvider::sessions load eager

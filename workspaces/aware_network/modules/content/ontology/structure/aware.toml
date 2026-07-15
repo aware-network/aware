@@ -1,0 +1,17 @@
+aware = 1
+
+[package]
+package_name = "content-ontology"
+fqn_prefix = "aware_content"
+kind = "ontology"
+version_number = 1
+title = "Content"
+description = "SSOT canonical (.aware) sources for content - The atomic building blocks of all other modules."
+function_impl_ownership = "compiler"
+function_impl_parity_policy = "error"
+
+[build]
+environment_slug = "aware_content"
+
+[[dependencies]]
+package_name = "storage-ontology"

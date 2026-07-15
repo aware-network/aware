@@ -1,0 +1,12 @@
+/// AttentionPackage projection
+///
+/// Purpose:
+/// - Expose the Attention-owned package rail for Workspace/interface/package consumers.
+/// - Keep `LayoutConfig` as the canonical layout topology root under the package boundary.
+/// - Avoid collapsing package truth and layout semantics into one object.
+projection AttentionPackage is_branchable {
+    root attention.AttentionPackage
+
+    attention.AttentionPackage::layout_configs
+    attention.AttentionPackageLayoutConfig::layout_config LayoutConfig
+}

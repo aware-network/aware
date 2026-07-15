@@ -25,6 +25,14 @@ from aware_meta.materialization.deltas.source_projection import (
     source_projection_feature_results_from_meta_typed_operations,
     typed_operation_plan_from_semantic_source_meaning,
 )
+from aware_meta.class_.config.relationship.deltas.typed_operations import (
+    RELATIONSHIP_LOAD_POLICY_ANNOTATION_UPDATE_PROVIDER_OPERATION_TYPE,
+)
+from aware_meta.materialization.deltas.target_profiles import (
+    GeneratedMaterializationTargetProfile,
+    ORM_RUNTIME_TARGET_PROFILE,
+    generated_materialization_target_profile_from_payload,
+)
 from aware_meta.semantic_operation_resolution import (
     META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_CREATE_OPERATION,
     META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_DELETE_OPERATION,
@@ -133,7 +141,9 @@ def test_meta_semantic_apply_attribute_structural_create_builds_operation() -> N
     current = _mapping(operation["current"])
     signature = _mapping(current["attribute_signature"])
     generated = _mapping(current["generated_materialization"])
-    python_orm = _mapping(generated["python_orm"])
+    targets = _mapping(generated["targets"])
+    orm_runtime_target = _mapping(targets["orm_runtime"])
+    expected_source_ref = "content/content_layout.aware"
     assert current["owner_semantic_key"] == "meta.class:ContentLayout"
     assert current["owner_key"] == "aware_content.default.content.ContentLayout"
     assert current["attribute_name"] == "title"
@@ -141,9 +151,304 @@ def test_meta_semantic_apply_attribute_structural_create_builds_operation() -> N
         "kind": "primitive",
         "primitive_base_type": "string",
     }
-    assert python_orm["relative_path"] == (
-        "aware_content_ontology/content/content_layout.py"
+    assert "python_orm" not in generated
+    assert "relative_path" not in orm_runtime_target
+    assert "target_language" not in orm_runtime_target
+    assert orm_runtime_target["source_ref"] == expected_source_ref
+    assert orm_runtime_target["source_relative_path"] == expected_source_ref
+    for key, value in ORM_RUNTIME_TARGET_PROFILE.target_metadata().items():
+        assert orm_runtime_target[key] == value
+    assert generated == _expected_generated_materialization_targets(
+        source_ref=expected_source_ref,
+        owner_key="aware_content.default.content.ContentLayout",
     )
+
+
+def test_meta_semantic_apply_attribute_update_preserves_descriptor_and_object_id() -> (
+    None
+):
+    attribute_config_id = str(provider_delta_uuid("content-title-attribute"))
+    semantic_status = {
+        "status": "ready",
+        "packages": (
+            {
+                "package_name": "content-ontology",
+                "delta_fingerprint": "sha256:attribute-update",
+                "semantic_source_meaning": {
+                    "typed_operations": (
+                        {
+                            "operation_key": (
+                                "aware_meta.object_config_graph.attribute.type:"
+                                "DeltaReadyContent.title:update"
+                            ),
+                            "operation_family": "update",
+                            "semantic_operation_type": (
+                                "aware_meta.object_config_graph."
+                                "attribute.type.update"
+                            ),
+                            "semantic_key": (
+                                "meta.attribute:DeltaReadyContent.title"
+                            ),
+                            "semantic_subject_type": "aware_meta.AttributeConfig",
+                            "field_path": "type",
+                            "event_key": (
+                                "meta.attribute:DeltaReadyContent.title:"
+                                "type:update"
+                            ),
+                            "source_refs": ("content/content.aware",),
+                            "before_payload": {
+                                "attribute_name": "title",
+                                "owner_key": (
+                                    "aware_content.content.DeltaReadyContent"
+                                ),
+                                "semantic_source_object_id": attribute_config_id,
+                                "attribute_signature": {
+                                    "name": "title",
+                                    "owner_key": (
+                                        "aware_content.content.DeltaReadyContent"
+                                    ),
+                                    "is_required": True,
+                                    "type_descriptor": {
+                                        "kind": "primitive",
+                                        "primitive_base_type": "string",
+                                    },
+                                },
+                            },
+                            "after_payload": {
+                                "attribute_name": "title",
+                                "owner_key": (
+                                    "aware_content.content.DeltaReadyContent"
+                                ),
+                                "semantic_source_object_id": attribute_config_id,
+                                "attribute_signature": {
+                                    "name": "title",
+                                    "owner_key": (
+                                        "aware_content.content.DeltaReadyContent"
+                                    ),
+                                    "is_required": True,
+                                    "type_descriptor": {
+                                        "kind": "primitive",
+                                        "primitive_base_type": "integer",
+                                    },
+                                },
+                                "generated_materialization": {
+                                    "targets": {
+                                        "orm_runtime": {
+                                            "target_language": "python",
+                                            "relative_path": (
+                                                "content/content.py"
+                                            ),
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    ),
+                },
+            },
+        ),
+    }
+
+    typed_plan = typed_operation_plan_from_semantic_source_meaning(
+        semantic_status=semantic_status,
+        default_source_refs=("content/content.aware",),
+    )
+
+    assert typed_plan["status"] == "typed_operation_plan_ready"
+    operations = cast(tuple[dict[str, object], ...], typed_plan["typed_operations"])
+    [operation] = operations
+    assert operation["provider_operation_type"] == "meta_ocg.attribute.update"
+    current = _mapping(operation["current"])
+    baseline = _mapping(operation["baseline"])
+    baseline_object = _mapping(baseline["object"])
+    current_signature = _mapping(current["attribute_signature"])
+    baseline_signature = _mapping(baseline_object["attribute_signature"])
+    generated = _mapping(current["generated_materialization"])
+    targets = _mapping(generated["targets"])
+    orm_runtime_target = _mapping(targets["orm_runtime"])
+    assert current["entity_id"] == attribute_config_id
+    assert current["object_id"] == attribute_config_id
+    assert current["attribute_config_id"] == attribute_config_id
+    assert orm_runtime_target["relative_path"] == "content/content.py"
+    assert current_signature["type_descriptor"] == {
+        "kind": "primitive",
+        "primitive_base_type": "integer",
+    }
+    assert baseline_object["entity_id"] == attribute_config_id
+    assert baseline_signature["type_descriptor"] == {
+        "kind": "primitive",
+        "primitive_base_type": "string",
+    }
+
+
+def test_meta_semantic_apply_relationship_load_policy_annotation_effect_contract() -> (
+    None
+):
+    relationship_config_id = str(
+        provider_delta_uuid("relationship-load-policy-update")
+    )
+    semantic_status = {
+        "status": "ready",
+        "packages": (
+            {
+                "package_name": "home-ontology",
+                "fqn_prefix": "home",
+                "semantic_source_meaning": {
+                    "typed_operations": (
+                        {
+                            "operation_key": (
+                                "aware_meta.object_config_graph.relationship."
+                                "load_policy:RemoteControl.selected_channel:update"
+                            ),
+                            "operation_family": "update",
+                            "semantic_operation_type": (
+                                "aware_meta.object_config_graph.relationship."
+                                "load_policy.update"
+                            ),
+                            "semantic_key": (
+                                "meta.relationship:"
+                                "RemoteControl.selected_channel"
+                            ),
+                            "semantic_subject_type": (
+                                "aware_meta.ClassConfigRelationship"
+                            ),
+                            "field_path": "load_policy_args",
+                            "event_key": (
+                                "meta.relationship:RemoteControl."
+                                "selected_channel:load_policy_args:update"
+                            ),
+                            "source_refs": ("home/tv_channel.aware",),
+                            "before_payload": {
+                                "class_name": "RemoteControl",
+                                "class_fqn": "home.RemoteControl",
+                                "relationship_key": "selected_channel",
+                                "relationship_type": "many_to_one",
+                                "target_class_fqn": "home.TvChannel",
+                                "forward_loading_strategy": "lazy",
+                            },
+                            "after_payload": {
+                                "class_name": "RemoteControl",
+                                "class_fqn": "home.RemoteControl",
+                                "relationship_key": "selected_channel",
+                                "relationship_type": "many_to_one",
+                                "target_class_fqn": "home.TvChannel",
+                                "forward_loading_strategy": "eager",
+                                "semantic_source_object_id": relationship_config_id,
+                                "generated_materialization": {
+                                    "targets": {
+                                        "orm_runtime": {
+                                            "target_language": "python",
+                                            "relative_path": (
+                                                "home/tv_channel.py"
+                                            ),
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    ),
+                },
+            },
+        ),
+    }
+
+    typed_plan = typed_operation_plan_from_semantic_source_meaning(
+        semantic_status=semantic_status,
+        default_source_refs=("home/tv_channel.aware",),
+    )
+
+    assert typed_plan["status"] == "typed_operation_plan_ready"
+    operations = cast(tuple[dict[str, object], ...], typed_plan["typed_operations"])
+    assert len(operations) == 1
+    operation = operations[0]
+    current = _mapping(operation["current"])
+    assert operation["provider_operation_type"] == (
+        RELATIONSHIP_LOAD_POLICY_ANNOTATION_UPDATE_PROVIDER_OPERATION_TYPE
+    )
+    assert current["annotation_semantics_consumed"] is True
+    assert current["annotation_effect_kind"] == "relationship_load_policy"
+    assert current["annotation_to_relationship_mutation_policy"] == (
+        "class_config_relationship.update_config"
+    )
+    assert current["annotation_source_field_path"] == "load_policy_args"
+    assert current["relationship_config_id"] == relationship_config_id
+    assert current["class_config_relationship_id"] == relationship_config_id
+    assert current["entity_id"] == relationship_config_id
+    generated = _mapping(current["generated_materialization"])
+    targets = _mapping(generated["targets"])
+    orm_runtime_target = _mapping(targets["orm_runtime"])
+    assert orm_runtime_target["relative_path"] == "home/tv_channel.py"
+    baseline = _mapping(operation["baseline"])
+    baseline_object = _mapping(baseline["object"])
+    assert baseline_object["relationship_config_id"] == relationship_config_id
+
+
+def test_meta_semantic_apply_attribute_structural_create_uses_selected_target_profile() -> (
+    None
+):
+    selected_profile = GeneratedMaterializationTargetProfile(
+        descriptor_key="typescript_orm_runtime",
+        target_language="typescript",
+        renderer_profile="orm_runtime",
+        materialization_source="ontology_orm_models",
+    )
+
+    typed_plan = typed_operation_plan_from_semantic_source_meaning(
+        semantic_status=_attribute_structural_create_semantic_status(),
+        default_source_refs=("content/content_layout.aware",),
+        generated_materialization_target_profile=selected_profile,
+    )
+
+    operations = cast(tuple[dict[str, object], ...], typed_plan["typed_operations"])
+    current = _mapping(operations[0]["current"])
+    generated = _mapping(current["generated_materialization"])
+    targets = _mapping(generated["targets"])
+    selected_target = _mapping(targets["typescript_orm_runtime"])
+    assert "orm_runtime" not in targets
+    assert "relative_path" not in selected_target
+    assert selected_target["source_ref"] == "content/content_layout.aware"
+    assert selected_target["source_relative_path"] == "content/content_layout.aware"
+    for key, value in selected_profile.target_metadata().items():
+        assert selected_target[key] == value
+    assert selected_target["target_language"] == "typescript"
+
+
+def test_generated_materialization_target_profile_payload_keeps_language_explicit() -> (
+    None
+):
+    neutral_profile = generated_materialization_target_profile_from_payload(
+        None,
+        default=ORM_RUNTIME_TARGET_PROFILE,
+    )
+    assert neutral_profile is not None
+    assert neutral_profile is ORM_RUNTIME_TARGET_PROFILE
+    assert neutral_profile.target_language is None
+    assert "target_language" not in neutral_profile.target_metadata()
+
+    python_profile = generated_materialization_target_profile_from_payload(
+        {"target_language": "python"},
+        default=ORM_RUNTIME_TARGET_PROFILE,
+    )
+    assert python_profile is not None
+    assert python_profile.target_key == ORM_RUNTIME_TARGET_PROFILE.target_key
+    assert python_profile.target_language == "python"
+    assert python_profile.renderer_profile == "orm_runtime"
+    assert python_profile.materialization_source == "ontology_orm_models"
+    assert python_profile.target_metadata()["target_language"] == "python"
+
+
+def test_meta_semantic_apply_attribute_structural_create_can_disable_target_profile() -> (
+    None
+):
+    typed_plan = typed_operation_plan_from_semantic_source_meaning(
+        semantic_status=_attribute_structural_create_semantic_status(),
+        default_source_refs=("content/content_layout.aware",),
+        generated_materialization_target_profile=False,
+    )
+
+    operations = cast(tuple[dict[str, object], ...], typed_plan["typed_operations"])
+    current = _mapping(operations[0]["current"])
+    assert current["generated_materialization"] == {}
 
 
 def test_meta_semantic_apply_attribute_structural_delete_builds_operation() -> None:
@@ -241,10 +546,14 @@ def test_meta_attribute_structural_resolution_exposes_generated_intent() -> None
             "generated_materialization_intent_ready"
         )
         intent = _mapping(metadata["generated_materialization_intent"])
-        assert intent["renderer_key"] == "python.orm.attribute.field"
+        assert "renderer_key" not in intent
         assert intent["policy_key"] == (
-            f"aware_meta.python_orm.attribute.{operation_kind}"
+            f"aware_meta.generated_materialization.attribute.{operation_kind}"
         )
+        assert intent["target_profile"] == "orm_runtime"
+        assert intent["renderer_profile"] == "orm_runtime"
+        assert intent["materialization_source"] == "ontology_orm_models"
+        assert intent["product_intent"] == "orm_runtime"
         typed_plan = _mapping(
             metadata["provider_delta_generated_materialization_typed_operation_plan"]
         )
@@ -868,6 +1177,17 @@ def test_meta_semantic_apply_source_projection_evidence_builds_provider_result(
         },
         commit_ids=("commit-1",),
         head_commit_ids=("head-1",),
+        generated_materialization_code_package_delta={
+            "package_name": "home-ontology",
+            "package_root": "generated/python/orm_runtime",
+            "sources_root": "aware_home_ontology",
+            "paths": (
+                {
+                    "relative_path": "home/tv_channel.py",
+                    "language": "python",
+                },
+            ),
+        },
         metadata={"proof": "test"},
     )
 
@@ -880,8 +1200,21 @@ def test_meta_semantic_apply_source_projection_evidence_builds_provider_result(
     assert result_metadata["contract_version"] == (
         META_SEMANTIC_APPLY_SOURCE_PROJECTION_EVIDENCE_CONTRACT_VERSION
     )
+    assert result_metadata["generated_materialization_code_package_delta"] == {
+        "package_name": "home-ontology",
+        "package_root": "generated/python/orm_runtime",
+        "sources_root": "aware_home_ontology",
+        "paths": (
+            {
+                "relative_path": "home/tv_channel.py",
+                "language": "python",
+            },
+        ),
+    }
 
     details = cast(dict[str, object], result["details"])
+    typed_plan = cast(dict[str, object], details["provider_delta_typed_operation_plan"])
+    assert typed_plan["status"] == "typed_operation_plan_ready"
     stage = cast(dict[str, object], details["provider_delta_source_projection"])
     assert stage["status"] == "source_projection_ready"
     assert stage["reason"] == "meta_source_projection_section_delta_entries_ready"
@@ -922,6 +1255,101 @@ def test_meta_semantic_apply_source_projection_evidence_builds_provider_result(
     replacement_metadata = cast(dict[str, object], replacements[0]["metadata"])
     assert replacement_metadata["semantic_baseline_text"] == "Int"
     assert replacement_metadata["semantic_baseline_text_hash"] == _digest("Int")
+
+
+def test_meta_semantic_apply_class_update_preserves_baseline_generated_targets(
+    tmp_path,
+) -> None:
+    result = provider_delta_result_from_semantic_apply_source_projection_evidence(
+        semantic_status={
+            "status": "ready",
+            "packages": (
+                {
+                    "package_name": "ontology-ontology",
+                    "delta_fingerprint": "sha256:class-current-delta",
+                    "semantic_source_meaning": {
+                        "typed_operations": (
+                            {
+                                "operation_key": (
+                                    "aware_meta.object_config_graph.class."
+                                    "description:OntologyConfig:update"
+                                ),
+                                "operation_family": "update",
+                                "semantic_operation_type": (
+                                    "aware_meta.object_config_graph.class."
+                                    "description.update"
+                                ),
+                                "semantic_key": "meta.class:OntologyConfig",
+                                "semantic_subject_type": "aware_meta.ClassConfig",
+                                "field_path": "description",
+                                "event_key": (
+                                    "meta.class:OntologyConfig:description:upsert"
+                                ),
+                                "source_refs": ("ontology/ontology_config.aware",),
+                                "before_payload": {"description": None},
+                                "after_payload": {
+                                    "class_name": "OntologyConfig",
+                                    "description": (
+                                        "Delta-first ontology config root."
+                                    ),
+                                },
+                            },
+                        ),
+                    },
+                },
+            ),
+        },
+        semantic_apply={"status": "executed"},
+        package_name="ontology-ontology",
+        package_root=tmp_path.as_posix(),
+        sources_root="aware",
+        target_language="aware",
+        source_refs=("ontology/ontology_config.aware",),
+        baseline_semantic_object_index={
+            "meta.class:OntologyConfig": {
+                "semantic_key": "meta.class:OntologyConfig",
+                "object_id": "class-object-id",
+                "entity_id": "class-object-id",
+                "class_config_id": "class-object-id",
+                "class_name": "OntologyConfig",
+                "class_fqn": "aware_ontology.ontology.OntologyConfig",
+                "source_ref": "ontology/ontology_config.aware",
+                "generated_materialization": {
+                    "targets": {
+                        "orm_runtime": {
+                            "renderer_profile": "orm_runtime",
+                            "target_language": "python",
+                            "relative_path": "ontology/ontology_config.py",
+                        },
+                    },
+                },
+            },
+        },
+        generated_materialization_target_profile=ORM_RUNTIME_TARGET_PROFILE,
+    )
+
+    details = cast(dict[str, object], result["details"])
+    source_projection_stage = cast(
+        dict[str, object],
+        details["provider_delta_source_projection"],
+    )
+    projection = cast(dict[str, object], source_projection_stage["projection"])
+    events = cast(list[dict[str, object]], projection["events"])
+    payload = cast(dict[str, object], events[0]["payload"])
+    current = cast(dict[str, object], payload["current"])
+    baseline = cast(dict[str, object], payload["baseline"])
+    baseline_object = cast(dict[str, object], baseline["object"])
+    generated = cast(dict[str, object], current["generated_materialization"])
+    targets = cast(dict[str, object], generated["targets"])
+    orm_target = cast(dict[str, object], targets["orm_runtime"])
+
+    assert current["class_config_id"] == "class-object-id"
+    assert current["class_fqn"] == "aware_ontology.ontology.OntologyConfig"
+    assert baseline_object["class_config_id"] == "class-object-id"
+    assert baseline_object["class_fqn"] == "aware_ontology.ontology.OntologyConfig"
+    assert orm_target["renderer_profile"] == "orm_runtime"
+    assert orm_target["target_language"] == "python"
+    assert orm_target["relative_path"] == "ontology/ontology_config.py"
 
 
 def test_meta_semantic_apply_function_source_meaning_builds_function_typed_operation(
@@ -1234,6 +1662,14 @@ def test_meta_semantic_apply_enum_structural_create_builds_typed_operation() -> 
                                 ),
                                 "enum_config_id": "enum-config-content-source",
                                 "values": ("text", "image"),
+                                "generated_materialization": (
+                                    _explicit_python_generated_materialization_targets(
+                                        relative_path=(
+                                            "aware_content_ontology/content/"
+                                            "content_enums.py"
+                                        )
+                                    )
+                                ),
                             },
                         },
                     ),
@@ -1262,6 +1698,10 @@ def test_meta_semantic_apply_enum_structural_create_builds_typed_operation() -> 
     assert current["object_config_graph_node_id"] == "enum-node-content-source"
     assert current["enum_config_id"] == "enum-config-content-source"
     assert current["values"] == ("text", "image")
+    generated = _mapping(current["generated_materialization"])
+    target = _mapping(_mapping(generated["targets"])["orm_runtime"])
+    assert target["target_language"] == "python"
+    assert target["relative_path"] == "aware_content_ontology/content/content_enums.py"
     assert typed_plan["blocked_operations"] == []
 
 
@@ -1820,7 +2260,7 @@ def test_meta_semantic_apply_attribute_identity_rename_composes_delete_create() 
                                     "00000000-0000-0000-0000-000000000721"
                                 ),
                                 "type": "String",
-                                "default_value": "\"Untitled\"",
+                                "default_value": '"Untitled"',
                                 "description": "Visible title text.",
                             },
                             "after_payload": {
@@ -1889,7 +2329,7 @@ def test_meta_semantic_apply_attribute_identity_rename_composes_delete_create() 
         "00000000-0000-0000-0000-000000000721"
     )
     assert create_signature["name"] == "label"
-    assert create_signature["default_value"] == "\"Untitled\""
+    assert create_signature["default_value"] == '"Untitled"'
     assert create_signature["type_descriptor"] == {
         "kind": "primitive",
         "primitive_base_type": "string",
@@ -1907,7 +2347,9 @@ def test_meta_semantic_apply_attribute_identity_rename_composes_delete_create() 
     }
 
 
-def test_meta_semantic_apply_attribute_identity_rename_blocks_without_identity() -> None:
+def test_meta_semantic_apply_attribute_identity_rename_blocks_without_identity() -> (
+    None
+):
     semantic_status = {
         "status": "ready",
         "packages": (
@@ -2617,6 +3059,17 @@ def test_meta_semantic_apply_function_signature_source_meaning_builds_update_ope
                                 "class_name": "TvChannel",
                                 "function_name": "rename",
                                 "function_description": "Rename the channel.",
+                                "semantic_source_object_id": "function-config-id",
+                                "generated_materialization": {
+                                    "targets": {
+                                        "orm_runtime": {
+                                            "target_language": "python",
+                                            "relative_path": (
+                                                "home/tv_channel.py"
+                                            ),
+                                        },
+                                    },
+                                },
                             },
                         },
                     ),
@@ -2648,10 +3101,17 @@ def test_meta_semantic_apply_function_signature_source_meaning_builds_update_ope
     )
     current = cast(dict[str, object], operation["current"])
     current_signature = cast(dict[str, object], current["function_signature"])
+    generated = _mapping(current["generated_materialization"])
+    targets = _mapping(generated["targets"])
+    orm_runtime_target = _mapping(targets["orm_runtime"])
     assert baseline_signature["signature_text"] == (
         "(display_name String) -> TvChannel"
     )
     assert current_signature["signature_text"] == "(label String) -> TvChannel"
+    assert current["function_config_id"] == "function-config-id"
+    assert current["entity_id"] == "function-config-id"
+    assert orm_runtime_target["target_language"] == "python"
+    assert orm_runtime_target["relative_path"] == "home/tv_channel.py"
     baseline_inputs = cast(tuple[dict[str, object], ...], baseline_signature["inputs"])
     current_inputs = cast(tuple[dict[str, object], ...], current_signature["inputs"])
     outputs = cast(tuple[dict[str, object], ...], current_signature["outputs"])
@@ -2709,11 +3169,18 @@ def test_meta_semantic_apply_function_delete_source_meaning_preserves_source_ide
                                 "function-executable-id"
                             ),
                             "generated_materialization": {
-                                "python_orm": {
-                                    "relative_path": (
-                                        "aware_content_ontology/content/"
-                                        "content_layout.py"
-                                    ),
+                                "targets": {
+                                    ORM_RUNTIME_TARGET_PROFILE.target_key: {
+                                        **ORM_RUNTIME_TARGET_PROFILE.target_metadata(),
+                                        "owner_key": (
+                                            "aware_content.default.content."
+                                            "ContentLayout"
+                                        ),
+                                        "relative_path": (
+                                            "aware_content_ontology/content/"
+                                            "content_layout.py"
+                                        ),
+                                    },
                                 },
                             },
                             "before_payload": {
@@ -2760,11 +3227,12 @@ def test_meta_semantic_apply_function_delete_source_meaning_preserves_source_ide
     assert current["function_config_id"] == "function-source-id"
     assert current["semantic_source_object_id"] == "function-source-id"
     assert current["semantic_apply_receiver_object_id"] == "function-executable-id"
-    assert current["generated_materialization"] == {
-        "python_orm": {
-            "relative_path": "aware_content_ontology/content/content_layout.py",
-        },
-    }
+    assert current["generated_materialization"] == (
+        _expected_generated_materialization_targets(
+            relative_path="aware_content_ontology/content/content_layout.py",
+            owner_key="aware_content.default.content.ContentLayout",
+        )
+    )
     assert payload["function_config_id"] == "function-source-id"
     assert payload["semantic_source_object_id"] == "function-source-id"
     assert baseline["object_id"] == "function-source-id"
@@ -2773,6 +3241,122 @@ def test_meta_semantic_apply_function_delete_source_meaning_preserves_source_ide
     assert baseline_object["semantic_source_object_id"] == "function-source-id"
     assert membership["class_config_id"] == "class-executable-id"
     assert membership["function_config_id"] == "function-source-id"
+
+
+def test_meta_semantic_apply_relationship_delete_preserves_source_class_identity() -> (
+    None
+):
+    semantic_status = {
+        "status": "ready",
+        "packages": (
+            {
+                "package_name": "content-ontology",
+                "delta_fingerprint": "sha256:relationship-delete-current-delta",
+                "semantic_source_meaning": {
+                    "typed_operations": (
+                        {
+                            "operation_key": (
+                                "aware_meta.object_config_graph.relationship:"
+                                "ContentLayout.items:delete"
+                            ),
+                            "operation_family": "delete",
+                            "semantic_operation_type": (
+                                "aware_meta.object_config_graph.relationship.delete"
+                            ),
+                            "semantic_key": (
+                                "ocg:aware_content/node:"
+                                "aware_content.content.ContentLayout"
+                                "/relationship:items"
+                            ),
+                            "semantic_subject_type": (
+                                "aware_meta.ClassConfigRelationship"
+                            ),
+                            "field_path": "definition",
+                            "event_key": (
+                                "meta.relationship:ContentLayout.items:"
+                                "definition:delete"
+                            ),
+                            "source_refs": ("content/content_layout.aware",),
+                            "before_payload": {
+                                "relationship_config_id": "relationship-id",
+                                "class_config_relationship_id": (
+                                    "relationship-id"
+                                ),
+                                "semantic_source_object_id": "relationship-id",
+                                "class_config_id": "source-class-id",
+                                "class_name": "ContentLayout",
+                                "class_fqn": (
+                                    "aware_content.content.ContentLayout"
+                                ),
+                                "source_class_fqn": (
+                                    "aware_content.content.ContentLayout"
+                                ),
+                                "target_class_fqn": (
+                                    "aware_content.content.ContentItem"
+                                ),
+                                "relationship_key": "items",
+                                "relationship_type": "one_to_many",
+                                "relationship_signature": {
+                                    "source_class_fqn": (
+                                        "aware_content.content.ContentLayout"
+                                    ),
+                                    "target_class_fqn": (
+                                        "aware_content.content.ContentItem"
+                                    ),
+                                    "relationship_key": "items",
+                                    "relationship_type": "one_to_many",
+                                },
+                                "generated_materialization": {
+                                    "targets": {
+                                        "orm_runtime": {
+                                            "target_language": "python",
+                                            "relative_path": (
+                                                "content/content_layout.py"
+                                            ),
+                                        },
+                                    },
+                                },
+                            },
+                            "after_payload": None,
+                        },
+                    ),
+                },
+            },
+        ),
+    }
+
+    typed_plan = typed_operation_plan_from_semantic_source_meaning(
+        semantic_status=semantic_status,
+        default_source_refs=("content/content_layout.aware",),
+    )
+
+    typed_operations = cast(
+        list[dict[str, object]],
+        typed_plan["typed_operations"],
+    )
+    assert typed_plan["status"] == "typed_operation_plan_ready"
+    [operation] = typed_operations
+    assert operation["operation_family"] == "delete"
+    assert operation["provider_operation_type"] == "meta_ocg.relationship.delete"
+    current = cast(dict[str, object], operation["current"])
+    payload = cast(dict[str, object], current["payload"])
+    baseline = cast(dict[str, object], operation["baseline"])
+    baseline_object = cast(dict[str, object], baseline["object"])
+    current_signature = cast(dict[str, object], current["relationship_signature"])
+    baseline_signature = cast(
+        dict[str, object],
+        baseline_object["relationship_signature"],
+    )
+    assert current["source_class_config_id"] == "source-class-id"
+    assert current["class_config_id"] == "source-class-id"
+    assert payload["source_class_config_id"] == "source-class-id"
+    assert payload["class_config_id"] == "source-class-id"
+    assert baseline_object["source_class_config_id"] == "source-class-id"
+    assert baseline_object["class_config_id"] == "source-class-id"
+    assert current_signature["source_class_config_id"] == "source-class-id"
+    assert baseline_signature["source_class_config_id"] == "source-class-id"
+    assert current["relationship_config_id"] == "relationship-id"
+    assert baseline_object["class_config_relationship_id"] == "relationship-id"
 
 
 def test_meta_source_projection_boundary_does_not_import_code_service_or_workspace() -> (
@@ -3341,3 +3925,91 @@ def _mapping(value: object) -> dict[str, object]:
     if isinstance(value, Mapping):
         return {str(key): item for key, item in value.items()}
     return {}
+
+
+def _expected_generated_materialization_targets(
+    *,
+    owner_key: str,
+    source_ref: str | None = None,
+    relative_path: str | None = None,
+) -> dict[str, object]:
+    target: dict[str, object] = {
+        **ORM_RUNTIME_TARGET_PROFILE.target_metadata(),
+        "owner_key": owner_key,
+    }
+    if source_ref is not None:
+        target["source_ref"] = source_ref
+        target["source_relative_path"] = source_ref
+    if relative_path is not None:
+        target["relative_path"] = relative_path
+    return {
+        "targets": {
+            ORM_RUNTIME_TARGET_PROFILE.target_key: target,
+        },
+    }
+
+
+def _explicit_python_generated_materialization_targets(
+    *,
+    relative_path: str,
+) -> dict[str, object]:
+    return {
+        "targets": {
+            "orm_runtime": {
+                "descriptor_key": "orm_runtime",
+                "capability_key": "orm_runtime",
+                "target_language": "python",
+                "renderer_profile": "orm_runtime",
+                "materialization_source": "ontology_orm_models",
+                "relative_path": relative_path,
+            },
+        },
+    }
+
+
+def _attribute_structural_create_semantic_status() -> dict[str, object]:
+    return {
+        "status": "ready",
+        "packages": (
+            {
+                "package_name": "content-ontology",
+                "package_root": (
+                    "workspaces/aware_kernel/modules/content/ontology/structure"
+                ),
+                "manifest_relative_path": (
+                    "workspaces/aware_kernel/modules/content/ontology/structure/"
+                    "aware.toml"
+                ),
+                "delta_fingerprint": "sha256:attribute-structural-create",
+                "semantic_source_meaning": {
+                    "typed_operations": (
+                        {
+                            "operation_key": (
+                                "aware_meta.object_config_graph.attribute:"
+                                "ContentLayout.title:create"
+                            ),
+                            "operation_family": "create",
+                            "semantic_operation_type": (
+                                META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_CREATE_OPERATION
+                            ),
+                            "semantic_key": "meta.attribute:ContentLayout.title",
+                            "semantic_subject_type": "aware_meta.AttributeConfig",
+                            "field_path": "definition",
+                            "event_key": (
+                                "meta.attribute:ContentLayout.title:"
+                                "definition:upsert"
+                            ),
+                            "source_refs": ("content/content_layout.aware",),
+                            "before_payload": None,
+                            "after_payload": {
+                                "definition": "title String",
+                                "class_name": "ContentLayout",
+                                "attribute_name": "title",
+                                "type": "String",
+                            },
+                        },
+                    ),
+                },
+            },
+        ),
+    }

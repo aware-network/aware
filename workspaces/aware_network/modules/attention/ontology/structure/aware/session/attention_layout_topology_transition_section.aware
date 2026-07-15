@@ -1,0 +1,21 @@
+/// Ordered active membership for one admitted section in one topology revision.
+///
+/// Contract:
+/// - Parent constructor is AttentionLayoutTopologyTransition.
+/// - The section anchor is stable and remains under AttentionSessionLayout even
+///   when omitted from a later topology revision.
+class AttentionLayoutTopologyTransitionSection {
+    attention_session_section AttentionSessionSection? key
+    order Int
+
+    fn create construct (
+        attention_session_section_id UUID key,
+        order Int
+    ) -> AttentionLayoutTopologyTransitionSection {
+        """
+        Create one typed row in an already-validated full topology vector.
+        """
+    }
+}
+
+ann session.AttentionLayoutTopologyTransitionSection::attention_session_section load eager

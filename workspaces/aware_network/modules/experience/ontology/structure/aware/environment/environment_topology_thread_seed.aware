@@ -1,0 +1,59 @@
+/// Runtime Thread seed inside an EnvironmentTopologyProcessSeed.
+class EnvironmentTopologyThreadSeed {
+    // Relationships
+    thread_config aware_environment.thread.ThreadConfig key
+    layout_seeds EnvironmentTopologyThreadLayoutSeed[]
+
+    // Attributes
+    description String?
+    is_main Bool = false
+    /// Optional seed-local key; defaults to `thread_key` in runtime handlers.
+    key String?
+    /// Runtime Thread.key to create or resolve under Environment.
+    thread_key String key
+    position Int? = null
+    narrative String?
+    intent String?
+    title String?
+
+    fn build construct (
+        thread_config_id UUID key,
+        thread_key String key,
+        key String? = null,
+        title String? = null,
+        description String? = null,
+        position Int? = null,
+        is_main Bool = false,
+        narrative String? = null,
+        intent String? = null
+    ) -> EnvironmentTopologyThreadSeed {
+        """
+        Construct one thread seed.
+
+        Contract:
+        - `thread_config_id` is reusable Environment ThreadConfig truth.
+        - `thread_key` is runtime instance identity.
+        """
+    }
+
+    fn add_layout_seed (
+        layout_config_id UUID,
+        key String? = null,
+        position Int? = null,
+        activate_on_seed Bool = false,
+        narrative String? = null,
+        intent String? = null
+    ) -> EnvironmentTopologyThreadLayoutSeed {
+        """
+        Add one layout activation seed referencing a ThreadConfig layout candidate.
+        """
+        let seed = construct layout_seeds.build(
+            layout_config_id = layout_config_id,
+            key = key,
+            position = position,
+            activate_on_seed = activate_on_seed,
+            narrative = narrative,
+            intent = intent,
+        )
+    }
+}

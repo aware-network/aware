@@ -1,0 +1,21 @@
+/// Build intent / invocation settings for building a canonical OCG package.
+///
+/// This is deliberately separate from ObjectConfigGraphPackage so the package
+/// spine remains portable and stable, while build knobs can vary per workspace,
+/// CI job, or environment.
+class ObjectConfigGraphPackageBuild {
+    // Relationships
+    object_config_graph_package ObjectConfigGraphPackage key
+
+    // Attributes
+    environment_slug String
+    /// Directory containing the canonical `.aware` sources for this package.
+    ///
+    /// This is always interpreted relative to the `aware.toml` location.
+    ///
+    /// Defaults to "aware" (mirrors the `pyproject` convention: package folder matches name).
+    sources_dir String = "aware"
+    include_paths String[] = ["**/*.aware"]
+    exclude_paths String[]
+    force_fresh_scan Bool = true
+}

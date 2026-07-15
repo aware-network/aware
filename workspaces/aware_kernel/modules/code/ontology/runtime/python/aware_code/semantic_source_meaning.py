@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from hashlib import sha256
+from time import perf_counter
 from typing import Literal, cast
 
 from aware_code_ontology.code.code_plan import CodePackageDelta
@@ -336,7 +337,15 @@ def resolve_code_semantic_source_meaning(
     baseline_source_index: CodeGrammarSourceIndex | None = None,
     include_noop: bool = False,
 ) -> CodeSemanticSourceMeaningResolution:
+    resolution_started_at = perf_counter()
+    phase_timings_s: dict[str, float] = {}
+    phase_started_at = perf_counter()
     diagnostics = _validate_contract(contract=contract)
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="contract_validation_s",
+        started_at=phase_started_at,
+    )
     semantic_deltas: list[SemanticCapabilityDelta] = []
     semantic_events: list[SemanticCapabilityEvent] = []
     typed_operations: list[SemanticCapabilityTypedOperation] = []
@@ -344,13 +353,27 @@ def resolve_code_semantic_source_meaning(
     resolved_binding_count = 0
 
     for binding in contract.bindings:
+        binding_started_at = perf_counter()
         query = binding.anchor_query()
+        phase_started_at = perf_counter()
         before_resolutions = (
             baseline_source_index.resolve_anchors(query=query)
             if baseline_source_index is not None
             else ()
         )
+        _add_phase_timing(
+            phase_timings_s=phase_timings_s,
+            key="baseline_anchor_resolution_s",
+            started_at=phase_started_at,
+        )
+        phase_started_at = perf_counter()
         after_resolutions = current_source_index.resolve_anchors(query=query)
+        _add_phase_timing(
+            phase_timings_s=phase_timings_s,
+            key="current_anchor_resolution_s",
+            started_at=phase_started_at,
+        )
+        phase_started_at = perf_counter()
         before_resolutions = _filter_resolutions_for_required_template_values(
             binding=binding,
             resolutions=before_resolutions,
@@ -359,6 +382,12 @@ def resolve_code_semantic_source_meaning(
             binding=binding,
             resolutions=after_resolutions,
         )
+        _add_phase_timing(
+            phase_timings_s=phase_timings_s,
+            key="required_template_filter_s",
+            started_at=phase_started_at,
+        )
+        phase_started_at = perf_counter()
         before_by_key = _resolutions_by_semantic_key(
             contract=contract,
             binding=binding,
@@ -373,6 +402,11 @@ def resolve_code_semantic_source_meaning(
             side="current",
             diagnostics=diagnostics,
         )
+        _add_phase_timing(
+            phase_timings_s=phase_timings_s,
+            key="semantic_key_index_s",
+            started_at=phase_started_at,
+        )
         if before_resolutions or after_resolutions:
             resolved_binding_count += 1
         if not before_resolutions and not after_resolutions:
@@ -382,12 +416,19 @@ def resolve_code_semantic_source_meaning(
                     "or baseline source index."
                 )
             continue
+        phase_started_at = perf_counter()
         rename_pair = _identity_rename_pair(
             binding=binding,
             before_by_key=before_by_key,
             after_by_key=after_by_key,
         )
+        _add_phase_timing(
+            phase_timings_s=phase_timings_s,
+            key="identity_rename_policy_s",
+            started_at=phase_started_at,
+        )
         if rename_pair is not None:
+            phase_started_at = perf_counter()
             before, after = rename_pair
             delta = _semantic_delta_for_binding(
                 contract=contract,
@@ -422,8 +463,19 @@ def resolve_code_semantic_source_meaning(
                     resolution=after,
                 )
             )
+            _add_phase_timing(
+                phase_timings_s=phase_timings_s,
+                key="semantic_delta_event_operation_build_s",
+                started_at=phase_started_at,
+            )
+            _add_phase_timing(
+                phase_timings_s=phase_timings_s,
+                key="binding_total_s",
+                started_at=binding_started_at,
+            )
             continue
         semantic_keys = tuple(sorted({*before_by_key, *after_by_key}))
+        phase_started_at = perf_counter()
         for semantic_key in semantic_keys:
             before = before_by_key.get(semantic_key)
             after = after_by_key.get(semantic_key)
@@ -463,7 +515,22 @@ def resolve_code_semantic_source_meaning(
                     resolution=after or before,
                 )
             )
+        _add_phase_timing(
+            phase_timings_s=phase_timings_s,
+            key="semantic_delta_event_operation_build_s",
+            started_at=phase_started_at,
+        )
+        _add_phase_timing(
+            phase_timings_s=phase_timings_s,
+            key="binding_total_s",
+            started_at=binding_started_at,
+        )
 
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="total_s",
+        started_at=resolution_started_at,
+    )
     return CodeSemanticSourceMeaningResolution(
         contract=contract,
         status="blocked" if diagnostics else "resolved",
@@ -475,7 +542,10 @@ def resolve_code_semantic_source_meaning(
         binding_count=len(contract.bindings),
         resolved_binding_count=resolved_binding_count,
         changed_binding_count=len(semantic_deltas),
-        source_index_evidence=current_source_index.evidence_payload(),
+        source_index_evidence={
+            **current_source_index.evidence_payload(),
+            "phase_timings_s": dict(phase_timings_s),
+        },
     )
 
 
@@ -492,12 +562,21 @@ def resolve_code_semantic_source_delta_meaning(
     session_context: SemanticSourceSessionContext | None = None,
     include_noop: bool = False,
 ) -> CodeSemanticSourceDeltaMeaningResolution:
+    resolution_started_at = perf_counter()
+    phase_timings_s: dict[str, float] = {}
+    phase_started_at = perf_counter()
     diagnostics: list[str] = []
     required_context: list[str] = []
     paths = tuple(code_package_delta.paths)
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="paths_tuple_s",
+        started_at=phase_started_at,
+    )
     if not paths:
         diagnostics.append("CodePackageDelta must include at least one path.")
 
+    phase_started_at = perf_counter()
     baseline_sources_tuple = tuple(baseline_sources)
     current_sources_tuple = tuple(current_sources) or _current_sources_from_delta(
         delta=code_package_delta,
@@ -506,7 +585,13 @@ def resolve_code_semantic_source_delta_meaning(
             current_source_index is None and current_source_index_ref is None
         ),
     )
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="source_tuple_s",
+        started_at=phase_started_at,
+    )
 
+    phase_started_at = perf_counter()
     diagnostics.extend(
         _delta_source_hash_diagnostics(
             paths=paths,
@@ -514,18 +599,36 @@ def resolve_code_semantic_source_delta_meaning(
             current_sources=current_sources_tuple,
         )
     )
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="source_hash_diagnostics_s",
+        started_at=phase_started_at,
+    )
+    phase_started_at = perf_counter()
     resolved_baseline_source_index = _delta_source_index_for_side(
         explicit_source_index=baseline_source_index,
         sources=baseline_sources_tuple,
         source_index_ref=baseline_source_index_ref,
         session_context=session_context,
     )
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="baseline_source_index_s",
+        started_at=phase_started_at,
+    )
+    phase_started_at = perf_counter()
     resolved_current_source_index = _delta_source_index_for_side(
         explicit_source_index=current_source_index,
         sources=current_sources_tuple,
         source_index_ref=current_source_index_ref,
         session_context=session_context,
     )
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="current_source_index_s",
+        started_at=phase_started_at,
+    )
+    phase_started_at = perf_counter()
     _collect_delta_context_requirements(
         paths=paths,
         baseline_source_index=resolved_baseline_source_index,
@@ -534,7 +637,17 @@ def resolve_code_semantic_source_delta_meaning(
         current_source_index_ref=current_source_index_ref,
         required_context=required_context,
     )
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="context_requirements_s",
+        started_at=phase_started_at,
+    )
     if diagnostics or required_context:
+        _record_phase_timing(
+            phase_timings_s=phase_timings_s,
+            key="total_s",
+            started_at=resolution_started_at,
+        )
         return _blocked_delta_meaning_resolution(
             contract=contract,
             diagnostics=tuple(diagnostics),
@@ -543,17 +656,36 @@ def resolve_code_semantic_source_delta_meaning(
             current_source_index=resolved_current_source_index,
             baseline_source_index_ref=baseline_source_index_ref,
             current_source_index_ref=current_source_index_ref,
+            phase_timings_s=phase_timings_s,
         )
     if resolved_current_source_index is None:
+        phase_started_at = perf_counter()
         resolved_current_source_index = CodeGrammarSourceIndex.from_sources(
             (),
             session_context=session_context,
         )
+        _record_phase_timing(
+            phase_timings_s=phase_timings_s,
+            key="empty_current_source_index_s",
+            started_at=phase_started_at,
+        )
+    phase_started_at = perf_counter()
     resolution = resolve_code_semantic_source_meaning(
         contract=contract,
         current_source_index=resolved_current_source_index,
         baseline_source_index=resolved_baseline_source_index,
         include_noop=include_noop,
+    )
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="semantic_source_meaning_s",
+        started_at=phase_started_at,
+    )
+    phase_started_at = perf_counter()
+    _merge_prefixed_phase_timings(
+        target=phase_timings_s,
+        prefix="semantic_source_meaning",
+        source=resolution.source_index_evidence.get("phase_timings_s"),
     )
     mode: CodeSemanticSourceDeltaMeaningResolutionMode = (
         "delta_with_index_ref"
@@ -565,6 +697,32 @@ def resolve_code_semantic_source_delta_meaning(
         )
         else "delta_with_snapshot_fallback"
     )
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="mode_resolution_s",
+        started_at=phase_started_at,
+    )
+    phase_started_at = perf_counter()
+    source_index_evidence = _delta_source_index_evidence(
+        baseline_source_index=resolved_baseline_source_index,
+        current_source_index=resolved_current_source_index,
+        baseline_source_index_ref=baseline_source_index_ref,
+        current_source_index_ref=current_source_index_ref,
+        code_package_delta=code_package_delta,
+        mode=mode,
+        phase_timings_s=phase_timings_s,
+    )
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="source_index_evidence_s",
+        started_at=phase_started_at,
+    )
+    _record_phase_timing(
+        phase_timings_s=phase_timings_s,
+        key="total_s",
+        started_at=resolution_started_at,
+    )
+    source_index_evidence["phase_timings_s"] = dict(phase_timings_s)
     return CodeSemanticSourceDeltaMeaningResolution(
         contract=contract,
         status=resolution.status,
@@ -577,14 +735,7 @@ def resolve_code_semantic_source_delta_meaning(
         binding_count=resolution.binding_count,
         resolved_binding_count=resolution.resolved_binding_count,
         changed_binding_count=resolution.changed_binding_count,
-        source_index_evidence=_delta_source_index_evidence(
-            baseline_source_index=resolved_baseline_source_index,
-            current_source_index=resolved_current_source_index,
-            baseline_source_index_ref=baseline_source_index_ref,
-            current_source_index_ref=current_source_index_ref,
-            code_package_delta=code_package_delta,
-            mode=mode,
-        ),
+        source_index_evidence=source_index_evidence,
     )
 
 
@@ -621,6 +772,54 @@ def _validate_contract(*, contract: CodeSemanticSourceMeaningContract) -> list[s
         if not binding.semantic_field.strip():
             diagnostics.append(f"{prefix}.semantic_field is required.")
     return diagnostics
+
+
+def _record_phase_timing(
+    *,
+    phase_timings_s: dict[str, float],
+    key: str,
+    started_at: float,
+) -> None:
+    phase_timings_s[key] = round(max(perf_counter() - started_at, 0.0), 6)
+
+
+def _add_phase_timing(
+    *,
+    phase_timings_s: dict[str, float],
+    key: str,
+    started_at: float,
+) -> None:
+    phase_timings_s[key] = round(
+        phase_timings_s.get(key, 0.0) + max(perf_counter() - started_at, 0.0),
+        6,
+    )
+
+
+def _merge_prefixed_phase_timings(
+    *,
+    target: dict[str, float],
+    prefix: str,
+    source: object,
+) -> None:
+    if not isinstance(source, Mapping):
+        return
+    for raw_key, raw_value in source.items():
+        key = str(raw_key).strip()
+        value = _float_phase_timing(raw_value)
+        if not key or value is None:
+            continue
+        target[f"{prefix}.{key}"] = value
+
+
+def _float_phase_timing(value: object) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int | float | str):
+        try:
+            return round(float(value), 6)
+        except ValueError:
+            return None
+    return None
 
 
 def _resolutions_by_semantic_key(
@@ -716,6 +915,7 @@ def _blocked_delta_meaning_resolution(
     current_source_index: CodeGrammarSourceIndex | None,
     baseline_source_index_ref: CodeSemanticSourceIndexRef | None,
     current_source_index_ref: CodeSemanticSourceIndexRef | None,
+    phase_timings_s: Mapping[str, float] | None = None,
 ) -> CodeSemanticSourceDeltaMeaningResolution:
     return CodeSemanticSourceDeltaMeaningResolution(
         contract=contract,
@@ -731,6 +931,7 @@ def _blocked_delta_meaning_resolution(
             current_source_index_ref=current_source_index_ref,
             code_package_delta=None,
             mode="blocked",
+            phase_timings_s=phase_timings_s,
         ),
     )
 
@@ -897,6 +1098,7 @@ def _delta_source_index_evidence(
     current_source_index_ref: CodeSemanticSourceIndexRef | None,
     code_package_delta: CodePackageDelta | None,
     mode: CodeSemanticSourceDeltaMeaningResolutionMode,
+    phase_timings_s: Mapping[str, float] | None = None,
 ) -> dict[str, object]:
     payload: dict[str, object] = {
         "contract_version": CODE_SEMANTIC_SOURCE_DELTA_MEANING_CONTRACT_VERSION,
@@ -918,6 +1120,8 @@ def _delta_source_index_evidence(
             current_source_index=current_source_index,
         )
     )
+    if phase_timings_s:
+        payload["phase_timings_s"] = dict(phase_timings_s)
     if baseline_source_index_ref is not None:
         payload["baseline_source_index_ref"] = (
             baseline_source_index_ref.evidence_payload()
@@ -1052,12 +1256,10 @@ def _filter_resolutions_for_required_template_values(
         resolution
         for resolution in resolutions
         if all(
-            resolution.template_values.get(field_name)
-            for field_name in required_fields
+            resolution.template_values.get(field_name) for field_name in required_fields
         )
         and not any(
-            resolution.template_values.get(field_name)
-            for field_name in excluded_fields
+            resolution.template_values.get(field_name) for field_name in excluded_fields
         )
     )
 
@@ -1498,9 +1700,7 @@ def _value_payload(
             }
         )
     if binding.value_domain == "aware_attribute_membership_identity_key":
-        is_identity_key = (
-            resolution.template_values.get("is_identity_key") == "true"
-        )
+        is_identity_key = resolution.template_values.get("is_identity_key") == "true"
         payload.update(
             {
                 "is_identity_key": is_identity_key,

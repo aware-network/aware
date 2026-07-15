@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator, Callable, Iterable, Iterator, Mapping
 from contextlib import asynccontextmanager, contextmanager
-from dataclasses import dataclass, replace
+from dataclasses import asdict, dataclass, is_dataclass, replace
+from enum import Enum
 import hashlib
 from inspect import isawaitable
 import json
@@ -11,6 +12,7 @@ from pathlib import Path
 import shutil
 from threading import Lock
 from time import perf_counter
+import traceback
 from typing import Any, TypeAlias, TypeVar, cast
 from uuid import NAMESPACE_URL, UUID, uuid5
 
@@ -53,6 +55,9 @@ from aware_meta.graph.config.node_diff import diff_object_config_graph_nodes
 from aware_meta.graph.projection.identity import (
     synthesize_object_projection_graph_identity,
 )
+from aware_meta.graph.projection.stable_ids import (
+    stable_object_projection_graph_id,
+)
 from aware_meta.graph.config.builder import build_object_config_graph_from_code
 from aware_meta.graph.config.handlers import build_object_projection_graphs
 from aware_meta.graph.config.model_bootstrap import get_node_function_config
@@ -65,6 +70,7 @@ from aware_meta_ontology.class_.class_config_relationship import (
     ClassConfigRelationship,
 )
 from aware_meta_ontology.class_.class_config import ClassConfig
+from aware_meta_ontology.enum.enum_config import EnumConfig
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
 from aware_meta_ontology.graph.config.object_config_graph_delta import (
     ObjectConfigGraphDelta,
@@ -103,11 +109,13 @@ from aware_meta_ontology.stable_ids import (
     stable_object_config_graph_package_language_materialization_package_id,
 )
 from aware_meta.graph.instance.commit.committer import FSLaneCommitter
-from aware_meta.graph.instance.commit.fs_store import (
+from aware_meta.graph.instance.commit.contract import (
     CommitActionDescriptor,
-    FSCommitStore,
-    FSSnapshotStore,
     ObjectInstanceGraphCommitEnvelope,
+)
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+from aware_meta.graph.instance.commit.fs_snapshot_store import FSSnapshotStore
+from aware_meta.graph.instance.commit.stored_commit_records import (
     object_instance_graph_commit_envelope_from_commit,
 )
 from aware_meta.graph.instance.commit.materialization_cache import (
@@ -124,12 +132,14 @@ from aware_meta.package_graph_reuse_cache import (
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_CONTEXT_GRAPHS,
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_CONTEXT_SOURCE_GRAPH,
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_MATERIALIZED_PACKAGE,
+    OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_RUNTIME_INDEX_SIDECAR,
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_VERSION,
     OBJECT_CONFIG_GRAPH_SOURCE_TO_RUNTIME_LOWERING_SIGNATURE,
     external_graph_signature,
     object_config_graph_package_reuse_cache_path,
     object_config_graph_payload_has_materialized_body,
     object_config_graph_payload_has_namespace_evidence,
+    read_object_config_graph_package_runtime_index_sidecar_cache_payload,
     read_object_config_graph_package_reuse_cache_payload,
     source_text_manifest_hash,
     write_object_config_graph_package_reuse_cache_payload,
@@ -285,6 +295,7 @@ class ObjectConfigGraphPackageLeafMaterializationResult:
     aware_toml_path: Path
     package_branch_id: UUID
     code_package: CodePackage
+    source_manifest_kind: str
     object_config_graph_package: ObjectConfigGraphPackage
     object_config_graph: ObjectConfigGraph
     owned_file_paths: tuple[str, ...]
@@ -325,77 +336,23 @@ def build_object_config_graph_package_materialization_index_receipt(
 ) -> dict[str, object]:
     object_config_graph = result.object_config_graph
     object_config_graph_package = result.object_config_graph_package
-    object_config_graph_identity = object_config_graph.object_config_graph_identity
-    projection_hash_by_id = {
-        record.object_projection_graph_id: record.projection_hash
-        for record in (
-            ()
-            if package_materialization_receipt is None
-            else package_materialization_receipt.projection_identities
-        )
-        if record.projection_hash is not None
-    }
-    projection_hash_by_id.update(dict(projection_hashes_by_id or {}))
-    projection_hash_by_id.update(
-        {
-            opg.id: opg.projection_hash
-            for opg in object_config_graph.object_projection_graphs
-        }
+    projection_hash_by_id = _materialization_index_projection_hashes_by_id(
+        result=result,
+        package_materialization_receipt=package_materialization_receipt,
+        projection_hashes_by_id=projection_hashes_by_id,
     )
-    projection_identities: list[dict[str, object]] = []
-    observables: list[dict[str, object]] = []
+    identity_plane = _materialization_index_identity_plane_from_package_receipt(
+        result=result,
+        package_materialization_receipt=package_materialization_receipt,
+        projection_hash_by_id=projection_hash_by_id,
+    )
+    if identity_plane is None:
+        identity_plane = _materialization_index_identity_plane_from_graph(
+            result=result,
+            projection_hash_by_id=projection_hash_by_id,
+        )
+    projection_identities = identity_plane["projection_identities"]
 
-    if object_config_graph_identity is not None:
-        for opgi in object_config_graph_identity.object_projection_graph_identities:
-            projection_hash = projection_hash_by_id.get(opgi.object_projection_graph_id)
-            if projection_hash is None and opgi.object_projection_graph is not None:
-                projection_hash = opgi.object_projection_graph.projection_hash
-            observable_receipts = [
-                {
-                    "object_projection_graph_observable_id": str(observable.id),
-                    "object_projection_graph_identity_id": str(opgi.id),
-                    "key": observable.key,
-                    "observable_key": observable.observable_key,
-                    "kind": observable.kind,
-                    "position": observable.position,
-                    "is_default": observable.is_default,
-                }
-                for observable in sorted(
-                    opgi.object_projection_graph_observables,
-                    key=lambda item: (item.observable_key, item.key),
-                )
-            ]
-            projection_identities.append(
-                {
-                    "object_projection_graph_identity_id": str(opgi.id),
-                    "object_config_graph_identity_id": str(
-                        opgi.object_config_graph_identity_id
-                    ),
-                    "object_projection_graph_id": str(opgi.object_projection_graph_id),
-                    "projection_name": opgi.projection_name,
-                    "projection_hash": projection_hash,
-                    "is_branchable": opgi.is_branchable,
-                    "observable_keys": [
-                        str(receipt["observable_key"])
-                        for receipt in observable_receipts
-                    ],
-                }
-            )
-            observables.extend(observable_receipts)
-
-    projection_identities.sort(
-        key=lambda item: (
-            str(item["projection_name"]),
-            str(item["object_projection_graph_id"]),
-        )
-    )
-    observables.sort(
-        key=lambda item: (
-            str(item["object_projection_graph_identity_id"]),
-            str(item["observable_key"]),
-            str(item["key"]),
-        )
-    )
     projection_hashes = [
         str(item["projection_hash"])
         for item in projection_identities
@@ -459,19 +416,189 @@ def build_object_config_graph_package_materialization_index_receipt(
             ),
         },
         "identity_plane": {
-            "object_config_graph_identity_id": (
-                None
-                if object_config_graph_identity is None
-                else str(object_config_graph_identity.id)
-            ),
-            "object_config_graph_identity_key": (
-                None
-                if object_config_graph_identity is None
-                else object_config_graph_identity.key
-            ),
-            "projection_identities": projection_identities,
-            "observables": observables,
+            **identity_plane,
         },
+    }
+
+
+def _materialization_index_identity_plane_from_package_receipt(
+    *,
+    result: ObjectConfigGraphPackageLeafMaterializationResult,
+    package_materialization_receipt: (
+        MetaObjectConfigGraphPackageMaterializationReceipt | None
+    ),
+    projection_hash_by_id: Mapping[UUID, str],
+) -> dict[str, object] | None:
+    if package_materialization_receipt is None:
+        return None
+
+    ocgi_record = package_materialization_receipt.object_config_graph_identity
+    graph_identity = result.object_config_graph.object_config_graph_identity
+    object_config_graph_identity_id = (
+        ocgi_record.object_config_graph_identity_id
+        if ocgi_record is not None
+        else None if graph_identity is None else graph_identity.id
+    )
+    object_config_graph_identity_key = (
+        ocgi_record.key
+        if ocgi_record is not None
+        else None if graph_identity is None else graph_identity.key
+    )
+
+    observables_by_identity: dict[UUID, list[dict[str, object]]] = {}
+    observables: list[dict[str, object]] = []
+    for observable in package_materialization_receipt.observables:
+        observable_receipt = {
+            "object_projection_graph_observable_id": str(
+                observable.object_projection_graph_observable_id
+            ),
+            "object_projection_graph_identity_id": str(
+                observable.object_projection_graph_identity_id
+            ),
+            "key": observable.key,
+            "observable_key": observable.observable_key,
+            "kind": observable.kind,
+            "position": observable.position,
+        }
+        observables_by_identity.setdefault(
+            observable.object_projection_graph_identity_id,
+            [],
+        ).append(observable_receipt)
+        observables.append(observable_receipt)
+
+    projection_identities: list[dict[str, object]] = []
+    for projection_identity in package_materialization_receipt.projection_identities:
+        observable_receipts = sorted(
+            observables_by_identity.get(
+                projection_identity.object_projection_graph_identity_id,
+                [],
+            ),
+            key=lambda item: (str(item["observable_key"]), str(item["key"])),
+        )
+        projection_identities.append(
+            {
+                "object_projection_graph_identity_id": str(
+                    projection_identity.object_projection_graph_identity_id
+                ),
+                "object_config_graph_identity_id": (
+                    None
+                    if object_config_graph_identity_id is None
+                    else str(object_config_graph_identity_id)
+                ),
+                "object_projection_graph_id": str(
+                    projection_identity.object_projection_graph_id
+                ),
+                "projection_name": projection_identity.projection_name,
+                "projection_hash": projection_hash_by_id.get(
+                    projection_identity.object_projection_graph_id
+                )
+                or projection_identity.projection_hash,
+                "is_branchable": projection_identity.is_branchable,
+                "observable_keys": [
+                    str(receipt["observable_key"]) for receipt in observable_receipts
+                ],
+            }
+        )
+
+    projection_identities.sort(
+        key=lambda item: (
+            str(item["projection_name"]),
+            str(item["object_projection_graph_id"]),
+        )
+    )
+    observables.sort(
+        key=lambda item: (
+            str(item["object_projection_graph_identity_id"]),
+            str(item["observable_key"]),
+            str(item["key"]),
+        )
+    )
+    return {
+        "object_config_graph_identity_id": (
+            None
+            if object_config_graph_identity_id is None
+            else str(object_config_graph_identity_id)
+        ),
+        "object_config_graph_identity_key": object_config_graph_identity_key,
+        "projection_identities": projection_identities,
+        "observables": observables,
+    }
+
+
+def _materialization_index_identity_plane_from_graph(
+    *,
+    result: ObjectConfigGraphPackageLeafMaterializationResult,
+    projection_hash_by_id: Mapping[UUID, str],
+) -> dict[str, object]:
+    object_config_graph_identity = (
+        result.object_config_graph.object_config_graph_identity
+    )
+    projection_identities: list[dict[str, object]] = []
+    observables: list[dict[str, object]] = []
+
+    if object_config_graph_identity is not None:
+        for opgi in object_config_graph_identity.object_projection_graph_identities:
+            projection_hash = projection_hash_by_id.get(opgi.object_projection_graph_id)
+            if projection_hash is None and opgi.object_projection_graph is not None:
+                projection_hash = opgi.object_projection_graph.projection_hash
+            observable_receipts = [
+                {
+                    "object_projection_graph_observable_id": str(observable.id),
+                    "object_projection_graph_identity_id": str(opgi.id),
+                    "key": observable.key,
+                    "observable_key": observable.observable_key,
+                    "kind": observable.kind,
+                    "position": observable.position,
+                }
+                for observable in sorted(
+                    opgi.object_projection_graph_observables,
+                    key=lambda item: (item.observable_key, item.key),
+                )
+            ]
+            projection_identities.append(
+                {
+                    "object_projection_graph_identity_id": str(opgi.id),
+                    "object_config_graph_identity_id": str(
+                        opgi.object_config_graph_identity_id
+                    ),
+                    "object_projection_graph_id": str(opgi.object_projection_graph_id),
+                    "projection_name": opgi.projection_name,
+                    "projection_hash": projection_hash,
+                    "is_branchable": opgi.is_branchable,
+                    "observable_keys": [
+                        str(receipt["observable_key"])
+                        for receipt in observable_receipts
+                    ],
+                }
+            )
+            observables.extend(observable_receipts)
+
+    projection_identities.sort(
+        key=lambda item: (
+            str(item["projection_name"]),
+            str(item["object_projection_graph_id"]),
+        )
+    )
+    observables.sort(
+        key=lambda item: (
+            str(item["object_projection_graph_identity_id"]),
+            str(item["observable_key"]),
+            str(item["key"]),
+        )
+    )
+    return {
+        "object_config_graph_identity_id": (
+            None
+            if object_config_graph_identity is None
+            else str(object_config_graph_identity.id)
+        ),
+        "object_config_graph_identity_key": (
+            None
+            if object_config_graph_identity is None
+            else object_config_graph_identity.key
+        ),
+        "projection_identities": projection_identities,
+        "observables": observables,
     }
 
 
@@ -509,6 +636,189 @@ def _with_materialization_index_receipt(
             )
         ),
     )
+
+
+def _materialization_index_projection_hashes_by_id(
+    *,
+    result: ObjectConfigGraphPackageLeafMaterializationResult,
+    package_materialization_receipt: (
+        MetaObjectConfigGraphPackageMaterializationReceipt | None
+    ) = None,
+    projection_hashes_by_id: Mapping[UUID, str] | None = None,
+) -> dict[UUID, str]:
+    projection_hash_by_id = {
+        record.object_projection_graph_id: record.projection_hash
+        for record in (
+            ()
+            if package_materialization_receipt is None
+            else package_materialization_receipt.projection_identities
+        )
+        if record.projection_hash is not None
+    }
+    projection_hash_by_id.update(dict(projection_hashes_by_id or {}))
+    projection_hash_by_id.update(
+        {
+            opg.id: opg.projection_hash
+            for opg in result.object_config_graph.object_projection_graphs
+            if opg.projection_hash is not None
+        }
+    )
+    return projection_hash_by_id
+
+
+def _materialization_index_runtime_sidecar_projection_hashes_by_id(
+    *,
+    workspace_root: Path,
+    result: ObjectConfigGraphPackageLeafMaterializationResult,
+) -> dict[UUID, str]:
+    package = result.object_config_graph_package
+    payload = read_object_config_graph_package_runtime_index_sidecar_cache_payload(
+        aware_root=workspace_root,
+        branch_id=result.package_branch_id,
+        object_config_graph_package_id=package.id,
+    )
+    if payload is None:
+        return {}
+    if payload.get("v") != OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_VERSION:
+        return {}
+    if (
+        payload.get("cache_kind")
+        != OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_RUNTIME_INDEX_SIDECAR
+    ):
+        return {}
+    if _payload_string(payload, "package_name") != package.package_name:
+        return {}
+    if _payload_string(payload, "fqn_prefix") != package.fqn_prefix:
+        return {}
+    if _payload_uuid(payload, "object_config_graph_package_id") != package.id:
+        return {}
+    if (
+        _payload_uuid(payload, "object_config_graph_id")
+        != result.object_config_graph.id
+    ):
+        return {}
+    raw_sidecar = payload.get("runtime_package_index_sidecar")
+    if not isinstance(raw_sidecar, Mapping):
+        return {}
+    sidecar = {str(key): value for key, value in raw_sidecar.items()}
+    if sidecar.get("schema") != "aware.meta.runtime_package_index_sidecar.v1":
+        return {}
+    if _payload_string(sidecar, "package_name") != package.package_name:
+        return {}
+    if _payload_string(sidecar, "fqn_prefix") != package.fqn_prefix:
+        return {}
+    if (
+        _payload_uuid(sidecar, "object_config_graph_id")
+        != result.object_config_graph.id
+    ):
+        return {}
+    current_hash = str(result.object_config_graph.hash or "").strip()
+    source_hash = str(sidecar.get("source_object_config_graph_hash") or "").strip()
+    runtime_hash = str(sidecar.get("runtime_object_config_graph_hash") or "").strip()
+    if current_hash and current_hash not in {source_hash, runtime_hash}:
+        return {}
+    return _runtime_sidecar_projection_hashes_by_id(
+        sidecar=sidecar,
+        object_config_graph_id=result.object_config_graph.id,
+    )
+
+
+def _runtime_sidecar_projection_hashes_by_id(
+    *,
+    sidecar: Mapping[str, object],
+    object_config_graph_id: UUID,
+) -> dict[UUID, str]:
+    projection_hashes_by_id: dict[UUID, str] = {}
+
+    def remember(*, opg_id: UUID, projection_hash: str) -> bool:
+        existing = projection_hashes_by_id.get(opg_id)
+        if existing is not None and existing != projection_hash:
+            return False
+        projection_hashes_by_id[opg_id] = projection_hash
+        return True
+
+    raw_projection_entries = sidecar.get("object_projection_graphs")
+    if isinstance(raw_projection_entries, list):
+        for raw_entry in raw_projection_entries:
+            if not isinstance(raw_entry, Mapping):
+                continue
+            entry = {str(key): value for key, value in raw_entry.items()}
+            if _payload_uuid(entry, "object_config_graph_id") != object_config_graph_id:
+                continue
+            projection_hash = _payload_string(entry, "projection_hash")
+            if projection_hash is None:
+                continue
+            opg_id = _payload_uuid(entry, "id")
+            if opg_id is None:
+                projection_name = _payload_string(entry, "name")
+                if projection_name is None:
+                    continue
+                opg_id = stable_object_projection_graph_id(
+                    object_config_graph_id=object_config_graph_id,
+                    name=projection_name,
+                )
+            if not remember(opg_id=opg_id, projection_hash=projection_hash):
+                return {}
+
+    raw_projection_hash_by_name = sidecar.get("projection_hash_by_name")
+    if isinstance(raw_projection_hash_by_name, Mapping):
+        for raw_name, raw_projection_hash in raw_projection_hash_by_name.items():
+            projection_name = str(raw_name or "").strip()
+            projection_hash = (
+                raw_projection_hash.strip()
+                if isinstance(raw_projection_hash, str)
+                else ""
+            )
+            if not projection_name or not projection_hash:
+                continue
+            opg_id = stable_object_projection_graph_id(
+                object_config_graph_id=object_config_graph_id,
+                name=projection_name,
+            )
+            if not remember(opg_id=opg_id, projection_hash=projection_hash):
+                return {}
+
+    return projection_hashes_by_id
+
+
+def _materialization_index_projection_hashes_cover_identity_plane(
+    *,
+    result: ObjectConfigGraphPackageLeafMaterializationResult,
+    projection_hashes_by_id: Mapping[UUID, str],
+) -> bool:
+    object_config_graph_identity = (
+        result.object_config_graph.object_config_graph_identity
+    )
+    if object_config_graph_identity is None:
+        return True
+    for opgi in object_config_graph_identity.object_projection_graph_identities:
+        if projection_hashes_by_id.get(opgi.object_projection_graph_id):
+            continue
+        if (
+            opgi.object_projection_graph is not None
+            and opgi.object_projection_graph.projection_hash
+        ):
+            continue
+        return False
+    return True
+
+
+def _materialization_index_projection_hashes_cover_package_receipt_identity_plane(
+    *,
+    package_materialization_receipt: (
+        MetaObjectConfigGraphPackageMaterializationReceipt | None
+    ),
+    projection_hashes_by_id: Mapping[UUID, str],
+) -> bool | None:
+    if package_materialization_receipt is None:
+        return None
+    for projection_identity in package_materialization_receipt.projection_identities:
+        if projection_hashes_by_id.get(projection_identity.object_projection_graph_id):
+            continue
+        if projection_identity.projection_hash:
+            continue
+        return False
+    return True
 
 
 def _uuid_value(value: UUID | None) -> str | None:
@@ -590,7 +900,12 @@ def _clone_object_config_graph_public_fields(
     """Clone OCG public fields without copying runtime private/session state."""
 
     return ObjectConfigGraph.model_validate(
-        graph.model_dump(mode="python", by_alias=False, round_trip=True)
+        graph.model_dump(
+            mode="json",
+            by_alias=False,
+            round_trip=True,
+            warnings=False,
+        )
     )
 
 
@@ -827,6 +1142,7 @@ def _build_code_package_source_manifest_root(
     code_package_config_id: UUID,
     package_name: str,
     surface: str,
+    manifest_kind: str,
     manifest_relative_path: str,
     package_root: str,
     sources_root: str | None,
@@ -840,7 +1156,7 @@ def _build_code_package_source_manifest_root(
             package_name=package_name,
             language=CodeLanguage.aware,
             surface=surface,
-            manifest_kind="aware_toml",
+            manifest_kind=manifest_kind,
             manifest_relative_path=manifest_relative_path,
             package_root=package_root,
             sources_root=sources_root,
@@ -890,8 +1206,10 @@ async def _seed_code_package_sources_from_manifest(
     branch_id: UUID,
     projection_hash: str,
     code_package_id: UUID,
+    code_package_config_id: UUID,
     package_name: str,
     surface: str,
+    manifest_kind: str,
     manifest_relative_path: str,
     package_root: str,
     sources_root: str | None,
@@ -911,14 +1229,10 @@ async def _seed_code_package_sources_from_manifest(
     ):
         code_package, related_models = _build_code_package_source_manifest_root(
             code_package_id=code_package_id,
-            code_package_config_id=stable_code_package_config_id(
-                config_key=code_package_source_config_key(
-                    manifest_kind="aware_toml",
-                    surface=surface,
-                ),
-            ),
+            code_package_config_id=code_package_config_id,
             package_name=package_name,
             surface=surface,
+            manifest_kind=manifest_kind,
             manifest_relative_path=manifest_relative_path,
             package_root=package_root,
             sources_root=sources_root,
@@ -928,12 +1242,7 @@ async def _seed_code_package_sources_from_manifest(
         root_instance = _ModelIntrospectionOverlay(
             source=code_package,
             values_by_name={
-                "code_package_config_id": stable_code_package_config_id(
-                    config_key=code_package_source_config_key(
-                        manifest_kind="aware_toml",
-                        surface=surface,
-                    ),
-                )
+                "code_package_config_id": code_package_config_id,
             },
         )
 
@@ -1929,6 +2238,46 @@ def _round_duration_s(duration_s: float) -> float:
     return round(max(duration_s, 0.0), 6)
 
 
+_SLOW_LEAF_SUBPHASE_LOG_THRESHOLD_S = 1.0
+_TIMING_SUMMARY_LIMIT = 8
+
+
+def _timing_summary_entries(
+    timings_s: Mapping[str, float],
+    *,
+    include_metrics: bool,
+    limit: int = _TIMING_SUMMARY_LIMIT,
+) -> tuple[dict[str, object], ...]:
+    entries: list[dict[str, object]] = []
+    for phase_name, raw_duration_s in timings_s.items():
+        if phase_name in {"total", "total_s"}:
+            continue
+        is_metric = ".metric." in phase_name or phase_name.endswith("_count")
+        if is_metric != include_metrics:
+            continue
+        if isinstance(raw_duration_s, bool) or not isinstance(
+            raw_duration_s,
+            (int, float),
+        ):
+            continue
+        entries.append(
+            {
+                "name": phase_name,
+                "value" if include_metrics else "duration_s": _round_duration_s(
+                    float(raw_duration_s)
+                ),
+            }
+        )
+    sort_key = "value" if include_metrics else "duration_s"
+    return tuple(
+        sorted(
+            entries,
+            key=lambda item: float(item.get(sort_key) or 0.0),
+            reverse=True,
+        )[:limit]
+    )
+
+
 @contextmanager
 def _record_phase(
     phase_timings_s: dict[str, float],
@@ -1980,6 +2329,7 @@ async def _record_leaf_package_subphase(
         phase_timings_s[phase_name] = duration_s
         failed_detail = dict(detail_payload or {})
         failed_detail["error_type"] = type(exc).__name__
+        failed_detail["traceback_tail"] = _exception_traceback_tail(exc)
         await _emit_leaf_package_subphase_progress(
             progress_callback=progress_callback,
             subphase_name=phase_name,
@@ -1987,6 +2337,12 @@ async def _record_leaf_package_subphase(
             duration_s=duration_s,
             error=str(exc),
             detail_payload=failed_detail,
+        )
+        logger.error(
+            "Meta package leaf subphase failed: subphase=%s duration_s=%.3f detail=%s",
+            phase_name,
+            duration_s,
+            _leaf_subphase_log_detail(failed_detail),
         )
         raise
     else:
@@ -1999,6 +2355,44 @@ async def _record_leaf_package_subphase(
             duration_s=duration_s,
             detail_payload=detail_payload,
         )
+        if duration_s >= _SLOW_LEAF_SUBPHASE_LOG_THRESHOLD_S:
+            logger.info(
+                "Meta package leaf slow subphase: subphase=%s duration_s=%.3f detail=%s",
+                phase_name,
+                duration_s,
+                _leaf_subphase_log_detail(detail_payload),
+            )
+
+
+def _leaf_subphase_log_detail(
+    detail_payload: Mapping[str, object] | None,
+) -> dict[str, object]:
+    if not detail_payload:
+        return {}
+    return {
+        key: value
+        for key, value in detail_payload.items()
+        if key
+        in {
+            "package_name",
+            "aware_toml_path",
+            "error_type",
+            "fqn_prefix",
+            "owned_source_file_count",
+            "traceback_tail",
+        }
+    }
+
+
+def _exception_traceback_tail(
+    exc: BaseException,
+    *,
+    max_lines: int = 16,
+) -> tuple[str, ...]:
+    lines: list[str] = []
+    for entry in traceback.format_exception(type(exc), exc, exc.__traceback__):
+        lines.extend(line.rstrip() for line in entry.rstrip().splitlines())
+    return tuple(lines[-max_lines:])
 
 
 async def _emit_leaf_package_subphase_progress(
@@ -2040,6 +2434,8 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
     package_branch_id: UUID | None = None,
     external_graphs: list[ObjectConfigGraph] | None = None,
     source_code_package_id: UUID | None = None,
+    source_code_package_config_id: UUID | None = None,
+    source_code_package_manifest_kind: str | None = None,
     object_config_graph_package_id: UUID | None = None,
     collect_telemetry: bool = True,
     force_fresh_semantic_materialization: bool = False,
@@ -2086,6 +2482,9 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
         label="sources_root",
     )
     surface = _object_config_graph_code_package_surface_for_kind(spec.package.kind)
+    source_manifest_kind = (
+        str(source_code_package_manifest_kind or "").strip() or "aware_toml"
+    )
     with _record_phase(phase_timings_s, "discover_owned_source_files"):
         owned_source_files = _discover_owned_source_files(
             workspace_root=workspace_root,
@@ -2100,14 +2499,16 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
             f"aware_toml_path={aware_toml_path}"
         )
 
-    source_code_package_config_id = stable_code_package_config_id(
-        config_key=code_package_source_config_key(
-            manifest_kind="aware_toml",
-            surface=surface,
-        ),
+    resolved_source_code_package_config_id = source_code_package_config_id or (
+        stable_code_package_config_id(
+            config_key=code_package_source_config_key(
+                manifest_kind=source_manifest_kind,
+                surface=surface,
+            ),
+        )
     )
     resolved_source_code_package_id = source_code_package_id or stable_code_package_id(
-        code_package_config_id=source_code_package_config_id,
+        code_package_config_id=resolved_source_code_package_config_id,
         package_name=spec.package.package_name,
         language=CodeLanguage.aware.value,
     )
@@ -2231,6 +2632,9 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
                 source_manifest_hash=source_manifest_hash,
                 dependency_signature=dependency_signature,
                 resolved_source_code_package_id=resolved_source_code_package_id,
+                resolved_source_code_package_config_id=(
+                    resolved_source_code_package_config_id
+                ),
                 resolved_object_config_graph_id=resolved_object_config_graph_id,
                 resolved_object_config_graph_package_id=(
                     resolved_object_config_graph_package_id
@@ -2245,6 +2649,7 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
                 title=spec.package.title,
                 description=spec.package.description,
                 surface=surface,
+                source_manifest_kind=source_manifest_kind,
                 manifest_relative_path=manifest_relative_path,
                 package_root_relative=package_root_relative,
                 sources_root_relative=sources_root_relative,
@@ -2279,6 +2684,8 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
         package_name=spec.package.package_name,
         language=CodeLanguage.aware.value,
         surface=surface,
+        code_package_config_id=resolved_source_code_package_config_id,
+        manifest_kind=source_manifest_kind,
         manifest_relative_path=manifest_relative_path,
         package_root=package_root_relative,
         sources_root=sources_root_relative,
@@ -2316,8 +2723,10 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
                 branch_id=package_branch_id,
                 projection_hash=code_package_projection_hash,
                 code_package_id=resolved_source_code_package_id,
+                code_package_config_id=resolved_source_code_package_config_id,
                 package_name=spec.package.package_name,
                 surface=surface,
+                manifest_kind=source_manifest_kind,
                 manifest_relative_path=manifest_relative_path,
                 package_root=package_root_relative,
                 sources_root=sources_root_relative,
@@ -2651,6 +3060,24 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
             semantic_commit_summary.commit_id,
             semantic_commit_summary.head_commit_id,
         )
+        logger.info(
+            "Meta package leaf semantic OCG commit timing summary: package=%s strategy=%s total_s=%.3f top_phases=%s top_metrics=%s",
+            spec.package.package_name,
+            semantic_commit_summary.strategy,
+            float(semantic_commit_summary.phase_timings_s.get("total") or 0.0),
+            list(
+                _timing_summary_entries(
+                    semantic_commit_summary.phase_timings_s,
+                    include_metrics=False,
+                )
+            ),
+            list(
+                _timing_summary_entries(
+                    semantic_commit_summary.phase_timings_s,
+                    include_metrics=True,
+                )
+            ),
+        )
     semantic_root_domain_commit_id = _semantic_lane_root_domain_commit_id(
         semantic_commit_summary
     )
@@ -2790,6 +3217,7 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
         aware_toml_path=aware_toml_path,
         package_branch_id=package_branch_id,
         code_package=code_package,
+        source_manifest_kind=source_manifest_kind,
         object_config_graph_package=object_config_graph_package,
         object_config_graph=build_result.graph,
         owned_file_paths=tuple(
@@ -2827,26 +3255,93 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
         progress_callback,
         detail_payload=leaf_detail,
     ):
-        projection_hashes_by_id = _derived_projection_hashes_by_id_for_index_receipt(
-            graph=build_result.graph,
-            external_graphs=tuple(external_graphs or ()),
-            cross_relationships_by_target_ocg=(
-                build_result.cross_relationships_by_target_ocg
-            ),
+        receipt_phase_prefix = "build_materialization_index_receipt"
+        with _record_phase(
+            phase_timings_s,
+            f"{receipt_phase_prefix}.projection_hashes_by_id",
+        ):
+            projection_hashes_by_id = _materialization_index_projection_hashes_by_id(
+                result=result,
+                package_materialization_receipt=(
+                    build_result.package_materialization_receipt
+                ),
+            )
+        with _record_phase(
+            phase_timings_s,
+            f"{receipt_phase_prefix}.runtime_sidecar_projection_hashes_by_id",
+        ):
+            runtime_sidecar_projection_hashes_by_id = (
+                _materialization_index_runtime_sidecar_projection_hashes_by_id(
+                    workspace_root=workspace_root,
+                    result=result,
+                )
+            )
+            projection_hashes_by_id.update(runtime_sidecar_projection_hashes_by_id)
+        phase_timings_s[f"{receipt_phase_prefix}.metric.projection_hash_count"] = float(
+            len(projection_hashes_by_id)
         )
-        result = _with_materialization_index_receipt(
-            result=result,
-            source_manifest_hash=source_manifest_hash,
-            dependency_signature=dependency_signature,
-            cache_status="rebuilt",
-            code_package_projection_hash=code_package_projection_hash,
-            object_config_graph_projection_hash=object_config_graph_projection_hash,
-            object_config_graph_package_projection_hash=(
-                object_config_graph_package_projection_hash
-            ),
-            projection_hashes_by_id=projection_hashes_by_id,
-            package_materialization_receipt=build_result.package_materialization_receipt,
+        phase_timings_s[
+            f"{receipt_phase_prefix}.metric.runtime_sidecar_projection_hash_count"
+        ] = float(len(runtime_sidecar_projection_hashes_by_id))
+        with _record_phase(
+            phase_timings_s,
+            f"{receipt_phase_prefix}.identity_plane_coverage_check",
+        ):
+            identity_plane_covered = _materialization_index_projection_hashes_cover_package_receipt_identity_plane(
+                package_materialization_receipt=(
+                    build_result.package_materialization_receipt
+                ),
+                projection_hashes_by_id=projection_hashes_by_id,
+            )
+            if identity_plane_covered is None:
+                identity_plane_covered = (
+                    _materialization_index_projection_hashes_cover_identity_plane(
+                        result=result,
+                        projection_hashes_by_id=projection_hashes_by_id,
+                    )
+                )
+        phase_timings_s[f"{receipt_phase_prefix}.metric.identity_plane_covered"] = (
+            float(identity_plane_covered)
         )
+        if not identity_plane_covered:
+            with _record_phase(
+                phase_timings_s,
+                f"{receipt_phase_prefix}.derive_projection_hashes",
+            ):
+                derived_projection_hashes_by_id = (
+                    _derived_projection_hashes_by_id_for_index_receipt(
+                        graph=build_result.graph,
+                        external_graphs=tuple(external_graphs or ()),
+                        cross_relationships_by_target_ocg=(
+                            build_result.cross_relationships_by_target_ocg
+                        ),
+                    )
+                )
+            phase_timings_s[
+                f"{receipt_phase_prefix}.metric.derived_projection_hash_count"
+            ] = float(len(derived_projection_hashes_by_id))
+            projection_hashes_by_id.update(derived_projection_hashes_by_id)
+        with _record_phase(
+            phase_timings_s,
+            f"{receipt_phase_prefix}.assemble_receipt",
+        ):
+            result = _with_materialization_index_receipt(
+                result=result,
+                source_manifest_hash=source_manifest_hash,
+                dependency_signature=dependency_signature,
+                cache_status="rebuilt",
+                code_package_projection_hash=code_package_projection_hash,
+                object_config_graph_projection_hash=(
+                    object_config_graph_projection_hash
+                ),
+                object_config_graph_package_projection_hash=(
+                    object_config_graph_package_projection_hash
+                ),
+                projection_hashes_by_id=projection_hashes_by_id,
+                package_materialization_receipt=(
+                    build_result.package_materialization_receipt
+                ),
+            )
     async with _record_leaf_package_subphase(
         phase_timings_s,
         "write_object_config_graph_package_reuse_cache",
@@ -3007,6 +3502,8 @@ def _code_package_source_texts_match(
     package_name: str,
     language: str,
     surface: str,
+    code_package_config_id: UUID,
+    manifest_kind: str,
     manifest_relative_path: str,
     package_root: str,
     sources_root: str,
@@ -3017,8 +3514,11 @@ def _code_package_source_texts_match(
         return False
     if (
         code_package.package_name != package_name
+        or str(code_package.code_package_config_id) != str(code_package_config_id)
         or _enum_text(code_package.language) != language
         or _enum_text(code_package.surface) != surface
+        or _enum_text(getattr(code_package, "manifest_kind", manifest_kind))
+        != manifest_kind
         or (code_package.manifest_relative_path or "") != manifest_relative_path
         or (code_package.package_root or "") != package_root
         or (code_package.sources_root or "") != sources_root
@@ -3273,6 +3773,46 @@ def _attach_object_config_graph_source_sections_from_reuse_cache(
             )
 
 
+def _attach_object_config_graph_namespace_identity_from_reuse_cache(
+    *,
+    graph: ObjectConfigGraph,
+    payload: Mapping[str, object],
+) -> None:
+    raw_membership = payload.get("namespace_membership")
+    if not isinstance(raw_membership, list):
+        return
+    nodes_by_id = {str(node.id): node for node in graph.object_config_graph_nodes}
+    for raw_entry in raw_membership:
+        if not isinstance(raw_entry, Mapping):
+            continue
+        node = nodes_by_id.get(str(raw_entry.get("node_id") or ""))
+        if node is None:
+            continue
+        try:
+            entity_id = UUID(str(raw_entry.get("entity_id") or ""))
+        except ValueError:
+            continue
+        symbol = str(raw_entry.get("symbol") or "").strip()
+        fqn = str(raw_entry.get("fqn") or "").strip()
+        if not symbol or not fqn:
+            continue
+        entity_kind = str(raw_entry.get("entity_kind") or "").strip()
+        if entity_kind == "class" and node.class_config is None:
+            node.class_config = ClassConfig(
+                id=entity_id,
+                name=symbol,
+                class_fqn=fqn,
+                object_config_graph_node_id=node.id,
+            )
+        elif entity_kind == "enum" and node.enum_config is None:
+            node.enum_config = EnumConfig(
+                id=entity_id,
+                name=symbol,
+                enum_fqn=fqn,
+                object_config_graph_node_id=node.id,
+            )
+
+
 def _object_config_graph_has_unhydrated_function_source_refs(
     graph: ObjectConfigGraph,
 ) -> bool:
@@ -3403,6 +3943,7 @@ async def _try_reuse_existing_object_config_graph_package_cache(
     source_manifest_hash: str,
     dependency_signature: str,
     resolved_source_code_package_id: UUID,
+    resolved_source_code_package_config_id: UUID,
     resolved_object_config_graph_id: UUID,
     resolved_object_config_graph_package_id: UUID,
     package_name: str,
@@ -3415,6 +3956,7 @@ async def _try_reuse_existing_object_config_graph_package_cache(
     title: str | None,
     description: str | None,
     surface: str,
+    source_manifest_kind: str,
     manifest_relative_path: str,
     package_root_relative: str,
     sources_root_relative: str,
@@ -3505,7 +4047,7 @@ async def _try_reuse_existing_object_config_graph_package_cache(
         "code_package_package_name": package_name,
         "code_package_language": CodeLanguage.aware.value,
         "code_package_surface": surface,
-        "code_package_manifest_kind": "aware_toml",
+        "code_package_manifest_kind": source_manifest_kind,
         "code_package_manifest_relative_path": manifest_relative_path,
         "code_package_package_root": package_root_relative,
         "code_package_sources_root": sources_root_relative,
@@ -3588,6 +4130,10 @@ async def _try_reuse_existing_object_config_graph_package_cache(
         graph=object_config_graph,
         payload=payload,
     )
+    _attach_object_config_graph_namespace_identity_from_reuse_cache(
+        graph=object_config_graph,
+        payload=object_config_graph_payload,
+    )
     _rehydrate_object_config_graph_source_relationship_refs(object_config_graph)
     if _object_config_graph_has_unhydrated_function_source_refs(object_config_graph):
         miss("object_config_graph_source_sections_missing")
@@ -3629,16 +4175,11 @@ async def _try_reuse_existing_object_config_graph_package_cache(
 
     code_package = CodePackage(
         id=resolved_source_code_package_id,
-        code_package_config_id=stable_code_package_config_id(
-            config_key=code_package_source_config_key(
-                manifest_kind="aware_toml",
-                surface=surface,
-            ),
-        ),
+        code_package_config_id=resolved_source_code_package_config_id,
         package_name=package_name,
         language=CodeLanguage.aware,
         surface=surface,
-        manifest_kind="aware_toml",
+        manifest_kind=source_manifest_kind,
         manifest_relative_path=manifest_relative_path,
         package_root=package_root_relative,
         sources_root=sources_root_relative,
@@ -3679,6 +4220,7 @@ async def _try_reuse_existing_object_config_graph_package_cache(
         aware_toml_path=aware_toml_path,
         package_branch_id=branch_id,
         code_package=code_package,
+        source_manifest_kind=source_manifest_kind,
         object_config_graph_package=object_config_graph_package,
         object_config_graph=object_config_graph,
         owned_file_paths=owned_file_paths,
@@ -3779,7 +4321,7 @@ def _write_object_config_graph_package_reuse_cache(
             "code_package_package_name": result.code_package.package_name,
             "code_package_language": _enum_text(result.code_package.language),
             "code_package_surface": _enum_text(result.code_package.surface),
-            "code_package_manifest_kind": "aware_toml",
+            "code_package_manifest_kind": result.source_manifest_kind,
             "code_package_manifest_relative_path": (
                 result.code_package.manifest_relative_path
             ),
@@ -3833,6 +4375,9 @@ def _write_object_config_graph_package_reuse_cache(
                 _object_config_graph_source_sections_payload(result.object_config_graph)
             ),
         }
+        payload = _json_safe_materialization_payload(payload)
+        if not isinstance(payload, dict):
+            raise RuntimeError("ObjectConfigGraphPackage reuse cache payload invalid.")
         _write_reuse_cache_payload(
             branch_id=result.package_branch_id,
             object_config_graph_package_id=result.object_config_graph_package.id,
@@ -3882,6 +4427,7 @@ def _record_runtime_package_projection_index(
             materialization_index_receipt=result.materialization_index_receipt,
             source_manifest_hash=source_manifest_hash,
             dependency_signature=dependency_signature,
+            object_config_graph_payload_is_runtime=True,
         )
     except Exception as exc:
         logger.warning(
@@ -3895,19 +4441,52 @@ def _object_config_graph_payload_for_reuse_cache_write(
     result: ObjectConfigGraphPackageLeafMaterializationResult,
 ) -> dict[str, object]:
     if result.object_config_graph_payload is not None:
-        payload = dict(result.object_config_graph_payload)
+        raw_payload = result.object_config_graph_payload
     else:
-        payload = result.object_config_graph.model_dump(
+        raw_payload = result.object_config_graph.model_dump(
             mode="json",
             by_alias=True,
             exclude_none=True,
+            warnings=False,
         )
+    payload = _json_safe_materialization_payload(raw_payload)
+    if not isinstance(payload, dict):
+        payload = {}
     payload["namespace_membership"] = list(
         build_namespace_membership_payload_from_ocg_identity(
             ocg=result.object_config_graph,
         )
     )
     return payload
+
+
+def _json_safe_materialization_payload(value: object) -> object:
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        return _json_safe_materialization_payload(
+            model_dump(
+                mode="json",
+                by_alias=True,
+                exclude_none=True,
+                warnings=False,
+            )
+        )
+    if isinstance(value, Mapping):
+        return {
+            str(key): _json_safe_materialization_payload(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, (list, tuple, set, frozenset)):
+        return [_json_safe_materialization_payload(item) for item in value]
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, UUID):
+        return str(value)
+    if isinstance(value, Path):
+        return value.as_posix()
+    if is_dataclass(value) and not isinstance(value, type):
+        return _json_safe_materialization_payload(asdict(value))
+    return value
 
 
 def _is_within(*, candidate: Path, root: Path) -> bool:
@@ -3960,16 +4539,29 @@ def _read_single_root_runtime_lane_head(
     if not isinstance(commit_loaded, dict):
         return None
     commit_payload = cast(dict[object, object], commit_loaded)
-    commit_obj = commit_payload.get("commit")
-    if not isinstance(commit_obj, dict):
+    commit_id = commit_payload.get("commit_id")
+    graph_hash_post = commit_payload.get("graph_hash_post")
+    parents = commit_payload.get("parent_commit_ids")
+    if commit_id is None:
+        commit_obj = commit_payload.get("commit")
+        if not isinstance(commit_obj, dict):
+            return None
+        commit_id = head_commit_id
+        graph_hash_post = commit_payload.get("graph_hash_post")
+        parents = commit_obj.get("commit_parents")
+    if not isinstance(commit_id, str) or commit_id.strip() != head_commit_id.strip():
         return None
-    parents = commit_obj.get("commit_parents")
+    if (
+        not isinstance(graph_hash_post, str)
+        or graph_hash_post.strip() != head_graph_hash_post.strip()
+    ):
+        return None
     if not isinstance(parents, list) or parents:
         return None
 
     return {
         "commit_id": head_commit_id.strip(),
-        "graph_hash_post": head_graph_hash_post.strip(),
+        "graph_hash_post": graph_hash_post.strip(),
     }
 
 
@@ -4046,7 +4638,7 @@ async def _ensure_current_index_identity_seed_lanes(
             branch_id=spec.branch_id,
             projection_hash=expected_projection_hash,
         )
-        if lane_sample is not None and (
+        if lane_sample is None or (
             lane_sample["commit_id"] != str(expected_commit_id)
             or lane_sample["graph_hash_post"] != expected_graph_hash_post
         ):
@@ -4974,12 +5566,16 @@ async def _ensure_ocg_seeded_lane_with_missing_seed_recovery(
             )
         return plan, True, False
 
-    existing_seed_commit = await store.get_commit(
+    existing_seed_envelope = await store.get_commit_envelope(
         branch_id=branch_id,
         projection_hash=projection_hash,
         commit_id=plan.commit_id,
     )
-    if existing_seed_commit is not None:
+    if _ocg_seed_envelope_matches_plan(
+        envelope=existing_seed_envelope,
+        plan=plan,
+        aware_toml_path=aware_toml_path,
+    ):
         return plan, False, False
 
     logger.warning(
@@ -5032,12 +5628,16 @@ async def _ensure_ocg_seeded_lane_with_missing_seed_recovery(
             )
         return recovered_plan, True, True
 
-    recovered_seed_commit = await store.get_commit(
+    recovered_seed_envelope = await store.get_commit_envelope(
         branch_id=branch_id,
         projection_hash=projection_hash,
         commit_id=recovered_plan.commit_id,
     )
-    if recovered_seed_commit is None:
+    if not _ocg_seed_envelope_matches_plan(
+        envelope=recovered_seed_envelope,
+        plan=recovered_plan,
+        aware_toml_path=aware_toml_path,
+    ):
         raise RuntimeError(
             "Meta package leaf materialization could not recover a missing deterministic OCG seed commit "
             "after resetting the generated semantic lane: "
@@ -5045,6 +5645,35 @@ async def _ensure_ocg_seeded_lane_with_missing_seed_recovery(
             f"projection_hash={projection_hash} commit_id={recovered_plan.commit_id}"
         )
     return recovered_plan, False, True
+
+
+def _ocg_seed_envelope_matches_plan(
+    *,
+    envelope: ObjectInstanceGraphCommitEnvelope | None,
+    plan: OCGSeedPlan,
+    aware_toml_path: Path,
+) -> bool:
+    if envelope is None:
+        return False
+    if envelope.graph_hash_pre != plan.graph_hash_pre:
+        raise RuntimeError(
+            "Meta package leaf materialization found deterministic OCG seed commit with unexpected pre hash: "
+            f"aware_toml_path={aware_toml_path} commit_id={plan.commit_id} "
+            f"expected={plan.graph_hash_pre} actual={envelope.graph_hash_pre}"
+        )
+    if envelope.graph_hash_post != plan.graph_hash_post:
+        raise RuntimeError(
+            "Meta package leaf materialization found deterministic OCG seed commit with unexpected post hash: "
+            f"aware_toml_path={aware_toml_path} commit_id={plan.commit_id} "
+            f"expected={plan.graph_hash_post} actual={envelope.graph_hash_post}"
+        )
+    if envelope.parent_commit_ids:
+        raise RuntimeError(
+            "Meta package leaf materialization found deterministic OCG seed commit with parents: "
+            f"aware_toml_path={aware_toml_path} commit_id={plan.commit_id} "
+            f"parents={len(envelope.parent_commit_ids)}"
+        )
+    return True
 
 
 def _decode_head_commit_id(*, head: object) -> UUID | None:

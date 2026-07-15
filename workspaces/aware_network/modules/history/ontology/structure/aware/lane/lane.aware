@@ -1,0 +1,50 @@
+/// Lane is a pointer to commit with specific hash (projection_hash).
+class Lane {
+    // Relationships
+    commits commit.Commit[]
+    head_commit commit.Commit?
+
+    // Attributes
+    lane_hash String key
+
+    fn create construct (lane_hash String key) -> Lane {
+        """
+        Creates a new Lane in the current Branch.
+        """
+    }
+
+    fn create_commit (
+        key String key,
+        author_id UUID,
+        created_at DateTime,
+        status commit.CommitStatus = local
+    ) -> commit.Commit {
+        """
+        Create one Commit under this Lane.
+
+        Contract:
+        - Parent `lane_id` is propagated by traversal lowering.
+        - Stable identity is keyed by `(lane_id, key)`.
+        """
+        let created_commit = construct commits.create(
+            key = key,
+            author_id = author_id,
+            created_at = created_at,
+            status = status,
+        )
+    }
+
+    fn advance_head (commit_id UUID) -> Lane {
+        """
+        Advance this Lane's head_commit pointer (SSOT: commit store).
+
+        Canonical v0:
+        - Used by the OIGI history plane projector to mirror domain lane heads.
+        - Mutates only self (`Lane.head_commit_id` + `Lane.head_commit`).
+        """
+    }
+}
+
+/// Load head commit eagerly
+ann lane.Lane::commits load eager
+ann lane.Lane::head_commit load eager

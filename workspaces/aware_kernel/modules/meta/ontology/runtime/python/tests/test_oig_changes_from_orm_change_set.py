@@ -946,6 +946,195 @@ def test_created_instance_infers_target_owned_fk_from_relationship_context() -> 
     assert child_parent_id_cfg.id in created_attr_ids
 
 
+def test_relationship_context_skips_unchanged_reference_fields() -> None:
+    """
+    Relationship-context FK inference is needed for created objects and changed
+    relationship fields only. Scalar-only updates must not scan unrelated
+    reference lists on every changed object.
+    """
+    _bootstrap_models()
+
+    class Child(ORMModel):
+        name: str | None = None
+
+    class Parent(ORMModel):
+        name: str
+        children: list[Child] = Field(default_factory=list, exclude=True)
+
+        def try_field_value(self, name: str, *, include_unset: bool = False):
+            if name == "children":
+                raise AssertionError(
+                    "unchanged relationship reference field must not be read"
+                )
+            return super().try_field_value(name, include_unset=include_unset)
+
+    ocg_id = uuid4()
+    opg_id = uuid4()
+
+    parent_name_desc = AttributeTypeDescriptor(
+        kind=AttributeTypeDescriptorKind.primitive
+    )
+    parent_name_cfg = _attr(
+        "Parent",
+        name="name",
+        is_required=True,
+        type_descriptor=parent_name_desc,
+        type_descriptor_id=parent_name_desc.id,
+    )
+    parent_children_desc = AttributeTypeDescriptor(
+        kind=AttributeTypeDescriptorKind.class_
+    )
+    parent_children_cfg = _attr(
+        "Parent",
+        name="children",
+        is_required=False,
+        type_descriptor=parent_children_desc,
+        type_descriptor_id=parent_children_desc.id,
+    )
+    parent_cfg = _cfg("Parent")
+    parent_cfg.class_config_attribute_configs = [
+        _edge(parent_cfg, parent_name_cfg, position=0),
+        _edge(parent_cfg, parent_children_cfg, position=1),
+    ]
+
+    child_name_desc = AttributeTypeDescriptor(
+        kind=AttributeTypeDescriptorKind.primitive
+    )
+    child_name_cfg = _attr(
+        "Child",
+        name="name",
+        is_required=False,
+        type_descriptor=child_name_desc,
+        type_descriptor_id=child_name_desc.id,
+    )
+    child_parent_id_desc = AttributeTypeDescriptor(
+        kind=AttributeTypeDescriptorKind.primitive
+    )
+    child_parent_id_cfg = _attr(
+        "Child",
+        name="parent_id",
+        is_required=True,
+        type_descriptor=child_parent_id_desc,
+        type_descriptor_id=child_parent_id_desc.id,
+    )
+    child_cfg = _cfg("Child")
+    child_cfg.class_config_attribute_configs = [
+        _edge(child_cfg, child_name_cfg, position=0),
+        _edge(child_cfg, child_parent_id_cfg, position=1),
+    ]
+
+    rel = ClassConfigRelationship(
+        relationship_key="parent_children",
+        relationship_type=ClassConfigRelationshipType.one_to_many,
+        forward_required=True,
+        forward_loading_strategy=None,
+        reverse_loading_strategy=None,
+        class_config_id=parent_cfg.id,
+        target_class_config_id=child_cfg.id,
+        class_config_relationship_attributes=[],
+    )
+    rel.class_config_relationship_attributes.extend(
+        [
+            ClassConfigRelationshipAttribute(
+                class_config_relationship_id=rel.id,
+                attribute_config_id=parent_children_cfg.id,
+                direction=ClassConfigRelationshipDirection.forward,
+                role=ClassConfigRelationshipAttributeRole.reference,
+            ),
+            ClassConfigRelationshipAttribute(
+                class_config_relationship_id=rel.id,
+                attribute_config_id=child_parent_id_cfg.id,
+                direction=ClassConfigRelationshipDirection.reverse,
+                role=ClassConfigRelationshipAttributeRole.foreign_key,
+            ),
+        ]
+    )
+    parent_cfg.class_config_relationships = [rel]
+
+    ocg = ObjectConfigGraph(
+        id=ocg_id,
+        name="test",
+        description=None,
+        hash="0",
+        fqn_prefix="test",
+        language=CodeLanguage.python,
+        object_config_graph_nodes=[],
+        object_projection_graphs=[],
+    )
+    ocg.object_config_graph_nodes = [
+        ObjectConfigGraphNode(
+            type=ObjectConfigGraphNodeType.class_,
+            node_key=parent_cfg.class_fqn,
+            class_config=parent_cfg,
+            class_config_id=parent_cfg.id,
+            object_config_graph_id=ocg_id,
+        ),
+        ObjectConfigGraphNode(
+            type=ObjectConfigGraphNodeType.class_,
+            node_key=child_cfg.class_fqn,
+            class_config=child_cfg,
+            class_config_id=child_cfg.id,
+            object_config_graph_id=ocg_id,
+        ),
+        ObjectConfigGraphNode(
+            type=ObjectConfigGraphNodeType.relationship,
+            node_key=rel.relationship_key,
+            class_config_relationship=rel,
+            class_config_relationship_id=rel.id,
+            object_config_graph_id=ocg_id,
+        ),
+    ]
+    opg = ObjectProjectionGraph(
+        id=opg_id,
+        name="test-opg",
+        description=None,
+        language=CodeLanguage.python,
+        projection_hash="sha256:test:from-orm:context-skip-unchanged-ref",
+        object_config_graph_id=ocg_id,
+        object_projection_graph_nodes=[
+            ObjectProjectionGraphNode(
+                object_projection_graph_id=opg_id,
+                class_config_id=parent_cfg.id,
+                is_root=True,
+            ),
+            ObjectProjectionGraphNode(
+                object_projection_graph_id=opg_id,
+                class_config_id=child_cfg.id,
+                is_root=False,
+            ),
+        ],
+        object_projection_graph_edges=[
+            ObjectProjectionGraphEdge(
+                object_projection_graph_id=opg_id,
+                class_config_relationship_id=rel.id,
+                traversal_direction=ClassConfigRelationshipDirection.forward,
+            )
+        ],
+        object_projection_graph_relationships=[],
+    )
+
+    Parent.bind_class_config(parent_cfg)
+    Child.bind_class_config(child_cfg)
+
+    session = Session(branch_id=uuid4(), skip_db=True)
+    with set_session(session):
+        parent = Parent(id=uuid4(), name="before")
+        with scoped_change_collection() as collector:
+            parent.name = "after"
+            change_set = collector.snapshot()
+
+    import aware_meta.graph.instance.diff_orm as diff_orm
+
+    index = diff_orm._build_ocg_index(ocg=ocg, opg=opg)
+    assert (
+        diff_orm._relationship_context_values_by_object_id(
+            change_set=change_set,
+            index=index,
+        )
+        == {}
+    )
+
+
 def test_created_instance_ignores_detached_required_fk_relationships() -> None:
     """
     Required-FK retention must ignore detached relationships that reference classes

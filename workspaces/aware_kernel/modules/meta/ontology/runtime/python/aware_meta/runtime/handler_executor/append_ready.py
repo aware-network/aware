@@ -56,6 +56,7 @@ def build_meta_graph_append_ready_changes(
         raise MetaGraphAppendReadyAssemblyError(
             "Append-ready changes require graph_hash_post from mutation set."
         )
+    _validate_materialization_cache_prime_snapshot(mutation_set=mutation_set)
     return MetaGraphAppendReadyChanges(
         execution_plan=request.execution_plan,
         before_oig=mutation_set.before_oig,
@@ -64,6 +65,9 @@ def build_meta_graph_append_ready_changes(
         graph_hash_post=mutation_set.graph_hash_post,
         root_object_id=mutation_set.root_object_id,
         root_class_instance_identity_id=mutation_set.root_class_instance_identity_id,
+        materialization_cache_prime_snapshot=(
+            mutation_set.materialization_cache_prime_snapshot
+        ),
     )
 
 
@@ -87,6 +91,29 @@ def _validate_append_ready_inputs(
         raise MetaGraphAppendReadyAssemblyError(
             "Append-ready assembly requires boundary validation for the same "
             "mutation set."
+        )
+
+
+def _validate_materialization_cache_prime_snapshot(
+    *,
+    mutation_set: MetaGraphMutationSet,
+) -> None:
+    snapshot = mutation_set.materialization_cache_prime_snapshot
+    if snapshot is None:
+        return
+    if snapshot.execution_plan is not mutation_set.execution_plan:
+        raise MetaGraphAppendReadyAssemblyError(
+            "Append-ready materialization cache snapshot belongs to a different "
+            "execution plan."
+        )
+    if snapshot.post_oig.id != mutation_set.before_oig.id:
+        raise MetaGraphAppendReadyAssemblyError(
+            "Append-ready materialization cache snapshot targets a different "
+            "ObjectInstanceGraph."
+        )
+    if snapshot.graph_hash_post != mutation_set.graph_hash_post:
+        raise MetaGraphAppendReadyAssemblyError(
+            "Append-ready materialization cache snapshot graph_hash_post mismatch."
         )
 
 

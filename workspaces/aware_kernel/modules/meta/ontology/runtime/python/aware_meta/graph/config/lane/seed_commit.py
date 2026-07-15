@@ -13,6 +13,7 @@ from aware_meta.graph.config.lane.common import (
     SYSTEM_ACTOR_ID,
     bool_env_default_true,
     clone_object_instance_graph_for_validation,
+    count_object_instance_graph_change_operations,
 )
 from aware_meta.graph.config.lane.errors import OcgSeedError
 from aware_meta.graph.config.lane.plan import OCGSeedPlan
@@ -39,8 +40,10 @@ from aware_meta.graph.instance.builder import (
 from aware_meta.graph.instance.commit.builder import (
     OigCommitBuildError,
     build_object_instance_graph_commit_from_changes,
+    extract_object_instance_graph_commit_root_metadata,
 )
-from aware_meta.graph.instance.commit.fs_store import FSCommitStore
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+from aware_meta.graph.instance.commit.state_index import build_commit_state_index
 from aware_meta.graph.instance.commit.validator import OigCommitValidationError
 from aware_meta.graph.instance.diff import build_object_instance_graph_seed_changes
 from aware_meta.graph.instance.hash import compute_hash
@@ -94,6 +97,26 @@ def _head_graph_hash(head: object, key: str) -> str:
     return raw_value if isinstance(raw_value, str) else ""
 
 
+def _object_instance_graph_identity_id_from_seed_changes(
+    *,
+    changes: Iterable[object],
+) -> UUID:
+    identity_ids: set[UUID] = set()
+    for change in changes:
+        identity_id = getattr(change, "object_instance_graph_identity_id", None)
+        if not isinstance(identity_id, UUID):
+            raise OcgSeedError("OCG seed change is missing an OIG identity id")
+        identity_ids.add(identity_id)
+    if not identity_ids:
+        raise OcgSeedError("OCG seed commit missing change payload")
+    if len(identity_ids) != 1:
+        raise OcgSeedError(
+            "OCG seed commit changes target multiple OIG identities: "
+            + ",".join(sorted(str(item) for item in identity_ids))
+        )
+    return next(iter(identity_ids))
+
+
 def _build_ocg_seed_plan_and_commit(
     *,
     ocg: ObjectConfigGraph,
@@ -104,7 +127,8 @@ def _build_ocg_seed_plan_and_commit(
     external_graphs: Iterable[ObjectConfigGraph],
     projection_hash_override: str | None,
     timings: SeedTimings | None,
-) -> tuple[OCGSeedPlan, ObjectInstanceGraphCommit]:
+    build_commit: bool = True,
+) -> tuple[OCGSeedPlan, ObjectInstanceGraphCommit | None]:
     """
     Build the deterministic OCG seed snapshot plan and commit payload.
 
@@ -222,6 +246,14 @@ def _build_ocg_seed_plan_and_commit(
     if not changes:
         raise OcgSeedError("OCG seed commit missing change payload")
     maybe_metric(timings, "ocg_seed_change_count", len(changes))
+    nested_change_operation_count = count_object_instance_graph_change_operations(
+        changes
+    )
+    maybe_metric(
+        timings,
+        "ocg_seed_nested_change_operation_count",
+        nested_change_operation_count,
+    )
     if not graph_hash_post:
         raise OcgSeedError("OCG seed commit missing graph_hash_post")
 
@@ -230,7 +262,7 @@ def _build_ocg_seed_plan_and_commit(
         validation_size_gate,
         validate_apply_hash_max_changes,
     ) = _seed_apply_hash_validation_size_gate(
-        change_count=len(changes),
+        change_count=nested_change_operation_count,
     )
     maybe_metric(
         timings,
@@ -286,23 +318,25 @@ def _build_ocg_seed_plan_and_commit(
         maybe_metric(timings, "ocg_seed_commit_apply_hash_validation_ok", True)
 
     commit_id = _seed_commit_id(ocg_hash=ocg_hash, graph_hash_post=graph_hash_post)
-    with maybe_timed(timings, "ocg_seed.build_commit_from_changes"):
-        commit = build_object_instance_graph_commit_from_changes(
-            before_oig=before_oig,
-            changes=changes,
-            branch_id=branch_id,
-            object_instance_graph_identity_id=object_instance_graph_identity_id,
-            object_instance_graph_id=after_oig.id,
-            projection_hash=lane_projection_hash,
-            graph_hash_pre=graph_hash_pre,
-            graph_hash_post=graph_hash_post,
-            author_id=author_id,
-            parent_commit_id=None,
-            commit_id=commit_id,
-            source_language=DEFAULT_OCG_SOURCE_LANGUAGE,
-            status=DEFAULT_OCG_COMMIT_STATUS,
-            created_at=SEED_CREATED_AT,
-        )
+    commit: ObjectInstanceGraphCommit | None = None
+    if build_commit:
+        with maybe_timed(timings, "ocg_seed.build_commit_from_changes"):
+            commit = build_object_instance_graph_commit_from_changes(
+                before_oig=before_oig,
+                changes=changes,
+                branch_id=branch_id,
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                object_instance_graph_id=after_oig.id,
+                projection_hash=lane_projection_hash,
+                graph_hash_pre=graph_hash_pre,
+                graph_hash_post=graph_hash_post,
+                author_id=author_id,
+                parent_commit_id=None,
+                commit_id=commit_id,
+                source_language=DEFAULT_OCG_SOURCE_LANGUAGE,
+                status=DEFAULT_OCG_COMMIT_STATUS,
+                created_at=SEED_CREATED_AT,
+            )
 
     plan = OCGSeedPlan(
         seeded=False,
@@ -310,8 +344,8 @@ def _build_ocg_seed_plan_and_commit(
         projection_hash=lane_projection_hash,
         object_instance_graph_id=oig_id,
         root_object_id=ocg.id,
-        graph_hash_pre=commit.graph_hash_pre,
-        graph_hash_post=commit.graph_hash_post,
+        graph_hash_pre=graph_hash_pre,
+        graph_hash_post=graph_hash_post,
         commit_id=commit_id,
         changes=changes,
         before_oig=before_oig,
@@ -342,6 +376,7 @@ def build_ocg_seed_plan(
         external_graphs=external_graphs,
         projection_hash_override=projection_hash_override,
         timings=timings,
+        build_commit=False,
     )
     return plan
 
@@ -431,6 +466,7 @@ async def ensure_ocg_seeded_lane(
         external_graphs=external_graphs,
         projection_hash_override=projection_hash_override,
         timings=timings,
+        build_commit=False,
     )
 
     with maybe_timed(timings, "ocg_seed.head"):
@@ -460,7 +496,6 @@ async def ensure_ocg_seeded_lane(
             + f"expected_object_instance_graph_id={plan.object_instance_graph_id}"
         )
 
-    existing = None
     with maybe_timed(timings, "ocg_seed.get_existing_commit_envelope"):
         existing_envelope = await store.get_commit_envelope(
             branch_id=branch_id,
@@ -468,12 +503,7 @@ async def ensure_ocg_seeded_lane(
             commit_id=plan.commit_id,
         )
     if existing_envelope is None:
-        with maybe_timed(timings, "ocg_seed.get_existing_commit_fallback"):
-            existing = await store.get_commit(
-                branch_id=branch_id,
-                projection_hash=plan.projection_hash,
-                commit_id=plan.commit_id,
-            )
+        maybe_metric(timings, "ocg_seed_existing_commit_envelope_hit", False)
     else:
         maybe_metric(timings, "ocg_seed_existing_commit_envelope_hit", True)
         if (
@@ -488,53 +518,6 @@ async def ensure_ocg_seeded_lane(
             raise OcgSeedError(
                 f"OCG seed commit must not have parents: commit_id={plan.commit_id} parents={len(existing_envelope.parent_commit_ids)}"
             )
-        try:
-            commit_path = (
-                Path(store.aware_root)
-                / ".aware"
-                / "oig"
-                / str(branch_id)
-                / str(plan.projection_hash)
-                / "commits"
-                / f"{plan.commit_id}.json"
-            )
-            if commit_path.exists():
-                maybe_metric(
-                    timings, "ocg_seed_commit_bytes", int(commit_path.stat().st_size)
-                )
-        except Exception:
-            pass
-        maybe_record_orm_session_metrics(
-            timings=timings, key_prefix="ocg_seed.orm_post"
-        )
-        return plan
-    if existing is not None:
-        maybe_metric(timings, "ocg_seed_existing_commit_envelope_hit", False)
-        if (
-            existing.graph_hash_pre != plan.graph_hash_pre
-            or existing.graph_hash_post != plan.graph_hash_post
-        ):
-            raise OcgSeedError(
-                "Existing OCG seed commit differs from expected payload: "
-                + f"branch_id={branch_id} projection_hash={plan.projection_hash} seed_commit_id={plan.commit_id}"
-            )
-        parents = existing.commit.commit_parents
-        if parents:
-            raise OcgSeedError(
-                f"OCG seed commit must not have parents: commit_id={plan.commit_id} parents={len(parents)}"
-            )
-        try:
-            _ = await store.put_commit_file(
-                branch_id=branch_id,
-                projection_hash=plan.projection_hash,
-                commit=commit,
-            )
-        except ValueError as exc:
-            raise OcgSeedError(
-                "Existing OCG seed commit failed metadata repair: "
-                + f"branch_id={branch_id} projection_hash={plan.projection_hash} "
-                + f"seed_commit_id={plan.commit_id}: {exc}"
-            ) from exc
         try:
             commit_path = (
                 Path(store.aware_root)
@@ -586,12 +569,40 @@ async def ensure_ocg_seeded_lane(
 
     try:
         with maybe_timed(timings, "ocg_seed.write_commit"):
-            _ = await store.append(
+            from aware_meta.graph.instance.commit.committer import (  # noqa: WPS433
+                FSLaneCommitter,
+            )
+
+            committer = FSLaneCommitter(store=store)
+            _ = await committer.commit_record_shallow(
                 branch_id=branch_id,
                 projection_hash=plan.projection_hash,
-                commit=commit,
+                object_instance_graph_identity_id=(
+                    _object_instance_graph_identity_id_from_seed_changes(
+                        changes=plan.changes,
+                    )
+                ),
+                object_instance_graph_id=plan.object_instance_graph_id,
+                pre_state_index=build_commit_state_index(plan.before_oig),
+                root_metadata=extract_object_instance_graph_commit_root_metadata(
+                    graph=plan.before_oig,
+                ),
                 root_object_id=ocg.id,
+                changes=list(plan.changes),
+                graph_hash_pre=plan.graph_hash_pre,
+                graph_hash_post=plan.graph_hash_post,
+                author_id=author_id,
+                commit_id=plan.commit_id,
+                source_language=DEFAULT_OCG_SOURCE_LANGUAGE,
+                status=DEFAULT_OCG_COMMIT_STATUS,
             )
+            for (
+                metric_name,
+                metric_value,
+            ) in committer.last_commit_perf_profile_snapshot().items():
+                maybe_metric(
+                    timings, f"ocg_seed.write_commit.{metric_name}", metric_value
+                )
     except OigCommitBuildError as exc:
         raise OcgSeedError(f"Failed to build OCG seed commit: {exc}") from exc
     except (ValueError, OigCommitValidationError) as exc:

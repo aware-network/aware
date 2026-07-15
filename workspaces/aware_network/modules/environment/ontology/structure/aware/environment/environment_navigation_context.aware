@@ -1,0 +1,56 @@
+/// Shared Environment navigation surface under an EnvironmentSession.
+///
+/// Contract:
+/// - Parent constructor is EnvironmentSession.
+/// - This is the durable shared OS pointer that Interface windows/tabs follow.
+/// - One EnvironmentSession may own many navigation contexts.
+/// - SessionThread target changes are committed state; history is derived by
+///   commit replay and no EnvironmentNavigationEvent object exists in v0.
+/// - Attention layout/section focus and Experience lens/action resolution are
+///   later rails.
+class EnvironmentNavigationContext {
+    // Relationships
+    session_thread EnvironmentSessionThread
+
+    // Attributes
+    key String key
+    status String = "active"
+    title String?
+    /// Marks the EnvironmentSession-owned default navigation entrypoint.
+    is_default Bool = false
+
+    fn build construct (
+        key String key,
+        session_thread_id UUID,
+        title String? = null,
+        status String = "active",
+        is_default Bool = false
+    ) -> EnvironmentNavigationContext {
+        """
+        Construct one EnvironmentNavigationContext under an EnvironmentSession.
+
+        Contract:
+        - Stable identity is EnvironmentSession path + `key`.
+        - `session_thread_id` binds the EnvironmentSessionThread target pin.
+        - No parent id is authored here; parent context is propagated by
+          containment path.
+        """
+    }
+
+    fn select_target (
+        session_thread_id UUID
+    ) -> EnvironmentNavigationContext {
+        """
+        Select the current session-thread target for this navigation context.
+
+        Contract:
+        - Mutates only the invoked EnvironmentNavigationContext.
+        - Updates only the EnvironmentSessionThread relationship FK.
+        - Does not mutate EnvironmentSession or create a session singleton
+          cursor.
+        - History is the commit trail over this context.
+        """
+    }
+}
+
+ann environment.EnvironmentNavigationContext::session_thread load eager

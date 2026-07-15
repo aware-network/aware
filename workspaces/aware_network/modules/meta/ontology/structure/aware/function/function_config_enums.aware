@@ -1,0 +1,15 @@
+enum FunctionAttributeType {
+    input
+    output
+}
+
+enum FunctionIdentityKeyOrigin {
+    standalone
+    propagated_parent
+}
+
+enum FunctionKind {
+    class
+    instance
+    static
+}

@@ -1,0 +1,90 @@
+class EnvironmentConfigPackage {
+    // Relationships
+    environment_config EnvironmentConfig unique
+    environment_config_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+    ontology_packages EnvironmentConfigPackageOntologyPackage[]
+    dependencies EnvironmentConfigPackageDependency[]
+
+    // Attributes
+    handle String key
+
+    fn build construct(
+        handle String key,
+        environment_config_id UUID,
+        environment_config_object_instance_graph_commit_id UUID? = null,
+    ) -> EnvironmentConfigPackage {
+        """
+        Create the canonical environment-owned semantic aggregate package.
+
+        Contract:
+        - Identity is keyed by the environment `handle`.
+        - `EnvironmentConfigPackage` is the package/public root over an existing
+          canonical `EnvironmentConfig` portal target.
+        - `environment_config_id` must point at the canonical EnvironmentConfig
+          stable id for the same handle.
+        - `environment_config_object_instance_graph_commit_id` pins the historical
+          ObjectInstanceGraphCommit for the semantic EnvironmentConfig root so
+          WorkspaceRevision consumers can replay exact environment truth without
+          resolving branch head.
+        - Repository/layout ownership remains outside this aggregate package.
+        - ObjectConfigGraph resolution is only reachable through
+          EnvironmentConfig -> OntologyConfig and OntologyPackage ->
+          OntologyConfig.
+        """
+    }
+
+    fn attach_ontology_package(
+        name String key,
+        fqn_prefix String key,
+        ontology_package_object_instance_graph_commit_id UUID? = null,
+    ) -> EnvironmentConfigPackageOntologyPackage {
+        """
+        Attach one Ontology-owned package under this environment aggregate.
+
+        Contract:
+        - Parent `EnvironmentConfigPackage` scope is injected by propagation.
+        - Target ontology package identity is resolved deterministically from
+          `(name, fqn_prefix)`.
+        - The optional OIG commit pin is exact ontology package replay truth.
+        - This is the semantic ownership rail. Raw `ObjectConfigGraphPackage`
+          membership is not owned by EnvironmentConfigPackage.
+        """
+        let created = construct ontology_packages.build(
+            name = name,
+            fqn_prefix = fqn_prefix,
+            ontology_package_object_instance_graph_commit_id = ontology_package_object_instance_graph_commit_id,
+        )
+    }
+
+    fn attach_dependency(
+        dependency_role String key,
+        dependency_index Int key,
+        target_handle String key,
+        target_environment_config_package_id UUID,
+        target_environment_config_package_object_instance_graph_commit_id UUID,
+    ) -> EnvironmentConfigPackageDependency {
+        """
+        Attach one direct EnvironmentConfigPackage dependency.
+
+        Contract:
+        - Parent `EnvironmentConfigPackage` scope is injected by propagation.
+        - `dependency_role` is usually `base`; the class remains generic so
+          kernel is not hard-coded into the ontology.
+        - `dependency_index` preserves authored composition order.
+        - Target package identity and OIG commit are pinned so WorkspaceRevision
+          consumers can replay composition without reopening source manifests.
+        """
+        let created = construct dependencies.build(
+            dependency_role = dependency_role,
+            dependency_index = dependency_index,
+            target_handle = target_handle,
+            target_environment_config_package_id = target_environment_config_package_id,
+            target_environment_config_package_object_instance_graph_commit_id = target_environment_config_package_object_instance_graph_commit_id,
+        )
+    }
+}
+
+ann environment.EnvironmentConfigPackage::environment_config load eager
+ann environment.EnvironmentConfigPackage::environment_config_object_instance_graph_commit load eager
+ann environment.EnvironmentConfigPackage::ontology_packages load eager
+ann environment.EnvironmentConfigPackage::dependencies load forward eager reverse lazy

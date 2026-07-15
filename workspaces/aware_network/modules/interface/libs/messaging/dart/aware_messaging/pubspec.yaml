@@ -1,0 +1,14 @@
+name: aware_messaging
+description: Shared command and event messaging primitives for Aware Flutter clients.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+
+dependencies:
+  collection: ^1.18.0
+
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^3.0.0

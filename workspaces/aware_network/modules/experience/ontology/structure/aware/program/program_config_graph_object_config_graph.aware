@@ -1,0 +1,21 @@
+/// Bridge between Experience-Structure via ProgramConfigGraph-ObjectConfigGraph.
+class ProgramConfigGraphObjectConfigGraph {
+    // Relationships
+    object_config_graph aware_meta.graph.config.ObjectConfigGraph key
+
+    // Attributes
+    key String?
+
+    fn build construct (
+        object_config_graph_id UUID key,
+        key String? = null
+    ) -> ProgramConfigGraphObjectConfigGraph {
+        """
+        Create a deterministic ProgramConfigGraphObjectConfigGraph under this.
+
+        Contract:
+        - Identity is derived from `(program_config_graph_id, object_config_graph_id)`.
+        - Constructor is idempotent for the same pair.
+        """
+    }
+}

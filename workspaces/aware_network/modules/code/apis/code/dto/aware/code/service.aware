@@ -1,0 +1,18 @@
+/// Shared request envelope for Code service operations.
+class CodeServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+/// Shared response envelope for Code service operations.
+class CodeServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+    warnings String[] = []
+}
+
+ann code.CodeServiceRequest::operation discriminate key
+ann code.CodeServiceResponse::operation discriminate key

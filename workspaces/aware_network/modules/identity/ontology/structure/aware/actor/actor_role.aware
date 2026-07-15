@@ -1,0 +1,20 @@
+class ActorRole {
+    // Relationships
+    role role.Role key
+
+    fn create construct (role_id UUID key) -> ActorRole {
+        """
+        Create an ActorRole assignment row.
+
+        Contract (v0):
+        - Deterministic id from (actor_id, role_id).
+        - Idempotent assignment edge between Actor and Role.
+        """
+    }
+
+    fn delete() -> {
+        """
+        Delete this ActorRole assignment edge.
+        """
+    }
+}

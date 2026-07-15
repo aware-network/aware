@@ -1,0 +1,9 @@
+class Enum {
+    // Relationships
+    enum_changes EnumChange[]
+    enum_config EnumConfig key
+    enum_option EnumOption key
+}
+
+/// Load enum option eagerly
+ann enum.Enum::enum_option load eager

@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from uuid import UUID, uuid4
 
+import pytest
+
+from aware_history_ontology.change.change import Change
+from aware_history_ontology.change.change_enums import ChangeType
 from aware_meta_ontology.attribute.attribute_type_descriptor import (
     AttributeTypeDescriptor,
 )
@@ -11,6 +15,16 @@ from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
 from aware_meta_ontology.class_.class_instance_relationship import (
     ClassInstanceRelationship,
 )
+from aware_meta_ontology.class_.class_instance_change import ClassInstanceChange
+from aware_meta_ontology.class_.class_instance_relationship_change import (
+    ClassInstanceRelationshipChange,
+)
+from aware_meta_ontology.graph.instance.object_instance_graph_change import (
+    ObjectInstanceGraphChange,
+)
+from aware_meta_ontology.graph.instance.object_instance_graph_change_enums import (
+    ObjectInstanceGraphChangeType,
+)
 
 from aware_meta.class_.instance.builder import build_class_instance
 from aware_meta.graph.instance.builder import (
@@ -18,7 +32,9 @@ from aware_meta.graph.instance.builder import (
 )
 from aware_meta.graph.instance.commit.state_index import (
     CommitStateRow,
+    CommitStateIndex,
     apply_commit_state_index_changes,
+    apply_commit_state_index_row_changes,
     build_commit_state_index,
 )
 from aware_meta.graph.instance.diff import diff_object_instance_graph_changes
@@ -135,6 +151,174 @@ def test_commit_state_index_hash_matches_full_oig_hash_for_nodes_attrs_edges() -
     )
 
 
+def test_commit_state_index_row_maps_group_nodes_attrs_and_edges() -> None:
+    class_config_id = uuid4()
+    class_instance_id = uuid4()
+    attribute_config_id = uuid4()
+    relationship_id = uuid4()
+    target_class_instance_id = uuid4()
+    rows = (
+        CommitStateRow("NODE", str(class_config_id), str(class_instance_id)),
+        CommitStateRow(
+            "ATTR",
+            str(class_instance_id),
+            f"{attribute_config_id}:hash:value",
+        ),
+        CommitStateRow(
+            "EDGE",
+            str(relationship_id),
+            f"{class_instance_id}->{target_class_instance_id}",
+        ),
+    )
+
+    row_maps = CommitStateIndex(rows=rows).row_maps()
+
+    assert row_maps.class_config_ids_by_class_instance_id == {
+        class_instance_id: class_config_id,
+    }
+    assert row_maps.class_state_rows_by_id == {
+        class_instance_id: rows[:2],
+    }
+    assert row_maps.class_state_rows_by_raw_id == {
+        str(class_instance_id): rows[:2],
+    }
+    assert row_maps.relationship_keys == frozenset(
+        {
+            (
+                relationship_id,
+                class_instance_id,
+                target_class_instance_id,
+            ),
+        }
+    )
+    assert (
+        CommitStateIndex(rows=rows)
+        .row_maps(
+            include_relationship_keys=False,
+        )
+        .relationship_keys
+        == frozenset()
+    )
+
+
+def test_commit_state_index_row_maps_reject_conflicting_node_rows() -> None:
+    class_instance_id = uuid4()
+    rows = (
+        CommitStateRow("NODE", str(uuid4()), str(class_instance_id)),
+        CommitStateRow("NODE", str(uuid4()), str(class_instance_id)),
+    )
+
+    with pytest.raises(ValueError, match="conflicting NODE rows"):
+        _ = CommitStateIndex(rows=rows).row_maps()
+
+
+def test_commit_state_index_row_changes_apply_without_post_class_instances() -> None:
+    graph_id = uuid4()
+    oigi_id = uuid4()
+    class_config_id = uuid4()
+    class_instance_id = uuid4()
+    attribute_config_id = uuid4()
+    relationship_id = uuid4()
+    target_class_instance_id = uuid4()
+    pre_index = CommitStateIndex(
+        rows=(
+            CommitStateRow("NODE", str(class_config_id), str(class_instance_id)),
+            CommitStateRow(
+                "ATTR",
+                str(class_instance_id),
+                f"{attribute_config_id}:old",
+            ),
+            CommitStateRow(
+                "EDGE",
+                str(relationship_id),
+                f"{class_instance_id}->{target_class_instance_id}",
+            ),
+        )
+    )
+    post_rows = (
+        CommitStateRow("NODE", str(class_config_id), str(class_instance_id)),
+        CommitStateRow(
+            "ATTR",
+            str(class_instance_id),
+            f"{attribute_config_id}:new",
+        ),
+    )
+    replacement_target_id = uuid4()
+    new_relationship_id = uuid4()
+    changes = (
+        _class_instance_oig_change(
+            graph_id=graph_id,
+            oigi_id=oigi_id,
+            class_instance_id=class_instance_id,
+            change_type=ChangeType.update,
+        ),
+        _relationship_oig_change(
+            graph_id=graph_id,
+            oigi_id=oigi_id,
+            relationship_id=relationship_id,
+            source_class_instance_id=class_instance_id,
+            target_class_instance_id=target_class_instance_id,
+            change_type=ChangeType.delete,
+        ),
+        _relationship_oig_change(
+            graph_id=graph_id,
+            oigi_id=oigi_id,
+            relationship_id=new_relationship_id,
+            source_class_instance_id=class_instance_id,
+            target_class_instance_id=replacement_target_id,
+            change_type=ChangeType.create,
+        ),
+    )
+
+    post_index = apply_commit_state_index_row_changes(
+        pre_state_index=pre_index,
+        changes=changes,
+        post_class_state_rows_by_id={class_instance_id: post_rows},
+    )
+
+    assert post_index.rows == (
+        CommitStateRow("NODE", str(class_config_id), str(class_instance_id)),
+        CommitStateRow(
+            "ATTR",
+            str(class_instance_id),
+            f"{attribute_config_id}:new",
+        ),
+        CommitStateRow(
+            "EDGE",
+            str(new_relationship_id),
+            f"{class_instance_id}->{replacement_target_id}",
+        ),
+    )
+
+
+def test_commit_state_index_row_changes_reject_mismatched_post_rows() -> None:
+    class_instance_id = uuid4()
+    other_class_instance_id = uuid4()
+
+    with pytest.raises(ValueError, match="unexpected state member"):
+        apply_commit_state_index_row_changes(
+            pre_state_index=CommitStateIndex(rows=()),
+            changes=(
+                _class_instance_oig_change(
+                    graph_id=uuid4(),
+                    oigi_id=uuid4(),
+                    class_instance_id=class_instance_id,
+                    change_type=ChangeType.create,
+                ),
+            ),
+            post_class_state_rows_by_id={
+                class_instance_id: (
+                    CommitStateRow("NODE", str(uuid4()), str(class_instance_id)),
+                    CommitStateRow(
+                        "ATTR",
+                        str(other_class_instance_id),
+                        f"{uuid4()}:value",
+                    ),
+                ),
+            },
+        )
+
+
 def test_commit_state_index_deduplicates_like_full_oig_hash() -> None:
     user_fqn = test_class_fqn("CommitStateDuplicateUser")
     name_cfg = make_attribute_config(
@@ -192,6 +376,82 @@ def test_commit_state_index_deduplicates_like_full_oig_hash() -> None:
     assert state_index.node_count == 1
     assert state_index.attribute_count == 1
     assert state_index.edge_count == 1
+
+
+def _change(*, key: str, change_type: ChangeType) -> Change:
+    from datetime import UTC, datetime
+
+    return Change(
+        key=key,
+        change_deltas=[],
+        type=change_type,
+        created_at=datetime.now(UTC),
+    )
+
+
+def _class_instance_oig_change(
+    *,
+    graph_id: UUID,
+    oigi_id: UUID,
+    class_instance_id: UUID,
+    change_type: ChangeType,
+) -> ObjectInstanceGraphChange:
+    change = _change(
+        key=f"class_instance:{class_instance_id}:{change_type.value}",
+        change_type=change_type,
+    )
+    return ObjectInstanceGraphChange(
+        object_instance_graph_identity_id=oigi_id,
+        object_instance_graph_id=graph_id,
+        type=ObjectInstanceGraphChangeType.object_instance,
+        change=change,
+        change_id=change.id,
+        class_instance_changes=[
+            ClassInstanceChange(
+                change=change,
+                change_id=change.id,
+                class_instance_id=class_instance_id,
+                attribute_changes=[],
+            )
+        ],
+        class_instance_relationship_changes=[],
+    )
+
+
+def _relationship_oig_change(
+    *,
+    graph_id: UUID,
+    oigi_id: UUID,
+    relationship_id: UUID,
+    source_class_instance_id: UUID,
+    target_class_instance_id: UUID,
+    change_type: ChangeType,
+) -> ObjectInstanceGraphChange:
+    change = _change(
+        key=(
+            f"relationship:{relationship_id}:"
+            f"{source_class_instance_id}->{target_class_instance_id}:"
+            f"{change_type.value}"
+        ),
+        change_type=change_type,
+    )
+    return ObjectInstanceGraphChange(
+        object_instance_graph_identity_id=oigi_id,
+        object_instance_graph_id=graph_id,
+        type=ObjectInstanceGraphChangeType.object_instance_relationship,
+        change=change,
+        change_id=change.id,
+        class_instance_changes=[],
+        class_instance_relationship_changes=[
+            ClassInstanceRelationshipChange(
+                change=change,
+                change_id=change.id,
+                class_config_relationship_id=relationship_id,
+                source_class_instance_id=source_class_instance_id,
+                target_class_instance_id=target_class_instance_id,
+            )
+        ],
+    )
 
 
 def test_commit_state_index_applies_oig_changes_with_full_hash_parity() -> None:

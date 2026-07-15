@@ -1,0 +1,29 @@
+-- coverage:ignore-file
+-- GENERATED CODE - DO NOT MODIFY BY HAND
+
+CREATE TABLE code_section_comment (
+  -- PRIMARY KEY
+  branch_id UUID NOT NULL,
+  projection_hash TEXT NOT NULL,
+  id UUID NOT NULL,
+  -- RELATIONSHIPS
+  code_section_enum_id UUID,
+  code_section_expression_id UUID,
+  code_section_projection_id UUID,
+  code_section_attribute_id UUID,
+  code_section_enum_value_id UUID,
+  code_section_class_id UUID,
+  code_section_function_id UUID,
+  code_section_id UUID UNIQUE,
+  -- ATTRIBUTES
+  type_ code_section_comment_type NOT NULL,
+  -- CONSTRAINTS
+  PRIMARY KEY (branch_id, projection_hash, id),
+  FOREIGN KEY (branch_id, projection_hash, code_section_enum_id) REFERENCES code_section_enum(branch_id, projection_hash, id),
+  FOREIGN KEY (branch_id, projection_hash, code_section_projection_id) REFERENCES code_section_projection(branch_id, projection_hash, id),
+  FOREIGN KEY (branch_id, projection_hash, code_section_attribute_id) REFERENCES code_section_attribute(branch_id, projection_hash, id),
+  FOREIGN KEY (branch_id, projection_hash, code_section_enum_value_id) REFERENCES code_section_enum_value(branch_id, projection_hash, id),
+  FOREIGN KEY (branch_id, projection_hash, code_section_class_id) REFERENCES code_section_class(branch_id, projection_hash, id),
+  FOREIGN KEY (branch_id, projection_hash, code_section_function_id) REFERENCES code_section_function(branch_id, projection_hash, id),
+  FOREIGN KEY (branch_id, projection_hash, code_section_id) REFERENCES code_section(branch_id, projection_hash, id)
+);

@@ -1,0 +1,4 @@
+// Local graph referencing an external object by FULL FQN (package.domain.schema.Name).
+class Project {
+  owner dep_pkg.dep_domain.dep_schema.ExternalUser
+}

@@ -5,6 +5,7 @@ from typing import cast
 from uuid import UUID
 
 from aware_code.types import JsonArray, JsonObject, JsonValue
+from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
 from aware_meta.runtime.handler_executor.contracts import MetaGraphRuntimeIndex
 from aware_meta.runtime.invocation_engine import (
     MetaGraphCallTarget,
@@ -62,7 +63,12 @@ async def execute_ontology_invocation_intents(
 ) -> dict[str, object]:
     invoke_function = _invoke_function_callable(runtime=runtime)
     index = getattr(graph_runtime_context, "index", None)
-    sorted_intents = _sorted_invocation_intents(invocation_intents)
+    with commit_perf_span(
+        phase="ontology_invocation.sort_intents",
+        category="meta.provider_delta",
+        metadata={"invocation_intent_count": len(invocation_intents)},
+    ):
+        sorted_intents = _sorted_invocation_intents(invocation_intents)
     blockers = []
     if invoke_function is None:
         blockers.append("runtime_invoke_function_unavailable")
@@ -91,25 +97,34 @@ async def execute_ontology_invocation_intents(
     }
     expected_graph_hash_pre_by_projection_hash: dict[str, str | None] = {}
     projection_hash_by_object_id: dict[UUID, str] = {}
-    for intent in sorted_intents:
-        input_or_blocked = _invoke_function_input_for_intent(
-            index=cast(MetaGraphRuntimeIndex, index),
-            actor_id=actor_id,
-            branch_id=branch_id,
-            projection_hash=projection_hash,
-            domain_object_instance_graph_id=domain_object_instance_graph_id,
-            domain_object_instance_graph_identity_id=(
-                domain_object_instance_graph_identity_id
-            ),
+    for invocation_index, intent in enumerate(sorted_intents):
+        trace_metadata = _trace_metadata_for_intent(
             intent=intent,
-            expected_head_commit_ids_by_projection_hash=(
-                expected_head_commit_ids_by_projection_hash
-            ),
-            expected_graph_hash_pre_by_projection_hash=(
-                expected_graph_hash_pre_by_projection_hash
-            ),
-            projection_hash_by_object_id=projection_hash_by_object_id,
+            invocation_index=invocation_index,
         )
+        with commit_perf_span(
+            phase="ontology_invocation.input_for_intent",
+            category="meta.provider_delta",
+            metadata=trace_metadata,
+        ):
+            input_or_blocked = _invoke_function_input_for_intent(
+                index=cast(MetaGraphRuntimeIndex, index),
+                actor_id=actor_id,
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                domain_object_instance_graph_id=domain_object_instance_graph_id,
+                domain_object_instance_graph_identity_id=(
+                    domain_object_instance_graph_identity_id
+                ),
+                intent=intent,
+                expected_head_commit_ids_by_projection_hash=(
+                    expected_head_commit_ids_by_projection_hash
+                ),
+                expected_graph_hash_pre_by_projection_hash=(
+                    expected_graph_hash_pre_by_projection_hash
+                ),
+                projection_hash_by_object_id=projection_hash_by_object_id,
+            )
         input_blockers = _tuple_text(input_or_blocked.get("blockers"))
         if input_blockers:
             return _execution_payload(
@@ -129,7 +144,12 @@ async def execute_ontology_invocation_intents(
             input_or_blocked.get("input"),
         )
         try:
-            commit_receipt = await invoke_function(invoke_input)
+            with commit_perf_span(
+                phase="ontology_invocation.invoke_function",
+                category="meta.provider_delta",
+                metadata=trace_metadata,
+            ):
+                commit_receipt = await invoke_function(invoke_input)
         except Exception as exc:
             return _execution_payload(
                 status="ontology_function_call_execution_failed",
@@ -145,10 +165,15 @@ async def execute_ontology_invocation_intents(
                 error_type=type(exc).__name__,
                 error_message=str(exc),
             )
-        receipt_payload = _commit_receipt_payload(
-            intent=intent,
-            commit_receipt=commit_receipt,
-        )
+        with commit_perf_span(
+            phase="ontology_invocation.receipt_payload",
+            category="meta.provider_delta",
+            metadata=trace_metadata,
+        ):
+            receipt_payload = _commit_receipt_payload(
+                intent=intent,
+                commit_receipt=commit_receipt,
+            )
         receipts.append(receipt_payload)
         if _optional_text(receipt_payload.get("status")) != "succeeded":
             return _execution_payload(
@@ -181,19 +206,26 @@ async def execute_ontology_invocation_intents(
                     "commit-required intent."
                 ),
             )
-        receipt_projection_hash = _optional_text(receipt_payload.get("projection_hash"))
-        if receipt_projection_hash is not None:
-            expected_head_commit_ids_by_projection_hash[receipt_projection_hash] = (
-                _uuid_value(receipt_payload.get("commit_id"))
+        with commit_perf_span(
+            phase="ontology_invocation.head_tracking",
+            category="meta.provider_delta",
+            metadata=trace_metadata,
+        ):
+            receipt_projection_hash = _optional_text(
+                receipt_payload.get("projection_hash")
             )
-            expected_graph_hash_pre_by_projection_hash[receipt_projection_hash] = (
-                _optional_text(receipt_payload.get("graph_hash_post"))
-            )
-            for object_id in _receipt_object_ids_for_projection_binding(
-                intent=intent,
-                receipt_payload=receipt_payload,
-            ):
-                projection_hash_by_object_id[object_id] = receipt_projection_hash
+            if receipt_projection_hash is not None:
+                expected_head_commit_ids_by_projection_hash[receipt_projection_hash] = (
+                    _uuid_value(receipt_payload.get("commit_id"))
+                )
+                expected_graph_hash_pre_by_projection_hash[receipt_projection_hash] = (
+                    _optional_text(receipt_payload.get("graph_hash_post"))
+                )
+                for object_id in _receipt_object_ids_for_projection_binding(
+                    intent=intent,
+                    receipt_payload=receipt_payload,
+                ):
+                    projection_hash_by_object_id[object_id] = receipt_projection_hash
 
     return _execution_payload(
         status="ontology_function_call_execution_applied",
@@ -207,6 +239,22 @@ async def execute_ontology_invocation_intents(
         invocation_intents=tuple(sorted_intents),
         invocation_receipts=tuple(receipts),
     )
+
+
+def _trace_metadata_for_intent(
+    *,
+    intent: Mapping[str, object],
+    invocation_index: int,
+) -> dict[str, object]:
+    return {
+        "invocation_index": invocation_index,
+        "intent_key": _optional_text(intent.get("intent_key")),
+        "operation_key": _optional_text(intent.get("operation_key")),
+        "semantic_key": _optional_text(intent.get("semantic_key")),
+        "owner_class_name": _optional_text(intent.get("owner_class_name")),
+        "function_name": _optional_text(intent.get("function_name")),
+        "invocation_mode": _optional_text(intent.get("invocation_mode")),
+    }
 
 
 def _invoke_function_input_for_intent(
@@ -678,6 +726,14 @@ def _commit_receipt_payload(
             getattr(commit_receipt, "function_call_response_id", None)
             or payload.get("function_call_response_id")
         ),
+        "perf_trace_duration_ms": _optional_float(
+            getattr(commit_receipt, "perf_trace_duration_ms", None)
+            or payload.get("perf_trace_duration_ms")
+        ),
+        "perf_trace_summary": _perf_trace_summary(
+            getattr(commit_receipt, "perf_trace_summary", None)
+            or payload.get("perf_trace_summary")
+        ),
         "error": _optional_text(
             getattr(commit_receipt, "error", None)
             or payload.get("error")
@@ -794,6 +850,38 @@ def _int_value(value: object) -> int:
         return int(text)
     except ValueError:
         return 0
+
+
+def _optional_float(value: object) -> float | None:
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return float(value)
+    text = _optional_text(value)
+    if text is None:
+        return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def _perf_trace_summary(value: object) -> dict[str, dict[str, float | int]]:
+    if not isinstance(value, Mapping):
+        return {}
+    summary: dict[str, dict[str, float | int]] = {}
+    for raw_phase, raw_stats in value.items():
+        if not isinstance(raw_stats, Mapping):
+            continue
+        stats: dict[str, float | int] = {}
+        count = _int_value(raw_stats.get("count"))
+        if count:
+            stats["count"] = count
+        for key in ("total_ms", "mean_ms", "max_ms"):
+            metric = _optional_float(raw_stats.get(key))
+            if metric is not None:
+                stats[key] = metric
+        if stats:
+            summary[str(raw_phase)] = stats
+    return summary
 
 
 def _bool_value(value: object) -> bool:

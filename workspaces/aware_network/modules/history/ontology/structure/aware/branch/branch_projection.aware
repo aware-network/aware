@@ -1,0 +1,9 @@
+// Branch projection (v0)
+//
+// Contract:
+// - Provides a stable OPG target for portals that reference lane branches (e.g. Focus.branch).
+
+projection Branch {
+    root aware_history.branch.Branch
+    aware_history.branch.Branch::lanes
+}

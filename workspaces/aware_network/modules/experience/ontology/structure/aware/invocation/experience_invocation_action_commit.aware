@@ -1,0 +1,53 @@
+/// Commit provenance for one Experience invocation action.
+///
+/// Contract:
+/// - `ExperienceInvocationAction` owns the causal relationship.
+/// - `ObjectInstanceGraphCommit` remains Meta-owned commit truth.
+/// - Events emitted from the commit are linked through
+///   `ExperienceInvocationActionCommitEvent`.
+class ExperienceInvocationActionCommit {
+    // Relationships
+    object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit key
+    events ExperienceInvocationActionCommitEvent[]
+
+    // Attributes
+    commit_role String = "mutation"
+    description String?
+
+    fn build construct (
+        object_instance_graph_commit_id UUID key,
+        commit_role String = "mutation",
+        description String? = null
+    ) -> ExperienceInvocationActionCommit {
+        """
+        Link one Meta-owned graph commit to this invocation action.
+
+        Contract:
+        - Parent `ExperienceInvocationAction` scope is propagated by constructor lowering.
+        - `commit_role` names whether the commit was produced, consumed, or
+          otherwise observed by this action.
+        """
+    }
+
+    fn add_event (
+        event_id UUID key,
+        event_role String = "emitted",
+        description String? = null
+    ) -> ExperienceInvocationActionCommitEvent {
+        """
+        Link one Reactivity event to this invocation action commit.
+
+        Contract:
+        - Reactivity owns `Event`.
+        - This edge closes the Experience provenance loop: action -> commit -> event.
+        """
+        let created = construct events.build(
+            event_id = event_id,
+            event_role = event_role,
+            description = description,
+        )
+    }
+}
+
+ann invocation.ExperienceInvocationActionCommit::object_instance_graph_commit load eager
+ann invocation.ExperienceInvocationActionCommit::events load eager

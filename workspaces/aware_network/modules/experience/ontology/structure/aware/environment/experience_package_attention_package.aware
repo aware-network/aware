@@ -1,0 +1,25 @@
+class ExperiencePackageAttentionPackage {
+    // Relationships
+    attention_package aware_attention.attention.AttentionPackage key
+
+    // Attributes
+    description String?
+
+    fn build construct(
+        attention_package_id UUID key,
+        description String? = null
+    ) -> ExperiencePackageAttentionPackage {
+        """
+        Create one package-level Experience dependency bridge to one Attention package.
+
+        Contract:
+        - Parent `ExperiencePackage` scope is injected by propagation.
+        - Identity is keyed by the attached `AttentionPackage`.
+        - This declares that Experience-authored views and section-graph bindings may target
+          layout/section topology from the attached Attention package.
+        - It does not grant direct Attention mutation authority.
+        """
+    }
+}
+
+ann environment.ExperiencePackageAttentionPackage::attention_package load eager

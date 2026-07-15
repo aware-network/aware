@@ -1,0 +1,61 @@
+/// Branch is a bundle of lanes.
+class Branch {
+    // Relationships
+    lanes lane.Lane[]
+    versions version.Version[]
+
+    // Attributes
+    is_main Bool = false
+    key String key = "default"
+    name String?
+
+    fn create construct (
+        branch_id UUID,
+        lane_hash String,
+        key String key = "default",
+        is_main Bool = false,
+        name String? = null
+    ) -> Branch {
+        """
+        Creates a new Branch as a bundle of lanes.
+
+        Contract:
+        - Stable identity is constructor-keyed by `key`.
+        - Initial Lane is constructed via Branch->Lane propagation.
+        """
+        let created_lane = construct lanes.create(
+            lane_hash = lane_hash,
+        )
+    }
+
+    fn attach_lane (lane_hash String) -> lane.Lane {
+        """
+        Attaches a Lane to this Branch (idempotent).
+
+        Contract:
+        - Must be invoked as an instance function so the runtime can enforce
+          "mutate self only" for the Branch→Lane relationship.
+        - The Lane is created via Lane.create if missing.
+        """
+        let created_lane = construct lanes.create(
+            lane_hash = lane_hash,
+        )
+    }
+
+    fn create_version (
+        version_number Int key,
+        head_commit_id UUID? = null
+    ) -> version.Version {
+        """
+        Create one Version under this Branch.
+
+        Contract:
+        - Parent `branch_id` is propagated by traversal lowering.
+        - Stable identity is keyed by `(branch_id, version_number)`.
+        """
+        let created_version = construct versions.create(
+            version_number = version_number,
+            head_commit_id = head_commit_id,
+        )
+    }
+}

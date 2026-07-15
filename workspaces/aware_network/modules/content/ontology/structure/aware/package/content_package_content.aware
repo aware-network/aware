@@ -1,0 +1,52 @@
+/// Package-owned Content membership.
+///
+/// Contract:
+/// - ContentPackageContent is membership/projection metadata only.
+/// - Content remains the multimodal content truth owner.
+/// - `relative_path` is a materialization coordinate for checkouts, not the
+///   content identity.
+edge ContentPackageContent {
+    // Attributes
+    relative_path String key
+    content_role String key = "content"
+    position Int?
+    media_type String?
+    title String?
+    source_ref String?
+    provider_payload JsonObject?
+    receipt_payload JsonObject?
+
+    fn build construct(
+        content_id UUID key,
+        relative_path String key,
+        content_role String key = "content",
+        position Int? = null,
+        media_type String? = null,
+        title String? = null,
+        source_ref String? = null,
+        provider_payload JsonObject? = null,
+        receipt_payload JsonObject? = null,
+    ) -> ContentPackageContent {
+        """
+        Attach an existing Content object to a ContentPackage.
+
+        Contract:
+        - Parent ContentPackage context is propagated by constructor lowering.
+        - Content identity stays with Content; package membership is keyed by
+          role and relative materialization coordinate.
+        - Providers may record source/service provenance in payload fields, but
+          that provenance is not a WorkspaceRevision pin.
+        """
+        construct ContentPackageContent(
+            content_id = content_id,
+            relative_path = relative_path,
+            content_role = content_role,
+            position = position,
+            media_type = media_type,
+            title = title,
+            source_ref = source_ref,
+            provider_payload = provider_payload,
+            receipt_payload = receipt_payload,
+        )
+    }
+}

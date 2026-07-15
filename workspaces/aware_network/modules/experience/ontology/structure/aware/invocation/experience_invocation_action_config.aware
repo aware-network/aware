@@ -1,0 +1,66 @@
+/// Experience-owned reusable invocation action configuration.
+///
+/// Contract:
+/// - This is the canonical executable target configuration for an invocation
+///   action.
+/// - Projection views, sensors, actuators, and future surfaces consume this
+///   config instead of duplicating executable API/SDK target fields.
+/// - View-action identity lives on `ProjectionExperienceViewInvocationActionConfig`
+///   through API-owned `ApiViewCapabilityEndpoint` and optional SDK-owned
+///   `SdkOperationApiViewCapabilityEndpoint`; it does not live here.
+/// - Actual invocation receipts are children of the surface config that
+///   handled the action, for example `ProjectionExperienceViewInvocationActionConfig`.
+class ExperienceInvocationActionConfig {
+    // Relationships
+    api_capability_endpoint aware_api.api.ApiCapabilityEndpoint?
+    sdk_operation aware_sdk.sdk.SdkOperation?
+    role_policies RoleConfigInvocationActionConfig[]
+
+    // Attributes
+    target_kind ExperienceInvocationActionTargetKind key
+
+    fn build construct (
+        target_kind ExperienceInvocationActionTargetKind key,
+        api_capability_endpoint_id UUID? = null,
+        sdk_operation_id UUID? = null
+    ) -> ExperienceInvocationActionConfig {
+        """
+        Create one deterministic invocation action config under a ProjectionExperience.
+
+        Contract:
+        - Parent `ProjectionExperience` scope is propagated by constructor lowering.
+        - `target_kind` discriminates the executable target family.
+        - `api` targets must set only `api_capability_endpoint`.
+        - `sdk` targets must set only `sdk_operation`.
+        - String target refs and renderer action keys are intentionally absent;
+          surface wrappers own those higher-level bindings.
+        """
+    }
+
+    fn allow_role_config (
+        role_config_id UUID key,
+        policy_key String = "invoke",
+        requirement_kind String = "admitted_actor_role",
+        description String? = null
+    ) -> RoleConfigInvocationActionConfig {
+        """
+        Authorize one Identity RoleConfig to invoke this Experience action config.
+
+        Contract:
+        - Experience owns the action-entrypoint policy.
+        - Identity owns the concrete RoleConfig and ActorRole truth.
+        - Dispatch preflight must prove admitted actor-role evidence against this edge.
+        """
+        let created = construct role_policies.build(
+            role_config_id = role_config_id,
+            policy_key = policy_key,
+            requirement_kind = requirement_kind,
+            description = description,
+        )
+    }
+}
+
+ann invocation.ExperienceInvocationActionConfig oneof identity api_capability_endpoint sdk_operation discriminator target_kind api api_capability_endpoint sdk sdk_operation
+ann invocation.ExperienceInvocationActionConfig::api_capability_endpoint load eager
+ann invocation.ExperienceInvocationActionConfig::role_policies load eager
+ann invocation.ExperienceInvocationActionConfig::sdk_operation load eager

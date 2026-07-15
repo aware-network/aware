@@ -1,0 +1,53 @@
+class IdentityPattern {
+    // Relationships
+    content_part_text aware_content.part.ContentPartText
+    identity_pattern_evidences IdentityPatternEvidence[]
+
+    // Attributes
+    category String  // Pattern category: technical, workflow, personal, etc.
+    confidence Float  // Confidence level from 0.0 to 1.0
+    evidence_count Int = 0  // Number of supporting evidence entries
+    last_applied DateTime?  // Last time pattern was applied by an agent
+    pattern_key String key  // Unique identifier for the pattern within the identity scope
+    pattern_type IdentityPatternType  // type of pattern: fact (validated) or hypothesis (emerging)
+    target_confidence Float?  // Target confidence for hypothesis promotion
+
+    fn find_similar_across_identities(query_vector Vector, result_count Int, min_similarity Float, pattern_type String? = null, min_confidence Float? = 0.7, exclude_identity_id uuid? = null) -> {
+        """
+        Finds similar patterns across all identities for cross-identity learning.
+        Useful for agents to learn from successful patterns of other identities.
+        Parameters: query_vector: Vector to search against
+        result_count: Maximum number of results
+        min_similarity: Minimum similarity threshold
+        exclude_identity_id: Optional identity to exclude from search
+        pattern_type: Optional filter by pattern type
+        min_confidence: Minimum confidence threshold (default 0.7 for quality)
+        Returns: Table with pattern details from multiple identities
+        """
+    }
+
+    fn find_similar_by_content(query_vector Vector, result_count Int, min_similarity Float, identity_id UUID, pattern_type String? = null, min_confidence Float? = 0.7) -> {
+        """
+        Finds similar identity patterns by content similarity search with identity-specific filtering.
+        Parameters: identity_id: Identity to search patterns for
+        query_vector: Vector to search against pattern content
+        result_count: Maximum number of results
+        min_similarity: Minimum similarity threshold
+        pattern_type: Optional filter by pattern type ('fact' or 'hypothesis')
+        min_confidence: Minimum pattern confidence threshold
+        Returns: Table with pattern details and similarity scores
+        """
+    }
+
+    fn promote_to_fact() -> Bool {
+        """
+        Promotes a pattern to a fact.
+        """
+    }
+
+    fn record_application(successful Bool, evidence_description String? = null) -> {
+        """
+        Records the application of a pattern.
+        """
+    }
+}

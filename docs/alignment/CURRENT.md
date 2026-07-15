@@ -1,7 +1,7 @@
 # Current Alignment - Public
 
 - Status: Current public coordination snapshot
-- Last updated: 2026-05-19
+- Last updated: 2026-07-10
 
 Aware is alignment-first. Work starts by sharing semantic coordinates before
 execution.
@@ -33,12 +33,32 @@ without private issue/feed context.
 - Local-first behavior must use the same API-shaped DTOs and SDK boundaries
   that remote services will use later.
 
+## Alignment Center
+
+The public alignment center is the stable entrypoint for contributors and
+agents:
+
+- `AGENTS.md` bootstraps identity, issue, FEED, commit, and alignment rules.
+- `docs/alignment/README.md` indexes durable invariants.
+- `docs/alignment/CURRENT.md` is the public-safe current synthesis.
+- Protocol docs define how issues, FEED, goals, specs, skills, services, SDKs,
+  and commits leave receipts.
+
+Contributors should not fork current direction into local instruction files.
+They should use the alignment center, then move work through issue/service/SDK
+receipts. As public packages mature, `aware-dev` should route agent and human
+contribution through service-backed SDK/API boundaries rather than direct
+workspace internals.
+
 ## Current Direction
 
 `aware-sdk-entry`
 
 - `aware-sdk` is the public entrypoint for external usage and Interface-facing
-  control.
+  control. Its canonical source is Interface-owned and depends on
+  `interface-sdk`; Flutter and other renderers use that same shared SDK rail.
+- AX=UX means shared semantic app, session, attention, action, and receipt
+  coordinates while presentation may vary by renderer and actor lens.
 - Interface panes consume SDK/API/service view rails and do not reconstruct
   service internals.
 
@@ -82,6 +102,15 @@ without private issue/feed context.
   Code, FileSystem, Identity, or service-specific DTO truth.
 - The near-term coordination product is clean issue/feed/alignment aggregation
   over committed filesystem evidence.
+
+`workspace-content-materialization`
+
+- Shared checkout should eventually include coordination content that agents
+  need to align, starting with selected active Goal content.
+- Goal, Issue, Feed, and Alignment services remain the provider truth. Files in
+  the workspace are readable projections for shared participation, not separate
+  authorities.
+- Goal content is not code and should not be treated as a CodePackage.
 
 ## Durable Categories
 
@@ -136,5 +165,5 @@ without private issue/feed context.
 - `docs/feed/PROTOCOL.md`
 - `docs/goals/PROTOCOL.md`
 - `docs/specs/PROTOCOL.md`
-- `apps/aware-sdk/README.md`
-- `sdks/interface/aware/interface_sdk.aware`
+- `workspaces/aware_network/modules/interface/sdks/aware/README.md`
+- `workspaces/aware_network/modules/interface/sdks/interface/aware/interface_sdk.aware`

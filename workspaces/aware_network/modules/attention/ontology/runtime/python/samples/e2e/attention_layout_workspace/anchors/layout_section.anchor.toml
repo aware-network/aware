@@ -1,0 +1,14 @@
+[layout]
+key = "workspace-default"
+title = "Workspace Default"
+description = "Primary attention layout anchor"
+
+[section]
+key = "workspace"
+title = "Workspace"
+description = "Primary attention section anchor"
+
+[focus_scope]
+title = "Main Scope"
+description = "Anchor focus scope for workspace section"
+is_active = true

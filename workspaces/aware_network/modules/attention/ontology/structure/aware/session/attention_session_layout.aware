@@ -1,0 +1,138 @@
+/// Session-local mounted Attention Layout.
+///
+/// Contract:
+/// - Parent constructor is AttentionSession.
+/// - Layout/LayoutConfig remain Attention topology authorities.
+/// - Session layout state is local to AttentionSession.
+class AttentionSessionLayout {
+    // Relationships
+    layout layout.Layout key
+    layout_config layout.LayoutConfig?
+    sections AttentionSessionSection[]
+    active_section AttentionSessionSection?
+    topology_transitions AttentionLayoutTopologyTransition[]
+    active_topology_transition AttentionLayoutTopologyTransition?
+    layout_transitions AttentionLayoutTransition[]
+    active_layout_transition AttentionLayoutTransition?
+
+    // Metadata
+    key String?
+    order Int = 0
+    is_active Bool = true
+
+    fn create construct (
+        layout_id UUID key,
+        layout_config_id UUID? = null,
+        key String? = null,
+        order Int = 0,
+        is_active Bool = true
+    ) -> AttentionSessionLayout {
+        """
+        Create a session-local mounted layout.
+        """
+    }
+
+    fn attach_section (
+        layout_section_id UUID key,
+        section_id UUID key,
+        section_key String? = null,
+        order Int = 0,
+        is_active Bool = true
+    ) -> AttentionSessionSection {
+        """
+        Add one session-local section state row.
+
+        Contract:
+        - The row is grounded by LayoutSection and Section.
+        - Focus transition history must hang under this section row.
+        """
+        let session_section = construct sections.create(
+            layout_section_id = layout_section_id,
+            section_id = section_id,
+            section_key = section_key,
+            order = order,
+            is_active = is_active,
+        )
+    }
+
+    fn set_active_section (
+        attention_session_section_id UUID
+    ) -> AttentionSessionSection {
+        """
+        Select the active session-local section.
+        """
+    }
+
+    fn apply_topology_transition (
+        client_intent_id String key,
+        section_states_json JsonObject,
+        expected_previous_topology_transition_id UUID? = null,
+        transition_kind String = "topology",
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> AttentionLayoutTopologyTransition {
+        """
+        Atomically append one immutable full-vector layout topology transition.
+
+        Contract:
+        - AttentionSessionSection rows are stable admitted anchors.
+        - The complete ordered active membership is supplied on every intent.
+        - Omitted anchors remain available to history and may be re-added.
+        - expected_previous_topology_transition_id is an exact active-head CAS.
+        - Repeating the active client intent with the identical payload is a
+          no-op; reusing it with different content fails closed.
+        """
+        let transition = construct topology_transitions.create(
+            client_intent_id = client_intent_id,
+            previous_topology_transition_id = expected_previous_topology_transition_id,
+            transition_kind = transition_kind,
+            source_kind = source_kind,
+            source_ref = source_ref,
+            metadata_json = metadata_json,
+        )
+    }
+
+    fn apply_layout_transition (
+        client_intent_id String key,
+        section_states_json JsonObject,
+        expected_previous_layout_transition_id UUID? = null,
+        topology_transition_id UUID? = null,
+        transition_kind String = "layout",
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> AttentionLayoutTransition {
+        """
+        Atomically append one immutable full-vector shared-layout transition.
+
+        Contract:
+        - The invocation envelope is validated before construction and is not
+          persisted as shared layout authority.
+        - One typed state row is committed for every mounted session section.
+        - expected_previous_layout_transition_id is an exact active-head CAS.
+        - topology_transition_id must exactly pin the active explicit topology;
+          legacy fixed layouts use a null topology pin.
+        - Repeating the active client intent with the identical payload is a
+          no-op; reusing it with different content fails closed.
+        """
+        let transition = construct layout_transitions.create(
+            client_intent_id = client_intent_id,
+            previous_transition_id = expected_previous_layout_transition_id,
+            topology_transition_id = topology_transition_id,
+            transition_kind = transition_kind,
+            source_kind = source_kind,
+            source_ref = source_ref,
+            metadata_json = metadata_json,
+        )
+    }
+}
+
+ann session.AttentionSessionLayout::layout load eager
+ann session.AttentionSessionLayout::layout_config load eager
+ann session.AttentionSessionLayout::sections load eager
+ann session.AttentionSessionLayout::active_section load eager
+ann session.AttentionSessionLayout::topology_transitions load eager
+ann session.AttentionSessionLayout::active_topology_transition load eager
+ann session.AttentionSessionLayout::layout_transitions load eager
+ann session.AttentionSessionLayout::active_layout_transition load eager

@@ -1,0 +1,33 @@
+/// API-owned stream event receipt for one committed ApiCall.
+///
+/// Contract:
+/// - one row records one stream event observed for one ApiCall
+/// - identity is `(api_call, sequence)` via parent containment + sequence key
+/// - kind and schema are derivable from the referenced endpoint stream event
+///   config; this receipt does not duplicate either field
+/// - normalized event-model truth is one `InlineValueInstance`
+class ApiCallStreamEvent {
+    // Relationships
+    api_capability_endpoint_stream_event_config ApiCapabilityEndpointStreamEventConfig
+    event_model aware_meta.class.InlineValueInstance unique
+
+    // Attributes
+    description String?
+    sequence Int key
+
+    fn create construct (
+        sequence Int key,
+        api_capability_endpoint_stream_event_config_id UUID,
+        description String? = null
+    ) -> ApiCallStreamEvent {
+        """
+        Create one API-owned typed stream event receipt beneath ApiCall.
+        Runtime derives the event_model owner key from this receipt identity and
+        builds the InlineValueInstance from the referenced stream event
+        ClassConfig; callers do not supply a schema/id shortcut.
+        """
+    }
+}
+
+ann api.ApiCallStreamEvent::api_capability_endpoint_stream_event_config load eager
+ann api.ApiCallStreamEvent::event_model load eager

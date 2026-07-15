@@ -1,0 +1,65 @@
+/// Replayable Attention focus transition under one AttentionSessionSection.
+///
+/// Contract:
+/// - This is the ontology source event for session replay.
+/// - It is grounded by parent AttentionSessionSection, which is grounded by
+///   AttentionSessionLayout and AttentionSession.
+/// - It records focus/observable/graph coordinates, not a consumer snapshot.
+class AttentionFocusTransition {
+    // Relationships
+    previous_transition AttentionFocusTransition?
+    focus_scope focus.FocusScope key
+    focus focus.Focus?
+    observable aware_meta.graph.projection.ObjectProjectionGraphObservable?
+    object_projection_graph_identity aware_meta.graph.projection.ObjectProjectionGraphIdentity?
+    object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch?
+    object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Metadata
+    transition_key String key
+    sequence Int = 0
+    projection_hash String?
+    transition_kind String = "focus"
+    rationale String?
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject? = {}
+
+    fn create construct (
+        transition_key String key,
+        focus_scope_id UUID key,
+        focus_id UUID? = null,
+        observable_id UUID? = null,
+        object_projection_graph_identity_id UUID? = null,
+        object_instance_graph_branch_id UUID? = null,
+        object_instance_graph_commit_id UUID? = null,
+        previous_transition_id UUID? = null,
+        sequence Int = 0,
+        projection_hash String? = null,
+        transition_kind String = "focus",
+        rationale String? = null,
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> AttentionFocusTransition {
+        """
+        Create one focus transition under an AttentionSessionSection.
+
+        Contract:
+        - Parent section scope and transition key provide stable replay identity.
+        - FocusScope is required because every transition must resolve the
+          session-local focus scope.
+        - Other focus/observable/graph links are optional to allow partial
+          transitions such as section activation before graph commit evidence is
+          available.
+        """
+    }
+}
+
+ann session.AttentionFocusTransition::previous_transition load eager
+ann session.AttentionFocusTransition::focus_scope load eager
+ann session.AttentionFocusTransition::focus load eager
+ann session.AttentionFocusTransition::observable load eager
+ann session.AttentionFocusTransition::object_projection_graph_identity load eager
+ann session.AttentionFocusTransition::object_instance_graph_branch load eager
+ann session.AttentionFocusTransition::object_instance_graph_commit load eager

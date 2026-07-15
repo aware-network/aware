@@ -1,0 +1,37 @@
+/// ExperienceSession projection.
+///
+/// Contract:
+/// - The root contains only Experience-owned committed resolution state.
+/// - Identity, Environment, profile, and active lens remain projection portals
+///   to their owning objects.
+projection ExperienceSession {
+    root session.ExperienceSession
+
+    session.ExperienceSession::identity_session aware_identity.Session
+    session.ExperienceSession::environment_session aware_environment.EnvironmentSession
+    session.ExperienceSession::profiles ExperienceSessionProfile
+
+    observable experience_session {
+        """
+        Committed Experience profile/lens resolution for one child Identity Session.
+        """
+    }
+}
+
+/// ExperienceSessionProfile projection.
+///
+/// Contract:
+/// - Root is one session-local applied-profile mount.
+/// - Profile policy and ProjectionExperience composition remain owned by the
+///   applied profile/config projections.
+projection ExperienceSessionProfile {
+    root session.ExperienceSessionProfile
+
+    session.ExperienceSessionProfile::profile EnvironmentExperienceProfile
+
+    observable experience_session_profile {
+        """
+        Session-local profile participation without global activation state.
+        """
+    }
+}

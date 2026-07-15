@@ -1,0 +1,19 @@
+/// A direct dependency of an ObjectConfigGraphPackage.
+///
+/// Dependencies are commit-pinned to make the dependency universe explicit and
+/// cross-OCG linking deterministic.
+class ObjectConfigGraphPackageDependency {
+    // Relationships
+    /// Target package that is depended on (canonical DAG edge: package -> package).
+    target_object_config_graph_package ObjectConfigGraphPackage key
+
+    /// Optional version pin for the dependency package.
+    ///
+    /// This is the canonical, human-facing pin. It may be null during local development
+    /// (DAG is still determinable via target package identity). The lockfile will later
+    /// make this concrete.
+    target_version aware_history.version.Version?
+}
+
+/// Load target package/version eagerly so linkers can resolve without extra round trips.
+ann config.ObjectConfigGraphPackageDependency::target_version load eager

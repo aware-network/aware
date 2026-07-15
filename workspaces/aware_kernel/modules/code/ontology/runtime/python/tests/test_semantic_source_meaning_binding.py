@@ -233,10 +233,7 @@ def test_meaning_binding_derives_attribute_create_from_generic_attr_binding() ->
         "class ContentLayout {\n" "    name String\n" "}\n",
     )
     current = _source_index(
-        "class ContentLayout {\n"
-        "    name String\n"
-        "    title String\n"
-        "}\n",
+        "class ContentLayout {\n" "    name String\n" "    title String\n" "}\n",
     )
 
     resolution = resolve_code_semantic_source_meaning(
@@ -276,10 +273,7 @@ def test_meaning_binding_derives_attribute_create_from_generic_attr_binding() ->
 
 def test_meaning_binding_derives_attribute_delete_from_generic_attr_binding() -> None:
     baseline = _source_index(
-        "class ContentLayout {\n"
-        "    name String\n"
-        "    title String\n"
-        "}\n",
+        "class ContentLayout {\n" "    name String\n" "    title String\n" "}\n",
     )
     current = _source_index(
         "class ContentLayout {\n" "    name String\n" "}\n",
@@ -315,9 +309,7 @@ def test_meaning_binding_derives_attribute_delete_from_generic_attr_binding() ->
     assert operation.requires_baseline_object_identity is True
 
 
-def test_meaning_binding_emits_attribute_identity_rename_when_policy_opts_in() -> (
-    None
-):
+def test_meaning_binding_emits_attribute_identity_rename_when_policy_opts_in() -> None:
     baseline = _source_index(
         "class ContentLayout {\n" "    title String\n" "}\n",
     )
@@ -764,10 +756,7 @@ def test_meaning_binding_derives_relationship_delete_from_class_typed_attr() -> 
 def test_meaning_binding_skips_primitive_attrs_for_relationship_structural() -> None:
     baseline = _source_index("class ContentLayout {\n    name String key\n}\n")
     current = _source_index(
-        "class ContentLayout {\n"
-        "    name String key\n"
-        "    title String\n"
-        "}\n",
+        "class ContentLayout {\n" "    name String key\n" "    title String\n" "}\n",
     )
 
     resolution = resolve_code_semantic_source_meaning(
@@ -914,6 +903,11 @@ def test_delta_meaning_hydrates_and_reuses_source_index_session_cache() -> None:
     assert second.source_index_evidence["cache_miss_count"] == 0
     assert _payload(second.source_index_evidence["baseline"])["parse_count"] == 0
     assert _payload(second.source_index_evidence["current"])["parse_count"] == 0
+    phase_timings = _payload(second.source_index_evidence["phase_timings_s"])
+    assert _phase_timing(phase_timings, "baseline_source_index_s") >= 0.0
+    assert _phase_timing(phase_timings, "current_source_index_s") >= 0.0
+    assert _phase_timing(phase_timings, "semantic_source_meaning.total_s") >= 0.0
+    assert _phase_timing(phase_timings, "total_s") >= 0.0
 
 
 def test_delta_meaning_resolves_ref_only_from_hydrated_source_index_cache() -> None:
@@ -1401,9 +1395,7 @@ def _generic_attribute_structural_contract() -> CodeSemanticSourceMeaningContrac
                     semantic_owner="aware_meta.object_config_graph",
                 ),
                 semantic_subject_type="aware_meta.AttributeConfig",
-                semantic_key_template=(
-                    "meta.attribute:{class_name}.{attribute_name}"
-                ),
+                semantic_key_template=("meta.attribute:{class_name}.{attribute_name}"),
                 semantic_field="definition",
                 value_domain="aware_attribute_definition",
                 metadata={
@@ -1914,3 +1906,9 @@ def _source_session_context(
 def _payload(payload: object) -> dict[str, object]:
     assert isinstance(payload, dict)
     return payload
+
+
+def _phase_timing(payload: dict[str, object], key: str) -> float:
+    value = payload[key]
+    assert isinstance(value, (int, float))
+    return float(value)

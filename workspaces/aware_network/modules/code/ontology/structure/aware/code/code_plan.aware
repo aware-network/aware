@@ -1,0 +1,177 @@
+/// Canonical parser-emitted annotation payload plan.
+///
+/// This is a transport/materialization-plan DTO. It is not a graph entity.
+class CodeSectionAnnotationPlan : inline_value {
+    path String
+    verb String
+    args String[] = []
+}
+
+/// Canonical parser-emitted segment slot plan.
+///
+/// This is a transport/materialization-plan DTO. It is not a graph entity.
+class CodeSegmentPlan : inline_value {
+    slot_key String
+    byte_start Int
+    byte_end Int
+}
+
+/// Canonical parser-emitted import-name payload plan.
+///
+/// This is a transport/materialization-plan DTO. It is not a graph entity.
+class CodeSectionImportNamePlan : inline_value {
+    name_text String
+    alias_text String?
+    name_segment_plan code.CodeSegmentPlan
+    alias_segment_plan code.CodeSegmentPlan?
+}
+
+/// Canonical parser-emitted import payload plan.
+///
+/// This is a transport/materialization-plan DTO. It is not a graph entity.
+class CodeSectionImportPlan : inline_value {
+    module_text String
+    is_from_import Bool
+    is_star_import Bool
+    relative_level Int = 0
+    module_segment_plan code.CodeSegmentPlan
+    name_plans code.CodeSectionImportNamePlan[] = []
+}
+
+/// Canonical parser-emitted section materialization plan.
+///
+/// This is a transport/materialization-plan DTO. It is not a graph entity.
+class CodeSectionPlan : inline_value {
+    section_key String
+    section_type code.CodeSectionType
+    qualname String
+    identity_hash String
+    byte_start Int
+    byte_end Int
+    reference String?
+    parent_qualname String?
+    metadata JsonObject?
+    annotation_plan code.CodeSectionAnnotationPlan?
+    import_plan code.CodeSectionImportPlan?
+}
+
+/// Canonical code content plan emitted by pure parser/planner rails.
+///
+/// This plan is platonic:
+/// - no filesystem path semantics
+/// - no graph ids
+/// - no ontology object ownership
+class CodeContentPlan : inline_value {
+    language code.CodeLanguage
+    content_text String
+    section_plans code.CodeSectionPlan[] = []
+}
+
+/// Package-local source delta operation kind.
+///
+/// This is Code-owned IR, not repository-layout state. Workspace and semantic owners
+/// should exchange package deltas through this shape after neutral source observation.
+enum CodePackageDeltaKind {
+    create
+    update
+    delete
+}
+
+/// Typed authority class for a CodePackageDelta.
+///
+/// This classifies how the delta entered the raw CodePackage lane. It does not
+/// name semantic packages, Workspace revisions, or materialization receipts.
+enum CodePackageDeltaAuthorityKind {
+    local_fs_view
+    remote_workspace_view
+    code_package_delta
+    semantic_materialization
+    tool_materialization
+}
+
+/// Package-relative role for one Code path.
+///
+/// This role belongs to the package attachment, not to semantic package truth.
+enum CodePackagePathRole {
+    authored_source
+    generated_code
+    generated_manifest
+    generated_metadata
+}
+
+/// Generic producer pointer for CodePackageDelta output.
+///
+/// Code owns only the raw producer identity:
+/// - provider identity
+/// - provider-local stable producer key
+/// - opaque provider payload for later hub/runtime routing
+///
+/// Semantic package identities and materialization receipts stay on Workspace
+/// materialization rails.
+class CodePackageDeltaProducerRef : inline_value {
+    provider_key String
+    producer_key String
+    producer_kind String?
+    provider_payload JsonObject?
+}
+
+/// One producer emission for CodePackageDelta output.
+///
+/// This is a raw CodePackage provenance pointer. OIG commit ids are opaque UUIDs
+/// here; Code does not hydrate or interpret meta/workspace commit truth.
+class CodePackageDeltaProduction : inline_value {
+    producer code.CodePackageDeltaProducerRef
+    input_code_package_id UUID?
+    input_object_instance_graph_commit_id UUID?
+    input_digest String?
+    output_digest String?
+    emission_payload JsonObject?
+}
+
+/// One package-relative code path delta.
+///
+/// Upsert operations may carry either raw `content_text` or a precomputed `content_plan`.
+/// `CodePackage.apply_delta` treats `content_plan` as authoritative when present.
+class CodePackageDeltaPath : inline_value {
+    relative_path String
+    kind CodePackageDeltaKind
+    content_text String?
+    content_plan code.CodeContentPlan?
+    before_hash String?
+    after_hash String?
+    size_bytes Int?
+    language code.CodeLanguage?
+    is_structural Bool?
+    path_role code.CodePackagePathRole = authored_source
+    production code.CodePackageDeltaProduction?
+}
+
+/// CodePackage-level delta bundle.
+///
+/// Canonical ownership:
+/// - Structure/Repository may observe raw file changes.
+/// - Workspace normalizes those observations into CodePackageDelta.
+/// - CodePackage consumes this IR to commit package-owned code.
+/// - Semantic owners consume this same IR after the CodePackage commit.
+class CodePackageDelta : inline_value {
+    package_name String?
+    package_root String?
+    sources_root String?
+    manifest_relative_path String?
+    authority code.CodePackageDeltaAuthorityKind?
+    authority_kind String?
+    source_revision_id String?
+    production code.CodePackageDeltaProduction?
+    paths code.CodePackageDeltaPath[] = []
+    warnings String[] = []
+}
+
+/// Result of applying a CodePackageDelta through the CodePackage mutation boundary.
+class CodePackageDeltaApplyResult : inline_value {
+    applied_path_count Int = 0
+    created_path_count Int = 0
+    updated_path_count Int = 0
+    deleted_path_count Int = 0
+    deleted_missing_path_count Int = 0
+    skipped_path_count Int = 0
+}

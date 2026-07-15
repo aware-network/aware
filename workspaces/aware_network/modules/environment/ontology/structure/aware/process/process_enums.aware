@@ -1,0 +1,11 @@
+enum ProcessStatus {
+    cancelled
+    finished_failed
+    finished_succeeded
+    initializing
+    paused
+    pending
+    running
+    terminated
+    terminating
+}

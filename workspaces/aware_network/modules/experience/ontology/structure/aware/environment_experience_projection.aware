@@ -1,0 +1,22 @@
+/// EnvironmentExperience projection.
+///
+/// Contract:
+/// - EnvironmentExperience is the Experience namespace root.
+/// - Profile and topology seed internals live in their own root projections.
+/// - This root projection only exposes portal edges to those branches so
+///   materialization does not collapse the full Experience participation graph
+///   into the namespace lane.
+projection EnvironmentExperience {
+    root environment.EnvironmentExperience
+
+    environment.EnvironmentExperience::profile_configs EnvironmentExperienceProfileConfig
+    environment.EnvironmentExperience::profiles EnvironmentExperienceProfile
+    environment.EnvironmentExperience::sessions ExperienceSession
+    environment.EnvironmentExperience::topology_seeds EnvironmentTopologySeed
+
+    observable environment_experience {
+        """
+        Experience namespace root with profile, session, and topology seed portals.
+        """
+    }
+}

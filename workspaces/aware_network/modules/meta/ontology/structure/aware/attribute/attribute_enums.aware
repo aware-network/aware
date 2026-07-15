@@ -1,0 +1,11 @@
+enum AttributeCollectionType {
+    list
+    set
+    single
+}
+
+enum AttributeRelationshipRole {
+    auxiliary
+    foreign_key
+    reference
+}

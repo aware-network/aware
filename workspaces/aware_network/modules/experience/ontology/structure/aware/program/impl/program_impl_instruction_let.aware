@@ -1,0 +1,22 @@
+/// Program local binding step.
+///
+/// Contract:
+/// - Deterministic/pure computation only.
+/// - No runtime effects.
+class ProgramImplInstructionLet {
+    // Attributes
+    name String
+    value_expr JsonObject
+
+    fn build construct (
+        name String,
+        value_expr JsonObject
+    ) -> ProgramImplInstructionLet {
+        """
+        Create deterministic let payload for one ProgramImplInstruction.
+
+        Contract:
+        - Parent context (`program_impl_instruction_id`) is injected by parent-edge lowering.
+        """
+    }
+}

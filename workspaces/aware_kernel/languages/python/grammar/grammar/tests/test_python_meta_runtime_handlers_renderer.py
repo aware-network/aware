@@ -24,6 +24,12 @@ from aware_meta_ontology.attribute.attribute_type_descriptor import (
 from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
     AttributeTypeDescriptorKind,
 )
+from aware_meta_ontology.annotation.code_section_annotation_oneof import (
+    CodeSectionAnnotationOneOf,
+)
+from aware_meta_ontology.annotation.code_section_annotation_oneof_enums import (
+    CodeSectionAnnotationOneOfMode,
+)
 from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.class_.class_config_function_config import (
     ClassConfigFunctionConfig,
@@ -67,6 +73,12 @@ from aware_meta_ontology.function.function_impl_value_source import (
     FunctionImplValueSource,
 )
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
+from aware_meta_ontology.graph.config.object_config_graph_annotation import (
+    ObjectConfigGraphAnnotation,
+)
+from aware_meta_ontology.graph.config.object_config_graph_annotation_enums import (
+    ObjectConfigGraphAnnotationKind,
+)
 from aware_meta_ontology.primitive.primitive_config import PrimitiveConfig
 
 from python_grammar.meta_language_plugin import PYTHON_META_PLUGIN
@@ -770,6 +782,159 @@ def test_python_meta_runtime_handlers_renderer_bootstrap_uses_stable_id_binding(
         in helper
     )
     assert "stable_child_entity_id(parent_entity_id=parent_entity_id" not in helper
+
+
+def test_python_meta_runtime_handlers_renderer_derives_oneof_identity_entity_id(
+    tmp_path: Path,
+) -> None:
+    target = make_class(
+        name="ExperienceInvocationActionConfig",
+    )
+    target.class_fqn = "aware_test.invocation.ExperienceInvocationActionConfig"
+    build = make_function(
+        name="build_via_projection_experience",
+        owner_key=function_owner_key(target),
+        is_async=True,
+        kind=FunctionKind.class_,
+    )
+    projection_experience_id = make_attribute(
+        name="projection_experience_id",
+        owner_key=function_io_owner_key(build, FunctionAttributeType.input),
+        type_descriptor=_primitive_desc(CodePrimitiveBaseType.uuid),
+    )
+    target_kind = make_attribute(
+        name="target_kind",
+        owner_key=function_io_owner_key(build, FunctionAttributeType.input),
+        type_descriptor=_primitive_desc(CodePrimitiveBaseType.string),
+    )
+    api_capability_endpoint_id = make_attribute(
+        name="api_capability_endpoint_id",
+        owner_key=function_io_owner_key(build, FunctionAttributeType.input),
+        type_descriptor=_primitive_desc(CodePrimitiveBaseType.uuid),
+    )
+    sdk_operation_id = make_attribute(
+        name="sdk_operation_id",
+        owner_key=function_io_owner_key(build, FunctionAttributeType.input),
+        type_descriptor=_primitive_desc(CodePrimitiveBaseType.uuid),
+    )
+    build.function_config_attribute_configs = [
+        function_attr_link(
+            build,
+            projection_experience_id,
+            type=FunctionAttributeType.input,
+            position=0,
+            is_identity_key=True,
+        ),
+        function_attr_link(
+            build,
+            target_kind,
+            type=FunctionAttributeType.input,
+            position=1,
+            is_identity_key=True,
+        ),
+        function_attr_link(
+            build,
+            api_capability_endpoint_id,
+            type=FunctionAttributeType.input,
+            position=2,
+        ),
+        function_attr_link(
+            build,
+            sdk_operation_id,
+            type=FunctionAttributeType.input,
+            position=3,
+        ),
+    ]
+    target.class_config_function_configs = [
+        ClassConfigFunctionConfig(
+            class_config_id=target.id,
+            function_config_id=build.id,
+            function_config=build,
+            is_public=True,
+            is_constructor=True,
+            position=0,
+        ),
+    ]
+    graph_id = UUID("00000000-0000-0000-0000-000000000000")
+    ocg = ObjectConfigGraph(
+        id=graph_id,
+        name="test",
+        description="test",
+        hash="sha256:test",
+        fqn_prefix="aware_test",
+        language=CodeLanguage.aware,
+        object_config_graph_nodes=[
+            make_class_node(graph_id, target),
+        ],
+        object_config_graph_annotations=[
+            ObjectConfigGraphAnnotation(
+                object_config_graph_id=graph_id,
+                kind=ObjectConfigGraphAnnotationKind.oneof,
+                code_section_annotation_oneof=CodeSectionAnnotationOneOf(
+                    fqn_prefix="aware_test",
+                    namespace="invocation",
+                    class_name="ExperienceInvocationActionConfig",
+                    mode=CodeSectionAnnotationOneOfMode.identity,
+                    attribute_names=[
+                        "api_capability_endpoint",
+                        "sdk_operation",
+                    ],
+                    discriminator_attribute_name="target_kind",
+                    discriminator_cases=[
+                        "api=api_capability_endpoint",
+                        "sdk=sdk_operation",
+                    ],
+                ),
+            ),
+        ],
+        object_projection_graphs=[],
+    )
+
+    renderer = PythonMetaRuntimeHandlersRenderer(
+        layout_strategy=_Layout(base_dir=tmp_path),
+    )
+    renderer.set_policy(
+        {
+            PYTHON_STABLE_IDS_IMPORT_ROOT_POLICY_KEY: "aware_test_ontology",
+            "function_impl_ownership": "compiler",
+            "function_impl_parity_policy": "error",
+        }
+    )
+    renderer.import_overrides = {
+        str(
+            target.id
+        ): "aware_test_ontology.invocation.experience_invocation_action_config",
+    }
+    renderer.bind_object_config_graph(ocg)
+    code = renderer.create_empty_code()
+    writer = CodeSectionWriter(
+        code=code,
+        index=CodeSectionBuilderIndex(),
+        indent_size=renderer.indent,
+    )
+    renderer.emit_file([], writer)
+    out = writer.code.content_part_text.inline_text or ""
+    helper_start = out.index(
+        "def _root_id_experience_invocation_action_config__build_via_projection_experience"
+    )
+    helper_end = out.index("\ndef ", helper_start + 1)
+    helper = out[helper_start:helper_end]
+
+    compile(out, "meta_handlers.py", "exec")
+    assert (
+        "_aware_self_values = {'projection_experience_id': projection_experience_id, "
+        "'target_kind': target_kind, "
+        "'api_capability_endpoint_id': api_capability_endpoint_id, "
+        "'sdk_operation_id': sdk_operation_id}"
+    ) in helper
+    assert (
+        "_aware_entity_id_discriminator_value = getattr(target_kind, 'value', target_kind)"
+        in helper
+    )
+    assert "_aware_entity_id_discriminator_key == 'api'" in helper
+    assert "_aware_self_values['entity_id'] = api_capability_endpoint_id" in helper
+    assert "_aware_entity_id_discriminator_key == 'sdk'" in helper
+    assert "_aware_self_values['entity_id'] = sdk_operation_id" in helper
 
 
 def test_python_meta_runtime_handlers_renderer_reuses_compiler_render_artifacts(
@@ -2170,6 +2335,8 @@ def test_python_meta_runtime_handlers_renderer_returns_final_construct_after_cap
         "_aware_construct_identity_values_1 = {**_aware_construct_values_1, "
         "'scope_id': scope_id}"
     ) in out
+    assert ".by_id_cached(_aware_construct_id_1)" in out
+    assert "get_by_id_cached" not in out
     assert "return helper" not in out
     assert "return _aware_constructed_" in out or "return Home(key=key)" in out
 

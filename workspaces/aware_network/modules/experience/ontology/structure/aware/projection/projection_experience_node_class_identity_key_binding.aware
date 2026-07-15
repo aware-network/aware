@@ -1,0 +1,20 @@
+/// ProjectionKey payload row under ProjectionExperienceNodeClassIdentity.
+///
+/// Contract:
+/// - Binds one consumed ProjectionExperienceNodeKey to one concrete payload used for resolution proof.
+class ProjectionExperienceNodeClassIdentityKeyBinding {
+    // Relationships
+    projection_experience_node_key ProjectionExperienceNodeKey key
+
+    // Attributes
+    value JsonObject?
+
+    fn build construct (
+        projection_experience_node_key_id UUID key,
+        value JsonObject? = null
+    ) -> ProjectionExperienceNodeClassIdentityKeyBinding {
+        """
+        Create deterministic ProjectionExperienceNodeClassIdentityKeyBinding.
+        """
+    }
+}

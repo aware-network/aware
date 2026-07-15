@@ -1,0 +1,19 @@
+// AttentionFocusTransition projection
+//
+// Contract:
+// - This projection exposes the replay source event as a portal target for
+//   consumers such as Memory.
+// - Do not inline transition internals here. Consumers resolve the
+//   Attention-owned source object and derive read frames later.
+
+projection AttentionFocusTransition {
+    root session.AttentionFocusTransition
+
+    session.AttentionFocusTransition::previous_transition
+    session.AttentionFocusTransition::focus_scope FocusScope
+    session.AttentionFocusTransition::focus Focus
+    session.AttentionFocusTransition::observable aware_meta.ObjectProjectionGraphIdentity
+    session.AttentionFocusTransition::object_projection_graph_identity aware_meta.ObjectProjectionGraphIdentity
+    session.AttentionFocusTransition::object_instance_graph_branch aware_meta.ObjectInstanceGraphIdentity
+    session.AttentionFocusTransition::object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+}

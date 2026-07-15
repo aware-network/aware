@@ -1,0 +1,25 @@
+/// Provenance pin for a Meta OIG commit observed under one FocusScope.
+///
+/// Contract:
+/// - Attention owns this context pointer.
+/// - Meta remains the commit authority through ObjectInstanceGraphCommit.
+/// - This is not a semantic `Change` object; consumers reconstruct meaning from
+///   the pinned commit deltas.
+/// - Observation time is the create commit time of this FocusScopeCommit.
+class FocusScopeCommit {
+    // Relationships
+    focus Focus key
+    object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit key
+
+    fn create construct(
+        focus_id UUID key,
+        object_instance_graph_commit_id UUID key
+    ) -> FocusScopeCommit {
+        """
+        Attach one existing Meta OIG commit under this FocusScope.
+        """
+    }
+}
+
+ann focus.FocusScopeCommit::focus load eager
+ann focus.FocusScopeCommit::object_instance_graph_commit load eager

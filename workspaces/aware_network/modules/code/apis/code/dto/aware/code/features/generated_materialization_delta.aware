@@ -1,0 +1,250 @@
+/// Generated materialization delta status accepted at the Code API boundary.
+enum CodeGeneratedMaterializationDeltaMode {
+    package_delta_ready
+    grammar_anchor_render_ready
+    section_delta_ready
+    fallback_full_render
+    blocked
+    not_required
+}
+
+/// Renderer operation shape behind one generated materialization delta entry.
+enum CodeGeneratedRendererDeltaOperationKind {
+    replace_anchor
+    replace_section
+    insert_section
+    delete_section
+    fallback_full_render
+}
+
+/// Renderer/materialization target identity for generated artifact deltas.
+class CodeGeneratedMaterializationTargetRef : inline_value {
+    target_key String?
+    target_index Int?
+    provider_key String?
+    semantic_owner String?
+    target_language String?
+    package_name String?
+    package_root String?
+    sources_root String?
+    renderer_key String?
+    renderer_kind String?
+    renderer_profile String?
+    materialization_source String?
+    artifact_family String?
+    artifact_role String?
+    output_key String?
+    relative_path String?
+    metadata JsonObject?
+}
+
+/// Renderer-owned anchor identity inside one generated artifact.
+class CodeGeneratedRendererAnchorRef : inline_value {
+    anchor_key String
+    anchor_path String?
+    anchor_role String?
+    renderer_key String?
+    renderer_profile String?
+    materialization_source String?
+    target_language String?
+    section_type String?
+    segment_name String?
+    graph_selector JsonObject?
+    metadata JsonObject?
+}
+
+/// Semantic event reference accepted by generated materialization delta producers.
+class CodeGeneratedMaterializationEventRef : inline_value {
+    event_key String
+    semantic_key String?
+    verb String?
+    subject_type String?
+    source String?
+    source_refs String[] = []
+    payload JsonObject?
+    metadata JsonObject?
+}
+
+/// Action binding from one semantic event to one generated materialization target.
+class CodeGeneratedMaterializationActionBinding : inline_value {
+    action_key String
+    event_key String
+    action_type String = "generated_materialization_delta"
+    target code.CodeGeneratedMaterializationTargetRef?
+    policy_key String?
+    renderer_key String?
+    metadata JsonObject?
+}
+
+/// One structured renderer operation that explains a generated artifact delta.
+class CodeGeneratedRendererDeltaOperation : inline_value {
+    operation_key String?
+    kind code.CodeGeneratedRendererDeltaOperationKind = replace_anchor
+    target code.CodeGeneratedMaterializationTargetRef?
+    anchor code.CodeGeneratedRendererAnchorRef?
+    renderer_key String?
+    renderer_profile String?
+    before_hash String?
+    after_hash String?
+    content_text String?
+    replacement_text String?
+    event_refs String[] = []
+    semantic_keys String[] = []
+    diagnostics String[] = []
+    metadata JsonObject?
+}
+
+/// One renderer-generated materialization delta entry.
+class CodeGeneratedMaterializationDeltaEntry : inline_value {
+    entry_key String?
+    mode code.CodeGeneratedMaterializationDeltaMode = blocked
+    target code.CodeGeneratedMaterializationTargetRef
+    package_delta code.CodePackageDelta?
+    grammar_anchor_render_delta code.ResolveCodeGrammarAnchorRenderDeltaRequest?
+    section_delta code.CodeSectionDeltaSet?
+    artifact_family String?
+    artifact_role String?
+    artifact_key String?
+    relative_path String?
+    before_hash String?
+    after_hash String?
+    renderer_operations code.CodeGeneratedRendererDeltaOperation[] = []
+    event_refs String[] = []
+    semantic_keys String[] = []
+    diagnostics String[] = []
+    metadata JsonObject?
+}
+
+/// Skipped target evidence returned by a generated materialization delta producer.
+class CodeGeneratedMaterializationSkippedTarget : inline_value {
+    target code.CodeGeneratedMaterializationTargetRef?
+    reason String
+    event_refs String[] = []
+    metadata JsonObject?
+}
+
+/// API-owned request envelope for renderer-generated materialization deltas.
+class CodeGeneratedMaterializationDeltaRequest : inline_value {
+    provider_key String
+    semantic_owner String?
+    package_name String?
+    package_root String?
+    sources_root String?
+    product_intent String?
+    baseline_fingerprint String?
+    baseline_fingerprint_algorithm String = "sha256"
+    layout_contract code.CodePackageLayoutContract?
+    semantic_contract code.CodeSemanticContract?
+    events code.CodeGeneratedMaterializationEventRef[] = []
+    action_bindings code.CodeGeneratedMaterializationActionBinding[] = []
+    targets code.CodeGeneratedMaterializationTargetRef[] = []
+    metadata JsonObject?
+}
+
+/// API-owned result envelope for renderer-generated materialization deltas.
+class CodeGeneratedMaterializationDeltaResult : inline_value {
+    provider_key String
+    semantic_owner String?
+    available Bool = false
+    mode code.CodeGeneratedMaterializationDeltaMode = blocked
+    entries code.CodeGeneratedMaterializationDeltaEntry[] = []
+    skipped_targets code.CodeGeneratedMaterializationSkippedTarget[] = []
+    diagnostics String[] = []
+    fingerprint String?
+    receipt_refs String[] = []
+    metadata JsonObject?
+}
+
+/// Validate generated materialization delta request/result evidence.
+class ValidateCodeGeneratedMaterializationDeltaRequest augment code.CodeServiceRequest {
+    operation String = "validate_generated_materialization_delta"
+    delta_request code.CodeGeneratedMaterializationDeltaRequest
+    result code.CodeGeneratedMaterializationDeltaResult?
+    strict Bool = true
+}
+
+class ValidateCodeGeneratedMaterializationDeltaResponse augment code.CodeServiceResponse {
+    operation String = "validate_generated_materialization_delta"
+    valid Bool = false
+    diagnostics String[] = []
+    event_count Int = 0
+    action_count Int = 0
+    target_count Int = 0
+    entry_count Int = 0
+    skipped_target_count Int = 0
+    renderer_operation_count Int = 0
+    package_delta_entry_count Int = 0
+    grammar_anchor_render_entry_count Int = 0
+    section_delta_entry_count Int = 0
+}
+
+/// Normalize generated materialization delta request/result evidence.
+class NormalizeCodeGeneratedMaterializationDeltaRequest augment code.CodeServiceRequest {
+    operation String = "normalize_generated_materialization_delta"
+    delta_request code.CodeGeneratedMaterializationDeltaRequest
+    result code.CodeGeneratedMaterializationDeltaResult?
+}
+
+class NormalizeCodeGeneratedMaterializationDeltaResponse augment code.CodeServiceResponse {
+    operation String = "normalize_generated_materialization_delta"
+    delta_request code.CodeGeneratedMaterializationDeltaRequest?
+    result code.CodeGeneratedMaterializationDeltaResult?
+}
+
+/// Fingerprint generated materialization delta request/result evidence.
+class FingerprintCodeGeneratedMaterializationDeltaRequest augment code.CodeServiceRequest {
+    operation String = "fingerprint_generated_materialization_delta"
+    delta_request code.CodeGeneratedMaterializationDeltaRequest
+    result code.CodeGeneratedMaterializationDeltaResult?
+    algorithm String = "sha256"
+}
+
+class FingerprintCodeGeneratedMaterializationDeltaResponse augment code.CodeServiceResponse {
+    operation String = "fingerprint_generated_materialization_delta"
+    fingerprint String?
+    event_count Int = 0
+    action_count Int = 0
+    target_count Int = 0
+    entry_count Int = 0
+    renderer_operation_count Int = 0
+    package_delta_entry_count Int = 0
+    grammar_anchor_render_entry_count Int = 0
+    section_delta_entry_count Int = 0
+}
+
+/// Resolve renderer-generated materialization output into a CodePackageDelta.
+class ResolveCodeGeneratedMaterializationPackageDeltaRequest augment code.CodeServiceRequest {
+    operation String = "resolve_generated_materialization_package_delta"
+    delta_request code.CodeGeneratedMaterializationDeltaRequest
+    result code.CodeGeneratedMaterializationDeltaResult
+    layout_contract code.CodePackageLayoutContract?
+    semantic_contract code.CodeSemanticContract?
+    strict Bool = true
+}
+
+class ResolveCodeGeneratedMaterializationPackageDeltaResponse augment code.CodeServiceResponse {
+    operation String = "resolve_generated_materialization_package_delta"
+    resolved Bool = false
+    package_delta code.CodePackageDelta?
+    diagnostics String[] = []
+    event_count Int = 0
+    action_count Int = 0
+    target_count Int = 0
+    skipped_target_count Int = 0
+    entry_count Int = 0
+    path_count Int = 0
+    renderer_operation_count Int = 0
+    package_delta_entry_count Int = 0
+    grammar_anchor_render_entry_count Int = 0
+    section_delta_entry_count Int = 0
+}
+
+ann code.ValidateCodeGeneratedMaterializationDeltaRequest::operation discriminate tag "validate_generated_materialization_delta"
+ann code.NormalizeCodeGeneratedMaterializationDeltaRequest::operation discriminate tag "normalize_generated_materialization_delta"
+ann code.FingerprintCodeGeneratedMaterializationDeltaRequest::operation discriminate tag "fingerprint_generated_materialization_delta"
+ann code.ResolveCodeGeneratedMaterializationPackageDeltaRequest::operation discriminate tag "resolve_generated_materialization_package_delta"
+
+ann code.ValidateCodeGeneratedMaterializationDeltaResponse::operation discriminate tag "validate_generated_materialization_delta"
+ann code.NormalizeCodeGeneratedMaterializationDeltaResponse::operation discriminate tag "normalize_generated_materialization_delta"
+ann code.FingerprintCodeGeneratedMaterializationDeltaResponse::operation discriminate tag "fingerprint_generated_materialization_delta"
+ann code.ResolveCodeGeneratedMaterializationPackageDeltaResponse::operation discriminate tag "resolve_generated_materialization_package_delta"

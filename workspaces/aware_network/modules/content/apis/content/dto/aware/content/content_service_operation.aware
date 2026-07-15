@@ -1,0 +1,262 @@
+/// Content service operation DTOs.
+///
+/// Contract:
+/// - Content API is a read/render, text commit, and package materialization boundary over
+///   Content ontology truth.
+/// - DTOs carry Content ids and Experience-safe reference ids, not Social,
+///   provider, or workspace-specific payloads.
+/// - Blob-backed text fails closed unless the concrete service has an explicit
+///   blob store path.
+
+class ContentTextPartV1 : inline_value {
+    content_part_content_id UUID?
+    content_part_id UUID?
+    content_part_text_id UUID?
+    position Int = 0
+    part_key String?
+    media_type String = "text/plain"
+    text String = ""
+    digest_algorithm String = "sha256"
+    digest String?
+    size_bytes Int = 0
+    source_kind String = "inline_text"
+    provenance JsonObject = {}
+}
+
+class ContentTextResolutionV1 : inline_value {
+    content_id UUID
+    content_key String?
+    title String?
+    media_type String = "text/plain"
+    text String = ""
+    parts content.ContentTextPartV1[] = []
+    digest_algorithm String = "sha256"
+    digest String?
+    size_bytes Int = 0
+    source_kind String = "inline_text"
+    provenance JsonObject = {}
+}
+
+class ContentTextCommitPartV1 : inline_value {
+    position Int = 0
+    part_key String?
+    media_type String = "text/plain"
+    text String
+    digest_algorithm String = "sha256"
+    digest String?
+    size_bytes Int?
+    provenance JsonObject = {}
+}
+
+class ContentTextCommitResultV1 : inline_value {
+    content_id UUID
+    content_key String
+    title String?
+    source_kind String
+    source_ref String
+    media_type String = "text/plain"
+    digest_algorithm String = "sha256"
+    digest String
+    size_bytes Int
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    service_host_receipt_ref String?
+    provenance JsonObject = {}
+}
+
+class ContentPackageExportPartV1 : inline_value {
+    part_key String
+    position Int = 0
+    modality_type String = "text"
+    content_part_type String = "text"
+    media_type String = "text/plain"
+    text String?
+    raw_path String?
+    uri String?
+    provider_id String?
+    digest_algorithm String = "sha256"
+    digest String?
+    size_bytes Int?
+    aware_content_mapping JsonObject = {}
+    provenance JsonObject = {}
+}
+
+class ContentPackageArtifactProjectionV1 : inline_value {
+    output_key String = "content"
+    artifact_key String
+    artifact_family String = "workspace_content"
+    artifact_role String = "coordination_content"
+    required_for String[] = []
+    producer_provider_key String
+    producer_key String
+    producer_kind String = "service_export"
+    materialization_index Int?
+    relative_path String
+    uri String?
+    media_type String = "text/plain"
+    digest_algorithm String = "sha256"
+    digest String?
+    size_bytes Int?
+    runtime_contract_version String = "aware.content.package_export.v1"
+    provider_payload JsonObject = {}
+    receipt_payload JsonObject = {}
+}
+
+class ContentPackageExportDocumentV1 : inline_value {
+    export_kind String = "content_package_export"
+    contract_version String = "aware.content.package_export.v1"
+    package_name String
+    package_root String?
+    manifest_relative_path String?
+    title String?
+    package_kind String = "content"
+    source_provider_key String
+    source_ref String
+    runtime_contract_version String = "aware.content.package_export.v1"
+    content_key String?
+    content_title String?
+    target_path String
+    media_type String = "text/plain"
+    digest_algorithm String = "sha256"
+    digest String?
+    size_bytes Int?
+    content_text String?
+    parts content.ContentPackageExportPartV1[] = []
+    artifact content.ContentPackageArtifactProjectionV1?
+    aware_content_mapping JsonObject = {}
+    provider_payload JsonObject = {}
+    provenance JsonObject = {}
+}
+
+class ContentPackageMaterializedArtifactRefV1 : inline_value {
+    content_package_id UUID?
+    content_id UUID?
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    service_host_receipt_ref String?
+    output_key String
+    artifact_key String
+    status String = "available"
+    artifact_family String?
+    artifact_role String?
+    required_for String[] = []
+    producer_provider_key String?
+    producer_key String?
+    producer_kind String?
+    materialization_index Int?
+    digest_algorithm String? = "sha256"
+    digest String?
+    relative_path String?
+    uri String?
+    media_type String?
+    size_bytes Int?
+    runtime_contract_version String?
+    provider_payload JsonObject = {}
+    receipt_payload JsonObject = {}
+}
+
+class ContentPackageMaterializationResultV1 : inline_value {
+    content_package_id UUID?
+    content_id UUID?
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    service_host_receipt_ref String?
+    package_name String
+    content_key String?
+    source_provider_key String
+    source_ref String
+    target_path String
+    media_type String = "text/plain"
+    digest_algorithm String = "sha256"
+    digest String?
+    size_bytes Int?
+    artifact_refs content.ContentPackageMaterializedArtifactRefV1[] = []
+    aware_content_mapping JsonObject = {}
+    provenance JsonObject = {}
+}
+
+class ContentOperationReceipt {
+    operation String
+    status String = "succeeded"
+    content_id UUID?
+    content_package_id UUID?
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    service_host_receipt_ref String?
+    package_name String?
+    digest_algorithm String = "sha256"
+    digest String?
+    size_bytes Int?
+    backend_kind String = "content-service"
+    metadata JsonObject = {}
+}
+
+class ContentServiceRequest {
+    operation String
+    request_id UUID?
+    actor_id UUID?
+    branch_id UUID?
+}
+
+class ContentServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    error String?
+    receipt content.ContentOperationReceipt?
+}
+
+class ResolveContentTextRequest augment content.ContentServiceRequest {
+    operation String = "resolve_content_text"
+    content_id UUID?
+    content_class_instance_identity_id UUID?
+    content_class_config_id UUID?
+    media_type String = "text/plain"
+    include_parts Bool = true
+    max_chars Int?
+}
+
+class ResolveContentTextResponse augment content.ContentServiceResponse {
+    operation String = "resolve_content_text"
+    resolution content.ContentTextResolutionV1?
+}
+
+class CommitContentTextRequest augment content.ContentServiceRequest {
+    operation String = "commit_content_text"
+    content_key String
+    title String?
+    source_kind String
+    source_ref String
+    media_type String = "text/plain"
+    text String?
+    parts content.ContentTextCommitPartV1[] = []
+    digest_algorithm String = "sha256"
+    digest String?
+    size_bytes Int?
+    provenance JsonObject = {}
+}
+
+class CommitContentTextResponse augment content.ContentServiceResponse {
+    operation String = "commit_content_text"
+    commit_result content.ContentTextCommitResultV1?
+}
+
+class MaterializeContentPackageRequest augment content.ContentServiceRequest {
+    operation String = "materialize_content_package"
+    package_export content.ContentPackageExportDocumentV1
+}
+
+class MaterializeContentPackageResponse augment content.ContentServiceResponse {
+    operation String = "materialize_content_package"
+    materialization content.ContentPackageMaterializationResultV1?
+}
+
+ann content.ContentServiceRequest::operation discriminate key
+ann content.ResolveContentTextRequest::operation discriminate tag "resolve_content_text"
+ann content.CommitContentTextRequest::operation discriminate tag "commit_content_text"
+ann content.MaterializeContentPackageRequest::operation discriminate tag "materialize_content_package"
+
+ann content.ContentServiceResponse::operation discriminate key
+ann content.ResolveContentTextResponse::operation discriminate tag "resolve_content_text"
+ann content.CommitContentTextResponse::operation discriminate tag "commit_content_text"
+ann content.MaterializeContentPackageResponse::operation discriminate tag "materialize_content_package"

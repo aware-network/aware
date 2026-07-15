@@ -1,0 +1,35 @@
+enum EventDeliveryMode {
+    batched
+    immediate
+    queued
+    scheduled
+}
+
+enum EventPriority {
+    critical
+    deferred
+    high
+    low
+    normal
+}
+
+enum EventScheduleStatus {
+    active
+    inactive
+}
+
+enum EventStatus {
+    handled_failure
+    handled_success
+    handling
+    ignored
+    raised
+}
+
+enum EventType {
+    condition
+    manual
+    scheduled
+    system
+    webhook
+}

@@ -1,0 +1,54 @@
+/// Experience-owned bridge from ProjectionExperience to an Attention Section.
+///
+/// Contract:
+/// - Attention owns Section and FocusScope mutation.
+/// - Experience owns how one Section resolves to a concrete view instance for
+///   this ProjectionExperience.
+/// - Selected Observable matching is derived through the linked view's ApiView.
+/// - This object does not represent an Environment, Interface, window, layout
+///   runtime, or focus-scope mount.
+class ProjectionExperienceSection {
+    // Relationships
+    section aware_attention.section.Section key
+    section_views ProjectionExperienceSectionView[]
+
+    // Attributes
+    /// Optional denormalized lookup text from the Attention Section.
+    section_key String?
+
+    fn build construct (
+        section_id UUID key,
+        section_key String? = null
+    ) -> ProjectionExperienceSection {
+        """
+        Create one ProjectionExperience-scoped Attention Section bridge.
+
+        Contract:
+        - The relationship to Attention Section is the only Attention-owned coordinate here.
+        - Section-key text is denormalized for lookup/debugging only.
+        """
+    }
+
+    fn bind_view (
+        projection_experience_view_instance_id UUID key,
+        status String = "active"
+    ) -> ProjectionExperienceSectionView {
+        """
+        Bind one concrete view instance to this section.
+
+        Contract:
+        - Identity is section + view instance.
+        - The linked view instance carries view/config/branch/action provenance.
+        - Observable matching is derived from the linked view's ApiView contract.
+        - FocusScope remains mutable Attention selection state and is not part of
+          this bridge's identity.
+        """
+        let created = construct section_views.build(
+            projection_experience_view_instance_id = projection_experience_view_instance_id,
+            status = status,
+        )
+    }
+}
+
+ann projection.ProjectionExperienceSection::section load eager
+ann projection.ProjectionExperienceSection::section_views load eager

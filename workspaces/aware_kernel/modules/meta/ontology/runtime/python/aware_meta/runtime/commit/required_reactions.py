@@ -16,7 +16,8 @@ from aware_meta_ontology.graph.instance.object_instance_graph_commit import (
     ObjectInstanceGraphCommit,
 )
 
-from aware_meta.graph.instance.commit.fs_store import ObjectInstanceGraphCommitEnvelope
+from aware_meta.graph.instance.commit.contract import ObjectInstanceGraphCommitEnvelope
+from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
 from aware_meta.runtime.commit.identity_history import (
     upsert_object_instance_graph_identity_history_from_domain_commit,
 )
@@ -70,10 +71,26 @@ class MetaObjectInstanceGraphIdentityHistoryReaction:
     async def run(
         self, context: RuntimeCommitReactionContext
     ) -> RuntimeCommitReactionReceipt:
-        resolve_started_at = perf_counter()
-        oigi_ctx = resolve_object_instance_graph_identity_lane_context(
-            index=context.index
-        )
+        metadata = {
+            "provider_key": self.provider_key,
+            "reaction_key": self.reaction_key,
+            "domain_branch_id": str(context.domain_branch_id),
+            "domain_projection_hash": context.domain_projection_hash,
+            "domain_commit_id": (
+                str(context.domain_commit.id)
+                if context.domain_commit is not None
+                else None
+            ),
+        }
+        with commit_perf_span(
+            phase="runtime.invoke_function.required_commit_reactions.oigi_history.resolve_context",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            resolve_started_at = perf_counter()
+            oigi_ctx = resolve_object_instance_graph_identity_lane_context(
+                index=context.index
+            )
         _record_elapsed_ms(
             context.perf_ms,
             "required_reaction_oigi_history_resolve_context_ms",
@@ -95,11 +112,16 @@ class MetaObjectInstanceGraphIdentityHistoryReaction:
                 details={"reason": "self_projection"},
             )
 
-        contract_started_at = perf_counter()
-        has_upsert_contract = _has_oigi_history_upsert_contract(
-            context=context,
-            root_class_config_id=_root_class_config_id(oigi_ctx.opg),
-        )
+        with commit_perf_span(
+            phase="runtime.invoke_function.required_commit_reactions.oigi_history.contract_check",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            contract_started_at = perf_counter()
+            has_upsert_contract = _has_oigi_history_upsert_contract(
+                context=context,
+                root_class_config_id=_root_class_config_id(oigi_ctx.opg),
+            )
         _record_elapsed_ms(
             context.perf_ms,
             "required_reaction_oigi_history_contract_check_ms",
@@ -113,17 +135,26 @@ class MetaObjectInstanceGraphIdentityHistoryReaction:
                 details={"reason": "history_upsert_contract_unavailable"},
             )
 
-        oigi_id = await upsert_object_instance_graph_identity_history_from_domain_commit(
-            index=context.index,
-            actor_id=context.actor_id,
-            domain_branch_id=context.domain_branch_id,
-            domain_projection_hash=context.domain_projection_hash,
-            domain_commit=context.domain_commit,
-            domain_commit_envelope=context.domain_commit_envelope,
-            source_class_instance_identity_id=context.source_class_instance_identity_id,
-            perf_ms=context.perf_ms,
-            projector_mode=context.oigi_history_projector_mode,
-        )
+        with commit_perf_span(
+            phase="runtime.invoke_function.required_commit_reactions.oigi_history.upsert_history",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            oigi_id = (
+                await upsert_object_instance_graph_identity_history_from_domain_commit(
+                    index=context.index,
+                    actor_id=context.actor_id,
+                    domain_branch_id=context.domain_branch_id,
+                    domain_projection_hash=context.domain_projection_hash,
+                    domain_commit=context.domain_commit,
+                    domain_commit_envelope=context.domain_commit_envelope,
+                    source_class_instance_identity_id=(
+                        context.source_class_instance_identity_id
+                    ),
+                    perf_ms=context.perf_ms,
+                    projector_mode=context.oigi_history_projector_mode,
+                )
+            )
         return RuntimeCommitReactionReceipt(
             provider_key=self.provider_key,
             reaction_key=self.reaction_key,
@@ -203,7 +234,26 @@ async def run_required_runtime_commit_reactions(
             f"{_metric_key(reaction.reaction_key)}"
         )
         try:
-            receipt = await reaction.run(context)
+            with commit_perf_span(
+                phase=(
+                    "runtime.invoke_function.required_commit_reactions."
+                    f"{_metric_key(reaction.provider_key)}."
+                    f"{_metric_key(reaction.reaction_key)}"
+                ),
+                category="meta.runtime.invoke_function",
+                metadata={
+                    "provider_key": reaction.provider_key,
+                    "reaction_key": reaction.reaction_key,
+                    "domain_branch_id": str(context.domain_branch_id),
+                    "domain_projection_hash": context.domain_projection_hash,
+                    "domain_commit_id": (
+                        str(context.domain_commit.id)
+                        if context.domain_commit is not None
+                        else None
+                    ),
+                },
+            ):
+                receipt = await reaction.run(context)
         except Exception as exc:
             _record_elapsed_ms(
                 context.perf_ms,

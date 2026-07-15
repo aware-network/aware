@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import json
 import time
-from typing import Iterable
+from typing import Any, Iterable
 from uuid import UUID
 
 # Aware Kernel Graph Ontology
@@ -47,6 +47,45 @@ class ClassInstanceBuildProfile:
     default_values_used: int = 0
 
 
+@dataclass(frozen=True, slots=True)
+class ClassInstanceAttributeBuildPlan:
+    attribute_links: tuple[object, ...]
+    raw_attribute_link_count: int
+    relationship_attribute_config_ids: frozenset[UUID]
+    required_fk_attribute_config_ids: frozenset[UUID]
+
+
+def plan_class_instance_attribute_links(
+    *,
+    class_config: ClassConfig,
+    relationship_attribute_config_ids: Iterable[UUID] | None = None,
+    include_relationship_attribute_config_ids: Iterable[UUID] | None = None,
+) -> ClassInstanceAttributeBuildPlan:
+    relationship_attribute_ids = _relationship_attribute_config_ids(class_config)
+    required_fk_attribute_ids = _required_fk_attribute_config_ids(class_config)
+    if relationship_attribute_config_ids is not None:
+        relationship_attribute_ids |= set(relationship_attribute_config_ids)
+    if include_relationship_attribute_config_ids is not None:
+        # Portals (cross-OPG relationships) can require keeping select relationship-bound
+        # attributes (e.g. `<ref>_id`) in the OIG snapshot so lane routing can be
+        # derived deterministically from the commit rail.
+        relationship_attribute_ids -= set(include_relationship_attribute_config_ids)
+    raw_attr_links = sorted(
+        class_config.class_config_attribute_configs,
+        key=lambda link: (
+            link.position,
+            link.attribute_config.name if link.attribute_config else "",
+        ),
+    )
+    attr_links = _dedupe_attribute_links(raw_attr_links)
+    return ClassInstanceAttributeBuildPlan(
+        attribute_links=tuple(attr_links),
+        raw_attribute_link_count=len(raw_attr_links),
+        relationship_attribute_config_ids=frozenset(relationship_attribute_ids),
+        required_fk_attribute_config_ids=frozenset(required_fk_attribute_ids),
+    )
+
+
 def build_class_instance(
     *,
     object_instance_graph_id: UUID,
@@ -59,6 +98,7 @@ def build_class_instance(
     relationship_attribute_config_ids: Iterable[UUID] | None = None,
     include_relationship_attribute_config_ids: Iterable[UUID] | None = None,
     build_profile: ClassInstanceBuildProfile | None = None,
+    attach_class_config: bool = True,
 ) -> ClassInstance:
     """
     Build a canonical ClassInstance from a ClassConfig and a source payload.
@@ -77,52 +117,57 @@ def build_class_instance(
         # Canonical ClassInstances are pure in-memory artifacts; avoid implicit
         # session binding side effects.
         with disable_autobind():
-            class_instance = ClassInstance(
-                id=stable_class_instance_id(
-                    object_instance_graph_id=object_instance_graph_id,
-                    class_config_id=class_config.id,
-                    source_object_id=source.id,
-                ),
+            class_instance_id = stable_class_instance_id(
                 object_instance_graph_id=object_instance_graph_id,
                 class_config_id=class_config.id,
                 source_object_id=source.id,
-                class_config=class_config,
             )
+            if attach_class_config:
+                class_instance = ClassInstance(
+                    id=class_instance_id,
+                    object_instance_graph_id=object_instance_graph_id,
+                    class_config_id=class_config.id,
+                    source_object_id=source.id,
+                    class_config=class_config,
+                )
+            else:
+                class_instance = ClassInstance.model_construct(
+                    id=class_instance_id,
+                    object_instance_graph_id=object_instance_graph_id,
+                    class_config_id=class_config.id,
+                    source_object_id=source.id,
+                    class_config=None,
+                    class_instance_changes=[],
+                    class_instance_attributes=[],
+                )
 
     # Deterministic attribute order: by ClassConfigAttributeConfig.position then name.
     plan_started_at = time.perf_counter() if build_profile is not None else 0.0
-    relationship_attribute_ids = _relationship_attribute_config_ids(class_config)
-    required_fk_attribute_ids = _required_fk_attribute_config_ids(class_config)
-    if relationship_attribute_config_ids is not None:
-        relationship_attribute_ids |= set(relationship_attribute_config_ids)
-    if include_relationship_attribute_config_ids is not None:
-        # Portals (cross-OPG relationships) can require keeping select relationship-bound
-        # attributes (e.g. `<ref>_id`) in the OIG snapshot so lane routing can be
-        # derived deterministically from the commit rail.
-        relationship_attribute_ids -= set(include_relationship_attribute_config_ids)
-    raw_attr_links = sorted(
-        class_config.class_config_attribute_configs,
-        key=lambda link: (
-            link.position,
-            link.attribute_config.name if link.attribute_config else "",
+    attribute_plan = plan_class_instance_attribute_links(
+        class_config=class_config,
+        relationship_attribute_config_ids=relationship_attribute_config_ids,
+        include_relationship_attribute_config_ids=(
+            include_relationship_attribute_config_ids
         ),
     )
-    attr_links = _dedupe_attribute_links(raw_attr_links)
+    relationship_attribute_ids = attribute_plan.relationship_attribute_config_ids
+    required_fk_attribute_ids = attribute_plan.required_fk_attribute_config_ids
     if build_profile is not None:
         build_profile.plan_attributes_s += time.perf_counter() - plan_started_at
         build_profile.relationship_attribute_ids_total += len(
             relationship_attribute_ids
         )
         build_profile.required_fk_attribute_ids_total += len(required_fk_attribute_ids)
-        build_profile.attr_links_total += len(raw_attr_links)
-        build_profile.duplicate_attribute_links_skipped += len(raw_attr_links) - len(
-            attr_links
+        build_profile.attr_links_total += attribute_plan.raw_attribute_link_count
+        build_profile.duplicate_attribute_links_skipped += (
+            attribute_plan.raw_attribute_link_count
+            - len(attribute_plan.attribute_links)
         )
 
     materialize_started_at = time.perf_counter() if build_profile is not None else 0.0
     with disable_change_tracking_hooks():
-        for link in attr_links:
-            attr_cfg = link.attribute_config
+        for link in attribute_plan.attribute_links:
+            attr_cfg: Any = getattr(link, "attribute_config", None)
             if attr_cfg is None:
                 continue
             if attr_cfg.is_virtual:
@@ -254,7 +299,9 @@ def _parse_default_value(attribute_config: AttributeConfig) -> object:
 
 
 __all__ = [
+    "ClassInstanceAttributeBuildPlan",
     "ClassInstanceBuildProfile",
     "ClassInstanceBuildError",
     "build_class_instance",
+    "plan_class_instance_attribute_links",
 ]

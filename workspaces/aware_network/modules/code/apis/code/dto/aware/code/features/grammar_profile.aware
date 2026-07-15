@@ -1,0 +1,119 @@
+/// Code-owned grammar profile resolution status.
+enum CodeGrammarProfileResolutionStatus {
+    resolved
+    blocked
+    skipped
+}
+
+/// Code-owned grammar backend descriptor for one language/profile resolver.
+class CodeGrammarBackendDescriptor : inline_value {
+    backend_key String
+    language String
+    parser_kind String?
+    grammar_contract_version String?
+    metadata JsonObject?
+}
+
+/// Diagnostic emitted while resolving a Code grammar profile.
+class CodeGrammarProfileDiagnostic : inline_value {
+    severity String = "error"
+    reason String
+    message String
+    provider_key String?
+    lane_key String?
+    rule_name String?
+    metadata JsonObject?
+}
+
+/// Binding between a semantic syntax lane and a parser grammar rule.
+class CodeGrammarRuleBinding : inline_value {
+    rule_name String
+    provider_key String
+    lane_key String
+    semantic_owner String
+    compiler_owner String
+    code_section_type String?
+    semantic_token_types String[] = []
+    semantic_token_modifiers String[] = []
+    metadata JsonObject?
+}
+
+/// Provider-owned grammar declaration visible through the Code boundary.
+class CodeGrammarRuleDeclaration : inline_value {
+    provider_key String
+    semantic_owner String
+    rule_name String
+    language String = "aware"
+    grammar_backend String = "tree_sitter.aware"
+    declared_anchor_fields String[] = []
+    top_level Bool = false
+    generation_status String = "declaration_only"
+    metadata JsonObject?
+}
+
+/// Source-anchor coverage diagnostic emitted from provider declarations.
+class CodeGrammarAnchorCoverageDiagnostic : inline_value {
+    severity String = "error"
+    reason String
+    message String
+    provider_key String
+    semantic_owner String
+    binding_key String
+    grammar_rule_name String
+    anchor_field_path String
+    metadata JsonObject?
+}
+
+/// Code-owned grammar profile assembled from semantic package contracts.
+class CodeGrammarProfile : inline_value {
+    profile_key String
+    language String
+    backend_key String?
+    backend code.CodeGrammarBackendDescriptor?
+    provider_keys String[] = []
+    lane_keys String[] = []
+    grammar_rules String[] = []
+    code_section_types String[] = []
+    rule_bindings code.CodeGrammarRuleBinding[] = []
+    rule_declarations code.CodeGrammarRuleDeclaration[] = []
+    missing_rule_declarations String[] = []
+    anchor_diagnostics code.CodeGrammarAnchorCoverageDiagnostic[] = []
+    diagnostics code.CodeGrammarProfileDiagnostic[] = []
+    metadata JsonObject?
+}
+
+/// Resolve a grammar profile from semantic contracts and/or provider keys.
+class ResolveCodeGrammarProfileRequest augment code.CodeServiceRequest {
+    operation String = "resolve_grammar_profile"
+    profile_key String?
+    language String = "aware"
+    backend_key String?
+    provider_keys String[] = []
+    semantic_contracts code.CodeSemanticContract[] = []
+    include_declaration_coverage Bool = false
+    source_meaning_contracts code.CodeSemanticSourceMeaningContract[] = []
+    strict_anchor_coverage Bool = false
+    include_current_code_sections Bool = false
+    strict Bool = true
+    metadata JsonObject?
+}
+
+class ResolveCodeGrammarProfileResponse augment code.CodeServiceResponse {
+    operation String = "resolve_grammar_profile"
+    status code.CodeGrammarProfileResolutionStatus = blocked
+    resolved Bool = false
+    profile code.CodeGrammarProfile?
+    diagnostics code.CodeGrammarProfileDiagnostic[] = []
+    missing_provider_keys String[] = []
+    invalid_rule_names String[] = []
+    missing_rule_declarations String[] = []
+    anchor_diagnostics code.CodeGrammarAnchorCoverageDiagnostic[] = []
+    provider_count Int = 0
+    lane_count Int = 0
+    rule_count Int = 0
+    declaration_rule_count Int = 0
+    anchor_diagnostic_count Int = 0
+}
+
+ann code.ResolveCodeGrammarProfileRequest::operation discriminate tag "resolve_grammar_profile"
+ann code.ResolveCodeGrammarProfileResponse::operation discriminate tag "resolve_grammar_profile"

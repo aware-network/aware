@@ -1,0 +1,9 @@
+enum ClassValueMode {
+    graph_ref
+    inline_value
+}
+
+enum ClassIdentityMode {
+    contained
+    standalone
+}

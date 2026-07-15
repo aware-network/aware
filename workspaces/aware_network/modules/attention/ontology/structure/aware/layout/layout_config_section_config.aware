@@ -1,0 +1,41 @@
+/// Canonical section configuration entry inside a LayoutConfig.
+class LayoutConfigSectionConfig {
+    // Relationships
+    section_config section.SectionConfig unique
+
+    // Attributes
+    section_key String key
+    order Int = 0
+    flex Float = 1.0
+    is_visible Bool = true
+
+    fn create construct (
+        section_key String key,
+        title String,
+        description String? = null,
+        order Int = 0,
+        flex Float = 1.0,
+        is_visible Bool = true
+    ) -> LayoutConfigSectionConfig {
+        """
+        Build a deterministic LayoutConfigSectionConfig for a LayoutConfig and SectionConfig.
+        """
+        let created_section_config = construct section_config.build(
+            key = section_key,
+            title = title,
+            description = description,
+        )
+    }
+
+    fn set_geometry (order Int, flex Float) -> LayoutConfigSectionConfig {
+        """
+        Update section config order/flex geometry.
+        """
+    }
+
+    fn set_visibility (is_visible Bool) -> LayoutConfigSectionConfig {
+        """
+        Update whether this section config is visible in the LayoutConfig.
+        """
+    }
+}

@@ -1,0 +1,31 @@
+/// Typed terminal receipt source for one Program action continuation.
+///
+/// Contract:
+/// - Provider response fields remain owned by the provider response ClassConfig.
+/// - This schema owns only Program selection and terminal API/commit evidence.
+/// - Continuation bindings select fields relationally by AttributeConfig id.
+/// - This is a composition schema, not a scheduler or persisted execution plan.
+class ProgramActionContinuationReceipt : inline_value {
+    status String
+    endpoint_ref String
+    discriminant String
+    source_program_impl_instruction_intent_id UUID
+    source_action_config_id UUID
+    api_capability_endpoint_id UUID
+    api_call_id UUID
+    api_call_key UUID
+    request_model_id UUID
+    api_call_outcome_id UUID
+    response_model_id UUID?
+    response_class_config_id UUID?
+    service_operation_id UUID?
+    service_operation_config_id UUID?
+    service_operation_commit_id UUID?
+    service_operation_head_commit_id UUID?
+    service_operation_branch_id UUID?
+    service_operation_projection_hash String?
+    api_call_outcome_commit_id UUID?
+    api_call_outcome_head_commit_id UUID?
+    api_call_outcome_branch_id UUID?
+    api_call_outcome_projection_hash String?
+}

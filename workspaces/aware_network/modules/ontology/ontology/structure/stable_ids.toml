@@ -1,0 +1,62 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_ONTOLOGY"
+kind = "ns_url"
+value = "aware://ontology/v1"
+
+[[functions]]
+name = "stable_ontology_package_id"
+namespace = "NS_ONTOLOGY"
+template = "aware:ontology_package:{fqn_prefix_norm}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix, name"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_ontology_package_dependency_id"
+namespace = "NS_ONTOLOGY"
+template = "aware:ontology_package_dependency:{ontology_package_id}:{target_ontology_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: ontology_package_id, target_ontology_package_id"
+
+[[functions.params]]
+name = "ontology_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_ontology_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_ontology_package_runtime_code_package_id"
+namespace = "NS_ONTOLOGY"
+template = "aware:ontology_package_runtime_code_package:{ontology_package_id}:{code_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: ontology_package_id, code_package_id"
+
+[[functions.params]]
+name = "ontology_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_package_id"
+type = "uuid"

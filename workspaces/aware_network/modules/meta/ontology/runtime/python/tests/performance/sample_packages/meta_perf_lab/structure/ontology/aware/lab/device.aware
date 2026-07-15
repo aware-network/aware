@@ -1,0 +1,38 @@
+class PerfDevice {
+    // Relationships
+    signals PerfSignal[]
+
+    // Attributes
+    key String key
+    display_name String
+    firmware_version String?
+    enabled Bool = true
+
+    fn create construct (key String key, display_name String) -> PerfDevice {
+        """
+        Create one deterministic performance sample device.
+        """
+        let created = construct PerfDevice(
+            key = key,
+            display_name = display_name,
+        )
+    }
+
+    fn rename (display_name String) -> PerfDevice {
+        """
+        Update the human-readable device name.
+        """
+        set display_name = display_name
+    }
+
+    fn attach_signal (key String key, label String) -> PerfSignal {
+        """
+        Attach a signal to this device.
+        """
+        let created = construct signals.create(
+            key = key,
+            label = label,
+        )
+    }
+}
+

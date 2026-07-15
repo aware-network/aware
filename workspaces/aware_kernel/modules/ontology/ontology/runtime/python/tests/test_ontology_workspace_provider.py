@@ -3,10 +3,9 @@ from __future__ import annotations
 from collections.abc import Mapping
 from pathlib import Path
 from types import SimpleNamespace
-from typing import cast
+from typing import Any, cast
 from uuid import uuid4
 
-import msgpack
 import pytest
 
 from aware_code.semantic_materialization import (
@@ -20,7 +19,6 @@ from aware_code.semantic_materialization import (
 _TEST_FILE = Path(__file__).resolve()
 _KERNEL_WORKSPACE_ROOT = _TEST_FILE.parents[6]
 _KERNEL_MODULES_ROOT = _KERNEL_WORKSPACE_ROOT / "modules"
-_NETWORK_WORKSPACE_ROOT = _TEST_FILE.parents[8] / "workspaces" / "aware_network"
 
 
 def _prepend_runtime_roots(
@@ -108,7 +106,196 @@ def _fake_ontology_projection_hash_by_name(**kwargs: object) -> str:
     return {
         "OntologyConfig": "ontology-config-projection",
         "OntologyPackage": "ontology-package-projection",
+        "CodePackage": "code-package-projection",
     }[projection_name]
+
+
+def _construct_target_dependency_graph_pair() -> tuple[Any, Any]:
+    from aware_code_ontology.code.code_enums import CodeLanguage
+    from aware_meta_ontology.class_.class_config import ClassConfig
+    from aware_meta_ontology.class_.class_config_function_config import (
+        ClassConfigFunctionConfig,
+    )
+    from aware_meta_ontology.class_.class_config_relationship import (
+        ClassConfigRelationship,
+    )
+    from aware_meta_ontology.class_.class_config_relationship_enums import (
+        ClassConfigRelationshipType,
+    )
+    from aware_meta_ontology.function.function_config import FunctionConfig
+    from aware_meta_ontology.function.function_config_enums import FunctionKind
+    from aware_meta_ontology.function.function_config_invocation import (
+        FunctionConfigInvocation,
+    )
+    from aware_meta_ontology.function.function_config_invocation_enums import (
+        FunctionInvocationKind,
+    )
+    from aware_meta_ontology.graph.config.object_config_graph import (
+        ObjectConfigGraph,
+    )
+    from aware_meta_ontology.graph.config.object_config_graph_enums import (
+        ObjectConfigGraphNodeType,
+    )
+    from aware_meta_ontology.graph.config.object_config_graph_node import (
+        ObjectConfigGraphNode,
+    )
+    from aware_meta_ontology.graph.config.object_config_graph_relationship import (
+        ObjectConfigGraphRelationship,
+    )
+    from aware_meta_ontology.graph.projection.object_projection_graph import (
+        ObjectProjectionGraph,
+    )
+    from aware_meta_ontology.graph.projection.object_projection_graph_constructor import (
+        ObjectProjectionGraphConstructor,
+    )
+    from aware_meta_ontology.graph.projection.object_projection_graph_node import (
+        ObjectProjectionGraphNode,
+    )
+
+    source_graph_id = uuid4()
+    dependency_graph_id = uuid4()
+    source_class_id = uuid4()
+    target_class_id = uuid4()
+    relationship_id = uuid4()
+    source_function_id = uuid4()
+    source_function_edge_id = uuid4()
+    target_function_id = uuid4()
+    target_function_edge_id = uuid4()
+    source_opg_id = uuid4()
+    source_opg_root_node_id = uuid4()
+
+    target_function = FunctionConfig(
+        id=target_function_id,
+        owner_key="aware_dependency.Target",
+        name="build",
+        kind=FunctionKind.class_,
+    )
+    target_function_edge = ClassConfigFunctionConfig(
+        id=target_function_edge_id,
+        class_config_id=target_class_id,
+        function_config_id=target_function_id,
+        function_config=target_function,
+        is_constructor=True,
+    )
+    target_class = ClassConfig(
+        id=target_class_id,
+        class_fqn="aware_dependency.Target",
+        name="Target",
+        class_config_function_configs=[target_function_edge],
+    )
+    dependency_graph = ObjectConfigGraph(
+        id=dependency_graph_id,
+        name="Dependency",
+        description=None,
+        hash="sha256:dependency",
+        fqn_prefix="aware_dependency",
+        language=CodeLanguage.aware,
+        object_config_graph_nodes=[
+            ObjectConfigGraphNode(
+                id=uuid4(),
+                object_config_graph_id=dependency_graph_id,
+                type=ObjectConfigGraphNodeType.class_,
+                node_key=target_class.class_fqn,
+                class_config=target_class,
+            )
+        ],
+    )
+
+    relationship = ClassConfigRelationship(
+        id=relationship_id,
+        class_config_id=source_class_id,
+        target_class_config_id=target_class_id,
+        relationship_key="target",
+        relationship_type=ClassConfigRelationshipType.many_to_one,
+        forward_required=True,
+    )
+    source_invocation = FunctionConfigInvocation(
+        id=uuid4(),
+        function_config_id=source_function_id,
+        position=0,
+        kind=FunctionInvocationKind.construct,
+        target_function_config_id=target_function_id,
+        class_config_relationship_id=relationship_id,
+        class_config_relationship=relationship,
+    )
+    source_function = FunctionConfig(
+        id=source_function_id,
+        owner_key="aware_source.Source",
+        name="build",
+        kind=FunctionKind.class_,
+        invocations=[source_invocation],
+    )
+    source_function_edge = ClassConfigFunctionConfig(
+        id=source_function_edge_id,
+        class_config_id=source_class_id,
+        function_config_id=source_function_id,
+        function_config=source_function,
+        is_constructor=True,
+    )
+    source_class = ClassConfig(
+        id=source_class_id,
+        class_fqn="aware_source.Source",
+        name="Source",
+        class_config_function_configs=[source_function_edge],
+        class_config_relationships=[relationship],
+    )
+    source_opg_root_node = ObjectProjectionGraphNode(
+        id=source_opg_root_node_id,
+        object_projection_graph_id=source_opg_id,
+        class_config_id=source_class_id,
+        is_root=True,
+    )
+    source_opg = ObjectProjectionGraph(
+        id=source_opg_id,
+        object_config_graph_id=source_graph_id,
+        language=CodeLanguage.aware,
+        name="Source",
+        projection_hash="sha256:source",
+        object_projection_graph_nodes=[source_opg_root_node],
+        object_projection_graph_constructors=[
+            ObjectProjectionGraphConstructor(
+                id=uuid4(),
+                object_projection_graph_id=source_opg_id,
+                root_node_id=source_opg_root_node_id,
+                function_constructor_id=source_function_edge_id,
+            )
+        ],
+    )
+    source_graph = ObjectConfigGraph(
+        id=source_graph_id,
+        name="Source",
+        description=None,
+        hash="sha256:source",
+        fqn_prefix="aware_source",
+        language=CodeLanguage.aware,
+        object_config_graph_nodes=[
+            ObjectConfigGraphNode(
+                id=uuid4(),
+                object_config_graph_id=source_graph_id,
+                type=ObjectConfigGraphNodeType.class_,
+                node_key=source_class.class_fqn,
+                class_config=source_class,
+            ),
+            ObjectConfigGraphNode(
+                id=uuid4(),
+                object_config_graph_id=source_graph_id,
+                type=ObjectConfigGraphNodeType.relationship,
+                node_key="aware_source.Source.target",
+                class_config_relationship_id=relationship_id,
+                class_config_relationship=relationship,
+            ),
+        ],
+        object_config_graph_relationships=[
+            ObjectConfigGraphRelationship(
+                id=uuid4(),
+                object_config_graph_id=source_graph_id,
+                target_object_config_graph_id=dependency_graph_id,
+                class_config_relationships=[relationship],
+            )
+        ],
+        object_projection_graphs=[source_opg],
+    )
+    return source_graph, dependency_graph
 
 
 def test_ontology_provider_reuses_execution_context_dependency_graphs(
@@ -289,11 +476,14 @@ def test_ontology_provider_external_graphs_ignore_unrelated_context_graphs(
         lambda **_: (dependency_graph,),
     )
 
-    assert workspace_provider._external_object_config_graphs_for_request(  # noqa: SLF001
-        request=SimpleNamespace(),
-        source=SimpleNamespace(package_name="demo-ontology"),
-        context={"runtime_object_config_graphs": (unrelated_graph,)},
-    ) == (dependency_graph,)
+    assert (
+        workspace_provider._external_object_config_graphs_for_request(  # noqa: SLF001
+            request=SimpleNamespace(),
+            source=SimpleNamespace(package_name="demo-ontology"),
+            context={"runtime_object_config_graphs": (unrelated_graph,)},
+        )
+        == (dependency_graph,)
+    )
 
 
 def test_ontology_runtime_bundle_uses_target_runtime_graph_from_context(
@@ -448,35 +638,19 @@ def test_ontology_runtime_bundle_uses_target_runtime_graph_from_context(
 
 
 def test_ontology_runtime_sql_graph_accepts_dependency_construct_targets() -> None:
-    from aware_meta_ontology.graph.config.object_config_graph import (
-        ObjectConfigGraph,
-    )
     from aware_ontology.runtime_bundle import _ontology_runtime_sql_graph
 
-    api_graph_path = (
-        _NETWORK_WORKSPACE_ROOT
-        / "modules/api/ontology/structure/.aware/ontology/runtime/ocg.snapshot.msgpack"
-    )
-    meta_graph_path = (
-        _KERNEL_WORKSPACE_ROOT
-        / "modules/meta/ontology/structure/.aware/ontology/runtime/ocg.snapshot.msgpack"
-    )
-    api_graph = ObjectConfigGraph.model_validate(
-        msgpack.unpackb(api_graph_path.read_bytes(), raw=False, strict_map_key=False)
-    )
-    meta_graph = ObjectConfigGraph.model_validate(
-        msgpack.unpackb(meta_graph_path.read_bytes(), raw=False, strict_map_key=False)
-    )
+    source_graph, dependency_graph = _construct_target_dependency_graph_pair()
 
     with pytest.raises(ValueError, match="construct propagation target function"):
-        _ontology_runtime_sql_graph(api_graph)
+        _ontology_runtime_sql_graph(source_graph)
 
     sql_graph = _ontology_runtime_sql_graph(
-        api_graph,
-        external_graphs=(meta_graph,),
+        source_graph,
+        external_graphs=(dependency_graph,),
     )
 
-    assert sql_graph.fqn_prefix == api_graph.fqn_prefix
+    assert sql_graph.fqn_prefix == source_graph.fqn_prefix
     assert sql_graph.object_config_graph_nodes
 
 
@@ -620,7 +794,7 @@ def test_ontology_runtime_graph_manifest_closure_resolves_missing_target(
     )
 
     def _build_meta_graph_runtime_context(**kwargs: object) -> object:
-        observed["package_manifest_paths"] = kwargs["package_manifest_paths"]
+        observed.update(kwargs)
         return SimpleNamespace(
             runtime_graph_by_package_name={
                 "demo-ontology": target_runtime_graph,
@@ -646,6 +820,8 @@ def test_ontology_runtime_graph_manifest_closure_resolves_missing_target(
 
     assert target is target_runtime_graph
     assert observed["package_manifest_paths"] == package_manifest_paths
+    assert observed["strict_package_graph_cache"] is True
+    assert observed["load_source_graph_payloads"] is False
 
 
 @pytest.mark.asyncio
@@ -878,6 +1054,13 @@ async def test_ontology_provider_bridges_meta_language_outputs_before_snapshot(
                     "schema": "aware.workspace.semantic_materialization.force_fresh.v1",
                     "enabled": True,
                 },
+                "workspace_semantic_package_receipt": {
+                    "schema": "aware.workspace.semantic_package_receipt_context.v1",
+                    "module_name": "demo",
+                    "module_package_id": "ontology",
+                    "module_package_kind": "ontology",
+                    "semantic_contract_module_relative_package_root": ("modules/demo"),
+                },
             },
             progress_callback=_progress_callback,
         )
@@ -949,6 +1132,30 @@ async def test_ontology_provider_bridges_meta_language_outputs_before_snapshot(
     assert package_bundle.semantic_projection_hash == "ontology-package-projection"
     assert package_bundle.semantic_object_instance_graph_commit_id == (
         package_commit.package_object_instance_graph_commit_id
+    )
+    assert len(package_bundle.semantic_packages) == 1
+    semantic_package = cast(Mapping[str, object], package_bundle.semantic_packages[0])
+    assert semantic_package["module_name"] == "demo"
+    assert semantic_package["package_name"] == "demo-ontology"
+    assert semantic_package["fqn_prefix"] == "aware_demo"
+    assert semantic_package["manifest_relative_path"] == (
+        "modules/demo/aware.ontology.toml"
+    )
+    assert semantic_package["source_manifest_path"] == (
+        "modules/demo/structure/ontology/aware.toml"
+    )
+    assert semantic_package["object_config_graph_id"] == str(
+        leaf_after.object_config_graph.id
+    )
+    assert semantic_package["object_config_graph_package_id"] == str(
+        leaf_after.object_config_graph_package.id
+    )
+    assert semantic_package["materialized_language_packages"] == (
+        {
+            "package_name": "demo-ontology",
+            "language": "python",
+            "package_root": "modules/demo/structure/ontology/python",
+        },
     )
     assert result.details["manifest_path"] == ontology_toml_path.as_posix()
     assert result.details["source_manifest_path"] == (
@@ -2567,6 +2774,16 @@ async def test_ontology_package_snapshot_commit_uses_meta_runtime_helpers(
         observed.setdefault("authors", []).append(value)
         return actor_id
 
+    async def _fake_build_ontology_package(**kwargs: object) -> object:
+        observed["package_build"] = kwargs
+        return SimpleNamespace(
+            id=workspace_provider.stable_ontology_package_id(
+                name=source.package_name,
+                fqn_prefix=source.fqn_prefix,
+            ),
+            **kwargs,
+        )
+
     class _FakeCommitter:
         async def commit(self, **kwargs: object) -> object:
             observed["commit"] = kwargs
@@ -2579,6 +2796,26 @@ async def test_ontology_package_snapshot_commit_uses_meta_runtime_helpers(
 
         def last_commit_perf_profile_snapshot(self) -> dict[str, int]:
             return {"test_commit_ms": 1}
+
+    class _FakeRuntimeLane:
+        last_commit_id = uuid4()
+        last_head_commit_id = uuid4()
+        last_response = None
+
+        def activate(self, **kwargs: object) -> object:
+            observed["lane_activate"] = kwargs
+            return self
+
+        def __enter__(self) -> None:
+            return None
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+    class _FakeRuntime:
+        def bind(self, **kwargs: object) -> object:
+            observed["runtime_bind"] = kwargs
+            return _FakeRuntimeLane()
 
     monkeypatch.setattr(
         workspace_provider,
@@ -2606,8 +2843,14 @@ async def test_ontology_package_snapshot_commit_uses_meta_runtime_helpers(
         _fake_resolve_meta_author_id,
     )
     monkeypatch.setattr(workspace_provider, "FSLaneCommitter", _FakeCommitter)
+    monkeypatch.setattr(
+        workspace_provider.OntologyPackage,
+        "build",
+        staticmethod(_fake_build_ontology_package),
+    )
 
     result = await workspace_provider._commit_ontology_package_snapshot(  # noqa: SLF001
+        runtime=_FakeRuntime(),
         index=index,
         actor_id=actor_id,
         branch_id=branch_id,
@@ -2615,27 +2858,27 @@ async def test_ontology_package_snapshot_commit_uses_meta_runtime_helpers(
         source=source,
         leaf_result=leaf_result,
         ontology_config_commit=config_commit,
+        runtime_code_package_snapshot=None,
     )
 
-    graph_identity = cast(dict[str, object], observed["graph_identity"])
-    assert graph_identity["index"] is index
-    assert graph_identity["projection_hash"] == projection_hash
-    oig_post = cast(dict[str, object], observed["oig_post"])
-    assert oig_post["before_oig"] is before_oig
-    assert oig_post["changes"] is changes
-    changes_call = cast(dict[str, object], observed["changes"])
-    change_set = changes_call["change_set"]
-    package = next(iter(change_set.objects_by_id.values()))
-    assert package.ontology_config_id == config_commit.ontology_config_id
-    assert package.ontology_config_object_instance_graph_commit_id == (
+    runtime_bind = cast(dict[str, object], observed["runtime_bind"])
+    assert runtime_bind == {
+        "projection": "OntologyPackage",
+        "branch_id": branch_id,
+        "actor_id": actor_id,
+    }
+    assert observed["lane_activate"] == {"commit": True, "publish": False}
+    package_build = cast(dict[str, object], observed["package_build"])
+    assert package_build["ontology_config_id"] == config_commit.ontology_config_id
+    assert package_build["ontology_config_object_instance_graph_commit_id"] == (
         config_commit.config_object_instance_graph_commit_id
     )
-    commit = cast(dict[str, object], observed["commit"])
-    assert commit["graph_hash_pre"] == "sha256:before"
-    assert commit["graph_hash_post"] == "sha256:after"
-    assert commit["author_id"] == actor_id
-    assert observed["authors"] == [actor_id]
-    assert result.commit_perf_ms == {"test_commit_ms": 1}
+    assert result.package_commit_id == _FakeRuntimeLane.last_commit_id
+    assert result.package_head_commit_id == _FakeRuntimeLane.last_head_commit_id
+    assert result.package_object_instance_graph_commit_id == (
+        _FakeRuntimeLane.last_head_commit_id
+    )
+    assert result.commit_perf_ms == {}
 
 
 def _fake_leaf_result(*, package_name: str) -> object:

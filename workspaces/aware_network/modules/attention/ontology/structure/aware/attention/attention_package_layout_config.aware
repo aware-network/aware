@@ -1,0 +1,20 @@
+class AttentionPackageLayoutConfig {
+    // Relationships
+    layout_config layout.LayoutConfig key
+
+    fn build construct(
+        layout_config_id UUID key
+    ) -> AttentionPackageLayoutConfig {
+        """
+        Create one package-level Attention bridge to one `LayoutConfig`.
+
+        Contract:
+        - Parent `AttentionPackage` scope is injected by propagation.
+        - Identity is keyed by the attached `LayoutConfig`.
+        - This preserves AttentionPackage as the package/public root while `LayoutConfig` remains
+          the canonical topology object.
+        """
+    }
+}
+
+ann attention.AttentionPackageLayoutConfig::layout_config load eager

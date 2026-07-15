@@ -1,0 +1,22 @@
+class CodeSectionAnnotation {
+    // Attributes
+    path String
+    verb String
+    args String[] = []
+
+    fn build construct(
+        path String,
+        verb String,
+        args String[] = []
+    ) -> CodeSectionAnnotation {
+        """
+        Build the unique annotation payload under a CodeSection.
+        """
+    }
+
+    fn delete() -> {
+        """
+        Delete this annotation payload through its owned handler rail.
+        """
+    }
+}

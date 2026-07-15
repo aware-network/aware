@@ -1,0 +1,9 @@
+type Post {
+    // Attributes
+    title String
+    content String?
+    
+    // Relationships
+    author User
+    tags Tag[] many
+}

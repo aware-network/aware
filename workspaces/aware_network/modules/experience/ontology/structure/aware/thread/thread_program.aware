@@ -1,0 +1,36 @@
+/// Experience-owned Environment Thread -> Program association edge.
+///
+/// Contract:
+/// - Environment owns the real Thread topology.
+/// - Experience owns the Program runtime and the ThreadProgram binding.
+/// - Environment never points back to Program; Experience explicitly binds
+///   a Program to the Thread it can operate within.
+class ThreadProgram {
+    // Relationships
+    thread aware_environment.thread.Thread key
+    program program.Program key
+
+    // Attributes
+    /// Stable association key for thread-local program surfaces.
+    key String?
+    /// Ordering hint for thread runtime program timelines.
+    position Int? = null
+    /// Marks preferred/default program association for thread surfaces.
+    is_default Bool = false
+
+    fn create construct (
+        thread_id UUID key,
+        program_id UUID key,
+        key String? = null,
+        position Int? = null,
+        is_default Bool = false
+    ) -> ThreadProgram {
+        """
+        Construct a deterministic Thread -> Program association edge.
+
+        Contract:
+        - Identity is derived from `(thread_id, program_id)`.
+        - Constructor is idempotent for repeated calls with the same pair.
+        """
+    }
+}

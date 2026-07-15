@@ -1,0 +1,12 @@
+/// Sensor invocation action config projection.
+projection SensorInvocationActionConfig {
+    root sensor.SensorInvocationActionConfig
+    sensor.SensorInvocationActionConfig::experience_invocation_action_config ExperienceInvocationActionConfig
+
+    observable sensor_invocation_action_config {
+        """
+        Sensor invocation action config bridge with portal-backed generic target
+        metadata and actual invocation receipts.
+        """
+    }
+}

@@ -57,12 +57,15 @@ from ..workspace import APIWorkspace, APIWorkspaceSnapshot
 _API_RUNTIME_SOURCE_DIGEST_FILENAME = "api.runtime.sources.sha256"
 API_ACCESSIBLE_DEPENDENCY_GRAPHS_FILENAME = "api.accessible_dependency_graphs.json"
 API_RUNTIME_SEMANTICS_FILENAME = "api.runtime_semantics.json"
-_API_ACCESSIBLE_DEPENDENCY_GRAPH_ARTIFACT_CACHE_MAX = 4
+_API_ACCESSIBLE_DEPENDENCY_GRAPH_ARTIFACT_CACHE_MAX = 64
 _API_ACCESSIBLE_DEPENDENCY_GRAPH_ARTIFACT_CACHE: dict[
     tuple[Path, str],
     tuple[ObjectConfigGraph, ...],
 ] = {}
 _API_ACCESSIBLE_DEPENDENCY_GRAPH_ARTIFACT_CACHE_ORDER: list[tuple[Path, str]] = []
+_API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE_MAX = 1024
+_API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE: dict[tuple[object, ...], str] = {}
+_API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE_ORDER: list[tuple[object, ...]] = []
 API_ACCESSIBLE_DEPENDENCY_GRAPH_REFERENCE_FIELDS = frozenset(
     {
         "domain_relationships",
@@ -121,6 +124,7 @@ _AWARE_TOML_PACKAGE_DISCOVERY_PRUNED_DIR_NAMES = frozenset(
         "__pycache__",
         "build",
         "node_modules",
+        "targets",
     }
 )
 
@@ -892,6 +896,15 @@ def dump_api_accessible_dependency_graph_artifact_payload(
             source=graph.name,
         )
     return normalized_payload
+
+
+def object_config_graph_has_api_accessible_namespace_evidence(
+    *,
+    graph: ObjectConfigGraph,
+) -> bool:
+    if not graph.object_config_graph_nodes:
+        return True
+    return bool(build_namespace_membership_payload_from_ocg_identity(ocg=graph))
 
 
 def canonicalize_api_accessible_dependency_graph_artifact_payload(
@@ -1995,18 +2008,73 @@ def _compute_runtime_dependency_source_digest(
     *,
     package: _RuntimeDependencyPackage,
 ) -> str:
+    input_paths = tuple(
+        sorted(
+            _iter_runtime_dependency_source_input_paths(package=package),
+            key=lambda item: _runtime_dependency_digest_token(
+                package=package,
+                path=item,
+            ),
+        )
+    )
+    cache_key = _runtime_dependency_source_digest_cache_key(
+        package=package,
+        input_paths=input_paths,
+    )
+    cached_digest = _API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE.get(cache_key)
+    if cached_digest is not None:
+        return cached_digest
     digest = hashlib.sha256()
-    for path in sorted(
-        _iter_runtime_dependency_source_input_paths(package=package),
-        key=lambda item: _runtime_dependency_digest_token(package=package, path=item),
-    ):
+    for path in input_paths:
         digest.update(
             _runtime_dependency_digest_token(package=package, path=path).encode("utf-8")
         )
         digest.update(b"\0")
         digest.update(path.read_bytes())
         digest.update(b"\0")
-    return digest.hexdigest()
+    return _remember_runtime_dependency_source_digest(
+        cache_key=cache_key,
+        digest=digest.hexdigest(),
+    )
+
+
+def _runtime_dependency_source_digest_cache_key(
+    *,
+    package: _RuntimeDependencyPackage,
+    input_paths: tuple[Path, ...],
+) -> tuple[object, ...]:
+    input_signature: list[tuple[str, int, int]] = []
+    for path in input_paths:
+        stat_result = path.stat()
+        input_signature.append(
+            (
+                _runtime_dependency_digest_token(package=package, path=path),
+                stat_result.st_mtime_ns,
+                stat_result.st_size,
+            )
+        )
+    return (
+        package.aware_toml_path.resolve().as_posix(),
+        tuple(input_signature),
+    )
+
+
+def _remember_runtime_dependency_source_digest(
+    *,
+    cache_key: tuple[object, ...],
+    digest: str,
+) -> str:
+    if cache_key in _API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE:
+        return _API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE[cache_key]
+    _API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE[cache_key] = digest
+    _API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE_ORDER.append(cache_key)
+    while (
+        len(_API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE_ORDER)
+        > _API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE_MAX
+    ):
+        expired_key = _API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE_ORDER.pop(0)
+        _API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE.pop(expired_key, None)
+    return digest
 
 
 def compute_api_dependency_source_digest_for_aware_toml(
@@ -2359,6 +2427,7 @@ __all__ = [
     "load_api_accessible_dependency_graph_source_digests",
     "load_api_accessible_dependency_graphs_from_runtime_artifact",
     "load_api_dependency_class_config_ids",
+    "object_config_graph_has_api_accessible_namespace_evidence",
     "resolve_api_runtime_semantic_artifacts",
     "resolve_api_dependency_runtime_manifest_paths",
     "resolve_api_workspace_runtime_manifest",

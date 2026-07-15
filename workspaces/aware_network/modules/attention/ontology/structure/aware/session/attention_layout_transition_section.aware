@@ -1,0 +1,31 @@
+/// Typed geometry state for one mounted section in one layout transition.
+///
+/// Contract:
+/// - Parent constructor is AttentionLayoutTransition.
+/// - weight_micros is shared integer truth; active weights normalize exactly
+///   to 1_000_000 across the complete transition vector.
+/// - Hidden or collapsed sections have zero weight.
+class AttentionLayoutTransitionSection {
+    // Mounted section identity
+    attention_session_section AttentionSessionSection? key
+
+    // Shared geometry state
+    order Int
+    weight_micros Int
+    is_visible Bool = true
+    is_collapsed Bool = false
+
+    fn create construct (
+        attention_session_section_id UUID key,
+        order Int,
+        weight_micros Int,
+        is_visible Bool = true,
+        is_collapsed Bool = false
+    ) -> AttentionLayoutTransitionSection {
+        """
+        Create one typed row in an already-validated full layout vector.
+        """
+    }
+}
+
+ann session.AttentionLayoutTransitionSection::attention_session_section load eager

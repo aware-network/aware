@@ -1,0 +1,144 @@
+/// Reusable Environment OS topology profile config.
+///
+/// Contract:
+/// - Parent constructor is EnvironmentConfig.
+/// - Stable Environment topology config lives here, not in Experience and not
+///   under a concrete Environment instance.
+/// - ProcessConfig and ThreadConfig are reusable config parents.
+/// - EnvironmentProfile applies this config under a concrete Environment and
+///   owns concrete Process/Thread provenance.
+/// - EnvironmentSessionConfig lives at EnvironmentConfig scope; profile config
+///   can be referenced from session config defaults but never owns sessions.
+/// - Experiences attach later as approved providers through provider grants.
+class EnvironmentProfileConfig {
+    // Relationships
+    process_configs process.ProcessConfig[]
+    providers EnvironmentProvider[]
+    actor_configs EnvironmentProfileActorConfig[]
+    /// Optional profile image used as the default for territory surfaces.
+    ///
+    /// Contract:
+    /// - Image bytes are uploaded out-of-band (data-plane).
+    /// - Commits reference StorageBlob metadata only.
+    image aware_storage.blob.StorageBlob? unique
+
+    // Attributes
+    description String?
+    /// Canonical environment-level narrative used by Environment selection and AI context.
+    narrative String?
+    /// Stable profile key (recommended: `os.default`, `desktop.story`, etc).
+    key String key
+    title String?
+
+    fn build construct (
+        key String key,
+        title String? = null,
+        description String? = null,
+        narrative String? = null
+    ) -> EnvironmentProfileConfig {
+        """
+        Construct one reusable EnvironmentProfileConfig.
+
+        Contract:
+        - Stable identity is EnvironmentConfig path + `key`.
+        - Parent EnvironmentConfig is propagated by containment.
+        - This profile config is OS topology config, not an Experience profile
+          and not a concrete Environment instance profile.
+        """
+    }
+
+    fn create_process_config (
+        type String,
+        key String key,
+        title String? = null,
+        description String? = null,
+        shape String? = null,
+        position Int? = null,
+        is_default Bool = false,
+        narrative String? = null,
+        intent String? = null
+    ) -> process.ProcessConfig {
+        """
+        Create a ProcessConfig under this EnvironmentProfileConfig.
+
+        Contract:
+        - Deterministic identity is EnvironmentProfileConfig-scoped using `key`.
+        - Mutates only profile config membership.
+        - Runtime Process instances are constructed under EnvironmentProfile.
+        """
+        let process_config = construct process_configs.build(
+            type = type,
+            key = key,
+            title = title,
+            description = description,
+            shape = shape,
+            position = position,
+            is_default = is_default,
+            narrative = narrative,
+            intent = intent,
+        )
+    }
+
+    fn register_provider (
+        provider_key String key,
+        provider_kind String = "provider",
+        contract_ref String? = null,
+        selection_policy String = "contract_required",
+        status String = "active",
+        title String? = null,
+        description String? = null,
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentProvider {
+        """
+        Register a provider-neutral slot for this EnvironmentProfileConfig.
+
+        Contract:
+        - Does not reference Experience or Service implementation classes.
+        - Provider identity remains a contract key until an Experience binds to it.
+        """
+        let provider = construct providers.build(
+            provider_key = provider_key,
+            provider_kind = provider_kind,
+            contract_ref = contract_ref,
+            selection_policy = selection_policy,
+            status = status,
+            title = title,
+            description = description,
+            metadata_json = metadata_json,
+        )
+    }
+
+    fn add_actor_config (
+        actor_config_id UUID key,
+        policy_key String key = "admit",
+        requirement_kind String = "environment_actor_config",
+        access_scope String = "profile",
+        status String = "active",
+        description String? = null,
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentProfileActorConfig {
+        """
+        Declare one ActorConfig as eligible for EnvironmentProfileConfig admission.
+
+        Contract:
+        - Environment profile config owns eligibility policy for shared OS entrance.
+        - Identity owns ActorConfig, RoleConfig, Role / ActorRole materialization.
+        - Actors are not embedded here; admission services later translate this
+          policy into Identity role assignment requests.
+        """
+        let created = construct actor_configs.create(
+            actor_config_id = actor_config_id,
+            policy_key = policy_key,
+            requirement_kind = requirement_kind,
+            access_scope = access_scope,
+            status = status,
+            description = description,
+            metadata_json = metadata_json,
+        )
+    }
+
+}
+
+ann environment.EnvironmentProfileConfig::process_configs load eager
+ann environment.EnvironmentProfileConfig::providers load eager
+ann environment.EnvironmentProfileConfig::actor_configs load eager

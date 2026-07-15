@@ -1,0 +1,23 @@
+aware = 1
+
+[package]
+package_name = "meta-ontology"
+fqn_prefix = "aware_meta"
+kind = "ontology"
+version_number = 1
+title = "Meta"
+description = "SSOT canonical (.aware) sources for meta - The Ontology to model the Graph Protocols"
+function_impl_ownership = "compiler"
+function_impl_parity_policy = "error"
+
+[build]
+environment_slug = "aware_meta"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "content-ontology"
+
+[[dependencies]]
+package_name = "history-ontology"

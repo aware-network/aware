@@ -1,0 +1,96 @@
+/// Sensor configuration.
+///
+/// Contract:
+/// - A Sensor config describes inbound information a Connector can observe.
+/// - Sensor instances are runtime fulfillments declared under this config.
+/// - Observed state-node footprint declares which Projection nodes this sensor
+///   observes; payload DTOs are resolved only through invocation bindings.
+/// - Invocation action config bindings expose the shared Experience invocation
+///   target surface without duplicating API/SDK/service fields.
+class SensorConfig {
+    // Relationships
+    invocation_action_configs SensorInvocationActionConfig[]
+    observed_state_nodes SensorConfigStateNode[]
+    sensors Sensor[]
+
+    // Attributes
+    sensor_key String key
+    sensor_kind String
+    source_ref String?
+    label String?
+    description String?
+
+    fn build construct (
+        sensor_key String key,
+        sensor_kind String,
+        source_ref String? = null,
+        label String? = null,
+        description String? = null
+    ) -> SensorConfig {
+        """
+        Create one deterministic Sensor config under a ConnectorConfig.
+
+        Contract:
+        - Parent `ConnectorConfig` scope is propagated by constructor lowering.
+        - `sensor_key` is stable within the Connector config.
+        - `sensor_kind` identifies the inbound event/source family.
+        """
+    }
+
+    fn add_observed_state_node (
+        object_projection_graph_node_id UUID key
+    ) -> SensorConfigStateNode {
+        """
+        Add one observed Projection node footprint to this Sensor config.
+
+        Contract:
+        - The state node is a Meta ObjectProjectionGraphNode portal.
+        - This is not a payload schema. Payload DTO contracts resolve through
+          the bound ExperienceInvocationActionConfig endpoint only.
+        """
+        let created = construct observed_state_nodes.build(
+            object_projection_graph_node_id = object_projection_graph_node_id,
+        )
+    }
+
+    fn create_sensor (
+        sensor_instance_key String key,
+        external_ref String? = null,
+        status String = "active"
+    ) -> Sensor {
+        """
+        Create one deterministic Sensor instance under this Sensor config.
+
+        Contract:
+        - Config -> Instance is the canonical ownership rail.
+        - Parent `SensorConfig` scope is propagated by constructor lowering.
+        - `sensor_instance_key` identifies this runtime fulfillment.
+        """
+        let created = construct sensors.build(
+            sensor_instance_key = sensor_instance_key,
+            external_ref = external_ref,
+            status = status,
+        )
+    }
+
+    fn bind_invocation_action_config (
+        experience_invocation_action_config_id UUID key
+    ) -> SensorInvocationActionConfig {
+        """
+        Bind one reusable Experience invocation action config to this Sensor config.
+
+        Contract:
+        - `SensorConfig` remains the raw sensor capability surface.
+        - `ExperienceInvocationActionConfig` remains the shared target metadata.
+        - Sensor instances use the matching action config binding when recording
+          concrete invocation provenance.
+        """
+        let created = construct invocation_action_configs.build(
+            experience_invocation_action_config_id = experience_invocation_action_config_id,
+        )
+    }
+}
+
+ann sensor.SensorConfig::invocation_action_configs load eager
+ann sensor.SensorConfig::observed_state_nodes load eager
+ann sensor.SensorConfig::sensors load eager

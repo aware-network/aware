@@ -1,0 +1,44 @@
+class ConditionConfigClassConfig {
+    // Relationships
+    class_config aware_meta.class.ClassConfig key
+    condition_config_attribute_configs ConditionConfigAttributeConfig[]
+
+    // Attributes
+    class_logic ConditionLogicStrategy = all
+    class_selection ClassSelectionMode = base_class
+    require_existence Bool = true
+
+    fn create construct(
+        class_config_id UUID key,
+        class_selection ClassSelectionMode = base_class,
+        class_logic ConditionLogicStrategy = all,
+        require_existence Bool = true
+    ) -> ConditionConfigClassConfig {
+        """
+        Create a class-level condition policy node.
+
+        Contract:
+        - Canonical constructor-owned creation for class policy nodes.
+        - Deterministic id scoped by (condition_config_id, class_config_id).
+        """
+    }
+
+    fn add_attribute_config(
+        attribute_config_id UUID,
+        operator ConditionOperator,
+        negate Bool = false
+    ) -> ConditionConfigAttributeConfig {
+        """
+        Attach an attribute-level policy node to this class policy node.
+        """
+        let created = construct condition_config_attribute_configs.create(
+            attribute_config_id = attribute_config_id,
+            operator = operator,
+            negate = negate,
+        )
+    }
+}
+
+/// Load attribute conditions eagerly so class-level condition evaluation runs
+/// on a complete policy set.
+ann condition.ConditionConfigClassConfig::condition_config_attribute_configs load eager

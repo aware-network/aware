@@ -1,0 +1,33 @@
+/// Existing Identity ActorRole evidence for one SessionMember.
+///
+/// Contract:
+/// - Parent constructor is SessionMember.
+/// - References an existing ActorRole.
+/// - Does not grant, revoke, scope, or expire permission.
+class SessionMemberActorRole {
+    // Relationships
+    actor_role actor.ActorRole key
+
+    // Attributes
+    source_kind String = "identity_session"
+    status String = "active"
+    evidence_json JsonObject? = {}
+
+    fn create construct (
+        actor_role_id UUID key,
+        source_kind String = "identity_session",
+        status String = "active",
+        evidence_json JsonObject? = {}
+    ) -> SessionMemberActorRole {
+        """
+        Construct one ActorRole evidence edge under a SessionMember.
+
+        Contract:
+        - `actor_role_id` resolves an existing Identity ActorRole.
+        - This object records evidence only; permission lifecycle remains
+          ActorRole-owned.
+        """
+    }
+}
+
+ann session.SessionMemberActorRole::actor_role load eager

@@ -23,7 +23,6 @@ class AwareModulePackageContract:
     manifest: str
     visibility: str = "module"
     semantic_contract: "AwareModulePackageSemanticContract | None" = None
-    semantic_bindings: tuple["AwareModulePackageSemanticBindingContract", ...] = ()
     mirrors_ontology: bool = False
 
 
@@ -46,15 +45,6 @@ class AwareModulePackageSemanticContract:
 
 
 @dataclass(frozen=True, slots=True)
-class AwareModulePackageSemanticBindingContract:
-    role: str
-    contract: str
-    binding_module: str | None = None
-    capabilities: tuple[str, ...] = ()
-    callable_name: str | None = None
-
-
-@dataclass(frozen=True, slots=True)
 class AwareModulePlugin:
     """Shared module/plugin contract for Workspace semantic truth and LSP execution."""
 
@@ -73,7 +63,6 @@ __all__ = [
     "AwareModulePlugin",
     "AwareModulePluginCapabilityPolicy",
     "AwareModulePackageContract",
-    "AwareModulePackageSemanticBindingContract",
     "AwareModulePackageSemanticContract",
     "AwareModulePackageSemanticContractBinding",
     "WorkspaceActivation",

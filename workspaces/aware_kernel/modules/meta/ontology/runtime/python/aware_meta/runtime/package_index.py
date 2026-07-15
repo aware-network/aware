@@ -205,6 +205,7 @@ def record_full_package_materialization_index(
     materialization_index_receipt: Mapping[str, object] | None,
     source_manifest_hash: str | None = None,
     dependency_signature: str | None = None,
+    object_config_graph_payload_is_runtime: bool = False,
 ) -> MetaRuntimePackageProjectionIndex:
     entries = _sorted_package_entries(package_entries)
     package_entry = next(
@@ -244,6 +245,7 @@ def record_full_package_materialization_index(
     semantic_object_upserts = _semantic_object_entries_from_full_materialization(
         payload=payload,
         package_entry=package_entry,
+        derive_runtime_graph_from_payload=not object_config_graph_payload_is_runtime,
     )
     projection_names = tuple(
         sorted(
@@ -591,13 +593,17 @@ def _with_preserved_compatible_index_entries(
             previous_package.package_name,
             requested_entry,
         )
+        preservable_projection_names = _preservable_previous_projection_names(
+            current_projections_by_name=projections_by_name,
+            previous_package=previous_package,
+        )
         packages_by_name[previous_package.package_name] = replace(
             current_package,
             projection_names=tuple(
                 sorted(
                     {
                         *current_package.projection_names,
-                        *previous_package.projection_names,
+                        *preservable_projection_names,
                     }
                 )
             ),
@@ -640,6 +646,11 @@ def _with_preserved_compatible_index_entries(
                     )
                 ),
             )
+            continue
+        if (
+            existing_projection is not None
+            and existing_projection.package_name != projection_entry.package_name
+        ):
             continue
         _remember_projection_entry(
             projections_by_name=projections_by_name,
@@ -693,6 +704,23 @@ def _with_preserved_compatible_index_entries(
         projections_by_name=dict(sorted(projections_by_name.items())),
         semantic_objects_by_key=dict(sorted(semantic_objects_by_key.items())),
     )
+
+
+def _preservable_previous_projection_names(
+    *,
+    current_projections_by_name: Mapping[str, MetaRuntimeProjectionIndexEntry],
+    previous_package: MetaRuntimePackageIndexEntry,
+) -> tuple[str, ...]:
+    names: list[str] = []
+    for projection_name in previous_package.projection_names:
+        current_projection = current_projections_by_name.get(projection_name)
+        if (
+            current_projection is not None
+            and current_projection.package_name != previous_package.package_name
+        ):
+            continue
+        names.append(projection_name)
+    return tuple(names)
 
 
 def _with_semantic_contract_projection_catalog_entries(
@@ -1053,6 +1081,7 @@ def _semantic_object_entries_from_full_materialization(
     *,
     payload: Mapping[str, object],
     package_entry: MetaRuntimePackageIndexEntry,
+    derive_runtime_graph_from_payload: bool = True,
 ) -> tuple[MetaRuntimeSemanticObjectIndexEntry, ...]:
     graph_payload, graph_hash = _graph_payload_for_projection_index(payload)
     if graph_payload is None:
@@ -1082,7 +1111,7 @@ def _semantic_object_entries_from_full_materialization(
         package_name=package_entry.package_name,
         object_config_graph_payload=graph_payload,
         source_paths=source_refs,
-        derive_runtime_graph_from_payload=True,
+        derive_runtime_graph_from_payload=derive_runtime_graph_from_payload,
     )
     entries = tuple(
         _semantic_object_entry_from_runtime_delta_index_payload(

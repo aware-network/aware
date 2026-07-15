@@ -1,0 +1,9 @@
+class ActorFocusScopeRequest {
+    focus_scope_request focus.FocusScopeRequest key
+
+    fn create construct (focus_scope_request_id UUID key) -> ActorFocusScopeRequest {
+        """
+        Builds a new ActorFocusScopeRequest by linking ActorFocusScope to FocusScopeRequest.
+        """
+    }
+}

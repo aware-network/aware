@@ -1,0 +1,56 @@
+-- coverage:ignore-file
+-- GENERATED CODE - DO NOT MODIFY BY HAND
+
+CREATE TABLE content_part_content_layout (
+  -- PRIMARY KEY
+  branch_id UUID NOT NULL,
+  projection_hash TEXT NOT NULL,
+  id UUID NOT NULL,
+  -- RELATIONSHIPS
+  content_part_content_id UUID NOT NULL,
+  content_layout_id UUID NOT NULL,
+  -- ATTRIBUTES
+  aspect_ratio NUMERIC,
+  depth_unit content_part_layout_unit,
+  depth_value NUMERIC,
+  height_unit content_part_layout_unit NOT NULL,
+  height_value NUMERIC NOT NULL,
+  is_responsive BOOLEAN NOT NULL,
+  layout_order INTEGER NOT NULL,
+  margin_bottom NUMERIC,
+  margin_left NUMERIC,
+  margin_right NUMERIC,
+  margin_top NUMERIC,
+  max_height_unit content_part_layout_unit,
+  max_height_value NUMERIC,
+  max_width_unit content_part_layout_unit,
+  max_width_value NUMERIC,
+  min_height_unit content_part_layout_unit,
+  min_height_value NUMERIC,
+  min_width_unit content_part_layout_unit,
+  min_width_value NUMERIC,
+  opacity NUMERIC NOT NULL,
+  padding_bottom NUMERIC,
+  padding_left NUMERIC,
+  padding_right NUMERIC,
+  padding_top NUMERIC,
+  position_x_unit content_part_layout_unit NOT NULL,
+  position_x_value NUMERIC NOT NULL,
+  position_y_unit content_part_layout_unit NOT NULL,
+  position_y_value NUMERIC NOT NULL,
+  position_z_unit content_part_layout_unit,
+  position_z_value NUMERIC,
+  rotation_x NUMERIC,
+  rotation_y NUMERIC,
+  rotation_z NUMERIC,
+  scale_x NUMERIC,
+  scale_y NUMERIC,
+  scale_z NUMERIC,
+  width_unit content_part_layout_unit NOT NULL,
+  width_value NUMERIC NOT NULL,
+  -- CONSTRAINTS
+  PRIMARY KEY (branch_id, projection_hash, id),
+  UNIQUE (branch_id, projection_hash, content_part_content_id, content_layout_id, layout_order),
+  FOREIGN KEY (branch_id, projection_hash, content_part_content_id) REFERENCES content_part_content(branch_id, projection_hash, id),
+  FOREIGN KEY (branch_id, projection_hash, content_layout_id) REFERENCES content_layout(branch_id, projection_hash, id)
+);

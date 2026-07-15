@@ -1,11 +1,24 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, replace
+from time import perf_counter
 from typing import cast
 from uuid import UUID, uuid4
 
 from aware_code.types import JsonArray
 from aware_history_ontology.stable_ids import stable_lane_id
+from aware_meta.graph.instance.apply import apply_object_instance_graph_changes
+from aware_meta.graph.instance.commit.materialization_cache import (
+    CachedLaneMaterializer,
+)
+from aware_meta.graph.instance.commit.perf_trace import (
+    CommitPerfTraceRecorder,
+    active_commit_perf_trace,
+    commit_perf_span,
+    current_commit_perf_trace,
+    summarize_commit_perf_events,
+)
 from aware_meta.runtime.handler_executor import (
     MetaGraphCommitIndex,
     MetaGraphExecutionPlan,
@@ -20,6 +33,9 @@ from aware_meta.runtime.handler_executor import (
     MetaGraphStagedFunctionCall,
     build_meta_graph_execution_plan,
     build_meta_graph_function_target_index,
+)
+from aware_meta.runtime.handler_executor.contracts import (
+    MetaGraphMaterializationCachePrimeSnapshot,
 )
 from aware_meta.runtime.invocation_commit_actions import MetaInvocationCommitAction
 from aware_meta.runtime.invocation_commits import (
@@ -73,6 +89,7 @@ from aware_utils.logging import logger
 
 
 _SLOW_META_INVOCATION_COMMIT_THRESHOLD_MS = 1000
+_SLOW_META_INVOCATION_TRACE_THRESHOLD_MS = 1000
 
 
 @dataclass(frozen=True)
@@ -98,6 +115,9 @@ class MetaGraphDomainCommitAppendRequest:
     graph_hash_post: str
     root_object_id: UUID | None = None
     root_class_instance_identity_id: UUID | None = None
+    materialization_cache_prime_snapshot: (
+        MetaGraphMaterializationCachePrimeSnapshot | None
+    ) = None
 
 
 @dataclass(frozen=True)
@@ -133,14 +153,70 @@ class MetaGraphCommitInvocationBackend:
     async def invoke_function(
         self, request: MetaGraphInvokeFunctionInput
     ) -> MetaGraphCommitReceipt:
-        staged_call = self.stage_function_call(request)
-        staged_result = await self.execute_staged_function_call(
+        if current_commit_perf_trace() is not None:
+            return await self._invoke_function_with_active_trace(request)
+
+        recorder = CommitPerfTraceRecorder(
+            default_category="meta.runtime.invoke_function"
+        )
+        started_at = perf_counter()
+        with active_commit_perf_trace(recorder):
+            receipt = await self._invoke_function_with_active_trace(request)
+        duration_ms = max((perf_counter() - started_at) * 1000, 0.0)
+        trace_summary = _log_slow_invocation_trace(
+            request=request,
+            receipt=receipt,
+            duration_ms=duration_ms,
+            events=recorder.snapshot_json(),
+        )
+        if trace_summary:
+            receipt = replace(
+                receipt,
+                perf_trace_duration_ms=round(duration_ms, 3),
+                perf_trace_summary=trace_summary,
+            )
+        return receipt
+
+    async def _invoke_function_with_active_trace(
+        self, request: MetaGraphInvokeFunctionInput
+    ) -> MetaGraphCommitReceipt:
+        with commit_perf_span(
+            phase="runtime.invoke_function.stage_function_call",
+            category="meta.runtime.invoke_function",
+            metadata=_invoke_request_trace_metadata(request),
+        ):
+            staged_call = self.stage_function_call(request)
+        metadata = _invoke_staged_call_trace_metadata(
             request=request,
             staged_call=staged_call,
         )
-        staged_action = self.stage_commit_action(staged_result)
-        appended_commit = await self.append_domain_commit(staged_action)
-        return self.build_commit_receipt(appended_commit)
+        with commit_perf_span(
+            phase="runtime.invoke_function.execute_staged_function_call",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            staged_result = await self.execute_staged_function_call(
+                request=request,
+                staged_call=staged_call,
+            )
+        with commit_perf_span(
+            phase="runtime.invoke_function.stage_commit_action",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            staged_action = self.stage_commit_action(staged_result)
+        with commit_perf_span(
+            phase="runtime.invoke_function.append_domain_commit",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            appended_commit = await self.append_domain_commit(staged_action)
+        with commit_perf_span(
+            phase="runtime.invoke_function.build_commit_receipt",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            return self.build_commit_receipt(appended_commit)
 
     async def execute_staged_function_call(
         self,
@@ -158,28 +234,47 @@ class MetaGraphCommitInvocationBackend:
                 f"function_call_id={staged_call.function_call.id}."
             )
 
-        execution_plan = self.build_execution_plan(
+        metadata = _invoke_staged_call_trace_metadata(
             request=request,
             staged_call=staged_call,
         )
-        execution_result = await self._handler_executor.execute_function(
-            MetaGraphHandlerExecutionRequest(
+        with commit_perf_span(
+            phase="runtime.invoke_function.build_execution_plan",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            execution_plan = self.build_execution_plan(
                 request=request,
                 staged_call=staged_call,
-                execution_plan=execution_plan,
-                invoke_function=self.invoke_function,
             )
-        )
-        function_call_response = self.stage_function_call_response(
-            function_call=staged_call.function_call,
-            success=execution_result.success,
-            error_message=execution_result.error_message,
-            execution_time_ms=execution_result.execution_time_ms,
-            graph_hash_post=execution_result.graph_hash_post,
-            root_class_instance_identity_id=(
-                execution_result.root_class_instance_identity_id
-            ),
-        )
+        with commit_perf_span(
+            phase="runtime.invoke_function.handler_execute_function",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            execution_result = await self._handler_executor.execute_function(
+                MetaGraphHandlerExecutionRequest(
+                    request=request,
+                    staged_call=staged_call,
+                    execution_plan=execution_plan,
+                    invoke_function=self.invoke_function,
+                )
+            )
+        with commit_perf_span(
+            phase="runtime.invoke_function.stage_function_call_response",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            function_call_response = self.stage_function_call_response(
+                function_call=staged_call.function_call,
+                success=execution_result.success,
+                error_message=execution_result.error_message,
+                execution_time_ms=execution_result.execution_time_ms,
+                graph_hash_post=execution_result.graph_hash_post,
+                root_class_instance_identity_id=(
+                    execution_result.root_class_instance_identity_id
+                ),
+            )
         return MetaGraphStagedHandlerResult(
             staged_call=staged_call,
             request=request,
@@ -239,36 +334,65 @@ class MetaGraphCommitInvocationBackend:
         self,
         staged_action: MetaGraphStagedCommitAction,
     ) -> MetaGraphAppendedDomainCommit:
-        append_request = self.build_domain_commit_append_request(staged_action)
+        metadata = _invoke_staged_call_trace_metadata(
+            request=staged_action.staged_result.request,
+            staged_call=staged_action.staged_result.staged_call,
+        )
+        with commit_perf_span(
+            phase="runtime.invoke_function.build_domain_commit_append_request",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            append_request = self.build_domain_commit_append_request(staged_action)
         staged_result = staged_action.staged_result
         lane_scope = staged_result.staged_call.lane_scope
         execution_result = staged_result.execution_result
         ensure_perf_ms: dict[str, int] = {}
-        await self._ensure_object_instance_graph_identity_lane_head_for_domain_commit(
-            staged_action=staged_action,
-            perf_ms=ensure_perf_ms,
-        )
-        append_result = await append_invocation_domain_commit(
-            branch_id=lane_scope.domain_branch_id,
-            projection_hash=lane_scope.domain_projection_hash,
-            object_projection_graph_identity_id=(
-                lane_scope.object_projection_graph_identity_id
-            ),
-            object_instance_graph_identity_id=(
-                lane_scope.object_instance_graph_identity_id
-            ),
-            object_instance_graph_id=lane_scope.object_instance_graph_id,
-            before_oig=append_request.before_oig,
-            root_object_id=(
-                execution_result.root_object_id or append_request.root_object_id
-            ),
-            changes=list(append_request.changes),
-            graph_hash_pre=append_request.graph_hash_pre,
-            graph_hash_post=append_request.graph_hash_post,
-            author_id=staged_result.request.actor_id,
-            action=staged_action.action,
-            committer=self._lane_committer,
-        )
+        with commit_perf_span(
+            phase="runtime.invoke_function.ensure_identity_lane_head",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            await self._ensure_object_instance_graph_identity_lane_head_for_domain_commit(
+                staged_action=staged_action,
+                perf_ms=ensure_perf_ms,
+            )
+        with commit_perf_span(
+            phase="runtime.invoke_function.append_invocation_domain_commit",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            append_result = await append_invocation_domain_commit(
+                branch_id=lane_scope.domain_branch_id,
+                projection_hash=lane_scope.domain_projection_hash,
+                object_projection_graph_identity_id=(
+                    lane_scope.object_projection_graph_identity_id
+                ),
+                object_instance_graph_identity_id=(
+                    lane_scope.object_instance_graph_identity_id
+                ),
+                object_instance_graph_id=lane_scope.object_instance_graph_id,
+                before_oig=append_request.before_oig,
+                root_object_id=(
+                    execution_result.root_object_id or append_request.root_object_id
+                ),
+                changes=list(append_request.changes),
+                graph_hash_pre=append_request.graph_hash_pre,
+                graph_hash_post=append_request.graph_hash_post,
+                author_id=staged_result.request.actor_id,
+                action=staged_action.action,
+                committer=self._lane_committer,
+            )
+        with commit_perf_span(
+            phase="runtime.invoke_function.prime_domain_materialization_cache",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            self._prime_domain_materialization_cache(
+                staged_action=staged_action,
+                append_request=append_request,
+                append_result=append_result,
+            )
         if ensure_perf_ms:
             append_result = InvocationDomainCommitAppendResult(
                 commit=append_result.commit,
@@ -277,14 +401,24 @@ class MetaGraphCommitInvocationBackend:
                     **append_result.perf_profile,
                 },
             )
-        link_function_call_response_commit(
-            response=staged_result.function_call_response,
-            oig_commit=append_result.commit,
-        )
-        reaction_receipts = await self.run_required_commit_reactions(
-            staged_action=staged_action,
-            append_result=append_result,
-        )
+        with commit_perf_span(
+            phase="runtime.invoke_function.link_function_call_response_commit",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            link_function_call_response_commit(
+                response=staged_result.function_call_response,
+                oig_commit=append_result.commit,
+            )
+        with commit_perf_span(
+            phase="runtime.invoke_function.required_commit_reactions",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            reaction_receipts = await self.run_required_commit_reactions(
+                staged_action=staged_action,
+                append_result=append_result,
+            )
         perf_profile = append_result.perf_profile
         if (
             max(perf_profile.values(), default=0)
@@ -310,6 +444,118 @@ class MetaGraphCommitInvocationBackend:
             append_result=append_result,
             reaction_receipts=reaction_receipts,
         )
+
+    def _prime_domain_materialization_cache(
+        self,
+        *,
+        staged_action: MetaGraphStagedCommitAction,
+        append_request: MetaGraphDomainCommitAppendRequest,
+        append_result: InvocationDomainCommitAppendResult,
+    ) -> None:
+        domain_commit = append_result.commit
+        if domain_commit is None:
+            return
+
+        staged_result = staged_action.staged_result
+        lane_scope = staged_result.staged_call.lane_scope
+        index = cast(MetaGraphRuntimeIndex, staged_result.request.index)
+        metadata = {
+            **_invoke_staged_call_trace_metadata(
+                request=staged_result.request,
+                staged_call=staged_result.staged_call,
+            ),
+            "branch_id": lane_scope.domain_branch_id,
+            "projection_hash": lane_scope.domain_projection_hash,
+            "commit_id": domain_commit.commit.id,
+            "object_instance_graph_id": lane_scope.object_instance_graph_id,
+            "change_count": len(append_request.changes),
+        }
+        with commit_perf_span(
+            phase=(
+                "runtime.invoke_function.prime_domain_materialization_cache."
+                "resolve_opg"
+            ),
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            opg = index.opg_by_hash.get(lane_scope.domain_projection_hash)
+        if opg is None:
+            return
+
+        try:
+            snapshot = _validated_cache_prime_snapshot(
+                staged_action=staged_action,
+                append_request=append_request,
+            )
+            if snapshot is not None:
+                with commit_perf_span(
+                    phase=(
+                        "runtime.invoke_function.prime_domain_materialization_cache."
+                        "use_post_oig_snapshot"
+                    ),
+                    category="meta.runtime.invoke_function",
+                    metadata=metadata,
+                ):
+                    post_oig = snapshot.post_oig
+            else:
+                with commit_perf_span(
+                    phase=(
+                        "runtime.invoke_function.prime_domain_materialization_cache."
+                        "copy_before_oig"
+                    ),
+                    category="meta.runtime.invoke_function",
+                    metadata=metadata,
+                ):
+                    post_oig = append_request.before_oig.model_copy(deep=True)
+                with commit_perf_span(
+                    phase=(
+                        "runtime.invoke_function.prime_domain_materialization_cache."
+                        "apply_changes"
+                    ),
+                    category="meta.runtime.invoke_function",
+                    metadata=metadata,
+                ):
+                    apply_object_instance_graph_changes(
+                        graph=post_oig,
+                        changes=append_request.changes,
+                        attribute_configs_by_id=index.attribute_configs_by_id,
+                        class_configs_by_id=index.class_configs_by_id,
+                    )
+            with commit_perf_span(
+                phase=(
+                    "runtime.invoke_function.prime_domain_materialization_cache."
+                    "assign_hash"
+                ),
+                category="meta.runtime.invoke_function",
+                metadata=metadata,
+            ):
+                post_oig.hash = append_request.graph_hash_post
+            with commit_perf_span(
+                phase=(
+                    "runtime.invoke_function.prime_domain_materialization_cache."
+                    "prime_cache"
+                ),
+                category="meta.runtime.invoke_function",
+                metadata=metadata,
+            ):
+                CachedLaneMaterializer().prime(
+                    branch_id=lane_scope.domain_branch_id,
+                    opg=opg,
+                    commit_id=domain_commit.commit.id,
+                    oig_id=lane_scope.object_instance_graph_id,
+                    graph=post_oig,
+                )
+        except Exception as exc:
+            logger.warning(
+                "Meta domain materialization cache prime skipped "
+                "operation_label=%s branch_id=%s projection_hash=%s commit_id=%s "
+                "reason=%s",
+                staged_action.action.operation_label,
+                lane_scope.domain_branch_id,
+                lane_scope.domain_projection_hash,
+                domain_commit.commit.id,
+                exc,
+            )
 
     async def _ensure_object_instance_graph_identity_lane_head_for_domain_commit(
         self,
@@ -396,6 +642,9 @@ class MetaGraphCommitInvocationBackend:
                 root_class_instance_identity_id=(
                     append_ready.root_class_instance_identity_id
                 ),
+                materialization_cache_prime_snapshot=(
+                    append_ready.materialization_cache_prime_snapshot
+                ),
             )
 
         before_oig = execution_result.before_oig
@@ -430,6 +679,9 @@ class MetaGraphCommitInvocationBackend:
             root_object_id=execution_result.root_object_id,
             root_class_instance_identity_id=(
                 execution_result.root_class_instance_identity_id
+            ),
+            materialization_cache_prime_snapshot=(
+                execution_result.materialization_cache_prime_snapshot
             ),
         )
 
@@ -593,6 +845,54 @@ class MetaGraphCommitInvocationBackend:
             )
             self._runtime_index_views[cache_key] = index_view
         return index_view
+
+
+def _invoke_request_trace_metadata(
+    request: MetaGraphInvokeFunctionInput,
+) -> dict[str, object]:
+    return {
+        "call_target": request.call_target.value,
+        "domain_projection_hash": request.domain_projection_hash,
+        "function_id": request.function_id,
+    }
+
+
+def _validated_cache_prime_snapshot(
+    *,
+    staged_action: MetaGraphStagedCommitAction,
+    append_request: MetaGraphDomainCommitAppendRequest,
+) -> MetaGraphMaterializationCachePrimeSnapshot | None:
+    snapshot = append_request.materialization_cache_prime_snapshot
+    if snapshot is None:
+        return None
+    execution_result = getattr(staged_action.staged_result, "execution_result", None)
+    append_ready = (
+        getattr(execution_result, "append_ready_changes", None)
+        if execution_result is not None
+        else None
+    )
+    if (
+        append_ready is not None
+        and snapshot.execution_plan is not append_ready.execution_plan
+    ):
+        return None
+    if snapshot.post_oig.id != append_request.before_oig.id:
+        return None
+    if snapshot.graph_hash_post != append_request.graph_hash_post:
+        return None
+    return snapshot
+
+
+def _invoke_staged_call_trace_metadata(
+    *,
+    request: MetaGraphInvokeFunctionInput,
+    staged_call: MetaGraphStagedFunctionCall,
+) -> dict[str, object]:
+    return {
+        **_invoke_request_trace_metadata(request),
+        "function_call_id": staged_call.function_call.id,
+        "operation_label": staged_call.resolved_target.operation_label,
+    }
 
 
 def resolve_meta_graph_invocation_lane_scope(
@@ -759,6 +1059,38 @@ def _reaction_logs(
         f"{receipt.provider_key}.{receipt.reaction_key}:{receipt.status}"
         for receipt in receipts
     )
+
+
+def _log_slow_invocation_trace(
+    *,
+    request: MetaGraphInvokeFunctionInput,
+    receipt: MetaGraphCommitReceipt,
+    duration_ms: float,
+    events: tuple[Mapping[str, object], ...],
+) -> dict[str, dict[str, float | int]] | None:
+    if duration_ms < _SLOW_META_INVOCATION_TRACE_THRESHOLD_MS:
+        return None
+    trace_summary = summarize_commit_perf_events(events)
+    if not trace_summary:
+        return None
+    operation_label = (
+        receipt.commit_action.operation_label
+        if receipt.commit_action is not None
+        else None
+    )
+    logger.info(
+        "Meta invocation slow path operation_label=%s function_id=%s "
+        "function_call_id=%s commit_id=%s object_instance_graph_commit_id=%s "
+        "duration_ms=%.3f trace_summary=%s",
+        operation_label,
+        request.function_id,
+        receipt.function_call_id,
+        receipt.commit_id,
+        receipt.object_instance_graph_commit_id,
+        duration_ms,
+        trace_summary,
+    )
+    return trace_summary
 
 
 __all__ = [

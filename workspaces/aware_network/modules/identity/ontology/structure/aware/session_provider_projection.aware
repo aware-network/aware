@@ -1,0 +1,19 @@
+/// Identity SessionProvider projection.
+///
+/// Contract:
+/// - Providers are generic session capability descriptors.
+/// - Provider details stay provider-owned; Identity exposes only contract refs,
+///   config bindings, and generic graph portals.
+projection SessionProvider {
+    root session.SessionProvider
+
+    session.SessionProvider::session_provider_session_configs
+    session.SessionProviderSessionConfig::session_config SessionConfig
+
+    observable session_provider {
+        """
+        Identity-owned session provider descriptors and their SessionConfig
+        capability bindings.
+        """
+    }
+}

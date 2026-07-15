@@ -1,0 +1,26 @@
+// Role projection (role binding lane)
+//
+// Contract:
+// - Rooted at Role for deterministic role constructors.
+// - Role scope is the lane envelope (OIGI required, OIGB optional).
+// - Concrete object grants live on RoleClassInstance.
+projection Role {
+    root role.Role
+
+    role.Role::role_class_instances
+
+    /// Portal: role -> role_config
+    role.Role::role_config RoleConfig
+
+    /// Portal: role -> object_instance_graph_identity
+    role.Role::object_instance_graph_identity ObjectInstanceGraphIdentity
+
+    /// Portal: role -> object_instance_graph_branch
+    role.Role::object_instance_graph_branch ObjectInstanceGraphIdentity
+
+    /// Portal: role class-instance grant -> class instance identity
+    role.RoleClassInstance::class_instance_identity ObjectInstanceGraphIdentity
+
+    /// Portal: role class-instance grant -> inherited class-kind policy
+    role.RoleClassInstance::role_config_class_config RoleConfig
+}

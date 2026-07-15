@@ -58,6 +58,12 @@ SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_KEY = (
 SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_ISOLATE_TARGET_MANIFESTS = (
     "isolate_target_manifests"
 )
+SEMANTIC_PACKAGE_SELECTION_INTENTS_CONTEXT_KEY = (
+    "workspace_semantic_package_selection_intents"
+)
+SEMANTIC_PACKAGE_RUNTIME_CODE_PACKAGE_INTENT_CONTRACT_VERSION = (
+    "aware.code.semantic-package.runtime-code-package-intent.v1"
+)
 
 SemanticMaterializationProgressCallback = Callable[[Mapping[str, object]], object]
 SEMANTIC_LANGUAGE_MATERIALIZATION_TARGETS_CONTEXT_KEY = (
@@ -651,6 +657,10 @@ class SemanticLanguageMaterializationTarget:
     stable_ids_import_root: str | None = None
     stable_ids_ownership: str | None = None
     stable_ids_resolution_policy: str | None = None
+    declared_code_package_manifest_kind: str | None = None
+    declared_code_package_manifest_relative_path: str | None = None
+    declared_code_package_package_root: str | None = None
+    declared_code_package_sources_root: str | None = None
 
     def evidence_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -673,6 +683,22 @@ class SemanticLanguageMaterializationTarget:
             payload["stable_ids_ownership"] = self.stable_ids_ownership
         if self.stable_ids_resolution_policy is not None:
             payload["stable_ids_resolution_policy"] = self.stable_ids_resolution_policy
+        if self.declared_code_package_manifest_kind is not None:
+            payload["declared_code_package_manifest_kind"] = (
+                self.declared_code_package_manifest_kind
+            )
+        if self.declared_code_package_manifest_relative_path is not None:
+            payload["declared_code_package_manifest_relative_path"] = (
+                self.declared_code_package_manifest_relative_path
+            )
+        if self.declared_code_package_package_root is not None:
+            payload["declared_code_package_package_root"] = (
+                self.declared_code_package_package_root
+            )
+        if self.declared_code_package_sources_root is not None:
+            payload["declared_code_package_sources_root"] = (
+                self.declared_code_package_sources_root
+            )
         return payload
 
 
@@ -1020,6 +1046,10 @@ class SemanticPackageMaterializationRequest:
     workspace_root: Path
     manifest_path: Path
     source_code_package_id: UUID | None = None
+    source_code_package_config_id: UUID | None = None
+    source_code_package_config_key: str | None = None
+    source_code_package_manifest_kind: str | None = None
+    source_code_package_surface: str | None = None
     context: Mapping[str, object] = field(default_factory=dict)
     code_package_delta: CodePackageDelta | None = None
     semantic_analysis: object | None = None
@@ -1027,6 +1057,56 @@ class SemanticPackageMaterializationRequest:
     execution_context: SemanticPackageMaterializationExecutionContext | None = None
     materialization_input: SemanticPackageMaterializationInput | None = None
     progress_callback: SemanticMaterializationProgressCallback | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class SemanticPackageRuntimeCodePackageIntentRef:
+    """
+    Provider-owned runtime CodePackage intent.
+
+    Providers may declare that a semantic package needs an installable runtime
+    CodePackage. Workspace persistence owns converting this pre-persistence
+    intent into committed evidence with WorkspaceRevision pins.
+    """
+
+    role: str
+    source_code_package_id: UUID | str
+    package_name: str | None = None
+    code_package_id: UUID | str | None = None
+    code_package_config_key: str | None = None
+    code_package_config_id: UUID | str | None = None
+    manifest_relative_path: str | None = None
+    manifest_kind: str | None = None
+    package_root: str | None = None
+    sources_root: str | None = None
+    code_package_surface: str | None = None
+    language: str | None = None
+    contract_version: str = (
+        SEMANTIC_PACKAGE_RUNTIME_CODE_PACKAGE_INTENT_CONTRACT_VERSION
+    )
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "contract_version": self.contract_version,
+            "role": self.role,
+            "source_code_package_id": _payload_scalar(self.source_code_package_id),
+            "code_package_id": _payload_scalar(self.code_package_id),
+            "code_package_config_key": self.code_package_config_key,
+            "code_package_config_id": _payload_scalar(self.code_package_config_id),
+            "package_name": self.package_name,
+            "manifest_relative_path": self.manifest_relative_path,
+            "manifest_kind": self.manifest_kind,
+            "package_root": self.package_root,
+            "sources_root": self.sources_root,
+            "code_package_surface": self.code_package_surface,
+            "language": self.language,
+        }
+
+
+def _payload_scalar(value: object) -> object:
+    if isinstance(value, UUID):
+        return str(value)
+    return value
 
 
 @dataclass(frozen=True, slots=True)
@@ -1047,8 +1127,14 @@ class SemanticPackageMaterializationBundle:
     experience_handle: str | None = None
     profiles: tuple[dict[str, object], ...] = ()
     semantic_packages: tuple[dict[str, object], ...] = ()
-    runtime_code_package_refs: tuple[dict[str, object], ...] = ()
-    implementation_code_packages: tuple[dict[str, object], ...] = ()
+    runtime_code_package_refs: tuple[
+        Mapping[str, object] | SemanticPackageRuntimeCodePackageIntentRef,
+        ...,
+    ] = ()
+    implementation_code_packages: tuple[
+        Mapping[str, object] | SemanticPackageRuntimeCodePackageIntentRef,
+        ...,
+    ] = ()
     environment_config_package_dependencies: tuple[dict[str, object], ...] = ()
     api_provider_sets: tuple[dict[str, object], ...] = ()
 
@@ -2957,6 +3043,8 @@ __all__ = [
     "SEMANTIC_MATERIALIZATION_EXECUTION_CONTEXT_KEY",
     "SEMANTIC_MATERIALIZATION_LIFECYCLE_PROFILE_CONTEXT_KEY",
     "SEMANTIC_MATERIALIZATION_TARGET_MANIFEST_PATHS_CONTEXT_KEY",
+    "SEMANTIC_PACKAGE_RUNTIME_CODE_PACKAGE_INTENT_CONTRACT_VERSION",
+    "SEMANTIC_PACKAGE_SELECTION_INTENTS_CONTEXT_KEY",
     "SEMANTIC_LANGUAGE_MATERIALIZATION_TARGETS_CONTEXT_KEY",
     "SEMANTIC_LANGUAGE_MATERIALIZATION_TOOLING_CONTEXT_KEY",
     "SEMANTIC_LANGUAGE_MATERIALIZATION_TOOLING_CONTRACT_VERSION",
@@ -3009,6 +3097,7 @@ __all__ = [
     "SemanticPackageImplementationWorkItem",
     "SemanticPackageMaterializationRequest",
     "SemanticPackageMaterializationResult",
+    "SemanticPackageRuntimeCodePackageIntentRef",
     "build_semantic_provider_delta_head_move_plan",
     "build_semantic_provider_delta_request_key",
     "encode_semantic_function_call_context",

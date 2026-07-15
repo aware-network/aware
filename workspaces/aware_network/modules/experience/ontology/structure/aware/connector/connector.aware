@@ -1,0 +1,34 @@
+/// Connector instance.
+///
+/// Contract:
+/// - A Connector instance is an actual runtime fulfillment of a Connector config.
+/// - It links to the Sensor and Actuator instances fulfilled by the same connector.
+/// - Runtime refs are adapter hints; provenance receipts are added in later
+///   invocation-action bridge slices.
+class Connector {
+    // Relationships
+    sensors sensor.Sensor[] many
+    actuators actuator.Actuator[] many
+
+    // Attributes
+    connector_instance_key String key
+    runtime_ref String?
+    status String = "active"
+
+    fn build construct (
+        connector_instance_key String key,
+        runtime_ref String? = null,
+        status String = "active"
+    ) -> Connector {
+        """
+        Create one deterministic Connector instance under a ConnectorConfig.
+
+        Contract:
+        - Parent `ConnectorConfig` scope is propagated by constructor lowering.
+        - `connector_instance_key` identifies this runtime fulfillment.
+        """
+    }
+}
+
+ann connector.Connector::sensors load eager
+ann connector.Connector::actuators load eager

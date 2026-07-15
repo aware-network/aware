@@ -1,0 +1,18 @@
+class ContentIndex {
+    // Attributes
+    key String key = "default"
+    content_embedding Vector(1408)?
+
+    fn create_content_index construct(
+        key String key = "default",
+        content_embedding Vector(1408)? = null,
+    ) -> ContentIndex {
+        """
+        Creates a content-level embedding/index record.
+        """
+        construct ContentIndex(
+            key = key,
+            content_embedding = content_embedding,
+        )
+    }
+}

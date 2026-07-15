@@ -1,0 +1,15 @@
+class EnvironmentExperienceEventAction {
+    // Reactivity
+    action_experience action.ActionExperience key
+
+    fn build construct (
+        action_experience_id UUID key
+    ) -> EnvironmentExperienceEventAction {
+        """
+        Create a deterministic EnvironmentExperienceEventAction association edge.
+
+        Notes:
+        - Identity is derived from `(environment_experience_event_id, action_experience_id)`.
+        """
+    }
+}

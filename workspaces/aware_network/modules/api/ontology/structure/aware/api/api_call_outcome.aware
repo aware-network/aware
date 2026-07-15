@@ -1,0 +1,25 @@
+/// Terminal API-owned response receipt for one committed ApiCall.
+///
+/// Contract:
+/// - API owns normalized response payload truth when an endpoint declares a response contract
+/// - `status` + `error` capture terminal completion independently from Service execution receipts
+/// - absence of `response_model` is valid for failures or no-content responses
+class ApiCallOutcome {
+    // Relationships
+    response_model aware_meta.class.InlineValueInstance? unique
+
+    // Attributes
+    error String?
+    status ApiCallOutcomeStatus = succeeded
+
+    fn build construct (
+        status ApiCallOutcomeStatus = succeeded,
+        error String? = null
+    ) -> ApiCallOutcome {
+        """
+        Create one terminal response receipt under ApiCall.
+        """
+    }
+}
+
+ann api.ApiCallOutcome::response_model load eager

@@ -1,0 +1,62 @@
+class EnvironmentExperienceEvent {
+    // Reactivity vocabulary
+    event_config aware_reactivity.event.EventConfig key
+
+    // Environment-scoped Event -> Action coupling
+    actions EnvironmentExperienceEventAction[]
+    /// Declared trigger-node scopes for this environment event.
+    ///
+    /// Contract:
+    /// - Trigger scope is separate from action request target composition.
+    /// - Each row binds one EventConfigConditionConfig to one
+    ///   ProjectionExperienceNodeIdentity declared by this profile's graph
+    ///   binding.
+    /// - Lowering resolves the node identity through
+    ///   ProjectionExperienceNodeClassIdentity into a Reactivity
+    ///   EventConfigConditionConfigScope carrying Meta ClassInstanceIdentity.
+    node_scopes EnvironmentExperienceEventNodeScope[]
+
+    fn build construct (event_config_id UUID key) -> EnvironmentExperienceEvent {
+        """
+        Construct the canonical EnvironmentExperienceEvent for an environment territory.
+
+        Notes:
+        - Identity is derived from `(environment_experience_profile_config_id, event_config_id)`.
+        - Constructor does not mutate EnvironmentExperienceProfileConfig directly.
+        """
+    }
+
+    fn add_action_experience (
+        action_experience_id UUID
+    ) -> EnvironmentExperienceEventAction {
+        """
+        Attach one environment-scoped action dispatch mapping to this event.
+        """
+        let created = construct actions.build(
+            action_experience_id = action_experience_id,
+        )
+    }
+
+    fn add_node_scope (
+        event_config_condition_config_id UUID,
+        projection_experience_node_identity_id UUID,
+        object_instance_graph_branch_id UUID? = null,
+        event_config_condition_config_scope_id UUID? = null
+    ) -> EnvironmentExperienceEventNodeScope {
+        """
+        Attach one declared trigger-node scope to this event binding.
+
+        Contract:
+        - The node identity must belong to this environment profile's own
+          projection experience binding.
+        - This is authoring/lowering policy only; Reactivity receives only the
+          lowered Meta scope.
+        """
+        let created = construct node_scopes.build(
+            event_config_condition_config_id = event_config_condition_config_id,
+            projection_experience_node_identity_id = projection_experience_node_identity_id,
+            object_instance_graph_branch_id = object_instance_graph_branch_id,
+            event_config_condition_config_scope_id = event_config_condition_config_scope_id,
+        )
+    }
+}

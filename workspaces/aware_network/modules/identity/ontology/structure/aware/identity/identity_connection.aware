@@ -1,0 +1,32 @@
+class IdentityConnection {
+    // Relationships
+    requester_identity Identity key
+    recipient_identity Identity key
+
+    // Attributes
+    connection_type String key = "connect"
+    metadata JsonObject?
+    status ConnectionRequestStatus = pending
+
+    fn request construct (requester_identity_id UUID key, recipient_identity_id UUID key, connection_type String key = "connect", metadata JsonObject? = null) -> IdentityConnection {
+        """
+        Create a connection lane between two identities (v0).
+
+        Canonical contract:
+        - IdentityConnection is a first-class lane in the `identity_connection` projection.
+        - This constructor initializes the lane with status=`pending` (a request).
+        - Anti-claim: only the requester may create the request.
+        - Branch id MUST be stable and derived from (requester_identity_id, recipient_identity_id, connection_type).
+        """
+    }
+
+    fn respond (status ConnectionRequestStatus) -> IdentityConnection {
+        """
+        Accept or reject a pending IdentityConnection request (v0).
+
+        Canonical contract:
+        - Only the recipient may respond (anti-claim on recipient identity).
+        - Allowed transitions: pending -> accepted|rejected (idempotent).
+        """
+    }
+}

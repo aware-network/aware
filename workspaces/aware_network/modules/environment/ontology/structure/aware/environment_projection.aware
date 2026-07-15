@@ -1,0 +1,52 @@
+/// Environment projection.
+///
+/// Contract:
+/// - Declares Environment-owned territory identity and portal boundaries.
+/// - Does not declare presentation surfaces; those are Experience-owned.
+/// - Does not embed EnvironmentProfileConfig/process/thread config topology;
+///   that belongs to the EnvironmentProfileConfig projection.
+/// - EnvironmentProfile here is the applied/live profile portal.
+/// - EnvironmentSession here is the runtime session portal.
+/// - EnvironmentNavigationContext internals
+///   live in their own root projections.
+/// - Environment/process/thread observables are stable ApiView anchors for
+///   Environment-owned navigation surfaces; topology still resolves through
+///   the profile/session/navigation portals above.
+projection Environment {
+    root environment.Environment
+
+    environment.Environment::image aware_storage.StorageBlob
+    environment.Environment::config EnvironmentConfig
+    environment.Environment::ontologies
+    environment.EnvironmentOntology::ontology aware_ontology.Ontology
+
+    environment.Environment::profiles EnvironmentProfile
+    environment.Environment::sessions EnvironmentSession
+
+    observable home {
+        """
+        Environment-owned territory identity and portals.
+        """
+    }
+
+    observable environment {
+        """
+        Environment navigator anchor for Environment -> Session -> Profile
+        navigation.
+        """
+    }
+
+    observable process {
+        """
+        Process workspace anchor resolved through applied Environment profile
+        and session navigation-context pointers.
+        """
+    }
+
+    observable thread {
+        """
+        Thread layout anchor resolved through applied Environment profile,
+        session, and navigation-context session-thread pointers.
+        """
+    }
+}

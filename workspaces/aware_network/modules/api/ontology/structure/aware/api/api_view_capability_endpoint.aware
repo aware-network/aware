@@ -1,0 +1,35 @@
+/// Endpoint-backed callable surface exposed by one API view.
+///
+/// Contract:
+/// - `ApiView` owns readable view-state.
+/// - `ApiCapabilityEndpoint` owns service-callable ingress.
+/// - This object exposes one endpoint once beneath one view; `action_key` is
+///   dispatch metadata, not identity.
+/// - Endpointless API view actions are intentionally not modeled.
+class ApiViewCapabilityEndpoint {
+    // Relationships
+    api_capability_endpoint ApiCapabilityEndpoint key
+
+    // Attributes
+    action_key String
+    endpoint_ref String
+    description String?
+
+    fn build construct (
+        action_key String,
+        api_capability_endpoint_id UUID key,
+        endpoint_ref String,
+        description String? = null
+    ) -> ApiViewCapabilityEndpoint {
+        """
+        Create one deterministic endpoint-backed action binding beneath ApiView.
+
+        Contract:
+        - Identity is scoped by parent `ApiView` and `api_capability_endpoint`.
+        - `action_key` is the stable dispatch key exposed to Experience/Interface
+          consumers and must not be used to duplicate the same endpoint.
+        """
+    }
+}
+
+ann api.ApiViewCapabilityEndpoint::api_capability_endpoint load eager

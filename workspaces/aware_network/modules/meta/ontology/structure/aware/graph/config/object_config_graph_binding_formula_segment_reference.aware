@@ -1,0 +1,36 @@
+/// Meta-owned reference from one formula placeholder segment to one source class
+/// attribute config.
+///
+/// Contract:
+/// - `content_part_text_segment` identifies the placeholder span inside the
+///   formula-owned `ContentPartText`.
+/// - `source_class_config_attribute_config` identifies which source attribute
+///   the placeholder resolves against.
+/// - `content` stays generic; binding semantics live here.
+class ObjectConfigGraphBindingFormulaSegmentReference {
+    // Relationships
+    content_part_text_segment aware_content.part.ContentPartTextSegment key
+    source_class_config_attribute_config class.ClassConfigAttributeConfig key
+
+    fn build construct(
+        content_part_text_segment_id UUID key,
+        source_class_config_attribute_config_id UUID key,
+    ) -> ObjectConfigGraphBindingFormulaSegmentReference {
+        """
+        Build deterministic placeholder/source-attribute reference within an
+        ObjectConfigGraphBindingFormula scope.
+
+        Contract:
+        - Parent formula scope is propagated via
+        `ObjectConfigGraphBindingFormula ->
+        ObjectConfigGraphBindingFormulaSegmentReference`.
+        - Stable identity resolves from
+        `(object_config_graph_binding_formula_id via path,
+        content_part_text_segment_id,
+        source_class_config_attribute_config_id)`.
+        """
+    }
+}
+
+ann config.ObjectConfigGraphBindingFormulaSegmentReference::content_part_text_segment load eager
+ann config.ObjectConfigGraphBindingFormulaSegmentReference::source_class_config_attribute_config load eager

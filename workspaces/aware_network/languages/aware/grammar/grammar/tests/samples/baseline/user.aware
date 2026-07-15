@@ -1,0 +1,6 @@
+/// User in the system
+class User {
+    // Attributes
+    email String?
+    name String
+}

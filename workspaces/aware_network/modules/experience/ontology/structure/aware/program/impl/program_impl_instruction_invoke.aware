@@ -1,0 +1,44 @@
+/// Program effectful invocation step.
+///
+/// Contract:
+/// - Canonical target is `function_config` (no string-dispatched calls).
+/// - Runtime must fail-closed when invoked without active branch context.
+class ProgramImplInstructionInvoke {
+    // Relationships
+    function_config aware_meta.function.FunctionConfig
+    program_config_actor_config aware_experience.program.ProgramConfigActorConfig
+    program_config_port_projection_experience_node aware_experience.program.ProgramConfigPortProjectionExperienceNode
+    attribute_configs ProgramImplInstructionInvokeAttributeConfig[]
+
+    // Attributes
+    target_kind ProgramImplInvokeTargetKind = instance
+
+    fn build construct (
+        function_config_id UUID,
+        program_config_actor_config_id UUID,
+        program_config_port_projection_experience_node_id UUID,
+        target_kind ProgramImplInvokeTargetKind = instance
+    ) -> ProgramImplInstructionInvoke {
+        """
+        Create deterministic invoke payload for one ProgramImplInstruction.
+
+        Contract:
+        - Parent context (`program_impl_instruction_id`) is injected by parent-edge lowering.
+        """
+    }
+
+    fn add_attribute_config (
+        attribute_config_id UUID,
+        value_expr JsonObject,
+        position Int? = null
+    ) -> ProgramImplInstructionInvokeAttributeConfig {
+        """
+        Attach one deterministic invoke argument binding by AttributeConfig contract.
+        """
+        let created = construct attribute_configs.build(
+            attribute_config_id = attribute_config_id,
+            value_expr = value_expr,
+            position = position,
+        )
+    }
+}

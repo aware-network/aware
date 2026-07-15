@@ -1,0 +1,44 @@
+[project]
+name = "aware-economy-providers"
+version = "0.0.0"
+description = "Server-side Economy provider evidence adapters."
+authors = [
+  { name = "Luis Lechuga", email = "luis@aware.run" },
+]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-comms",
+  "aware-economy-sdk",
+  "aware-service-runtime",
+  "httpx>=0.27.0,<0.29.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.1.1,<9.0.0",
+  "pytest-asyncio>=0.23.6,<0.24.0",
+  "mypy>=1.8.0,<2.0.0",
+  "flake8>=7.0.0,<8.0.0",
+  "black>=24.2.0,<25.0.0",
+  "isort>=5.12.0,<6.0.0",
+  "flake8-pyproject>=1.2.3,<2.0.0",
+]
+
+[tool.black]
+line-length = 120
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = "E266"
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_economy_providers"]

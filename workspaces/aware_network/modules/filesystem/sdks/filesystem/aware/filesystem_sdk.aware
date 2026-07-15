@@ -1,0 +1,30 @@
+sdk filesystem_sdk {
+    "Canonical FileSystem SDK operations over the FileSystem service API."
+
+    api filesystem;
+
+    operation verify_root {
+        "Verify that root-relative paths stay inside a declared FileSystem root."
+        endpoint filesystem.root.verify;
+    }
+
+    operation scan_snapshot {
+        "Scan one FileSystem root into canonical metadata and optional digest entries."
+        endpoint filesystem.snapshot.scan;
+    }
+
+    operation collect_delta {
+        "Collect a canonical FileSystem delta set from one local root."
+        endpoint filesystem.delta.collect;
+    }
+
+    operation apply_delta {
+        "Apply a canonical FileSystem delta set with path and digest policy receipts."
+        endpoint filesystem.delta.apply;
+    }
+
+    operation resolve_backend_capabilities {
+        "Resolve available FileSystem backends and capability receipts."
+        endpoint filesystem.backend.capabilities;
+    }
+}

@@ -1,0 +1,110 @@
+/// EnvironmentProfileConfig projection.
+///
+/// Contract:
+/// - Owns reusable Environment profile topology: ProcessConfig, ThreadConfig, providers,
+///   and actor eligibility.
+/// - Parent EnvironmentConfig membership is exposed from EnvironmentConfig
+///   projection; this projection must not portal back to EnvironmentConfig.
+/// - Applied EnvironmentProfile reaches config through a portal; the Environment lane must
+///   not embed this graph scope.
+/// - Runtime Process/Thread instances live under EnvironmentProfile/Process
+///   projections; config projection must not hydrate runtime instance internals.
+/// - EnvironmentSessionConfig lives under EnvironmentConfig and is not owned
+///   here.
+projection EnvironmentProfileConfig {
+    root environment.EnvironmentProfileConfig
+
+    environment.EnvironmentProfileConfig::image aware_storage.StorageBlob
+    environment.EnvironmentProfileConfig::process_configs
+    environment.EnvironmentProfileConfig::providers
+    environment.EnvironmentProfileConfig::actor_configs
+    environment.EnvironmentProfileActorConfig::actor_config aware_identity.ActorConfig
+    environment.EnvironmentProvider::grants
+    environment.EnvironmentProviderGrant::process_config
+    environment.EnvironmentProviderGrant::thread_config
+    environment.EnvironmentProviderGrant::object_projection_graph aware_meta.ObjectProjectionGraph
+
+    process.ProcessConfig::image aware_storage.StorageBlob
+    process.ProcessConfig::thread_configs
+    thread.ThreadConfig::image aware_storage.StorageBlob
+    thread.ThreadConfig::object_projection_graphs
+    thread.ThreadConfigObjectProjectionGraph::object_projection_graph aware_meta.ObjectProjectionGraph
+    thread.ThreadConfig::layout_configs
+    thread.ThreadConfigLayoutConfig::layout_config aware_attention.LayoutConfig
+    thread.ThreadConfigLayoutConfig::sections
+    thread.ThreadConfigLayoutConfigSection::layout_config_section_config aware_attention.LayoutConfig
+    thread.ThreadConfigLayoutConfigSection::object_projection_graph aware_meta.ObjectProjectionGraph
+
+    observable profile {
+        """
+        Environment profile config topology and config portals.
+        """
+    }
+}
+
+/// Applied EnvironmentProfile projection.
+///
+/// Contract:
+/// - Root is the concrete Environment-applied profile.
+/// - Config topology remains in EnvironmentProfileConfig.
+/// - Runtime Process instances are linked through Process portals.
+/// - Sessions are Environment-owned and resolve profile provenance through
+///   selected Process/Thread paths.
+projection EnvironmentProfile {
+    root environment.EnvironmentProfile
+
+    environment.EnvironmentProfile::profile_config EnvironmentProfileConfig
+    environment.EnvironmentProfile::processes Process
+
+    observable profile {
+        """
+        Applied environment profile runtime process portals.
+        """
+    }
+}
+
+/// Runtime Process projection.
+///
+/// Contract:
+/// - Root is one concrete Process under an applied EnvironmentProfile.
+/// - ProcessConfig is a portal back to reusable EnvironmentProfileConfig topology.
+/// - Runtime Thread instances are linked through Thread portals.
+projection Process {
+    root process.Process
+
+    process.Process::process_config EnvironmentProfileConfig
+    process.Process::image aware_storage.StorageBlob
+    process.Process::threads Thread
+
+    observable process {
+        """
+        Runtime process with config and thread portals.
+        """
+    }
+}
+
+/// Runtime Thread projection.
+///
+/// Contract:
+/// - Root is one concrete Thread under a runtime Process.
+/// - ThreadConfig is a portal back to reusable EnvironmentProfileConfig topology.
+/// - Layout attachments are members of this Thread view; Attention Layout is
+///   still a portal owned by Attention.
+/// - Active layout/focus selection is session-scoped and not stored here.
+projection Thread {
+    root thread.Thread
+
+    thread.Thread::thread_config EnvironmentProfileConfig
+    thread.Thread::image aware_storage.StorageBlob
+    thread.Thread::thread_layouts
+    thread.ThreadLayout::layout aware_attention.Layout
+    thread.Thread::thread_object_instance_graph_branches
+    thread.ThreadObjectInstanceGraphBranch::object_instance_graph_identity aware_meta.ObjectInstanceGraphIdentity
+    thread.ThreadObjectInstanceGraphBranch::object_instance_graph_branch aware_meta.ObjectInstanceGraphIdentity
+
+    observable thread {
+        """
+        Runtime thread layout and graph branch portals.
+        """
+    }
+}

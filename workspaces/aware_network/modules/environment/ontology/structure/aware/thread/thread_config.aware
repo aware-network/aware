@@ -1,0 +1,121 @@
+/// Environment-owned contextual Thread topology config.
+///
+/// Contract:
+/// - Owned by Environment under ProcessConfig.
+/// - Reusable key/config for runtime Thread instances.
+/// - Hosts projection graph authority refs and Attention layout configs.
+/// - Does not reference Experience ProjectionExperience or ProgramConfigGraph.
+class ThreadConfig {
+    // Relationships
+    object_projection_graphs ThreadConfigObjectProjectionGraph[]
+    layout_configs ThreadConfigLayoutConfig[]
+    /// Optional profile-level image used as the default for Thread instances.
+    ///
+    /// Contract:
+    /// - Image bytes are uploaded out-of-band (data-plane).
+    /// - Commits reference StorageBlob metadata only.
+    image aware_storage.blob.StorageBlob? unique
+
+    // Attributes
+    description String?
+    /// Narrative text for this thread context and workspace flow.
+    narrative String?
+    /// Short canonical intent for thread-level decision/routing.
+    intent String?
+    /// Declarative prompt template anchor for state-aware thread composition.
+    state_prompt_template String?
+    /// Stable key for thread narrative role (e.g. `main.workspace`, `ops.monitor`).
+    key String key
+    /// Display label override for thread desktop surfaces.
+    title String?
+    /// Canonical thread workspace view selector.
+    workspace_view_key String?
+    /// Ordering hint for thread navigation surfaces.
+    position Int? = null
+    /// Process-level default thread option for Environment session entrypoints.
+    is_default Bool = false
+
+    fn build construct (
+        key String key,
+        title String? = null,
+        description String? = null,
+        workspace_view_key String? = null,
+        position Int? = null,
+        is_default Bool = false,
+        narrative String? = null,
+        intent String? = null,
+        state_prompt_template String? = null
+    ) -> ThreadConfig {
+        """
+        Construct a deterministic ThreadConfig under one ProcessConfig.
+
+        Contract:
+        - Identity is derived from ProcessConfig-scoped config keys.
+        - Runtime Thread instances are created under Process.
+        - Program/action semantics remain Experience-owned.
+        """
+    }
+
+    fn add_object_projection_graph (
+        object_projection_graph_id UUID key,
+        view_key String? = null,
+        position Int? = null,
+        is_default Bool = false,
+        narrative String? = null,
+        intent String? = null
+    ) -> ThreadConfigObjectProjectionGraph {
+        """
+        Declare one projection graph this ThreadConfig can host.
+
+        Contract:
+        - Environment declares projection authority, not Experience ownership.
+        - Experience may later bind actions/views over this hosted projection.
+        """
+        let created = construct object_projection_graphs.create(
+            object_projection_graph_id = object_projection_graph_id,
+            view_key = view_key,
+            position = position,
+            is_default = is_default,
+            narrative = narrative,
+            intent = intent,
+        )
+    }
+
+    fn add_layout_config (
+        layout_config_id UUID key,
+        key String? = null,
+        position Int? = null,
+        narrative String? = null,
+        intent String? = null
+    ) -> ThreadConfigLayoutConfig {
+        """
+        Create a deterministic ThreadConfigLayoutConfig association edge.
+
+        Contract:
+        - ThreadConfig declares which Attention LayoutConfig objects this thread offers.
+        - Runtime Environment provisioning lowers this config edge into ThreadLayout.
+        - Attention owns LayoutConfig/SectionConfig topology and focus state.
+        """
+        let created = construct layout_configs.create(
+            layout_config_id = layout_config_id,
+            key = key,
+            position = position,
+            narrative = narrative,
+            intent = intent,
+        )
+    }
+
+    fn update_picture(image_id UUID? = null, image_sha String? = null, image_mime_type String? = null, image_size_bytes Int? = null) -> {
+        """
+        Updates (or clears) the thread config image.
+
+        Contract:
+        - Raw bytes are uploaded out-of-band via HTTP file operations.
+        - Commits must reference commit-backed StorageBlob metadata only.
+        - When setting a picture, image_sha/image_mime_type/image_size_bytes must be provided together.
+        """
+    }
+}
+
+ann thread.ThreadConfig::object_projection_graphs load eager
+ann thread.ThreadConfig::layout_configs load eager

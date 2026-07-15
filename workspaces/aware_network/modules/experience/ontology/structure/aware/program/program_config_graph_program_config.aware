@@ -1,0 +1,38 @@
+class ProgramConfigGraphProgramConfig {
+    // Relationships
+    port_projection_experience_node_classes ProgramConfigGraphProgramConfigPortProjectionExperienceNodeClass[]
+    program_config program.ProgramConfig key
+
+    // Attributes
+    key String?
+
+    fn build construct (
+        program_config_id UUID key,
+        key String? = null
+    ) -> ProgramConfigGraphProgramConfig {
+        """
+        Create a deterministic ProgramConfigGraphProgramConfig under a ProgramConfigGraph.
+
+        Contract:
+        - Parent graph context (`program_config_graph_id`) is injected by parent-edge lowering.
+        - Identity is derived from `(program_config_graph_id, program_config_id)`.
+        """
+    }
+
+    fn add_port_projection_experience_node_class (
+        program_config_port_projection_experience_node_id UUID,
+        projection_experience_node_class_identity_id UUID,
+        key String? = null
+    ) -> ProgramConfigGraphProgramConfigPortProjectionExperienceNodeClass {
+        """
+        Attach one graph-level wiring edge from program port-node contract to shared projection node-class identity.
+        """
+        let created = construct port_projection_experience_node_classes.build(
+            program_config_port_projection_experience_node_id = program_config_port_projection_experience_node_id,
+            projection_experience_node_class_identity_id = projection_experience_node_class_identity_id,
+            key = key,
+        )
+    }
+}
+
+ann program.ProgramConfigGraphProgramConfig::program_config load eager

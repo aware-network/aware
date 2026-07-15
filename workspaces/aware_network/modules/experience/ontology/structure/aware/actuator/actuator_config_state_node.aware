@@ -1,0 +1,21 @@
+/// ActuatorConfig-owned affected state-node footprint.
+///
+/// Contract:
+/// - Anchors one Actuator config to one Meta ObjectProjectionGraphNode it can
+///   affect.
+/// - The linked node gives projection scope and class (`node.class_config`).
+/// - This is not a payload schema rail.
+class ActuatorConfigStateNode {
+    // Relationships
+    object_projection_graph_node aware_meta.graph.projection.ObjectProjectionGraphNode key
+
+    fn build construct (
+        object_projection_graph_node_id UUID key
+    ) -> ActuatorConfigStateNode {
+        """
+        Create deterministic ActuatorConfig affected state-node footprint edge.
+        """
+    }
+}
+
+ann actuator.ActuatorConfigStateNode::object_projection_graph_node load eager

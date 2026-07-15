@@ -1,0 +1,15 @@
+/// FocusScope binding at Section level.
+class SectionFocusScope {
+    // Relationships
+    focus_scope focus.FocusScope key
+
+    // Attributes
+    title String
+    description String?
+
+    fn build construct (focus_scope_id UUID key, title String, description String? = null) -> SectionFocusScope {
+        """
+        Builds a deterministic SectionFocusScope.
+        """
+    }
+}

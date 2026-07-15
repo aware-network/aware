@@ -1,0 +1,144 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_HISTORY"
+kind = "ns_url"
+value = "aware://history/v1"
+
+[[functions]]
+name = "stable_branch_id"
+namespace = "NS_HISTORY"
+template = "aware:branch:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_change_id"
+namespace = "NS_HISTORY"
+template = "aware:change:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_change_delta_id"
+namespace = "NS_HISTORY"
+template = "aware:change_delta:{change_id}:{position}"
+doc = "Compiler-generated from class-attribute identity keys: change_id, position"
+
+[[functions.params]]
+name = "change_id"
+type = "uuid"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions]]
+name = "stable_commit_id"
+namespace = "NS_HISTORY"
+template = "aware:commit:{lane_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: lane_id, key"
+
+[[functions.params]]
+name = "lane_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_commit_parent_id"
+namespace = "NS_HISTORY"
+template = "aware:commit_parent:{commit_id}:{parent_commit_id}"
+doc = "Compiler-generated from class-attribute identity keys: commit_id, parent_commit_id"
+
+[[functions.params]]
+name = "commit_id"
+type = "uuid"
+
+[[functions.params]]
+name = "parent_commit_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_lane_id"
+namespace = "NS_HISTORY"
+template = "aware:lane:{branch_id}:{lane_hash_norm}"
+doc = "Compiler-generated from class-attribute identity keys: branch_id, lane_hash"
+
+[[functions.params]]
+name = "branch_id"
+type = "uuid"
+
+[[functions.params]]
+name = "lane_hash"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "lane_hash_norm"
+param = "lane_hash"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_migration_id"
+namespace = "NS_HISTORY"
+template = "aware:migration:{version_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: version_id, name"
+
+[[functions.params]]
+name = "version_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_version_id"
+namespace = "NS_HISTORY"
+template = "aware:version:{branch_id}:{version_number}"
+doc = "Compiler-generated from class-attribute identity keys: branch_id, version_number"
+
+[[functions.params]]
+name = "branch_id"
+type = "uuid"
+
+[[functions.params]]
+name = "version_number"
+type = "int"

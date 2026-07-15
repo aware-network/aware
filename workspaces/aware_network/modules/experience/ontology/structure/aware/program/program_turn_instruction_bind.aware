@@ -1,0 +1,35 @@
+/// Canonical bind execution receipt under one ProgramTurnInstruction.
+///
+/// Contract:
+/// - Captures resolved branch/view bindings for one bind instruction execution.
+/// - Owns per-node alias resolution receipts (`resolved_node_identities`).
+class ProgramTurnInstructionBind {
+    // Relationships
+    program_impl_instruction_bind aware_experience.program.impl.ProgramImplInstructionBind key
+    object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch key
+    projection_experience_view aware_experience.projection.ProjectionExperienceView key
+    resolved_node_identities ProgramTurnInstructionBindIdentity[]
+
+    fn build construct (
+        program_impl_instruction_bind_id UUID key,
+        object_instance_graph_branch_id UUID key,
+        projection_experience_view_id UUID key
+    ) -> ProgramTurnInstructionBind {
+        """
+        Create deterministic ProgramTurnInstructionBind under ProgramTurnInstruction.
+        """
+    }
+
+    fn add_resolved_node_identity (
+        program_config_port_projection_experience_node_id UUID,
+        projection_experience_node_class_identity_id UUID
+    ) -> ProgramTurnInstructionBindIdentity {
+        """
+        Record one deterministic alias->ClassInstanceIdentity resolution receipt.
+        """
+        let created_receipt = construct resolved_node_identities.build(
+            program_config_port_projection_experience_node_id = program_config_port_projection_experience_node_id,
+            projection_experience_node_class_identity_id = projection_experience_node_class_identity_id,
+        )
+    }
+}

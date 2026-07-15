@@ -1,0 +1,15 @@
+/// ProjectionExperience node identity contract.
+///
+/// Contract:
+/// - Declares one human-stable identity name under a ProjectionExperienceNode.
+/// - Parent->child identity traversal is declared via ProjectionExperienceNodeIdentityEdge.
+class ProjectionExperienceNodeIdentity {
+    // Attributes
+    key String key
+
+    fn build construct (key String key) -> ProjectionExperienceNodeIdentity {
+        """
+        Create deterministic ProjectionExperienceNodeIdentity association edge.
+        """
+    }
+}

@@ -1,0 +1,19 @@
+class CodeSectionExpression {
+    // Relationships
+    code_section_comments comment.CodeSectionComment[]
+    value_segment aware_content.part.ContentPartTextSegment
+
+    // Attributes
+    type CodeSectionExpressionType
+
+    fn build construct(type CodeSectionExpressionType) -> CodeSectionExpression {
+        """
+        Build the expression payload under a CodeSection.
+        """
+    }
+}
+
+/// Eager comments + value segment
+ann expression.CodeSectionExpression::code_section_comments load eager
+ann expression.CodeSectionExpression::code_section_comments override fk nullable
+ann expression.CodeSectionExpression::value_segment load eager

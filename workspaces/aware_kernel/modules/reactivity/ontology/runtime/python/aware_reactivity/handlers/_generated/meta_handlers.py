@@ -381,6 +381,7 @@ def _bind_action_config__create(*, positional: JsonArray, keyword: JsonObject) -
         field_names=(
             "name",
             "description",
+            "api_capability_endpoint_id",
             "action_type",
             "is_enabled",
             "is_system",
@@ -406,6 +407,7 @@ def _root_id_action_config__create(*, request: MetaGraphHandlerExecutionRequest,
 
     name = bound_input.get("name")
     description = bound_input.get("description")
+    api_capability_endpoint_id = bound_input.get("api_capability_endpoint_id")
     action_type = bound_input.get("action_type")
     is_enabled = bound_input.get("is_enabled")
     if is_enabled is None:
@@ -425,6 +427,7 @@ def _root_id_action_config__create(*, request: MetaGraphHandlerExecutionRequest,
     _aware_self_values = {
         "name": name,
         "description": description,
+        "api_capability_endpoint_id": api_capability_endpoint_id,
         "action_type": action_type,
         "is_enabled": is_enabled,
         "is_system": is_system,
@@ -464,6 +467,7 @@ def _bind_action_execution__add_feedback(*, positional: JsonArray, keyword: Json
             "message",
             "payload",
             "payload_class_config_id",
+            "api_call_stream_event_id",
         ),
         function_name="add_feedback",
     )
@@ -506,7 +510,15 @@ def _bind_action_execution__create_via_action_intent(*, positional: JsonArray, k
     return _bind_keyword_payload(
         positional=positional,
         keyword=keyword,
-        field_names=("action_intent_id", "execution_key", "status", "execution_context", "executor_ref", "result_info"),
+        field_names=(
+            "action_intent_id",
+            "execution_key",
+            "status",
+            "execution_context",
+            "executor_ref",
+            "api_call_id",
+            "result_info",
+        ),
         function_name="create_via_action_intent",
     )
 
@@ -540,6 +552,9 @@ def _root_id_action_execution__create_via_action_intent(
     executor_ref = bound_input.get("executor_ref")
     if executor_ref is None:
         executor_ref = None
+    api_call_id = bound_input.get("api_call_id")
+    if api_call_id is None:
+        api_call_id = None
     result_info = bound_input.get("result_info")
     if result_info is None:
         result_info = None
@@ -549,6 +564,7 @@ def _root_id_action_execution__create_via_action_intent(
         "status": status,
         "execution_context": execution_context,
         "executor_ref": executor_ref,
+        "api_call_id": api_call_id,
         "result_info": result_info,
     }
     _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("5c9eb8d9-0406-52af-bbd0-95fbb3c0bc98")
@@ -584,6 +600,7 @@ def _bind_action_feedback__create_via_action_execution(*, positional: JsonArray,
             "message",
             "payload",
             "payload_class_config_id",
+            "api_call_stream_event_id",
         ),
         function_name="create_via_action_execution",
     )
@@ -621,6 +638,9 @@ def _root_id_action_feedback__create_via_action_execution(
     payload_class_config_id = bound_input.get("payload_class_config_id")
     if payload_class_config_id is None:
         payload_class_config_id = None
+    api_call_stream_event_id = bound_input.get("api_call_stream_event_id")
+    if api_call_stream_event_id is None:
+        api_call_stream_event_id = None
     _aware_self_values = {
         "action_execution_id": action_execution_id,
         "sequence": sequence,
@@ -630,6 +650,7 @@ def _root_id_action_feedback__create_via_action_execution(
         "message": message,
         "payload": payload,
         "payload_class_config_id": payload_class_config_id,
+        "api_call_stream_event_id": api_call_stream_event_id,
     }
     _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("17951659-8fcd-5925-9655-326b91b68e75")
     if _aware_self_binding is None:
@@ -655,7 +676,7 @@ def _bind_action_intent__start_execution(*, positional: JsonArray, keyword: Json
     return _bind_keyword_payload(
         positional=positional,
         keyword=keyword,
-        field_names=("execution_key", "status", "execution_context"),
+        field_names=("execution_key", "status", "execution_context", "api_call_id"),
         function_name="start_execution",
     )
 
@@ -1892,7 +1913,12 @@ def _bind_event_config_condition_config__create_scope(*, positional: JsonArray, 
     return _bind_keyword_payload(
         positional=positional,
         keyword=keyword,
-        field_names=("object_instance_graph_identity_id", "object_instance_graph_branch_id"),
+        field_names=(
+            "object_instance_graph_identity_id",
+            "scope_key",
+            "object_instance_graph_branch_id",
+            "class_instance_identity_id",
+        ),
         function_name="create_scope",
     )
 
@@ -2039,7 +2065,9 @@ def _bind_event_config_condition_config_scope__create_via_event_config_condition
         field_names=(
             "event_config_condition_config_id",
             "object_instance_graph_identity_id",
+            "scope_key",
             "object_instance_graph_branch_id",
+            "class_instance_identity_id",
         ),
         function_name="create_via_event_config_condition_config",
     )
@@ -2065,13 +2093,21 @@ def _root_id_event_config_condition_config_scope__create_via_event_config_condit
 
     event_config_condition_config_id = bound_input.get("event_config_condition_config_id")
     object_instance_graph_identity_id = bound_input.get("object_instance_graph_identity_id")
+    scope_key = bound_input.get("scope_key")
+    if scope_key is None:
+        scope_key = "lane"
     object_instance_graph_branch_id = bound_input.get("object_instance_graph_branch_id")
     if object_instance_graph_branch_id is None:
         object_instance_graph_branch_id = None
+    class_instance_identity_id = bound_input.get("class_instance_identity_id")
+    if class_instance_identity_id is None:
+        class_instance_identity_id = None
     _aware_self_values = {
         "event_config_condition_config_id": event_config_condition_config_id,
         "object_instance_graph_identity_id": object_instance_graph_identity_id,
+        "scope_key": scope_key,
         "object_instance_graph_branch_id": object_instance_graph_branch_id,
+        "class_instance_identity_id": class_instance_identity_id,
     }
     _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("46116ca2-dc07-5464-9489-f19ad4368939")
     if _aware_self_binding is None:

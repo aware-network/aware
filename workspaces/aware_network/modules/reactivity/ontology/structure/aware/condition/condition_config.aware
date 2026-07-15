@@ -1,0 +1,51 @@
+class ConditionConfig {
+    // Relationships
+    condition_config_class_configs ConditionConfigClassConfig[]
+
+    // Attributes
+    name String key
+    description String
+    is_enabled Bool = true
+    is_system Bool = false
+    logic_strategy ConditionLogicStrategy = all
+
+    fn create construct (
+        name String key,
+        description String,
+        logic_strategy ConditionLogicStrategy = all,
+        is_enabled Bool = true,
+        is_system Bool = false
+    ) -> ConditionConfig {
+        """
+        Create a canonical condition policy root.
+
+        Contract:
+        - Constructor-owned creation path for condition policy roots.
+        - Initial evaluation flags and logic strategy are persisted at creation time.
+        """
+    }
+
+    fn add_class_config (
+        class_config_id UUID,
+        class_selection ClassSelectionMode = base_class,
+        class_logic ConditionLogicStrategy = all,
+        require_existence Bool = true
+    ) -> ConditionConfigClassConfig {
+        """
+        Attach a class-level policy node to this condition root.
+
+        Contract:
+        - Canonical edge creation through the ConditionConfig root.
+        - Deterministic id scoped by (condition_config_id, class_config_id).
+        """
+        let created = construct condition_config_class_configs.create(
+            class_config_id = class_config_id,
+            class_selection = class_selection,
+            class_logic = class_logic,
+            require_existence = require_existence,
+        )
+    }
+}
+
+/// Load condition_config_class_configs eagerly
+ann condition.ConditionConfig::condition_config_class_configs load eager

@@ -1,0 +1,15 @@
+sdk content_sdk {
+    "Canonical Content SDK operations over the Content service API."
+
+    api content;
+
+    operation resolve_content_text {
+        "Resolve one Content object into text parts and a flattened text payload."
+        endpoint content.text.resolve_content_text;
+    }
+
+    operation commit_content_text {
+        "Commit provider-neutral text as Content truth with exact commit evidence."
+        endpoint content.text.commit_content_text;
+    }
+}

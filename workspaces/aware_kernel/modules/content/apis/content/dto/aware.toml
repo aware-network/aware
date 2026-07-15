@@ -1,0 +1,12 @@
+aware = 1
+
+[package]
+package_name = "content-service-dto"
+fqn_prefix = "aware_content_service_dto"
+kind = "api"
+version_number = 1
+title = "Content Service DTO"
+description = "API-owned DTO package for Content read/render operations."
+
+[build]
+environment_slug = "aware_content_service_dto"

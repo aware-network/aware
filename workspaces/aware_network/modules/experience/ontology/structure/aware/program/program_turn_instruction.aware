@@ -1,0 +1,112 @@
+/// Canonical per-turn executed instruction receipt.
+///
+/// Contract:
+/// - Anchors one executed `ProgramImplInstruction` under one `ProgramTurn`.
+/// - Owns decision receipts as child membership (`decisions`).
+class ProgramTurnInstruction {
+    // Relationships
+    program_instruction aware_experience.program.impl.ProgramImplInstruction key
+    bind_receipt ProgramTurnInstructionBind? unique
+    invoke_receipt ProgramTurnInstructionInvoke? unique
+    action_receipt ProgramTurnInstructionAction? unique
+    decisions ProgramTurnInstructionDecision[]
+
+    // Attributes
+    sequence Int key
+
+    fn build construct (
+        program_instruction_id UUID key,
+        sequence Int key
+    ) -> ProgramTurnInstruction {
+        """
+        Create a deterministic ProgramTurnInstruction for `(program_instruction_id, sequence)`.
+        """
+    }
+
+    fn record_decision (
+        transition ProgramTurnTransition,
+        reason ProgramTurnDecisionReason,
+        step_index Int,
+        total_steps Int,
+        invokes_in_turn Int = 0,
+        elapsed_ms_in_turn Int = 0,
+        awaiting_external_signal Bool = false,
+        instruction_failed Bool = false
+    ) -> ProgramTurnInstructionDecision {
+        """
+        Record one typed decision checkpoint for this instruction execution.
+        """
+        let created_decision = construct decisions.build(
+            transition = transition,
+            reason = reason,
+            step_index = step_index,
+            total_steps = total_steps,
+            invokes_in_turn = invokes_in_turn,
+            elapsed_ms_in_turn = elapsed_ms_in_turn,
+            awaiting_external_signal = awaiting_external_signal,
+            instruction_failed = instruction_failed,
+        )
+    }
+
+    fn record_bind (
+        program_impl_instruction_bind_id UUID,
+        object_instance_graph_branch_id UUID,
+        projection_experience_view_id UUID
+    ) -> ProgramTurnInstructionBind {
+        """
+        Record one bind execution receipt for this instruction.
+
+        Contract:
+        - Captures resolved branch/view runtime bindings as commit-backed facts.
+        - Node alias resolution receipts are attached under ProgramTurnInstructionBind.
+        """
+        let created_bind_receipt = construct bind_receipt.build(
+            program_impl_instruction_bind_id = program_impl_instruction_bind_id,
+            object_instance_graph_branch_id = object_instance_graph_branch_id,
+            projection_experience_view_id = projection_experience_view_id,
+        )
+    }
+
+    fn record_invoke (
+        program_impl_instruction_invoke_id UUID,
+        program_actor_role_id UUID,
+        projection_experience_node_class_identity_id UUID
+    ) -> ProgramTurnInstructionInvoke {
+        """
+        Record one invoke execution receipt for this instruction.
+
+        Contract:
+        - Captures resolved actor-role attribution and target identity context.
+        - Invoke argument/value receipts remain child rails under ProgramTurnInstructionInvoke.
+        """
+        let created_invoke_receipt = construct invoke_receipt.build(
+            program_impl_instruction_invoke_id = program_impl_instruction_invoke_id,
+            program_actor_role_id = program_actor_role_id,
+            projection_experience_node_class_identity_id = projection_experience_node_class_identity_id,
+        )
+    }
+
+    fn record_action (
+        program_impl_instruction_intent_id UUID,
+        action_config_id UUID,
+        event_config_id UUID,
+        action_intent_id UUID,
+        intent_key String
+    ) -> ProgramTurnInstructionAction {
+        """
+        Record one program-declared ActionIntent receipt for this instruction.
+
+        Contract:
+        - Captures program provenance above Reactivity's actor-free
+          ActionIntent primitive.
+        - Does not dispatch or fulfill the action.
+        """
+        let created_action_receipt = construct action_receipt.build(
+            program_impl_instruction_intent_id = program_impl_instruction_intent_id,
+            action_config_id = action_config_id,
+            event_config_id = event_config_id,
+            action_intent_id = action_intent_id,
+            intent_key = intent_key,
+        )
+    }
+}

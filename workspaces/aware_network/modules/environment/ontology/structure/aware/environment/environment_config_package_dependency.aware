@@ -1,0 +1,37 @@
+/// A direct dependency from one EnvironmentConfigPackage to another.
+///
+/// This models environment config composition as semantic package truth. The
+/// current kernel base is just one dependency role/value, not a special module
+/// dependency copied into product environments.
+class EnvironmentConfigPackageDependency {
+    // Relationships
+    target_environment_config_package EnvironmentConfigPackage key
+    target_environment_config_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit key
+
+    // Attributes
+    dependency_role String key
+    dependency_index Int key
+    target_handle String key
+
+    fn build construct(
+        dependency_role String key,
+        dependency_index Int key,
+        target_handle String key,
+        target_environment_config_package_id UUID key,
+        target_environment_config_package_object_instance_graph_commit_id UUID key,
+    ) -> EnvironmentConfigPackageDependency {
+        """
+        Create one deterministic environment package dependency edge.
+
+        Contract:
+        - Parent EnvironmentConfigPackage scope is injected by propagation.
+        - `target_handle` mirrors the target package handle for readable
+          receipts and deterministic root selection.
+        - `target_environment_config_package_object_instance_graph_commit_id`
+          is required; dependency resolution must be commit-pinned.
+        """
+    }
+}
+
+ann environment.EnvironmentConfigPackageDependency::target_environment_config_package load eager
+ann environment.EnvironmentConfigPackageDependency::target_environment_config_package_object_instance_graph_commit load eager

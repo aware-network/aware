@@ -1,0 +1,10 @@
+EXPERIENCE_PROFILE_SOURCE_PROJECTION_CAPABILITY = (
+    "semantic_operation_source_projection_resolution"
+)
+EXPERIENCE_PROFILE_SOURCE_PROJECTION_CONTRACT_VERSION = (
+    "aware.experience.profile.source-projection.v0"
+)
+__all__ = [
+    "EXPERIENCE_PROFILE_SOURCE_PROJECTION_CAPABILITY",
+    "EXPERIENCE_PROFILE_SOURCE_PROJECTION_CONTRACT_VERSION",
+]

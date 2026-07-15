@@ -1,0 +1,34 @@
+class ProgramConfigPort {
+    // Relationships
+    projection projection.ProjectionExperience
+    projection_nodes ProgramConfigPortProjectionExperienceNode[]
+
+    // Attributes
+    key String? key
+    intent String?
+    branch_binding_mode ProgramBranchBindingMode = reference
+
+    fn build construct (
+        projection_id UUID,
+        key String? key = null,
+        intent String? = null,
+        branch_binding_mode ProgramBranchBindingMode = reference
+    ) -> ProgramConfigPort {
+        """
+        Create a deterministic ProgramConfigPort under a ProgramConfig.
+        """
+    }
+
+    fn create_projection_node (
+        projection_experience_node_id UUID,
+        key String
+    ) -> ProgramConfigPortProjectionExperienceNode {
+        """
+        Attach one ProjectionExperienceNode contract under this ProgramConfigPort.
+        """
+        let created = construct projection_nodes.build(
+            projection_experience_node_id = projection_experience_node_id,
+            key = key
+        )
+    }
+}

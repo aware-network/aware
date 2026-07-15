@@ -1,0 +1,17 @@
+/// Canonical invoke-argument execution receipt under one ProgramTurnInstructionInvoke.
+///
+/// Contract:
+/// - Captures one executed invoke argument contract row.
+/// - Enables replay parity checks for invoke argument coverage.
+class ProgramTurnInstructionInvokeAttributeConfig {
+    // Relationships
+    program_impl_instruction_invoke_attribute_config aware_experience.program.impl.ProgramImplInstructionInvokeAttributeConfig key
+
+    fn build construct (
+        program_impl_instruction_invoke_attribute_config_id UUID key
+    ) -> ProgramTurnInstructionInvokeAttributeConfig {
+        """
+        Create deterministic ProgramTurnInstructionInvokeAttributeConfig under ProgramTurnInstructionInvoke.
+        """
+    }
+}

@@ -1,0 +1,21 @@
+// Sample Aware file with ANN annotations for testing
+
+class User {
+    id UUID
+    name String
+    posts Post[]
+}
+
+class Post {
+    id UUID
+    title String
+}
+
+// Relationship loading configuration via ann
+ann default.User::posts load forward eager reverse lazy
+
+// Projection configuration via first-class `projection { ... }`
+projection UserCard {
+    root default.User
+    default.User::posts
+}

@@ -1,0 +1,17 @@
+name: aware_widgets
+description: Shared AWARE UI widgets, materials, and design tokens. Module-agnostic foundation for the AWARE visual language.
+publish_to: 'none'
+
+version: 0.1.0
+
+environment:
+  sdk: '>=3.4.4 <4.0.0'
+  flutter: '>=3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

@@ -1,0 +1,47 @@
+/// ProjectionExperience-owned layout graph binding contract.
+///
+/// Contract:
+/// - Declares one stable coordination agreement between an Attention layout and
+///   a set of Experience-owned section graph bindings.
+/// - Keeps apps and Interface packages from selecting section bindings or pane
+///   defaults directly.
+/// - Does not own ordering or runtime activation; Attention layout topology and
+///   sessions own those resolutions.
+class ProjectionExperienceLayoutGraphBinding {
+    // Relationships
+    layout_config aware_attention.layout.LayoutConfig key
+    layout_section_graph_bindings ProjectionExperienceLayoutSectionGraphBinding[]
+
+    // Attributes
+    binding_key String key
+
+    fn build construct (
+        layout_config_id UUID key,
+        binding_key String key
+    ) -> ProjectionExperienceLayoutGraphBinding {
+        """
+        Create deterministic ProjectionExperienceLayoutGraphBinding under one ProjectionExperience.
+
+        Contract:
+        - `binding_key` is the stable service-facing layout composition handle.
+        - `layout_config` is the canonical portal to Attention-owned layout truth.
+        - Child section rows must target sections that belong to this layout.
+        """
+    }
+
+    fn add_section_graph_binding (
+        section_graph_binding_id UUID
+    ) -> ProjectionExperienceLayoutSectionGraphBinding {
+        """
+        Attach one existing section graph binding to this layout composition.
+
+        Contract:
+        - The section binding remains the source of view + section + graph anchor truth.
+        - This row only groups section bindings under one layout-level Experience target.
+        - Ordering is resolved from the Attention LayoutConfigSectionConfig relation.
+        """
+        let created = construct layout_section_graph_bindings.build(
+            section_graph_binding_id = section_graph_binding_id,
+        )
+    }
+}

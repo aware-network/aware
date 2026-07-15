@@ -1,0 +1,24 @@
+class EventConfigActionConfig {
+    // Relationships
+    action_config action.ActionConfig key
+
+    // Attributes
+    continue_on_fail Bool = true
+    execution_order Int = 0
+    is_enabled Bool = true
+    is_required Bool = false
+    priority Int = 0
+
+    fn create construct(
+        action_config_id UUID key,
+        execution_order Int = 0,
+        priority Int = 0,
+        is_enabled Bool = true,
+        is_required Bool = false,
+        continue_on_fail Bool = true
+    ) -> EventConfigActionConfig {
+        """
+        Create a canonical event-to-action binding policy node.
+        """
+    }
+}

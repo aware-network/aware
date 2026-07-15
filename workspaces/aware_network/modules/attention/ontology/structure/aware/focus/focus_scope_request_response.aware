@@ -1,0 +1,10 @@
+class FocusScopeRequestResponse {
+    success Bool
+    message String?
+
+    fn build construct (success Bool, message String?) -> FocusScopeRequestResponse {
+        """
+        Builds a new FocusScopeRequestResponse
+        """
+    }
+}

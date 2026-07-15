@@ -1,0 +1,18 @@
+/// Signature slot for ProgramConfigInputConfig.
+///
+/// Contract:
+/// - Keeps input signatures explicit via AttributeConfig references.
+/// - Association identity is deterministic from `(input_config_id, attribute_config_id)`.
+class ProgramConfigInputConfigAttributeConfig {
+    // Relationships
+    attribute_config aware_meta.attribute.AttributeConfig key
+
+    // Attributes
+    position Int? = null
+
+    fn build construct (attribute_config_id UUID key, position Int? = null) -> ProgramConfigInputConfigAttributeConfig {
+        """
+        Create deterministic input signature association edge for one ProgramConfigInputConfigAttributeConfig.
+        """
+    }
+}

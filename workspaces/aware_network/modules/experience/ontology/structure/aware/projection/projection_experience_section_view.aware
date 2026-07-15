@@ -1,0 +1,31 @@
+/// Section-scoped resolver from a concrete view instance to one Attention section.
+///
+/// Contract:
+/// - Attention may select Observable through Section -> FocusScope.
+/// - Experience resolves Section + selected Observable by deriving Observable
+///   from the linked view instance's ProjectionExperienceView.api_view.
+/// - One Observable may have many view configurations globally, but this bridge
+///   selects the concrete view instance for one ProjectionExperienceSection.
+class ProjectionExperienceSectionView {
+    // Relationships
+    projection_experience_view_instance ProjectionExperienceViewInstance unique key
+
+    // Attributes
+    status String = "active"
+
+    fn build construct (
+        projection_experience_view_instance_id UUID key,
+        status String = "active"
+    ) -> ProjectionExperienceSectionView {
+        """
+        Create one section+view-instance resolver.
+
+        Contract:
+        - Identity is scoped by parent ProjectionExperienceSection plus view instance.
+        - `projection_experience_view_instance` must be the concrete view fulfillment
+          for the ApiView whose observable may be selected by Attention.
+        """
+    }
+}
+
+ann projection.ProjectionExperienceSectionView::projection_experience_view_instance load eager

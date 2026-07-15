@@ -1,0 +1,29 @@
+class CodeSectionProjectionEdge {
+    // Relationships
+    type_segment aware_content.part.ContentPartTextSegment
+    member_segment aware_content.part.ContentPartTextSegment
+    target_segment aware_content.part.ContentPartTextSegment?
+
+    // Attributes
+    type_ref String
+    member String key
+    /// Optional portal target projection reference.
+    /// Forms:
+    /// - unqualified: `Focus`
+    /// - qualified: `aware_identity.Identity` (recommended for cross-package)
+    target_projection_ref String?
+
+    fn build construct(
+        member String key,
+        type_ref String,
+        target_projection_ref String? = null
+    ) -> CodeSectionProjectionEdge {
+        """
+        Build a deterministic projection-edge entry under a projection.
+        """
+    }
+}
+
+ann projection.CodeSectionProjectionEdge::type_segment load eager
+ann projection.CodeSectionProjectionEdge::member_segment load eager
+ann projection.CodeSectionProjectionEdge::target_segment load eager

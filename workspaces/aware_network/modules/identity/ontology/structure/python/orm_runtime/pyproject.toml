@@ -1,0 +1,18 @@
+[project]
+name = "aware-identity-ontology"
+version = "0.1.0"
+description = "Auto-generated package aware-identity-ontology"
+authors = [{ name = "Aware Automations" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aware-orm"
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_identity_ontology"]
+include = ["README.md", "aware_identity_ontology/py.typed"]

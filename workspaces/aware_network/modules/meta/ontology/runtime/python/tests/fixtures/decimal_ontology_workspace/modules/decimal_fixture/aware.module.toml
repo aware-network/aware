@@ -1,0 +1,12 @@
+aware = 1
+
+[module]
+stable_ids_ownership = "compiler"
+stable_ids_parity_policy = "error"
+stable_ids_resolution_policy = "class_strict"
+
+[[packages]]
+id = "ontology"
+kind = "ontology"
+manifest = "ontology/aware.ontology.toml"
+visibility = "module"

@@ -1,0 +1,31 @@
+/// Ontology-level view of an `identity` ANN.
+///
+/// This declares class-level stable-id scope semantics.
+///
+/// Canonical forms:
+/// - ann <TypeRef> identity contained
+/// - ann <TypeRef> identity standalone
+/// - ann <TypeRef> identity contained structural <relation_name>
+/// - ann <TypeRef> identity standalone structural <relation_name>
+///
+/// Contract:
+/// - `contained` (default) means parent-path propagation may participate in stable-id derivation.
+/// - `standalone` means the class remains constructible via parent paths, but parent traversal
+///   must not enter the class stable-id formula.
+/// - `structural_relation_name` declares a canonical relation whose ordered payload contributes a
+///   compiler-derived structural fingerprint to the stable-id formula.
+class CodeSectionAnnotationIdentity {
+    // Relationships
+    code_section_annotation aware_code.annotation.CodeSectionAnnotation?
+
+    /// Location within the canonical graph
+    fqn_prefix String key
+    namespace String key
+    class_name String key
+
+    /// Class-level identity scope semantics
+    mode class.ClassIdentityMode key = contained
+
+    /// Optional structural relation rail that contributes a compiler-derived fingerprint.
+    structural_relation_name String?
+}

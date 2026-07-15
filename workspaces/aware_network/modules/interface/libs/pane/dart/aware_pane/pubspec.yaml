@@ -1,0 +1,24 @@
+name: aware_pane
+description: Shared pane presenters and helpers for Aware apps.
+publish_to: 'none'
+version: 0.2.0
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  aware_windows:
+    path: ../../../windows/dart/aware_windows
+  aware_messaging:
+    path: ../../../messaging/dart/aware_messaging
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

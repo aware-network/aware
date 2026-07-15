@@ -1,0 +1,30 @@
+class CodePackageConfigInput {
+    // Attributes
+    input_key String key
+    kind CodePackageConfigInputKind
+    artifact_family String?
+    artifact_role String?
+    package_family String?
+    semantic_kind String?
+    runtime_contract_version String?
+    required Bool = true
+
+    fn build construct (
+        input_key String key,
+        kind CodePackageConfigInputKind,
+        artifact_family String? = null,
+        artifact_role String? = null,
+        package_family String? = null,
+        semantic_kind String? = null,
+        runtime_contract_version String? = null,
+        required Bool = true
+    ) -> CodePackageConfigInput {
+        """
+        Create one CodePackageConfig-scoped materialization input contract row.
+
+        Contract:
+        - Parent CodePackageConfig context is propagated by constructor lowering.
+        - This describes input shape only; Workspace owns selected revisions and execution receipts.
+        """
+    }
+}

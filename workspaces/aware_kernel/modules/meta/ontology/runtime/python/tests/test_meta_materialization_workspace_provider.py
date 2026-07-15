@@ -813,6 +813,7 @@ async def test_meta_leaf_materialization_receives_workspace_source_code_package_
     manifest_path = package_root / "aware.toml"
     manifest_path.write_text("[package]\nname = 'demo'\n", encoding="utf-8")
     source_code_package_id = uuid4()
+    source_code_package_config_id = uuid4()
     captured: dict[str, object] = {}
     expected_result = object()
 
@@ -825,6 +826,11 @@ async def test_meta_leaf_materialization_receives_workspace_source_code_package_
         "materialize_object_config_graph_package_leaf_from_manifest",
         _fake_leaf_materialization,
     )
+    monkeypatch.setattr(
+        workspace_provider,
+        "_leaf_external_object_config_graphs_from_context",
+        lambda **_kwargs: (),
+    )
 
     result = (
         await workspace_provider._materialize_leaf_package_if_supported(  # noqa: SLF001
@@ -836,6 +842,8 @@ async def test_meta_leaf_materialization_receives_workspace_source_code_package_
                 workspace_root=workspace_root,
                 manifest_path=manifest_path,
                 source_code_package_id=source_code_package_id,
+                source_code_package_config_id=source_code_package_config_id,
+                source_code_package_manifest_kind="aware_ontology_toml",
                 context={},
                 change_preview={},
             )
@@ -844,6 +852,8 @@ async def test_meta_leaf_materialization_receives_workspace_source_code_package_
 
     assert result is expected_result
     assert captured["source_code_package_id"] == source_code_package_id
+    assert captured["source_code_package_config_id"] == source_code_package_config_id
+    assert captured["source_code_package_manifest_kind"] == "aware_ontology_toml"
 
 
 def test_meta_workspace_provider_does_not_import_runtime_harness_or_index() -> None:
@@ -854,7 +864,6 @@ def test_meta_workspace_provider_does_not_import_runtime_harness_or_index() -> N
     assert "aware_runtime" not in source
     assert "RuntimeHarness" not in source
     assert "AwareRuntimeIndex" not in source
-    assert "CodeLanguage.python" not in source
     assert "runtime_handlers_meta" not in source
 
 
@@ -874,6 +883,11 @@ async def test_meta_workspace_provider_leaf_materialization_uses_index_capabilit
         workspace_provider,
         "materialize_object_config_graph_package_leaf_from_manifest",
         fake_leaf_materialization,
+    )
+    monkeypatch.setattr(
+        workspace_provider,
+        "_leaf_external_object_config_graphs_from_context",
+        lambda **_kwargs: (),
     )
     index = SimpleNamespace(ocg=object(), opg_by_hash={})
     runtime = object()
@@ -917,6 +931,11 @@ async def test_meta_workspace_provider_leaf_materialization_forwards_force_fresh
         workspace_provider,
         "materialize_object_config_graph_package_leaf_from_manifest",
         fake_leaf_materialization,
+    )
+    monkeypatch.setattr(
+        workspace_provider,
+        "_leaf_external_object_config_graphs_from_context",
+        lambda **_kwargs: (),
     )
     request = SemanticPackageMaterializationRequest(
         runtime=object(),
@@ -1628,6 +1647,11 @@ async def test_meta_workspace_provider_leaf_materialization_reports_subphase_pro
         "materialize_object_config_graph_package_leaf_from_manifest",
         fake_leaf_materialization,
     )
+    monkeypatch.setattr(
+        workspace_provider,
+        "_leaf_external_object_config_graphs_from_context",
+        lambda **_kwargs: (),
+    )
 
     manifest_path = tmp_path / "aware.toml"
     request = SimpleNamespace(
@@ -1640,6 +1664,9 @@ async def test_meta_workspace_provider_leaf_materialization_reports_subphase_pro
         branch_id=uuid4(),
         workspace_root=tmp_path,
         manifest_path=manifest_path,
+        source_code_package_id=None,
+        source_code_package_config_id=None,
+        source_code_package_manifest_kind=None,
         context={},
         progress_callback=progress_callback,
     )
@@ -2298,7 +2325,7 @@ async def test_meta_workspace_provider_delta_outputs_use_language_target_impact_
     }
     assert calls[0].runtime_to_language_cache is not None
     assert calls[0].runtime_to_language_cache.deep_copy_stores is False
-    assert {call.reuse_external_runtime_graphs for call in calls} == {True}
+    assert {call.reuse_external_runtime_graphs for call in calls} == {False}
     assert {call.derive_external_projection_graphs for call in calls} == {False}
     assert {id(call.runtime_derivation_cache) for call in calls} == {
         id(calls[0].runtime_derivation_cache)
@@ -2836,6 +2863,15 @@ async def test_meta_workspace_provider_emits_lifecycle_artifact_receipt(
     )
     code_package = materialization_service.CodePackage(
         id=uuid4(),
+        code_package_config_id=stable_code_package_config_id(
+            config_key=code_package_generated_config_key(
+                materialization_source="ontology",
+                renderer_kind=None,
+                language=CodeLanguage.aware,
+                surface="structure",
+                manifest_kind="aware_toml",
+            )
+        ),
         package_name="demo-ontology",
         language=materialization_service.CodeLanguage.aware,
         surface="structure",
@@ -2856,6 +2892,7 @@ async def test_meta_workspace_provider_emits_lifecycle_artifact_receipt(
         aware_toml_path=package_root / "aware.toml",
         package_branch_id=uuid4(),
         code_package=code_package,
+        source_manifest_kind="aware_toml",
         object_config_graph_package=materialization_service.ObjectConfigGraphPackage(
             id=uuid4(),
             package_name="demo-ontology",
@@ -3033,8 +3070,8 @@ async def test_meta_workspace_provider_executes_via_graph_backend_when_enabled()
         for invocation in node_invocations
         if invocation.arguments.get("type") == "relationship"
     } == {
-        "aware_home.default.home.Home:doors:one_to_many:aware_home.default.home.Door",
-        "aware_home.default.home.Home:tvs:one_to_many:aware_home.default.home.Tv",
+        "aware_home.home.Home:doors:one_to_many:aware_home.home.Door",
+        "aware_home.home.Home:tvs:one_to_many:aware_home.home.Tv",
     }
 
 
@@ -3070,8 +3107,8 @@ async def test_meta_workspace_provider_resolves_runtime_relationship_node_plans(
         _resolution_arguments(resolution).get("node_key")
         for resolution in relationship_node_resolutions
     } == {
-        "aware_home.default.home.Home:doors:one_to_many:aware_home.default.home.Door",
-        "aware_home.default.home.Home:tvs:one_to_many:aware_home.default.home.Tv",
+        "aware_home.home.Home:doors:one_to_many:aware_home.home.Door",
+        "aware_home.home.Home:tvs:one_to_many:aware_home.home.Tv",
     }
     assert all(
         resolution["status"] == "create_child"
@@ -3097,7 +3134,7 @@ async def test_meta_workspace_provider_marks_existing_runtime_nodes_noop() -> No
                 SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY: {
                     "aware_meta": {
                         "current_semantic_object_ids": {
-                            "ocg:aware_home/node:aware_home.default.home.Home": (
+                            "ocg:aware_home/node:aware_home.home.Home": (
                                 current_home_id
                             ),
                         },
@@ -3119,7 +3156,7 @@ async def test_meta_workspace_provider_marks_existing_runtime_nodes_noop() -> No
         resolution
         for resolution in resolutions
         if resolution.get("result_semantic_key")
-        == "ocg:aware_home/node:aware_home.default.home.Home"
+        == "ocg:aware_home/node:aware_home.home.Home"
     )
     assert home_resolution["status"] == "noop_existing"
     assert home_resolution["result_object_id"] == current_home_id

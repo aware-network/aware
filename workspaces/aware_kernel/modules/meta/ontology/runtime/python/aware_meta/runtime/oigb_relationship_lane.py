@@ -9,10 +9,8 @@ from aware_history_ontology.lane.lane import Lane
 from aware_history_ontology.stable_ids import stable_lane_id
 from aware_meta.graph.instance.builder import build_object_instance_graph
 from aware_meta.graph.instance.commit.committer import FSLaneCommitter
-from aware_meta.graph.instance.commit.fs_store import (
-    CommitActionDescriptor,
-    FSCommitStore,
-)
+from aware_meta.graph.instance.commit.contract import CommitActionDescriptor
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 from aware_meta.graph.instance.commit.materialization_cache import (
     CachedLaneMaterializer,
 )
@@ -155,6 +153,13 @@ def _ensure_branch_lane_shadow(
             + f"oigb_id={oigb_id} have={oigb.object_instance_graph_identity_id} "
             + f"expected={object_instance_graph_identity_id}"
         )
+    elif oigb.branch_id is not None and oigb.branch_id != branch_id:
+        raise RuntimeError(
+            "ObjectInstanceGraphBranch relationship branch mismatch: "
+            + f"oigb_id={oigb_id} have={oigb.branch_id} expected={branch_id}"
+        )
+    oigb.branch_id = branch_id
+    oigb.branch = branch
     _append_unique_by_id(
         cast(
             list[BaseORMModel],
@@ -181,6 +186,20 @@ def _ensure_branch_lane_shadow(
                 ),
             ),
         )
+    elif oigl.object_instance_graph_branch_id != oigb_id:
+        raise RuntimeError(
+            "ObjectInstanceGraphLane relationship OIGB mismatch: "
+            + f"oigl_id={oigl_id} have={oigl.object_instance_graph_branch_id} "
+            + f"expected={oigb_id}"
+        )
+    elif oigl.lane_id is not None and oigl.lane_id != lane_id:
+        raise RuntimeError(
+            "ObjectInstanceGraphLane relationship lane mismatch: "
+            + f"oigl_id={oigl_id} have={oigl.lane_id} expected={lane_id}"
+        )
+    oigl.object_instance_graph_branch_id = oigb_id
+    oigl.lane_id = lane_id
+    oigl.lane = lane
     _append_unique_by_id(
         cast(list[BaseORMModel], oigb.object_instance_graph_lanes), oigl
     )

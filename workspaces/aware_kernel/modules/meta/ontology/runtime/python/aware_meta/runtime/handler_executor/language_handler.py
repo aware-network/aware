@@ -8,6 +8,7 @@ from typing import Protocol, TypeVar, cast
 from uuid import UUID
 
 from aware_code.types import JsonArray, JsonObject, JsonValue
+from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
 from aware_meta.runtime.handler_executor.contracts import (
     MetaGraphBoundArguments,
     MetaGraphFunctionImplementationDescriptor,
@@ -295,16 +296,22 @@ class MetaGraphGeneratedLanguageHandlerImplementation:
         pre_state: MetaGraphPreState,
         bound_arguments: MetaGraphBoundArguments,
     ) -> MetaGraphLanguageHandlerExecution:
-        context = build_meta_graph_handler_execution_context(request=request)
-        invocation_provider = (
-            _MetaGraphGeneratedInvocationProvider(
-                request=request,
-                pre_state=pre_state,
-                handler_resolver=self.invocation_handler_resolver,
+        metadata = _language_handler_trace_metadata(request)
+        with commit_perf_span(
+            phase="handler_execution.language_handler.build_context",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            context = build_meta_graph_handler_execution_context(request=request)
+            invocation_provider = (
+                _MetaGraphGeneratedInvocationProvider(
+                    request=request,
+                    pre_state=pre_state,
+                    handler_resolver=self.invocation_handler_resolver,
+                )
+                if self.invocation_handler_resolver is not None
+                else None
             )
-            if self.invocation_handler_resolver is not None
-            else None
-        )
         invocation_scope = (
             _scoped_invocation_provider(invocation_provider)
             if invocation_provider is not None
@@ -323,32 +330,52 @@ class MetaGraphGeneratedLanguageHandlerImplementation:
                 bind_oig_models_to_current_handler_session,
             )
 
-            if _should_bind_pre_state_models_to_handler_session(
-                request=request,
-                pre_state=pre_state,
+            with commit_perf_span(
+                phase="handler_execution.language_handler.bind_pre_state_models",
+                category="meta.runtime.handler_execution",
+                metadata=metadata,
             ):
-                bind_oig_models_to_current_handler_session(
-                    index=request.execution_plan.index,
-                    opg=request.execution_plan.object_projection_graph,
-                    oig=pre_state.before_oig,
-                    branch_id=request.staged_call.lane_scope.domain_branch_id,
+                if _should_bind_pre_state_models_to_handler_session(
+                    request=request,
+                    pre_state=pre_state,
+                ):
+                    bind_oig_models_to_current_handler_session(
+                        index=request.execution_plan.index,
+                        opg=request.execution_plan.object_projection_graph,
+                        oig=pre_state.before_oig,
+                        branch_id=request.staged_call.lane_scope.domain_branch_id,
+                    )
+            with commit_perf_span(
+                phase="handler_execution.language_handler.call_generated_handler",
+                category="meta.runtime.handler_execution",
+                metadata=metadata,
+            ):
+                result = self.handler(
+                    request,
+                    pre_state,
+                    JsonArray(list(bound_arguments.positional)),
+                    JsonObject(dict(bound_arguments.keyword)),
                 )
-            result = self.handler(
-                request,
-                pre_state,
-                JsonArray(list(bound_arguments.positional)),
-                JsonObject(dict(bound_arguments.keyword)),
-            )
             if isawaitable(result):
-                result = await cast(
-                    Awaitable[MetaGraphLanguageHandlerExecution],
-                    result,
+                with commit_perf_span(
+                    phase="handler_execution.language_handler.await_generated_handler",
+                    category="meta.runtime.handler_execution",
+                    metadata=metadata,
+                ):
+                    result = await cast(
+                        Awaitable[MetaGraphLanguageHandlerExecution],
+                        result,
+                    )
+        with commit_perf_span(
+            phase="handler_execution.language_handler.validate_result",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            if not isinstance(result, MetaGraphLanguageHandlerExecution):
+                raise MetaGraphLanguageHandlerExecutionError(
+                    "Generated Meta language handler must return "
+                    "MetaGraphLanguageHandlerExecution evidence."
                 )
-        if not isinstance(result, MetaGraphLanguageHandlerExecution):
-            raise MetaGraphLanguageHandlerExecutionError(
-                "Generated Meta language handler must return "
-                "MetaGraphLanguageHandlerExecution evidence."
-            )
         return result
 
 
@@ -378,24 +405,60 @@ class _MetaGraphGeneratedInvocationProvider(InvocationProvider):
         function_name: str,
         payload: Mapping[str, object],
     ) -> object:
-        descriptor = _resolve_invocation_descriptor(
+        metadata = _generated_invocation_trace_metadata(
             request=self.request,
             orm_class=type(orm_model),
             function_name=function_name,
             is_constructor=False,
         )
-        handler = self.handler_resolver.resolve_generated_invocation_handler(
-            descriptor,
-        )
-        result = handler(
-            self.request,
-            self.pre_state,
-            orm_model,
-            JsonArray(),
-            JsonObject({str(key): value for key, value in dict(payload).items()}),
-        )
+        with commit_perf_span(
+            phase="handler_execution.generated_invocation.resolve_descriptor",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            descriptor = _resolve_invocation_descriptor(
+                request=self.request,
+                orm_class=type(orm_model),
+                function_name=function_name,
+                is_constructor=False,
+            )
+        with commit_perf_span(
+            phase="handler_execution.generated_invocation.resolve_handler",
+            category="meta.runtime.handler_execution",
+            metadata={
+                **metadata,
+                "resolved_function_id": descriptor.function_config.id,
+                "resolved_owner_key": descriptor.function_config.owner_key,
+            },
+        ):
+            handler = self.handler_resolver.resolve_generated_invocation_handler(
+                descriptor,
+            )
+        with commit_perf_span(
+            phase="handler_execution.generated_invocation.build_keyword_payload",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            keyword = _json_object_from_mapping(payload)
+        with commit_perf_span(
+            phase="handler_execution.generated_invocation.call_handler",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            result = handler(
+                self.request,
+                self.pre_state,
+                orm_model,
+                JsonArray(),
+                keyword,
+            )
         if isawaitable(result):
-            result = await cast(Awaitable[object], result)
+            with commit_perf_span(
+                phase="handler_execution.generated_invocation.await_handler",
+                category="meta.runtime.handler_execution",
+                metadata=metadata,
+            ):
+                result = await cast(Awaitable[object], result)
         return result
 
     async def invoke_constructor(
@@ -405,24 +468,60 @@ class _MetaGraphGeneratedInvocationProvider(InvocationProvider):
         function_name: str,
         payload: Mapping[str, object],
     ) -> object:
-        descriptor = _resolve_invocation_descriptor(
+        metadata = _generated_invocation_trace_metadata(
             request=self.request,
             orm_class=orm_class,
             function_name=function_name,
             is_constructor=True,
         )
-        handler = self.handler_resolver.resolve_generated_invocation_handler(
-            descriptor,
-        )
-        result = handler(
-            self.request,
-            self.pre_state,
-            orm_class,
-            JsonArray(),
-            JsonObject({str(key): value for key, value in dict(payload).items()}),
-        )
+        with commit_perf_span(
+            phase="handler_execution.generated_invocation.resolve_descriptor",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            descriptor = _resolve_invocation_descriptor(
+                request=self.request,
+                orm_class=orm_class,
+                function_name=function_name,
+                is_constructor=True,
+            )
+        with commit_perf_span(
+            phase="handler_execution.generated_invocation.resolve_handler",
+            category="meta.runtime.handler_execution",
+            metadata={
+                **metadata,
+                "resolved_function_id": descriptor.function_config.id,
+                "resolved_owner_key": descriptor.function_config.owner_key,
+            },
+        ):
+            handler = self.handler_resolver.resolve_generated_invocation_handler(
+                descriptor,
+            )
+        with commit_perf_span(
+            phase="handler_execution.generated_invocation.build_keyword_payload",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            keyword = _json_object_from_mapping(payload)
+        with commit_perf_span(
+            phase="handler_execution.generated_invocation.call_handler",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            result = handler(
+                self.request,
+                self.pre_state,
+                orm_class,
+                JsonArray(),
+                keyword,
+            )
         if isawaitable(result):
-            result = await cast(Awaitable[object], result)
+            with commit_perf_span(
+                phase="handler_execution.generated_invocation.await_handler",
+                category="meta.runtime.handler_execution",
+                metadata=metadata,
+            ):
+                result = await cast(Awaitable[object], result)
         return result
 
 
@@ -515,6 +614,41 @@ def _class_function_edge(
     )
 
 
+def _json_object_from_mapping(payload: Mapping[str, object]) -> JsonObject:
+    return JsonObject(
+        {
+            str(key): cast(JsonValue, value)
+            for key, value in dict(payload).items()
+        }
+    )
+
+
+def _generated_invocation_trace_metadata(
+    *,
+    request: MetaGraphHandlerExecutionRequest,
+    orm_class: type[ORMModel],
+    function_name: str,
+    is_constructor: bool,
+) -> dict[str, object]:
+    metadata = _language_handler_trace_metadata(request)
+    metadata.update(
+        {
+            "invocation_kind": "constructor" if is_constructor else "instance",
+            "nested_function_name": function_name,
+            "target_orm_class": f"{orm_class.__module__}.{orm_class.__name__}",
+        }
+    )
+    bound_class_config = orm_class.get_class_config()
+    if bound_class_config is not None:
+        metadata.update(
+            {
+                "target_class_config_id": bound_class_config.id,
+                "target_class_name": bound_class_config.name,
+            }
+        )
+    return metadata
+
+
 @dataclass(frozen=True, slots=True)
 class MetaGraphSessionDeltaLanguageHandlerRunner:
     """Adapt language-handler execution evidence into Meta dispatch output."""
@@ -530,52 +664,73 @@ class MetaGraphSessionDeltaLanguageHandlerRunner:
         pre_state: MetaGraphPreState,
         bound_arguments: MetaGraphBoundArguments,
     ) -> MetaGraphHandlerDispatchResult:
-        execution = await self.implementation.execute_language_handler(
-            request,
-            pre_state,
-            bound_arguments,
-        )
-        if execution.post_oig is not None and execution.changes:
-            raise MetaGraphLanguageHandlerExecutionError(
-                "Language-handler execution must return either post_oig evidence "
-                "or change-tree evidence, not both."
+        metadata = _language_handler_trace_metadata(request)
+        with commit_perf_span(
+            phase="handler_execution.language_handler.execute_language_handler",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            execution = await self.implementation.execute_language_handler(
+                request,
+                pre_state,
+                bound_arguments,
             )
-        if execution.post_oig is not None:
-            session_delta = self.delta_builder.build_delta_from_post_oig(
-                request=request,
-                pre_state=pre_state,
-                post_oig=execution.post_oig,
-                expected_graph_hash_post=execution.expected_graph_hash_post,
-                root_object_id=execution.root_object_id,
-                root_class_instance_identity_id=(
-                    execution.root_class_instance_identity_id
-                ),
-                constructed_class_instance_ids=(
-                    execution.constructed_class_instance_ids
-                ),
+        with commit_perf_span(
+            phase="handler_execution.language_handler.validate_execution_evidence",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            if execution.post_oig is not None and execution.changes:
+                raise MetaGraphLanguageHandlerExecutionError(
+                    "Language-handler execution must return either post_oig evidence "
+                    "or change-tree evidence, not both."
+                )
+        with commit_perf_span(
+            phase="handler_execution.language_handler.build_session_delta",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            if execution.post_oig is not None:
+                session_delta = self.delta_builder.build_delta_from_post_oig(
+                    request=request,
+                    pre_state=pre_state,
+                    post_oig=execution.post_oig,
+                    expected_graph_hash_post=execution.expected_graph_hash_post,
+                    root_object_id=execution.root_object_id,
+                    root_class_instance_identity_id=(
+                        execution.root_class_instance_identity_id
+                    ),
+                    constructed_class_instance_ids=(
+                        execution.constructed_class_instance_ids
+                    ),
+                )
+            else:
+                session_delta = self.delta_builder.build_delta_from_changes(
+                    request=request,
+                    pre_state=pre_state,
+                    changes=execution.changes,
+                    expected_graph_hash_post=execution.expected_graph_hash_post,
+                    root_object_id=execution.root_object_id,
+                    root_class_instance_identity_id=(
+                        execution.root_class_instance_identity_id
+                    ),
+                    constructed_class_instance_ids=(
+                        execution.constructed_class_instance_ids
+                    ),
+                )
+        with commit_perf_span(
+            phase="handler_execution.language_handler.build_dispatch_result",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            return MetaGraphHandlerDispatchResult(
+                execution_plan=request.execution_plan,
+                success=execution.success,
+                payload=execution.payload,
+                error_message=execution.error_message,
+                execution_time_ms=execution.execution_time_ms,
+                session_delta=session_delta,
             )
-        else:
-            session_delta = self.delta_builder.build_delta_from_changes(
-                request=request,
-                pre_state=pre_state,
-                changes=execution.changes,
-                expected_graph_hash_post=execution.expected_graph_hash_post,
-                root_object_id=execution.root_object_id,
-                root_class_instance_identity_id=(
-                    execution.root_class_instance_identity_id
-                ),
-                constructed_class_instance_ids=(
-                    execution.constructed_class_instance_ids
-                ),
-            )
-        return MetaGraphHandlerDispatchResult(
-            execution_plan=request.execution_plan,
-            success=execution.success,
-            payload=execution.payload,
-            error_message=execution.error_message,
-            execution_time_ms=execution.execution_time_ms,
-            session_delta=session_delta,
-        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -596,9 +751,15 @@ class MetaGraphGeneratedLanguageHandlerRunner:
         pre_state: MetaGraphPreState,
         bound_arguments: MetaGraphBoundArguments,
     ) -> MetaGraphHandlerDispatchResult:
-        handler = self.handler_resolver.resolve_generated_language_handler(
-            request.execution_plan.implementation,
-        )
+        metadata = _language_handler_trace_metadata(request)
+        with commit_perf_span(
+            phase="handler_execution.language_handler.resolve_generated_handler",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            handler = self.handler_resolver.resolve_generated_language_handler(
+                request.execution_plan.implementation,
+            )
         implementation = MetaGraphGeneratedLanguageHandlerImplementation(
             handler=handler,
             invocation_handler_resolver=self.invocation_handler_resolver,
@@ -607,11 +768,36 @@ class MetaGraphGeneratedLanguageHandlerRunner:
             implementation=implementation,
             delta_builder=self.delta_builder,
         )
-        return await runner.run_language_handler(
-            request,
-            pre_state,
-            bound_arguments,
-        )
+        with commit_perf_span(
+            phase="handler_execution.language_handler.run_session_delta_handler",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            return await runner.run_language_handler(
+                request,
+                pre_state,
+                bound_arguments,
+            )
+
+
+def _language_handler_trace_metadata(
+    request: MetaGraphHandlerExecutionRequest,
+) -> dict[str, object]:
+    implementation = request.execution_plan.implementation
+    owner_class_config = implementation.owner_class_config
+    return {
+        "call_target": request.request.call_target.value,
+        "domain_projection_hash": request.request.domain_projection_hash,
+        "function_call_id": request.staged_call.function_call.id,
+        "function_id": implementation.function_config.id,
+        "function_name": implementation.function_config.name,
+        "implementation_kind": implementation.kind.value,
+        "operation_label": request.staged_call.resolved_target.operation_label,
+        "owner_class_name": (
+            owner_class_config.name if owner_class_config is not None else None
+        ),
+        "owner_key": implementation.function_config.owner_key,
+    }
 
 
 def _expand_generated_handler_key_map(

@@ -1,0 +1,66 @@
+class ActorFocusScope {
+    actor aware_identity.actor.Actor key
+    focus_scope focus.FocusScope key
+    requests ActorFocusScopeRequest[]
+    evidences ActorFocusScopeEvidence[]
+
+    // Scope-level priority: shared attention surface, not a single branch
+    // pointer. Attention ranks these scopes for the actor and mutates the
+    // FocusScope itself.
+    level ActorFocusLevelType? = medium
+    weight Float = 0.0
+    weight_algorithm String?
+    weight_computed_at DateTime?
+    evidence_count Int = 0
+    last_evidence_at DateTime?
+    expires_at DateTime?
+    is_active Bool = true
+    last_accessed DateTime?
+    updated_at DateTime?
+
+    fn create construct (actor_id UUID key, focus_scope_id UUID key) -> ActorFocusScope {
+        """
+        Builds a new ActorFocusScope by linking an Identity Actor to FocusScope.
+        """
+    }
+
+    fn add_request (focus_scope_request_id UUID) -> ActorFocusScopeRequest {
+        """
+        Links a FocusScopeRequest under this ActorFocusScope.
+        """
+        let created_request = construct requests.create(
+            focus_scope_request_id = focus_scope_request_id,
+        )
+    }
+
+    fn record_evidence (
+        evidence_key String,
+        kind String,
+        source_type String? = null,
+        source_id UUID? = null,
+        source_key String? = null,
+        weight_delta Float = 0.0,
+        confidence Float? = null,
+        observed_at DateTime? = null,
+        expires_at DateTime? = null,
+        rationale String? = null,
+        metadata JsonObject? = null
+    ) -> ActorFocusScopeEvidence {
+        """
+        Records one evidence receipt that contributes to this ActorFocusScope weight.
+        """
+        let created_evidence = construct evidences.create(
+            evidence_key = evidence_key,
+            kind = kind,
+            source_type = source_type,
+            source_id = source_id,
+            source_key = source_key,
+            weight_delta = weight_delta,
+            confidence = confidence,
+            observed_at = observed_at,
+            expires_at = expires_at,
+            rationale = rationale,
+            metadata = metadata,
+        )
+    }
+}

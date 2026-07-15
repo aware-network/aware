@@ -1,0 +1,17 @@
+/// Declarative section configuration for Attention.
+///
+/// Contract:
+/// - Config-level section source for layout token lowering.
+/// - Not a runtime instance surface.
+class SectionConfig {
+    // Attributes
+    key String key
+    title String
+    description String?
+
+    fn build construct (key String key, title String, description String? = null) -> SectionConfig {
+        """
+        Build a deterministic SectionConfig by key.
+        """
+    }
+}

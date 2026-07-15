@@ -1,0 +1,5 @@
+class ActorRoleDeltaPlan {
+    // Relationships
+    actor_role ActorRole key
+    to_role_config role.RoleConfig key
+}

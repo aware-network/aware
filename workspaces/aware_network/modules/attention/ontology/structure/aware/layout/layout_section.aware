@@ -1,0 +1,33 @@
+/// Canonical section geometry/visibility entry inside a Layout.
+class LayoutSection {
+    // Relationships
+    section section.Section key
+
+    // Attributes
+    order Int = 0
+    flex Float = 1.0
+    is_visible Bool = true
+
+    fn create construct (
+        section_id UUID key,
+        order Int = 0,
+        flex Float = 1.0,
+        is_visible Bool = true
+    ) -> LayoutSection {
+        """
+        Creates a deterministic LayoutSection for a Layout and Section.
+        """
+    }
+
+    fn set_geometry (order Int, flex Float) -> LayoutSection {
+        """
+        Updates section order/flex geometry.
+        """
+    }
+
+    fn set_visibility (is_visible Bool) -> LayoutSection {
+        """
+        Updates whether this section is visible in the Layout.
+        """
+    }
+}

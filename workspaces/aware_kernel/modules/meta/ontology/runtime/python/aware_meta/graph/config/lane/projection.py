@@ -336,12 +336,12 @@ def _seed_schema_view_graph_without_seen_entries(
     graph: ObjectConfigGraph,
     seen_entry_ids_by_collection: dict[str, set[UUID]],
 ) -> ObjectConfigGraph | None:
-    filtered = graph.model_copy(deep=True)
     retained_entry_count = 0
     changed = False
+    retained_by_collection: dict[str, list[object]] = {}
     for collection_name in _SEED_SCHEMA_VIEW_DEDUPE_COLLECTIONS:
         seen_ids = seen_entry_ids_by_collection.get(collection_name, set())
-        values = list(getattr(filtered, collection_name, ()) or ())
+        values = list(getattr(graph, collection_name, ()) or ())
         retained = [
             value
             for value in values
@@ -353,12 +353,16 @@ def _seed_schema_view_graph_without_seen_entries(
         if len(retained) != len(values):
             changed = True
         retained_entry_count += len(retained)
-        setattr(filtered, collection_name, retained)
+        retained_by_collection[collection_name] = retained
     if retained_entry_count == 0:
         return None
-    if changed:
-        filtered.hash = ""
-    return filtered if changed else graph
+    if not changed:
+        return graph
+    filtered = graph.model_copy(deep=False)
+    for collection_name, retained in retained_by_collection.items():
+        setattr(filtered, collection_name, retained)
+    filtered.hash = ""
+    return filtered
 
 
 def _seed_schema_view_remember_entry_ids(

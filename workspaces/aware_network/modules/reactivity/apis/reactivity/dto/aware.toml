@@ -1,0 +1,15 @@
+aware = 1
+
+[package]
+package_name = "reactivity-service-dto"
+fqn_prefix = "aware_reactivity_service_dto"
+kind = "api"
+version_number = 1
+title = "Reactivity Service DTO"
+description = "API-owned DTO package for Reactivity service event, action, lifecycle, and policy payloads."
+
+[build]
+environment_slug = "aware_reactivity_service_dto"
+
+[[dependencies]]
+package_name = "reactivity-ontology"

@@ -1,0 +1,25 @@
+/// Environment-scoped binding edge for semantic node-class anchors.
+///
+/// Contract:
+/// - Explicitly encodes parent -> child chain between two node-class anchors.
+/// - ClassInstanceRelationshipIdentity is required and is the only traversal truth.
+class ProjectionExperienceNodeClassIdentityEdge {
+    // Relationships
+    child_node_class_identity ProjectionExperienceNodeClassIdentity key
+    parent_node_class_identity ProjectionExperienceNodeClassIdentity key
+    class_instance_relationship_identity aware_meta.class.ClassInstanceRelationshipIdentity key
+
+    // Attributes
+    key String?
+
+    fn build construct (
+        parent_node_class_identity_id UUID key,
+        child_node_class_identity_id UUID key,
+        class_instance_relationship_identity_id UUID key,
+        key String? = null
+    ) -> ProjectionExperienceNodeClassIdentityEdge {
+        """
+        Create deterministic ProjectionExperienceNodeClassIdentityEdge.
+        """
+    }
+}

@@ -1,0 +1,17 @@
+// RoleConfig projection (policy lane)
+//
+// Goal: RoleConfig evolves independently from identity and meta, and references meta config via portals.
+
+projection RoleConfig {
+    root role.RoleConfig
+
+    /// Policy graph membership
+    role.RoleConfig::role_config_class_configs
+    role.RoleConfigClassConfig::role_config_class_config_function_configs
+
+    /// Portal: role_config -> object_config_graph (policy references ClassConfig)
+    role.RoleConfigClassConfig::class_config aware_meta.ObjectConfigGraph
+
+    /// Portal: role_config function policy -> object_config_graph (FunctionConfig)
+    role.RoleConfigClassConfigFunctionConfig::function_config aware_meta.ObjectConfigGraph
+}

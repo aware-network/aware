@@ -1,0 +1,69 @@
+edge ContentPartContentLayout {
+    // Attributes
+    aspect_ratio Float?
+    depth_unit ContentPartLayoutUnit?
+    depth_value Float?
+    height_unit ContentPartLayoutUnit
+    height_value Float
+    is_responsive Bool = true
+    layout_order Int key = 0
+    margin_bottom Float?
+    margin_left Float?
+    margin_right Float?
+    margin_top Float?
+    max_height_unit ContentPartLayoutUnit?
+    max_height_value Float?
+    max_width_unit ContentPartLayoutUnit?
+    max_width_value Float?
+    min_height_unit ContentPartLayoutUnit?
+    min_height_value Float?
+    min_width_unit ContentPartLayoutUnit?
+    min_width_value Float?
+    opacity Float = 1.0
+    padding_bottom Float?
+    padding_left Float?
+    padding_right Float?
+    padding_top Float?
+    position_x_unit ContentPartLayoutUnit
+    position_x_value Float
+    position_y_unit ContentPartLayoutUnit
+    position_y_value Float
+    position_z_unit ContentPartLayoutUnit?
+    position_z_value Float?
+    rotation_x Float?
+    rotation_y Float?
+    rotation_z Float?
+    scale_x Float?
+    scale_y Float?
+    scale_z Float?
+    width_unit ContentPartLayoutUnit
+    width_value Float
+
+    fn create_content_part_content_layout construct(
+        content_part_content_id UUID key,
+        layout_order Int key = 0,
+        height_unit ContentPartLayoutUnit = percentage,
+        height_value Float = 100.0,
+        position_x_unit ContentPartLayoutUnit = percentage,
+        position_x_value Float = 0.0,
+        position_y_unit ContentPartLayoutUnit = percentage,
+        position_y_value Float = 0.0,
+        width_unit ContentPartLayoutUnit = percentage,
+        width_value Float = 100.0,
+    ) -> ContentPartContentLayout {
+        """
+        Creates a layout placement for a content part inside a content layout.
+        """
+        construct ContentPartContentLayout(
+            layout_order = layout_order,
+            height_unit = height_unit,
+            height_value = height_value,
+            position_x_unit = position_x_unit,
+            position_x_value = position_x_value,
+            position_y_unit = position_y_unit,
+            position_y_value = position_y_value,
+            width_unit = width_unit,
+            width_value = width_value,
+        )
+    }
+}

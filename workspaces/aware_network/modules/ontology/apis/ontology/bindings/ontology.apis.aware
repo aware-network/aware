@@ -1,0 +1,83 @@
+api ontology {
+    capability package {
+        endpoint ensure_object_config_graph_package aware_ontology_service_dto.graph.config.OntologyObjectConfigGraphPackageEnsureRequest {
+            """
+            Ensure one Ontology-owned ObjectConfigGraphPackage through the Ontology service boundary.
+            """
+
+            response aware_ontology_service_dto.graph.config.OntologyObjectConfigGraphPackageEnsureResponse
+        }
+    }
+
+    capability persistence {
+        endpoint ensure_ready aware_ontology_service_dto.persistence.OntologyPersistenceEnsureReadyRequest {
+            """
+            Ensure Ontology GraphOS persistence is ready without making Environment own ontology DB setup.
+            """
+
+            response aware_ontology_service_dto.persistence.OntologyPersistenceEnsureReadyResponse
+        }
+    }
+
+    capability runtime {
+        endpoint resolve_runtime_artifact_set aware_ontology_service_dto.runtime.OntologyRuntimeArtifactSetResolveRequest {
+            """
+            Resolve an Ontology-owned runtime artifact-set descriptor for explicit materialization or revision coordinates.
+            """
+
+            response aware_ontology_service_dto.runtime.OntologyRuntimeArtifactSetResolveResponse
+        }
+    }
+
+    capability graph {
+        endpoint invoke_function aware_ontology_service_dto.graph.instance.OntologyGraphInvokeFunctionRequest {
+            """
+            Invoke one ontology graph function through Ontology-owned GraphOS authority.
+            """
+
+            response aware_ontology_service_dto.graph.instance.OntologyGraphInvokeFunctionResponse
+        }
+
+        endpoint get_lane_head aware_ontology_service_dto.graph.instance.OntologyGraphGetLaneHeadRequest {
+            """
+            Read the current committed ontology graph lane head through Ontology service authority.
+            """
+
+            response aware_ontology_service_dto.graph.instance.OntologyGraphGetLaneHeadResponse
+        }
+
+        endpoint get_object_instance_graph_commit aware_ontology_service_dto.graph.instance.OntologyGraphGetObjectInstanceGraphCommitRequest {
+            """
+            Read one committed ObjectInstanceGraphCommit through Ontology service authority.
+            """
+
+            response aware_ontology_service_dto.graph.instance.OntologyGraphGetObjectInstanceGraphCommitResponse
+        }
+
+        endpoint resolve_projection aware_ontology_service_dto.graph.instance.OntologyGraphResolveProjectionRequest {
+            """
+            Resolve ontology runtime projection coordinates without mutating graph state.
+            """
+
+            response aware_ontology_service_dto.graph.instance.OntologyGraphResolveProjectionResponse
+        }
+    }
+
+    capability commit {
+        endpoint subscribe aware_ontology_service_dto.graph.instance.OntologyCommitSubscriptionRequest {
+            """
+            Subscribe to remote-safe Ontology commit fan-out events.
+            """
+
+            response aware_ontology_service_dto.graph.instance.OntologyCommitSubscriptionResponse
+
+            stream server {
+                """
+                Canonical Ontology commit events emitted after domain commit and required Ontology reactions complete.
+                """
+
+                event delta aware_ontology_service_dto.graph.instance.OntologyCommitEventEnvelope;
+            }
+        }
+    }
+}

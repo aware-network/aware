@@ -1,0 +1,22 @@
+/// Deterministic self-owned graph lifecycle deletion payload.
+///
+/// Contract:
+/// - `delete self` is the only v0 authored target.
+/// - Runtime deletes the invoked ClassInstance's self-owned closure only.
+/// - External parent/detach/cascade semantics are separate routed operations.
+class FunctionImplInstructionDelete {
+    // Attributes
+    target_kind FunctionImplDeleteTargetKind = self
+
+    fn build construct (
+        target_kind FunctionImplDeleteTargetKind = self
+    ) -> FunctionImplInstructionDelete {
+        """
+        Create deterministic `delete self` payload for one FunctionImplInstruction.
+
+        Contract:
+        - Parent context (`function_impl_instruction_id`) is injected by parent-edge lowering.
+        - v0 only accepts `target_kind = self`.
+        """
+    }
+}

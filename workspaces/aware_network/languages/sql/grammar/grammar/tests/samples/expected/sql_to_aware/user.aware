@@ -1,0 +1,12 @@
+type User {
+    // Relationships
+    posts public.Post[]
+    tags public.Tag[] many
+    user_roles public.UserRole[]
+
+    // Attributes
+    created_at DateTime = "CURRENT_TIMESTAMP"
+    email String unique
+    location String?
+    name String
+}

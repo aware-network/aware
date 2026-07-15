@@ -1,0 +1,24 @@
+class ProgramBranch {
+    // Relationships
+    object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch key
+
+    // Attributes
+    key String?
+    is_active Bool = true
+    view_key String?
+
+    fn build construct (
+        object_instance_graph_branch_id UUID key,
+        key String? = null,
+        view_key String? = null,
+        is_active Bool = true
+    ) -> ProgramBranch {
+        """
+        Create a deterministic ProgramBranch association edge.
+
+        Contract:
+        - Identity is derived from `(program_id, object_instance_graph_branch_id)`.
+        - Constructor is idempotent for repeated calls with the same pair.
+        """
+    }
+}

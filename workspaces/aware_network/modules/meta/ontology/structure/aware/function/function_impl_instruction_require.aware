@@ -1,0 +1,44 @@
+/// Deterministic guard payload for function execution rail.
+///
+/// Notes:
+/// - Grammar lowering for `require` is staged after this ontology contract.
+/// - Runtime must remain fail-closed until lowering/execution support is complete.
+class FunctionImplInstructionRequire {
+    // Relationships
+    operands FunctionImplInstructionRequireOperand[]
+
+    // Attributes
+    kind FunctionImplRequireKind
+    compare_operator FunctionImplRequireCompareOperator? = null
+    expected_count Int? = null
+    message String?
+
+    fn build construct (
+        kind FunctionImplRequireKind,
+        compare_operator FunctionImplRequireCompareOperator? = null,
+        expected_count Int? = null,
+        message String? = null
+    ) -> FunctionImplInstructionRequire {
+        """
+        Create deterministic `require` payload for one FunctionImplInstruction.
+
+        Contract:
+        - Parent context (`function_impl_instruction_id`) is injected by parent-edge lowering.
+        """
+    }
+
+    fn add_operand (
+        position Int,
+        value_source_id UUID
+    ) -> FunctionImplInstructionRequireOperand {
+        """
+        Attach one deterministic operand source under this `require` payload.
+        """
+        let created = construct operands.create(
+            position = position,
+            value_source_id = value_source_id,
+        )
+    }
+}
+
+ann function.FunctionImplInstructionRequire::operands load eager

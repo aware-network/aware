@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable, Iterator, Mapping
+from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, ClassVar, cast
@@ -9,6 +10,7 @@ from uuid import UUID
 
 import pytest
 
+from _meta_runtime_test_paths import META_MODULE_ROOT, source_text
 from aware_code.primitive_codec_base import build_code_primitive_type
 from aware_code.language.plugin import CodeLanguageMaterializationOutputDescriptor
 from aware_code.module_plugin_registry import AwareModulePluginRegistry
@@ -27,6 +29,7 @@ from aware_meta.graph.config.render.renderer_language import (
     build_renderer_empty_code,
 )
 import aware_meta.graph.config.render.renderer_language as renderer_language_module
+from aware_meta.materialization import workspace_provider as meta_workspace_provider
 from aware_meta.graph.config.runtime_derivation.schemas import (
     RuntimeObjectConfigGraphDerivationResult,
 )
@@ -429,21 +432,23 @@ def isolated_meta_language_plugin_registry() -> Iterator[None]:
     )
     saved_code_plugins = dict(CodeLanguagePluginRegistry._plugins)
     saved_code_supported = set(CodeLanguagePluginRegistry._supported_languages)
-    MetaLanguagePluginRegistry.clear()
-    CodeLanguagePluginRegistry.clear()
-    try:
-        yield
-    finally:
+    with _isolated_meta_module_plugin_registry():
+        _register_meta_module_plugin_contract()
         MetaLanguagePluginRegistry.clear()
         CodeLanguagePluginRegistry.clear()
-        MetaLanguagePluginRegistry._plugins.update(saved_plugins)
-        MetaLanguagePluginRegistry._supported_languages.update(saved_supported)
-        MetaLanguagePluginRegistry._file_filter_overrides.update(saved_file_filters)
-        MetaLanguagePluginRegistry._structural_filter_overrides.update(
-            saved_structural_filters
-        )
-        CodeLanguagePluginRegistry._plugins.update(saved_code_plugins)
-        CodeLanguagePluginRegistry._supported_languages.update(saved_code_supported)
+        try:
+            yield
+        finally:
+            MetaLanguagePluginRegistry.clear()
+            CodeLanguagePluginRegistry.clear()
+            MetaLanguagePluginRegistry._plugins.update(saved_plugins)
+            MetaLanguagePluginRegistry._supported_languages.update(saved_supported)
+            MetaLanguagePluginRegistry._file_filter_overrides.update(saved_file_filters)
+            MetaLanguagePluginRegistry._structural_filter_overrides.update(
+                saved_structural_filters
+            )
+            CodeLanguagePluginRegistry._plugins.update(saved_code_plugins)
+            CodeLanguagePluginRegistry._supported_languages.update(saved_code_supported)
 
 
 def _register_builtin_aware_plugin() -> None:
@@ -452,6 +457,94 @@ def _register_builtin_aware_plugin() -> None:
             MetaLanguagePluginRegistry.register(cast(MetaLanguagePlugin, plugin))
             return
     raise AssertionError("Expected built-in Aware Meta language plugin")
+
+
+@contextmanager
+def _isolated_meta_module_plugin_registry() -> Iterator[None]:
+    saved_plugins = dict(AwareModulePluginRegistry._plugins)
+    saved_capability_contracts = dict(
+        AwareModulePluginRegistry._language_service_capability_contracts
+    )
+    saved_capability_execution_contracts = dict(
+        AwareModulePluginRegistry._language_service_capability_execution_contracts
+    )
+    saved_semantic_contracts = dict(
+        AwareModulePluginRegistry._module_semantic_contracts
+    )
+    saved_code_package_materialization_contracts = dict(
+        AwareModulePluginRegistry._module_code_package_materialization_contracts
+    )
+    saved_code_module_contracts = dict(AwareModulePluginRegistry._code_module_contracts)
+    saved_language_service_provider_descriptors = dict(
+        AwareModulePluginRegistry._language_service_provider_descriptors
+    )
+    saved_language_service_capability_providers = dict(
+        AwareModulePluginRegistry._language_service_capability_providers
+    )
+    saved_semantic_capability_providers = dict(
+        AwareModulePluginRegistry._semantic_capability_providers
+    )
+    saved_builtin_code_language_plugins = (
+        AwareModulePluginRegistry._builtin_code_language_plugins
+    )
+    saved_builtin_meta_language_plugins = (
+        AwareModulePluginRegistry._builtin_meta_language_plugins
+    )
+    saved_builtin_bootstrap_attempted = (
+        AwareModulePluginRegistry._builtin_bootstrap_attempted
+    )
+    AwareModulePluginRegistry.clear()
+    try:
+        yield
+    finally:
+        AwareModulePluginRegistry.clear()
+        AwareModulePluginRegistry._plugins.update(saved_plugins)
+        AwareModulePluginRegistry._language_service_capability_contracts.update(
+            saved_capability_contracts
+        )
+        AwareModulePluginRegistry._language_service_capability_execution_contracts.update(
+            saved_capability_execution_contracts
+        )
+        AwareModulePluginRegistry._module_semantic_contracts.update(
+            saved_semantic_contracts
+        )
+        AwareModulePluginRegistry._module_code_package_materialization_contracts.update(
+            saved_code_package_materialization_contracts
+        )
+        AwareModulePluginRegistry._code_module_contracts.update(
+            saved_code_module_contracts
+        )
+        AwareModulePluginRegistry._language_service_provider_descriptors.update(
+            saved_language_service_provider_descriptors
+        )
+        AwareModulePluginRegistry._language_service_capability_providers.update(
+            saved_language_service_capability_providers
+        )
+        AwareModulePluginRegistry._semantic_capability_providers.update(
+            saved_semantic_capability_providers
+        )
+        AwareModulePluginRegistry._builtin_code_language_plugins = (
+            saved_builtin_code_language_plugins
+        )
+        AwareModulePluginRegistry._builtin_meta_language_plugins = (
+            saved_builtin_meta_language_plugins
+        )
+        AwareModulePluginRegistry._builtin_bootstrap_attempted = (
+            saved_builtin_bootstrap_attempted
+        )
+
+
+def _register_meta_module_plugin_contract() -> None:
+    AwareModulePluginRegistry.ensure_module_plugins_registered_from_module_roots(
+        module_roots=(META_MODULE_ROOT,),
+        replace_existing=True,
+    )
+    assert (
+        AwareModulePluginRegistry.semantic_contract_module_for_provider_key(
+            "aware_meta"
+        )
+        == "aware_meta.semantic_contract"
+    )
 
 
 def _register_fake_sql_plugin(
@@ -739,6 +832,25 @@ def _build_constructor_runtime_graph() -> ObjectConfigGraph:
     graph = _build_demo_runtime_graph()
     class_config = graph.object_config_graph_nodes[0].class_config
     assert class_config is not None
+    class_key_attribute = AttributeConfig(
+        owner_key=class_config.class_fqn,
+        name="key",
+        is_public=True,
+        is_required=True,
+        is_unique=True,
+        is_virtual=False,
+        type_descriptor=_primitive_desc(CodePrimitiveBaseType.string),
+    )
+    class_key_attribute.type_descriptor_id = class_key_attribute.type_descriptor.id
+    class_config.class_config_attribute_configs = [
+        ClassConfigAttributeConfig(
+            class_config_id=class_config.id,
+            attribute_config=class_key_attribute,
+            attribute_config_id=class_key_attribute.id,
+            position=0,
+            is_identity_key=True,
+        )
+    ]
     build_function = FunctionConfig(
         owner_key=class_config.class_fqn,
         name="build",
@@ -899,72 +1011,78 @@ def _build_demo_runtime_graph_with_external_enum(
 def test_meta_semantic_contract_declares_language_materialization_outputs_by_provider_key() -> (
     None
 ):
-    semantic_contract_source = Path(
+    semantic_contract_source = source_text(
         "workspaces/aware_kernel/modules/meta/ontology/runtime/python/aware_meta/semantic_contract.py"
-    ).read_text(encoding="utf-8")
+    )
     assert "python.meta_runtime_handlers_provider" not in semantic_contract_source
 
-    outputs = AwareModulePluginRegistry.semantic_materialization_artifact_outputs_for_provider_key(
-        provider_key="aware_meta",
-        semantic_owner=META_OBJECT_CONFIG_GRAPH_OWNER,
-        producer_key=META_LANGUAGE_MATERIALIZATION_PRODUCER_KEY,
-        required_for="workspace_revision",
-    )
+    with _isolated_meta_module_plugin_registry():
+        AwareModulePluginRegistry.ensure_module_plugins_registered_from_module_roots(
+            module_roots=(META_MODULE_ROOT,),
+            replace_existing=True,
+        )
 
-    assert {item.output_key for item in outputs} == {
-        META_LANGUAGE_MATERIALIZATION_GENERATED_FILES_OUTPUT_KEY,
-        META_LANGUAGE_MATERIALIZATION_LIFECYCLE_RECEIPT_OUTPUT_KEY,
-        META_LANGUAGE_MATERIALIZATION_PACKAGE_OUTPUT_KEY,
-    }
-    lifecycle_output = {item.output_key: item for item in outputs}[
-        META_LANGUAGE_MATERIALIZATION_LIFECYCLE_RECEIPT_OUTPUT_KEY
-    ]
-    assert lifecycle_output.artifact_path_pattern == (
-        "{materialization_root}/lifecycle_receipts/**/"
-        "ocg.language_materialization.lifecycle.json"
-    )
-    assert lifecycle_output.manifest_relpath is None
-    runtime_index_outputs = AwareModulePluginRegistry.semantic_materialization_artifact_outputs_for_provider_key(
-        provider_key="aware_meta",
-        semantic_owner=META_OBJECT_CONFIG_GRAPH_OWNER,
-        producer_key=META_LANGUAGE_MATERIALIZATION_PRODUCER_KEY,
-        required_for="runtime_index",
-    )
-    assert [item.output_key for item in runtime_index_outputs] == [
-        META_LANGUAGE_MATERIALIZATION_LIFECYCLE_RECEIPT_OUTPUT_KEY,
-        META_LANGUAGE_MATERIALIZATION_PACKAGE_OUTPUT_KEY,
-    ]
-    for plugin in AwareModulePluginRegistry.get_builtin_code_language_plugins():
-        if plugin.language == CodeLanguage.python:
-            python_outputs = {
-                item.output_key: item
-                for item in plugin.materialization_artifact_outputs
-            }
-            break
-    else:
-        raise AssertionError("Expected Python Code language plugin")
-    meta_handler_output = python_outputs[PYTHON_META_RUNTIME_HANDLERS_OUTPUT_KEY]
-    assert meta_handler_output.artifact_role == "meta_runtime_handler_provider"
-    assert meta_handler_output.path_templates == (
-        "handlers/_generated/meta_handlers.py",
-    )
-    assert meta_handler_output.provider_payload["renderer_kind"] == (
-        "runtime_handlers_meta"
-    )
+        outputs = AwareModulePluginRegistry.semantic_materialization_artifact_outputs_for_provider_key(
+            provider_key="aware_meta",
+            semantic_owner=META_OBJECT_CONFIG_GRAPH_OWNER,
+            producer_key=META_LANGUAGE_MATERIALIZATION_PRODUCER_KEY,
+            required_for="workspace_revision",
+        )
 
-    delta_outputs = AwareModulePluginRegistry.semantic_materialization_code_package_delta_outputs_for_provider_key(
-        provider_key="aware_meta",
-        semantic_owner=META_OBJECT_CONFIG_GRAPH_OWNER,
-        producer_key=META_LANGUAGE_MATERIALIZATION_PRODUCER_KEY,
-        required_for="local_checkout",
-    )
-    assert [item.output_key for item in delta_outputs] == [
-        META_LANGUAGE_MATERIALIZATION_CODE_PACKAGE_DELTAS_OUTPUT_KEY,
-    ]
-    assert delta_outputs[0].provider_payload == {
-        "receipt_field": "generated_code_package_deltas",
-        "target_language": "plugin",
-    }
+        assert {item.output_key for item in outputs} == {
+            META_LANGUAGE_MATERIALIZATION_GENERATED_FILES_OUTPUT_KEY,
+            META_LANGUAGE_MATERIALIZATION_LIFECYCLE_RECEIPT_OUTPUT_KEY,
+            META_LANGUAGE_MATERIALIZATION_PACKAGE_OUTPUT_KEY,
+        }
+        lifecycle_output = {item.output_key: item for item in outputs}[
+            META_LANGUAGE_MATERIALIZATION_LIFECYCLE_RECEIPT_OUTPUT_KEY
+        ]
+        assert lifecycle_output.artifact_path_pattern == (
+            "{materialization_root}/lifecycle_receipts/**/"
+            "ocg.language_materialization.lifecycle.json"
+        )
+        assert lifecycle_output.manifest_relpath is None
+        runtime_index_outputs = AwareModulePluginRegistry.semantic_materialization_artifact_outputs_for_provider_key(
+            provider_key="aware_meta",
+            semantic_owner=META_OBJECT_CONFIG_GRAPH_OWNER,
+            producer_key=META_LANGUAGE_MATERIALIZATION_PRODUCER_KEY,
+            required_for="runtime_index",
+        )
+        assert [item.output_key for item in runtime_index_outputs] == [
+            META_LANGUAGE_MATERIALIZATION_LIFECYCLE_RECEIPT_OUTPUT_KEY,
+            META_LANGUAGE_MATERIALIZATION_PACKAGE_OUTPUT_KEY,
+        ]
+        for plugin in AwareModulePluginRegistry.get_builtin_code_language_plugins():
+            if plugin.language == CodeLanguage.python:
+                python_outputs = {
+                    item.output_key: item
+                    for item in plugin.materialization_artifact_outputs
+                }
+                break
+        else:
+            raise AssertionError("Expected Python Code language plugin")
+        meta_handler_output = python_outputs[PYTHON_META_RUNTIME_HANDLERS_OUTPUT_KEY]
+        assert meta_handler_output.artifact_role == "meta_runtime_handler_provider"
+        assert meta_handler_output.path_templates == (
+            "handlers/_generated/meta_handlers.py",
+        )
+        assert meta_handler_output.provider_payload["renderer_kind"] == (
+            "runtime_handlers_meta"
+        )
+
+        delta_outputs = AwareModulePluginRegistry.semantic_materialization_code_package_delta_outputs_for_provider_key(
+            provider_key="aware_meta",
+            semantic_owner=META_OBJECT_CONFIG_GRAPH_OWNER,
+            producer_key=META_LANGUAGE_MATERIALIZATION_PRODUCER_KEY,
+            required_for="local_checkout",
+        )
+        assert [item.output_key for item in delta_outputs] == [
+            META_LANGUAGE_MATERIALIZATION_CODE_PACKAGE_DELTAS_OUTPUT_KEY,
+        ]
+        assert delta_outputs[0].provider_payload == {
+            "receipt_field": "generated_code_package_deltas",
+            "target_language": "plugin",
+        }
 
 
 def test_language_plugin_materialization_uses_generic_runtime_to_language_boundary(
@@ -1114,7 +1232,9 @@ def test_language_plugin_materialization_reports_source_to_runtime_transform_fai
     with pytest.raises(ValueError, match="missing namespace"):
         materialize_object_config_graph_via_language_plugin(
             LanguagePluginMaterializationRequest(
-                source_graph=_build_demo_runtime_graph(),
+                source_graph=_build_demo_runtime_graph().model_copy(
+                    update={"fqn_prefix": ""}
+                ),
                 target_language_plugin_id=CodeLanguage.sql,
                 source_is_runtime=False,
                 progress_callback=progress_callback,
@@ -2126,6 +2246,71 @@ def test_python_runtime_handler_materialization_derives_local_ontology_import_ov
     )
 
 
+def test_runtime_handler_delta_targets_declared_runtime_code_package(
+    tmp_path: Path,
+) -> None:
+    workspace_root = tmp_path / "workspace"
+    output_root = (
+        workspace_root
+        / "modules"
+        / "code"
+        / "ontology"
+        / "runtime"
+        / "python"
+        / "aware_code"
+    )
+    target = meta_workspace_provider._LanguageMaterializationTarget(  # noqa: SLF001
+        target_language_plugin_id=CodeLanguage.python,
+        output_root=output_root,
+        import_root="aware_code",
+        package_name="aware-code",
+        materialization_source="runtime_handlers",
+        code_package_surface="runtime",
+        source_is_runtime=True,
+        renderer_kind="runtime_handlers_impl",
+        declared_code_package_manifest_kind="pyproject_toml",
+        declared_code_package_manifest_relative_path=(
+            "modules/code/ontology/runtime/python/pyproject.toml"
+        ),
+        declared_code_package_package_root="modules/code/ontology/runtime/python",
+        declared_code_package_sources_root=(
+            "modules/code/ontology/runtime/python/aware_code"
+        ),
+    )
+
+    binding = meta_workspace_provider._language_materialization_delta_package_binding(  # noqa: SLF001
+        target=target,
+        package_name="aware-code",
+        generated_package_root="modules/code/ontology/runtime/python/aware_code",
+        generated_sources_root=None,
+        generated_manifest_relative_path=(
+            "modules/code/ontology/runtime/python/aware_code"
+        ),
+        generated_manifest_kind="generated_materialization",
+        generated_code_package_config_key="generated-runtime-handlers",
+        generated_code_package_config_id=UUID("11111111-1111-4111-8111-111111111111"),
+        generated_code_package_id=UUID("22222222-2222-4222-8222-222222222222"),
+        output_root=output_root,
+        workspace_root=workspace_root,
+    )
+    delta_texts = (
+        meta_workspace_provider._language_materialization_delta_texts(  # noqa: SLF001
+            generated_texts={"handlers/impl/code/code.py": "content"},
+            path_prefix=binding.path_prefix,
+        )
+    )
+
+    assert binding.package_name == "aware-code"
+    assert binding.package_root == "modules/code/ontology/runtime/python"
+    assert binding.sources_root == "modules/code/ontology/runtime/python/aware_code"
+    assert binding.manifest_relative_path == (
+        "modules/code/ontology/runtime/python/pyproject.toml"
+    )
+    assert binding.manifest_kind == "pyproject_toml"
+    assert binding.path_prefix == "aware_code"
+    assert delta_texts == {"aware_code/handlers/impl/code/code.py": "content"}
+
+
 def test_python_ontology_package_distribution_uses_import_root(
     isolated_meta_language_plugin_registry: None,
     tmp_path: Path,
@@ -2173,6 +2358,8 @@ def test_python_ontology_dto_package_includes_runtime_graph_stable_ids(
             package_name="aware-demo-ontology-dto",
             renderer_profile="ontology_dto",
             materialization_source="ontology_dto",
+            stable_ids_ownership="compiler",
+            stable_ids_resolution_policy="class_strict",
             emit_files=True,
         )
     )
@@ -2205,6 +2392,8 @@ def test_language_plugin_materialization_declares_python_meta_handler_provider(
         package_name="aware_demo",
         renderer_kind="runtime_handlers_meta",
         materialization_source="runtime_handlers",
+        stable_ids_ownership="compiler",
+        stable_ids_resolution_policy="class_strict",
         source_code_package_id=UUID("11111111-1111-4111-8111-111111111111"),
         object_config_graph_package_id=UUID("22222222-2222-4222-8222-222222222222"),
         object_config_graph_commit_id=UUID("33333333-3333-4333-8333-333333333333"),
@@ -2223,8 +2412,10 @@ def test_language_plugin_materialization_declares_python_meta_handler_provider(
     assert "AWARE_META_GRAPH_HANDLERS" in provider_source
     assert "AWARE_META_GRAPH_EMPTY_LANE_BOOTSTRAPS" in provider_source
     assert (
-        "from aware_demo_ontology.stable_ids import stable_device_id" in provider_source
-    )
+        "from aware_demo_ontology.stable_ids import "
+        "CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID"
+    ) in provider_source
+    assert 'import_module("aware_demo_ontology.stable_ids")' in provider_source
     assert "aware_demo.stable_ids" not in provider_source
     assert "aware_runtime" not in provider_source
 

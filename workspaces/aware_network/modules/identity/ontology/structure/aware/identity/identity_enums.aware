@@ -1,0 +1,6 @@
+enum IdentityType {
+    agent
+    human
+    organization
+    system
+}

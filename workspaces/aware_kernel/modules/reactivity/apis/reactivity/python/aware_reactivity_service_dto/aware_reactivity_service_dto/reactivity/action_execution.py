@@ -46,5 +46,9 @@ class ActionExecution(BaseModel):
     execution_key: str = Field(default="primary")
     status: ActionExecutionStatus = Field(default=ActionExecutionStatus.created)
     execution_context: JsonValue | None = Field(default=None)
+    api_call_id: UUID | None = Field(
+        default=None,
+        description="API receipt correlated to this execution attempt.\nThis is an evidence link to the API-owned ingress receipt. The request\nvalue itself lives once on `ApiCall.request_model`.",
+    )
     executor_ref: str | None = Field(default=None)
     result_info: str | None = Field(default=None)

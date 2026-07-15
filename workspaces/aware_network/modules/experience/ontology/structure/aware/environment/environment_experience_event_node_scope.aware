@@ -1,0 +1,34 @@
+class EnvironmentExperienceEventNodeScope {
+    // Reactivity binding being narrowed.
+    event_config_condition_config aware_reactivity.event.EventConfigConditionConfig key
+
+    // Experience graph-binding alias source.
+    projection_experience_node_identity projection.ProjectionExperienceNodeIdentity key
+
+    // Optional branch/lowered Reactivity scope receipt.
+    object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch?
+    event_config_condition_config_scope aware_reactivity.event.EventConfigConditionConfigScope?
+
+    fn build construct (
+        event_config_condition_config_id UUID key,
+        projection_experience_node_identity_id UUID key,
+        object_instance_graph_branch_id UUID? = null,
+        event_config_condition_config_scope_id UUID? = null
+    ) -> EnvironmentExperienceEventNodeScope {
+        """
+        Create one environment-scoped event trigger node binding.
+
+        Contract:
+        - Identity is derived from
+          `(environment_experience_event_id, event_config_condition_config_id,
+          projection_experience_node_identity_id)`.
+        - This row says which declared graph-binding node may trigger the event.
+        - Lowering must resolve the node identity through
+          ProjectionExperienceNodeClassIdentity and create/use a Reactivity
+          EventConfigConditionConfigScope whose ClassInstanceIdentity belongs to
+          the same ProjectionExperienceOIGI lane.
+        - Action request target mapping remains under ActionExperienceInvocation
+          request fields; this object owns trigger scope only.
+        """
+    }
+}

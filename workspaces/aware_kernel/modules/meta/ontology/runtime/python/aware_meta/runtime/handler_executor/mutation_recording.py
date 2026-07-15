@@ -137,6 +137,9 @@ def build_meta_graph_mutation_set_from_session_delta(
             constructed_class_instance_ids=(
                 session_delta.constructed_class_instance_ids
             ),
+            materialization_cache_prime_snapshot=(
+                session_delta.materialization_cache_prime_snapshot
+            ),
         ),
     )
 

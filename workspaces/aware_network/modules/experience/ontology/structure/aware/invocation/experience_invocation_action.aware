@@ -1,0 +1,93 @@
+/// Experience-owned record of one actual invocation action.
+///
+/// Contract:
+/// - `ExperienceInvocationActionConfig` is reusable configuration.
+/// - `ExperienceInvocationAction` is the single standalone invocation receipt.
+/// - Surface provenance (view, sensor, actuator, action-experience policy)
+///   attaches through surface-specific bridge objects; surfaces must not create
+///   separate receipt identities for the same crossing.
+/// - API and SDK receipts stay module-owned and are linked here for
+///   cross-surface provenance.
+class ExperienceInvocationAction {
+    // Relationships
+    experience_invocation_action_config ExperienceInvocationActionConfig key
+    actor aware_identity.actor.Actor?
+    api_call aware_api.api.ApiCall?
+    commits ExperienceInvocationActionCommit[]
+    propagations ExperienceInvocationActionPropagation[]
+    sdk_operation_call aware_sdk.sdk.SdkOperationCall?
+
+    // Attributes
+    invocation_key UUID key
+    request_ref String?
+    receipt_ref String?
+    status String = "pending"
+
+    fn build construct (
+        experience_invocation_action_config_id UUID key,
+        invocation_key UUID key,
+        actor_id UUID? = null,
+        api_call_id UUID? = null,
+        sdk_operation_call_id UUID? = null,
+        request_ref String? = null,
+        receipt_ref String? = null,
+        status String = "pending"
+    ) -> ExperienceInvocationAction {
+        """
+        Create one deterministic standalone invocation receipt.
+
+        Contract:
+        - Stable identity is `(experience_invocation_action_config, invocation_key)`.
+        - `invocation_key` is stable for one dispatch attempt.
+        - `actor_id` links to Identity-owned Actor provenance.
+        - `api_call_id` and `sdk_operation_call_id` are optional module-owned
+          receipts for the same dispatch.
+        """
+    }
+
+    fn add_commit (
+        object_instance_graph_commit_id UUID key,
+        commit_role String = "mutation",
+        description String? = null
+    ) -> ExperienceInvocationActionCommit {
+        """
+        Link one graph commit produced or consumed by this invocation action.
+
+        Contract:
+        - The commit wrapper remains Meta-owned.
+        - Events emitted from that commit are linked through child commit-event edges.
+        """
+        let created = construct commits.build(
+            object_instance_graph_commit_id = object_instance_graph_commit_id,
+            commit_role = commit_role,
+            description = description,
+        )
+    }
+
+    fn add_propagation (
+        target_invocation_action_id UUID key,
+        propagation_kind String = "invokes",
+        description String? = null
+    ) -> ExperienceInvocationActionPropagation {
+        """
+        Link this invocation action to another invocation action it caused.
+
+        Contract:
+        - SDK actions can point to API actions, service actions, or future
+          adapter-specific actions without collapsing their receipts.
+        - Commit and event provenance stays on the action that produced it.
+        """
+        let created = construct propagations.build(
+            target_invocation_action_id = target_invocation_action_id,
+            propagation_kind = propagation_kind,
+            description = description,
+        )
+    }
+}
+
+ann invocation.ExperienceInvocationAction identity standalone
+ann invocation.ExperienceInvocationAction::actor load eager
+ann invocation.ExperienceInvocationAction::api_call load eager
+ann invocation.ExperienceInvocationAction::commits load eager
+ann invocation.ExperienceInvocationAction::propagations load eager
+ann invocation.ExperienceInvocationAction::sdk_operation_call load eager

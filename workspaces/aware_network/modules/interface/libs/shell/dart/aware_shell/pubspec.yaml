@@ -1,0 +1,36 @@
+name: aware_shell
+description: Flutter shell consumer of aware_interface_sdk. Owns runtime/providers/widgets that mount Interface Host packages.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  uuid: ^4.5.1
+  logging: ^1.2.0
+  path: ^1.9.0
+  sqflite_common_ffi: ^2.3.7
+
+  aware_api:
+    path: ../../../../../../../aware_kernel/modules/api/libs/api/dart
+  aware_interface_service_api:
+    path: ../../../../apis/interface/dart/aware_interface_service_api
+  aware_interface_sdk:
+    path: ../../../../sdks/interface/dart/aware_interface_sdk
+  aware_environment_service_api:
+    path: ../../../../../environment/apis/environment/dart/aware_environment_service_api
+  aware_pane_runtime:
+    path: ../../../pane_runtime/dart/aware_pane_runtime
+  aware_windows:
+    path: ../../../windows/dart/aware_windows
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: any
+  aware_pane:
+    path: ../../../pane/dart/aware_pane

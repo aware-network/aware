@@ -1,0 +1,13 @@
+enum TurnExecutionState {
+    accepted
+    running
+    terminal
+}
+
+enum TurnExecutionTerminalStatus {
+    cancelled
+    dead_letter
+    failed
+    skipped
+    succeeded
+}

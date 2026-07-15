@@ -58,6 +58,7 @@ from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
 
 # Aware Kernel Meta
 from aware_meta.graph.config.stable_ids import stable_class_instance_id
+from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
 from aware_meta_ontology.stable_ids import stable_object_instance_graph_id
 from aware_meta.graph.instance.hash import compute_hash
 from aware_meta.graph.instance.index import build_index
@@ -109,14 +110,14 @@ class InstanceRegistry:
         return cls(by_id=by_id, by_class_config_id=by_cc)
 
 
-@dataclass(frozen=True)
-class _TraversalContextSource(ModelIntrospection):
+@dataclass
+class _TraversalContextSource:
     source: ModelIntrospection
     values_by_name: Mapping[str, object]
+    id: UUID = field(init=False)
 
-    @property
-    def id(self) -> UUID:
-        return self.source.id
+    def __post_init__(self) -> None:
+        self.id = self.source.id
 
     def field_is_declared(self, name: str) -> bool:
         return name in self.values_by_name or self.source.field_is_declared(name)
@@ -354,6 +355,23 @@ def _record_oig_build_profile(
             pass
 
 
+def _oig_builder_trace_metadata(
+    *,
+    root_instance: ModelIntrospection,
+    object_config_graph: ObjectConfigGraph,
+    object_projection_graph: ObjectProjectionGraph,
+    instance_registry_provided: bool,
+) -> dict[str, object]:
+    return {
+        "object_config_graph_id": object_config_graph.id,
+        "object_projection_graph_id": object_projection_graph.id,
+        "projection_hash": object_projection_graph.projection_hash,
+        "root_source_object_id": root_instance.id,
+        "root_class_config_id": root_instance.try_class_config_id(),
+        "instance_registry_provided": instance_registry_provided,
+    }
+
+
 def build_object_instance_graph(
     *,
     root_instance: ModelIntrospection,
@@ -384,32 +402,43 @@ def build_object_instance_graph(
         if timings is not None and (timing_key_prefix or "").strip()
         else None
     )
+    trace_metadata = _oig_builder_trace_metadata(
+        root_instance=root_instance,
+        object_config_graph=object_config_graph,
+        object_projection_graph=object_projection_graph,
+        instance_registry_provided=instance_registry is not None,
+    )
 
     indexes_started_at = time.perf_counter() if build_profile is not None else 0.0
-    ocg = _build_ocg_index(object_config_graph)
-    resolver = relationship_resolver or InMemoryRelationshipResolver(
-        attribute_configs_by_id=ocg.attribute_configs_by_id
-    )
+    with commit_perf_span(
+        phase="handler_execution.oig_builder.build_indexes",
+        category="meta.runtime.handler_execution",
+        metadata=trace_metadata,
+    ):
+        ocg = _build_ocg_index(object_config_graph)
+        resolver = relationship_resolver or InMemoryRelationshipResolver(
+            attribute_configs_by_id=ocg.attribute_configs_by_id
+        )
 
-    opg = _build_opg_index(object_projection_graph)
-    relationship_attr_ids_by_cc_id = (
-        build_relationship_attribute_config_ids_by_class_config_id(
-            class_configs_by_id=ocg.class_configs_by_id,
+        opg = _build_opg_index(object_projection_graph)
+        relationship_attr_ids_by_cc_id = (
+            build_relationship_attribute_config_ids_by_class_config_id(
+                class_configs_by_id=ocg.class_configs_by_id,
+                relationships_by_id=ocg.relationships_by_id,
+            )
+        )
+        include_relationship_attr_ids_by_cc_id = (
+            build_include_relationship_attribute_config_ids_by_class_config_id(
+                object_projection_graph=object_projection_graph,
+                class_configs_by_id=ocg.class_configs_by_id,
+                relationships_by_id=ocg.relationships_by_id,
+            )
+        )
+
+        edges_by_source_cc_id = _index_edges_by_source(
+            edges=object_projection_graph.object_projection_graph_edges,
             relationships_by_id=ocg.relationships_by_id,
         )
-    )
-    include_relationship_attr_ids_by_cc_id = (
-        build_include_relationship_attribute_config_ids_by_class_config_id(
-            object_projection_graph=object_projection_graph,
-            class_configs_by_id=ocg.class_configs_by_id,
-            relationships_by_id=ocg.relationships_by_id,
-        )
-    )
-
-    edges_by_source_cc_id = _index_edges_by_source(
-        edges=object_projection_graph.object_projection_graph_edges,
-        relationships_by_id=ocg.relationships_by_id,
-    )
     if build_profile is not None:
         build_profile.build_indexes_s += time.perf_counter() - indexes_started_at
 
@@ -426,10 +455,15 @@ def build_object_instance_graph(
     root_id = root_instance.id
 
     registry_started_at = time.perf_counter() if build_profile is not None else 0.0
-    all_instances: list[ModelIntrospection] = [root_instance]
-    if instance_registry is not None:
-        all_instances.extend(list(instance_registry))
-    registry = InstanceRegistry.from_instances(all_instances)
+    with commit_perf_span(
+        phase="handler_execution.oig_builder.build_registry",
+        category="meta.runtime.handler_execution",
+        metadata=trace_metadata,
+    ):
+        all_instances: list[ModelIntrospection] = [root_instance]
+        if instance_registry is not None:
+            all_instances.extend(list(instance_registry))
+        registry = InstanceRegistry.from_instances(all_instances)
     if build_profile is not None:
         build_profile.build_registry_s += time.perf_counter() - registry_started_at
 
@@ -603,17 +637,22 @@ def build_object_instance_graph(
 
     root_ci = visited[(root_cc.id, root_id)]
     finalize_started_at = time.perf_counter() if build_profile is not None else 0.0
-    graph = build_object_instance_graph_from_class_instances(
-        key=graph_key,
-        name=name,
-        description=description,
-        object_config_graph_id=object_config_graph.id,
-        object_projection_graph_id=object_projection_graph.id,
-        root_class_instance=root_ci,
-        class_instances=list(visited.values()),
-        class_instance_relationships=relationships,
-        oig_id=graph_id,
-    )
+    with commit_perf_span(
+        phase="handler_execution.oig_builder.finalize_graph",
+        category="meta.runtime.handler_execution",
+        metadata=trace_metadata,
+    ):
+        graph = build_object_instance_graph_from_class_instances(
+            key=graph_key,
+            name=name,
+            description=description,
+            object_config_graph_id=object_config_graph.id,
+            object_projection_graph_id=object_projection_graph.id,
+            root_class_instance=root_ci,
+            class_instances=list(visited.values()),
+            class_instance_relationships=relationships,
+            oig_id=graph_id,
+        )
     if build_profile is not None:
         build_profile.finalize_graph_s += time.perf_counter() - finalize_started_at
     _record_oig_build_profile(
@@ -643,23 +682,44 @@ def build_object_instance_graph_from_class_instances(
         object_projection_graph_id=object_projection_graph_id,
         key=graph_key,
     )
-    with disable_change_tracking_hooks():
-        with disable_autobind():
-            graph = ObjectInstanceGraph(
-                id=graph_id,
-                key=graph_key,
-                name=name,
-                description=description,
-                object_projection_graph_id=object_projection_graph_id,
-                root_class_instance_id=root_class_instance.id,
-                root_class_instance=root_class_instance,
-                class_instances=class_instances,
-                class_instance_relationships=class_instance_relationships,
-                hash="",
-            )
+    trace_metadata = {
+        "object_projection_graph_id": object_projection_graph_id,
+        "root_class_instance_id": root_class_instance.id,
+        "class_instance_count": len(class_instances),
+        "class_instance_relationship_count": len(class_instance_relationships),
+    }
+    with commit_perf_span(
+        phase="handler_execution.oig_builder.construct_graph",
+        category="meta.runtime.handler_execution",
+        metadata=trace_metadata,
+    ):
+        with disable_change_tracking_hooks():
+            with disable_autobind():
+                graph = ObjectInstanceGraph(
+                    id=graph_id,
+                    key=graph_key,
+                    name=name,
+                    description=description,
+                    object_projection_graph_id=object_projection_graph_id,
+                    root_class_instance_id=root_class_instance.id,
+                    root_class_instance=root_class_instance,
+                    class_instances=class_instances,
+                    class_instance_relationships=class_instance_relationships,
+                    hash="",
+                )
 
-    index = build_index(graph)
-    graph.hash = compute_hash(graph, index=index)
+    with commit_perf_span(
+        phase="handler_execution.oig_builder.build_graph_index",
+        category="meta.runtime.handler_execution",
+        metadata=trace_metadata,
+    ):
+        index = build_index(graph)
+    with commit_perf_span(
+        phase="handler_execution.oig_builder.compute_graph_hash",
+        category="meta.runtime.handler_execution",
+        metadata=trace_metadata,
+    ):
+        graph.hash = compute_hash(graph, index=index)
     return graph
 
 

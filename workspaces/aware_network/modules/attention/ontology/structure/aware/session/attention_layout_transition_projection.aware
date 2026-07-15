@@ -1,0 +1,15 @@
+// AttentionLayoutTransition projection
+//
+// Contract:
+// - The transition header plus typed section rows are replayable shared-layout
+//   source truth.
+// - The linked mounted-session-section id grounds every row without inlining
+//   the full AttentionSession graph into this portal.
+
+projection AttentionLayoutTransition {
+    root session.AttentionLayoutTransition
+
+    session.AttentionLayoutTransition::previous_transition
+    session.AttentionLayoutTransition::topology_transition AttentionLayoutTopologyTransition
+    session.AttentionLayoutTransition::section_states
+}

@@ -1,0 +1,894 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_IDENTITY"
+kind = "ns_url"
+value = "aware://identity/v1"
+
+[[functions]]
+name = "stable_actor_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor:{identity_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: identity_id, key"
+
+[[functions.params]]
+name = "identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_actor_commit_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_commit:{actor_id}:{domain_branch_id}:{domain_projection_hash_norm}:{domain_commit_id}"
+doc = "Compiler-generated from class-attribute identity keys: actor_id, domain_branch_id, domain_projection_hash, domain_commit_id"
+
+[[functions.params]]
+name = "actor_id"
+type = "uuid"
+
+[[functions.params]]
+name = "domain_branch_id"
+type = "uuid"
+
+[[functions.params]]
+name = "domain_projection_hash"
+type = "str"
+
+[[functions.params]]
+name = "domain_commit_id"
+type = "uuid"
+
+[[functions.lets]]
+op = "normalize"
+name = "domain_projection_hash_norm"
+param = "domain_projection_hash"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_actor_event_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_event:{actor_id}:{event_id}:{role_norm}"
+doc = "Compiler-generated from class-attribute identity keys: actor_id, event_id, role"
+
+[[functions.params]]
+name = "actor_id"
+type = "uuid"
+
+[[functions.params]]
+name = "event_id"
+type = "uuid"
+
+[[functions.params]]
+name = "role"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "role_norm"
+param = "role"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_actor_focus_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_focus:{actor_id}:{focus_id}"
+doc = "Compiler-generated from class-attribute identity keys: actor_id, focus_id"
+
+[[functions.params]]
+name = "actor_id"
+type = "uuid"
+
+[[functions.params]]
+name = "focus_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_actor_focus_evidence_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_focus_evidence:{actor_focus_id}:{evidence_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: actor_focus_id, evidence_key"
+
+[[functions.params]]
+name = "actor_focus_id"
+type = "uuid"
+
+[[functions.params]]
+name = "evidence_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "evidence_key_norm"
+param = "evidence_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_actor_focus_request_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_focus_request:{sender_id}:{receiver_id}:{focus_id}"
+doc = "Compiler-generated from class-attribute identity keys: sender_id, receiver_id, focus_id"
+
+[[functions.params]]
+name = "sender_id"
+type = "uuid"
+
+[[functions.params]]
+name = "receiver_id"
+type = "uuid"
+
+[[functions.params]]
+name = "focus_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_actor_focus_request_response_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_focus_request_response:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_actor_focus_scope_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_focus_scope:{actor_id}:{focus_scope_id}"
+doc = "Compiler-generated from class-attribute identity keys: actor_id, focus_scope_id"
+
+[[functions.params]]
+name = "actor_id"
+type = "uuid"
+
+[[functions.params]]
+name = "focus_scope_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_actor_focus_scope_evidence_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_focus_scope_evidence:{actor_focus_scope_id}:{evidence_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: actor_focus_scope_id, evidence_key"
+
+[[functions.params]]
+name = "actor_focus_scope_id"
+type = "uuid"
+
+[[functions.params]]
+name = "evidence_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "evidence_key_norm"
+param = "evidence_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_actor_focus_scope_request_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_focus_scope_request:{actor_focus_scope_id}:{focus_scope_request_id}"
+doc = "Compiler-generated from class-attribute identity keys: actor_focus_scope_id, focus_scope_request_id"
+
+[[functions.params]]
+name = "actor_focus_scope_id"
+type = "uuid"
+
+[[functions.params]]
+name = "focus_scope_request_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_actor_role_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_role:{actor_id}:{role_id}"
+doc = "Compiler-generated from class-attribute identity keys: actor_id, role_id"
+
+[[functions.params]]
+name = "actor_id"
+type = "uuid"
+
+[[functions.params]]
+name = "role_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_actor_role_delta_plan_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_role_delta_plan:{actor_role_id}:{to_role_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: actor_role_id, to_role_config_id"
+
+[[functions.params]]
+name = "actor_role_id"
+type = "uuid"
+
+[[functions.params]]
+name = "to_role_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_actor_subscription_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_subscription:{actor_id}:{event_config_condition_config_scope_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: actor_id, event_config_condition_config_scope_id, name"
+
+[[functions.params]]
+name = "actor_id"
+type = "uuid"
+
+[[functions.params]]
+name = "event_config_condition_config_scope_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_actor_subscription_event_id"
+namespace = "NS_IDENTITY"
+template = "aware:actor_subscription_event:{actor_subscription_id}:{event_config_condition_config_scope_event_id}"
+doc = "Compiler-generated from class-attribute identity keys: actor_subscription_id, event_config_condition_config_scope_event_id"
+
+[[functions.params]]
+name = "actor_subscription_id"
+type = "uuid"
+
+[[functions.params]]
+name = "event_config_condition_config_scope_event_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_auth_token_id"
+namespace = "NS_IDENTITY"
+template = "aware:auth_token:{auth_token_registry_id}"
+doc = "Compiler-generated from class-attribute identity keys: auth_token_registry_id"
+
+[[functions.params]]
+name = "auth_token_registry_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_auth_token_registry_id"
+namespace = "NS_IDENTITY"
+template = "aware:auth_token_registry:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "v1"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "v1"
+
+[[functions]]
+name = "stable_credential_grant_id"
+namespace = "NS_IDENTITY"
+template = "aware:credential_grant:{credential_profile_id}:{grant_key_norm}:{scope_kind_norm}:{scope_value_norm}"
+doc = "Compiler-generated from class-attribute identity keys: credential_profile_id, grant_key, scope_kind, scope_value"
+
+[[functions.params]]
+name = "credential_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "grant_key"
+type = "str"
+
+[[functions.params]]
+name = "scope_kind"
+type = "str"
+
+[[functions.params]]
+name = "scope_value"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "grant_key_norm"
+param = "grant_key"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "scope_kind_norm"
+param = "scope_kind"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "scope_value_norm"
+param = "scope_value"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_credential_profile_id"
+namespace = "NS_IDENTITY"
+template = "aware:credential_profile:{identity_id}:{profile_key_norm}:{target_kind_norm}"
+doc = "Compiler-generated from class-attribute identity keys: identity_id, profile_key, target_kind"
+
+[[functions.params]]
+name = "identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "profile_key"
+type = "str"
+
+[[functions.params]]
+name = "target_kind"
+type = "str"
+default = "aware_api"
+
+[[functions.lets]]
+op = "normalize"
+name = "profile_key_norm"
+param = "profile_key"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize_default"
+name = "target_kind_norm"
+param = "target_kind"
+normalize = ["casefold", "strip"]
+default = "aware_api"
+
+[[functions]]
+name = "stable_credential_readiness_receipt_id"
+namespace = "NS_IDENTITY"
+template = "aware:credential_readiness_receipt:{credential_profile_id}:{receipt_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: credential_profile_id, receipt_key"
+
+[[functions.params]]
+name = "credential_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "receipt_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "receipt_key_norm"
+param = "receipt_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_credential_secret_material_ref_id"
+namespace = "NS_IDENTITY"
+template = "aware:credential_secret_material_ref:{credential_profile_id}:{secret_ref_key_norm}:{resolver_kind_norm}"
+doc = "Compiler-generated from class-attribute identity keys: credential_profile_id, secret_ref_key, resolver_kind"
+
+[[functions.params]]
+name = "credential_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "secret_ref_key"
+type = "str"
+
+[[functions.params]]
+name = "resolver_kind"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "secret_ref_key_norm"
+param = "secret_ref_key"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "resolver_kind_norm"
+param = "resolver_kind"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_credential_usage_receipt_id"
+namespace = "NS_IDENTITY"
+template = "aware:credential_usage_receipt:{credential_profile_id}:{receipt_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: credential_profile_id, receipt_key"
+
+[[functions.params]]
+name = "credential_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "receipt_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "receipt_key_norm"
+param = "receipt_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_human_id"
+namespace = "NS_IDENTITY"
+template = "aware:human:{actor_id}"
+doc = "Compiler-generated from class-attribute identity keys: actor_id"
+
+[[functions.params]]
+name = "actor_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_identity_id"
+namespace = "NS_IDENTITY"
+template = "aware:identity:{public_key_norm}:{type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: public_key, type"
+
+[[functions.params]]
+name = "public_key"
+type = "str"
+
+[[functions.params]]
+name = "type"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "public_key_norm"
+param = "public_key"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "type_norm"
+param = "type"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_identity_connection_id"
+namespace = "NS_IDENTITY"
+template = "aware:identity_connection:{requester_identity_id}:{recipient_identity_id}:{connection_type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: requester_identity_id, recipient_identity_id, connection_type"
+
+[[functions.params]]
+name = "requester_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "recipient_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "connection_type"
+type = "str"
+default = "connect"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "connection_type_norm"
+param = "connection_type"
+normalize = ["casefold", "strip"]
+default = "connect"
+
+[[functions]]
+name = "stable_identity_pattern_id"
+namespace = "NS_IDENTITY"
+template = "aware:identity_pattern:{pattern_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: pattern_key"
+
+[[functions.params]]
+name = "pattern_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "pattern_key_norm"
+param = "pattern_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_identity_pattern_evidence_id"
+namespace = "NS_IDENTITY"
+template = "aware:identity_pattern_evidence:{content_part_text_id}:{evidence_type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: content_part_text_id, evidence_type"
+
+[[functions.params]]
+name = "content_part_text_id"
+type = "uuid"
+
+[[functions.params]]
+name = "evidence_type"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "evidence_type_norm"
+param = "evidence_type"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_identity_profile_id"
+namespace = "NS_IDENTITY"
+template = "aware:identity_profile:{public_handle_norm}"
+doc = "Compiler-generated from class-attribute identity keys: public_handle"
+
+[[functions.params]]
+name = "public_handle"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "public_handle_norm"
+param = "public_handle"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_memory_episode_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_episode:{content_chain_content_id}:{content_chain_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: content_chain_content_id, content_chain_section_id"
+
+[[functions.params]]
+name = "content_chain_content_id"
+type = "uuid"
+
+[[functions.params]]
+name = "content_chain_section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_memory_episodic_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_episodic:{actor_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: actor_id, key"
+
+[[functions.params]]
+name = "actor_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_memory_procedural_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_procedural:{identity_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: identity_id, key"
+
+[[functions.params]]
+name = "identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_memory_procedure_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_procedure:{content_id}:{procedure_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: content_id, procedure_config_id"
+
+[[functions.params]]
+name = "content_id"
+type = "uuid"
+
+[[functions.params]]
+name = "procedure_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_memory_procedure_config_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_procedure_config:{content_id}"
+doc = "Compiler-generated from class-attribute identity keys: content_id"
+
+[[functions.params]]
+name = "content_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_memory_procedure_episode_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_procedure_episode:{memory_episode_id}:{memory_procedure_id}"
+doc = "Compiler-generated from class-attribute identity keys: memory_episode_id, memory_procedure_id"
+
+[[functions.params]]
+name = "memory_episode_id"
+type = "uuid"
+
+[[functions.params]]
+name = "memory_procedure_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_memory_semantic_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_semantic:{identity_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: identity_id, key"
+
+[[functions.params]]
+name = "identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_memory_working_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_working:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_memory_working_attention_frame_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_working_attention_frame:{memory_working_item_id}:{focus_scope_id}"
+doc = "Compiler-generated from class-attribute identity keys: memory_working_item_id, focus_scope_id"
+
+[[functions.params]]
+name = "memory_working_item_id"
+type = "uuid"
+
+[[functions.params]]
+name = "focus_scope_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_memory_working_content_frame_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_working_content_frame:{memory_working_item_id}:{content_id}"
+doc = "Compiler-generated from class-attribute identity keys: memory_working_item_id, content_id"
+
+[[functions.params]]
+name = "memory_working_item_id"
+type = "uuid"
+
+[[functions.params]]
+name = "content_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_memory_working_event_frame_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_working_event_frame:{memory_working_item_id}:{event_id}"
+doc = "Compiler-generated from class-attribute identity keys: memory_working_item_id, event_id"
+
+[[functions.params]]
+name = "memory_working_item_id"
+type = "uuid"
+
+[[functions.params]]
+name = "event_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_memory_working_item_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_working_item:{memory_working_id}:{kind_norm}:{position}"
+doc = "Compiler-generated from class-attribute identity keys: memory_working_id, kind, position"
+
+[[functions.params]]
+name = "memory_working_id"
+type = "uuid"
+
+[[functions.params]]
+name = "kind"
+type = "str"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions.lets]]
+op = "normalize"
+name = "kind_norm"
+param = "kind"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_memory_working_tool_frame_id"
+namespace = "NS_IDENTITY"
+template = "aware:memory_working_tool_frame:{memory_working_item_id}:{tool_call_id}"
+doc = "Compiler-generated from class-attribute identity keys: memory_working_item_id, tool_call_id"
+
+[[functions.params]]
+name = "memory_working_item_id"
+type = "uuid"
+
+[[functions.params]]
+name = "tool_call_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_organization_id"
+namespace = "NS_IDENTITY"
+template = "aware:organization:{actor_id}"
+doc = "Compiler-generated from class-attribute identity keys: actor_id"
+
+[[functions.params]]
+name = "actor_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_organization_member_id"
+namespace = "NS_IDENTITY"
+template = "aware:organization_member:{organization_id}:{identity_id}"
+doc = "Compiler-generated from class-attribute identity keys: organization_id, identity_id"
+
+[[functions.params]]
+name = "organization_id"
+type = "uuid"
+
+[[functions.params]]
+name = "identity_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_role_id"
+namespace = "NS_IDENTITY"
+template = "aware:role:{role_config_id}:{object_instance_graph_identity_id}:{object_instance_graph_branch_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: role_config_id, object_instance_graph_identity_id, object_instance_graph_branch_key"
+
+[[functions.params]]
+name = "role_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_instance_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_instance_graph_branch_key"
+type = "str"
+default = "all"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "object_instance_graph_branch_key_norm"
+param = "object_instance_graph_branch_key"
+normalize = ["casefold", "strip"]
+default = "all"
+
+[[functions]]
+name = "stable_role_class_instance_id"
+namespace = "NS_IDENTITY"
+template = "aware:role_class_instance:{role_id}:{class_instance_identity_id}:{role_config_class_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: role_id, class_instance_identity_id, role_config_class_config_id"
+
+[[functions.params]]
+name = "role_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_instance_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "role_config_class_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_role_config_id"
+namespace = "NS_IDENTITY"
+template = "aware:role_config:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_role_config_class_config_id"
+namespace = "NS_IDENTITY"
+template = "aware:role_config_class_config:{role_config_id}:{class_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: role_config_id, class_config_id"
+
+[[functions.params]]
+name = "role_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_role_config_class_config_function_config_id"
+namespace = "NS_IDENTITY"
+template = "aware:role_config_class_config_function_config:{role_config_class_config_id}:{function_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: role_config_class_config_id, function_config_id"
+
+[[functions.params]]
+name = "role_config_class_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "function_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_role_config_class_config_relationship_id"
+namespace = "NS_IDENTITY"
+template = "aware:role_config_class_config_relationship:{access_level_norm}"
+doc = "Compiler-generated from class-attribute identity keys: access_level"
+
+[[functions.params]]
+name = "access_level"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "access_level_norm"
+param = "access_level"
+normalize = ["casefold", "strip"]

@@ -1,0 +1,46 @@
+/// Meta-owned OCG/OPG completeness diagnostics DTOs.
+///
+/// Consumers use this surface through Meta API/SDK. Meta runtime internals stay
+/// behind services/meta and are not imported by SDK consumers.
+
+class MetaCompletenessDiagnostic : inline_value {
+    severity String
+    code String
+    message String
+    source_path String?
+}
+
+class MetaCompletenessAnalyzeRequest {
+    actor_id UUID?
+    workspace_root String?
+    package_root String
+    aware_toml_path String?
+    source_files String[] = []
+    dependency_refs graph.config.MetaObjectConfigGraphPackageDependencyRef[] = []
+    completeness_diagnostics Bool = true
+    diagnostic_severity String = "warning"
+    include_object_config_graph Bool = false
+}
+
+class MetaCompletenessAnalyzeResponse {
+    status String
+    actor_id UUID?
+    workspace_root String?
+    package_root String?
+    aware_toml_path String?
+    package_name String?
+    fqn_prefix String?
+    diagnostics diagnostics.MetaCompletenessDiagnostic[] = []
+    changed_source_files String[] = []
+    affected_object_config_graph_keys String[] = []
+    affected_node_keys String[] = []
+    graph_count Int = 0
+    node_count Int = 0
+    class_count Int = 0
+    enum_count Int = 0
+    function_count Int = 0
+    relationship_count Int = 0
+    required_materializations String[] = []
+    object_config_graph JsonObject?
+    error String?
+}

@@ -1,0 +1,26 @@
+class CreateProfileRequest : inline_value {
+    /// Display Name
+    display_name String
+
+    // Handle to be recognized around the Network
+    public_handle String
+
+    // Identification
+    full_name String
+
+    // Preferences
+    country_code String
+    language_code String
+
+    // Profile data
+    bio String?
+    identity_type IdentityType
+
+    // Optional profile image blob id (aware_storage.blob.StorageBlob.id)
+    image_id UUID?
+
+    // Optional profile image metadata (required to create a commit-backed StorageBlob record)
+    image_sha String?
+    image_mime_type String?
+    image_size_bytes Int?
+}

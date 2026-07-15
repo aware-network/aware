@@ -1,0 +1,27 @@
+class CodeSemanticContractProfileImport {
+    // Relationships
+    imported_profile CodeSemanticContractProfile key
+
+    // Attributes
+    import_key String key
+    required Bool = true
+    status String = "active"
+
+    fn build construct(
+        imported_profile_id UUID key,
+        import_key String key,
+        required Bool = true,
+        status String = "active"
+    ) -> CodeSemanticContractProfileImport {
+        """
+        Record one Code-level semantic contract profile composition edge.
+
+        Contract:
+        - Profile composition is Code semantic contract graph truth.
+        - Workspace resolves composed profiles but does not model profile imports
+          as workspace package dependencies.
+        """
+    }
+}
+
+ann semantic.CodeSemanticContractProfileImport::imported_profile load eager

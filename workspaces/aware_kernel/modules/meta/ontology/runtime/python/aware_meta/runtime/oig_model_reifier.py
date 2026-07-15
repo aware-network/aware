@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, TypeVar, cast
 from uuid import UUID
 
@@ -12,6 +12,7 @@ from aware_meta.runtime.oig_value_decoder import decode_oig_attribute_value
 from aware_meta_ontology.attribute.attribute_enums import AttributeCollectionType
 from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
     AttributeTypeDescriptorKind,
+    AttributeTypeDescriptorRole,
 )
 from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.class_.class_config_enums import ClassValueMode
@@ -26,6 +27,7 @@ from aware_meta_ontology.graph.projection.object_projection_graph import (
     ObjectProjectionGraph,
 )
 from aware_orm.models.orm_model import ORMModel
+from aware_orm.registry import ORMModelRegistry
 from aware_orm.runtime.class_resolver import (
     ORMClassResolutionIndex,
     resolve_orm_class,
@@ -64,6 +66,12 @@ def reify_oig_root_model(
         opg=opg,
         oig=oig,
         branch_id=branch_id,
+        preferred_model_types_by_class_config_id=(
+            _preferred_model_types_by_class_config_id(
+                index=index,
+                model_type=model_type,
+            )
+        ),
     )
     return reifier.reify_root(model_type=model_type, root_id=root_id)
 
@@ -84,6 +92,12 @@ def reify_oig_target_model(
         opg=opg,
         oig=oig,
         branch_id=branch_id,
+        preferred_model_types_by_class_config_id=(
+            _preferred_model_types_by_class_config_id(
+                index=index,
+                model_type=model_type,
+            )
+        ),
     )
     return reifier.reify_class_instance(
         model_type=model_type,
@@ -139,12 +153,140 @@ def bind_oig_models_to_current_handler_session(
     return len(instances_by_class_instance_id)
 
 
+def _preferred_model_types_by_class_config_id(
+    *,
+    index: MetaGraphRuntimeIndex,
+    model_type: type[TModel],
+) -> Mapping[UUID, type[ORMModel]]:
+    """Prefer the caller's explicit model type for matching graph classes."""
+
+    preferred_model_type = _semantic_runtime_model_type_for_model_type(model_type)
+    if preferred_model_type is None:
+        preferred_model_type = model_type
+
+    preferred: dict[UUID, type[ORMModel]] = {}
+    class_config = preferred_model_type.get_class_config()
+    class_config_id = getattr(class_config, "id", None)
+    if (
+        isinstance(class_config_id, UUID)
+        and class_config_id in index.class_configs_by_id
+    ):
+        preferred[class_config_id] = preferred_model_type
+
+    candidate_fqns = _candidate_model_type_class_fqns(preferred_model_type)
+    for (
+        candidate_class_config_id,
+        candidate_class_config,
+    ) in index.class_configs_by_id.items():
+        class_fqn = getattr(candidate_class_config, "class_fqn", None)
+        if isinstance(class_fqn, str) and class_fqn in candidate_fqns:
+            preferred[candidate_class_config_id] = preferred_model_type
+
+    semantic_prefix = _semantic_package_prefix_for_model_type(preferred_model_type)
+    if semantic_prefix is None:
+        return preferred
+    for (
+        candidate_class_config_id,
+        candidate_class_config,
+    ) in index.class_configs_by_id.items():
+        if candidate_class_config_id in preferred:
+            continue
+        class_fqn = getattr(candidate_class_config, "class_fqn", None)
+        if not isinstance(class_fqn, str):
+            continue
+        if not class_fqn.startswith(f"{semantic_prefix}."):
+            continue
+        runtime_fqn = _runtime_model_fqn_for_semantic_class_fqn(
+            semantic_class_fqn=class_fqn,
+            semantic_prefix=semantic_prefix,
+        )
+        runtime_class = ORMModelRegistry.get_class_by_fqn(runtime_fqn)
+        if isinstance(runtime_class, type) and issubclass(runtime_class, ORMModel):
+            preferred[candidate_class_config_id] = runtime_class
+    return preferred
+
+
+def _candidate_model_type_class_fqns(model_type: type[ORMModel]) -> tuple[str, ...]:
+    module_name = model_type.__module__
+    class_name = model_type.__name__
+    fqns = [f"{module_name}.{class_name}"]
+
+    for marker in ("_ontology_orm_models.", "_ontology."):
+        prefix, found, tail = module_name.partition(marker)
+        if not found or not prefix.startswith("aware_"):
+            continue
+        tokens = [token.removesuffix("_") for token in tail.split(".") if token]
+        class_module_token = _camel_to_snake(class_name)
+        if tokens and tokens[-1] == class_module_token:
+            tokens = tokens[:-1]
+        fqns.append(".".join((prefix, *tokens, class_name)))
+
+    return tuple(dict.fromkeys(fqns))
+
+
+def _semantic_runtime_model_type_for_model_type(
+    model_type: type[ORMModel],
+) -> type[ORMModel] | None:
+    module_name = model_type.__module__
+    prefix, found, tail = module_name.partition("_ontology_orm_models.")
+    if not found or not prefix.startswith("aware_"):
+        return None
+    runtime_fqn = ".".join((f"{prefix}_ontology", tail, model_type.__name__))
+    runtime_class = ORMModelRegistry.get_class_by_fqn(runtime_fqn)
+    if isinstance(runtime_class, type) and issubclass(runtime_class, ORMModel):
+        return runtime_class
+    return None
+
+
+def _semantic_package_prefix_for_model_type(
+    model_type: type[ORMModel],
+) -> str | None:
+    module_name = model_type.__module__
+    for marker in ("_ontology_orm_models.", "_ontology."):
+        prefix, found, _tail = module_name.partition(marker)
+        if found and prefix.startswith("aware_"):
+            return prefix
+    return None
+
+
+def _runtime_model_fqn_for_semantic_class_fqn(
+    *,
+    semantic_class_fqn: str,
+    semantic_prefix: str,
+) -> str:
+    tail = semantic_class_fqn.removeprefix(f"{semantic_prefix}.")
+    tokens = [token for token in tail.split(".") if token]
+    class_name = tokens[-1]
+    module_tokens = tokens[:-1]
+    class_module_token = _camel_to_snake(class_name)
+    return ".".join(
+        (
+            f"{semantic_prefix}_ontology",
+            *module_tokens,
+            class_module_token,
+            class_name,
+        )
+    )
+
+
+def _camel_to_snake(value: str) -> str:
+    chars: list[str] = []
+    for index, char in enumerate(value):
+        if index > 0 and char.isupper():
+            chars.append("_")
+        chars.append(char.lower())
+    return "".join(chars)
+
+
 @dataclass(slots=True)
 class _OigModelReifier:
     index: MetaGraphRuntimeIndex
     opg: ObjectProjectionGraph
     oig: ObjectInstanceGraph
     branch_id: UUID | None = None
+    preferred_model_types_by_class_config_id: Mapping[UUID, type[ORMModel]] = field(
+        default_factory=dict
+    )
 
     def reify_root(
         self,
@@ -159,8 +301,11 @@ class _OigModelReifier:
         _bind_current_handler_session(instances_by_class_instance_id)
 
         for instance in instances_by_class_instance_id.values():
-            if isinstance(instance, model_type) and instance.id == root_id:
-                return instance
+            if instance.id == root_id and _model_instance_matches_type(
+                instance=instance,
+                model_type=model_type,
+            ):
+                return cast(TModel, instance)
         return None
 
     def reify_class_instance(
@@ -176,8 +321,11 @@ class _OigModelReifier:
         _bind_current_handler_session(instances_by_class_instance_id)
 
         instance = instances_by_class_instance_id.get(class_instance_id)
-        if isinstance(instance, model_type):
-            return instance
+        if instance is not None and _model_instance_matches_type(
+            instance=instance,
+            model_type=model_type,
+        ):
+            return cast(TModel, instance)
         return None
 
     def _construct_instances(self) -> dict[UUID, ORMModel]:
@@ -188,10 +336,23 @@ class _OigModelReifier:
         )
 
         for class_instance in tuple(self.oig.class_instances or ()):
-            orm_class = resolve_orm_class(
+            preferred_orm_class = self.preferred_model_types_by_class_config_id.get(
+                class_instance.class_config_id
+            )
+            resolved_orm_class = resolve_orm_class(
                 class_config_id=class_instance.class_config_id,
                 class_resolution_index=class_resolution_index,
             )
+            if preferred_orm_class is not None and (
+                resolved_orm_class is None
+                or not _model_class_matches_type(
+                    model_class=resolved_orm_class,
+                    model_type=preferred_orm_class,
+                )
+            ):
+                orm_class = preferred_orm_class
+            else:
+                orm_class = resolved_orm_class
             if orm_class is None:
                 raise ValueError(
                     "Meta OIG reifier requires ORM bindings for all projection "
@@ -225,7 +386,10 @@ class _OigModelReifier:
                 if field_name not in fields:
                     continue
 
-                value_root = attribute.value_root
+                value_root = _value_with_schema_type_descriptors(
+                    value=attribute.value_root,
+                    expected_descriptor=attr_cfg.type_descriptor,
+                )
                 if (
                     value_root.type_descriptor.kind
                     == AttributeTypeDescriptorKind.class_
@@ -400,14 +564,24 @@ class _OigModelReifier:
             class_instance.id: _uuid_value(class_instance.source_object_id)
             for class_instance in tuple(self.oig.class_instances or ())
         }
+        fk_attribute_config_ids = {
+            rel_attr.attribute_config_id
+            for rel_edge in tuple(self.oig.class_instance_relationships or ())
+            for rel in (
+                self.index.relationships_by_id.get(
+                    rel_edge.class_config_relationship_id
+                ),
+            )
+            if rel is not None
+            for rel_attr in tuple(rel.class_config_relationship_attributes or ())
+            if rel_attr.role == ClassConfigRelationshipAttributeRole.foreign_key
+        }
         attribute_uuid_values_by_instance_id: dict[UUID, dict[UUID, UUID]] = {}
         for class_instance in tuple(self.oig.class_instances or ()):
             for attribute in tuple(class_instance.attributes or ()):
-                decoded_value = decode_oig_attribute_value(
-                    attribute.value_root,
-                    class_configs_by_id=self.index.class_configs_by_id,
-                )
-                uuid_value = _uuid_value(decoded_value)
+                if attribute.attribute_config_id not in fk_attribute_config_ids:
+                    continue
+                uuid_value = _fk_attribute_uuid_value(attribute.value_root)
                 if uuid_value is None:
                     continue
                 attribute_uuid_values_by_instance_id.setdefault(class_instance.id, {})[
@@ -520,6 +694,69 @@ def _coerce_field_value(
         return value
 
 
+def _value_with_schema_type_descriptors(
+    *,
+    value: Any,
+    expected_descriptor: Any,
+) -> Any:
+    value_descriptor = getattr(value, "type_descriptor", None)
+    if value_descriptor is None or expected_descriptor is None:
+        return value
+    if getattr(value_descriptor, "id", None) != getattr(
+        expected_descriptor, "id", None
+    ):
+        return value
+    if value_descriptor is not expected_descriptor:
+        value.type_descriptor = expected_descriptor
+    for link in tuple(getattr(value, "child_links", ()) or ()):
+        child_value = getattr(link, "child", None)
+        child_descriptor = _expected_child_type_descriptor(
+            parent_descriptor=expected_descriptor,
+            value_link=link,
+        )
+        if child_value is None or child_descriptor is None:
+            continue
+        _value_with_schema_type_descriptors(
+            value=child_value,
+            expected_descriptor=child_descriptor,
+        )
+    return value
+
+
+def _expected_child_type_descriptor(
+    *,
+    parent_descriptor: Any,
+    value_link: Any,
+) -> Any | None:
+    parent_kind = getattr(parent_descriptor, "kind", None)
+    role = getattr(value_link, "role", None)
+    if parent_kind in {
+        AttributeTypeDescriptorKind.collection,
+        AttributeTypeDescriptorKind.mapping,
+    }:
+        for child_link in tuple(getattr(parent_descriptor, "child_links", ()) or ()):
+            if getattr(child_link, "role", None) == role:
+                return getattr(child_link, "child", None)
+        return None
+
+    if parent_kind in {
+        AttributeTypeDescriptorKind.tuple,
+        AttributeTypeDescriptorKind.union,
+    }:
+        position = getattr(value_link, "position", None)
+        for child_link in tuple(getattr(parent_descriptor, "child_links", ()) or ()):
+            if getattr(child_link, "role", None) != role:
+                continue
+            if role == AttributeTypeDescriptorRole.member and (
+                getattr(child_link, "position", None) != position
+            ):
+                continue
+            return getattr(child_link, "child", None)
+        return None
+
+    return None
+
+
 def _uuid_value(value: object) -> UUID | None:
     if isinstance(value, UUID):
         return value
@@ -529,6 +766,24 @@ def _uuid_value(value: object) -> UUID | None:
         return UUID(str(value))
     except (TypeError, ValueError):
         return None
+
+
+def _fk_attribute_uuid_value(value: object) -> UUID | None:
+    if value is None:
+        return None
+    primitive_value = getattr(value, "primitive_value", None)
+    uuid_value = _uuid_value(_unwrap_json_envelope(primitive_value))
+    if uuid_value is not None:
+        return uuid_value
+    return _uuid_value(getattr(value, "class_instance_id", None))
+
+
+def _unwrap_json_envelope(value: object) -> object:
+    if isinstance(value, Mapping):
+        if set(value.keys()) == {"value"}:
+            return value.get("value")
+        return value
+    return value
 
 
 def _bind_current_handler_session(
@@ -550,6 +805,39 @@ def _bind_current_handler_session(
 
 def _contains_orm_model(values: list[object], target: ORMModel) -> bool:
     return any(isinstance(item, ORMModel) and item.id == target.id for item in values)
+
+
+def _model_instance_matches_type(
+    *,
+    instance: ORMModel,
+    model_type: type[ORMModel],
+) -> bool:
+    if isinstance(instance, model_type):
+        return True
+    instance_class_config = type(instance).get_class_config()
+    model_class_config = model_type.get_class_config()
+    if getattr(instance_class_config, "id", None) is not None and getattr(
+        instance_class_config, "id", None
+    ) == getattr(model_class_config, "id", None):
+        return True
+    instance_type = type(instance)
+    return (
+        instance_type.__module__ == model_type.__module__
+        and instance_type.__name__ == model_type.__name__
+    )
+
+
+def _model_class_matches_type(
+    *,
+    model_class: type[ORMModel],
+    model_type: type[ORMModel],
+) -> bool:
+    if model_class is model_type:
+        return True
+    return (
+        model_class.__module__ == model_type.__module__
+        and model_class.__name__ == model_type.__name__
+    )
 
 
 __all__ = [

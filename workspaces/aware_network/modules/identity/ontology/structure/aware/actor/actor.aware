@@ -1,0 +1,152 @@
+class Actor {
+    // Identity
+    identity identity.Identity key
+
+    /// Roles
+    actor_roles ActorRole[]
+
+    /// Subscriptions
+    actor_subscriptions ActorSubscription[]
+
+    /// Commits
+    authored_commits aware_history.commit.Commit[]
+    actor_commits ActorCommit[]
+
+    // Attributes
+    key String key = "default"
+    type ActorType
+
+    fn create_actor construct (type ActorType, identity_id UUID key, key String key = "default") -> Actor {
+        """
+        Create an actor bound to an identity.
+
+        v0: used by `Identity.signup` to build the minimal Identity→Actor graph
+        while preserving the hard mutation boundary (mutate-self-only).
+        """
+    }
+
+    fn add_role (role_id UUID) -> ActorRole {
+        """
+        Adds a role binding to this actor.
+        """
+        let created_role = construct actor_roles.create(
+            role_id = role_id,
+        )
+    }
+
+    fn remove_role (role_id UUID) -> {
+        """
+        Remove a role binding from this actor.
+
+        Contract:
+        - Actor owns the actor_roles containment rail.
+        - Missing role bindings are a no-op.
+        - Deletion occurs through the contained ActorRole delete handler so
+          mutation remains parent-owned.
+        """
+    }
+
+    fn add_subscription (
+        event_config_condition_config_scope_id UUID,
+        name String,
+        description String? = null,
+        action_type String? = null,
+        event_config_action_config_ids UUID[] = [],
+        addressing_policy SubscriptionAddressingPolicy = any,
+        is_enabled Bool = true,
+        status SubscriptionStatus = active,
+        filter_mode SubscriptionFilterMode = all_instances,
+        filter_config JsonObject? = null,
+        priority Int = 0,
+        batch_mode Bool = false,
+        batch_window_ms Int = 1000,
+        max_batch_size Int = 100,
+        require_read_access Bool = true,
+        check_ownership Bool = true,
+        rate_limit_per_minute Int? = null,
+        rate_limit_per_hour Int? = null
+    ) -> ActorSubscription {
+        """
+        Adds a subscription policy to this actor.
+        """
+        let created_subscription = construct actor_subscriptions.create(
+            event_config_condition_config_scope_id = event_config_condition_config_scope_id,
+            name = name,
+            description = description,
+            action_type = action_type,
+            event_config_action_config_ids = event_config_action_config_ids,
+            addressing_policy = addressing_policy,
+            is_enabled = is_enabled,
+            status = status,
+            filter_mode = filter_mode,
+            filter_config = filter_config,
+            priority = priority,
+            batch_mode = batch_mode,
+            batch_window_ms = batch_window_ms,
+            max_batch_size = max_batch_size,
+            require_read_access = require_read_access,
+            check_ownership = check_ownership,
+            rate_limit_per_minute = rate_limit_per_minute,
+            rate_limit_per_hour = rate_limit_per_hour,
+        )
+    }
+
+    fn ensure_commit(
+        domain_branch_id UUID,
+        domain_projection_hash String,
+        domain_commit_id UUID,
+        object_instance_graph_commit_id UUID,
+        environment_id UUID? = null,
+        process_id UUID? = null,
+        thread_id UUID? = null,
+        receipt_actor_id UUID? = null,
+        created_at_unix_ms Int? = null,
+        operation_label String? = null,
+        call_target String? = null,
+        function_id UUID? = null,
+        object_id UUID? = null,
+        class_instance_identity_id UUID? = null,
+        graph_hash_post String? = null,
+        object_instance_graph_id UUID? = null,
+        root_object_id UUID? = null,
+        head_version Int? = null,
+        source String = "environment_lane_commit_receipt"
+    ) -> ActorCommit {
+        """
+        Ensure an ActorCommit personal-history binding for one durable lane commit.
+
+        Canonical v0:
+        - Called by the Identity Environment-fanout reaction after a lane head commit receipt.
+        - Idempotent by Actor plus domain lane commit coordinate.
+        - Preserves receipt actor separately from the bound personal-history actor, which allows
+          admission to attach the first commit even when the receipt author was pre-auth/system.
+        """
+        let created_actor_commit = construct actor_commits.create(
+            domain_branch_id = domain_branch_id,
+            domain_projection_hash = domain_projection_hash,
+            domain_commit_id = domain_commit_id,
+            object_instance_graph_commit_id = object_instance_graph_commit_id,
+            environment_id = environment_id,
+            process_id = process_id,
+            thread_id = thread_id,
+            receipt_actor_id = receipt_actor_id,
+            created_at_unix_ms = created_at_unix_ms,
+            operation_label = operation_label,
+            call_target = call_target,
+            function_id = function_id,
+            object_id = object_id,
+            class_instance_identity_id = class_instance_identity_id,
+            graph_hash_post = graph_hash_post,
+            object_instance_graph_id = object_instance_graph_id,
+            root_object_id = root_object_id,
+            head_version = head_version,
+            source = source,
+        )
+    }
+}
+
+/// Load Identity eagerly
+ann actor.Actor::identity load forward eager
+
+/// Dependency inversion to allow Actor→Commit resolution via author_id.
+ann actor.Actor::authored_commits reference bind "aware_history.commit.Commit::author_id"

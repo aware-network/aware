@@ -1,0 +1,21 @@
+class CodeModuleDependence {
+    // Relationships
+    dependence CodeModule
+
+    // Attributes
+    name String key
+
+    fn build construct (
+        name String key
+    ) -> CodeModuleDependence {
+        """
+        Create a deterministic dependency association under one CodeModule.
+
+        Contract:
+        - Parent CodeModule scope is injected by propagation.
+        - Target CodeModule identity is resolved by `CodeModule.build(name)`.
+        """
+    }
+}
+
+ann module.CodeModuleDependence::dependence load eager

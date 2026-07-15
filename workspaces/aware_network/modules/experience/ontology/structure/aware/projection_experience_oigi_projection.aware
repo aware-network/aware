@@ -1,0 +1,24 @@
+/// ProjectionExperienceOIGI projection.
+///
+/// Contract:
+/// - ProjectionExperience-scoped semantic->runtime topology rail.
+/// - Owns node-class anchors and explicit parent->child edge chain.
+projection ProjectionExperienceOIGI {
+    root projection.ProjectionExperienceOIGI
+    projection.ProjectionExperienceOIGI::object_instance_graph_identity aware_meta.ObjectInstanceGraphIdentity
+    projection.ProjectionExperienceOIGI::node_class_identities
+    projection.ProjectionExperienceNodeClassIdentity::projection_experience_node_identity ProjectionExperience
+    projection.ProjectionExperienceNodeClassIdentity::class_instance_identity aware_meta.ObjectInstanceGraphIdentity
+    projection.ProjectionExperienceNodeClassIdentity::key_bindings
+    projection.ProjectionExperienceNodeClassIdentityKeyBinding::projection_experience_node_key ProjectionExperience
+    projection.ProjectionExperienceOIGI::node_class_identity_edges
+    projection.ProjectionExperienceNodeClassIdentityEdge::parent_node_class_identity ProjectionExperienceOIGI
+    projection.ProjectionExperienceNodeClassIdentityEdge::child_node_class_identity ProjectionExperienceOIGI
+    projection.ProjectionExperienceNodeClassIdentityEdge::class_instance_relationship_identity aware_meta.ObjectInstanceGraphIdentity
+
+    observable projection_experience_oigi {
+        """
+        ProjectionExperience to OIGI semantic/runtime topology surface.
+        """
+    }
+}

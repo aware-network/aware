@@ -1,0 +1,98 @@
+/// Semantic package root for one reusable EnvironmentProfileConfig.
+///
+/// Contract:
+/// - EnvironmentProfilePackage is Environment-owned OS profile package truth.
+/// - The package root points at reusable EnvironmentProfileConfig, not applied
+///   EnvironmentProfile runtime state.
+/// - EnvironmentProfileConfig owns ProcessConfig, ThreadConfig, provider, and
+///   actor eligibility topology.
+/// - EnvironmentSessionConfig belongs to EnvironmentConfig and may reference
+///   profile/process/thread config defaults through portals.
+/// - EnvironmentProfile stays the concrete Environment-applied bridge to
+///   running EnvironmentSessions.
+class EnvironmentProfilePackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    environment_config_package EnvironmentConfigPackage?
+    environment_config_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+    environment_profile_config EnvironmentProfileConfig unique
+    environment_profile_config_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+    dependencies EnvironmentProfilePackageDependency[]
+
+    // Attributes
+    description String?
+    environment_handle String?
+    manifest_relative_path String?
+    name String key
+    package_root String = "."
+    profile_key String?
+    sources_root String = "profiles"
+    title String?
+    version_number Int = 1
+
+    fn build construct(
+        name String key,
+        environment_profile_config_id UUID,
+        environment_profile_config_object_instance_graph_commit_id UUID? = null,
+        environment_config_package_id UUID? = null,
+        environment_config_package_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        profile_key String? = null,
+        environment_handle String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = "profiles",
+    ) -> EnvironmentProfilePackage {
+        """
+        Create the canonical Environment package root over EnvironmentProfileConfig.
+
+        Contract:
+        - Identity is keyed by package `name`.
+        - `environment_profile_config_id` points to reusable OS profile config
+          truth, never a concrete EnvironmentProfile application.
+        - OIG commit pins let WorkspaceRevision/Environment consumers replay
+          exact profile config and dependency truth without reopening source
+          profile manifests.
+        - `environment_config_package_id` is optional package-level Environment
+          composition provenance; EnvironmentConfig is Environment-owned.
+        """
+    }
+
+    fn attach_dependency(
+        target_environment_profile_package_id UUID key,
+        target_package_name String,
+        target_environment_profile_package_object_instance_graph_commit_id UUID? = null,
+        target_version_number Int? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null,
+    ) -> EnvironmentProfilePackageDependency {
+        """
+        Attach one EnvironmentProfilePackage dependency.
+
+        Contract:
+        - Parent `EnvironmentProfilePackage` scope is injected by propagation.
+        - Dependencies are package-level profile dependencies, not applied
+          EnvironmentProfile session links.
+        - Optional OIG commit pin is exact replay truth for WorkspaceRevision
+          and Hub consumers.
+        """
+        let created = construct dependencies.build(
+            target_environment_profile_package_id = target_environment_profile_package_id,
+            target_package_name = target_package_name,
+            target_environment_profile_package_object_instance_graph_commit_id = target_environment_profile_package_object_instance_graph_commit_id,
+            target_version_number = target_version_number,
+            expected_hash_sha256 = expected_hash_sha256,
+            description = description,
+        )
+    }
+}
+
+ann environment.EnvironmentProfilePackage::source_code_package load eager
+ann environment.EnvironmentProfilePackage::environment_config_package load eager
+ann environment.EnvironmentProfilePackage::environment_config_package_object_instance_graph_commit load eager
+ann environment.EnvironmentProfilePackage::environment_profile_config load eager
+ann environment.EnvironmentProfilePackage::environment_profile_config_object_instance_graph_commit load eager
+ann environment.EnvironmentProfilePackage::dependencies load forward eager reverse lazy

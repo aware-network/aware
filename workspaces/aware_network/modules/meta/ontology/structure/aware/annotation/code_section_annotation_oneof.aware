@@ -1,0 +1,38 @@
+/// Ontology-level view of a `oneof` ANN.
+///
+/// This encodes explicit XOR ("exactly one") group semantics for a class, without
+/// relying on naming conventions.
+///
+/// Canonical forms:
+/// - ann <TypeRef> oneof <attribute_name_1> <attribute_name_2> ...
+/// - ann <TypeRef> oneof identity <attribute_name_1> <attribute_name_2> ...
+/// - ann <TypeRef> oneof identity <member_attr_1> ... discriminator <disc_attr> <variant> <member_attr> ...
+///
+/// Example:
+/// - ann comms.models.NetworkNodeOperation oneof request response
+class CodeSectionAnnotationOneOf {
+    // Relationships
+    code_section_annotation aware_code.annotation.CodeSectionAnnotation?
+
+    /// Location within the canonical graph
+    fqn_prefix String key
+    namespace String key
+    class_name String key
+
+    /// Oneof semantic rail:
+    /// - validation (default): payload XOR validation.
+    /// - identity: stable-id polymorphic identity rail.
+    mode CodeSectionAnnotationOneOfMode key = validation
+
+    /// Attribute names that form the oneof group (XOR: exactly one must be set).
+    attribute_names String[]
+
+    /// Optional discriminator attribute for identity-mode oneof rails (for example `type`).
+    /// When set, `discriminator_cases` must map discriminator variants to oneof members.
+    discriminator_attribute_name String?
+
+    /// Discriminator mappings encoded as `<variant>=<member_attr>` in canonical metadata.
+    /// Authoring syntax uses token pairs `<variant> <member_attr>`.
+    /// Example authoring: `... discriminator type enum enum_config class class_config`.
+    discriminator_cases String[] = []
+}

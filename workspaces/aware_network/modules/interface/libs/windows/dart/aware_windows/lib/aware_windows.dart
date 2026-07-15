@@ -1,0 +1,37 @@
+library aware_windows;
+
+export 'src/window/domain/model/window_config.dart';
+export 'src/window/domain/controller/window_layout_transition_controller.dart';
+export 'src/window/domain/controller/window_layout_topology_transition_controller.dart';
+export 'src/window/domain/model/window_slot.dart';
+export 'src/window/domain/model/window_overlay_descriptor.dart';
+export 'src/window/domain/model/window_pane_header.dart';
+export 'src/window/domain/model/window_shortcut_binding.dart';
+export 'src/window/domain/provider/window_overlay_provider.dart';
+export 'src/window/domain/provider/window_overlay_session_provider.dart';
+export 'src/window/domain/provider/window_header_provider.dart';
+export 'src/window/domain/provider/window_focus_provider.dart';
+export 'src/window/domain/provider/window_shortcut_provider.dart';
+export 'src/window/domain/provider/window_world_provider.dart';
+export 'src/window/domain/model/window_overlay_delegate.dart';
+export 'src/window/domain/service/window_overlay_registry.dart';
+export 'src/window/domain/service/window_shortcut_registry.dart';
+export 'src/window/domain/service/window_command_router.dart';
+export 'src/window/domain/presenter/window_pane_presenter.dart';
+export 'src/window/presentation/widget/window.dart';
+export 'src/window/presentation/widget/window_section.dart';
+export 'src/window/presentation/widget/window_overlay_host.dart';
+export 'src/window/presentation/widget/window_overlay_pane_host.dart';
+export 'src/window/presentation/widget/window_focus_scope.dart';
+export 'src/window/presentation/widget/window_pane_host.dart';
+export 'src/window/presentation/widget/window_shortcut_scope.dart';
+export 'src/window/presentation/widget/window_world.dart';
+export 'src/window/presentation/widget/window_section_focus_binding.dart'
+    show PaneFocusHandle;
+export 'src/window/presentation/widget/window_header_bar.dart';
+export 'src/window/presentation/widget/window_divider.dart';
+export 'src/window/presentation/widget/window_fullscreen_section_frame.dart';
+export 'src/window/presentation/widget/window_section_rail.dart';
+export 'src/window/presentation/widget/window_section_edge_indicator.dart';
+export 'src/window/presentation/window_palette.dart';
+export 'src/window/domain/model/window_header_data.dart';

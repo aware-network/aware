@@ -1,0 +1,21 @@
+/// ActionConfig contract to run ProgramConfig.
+projection ActionExperience {
+    root action.ActionExperience
+
+    action.ActionExperience::action_config aware_reactivity.ActionConfig
+    action.ActionExperience::action_experience_programs
+    action.ActionExperienceProgram::program_config ProgramConfig
+    action.ActionExperience::action_experience_invocations
+    action.ActionExperienceInvocation::experience_invocation_action_config ExperienceInvocationActionConfig
+    action.ActionExperienceInvocation::request_fields
+    action.ActionExperienceInvocationRequestField::attribute_config
+    action.ActionExperienceInvocation::invocation_actions
+    action.ActionExperienceInvocationAction::experience_invocation_action ExperienceInvocationAction
+
+    observable action_experience {
+        """
+        Action experience as programs and invocation targets triggered by this
+        action.
+        """
+    }
+}

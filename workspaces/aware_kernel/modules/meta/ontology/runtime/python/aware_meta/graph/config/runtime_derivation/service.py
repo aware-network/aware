@@ -33,8 +33,18 @@ from aware_meta.graph.config.runtime_derivation.timer import RuntimeDerivationTi
 from aware_meta.graph.config.transformer import ObjectConfigGraphTransformer
 from aware_meta.language_plugin import MetaLanguagePlugin
 from aware_meta.language_plugin_registry import MetaLanguagePluginRegistry
+from aware_meta_ontology.attribute.attribute_config import AttributeConfig
+from aware_meta_ontology.attribute.attribute_enums import AttributeCollectionType
+from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
+    AttributeTypeDescriptorKind,
+)
 from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.class_.class_config_relationship import ClassConfigRelationship
+from aware_meta_ontology.class_.class_config_relationship_enums import (
+    ClassConfigRelationshipAttributeRole,
+    ClassConfigRelationshipDirection,
+    ClassConfigRelationshipSideLoadingStrategy,
+)
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
 from aware_meta_ontology.graph.config.object_config_graph_enums import (
     ObjectConfigGraphNodeType,
@@ -202,6 +212,38 @@ class RuntimeObjectConfigGraphDerivationService:
                             external_graph,
                             preserve_existing_attached=True,
                         )
+        with _runtime_derivation_progress_step(
+            request,
+            "derive_runtime_graph.normalize_lazy_relationship_refs",
+            detail_payload={
+                "external_graph_count": len(runtime_external_graphs),
+                "reuse_external_runtime_graphs": reuse_external_runtime_graphs,
+            },
+        ):
+            with timer.step("normalize_lazy_relationship_refs"):
+                runtime_lowered = _normalize_lazy_relationship_reference_attributes(
+                    runtime_graph
+                )
+                external_lowered = 0
+                if not reuse_external_runtime_graphs:
+                    for external_graph in runtime_external_graphs:
+                        external_lowered += (
+                            _normalize_lazy_relationship_reference_attributes(
+                                external_graph
+                            )
+                        )
+                timer.metric(
+                    "runtime_lazy_relationship_reference_attrs_lowered",
+                    runtime_lowered,
+                )
+                timer.metric(
+                    "external_lazy_relationship_reference_attrs_lowered",
+                    external_lowered,
+                )
+                timer.metric(
+                    "lazy_relationship_reference_attrs_lowered",
+                    runtime_lowered + external_lowered,
+                )
         with _runtime_derivation_progress_step(
             request,
             "derive_runtime_graph.overlays",
@@ -399,8 +441,7 @@ def _external_runtime_graphs_by_id_for_language_transform(
     external_runtime_graphs: tuple[ObjectConfigGraph, ...],
 ) -> dict[UUID, ObjectConfigGraph]:
     external_by_id = {
-        external_graph.id: external_graph
-        for external_graph in external_runtime_graphs
+        external_graph.id: external_graph for external_graph in external_runtime_graphs
     }
     external_by_fqn: dict[str, ObjectConfigGraph | None] = {}
     for external_graph in external_runtime_graphs:
@@ -813,6 +854,76 @@ def _attach_rel(
     )
     if association_class_id is not None and association_class_id in class_by_id:
         rels_by_class_id[association_class_id].append(rel)
+
+
+def _normalize_lazy_relationship_reference_attributes(
+    graph: ObjectConfigGraph,
+) -> int:
+    attrs_by_id = _attribute_configs_by_id(graph)
+    lowered_count = 0
+    for relationship in _iter_graph_relationships(graph):
+        strategy = (
+            relationship.forward_loading_strategy
+            or ClassConfigRelationshipSideLoadingStrategy.lazy
+        )
+        if strategy != ClassConfigRelationshipSideLoadingStrategy.lazy:
+            continue
+        for rel_attr in relationship.class_config_relationship_attributes or ():
+            if (
+                rel_attr.direction != ClassConfigRelationshipDirection.forward
+                or rel_attr.role != ClassConfigRelationshipAttributeRole.reference
+            ):
+                continue
+            attr = attrs_by_id.get(rel_attr.attribute_config_id)
+            if attr is None or not _is_single_object_reference_attribute(attr):
+                continue
+            attr.is_required = False
+            attr.default_value = "null"
+            lowered_count += 1
+    return lowered_count
+
+
+def _attribute_configs_by_id(
+    graph: ObjectConfigGraph,
+) -> dict[UUID, AttributeConfig]:
+    attrs: dict[UUID, AttributeConfig] = {}
+    for node in graph.object_config_graph_nodes:
+        class_config = node.class_config
+        if class_config is None:
+            continue
+        for link in class_config.class_config_attribute_configs or ():
+            attrs[link.attribute_config.id] = link.attribute_config
+    return attrs
+
+
+def _iter_graph_relationships(
+    graph: ObjectConfigGraph,
+) -> Iterator[ClassConfigRelationship]:
+    seen: set[UUID] = set()
+    for node in graph.object_config_graph_nodes:
+        class_config = node.class_config
+        if class_config is not None:
+            for relationship in class_config.class_config_relationships or ():
+                if relationship.id not in seen:
+                    seen.add(relationship.id)
+                    yield relationship
+        relationship = node.class_config_relationship
+        if relationship is not None and relationship.id not in seen:
+            seen.add(relationship.id)
+            yield relationship
+    for graph_relationship in graph.object_config_graph_relationships or ():
+        for relationship in graph_relationship.class_config_relationships or ():
+            if relationship.id not in seen:
+                seen.add(relationship.id)
+                yield relationship
+
+
+def _is_single_object_reference_attribute(attribute: AttributeConfig) -> bool:
+    descriptor = attribute.type_descriptor
+    return (
+        descriptor.kind == AttributeTypeDescriptorKind.class_
+        and descriptor.collection_kind == AttributeCollectionType.single
+    )
 
 
 def _rebind_runtime_portal_targets(

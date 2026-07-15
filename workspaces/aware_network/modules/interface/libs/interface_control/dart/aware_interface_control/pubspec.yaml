@@ -1,0 +1,19 @@
+name: aware_interface_control
+description: Local Dart client for the Aware Interface daemon control plane.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  aware_api:
+    path: ../../../../../../../aware_kernel/modules/api/libs/api/dart
+  aware_interface_service_api:
+    path: ../../../../apis/interface/dart/aware_interface_service_api
+  path: ^1.9.0
+  uuid: ^4.5.1
+
+dev_dependencies:
+  lints: ^5.1.1
+  test: ^1.25.8

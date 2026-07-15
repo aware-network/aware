@@ -101,6 +101,22 @@ from aware_utils.description_normalizer import DescriptionNormalizer
 T_AdapterNode = TypeVar("T_AdapterNode")
 
 
+def _coerce_code_language(
+    language: CodeLanguage | object | None,
+) -> CodeLanguage | None:
+    if language is None:
+        return None
+    raw_value = getattr(language, "value", language)
+    return CodeLanguage(str(raw_value))
+
+
+def _require_code_language(language: CodeLanguage | object) -> CodeLanguage:
+    resolved = _coerce_code_language(language)
+    if resolved is None:
+        raise ValueError("Code language is required")
+    return resolved
+
+
 def build_code_from_content(
     sections_index: CodeSectionBuilderIndex,
     content: str,
@@ -122,6 +138,8 @@ def build_code_from_content(
     Returns:
         Newly built Code instance
     """
+    language = _require_code_language(language)
+
     # Get the section builders
     language_plugin: CodeLanguagePlugin[object] = CodeLanguagePluginRegistry.get(
         language
@@ -188,6 +206,8 @@ def build_code_from_tree(
     bucket: StorageBucket | None = None,
     blob_store: BlobStore | None = None,
 ) -> Code:
+    language = _require_code_language(language)
+
     # Get the section builders
     language_plugin: CodeLanguagePlugin[T_AdapterNode] = (
         CodeLanguagePluginRegistry.get_typed(language)
@@ -691,7 +711,10 @@ def build_code(
         Newly built Code instance
     """
     normalized_code_key = (code_key or "").strip()
-    resolved_language = language.value if language is not None else "unknown"
+    normalized_language = _coerce_code_language(language)
+    resolved_language = (
+        normalized_language.value if normalized_language is not None else "unknown"
+    )
     synthetic_package_id = stable_code_package_id(
         code_package_config_id=stable_code_package_config_id(
             config_key="synthetic:builder",
@@ -714,7 +737,7 @@ def build_code(
         relative_path=normalized_code_key,
         content_part_text_id=content_part_text.id,
         content_part_text=content_part_text,
-        language=language,
+        language=normalized_language,
     )
     return code
 

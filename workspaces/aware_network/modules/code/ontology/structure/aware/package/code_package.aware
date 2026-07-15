@@ -1,0 +1,248 @@
+class CodePackage {
+    // Relationships
+    codes aware_code.code.Code[] @CodePackageCode
+    delta_producers CodePackageDeltaProducer[]
+    artifacts CodePackageArtifact[]
+    test_frameworks aware_code.code.CodeTestFramework[] @CodePackageTestFramework
+    tests CodePackageTest[]
+
+    // Attributes
+    manifest_relative_path String
+    package_name String key
+    package_root String
+    sources_root String?
+    fqn_prefix String?
+    language aware_code.code.CodeLanguage key
+    surface String?
+
+    fn build construct (
+        package_name String key,
+        language aware_code.code.CodeLanguage key,
+        manifest_relative_path String,
+        package_root String,
+        sources_root String? = null,
+        fqn_prefix String? = null,
+        surface String? = null
+    ) -> CodePackage {
+        """
+        Create a deterministic CodePackage under a CodePackageConfig.
+
+        Contract:
+        - Parent CodePackageConfig context is propagated by constructor lowering.
+        - Identity is config-scoped by `(code_package_config_id, package_name, language)`.
+        - `manifest_relative_path`, `package_root`, and `sources_root` are package layout payload.
+        - Semantic package kind and manifest-kind truth live on CodePackageConfig.
+        """
+    }
+
+    fn create_code(
+        relative_path String key,
+        plan aware_code.code.CodeContentPlan,
+        path_role aware_code.code.CodePackagePathRole = authored_source,
+        delta_production aware_code.code.CodePackageDeltaProduction? = null
+    ) -> CodePackageCode {
+        """
+        Create package-owned Code under this CodePackage from a canonical content plan.
+        """
+        let created = construct codes.create(
+            relative_path = relative_path,
+            plan = plan,
+            path_role = path_role,
+            delta_production = delta_production,
+        )
+    }
+
+    fn upsert_delta_producer(
+        provider_key String key,
+        producer_key String key,
+        producer_kind String? = null,
+        provider_payload JsonObject? = null
+    ) -> CodePackageDeltaProducer {
+        """
+        Upsert one package-local raw delta producer identity.
+
+        This stores generic producer identity for routing/blame only. Code does
+        not interpret provider payloads or semantic materialization truth.
+        """
+        let created = construct delta_producers.build(
+            provider_key = provider_key,
+            producer_key = producer_key,
+            producer_kind = producer_kind,
+            provider_payload = provider_payload,
+        )
+    }
+
+    fn attach_artifact(
+        output_key String key,
+        artifact_key String key,
+        status CodePackageArtifactStatus = available,
+        artifact_family String? = null,
+        artifact_role String? = null,
+        required_for String[] = [],
+        producer_key String? = null,
+        producer_kind String? = null,
+        materialization_index Int? = null,
+        source_code_package_id UUID? = null,
+        source_object_instance_graph_commit_id UUID? = null,
+        input_code_package_id UUID? = null,
+        input_object_instance_graph_commit_id UUID? = null,
+        digest String? = null,
+        relative_path String? = null,
+        uri String? = null,
+        media_type String? = null,
+        runtime_contract_version String? = null,
+        provider_payload JsonObject? = null,
+        receipt_payload JsonObject? = null,
+        error String? = null
+    ) -> CodePackageArtifact {
+        """
+        Attach one package-owned artifact evidence row.
+
+        Contract:
+        - This is the package output evidence lane.
+        - WorkspaceRevision should hydrate artifacts through the pinned
+          WorkspaceRevisionCodePackage commit instead of owning per-artifact
+          pointers.
+        """
+        let created = construct artifacts.build(
+            output_key = output_key,
+            artifact_key = artifact_key,
+            status = status,
+            artifact_family = artifact_family,
+            artifact_role = artifact_role,
+            required_for = required_for,
+            producer_key = producer_key,
+            producer_kind = producer_kind,
+            materialization_index = materialization_index,
+            source_code_package_id = source_code_package_id,
+            source_object_instance_graph_commit_id = source_object_instance_graph_commit_id,
+            input_code_package_id = input_code_package_id,
+            input_object_instance_graph_commit_id = input_object_instance_graph_commit_id,
+            digest = digest,
+            relative_path = relative_path,
+            uri = uri,
+            media_type = media_type,
+            runtime_contract_version = runtime_contract_version,
+            provider_payload = provider_payload,
+            receipt_payload = receipt_payload,
+            error = error,
+        )
+    }
+
+    fn delete_code(
+        relative_path String key
+    ) -> Bool {
+        """
+        Delete one package-owned code attachment by package-relative path.
+        """
+    }
+
+    fn upsert_code(
+        relative_path String key,
+        plan aware_code.code.CodeContentPlan,
+        path_role aware_code.code.CodePackagePathRole = authored_source,
+        delta_production aware_code.code.CodePackageDeltaProduction? = null
+    ) -> CodePackageCode {
+        """
+        Create or replace package-owned Code under this CodePackage from a canonical content plan.
+        """
+    }
+
+    fn upsert_code_from_text(
+        relative_path String key,
+        content_text String,
+        language aware_code.code.CodeLanguage? = null
+    ) -> CodePackageCode {
+        """
+        Compatibility wrapper that parses raw text and delegates to `upsert_code(...)`.
+        """
+    }
+
+    fn upsert_codes_from_text(
+        relative_paths String[],
+        content_texts String[],
+        language aware_code.code.CodeLanguage? = null
+    ) -> {
+        """
+        Batch compatibility wrapper that parses raw text and upserts package-owned Code entries in one invocation.
+
+        Contract:
+        - `relative_paths` and `content_texts` must have equal lengths.
+        - Each `relative_path` must be unique within the request.
+        - This preserves the public `CodePackage` mutation boundary while reducing repeated invocation overhead.
+        """
+    }
+
+    fn apply_delta(
+        delta aware_code.code.CodePackageDelta
+    ) -> aware_code.code.CodePackageDeltaApplyResult {
+        """
+        Apply a canonical CodePackageDelta through the package-owned mutation boundary.
+
+        Contract:
+        - Create/update entries upsert package-owned Code.
+        - Delete entries remove package-owned Code by package-relative path.
+        - This is the shared Code-owned IR consumed by Workspace commit and semantic owners.
+        """
+    }
+
+    fn sync_tests(
+        manifest_text String? = null
+    ) -> {
+        """
+        Discover and attach package-owned test framework/test inventory from language plugin truth.
+
+        Contract:
+        - Framework declarations are language-owned (for example pyproject.toml or pubspec.yaml).
+        - Test units attach to existing Code/CodeSection truth already upserted under this CodePackage.
+        - This is idempotent inventory sync only; execution receipts materialize later under CodePackageTest.runs.
+        """
+    }
+
+    fn attach_test_framework(
+        framework_id UUID key,
+        declaration_kind String = "unknown",
+        declaration_ref String? = null
+    ) -> CodePackageTestFramework {
+        """
+        Attach an existing CodeTestFramework to this package with declaration provenance.
+        """
+        let created = construct test_frameworks.build(
+            code_test_framework_id = framework_id,
+            declaration_kind = declaration_kind,
+            declaration_ref = declaration_ref,
+        )
+    }
+
+    fn attach_test(
+        code_test_id UUID key,
+        relative_path String key
+    ) -> CodePackageTest {
+        """
+        Attach an existing CodeTest to this package inventory.
+        """
+        let created = construct tests.build(
+            code_test_id = code_test_id,
+            relative_path = relative_path,
+        )
+    }
+
+    fn create_code_from_text(
+        relative_path String key,
+        content_text String,
+        language aware_code.code.CodeLanguage? = null
+    ) -> CodePackageCode {
+        """
+        Compatibility wrapper that parses raw text and delegates to `create_code(...)`.
+        """
+    }
+}
+
+ann package.CodePackage::codes::CodePackageCode load eager
+ann package.CodePackage::codes load eager
+ann package.CodePackage::delta_producers load eager
+ann package.CodePackage::artifacts load eager
+ann package.CodePackage::test_frameworks::CodePackageTestFramework load eager
+ann package.CodePackage::test_frameworks load eager
+ann package.CodePackage::tests load eager
+ann package.CodePackage identity contained

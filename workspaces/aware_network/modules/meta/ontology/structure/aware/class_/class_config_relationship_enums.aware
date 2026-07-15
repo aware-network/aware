@@ -1,0 +1,32 @@
+enum ClassConfigRelationshipType {
+    many_to_many
+    many_to_one
+    one_to_many
+    one_to_one
+}
+
+enum ClassConfigRelationshipIdentityRail {
+    containment
+    reference
+}
+
+enum ClassConfigRelationshipDirection {
+    forward
+    reverse
+}
+
+enum ClassConfigRelationshipAttributeRole {
+    auxiliary
+    foreign_key
+    reference
+}
+
+enum ClassConfigRelationshipSideLoadingStrategy {
+    eager
+    lazy
+}
+
+enum ClassConfigRelationshipReifiedRole {
+    source_to_association
+    association_to_target
+}

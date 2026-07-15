@@ -1,0 +1,21 @@
+/// Experience invocation action config projection.
+///
+/// Contract:
+/// - This is the generic target metadata surface.
+/// - View, sensor, actuator, and other Experience-owned surfaces portal here
+///   instead of embedding target internals.
+/// - Concrete receipts are resolved through the ExperienceInvocationAction
+///   projection.
+projection ExperienceInvocationActionConfig {
+    root invocation.ExperienceInvocationActionConfig
+    invocation.ExperienceInvocationActionConfig::api_capability_endpoint aware_api.Api
+    invocation.ExperienceInvocationActionConfig::role_policies
+    invocation.RoleConfigInvocationActionConfig::role_config aware_identity.RoleConfig
+    invocation.ExperienceInvocationActionConfig::sdk_operation aware_sdk.SdkConfig
+
+    observable experience_invocation_action_config {
+        """
+        Generic Experience invocation action config target metadata.
+        """
+    }
+}

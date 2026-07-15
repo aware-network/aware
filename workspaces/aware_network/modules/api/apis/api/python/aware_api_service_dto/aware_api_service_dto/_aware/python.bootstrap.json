@@ -1,0 +1,8 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_api_service_dto.comms.models.api"
+  ],
+  "package_prefix": "aware_api_service_dto",
+  "version": "v1"
+}

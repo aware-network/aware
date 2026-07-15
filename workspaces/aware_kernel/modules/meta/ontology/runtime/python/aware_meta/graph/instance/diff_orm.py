@@ -12,7 +12,7 @@ used for validation/debug), but it must not be the SSOT for commits.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -26,6 +26,9 @@ from aware_history_ontology.change.change import Change
 from aware_history_ontology.change.change_enums import ChangeType
 from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.class_.class_config_relationship import ClassConfigRelationship
+from aware_meta_ontology.class_.class_config_relationship_attribute import (
+    ClassConfigRelationshipAttribute,
+)
 from aware_meta_ontology.class_.class_config_relationship_enums import (
     ClassConfigRelationshipAttributeRole,
     ClassConfigRelationshipDirection,
@@ -55,6 +58,7 @@ from aware_meta.attribute.instance.value.builder import (
     UnionSelection,
 )
 from aware_meta.class_.instance.builder import build_class_instance
+from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
 from aware_meta.graph.instance.diff import diff_object_instance_graph_changes
 
 
@@ -83,14 +87,14 @@ class _OcgIndex:
     relationship_field_specs_by_cc_id: dict[UUID, dict[str, _RelationshipFieldSpec]]
 
 
-@dataclass(frozen=True)
-class _RelationshipContextSource(ModelIntrospection):
+@dataclass
+class _RelationshipContextSource:
     source: ModelIntrospection
     values_by_name: dict[str, object]
+    id: UUID = field(init=False)
 
-    @property
-    def id(self) -> UUID:
-        return self.source.id
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "id", self.source.id)
 
     def field_is_declared(self, name: str) -> bool:
         return name in self.values_by_name or self.source.field_is_declared(name)
@@ -135,9 +139,13 @@ def _resolve_root_class_instance_snapshot(
     class_instances: list[Any],
     expected_root_class_instance_id: UUID | None,
     fallback_root_class_instance: Any | None,
-) -> Any | None:
+) -> Any:
     if expected_root_class_instance_id is None:
-        return fallback_root_class_instance
+        if fallback_root_class_instance is not None:
+            return fallback_root_class_instance
+        raise OrmChangeTranslationError(
+            "Root ClassInstance missing from ObjectInstanceGraph diff snapshot"
+        )
     for class_instance in class_instances:
         if getattr(class_instance, "id", None) == expected_root_class_instance_id:
             return class_instance
@@ -182,76 +190,130 @@ def build_object_instance_graph_changes_from_orm_change_set(
 
     created_at = change_set.collected_at
 
-    index = _build_ocg_index(
-        ocg=ocg,
+    trace_metadata = _orm_change_translation_trace_metadata(
+        before_oig=before_oig,
         opg=opg,
-        class_configs_by_id=class_configs_by_id,
-        relationships_by_id=relationships_by_id,
+        change_set=change_set,
     )
+    with commit_perf_span(
+        phase="handler_execution.orm_change_translation.build_ocg_index",
+        category="meta.runtime.handler_execution",
+        metadata=trace_metadata,
+    ):
+        index = _build_ocg_index(
+            ocg=ocg,
+            opg=opg,
+            class_configs_by_id=class_configs_by_id,
+            relationships_by_id=relationships_by_id,
+        )
 
     # ---- ClassInstance changes (attributes/value trees) ------------------- #
-    class_instance_changes = _build_class_instance_changes(
-        before_oig=before_oig,
-        object_instance_graph_identity_id=object_instance_graph_identity_id,
-        change_set=change_set,
-        index=index,
-        created_at=created_at,
-        enum_option_resolver=enum_option_resolver,
-        class_instance_resolver=class_instance_resolver,
-        union_selections=union_selections,
-    )
+    with commit_perf_span(
+        phase="handler_execution.orm_change_translation.build_class_instance_changes",
+        category="meta.runtime.handler_execution",
+        metadata=trace_metadata,
+    ):
+        class_instance_changes = _build_class_instance_changes(
+            before_oig=before_oig,
+            object_instance_graph_identity_id=object_instance_graph_identity_id,
+            change_set=change_set,
+            index=index,
+            created_at=created_at,
+            enum_option_resolver=enum_option_resolver,
+            class_instance_resolver=class_instance_resolver,
+            union_selections=union_selections,
+        )
 
     # ---- Relationship changes (structural edges) -------------------------- #
-    relationship_changes = _build_relationship_changes(
-        before_oig=before_oig,
-        change_set=change_set,
-        index=index,
-        created_at=created_at,
-    )
+    with commit_perf_span(
+        phase="handler_execution.orm_change_translation.build_relationship_changes",
+        category="meta.runtime.handler_execution",
+        metadata=trace_metadata,
+    ):
+        relationship_changes = _build_relationship_changes(
+            before_oig=before_oig,
+            change_set=change_set,
+            index=index,
+            created_at=created_at,
+        )
 
     if not class_instance_changes and not relationship_changes:
         return []
 
-    out: list[ObjectInstanceGraphChange] = []
-    if class_instance_changes:
-        with disable_autobind():
-            root_change = Change(
-                key="root:object_instance:update",
-                type=ChangeType.update,
-                change_deltas=[],
-                created_at=created_at,
-            )
-            out.append(
-                ObjectInstanceGraphChange(
-                    object_instance_graph_identity_id=object_instance_graph_identity_id,
-                    object_instance_graph_id=before_oig.id,
-                    type=ObjectInstanceGraphChangeType.object_instance,
-                    change=root_change,
-                    change_id=root_change.id,
-                    class_instance_changes=class_instance_changes,
-                    class_instance_relationship_changes=[],
+    with commit_perf_span(
+        phase="handler_execution.orm_change_translation.assemble_root_changes",
+        category="meta.runtime.handler_execution",
+        metadata={
+            **trace_metadata,
+            "class_instance_change_count": len(class_instance_changes),
+            "relationship_change_count": len(relationship_changes),
+        },
+    ):
+        out: list[ObjectInstanceGraphChange] = []
+        if class_instance_changes:
+            with disable_autobind():
+                root_change = Change(
+                    key="root:object_instance:update",
+                    type=ChangeType.update,
+                    change_deltas=[],
+                    created_at=created_at,
                 )
-            )
-    if relationship_changes:
-        with disable_autobind():
-            root_change = Change(
-                key="root:object_instance_relationship:update",
-                type=ChangeType.update,
-                change_deltas=[],
-                created_at=created_at,
-            )
-            out.append(
-                ObjectInstanceGraphChange(
-                    object_instance_graph_identity_id=object_instance_graph_identity_id,
-                    object_instance_graph_id=before_oig.id,
-                    type=ObjectInstanceGraphChangeType.object_instance_relationship,
-                    change=root_change,
-                    change_id=root_change.id,
-                    class_instance_changes=[],
-                    class_instance_relationship_changes=relationship_changes,
+                out.append(
+                    ObjectInstanceGraphChange(
+                        object_instance_graph_identity_id=(
+                            object_instance_graph_identity_id
+                        ),
+                        object_instance_graph_id=before_oig.id,
+                        type=ObjectInstanceGraphChangeType.object_instance,
+                        change=root_change,
+                        change_id=root_change.id,
+                        class_instance_changes=class_instance_changes,
+                        class_instance_relationship_changes=[],
+                    )
                 )
-            )
+        if relationship_changes:
+            with disable_autobind():
+                root_change = Change(
+                    key="root:object_instance_relationship:update",
+                    type=ChangeType.update,
+                    change_deltas=[],
+                    created_at=created_at,
+                )
+                out.append(
+                    ObjectInstanceGraphChange(
+                        object_instance_graph_identity_id=(
+                            object_instance_graph_identity_id
+                        ),
+                        object_instance_graph_id=before_oig.id,
+                        type=ObjectInstanceGraphChangeType.object_instance_relationship,
+                        change=root_change,
+                        change_id=root_change.id,
+                        class_instance_changes=[],
+                        class_instance_relationship_changes=relationship_changes,
+                    )
+                )
     return out
+
+
+def _orm_change_translation_trace_metadata(
+    *,
+    before_oig: ObjectInstanceGraph,
+    opg: ObjectProjectionGraph,
+    change_set: ORMChangeSet,
+) -> dict[str, object]:
+    return {
+        "object_instance_graph_id": before_oig.id,
+        "projection_hash": opg.projection_hash,
+        "created_count": len(change_set.created_ids),
+        "touched_count": len(change_set.touched_ids),
+        "deleted_count": len(change_set.deleted_ids),
+        "scalar_field_object_count": len(change_set.scalar_fields_by_id),
+        "list_field_object_count": len(change_set.list_fields_by_id),
+        "list_added_count": sum(len(values) for values in change_set.list_added.values()),
+        "list_removed_count": sum(
+            len(values) for values in change_set.list_removed.values()
+        ),
+    }
 
 
 def _build_ocg_index(
@@ -752,37 +814,39 @@ def _relationship_context_values_by_object_id(
         if cc_id is not None:
             class_config_id_by_object_id[obj_id] = cc_id
 
+    reference_specs_by_cc_id, foreign_key_attrs_by_relationship_id = (
+        _relationship_context_specs_by_class_config(index=index)
+    )
+
     out: dict[UUID, dict[str, object]] = {}
+    created_ids = set(change_set.created_ids)
     for rel in index.relationships_by_id.values():
         if rel.id not in index.opg_relationship_ids:
             continue
-
-        reference_attrs = [
-            rel_attr
-            for rel_attr in rel.class_config_relationship_attributes or []
-            if rel_attr.role == ClassConfigRelationshipAttributeRole.reference
-            and rel_attr.attribute_config_id is not None
-        ]
-        foreign_key_attrs = [
-            rel_attr
-            for rel_attr in rel.class_config_relationship_attributes or []
-            if rel_attr.role == ClassConfigRelationshipAttributeRole.foreign_key
-            and rel_attr.attribute_config_id is not None
-        ]
-        if not reference_attrs or not foreign_key_attrs:
+        foreign_key_attrs = foreign_key_attrs_by_relationship_id.get(rel.id, ())
+        if not foreign_key_attrs:
             continue
 
-        for ref_attr in reference_attrs:
-            ref_attr_id = ref_attr.attribute_config_id
-            if ref_attr_id is None:
+        for obj_id, obj in change_set.objects_by_id.items():
+            owner_cc_id = class_config_id_by_object_id.get(obj_id)
+            if owner_cc_id is None:
                 continue
-            owner_cc_id = index.owner_class_config_by_attribute_id.get(ref_attr_id)
-            ref_name = index.attribute_names_by_id.get(ref_attr_id)
-            if owner_cc_id is None or not ref_name:
+            reference_specs = reference_specs_by_cc_id.get(owner_cc_id)
+            if not reference_specs:
                 continue
 
-            for obj_id, obj in change_set.objects_by_id.items():
-                if class_config_id_by_object_id.get(obj_id) != owner_cc_id:
+            if obj_id in created_ids:
+                candidate_field_names = set(reference_specs)
+            else:
+                changed_fields = set(change_set.scalar_fields_by_id.get(obj_id, set()))
+                changed_fields.update(change_set.list_fields_by_id.get(obj_id, set()))
+                candidate_field_names = changed_fields & set(reference_specs)
+            if not candidate_field_names:
+                continue
+
+            for ref_name in sorted(candidate_field_names):
+                spec = reference_specs.get(ref_name)
+                if spec is None or spec.relationship_id != rel.id:
                     continue
 
                 related_ids = _read_relationship_reference_ids(obj, ref_name)
@@ -790,7 +854,7 @@ def _relationship_context_values_by_object_id(
                     continue
 
                 for related_id in related_ids:
-                    if ref_attr.direction == ClassConfigRelationshipDirection.forward:
+                    if spec.direction == ClassConfigRelationshipDirection.forward:
                         source_object_id = obj_id
                         target_object_id = related_id
                     else:
@@ -809,12 +873,58 @@ def _relationship_context_values_by_object_id(
     return out
 
 
+def _relationship_context_specs_by_class_config(
+    *,
+    index: _OcgIndex,
+) -> tuple[
+    dict[UUID, dict[str, _RelationshipFieldSpec]],
+    dict[UUID, tuple[ClassConfigRelationshipAttribute, ...]],
+]:
+    reference_specs_by_cc_id: dict[UUID, dict[str, _RelationshipFieldSpec]] = {}
+    foreign_key_attrs_by_relationship_id: dict[
+        UUID, tuple[ClassConfigRelationshipAttribute, ...]
+    ] = {}
+
+    for rel in index.relationships_by_id.values():
+        if rel.id not in index.opg_relationship_ids:
+            continue
+
+        foreign_key_attrs = tuple(
+            rel_attr
+            for rel_attr in rel.class_config_relationship_attributes or []
+            if rel_attr.role == ClassConfigRelationshipAttributeRole.foreign_key
+            and rel_attr.attribute_config_id is not None
+        )
+        if not foreign_key_attrs:
+            continue
+        foreign_key_attrs_by_relationship_id[rel.id] = foreign_key_attrs
+
+        for rel_attr in rel.class_config_relationship_attributes or []:
+            if rel_attr.role != ClassConfigRelationshipAttributeRole.reference:
+                continue
+            attr_id = rel_attr.attribute_config_id
+            if attr_id is None:
+                continue
+            owner_cc_id = index.owner_class_config_by_attribute_id.get(attr_id)
+            ref_name = index.attribute_names_by_id.get(attr_id)
+            if owner_cc_id is None or not ref_name:
+                continue
+            reference_specs_by_cc_id.setdefault(owner_cc_id, {})[ref_name] = (
+                _RelationshipFieldSpec(
+                    relationship_id=rel.id,
+                    direction=rel_attr.direction,
+                )
+            )
+
+    return reference_specs_by_cc_id, foreign_key_attrs_by_relationship_id
+
+
 def _record_foreign_key_context_values(
     *,
     out: dict[UUID, dict[str, object]],
     index: _OcgIndex,
     relationship: ClassConfigRelationship,
-    foreign_key_attrs: list[Any],
+    foreign_key_attrs: tuple[ClassConfigRelationshipAttribute, ...],
     source_object_id: UUID,
     target_object_id: UUID,
 ) -> None:

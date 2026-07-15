@@ -1,0 +1,49 @@
+api filesystem {
+    capability snapshot {
+        endpoint scan aware_file_system_service_dto.file_system.ScanFileSystemSnapshotRequest {
+            """
+            Scan one filesystem root into canonical relative-path metadata and optional digest entries.
+            """
+
+            response aware_file_system_service_dto.file_system.ScanFileSystemSnapshotResponse
+        }
+    }
+
+    capability delta {
+        endpoint collect aware_file_system_service_dto.file_system.CollectFileSystemDeltaRequest {
+            """
+            Collect a canonical filesystem delta set from a local root and optional base snapshot.
+            """
+
+            response aware_file_system_service_dto.file_system.CollectFileSystemDeltaResponse
+        }
+
+        endpoint apply aware_file_system_service_dto.file_system.ApplyFileSystemDeltaRequest {
+            """
+            Apply a canonical filesystem delta set under a local root with path and digest policy receipts.
+            """
+
+            response aware_file_system_service_dto.file_system.ApplyFileSystemDeltaResponse
+        }
+    }
+
+    capability root {
+        endpoint verify aware_file_system_service_dto.file_system.VerifyFileSystemRootRequest {
+            """
+            Verify that relative paths stay inside the declared filesystem root.
+            """
+
+            response aware_file_system_service_dto.file_system.VerifyFileSystemRootResponse
+        }
+    }
+
+    capability backend {
+        endpoint capabilities aware_file_system_service_dto.file_system.ResolveFileSystemBackendCapabilitiesRequest {
+            """
+            Resolve available filesystem backend capabilities for Python, Rust, service, and fallback routing.
+            """
+
+            response aware_file_system_service_dto.file_system.ResolveFileSystemBackendCapabilitiesResponse
+        }
+    }
+}

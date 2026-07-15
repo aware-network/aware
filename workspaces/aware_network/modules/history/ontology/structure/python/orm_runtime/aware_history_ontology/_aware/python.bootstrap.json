@@ -1,0 +1,24 @@
+{
+  "dependency_import_roots": [
+    "aware_code_ontology"
+  ],
+  "modules": [
+    "aware_history_ontology.branch.branch",
+    "aware_history_ontology.change.change",
+    "aware_history_ontology.change.change_delta",
+    "aware_history_ontology.change.change_enums",
+    "aware_history_ontology.commit.commit",
+    "aware_history_ontology.commit.commit_enums",
+    "aware_history_ontology.commit.commit_parent",
+    "aware_history_ontology.lane.lane",
+    "aware_history_ontology.migration.migration",
+    "aware_history_ontology.migration.migration_enums",
+    "aware_history_ontology.stable_ids",
+    "aware_history_ontology.version.version"
+  ],
+  "package_prefix": "aware_history_ontology",
+  "pydantic_model_dependency_import_roots": [
+    "aware_code_ontology"
+  ],
+  "version": "v1"
+}

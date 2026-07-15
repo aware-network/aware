@@ -1,0 +1,65 @@
+/// A Meta pointer to Branch to link Lane->Commit to ObjectInstanceGraphLanes with Meta Representation at ObjectInstanceGraph level.
+class ObjectInstanceGraphBranch {
+    /// Branch Identity
+    branch aware_history.branch.Branch key
+
+    /// Projection Lanes
+    object_instance_graph_lanes ObjectInstanceGraphLane[]
+
+    /// Branch Relationships
+    object_instance_graph_branch_relationships ObjectInstanceGraphBranchRelationship[]
+
+    fn create_with_lane_and_branch construct (
+        branch_id UUID key,
+        lane_id UUID,
+        commit_id UUID,
+        lane_hash String,
+        is_main Bool = false,
+        name String? = null
+    ) -> ObjectInstanceGraphBranch {
+        """
+        Create deterministic ObjectInstanceGraphBranch with one initial lane + branch head link.
+
+        Contract:
+        - Parent ObjectInstanceGraphIdentity path context is propagated by traversal lowering.
+        - Deterministic identity is constructor-keyed on `(branch_id)` plus parent path.
+        """
+        let created_lane = construct object_instance_graph_lanes.create(
+            lane_id = lane_id,
+        )
+    }
+
+    fn attach_lane (lane_id UUID) -> ObjectInstanceGraphLane {
+        """
+        Attaches a history Lane to this ObjectInstanceGraphBranch (idempotent).
+
+        Contract:
+        - Mutates the meta association `object_instance_graph_lanes`, so it must be
+          invoked as an instance function (runtime mutate-self-only).
+        - Creates the ObjectInstanceGraphLane via its own constructor if missing.
+        """
+        let attached_lane = construct object_instance_graph_lanes.create(
+            lane_id = lane_id,
+        )
+    }
+
+    fn attach_branch_relationship (
+        target_object_instance_graph_branch_id UUID
+    ) -> ObjectInstanceGraphBranchRelationship {
+        """
+        Attaches a Branch→Branch relationship (idempotent).
+
+        Notes:
+        - This is a history-plane index primitive used for portal branch routing.
+        - Mutates only `object_instance_graph_branch_relationships` (runtime mutate-self-only).
+        """
+        let attached = construct object_instance_graph_branch_relationships.create(
+            target_object_instance_graph_branch_id = target_object_instance_graph_branch_id,
+        )
+    }
+}
+
+/// Load branch eagerly
+ann graph.instance.ObjectInstanceGraphBranch::branch load eager
+ann graph.instance.ObjectInstanceGraphBranch::object_instance_graph_lanes load eager
+ann graph.instance.ObjectInstanceGraphBranch::object_instance_graph_branch_relationships load eager

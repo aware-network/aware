@@ -1,0 +1,14 @@
+/// Sensor config projection.
+projection SensorConfig {
+    root sensor.SensorConfig
+    sensor.SensorConfig::observed_state_nodes
+    sensor.SensorConfigStateNode::object_projection_graph_node aware_meta.ObjectProjectionGraph
+    sensor.SensorConfig::sensors Sensor
+
+    observable sensor_config {
+        """
+        Sensor config surface with observed state-node footprint portals and
+        portal-backed Sensor instances.
+        """
+    }
+}

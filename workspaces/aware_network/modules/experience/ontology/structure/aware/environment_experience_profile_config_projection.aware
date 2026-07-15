@@ -1,0 +1,61 @@
+/// EnvironmentExperienceProfileConfig projection.
+///
+/// Contract:
+/// - Owns reusable Experience participation policy over one Environment
+///   EnvironmentProfileConfig.
+/// - Keeps Environment config topology as portal refs; Experience never
+///   constructs EnvironmentProfileConfig, ProcessConfig, or ThreadConfig here.
+/// - ActorConfig, ProjectionExperience, EventConfig, ActionExperience, ProgramConfig,
+///   and section graph binding internals stay on their own projections.
+projection EnvironmentExperienceProfileConfig {
+    root environment.EnvironmentExperienceProfileConfig
+
+    environment.EnvironmentExperienceProfileConfig::image aware_storage.StorageBlob
+
+    // Environment topology/provider portals.
+    environment.EnvironmentExperienceProfileConfig::environment_profile_config aware_environment.EnvironmentProfileConfig
+    environment.EnvironmentExperienceProfileConfig::environment_provider_grant aware_environment.EnvironmentProfileConfig
+
+    // Actors.
+    environment.EnvironmentExperienceProfileConfig::actors
+    environment.EnvironmentExperienceActorConfig::actor_config aware_identity.ActorConfig
+
+    // Experiences.
+    environment.EnvironmentExperienceProfileConfig::experiences
+    environment.EnvironmentExperienceProjection::projection_experience ProjectionExperience
+
+    // Events and actions.
+    environment.EnvironmentExperienceProfileConfig::events
+    environment.EnvironmentExperienceEvent::event_config aware_reactivity.EventConfig
+    environment.EnvironmentExperienceEvent::node_scopes
+    environment.EnvironmentExperienceEventNodeScope::event_config_condition_config aware_reactivity.EventConfig
+    environment.EnvironmentExperienceEventNodeScope::projection_experience_node_identity ProjectionExperience
+    environment.EnvironmentExperienceEventNodeScope::object_instance_graph_branch aware_meta.ObjectInstanceGraphIdentity
+    environment.EnvironmentExperienceEventNodeScope::event_config_condition_config_scope aware_reactivity.EventConfigConditionConfigScope
+    environment.EnvironmentExperienceEvent::actions
+    environment.EnvironmentExperienceEventAction::action_experience ActionExperience
+
+    // View event transitions.
+    environment.EnvironmentExperienceProfileConfig::view_event_transitions
+    environment.EnvironmentExperienceViewEventTransition::source_view ProjectionExperience
+    environment.EnvironmentExperienceViewEventTransition::trigger_event
+    environment.EnvironmentExperienceViewEventTransition::target_section_graph_binding ProjectionExperienceSectionGraphBinding
+
+    // Experience config bridge over Environment topology config.
+    environment.EnvironmentExperienceProfileConfig::process_configs
+    environment.EnvironmentExperienceProcessConfig::process_config aware_environment.EnvironmentProfileConfig
+    environment.EnvironmentExperienceProcessConfig::thread_configs
+    environment.EnvironmentExperienceThreadConfig::thread_config aware_environment.EnvironmentProfileConfig
+
+    // Programs selected by Experience thread config policy.
+    environment.EnvironmentExperienceThreadConfig::programs
+    environment.EnvironmentExperienceProgram::program_config ProgramConfig
+    environment.EnvironmentExperienceThreadConfig::program_applies
+    environment.EnvironmentExperienceProgramApply::program_config ProgramConfig
+
+    observable environment_experience_profile_config {
+        """
+        Experience participation policy over an Environment EnvironmentProfileConfig.
+        """
+    }
+}

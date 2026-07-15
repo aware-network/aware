@@ -1,0 +1,23 @@
+/// Signature/value binding slot for ProgramImplInstructionInvoke.
+///
+/// Contract:
+/// - Keeps invoke argument lowering explicit and deterministic.
+/// - Association identity is deterministic from `(invoke_id, attribute_config_id)`.
+class ProgramImplInstructionInvokeAttributeConfig {
+    // Relationships
+    attribute_config aware_meta.attribute.AttributeConfig key
+
+    // Attributes
+    value_expr JsonObject
+    position Int? = null
+
+    fn build construct (
+        attribute_config_id UUID key,
+        value_expr JsonObject,
+        position Int? = null
+    ) -> ProgramImplInstructionInvokeAttributeConfig {
+        """
+        Create deterministic invoke argument association for one ProgramImplInstructionInvoke.
+        """
+    }
+}

@@ -1,0 +1,55 @@
+class ObjectProjectionGraphNode {
+    // Relationships
+    class_config class.ClassConfig key
+    object_projection_graph_node_keys ObjectProjectionGraphNodeKey[]
+
+    // Attributes
+    is_root Bool
+    policy_refs String[]
+    required_for_validity Bool = false
+    selection ObjectProjectionGraphNodeSelection = all
+    selector_condition_id UUID? = null
+    top_n Int? = null
+
+    fn build construct(
+        class_config_id UUID key,
+        is_root Bool = false,
+        required_for_validity Bool = false,
+        selection ObjectProjectionGraphNodeSelection = all,
+        top_n Int? = null,
+        selector_condition_id UUID? = null,
+        policy_refs String[] = []
+    ) -> ObjectProjectionGraphNode {
+        """
+        Create deterministic ObjectProjectionGraphNode under one ObjectProjectionGraph.
+
+        Contract:
+        - Parent `object_projection_graph_id` is propagated by constructor lowering.
+        - Identity is always OPG-scoped.
+        """
+    }
+
+    fn create_key(
+        object_config_graph_binding_class_id UUID key,
+        key String key,
+        position Int? = null,
+        required Bool = true
+    ) -> ObjectProjectionGraphNodeKey {
+        """
+        Create deterministic ObjectProjectionGraphNodeKey under this ObjectProjectionGraphNode.
+
+        Contract:
+        - Parent `object_projection_graph_node_id` is propagated by constructor lowering.
+        - NodeKey consumes one `ObjectConfigGraphBindingClass` on top of binding + formula.
+        - Identity resolves from `(object_projection_graph_node_id via path, object_config_graph_binding_class_id, key)`.
+        """
+        let created = construct object_projection_graph_node_keys.build(
+            object_config_graph_binding_class_id = object_config_graph_binding_class_id,
+            key = key,
+            position = position,
+            required = required,
+        )
+    }
+}
+
+ann projection.ObjectProjectionGraphNode::object_projection_graph_node_keys load eager

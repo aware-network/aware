@@ -1,0 +1,39 @@
+class ContentPartContent {
+    // Relationships
+    content_part ContentPart unique
+
+    // Attributes
+    position Int key
+
+    fn create_content_part_content construct(
+        content_id UUID,
+        content_part_id UUID,
+        position Int,
+        child_part_type ContentPartType = text,
+    ) -> ContentPartContent {
+        """
+        Creates a new ContentPartContent edge linking a Content to a ContentPart.
+        """
+        let content_part = construct content_part.create_content_part(type = child_part_type)
+        construct ContentPartContent(position = position)
+    }
+
+    fn create_text_part_content construct(
+        position Int key = 0,
+        seed_inline_text String? = null,
+        child_part_type ContentPartType = text,
+    ) -> ContentPartContent {
+        """
+        Creates a ContentPartContent edge with a text ContentPart child.
+        """
+        let content_part = construct content_part.create_text_part(
+            seed_inline_text = seed_inline_text,
+            type = child_part_type,
+        )
+        construct ContentPartContent(position = position)
+    }
+
+}
+
+/// Eager content part
+ann part.ContentPartContent::content_part load eager

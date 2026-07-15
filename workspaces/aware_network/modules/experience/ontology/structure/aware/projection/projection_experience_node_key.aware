@@ -1,0 +1,17 @@
+/// ProjectionExperience node key compatibility wrapper.
+///
+/// Contract:
+/// - Declares one deterministic ProjectionKey consumer row under ProjectionExperienceNode.
+/// - Canonical key schema is owned by Meta `ObjectProjectionGraphNodeKey`.
+class ProjectionExperienceNodeKey {
+    // Relationships
+    object_projection_graph_node_key aware_meta.graph.projection.ObjectProjectionGraphNodeKey key
+
+    fn build construct (
+        object_projection_graph_node_key_id UUID key
+    ) -> ProjectionExperienceNodeKey {
+        """
+        Create deterministic ProjectionExperienceNodeKey compatibility edge.
+        """
+    }
+}

@@ -1,0 +1,67 @@
+/// ProjectionExperience graph topology contract.
+///
+/// Contract:
+/// - Owns deterministic topology composition over ProjectionExperienceNodeIdentity.
+/// - API/profile/value bindings are intentionally out of scope.
+class ProjectionExperienceGraph {
+    // Relationships
+    projection_experience_graph_identities ProjectionExperienceGraphIdentity[]
+    projection_experience_graph_identity_edges ProjectionExperienceGraphIdentityEdge[]
+    projection_experience_node_identity_edges ProjectionExperienceNodeIdentityEdge[]
+
+    // Attributes
+    name String key
+
+    fn create construct (name String key) -> ProjectionExperienceGraph {
+        """
+        Create deterministic ProjectionExperienceGraph under one ProjectionExperience.
+        """
+    }
+
+    fn create_identity (
+        projection_experience_node_identity_id UUID,
+        key String,
+        is_root Bool = false
+    ) -> ProjectionExperienceGraphIdentity {
+        """
+        Attach one graph occurrence identity bound to one ProjectionExperienceNodeIdentity.
+        """
+        let created = construct projection_experience_graph_identities.build(
+            projection_experience_node_identity_id = projection_experience_node_identity_id,
+            key = key,
+            is_root = is_root,
+        )
+    }
+
+    fn create_node_identity_edge (
+        parent_projection_experience_node_identity_id UUID,
+        child_projection_experience_node_identity_id UUID,
+        key String? = null
+    ) -> ProjectionExperienceNodeIdentityEdge {
+        """
+        Attach one semantic parent->child node identity edge contract.
+        """
+        let created = construct projection_experience_node_identity_edges.build(
+            parent_projection_experience_node_identity_id = parent_projection_experience_node_identity_id,
+            child_projection_experience_node_identity_id = child_projection_experience_node_identity_id,
+            key = key,
+        )
+    }
+
+    fn create_graph_identity_edge (
+        parent_projection_experience_graph_identity_id UUID,
+        child_projection_experience_graph_identity_id UUID,
+        projection_experience_node_identity_edge_id UUID,
+        key String? = null
+    ) -> ProjectionExperienceGraphIdentityEdge {
+        """
+        Attach one graph occurrence edge bound to one semantic node identity edge contract.
+        """
+        let created = construct projection_experience_graph_identity_edges.build(
+            parent_projection_experience_graph_identity_id = parent_projection_experience_graph_identity_id,
+            child_projection_experience_graph_identity_id = child_projection_experience_graph_identity_id,
+            projection_experience_node_identity_edge_id = projection_experience_node_identity_edge_id,
+            key = key,
+        )
+    }
+}

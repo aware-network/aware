@@ -1,0 +1,31 @@
+// AttentionSession projection
+//
+// Contract:
+// - AttentionSession is the Identity-backed session primitive for shared
+//   layout/section/focus transition replay.
+// - Consumer snapshots are derived read models later, not ontology source rows.
+
+projection AttentionSession {
+    root session.AttentionSession
+    session.AttentionSession::identity_session Session
+    session.AttentionSession::layouts
+    session.AttentionSession::active_layout
+    session.AttentionSessionLayout::layout Layout
+    session.AttentionSessionLayout::layout_config LayoutConfig
+    session.AttentionSessionLayout::sections
+    session.AttentionSessionLayout::active_section
+    session.AttentionSessionLayout::topology_transitions
+    session.AttentionSessionLayout::active_topology_transition
+    session.AttentionLayoutTopologyTransition::previous_topology_transition AttentionLayoutTopologyTransition
+    session.AttentionLayoutTopologyTransition::section_states
+    session.AttentionLayoutTopologyTransitionSection::attention_session_section AttentionSession
+    session.AttentionSessionLayout::layout_transitions
+    session.AttentionSessionLayout::active_layout_transition
+    session.AttentionLayoutTransition::previous_transition AttentionLayoutTransition
+    session.AttentionLayoutTransition::topology_transition AttentionLayoutTopologyTransition
+    session.AttentionLayoutTransition::section_states
+    session.AttentionSessionSection::layout_section Layout
+    session.AttentionSessionSection::section Section
+    session.AttentionSessionSection::transitions AttentionFocusTransition
+    session.AttentionSessionSection::active_transition AttentionFocusTransition
+}

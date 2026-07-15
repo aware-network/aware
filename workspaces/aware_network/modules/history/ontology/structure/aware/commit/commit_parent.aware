@@ -1,0 +1,14 @@
+class CommitParent {
+    // Relationships
+    parent_commit commit.Commit key
+
+    fn create construct (parent_commit_id UUID key) -> CommitParent {
+        """
+        Creates a new CommitParent in the current Commit.
+
+        Contract:
+        - Owner `commit_id` is supplied by the `Commit -> commit_parents` traversal path.
+        - Explicit constructor input is limited to the referenced `parent_commit_id`.
+        """
+    }
+}

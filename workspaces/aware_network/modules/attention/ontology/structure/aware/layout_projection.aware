@@ -1,0 +1,9 @@
+// Layout projection (shareable layout topology)
+//
+// Contract:
+// - Layout is a canonical, shareable section arrangement primitive.
+projection Layout {
+    root layout.Layout
+    layout.Layout::sections
+    layout.LayoutSection::section Section
+}

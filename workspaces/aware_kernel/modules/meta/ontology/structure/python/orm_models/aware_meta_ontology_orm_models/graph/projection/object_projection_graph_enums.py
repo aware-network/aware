@@ -24,3 +24,8 @@ class ObjectProjectionGraphNodeSelection(Enum):
     all = "all"
     one = "one"
     top_n = "top_n"
+
+
+class ObjectProjectionGraphObservableKind(Enum):
+    construct = "construct"
+    instance = "instance"

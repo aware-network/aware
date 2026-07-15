@@ -6,8 +6,6 @@ title = "Aware Kernel"
 
 # Public kernel checkout descriptor. The checkout root is
 # `workspaces/aware_kernel`, so package paths are workspace-relative.
-environments = []
-
 codes = [
     "languages/aware/grammar/grammar/pyproject.toml",
     "languages/aware/grammar/tree_sitter/pyproject.toml",
@@ -19,20 +17,20 @@ codes = [
     "languages/sql/grammar/grammar/pyproject.toml",
     "languages/sql/grammar/tree_sitter/pyproject.toml",
     "libs/model_helpers/dart/aware_model_helpers/pubspec.yaml",
+    "libs/command_runtime/python/pyproject.toml",
     "libs/types/python/pyproject.toml",
     "libs/utils/python/pyproject.toml",
     "libs/orm/pyproject.toml",
+    "modules/api/ontology/runtime/python/pyproject.toml",
+    "modules/code/ontology/runtime/python/pyproject.toml",
+    "modules/content/ontology/runtime/python/pyproject.toml",
+    "modules/history/ontology/runtime/python/pyproject.toml",
+    "modules/meta/ontology/runtime/python/pyproject.toml",
+    "modules/ontology/ontology/runtime/python/pyproject.toml",
+    "modules/reactivity/ontology/runtime/python/pyproject.toml",
+    "modules/sdk/ontology/runtime/python/pyproject.toml",
+    "modules/storage/ontology/runtime/python/pyproject.toml",
 ]
-apis = []
-services = []
-experiences = []
-nodes = []
-sdks = []
-interfaces = []
-attentions = []
-panes = []
-economies = []
-inferences = []
 
 # The selected-kernel WorkspaceRevision closes at Ontology plus Reactivity's
 # kernel event/reaction substrate, raw kernel code capabilities, API client

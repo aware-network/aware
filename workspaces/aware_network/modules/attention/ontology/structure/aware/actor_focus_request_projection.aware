@@ -1,0 +1,15 @@
+// ActorFocusRequest projection (cross-identity focus coordination lane)
+//
+// Contract:
+// - Genuinely cross-identity: sender and receiver are independent Identity
+//   lanes, so this stays as its own projection (not folded into Identity).
+//   Same shape rationale as IdentityConnection.
+// - Portals to sender/receiver Identity lanes, the related Focus lane, and
+//   the response member that lives in the same lane.
+projection ActorFocusRequest {
+    root actor.ActorFocusRequest
+    actor.ActorFocusRequest::response
+    actor.ActorFocusRequest::sender Identity
+    actor.ActorFocusRequest::receiver Identity
+    actor.ActorFocusRequest::focus focus.Focus
+}

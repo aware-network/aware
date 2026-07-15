@@ -1,0 +1,27 @@
+/// EnvironmentProfilePackage projection.
+///
+/// Purpose:
+/// - Expose Environment-owned OS profile package meaning to Workspace,
+///   Environment, and Experience consumers.
+/// - Keep reusable topology under EnvironmentProfileConfig.
+/// - Keep applied EnvironmentProfile runtime/session state outside package truth.
+projection EnvironmentProfilePackage is_branchable {
+    root environment.EnvironmentProfilePackage
+
+    environment.EnvironmentProfilePackage::source_code_package aware_code.CodePackage
+    environment.EnvironmentProfilePackage::environment_config_package EnvironmentConfigPackage
+    environment.EnvironmentProfilePackage::environment_config_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+
+    environment.EnvironmentProfilePackage::environment_profile_config EnvironmentProfileConfig
+    environment.EnvironmentProfilePackage::environment_profile_config_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+
+    environment.EnvironmentProfilePackage::dependencies
+    environment.EnvironmentProfilePackageDependency::target_environment_profile_package EnvironmentProfilePackage
+    environment.EnvironmentProfilePackageDependency::target_environment_profile_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+
+    observable profile_package {
+        """
+        EnvironmentProfilePackage semantic package lane view.
+        """
+    }
+}

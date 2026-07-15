@@ -1,0 +1,18 @@
+class ApiGraphCapabilityFunction {
+    // Relationships
+    api_graph_function ApiGraphFunction key
+
+    // Attributes
+    name String key
+    description String?
+
+    fn create construct (
+        name String key,
+        api_graph_function_id UUID key,
+        description String? = null
+    ) -> ApiGraphCapabilityFunction {
+        """
+        Create one named graph-scoped capability function bound to one ApiGraphFunction.
+        """
+    }
+}

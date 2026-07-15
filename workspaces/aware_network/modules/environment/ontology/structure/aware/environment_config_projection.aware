@@ -1,0 +1,48 @@
+// EnvironmentConfig projection (v0)
+//
+// Contract:
+// - EnvironmentConfig is the Environment-owned environment config root.
+// - EnvironmentConfig owns ontology config requirements plus reusable profile
+//   and session config templates.
+// - EnvironmentConfig does not own repository, ownership, CodeModule, or raw Meta OCG composition.
+// - ObjectConfigGraph resolution is only through EnvironmentConfig -> OntologyConfig.
+// - Runtime EnvironmentSession instances are Environment-owned, not config-owned.
+
+projection EnvironmentConfig is_branchable {
+    root environment.EnvironmentConfig
+
+    environment.EnvironmentConfig::ontology_configs
+    environment.EnvironmentConfig::profile_configs EnvironmentProfileConfig
+    environment.EnvironmentConfig::session_configs EnvironmentSessionConfig
+    environment.EnvironmentConfigOntologyConfig::ontology_config OntologyConfig
+    environment.EnvironmentConfigOntologyConfig::ontology_config_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+
+    observable editor {
+        """
+        EnvironmentConfig ontology, profile config, and session config lane
+        view.
+        """
+    }
+}
+
+/// EnvironmentSessionConfig projection.
+///
+/// Contract:
+/// - Root is the reusable Environment-level session template.
+/// - Identity SessionConfig and default profile/process/thread targets are
+///   portals.
+/// - This projection does not expose runtime EnvironmentSession instances.
+projection EnvironmentSessionConfig {
+    root environment.EnvironmentSessionConfig
+
+    environment.EnvironmentSessionConfig::identity_session_config aware_identity.SessionConfig
+    environment.EnvironmentSessionConfig::default_profile_config EnvironmentProfileConfig
+    environment.EnvironmentSessionConfig::default_process_config EnvironmentProfileConfig
+    environment.EnvironmentSessionConfig::default_thread_config EnvironmentProfileConfig
+
+    observable session_config {
+        """
+        Environment session config template with portal-backed defaults.
+        """
+    }
+}

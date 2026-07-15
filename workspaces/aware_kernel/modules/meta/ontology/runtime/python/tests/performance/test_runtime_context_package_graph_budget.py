@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from threading import Barrier
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from pathlib import Path
@@ -16,13 +17,17 @@ from aware_meta.package_graph_reuse_cache import (
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_VERSION,
     object_config_graph_package_context_reuse_cache_path,
     object_config_graph_package_reuse_cache_path,
+    write_object_config_graph_package_runtime_index_sidecar_cache_payload,
 )
+import aware_meta.runtime.graph_context as graph_context_module
 from aware_meta.runtime.graph_context import (
     _clear_meta_graph_runtime_index_snapshot_cache,
     _clear_meta_package_graph_session_cache,
     _external_graph_signature,
+    _object_config_graph_payload_for_context_cache,
     _source_text_manifest_hash,
     _stable_object_config_graph_package_branch_id,
+    MetaGraphRuntimeContext,
     build_meta_graph_runtime_context_for_aware_package_manifests,
 )
 from aware_meta.runtime.package_index import MetaRuntimePackageIndexEntry
@@ -32,7 +37,7 @@ from aware_meta_ontology.stable_ids import (
     stable_object_config_graph_package_id,
 )
 
-from .budgets import BudgetTimer, assert_metric_lte
+from .budgets import assert_metric_lte
 from .samples import build_meta_performance_runtime_graph
 
 
@@ -54,10 +59,6 @@ def test_runtime_context_strict_context_cache_hit_budget(
         dependency_package_names=("meta-perf-dep-0-ontology",),
     )
 
-    timer = BudgetTimer.start(
-        label="runtime_context_strict_context_cache_hit",
-        max_duration_s=1.0,
-    )
     context = build_meta_graph_runtime_context_for_aware_package_manifests(
         package_manifest_paths=fixture.manifest_paths,
         workspace_root=workspace_root,
@@ -65,11 +66,10 @@ def test_runtime_context_strict_context_cache_hit_budget(
         package_entries_by_manifest_path=fixture.entries_by_manifest_path,
         package_graph_cache_request_signature="sha256:meta-perf:context-hit",
     )
-    elapsed_s = timer.assert_within_budget()
 
-    assert_metric_lte(
+    _assert_context_budget_lte(
         label="runtime_context_strict_context_cache_hit_s",
-        actual=elapsed_s,
+        context=context,
         maximum=1.0,
     )
     assert_metric_lte(
@@ -89,6 +89,164 @@ def test_runtime_context_strict_context_cache_hit_budget(
         assert "read_catalog_materialized_cache_payload" not in (timing.phase_timings_s)
 
 
+def test_runtime_context_strict_runtime_only_cache_hit_budget(
+    tmp_path: Path,
+) -> None:
+    workspace_root = tmp_path
+    fixture = _write_runtime_context_cache_fixture(
+        workspace_root=workspace_root,
+        dependency_package_names=("meta-perf-dep-0-ontology",),
+    )
+
+    context = build_meta_graph_runtime_context_for_aware_package_manifests(
+        package_manifest_paths=fixture.manifest_paths,
+        workspace_root=workspace_root,
+        strict_package_graph_cache=True,
+        package_entries_by_manifest_path=fixture.entries_by_manifest_path,
+        package_graph_cache_request_signature="sha256:meta-perf:runtime-only-hit",
+        load_source_graph_payloads=False,
+    )
+
+    _assert_context_budget_lte(
+        label="runtime_context_strict_runtime_only_cache_hit_s",
+        context=context,
+        maximum=0.75,
+    )
+    assert_metric_lte(
+        label="runtime_context_runtime_only_load_package_graphs_s",
+        actual=context.phase_timings_s["load_package_graphs"],
+        maximum=0.6,
+    )
+    assert len(context.package_timings) == 3
+    assert {timing.cache_status for timing in context.package_timings} == {"hit"}
+    assert {timing.cache_source for timing in context.package_timings} == {
+        "catalog_context_reuse_cache"
+    }
+    for timing in context.package_timings:
+        _assert_no_source_analysis(timing.phase_timings_s)
+        assert "load_catalog_source_graph_payload" not in timing.phase_timings_s
+        assert "load_catalog_runtime_graph_payload" in timing.phase_timings_s
+        assert "load_catalog_runtime_graph_payload.model_validate" in (
+            timing.phase_timings_s
+        )
+        assert "load_catalog_runtime_graph_payload.namespace_evidence_check" in (
+            timing.phase_timings_s
+        )
+        assert "read_catalog_materialized_cache_payload" not in (timing.phase_timings_s)
+
+
+def test_runtime_context_strict_runtime_only_loads_runtime_payloads_concurrently(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workspace_root = tmp_path
+    fixture = _write_runtime_context_cache_fixture(
+        workspace_root=workspace_root,
+        dependency_package_names=("meta-perf-dep-0-ontology",),
+    )
+    original_loader = graph_context_module._load_graph_payload_from_context_cache
+    runtime_payload_load_barrier = Barrier(len(fixture.manifest_paths))
+    loaded_payload_keys: list[str] = []
+
+    def _observed_loader(**kwargs: object) -> ObjectConfigGraph | None:
+        payload_key = kwargs["payload_key"]
+        assert isinstance(payload_key, str)
+        loaded_payload_keys.append(payload_key)
+        if payload_key == "source_object_config_graph":
+            raise AssertionError("runtime-only fast path loaded source graph body")
+        if payload_key == "runtime_object_config_graph":
+            runtime_payload_load_barrier.wait(timeout=5.0)
+        return original_loader(**kwargs)
+
+    monkeypatch.setattr(
+        graph_context_module,
+        "_load_graph_payload_from_context_cache",
+        _observed_loader,
+    )
+
+    context = build_meta_graph_runtime_context_for_aware_package_manifests(
+        package_manifest_paths=fixture.manifest_paths,
+        workspace_root=workspace_root,
+        strict_package_graph_cache=True,
+        package_entries_by_manifest_path=fixture.entries_by_manifest_path,
+        package_graph_cache_request_signature=(
+            "sha256:meta-perf:runtime-only-concurrent"
+        ),
+        load_source_graph_payloads=False,
+    )
+
+    assert loaded_payload_keys == [
+        "runtime_object_config_graph",
+        "runtime_object_config_graph",
+        "runtime_object_config_graph",
+    ]
+    assert "strict_runtime_only_load_runtime_graph_payloads" in (
+        context.phase_timings_s
+    )
+    for timing in context.package_timings:
+        assert "load_catalog_runtime_index_sidecar" in timing.phase_timings_s
+        assert "load_catalog_source_graph_payload" not in timing.phase_timings_s
+
+
+def test_runtime_context_strict_runtime_only_index_only_skips_graph_body_loads(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workspace_root = tmp_path
+    fixture = _write_runtime_context_cache_fixture(
+        workspace_root=workspace_root,
+        dependency_package_names=("meta-perf-dep-0-ontology",),
+    )
+    loaded_payload_keys: list[str] = []
+
+    def _observed_loader(**kwargs: object) -> ObjectConfigGraph | None:
+        payload_key = kwargs["payload_key"]
+        assert isinstance(payload_key, str)
+        loaded_payload_keys.append(payload_key)
+        raise AssertionError("index-only context loaded an OCG body payload")
+
+    monkeypatch.setattr(
+        graph_context_module,
+        "_load_graph_payload_from_context_cache",
+        _observed_loader,
+    )
+
+    context = build_meta_graph_runtime_context_for_aware_package_manifests(
+        package_manifest_paths=fixture.manifest_paths,
+        workspace_root=workspace_root,
+        strict_package_graph_cache=True,
+        package_entries_by_manifest_path=fixture.entries_by_manifest_path,
+        package_graph_cache_request_signature=(
+            "sha256:meta-perf:runtime-only-index-only"
+        ),
+        load_source_graph_payloads=False,
+        runtime_context_graph_body_requirement="index_only",
+    )
+
+    _assert_context_budget_lte(
+        label="runtime_context_strict_runtime_only_index_only_s",
+        context=context,
+        maximum=0.35,
+    )
+    assert loaded_payload_keys == []
+    assert context.runtime_context_graph_body_requirement == "index_only"
+    assert "strict_runtime_only_load_runtime_graph_payloads" not in (
+        context.phase_timings_s
+    )
+    assert "strict_runtime_only_build_index_only_graphs" in context.phase_timings_s
+    assert len(context.runtime_graphs) == 3
+    assert context.index.class_configs_by_id == {}
+    assert context.index.relationships_by_id == {}
+    for timing in context.package_timings:
+        assert "read_catalog_runtime_index_sidecar_cache_payload" in (
+            timing.phase_timings_s
+        )
+        assert "read_catalog_context_cache_payload" not in timing.phase_timings_s
+        assert "load_catalog_runtime_index_sidecar" in timing.phase_timings_s
+        assert "load_catalog_source_graph_payload" not in timing.phase_timings_s
+        assert "load_catalog_runtime_graph_payload" not in timing.phase_timings_s
+
+
 def test_runtime_context_strict_session_cache_budget_skips_payload_graph_loads(
     tmp_path: Path,
 ) -> None:
@@ -105,10 +263,6 @@ def test_runtime_context_strict_session_cache_budget_skips_payload_graph_loads(
         package_graph_cache_request_signature="sha256:meta-perf:session-first",
     )
 
-    timer = BudgetTimer.start(
-        label="runtime_context_strict_session_cache_hit",
-        max_duration_s=0.5,
-    )
     second = build_meta_graph_runtime_context_for_aware_package_manifests(
         package_manifest_paths=fixture.manifest_paths,
         workspace_root=workspace_root,
@@ -116,11 +270,10 @@ def test_runtime_context_strict_session_cache_budget_skips_payload_graph_loads(
         package_entries_by_manifest_path=fixture.entries_by_manifest_path,
         package_graph_cache_request_signature="sha256:meta-perf:session-second",
     )
-    elapsed_s = timer.assert_within_budget()
 
-    assert_metric_lte(
+    _assert_context_budget_lte(
         label="runtime_context_strict_session_cache_hit_s",
-        actual=elapsed_s,
+        context=second,
         maximum=0.5,
     )
     assert second.phase_timings_s["load_package_graphs"] <= (
@@ -190,10 +343,6 @@ def test_runtime_context_materialized_readthrough_budget_refreshes_context_cache
         fqn_prefix=fqn_prefix,
         manifest_path=manifest_path,
     )
-    timer = BudgetTimer.start(
-        label="runtime_context_materialized_readthrough",
-        max_duration_s=1.0,
-    )
     context = build_meta_graph_runtime_context_for_aware_package_manifests(
         package_manifest_paths=(manifest_path,),
         workspace_root=workspace_root,
@@ -201,11 +350,10 @@ def test_runtime_context_materialized_readthrough_budget_refreshes_context_cache
         package_entries_by_manifest_path={manifest_path.resolve(): entry},
         package_graph_cache_request_signature="sha256:meta-perf:readthrough",
     )
-    elapsed_s = timer.assert_within_budget()
 
-    assert_metric_lte(
+    _assert_context_budget_lte(
         label="runtime_context_materialized_readthrough_s",
-        actual=elapsed_s,
+        context=context,
         maximum=1.0,
     )
     timing = context.package_timings[0]
@@ -283,19 +431,14 @@ def test_runtime_context_non_strict_materialized_readthrough_budget(
         lambda *_args, **_kwargs: SimpleNamespace(runtime_graph=runtime_graph),
     )
 
-    timer = BudgetTimer.start(
-        label="runtime_context_non_strict_materialized_readthrough",
-        max_duration_s=1.0,
-    )
     context = build_meta_graph_runtime_context_for_aware_package_manifests(
         package_manifest_paths=(manifest_path,),
         workspace_root=workspace_root,
     )
-    elapsed_s = timer.assert_within_budget()
 
-    assert_metric_lte(
+    _assert_context_budget_lte(
         label="runtime_context_non_strict_materialized_readthrough_s",
-        actual=elapsed_s,
+        context=context,
         maximum=1.0,
     )
     timing = context.package_timings[0]
@@ -505,6 +648,30 @@ def _write_context_graph_cache(
         fqn_prefix=fqn_prefix,
     )
     cache_path.parent.mkdir(parents=True, exist_ok=True)
+    identity = graph_context_module._PackageGraphCacheIdentity(  # noqa: SLF001
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+        branch_id=_stable_object_config_graph_package_branch_id(
+            workspace_root=workspace_root,
+            aware_toml_path=manifest_path,
+            package_name=package_name,
+            fqn_prefix=fqn_prefix,
+        ),
+        object_config_graph_id=source_graph.id,
+        object_config_graph_package_id=stable_object_config_graph_package_id(
+            package_name=package_name,
+            fqn_prefix=fqn_prefix,
+        ),
+        source_manifest_hash=source_manifest_hash,
+        dependency_signature=dependency_signature,
+    )
+    runtime_index_sidecar_payload = (
+        graph_context_module._runtime_package_index_sidecar_payload(  # noqa: SLF001
+            identity=identity,
+            source_graph=source_graph,
+            runtime_graph=runtime_graph,
+        )
+    )
     cache_path.write_text(
         json.dumps(
             {
@@ -528,20 +695,26 @@ def _write_context_graph_cache(
                 ),
                 "source_object_config_graph_hash": source_graph.hash,
                 "runtime_object_config_graph_hash": runtime_graph.hash,
-                "source_object_config_graph": source_graph.model_dump(
-                    mode="json",
-                    by_alias=True,
-                    exclude_none=True,
+                "runtime_package_index_sidecar": runtime_index_sidecar_payload,
+                "source_object_config_graph": (
+                    _object_config_graph_payload_for_context_cache(source_graph)
                 ),
-                "runtime_object_config_graph": runtime_graph.model_dump(
-                    mode="json",
-                    by_alias=True,
-                    exclude_none=True,
+                "runtime_object_config_graph": (
+                    _object_config_graph_payload_for_context_cache(runtime_graph)
                 ),
             },
             sort_keys=True,
         ),
         encoding="utf-8",
+    )
+    write_object_config_graph_package_runtime_index_sidecar_cache_payload(
+        aware_root=workspace_root,
+        branch_id=identity.branch_id,
+        object_config_graph_package_id=identity.object_config_graph_package_id,
+        payload=graph_context_module._runtime_package_index_sidecar_cache_payload(  # noqa: SLF001
+            identity=identity,
+            sidecar_payload=runtime_index_sidecar_payload,
+        ),
     )
 
 
@@ -585,10 +758,8 @@ def _write_materialized_package_cache(
                 "object_config_graph_id": str(source_graph.id),
                 "object_config_graph_hash": source_graph.hash,
                 "object_config_graph_package_id": str(package_id),
-                "object_config_graph": source_graph.model_dump(
-                    mode="json",
-                    by_alias=True,
-                    exclude_none=True,
+                "object_config_graph": (
+                    _object_config_graph_payload_for_context_cache(source_graph)
                 ),
             },
             sort_keys=True,
@@ -624,3 +795,18 @@ def _context_cache_path(
 def _assert_no_source_analysis(phase_timings_s: Mapping[str, float]) -> None:
     assert "read_package_source_texts" not in phase_timings_s
     assert "analyze_meta_ocg_sources" not in phase_timings_s
+
+
+def _assert_context_budget_lte(
+    *,
+    label: str,
+    context: MetaGraphRuntimeContext,
+    maximum: float,
+) -> None:
+    actual = context.phase_timings_s["total"]
+    assert actual <= maximum, (
+        f"{label} exceeded budget: actual={actual} max={maximum} "
+        f"context_phases={context.phase_timings_s} "
+        f"package_phases="
+        f"{[(timing.package_name, timing.cache_status, timing.cache_source, timing.phase_timings_s) for timing in context.package_timings]}"
+    )

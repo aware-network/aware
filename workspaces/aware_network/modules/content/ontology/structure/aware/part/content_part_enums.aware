@@ -1,0 +1,13 @@
+enum ContentPartLayoutUnit {
+    em
+    percentage
+    pixel
+    rem
+    vh
+    vw
+}
+
+enum ContentPartType {
+    file
+    text
+}

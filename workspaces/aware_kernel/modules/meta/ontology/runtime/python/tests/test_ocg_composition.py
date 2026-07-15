@@ -42,6 +42,7 @@ from aware_meta_ontology.graph.projection.object_projection_graph import (
 )
 from aware_meta_ontology.graph.projection.object_projection_graph_enums import (
     ObjectProjectionGraphNodeSelection,
+    ObjectProjectionGraphObservableKind,
 )
 from aware_meta_ontology.graph.projection.object_projection_graph_identity import (
     ObjectProjectionGraphIdentity,
@@ -742,7 +743,7 @@ def test_compose_object_config_graphs_prefers_source_opgi_over_composite_opgi() 
         *,
         object_config_graph_identity_id: UUID,
         object_projection_graph_identity_id: UUID,
-        observable_kind: str | None,
+        observable_kind: ObjectProjectionGraphObservableKind,
         observable_label: str | None,
     ) -> ObjectProjectionGraphIdentity:
         observable_id = stable_object_projection_graph_observable_id(
@@ -763,7 +764,6 @@ def test_compose_object_config_graphs_prefers_source_opgi_over_composite_opgi() 
                     observable_key="default",
                     kind=observable_kind,
                     label=observable_label,
-                    is_default=True,
                 )
             ],
         )
@@ -776,7 +776,7 @@ def test_compose_object_config_graphs_prefers_source_opgi_over_composite_opgi() 
             make_opgi(
                 object_config_graph_identity_id=composite_ocgi_id,
                 object_projection_graph_identity_id=composite_opgi_id,
-                observable_kind=None,
+                observable_kind=ObjectProjectionGraphObservableKind.instance,
                 observable_label="legacy composite observable",
             )
         ],
@@ -792,7 +792,7 @@ def test_compose_object_config_graphs_prefers_source_opgi_over_composite_opgi() 
             make_opgi(
                 object_config_graph_identity_id=source_ocgi_id,
                 object_projection_graph_identity_id=source_opgi_id,
-                observable_kind="construct",
+                observable_kind=ObjectProjectionGraphObservableKind.construct,
                 observable_label="source observable",
             )
         ],
@@ -813,7 +813,10 @@ def test_compose_object_config_graphs_prefers_source_opgi_over_composite_opgi() 
     assert len(identities) == 1
     assert identities[0].id == source_opgi_id
     assert identities[0].object_config_graph_identity_id == source_ocgi_id
-    assert identities[0].object_projection_graph_observables[0].kind == "construct"
+    assert (
+        identities[0].object_projection_graph_observables[0].kind
+        == ObjectProjectionGraphObservableKind.construct
+    )
     assert (
         identities[0].object_projection_graph_observables[0].label
         == "source observable"

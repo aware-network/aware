@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel
 
-from aware_meta.graph.instance.commit.fs_store import CommitActionDescriptor
+from aware_meta.graph.instance.commit.contract import CommitActionDescriptor
 from aware_meta.runtime.commit.required_reactions import (
     RuntimeCommitReactionContext,
     RuntimeCommitReactionReceipt,
@@ -77,6 +77,7 @@ class _Payload(BaseModel):
 class _RecordedInvocationCommit:
     branch_id: UUID
     projection_hash: str
+    object_projection_graph_identity_id: UUID | None
     object_instance_graph_identity_id: UUID
     object_instance_graph_id: UUID
     before_oig: ObjectInstanceGraph
@@ -98,6 +99,7 @@ class _FakeLaneCommitter:
         *,
         branch_id: UUID,
         projection_hash: str,
+        object_projection_graph_identity_id: UUID | None = None,
         object_instance_graph_identity_id: UUID,
         object_instance_graph_id: UUID,
         before_oig: ObjectInstanceGraph,
@@ -111,6 +113,7 @@ class _FakeLaneCommitter:
         self.recorded = _RecordedInvocationCommit(
             branch_id=branch_id,
             projection_hash=projection_hash,
+            object_projection_graph_identity_id=object_projection_graph_identity_id,
             object_instance_graph_identity_id=object_instance_graph_identity_id,
             object_instance_graph_id=object_instance_graph_id,
             before_oig=before_oig,
@@ -355,6 +358,7 @@ def test_append_invocation_domain_commit_delegates_typed_commit_action() -> None
     assert recorded == _RecordedInvocationCommit(
         branch_id=branch_id,
         projection_hash="thread",
+        object_projection_graph_identity_id=None,
         object_instance_graph_identity_id=object_instance_graph_identity_id,
         object_instance_graph_id=object_instance_graph_id,
         before_oig=before_oig,
@@ -644,8 +648,8 @@ def test_meta_oigi_history_projection_stays_off_runtime_execution_hydration() ->
     assert "aware_runtime" not in source
     assert "execute_function" not in source
     assert "hydrate_orm_graph_from_oig" not in source
-    assert "scoped_change_collection" not in source
-    assert "build_object_instance_graph_changes_from_orm_change_set" not in source
+    assert "_project_oigi_history_direct" in source
+    assert "with disallow_push(), allow_domain_create()" in source
 
 
 def test_run_invocation_required_commit_reactions_prefers_explicit_source_identity() -> (

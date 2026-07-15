@@ -1,0 +1,8 @@
+/// Separate from ActorFocusRequest to ensure provenance on result standalone.
+class ActorFocusRequestResponse {
+    // Attributes
+    key String key = "default"
+
+    success Bool
+    message String?
+}

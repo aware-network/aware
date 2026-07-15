@@ -342,6 +342,10 @@ def test_api_manifest_resolution_declares_generated_python_package_metadata_reso
         manifest_spec=manifest_spec,
     )
 
+    assert metadata["package_name"] == "code-service-api"
+    assert metadata["fqn_prefix"] == "aware_code_service_api"
+    assert metadata["package_kind"] == "api"
+    assert metadata["package_root"] == "modules/code/apis/code"
     targets = {
         target["role"]: target
         for target in metadata["language_materialization_targets"]

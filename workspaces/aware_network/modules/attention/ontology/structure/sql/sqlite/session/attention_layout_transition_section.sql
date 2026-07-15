@@ -1,0 +1,21 @@
+-- coverage:ignore-file
+-- GENERATED CODE - DO NOT MODIFY BY HAND
+
+CREATE TABLE attention_layout_transition_section (
+  -- PRIMARY KEY
+  branch_id TEXT NOT NULL,
+  projection_hash TEXT NOT NULL,
+  id TEXT NOT NULL,
+  -- RELATIONSHIPS
+  attention_layout_transition_id TEXT NOT NULL,
+  attention_session_section_id TEXT NOT NULL,
+  -- ATTRIBUTES
+  order_ INTEGER NOT NULL,
+  weight_micros INTEGER NOT NULL,
+  is_visible INTEGER NOT NULL,
+  is_collapsed INTEGER NOT NULL,
+  -- CONSTRAINTS
+  PRIMARY KEY (branch_id, projection_hash, id),
+  UNIQUE (branch_id, projection_hash, attention_layout_transition_id, attention_session_section_id),
+  FOREIGN KEY (branch_id, projection_hash, attention_layout_transition_id) REFERENCES attention_layout_transition(branch_id, projection_hash, id)
+);

@@ -1,0 +1,75 @@
+/// Parser-emitted Code content plan DTOs.
+///
+/// These are transport/materialization-plan values. They are not graph entities
+/// and do not carry filesystem or Workspace ownership.
+enum CodeSectionType {
+    binding
+    attribute
+    class
+    comment
+    decorator
+    enum
+    enum_value
+    expression
+    function
+    import
+    mirror
+    annotation
+    projection
+    program
+    event
+}
+
+/// Canonical parser-emitted annotation payload plan.
+class CodeSectionAnnotationPlan : inline_value {
+    path String
+    verb String
+    args String[] = []
+}
+
+/// Canonical parser-emitted segment slot plan.
+class CodeSegmentPlan : inline_value {
+    slot_key String
+    byte_start Int
+    byte_end Int
+}
+
+/// Canonical parser-emitted import-name payload plan.
+class CodeSectionImportNamePlan : inline_value {
+    name_text String
+    alias_text String?
+    name_segment_plan code.CodeSegmentPlan
+    alias_segment_plan code.CodeSegmentPlan?
+}
+
+/// Canonical parser-emitted import payload plan.
+class CodeSectionImportPlan : inline_value {
+    module_text String
+    is_from_import Bool
+    is_star_import Bool
+    relative_level Int = 0
+    module_segment_plan code.CodeSegmentPlan
+    name_plans code.CodeSectionImportNamePlan[] = []
+}
+
+/// Canonical parser-emitted section materialization plan.
+class CodeSectionPlan : inline_value {
+    section_key String
+    section_type code.CodeSectionType
+    qualname String
+    identity_hash String
+    byte_start Int
+    byte_end Int
+    reference String?
+    parent_qualname String?
+    metadata JsonObject?
+    annotation_plan code.CodeSectionAnnotationPlan?
+    import_plan code.CodeSectionImportPlan?
+}
+
+/// Canonical code content plan emitted by pure parser/planner rails.
+class CodeContentPlan : inline_value {
+    language code.CodeLanguage
+    content_text String
+    section_plans code.CodeSectionPlan[] = []
+}

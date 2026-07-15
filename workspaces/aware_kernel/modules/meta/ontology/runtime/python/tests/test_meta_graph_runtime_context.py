@@ -73,8 +73,10 @@ from aware_meta.package_graph_reuse_cache import (
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_CONTEXT_GRAPHS,
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_CONTEXT_SOURCE_GRAPH,
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_MATERIALIZED_PACKAGE,
+    OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_RUNTIME_INDEX_SIDECAR,
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_VERSION,
     object_config_graph_package_context_reuse_cache_path,
+    object_config_graph_package_runtime_index_sidecar_cache_path,
     object_config_graph_package_reuse_cache_path,
 )
 from aware_meta.graph.config.namespace.membership import (
@@ -322,11 +324,7 @@ def test_catalog_context_runtime_only_load_skips_source_graph_payload(
         "source_object_config_graph_hash": source_graph.hash,
         "runtime_object_config_graph_hash": runtime_graph.hash,
         "source_object_config_graph": {"invalid": "would-fail-if-loaded"},
-        "runtime_object_config_graph": runtime_graph.model_dump(
-            mode="json",
-            by_alias=True,
-            exclude_none=True,
-        ),
+        "runtime_object_config_graph": _graph_cache_payload(runtime_graph),
     }
     original_loader = (
         graph_context_module._load_graph_payload_from_context_cache
@@ -362,6 +360,89 @@ def test_catalog_context_runtime_only_load_skips_source_graph_payload(
     assert cached_graphs.runtime_graph.id == runtime_graph.id
     assert cached_graphs.source_graph_ref.object_config_graph_hash == source_graph.hash
     assert loaded_payload_keys == ["runtime_object_config_graph"]
+
+
+def test_catalog_context_cache_write_records_runtime_package_index_sidecar(
+    tmp_path: Path,
+) -> None:
+    workspace_root = tmp_path
+    source_graph = _runtime_graph(
+        name="Sidecar Source",
+        fqn_prefix="aware.sidecar",
+        projection_name="Sidecar",
+        projection_hash="sha256:test:Sidecar:source",
+    )
+    runtime_graph = source_graph.model_copy(
+        update={
+            "name": "Sidecar Runtime",
+            "hash": "sha256:test:Sidecar:runtime",
+        },
+        deep=True,
+    )
+    runtime_graph.object_projection_graphs[0].projection_hash = (
+        "sha256:test:Sidecar:runtime-projection"
+    )
+    identity = graph_context_module._PackageGraphCacheIdentity(  # noqa: SLF001
+        package_name="sidecar-ontology",
+        fqn_prefix="aware.sidecar",
+        branch_id=uuid4(),
+        object_config_graph_id=source_graph.id,
+        object_config_graph_package_id=stable_object_config_graph_package_id(
+            package_name="sidecar-ontology",
+            fqn_prefix="aware.sidecar",
+        ),
+        source_manifest_hash="sha256:test:sidecar-source-manifest",
+        dependency_signature=_external_graph_signature(external_graphs=()),
+    )
+
+    written = graph_context_module._try_write_catalog_context_package_graph_cache(  # noqa: SLF001
+        identity=identity,
+        workspace_root=workspace_root,
+        source_graph=source_graph,
+        runtime_graph=runtime_graph,
+    )
+
+    assert written is True
+    cache_path = object_config_graph_package_context_reuse_cache_path(
+        aware_root=workspace_root,
+        branch_id=identity.branch_id,
+        object_config_graph_package_id=identity.object_config_graph_package_id,
+    )
+    payload = json.loads(cache_path.read_text(encoding="utf-8"))
+    sidecar = payload["runtime_package_index_sidecar"]
+    assert sidecar["schema"] == "aware.meta.runtime_package_index_sidecar.v1"
+    assert sidecar["package_name"] == "sidecar-ontology"
+    assert sidecar["object_config_graph_id"] == str(source_graph.id)
+    assert sidecar["source_object_config_graph_hash"] == source_graph.hash
+    assert sidecar["runtime_object_config_graph_hash"] == runtime_graph.hash
+    assert sidecar["projection_hash_by_name"] == {
+        "Sidecar": "sha256:test:Sidecar:runtime-projection"
+    }
+    assert sidecar["object_projection_graphs"] == [
+        {
+            "id": str(runtime_graph.object_projection_graphs[0].id),
+            "object_config_graph_id": str(runtime_graph.id),
+            "language": "aware",
+            "name": "Sidecar",
+            "projection_hash": "sha256:test:Sidecar:runtime-projection",
+        }
+    ]
+    sidecar_cache_path = object_config_graph_package_runtime_index_sidecar_cache_path(
+        aware_root=workspace_root,
+        branch_id=identity.branch_id,
+        object_config_graph_package_id=identity.object_config_graph_package_id,
+    )
+    sidecar_cache_payload = json.loads(sidecar_cache_path.read_text(encoding="utf-8"))
+    assert sidecar_cache_payload["cache_kind"] == (
+        OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_RUNTIME_INDEX_SIDECAR
+    )
+    assert sidecar_cache_payload["source_manifest_hash"] == (
+        "sha256:test:sidecar-source-manifest"
+    )
+    assert sidecar_cache_payload["dependency_signature"] == (
+        _external_graph_signature(external_graphs=())
+    )
+    assert sidecar_cache_payload["runtime_package_index_sidecar"] == sidecar
 
 
 def _write_minimal_aware_manifest(
@@ -788,16 +869,8 @@ def test_meta_graph_context_loads_package_graphs_from_meta_reuse_cache(
                 "object_config_graph_package_id": str(package_id),
                 "source_object_config_graph_hash": source_graph.hash,
                 "runtime_object_config_graph_hash": runtime_graph.hash,
-                "source_object_config_graph": source_graph.model_dump(
-                    mode="json",
-                    by_alias=True,
-                    exclude_none=True,
-                ),
-                "runtime_object_config_graph": runtime_graph.model_dump(
-                    mode="json",
-                    by_alias=True,
-                    exclude_none=True,
-                ),
+                "source_object_config_graph": _graph_cache_payload(source_graph),
+                "runtime_object_config_graph": _graph_cache_payload(runtime_graph),
             },
             sort_keys=True,
         ),
@@ -1396,10 +1469,8 @@ def test_meta_graph_context_rejects_stale_nested_namespace_cache_shape(
             "object_projection_graph_bindings": [
                 {
                     "class_name": "Demo",
-                    "domain_name": "default",
                     "fqn_prefix": fqn_prefix,
                     "id": str(uuid4()),
-                    "schema_name": "demo",
                 }
             ],
         }
@@ -1840,16 +1911,8 @@ def test_meta_graph_context_from_package_manifests_exposes_source_graphs(
                 "object_config_graph_package_id": str(package_id),
                 "source_object_config_graph_hash": source_graph.hash,
                 "runtime_object_config_graph_hash": runtime_graph.hash,
-                "source_object_config_graph": source_graph.model_dump(
-                    mode="json",
-                    by_alias=True,
-                    exclude_none=True,
-                ),
-                "runtime_object_config_graph": runtime_graph.model_dump(
-                    mode="json",
-                    by_alias=True,
-                    exclude_none=True,
-                ),
+                "source_object_config_graph": _graph_cache_payload(source_graph),
+                "runtime_object_config_graph": _graph_cache_payload(runtime_graph),
             },
             sort_keys=True,
         ),
@@ -5096,13 +5159,21 @@ def test_meta_graph_context_for_required_projections_uses_manifest_closure(
         workspace_root: Path | None,
         composition_context_id: object | None,
         composite_name: str,
+        strict_package_graph_cache: bool,
         package_entries_by_manifest_path: object,
+        load_source_graph_payloads: bool,
+        runtime_context_graph_body_requirement: str,
     ) -> MetaGraphRuntimeContext:
         seen["package_manifest_paths"] = package_manifest_paths
         seen["workspace_root"] = workspace_root
         seen["composition_context_id"] = composition_context_id
         seen["composite_name"] = composite_name
+        seen["strict_package_graph_cache"] = strict_package_graph_cache
         seen["package_entries_by_manifest_path"] = package_entries_by_manifest_path
+        seen["load_source_graph_payloads"] = load_source_graph_payloads
+        seen["runtime_context_graph_body_requirement"] = (
+            runtime_context_graph_body_requirement
+        )
         return build_meta_graph_runtime_context(runtime_graphs=(graph,))
 
     monkeypatch.setattr(
@@ -5130,6 +5201,9 @@ def test_meta_graph_context_for_required_projections_uses_manifest_closure(
     }
     assert seen["workspace_root"] == workspace_root.resolve()
     assert seen["composite_name"] == "Required Workspace Test Context"
+    assert seen["strict_package_graph_cache"] is False
+    assert seen["load_source_graph_payloads"] is True
+    assert seen["runtime_context_graph_body_requirement"] == "runtime_graph_body"
     assert context.projection_hash_for_name("Workspace") == "sha256:test:Workspace"
 
 

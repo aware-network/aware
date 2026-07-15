@@ -1,0 +1,18 @@
+/// ProjectionExperienceSectionGraphBinding projection.
+///
+/// Contract:
+/// - ProjectionExperience-scoped section/graph agreement descriptor.
+/// - Reached canonically from ProjectionExperience through a parent->child portal.
+/// - Owns one Attention layout-section portal, one view binding, and one explicit graph-occurrence anchor.
+projection ProjectionExperienceSectionGraphBinding {
+    root projection.ProjectionExperienceSectionGraphBinding
+    projection.ProjectionExperienceSectionGraphBinding::layout_config_section_config aware_attention.LayoutConfig
+    projection.ProjectionExperienceSectionGraphBinding::projection_experience_view ProjectionExperience
+    projection.ProjectionExperienceSectionGraphBinding::projection_experience_graph_identity ProjectionExperienceGraph
+
+    observable projection_experience_section_graph_binding {
+        """
+        ProjectionExperience-owned layout-section portal, view binding, and explicit graph anchor.
+        """
+    }
+}

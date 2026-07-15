@@ -22,12 +22,12 @@ def test_tree_sitter_parses_service_blocks() -> None:
     source = """\
 service workspace {
     api workspace_api {
-        projection aware_workspace.workspace_graph;
+        projection aware_workspace.workspace_graph
     }
-    experience workspace_coordination;
+    experience workspace_coordination
 
     operation compile {
-        endpoint workspace_api.compilation.compile;
+        endpoint workspace_api.compilation.compile
     }
 }
 """
@@ -78,21 +78,21 @@ service workspace {
 def test_tree_sitter_parses_service_operation_price_declaration() -> None:
     source = """\
 service workspace {
-    api workspace_api;
+    api workspace_api
 
     operation diagnose {
-        endpoint workspace_api.diagnostics.run;
-        admission metered_settlement_required;
-        receipt committed;
-        settlement reserve_and_finalize;
+        endpoint workspace_api.diagnostics.run
+        admission metered_settlement_required
+        receipt committed
+        settlement reserve_and_finalize
         price {
-            coin USD;
-            type fixed;
-            fixed_amount 2.50;
-            effective_from "2026-04-21T00:00:00Z";
+            coin USD
+            type fixed
+            fixed_amount 2.50
+            effective_from "2026-04-21T00:00:00Z"
 
             policy {
-                fail_closed true;
+                fail_closed true
             }
         }
     }
@@ -164,17 +164,17 @@ service workspace {
 def test_tree_sitter_parses_service_code_package_config_declaration() -> None:
     source = """\
 service aware_experience {
-    api experience;
+    api experience
 
     package experience {
-        manifest aware_experience_toml;
-        surface experience;
-        cardinality many;
-        required false;
+        manifest aware_experience_toml
+        surface experience
+        cardinality many
+        required false
     }
 
     operation resolve_package {
-        endpoint experience.package_materialization.resolve_experience_package_projection_ownership;
+        endpoint experience.package_materialization.resolve_experience_package_projection_ownership
     }
 }
 """
@@ -229,33 +229,31 @@ def test_tree_sitter_parses_service_contract_operation_view_and_role_declaration
 ):
     source = """\
 service identity {
-    api identity_api;
-    experience actor_identity;
+    api identity_api
+    experience actor_identity
 
     operation actor_roles {
-        endpoint identity_api.actor.roles;
-        view actor_identity.roles {
-            provider service_operation;
-        }
+        endpoint identity_api.actor.roles
+        view actor_identity.roles
         role identity.actor_reader {
-            access operation;
-            scope operation actor_roles;
-            class_instance_identity_required true;
-            role_assignment_binding_required true;
+            access operation
+            scope operation actor_roles
+            class_instance_identity_required true
+            role_assignment_binding_required true
         }
     }
 
     contract actor_subscription {
-        kind subscription;
-        projection_experience actor_identity;
+        kind subscription
+        projection_experience actor_identity
         grant operation actor_roles {
-            access operation;
+            access operation
         }
         grant actor_role identity.actor_reader {
-            access service;
-            scope service default;
-            class_instance_identity_required false;
-            role_assignment_binding_required true;
+            access service
+            scope service default
+            class_instance_identity_required false
+            role_assignment_binding_required true
         }
     }
 }
@@ -273,12 +271,6 @@ service identity {
         _text(source_bytes, view_defs[0].child_by_field_name("view"))
         == "actor_identity.roles"
     )
-
-    provider_decls = _find_nodes(root, "service_operation_view_provider_decl")
-    assert len(provider_decls) == 1
-    assert _text(
-        source_bytes, provider_decls[0].child_by_field_name("provider_kind")
-    ) == ("service_operation")
 
     role_requirement_defs = _find_nodes(root, "service_operation_role_requirement_def")
     assert len(role_requirement_defs) == 1

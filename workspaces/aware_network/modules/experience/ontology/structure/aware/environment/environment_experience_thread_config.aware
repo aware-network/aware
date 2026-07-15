@@ -1,0 +1,81 @@
+/// Experience config bridge for one Environment ThreadConfig.
+///
+/// Contract:
+/// - Environment owns ThreadConfig topology and hosted projection/layout
+///   availability.
+/// - Experience owns thread-scoped programs, program apply declarations, and
+///   later action/event participation over that stable ThreadConfig.
+/// - This class never constructs ThreadConfig or runtime Thread instances.
+class EnvironmentExperienceThreadConfig {
+    // Relationships
+    thread_config aware_environment.thread.ThreadConfig key
+    programs EnvironmentExperienceProgram[]
+    program_applies EnvironmentExperienceProgramApply[]
+
+    // Attributes
+    description String?
+    intent String?
+    key String key
+    narrative String?
+    position Int? = null
+    title String?
+
+    fn build construct (
+        thread_config_id UUID key,
+        key String key,
+        title String? = null,
+        description String? = null,
+        position Int? = null,
+        narrative String? = null,
+        intent String? = null
+    ) -> EnvironmentExperienceThreadConfig {
+        """
+        Construct one Experience thread config bridge.
+
+        Contract:
+        - Identity is derived from parent process bridge plus `(thread_config_id, key)`.
+        - `thread_config_id` references Environment ThreadConfig topology truth.
+        """
+    }
+
+    fn add_program (
+        program_config_id UUID key
+    ) -> EnvironmentExperienceProgram {
+        """
+        Attach one ProgramConfig association edge under this thread config bridge.
+        """
+        let created = construct programs.build(
+            program_config_id = program_config_id,
+        )
+    }
+
+    fn add_program_apply (
+        program_config_id UUID,
+        key String key,
+        phase String = "bootstrap",
+        position Int? = null,
+        message String? = null,
+        symbols JsonObject = {}
+    ) -> EnvironmentExperienceProgramApply {
+        """
+        Attach one thread-scoped seed/apply declaration.
+
+        Contract:
+        - `program_config_id` should already be installed in `programs`.
+        - Represents config-only apply intent; it does not execute the program.
+        - Experience runtime later maps this declaration to `run_program`.
+        """
+        let created = construct program_applies.build(
+            program_config_id = program_config_id,
+            key = key,
+            phase = phase,
+            position = position,
+            message = message,
+            symbols = symbols,
+        )
+    }
+}
+
+ann environment.EnvironmentExperienceThreadConfig::thread_config load eager
+ann environment.EnvironmentExperienceThreadConfig::programs load eager
+ann environment.EnvironmentExperienceThreadConfig::program_applies load eager

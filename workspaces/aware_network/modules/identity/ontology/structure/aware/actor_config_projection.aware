@@ -1,0 +1,17 @@
+/// Identity ActorConfig projection.
+///
+/// Contract:
+/// - ActorConfig is the shared actor archetype vocabulary consumed by
+///   Environment admission and Experience lens/action contracts.
+/// - RoleConfig remains Identity-owned policy vocabulary.
+projection ActorConfig {
+    root actor.ActorConfig
+    actor.ActorConfig::role_configs
+    actor.ActorConfigRoleConfig::role_config RoleConfig
+
+    observable actor_config {
+        """
+        Identity-owned actor archetype and RoleConfig eligibility bundle.
+        """
+    }
+}

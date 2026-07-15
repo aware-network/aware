@@ -1433,19 +1433,15 @@ import external.*;
         assert body_text == body_text.strip(), f"Import {i+1} body should be trimmed"
 
 
-def test_import_adapter_with_sample_file(sample_aware_file: str) -> None:
-    """Test the import adapter with the actual sample file if it contains imports."""
-    # Read the sample file to check if it has imports
-    with open(sample_aware_file, "r") as f:
-        content = f.read()
-
-    # Only run this test if the file contains imports
-    if "import " not in content:
-        pytest.skip("Sample file does not contain import statements")
-
-    # Parse the sample file
-    with open(sample_aware_file, "rb") as f:
-        source_bytes = f.read()
+def test_import_adapter_with_explicit_import_sample() -> None:
+    """Test the import adapter against a stable import-bearing sample."""
+    source_bytes = (
+        b"import module.submodule;\n"
+        b"import package.utils as helpers;\n\n"
+        b"class ImportedThing {\n"
+        b"    value String\n"
+        b"}\n"
+    )
 
     tree = parser.parse(source_bytes)
 
@@ -1617,7 +1613,7 @@ projection ActorFocus is_branchable {
 
 
 def test_projection_adapter_extracts_observable_blocks() -> None:
-    """Observable keyword is canonical; legacy aliases remain supported."""
+    """Projection observables are flat Meta attention selectors."""
     from tree_sitter import Parser
 
     from aware_grammar.adapters.projection_adapter import AwareProjectionAdapter
@@ -1625,9 +1621,8 @@ def test_projection_adapter_extracts_observable_blocks() -> None:
     sample_code = """
 projection Identity {
     root identity.Identity
-    observable onboarding {
-        observable welcome construct default { }
-    }
+    observable home { }
+    observable bootstrap construct { }
 }
 """.strip()
 
@@ -1639,10 +1634,52 @@ projection Identity {
     assert len(projections) == 1
 
     views = proj_adapter.get_views(projections[0])
-    assert len(views) == 1
-    assert views[0].full_key == "onboarding.welcome"
-    assert views[0].kind == "construct"
-    assert views[0].is_default is True
+    assert len(views) == 2
+    assert [(view.full_key, view.kind, view.is_default) for view in views] == [
+        ("home", "instance", False),
+        ("bootstrap", "construct", False),
+    ]
+
+
+def test_projection_observable_rejects_legacy_grouping() -> None:
+    from tree_sitter import Parser
+
+    from aware_grammar.adapters.projection_adapter import AwareProjectionAdapter
+
+    sample_code = """
+projection Identity {
+    root identity.Identity
+    observable onboarding {
+        observable welcome construct { }
+    }
+}
+""".strip()
+
+    parser = Parser(language=AWARE_LANGUAGE)
+    tree = parser.parse(sample_code.encode())
+
+    assert tree.root_node.has_error is False
+    proj_adapter = AwareProjectionAdapter()
+    projections = list(proj_adapter.match_nodes(tree.root_node, sample_code.encode()))
+    assert len(projections) == 1
+    with pytest.raises(ValueError, match="nested observables"):
+        proj_adapter.get_views(projections[0])
+
+
+def test_projection_observable_rejects_legacy_view_alias() -> None:
+    from tree_sitter import Parser
+
+    sample_code = """
+projection Identity {
+    root identity.Identity
+    view home { }
+}
+""".strip()
+
+    parser = Parser(language=AWARE_LANGUAGE)
+    tree = parser.parse(sample_code.encode())
+
+    assert tree.root_node.has_error is True
 
 
 def test_treesitter_parses_experience_observable_hierarchy() -> None:

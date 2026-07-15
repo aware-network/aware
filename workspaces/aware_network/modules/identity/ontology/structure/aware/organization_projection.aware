@@ -1,0 +1,12 @@
+// Organization projection (v0)
+//
+// Contract:
+// - Rooted at Organization
+// - Includes minimal Organization Member with cross-opg relationship to identity
+
+projection Organization {
+    root organization.Organization
+    organization.Organization::actor Identity
+    organization.Organization::members
+    organization.OrganizationMember::identity Identity
+}

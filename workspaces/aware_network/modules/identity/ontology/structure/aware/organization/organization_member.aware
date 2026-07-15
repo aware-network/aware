@@ -1,0 +1,14 @@
+edge OrganizationMember {
+    // Relationships
+    identity identity.Identity key
+
+    // Attributes
+    role OrganizationMemberRole
+
+    fn create construct (identity_id UUID key, role OrganizationMemberRole) -> OrganizationMember {
+        """Construct a organization member
+        TODO: CLARIFY ROLES must come via Role-Actor ACL.
+        WARNING: This table must evolve towards a proper ROLE over ORGANIZATION
+        """
+    }
+}

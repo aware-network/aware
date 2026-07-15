@@ -1,0 +1,17 @@
+class PrimitiveConfig {
+    // Attributes
+    primitive_type aware_code.primitive.CodePrimitiveType key
+
+    fn create construct(
+        primitive_config_id UUID,
+        primitive_type_id UUID,
+        primitive_base_type aware_code.primitive.CodePrimitiveBaseType
+    ) -> PrimitiveConfig {
+        """
+        Create deterministic PrimitiveConfig with explicit identity.
+        """
+    }
+}
+
+/// Load primitive type eagerly
+ann primitive.PrimitiveConfig::primitive_type load eager

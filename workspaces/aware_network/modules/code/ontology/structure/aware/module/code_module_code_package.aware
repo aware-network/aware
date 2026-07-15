@@ -1,0 +1,42 @@
+edge CodeModuleCodePackage {
+    // Attributes
+    manifest_relative_path String?
+    mirrors_ontology Bool = false
+    module_package_id String?
+    module_package_kind String?
+    module_relative_package_root String?
+    semantic_contract_capabilities String[] = []
+    semantic_contract_module String?
+    semantic_contract_name String?
+    semantic_contract_owns_manifest_kinds String[] = []
+    semantic_contract_provider_key String?
+    semantic_contract_role String?
+    visibility String = "module"
+
+    fn build construct(
+        code_package_id UUID key,
+        module_package_id String? = null,
+        module_package_kind String? = null,
+        module_relative_package_root String? = null,
+        manifest_relative_path String? = null,
+        visibility String = "module",
+        semantic_contract_role String? = null,
+        semantic_contract_name String? = null,
+        semantic_contract_provider_key String? = null,
+        semantic_contract_module String? = null,
+        semantic_contract_owns_manifest_kinds String[] = [],
+        semantic_contract_capabilities String[] = [],
+        mirrors_ontology Bool = false
+    ) -> CodeModuleCodePackage {
+        """
+        Attach an existing standalone CodePackage under this CodeModule.
+
+        Contract:
+        - `CodePackage` remains standalone raw/source package identity.
+        - `CodeModuleCodePackage` is the module-local package slot emitted from
+          `aware.module.toml` package inventory.
+        - Semantic contract fields are declarative package-role metadata only;
+          executable bindings remain package-local contract/runtime truth.
+        """
+    }
+}

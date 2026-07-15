@@ -1,0 +1,16 @@
+/// Connector provider projection.
+///
+/// Contract:
+/// - This is the provider config surface under a ConnectorConfig capability
+///   family.
+/// - Concrete Connector sessions are portal-backed by their own projection.
+projection ConnectorProvider {
+    root connector.ConnectorProvider
+    connector.ConnectorProvider::sessions ConnectorSession
+
+    observable connector_provider {
+        """
+        Connector provider surface with portal-backed concrete provider sessions.
+        """
+    }
+}

@@ -1,0 +1,97 @@
+/// Actuator configuration.
+///
+/// Contract:
+/// - An Actuator config describes outbound action capability a Connector can perform.
+/// - Actuator instances are runtime fulfillments declared under this config.
+/// - Affected state-node footprint declares which Projection nodes this
+///   actuator can affect; payload DTOs are resolved only through invocation
+///   bindings.
+/// - Invocation action config bindings expose the shared Experience invocation
+///   target surface without duplicating API/SDK/service fields.
+class ActuatorConfig {
+    // Relationships
+    invocation_action_configs ActuatorInvocationActionConfig[]
+    affected_state_nodes ActuatorConfigStateNode[]
+    actuators Actuator[]
+
+    // Attributes
+    actuator_key String key
+    actuator_kind String
+    target_ref String?
+    label String?
+    description String?
+
+    fn build construct (
+        actuator_key String key,
+        actuator_kind String,
+        target_ref String? = null,
+        label String? = null,
+        description String? = null
+    ) -> ActuatorConfig {
+        """
+        Create one deterministic Actuator config under a ConnectorConfig.
+
+        Contract:
+        - Parent `ConnectorConfig` scope is propagated by constructor lowering.
+        - `actuator_key` is stable within the Connector config.
+        - `actuator_kind` identifies the outbound target/action family.
+        """
+    }
+
+    fn add_affected_state_node (
+        object_projection_graph_node_id UUID key
+    ) -> ActuatorConfigStateNode {
+        """
+        Add one affected Projection node footprint to this Actuator config.
+
+        Contract:
+        - The state node is a Meta ObjectProjectionGraphNode portal.
+        - This is not a payload schema. Payload DTO contracts resolve through
+          the bound ExperienceInvocationActionConfig endpoint only.
+        """
+        let created = construct affected_state_nodes.build(
+            object_projection_graph_node_id = object_projection_graph_node_id,
+        )
+    }
+
+    fn create_actuator (
+        actuator_instance_key String key,
+        external_ref String? = null,
+        status String = "active"
+    ) -> Actuator {
+        """
+        Create one deterministic Actuator instance under this Actuator config.
+
+        Contract:
+        - Config -> Instance is the canonical ownership rail.
+        - Parent `ActuatorConfig` scope is propagated by constructor lowering.
+        - `actuator_instance_key` identifies this runtime fulfillment.
+        """
+        let created = construct actuators.build(
+            actuator_instance_key = actuator_instance_key,
+            external_ref = external_ref,
+            status = status,
+        )
+    }
+
+    fn bind_invocation_action_config (
+        experience_invocation_action_config_id UUID key
+    ) -> ActuatorInvocationActionConfig {
+        """
+        Bind one reusable Experience invocation action config to this Actuator config.
+
+        Contract:
+        - `ActuatorConfig` remains the raw actuator capability surface.
+        - `ExperienceInvocationActionConfig` remains the shared target metadata.
+        - Actuator instances use the matching action config binding when recording
+          concrete invocation provenance.
+        """
+        let created = construct invocation_action_configs.build(
+            experience_invocation_action_config_id = experience_invocation_action_config_id,
+        )
+    }
+}
+
+ann actuator.ActuatorConfig::invocation_action_configs load eager
+ann actuator.ActuatorConfig::affected_state_nodes load eager
+ann actuator.ActuatorConfig::actuators load eager

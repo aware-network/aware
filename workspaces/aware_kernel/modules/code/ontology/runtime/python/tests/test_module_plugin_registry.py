@@ -269,6 +269,66 @@ def test_resolved_semantic_capability_provider_preserves_participation_metadata(
     }
 
 
+def test_resolved_semantic_capability_provider_prefers_exact_semantic_owner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module_name = "fake_semantic_materialization_exact_owner_provider"
+    module = ModuleType(module_name)
+
+    def _fallback_materialize(**_: object) -> None:
+        return None
+
+    def _exact_materialize(**_: object) -> None:
+        return None
+
+    module.fallback_materialize = _fallback_materialize  # type: ignore[attr-defined]
+    module.exact_materialize = _exact_materialize  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, module_name, module)
+
+    with _isolated_module_plugin_registry():
+        AwareModulePluginRegistry.register(AwareModulePlugin(provider_key="fake"))
+        AwareModulePluginRegistry._module_semantic_contracts["fake"] = (  # noqa: SLF001
+            ModuleSemanticContract(
+                provider_key="fake",
+                capability_participation=(
+                    CapabilityParticipationDescriptor(
+                        capability=SEMANTIC_MATERIALIZATION_CAPABILITY,
+                        semantic_owner="fake.provider",
+                    ),
+                    CapabilityParticipationDescriptor(
+                        capability=SEMANTIC_MATERIALIZATION_CAPABILITY,
+                        semantic_owner="fake.profile.provider",
+                    ),
+                ),
+                capability_execution_policy=(
+                    ModuleCapabilityExecutionPolicyDescriptor(
+                        capability=SEMANTIC_MATERIALIZATION_CAPABILITY,
+                        semantic_owner="fake.provider",
+                        callable_module=module_name,
+                        callable_name="fallback_materialize",
+                    ),
+                    ModuleCapabilityExecutionPolicyDescriptor(
+                        capability=SEMANTIC_MATERIALIZATION_CAPABILITY,
+                        semantic_owner="fake.profile.provider",
+                        callable_module=module_name,
+                        callable_name="exact_materialize",
+                    ),
+                ),
+            )
+        )
+
+        resolved = AwareModulePluginRegistry.resolve_semantic_capability_provider(
+            provider_key="fake",
+            capability=SEMANTIC_MATERIALIZATION_CAPABILITY,
+            semantic_owner="fake.profile.provider",
+        )
+
+    assert resolved is not None
+    assert resolved.semantic_owner == "fake.profile.provider"
+    assert resolved.callable_name == "exact_materialize"
+    assert resolved.provider is _exact_materialize
+
+
 def test_code_module_contract_validates_package_semantic_contract_roles() -> None:
     plugin = AwareModulePlugin(
         provider_key="fake",
@@ -728,7 +788,6 @@ def test_module_plugin_registry_loads_builtin_plugins(
         assert AwareModulePluginRegistry.get_provider_keys() == (
             "aware_grammar",
             "aware_code",
-            "aware_workspace",
         )
         assert (
             AwareModulePluginRegistry.capability_contract_module_for_provider_key(
@@ -760,13 +819,6 @@ def test_module_plugin_registry_loads_builtin_plugins(
             )
             == "aware_code.semantic_contract"
         )
-        assert (
-            AwareModulePluginRegistry.semantic_contract_module_for_provider_key(
-                "aware_workspace"
-            )
-            == "aware_workspace.semantic_contract"
-        )
-
         language_contract_for_provider = (
             AwareModulePluginRegistry.language_service_capability_contract_for_provider_key
         )
@@ -848,7 +900,6 @@ def test_module_plugin_registry_loads_builtin_plugins(
         assert AwareModulePluginRegistry.get_semantic_contract_module_paths() == (
             "aware_code.semantic_contract",
             "aware_grammar.semantic_contract",
-            "aware_workspace.semantic_contract",
         )
         assert AwareModulePluginRegistry.get_code_package_materialization_contract_module_paths() == (
             "aware_grammar.code_package_materialization_contract",
@@ -1035,7 +1086,9 @@ def test_module_plugin_registry_loads_module_plugins_from_manifests(
                 "workspace_fallback = true",
                 "",
                 "[[packages]]",
-                'aware_toml_path = "structure/ontology/aware.toml"',
+                'id = "ontology"',
+                'kind = "ontology"',
+                'manifest = "structure/ontology/aware.toml"',
                 "",
                 "[packages.semantic_contract]",
                 'role = "demo.ontology"',
@@ -1253,7 +1306,6 @@ def test_module_plugin_registry_loads_module_plugins_from_manifests(
             assert AwareModulePluginRegistry.get_provider_keys() == (
                 "aware_grammar",
                 "aware_code",
-                "aware_workspace",
                 "aware_demo",
             )
             assert (
@@ -1297,7 +1349,6 @@ def test_module_plugin_registry_loads_module_plugins_from_manifests(
                 "aware_code.semantic_contract",
                 "aware_demo_runtime.semantic_contract",
                 "aware_grammar.semantic_contract",
-                "aware_workspace.semantic_contract",
             )
             assert AwareModulePluginRegistry.get_code_package_materialization_contract_module_paths() == (
                 "aware_demo_runtime.code_package_materialization_contract",
@@ -1377,7 +1428,7 @@ def test_module_plugin_registry_loads_module_plugins_from_manifests(
             assert tuple(
                 item.provider_key
                 for item in AwareModulePluginRegistry.get_module_semantic_contracts()
-            ) == ("aware_code", "aware_demo", "aware_grammar", "aware_workspace")
+            ) == ("aware_code", "aware_demo", "aware_grammar")
             assert tuple(
                 item.provider_key
                 for item in AwareModulePluginRegistry.get_module_code_package_materialization_contracts()
@@ -1414,16 +1465,6 @@ def test_module_plugin_registry_loads_module_plugins_from_manifests(
                         if package.semantic_contract is not None
                         else None
                     ),
-                    tuple(
-                        (
-                            binding.role,
-                            binding.contract,
-                            binding.binding_module,
-                            binding.capabilities,
-                            binding.callable_name,
-                        )
-                        for binding in package.semantic_bindings
-                    ),
                     package.mirrors_ontology,
                 )
                 for package in code_module_contract.packages
@@ -1451,7 +1492,6 @@ def test_module_plugin_registry_loads_module_plugins_from_manifests(
                             ),
                         ),
                     ),
-                    (),
                     False,
                 ),
                 (
@@ -1460,7 +1500,6 @@ def test_module_plugin_registry_loads_module_plugins_from_manifests(
                     "apis/demo/aware.api.toml",
                     "public",
                     None,
-                    (),
                     False,
                 ),
                 (
@@ -1475,7 +1514,6 @@ def test_module_plugin_registry_loads_module_plugins_from_manifests(
                         "aware_demo_runtime.semantic_contract",
                         (),
                     ),
-                    (),
                     False,
                 ),
             )
@@ -1497,14 +1535,13 @@ def test_module_plugin_registry_loads_module_plugins_from_manifests(
             assert tuple(
                 item.provider_key
                 for item in AwareModulePluginRegistry.get_code_module_contracts()
-            ) == ("aware_code", "aware_demo", "aware_grammar", "aware_workspace")
+            ) == ("aware_code", "aware_demo", "aware_grammar")
 
             SemanticPackageRegistry.ensure_builtin_providers_registered()
             SemanticScopeRegistry.ensure_builtin_providers_registered()
             assert SemanticPackageRegistry.get_provider_keys() == (
                 "aware_code",
                 "aware_demo",
-                "aware_workspace",
             )
             assert SemanticScopeRegistry.get_provider_keys() == ("aware_demo",)
         finally:
@@ -1521,7 +1558,6 @@ def test_language_service_bootstrap_keeps_builtin_execution_contract_driven() ->
         assert AwareModulePluginRegistry.get_provider_keys() == (
             "aware_grammar",
             "aware_code",
-            "aware_workspace",
         )
         assert get_registered_diagnostics_capability_descriptors() == ()
         assert get_registered_semantic_tokens_capability_descriptors() == ()

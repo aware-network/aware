@@ -1,0 +1,51 @@
+class ThreadObjectInstanceGraphBranch {
+    // Relationships
+    object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch key
+    /// Cross-OPG: target lane branch id for resolving `object_instance_graph_branch`.
+    ///
+    /// Why:
+    /// - `object_instance_graph_branch_id` (OIGB id) is stable but not invertible, so the UI
+    ///   cannot derive the OIGI lane branch id from it.
+    /// - Runtime sets this from the domain lane HEAD `object_instance_graph_id` (commit-first).
+    ///
+    /// Hard rule:
+    /// - This must never encode `projection_hash` (internal lane coordinate).
+    object_instance_graph_identity aware_meta.graph.instance.ObjectInstanceGraphIdentity?
+
+    // Attributes
+    is_active Bool = true
+    title String?
+
+    fn create_for_lane construct (
+        thread_id UUID,
+        domain_branch_id UUID,
+        projection_hash String,
+        title String? = null,
+        is_active Bool = true
+    ) -> ThreadObjectInstanceGraphBranch {
+        """
+        Create an attachment edge for an existing global lane (branch_id, projection_hash).
+
+        Canonical v0 intent:
+        - OS lane metadata only: creates deterministic Branch/Lane/OIGB objects if missing.
+        - Does not author domain commits; lane HEAD comes from the commit store (SSOT).
+        """
+    }
+
+    fn backfill_identity_anchor (
+        object_instance_graph_identity_id UUID
+    ) -> ThreadObjectInstanceGraphBranch {
+        """
+        Backfill `object_instance_graph_identity_id` for legacy associations.
+
+        Why:
+        - Older OS commits were created before the environment projection included the
+          `object_instance_graph_identity` portal, so the association may be missing the
+          OIGI anchor on replay/materialization.
+
+        Canonical rules:
+        - Mutates only this association instance (mutate-self-only invariant).
+        - Idempotent: no-op when already set.
+        """
+    }
+}

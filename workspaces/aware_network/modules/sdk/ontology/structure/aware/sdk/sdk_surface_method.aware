@@ -1,0 +1,47 @@
+/// SDK surface method truth.
+///
+/// Surface methods are the stable SDK-facing method contract that renderers can
+/// project into CLI commands, Skill targets, or other invocation affordances.
+class SdkSurfaceMethod {
+    // Relationships
+    target_sdk_operation SdkOperation? key
+
+    // Attributes
+    name String key
+    operation_ref String
+    operation_name String
+    method_family String
+    effect String = "read"
+    mutation_scope String = "none"
+    confirmation_policy String = "none"
+    execution_mode String = "request_response"
+    runtime_binding_kind String = "unbound"
+    description String?
+
+    fn create construct (
+        name String key,
+        target_sdk_operation_id UUID key,
+        operation_ref String,
+        operation_name String,
+        method_family String,
+        effect String = "read",
+        mutation_scope String = "none",
+        confirmation_policy String = "none",
+        execution_mode String = "request_response",
+        runtime_binding_kind String = "unbound",
+        description String? = null
+    ) -> SdkSurfaceMethod {
+        """
+        Create one deterministic SDK surface method.
+
+        Contract:
+        - Parent `SdkSurface` scope is injected by propagation.
+        - `target_sdk_operation_id` points at local SDK operation truth.
+        - `method_family` is a stable small taxonomy, not a product verb.
+        - Effect and confirmation policy are explicit; runtime adapters must not
+          infer safety from operation names once this metadata is present.
+        """
+    }
+}
+
+ann sdk.SdkSurfaceMethod::target_sdk_operation load eager

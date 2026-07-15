@@ -1,0 +1,23 @@
+/// One activation-input field projected into a continuation action request.
+class ProgramImplInstructionIntentActivationFieldBinding {
+    // Relationships
+    source_class_config aware_meta.class.ClassConfig key
+    source_attribute_config aware_meta.attribute.AttributeConfig key
+    target_request_attribute_config aware_meta.attribute.AttributeConfig key
+
+    // Attributes
+    source_input_key String key
+    required Bool = true
+    position Int? = null
+
+    fn build construct (
+        source_class_config_id UUID key,
+        source_attribute_config_id UUID key,
+        target_request_attribute_config_id UUID key,
+        source_input_key String key,
+        required Bool = true,
+        position Int? = null
+    ) -> ProgramImplInstructionIntentActivationFieldBinding {
+        """Create one deterministic activation field edge under its target intent."""
+    }
+}

@@ -1,0 +1,17 @@
+README.md
+pyproject.toml
+setup.py
+tree_sitter_aware/__init__.py
+tree_sitter_aware/__init__.pyi
+tree_sitter_aware/_binding.pyi
+tree_sitter_aware/binding.c
+tree_sitter_aware/grammar.js
+tree_sitter_aware/py.typed
+tree_sitter_aware/tree_sitter_language.py
+tree_sitter_aware.egg-info/PKG-INFO
+tree_sitter_aware.egg-info/SOURCES.txt
+tree_sitter_aware.egg-info/dependency_links.txt
+tree_sitter_aware.egg-info/top_level.txt
+tree_sitter_aware/queries/highlights.scm
+tree_sitter_aware/src/parser.c
+tree_sitter_aware/src/scanner.c

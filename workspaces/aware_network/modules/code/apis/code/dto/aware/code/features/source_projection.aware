@@ -1,0 +1,143 @@
+/// Semantic event reference accepted by the Code-owned source_projection capability.
+class CodeSourceProjectionEventRef : inline_value {
+    event_key String
+    semantic_key String?
+    verb String?
+    subject_type String?
+    source String?
+    source_refs String[] = []
+    payload JsonObject?
+    metadata JsonObject?
+}
+
+/// Source-projection action binding over one semantic event.
+class CodeSourceProjectionActionBinding : inline_value {
+    action_key String
+    event_key String
+    action_type String = "source_projection"
+    policy_key String?
+    product_intent String?
+    target_language String?
+    target_section code.CodeSectionRef?
+    metadata JsonObject?
+}
+
+/// Skipped event/action evidence returned by a source_projection provider.
+class CodeSourceProjectionSkippedEvent : inline_value {
+    event_key String?
+    action_key String?
+    semantic_key String?
+    reason String
+    metadata JsonObject?
+}
+
+/// API-owned request envelope for semantic-event source projection.
+class CodeSourceProjectionRequest : inline_value {
+    provider_key String
+    semantic_owner String?
+    package_name String?
+    package_root String?
+    sources_root String?
+    product_intent String?
+    target_language String?
+    baseline_fingerprint String?
+    baseline_fingerprint_algorithm String = "sha256"
+    layout_contract code.CodePackageLayoutContract?
+    semantic_contract code.CodeSemanticContract?
+    events code.CodeSourceProjectionEventRef[] = []
+    action_bindings code.CodeSourceProjectionActionBinding[] = []
+    source_refs String[] = []
+    metadata JsonObject?
+}
+
+/// API-owned result envelope for provider-produced source projection.
+class CodeSourceProjectionResult : inline_value {
+    provider_key String
+    semantic_owner String?
+    projected Bool = false
+    delta_set code.CodeSectionDeltaSet?
+    diagnostics String[] = []
+    skipped_events code.CodeSourceProjectionSkippedEvent[] = []
+    fingerprint String?
+    receipt_refs String[] = []
+    metadata JsonObject?
+}
+
+/// Validate source_projection request/result evidence before provider or consumer use.
+class ValidateCodeSourceProjectionRequest augment code.CodeServiceRequest {
+    operation String = "validate_source_projection"
+    projection code.CodeSourceProjectionRequest
+    result code.CodeSourceProjectionResult?
+    strict Bool = true
+}
+
+class ValidateCodeSourceProjectionResponse augment code.CodeServiceResponse {
+    operation String = "validate_source_projection"
+    valid Bool = false
+    diagnostics String[] = []
+    event_count Int = 0
+    action_count Int = 0
+    skipped_event_count Int = 0
+    has_delta_set Bool = false
+}
+
+/// Normalize source_projection request/result evidence into stable DTO shape.
+class NormalizeCodeSourceProjectionRequest augment code.CodeServiceRequest {
+    operation String = "normalize_source_projection"
+    projection code.CodeSourceProjectionRequest
+    result code.CodeSourceProjectionResult?
+}
+
+class NormalizeCodeSourceProjectionResponse augment code.CodeServiceResponse {
+    operation String = "normalize_source_projection"
+    projection code.CodeSourceProjectionRequest?
+    result code.CodeSourceProjectionResult?
+}
+
+/// Fingerprint source_projection request/result evidence for preview and receipt correlation.
+class FingerprintCodeSourceProjectionRequest augment code.CodeServiceRequest {
+    operation String = "fingerprint_source_projection"
+    projection code.CodeSourceProjectionRequest
+    result code.CodeSourceProjectionResult?
+    algorithm String = "sha256"
+}
+
+class FingerprintCodeSourceProjectionResponse augment code.CodeServiceResponse {
+    operation String = "fingerprint_source_projection"
+    fingerprint String?
+    event_count Int = 0
+    action_count Int = 0
+    has_delta_set Bool = false
+}
+
+/// Resolve provider-produced source_projection output into a CodePackageDelta.
+class ResolveCodeSourceProjectionPackageDeltaRequest augment code.CodeServiceRequest {
+    operation String = "resolve_source_projection_package_delta"
+    projection code.CodeSourceProjectionRequest
+    result code.CodeSourceProjectionResult
+    layout_contract code.CodePackageLayoutContract?
+    semantic_contract code.CodeSemanticContract?
+    strict Bool = true
+}
+
+class ResolveCodeSourceProjectionPackageDeltaResponse augment code.CodeServiceResponse {
+    operation String = "resolve_source_projection_package_delta"
+    resolved Bool = false
+    package_delta code.CodePackageDelta?
+    diagnostics String[] = []
+    event_count Int = 0
+    action_count Int = 0
+    skipped_event_count Int = 0
+    entry_count Int = 0
+    path_count Int = 0
+}
+
+ann code.ValidateCodeSourceProjectionRequest::operation discriminate tag "validate_source_projection"
+ann code.NormalizeCodeSourceProjectionRequest::operation discriminate tag "normalize_source_projection"
+ann code.FingerprintCodeSourceProjectionRequest::operation discriminate tag "fingerprint_source_projection"
+ann code.ResolveCodeSourceProjectionPackageDeltaRequest::operation discriminate tag "resolve_source_projection_package_delta"
+
+ann code.ValidateCodeSourceProjectionResponse::operation discriminate tag "validate_source_projection"
+ann code.NormalizeCodeSourceProjectionResponse::operation discriminate tag "normalize_source_projection"
+ann code.FingerprintCodeSourceProjectionResponse::operation discriminate tag "fingerprint_source_projection"
+ann code.ResolveCodeSourceProjectionPackageDeltaResponse::operation discriminate tag "resolve_source_projection_package_delta"

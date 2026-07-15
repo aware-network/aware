@@ -1,0 +1,208 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_ATTENTION"
+kind = "ns_url"
+value = "aware://attention/v1"
+
+[[functions]]
+name = "stable_attention_package_id"
+namespace = "NS_ATTENTION"
+template = "aware:attention_package:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_attention_package_layout_config_id"
+namespace = "NS_ATTENTION"
+template = "aware:attention_package_layout_config:{attention_package_id}:{layout_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: attention_package_id, layout_config_id"
+
+[[functions.params]]
+name = "attention_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_focus_id"
+namespace = "NS_ATTENTION"
+template = "aware:focus:{object_projection_graph_identity_id}:{focus_scope_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_projection_graph_identity_id, focus_scope_id"
+
+[[functions.params]]
+name = "object_projection_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "focus_scope_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_focus_scope_id"
+namespace = "NS_ATTENTION"
+template = "aware:focus_scope:{title_norm}"
+doc = "Compiler-generated from class-attribute identity keys: title"
+
+[[functions.params]]
+name = "title"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "title_norm"
+param = "title"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_focus_scope_request_id"
+namespace = "NS_ATTENTION"
+template = "aware:focus_scope_request:{focus_scope_id}:{focus_id}"
+doc = "Compiler-generated from class-attribute identity keys: focus_scope_id, focus_id"
+
+[[functions.params]]
+name = "focus_scope_id"
+type = "uuid"
+
+[[functions.params]]
+name = "focus_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_focus_scope_request_response_id"
+namespace = "NS_ATTENTION"
+template = "aware:focus_scope_request_response:{focus_scope_request_id}"
+doc = "Compiler-generated from class-attribute identity keys: focus_scope_request_id"
+
+[[functions.params]]
+name = "focus_scope_request_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_layout_id"
+namespace = "NS_ATTENTION"
+template = "aware:layout:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_layout_config_id"
+namespace = "NS_ATTENTION"
+template = "aware:layout_config:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_layout_config_section_config_id"
+namespace = "NS_ATTENTION"
+template = "aware:layout_config_section_config:{layout_config_id}:{section_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: layout_config_id, section_key"
+
+[[functions.params]]
+name = "layout_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "section_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "section_key_norm"
+param = "section_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_layout_section_id"
+namespace = "NS_ATTENTION"
+template = "aware:layout_section:{layout_id}:{section_id}"
+doc = "Compiler-generated from class-attribute identity keys: layout_id, section_id"
+
+[[functions.params]]
+name = "layout_id"
+type = "uuid"
+
+[[functions.params]]
+name = "section_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_section_id"
+namespace = "NS_ATTENTION"
+template = "aware:section:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_section_config_id"
+namespace = "NS_ATTENTION"
+template = "aware:section_config:{layout_config_section_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: layout_config_section_config_id, key"
+
+[[functions.params]]
+name = "layout_config_section_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_section_focus_scope_id"
+namespace = "NS_ATTENTION"
+template = "aware:section_focus_scope:{section_id}:{focus_scope_id}"
+doc = "Compiler-generated from class-attribute identity keys: section_id, focus_scope_id"
+
+[[functions.params]]
+name = "section_id"
+type = "uuid"
+
+[[functions.params]]
+name = "focus_scope_id"
+type = "uuid"

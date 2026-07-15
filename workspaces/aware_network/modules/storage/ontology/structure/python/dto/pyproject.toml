@@ -1,0 +1,16 @@
+[project]
+name = "aware-storage-ontology-dto"
+version = "0.1.0"
+description = "Auto-generated package aware-storage-ontology-dto"
+authors = [{ name = "Aware Automations" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_storage_ontology_dto"]
+include = ["README.md", "aware_storage_ontology_dto/py.typed"]

@@ -7,6 +7,7 @@ from uuid import uuid4
 import msgpack
 import pytest
 
+import aware_api_runtime.dependencies.runtime_resolution as api_runtime_resolution
 from aware_api_runtime.dependencies.runtime_resolution import (
     API_ACCESSIBLE_DEPENDENCY_GRAPHS_FILENAME,
     API_RUNTIME_SEMANTICS_FILENAME,
@@ -14,6 +15,7 @@ from aware_api_runtime.dependencies.runtime_resolution import (
     _RuntimeDependencyPackage,
     _build_aware_toml_package_index,
     _compute_runtime_dependency_source_digest,
+    _iter_authored_aware_toml_paths,
     _load_existing_dependency_object_config_graph,
     _resolve_api_dependency_packages,
     _runtime_dependency_ocg_outputs_are_fresh_for_inputs,
@@ -239,6 +241,62 @@ def test_runtime_dependency_freshness_ignores_generated_aware_source_index(
 
     assert _compute_runtime_dependency_source_digest(package=package) == digest_before
     assert _runtime_dependency_outputs_are_fresh_for_inputs(package=package)
+
+
+def test_runtime_dependency_source_digest_cache_skips_unchanged_source_reads(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module_root = tmp_path / "modules" / "home"
+    package_root = module_root / "structure" / "ontology"
+    aware_root = package_root / "aware" / "home"
+    aware_root.mkdir(parents=True, exist_ok=True)
+    (aware_root / "door.aware").write_text(
+        "class Door { label String }\n", encoding="utf-8"
+    )
+    aware_toml_path = package_root / "aware.toml"
+    _write_aware_package_toml(
+        aware_toml_path,
+        package_name="home-ontology",
+        fqn_prefix="aware_home",
+    )
+    package = _RuntimeDependencyPackage(
+        package_name="home-ontology",
+        aware_toml_path=aware_toml_path.resolve(),
+        package_root=package_root.resolve(),
+        spec=load_aware_toml_spec(toml_path=aware_toml_path),
+    )
+    original_read_bytes = Path.read_bytes
+    read_paths: list[Path] = []
+
+    def _recording_read_bytes(path: Path) -> bytes:
+        read_paths.append(path.resolve())
+        return original_read_bytes(path)
+
+    api_runtime_resolution._API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE.clear()
+    api_runtime_resolution._API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE_ORDER.clear()
+    monkeypatch.setattr(Path, "read_bytes", _recording_read_bytes)
+    try:
+        digest_before = _compute_runtime_dependency_source_digest(package=package)
+        reads_after_first_digest = len(read_paths)
+        digest_after_cache_hit = _compute_runtime_dependency_source_digest(
+            package=package
+        )
+    finally:
+        api_runtime_resolution._API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE.clear()
+        api_runtime_resolution._API_RUNTIME_DEPENDENCY_SOURCE_DIGEST_CACHE_ORDER.clear()
+
+    assert digest_after_cache_hit == digest_before
+    assert reads_after_first_digest > 0
+    assert len(read_paths) == reads_after_first_digest
+
+
+def test_api_runtime_dependency_artifact_cache_size_covers_full_workspace_pass() -> (
+    None
+):
+    assert (
+        api_runtime_resolution._API_ACCESSIBLE_DEPENDENCY_GRAPH_ARTIFACT_CACHE_MAX >= 44
+    )
 
 
 def test_runtime_dependency_ocg_freshness_does_not_require_python_models(
@@ -515,6 +573,36 @@ def test_runtime_dependency_package_resolution_uses_explicit_dependency_roots(
     assert (
         packages[1].aware_toml_path == (workspace_package_root / "aware.toml").resolve()
     )
+
+
+def test_authored_aware_toml_discovery_excludes_generated_targets(
+    tmp_path: Path,
+) -> None:
+    package_root = tmp_path / "modules" / "home" / "structure" / "ontology"
+    generated_package_root = (
+        tmp_path
+        / "targets"
+        / "public"
+        / "aware"
+        / "modules"
+        / "stale"
+        / "structure"
+        / "ontology"
+    )
+    _write_aware_package_toml(
+        package_root / "aware.toml",
+        package_name="home-ontology",
+        fqn_prefix="aware_home",
+    )
+    _write_aware_package_toml(
+        generated_package_root / "aware.toml",
+        package_name="stale-public-ontology",
+        fqn_prefix="aware_stale_public",
+    )
+
+    discovered = tuple(_iter_authored_aware_toml_paths(repo_root=tmp_path))
+
+    assert discovered == ((package_root / "aware.toml").resolve(),)
 
 
 def _write_runtime_root_api_workspace(*, root: Path) -> Path:

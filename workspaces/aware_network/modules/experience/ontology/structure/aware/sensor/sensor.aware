@@ -1,0 +1,30 @@
+/// Sensor instance.
+///
+/// Contract:
+/// - A Sensor instance is a runtime fulfillment of a Sensor config.
+/// - It links concrete invocations to the shared Experience invocation spine.
+class Sensor {
+    // Relationships
+    invocation_actions SensorInvocationAction[]
+
+    // Attributes
+    sensor_instance_key String key
+    external_ref String?
+    status String = "active"
+
+    fn build construct (
+        sensor_instance_key String key,
+        external_ref String? = null,
+        status String = "active"
+    ) -> Sensor {
+        """
+        Create one deterministic Sensor instance under a SensorConfig.
+
+        Contract:
+        - Parent `SensorConfig` scope is propagated by constructor lowering.
+        - `sensor_instance_key` identifies this runtime fulfillment.
+        """
+    }
+}
+
+ann sensor.Sensor::invocation_actions load eager

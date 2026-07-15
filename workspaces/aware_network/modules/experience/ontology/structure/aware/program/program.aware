@@ -1,0 +1,133 @@
+/// Runtime program execution truth owned by Experience.
+///
+/// Contract:
+/// - Program is the runtime instance of an Experience ProgramImpl.
+/// - Environment thread participation is modeled by Experience-owned
+///   `thread.ThreadProgram` binding objects.
+/// - Environment Thread does not reference Program; Experience binds to
+///   Environment topology explicitly.
+/// - Turn lifecycle remains Experience-owned by `turn.Turn`.
+class Program {
+    // Relationships
+    program_impl aware_experience.program.impl.ProgramImpl key
+
+    // Runtime actor bindings
+    program_actors ProgramActor[]
+
+    // Entry Attributes
+    attributes ProgramAttribute[]
+
+    // Input Attributes (Runtime-injected symbols)
+    input_attributes ProgramInputAttribute[]
+
+    // Branches
+    branches ProgramBranch[]
+
+    // Attention via Layout
+    layouts ProgramLayout[]
+
+    // Turns
+    turns ProgramTurn[]
+    active_turn ProgramTurn?
+
+    // Identity
+    key String key
+    title String?
+    description String?
+
+    // Status
+    status ProgramRunStatus = pending
+
+    // Lifecycle
+    result_summary String?
+    started_at_unix_ms Int?
+    terminal_at_unix_ms Int?
+    terminal_status String?
+
+    fn build construct (
+        program_impl_id UUID key,
+        key String key = "default",
+        title String? = null,
+        description String? = null,
+        resolved_branch_id UUID? = null,
+        resolved_projection_hash String? = null
+    ) -> Program {
+        """
+        Create a deterministic Program runtime instance for `(program_impl_id, key)`.
+        """
+    }
+
+    fn attach_turn (turn_id UUID) -> ProgramTurn {
+        """
+        Attach a Turn receipt association to this Program.
+
+        Contract:
+        - Mutates only Program membership (`turns`).
+        - Turn lifecycle semantics remain Experience-owned by `Turn`.
+        """
+        let created_assoc = construct turns.build(
+            turn_id = turn_id,
+        )
+    }
+
+    fn add_actor (
+        program_config_actor_config_id UUID,
+        actor_id UUID
+    ) -> ProgramActor {
+        """
+        Bind one ProgramConfig actor alias to one concrete Actor for this Program run.
+
+        Contract:
+        - Mutates only Program membership (`program_actors`).
+        - Identity is deterministic under Program via ProgramActor constructor keys.
+        """
+        let created_assoc = construct program_actors.build(
+            program_config_actor_config_id = program_config_actor_config_id,
+            actor_id = actor_id,
+        )
+    }
+
+    fn set_active_turn (active_turn_id UUID? = null) -> Program {
+        """
+        Set (or clear) the active ProgramTurn association pointer for this Program.
+
+        Contract:
+        - `active_turn_id` is optional.
+        - When set, it must reference a `ProgramTurn` already attached under this Program.
+        """
+    }
+
+    fn attach_branch (
+        object_instance_graph_branch_id UUID,
+        key String? = null,
+        view_key String? = null,
+        is_active Bool = true
+    ) -> ProgramBranch {
+        """
+        Attach a resolved runtime branch receipt to this Program.
+
+        Contract:
+        - Mutates only Program membership (`branches`).
+        - Branch resolution remains runtime-owned by Turn/Projection authority.
+        - Runtime may persist branch visibility/attention hints (`is_active`, `view_key`).
+        """
+        let created_assoc = construct branches.build(
+            object_instance_graph_branch_id = object_instance_graph_branch_id,
+            key = key,
+            view_key = view_key,
+            is_active = is_active,
+        )
+    }
+
+    fn set_running (resolved_branch_id UUID, resolved_projection_hash String, started_at_unix_ms Int) -> Program {
+        """
+        Mark Program as running with canonical branch resolution metadata.
+        """
+    }
+
+    fn finish_terminal (terminal_at_unix_ms Int, terminal_status String, result_summary String? = null) -> Program {
+        """
+        Mark Program terminal with canonical status summary.
+        """
+    }
+}

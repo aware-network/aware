@@ -1,0 +1,26 @@
+/// Deterministic target/value assignment for explicit object-construction payloads.
+class FunctionImplInstructionConstructAssignment {
+    // Relationships
+    target_class_config_attribute_config class.ClassConfigAttributeConfig key
+    value_source FunctionImplValueSource key
+
+    // Attributes
+    position Int? = null
+
+    fn build construct (
+        target_class_config_attribute_config_id UUID key,
+        value_source_id UUID key,
+        position Int? = null
+    ) -> FunctionImplInstructionConstructAssignment {
+        """
+        Create deterministic construct assignment under one FunctionImplInstructionConstruct.
+
+        Contract:
+        - Parent context (`function_impl_instruction_construct_id`) is injected by parent-edge lowering.
+        - Constructor identity keys are `(target_class_config_attribute_config_id, value_source_id)` plus parent scope.
+        """
+    }
+}
+
+ann function.FunctionImplInstructionConstructAssignment::target_class_config_attribute_config load eager
+ann function.FunctionImplInstructionConstructAssignment::value_source load eager

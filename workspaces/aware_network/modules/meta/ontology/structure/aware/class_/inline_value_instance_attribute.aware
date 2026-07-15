@@ -1,0 +1,21 @@
+edge InlineValueInstanceAttribute {
+    fn create construct (
+        owner_key UUID key,
+        attribute_config_id UUID key,
+        value_root_id UUID? = null
+    ) -> InlineValueInstanceAttribute {
+        """
+        Create one deterministic Attribute membership edge under an InlineValueInstance.
+
+        Contract:
+        - Parent `InlineValueInstance` scope is propagated by traversal lowering.
+        - Edge identity derives from propagated inline-value-instance scope + constructed Attribute identity.
+        - The edge owns topology only and must lower through `Attribute.create(...)` for target identity.
+        """
+        let created = construct attribute.create(
+            owner_key = owner_key,
+            attribute_config_id = attribute_config_id,
+            value_root_id = value_root_id,
+        )
+    }
+}

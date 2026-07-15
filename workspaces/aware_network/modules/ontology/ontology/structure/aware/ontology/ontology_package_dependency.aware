@@ -1,0 +1,34 @@
+/// Direct ontology package dependency bridge.
+class OntologyPackageDependency {
+    // Relationships
+    target_ontology_package OntologyPackage key
+    target_ontology_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    description String?
+    expected_hash_sha256 String?
+    target_package_name String
+    target_version_number Int?
+
+    fn build construct(
+        target_ontology_package_id UUID key,
+        target_package_name String,
+        target_ontology_package_object_instance_graph_commit_id UUID? = null,
+        target_version_number Int? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null,
+    ) -> OntologyPackageDependency {
+        """
+        Attach one ontology package dependency.
+
+        Contract:
+        - Parent `OntologyPackage` scope is injected by propagation.
+        - Identity is keyed by the target `OntologyPackage`.
+        - The optional OIG commit pin is the exact reproducibility authority for
+          WorkspaceRevision and Hub consumers.
+        """
+    }
+}
+
+ann ontology.OntologyPackageDependency::target_ontology_package load eager
+ann ontology.OntologyPackageDependency::target_ontology_package_object_instance_graph_commit load eager

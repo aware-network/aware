@@ -1,0 +1,11 @@
+/// Graph-level enums for ObjectConfigGraph.
+///
+/// This must live in the ontology (SSOT) because it is referenced by core meta
+/// structures (e.g. ObjectConfigGraphNode.type) and must be available when the
+/// runtime OCG is composed without any DTO/API packages.
+enum ObjectConfigGraphNodeType {
+    enum
+    function
+    class
+    relationship
+}

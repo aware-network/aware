@@ -1,0 +1,63 @@
+/// Runtime Process seed inside an EnvironmentTopologySeed.
+class EnvironmentTopologyProcessSeed {
+    // Relationships
+    process_config aware_environment.process.ProcessConfig key
+    thread_seeds EnvironmentTopologyThreadSeed[]
+
+    // Attributes
+    description String?
+    /// Optional seed-local key; defaults to `process_key` in runtime handlers.
+    key String?
+    /// Runtime Process.key to create or resolve under Environment.
+    process_key String key
+    position Int? = null
+    narrative String?
+    intent String?
+    title String?
+
+    fn build construct (
+        process_config_id UUID key,
+        process_key String key,
+        key String? = null,
+        title String? = null,
+        description String? = null,
+        position Int? = null,
+        narrative String? = null,
+        intent String? = null
+    ) -> EnvironmentTopologyProcessSeed {
+        """
+        Construct one process seed.
+
+        Contract:
+        - `process_config_id` is reusable Environment ProcessConfig truth.
+        - `process_key` is runtime instance identity.
+        """
+    }
+
+    fn add_thread_seed (
+        thread_config_id UUID,
+        thread_key String,
+        key String? = null,
+        title String? = null,
+        description String? = null,
+        position Int? = null,
+        is_main Bool = false,
+        narrative String? = null,
+        intent String? = null
+    ) -> EnvironmentTopologyThreadSeed {
+        """
+        Add one runtime Thread seed referencing a reusable Environment ThreadConfig.
+        """
+        let seed = construct thread_seeds.build(
+            thread_config_id = thread_config_id,
+            thread_key = thread_key,
+            key = key,
+            title = title,
+            description = description,
+            position = position,
+            is_main = is_main,
+            narrative = narrative,
+            intent = intent,
+        )
+    }
+}

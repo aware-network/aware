@@ -16,7 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Final, Literal, TypeAlias, cast
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from uuid import UUID
 
 # Kernel Graph Ontology
@@ -63,6 +63,11 @@ from aware_meta.graph.support.protocols.diff.protocol import (
     GraphChangeProtocol,
     GraphDiffProtocol,
 )
+from aware_meta.graph.instance.commit.state_index import (
+    CommitStateRow,
+    build_commit_state_index,
+)
+from aware_orm.session.autobind import disable_autobind
 from typing_extensions import override
 
 
@@ -397,6 +402,286 @@ def build_object_instance_graph_seed_changes(
     return out
 
 
+def build_object_instance_graph_identity_snapshot_changes(
+    *,
+    old: ObjectInstanceGraph,
+    new: ObjectInstanceGraph,
+    object_instance_graph_identity_id: UUID,
+    created_at: datetime | None = None,
+) -> list[ObjectInstanceGraphChange]:
+    """Build canonical changes for a complete snapshot using stable identities.
+
+    This is for lanes whose caller owns a full desired OIG snapshot. It avoids
+    running the graph diff over the whole snapshot by first comparing compact
+    state rows per class instance/relationship, then diffing only changed class
+    instance subtrees.
+    """
+    if old.id != new.id:
+        raise ValueError(
+            "build_object_instance_graph_identity_snapshot_changes requires same "
+            f"graph id; old={old.id} new={new.id}"
+        )
+
+    effective_created_at = created_at or datetime.now(timezone.utc)
+    old_class_instances_by_id = _class_instances_by_id(old)
+    new_class_instances_by_id = _class_instances_by_id(new)
+    old_class_state_rows = _class_instance_state_rows_by_id(old)
+    new_class_state_rows = _class_instance_state_rows_by_id(new)
+
+    class_instance_changes: list[ClassInstanceChange] = []
+    for class_instance_id in sorted(
+        set(old_class_instances_by_id) | set(new_class_instances_by_id),
+        key=str,
+    ):
+        old_class_instance = old_class_instances_by_id.get(class_instance_id)
+        new_class_instance = new_class_instances_by_id.get(class_instance_id)
+        if old_class_instance is None:
+            if new_class_instance is None:
+                continue
+            class_instance_changes.append(
+                _class_instance_seed_change(
+                    class_instance=new_class_instance,
+                    operation=CREATE_CHANGE_TYPE,
+                    created_at=effective_created_at,
+                )
+            )
+            continue
+        if new_class_instance is None:
+            class_instance_changes.append(
+                _class_instance_delete_change(
+                    class_instance=old_class_instance,
+                    created_at=effective_created_at,
+                )
+            )
+            continue
+        if old_class_state_rows.get(class_instance_id) == new_class_state_rows.get(
+            class_instance_id
+        ):
+            continue
+
+        class_instance_changes.extend(
+            _diff_single_class_instance_changes(
+                old=old,
+                new=new,
+                old_class_instance=old_class_instance,
+                new_class_instance=new_class_instance,
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                created_at=effective_created_at,
+            )
+        )
+
+    old_relationships_by_key = _relationships_by_key(old)
+    new_relationships_by_key = _relationships_by_key(new)
+    relationship_changes: list[ClassInstanceRelationshipChange] = []
+    for relationship_key in sorted(
+        set(old_relationships_by_key) - set(new_relationships_by_key),
+        key=lambda item: tuple(str(value) for value in item),
+    ):
+        relationship_changes.append(
+            _relationship_delete_change(
+                relationship=old_relationships_by_key[relationship_key],
+                created_at=effective_created_at,
+            )
+        )
+    for relationship_key in sorted(
+        set(new_relationships_by_key) - set(old_relationships_by_key),
+        key=lambda item: tuple(str(value) for value in item),
+    ):
+        relationship_changes.append(
+            _relationship_create_change(
+                relationship=new_relationships_by_key[relationship_key],
+                created_at=effective_created_at,
+            )
+        )
+
+    out: list[ObjectInstanceGraphChange] = []
+    if class_instance_changes:
+        root_change = _build_change(
+            key="root:object_instance:update",
+            change_type=UPDATE_CHANGE_TYPE,
+            field_deltas=[],
+            created_at=effective_created_at,
+        )
+        out.append(
+            ObjectInstanceGraphChange(
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                object_instance_graph_id=old.id,
+                type=ObjectInstanceGraphChangeType.object_instance,
+                change=root_change,
+                change_id=root_change.id,
+                class_instance_changes=class_instance_changes,
+                class_instance_relationship_changes=[],
+            )
+        )
+    if relationship_changes:
+        root_change = _build_change(
+            key="root:object_instance_relationship:update",
+            change_type=UPDATE_CHANGE_TYPE,
+            field_deltas=[],
+            created_at=effective_created_at,
+        )
+        out.append(
+            ObjectInstanceGraphChange(
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                object_instance_graph_id=old.id,
+                type=ObjectInstanceGraphChangeType.object_instance_relationship,
+                change=root_change,
+                change_id=root_change.id,
+                class_instance_changes=[],
+                class_instance_relationship_changes=relationship_changes,
+            )
+        )
+    return out
+
+
+def build_object_instance_graph_identity_snapshot_changes_from_state_rows(
+    *,
+    old_graph_id: UUID,
+    old_state_rows: Iterable[CommitStateRow],
+    old_class_instances_by_id: Mapping[UUID, ClassInstance],
+    new: ObjectInstanceGraph,
+    object_instance_graph_identity_id: UUID,
+    created_at: datetime | None = None,
+) -> list[ObjectInstanceGraphChange]:
+    """Build snapshot changes from compact pre-state rows.
+
+    This keeps the canonical Change graph contract, but avoids hydrating the
+    whole previous OIG when the caller can provide old class instances only for
+    rows that changed.
+    """
+    if old_graph_id != new.id:
+        raise ValueError(
+            "build_object_instance_graph_identity_snapshot_changes_from_state_rows "
+            f"requires same graph id; old={old_graph_id} new={new.id}"
+        )
+
+    old_rows = tuple(old_state_rows)
+    effective_created_at = created_at or datetime.now(timezone.utc)
+    old_class_config_ids_by_id = _class_config_ids_by_class_instance_id_from_rows(
+        old_rows,
+    )
+    old_class_state_rows = _class_instance_state_rows_by_id_from_rows(old_rows)
+    new_class_instances_by_id = _class_instances_by_id(new)
+    new_class_state_rows = _class_instance_state_rows_by_id(new)
+
+    class_instance_changes: list[ClassInstanceChange] = []
+    for class_instance_id in sorted(
+        set(old_class_config_ids_by_id) | set(new_class_instances_by_id),
+        key=str,
+    ):
+        old_exists = class_instance_id in old_class_config_ids_by_id
+        new_class_instance = new_class_instances_by_id.get(class_instance_id)
+        if not old_exists:
+            if new_class_instance is None:
+                continue
+            class_instance_changes.append(
+                _class_instance_seed_change(
+                    class_instance=new_class_instance,
+                    operation=CREATE_CHANGE_TYPE,
+                    created_at=effective_created_at,
+                )
+            )
+            continue
+        if new_class_instance is None:
+            class_instance_changes.append(
+                _class_instance_delete_change(
+                    class_instance=_minimal_class_instance_from_state_row(
+                        class_instance_id=class_instance_id,
+                        class_config_id=old_class_config_ids_by_id[class_instance_id],
+                    ),
+                    created_at=effective_created_at,
+                )
+            )
+            continue
+        if old_class_state_rows.get(class_instance_id) == new_class_state_rows.get(
+            class_instance_id
+        ):
+            continue
+
+        old_class_instance = old_class_instances_by_id.get(class_instance_id)
+        if old_class_instance is None:
+            raise ValueError(
+                "Old ClassInstance missing for changed state row: "
+                f"{class_instance_id}"
+            )
+        class_instance_changes.extend(
+            _diff_single_class_instance_changes(
+                old=_single_class_instance_graph(
+                    graph=new,
+                    class_instance=old_class_instance,
+                ),
+                new=new,
+                old_class_instance=old_class_instance,
+                new_class_instance=new_class_instance,
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                created_at=effective_created_at,
+            )
+        )
+
+    old_relationships_by_key = _relationships_by_key_from_rows(old_rows)
+    new_relationships_by_key = _relationships_by_key(new)
+    relationship_changes: list[ClassInstanceRelationshipChange] = []
+    for relationship_key in sorted(
+        set(old_relationships_by_key) - set(new_relationships_by_key),
+        key=lambda item: tuple(str(value) for value in item),
+    ):
+        relationship_changes.append(
+            _relationship_delete_change(
+                relationship=old_relationships_by_key[relationship_key],
+                created_at=effective_created_at,
+            )
+        )
+    for relationship_key in sorted(
+        set(new_relationships_by_key) - set(old_relationships_by_key),
+        key=lambda item: tuple(str(value) for value in item),
+    ):
+        relationship_changes.append(
+            _relationship_create_change(
+                relationship=new_relationships_by_key[relationship_key],
+                created_at=effective_created_at,
+            )
+        )
+
+    out: list[ObjectInstanceGraphChange] = []
+    if class_instance_changes:
+        root_change = _build_change(
+            key="root:object_instance:update",
+            change_type=UPDATE_CHANGE_TYPE,
+            field_deltas=[],
+            created_at=effective_created_at,
+        )
+        out.append(
+            ObjectInstanceGraphChange(
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                object_instance_graph_id=old_graph_id,
+                type=ObjectInstanceGraphChangeType.object_instance,
+                change=root_change,
+                change_id=root_change.id,
+                class_instance_changes=class_instance_changes,
+                class_instance_relationship_changes=[],
+            )
+        )
+    if relationship_changes:
+        root_change = _build_change(
+            key="root:object_instance_relationship:update",
+            change_type=UPDATE_CHANGE_TYPE,
+            field_deltas=[],
+            created_at=effective_created_at,
+        )
+        out.append(
+            ObjectInstanceGraphChange(
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                object_instance_graph_id=old_graph_id,
+                type=ObjectInstanceGraphChangeType.object_instance_relationship,
+                change=root_change,
+                change_id=root_change.id,
+                class_instance_changes=[],
+                class_instance_relationship_changes=relationship_changes,
+            )
+        )
+    return out
+
+
 def _build_change(
     *,
     key: str,
@@ -426,6 +711,182 @@ def _build_change(
         )
     change.change_deltas = deltas
     return change
+
+
+def _class_instances_by_id(
+    graph: ObjectInstanceGraph,
+) -> dict[UUID, ClassInstance]:
+    out: dict[UUID, ClassInstance] = {}
+    for class_instance in graph.class_instances:
+        class_instance_id = class_instance.id
+        if class_instance_id is None:
+            raise ValueError(
+                "ObjectInstanceGraph snapshot contains ClassInstance without id"
+            )
+        previous = out.get(class_instance_id)
+        if previous is not None:
+            raise ValueError(
+                "ObjectInstanceGraph snapshot contains duplicate ClassInstance id: "
+                f"{class_instance_id}"
+            )
+        out[class_instance_id] = class_instance
+    return out
+
+
+def _class_instance_state_rows_by_id(
+    graph: ObjectInstanceGraph,
+) -> dict[UUID, tuple[CommitStateRow, ...]]:
+    rows_by_id: dict[str, list[CommitStateRow]] = {}
+    for row in build_commit_state_index(graph).rows:
+        if row.kind == "NODE":
+            rows_by_id.setdefault(row.value, []).append(row)
+        elif row.kind == "ATTR":
+            rows_by_id.setdefault(row.key, []).append(row)
+    return {
+        UUID(class_instance_id): tuple(rows)
+        for class_instance_id, rows in rows_by_id.items()
+    }
+
+
+def _class_instance_state_rows_by_id_from_rows(
+    rows: Iterable[CommitStateRow],
+) -> dict[UUID, tuple[CommitStateRow, ...]]:
+    rows_by_id: dict[str, list[CommitStateRow]] = {}
+    for row in rows:
+        if row.kind == "NODE":
+            rows_by_id.setdefault(row.value, []).append(row)
+        elif row.kind == "ATTR":
+            rows_by_id.setdefault(row.key, []).append(row)
+    return {
+        UUID(class_instance_id): tuple(member_rows)
+        for class_instance_id, member_rows in rows_by_id.items()
+    }
+
+
+def _class_config_ids_by_class_instance_id_from_rows(
+    rows: Iterable[CommitStateRow],
+) -> dict[UUID, UUID]:
+    out: dict[UUID, UUID] = {}
+    for row in rows:
+        if row.kind != "NODE":
+            continue
+        class_config_id = UUID(row.key)
+        class_instance_id = UUID(row.value)
+        previous = out.get(class_instance_id)
+        if previous is not None and previous != class_config_id:
+            raise ValueError(
+                "State rows contain duplicate ClassInstance NODE row with "
+                f"conflicting class_config_id: {class_instance_id}"
+            )
+        out[class_instance_id] = class_config_id
+    return out
+
+
+def _minimal_class_instance_from_state_row(
+    *,
+    class_instance_id: UUID,
+    class_config_id: UUID,
+) -> ClassInstance:
+    return ClassInstance.model_construct(
+        id=class_instance_id,
+        class_config_id=class_config_id,
+        attributes=[],
+    )
+
+
+def _relationships_by_key_from_rows(
+    rows: Iterable[CommitStateRow],
+) -> dict[tuple[UUID, UUID, UUID], ClassInstanceRelationship]:
+    out: dict[tuple[UUID, UUID, UUID], ClassInstanceRelationship] = {}
+    for row in rows:
+        if row.kind != "EDGE":
+            continue
+        raw_source_id, separator, raw_target_id = row.value.partition("->")
+        if not separator:
+            raise ValueError(f"Malformed relationship state row: {row.value!r}")
+        key = (UUID(row.key), UUID(raw_source_id), UUID(raw_target_id))
+        previous = out.get(key)
+        if previous is not None:
+            continue
+        out[key] = ClassInstanceRelationship.model_construct(
+            class_config_relationship_id=key[0],
+            source_class_instance_id=key[1],
+            target_class_instance_id=key[2],
+        )
+    return out
+
+
+def _single_class_instance_graph(
+    *,
+    graph: ObjectInstanceGraph,
+    class_instance: ClassInstance,
+) -> ObjectInstanceGraph:
+    with disable_autobind():
+        return ObjectInstanceGraph(
+            id=graph.id,
+            key=graph.key,
+            name=graph.name,
+            description=graph.description,
+            object_projection_graph_id=graph.object_projection_graph_id,
+            root_class_instance_id=class_instance.id,
+            root_class_instance=class_instance,
+            class_instances=[class_instance],
+            class_instance_relationships=[],
+            hash=graph.hash,
+        )
+
+
+def _diff_single_class_instance_changes(
+    *,
+    old: ObjectInstanceGraph,
+    new: ObjectInstanceGraph,
+    old_class_instance: ClassInstance,
+    new_class_instance: ClassInstance,
+    object_instance_graph_identity_id: UUID,
+    created_at: datetime,
+) -> list[ClassInstanceChange]:
+    old_graph = _single_class_instance_graph(
+        graph=old,
+        class_instance=old_class_instance,
+    )
+    new_graph = _single_class_instance_graph(
+        graph=new,
+        class_instance=new_class_instance,
+    )
+    roots = diff_object_instance_graph_changes(
+        old=old_graph,
+        new=new_graph,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        created_at=created_at,
+    )
+    out: list[ClassInstanceChange] = []
+    for root in roots:
+        out.extend(root.class_instance_changes)
+    return out
+
+
+def _relationships_by_key(
+    graph: ObjectInstanceGraph,
+) -> dict[tuple[UUID, UUID, UUID], ClassInstanceRelationship]:
+    out: dict[tuple[UUID, UUID, UUID], ClassInstanceRelationship] = {}
+    for relationship in graph.class_instance_relationships:
+        relationship_id = relationship.class_config_relationship_id
+        source_id = relationship.source_class_instance_id
+        target_id = relationship.target_class_instance_id
+        if relationship_id is None or source_id is None or target_id is None:
+            raise ValueError(
+                "ObjectInstanceGraph snapshot contains relationship without "
+                "class_config_relationship_id/source/target"
+            )
+        key = (relationship_id, source_id, target_id)
+        previous = out.get(key)
+        if previous is not None:
+            raise ValueError(
+                "ObjectInstanceGraph snapshot contains duplicate relationship key: "
+                f"{key}"
+            )
+        out[key] = relationship
+    return out
 
 
 def _field_delta_from_graph_change(field_change: FieldChange) -> FieldDelta:
@@ -532,6 +993,28 @@ def _class_instance_seed_change(
             )
         )
     return class_instance_change
+
+
+def _class_instance_delete_change(
+    *,
+    class_instance: ClassInstance,
+    created_at: datetime,
+) -> ClassInstanceChange:
+    change = _build_change(
+        key=(
+            f"class_instance:{class_instance.class_config_id}:"
+            f"{class_instance.id}:delete"
+        ),
+        change_type=DELETE_CHANGE_TYPE,
+        field_deltas=[],
+        created_at=created_at,
+    )
+    return ClassInstanceChange(
+        class_instance_id=class_instance.id,
+        change=change,
+        change_id=change.id,
+        attribute_changes=[],
+    )
 
 
 def _attribute_create_change(
@@ -718,6 +1201,30 @@ def _relationship_create_change(
             f"{relationship.class_config_relationship_id}:create"
         ),
         change_type=CREATE_CHANGE_TYPE,
+        field_deltas=[],
+        created_at=created_at,
+    )
+    return ClassInstanceRelationshipChange(
+        change=change,
+        change_id=change.id,
+        class_config_relationship_id=relationship.class_config_relationship_id,
+        source_class_instance_id=relationship.source_class_instance_id,
+        target_class_instance_id=relationship.target_class_instance_id,
+    )
+
+
+def _relationship_delete_change(
+    *,
+    relationship: ClassInstanceRelationship,
+    created_at: datetime,
+) -> ClassInstanceRelationshipChange:
+    change = _build_change(
+        key=(
+            "relationship:"
+            f"{relationship.source_class_instance_id}->{relationship.target_class_instance_id}:"
+            f"{relationship.class_config_relationship_id}:delete"
+        ),
+        change_type=DELETE_CHANGE_TYPE,
         field_deltas=[],
         created_at=created_at,
     )
@@ -1062,6 +1569,8 @@ __all__ = [
     "DeltaOp",
     "FieldDelta",
     "ObjectInstanceGraphDelta",
+    "build_object_instance_graph_identity_snapshot_changes",
+    "build_object_instance_graph_identity_snapshot_changes_from_state_rows",
     "build_object_instance_graph_seed_changes",
     "diff_object_instance_graph",
     "diff_object_instance_graph_changes",

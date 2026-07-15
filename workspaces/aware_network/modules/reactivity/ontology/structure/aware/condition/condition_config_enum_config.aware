@@ -1,0 +1,31 @@
+class ConditionConfigEnumConfig {
+    // Relationships
+    condition_config_enum_options ConditionConfigEnumOption[]
+    enum_config aware_meta.enum.EnumConfig key
+
+    // Attributes
+    match_mode EnumMatchMode = any_of
+
+    fn create construct(
+        enum_config_id UUID key,
+        match_mode EnumMatchMode = any_of,
+        enum_option_ids UUID[] = []
+    ) -> ConditionConfigEnumConfig {
+        """
+        Create an enum payload condition node and optionally seed enum options.
+        """
+    }
+
+    fn add_enum_option(enum_option_id UUID) -> ConditionConfigEnumOption {
+        """
+        Attach one enum option to this enum condition payload node.
+        """
+        let created = construct condition_config_enum_options.create(
+            enum_option_id = enum_option_id,
+        )
+    }
+}
+
+/// Load enum options eagerly so enum match policies can be evaluated without
+/// additional relationship traversals.
+ann condition.ConditionConfigEnumConfig::condition_config_enum_options load eager

@@ -1,0 +1,54 @@
+/// Focus Object. Attention abstraction that allows an Object to be represented at an Interface.
+class Focus {
+    // Canonical session owner.
+    //
+    // Contract:
+    // - Focus identity is scoped to one FocusScope/session so different consumers
+    //   can target the same projection identity while holding different branches.
+    // - This is a UUID boundary because FocusScope already owns the relationship
+    //   pointer to Focus; Focus does not traverse back to its owner.
+    focus_scope_id UUID key
+
+    // Canonical linkage via meta ObjectInstanceGraphBranch (SSOT).
+    //
+    // Contract:
+    // - Optional runtime branch anchor for lane/materialization resolution.
+    object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch?
+
+    // Canonical linkage to a stable projection identity (pane gate).
+    //
+    // Contract:
+    // - Mandatory identity anchor for Focus root identity.
+    // - Gate targets must not require an OIGB to exist.
+    object_projection_graph_identity aware_meta.graph.projection.ObjectProjectionGraphIdentity key
+
+    // Optional lane selector (internal; human sees "Branch", system uses lane/projection_hash).
+    projection_hash String?
+
+    // Target-specific context to be resolved via Environment
+    target_id UUID?
+    target_type String?
+
+    // Metadata
+    description String?
+    expires_at DateTime?
+    is_active Bool = true
+    last_accessed DateTime?
+
+    fn build construct (
+        focus_scope_id UUID key,
+        object_projection_graph_identity_id UUID key,
+        projection_hash String?,
+        object_instance_graph_branch_id UUID? = null,
+        target_type String?,
+        target_id UUID?,
+        description String? = null,
+        expires_at DateTime? = null,
+        is_active Bool = true,
+        last_accessed DateTime? = null
+    ) -> Focus {
+        """
+        Builds a new Focus.
+        """
+    }
+}

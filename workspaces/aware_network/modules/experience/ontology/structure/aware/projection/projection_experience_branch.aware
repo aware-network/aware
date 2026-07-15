@@ -1,0 +1,14 @@
+class ProjectionExperienceBranch {
+    // Attributes
+    name String key
+
+    fn create construct (name String key) -> ProjectionExperienceBranch {
+        """
+        Construct a deterministic ProjectionExperienceBranch under a ProjectionExperience.
+
+        Contract:
+        - `ProjectionExperienceBranch.id` is deterministic for `(projection_experience_id, name)`.
+        - Constructor is idempotent for repeated calls with the same pair.
+        """
+    }
+}

@@ -1,0 +1,17 @@
+class Organization {
+    // Relationships
+    actor actor.Actor key
+    members OrganizationMember[]
+
+    fn create construct (actor_id UUID key) -> Organization {
+        """Construct a Organization - Identity resolves profile"""
+    }
+
+    fn create_member (identity_id UUID, role OrganizationMemberRole) -> OrganizationMember {
+        """Create a member at an organization"""
+        let member = construct members.create(
+            identity_id = identity_id,
+            role = role,
+        )
+    }
+}

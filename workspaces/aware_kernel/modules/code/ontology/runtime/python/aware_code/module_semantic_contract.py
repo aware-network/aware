@@ -80,6 +80,33 @@ class WorkspaceSemanticArtifactLeafOwnershipResolver(Protocol):
 
 
 @dataclass(frozen=True, slots=True)
+class WorkspaceSemanticPackageLayoutRequest:
+    """Request passed to semantic packages for declared package-manager layouts."""
+
+    workspace_root: Path
+    manifest_path: Path
+    manifest_kind: str
+    package_kind: str | None = None
+    package_name: str | None = None
+    fqn_prefix: str | None = None
+    provider_key: str | None = None
+    semantic_owner: str | None = None
+    semantic_contract_module: str | None = None
+    manifest_resolution: object | None = None
+    semantic_binding: object | None = None
+
+
+class WorkspaceSemanticPackageLayoutResolver(Protocol):
+    """Callable protocol for provider-owned package layout resolution."""
+
+    def __call__(
+        self,
+        *,
+        request: WorkspaceSemanticPackageLayoutRequest,
+    ) -> object | None: ...
+
+
+@dataclass(frozen=True, slots=True)
 class ModuleCapabilityExecutionPolicyDescriptor:
     """Module-owned execution policy for a capability/owner pair."""
 
@@ -253,6 +280,17 @@ class ModuleSemanticArtifactLeafOwnershipDescriptor:
     callable_name: str
     priority: int = 100
     ownership_role: str = "semantic_generated_artifact"
+
+
+@dataclass(frozen=True, slots=True)
+class ModuleSemanticPackageLayoutDescriptor:
+    """Provider-owned package-manager layout resolver for semantic manifests."""
+
+    semantic_owner: str
+    manifest_kinds: tuple[str, ...]
+    callable_module: str
+    callable_name: str
+    priority: int = 100
 
 
 @dataclass(frozen=True, slots=True)
@@ -470,6 +508,10 @@ class ModuleSemanticContract:
     ] = ()
     artifact_leaf_ownership: tuple[
         ModuleSemanticArtifactLeafOwnershipDescriptor,
+        ...,
+    ] = ()
+    package_layout: tuple[
+        ModuleSemanticPackageLayoutDescriptor,
         ...,
     ] = ()
     materialization_artifact_outputs: tuple[
@@ -718,6 +760,40 @@ class ModuleSemanticContract:
                     and _descriptor_includes_optional_token(
                         tokens=descriptor.artifact_manifest_kinds,
                         token=normalized_artifact_manifest_kind,
+                    )
+                ),
+                key=lambda item: (
+                    item.priority,
+                    item.semantic_owner,
+                    item.callable_module,
+                    item.callable_name,
+                ),
+            )
+        )
+
+    def package_layout_for(
+        self,
+        *,
+        semantic_owner: str | None = None,
+        manifest_kind: str | None = None,
+    ) -> tuple[ModuleSemanticPackageLayoutDescriptor, ...]:
+        """Return provider-owned package layout resolvers."""
+
+        normalized_semantic_owner = _normalized_optional_text(semantic_owner)
+        normalized_manifest_kind = _normalized_optional_text(manifest_kind)
+
+        return tuple(
+            sorted(
+                (
+                    descriptor
+                    for descriptor in self.package_layout
+                    if (
+                        normalized_semantic_owner is None
+                        or descriptor.semantic_owner == normalized_semantic_owner
+                    )
+                    and _descriptor_includes_optional_token(
+                        tokens=descriptor.manifest_kinds,
+                        token=normalized_manifest_kind,
                     )
                 ),
                 key=lambda item: (
@@ -1161,6 +1237,7 @@ __all__ = [
     "ModuleSemanticMaterializationPackageOutputDescriptor",
     "ModuleSemanticMaterializationRuntimeDescriptor",
     "ModuleSemanticMaterializationRuntimeContextDescriptor",
+    "ModuleSemanticPackageLayoutDescriptor",
     "ModuleSemanticPackageRoleDescriptor",
     "ModuleSemanticRuntimeProjectionPackageDescriptor",
     "ModuleSemanticSyntaxLaneDescriptor",
@@ -1171,4 +1248,6 @@ __all__ = [
     "WorkspaceSemanticArtifactLeafOwnershipRequest",
     "WorkspaceSemanticArtifactProduction",
     "WorkspaceSemanticArtifactLeafOwnershipResolver",
+    "WorkspaceSemanticPackageLayoutRequest",
+    "WorkspaceSemanticPackageLayoutResolver",
 ]

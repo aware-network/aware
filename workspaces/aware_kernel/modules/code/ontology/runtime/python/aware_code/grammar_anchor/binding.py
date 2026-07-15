@@ -4,7 +4,7 @@ from collections.abc import Iterable, Mapping
 from hashlib import sha256
 from typing import cast
 
-from aware_code_service_dto.code.features.grammar_anchor_binding import (
+from aware_code_sdk.dto import (
     CodeGrammarAnchorBinding,
     CodeGrammarAnchorBindingResolutionStatus,
     CodeGrammarAnchorFixture,

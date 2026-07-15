@@ -1,0 +1,26 @@
+class PerfSignal {
+    // Attributes
+    key String key
+    label String
+    value Float?
+    unit String?
+
+    fn create construct (key String key, label String) -> PerfSignal {
+        """
+        Create one deterministic performance sample signal.
+        """
+        let created = construct PerfSignal(
+            key = key,
+            label = label,
+        )
+    }
+
+    fn record_value (value Float, unit String = "unit") -> PerfSignal {
+        """
+        Record a sample value for this signal.
+        """
+        set value = value
+        set unit = unit
+    }
+}
+

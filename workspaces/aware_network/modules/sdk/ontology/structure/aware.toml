@@ -1,0 +1,21 @@
+aware = 1
+
+[package]
+package_name = "sdk-ontology"
+fqn_prefix = "aware_sdk"
+kind = "ontology"
+version_number = 1
+title = "SDK Ontology"
+description = "Canonical SDK module for local orchestration over API capability endpoints."
+
+[build]
+environment_slug = "aware_sdk"
+
+[[dependencies]]
+package_name = "api-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "meta-ontology"

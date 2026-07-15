@@ -15,6 +15,14 @@ from aware_meta.graph.config.runtime_derivation import (
 )
 import aware_meta.semantic_analysis as semantic_analysis
 from aware_meta.semantic_analysis import analyze_meta_ocg_sources
+from aware_meta_ontology.attribute.attribute_config import AttributeConfig
+from aware_meta_ontology.attribute.attribute_enums import AttributeCollectionType
+from aware_meta_ontology.attribute.attribute_type_descriptor import (
+    AttributeTypeDescriptor,
+)
+from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
+    AttributeTypeDescriptorKind,
+)
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
 from aware_meta_ontology.graph.config.object_config_graph_enums import (
     ObjectConfigGraphNodeType,
@@ -26,10 +34,19 @@ from aware_meta_ontology.graph.config.object_config_graph_relationship import (
     ObjectConfigGraphRelationship,
 )
 from aware_meta_ontology.class_.class_config import ClassConfig
+from aware_meta_ontology.class_.class_config_attribute_config import (
+    ClassConfigAttributeConfig,
+)
 from aware_meta_ontology.class_.class_config_relationship import (
     ClassConfigRelationship,
 )
+from aware_meta_ontology.class_.class_config_relationship_attribute import (
+    ClassConfigRelationshipAttribute,
+)
 from aware_meta_ontology.class_.class_config_relationship_enums import (
+    ClassConfigRelationshipAttributeRole,
+    ClassConfigRelationshipDirection,
+    ClassConfigRelationshipSideLoadingStrategy,
     ClassConfigRelationshipType,
 )
 from aware_meta_ontology.graph.projection.object_projection_graph_declaration import (
@@ -42,19 +59,11 @@ from aware_meta_ontology.graph.projection.object_projection_graph_binding import
     ObjectProjectionGraphBinding,
 )
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+_TEST_ROOT = Path(__file__).resolve().parent
 
 
 def _home_story_ontology_root() -> Path:
-    return (
-        _REPO_ROOT
-        / "modules"
-        / "meta"
-        / "runtime"
-        / "tests"
-        / "fixtures"
-        / "home_story_ontology"
-    )
+    return _TEST_ROOT / "fixtures" / "home_story_ontology"
 
 
 def test_meta_runtime_derivation_turns_home_story_source_ocg_into_runtime_truth() -> (
@@ -529,17 +538,13 @@ def test_runtime_derivation_language_transform_aliases_source_relationship_targe
     )
     source.object_config_graph_relationships = [relationship]
 
-    aliased = (
-        derivation_service._external_runtime_graphs_by_id_for_language_transform(  # noqa: SLF001
-            source_graph=source,
-            external_runtime_graphs=(runtime_storage,),
-        )
+    aliased = derivation_service._external_runtime_graphs_by_id_for_language_transform(  # noqa: SLF001
+        source_graph=source,
+        external_runtime_graphs=(runtime_storage,),
     )
-    ambiguous = (
-        derivation_service._external_runtime_graphs_by_id_for_language_transform(  # noqa: SLF001
-            source_graph=source,
-            external_runtime_graphs=(runtime_storage, duplicate_storage),
-        )
+    ambiguous = derivation_service._external_runtime_graphs_by_id_for_language_transform(  # noqa: SLF001
+        source_graph=source,
+        external_runtime_graphs=(runtime_storage, duplicate_storage),
     )
 
     assert aliased[runtime_storage.id] is runtime_storage
@@ -588,6 +593,112 @@ def test_runtime_derivation_preserves_existing_external_runtime_class_relationsh
     ]
 
 
+def test_runtime_derivation_lowers_lazy_single_reference_attributes_to_nullable() -> (
+    None
+):
+    graph = _projection_stub_graph(name="meta_runtime", fqn_prefix="aware_meta")
+    source_class = ClassConfig(
+        id=uuid4(),
+        class_fqn="aware_meta.Owner",
+        name="Owner",
+    )
+    explicit_lazy_target = ClassConfig(
+        id=uuid4(),
+        class_fqn="aware_meta.ExplicitLazyTarget",
+        name="ExplicitLazyTarget",
+    )
+    default_lazy_target = ClassConfig(
+        id=uuid4(),
+        class_fqn="aware_meta.DefaultLazyTarget",
+        name="DefaultLazyTarget",
+    )
+    eager_target = ClassConfig(
+        id=uuid4(),
+        class_fqn="aware_meta.EagerTarget",
+        name="EagerTarget",
+    )
+    collection_target = ClassConfig(
+        id=uuid4(),
+        class_fqn="aware_meta.CollectionTarget",
+        name="CollectionTarget",
+    )
+
+    explicit_lazy_attr = _runtime_class_ref_attr(
+        source_class,
+        "explicit_lazy_target",
+        explicit_lazy_target,
+    )
+    default_lazy_attr = _runtime_class_ref_attr(
+        source_class,
+        "default_lazy_target",
+        default_lazy_target,
+    )
+    eager_attr = _runtime_class_ref_attr(source_class, "eager_target", eager_target)
+    collection_attr = _runtime_class_ref_attr(
+        source_class,
+        "collection_target",
+        collection_target,
+        collection_kind=AttributeCollectionType.list,
+    )
+    source_class.class_config_attribute_configs = [
+        _runtime_class_attr_link(source_class, explicit_lazy_attr, position=0),
+        _runtime_class_attr_link(source_class, default_lazy_attr, position=1),
+        _runtime_class_attr_link(source_class, eager_attr, position=2),
+        _runtime_class_attr_link(source_class, collection_attr, position=3),
+    ]
+    source_class.class_config_relationships = [
+        _runtime_relationship_for_attr(
+            source=source_class,
+            target=explicit_lazy_target,
+            attr=explicit_lazy_attr,
+            key="explicit_lazy",
+            strategy=ClassConfigRelationshipSideLoadingStrategy.lazy,
+        ),
+        _runtime_relationship_for_attr(
+            source=source_class,
+            target=default_lazy_target,
+            attr=default_lazy_attr,
+            key="default_lazy",
+            strategy=None,
+        ),
+        _runtime_relationship_for_attr(
+            source=source_class,
+            target=eager_target,
+            attr=eager_attr,
+            key="eager",
+            strategy=ClassConfigRelationshipSideLoadingStrategy.eager,
+        ),
+        _runtime_relationship_for_attr(
+            source=source_class,
+            target=collection_target,
+            attr=collection_attr,
+            key="collection",
+            strategy=ClassConfigRelationshipSideLoadingStrategy.lazy,
+        ),
+    ]
+    graph.object_config_graph_nodes = [
+        _runtime_class_node(graph, source_class),
+        _runtime_class_node(graph, explicit_lazy_target),
+        _runtime_class_node(graph, default_lazy_target),
+        _runtime_class_node(graph, eager_target),
+        _runtime_class_node(graph, collection_target),
+    ]
+
+    lowered_count = derivation_service._normalize_lazy_relationship_reference_attributes(  # noqa: SLF001
+        graph
+    )
+
+    assert lowered_count == 2
+    assert explicit_lazy_attr.is_required is False
+    assert explicit_lazy_attr.default_value == "null"
+    assert default_lazy_attr.is_required is False
+    assert default_lazy_attr.default_value == "null"
+    assert eager_attr.is_required is True
+    assert eager_attr.default_value is None
+    assert collection_attr.is_required is True
+    assert collection_attr.default_value is None
+
+
 class _NoopTimer:
     def step(self, _: str):
         return nullcontext()
@@ -629,4 +740,84 @@ def _projection_stub_graph(
                 object_projection_graph_bindings=bindings,
             )
         ],
+    )
+
+
+def _runtime_class_ref_attr(
+    owner: ClassConfig,
+    name: str,
+    target: ClassConfig,
+    *,
+    collection_kind: AttributeCollectionType = AttributeCollectionType.single,
+) -> AttributeConfig:
+    descriptor = AttributeTypeDescriptor(
+        kind=AttributeTypeDescriptorKind.class_,
+        collection_kind=collection_kind,
+        class_config=target,
+        class_config_id=target.id,
+    )
+    return AttributeConfig(
+        owner_key=owner.class_fqn,
+        name=name,
+        is_public=True,
+        is_required=True,
+        is_unique=False,
+        is_virtual=False,
+        type_descriptor=descriptor,
+        type_descriptor_id=descriptor.id,
+    )
+
+
+def _runtime_class_attr_link(
+    owner: ClassConfig,
+    attr: AttributeConfig,
+    *,
+    position: int,
+) -> ClassConfigAttributeConfig:
+    return ClassConfigAttributeConfig(
+        class_config_id=owner.id,
+        attribute_config=attr,
+        attribute_config_id=attr.id,
+        position=position,
+    )
+
+
+def _runtime_relationship_for_attr(
+    *,
+    source: ClassConfig,
+    target: ClassConfig,
+    attr: AttributeConfig,
+    key: str,
+    strategy: ClassConfigRelationshipSideLoadingStrategy | None,
+) -> ClassConfigRelationship:
+    relationship = ClassConfigRelationship(
+        id=uuid4(),
+        class_config_id=source.id,
+        target_class_config_id=target.id,
+        relationship_key=key,
+        relationship_type=ClassConfigRelationshipType.many_to_one,
+        forward_required=True,
+        forward_loading_strategy=strategy,
+    )
+    relationship.class_config_relationship_attributes = [
+        ClassConfigRelationshipAttribute(
+            class_config_relationship_id=relationship.id,
+            attribute_config_id=attr.id,
+            direction=ClassConfigRelationshipDirection.forward,
+            role=ClassConfigRelationshipAttributeRole.reference,
+        )
+    ]
+    return relationship
+
+
+def _runtime_class_node(
+    graph: ObjectConfigGraph,
+    class_config: ClassConfig,
+) -> ObjectConfigGraphNode:
+    return ObjectConfigGraphNode(
+        id=uuid4(),
+        type=ObjectConfigGraphNodeType.class_,
+        node_key=class_config.class_fqn,
+        object_config_graph_id=graph.id,
+        class_config=class_config,
     )

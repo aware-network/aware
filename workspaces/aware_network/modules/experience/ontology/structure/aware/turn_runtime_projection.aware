@@ -1,0 +1,16 @@
+/// Turn runtime projection
+///
+/// Contract:
+/// - Experience owns the runtime read surface for program/turn execution.
+/// - Experience remains the runtime lifecycle owner for `Turn` objects.
+/// - Keeps turn execution visibility aligned with Experience-owned Program runtime.
+projection Turn {
+    root turn.Turn
+    turn.Turn::feedbacks
+
+    observable turn {
+        """
+        Runtime turn execution surface (accepted -> running -> feedback* -> terminal).
+        """
+    }
+}

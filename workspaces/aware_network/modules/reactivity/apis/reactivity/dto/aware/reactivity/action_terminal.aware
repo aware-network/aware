@@ -1,0 +1,18 @@
+/// Canonical DTO for action execution terminal status.
+///
+/// Caller attribution lives above this rail in request context or provenance
+/// receipts.
+
+class ActionTerminal {
+    action_execution_id UUID
+    event_id UUID
+    terminal_status ActionTerminalStatus
+    handled Bool
+    created_at_unix_ms Int
+    action_binding_id UUID?
+    action_config_id UUID?
+    action_type String?
+    info String?
+    error String?
+    execution_request_id UUID?
+}

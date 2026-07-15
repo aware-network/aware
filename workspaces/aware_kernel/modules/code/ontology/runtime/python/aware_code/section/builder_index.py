@@ -82,11 +82,15 @@ class CodeSectionBuilderIndex:
         if existing is not None:
             # Idempotent behavior for multi-pass builders:
             # - If the same section is encountered again with the same byte range, treat as a no-op.
+            # - If generated code repeats identical section text in different scopes, keep the
+            #   first node mapping and let later section matching disambiguate by qualname.
             # - If the byte range differs, raise because our identity mapping became ambiguous.
             if existing.byte_start == code_node.byte_start and existing.byte_end == code_node.byte_end:
                 return
             existing_text = existing.node_text()
             new_text = code_node.node_text()
+            if existing_text == new_text:
+                return
             message = (
                 "Code section node already exists for section ID "
                 + f"{code_section_id} with a different byte range: "

@@ -1,0 +1,40 @@
+/// Environment ThreadConfig -> Meta ObjectProjectionGraph authority edge.
+///
+/// Contract:
+/// - Declares which projection graphs a thread config can host.
+/// - Does not identify an Experience or view implementation.
+class ThreadConfigObjectProjectionGraph {
+    // Relationships
+    object_projection_graph aware_meta.graph.projection.ObjectProjectionGraph key
+
+    // Attributes
+    /// Narrative text for why this projection graph is part of the thread context.
+    narrative String?
+    /// Short canonical intent for this projection graph landing.
+    intent String?
+    /// Optional canonical view key under the target projection identity.
+    view_key String?
+    /// Ordering hint for projection clusters.
+    position Int? = null
+    /// Marks preferred/default projection graph for this thread config.
+    is_default Bool = false
+
+    fn create construct (
+        object_projection_graph_id UUID key,
+        view_key String? = null,
+        position Int? = null,
+        is_default Bool = false,
+        narrative String? = null,
+        intent String? = null
+    ) -> ThreadConfigObjectProjectionGraph {
+        """
+        Create a deterministic ThreadConfigObjectProjectionGraph association edge.
+
+        Contract:
+        - Identity is `(thread_config_id, object_projection_graph_id)`.
+        - Projection authority is Meta-owned.
+        """
+    }
+}
+
+ann thread.ThreadConfigObjectProjectionGraph::object_projection_graph load eager

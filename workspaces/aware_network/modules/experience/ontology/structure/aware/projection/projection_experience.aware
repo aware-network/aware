@@ -1,0 +1,247 @@
+class ProjectionExperience {
+    // Relationships
+    object_projection_graph_identity aware_meta.graph.projection.ObjectProjectionGraphIdentity key
+    projection_experience_branches ProjectionExperienceBranch[]
+    projection_experience_graphs ProjectionExperienceGraph[]
+    projection_experience_layout_graph_bindings ProjectionExperienceLayoutGraphBinding[]
+    projection_experience_nodes ProjectionExperienceNode[]
+    projection_experience_oigis ProjectionExperienceOIGI[]
+    projection_experience_sections ProjectionExperienceSection[]
+    projection_experience_section_graph_bindings ProjectionExperienceSectionGraphBinding[]
+    projection_experience_views ProjectionExperienceView[]
+    providers provider.ExperienceProvider[]
+    contract_actor_role_grants contract.ExperienceContractActorRoleGrant[]
+    invocation_action_configs invocation.ExperienceInvocationActionConfig[]
+
+    // Attributes
+    name String key
+
+    fn create construct (object_projection_graph_identity_id UUID key, name String key) -> ProjectionExperience {
+        """
+        Construct a deterministic ProjectionExperience under a Projection.
+
+        Contract:
+        - `ProjectionExperience.id` is deterministic for `(projection_id, name)`.
+        - Constructor is idempotent for repeated calls with the same pair.
+        """
+    }
+
+    fn create_branch (name String) -> ProjectionExperienceBranch {
+        """
+        Create a deterministic ProjectionExperienceBranch under this ProjectionExperience.
+
+        Contract:
+        - Delegates canonical branch identity to `ProjectionExperienceBranch.create(...)`.
+        - Mutates only this ProjectionExperience membership (`projection_experience_branches`).
+        """
+        let created = construct projection_experience_branches.create(
+            name = name,
+        )
+    }
+
+    fn create_view (api_view_id UUID, name String) -> ProjectionExperienceView {
+        """
+        Create a deterministic ProjectionExperienceView under this ProjectionExperience.
+
+        Contract:
+        - Delegates canonical view identity to `ProjectionExperienceView.create(...)`.
+        - Mutates only this ProjectionExperience membership (`projection_experience_views`).
+        - Binds the Experience-local view mount to one API-owned readable view.
+        """
+        let created = construct projection_experience_views.create(
+            api_view_id = api_view_id,
+            name = name,
+        )
+    }
+
+    fn create_invocation_action_config (
+        target_kind invocation.ExperienceInvocationActionTargetKind,
+        api_capability_endpoint_id UUID? = null,
+        sdk_operation_id UUID? = null
+    ) -> invocation.ExperienceInvocationActionConfig {
+        """
+        Create a reusable Experience invocation action config under this ProjectionExperience.
+
+        Contract:
+        - Views, sensors, actuators, and future surfaces bind to this config.
+        - API/SDK executable target fields live here, not on consumer-specific wrappers.
+        - `target_kind` selects exactly one executable target relationship.
+        """
+        let created = construct invocation_action_configs.build(
+            api_capability_endpoint_id = api_capability_endpoint_id,
+            sdk_operation_id = sdk_operation_id,
+            target_kind = target_kind,
+        )
+    }
+
+    fn create_provider (
+        provider_key String,
+        provider_kind String = "provider",
+        selection_policy String = "contract_required",
+        status String = "active",
+        title String? = null,
+        description String? = null,
+        metadata_json JsonObject? = {}
+    ) -> provider.ExperienceProvider {
+        """
+        Create one Experience-owned public provider slot.
+
+        Contract:
+        - Provider ontologies bind concrete fulfillment to this slot.
+        - ProjectionExperience does not import provider-owned operation or contract truth.
+        - Mutates only this ProjectionExperience membership (`providers`).
+        """
+        let created = construct providers.build(
+            provider_key = provider_key,
+            provider_kind = provider_kind,
+            selection_policy = selection_policy,
+            status = status,
+            title = title,
+            description = description,
+            metadata_json = metadata_json,
+        )
+    }
+
+    fn create_contract_actor_role_grant (
+        grant_key String,
+        actor_config_role_config_id UUID,
+        role_config_id UUID,
+        access_scope String = "experience",
+        participant_kind String = "actor",
+        class_instance_identity_required Bool = false,
+        role_assignment_binding_required Bool = true,
+        grant_policy_json JsonObject? = {},
+        description String? = null
+    ) -> contract.ExperienceContractActorRoleGrant {
+        """
+        Create one Experience-owned contract-visible actor-role grant.
+
+        Contract:
+        - This is the public Experience grant providers may accept/reference later.
+        - The grant is scoped through ActorConfigRoleConfig, not a raw global role.
+        - Mutates only this ProjectionExperience membership (`contract_actor_role_grants`).
+        """
+        let created = construct contract_actor_role_grants.build(
+            grant_key = grant_key,
+            actor_config_role_config_id = actor_config_role_config_id,
+            role_config_id = role_config_id,
+            access_scope = access_scope,
+            participant_kind = participant_kind,
+            class_instance_identity_required = class_instance_identity_required,
+            role_assignment_binding_required = role_assignment_binding_required,
+            grant_policy_json = grant_policy_json,
+            description = description,
+        )
+    }
+
+    fn create_node (object_projection_graph_node_id UUID, key String) -> ProjectionExperienceNode {
+        """
+        Create a deterministic ProjectionExperienceNode under this ProjectionExperience.
+
+        Contract:
+        - Delegates canonical node identity to `ProjectionExperienceNode.build(...)`.
+        - Mutates only this ProjectionExperience membership (`projection_experience_nodes`).
+        """
+        let created = construct projection_experience_nodes.build(
+            object_projection_graph_node_id = object_projection_graph_node_id,
+            key = key,
+        )
+    }
+
+    fn create_graph (name String) -> ProjectionExperienceGraph {
+        """
+        Create one deterministic ProjectionExperienceGraph under this ProjectionExperience.
+
+        Contract:
+        - Graph topology and graph-bound profiles evolve through the child
+          `ProjectionExperienceGraph` projection reached from this shell rail.
+        - API/profile/value contracts are out of scope for this object.
+        """
+        let created = construct projection_experience_graphs.create(
+            name = name,
+        )
+    }
+
+    fn create_oigi (
+        object_instance_graph_identity_id UUID,
+        key String? = null
+    ) -> ProjectionExperienceOIGI {
+        """
+        Create one ProjectionExperienceOIGI bridge under this ProjectionExperience.
+
+        Contract:
+        - OIGI topology evolves through the child `ProjectionExperienceOIGI`
+          projection reached from this shell rail.
+        """
+        let created = construct projection_experience_oigis.build(
+            object_instance_graph_identity_id = object_instance_graph_identity_id,
+            key = key,
+        )
+    }
+
+    fn create_section (
+        section_id UUID key,
+        section_key String? = null
+    ) -> ProjectionExperienceSection {
+        """
+        Create one Attention Section bridge under this ProjectionExperience.
+
+        Contract:
+        - Attention owns Section and FocusScope mutation.
+        - Experience owns the section+observable -> view-instance resolver.
+        - `section_key` is optional denormalized lookup text and is not a runtime mount id.
+        """
+        let created = construct projection_experience_sections.build(
+            section_id = section_id,
+            section_key = section_key,
+        )
+    }
+
+    fn create_section_graph_binding (
+        layout_config_section_config_id UUID,
+        projection_experience_view_id UUID,
+        projection_experience_graph_identity_id UUID,
+        binding_key String,
+        section_key String
+    ) -> ProjectionExperienceSectionGraphBinding {
+        """
+        Create one stable section-graph binding under this ProjectionExperience.
+
+        Contract:
+        - The view binding stays Experience-owned.
+        - The layout section target is an explicit portal to Attention layout topology.
+        - The graph-occurrence anchor stays explicit and canonical at Experience level.
+        - This object expresses section selection agreement only; it does not mutate Attention truth.
+        """
+        let created = construct projection_experience_section_graph_bindings.build(
+            layout_config_section_config_id = layout_config_section_config_id,
+            projection_experience_view_id = projection_experience_view_id,
+            projection_experience_graph_identity_id = projection_experience_graph_identity_id,
+            binding_key = binding_key,
+            section_key = section_key,
+        )
+    }
+
+    fn create_layout_graph_binding (
+        layout_config_id UUID,
+        binding_key String
+    ) -> ProjectionExperienceLayoutGraphBinding {
+        """
+        Create one stable layout graph binding under this ProjectionExperience.
+
+        Contract:
+        - This is the Experience-owned layout-level entry point for consumers.
+        - The layout target is an explicit portal to Attention layout topology.
+        - Child rows point to existing section graph bindings; order remains Attention-owned.
+        - This object expresses composition agreement only; it does not activate session state.
+        """
+        let created = construct projection_experience_layout_graph_bindings.build(
+            layout_config_id = layout_config_id,
+            binding_key = binding_key,
+        )
+    }
+}
+
+ann projection.ProjectionExperience::contract_actor_role_grants load eager
+ann projection.ProjectionExperience::invocation_action_configs load eager
+ann projection.ProjectionExperience::providers load eager

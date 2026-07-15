@@ -1,0 +1,74 @@
+class ConditionConfigAttributeConfig {
+    // Relationships
+    attribute_config aware_meta.attribute.AttributeConfig key
+    condition_config_enum_config ConditionConfigEnumConfig? unique
+    condition_config_primitive_config ConditionConfigPrimitiveConfig? unique
+    condition_config_relationship_config ConditionConfigRelationshipConfig? unique
+
+    // Attributes
+    operator ConditionOperator key
+    negate Bool key = false
+
+    fn create construct(
+        attribute_config_id UUID key,
+        operator ConditionOperator key,
+        negate Bool key = false
+    ) -> ConditionConfigAttributeConfig {
+        """
+        Create an attribute-level condition policy node.
+        """
+    }
+
+    fn set_primitive_config(
+        primitive_config_id UUID,
+        primitive_value String,
+        range_min String? = null,
+        range_max String? = null
+    ) -> ConditionConfigPrimitiveConfig {
+        """
+        Set primitive payload policy for this attribute condition.
+        """
+        let created = construct condition_config_primitive_config.create(
+            primitive_config_id = primitive_config_id,
+            primitive_value = primitive_value,
+            range_min = range_min,
+            range_max = range_max,
+        )
+    }
+
+    fn set_enum_config(
+        enum_config_id UUID,
+        enum_option_ids UUID[] = [],
+        match_mode EnumMatchMode = any_of
+    ) -> ConditionConfigEnumConfig {
+        """
+        Set enum payload policy for this attribute condition.
+        """
+        let created = construct condition_config_enum_config.create(
+            enum_config_id = enum_config_id,
+            match_mode = match_mode,
+            enum_option_ids = enum_option_ids,
+        )
+    }
+
+    fn set_relationship_config(
+        class_config_relationship_id UUID,
+        eval_mode RelationshipEvalMode = exists,
+        count_threshold Int? = null
+    ) -> ConditionConfigRelationshipConfig {
+        """
+        Set relationship payload policy for this attribute condition.
+        """
+        let created = construct condition_config_relationship_config.create(
+            class_config_relationship_id = class_config_relationship_id,
+            eval_mode = eval_mode,
+            count_threshold = count_threshold,
+        )
+    }
+}
+
+/// Load nested condition payloads eagerly so condition evaluation can resolve
+/// a complete attribute policy without extra runtime fetch hops.
+ann condition.ConditionConfigAttributeConfig::condition_config_enum_config load forward eager
+ann condition.ConditionConfigAttributeConfig::condition_config_primitive_config load forward eager
+ann condition.ConditionConfigAttributeConfig::condition_config_relationship_config load forward eager

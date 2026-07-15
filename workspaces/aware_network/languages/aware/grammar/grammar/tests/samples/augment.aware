@@ -1,0 +1,24 @@
+/// Canonical terminal for augment test
+class Terminal {
+    name String
+}
+
+/// Host for terminal creation/attachment (required for strict type resolution in canonical OCG)
+class TerminalHost {
+    name String
+}
+
+/// Environment overlay augmenting Terminal
+class TerminalEnv augment Terminal {
+    fn create(host TerminalHost) -> Terminal {
+        """
+        Creates or reuses a terminal via the environment overlay.
+        """
+    }
+
+    async fn attach(host TerminalHost) -> Terminal {
+        """
+        Attaches to a terminal using overlay semantics.
+        """
+    }
+}

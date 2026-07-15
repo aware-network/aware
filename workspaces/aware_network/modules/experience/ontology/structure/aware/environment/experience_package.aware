@@ -1,0 +1,164 @@
+class ExperiencePackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    attention_packages ExperiencePackageAttentionPackage[]
+    api_packages ExperiencePackageApiPackage[]
+    environment_experience EnvironmentExperience unique
+    experience_package_dependencies ExperiencePackageDependency[]
+    language_packages ExperiencePackageLanguagePackage[]
+    sdk_packages ExperiencePackageSdkPackage[]
+
+    // Attributes
+    name String key
+
+    fn build construct(
+        name String key,
+        environment_experience_id UUID,
+        source_code_package_id UUID? = null
+    ) -> ExperiencePackage {
+        """
+        Create the canonical Experience-owned package root over an existing `EnvironmentExperience`.
+
+        Contract:
+        - Identity is keyed by Experience package `name`.
+        - `ExperiencePackage` is the package/public root over an existing canonical
+          `EnvironmentExperience`.
+        - `environment_experience_id` must point at the canonical EnvironmentExperience stable id
+          for this package root.
+        - `source_code_package_id` is the explicit raw-source provenance link for this semantic
+          leaf package.
+        - Workspace will later mount `ExperiencePackage`, not raw `EnvironmentExperience`.
+        """
+    }
+
+    fn attach_attention_package(
+        attention_package_id UUID key,
+        description String? = null
+    ) -> ExperiencePackageAttentionPackage {
+        """
+        Attach one Attention package dependency to this ExperiencePackage.
+
+        Contract:
+        - This is package-level dependency truth for Experience-authored layout/section bindings.
+        - ProjectionExperienceSectionGraphBinding may target Attention layout sections only through
+          committed package dependency truth, not through runtime guesses.
+        - The dependency is relational truth; runtime mutation still goes through Attention services.
+        """
+        let created = construct attention_packages.build(
+            attention_package_id = attention_package_id,
+            description = description,
+        )
+    }
+
+    fn attach_api_package(
+        api_package_id UUID key,
+        description String? = null
+    ) -> ExperiencePackageApiPackage {
+        """
+        Attach one API package dependency to this ExperiencePackage.
+
+        Contract:
+        - Experience owns ProjectionExperienceView action capability truth.
+        - API package dependencies declare which API packages those view actions may target.
+        - Pane/interface packages must not become the product owner of API capability truth.
+        """
+        let created = construct api_packages.build(
+            api_package_id = api_package_id,
+            description = description,
+        )
+    }
+
+    fn attach_experience_package_dependency(
+        target_experience_package_id UUID key,
+        target_package_name String,
+        target_experience_package_object_instance_graph_commit_id UUID? = null,
+        target_version_number Int? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null
+    ) -> ExperiencePackageDependency {
+        """
+        Attach one Experience package dependency to this ExperiencePackage.
+
+        Contract:
+        - This is package-level dependency truth for cross-Experience profile composition.
+        - View/event transitions may reference source views or target bindings from another
+          Experience package only when backed by this dependency closure.
+        - `target_version_number` is selector/compatibility metadata.
+        - `target_experience_package_object_instance_graph_commit_id`, when present, pins
+          exact semantic package truth resolved through WorkspaceRevision/Hub evidence.
+        """
+        let created = construct experience_package_dependencies.build(
+            target_experience_package_id = target_experience_package_id,
+            target_package_name = target_package_name,
+            target_experience_package_object_instance_graph_commit_id = target_experience_package_object_instance_graph_commit_id,
+            target_version_number = target_version_number,
+            expected_hash_sha256 = expected_hash_sha256,
+            description = description,
+        )
+    }
+
+    fn attach_language_package(
+        code_package_id UUID key,
+        package_name String,
+        language aware_code.code.CodeLanguage,
+        import_root String,
+        manifest_relative_path String,
+        package_root String = ".",
+        sources_root String? = null,
+        role String = "view_model_package",
+        output_key String = "experience.language_contract.generated_code_packages",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = []
+    ) -> ExperiencePackageLanguagePackage {
+        """
+        Attach one Experience-owned generated language package.
+
+        Contract:
+        - Experience packages own their generated view-model/runtime language package truth.
+        - Identity is keyed by the attached generated CodePackage.
+        - Consumers must not infer Experience language packages from local targets or filesystem
+          layout; they must read this package relationship.
+        - The CodePackage remains the code-content owner. This edge is semantic package
+          ownership/provenance, not a parallel artifact rail.
+        """
+        let created = construct language_packages.build(
+            code_package_id = code_package_id,
+            package_name = package_name,
+            language = language,
+            import_root = import_root,
+            manifest_relative_path = manifest_relative_path,
+            package_root = package_root,
+            sources_root = sources_root,
+            role = role,
+            output_key = output_key,
+            include_paths = include_paths,
+            exclude_paths = exclude_paths,
+        )
+    }
+
+    fn attach_sdk_package(
+        sdk_package_id UUID key,
+        description String? = null
+    ) -> ExperiencePackageSdkPackage {
+        """
+        Attach one SDK package dependency to this ExperiencePackage.
+
+        Contract:
+        - Experience owns ProjectionExperienceView action capability truth.
+        - SDK package dependencies declare which SDK packages those view actions may target.
+        - SDK invocation remains a boundary adapter, not pane-owned product semantics.
+        """
+        let created = construct sdk_packages.build(
+            sdk_package_id = sdk_package_id,
+            description = description,
+        )
+    }
+}
+
+ann environment.ExperiencePackage::source_code_package load eager
+ann environment.ExperiencePackage::attention_packages load eager
+ann environment.ExperiencePackage::api_packages load eager
+ann environment.ExperiencePackage::environment_experience load eager
+ann environment.ExperiencePackage::experience_package_dependencies load eager
+ann environment.ExperiencePackage::language_packages load eager
+ann environment.ExperiencePackage::sdk_packages load eager

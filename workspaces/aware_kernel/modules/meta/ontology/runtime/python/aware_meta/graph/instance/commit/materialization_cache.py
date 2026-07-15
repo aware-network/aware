@@ -1,19 +1,21 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from collections import OrderedDict
 from dataclasses import dataclass
 import os
 from threading import Lock
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 from weakref import WeakSet
 
-from aware_meta.graph.instance.commit.fs_store import (
-    FSCommitStore,
-    FSSnapshotStore,
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+from aware_meta.graph.instance.commit.fs_snapshot_store import FSSnapshotStore
+from aware_meta.graph.instance.commit.contract import (
     LaneHeadCommitReceipt,
 )
 from aware_meta.graph.instance.commit.materializer import OIGMaterializer
+from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
 from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
@@ -212,7 +214,7 @@ class SharedMaterializationCache:
     ) -> tuple[MaterializedLaneSnapshot, bool]:
         cached_snapshot = self.get(cache_key=cache_key)
         if cached_snapshot is not _CACHE_MISS:
-            return cached_snapshot, True
+            return cast(MaterializedLaneSnapshot, cached_snapshot), True
 
         loaded_snapshot = await loader()
         self.store(cache_key=cache_key, snapshot=loaded_snapshot)
@@ -263,8 +265,8 @@ class CachedLaneMaterializer:
         opg: ObjectProjectionGraph,
         commit_id: UUID | None,
         oig_id: UUID | None = None,
-        attribute_configs_by_id: dict[UUID, AttributeConfig] | None = None,
-        class_configs_by_id: dict[UUID, ClassConfig] | None = None,
+        attribute_configs_by_id: Mapping[UUID, AttributeConfig] | None = None,
+        class_configs_by_id: Mapping[UUID, ClassConfig] | None = None,
         timings: Any | None = None,
     ) -> MaterializedLaneSnapshot:
         cache_key = MaterializationCacheKey(
@@ -286,29 +288,98 @@ class CachedLaneMaterializer:
                 timings=timings,
             )
 
-        snapshot, _cache_hit = await self._cache.get_or_load(
-            cache_key=cache_key,
-            loader=_load,
-        )
+        trace_metadata = {
+            "branch_id": str(branch_id),
+            "projection_hash": opg.projection_hash,
+            "commit_id": str(commit_id) if commit_id is not None else None,
+            "object_instance_graph_id": str(oig_id) if oig_id is not None else None,
+        }
+        with commit_perf_span(
+            phase="oig_materialization_cache.get",
+            category="meta.oig.materialization_cache",
+            metadata=trace_metadata,
+        ):
+            snapshot, cache_hit = await self._cache.get_or_load(
+                cache_key=cache_key,
+                loader=_load,
+            )
+        with commit_perf_span(
+            phase=(
+                "oig_materialization_cache.hit"
+                if cache_hit
+                else "oig_materialization_cache.miss"
+            ),
+            category="meta.oig.materialization_cache",
+            metadata=trace_metadata,
+        ):
+            pass
         return snapshot
+
+    def prime(
+        self,
+        *,
+        branch_id: UUID,
+        opg: ObjectProjectionGraph,
+        commit_id: UUID | None,
+        oig_id: UUID | None = None,
+        graph: ObjectInstanceGraph,
+        indexes: dict[str, Any] | None = None,
+    ) -> None:
+        """Prime the shared materialization cache with a just-derived graph.
+
+        This is derived cache state only; lane HEAD watchers still invalidate
+        prior entries whenever truth advances through the commit store.
+        """
+        cache_key = MaterializationCacheKey(
+            branch_id=branch_id,
+            projection_hash=opg.projection_hash,
+            commit_id=commit_id,
+            object_instance_graph_id=oig_id,
+        )
+        trace_metadata = {
+            "branch_id": str(branch_id),
+            "projection_hash": opg.projection_hash,
+            "commit_id": str(commit_id) if commit_id is not None else None,
+            "object_instance_graph_id": str(oig_id) if oig_id is not None else None,
+            "indexes_source": "provided" if indexes is not None else "built",
+        }
+        with commit_perf_span(
+            phase="oig_materialization_cache.prime.build_indexes",
+            category="meta.oig.materialization_cache",
+            metadata=trace_metadata,
+        ):
+            snapshot_indexes = (
+                indexes
+                if indexes is not None
+                else self._materializer.indexes_from_graph(graph)
+            )
+        with commit_perf_span(
+            phase="oig_materialization_cache.prime.store",
+            category="meta.oig.materialization_cache",
+            metadata=trace_metadata,
+        ):
+            self._cache.store(
+                cache_key=cache_key,
+                snapshot=(graph, snapshot_indexes),
+            )
 
     def snapshot_cache_metrics(self) -> dict[str, int]:
         return self._cache.snapshot_cache_metrics()
 
 
-_SHARED_MATERIALIZATION_CACHE: SharedMaterializationCache | None = None
-_SHARED_MATERIALIZATION_CACHE_LOCK = Lock()
+_shared_materialization_cache: SharedMaterializationCache | None = None
+_shared_materialization_cache_lock = Lock()
 
 
 def get_shared_materialization_cache() -> SharedMaterializationCache:
-    global _SHARED_MATERIALIZATION_CACHE
-    if _SHARED_MATERIALIZATION_CACHE is not None:
-        return _SHARED_MATERIALIZATION_CACHE
+    global _shared_materialization_cache
+    if _shared_materialization_cache is not None:
+        return _shared_materialization_cache
 
-    with _SHARED_MATERIALIZATION_CACHE_LOCK:
-        if _SHARED_MATERIALIZATION_CACHE is None:
-            _SHARED_MATERIALIZATION_CACHE = SharedMaterializationCache()
-        return _SHARED_MATERIALIZATION_CACHE
+    with _shared_materialization_cache_lock:
+        if _shared_materialization_cache is None:
+            _shared_materialization_cache = SharedMaterializationCache()
+        return _shared_materialization_cache
 
 
 _CACHE_MISS = object()

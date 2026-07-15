@@ -1,0 +1,22 @@
+[project]
+name = "aware_content_service_api"
+version = "0.1.0"
+description = "Public API boundary for resolving Content into renderer and publisher safe text documents."
+authors = [{ name = "Aware Automations" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aware_content_service_dto",
+    "aware-api-client",
+    "aware-types",
+    "aware-utils",
+    "pydantic>=2.13.4,<3.0.0"
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_content_service_api"]
+include = ["README.md", "aware_content_service_api/py.typed"]

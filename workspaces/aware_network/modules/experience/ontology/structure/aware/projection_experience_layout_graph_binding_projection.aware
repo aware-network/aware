@@ -1,0 +1,19 @@
+/// ProjectionExperienceLayoutGraphBinding projection.
+///
+/// Contract:
+/// - ProjectionExperience-scoped layout composition descriptor.
+/// - Reached canonically from ProjectionExperience through a parent->child portal.
+/// - Owns one Attention layout portal and child portals to Experience-owned
+///   section graph bindings.
+projection ProjectionExperienceLayoutGraphBinding {
+    root projection.ProjectionExperienceLayoutGraphBinding
+    projection.ProjectionExperienceLayoutGraphBinding::layout_config aware_attention.LayoutConfig
+    projection.ProjectionExperienceLayoutGraphBinding::layout_section_graph_bindings
+    projection.ProjectionExperienceLayoutSectionGraphBinding::section_graph_binding ProjectionExperienceSectionGraphBinding
+
+    observable projection_experience_layout_graph_binding {
+        """
+        ProjectionExperience-owned layout portal and grouped section graph binding targets.
+        """
+    }
+}

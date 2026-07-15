@@ -1,0 +1,21 @@
+// FocusScope projection (v0)
+//
+// Contract:
+// - FocusScope is a scope over a Focus (cross-projection portal).
+// - FocusScopeRequest is a request to a FocusScope related to a FocusScopeRequestResponse.
+
+projection FocusScope {
+    root focus.FocusScope
+    focus.FocusScope::requests
+    focus.FocusScopeRequest::response
+    focus.FocusScopeRequest::focus Focus
+    focus.FocusScope::commits
+    focus.FocusScopeCommit::focus Focus
+    focus.FocusScopeCommit::object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+
+    /// Cross-projection portal edge to Focus
+    focus.FocusScope::focus Focus
+
+    /// Cross-projection portal edge to ObjectProjectionGraphObservable (meta)
+    focus.FocusScope::observable aware_meta.ObjectProjectionGraphIdentity
+}

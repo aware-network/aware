@@ -1,0 +1,109 @@
+/// Polymorphic instruction for program impl construction.
+class ProgramImplInstruction {
+    // Relationships (one-way polymorphism ownership)
+    instruction_input ProgramImplInstructionInput? unique
+    instruction_let ProgramImplInstructionLet? unique
+    instruction_bind ProgramImplInstructionBind? unique
+    instruction_invoke ProgramImplInstructionInvoke? unique
+    instruction_expect ProgramImplInstructionExpect? unique
+    instruction_intent ProgramImplInstructionIntent? unique
+
+    // Attributes
+    type ProgramImplInstructionType
+    sequence Int key
+
+    fn create_input construct (
+        sequence Int key,
+        program_config_input_config_id UUID
+    ) -> ProgramImplInstruction {
+        """
+        Create one `input` ProgramImplInstruction with its typed payload.
+        """
+        let created = construct instruction_input.build(
+            program_config_input_config_id = program_config_input_config_id,
+        )
+    }
+
+    fn create_let construct (
+        sequence Int key,
+        name String,
+        value_expr JsonObject
+    ) -> ProgramImplInstruction {
+        """
+        Create one `let` ProgramImplInstruction with its typed payload.
+        """
+        let created = construct instruction_let.build(
+            name = name,
+            value_expr = value_expr,
+        )
+    }
+
+    fn create_bind construct (
+        sequence Int key,
+        program_config_port_id UUID,
+        view_key String,
+        is_active Bool = true
+    ) -> ProgramImplInstruction {
+        """
+        Create one `bind` ProgramImplInstruction with its typed payload.
+        """
+        let created = construct instruction_bind.build(
+            program_config_port_id = program_config_port_id,
+            view_key = view_key,
+            is_active = is_active,
+        )
+    }
+
+    fn create_invoke construct (
+        sequence Int key,
+        function_config_id UUID,
+        program_config_actor_config_id UUID,
+        program_config_port_projection_experience_node_id UUID,
+        target_kind ProgramImplInvokeTargetKind = instance
+    ) -> ProgramImplInstruction {
+        """
+        Create one `invoke` ProgramImplInstruction with its typed payload.
+        """
+        let created = construct instruction_invoke.build(
+            function_config_id = function_config_id,
+            program_config_actor_config_id = program_config_actor_config_id,
+            program_config_port_projection_experience_node_id = program_config_port_projection_experience_node_id,
+            target_kind = target_kind,
+        )
+    }
+
+    fn create_expect construct (
+        sequence Int key,
+        event_config_id UUID,
+        required Bool = true
+    ) -> ProgramImplInstruction {
+        """
+        Create one `expect` ProgramImplInstruction with its typed payload.
+        """
+        let created = construct instruction_expect.build(
+            event_config_id = event_config_id,
+            required = required,
+        )
+    }
+
+    fn create_intent construct (
+        sequence Int key,
+        action_config_id UUID,
+        event_config_id UUID
+    ) -> ProgramImplInstruction {
+        """
+        Create one `intent` ProgramImplInstruction with its typed payload.
+        """
+        let created = construct instruction_intent.build(
+            action_config_id = action_config_id,
+            event_config_id = event_config_id,
+        )
+    }
+}
+
+ann program.impl.ProgramImplInstruction::instruction_input load eager
+ann program.impl.ProgramImplInstruction::instruction_let load eager
+ann program.impl.ProgramImplInstruction::instruction_bind load eager
+ann program.impl.ProgramImplInstruction::instruction_invoke load eager
+ann program.impl.ProgramImplInstruction::instruction_expect load eager
+ann program.impl.ProgramImplInstruction::instruction_intent load eager

@@ -1,0 +1,37 @@
+/// Declared request-field composition for one action invocation binding.
+///
+/// Contract:
+/// - Parent scope is `ActionExperienceInvocation::request_fields`.
+/// - The target request field is relational: `attribute_config` points to the
+///   endpoint request ClassConfig attribute, not a string field name.
+/// - `source_ref` is the closed Experience dispatch-context vocabulary:
+///   `event.*`, `commit.*`, `intent.*`, `execution.*`, `api_call.key`,
+///   `binding.*`, `binding.node.<alias>.class_instance_identity_id`,
+///   `binding.node.<alias>.class_config_id`, `actor.id`, and
+///   `subscription.id`.
+/// - The composer is a pure projection of dispatch context into the endpoint
+///   request payload. It must not read graph state, call services, or evaluate
+///   arbitrary expressions.
+class ActionExperienceInvocationRequestField {
+    // Relationships
+    attribute_config aware_meta.attribute.AttributeConfig key
+
+    // Attributes
+    source_ref String
+    required Bool = true
+    position Int? = null
+
+    fn build construct (
+        attribute_config_id UUID key,
+        source_ref String,
+        required Bool = true,
+        position Int? = null
+    ) -> ActionExperienceInvocationRequestField {
+        """
+        Create deterministic request-field composition under one action
+        invocation binding.
+        """
+    }
+}
+
+ann action.ActionExperienceInvocationRequestField::attribute_config load eager

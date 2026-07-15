@@ -1,0 +1,22 @@
+/// Identity SessionConfig projection.
+///
+/// Contract:
+/// - SessionConfig is generic actor-session policy vocabulary.
+/// - Session instances are resolved through the Session projection portal.
+/// - This OPG does not duplicate Session membership/provider internals.
+/// - ActorConfig targets are portals to the ActorConfig projection.
+projection SessionConfig {
+    root session.SessionConfig
+
+    session.SessionConfig::actor_configs
+    session.SessionConfigActorConfig::actor_config ActorConfig
+
+    session.SessionConfig::sessions Session
+
+    observable session_config {
+        """
+        Identity-owned session participation policy with eligible ActorConfig
+        archetypes and a portal to concrete Session instances.
+        """
+    }
+}

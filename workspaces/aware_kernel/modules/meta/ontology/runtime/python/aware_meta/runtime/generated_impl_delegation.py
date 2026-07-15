@@ -146,7 +146,13 @@ class _MetaGraphImplDelegatingInvocationHandler:
             keyword=keyword,
             is_constructor=self.descriptor.is_constructor,
         )
-        result = self.impl(**coerce_meta_handler_call_kwargs(self.impl, call_kwargs))
+        result = self.impl(
+            **_coerce_impl_call_kwargs(
+                impl=self.impl,
+                call_kwargs=call_kwargs,
+                is_constructor=self.descriptor.is_constructor,
+            )
+        )
         if isawaitable(result):
             return await cast(Awaitable[object], result)
         return result
@@ -183,7 +189,13 @@ class _MetaGraphImplDelegatingLanguageHandler:
             keyword=keyword,
             is_constructor=self.descriptor.is_constructor,
         )
-        result = self.impl(**coerce_meta_handler_call_kwargs(self.impl, call_kwargs))
+        result = self.impl(
+            **_coerce_impl_call_kwargs(
+                impl=self.impl,
+                call_kwargs=call_kwargs,
+                is_constructor=self.descriptor.is_constructor,
+            )
+        )
         if isawaitable(result):
             result = await cast(Awaitable[object], result)
 
@@ -210,7 +222,13 @@ class _MetaGraphImplDelegatingLanguageHandler:
             keyword=keyword,
             is_constructor=True,
         )
-        result = self.impl(**coerce_meta_handler_call_kwargs(self.impl, call_kwargs))
+        result = self.impl(
+            **_coerce_impl_call_kwargs(
+                impl=self.impl,
+                call_kwargs=call_kwargs,
+                is_constructor=self.descriptor.is_constructor,
+            )
+        )
         if isawaitable(result):
             result = await cast(Awaitable[object], result)
         if not isinstance(result, ORMModel):
@@ -272,6 +290,35 @@ def _bind_impl_call_kwargs(
             )
         bound[field_name] = value
     return bound
+
+
+def _coerce_impl_call_kwargs(
+    *,
+    impl: Callable[..., object],
+    call_kwargs: dict[str, object],
+    is_constructor: bool,
+) -> dict[str, object]:
+    return coerce_meta_handler_call_kwargs(
+        impl,
+        call_kwargs,
+        trusted_parameter_names=_trusted_impl_target_parameter_names(
+            impl=impl,
+            is_constructor=is_constructor,
+        ),
+    )
+
+
+def _trusted_impl_target_parameter_names(
+    *,
+    impl: Callable[..., object],
+    is_constructor: bool,
+) -> frozenset[str]:
+    if is_constructor:
+        return frozenset()
+    parameters = _impl_call_parameters(impl)
+    if not parameters:
+        return frozenset()
+    return frozenset({parameters[0]})
 
 
 def _impl_call_parameters(impl: Callable[..., object]) -> tuple[str, ...]:
@@ -366,7 +413,11 @@ def _root_and_target_models_from_pre_state(
         ),
     )
     target_orm_class = _owner_orm_class(descriptor)
-    if not isinstance(target, target_orm_class):
+    if not _model_matches_owner_class(
+        model=target,
+        owner_class=target_orm_class,
+        owner_class_config=descriptor.owner_class_config,
+    ):
         raise MetaGraphLanguageHandlerExecutionError(
             "Impl-delegated Meta instance handler cannot resolve target model "
             "in the rooted projection model: "
@@ -460,6 +511,22 @@ def _owner_orm_class(
             f"class_name={owner_class_config.name}"
         )
     return cast(type[ORMModel], orm_class)
+
+
+def _model_matches_owner_class(
+    *,
+    model: ORMModel | None,
+    owner_class: type[ORMModel],
+    owner_class_config: ClassConfig | None,
+) -> bool:
+    if model is None:
+        return False
+    if isinstance(model, owner_class):
+        return True
+    if not isinstance(owner_class_config, ClassConfig):
+        return False
+    model_class_config = type(model).get_class_config()
+    return getattr(model_class_config, "id", None) == owner_class_config.id
 
 
 def _find_orm_model_by_id(root_model: ORMModel, object_id: object) -> ORMModel | None:

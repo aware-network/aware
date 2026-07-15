@@ -1,0 +1,38 @@
+class ActorSubscriptionEvent {
+    // Relationships
+    //
+    // Parent ActorSubscription is conveyed by containment traversal
+    // (ActorSubscription::actor_subscription_events). The parent-id is not
+    // declared as a constructor input — propagation flows through the
+    // invocation path per docs/grammar/STABLE_IDS.md.
+    event_config_condition_config_scope_event aware_reactivity.event.EventConfigConditionConfigScopeEvent key
+
+    // Attributes
+    reason String? = null
+    status SubscriptionActivationStatus = ready
+
+    fn build construct(
+        event_config_condition_config_scope_event_id UUID key,
+        status SubscriptionActivationStatus = ready,
+        reason String? = null
+    ) -> ActorSubscriptionEvent {
+        """
+        Record activation lifecycle state for one ActorSubscription against one scope-level event.
+
+        Contract:
+        - Parent ActorSubscription identity is propagated by constructor lowering
+          via the containment path `ActorSubscription::actor_subscription_events`.
+        - The child ClassInstance stable id must resolve from
+          `(actor_subscription_id via path, event_config_condition_config_scope_event_id)`.
+        """
+    }
+
+    fn set_status(
+        status SubscriptionActivationStatus,
+        reason String? = null
+    ) -> ActorSubscriptionEvent {
+        """
+        Update activation lifecycle state on an existing ActorSubscriptionEvent record.
+        """
+    }
+}

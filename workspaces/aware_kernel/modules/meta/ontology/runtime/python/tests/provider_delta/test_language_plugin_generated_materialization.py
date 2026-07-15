@@ -1,38 +1,45 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from hashlib import sha256
-from typing import cast
+from types import SimpleNamespace
+from typing import Any, cast
 
 from aware_code_ontology.code.code_enums import CodeLanguage
-from aware_meta.attribute.config.deltas.generated_materialization import (
-    MetaPythonOrmGeneratedMaterializationContext,
-    python_orm_generated_materialization_delta_from_attribute_config_typed_operation,
-)
-from aware_meta.class_.config.deltas.generated_materialization import (
-    MetaPythonOrmClassGeneratedMaterializationContext,
-    python_orm_generated_materialization_delta_from_class_config_typed_operation,
-)
-from aware_meta.class_.config.relationship.deltas.generated_materialization import (
-    MetaPythonOrmRelationshipGeneratedMaterializationContext,
-    python_orm_generated_materialization_delta_from_relationship_config_typed_operation,
-)
-from aware_meta.enum.config.deltas.generated_materialization import (
+from aware_file_system.config import FilterConfig
+from python_grammar.renderer_delta_orm_enum import (
     MetaPythonOrmEnumGeneratedMaterializationContext,
     python_orm_generated_materialization_delta_from_enum_config_typed_operation,
 )
-from aware_meta.function.config.deltas.generated_materialization import (
+from python_grammar.renderer_delta_orm_function import (
     MetaPythonOrmFunctionGeneratedMaterializationContext,
     python_orm_generated_materialization_delta_from_function_config_typed_operation,
 )
 from aware_meta.language_plugin_registry import MetaLanguagePluginRegistry
+from aware_meta.language_plugin import MetaLanguagePlugin
 from aware_meta.materialization.deltas.code_dto import (
     CodeGrammarAnchorRenderTargetKind,
+    CodeGeneratedMaterializationDeltaEntry,
     CodeGeneratedMaterializationDeltaMode,
+    CodeGeneratedMaterializationDeltaRequest,
+    CodeGeneratedMaterializationDeltaResult,
+    CodeGeneratedMaterializationEventRef,
+    CodeGeneratedMaterializationTargetRef,
+    CodeGeneratedRendererDeltaOperation,
     CodeGeneratedRendererDeltaOperationKind,
+)
+from aware_meta.materialization.deltas.feature_contracts import (
+    MetaProviderDeltaGeneratedMaterializationContext,
+)
+from aware_meta.materialization.deltas.feature_registry import (
+    generated_materialization_feature_results_from_typed_operation,
 )
 from aware_meta.materialization.deltas.language_renderer_contracts import (
     MetaLanguageGeneratedMaterializationDeltaContext,
+    MetaLanguageGeneratedMaterializationDeltaRenderer,
     MetaLanguageGeneratedMaterializationDeltaRenderRequest,
+    MetaLanguageGeneratedMaterializationDeltaRenderResult,
+    MetaLanguageGeneratedMaterializationTargetHint,
 )
 from aware_meta.materialization.deltas.typed_operation_contracts import (
     MetaProviderDeltaTypedOperation,
@@ -40,7 +47,57 @@ from aware_meta.materialization.deltas.typed_operation_contracts import (
 from python_grammar.meta_language_plugin import PYTHON_META_PLUGIN
 from python_grammar.renderer_delta_orm_runtime import (
     PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME,
+    PythonOrmRuntimeGeneratedDeltaRenderer,
 )
+
+
+@dataclass(frozen=True, slots=True)
+class _PythonOrmGeneratedMaterializationContext:
+    package_name: str | None = None
+    package_root: str | None = None
+    sources_root: str | None = None
+    target_language: str | None = "python"
+    renderer_profile: str | None = None
+    materialization_source: str | None = None
+    product_intent: str | None = None
+    artifact_family: str | None = None
+    artifact_role: str | None = None
+    relative_path_by_owner_key: dict[str, str] | None = None
+
+
+def _render_python_orm_generated_delta(
+    operation: MetaProviderDeltaTypedOperation,
+    *,
+    context: _PythonOrmGeneratedMaterializationContext | None = None,
+) -> MetaLanguageGeneratedMaterializationDeltaRenderResult:
+    resolved_context = context or _PythonOrmGeneratedMaterializationContext()
+    return (
+        PythonOrmRuntimeGeneratedDeltaRenderer().render_generated_materialization_delta(
+            MetaLanguageGeneratedMaterializationDeltaRenderRequest(
+                operation=operation,
+                context=MetaLanguageGeneratedMaterializationDeltaContext(
+                    package_name=resolved_context.package_name,
+                    package_root=resolved_context.package_root,
+                    sources_root=resolved_context.sources_root,
+                    target_language=resolved_context.target_language,
+                    renderer_profile=resolved_context.renderer_profile,
+                    materialization_source=resolved_context.materialization_source,
+                    product_intent=resolved_context.product_intent,
+                    artifact_family=resolved_context.artifact_family,
+                    artifact_role=resolved_context.artifact_role,
+                    target_hints=tuple(
+                        MetaLanguageGeneratedMaterializationTargetHint(
+                            owner_key=owner_key,
+                            relative_path=relative_path,
+                        )
+                        for owner_key, relative_path in (
+                            resolved_context.relative_path_by_owner_key or {}
+                        ).items()
+                    ),
+                ),
+            )
+        )
+    )
 
 
 def test_python_plugin_exposes_orm_runtime_generated_delta_renderer() -> None:
@@ -98,32 +155,494 @@ def test_python_plugin_orm_runtime_supports_all_migrated_generated_delta_familie
             subject_kind,
             operation_family,
         )
-        supported_routes.add((operation.ontology_subject_kind, operation.operation_family))
+        supported_routes.add(
+            (operation.ontology_subject_kind, operation.operation_family)
+        )
 
     assert supported_routes == expected_routes
+
+
+def test_explicit_sql_generated_delta_routes_through_registered_language_plugin(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        MetaLanguagePluginRegistry,
+        "_plugins",
+        {CodeLanguage.sql: _FAKE_SQL_META_PLUGIN},
+    )
+    monkeypatch.setattr(
+        MetaLanguagePluginRegistry,
+        "_supported_languages",
+        {CodeLanguage.sql},
+    )
+    operation = _typed_operation(_sql_plugin_support_operation())
+
+    results = generated_materialization_feature_results_from_typed_operation(
+        operation=operation,
+        context=MetaProviderDeltaGeneratedMaterializationContext(
+            package_name="content-ontology-sql",
+            package_root="/tmp/content-ontology-sql",
+            sources_root="sql",
+            target_language="sql",
+        ),
+    )
+
+    assert len(results) == 1
+    result = results[0]
+    assert result.status == "generated_materialization_projected"
+    assert result.reason == "meta_generated_materialization_language_plugin_rendered"
+    assert result.delta_request is not None
+    assert result.delta_request.targets[0].target_language == "sql"
+    assert result.delta_request.targets[0].relative_path == "schema/from_hint.sql"
+    assert result.result is not None
+    assert (
+        result.result.mode is CodeGeneratedMaterializationDeltaMode.fallback_full_render
+    )
+    assert result.renderer_operation_count == 1
+    operation = result.result.entries[0].renderer_operations[0]
+    assert operation.renderer_key == "fake.sql.class"
+    assert operation.content_text == "-- fake sql delta\n"
+
+
+def test_class_provider_generated_materialization_builder_is_dispatch_shell(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        MetaLanguagePluginRegistry,
+        "_plugins",
+        {CodeLanguage.sql: _FAKE_SQL_META_PLUGIN},
+    )
+    monkeypatch.setattr(
+        MetaLanguagePluginRegistry,
+        "_supported_languages",
+        {CodeLanguage.sql},
+    )
+    operation = _typed_operation(_sql_plugin_support_operation())
+
+    results = generated_materialization_feature_results_from_typed_operation(
+        operation=operation,
+        context=MetaProviderDeltaGeneratedMaterializationContext(
+            package_name="content-ontology-sql",
+            package_root="/tmp/content-ontology-sql",
+            sources_root="sql",
+            target_language="sql",
+        ),
+    )
+
+    assert len(results) == 1
+    result = results[0]
+    assert result.status == "generated_materialization_projected"
+    assert result.reason == "meta_generated_materialization_language_plugin_rendered"
+    assert result.delta_request is not None
+    assert result.delta_request.targets[0].relative_path == "schema/from_hint.sql"
+
+
+def test_enum_provider_python_target_dispatches_through_language_plugin(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    _register_python_plugin(monkeypatch)
+    generated_source_root = tmp_path / "aware_content_ontology" / "content"
+    generated_source_root.mkdir(parents=True)
+    generated_source_path = generated_source_root / "content_enums.py"
+    generated_source_path.write_text(
+        "from enum import Enum\n\n" "class ContentKind(Enum):\n" '    text = "text"\n',
+        encoding="utf-8",
+    )
+
+    [result] = generated_materialization_feature_results_from_typed_operation(
+        operation=_typed_operation(_enum_create_operation()),
+        context=MetaProviderDeltaGeneratedMaterializationContext(
+            package_name="content-ontology",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_content_ontology",
+            target_language="python",
+        ),
+    )
+
+    assert result.status == "generated_materialization_projected"
+    assert result.reason == "meta_generated_materialization_language_plugin_rendered"
+    assert result.delta_request is not None
+    assert result.delta_request.metadata is not None
+    assert (
+        result.delta_request.metadata["language_plugin_delta_renderer"]
+        == PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
+    )
+    assert result.result is not None
+    assert (
+        result.result.mode
+        is CodeGeneratedMaterializationDeltaMode.grammar_anchor_render_ready
+    )
+    assert result.result.metadata is not None
+    assert (
+        result.result.metadata["language_plugin_delta_renderer"]
+        == PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
+    )
+    entry = result.result.entries[0]
+    assert entry.grammar_anchor_render_delta is not None
+    assert entry.relative_path == "aware_content_ontology/content/content_enums.py"
+    assert entry.grammar_anchor_render_delta.replacements[
+        0
+    ].span_target.before_source_hash == _digest(
+        generated_source_path.read_text(encoding="utf-8")
+    )
+
+
+def test_function_provider_python_target_dispatches_through_language_plugin(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    _register_python_plugin(monkeypatch)
+    generated_source_root = tmp_path / "aware_home_ontology" / "home"
+    generated_source_root.mkdir(parents=True)
+    generated_source_path = generated_source_root / "remote_control.py"
+    generated_source_path.write_text(
+        "class RemoteControl:\n"
+        "    def set_channel(self, channel: int) -> None:\n"
+        '        payload = {"channel": channel}\n'
+        "        raise NotImplementedError\n"
+        "\n"
+        "\n"
+        "class RemoteControlSetChannelInput:\n"
+        "    channel: int\n",
+        encoding="utf-8",
+    )
+
+    [result] = generated_materialization_feature_results_from_typed_operation(
+        operation=_typed_operation(_function_signature_operation()),
+        context=MetaProviderDeltaGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_home_ontology",
+            target_language="python",
+        ),
+    )
+
+    assert result.status == "generated_materialization_projected"
+    assert result.reason == "meta_generated_materialization_language_plugin_rendered"
+    assert result.delta_request is not None
+    assert result.delta_request.metadata is not None
+    assert (
+        result.delta_request.metadata["language_plugin_delta_renderer"]
+        == PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
+    )
+    assert result.result is not None
+    assert (
+        result.result.mode
+        is CodeGeneratedMaterializationDeltaMode.grammar_anchor_render_ready
+    )
+    assert result.result.metadata is not None
+    assert (
+        result.result.metadata["language_plugin_delta_renderer"]
+        == PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
+    )
+    entry = result.result.entries[0]
+    assert entry.grammar_anchor_render_delta is not None
+    assert entry.grammar_anchor_render_delta.sources[0].before_hash == _digest(
+        generated_source_path.read_text(encoding="utf-8")
+    )
+
+
+def test_plugin_target_dispatches_through_target_language_plugin_id(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    _register_python_plugin(monkeypatch)
+    generated_source_root = tmp_path / "aware_home_ontology" / "home"
+    generated_source_root.mkdir(parents=True)
+    generated_source_path = generated_source_root / "remote_control.py"
+    generated_source_path.write_text(
+        "class RemoteControl:\n"
+        "    def set_channel(self, channel: int) -> None:\n"
+        '        payload = {"channel": channel}\n'
+        "        raise NotImplementedError\n"
+        "\n"
+        "\n"
+        "class RemoteControlSetChannelInput:\n"
+        "    channel: int\n",
+        encoding="utf-8",
+    )
+
+    [result] = generated_materialization_feature_results_from_typed_operation(
+        operation=_typed_operation(_function_signature_operation()),
+        context=MetaProviderDeltaGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_home_ontology",
+            target_language="plugin",
+            target_language_plugin_id="python",
+        ),
+    )
+
+    assert result.status == "generated_materialization_projected"
+    assert result.reason == "meta_generated_materialization_language_plugin_rendered"
+    assert result.delta_request is not None
+    assert result.delta_request.targets[0].target_language == "python"
+    assert result.delta_request.metadata is not None
+    assert (
+        result.delta_request.metadata["language_plugin_delta_renderer"]
+        == PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
+    )
+    assert result.result is not None
+    assert (
+        result.result.mode
+        is CodeGeneratedMaterializationDeltaMode.grammar_anchor_render_ready
+    )
+    entry = result.result.entries[0]
+    assert entry.grammar_anchor_render_delta is not None
+    assert entry.grammar_anchor_render_delta.sources[0].before_hash == _digest(
+        generated_source_path.read_text(encoding="utf-8")
+    )
+
+
+def test_attribute_provider_python_target_dispatches_through_language_plugin(
+    monkeypatch,
+) -> None:
+    _register_python_plugin(monkeypatch)
+
+    [result] = generated_materialization_feature_results_from_typed_operation(
+        operation=_typed_operation(_attribute_type_operation()),
+        context=MetaProviderDeltaGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root="modules/home/structure/ontology/python",
+            sources_root="aware_home_ontology",
+            target_language="python",
+        ),
+    )
+
+    assert result.status == "generated_materialization_projected"
+    assert result.reason == "meta_generated_materialization_language_plugin_rendered"
+    assert result.delta_request is not None
+    assert result.delta_request.metadata is not None
+    assert (
+        result.delta_request.metadata["language_plugin_delta_renderer"]
+        == PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
+    )
+    assert result.result is not None
+    assert (
+        result.result.mode is CodeGeneratedMaterializationDeltaMode.section_delta_ready
+    )
+    assert result.result.metadata is not None
+    assert (
+        result.result.metadata["language_plugin_delta_renderer"]
+        == PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
+    )
+
+
+def test_class_provider_python_target_dispatches_through_language_plugin(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    _register_python_plugin(monkeypatch)
+    generated_source_root = tmp_path / "aware_home_ontology" / "home"
+    generated_source_root.mkdir(parents=True)
+    generated_source_path = generated_source_root / "tv_channel.py"
+    generated_source_path.write_text(
+        "from aware_orm.models.orm_model import ORMModel\n\n\n"
+        "class TvChannel(ORMModel):\n"
+        "    name: str\n",
+        encoding="utf-8",
+    )
+
+    [result] = generated_materialization_feature_results_from_typed_operation(
+        operation=_typed_operation(_class_create_operation()),
+        context=MetaProviderDeltaGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_home_ontology",
+            target_language="python",
+        ),
+    )
+
+    assert result.status == "generated_materialization_projected"
+    assert result.reason == "meta_generated_materialization_language_plugin_rendered"
+    assert result.delta_request is not None
+    assert result.delta_request.metadata is not None
+    assert (
+        result.delta_request.metadata["language_plugin_delta_renderer"]
+        == PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
+    )
+    assert result.result is not None
+    assert (
+        result.result.mode
+        is CodeGeneratedMaterializationDeltaMode.grammar_anchor_render_ready
+    )
+    entry = result.result.entries[0]
+    assert entry.grammar_anchor_render_delta is not None
+    assert entry.grammar_anchor_render_delta.replacements[
+        0
+    ].span_target.before_source_hash == _digest(
+        generated_source_path.read_text(encoding="utf-8")
+    )
+
+
+def test_relationship_provider_python_target_dispatches_through_language_plugin(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    _register_python_plugin(monkeypatch)
+    generated_source_root = tmp_path / "aware_home_ontology" / "home"
+    generated_source_root.mkdir(parents=True)
+    generated_source_path = generated_source_root / "tv_channel.py"
+    generated_source_path.write_text(
+        "from __future__ import annotations\n"
+        "\n"
+        "from uuid import UUID\n"
+        "\n"
+        "from pydantic import Field\n"
+        "\n"
+        "class TvChannel:\n"
+        "    channel_number: str\n"
+        "\n"
+        "\n"
+        "class RemoteControl:\n"
+        "    selected_channel: TvChannel | None = Field(default=None, exclude=True)\n"
+        '    selected_channel_id: UUID = Field(description="Foreign key for RemoteControl.selected_channel")\n',
+        encoding="utf-8",
+    )
+
+    [result] = generated_materialization_feature_results_from_typed_operation(
+        operation=_typed_operation(_relationship_load_policy_operation()),
+        context=MetaProviderDeltaGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_home_ontology",
+            target_language="python",
+        ),
+    )
+
+    assert result.status == "generated_materialization_projected"
+    assert result.reason == "meta_generated_materialization_language_plugin_rendered"
+    assert result.delta_request is not None
+    assert result.delta_request.metadata is not None
+    assert (
+        result.delta_request.metadata["language_plugin_delta_renderer"]
+        == PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
+    )
+    assert result.result is not None
+    assert (
+        result.result.mode
+        is CodeGeneratedMaterializationDeltaMode.grammar_anchor_render_ready
+    )
+    entry = result.result.entries[0]
+    assert entry.grammar_anchor_render_delta is not None
+    assert entry.grammar_anchor_render_delta.replacements[
+        0
+    ].span_target.before_source_hash == _digest(
+        generated_source_path.read_text(encoding="utf-8")
+    )
+
+
+def test_enum_provider_generated_materialization_requires_target_language() -> None:
+    [result] = generated_materialization_feature_results_from_typed_operation(
+        operation=_typed_operation(_enum_create_operation()),
+        context=MetaProviderDeltaGeneratedMaterializationContext(
+            package_name="content-ontology",
+            package_root="/tmp/content-ontology",
+            sources_root="aware_content_ontology",
+        ),
+    )
+
+    assert result.status == "generated_materialization_blocked"
+    assert result.reason == "meta_generated_materialization_target_language_required"
+    assert result.required_evidence_fields == ("target_language",)
+    assert result.missing_evidence_fields == ("target_language",)
+    assert result.delta_request is None
+    assert result.result is None
+
+
+def test_core_providers_generated_materialization_require_target_language() -> None:
+    operations = (
+        _attribute_type_operation(),
+        _class_create_operation(),
+        _relationship_load_policy_operation(),
+    )
+
+    for payload in operations:
+        [result] = generated_materialization_feature_results_from_typed_operation(
+            operation=_typed_operation(payload),
+            context=MetaProviderDeltaGeneratedMaterializationContext(
+                package_name="aware-home-ontology-python",
+                package_root="/tmp/aware-home-ontology-python",
+                sources_root="aware_home_ontology",
+            ),
+        )
+
+        assert result.status == "generated_materialization_blocked"
+        assert (
+            result.reason == "meta_generated_materialization_target_language_required"
+        )
+        assert result.required_evidence_fields == ("target_language",)
+        assert result.missing_evidence_fields == ("target_language",)
+        assert result.delta_request is None
+        assert result.result is None
+
+
+def test_python_orm_generated_delta_uses_neutral_target_hint_without_legacy_payload() -> (
+    None
+):
+    payload = _attribute_type_operation()
+    payload["source_refs"] = ()
+    request = MetaLanguageGeneratedMaterializationDeltaRenderRequest(
+        operation=_typed_operation(payload),
+        context=MetaLanguageGeneratedMaterializationDeltaContext(
+            package_name="aware-home-ontology-python",
+            package_root="modules/home/structure/ontology/python",
+            sources_root="aware_home_ontology",
+            target_language="python",
+            renderer_profile="orm_runtime",
+            materialization_source="ontology_orm_models",
+            product_intent="orm_runtime",
+            artifact_family="ocg_language_materialization",
+            artifact_role="python_orm_model",
+            target_hints=(
+                MetaLanguageGeneratedMaterializationTargetHint(
+                    descriptor_key="orm_runtime",
+                    capability_key="orm_runtime",
+                    target_language="python",
+                    renderer_profile="orm_runtime",
+                    materialization_source="ontology_orm_models",
+                    product_intent="orm_runtime",
+                    owner_key="aware_demo.default.home.TvChannel",
+                    relative_path="aware_home_ontology/home/tv_channel_from_hint.py",
+                ),
+            ),
+        ),
+        renderer_profile="orm_runtime",
+        materialization_source="ontology_orm_models",
+    )
+
+    result = PYTHON_META_PLUGIN.render_generated_materialization_delta(request)
+
+    assert result.handled is True
+    assert result.delta_request is not None
+    assert result.delta_request.targets[0].relative_path == (
+        "aware_home_ontology/home/tv_channel_from_hint.py"
+    )
 
 
 def test_attribute_type_generated_delta_routes_through_language_plugin(
     monkeypatch,
 ) -> None:
     _register_python_plugin(monkeypatch)
-    evidence = (
-        python_orm_generated_materialization_delta_from_attribute_config_typed_operation(
-            _typed_operation(_attribute_type_operation()),
-            context=MetaPythonOrmGeneratedMaterializationContext(
-                package_name="aware-home-ontology-python",
-                package_root="modules/home/structure/ontology/python",
-                sources_root="aware_home_ontology",
-                relative_path_by_owner_key={
-                    "aware_demo.default.home.TvChannel": (
-                        "aware_home_ontology/home/tv_channel.py"
-                    )
-                },
-            ),
-        )
+    evidence = _render_python_orm_generated_delta(
+        _typed_operation(_attribute_type_operation()),
+        context=_PythonOrmGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root="modules/home/structure/ontology/python",
+            sources_root="aware_home_ontology",
+            relative_path_by_owner_key={
+                "aware_demo.default.home.TvChannel": (
+                    "aware_home_ontology/home/tv_channel.py"
+                )
+            },
+        ),
     )
 
-    assert evidence.result.mode is CodeGeneratedMaterializationDeltaMode.section_delta_ready
+    assert (
+        evidence.result.mode
+        is CodeGeneratedMaterializationDeltaMode.section_delta_ready
+    )
     assert evidence.delta_request.metadata is not None
     assert (
         evidence.delta_request.metadata["language_plugin_delta_renderer"]
@@ -145,33 +664,56 @@ def test_attribute_type_generated_delta_routes_through_language_plugin(
 
 def test_attribute_default_value_generated_delta_routes_through_language_plugin(
     monkeypatch,
+    tmp_path,
 ) -> None:
     _register_python_plugin(monkeypatch)
-    evidence = (
-        python_orm_generated_materialization_delta_from_attribute_config_typed_operation(
-            _typed_operation(_attribute_default_value_operation()),
-            context=MetaPythonOrmGeneratedMaterializationContext(
-                package_name="aware-home-ontology-python",
-                package_root="modules/home/structure/ontology/python",
-                sources_root="aware_home_ontology",
-                relative_path_by_owner_key={
-                    "aware_demo.default.home.TvChannel": (
-                        "aware_home_ontology/home/tv_channel.py"
-                    )
-                },
-            ),
-        )
+    generated_source_root = tmp_path / "aware_home_ontology" / "home"
+    generated_source_root.mkdir(parents=True)
+    generated_source_path = generated_source_root / "tv_channel.py"
+    generated_source_path.write_text(
+        "class TvChannel:\n" "    selected_channel: int = 7\n",
+        encoding="utf-8",
+    )
+    evidence = _render_python_orm_generated_delta(
+        _typed_operation(_attribute_default_value_operation()),
+        context=_PythonOrmGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_home_ontology",
+            relative_path_by_owner_key={
+                "aware_demo.default.home.TvChannel": (
+                    "aware_home_ontology/home/tv_channel.py"
+                )
+            },
+        ),
     )
 
-    assert evidence.result.mode is CodeGeneratedMaterializationDeltaMode.section_delta_ready
+    assert (
+        evidence.result.mode
+        is CodeGeneratedMaterializationDeltaMode.grammar_anchor_render_ready
+    )
     assert evidence.result.metadata is not None
     assert (
         evidence.result.metadata["language_plugin_delta_renderer"]
         == PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME
     )
-    operation = evidence.result.entries[0].renderer_operations[0]
-    assert operation.renderer_key == "python.orm.attribute.default_value"
-    assert operation.content_text == "11"
+    entry = evidence.result.entries[0]
+    assert entry.grammar_anchor_render_delta is not None
+    replacement = entry.grammar_anchor_render_delta.replacements[0]
+    assert replacement.target_kind is CodeGrammarAnchorRenderTargetKind.text_span
+    assert (
+        replacement.replacement_text
+        == "    selected_channel: str | None = Field(default=11)\n"
+    )
+    assert replacement.span_target is not None
+    assert replacement.span_target.before_source_hash == _digest(
+        generated_source_path.read_text(encoding="utf-8")
+    )
+    operation = entry.renderer_operations[0]
+    assert operation.renderer_key == "python.orm.attribute.field"
+    assert operation.content_text == (
+        "    selected_channel: str | None = Field(default=11)\n"
+    )
     assert operation.metadata is not None
     assert (
         operation.metadata["language_plugin_delta_renderer"]
@@ -194,15 +736,13 @@ def test_attribute_create_generated_delta_routes_through_language_plugin(
         encoding="utf-8",
     )
 
-    evidence = (
-        python_orm_generated_materialization_delta_from_attribute_config_typed_operation(
-            _typed_operation(_content_layout_attribute_create_operation()),
-            context=MetaPythonOrmGeneratedMaterializationContext(
-                package_name="content-ontology",
-                package_root=tmp_path.as_posix(),
-                sources_root="aware_content_ontology",
-            ),
-        )
+    evidence = _render_python_orm_generated_delta(
+        _typed_operation(_content_layout_attribute_create_operation()),
+        context=_PythonOrmGeneratedMaterializationContext(
+            package_name="content-ontology",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_content_ontology",
+        ),
     )
 
     assert (
@@ -245,15 +785,13 @@ def test_attribute_delete_generated_delta_routes_through_language_plugin(
         encoding="utf-8",
     )
 
-    evidence = (
-        python_orm_generated_materialization_delta_from_attribute_config_typed_operation(
-            _typed_operation(_content_layout_attribute_delete_operation()),
-            context=MetaPythonOrmGeneratedMaterializationContext(
-                package_name="content-ontology",
-                package_root=tmp_path.as_posix(),
-                sources_root="aware_content_ontology",
-            ),
-        )
+    evidence = _render_python_orm_generated_delta(
+        _typed_operation(_content_layout_attribute_delete_operation()),
+        context=_PythonOrmGeneratedMaterializationContext(
+            package_name="content-ontology",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_content_ontology",
+        ),
     )
 
     assert (
@@ -294,15 +832,13 @@ def test_class_description_generated_delta_routes_through_language_plugin(
         encoding="utf-8",
     )
 
-    evidence = (
-        python_orm_generated_materialization_delta_from_class_config_typed_operation(
-            _typed_operation(_class_update_operation()),
-            context=MetaPythonOrmClassGeneratedMaterializationContext(
-                package_name="aware-home-ontology-python",
-                package_root=tmp_path.as_posix(),
-                sources_root="aware_home_ontology",
-            ),
-        )
+    evidence = _render_python_orm_generated_delta(
+        _typed_operation(_class_update_operation()),
+        context=_PythonOrmGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_home_ontology",
+        ),
     )
 
     assert (
@@ -340,6 +876,63 @@ def test_class_description_generated_delta_routes_through_language_plugin(
     )
 
 
+def test_class_parent_update_generated_delta_routes_through_language_plugin(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    _register_python_plugin(monkeypatch)
+    generated_source_root = tmp_path / "aware_home_ontology" / "home"
+    generated_source_root.mkdir(parents=True)
+    (generated_source_root / "device.py").write_text(
+        "from aware_orm.models.orm_model import ORMModel\n\n\n"
+        "class Device(ORMModel):\n"
+        "    name: str\n"
+        "\n\n"
+        "class SmartDevice(ORMModel):\n"
+        "    device_id: str\n",
+        encoding="utf-8",
+    )
+
+    evidence = _render_python_orm_generated_delta(
+        _typed_operation(_class_parent_update_operation()),
+        context=_PythonOrmGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_home_ontology",
+        ),
+    )
+
+    result = evidence.result
+    assert result is not None
+    assert (
+        result.mode
+        is CodeGeneratedMaterializationDeltaMode.grammar_anchor_render_ready
+    )
+    entry = result.entries[0]
+    assert entry.grammar_anchor_render_delta is not None
+    replacement = entry.grammar_anchor_render_delta.replacements[0]
+    assert replacement.target_kind is CodeGrammarAnchorRenderTargetKind.text_span
+    assert replacement.replacement_text == "Device"
+    assert replacement.span_target is not None
+    assert replacement.span_target.before_text_hash == _digest("ORMModel")
+    assert replacement.span_target.before_source_hash == _digest(
+        (generated_source_root / "device.py").read_text(encoding="utf-8")
+    )
+    assert replacement.span_target.graph_selector is not None
+    assert replacement.span_target.graph_selector.field_name == "parent_class"
+    operation = entry.renderer_operations[0]
+    assert operation.kind is CodeGeneratedRendererDeltaOperationKind.replace_anchor
+    assert operation.renderer_key == "python.orm.class"
+    assert operation.content_text == "Device"
+    assert operation.anchor is not None
+    assert operation.anchor.anchor_role == "class_parent"
+    assert operation.metadata is not None
+    assert (
+        operation.metadata["mode_reason"]
+        == "python_orm_class_parent_grammar_anchor_render_delta_ready"
+    )
+
+
 def test_class_create_generated_delta_routes_through_language_plugin(
     monkeypatch,
     tmp_path,
@@ -355,15 +948,13 @@ def test_class_create_generated_delta_routes_through_language_plugin(
         encoding="utf-8",
     )
 
-    evidence = (
-        python_orm_generated_materialization_delta_from_class_config_typed_operation(
-            _typed_operation(_class_create_operation()),
-            context=MetaPythonOrmClassGeneratedMaterializationContext(
-                package_name="aware-home-ontology-python",
-                package_root=tmp_path.as_posix(),
-                sources_root="aware_home_ontology",
-            ),
-        )
+    evidence = _render_python_orm_generated_delta(
+        _typed_operation(_class_create_operation()),
+        context=_PythonOrmGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_home_ontology",
+        ),
     )
 
     assert (
@@ -375,7 +966,7 @@ def test_class_create_generated_delta_routes_through_language_plugin(
     replacement = entry.grammar_anchor_render_delta.replacements[0]
     assert replacement.target_kind is CodeGrammarAnchorRenderTargetKind.text_span
     assert replacement.replacement_text == (
-        "\n\nclass RemoteControl(ORMModel):\n" '    """Remote control config."""\n'
+        "class RemoteControl(ORMModel):\n" '    """Remote control config."""\n\n\n'
     )
     assert replacement.span_target is not None
     assert replacement.span_target.before_source_hash == _digest(
@@ -411,15 +1002,13 @@ def test_class_delete_generated_delta_routes_through_language_plugin(
         encoding="utf-8",
     )
 
-    evidence = (
-        python_orm_generated_materialization_delta_from_class_config_typed_operation(
-            _typed_operation(_content_placement_class_delete_operation()),
-            context=MetaPythonOrmClassGeneratedMaterializationContext(
-                package_name="content-ontology",
-                package_root=tmp_path.as_posix(),
-                sources_root="aware_content_ontology",
-            ),
-        )
+    evidence = _render_python_orm_generated_delta(
+        _typed_operation(_content_placement_class_delete_operation()),
+        context=_PythonOrmGeneratedMaterializationContext(
+            package_name="content-ontology",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_content_ontology",
+        ),
     )
 
     assert (
@@ -459,6 +1048,8 @@ def test_relationship_load_policy_generated_delta_routes_through_language_plugin
     generated_source_path.write_text(
         "from __future__ import annotations\n"
         "\n"
+        "from uuid import UUID\n"
+        "\n"
         "from pydantic import Field\n"
         "\n"
         "class TvChannel:\n"
@@ -466,19 +1057,18 @@ def test_relationship_load_policy_generated_delta_routes_through_language_plugin
         "\n"
         "\n"
         "class RemoteControl:\n"
-        "    selected_channel: TvChannel | None = Field(default=None)\n",
+        "    selected_channel: TvChannel | None = Field(default=None, exclude=True)\n"
+        '    selected_channel_id: UUID = Field(description="Foreign key for RemoteControl.selected_channel")\n',
         encoding="utf-8",
     )
 
-    evidence = (
-        python_orm_generated_materialization_delta_from_relationship_config_typed_operation(
-            _typed_operation(_relationship_load_policy_operation()),
-            context=MetaPythonOrmRelationshipGeneratedMaterializationContext(
-                package_name="aware-home-ontology-python",
-                package_root=tmp_path.as_posix(),
-                sources_root="aware_home_ontology",
-            ),
-        )
+    evidence = _render_python_orm_generated_delta(
+        _typed_operation(_relationship_load_policy_operation()),
+        context=_PythonOrmGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_home_ontology",
+        ),
     )
 
     assert (
@@ -526,24 +1116,28 @@ def test_relationship_create_generated_delta_routes_through_language_plugin(
     generated_source_path.write_text(
         "from __future__ import annotations\n"
         "\n"
-        "class Device:\n"
+        "# Orm\n"
+        "from aware_orm.models.orm_model import ORMModel\n"
+        "\n"
+        "\n"
+        "class Device(ORMModel):\n"
+        "    # Attributes\n"
         "    name: str\n"
         "\n"
         "\n"
-        "class Room:\n"
+        "class Room(ORMModel):\n"
+        "    # Attributes\n"
         "    room_name: str\n",
         encoding="utf-8",
     )
 
-    evidence = (
-        python_orm_generated_materialization_delta_from_relationship_config_typed_operation(
-            _typed_operation(_relationship_create_operation()),
-            context=MetaPythonOrmRelationshipGeneratedMaterializationContext(
-                package_name="aware-home-ontology-python",
-                package_root=tmp_path.as_posix(),
-                sources_root="aware_home_ontology",
-            ),
-        )
+    evidence = _render_python_orm_generated_delta(
+        _typed_operation(_relationship_create_operation()),
+        context=_PythonOrmGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_home_ontology",
+        ),
     )
 
     assert (
@@ -552,17 +1146,37 @@ def test_relationship_create_generated_delta_routes_through_language_plugin(
     )
     entry = evidence.result.entries[0]
     assert entry.grammar_anchor_render_delta is not None
-    replacement = entry.grammar_anchor_render_delta.replacements[0]
+    replacements = entry.grammar_anchor_render_delta.replacements
+    assert len(replacements) == 3
+    replacement = replacements[0]
     assert replacement.target_kind is CodeGrammarAnchorRenderTargetKind.text_span
-    assert replacement.replacement_text == "    primary_device: Device\n"
+    assert replacement.replacement_text == (
+        "    # Relationships\n" "    primary_device: Device\n" "\n"
+    )
     assert replacement.span_target is not None
     assert replacement.span_target.before_source_hash == _digest(
         generated_source_path.read_text(encoding="utf-8")
     )
+    assert replacements[1].replacement_text == (
+        "# Standard\n"
+        "from uuid import UUID\n"
+        "\n"
+        "# Third-party\n"
+        "from pydantic import Field\n"
+        "\n"
+    )
+    assert replacements[2].replacement_text == (
+        "\n"
+        "    # Foreign Keys\n"
+        "    primary_device_id: UUID | None = "
+        'Field(default=None, description="Foreign key for Room.primary_device")\n'
+    )
     operation = entry.renderer_operations[0]
     assert operation.kind is CodeGeneratedRendererDeltaOperationKind.replace_anchor
     assert operation.renderer_key == "python.orm.relationship.load_policy"
-    assert operation.content_text == "    primary_device: Device\n"
+    assert operation.content_text == (
+        "    # Relationships\n" "    primary_device: Device\n" "\n"
+    )
     assert operation.metadata is not None
     assert (
         operation.metadata["language_plugin_delta_renderer"]
@@ -581,25 +1195,41 @@ def test_relationship_delete_generated_delta_routes_through_language_plugin(
     generated_source_path.write_text(
         "from __future__ import annotations\n"
         "\n"
-        "class Device:\n"
+        "# Standard\n"
+        "from uuid import UUID\n"
+        "\n"
+        "# Third-party\n"
+        "from pydantic import Field\n"
+        "\n"
+        "# Orm\n"
+        "from aware_orm.models.orm_model import ORMModel\n"
+        "\n"
+        "\n"
+        "class Device(ORMModel):\n"
+        "    # Attributes\n"
         "    name: str\n"
         "\n"
         "\n"
-        "class Room:\n"
+        "class Room(ORMModel):\n"
+        "    # Relationships\n"
+        "    primary_device: Device\n"
+        "\n"
+        "    # Attributes\n"
         "    room_name: str\n"
-        "    primary_device: Device\n",
+        "\n"
+        "    # Foreign Keys\n"
+        "    primary_device_id: UUID | None = "
+        'Field(default=None, description="Foreign key for Room.primary_device")\n',
         encoding="utf-8",
     )
 
-    evidence = (
-        python_orm_generated_materialization_delta_from_relationship_config_typed_operation(
-            _typed_operation(_relationship_delete_operation()),
-            context=MetaPythonOrmRelationshipGeneratedMaterializationContext(
-                package_name="aware-home-ontology-python",
-                package_root=tmp_path.as_posix(),
-                sources_root="aware_home_ontology",
-            ),
-        )
+    evidence = _render_python_orm_generated_delta(
+        _typed_operation(_relationship_delete_operation()),
+        context=_PythonOrmGeneratedMaterializationContext(
+            package_name="aware-home-ontology-python",
+            package_root=tmp_path.as_posix(),
+            sources_root="aware_home_ontology",
+        ),
     )
 
     assert (
@@ -608,13 +1238,17 @@ def test_relationship_delete_generated_delta_routes_through_language_plugin(
     )
     entry = evidence.result.entries[0]
     assert entry.grammar_anchor_render_delta is not None
-    replacement = entry.grammar_anchor_render_delta.replacements[0]
+    replacements = entry.grammar_anchor_render_delta.replacements
+    assert len(replacements) == 3
+    replacement = replacements[0]
     assert replacement.target_kind is CodeGrammarAnchorRenderTargetKind.text_span
     assert replacement.replacement_text == ""
     assert replacement.span_target is not None
     assert replacement.span_target.before_source_hash == _digest(
         generated_source_path.read_text(encoding="utf-8")
     )
+    assert replacements[1].replacement_text == ""
+    assert replacements[2].replacement_text == ""
     operation = entry.renderer_operations[0]
     assert operation.kind is CodeGeneratedRendererDeltaOperationKind.replace_anchor
     assert operation.renderer_key == "python.orm.relationship.load_policy"
@@ -698,7 +1332,7 @@ def test_function_signature_generated_delta_routes_through_language_plugin(
     generated_source_path.write_text(
         "class RemoteControl:\n"
         "    def set_channel(self, channel: int) -> None:\n"
-        "        payload = {\"channel\": channel}\n"
+        '        payload = {"channel": channel}\n'
         "        raise NotImplementedError\n"
         "\n"
         "\n"
@@ -800,7 +1434,7 @@ def _plugin_render_request(
             target_language="python",
             renderer_profile="orm_runtime",
             materialization_source="ontology_orm_models",
-            product_intent="python_orm_runtime",
+            product_intent="orm_runtime",
             artifact_family="ocg_language_materialization",
             artifact_role="python_orm_model",
         ),
@@ -835,6 +1469,134 @@ def _plugin_support_operation(
         "baseline": {"object": {}},
         "current": {},
     }
+
+
+def _sql_plugin_support_operation() -> dict[str, object]:
+    payload = _plugin_support_operation(
+        ontology_subject_kind="class",
+        operation_family="update",
+    )
+    payload["current"] = {
+        "generated_materialization": {
+            "targets": {
+                "sql_schema": {
+                    "descriptor_key": "sql_schema",
+                    "capability_key": "fake_sql_delta",
+                    "owner_key": "content.default.PluginCoverage",
+                    "relative_path": "schema/from_hint.sql",
+                },
+            },
+        },
+    }
+    return payload
+
+
+class _FakeSqlGeneratedDeltaRenderer(MetaLanguageGeneratedMaterializationDeltaRenderer):
+    renderer_key = "fake_sql_delta"
+    renderer_profile = "sql_runtime"
+    materialization_source = "sql_schema"
+
+    def supports_generated_materialization_delta(
+        self,
+        request: MetaLanguageGeneratedMaterializationDeltaRenderRequest,
+    ) -> bool:
+        return request.operation.ontology_subject_kind == "class"
+
+    def render_generated_materialization_delta(
+        self,
+        request: MetaLanguageGeneratedMaterializationDeltaRenderRequest,
+    ) -> MetaLanguageGeneratedMaterializationDeltaRenderResult:
+        event_key = (
+            "aware_meta.provider_delta.world_change."
+            f"{request.operation.ontology_subject_kind}."
+            f"{request.operation.operation_family}"
+        )
+        relative_path = "schema.sql"
+        if request.context.target_hints:
+            relative_path = (
+                request.context.target_hints[0].relative_path or relative_path
+            )
+        target = CodeGeneratedMaterializationTargetRef(
+            target_key=f"fake_sql:{request.operation.semantic_key}",
+            provider_key="aware_meta",
+            semantic_owner="aware_meta.ocg",
+            target_language="sql",
+            package_name=request.context.package_name,
+            package_root=request.context.package_root,
+            sources_root=request.context.sources_root,
+            renderer_key="fake.sql.class",
+            renderer_profile=self.renderer_profile,
+            materialization_source=self.materialization_source,
+            relative_path=relative_path,
+        )
+        delta_request = CodeGeneratedMaterializationDeltaRequest(
+            provider_key="aware_meta",
+            semantic_owner="aware_meta.ocg",
+            package_name=request.context.package_name,
+            package_root=request.context.package_root,
+            sources_root=request.context.sources_root,
+            product_intent="fake_sql_schema",
+            events=[
+                CodeGeneratedMaterializationEventRef(
+                    event_key=event_key,
+                    semantic_key=request.operation.semantic_key,
+                    verb=request.operation.operation_family,
+                    subject_type=request.operation.ontology_subject_kind,
+                    source="test.fake_sql_generated_delta_renderer",
+                )
+            ],
+            targets=[target],
+        )
+        renderer_operation = CodeGeneratedRendererDeltaOperation(
+            operation_key=f"fake_sql:{request.operation.operation_key}",
+            kind=CodeGeneratedRendererDeltaOperationKind.replace_anchor,
+            target=target,
+            renderer_key="fake.sql.class",
+            renderer_profile=self.renderer_profile,
+            content_text="-- fake sql delta\n",
+            replacement_text="-- fake sql delta\n",
+            event_refs=[event_key],
+            semantic_keys=[request.operation.semantic_key],
+        )
+        result = CodeGeneratedMaterializationDeltaResult(
+            provider_key="aware_meta",
+            semantic_owner="aware_meta.ocg",
+            available=True,
+            mode=CodeGeneratedMaterializationDeltaMode.fallback_full_render,
+            entries=[
+                CodeGeneratedMaterializationDeltaEntry(
+                    entry_key=f"fake_sql:{request.operation.operation_key}",
+                    mode=CodeGeneratedMaterializationDeltaMode.fallback_full_render,
+                    target=target,
+                    relative_path=relative_path,
+                    renderer_operations=[renderer_operation],
+                    event_refs=[event_key],
+                    semantic_keys=[request.operation.semantic_key],
+                )
+            ],
+        )
+        return MetaLanguageGeneratedMaterializationDeltaRenderResult.from_evidence(
+            delta_request=delta_request,
+            result=result,
+            reason="fake_sql_generated_delta_rendered",
+        )
+
+
+_FAKE_SQL_META_PLUGIN = MetaLanguagePlugin(
+    language=CodeLanguage.sql,
+    file_filter_config_factory=lambda: FilterConfig.model_validate({}),
+    code_plugin=cast(
+        Any,
+        SimpleNamespace(
+            comment_prefix="--",
+            materialization_artifact_outputs=(),
+        ),
+    ),
+    surgical_renderers={},
+    generated_delta_renderers={
+        "fake_sql_delta": _FakeSqlGeneratedDeltaRenderer,
+    },
+)
 
 
 def _attribute_type_operation() -> dict[str, object]:
@@ -984,6 +1746,41 @@ def _class_update_operation() -> dict[str, object]:
     }
 
 
+def _class_parent_update_operation() -> dict[str, object]:
+    semantic_key = "ocg:aware_demo/node:aware_demo.default.home.SmartDevice"
+    return {
+        "operation_kind": "meta_ocg_provider_delta_typed_operation",
+        "operation_key": f"meta_ocg.class.parent.update:{semantic_key}",
+        "operation_family": "update",
+        "provider_operation_type": "meta_ocg.class.parent.update",
+        "semantic_key": semantic_key,
+        "semantic_subject_type": "aware_meta.ClassConfig",
+        "ontology_subject_kind": "class",
+        "source_refs": ("home/device.aware",),
+        "baseline": {
+            "object": {
+                "class_fqn": "aware_demo.default.home.SmartDevice",
+                "class_name": "SmartDevice",
+                "parent_class_id": None,
+                "parent_class_fqn": None,
+                "parent_class_semantic_key": None,
+            },
+        },
+        "current": {
+            "class_fqn": "aware_demo.default.home.SmartDevice",
+            "class_name": "SmartDevice",
+            "parent_class_id": "1c2e20a0-8752-5545-82c8-7a46008ec53d",
+            "parent_class_fqn": "aware_demo.default.home.Device",
+            "parent_class_semantic_key": (
+                "ocg:aware_demo/node:aware_demo.default.home.Device"
+            ),
+            "generated_materialization": _python_orm_runtime_targets(
+                "aware_home_ontology/home/device.py"
+            ),
+        },
+    }
+
+
 def _class_create_operation() -> dict[str, object]:
     semantic_key = "ocg:aware_demo/node:aware_demo.default.home.RemoteControl"
     return {
@@ -1004,11 +1801,9 @@ def _class_create_operation() -> dict[str, object]:
             "name": "RemoteControl",
             "entity_name": "RemoteControl",
             "description": "Remote control config.",
-            "generated_materialization": {
-                "python_orm": {
-                    "relative_path": "aware_home_ontology/home/tv_channel.py",
-                },
-            },
+            "generated_materialization": _python_orm_runtime_targets(
+                "aware_home_ontology/home/tv_channel.py"
+            ),
         },
     }
 
@@ -1040,13 +1835,9 @@ def _content_placement_class_delete_operation() -> dict[str, object]:
             "class_name": "ContentPlacement",
             "name": "ContentPlacement",
             "entity_name": "ContentPlacement",
-            "generated_materialization": {
-                "python_orm": {
-                    "relative_path": (
-                        "aware_content_ontology/content/content_layout.py"
-                    ),
-                },
-            },
+            "generated_materialization": _python_orm_runtime_targets(
+                "aware_content_ontology/content/content_layout.py"
+            ),
         },
     }
 
@@ -1103,8 +1894,7 @@ def _relationship_create_operation() -> dict[str, object]:
     return {
         "operation_kind": "meta_ocg_provider_delta_typed_operation",
         "operation_key": (
-            "meta_ocg.relationship.create:"
-            "meta.relationship:Room.primary_device"
+            "meta_ocg.relationship.create:" "meta.relationship:Room.primary_device"
         ),
         "operation_family": "create",
         "provider_operation_type": "meta_ocg.relationship.create",
@@ -1135,8 +1925,7 @@ def _relationship_delete_operation() -> dict[str, object]:
     return {
         "operation_kind": "meta_ocg_provider_delta_typed_operation",
         "operation_key": (
-            "meta_ocg.relationship.delete:"
-            "meta.relationship:Room.primary_device"
+            "meta_ocg.relationship.delete:" "meta.relationship:Room.primary_device"
         ),
         "operation_family": "delete",
         "provider_operation_type": "meta_ocg.relationship.delete",
@@ -1180,11 +1969,9 @@ def _enum_create_operation() -> dict[str, object]:
             "entity_name": "ContentSource",
             "description": "Content source.",
             "values": ("text", "image"),
-            "generated_materialization": {
-                "python_orm": {
-                    "relative_path": "aware_content_ontology/content/content_enums.py",
-                },
-            },
+            "generated_materialization": _python_orm_runtime_targets(
+                "aware_content_ontology/content/content_enums.py"
+            ),
         },
     }
 
@@ -1248,6 +2035,21 @@ def _function_signature_operation() -> dict[str, object]:
 
 def _digest(text: str) -> str:
     return "sha256:" + sha256(text.encode("utf-8")).hexdigest()
+
+
+def _python_orm_runtime_targets(relative_path: str) -> dict[str, object]:
+    return {
+        "targets": {
+            "orm_runtime": {
+                "descriptor_key": "orm_runtime",
+                "capability_key": "orm_runtime",
+                "target_language": "python",
+                "renderer_profile": "orm_runtime",
+                "materialization_source": "ontology_orm_models",
+                "relative_path": relative_path,
+            },
+        },
+    }
 
 
 __all__ = []

@@ -1,0 +1,35 @@
+aware_ontology = 1
+
+[ontology]
+package_name = "api-ontology"
+fqn_prefix = "aware_api"
+version_number = 1
+title = "Api"
+description = "SSOT canonical (.aware) sources for api."
+source_manifest = "structure/aware.toml"
+package_root = "."
+sources_root = "structure/aware"
+stable_ids_ownership = "compiler"
+stable_ids_parity_policy = "error"
+stable_ids_resolution_policy = "class_strict"
+
+[layout]
+profile = "ontology_structure_v1"
+
+[runtime]
+manifest = "runtime/python/pyproject.toml"
+project_name = "aware-api-runtime"
+import_root = "aware_api_runtime"
+
+[semantic_contract]
+provider_key = "aware_api"
+role = "aware_api.provider"
+module = "aware_api_runtime.semantic_contract"
+owns_manifest_kinds = ["aware_api_toml"]
+capabilities = ["semantic_analysis", "diagnostics", "semantic_tokens", "materialize"]
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"

@@ -1,0 +1,18 @@
+/// Edge contains relationship-like attributes (should raise in canonical builder)
+
+class User {
+    name String
+}
+
+class Membership {
+    users User[] @UserGroupEdge many
+}
+
+edge UserGroupEdge {
+    // ❌ forbidden: relationship inside edge
+    user User
+    // payload is fine
+    status String
+}
+
+

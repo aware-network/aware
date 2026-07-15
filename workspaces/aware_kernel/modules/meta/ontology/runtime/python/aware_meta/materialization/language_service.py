@@ -60,6 +60,11 @@ from aware_meta.materialization.package_runner import (
     LanguageMaterializationPackageBuildRequest,
     build_language_materialization_packages,
 )
+from aware_meta.materialization.dart_package_dependencies import (
+    infer_dart_workspace_repo_root,
+    resolve_dart_generated_package_dependencies,
+    resolve_dart_workspace_path_dependencies,
+)
 from aware_meta.materialization.post_step_executor import (
     LanguageMaterializationPostStepExecutionRequest,
     execute_language_materialization_post_steps,
@@ -2373,6 +2378,15 @@ def _build_packaged_language_files(
     package_metadata: dict[str, object] = {
         "aware_package_kind": request.materialization_source or "",
     }
+    (
+        package_dependencies,
+        package_optional_dependencies,
+        package_dependency_metadata,
+    ) = _language_package_dependency_contract(
+        request=request,
+        package_root=output_root,
+    )
+    package_metadata.update(package_dependency_metadata)
     dependency_import_roots = _language_package_dependency_import_roots(
         request=request,
     )
@@ -2394,6 +2408,8 @@ def _build_packaged_language_files(
                         if request.target_language_plugin_id == CodeLanguage.dart
                         else import_root
                     ),
+                    dependencies=package_dependencies,
+                    optional_dependencies=package_optional_dependencies,
                     metadata=package_metadata,
                 ),
             ),
@@ -2497,6 +2513,70 @@ def _packaged_python_relative_path(
         stripped = Path(*relative_path.parts[1:])
         return stripped if stripped.parts else Path(relative_path.name)
     return relative_path
+
+
+def _language_package_dependency_contract(
+    *,
+    request: LanguagePluginMaterializationRequest,
+    package_root: Path,
+) -> tuple[list[str], dict[str, list[str]], dict[str, object]]:
+    source = (request.materialization_source or "").strip().lower()
+    if request.target_language_plugin_id != CodeLanguage.dart or source not in {
+        "api",
+        "ontology",
+        "ontology_dto",
+        "ontology_orm_models",
+    }:
+        return [], {}, {}
+
+    repo_root = infer_dart_workspace_repo_root(package_root=package_root)
+    generated_dependencies = resolve_dart_generated_package_dependencies(
+        source="aware_meta.language_materialization.dart.generated"
+    )
+    workspace_dependencies = resolve_dart_workspace_path_dependencies(
+        package_root=package_root,
+        repo_root=repo_root,
+        include_aware_api=source not in {"api", "ontology_dto"},
+        source="aware_meta.language_materialization.dart.workspace_path",
+    )
+    metadata: dict[str, object] = {"package_dependencies_mode": "strict"}
+    if repo_root is not None:
+        metadata["repo_root"] = repo_root.as_posix()
+    return (
+        _merge_language_package_dependencies(
+            generated_dependencies.dependencies,
+            workspace_dependencies.dependencies,
+        ),
+        _merge_language_package_optional_dependencies(
+            generated_dependencies.optional_dependencies,
+            workspace_dependencies.optional_dependencies,
+        ),
+        metadata,
+    )
+
+
+def _merge_language_package_dependencies(
+    *dependency_groups: tuple[str, ...],
+) -> list[str]:
+    dependencies: list[str] = []
+    for group in dependency_groups:
+        for dependency in group:
+            if dependency not in dependencies:
+                dependencies.append(dependency)
+    return dependencies
+
+
+def _merge_language_package_optional_dependencies(
+    *dependency_groups: Mapping[str, tuple[str, ...]],
+) -> dict[str, list[str]]:
+    optional: dict[str, list[str]] = {}
+    for group in dependency_groups:
+        for name, dependencies in group.items():
+            merged = optional.setdefault(str(name), [])
+            for dependency in dependencies:
+                if dependency not in merged:
+                    merged.append(dependency)
+    return optional
 
 
 def _language_package_dependency_import_roots(
@@ -2867,6 +2947,7 @@ def _render_prepared_language_graph(
 
 def _renderer_internal_phase_timings(renderer: object) -> dict[str, float]:
     candidates = (renderer, getattr(renderer, "renderer_language", None))
+    timings: dict[str, float] = {}
     for candidate in candidates:
         if candidate is None:
             continue
@@ -2885,10 +2966,8 @@ def _renderer_internal_phase_timings(renderer: object) -> dict[str, float]:
                 duration_s = round(max(float(raw_duration_s), 0.0), 6)
             except (TypeError, ValueError):
                 continue
-            timings[name] = duration_s
-        if timings:
-            return dict(sorted(timings.items()))
-    return {}
+            timings.setdefault(name, duration_s)
+    return dict(sorted(timings.items()))
 
 
 def _select_language_overlay(

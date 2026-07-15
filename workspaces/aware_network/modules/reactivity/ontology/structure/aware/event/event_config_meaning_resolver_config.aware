@@ -1,0 +1,20 @@
+class EventConfigMeaningResolverConfig {
+    // Relationships
+    action_config action.ActionConfig key
+
+    // Attributes
+    resolver_key String key = "default"
+    priority Int = 0
+    is_enabled Bool = true
+
+    fn create construct(
+        action_config_id UUID key,
+        resolver_key String key = "default",
+        priority Int = 0,
+        is_enabled Bool = true
+    ) -> EventConfigMeaningResolverConfig {
+        """
+        Create one typed event-to-meaning-provider action binding.
+        """
+    }
+}

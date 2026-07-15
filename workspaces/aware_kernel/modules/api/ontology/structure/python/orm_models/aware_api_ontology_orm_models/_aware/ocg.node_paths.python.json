@@ -20,6 +20,12 @@
       "relative_path": "api/api_call_outcome.py"
     },
     {
+      "node_id": "2706810c-162f-5e1d-9f2b-5f6e2cf43fd1",
+      "node_type": "class",
+      "entity_id": "62b646d0-907e-57be-a122-205dc839e8e1",
+      "relative_path": "api/api_call_stream_event.py"
+    },
+    {
       "node_id": "62e682f2-227d-5f61-8421-a0bedac89875",
       "node_type": "class",
       "entity_id": "09aec6a2-69e2-5aa3-9e7f-aef4fa6fe347",
@@ -104,6 +110,24 @@
       "relative_path": "api/api_package_language_package.py"
     },
     {
+      "node_id": "58003855-1bbf-54bb-ba0d-98dcc5469319",
+      "node_type": "class",
+      "entity_id": "4997a134-251f-58a7-a23d-cbe5b3e683f6",
+      "relative_path": "api/api_view.py"
+    },
+    {
+      "node_id": "ffd58098-6178-5940-bad0-3bcad4e130c5",
+      "node_type": "class",
+      "entity_id": "634a6db1-f04f-5db8-a6ef-b1790472e47d",
+      "relative_path": "api/api_view_capability_endpoint.py"
+    },
+    {
+      "node_id": "e4de4763-acae-5cf3-94bd-8595398d3f49",
+      "node_type": "class",
+      "entity_id": "ab47e10d-8d6e-51e6-8bc9-04b5e109920e",
+      "relative_path": "api/api_view_stream_policy.py"
+    },
+    {
       "node_id": "57904e15-38bf-5ae6-ae20-28895a24eec5",
       "node_type": "enum",
       "entity_id": "52ac1ea5-02c8-5800-b33c-49232917ff4c",
@@ -120,6 +144,12 @@
       "node_type": "enum",
       "entity_id": "e9e9b312-e3a3-541a-a896-0166b0127224",
       "relative_path": "api/api_capability_endpoint_stream_enums.py"
+    },
+    {
+      "node_id": "16222713-1c12-5bce-8824-50960f2dffa9",
+      "node_type": "enum",
+      "entity_id": "3a0e6527-5235-5fb6-ad75-8a6a4e06950c",
+      "relative_path": "api/api_view_stream_enums.py"
     }
   ]
 }

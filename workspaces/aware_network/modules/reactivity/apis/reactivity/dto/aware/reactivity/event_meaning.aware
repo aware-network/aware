@@ -1,0 +1,47 @@
+/// Provider-neutral event-meaning contracts owned by Reactivity.
+///
+/// Providers implement these DTOs at their API endpoints. Reactivity registers
+/// and selects the provider action but does not invoke it or persist meaning.
+
+class ReactivityEventMeaningResolutionRequest {
+    event ActorReactivityBridgeEvent
+}
+
+class ReactivityEventMeaningResolutionResult {
+    event_id UUID
+    event_type String
+    meaning_text String
+    provider_reference String?
+}
+
+class ReactivityEventMeaningResolutionResponse {
+    resolved_meaning ReactivityEventMeaningResolutionResult
+}
+
+class ReactivityEventMeaningProviderIntent {
+    intent_id UUID
+    event ActorReactivityBridgeEvent
+    owner_ref String
+    policy_key String
+    resolver_key String
+    event_config_id UUID
+    event_config_meaning_resolver_config_id UUID
+    action_config_id UUID
+    api_capability_endpoint_id UUID
+    status String = "requested"
+}
+
+class ReactivityEventMeaningProviderResolveRequest {
+    request_id UUID?
+    event ActorReactivityBridgeEvent
+    event_config_id UUID?
+    resolver_key String?
+}
+
+class ReactivityEventMeaningProviderResolveResponse {
+    request_id UUID?
+    accepted Bool = true
+    intent ReactivityEventMeaningProviderIntent?
+    info String?
+    error String?
+}

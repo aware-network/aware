@@ -1,0 +1,34 @@
+/// Attention-owned evidence row that contributes to an ActorFocus weight.
+class ActorFocusEvidence {
+    evidence_key String key
+
+    kind String
+    source_type String?
+    source_id UUID?
+    source_key String?
+
+    weight_delta Float = 0.0
+    confidence Float?
+    observed_at DateTime?
+    expires_at DateTime?
+    rationale String?
+    metadata JsonObject?
+
+    fn create construct (
+        evidence_key String key,
+        kind String,
+        source_type String? = null,
+        source_id UUID? = null,
+        source_key String? = null,
+        weight_delta Float = 0.0,
+        confidence Float? = null,
+        observed_at DateTime? = null,
+        expires_at DateTime? = null,
+        rationale String? = null,
+        metadata JsonObject? = null
+    ) -> ActorFocusEvidence {
+        """
+        Builds an ActorFocusEvidence receipt under an ActorFocus.
+        """
+    }
+}

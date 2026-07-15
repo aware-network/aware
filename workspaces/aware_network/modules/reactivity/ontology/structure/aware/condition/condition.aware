@@ -1,0 +1,20 @@
+class Condition {
+    // Relationships
+    config ConditionConfig key
+    trigger_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit
+
+    // Attributes
+    activation_id UUID key
+    arguments JsonObject = {}
+
+    fn create construct (
+        config_id UUID key,
+        activation_id UUID key,
+        trigger_object_instance_graph_commit_id UUID,
+        arguments JsonObject = {}
+    ) -> Condition {
+        """
+        Create runtime condition evidence anchored to one activation.
+        """
+    }
+}

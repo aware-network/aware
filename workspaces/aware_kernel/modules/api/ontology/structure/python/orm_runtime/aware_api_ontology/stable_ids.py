@@ -26,6 +26,12 @@ def stable_api_call_outcome_id(*, api_call_id: UUID) -> UUID:
     return uuid5(NS_API, f"aware:api_call_outcome:{api_call_id}")
 
 
+def stable_api_call_stream_event_id(*, api_call_id: UUID, sequence: int) -> UUID:
+    """Compiler-generated from class-attribute identity keys: api_call_id, sequence"""
+
+    return uuid5(NS_API, f"aware:api_call_stream_event:{api_call_id}:{sequence}")
+
+
 def stable_api_capability_id(*, api_id: UUID, name: str) -> UUID:
     """Compiler-generated from class-attribute identity keys: api_id, name"""
 
@@ -143,6 +149,26 @@ def stable_api_package_language_package_id(*, api_package_id: UUID, code_package
     return uuid5(NS_API, f"aware:api_package_language_package:{api_package_id}:{code_package_id}")
 
 
+def stable_api_view_id(*, api_id: UUID, object_projection_graph_observable_id: UUID, name: str) -> UUID:
+    """Compiler-generated from class-attribute identity keys: api_id, object_projection_graph_observable_id, name"""
+
+    name_norm = (name or "").casefold().strip()
+    return uuid5(NS_API, f"aware:api_view:{api_id}:{object_projection_graph_observable_id}:{name_norm}")
+
+
+def stable_api_view_capability_endpoint_id(*, api_view_id: UUID, api_capability_endpoint_id: UUID) -> UUID:
+    """Compiler-generated from class-attribute identity keys: api_view_id, api_capability_endpoint_id"""
+
+    return uuid5(NS_API, f"aware:api_view_capability_endpoint:{api_view_id}:{api_capability_endpoint_id}")
+
+
+def stable_api_view_stream_policy_id(*, api_view_id: UUID, stream_mode: str) -> UUID:
+    """Compiler-generated from class-attribute identity keys: api_view_id, stream_mode"""
+
+    stream_mode_norm = (stream_mode or "").casefold().strip()
+    return uuid5(NS_API, f"aware:api_view_stream_policy:{api_view_id}:{stream_mode_norm}")
+
+
 CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID: dict[str, tuple[str, tuple[str, ...]]] = {
     "09aec6a2-69e2-5aa3-9e7f-aef4fa6fe347": ("stable_api_capability_id", ("api_id", "name")),
     "2ae826c7-5759-5612-8647-856a91b2574b": ("stable_api_id", ("name",)),
@@ -155,6 +181,15 @@ CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID: dict[str, tuple[str, tuple[st
         "stable_api_package_language_package_id",
         ("api_package_id", "code_package_id"),
     ),
+    "4997a134-251f-58a7-a23d-cbe5b3e683f6": (
+        "stable_api_view_id",
+        ("api_id", "object_projection_graph_observable_id", "name"),
+    ),
+    "62b646d0-907e-57be-a122-205dc839e8e1": ("stable_api_call_stream_event_id", ("api_call_id", "sequence")),
+    "634a6db1-f04f-5db8-a6ef-b1790472e47d": (
+        "stable_api_view_capability_endpoint_id",
+        ("api_view_id", "api_capability_endpoint_id"),
+    ),
     "8295b3d1-cc94-591d-b783-8aeeea66f454": (
         "stable_api_capability_endpoint_stream_config_id",
         ("api_capability_endpoint_request_config_id", "stream_mode"),
@@ -165,6 +200,7 @@ CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID: dict[str, tuple[str, tuple[st
         ("api_capability_endpoint_request_config_id", "class_config_id"),
     ),
     "a6f5fa70-14fe-5f17-8a85-f123a0078e8e": ("stable_api_call_id", ("api_capability_endpoint_id", "call_key")),
+    "ab47e10d-8d6e-51e6-8bc9-04b5e109920e": ("stable_api_view_stream_policy_id", ("api_view_id", "stream_mode")),
     "aca1fbe2-4ac7-5acc-9106-327be1974a8f": (
         "stable_api_capability_endpoint_stream_event_config_id",
         ("api_capability_endpoint_stream_config_id", "class_config_id", "kind"),
@@ -194,6 +230,7 @@ __all__ = [
     "stable_api_id",
     "stable_api_call_id",
     "stable_api_call_outcome_id",
+    "stable_api_call_stream_event_id",
     "stable_api_capability_id",
     "stable_api_capability_endpoint_id",
     "stable_api_capability_endpoint_function_id",
@@ -208,5 +245,8 @@ __all__ = [
     "stable_api_graph_projection_id",
     "stable_api_package_id",
     "stable_api_package_language_package_id",
+    "stable_api_view_id",
+    "stable_api_view_capability_endpoint_id",
+    "stable_api_view_stream_policy_id",
     "CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID",
 ]

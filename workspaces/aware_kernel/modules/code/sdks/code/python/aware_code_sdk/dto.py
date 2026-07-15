@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+from uuid import UUID
+
+from pydantic import BaseModel, Field
+
 from aware_code_service_dto.code.features.package_common import CodePackagePathRole
 from aware_code_service_dto.code.features.package_delta import (
     CodePackageDelta,
     CodePackageDeltaAuthorityKind,
     CodePackageDeltaKind,
     CodePackageDeltaPath,
+    CodePackageDeltaProducerRef,
+    CodePackageDeltaProduction,
     FingerprintCodePackageDeltaRequest,
     FingerprintCodePackageDeltaResponse,
     NormalizeCodePackageDeltaRequest,
@@ -13,7 +19,7 @@ from aware_code_service_dto.code.features.package_delta import (
 )
 from aware_code_service_dto.code.features.package_distribution import CodeLanguage
 from aware_code_service_dto.code.features.package_layout import (
-    CodePackageLayoutContract,
+    CodePackageLayoutContract as _GeneratedCodePackageLayoutContract,
     CodePackageLayoutPathRole,
     DescribeCodePackageLayoutRequest,
     DescribeCodePackageLayoutResponse,
@@ -200,6 +206,61 @@ from aware_code_service_dto.code.features.source_projection import (
     ValidateCodeSourceProjectionRequest,
     ValidateCodeSourceProjectionResponse,
 )
+from aware_types import JsonObject
+
+
+class CodePackageManifestContract(BaseModel):
+    """SDK-local manifest coordinates for package layout classification."""
+
+    manifest_kind: str
+    manifest_relative_path: str
+    language: CodeLanguage
+    package_manager_name: str | None = Field(default=None)
+    package_manager_name_key: str | None = Field(default=None)
+    dependency_names: list[str] = Field(default_factory=list)
+    dependency_keys: list[str] = Field(default_factory=list)
+
+
+class CodeSemanticPackageBindingContract(BaseModel):
+    """SDK-local semantic package binding metadata kept out of service DTOs."""
+
+    contract: str | None = Field(default=None)
+    package_role: str | None = Field(default=None)
+    provider_key: str | None = Field(default=None)
+    package_name: str | None = Field(default=None)
+    package_fqn: str | None = Field(default=None)
+    semantic_owner: str | None = Field(default=None)
+    semantic_contract_module: str | None = Field(default=None)
+    semantic_package_family: str | None = Field(default=None)
+    semantic_package_kind: str | None = Field(default=None)
+    semantic_package_name: str | None = Field(default=None)
+    semantic_projection_name: str | None = Field(default=None)
+    semantic_provider_key: str | None = Field(default=None)
+    semantic_root_kind: str | None = Field(default=None)
+    workspace_manifest_kind: str | None = Field(default=None)
+    metadata: JsonObject | None = Field(default=None)
+
+
+class CodePackageConfigBindingContract(BaseModel):
+    """SDK-local CodePackageConfig binding metadata for layout consumers."""
+
+    code_package_config_id: UUID | str | None = Field(default=None)
+    code_package_config_key: str | None = Field(default=None)
+    manifest_kind: str | None = Field(default=None)
+    package_role: str | None = Field(default=None)
+    surface: str | None = Field(default=None)
+    metadata: JsonObject | None = Field(default=None)
+
+
+class CodePackageLayoutContract(_GeneratedCodePackageLayoutContract):
+    """SDK facade over the generated layout DTO with local-only coordinates."""
+
+    package_fqn: str | None = Field(default=None)
+    fqn_prefix: str | None = Field(default=None)
+    manifest: CodePackageManifestContract | None = Field(default=None)
+    semantic_binding: CodeSemanticPackageBindingContract | None = Field(default=None)
+    config_binding: CodePackageConfigBindingContract | None = Field(default=None)
+    owned_file_paths: list[str] = Field(default_factory=list)
 
 
 __all__ = [
@@ -246,9 +307,14 @@ __all__ = [
     "CodePackageDeltaAuthorityKind",
     "CodePackageDeltaKind",
     "CodePackageDeltaPath",
+    "CodePackageDeltaProducerRef",
+    "CodePackageDeltaProduction",
+    "CodePackageConfigBindingContract",
     "CodePackageLayoutContract",
     "CodePackageLayoutPathRole",
+    "CodePackageManifestContract",
     "CodePackagePathRole",
+    "CodeSemanticPackageBindingContract",
     "CodeNestedMemberInsertAnchor",
     "CodeNestedMemberInsertPosition",
     "CodeSemanticActionBinding",

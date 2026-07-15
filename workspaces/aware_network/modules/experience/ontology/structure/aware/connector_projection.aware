@@ -1,0 +1,16 @@
+/// Connector instance projection.
+///
+/// Contract:
+/// - This is the raw instance surface for actual connector runtime fulfillments.
+/// - Sensor/Actuator instance links are portal-backed by their own projections.
+projection Connector {
+    root connector.Connector
+    connector.Connector::sensors Sensor
+    connector.Connector::actuators Actuator
+
+    observable connector {
+        """
+        Connector instance surface with portal-backed Sensor/Actuator runtime fulfillments.
+        """
+    }
+}

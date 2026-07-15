@@ -1,0 +1,38 @@
+/// Canonical per-turn feedback records.
+///
+/// Contract:
+/// - Sequence is monotonic per Turn.
+/// - Parent relation is declared by `Turn.feedbacks[]`.
+class TurnFeedback {
+    // Identity
+    mailbox_key String
+    sequence Int key
+
+    // State
+    stage String
+    status String
+
+    // Lifecycle
+    created_at_unix_ms Int
+
+    // Payload
+    message String?
+    payload JsonObject?
+
+    fn create construct (
+        sequence Int key,
+        stage String,
+        status String,
+        created_at_unix_ms Int,
+        message String? = null,
+        payload JsonObject? = null
+    ) -> TurnFeedback {
+        """
+        Construct a deterministic feedback record under a Turn.
+
+        Contract:
+        - Identity is derived from `(turn_id, sequence)`.
+        - Constructor is idempotent for repeated calls with the same pair.
+        """
+    }
+}

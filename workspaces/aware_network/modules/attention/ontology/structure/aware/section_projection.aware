@@ -1,0 +1,9 @@
+// Section projection (shareable section - focus scope contract)
+//
+// Contract:
+// - Section is a canonical, shareable section - focus scope contract primitive.
+projection Section {
+    root section.Section
+    section.Section::focus_scopes
+    section.SectionFocusScope::focus_scope FocusScope
+}

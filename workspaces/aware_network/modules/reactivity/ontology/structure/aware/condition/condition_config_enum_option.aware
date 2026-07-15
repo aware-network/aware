@@ -1,0 +1,12 @@
+class ConditionConfigEnumOption {
+    // Relationships
+    enum_option aware_meta.enum.EnumOption key
+
+    fn create construct(
+        enum_option_id UUID key
+    ) -> ConditionConfigEnumOption {
+        """
+        Create a deterministic enum option edge for enum condition payloads.
+        """
+    }
+}

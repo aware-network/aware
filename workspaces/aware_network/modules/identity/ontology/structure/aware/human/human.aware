@@ -1,0 +1,21 @@
+class Human {
+    // Relationships
+    actor actor.Actor key
+
+    fn create_human construct (actor_id UUID key) -> Human {
+        """
+        Create a human bound to an actor.
+
+        v0: used by `Identity.signup` to build the minimal Identity→Human graph
+        while preserving the hard mutation boundary (mutate-self-only).
+        """
+    }
+
+    fn get_display_name (p_human_id UUID) -> String {
+        """
+        Gets the display name for a human.
+        Parameters: p_human_id: The UUID of the human.
+        Returns: The human''s display name from their profile
+        """
+    }
+}

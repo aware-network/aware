@@ -1,0 +1,11 @@
+class ProgramInputAttribute {
+    // Relationships
+    config aware_experience.program.ProgramConfigInputConfigAttributeConfig key
+    attribute aware_meta.attribute.Attribute key
+
+    fn build construct (program_id UUID, config_id UUID, attribute_id UUID) -> ProgramInputAttribute {
+        """
+        Create deterministic input signature association edge for one Program.
+        """
+    }
+}

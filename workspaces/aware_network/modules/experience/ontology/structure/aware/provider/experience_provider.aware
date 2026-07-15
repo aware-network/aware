@@ -1,0 +1,68 @@
+/// Experience-owned provider slot.
+///
+/// Contract:
+/// - Experience declares which provider slots can fulfill its public actions.
+/// - Provider ontologies bind concrete fulfillment to this slot later.
+/// - This object intentionally does not reference provider-owned implementation classes.
+class ExperienceProvider {
+    // Relationships
+    action_bindings ExperienceProviderActionBinding[]
+
+    // Attributes
+    description String?
+    metadata_json JsonObject? = {}
+    provider_key String key
+    provider_kind String = "provider"
+    selection_policy String = "contract_required"
+    status String = "active"
+    title String?
+
+    fn build construct (
+        provider_key String key,
+        provider_kind String = "provider",
+        selection_policy String = "contract_required",
+        status String = "active",
+        title String? = null,
+        description String? = null,
+        metadata_json JsonObject? = {}
+    ) -> ExperienceProvider {
+        """
+        Create one public provider slot under a ProjectionExperience.
+
+        Contract:
+        - Parent ProjectionExperience scope is propagated by constructor lowering.
+        - Stable identity is `(projection_experience_id, provider_key)`.
+        - The provider slot is Experience-owned public contract, not a concrete
+          implementation object.
+        """
+    }
+
+    fn bind_action (
+        binding_key String key,
+        experience_invocation_action_config_id UUID key,
+        provider_action_ref String? = null,
+        required_contract_scope String = "operation",
+        selection_policy String = "contract_required",
+        status String = "active",
+        description String? = null
+    ) -> ExperienceProviderActionBinding {
+        """
+        Bind one Experience action config to this provider slot.
+
+        Contract:
+        - Experience owns the public provider/action contract.
+        - Provider-owned fulfillment binds concrete operations to this binding later.
+        """
+        let created = construct action_bindings.build(
+            binding_key = binding_key,
+            experience_invocation_action_config_id = experience_invocation_action_config_id,
+            provider_action_ref = provider_action_ref,
+            required_contract_scope = required_contract_scope,
+            selection_policy = selection_policy,
+            status = status,
+            description = description,
+        )
+    }
+}
+
+ann provider.ExperienceProvider::action_bindings load eager

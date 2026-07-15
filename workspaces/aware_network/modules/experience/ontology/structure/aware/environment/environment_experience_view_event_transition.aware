@@ -1,0 +1,44 @@
+/// Experience-owned View -> Event -> View transition policy.
+///
+/// Contract:
+/// - Source view is the focused Experience projection view.
+/// - Trigger event is the profile-owned Reactivity event binding.
+/// - Target is the section-graph binding that resolves the next view + graph occurrence
+///   + Attention layout section.
+/// - This object never references Attention directly.
+class EnvironmentExperienceViewEventTransition {
+    // Source
+    source_view projection.ProjectionExperienceView key
+
+    // Trigger
+    trigger_event EnvironmentExperienceEvent key
+
+    // Target
+    target_section_graph_binding projection.ProjectionExperienceSectionGraphBinding key
+
+    // Attributes
+    transition_key String key
+    name String?
+    rationale String?
+    idempotency_policy String?
+
+    fn build construct (
+        source_view_id UUID key,
+        trigger_event_id UUID key,
+        target_section_graph_binding_id UUID key,
+        transition_key String key,
+        name String? = null,
+        rationale String? = null,
+        idempotency_policy String? = null
+    ) -> EnvironmentExperienceViewEventTransition {
+        """
+        Construct one deterministic profile-owned ViewEventTransition.
+
+        Notes:
+        - Identity is derived from `(environment_experience_profile_config_id, source_view_id,
+          trigger_event_id, target_section_graph_binding_id, transition_key)`.
+        - `target_section_graph_binding` is the only transition target rail. Attention focus
+          activation is resolved later through that binding.
+        """
+    }
+}

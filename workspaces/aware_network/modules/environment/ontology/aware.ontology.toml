@@ -1,0 +1,56 @@
+aware_ontology = 1
+
+[ontology]
+package_name = "environment-ontology"
+fqn_prefix = "aware_environment"
+version_number = 1
+title = "Environment"
+description = "SSOT canonical (.aware) sources for environment"
+source_manifest = "structure/aware.toml"
+package_root = "."
+sources_root = "structure/aware"
+stable_ids_ownership = "compiler"
+stable_ids_parity_policy = "error"
+stable_ids_resolution_policy = "class_strict"
+
+[layout]
+profile = "ontology_structure_v1"
+
+[runtime]
+manifest = "runtime/python/pyproject.toml"
+project_name = "aware-environment"
+import_root = "aware_environment"
+
+[semantic_contract]
+provider_key = "aware_environment"
+role = "aware_environment.environment_config.provider"
+module = "aware_environment.semantic_contract"
+owns_manifest_kinds = ["aware_environment_toml"]
+capabilities = ["semantic_materialization"]
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "ontology-ontology"
+
+[[dependencies]]
+package_name = "content-ontology"
+
+[[dependencies]]
+package_name = "storage-ontology"
+
+[[dependencies]]
+package_name = "history-ontology"
+
+[[dependencies]]
+package_name = "identity-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "attention-ontology"
+
+[[dependencies]]
+package_name = "reactivity-ontology"

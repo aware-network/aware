@@ -1,0 +1,56 @@
+/// Deterministic encode substrate for one binding-class anchor.
+///
+/// Contract:
+/// - Formula stays directional and encodes one source class instance into the
+///   target attribute owned by the parent `ObjectConfigGraphBindingClass`.
+/// - `ContentPartText` stores canonical authored template text.
+/// - Placeholder semantics remain Meta-owned through
+///   `ObjectConfigGraphBindingFormulaSegmentReference`.
+class ObjectConfigGraphBindingFormula {
+    // Relationships
+    content_part_text aware_content.part.ContentPartText? unique
+    object_config_graph_binding_formula_segment_references ObjectConfigGraphBindingFormulaSegmentReference[]
+
+    // Attributes
+    key String key = "default"
+
+    fn build construct(
+        key String key = "default",
+        content_part_text_id UUID? = null,
+    ) -> ObjectConfigGraphBindingFormula {
+        """
+        Build deterministic ObjectConfigGraphBindingFormula within an
+        ObjectConfigGraphBindingClass scope.
+
+        Contract:
+        - Parent binding-class scope is propagated via
+        `ObjectConfigGraphBindingClass -> ObjectConfigGraphBindingFormula`.
+        - Stable identity resolves from
+        `(object_config_graph_binding_class_id via path, key)`.
+        - `content_part_text_id` may be set during construction or later.
+        """
+    }
+
+    fn create_segment_reference(
+        content_part_text_segment_id UUID key,
+        source_class_config_attribute_config_id UUID key,
+    ) -> ObjectConfigGraphBindingFormulaSegmentReference {
+        """
+        Create deterministic placeholder/source-attribute reference within this
+        formula scope.
+
+        Contract:
+        - Placeholder semantics stay in Meta; `content` remains generic.
+        - The referenced segment must belong to this formula's `content_part_text`.
+        - Stable identity resolves from formula scope plus the referenced segment
+        and source class attribute config.
+        """
+        let created = construct object_config_graph_binding_formula_segment_references.build(
+            content_part_text_segment_id = content_part_text_segment_id,
+            source_class_config_attribute_config_id = source_class_config_attribute_config_id,
+        )
+    }
+}
+
+ann config.ObjectConfigGraphBindingFormula::content_part_text load eager
+ann config.ObjectConfigGraphBindingFormula::object_config_graph_binding_formula_segment_references load eager

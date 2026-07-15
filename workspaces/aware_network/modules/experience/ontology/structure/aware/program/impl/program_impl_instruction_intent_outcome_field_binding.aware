@@ -1,0 +1,21 @@
+/// One prior action response field projected into a continuation action request.
+class ProgramImplInstructionIntentOutcomeFieldBinding {
+    // Relationships
+    source_program_impl_instruction_intent ProgramImplInstructionIntent key
+    source_response_attribute_config aware_meta.attribute.AttributeConfig key
+    target_request_attribute_config aware_meta.attribute.AttributeConfig key
+
+    // Attributes
+    required Bool = true
+    position Int? = null
+
+    fn build construct (
+        source_program_impl_instruction_intent_id UUID key,
+        source_response_attribute_config_id UUID key,
+        target_request_attribute_config_id UUID key,
+        required Bool = true,
+        position Int? = null
+    ) -> ProgramImplInstructionIntentOutcomeFieldBinding {
+        """Create one deterministic prior-outcome field edge under its target intent."""
+    }
+}

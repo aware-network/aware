@@ -1,0 +1,42 @@
+/// Runtime/implementation CodePackage attached to an OntologyPackage.
+class OntologyPackageRuntimeCodePackage {
+    // Relationships
+    code_package aware_code.package.CodePackage key
+    object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    exclude_paths JsonArray = []
+    import_root String
+    include_paths JsonArray = []
+    language aware_code.code.CodeLanguage
+    manifest_relative_path String
+    package_name String
+    package_root String = "."
+    role String = "runtime"
+
+    fn build construct(
+        code_package_id UUID key,
+        package_name String,
+        language aware_code.code.CodeLanguage,
+        import_root String,
+        manifest_relative_path String,
+        package_root String = ".",
+        role String = "runtime",
+        object_instance_graph_commit_id UUID? = null,
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+    ) -> OntologyPackageRuntimeCodePackage {
+        """
+        Attach one Code-owned implementation/runtime package.
+
+        Contract:
+        - Parent `OntologyPackage` scope is injected by propagation.
+        - Identity is keyed by the attached `CodePackage`.
+        - `object_instance_graph_commit_id`, when present, is the exact
+          WorkspaceRevision/Hub replay pin for that CodePackage.
+        """
+    }
+}
+
+ann ontology.OntologyPackageRuntimeCodePackage::code_package load eager
+ann ontology.OntologyPackageRuntimeCodePackage::object_instance_graph_commit load eager

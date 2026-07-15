@@ -1,0 +1,135 @@
+class ProjectionExperienceView {
+    // Relationships
+    /// API-owned lower view-state contract this Experience view exposes.
+    api_view aware_api.api.ApiView
+    /// Experience-owned invocation actions that panes may render and dispatch.
+    invocation_action_configs ProjectionExperienceViewInvocationActionConfig[]
+    /// Concrete rendered/view-state instances of this view.
+    view_instances ProjectionExperienceViewInstance[]
+    /// Canonical provider binding that turns host-owned materialized state into this view state.
+    state_providers ProjectionExperienceViewStateProvider[]
+
+    // Attributes
+    name String key
+
+    fn create construct (
+        api_view_id UUID,
+        name String key
+    ) -> ProjectionExperienceView {
+        """
+        Construct a deterministic ProjectionExperienceView under a ProjectionExperience.
+
+        Contract:
+        - `ProjectionExperienceView.id` is deterministic for `(projection_experience_id, name)`.
+        - Constructor converges the API-view binding for repeated calls with the same Experience mount key.
+        - `api_view` is the canonical lower API-owned readable view-state contract.
+        - Observable and state-model metadata are derived from `api_view`; Experience
+          does not duplicate lower view contract truth.
+        """
+    }
+
+    fn set_state_provider (
+        provider_ref String,
+        provider_kind String = "runtime_callable",
+        purity String = "pure_read"
+    ) -> ProjectionExperienceViewStateProvider {
+        """
+        Bind the pure read provider for this exact ProjectionExperienceView.
+
+        Contract:
+        - The view remains the semantic selector and owns provider selection.
+        - The provider must only read host-owned materialized state and produce the declared state model.
+        - Runtime callables and SDK functions are adapter implementations, not semantic authority.
+        """
+        let created = construct state_providers.build(
+            provider_ref = provider_ref,
+            provider_kind = provider_kind,
+            purity = purity,
+        )
+    }
+
+    fn add_invocation_action (
+        api_view_capability_endpoint_id UUID,
+        experience_invocation_action_config_id UUID,
+        action_key String,
+        sdk_operation_api_view_capability_endpoint_id UUID? = null,
+        label String? = null,
+        receipt_policy String? = null,
+        confirmation_policy String? = null,
+        optimistic_policy String? = null
+    ) -> ProjectionExperienceViewInvocationActionConfig {
+        """
+        Bind one Experience-owned invocation action to this view.
+
+        Contract:
+        - `api_view_capability_endpoint` is the API-owned view action truth.
+        - `sdk_operation_api_view_capability_endpoint`, when present, wraps the
+          same API view action with an SDK operation.
+        - `experience_invocation_action_config` carries executable API endpoint XOR
+          SDK operation target metadata.
+        - `action_key` is copied from API-owned view action truth for panes.
+        - This is not a Reactivity `ActionConfig`; it is a user/client invocation capability.
+        """
+    }
+
+    fn bind_invocation_action_config (
+        api_view_capability_endpoint_id UUID key,
+        experience_invocation_action_config_id UUID,
+        action_key String,
+        sdk_operation_api_view_capability_endpoint_id UUID? = null,
+        label String? = null,
+        receipt_policy String? = null,
+        confirmation_policy String? = null,
+        optimistic_policy String? = null
+    ) -> ProjectionExperienceViewInvocationActionConfig {
+        """
+        Bind one generic Experience invocation target config to an API-owned
+        view action exposed by this view.
+
+        Contract:
+        - `api_view_capability_endpoint` is mandatory view-action truth.
+        - Target execution metadata stays on `ExperienceInvocationActionConfig`.
+        - Optional SDK operation view binding wraps the same API view action.
+        """
+        let created = construct invocation_action_configs.build(
+            api_view_capability_endpoint_id = api_view_capability_endpoint_id,
+            experience_invocation_action_config_id = experience_invocation_action_config_id,
+            sdk_operation_api_view_capability_endpoint_id = sdk_operation_api_view_capability_endpoint_id,
+            action_key = action_key,
+            label = label,
+            receipt_policy = receipt_policy,
+            confirmation_policy = confirmation_policy,
+            optimistic_policy = optimistic_policy,
+        )
+    }
+
+    fn create_instance (
+        section_graph_binding_id UUID key,
+        view_instance_key String key,
+        object_instance_graph_branch_id UUID? = null,
+        state_commit_id UUID? = null,
+        status String = "active"
+    ) -> ProjectionExperienceViewInstance {
+        """
+        Create one concrete rendered instance of this Experience view.
+
+        Contract:
+        - `ProjectionExperienceView` is reusable view configuration.
+        - `ProjectionExperienceViewInstance` is the concrete view fulfillment for
+          one section-graph binding, optionally backed by one materialized branch.
+        - Attention FocusScope remains transitional selector state and is not view identity.
+        - Action provenance must attach to this instance, not only to the view config.
+        """
+        let created = construct view_instances.build(
+            section_graph_binding_id = section_graph_binding_id,
+            view_instance_key = view_instance_key,
+            object_instance_graph_branch_id = object_instance_graph_branch_id,
+            state_commit_id = state_commit_id,
+            status = status,
+        )
+    }
+}
+
+ann projection.ProjectionExperienceView::api_view load eager
+ann projection.ProjectionExperienceView::invocation_action_configs load eager
+ann projection.ProjectionExperienceView::view_instances load eager

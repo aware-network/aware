@@ -1,0 +1,21 @@
+/// EnvironmentNavigationContext projection.
+///
+/// Contract:
+/// - One EnvironmentSession may own many navigation contexts.
+/// - This projection is the committed shared tab/window-like
+///   EnvironmentSessionThread target state.
+/// - EnvironmentSessionThread is a portal ref; the NavigationContext lane
+///   stores pointer state, not the target graph.
+/// - History is commit-derived; no EnvironmentNavigationEvent object exists in
+///   v0.
+projection EnvironmentNavigationContext {
+    root environment.EnvironmentNavigationContext
+
+    environment.EnvironmentNavigationContext::session_thread EnvironmentSessionThread
+
+    observable navigation_context {
+        """
+        Shared Environment navigation pointer with a session-thread target.
+        """
+    }
+}

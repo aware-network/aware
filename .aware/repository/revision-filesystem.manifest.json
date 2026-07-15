@@ -1,0 +1,2991 @@
+{
+  "layout": {
+    "base_authority": "repository_revision",
+    "overlays": [
+      "agent_coordination_surface",
+      "public_git_mirror"
+    ],
+    "root_authority": "repository_root_code_package_commit",
+    "workspace_authority": "workspace_revision_code_package_commit"
+  },
+  "manifest_digest": "438af8b300eb919658550b64074449a7da58d8ff603f48c96893c2c057a9fc11",
+  "manifest_version": "aware.repository.revision_filesystem.v1",
+  "profile_key": "agentic_public_workspace",
+  "repository_id": "d216ea27-feb1-59cc-9b48-fcbde34984bc",
+  "repository_revision_id": "8f164961-a29b-5244-9953-8d6cb53e0ed6",
+  "root_files": [
+    {
+      "byte_length": 7526,
+      "relative_path": "README.md",
+      "role": "readme",
+      "sha256": "e0a835607ab6ac41a2e06dbfbe529e1101ace1dc76528d94103eca5f22af3f08",
+      "source_code_package_id": "cc28eb39-d241-54cf-af26-69f55fca41b4",
+      "source_object_instance_graph_commit_id": "7d4d6025-6944-567a-9392-ef0b91a92ac1"
+    },
+    {
+      "byte_length": 15163,
+      "relative_path": "AGENTS.md",
+      "role": "agent_coordination_surface:AGENTS.md",
+      "sha256": "5f3ee7749f0b72d4cfa2ec7b51925cc683435682d43e29f81902d7e0fc967411",
+      "source_code_package_id": "cc28eb39-d241-54cf-af26-69f55fca41b4",
+      "source_object_instance_graph_commit_id": "7d4d6025-6944-567a-9392-ef0b91a92ac1"
+    },
+    {
+      "byte_length": 12615,
+      "relative_path": "docs/alignment/PROTOCOL.md",
+      "role": "agent_coordination_surface:alignment_protocol",
+      "sha256": "c6a1904dc9100806998cd46cdc3003856b0ce59185f82e08f636371b931258a1",
+      "source_code_package_id": "cc28eb39-d241-54cf-af26-69f55fca41b4",
+      "source_object_instance_graph_commit_id": "7d4d6025-6944-567a-9392-ef0b91a92ac1"
+    },
+    {
+      "byte_length": 6425,
+      "relative_path": "docs/alignment/README.md",
+      "role": "agent_coordination_surface:alignment_readme",
+      "sha256": "10b21041be95560051cc8172adbe2b56e98b90d367832de0ff1b7440f13c951a",
+      "source_code_package_id": "cc28eb39-d241-54cf-af26-69f55fca41b4",
+      "source_object_instance_graph_commit_id": "7d4d6025-6944-567a-9392-ef0b91a92ac1"
+    },
+    {
+      "byte_length": 6563,
+      "relative_path": "docs/alignment/CURRENT.md",
+      "role": "agent_coordination_surface:alignment_current",
+      "sha256": "91d92b44fdb7797ebbf562c210b0f62190321be46a149600d6806cb812ed9bde",
+      "source_code_package_id": "cc28eb39-d241-54cf-af26-69f55fca41b4",
+      "source_object_instance_graph_commit_id": "7d4d6025-6944-567a-9392-ef0b91a92ac1"
+    },
+    {
+      "byte_length": 7550,
+      "relative_path": "docs/issues/PROTOCOL.md",
+      "role": "agent_coordination_surface:issues_protocol",
+      "sha256": "552947447ffcdcc6ead4c3ade92733eb41c7fd6dcf686bca7a35fbe71ef58287",
+      "source_code_package_id": "cc28eb39-d241-54cf-af26-69f55fca41b4",
+      "source_object_instance_graph_commit_id": "7d4d6025-6944-567a-9392-ef0b91a92ac1"
+    },
+    {
+      "byte_length": 4182,
+      "relative_path": "docs/feed/PROTOCOL.md",
+      "role": "agent_coordination_surface:feed_protocol",
+      "sha256": "62a0025b7b74c87ab7f57908e9fc0ef6063b9834905854ff1bf54bc95bd841ec",
+      "source_code_package_id": "cc28eb39-d241-54cf-af26-69f55fca41b4",
+      "source_object_instance_graph_commit_id": "7d4d6025-6944-567a-9392-ef0b91a92ac1"
+    },
+    {
+      "byte_length": 11537,
+      "relative_path": "docs/goals/PROTOCOL.md",
+      "role": "agent_coordination_surface:goals_protocol",
+      "sha256": "c26a105187afd0c1e87f902fe96c05d3a822f73be547e5265ce92343f99e47f2",
+      "source_code_package_id": "cc28eb39-d241-54cf-af26-69f55fca41b4",
+      "source_object_instance_graph_commit_id": "7d4d6025-6944-567a-9392-ef0b91a92ac1"
+    },
+    {
+      "byte_length": 12148,
+      "relative_path": "docs/specs/PROTOCOL.md",
+      "role": "agent_coordination_surface:specs_protocol",
+      "sha256": "4a8d91f8af9d9415060bfbce573f6dfa2470dab0195b10a108ff622f00766aac",
+      "source_code_package_id": "cc28eb39-d241-54cf-af26-69f55fca41b4",
+      "source_object_instance_graph_commit_id": "7d4d6025-6944-567a-9392-ef0b91a92ac1"
+    },
+    {
+      "byte_length": 2152,
+      "relative_path": "aware.repo.toml",
+      "role": "repository_manifest",
+      "sha256": "438af8b300eb919658550b64074449a7da58d8ff603f48c96893c2c057a9fc11",
+      "source_code_package_id": "cc28eb39-d241-54cf-af26-69f55fca41b4",
+      "source_object_instance_graph_commit_id": "7d4d6025-6944-567a-9392-ef0b91a92ac1"
+    }
+  ],
+  "source_revision_id": "repository-aggregate:bce9c79e73267a38d55fd422e70bc25b7b3d6a1e3e27f5647f56c4633d90b947",
+  "source_revision_kind": "manifest_projection",
+  "workspaces": [
+    {
+      "package_count": 166,
+      "packages": [
+        {
+          "code_package_id": "00a33546-5dbf-506a-bdee-2f408fb1e036",
+          "domain_commit_id": "a20d5ce1-9be5-5f50-95e0-b8a2c7a05fd6",
+          "file_count": 35,
+          "object_instance_graph_commit_id": "68f1f9b8-c41b-59c2-a42c-eadaa80807d6",
+          "package_name": "aware-content-ontology",
+          "package_root": "workspaces/aware_kernel/modules/content/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "9770a7da-6ec5-50a5-b188-f6b52c140db9"
+        },
+        {
+          "code_package_id": "0202fe17-f333-52d0-bd4f-b68889fd2abc",
+          "domain_commit_id": "4ed5c7cc-3f09-5298-8d34-b74f1894c4a0",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "95d9084d-5065-56dd-9dcc-79da693a7c86",
+          "package_name": "aware_api_service_dto",
+          "package_root": "workspaces/aware_kernel/modules/api/apis/api/python/aware_api_service_dto",
+          "revision_code_package_id": "9fa8f36a-41e0-552b-9075-f6020f4183f9"
+        },
+        {
+          "code_package_id": "02a919cf-73ce-5ef9-810e-890217abeab1",
+          "domain_commit_id": "5175a51f-8406-5385-bff4-f3eeb7af94d6",
+          "file_count": 27,
+          "object_instance_graph_commit_id": "426c75a0-85e0-5034-afdf-47b8a212f25e",
+          "package_name": "file-system-service-api",
+          "package_root": "workspaces/aware_kernel/modules/filesystem/apis/filesystem",
+          "revision_code_package_id": "34c33c99-1782-50ec-9b41-800133f091f9"
+        },
+        {
+          "code_package_id": "05995a44-a2eb-5c34-ad2b-51a1ae84fa1f",
+          "domain_commit_id": "9b94a82c-02df-57af-b929-d67768a4bfab",
+          "file_count": 104,
+          "object_instance_graph_commit_id": "7b2f6126-a06e-537f-bd57-28ae32420000",
+          "package_name": "aware-grammar",
+          "package_root": "workspaces/aware_kernel/languages/aware/grammar/grammar",
+          "revision_code_package_id": "a641584f-9a09-5176-9ad8-b9bb80b799fc"
+        },
+        {
+          "code_package_id": "065b00da-2046-5e46-8a2d-7e6479dbb621",
+          "domain_commit_id": "aede1f27-f7bf-5b1c-99fb-a3fac3946222",
+          "file_count": 144,
+          "object_instance_graph_commit_id": "9b9b4d22-aaad-519f-b88d-bf7dbaa24c03",
+          "package_name": "aware-meta-ontology",
+          "package_root": "workspaces/aware_kernel/modules/meta/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "cec519fc-0ee1-5734-a0ca-f2cc93ef7a29"
+        },
+        {
+          "code_package_id": "08bbbf48-5dbb-5389-ba5f-442f97c9d0af",
+          "domain_commit_id": "30ed0d16-bd6b-5f96-bec5-404f604967df",
+          "file_count": 94,
+          "object_instance_graph_commit_id": "158c9b94-61dd-5ff2-a78a-764c4df00b3a",
+          "package_name": "python-grammar",
+          "package_root": "workspaces/aware_kernel/languages/python/grammar/grammar",
+          "revision_code_package_id": "915509a8-c825-5b41-b30a-89c91487ddfe"
+        },
+        {
+          "code_package_id": "08df0485-230a-5f8e-ad01-87cbe58ac9a8",
+          "domain_commit_id": "69b39c0b-ab39-5f35-b715-1ae7ec0bedbe",
+          "file_count": 236,
+          "object_instance_graph_commit_id": "42d057de-58ef-5f56-b9ae-6cbdc6882b18",
+          "package_name": "reactivity-ontology",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/ontology",
+          "revision_code_package_id": "efef2209-2839-5235-87e2-afbafe9412da"
+        },
+        {
+          "code_package_id": "09e38213-b46e-5a78-90c3-57dac7195d61",
+          "domain_commit_id": "c0b44dc6-440e-5a41-a87d-ea98c70b3115",
+          "file_count": 1,
+          "object_instance_graph_commit_id": "78f34bfc-4f4e-51bc-8b88-e7e4cf007377",
+          "package_name": "code-sdk",
+          "package_root": "workspaces/aware_kernel/modules/code/sdks/code/aware",
+          "revision_code_package_id": "d675e6fe-dc2b-5aa1-a293-0e91810f1299"
+        },
+        {
+          "code_package_id": "0fb9deaa-5490-56c2-80d4-5c8fc33a5542",
+          "domain_commit_id": "faad0951-e867-5b76-afa8-14b395eacd5c",
+          "file_count": 62,
+          "object_instance_graph_commit_id": "64d41258-f682-5344-80cc-57416ad89943",
+          "package_name": "code-ontology",
+          "package_root": "workspaces/aware_kernel/modules/code/ontology/structure/sql/schema",
+          "revision_code_package_id": "471d56bf-979e-59fc-9912-441a8c6dc1a9"
+        },
+        {
+          "code_package_id": "103dcc58-3aef-52d3-911a-bfa3c3183102",
+          "domain_commit_id": "eaab9697-e83a-5880-89a3-a8d2f1a59b74",
+          "file_count": 3,
+          "object_instance_graph_commit_id": "31d4da10-e976-538c-b622-7bf9232e7df7",
+          "package_name": "aware_model_helpers",
+          "package_root": "workspaces/aware_kernel/libs/model_helpers/dart/aware_model_helpers",
+          "revision_code_package_id": "de800135-1613-5f3c-b774-a740b819e190"
+        },
+        {
+          "code_package_id": "115546fa-25b0-5b7e-9a26-0fe052bc674e",
+          "domain_commit_id": "59a615e9-bfef-56f2-ba16-8c90da3f2b25",
+          "file_count": 45,
+          "object_instance_graph_commit_id": "4a49b134-a997-55ba-b68e-8c51051f823e",
+          "package_name": "reactivity-service-api",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/apis/reactivity",
+          "revision_code_package_id": "287ac026-8f78-51db-996c-ceab3d4fe125"
+        },
+        {
+          "code_package_id": "14290132-5936-5f8c-a642-c8c88c553ea8",
+          "domain_commit_id": "7b1298b1-1e35-5e2e-8de7-f652b81cbbb7",
+          "file_count": 1,
+          "object_instance_graph_commit_id": "592a3634-7621-5728-bdcd-74584e875878",
+          "package_name": "storage-sdk",
+          "package_root": "workspaces/aware_kernel/modules/storage/sdks/storage/aware",
+          "revision_code_package_id": "4afe22b3-d370-54b5-837b-fe8e128279e1"
+        },
+        {
+          "code_package_id": "154fc60b-ab17-5068-b021-189489cec55a",
+          "domain_commit_id": "90dc1e9a-5d5f-536c-89ae-c831c59e06ba",
+          "file_count": 1,
+          "object_instance_graph_commit_id": "0ce5a1de-3298-5b20-8eaa-9de668e1d511",
+          "package_name": "ontology-sdk",
+          "package_root": "workspaces/aware_kernel/modules/ontology/sdks/ontology/aware",
+          "revision_code_package_id": "06a14216-a667-54d6-ba1c-34ea1b7047d7"
+        },
+        {
+          "code_package_id": "188c0331-046b-5f15-bf79-5c3ae88c690d",
+          "domain_commit_id": "925eaf2f-adf4-550f-865a-0b3b8c070477",
+          "file_count": 22,
+          "object_instance_graph_commit_id": "c47d1d6a-0369-5ada-8548-9d1a5fa7c594",
+          "package_name": "aware-sdk-ontology",
+          "package_root": "workspaces/aware_kernel/modules/sdk/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "47e7941a-db87-5fc3-a02c-d7dfec132b65"
+        },
+        {
+          "code_package_id": "1ad142c8-64d6-5f6f-be8b-dd283ccf0533",
+          "domain_commit_id": "b3f00505-cc22-515f-9a88-4cadd1c8448b",
+          "file_count": 24,
+          "object_instance_graph_commit_id": "f8b879e2-de4f-5592-845a-8eecf0d333a9",
+          "package_name": "aware_code_service_dto",
+          "package_root": "workspaces/aware_kernel/modules/code/apis/code/python/aware_code_service_dto",
+          "revision_code_package_id": "2a98c44d-acde-56b4-ae76-442dcc97a299"
+        },
+        {
+          "code_package_id": "1b099806-d54a-5a48-9875-cf787401b93c",
+          "domain_commit_id": "3383989f-42e1-51cc-beff-6467143210a8",
+          "file_count": 1,
+          "object_instance_graph_commit_id": "3808244e-07d3-5c49-8e08-8de916225fb5",
+          "package_name": "content-sdk",
+          "package_root": "workspaces/aware_kernel/modules/content/sdks/content/aware",
+          "revision_code_package_id": "6220e78f-6b15-5d87-8482-65fca8965eed"
+        },
+        {
+          "code_package_id": "1b7dd2b2-e041-5133-a03c-7389cd2edd89",
+          "domain_commit_id": "cee3752b-a4b1-5704-86be-1a720c9eb5f6",
+          "file_count": 128,
+          "object_instance_graph_commit_id": "e8e24d83-4ca3-505c-a38f-ef5228418d04",
+          "package_name": "history-ontology",
+          "package_root": "workspaces/aware_kernel/modules/history/ontology",
+          "revision_code_package_id": "57de2612-4c30-5789-adfb-faafffbdaa11"
+        },
+        {
+          "code_package_id": "1c9141b0-dcc5-57aa-bece-e40dc9c5a234",
+          "domain_commit_id": "993b2622-8951-57d3-9046-943037172da1",
+          "file_count": 1,
+          "object_instance_graph_commit_id": "56c83825-2a30-51fe-97b8-9e6024c3856e",
+          "package_name": "filesystem-sdk",
+          "package_root": "workspaces/aware_kernel/modules/filesystem/sdks/filesystem/aware",
+          "revision_code_package_id": "1af1b241-1571-5e5f-9c2c-cb7624c9ca62"
+        },
+        {
+          "code_package_id": "219f5ba4-d875-529a-845b-546286532485",
+          "domain_commit_id": "f0a1cb93-c6eb-5ba2-9607-9dc375763097",
+          "file_count": 11,
+          "object_instance_graph_commit_id": "cfaa5ebf-d99a-5b7b-bbb8-f67195e1479f",
+          "package_name": "meta-service-dto",
+          "package_root": "workspaces/aware_kernel/modules/meta/apis/meta/dto",
+          "revision_code_package_id": "91375752-d1a7-54a4-861e-074c75ebc308"
+        },
+        {
+          "code_package_id": "22336ac1-6e1e-5f32-8460-023bf5a4a365",
+          "domain_commit_id": "6465329c-6485-574e-ac15-6e1c13b39bb9",
+          "file_count": 12,
+          "object_instance_graph_commit_id": "83f23a82-474f-5261-ba99-a209c6a91f44",
+          "package_name": "aware-file-system-sdk",
+          "package_root": "workspaces/aware_kernel/modules/filesystem/sdks/filesystem/python",
+          "revision_code_package_id": "bd0de7cb-bab0-573f-a362-69315510d75e"
+        },
+        {
+          "code_package_id": "22dc86f6-7ab4-5552-b14e-ce7c13269b80",
+          "domain_commit_id": "274db0a5-3c3b-5b20-9df3-89cf0d9c3430",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "2efb4bdb-0698-5e4d-a398-8ed9b38bc961",
+          "package_name": "rust-tooling",
+          "package_root": "workspaces/aware_kernel/languages/rust/tooling",
+          "revision_code_package_id": "346e6649-a813-5ae8-ad8c-f6e6f5a2d046"
+        },
+        {
+          "code_package_id": "26c0ce8c-a97b-51dd-bcde-13e12b96493e",
+          "domain_commit_id": "e1ce3869-e832-53da-acce-471ef2a2e6a3",
+          "file_count": 77,
+          "object_instance_graph_commit_id": "39d4ba9c-642f-5dcd-b239-1b14eb4a3a19",
+          "package_name": "tree-sitter-python",
+          "package_root": "workspaces/aware_kernel/languages/python/grammar/tree_sitter",
+          "revision_code_package_id": "b5cbd4a3-3f81-55e5-acf3-1680944e31f1"
+        },
+        {
+          "code_package_id": "274b5dc5-6283-5fd6-8fed-7c878c39f3aa",
+          "domain_commit_id": "0ed15d19-f33f-537f-bf12-f69bf0caf0c9",
+          "file_count": 156,
+          "object_instance_graph_commit_id": "6cee3b9f-6aa0-5662-94c1-9f0309427310",
+          "package_name": "aware-api-runtime",
+          "package_root": "workspaces/aware_kernel/modules/api/ontology/runtime/python",
+          "revision_code_package_id": "1a6b5ba9-c1ee-575d-ac86-7ab00516ad85"
+        },
+        {
+          "code_package_id": "2752e450-3827-51ab-a48f-5bfae1b2714c",
+          "domain_commit_id": "2231b32d-06b7-5371-adb7-f7e5781494e1",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "7649b829-edcf-5e46-ad5f-0331f8ad4a78",
+          "package_name": "ontology-service-dto",
+          "package_root": "workspaces/aware_kernel/modules/ontology/apis/ontology/dto",
+          "revision_code_package_id": "b40612b3-997d-5999-beba-25f8369f2e8a"
+        },
+        {
+          "code_package_id": "27ebaaa6-ca76-5b73-9dc9-3226635c1c95",
+          "domain_commit_id": "2e2afa8f-13be-5135-8454-daaf513b4ca3",
+          "file_count": 22,
+          "object_instance_graph_commit_id": "eff09501-114c-55ab-80d0-48b71bcdde0d",
+          "package_name": "aware_meta_service_dto",
+          "package_root": "workspaces/aware_kernel/modules/meta/apis/meta/python/aware_meta_service_dto",
+          "revision_code_package_id": "13997275-25f5-55c3-9077-07632ccfdc7b"
+        },
+        {
+          "code_package_id": "2c9a6f2b-c18f-5ac0-86e1-77b53dce5eb4",
+          "domain_commit_id": "b30f219c-79ef-57d3-8b5a-de206bb7195d",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "241f3ef2-e8f6-5482-a52c-439b5bffb8f7",
+          "package_name": "aware_ontology_service_protocol",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/ontology-service-api/service_protocol/python/package",
+          "revision_code_package_id": "58a55f72-57fb-5171-af3e-4a543b294e7f"
+        },
+        {
+          "code_package_id": "307964f0-512d-5a71-9add-6a34ddde3d88",
+          "domain_commit_id": "a7109802-ca57-5cf8-8690-3d12da6e9793",
+          "file_count": 19,
+          "object_instance_graph_commit_id": "f71629c4-414d-5640-a5be-ea551c2d615b",
+          "package_name": "aware-content",
+          "package_root": "workspaces/aware_kernel/modules/content/ontology/runtime/python",
+          "revision_code_package_id": "2c54394a-9682-54d6-b033-3ac50ccc2b25"
+        },
+        {
+          "code_package_id": "31e9bf4d-f24b-52c7-bef6-db6892089872",
+          "domain_commit_id": "12d9820f-1946-5c1a-9eb9-da820c44b275",
+          "file_count": 1,
+          "object_instance_graph_commit_id": "c36557d0-c5db-5bc1-b04c-e039e53b7ff2",
+          "package_name": "reactivity-sdk",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/sdks/reactivity/aware",
+          "revision_code_package_id": "75a923a1-9bad-599b-b3bb-8238a0e4f7e8"
+        },
+        {
+          "code_package_id": "3392a2eb-e727-5933-b6b7-9fb5722c0710",
+          "domain_commit_id": "91f9e8bb-ccad-5bb0-a462-05613d883f36",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "7a740dae-d451-5f45-a1fc-aaa130a4475d",
+          "package_name": "aware_content_service_protocol",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/content-service-api/service_protocol/python/package",
+          "revision_code_package_id": "ad4a4c42-5090-510b-9680-f2fccd1af61b"
+        },
+        {
+          "code_package_id": "34e28b47-d8fa-5683-b493-886c260f9661",
+          "domain_commit_id": "3fd90f6c-121c-5995-ba67-67bac4a15aa7",
+          "file_count": 1,
+          "object_instance_graph_commit_id": "0d463cdc-00c8-5c41-88f4-6da80844b8f8",
+          "package_name": "meta-sdk",
+          "package_root": "workspaces/aware_kernel/modules/meta/sdks/meta/aware",
+          "revision_code_package_id": "8a9ed828-47a2-5632-99c1-285f45aebd3f"
+        },
+        {
+          "code_package_id": "36e7618a-f495-5b88-806f-54d539c6b362",
+          "domain_commit_id": "7ec6dbfd-866a-51bd-b64c-3a47c49e433f",
+          "file_count": 16,
+          "object_instance_graph_commit_id": "e2a94dc0-7cf6-5b85-ba4e-5bf068f8cfad",
+          "package_name": "aware_reactivity_service_dto",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/apis/reactivity/python/aware_reactivity_service_dto",
+          "revision_code_package_id": "0961feb4-0b09-5890-a47f-8680db0d2783"
+        },
+        {
+          "code_package_id": "37568aea-d5c7-588b-958b-554bcd7e005d",
+          "domain_commit_id": "d27b2460-6bee-5622-b427-db7433e3e7c1",
+          "file_count": 93,
+          "object_instance_graph_commit_id": "9d4b8991-62d7-58f5-bf6b-60d9c374e5cb",
+          "package_name": "python-grammar",
+          "package_root": "workspaces/aware_kernel/languages/python/grammar/grammar",
+          "revision_code_package_id": "b25a6282-4ccb-5936-b6a0-aa5bf2f30a47"
+        },
+        {
+          "code_package_id": "3838ce61-f805-59fa-8a45-5d79dd8ed1bc",
+          "domain_commit_id": "ebf89b51-a70b-5870-ae97-8ff2a0ac4574",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "19dcfed6-0eb3-527b-8ba6-aea5b4d16660",
+          "package_name": "aware_file_system_service_dto",
+          "package_root": "workspaces/aware_kernel/modules/filesystem/apis/filesystem/python/aware_file_system_service_dto",
+          "revision_code_package_id": "12c59760-206e-518a-a3ef-2a13783f2690"
+        },
+        {
+          "code_package_id": "3b69d221-382d-518a-a89b-e8e985235592",
+          "domain_commit_id": "7a0b0e4d-8934-5503-bb2a-8170170de3ae",
+          "file_count": 15,
+          "object_instance_graph_commit_id": "e1213850-8d41-534f-82f5-961e8b3e7584",
+          "package_name": "aware_ontology_service_dto",
+          "package_root": "workspaces/aware_kernel/modules/ontology/apis/ontology/python/aware_ontology_service_dto",
+          "revision_code_package_id": "a1f91fdd-eecc-56e0-8fc0-cdba6be87200"
+        },
+        {
+          "code_package_id": "3ba17e44-f2a3-5aa3-adf2-584727302810",
+          "domain_commit_id": "0760814c-ef75-524e-8960-7785fde80b61",
+          "file_count": 24,
+          "object_instance_graph_commit_id": "de08a75c-68c0-500d-a6a0-32f0cd6de34f",
+          "package_name": "aware-ontology",
+          "package_root": "workspaces/aware_kernel/modules/ontology/ontology/runtime/python",
+          "revision_code_package_id": "0b650174-84cd-5929-8fce-11b803fa5841"
+        },
+        {
+          "code_package_id": "3beec63d-7dcf-5e38-a75f-098cdcb81abf",
+          "domain_commit_id": "e53a609e-cdbd-5e29-afa6-fc79c671541a",
+          "file_count": 16,
+          "object_instance_graph_commit_id": "a50803f7-536e-5c2a-840c-d90b5085907a",
+          "package_name": "aware_storage_service_api",
+          "package_root": "workspaces/aware_kernel/modules/storage/apis/storage/dart/aware_storage_service_api",
+          "revision_code_package_id": "cb26eb13-6acf-5991-86d3-74e312bd0c6b"
+        },
+        {
+          "code_package_id": "4154dde1-86fa-58ce-81e4-a13e6a64d87a",
+          "domain_commit_id": "5ffd72a6-3f71-5c3f-88f0-4be6f95972e1",
+          "file_count": 33,
+          "object_instance_graph_commit_id": "391feaba-aaf1-5f30-b5b5-5c73838cfaa6",
+          "package_name": "aware-api-ontology-orm-models",
+          "package_root": "workspaces/aware_kernel/modules/api/ontology/structure/python/orm_models",
+          "revision_code_package_id": "6e0484ac-ec3a-57ce-8be2-dfe6fa286bc2"
+        },
+        {
+          "code_package_id": "43f9c2d5-9740-54af-9858-6dce2a3c2436",
+          "domain_commit_id": "b07b96a6-991c-5133-8019-8e02dbabeea0",
+          "file_count": 13,
+          "object_instance_graph_commit_id": "329e42c1-3bab-5a3f-8756-3a0de7f423ac",
+          "package_name": "aware-meta-sdk",
+          "package_root": "workspaces/aware_kernel/modules/meta/sdks/meta/python",
+          "revision_code_package_id": "8472d439-32fd-5342-96c1-ccb4b4e167a7"
+        },
+        {
+          "code_package_id": "440094ac-a3b4-5690-9377-83d225fdfb90",
+          "domain_commit_id": "8df7882a-9c80-54d0-af22-82fcbc8f360a",
+          "file_count": 85,
+          "object_instance_graph_commit_id": "8c3cc3da-0520-5615-bdb9-25a7fc94813e",
+          "package_name": "aware-code-ontology",
+          "package_root": "workspaces/aware_kernel/modules/code/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "069bff46-9d7e-5819-806c-deac4c44a5f7"
+        },
+        {
+          "code_package_id": "454b4d41-0eac-577f-ae97-e3eb605126bc",
+          "domain_commit_id": "0afbc4a4-0b24-53a7-8349-496123782abc",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "30455d4a-9c3d-53b2-8558-59adfe9ce619",
+          "package_name": "aware_storage_service_dto",
+          "package_root": "workspaces/aware_kernel/modules/storage/apis/storage/python/aware_storage_service_dto",
+          "revision_code_package_id": "0ddc286a-d729-5eb8-ae93-2c75b6a198a2"
+        },
+        {
+          "code_package_id": "459d5e1c-3c98-5925-a66c-9f1d15a6fe38",
+          "domain_commit_id": "1ea8880d-2a50-5899-94ec-413f894b47af",
+          "file_count": 25,
+          "object_instance_graph_commit_id": "574a6c66-624a-5d09-8ca3-5e4d195d26e2",
+          "package_name": "aware-history-ontology",
+          "package_root": "workspaces/aware_kernel/modules/history/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "d58da6d9-4c14-5de9-bba7-4917e763321a"
+        },
+        {
+          "code_package_id": "469896af-58d2-5199-9144-24fcdd772b88",
+          "domain_commit_id": "4dc2764a-2bc5-5300-bf86-5cdd8d64e276",
+          "file_count": 34,
+          "object_instance_graph_commit_id": "a30603a9-0f5e-543a-8503-5b2fe5cdbc2d",
+          "package_name": "aware-reactivity-ontology-dto",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/ontology/structure/python/dto",
+          "revision_code_package_id": "b11718f0-cd8d-577c-8b59-91d501912d0a"
+        },
+        {
+          "code_package_id": "4adcd5c2-e5a8-5fa9-ac18-98a987fe7c7d",
+          "domain_commit_id": "cc0b2f9d-7dd2-519e-ad57-700ec55a988b",
+          "file_count": 32,
+          "object_instance_graph_commit_id": "73026fab-5ba2-5ef2-b6e1-4471c4d5fb10",
+          "package_name": "aware-utils",
+          "package_root": "workspaces/aware_kernel/libs/utils/python",
+          "revision_code_package_id": "3a0ac57e-1452-5620-8770-a5074e5e18ff"
+        },
+        {
+          "code_package_id": "4b6f697a-e113-5262-887e-0e2d26d2f7ff",
+          "domain_commit_id": "df37055e-8e34-5364-baab-9631ed3c006e",
+          "file_count": 22,
+          "object_instance_graph_commit_id": "15bffd62-4787-541a-af15-ea9bebe3be30",
+          "package_name": "aware-sdk-ontology-orm-models",
+          "package_root": "workspaces/aware_kernel/modules/sdk/ontology/structure/python/orm_models",
+          "revision_code_package_id": "e5fa17e9-ec8f-5698-b8db-c4f907926a57"
+        },
+        {
+          "code_package_id": "4cce1ad1-f5d8-5826-8353-d12908c4df03",
+          "domain_commit_id": "891bd754-26b2-508c-979c-a51895443b0e",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "7e0f9be8-7e2a-5dfc-940e-a7676a7abdd2",
+          "package_name": "aware_reactivity_service_api",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/reactivity-service-api/public_package/python/package",
+          "revision_code_package_id": "c84f3e06-ca94-5fc6-a5d0-7e3e399afdf3"
+        },
+        {
+          "code_package_id": "4d4a3085-cb2e-5072-89f3-f819b89f41aa",
+          "domain_commit_id": "60a3d7ad-eba5-590a-9b8a-40bb2f6a0a4e",
+          "file_count": 335,
+          "object_instance_graph_commit_id": "ccb7af5b-b9ed-568e-bf95-b737b54bb245",
+          "package_name": "aware-code",
+          "package_root": "workspaces/aware_kernel/modules/code/ontology/runtime/python",
+          "revision_code_package_id": "a55d1973-8042-5c4c-af59-4d269f04d96f"
+        },
+        {
+          "code_package_id": "4e292b7b-51f6-5da8-ba89-48b314da7640",
+          "domain_commit_id": "a9ebdf72-3f3b-5c1a-8ec4-47c0bc1f8ed0",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "35eb44b9-80da-594e-99c6-ea729e9e0452",
+          "package_name": "aware-command-runtime",
+          "package_root": "workspaces/aware_kernel/libs/command_runtime/python",
+          "revision_code_package_id": "a645ef14-b1a1-52d0-ace7-507fa79c5135"
+        },
+        {
+          "code_package_id": "4f5e7208-2e17-5998-a7f7-0c83ccd2db72",
+          "domain_commit_id": "4ae7ce96-e50c-58a1-b81e-45fc13e90547",
+          "file_count": 11,
+          "object_instance_graph_commit_id": "657c1b75-ac16-521a-b100-f4d86519ffa5",
+          "package_name": "aware-api-client",
+          "package_root": "workspaces/aware_kernel/modules/api/libs/api/python",
+          "revision_code_package_id": "22d122bd-e875-5aa2-bf5f-340f0637cd7f"
+        },
+        {
+          "code_package_id": "4f7c21d6-f072-5110-bd7e-decbaef423c4",
+          "domain_commit_id": "c5548bc0-500b-5f5f-a3f8-68acffcfbd94",
+          "file_count": 201,
+          "object_instance_graph_commit_id": "0e943a99-a70c-5d74-98da-7f3d227239bc",
+          "package_name": "content-ontology",
+          "package_root": "workspaces/aware_kernel/modules/content/ontology",
+          "revision_code_package_id": "f2802c2b-4d31-5601-9fff-91a334d2f8fc"
+        },
+        {
+          "code_package_id": "504c8659-58ba-5598-aef7-207dfbb9470c",
+          "domain_commit_id": "150ff315-5f07-5a20-b3f6-f9c5b7b7109f",
+          "file_count": 11,
+          "object_instance_graph_commit_id": "39e3579f-902a-5112-91b2-3e1bf125ecbf",
+          "package_name": "reactivity-service-dto",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/apis/reactivity/dto",
+          "revision_code_package_id": "fadbb385-c77d-5e5d-90cf-45b99bcd1e73"
+        },
+        {
+          "code_package_id": "510bfe1d-fc4f-5e00-9379-f15dd5f2aae4",
+          "domain_commit_id": "6eb770d0-7503-5448-8e3b-500df7c3cb2a",
+          "file_count": 18,
+          "object_instance_graph_commit_id": "eed75864-f641-5304-835b-1855597f1bad",
+          "package_name": "code-service-dto",
+          "package_root": "workspaces/aware_kernel/modules/code/apis/code/dto",
+          "revision_code_package_id": "f839a4d2-689a-540b-a149-fc31566a4235"
+        },
+        {
+          "code_package_id": "521604b7-bce1-542b-871a-6b75cc47454e",
+          "domain_commit_id": "d856d252-a14d-5460-8947-69bd76e658f3",
+          "file_count": 151,
+          "object_instance_graph_commit_id": "d7ca1063-545b-510c-bd83-7f3805481270",
+          "package_name": "aware-orm",
+          "package_root": "workspaces/aware_kernel/libs/orm",
+          "revision_code_package_id": "74495bef-8e0f-5db3-aa88-ce222ffb5b8b"
+        },
+        {
+          "code_package_id": "54f1cecc-e813-5d44-889e-96f28f421dce",
+          "domain_commit_id": "c966cbe0-f218-58ba-a6c5-0f5931a6f695",
+          "file_count": 38,
+          "object_instance_graph_commit_id": "a9100ca2-0527-5c29-bff0-78ba0ccd45fe",
+          "package_name": "content-service-api",
+          "package_root": "workspaces/aware_kernel/modules/content/apis/content",
+          "revision_code_package_id": "ad00c982-93b8-540f-ad31-db4ebe4514e2"
+        },
+        {
+          "code_package_id": "56d925f9-8dbb-5116-87e1-aacad65e5580",
+          "domain_commit_id": "74fed6e4-40b4-5e1a-91ec-e4effa29f5dc",
+          "file_count": 25,
+          "object_instance_graph_commit_id": "5c171768-db6f-55b2-bad0-6e773a1a4b61",
+          "package_name": "reactivity-ontology",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/ontology/structure/sql/schema",
+          "revision_code_package_id": "d01187dc-d5fd-575a-8d7f-e4c89720cddd"
+        },
+        {
+          "code_package_id": "56f0abb1-0b8f-5536-bb0f-aca5427e37b8",
+          "domain_commit_id": "bbed74e6-555c-55ae-87b8-c5b9bd6f738e",
+          "file_count": 8,
+          "object_instance_graph_commit_id": "4a2df031-e19c-5a0c-816b-baf5d2a792c3",
+          "package_name": "aware-reactivity-sdk",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/sdks/reactivity/python",
+          "revision_code_package_id": "44bcdc49-017e-5e04-97f9-47a543498027"
+        },
+        {
+          "code_package_id": "57dacb83-d6e2-5f12-8c3f-f1687efa8335",
+          "domain_commit_id": "70364eb3-8d58-58c8-887b-9f9b51d7e055",
+          "file_count": 13,
+          "object_instance_graph_commit_id": "c009fcf9-ad25-544a-8a6d-50003a626c96",
+          "package_name": "aware-storage-ontology-orm-models",
+          "package_root": "workspaces/aware_kernel/modules/storage/ontology/structure/python/orm_models",
+          "revision_code_package_id": "e115ec78-ad8e-53c5-bb4a-936840fb9e23"
+        },
+        {
+          "code_package_id": "57fc0af4-57b3-57d0-b7d4-7d8274f50cb1",
+          "domain_commit_id": "bbe08903-74f5-53f4-a3e6-fd43941e19d0",
+          "file_count": 4,
+          "object_instance_graph_commit_id": "85c6a5f6-a83a-5827-9390-5a780d592b24",
+          "package_name": "aware_storage_sdk",
+          "package_root": "workspaces/aware_kernel/modules/storage/sdks/storage/dart/aware_storage_sdk",
+          "revision_code_package_id": "14cfc18f-3bdb-545e-9147-e2fdd325d83b"
+        },
+        {
+          "code_package_id": "5892a851-93e6-5898-bb43-7c4fc37960f3",
+          "domain_commit_id": "11489b2e-a6ac-5baa-8876-d744634a9642",
+          "file_count": 825,
+          "object_instance_graph_commit_id": "3b089805-fb39-5dce-8779-8192c1bbb04c",
+          "package_name": "code-ontology",
+          "package_root": "workspaces/aware_kernel/modules/code/ontology",
+          "revision_code_package_id": "8f548f1c-c65d-5a5e-9683-8656509e8e05"
+        },
+        {
+          "code_package_id": "591a0d3c-5059-5546-9e81-1831e2a5da54",
+          "domain_commit_id": "84f1c1b6-f4a1-5b67-af58-6d4a231320d5",
+          "file_count": 19,
+          "object_instance_graph_commit_id": "25eac55a-bf35-56b4-978d-c3972dc56aa6",
+          "package_name": "tree-sitter-aware",
+          "package_root": "workspaces/aware_kernel/languages/aware/grammar/tree_sitter",
+          "revision_code_package_id": "313aacca-84c8-554d-8212-53f61dd91f40"
+        },
+        {
+          "code_package_id": "5a72d505-0a01-575f-8ac3-7b7513c3cbe1",
+          "domain_commit_id": "383abd26-8634-51cd-8ca8-7fea907f6935",
+          "file_count": 24,
+          "object_instance_graph_commit_id": "96f8c47d-5734-5fa8-8cec-dcf0953a5183",
+          "package_name": "api-ontology",
+          "package_root": "workspaces/aware_kernel/modules/api/ontology/structure/sql/schema",
+          "revision_code_package_id": "aacde5e6-0cd3-517e-ba36-c6239ee525b3"
+        },
+        {
+          "code_package_id": "5b2deee0-f11e-5194-9375-a9d5a2286b6b",
+          "domain_commit_id": "55b9fc97-5d7d-511d-9e85-92f8bfe4b6b7",
+          "file_count": 35,
+          "object_instance_graph_commit_id": "dfcf68a7-661b-5cdc-8cec-4b11b04aa47f",
+          "package_name": "aware-content-ontology-orm-models",
+          "package_root": "workspaces/aware_kernel/modules/content/ontology/structure/python/orm_models",
+          "revision_code_package_id": "c36a798c-2cd1-5b80-83b1-700295f140ab"
+        },
+        {
+          "code_package_id": "5b320d72-285e-5c1e-ad4b-0add3721add5",
+          "domain_commit_id": "2355d09c-fd68-5d52-9eb9-75cca77c30dd",
+          "file_count": 23,
+          "object_instance_graph_commit_id": "fe0a5c77-ea67-5c5b-9c96-8c02e93b7382",
+          "package_name": "aware_api",
+          "package_root": "workspaces/aware_kernel/modules/api/libs/api/dart",
+          "revision_code_package_id": "651c9b90-f02b-50d4-8a51-9dd5ef771a2d"
+        },
+        {
+          "code_package_id": "5c4ed78e-43d2-5abb-9fe9-4527c10aae78",
+          "domain_commit_id": "79a92650-b56e-5abf-83b4-33dfa55dc207",
+          "file_count": 25,
+          "object_instance_graph_commit_id": "e6eaff75-cd19-5b9a-9dc2-c503bd83864d",
+          "package_name": "aware-ontology",
+          "package_root": "workspaces/aware_kernel/modules/ontology/ontology/runtime/python",
+          "revision_code_package_id": "0f0beccc-bfe0-5acc-a528-5b8ecf8d4d88"
+        },
+        {
+          "code_package_id": "5d9fdace-6bc8-5a67-aa86-b6667d025670",
+          "domain_commit_id": "b8a51a2d-6037-5d4b-93a0-2579dd059da0",
+          "file_count": 70,
+          "object_instance_graph_commit_id": "9085d1b7-67b1-5f6f-a0b8-2ea206512ad2",
+          "package_name": "aware-file-system",
+          "package_root": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python",
+          "revision_code_package_id": "0f504b93-4c04-587b-b449-2f830c34a7f9"
+        },
+        {
+          "code_package_id": "5e4291b0-d45e-5207-a5df-718a155e2124",
+          "domain_commit_id": "1c528571-9afd-594a-8b7e-c1e605231579",
+          "file_count": 13,
+          "object_instance_graph_commit_id": "2101d01f-54eb-5938-bd3b-f9644c588054",
+          "package_name": "sdk-ontology",
+          "package_root": "workspaces/aware_kernel/modules/sdk/ontology/structure/sql/schema",
+          "revision_code_package_id": "8d7e7342-874a-5dc8-8c29-245a332f9fe6"
+        },
+        {
+          "code_package_id": "613af4ab-cd80-520a-a5ac-1cd557e582bf",
+          "domain_commit_id": "c9e106fe-d58b-5d3f-9bd2-b48becdf8b1a",
+          "file_count": 44,
+          "object_instance_graph_commit_id": "4fed6d07-87b5-5247-b0c3-c9045a28633f",
+          "package_name": "aware-reactivity",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/ontology/runtime/python",
+          "revision_code_package_id": "e272c4a8-d002-5648-99c6-8104afd59dd7"
+        },
+        {
+          "code_package_id": "6416a926-2281-5982-8354-eec69f09afb4",
+          "domain_commit_id": "7f141476-897b-5efc-9836-e43d85efad6b",
+          "file_count": 2,
+          "object_instance_graph_commit_id": "148da7c0-8dd0-5962-a169-1098fba3008c",
+          "package_name": "aware_model_helpers",
+          "package_root": "workspaces/aware_kernel/libs/model_helpers/dart/aware_model_helpers",
+          "revision_code_package_id": "ee2375c0-a22a-5d17-a635-2605227513de"
+        },
+        {
+          "code_package_id": "6494e02a-4f67-53a9-befe-a34eb0ec73c7",
+          "domain_commit_id": "264ea558-ccc0-5f4c-a71a-7f8fa0454a29",
+          "file_count": 152,
+          "object_instance_graph_commit_id": "1673dea1-5cdb-5304-ad01-9096b0f6eb4b",
+          "package_name": "aware-orm",
+          "package_root": "workspaces/aware_kernel/libs/orm",
+          "revision_code_package_id": "b91e9867-7780-52ac-b0ae-30853520922c"
+        },
+        {
+          "code_package_id": "67a1ec77-76b0-5558-936d-b64b51a91d1d",
+          "domain_commit_id": "d37b0d74-ba9f-5a70-929c-7f9f65b02899",
+          "file_count": 83,
+          "object_instance_graph_commit_id": "0295fce7-4cfc-5e62-8c45-995694b74cd1",
+          "package_name": "tree-sitter-python",
+          "package_root": "workspaces/aware_kernel/languages/python/grammar/tree_sitter",
+          "revision_code_package_id": "716d02d2-5eb8-5476-8290-ed104858330a"
+        },
+        {
+          "code_package_id": "67cee4f6-a3db-5184-80d2-6d2173bb4d1a",
+          "domain_commit_id": "e27beb55-6e70-5d42-bb77-04252591e6de",
+          "file_count": 19,
+          "object_instance_graph_commit_id": "35c53e61-f56a-5d89-ab2c-133266aba5c7",
+          "package_name": "aware-content",
+          "package_root": "workspaces/aware_kernel/modules/content/ontology/runtime/python",
+          "revision_code_package_id": "6fc81888-fc6b-59ac-bc16-a6a9e0fadb7b"
+        },
+        {
+          "code_package_id": "69408d1e-b657-540c-afae-1b7ec1cec85e",
+          "domain_commit_id": "951c596f-7a04-561b-8135-dccc830ee2b9",
+          "file_count": 3,
+          "object_instance_graph_commit_id": "7777a2a1-59fb-565e-9bdd-24ed341c4ded",
+          "package_name": "storage-ontology",
+          "package_root": "workspaces/aware_kernel/modules/storage/ontology/structure/sql/schema",
+          "revision_code_package_id": "1255ec00-99ea-5fa7-8b12-00ce4d289abb"
+        },
+        {
+          "code_package_id": "6bf4bb0c-201e-5675-9357-7d2ab8a91df8",
+          "domain_commit_id": "1dac762b-fcf5-54fa-978b-9b9f27d854ab",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "9a449b6d-65ba-51f0-bec0-babd7193d927",
+          "package_name": "aware_meta_service_protocol",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/meta-service-api/service_protocol/python/package",
+          "revision_code_package_id": "7d133a31-ee7d-56de-afda-765ea8a4cc22"
+        },
+        {
+          "code_package_id": "6c3e04a5-7749-5ca7-bf02-15ed1716cff4",
+          "domain_commit_id": "450b0b96-b01d-5c2f-a594-485abcad0f47",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "a98d2c90-44c7-5094-9ad1-7b9e47217f4f",
+          "package_name": "aware-storage-sdk",
+          "package_root": "workspaces/aware_kernel/modules/storage/sdks/storage/python",
+          "revision_code_package_id": "ca9dfc70-a433-5098-8779-ec9756552836"
+        },
+        {
+          "code_package_id": "6caa3c37-4aeb-5ab4-a8cc-9ad4fd34fbec",
+          "domain_commit_id": "94e52b72-f12b-5a0c-850c-da2f6e0e6d82",
+          "file_count": 85,
+          "object_instance_graph_commit_id": "2be4f443-6cd3-554d-ab23-1c6547a8beec",
+          "package_name": "aware-code-ontology-orm-models",
+          "package_root": "workspaces/aware_kernel/modules/code/ontology/structure/python/orm_models",
+          "revision_code_package_id": "ee6c2bf5-daf4-5d33-81c3-e911c7e08904"
+        },
+        {
+          "code_package_id": "6d461e2d-5ece-5ceb-8f15-e5abe99bad4e",
+          "domain_commit_id": "01f8acfe-8d0e-52e7-b57f-4d615fd6d44a",
+          "file_count": 128,
+          "object_instance_graph_commit_id": "7da70ef8-a98a-5689-a088-f93091a94ca0",
+          "package_name": "history-ontology",
+          "package_root": "workspaces/aware_kernel/modules/history/ontology",
+          "revision_code_package_id": "6838a17c-00e9-587c-ae5c-16d7c9ff2e1e"
+        },
+        {
+          "code_package_id": "6d4d1684-ed35-5603-ae31-1e104edc82cb",
+          "domain_commit_id": "2a5b4cb7-651c-554a-9d93-88314d3efdc1",
+          "file_count": 1598,
+          "object_instance_graph_commit_id": "f6c77618-f992-5015-b974-2124e65615a1",
+          "package_name": "meta-ontology",
+          "package_root": "workspaces/aware_kernel/modules/meta/ontology",
+          "revision_code_package_id": "1023cfac-6129-56d5-8f8a-011f8ba16021"
+        },
+        {
+          "code_package_id": "6d70da8b-e80e-5abf-b2cc-27d82e141b94",
+          "domain_commit_id": "292fafb4-8da1-53bb-87bd-91283f9acfd6",
+          "file_count": 82,
+          "object_instance_graph_commit_id": "93e6f561-b528-55f5-ae27-54bd7269722a",
+          "package_name": "code-service-api",
+          "package_root": "workspaces/aware_kernel/modules/code/apis/code",
+          "revision_code_package_id": "7f4a0893-c77f-596c-9732-63d23b2f6d24"
+        },
+        {
+          "code_package_id": "6d7e3054-2941-5ef1-a221-2a7630a897b6",
+          "domain_commit_id": "acf38617-01d4-5f93-a6ed-ccc53dbe30d7",
+          "file_count": 33,
+          "object_instance_graph_commit_id": "edd7333b-45c8-55df-ba01-af5fea61de00",
+          "package_name": "aware-api-ontology",
+          "package_root": "workspaces/aware_kernel/modules/api/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "6b0cf40d-2eec-592f-90c6-16b769199e9f"
+        },
+        {
+          "code_package_id": "6d9b46e9-eaff-5609-bcd1-30f9e5494e59",
+          "domain_commit_id": "8a7a418c-156c-5d8a-b767-47da9ededbe3",
+          "file_count": 10,
+          "object_instance_graph_commit_id": "ad0711e1-2c43-5be8-a512-a25bb8362819",
+          "package_name": "aware_content_service_api",
+          "package_root": "workspaces/aware_kernel/modules/content/apis/content/dart/aware_content_service_api",
+          "revision_code_package_id": "d5cc6f1e-4d04-57c9-b63b-2de79bda34d6"
+        },
+        {
+          "code_package_id": "6daa1d01-6e54-55c3-8596-884a2cc3fbe1",
+          "domain_commit_id": "3c9ae2b6-a357-545a-98f2-867b3c97b425",
+          "file_count": 215,
+          "object_instance_graph_commit_id": "2c168be1-f666-5fe7-b79a-9fa008d88e94",
+          "package_name": "sdk-ontology",
+          "package_root": "workspaces/aware_kernel/modules/sdk/ontology",
+          "revision_code_package_id": "543e8bac-8591-55f7-8995-f12b7cda0512"
+        },
+        {
+          "code_package_id": "6e840ecb-ae49-55a8-b231-5cecfa9a5cde",
+          "domain_commit_id": "60de3713-8f1e-5312-a874-49693f235edc",
+          "file_count": 25,
+          "object_instance_graph_commit_id": "0b1ad6c7-a581-59d7-9e90-be1c7c00debb",
+          "package_name": "aware-history-ontology-orm-models",
+          "package_root": "workspaces/aware_kernel/modules/history/ontology/structure/python/orm_models",
+          "revision_code_package_id": "2084172e-8771-5d2f-ba07-857dc22b54bb"
+        },
+        {
+          "code_package_id": "72655587-f6b4-57db-9955-ec186a7b3367",
+          "domain_commit_id": "094d8272-67c5-5bb3-ad73-f52bce4ca960",
+          "file_count": 71,
+          "object_instance_graph_commit_id": "0be1bdf7-f9a3-523b-86b8-afe414fcff08",
+          "package_name": "storage-ontology",
+          "package_root": "workspaces/aware_kernel/modules/storage/ontology",
+          "revision_code_package_id": "79675995-77f6-5184-979d-66788b074eb8"
+        },
+        {
+          "code_package_id": "75902ced-95c4-5561-b42e-8cac7582796f",
+          "domain_commit_id": "4e0c50ee-732a-534d-913c-1970eafa2c5f",
+          "file_count": 66,
+          "object_instance_graph_commit_id": "0043e1b8-6a63-5f8f-a8be-5be65bab8813",
+          "package_name": "dart-grammar",
+          "package_root": "workspaces/aware_kernel/languages/dart/grammar/grammar",
+          "revision_code_package_id": "53163025-d203-5540-8e9b-23b833dfb465"
+        },
+        {
+          "code_package_id": "7747a868-8c6e-5885-8fcd-bb65fd9b5185",
+          "domain_commit_id": "96f8a741-3782-5554-a513-13f836eae348",
+          "file_count": 71,
+          "object_instance_graph_commit_id": "94d743c9-4571-5331-84a8-5dcfd63f0fbc",
+          "package_name": "storage-ontology",
+          "package_root": "workspaces/aware_kernel/modules/storage/ontology",
+          "revision_code_package_id": "2d8a5326-71cc-5ddb-a7a4-e166b384b80c"
+        },
+        {
+          "code_package_id": "79f52ce2-53fa-513f-81be-60e1b7dd6514",
+          "domain_commit_id": "834b12a2-b6e9-53b6-bd16-3642a092063c",
+          "file_count": 2,
+          "object_instance_graph_commit_id": "9351085d-15e6-5d2b-a05a-f83828bec320",
+          "package_name": "storage-service-dto",
+          "package_root": "workspaces/aware_kernel/modules/storage/apis/storage/dto",
+          "revision_code_package_id": "e6e966c9-e35e-5b52-b0cc-0367e3cd446a"
+        },
+        {
+          "code_package_id": "7a483b7c-7d23-5dce-a563-c32a27e56efc",
+          "domain_commit_id": "91eb790d-76ad-5334-96fa-5a6b7446bc3c",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "957d4814-461e-566f-9769-3c321ccaebec",
+          "package_name": "aware-command-runtime",
+          "package_root": "workspaces/aware_kernel/libs/command_runtime/python",
+          "revision_code_package_id": "a9a35729-7dd8-5790-91fa-7f76b3ca5b3c"
+        },
+        {
+          "code_package_id": "7ba4f76f-7152-513e-8ca8-3d6a78d3a4a2",
+          "domain_commit_id": "e070392c-7cc3-5e57-8d7c-6a8bb954e2d8",
+          "file_count": 41,
+          "object_instance_graph_commit_id": "35e11fe4-120d-5188-b8af-412b45348427",
+          "package_name": "ontology-service-api",
+          "package_root": "workspaces/aware_kernel/modules/ontology/apis/ontology",
+          "revision_code_package_id": "faa5cc26-6b8d-560b-b44c-84e6ecae3f77"
+        },
+        {
+          "code_package_id": "7bcfa0d0-d72a-53fd-8ae9-4b1f8389e0c2",
+          "domain_commit_id": "a8daa99b-3e17-5364-b52e-3f6c54a37cdb",
+          "file_count": 49,
+          "object_instance_graph_commit_id": "da162159-c5ea-5c05-b87f-6aa117e85882",
+          "package_name": "aware-sdk-runtime",
+          "package_root": "workspaces/aware_kernel/modules/sdk/ontology/runtime/python",
+          "revision_code_package_id": "ca75a07f-d4ed-5eb8-a521-1cc6308f93a9"
+        },
+        {
+          "code_package_id": "7c771365-d171-59a0-9a8e-e7d57a20123d",
+          "domain_commit_id": "c779acc1-9025-5fd3-aa76-29c188581238",
+          "file_count": 23,
+          "object_instance_graph_commit_id": "cd312115-a9eb-52b4-9c07-95d9ea645245",
+          "package_name": "content-ontology",
+          "package_root": "workspaces/aware_kernel/modules/content/ontology/structure/sql/schema",
+          "revision_code_package_id": "762e85b6-2d63-57b9-90e6-11cfaee4206c"
+        },
+        {
+          "code_package_id": "7cda0ebc-7c6b-5ec2-97bb-3c907e9cb55d",
+          "domain_commit_id": "59c4ef06-68a8-5487-8518-45537e43135f",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "d518c036-a73e-5286-a5fa-4733b56bbfeb",
+          "package_name": "aware_file_system_service_protocol",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/file-system-service-api/service_protocol/python/package",
+          "revision_code_package_id": "4da5fbbf-62af-5272-b9e5-4dedbc00d950"
+        },
+        {
+          "code_package_id": "7ec488f6-fbb1-53d9-8444-cfa8d5fb5e84",
+          "domain_commit_id": "f644aca6-a8a3-5015-a4e1-2c9312f5a618",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "d9126431-ce03-501c-8431-f63b89abbdbd",
+          "package_name": "aware-sdk-core",
+          "package_root": "workspaces/aware_kernel/modules/sdk/libs/sdk/python",
+          "revision_code_package_id": "0b216203-5187-55f3-a9b8-a9552b37ea91"
+        },
+        {
+          "code_package_id": "8185de81-deb8-5448-825f-ff75f50c1535",
+          "domain_commit_id": "50dc5f4c-420a-5297-8edc-8b40525ab969",
+          "file_count": 21,
+          "object_instance_graph_commit_id": "30a65b88-589f-594d-979b-b9ad45f94c96",
+          "package_name": "aware-sdk-ontology-dto",
+          "package_root": "workspaces/aware_kernel/modules/sdk/ontology/structure/python/dto",
+          "revision_code_package_id": "5d49e117-e64c-5b9d-b6f6-02754e91c42d"
+        },
+        {
+          "code_package_id": "82847e8d-b927-5933-9836-931a170bdf9a",
+          "domain_commit_id": "ca18d65f-e9d3-57e3-b1a4-a7d3c4e3884e",
+          "file_count": 35,
+          "object_instance_graph_commit_id": "f276e791-4d06-5fce-b208-1f1d0e18aabe",
+          "package_name": "aware-reactivity-ontology-orm-models",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/ontology/structure/python/orm_models",
+          "revision_code_package_id": "a865db15-4f7e-5d86-94c2-3128391039fa"
+        },
+        {
+          "code_package_id": "831cd01b-a39a-5c88-8c88-b4aaa2f981a1",
+          "domain_commit_id": "1ef60696-4f5e-5fb9-93a5-557323995106",
+          "file_count": 89,
+          "object_instance_graph_commit_id": "f8a2a04d-a1a7-5241-a6d6-c8f15540078b",
+          "package_name": "ontology-ontology",
+          "package_root": "workspaces/aware_kernel/modules/ontology/ontology",
+          "revision_code_package_id": "3d5d6afa-377d-546f-85ab-10397927dffd"
+        },
+        {
+          "code_package_id": "84f39356-84f1-544b-b420-246489df78b2",
+          "domain_commit_id": "417c4712-6697-5d01-adc9-118c559374ae",
+          "file_count": 14,
+          "object_instance_graph_commit_id": "1d6f2075-f271-5567-83fc-05b9941e0ab3",
+          "package_name": "aware-history",
+          "package_root": "workspaces/aware_kernel/modules/history/ontology/runtime/python",
+          "revision_code_package_id": "e83f60aa-d998-59ab-9e40-034749619302"
+        },
+        {
+          "code_package_id": "86c3b6be-8cdc-5cd6-83aa-bc71125642b8",
+          "domain_commit_id": "36d10df0-ac33-57e4-9213-9dfdf7ab07c6",
+          "file_count": 14,
+          "object_instance_graph_commit_id": "34c140fa-03a1-5c0b-b844-7472eee26622",
+          "package_name": "aware-ontology-ontology",
+          "package_root": "workspaces/aware_kernel/modules/ontology/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "ff25d28f-cfba-5190-855f-630785f8b363"
+        },
+        {
+          "code_package_id": "88c4c603-9475-5641-bb31-ad5ccb5d4b21",
+          "domain_commit_id": "c3c713d4-19b8-5552-a663-ab4bff50c61c",
+          "file_count": 17,
+          "object_instance_graph_commit_id": "030446cf-99c8-528f-b290-4ecd92d37846",
+          "package_name": "aware-storage",
+          "package_root": "workspaces/aware_kernel/modules/storage/ontology/runtime/python",
+          "revision_code_package_id": "cded3664-2edd-5ad7-ba3d-086ddb3b0f19"
+        },
+        {
+          "code_package_id": "8db1a6ca-8b7c-5c88-8501-7e1139289808",
+          "domain_commit_id": "a3fea9a7-469d-5445-b68c-cf0fc76562e1",
+          "file_count": 13,
+          "object_instance_graph_commit_id": "45ad59b2-9782-54ba-b4cb-27e66722ae96",
+          "package_name": "aware-ontology-ontology-dto",
+          "package_root": "workspaces/aware_kernel/modules/ontology/ontology/structure/python/dto",
+          "revision_code_package_id": "33c4788f-08d6-5112-9f19-897f840a275a"
+        },
+        {
+          "code_package_id": "8eef15f9-0f8c-5012-a2e3-4a16378a39f9",
+          "domain_commit_id": "077a07e9-3f04-5e14-88e7-337c069a45eb",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "7f1d0a78-700e-57fa-ab76-59f0e19d147a",
+          "package_name": "aware_content_service_api",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/content-service-api/public_package/python/package",
+          "revision_code_package_id": "5c71353a-bc70-52d2-b67f-62ffdc6e252d"
+        },
+        {
+          "code_package_id": "920d25d7-0537-540b-9a56-a061180b8449",
+          "domain_commit_id": "4347e44f-8994-5856-9ab3-64e1fd239e7a",
+          "file_count": 1,
+          "object_instance_graph_commit_id": "3296e5aa-9b1d-59c0-a274-3dbaad1d5b90",
+          "package_name": "api-service-dto",
+          "package_root": "workspaces/aware_kernel/modules/api/apis/api/dto",
+          "revision_code_package_id": "ab37cc52-f02b-56f3-b2a3-314ae96255ec"
+        },
+        {
+          "code_package_id": "95b54947-ce33-5572-a1fc-0403d9a37b27",
+          "domain_commit_id": "a5f9113c-1182-532b-a7d6-7e3363d90f3e",
+          "file_count": 12,
+          "object_instance_graph_commit_id": "a72289eb-b99a-5dce-9794-eaf2155ce546",
+          "package_name": "aware-api-client",
+          "package_root": "workspaces/aware_kernel/modules/api/libs/api/python",
+          "revision_code_package_id": "4e0326f4-f1d5-556c-95dd-1efb74dc2b6c"
+        },
+        {
+          "code_package_id": "95c65da5-c727-5d0d-a035-ad36a38540b9",
+          "domain_commit_id": "70597682-6d9b-5ecf-a296-228c7012e333",
+          "file_count": 71,
+          "object_instance_graph_commit_id": "05ff373e-dd8b-5d1e-91c6-10b033ede7c6",
+          "package_name": "aware-file-system",
+          "package_root": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python",
+          "revision_code_package_id": "a4589b74-4231-515a-ac37-14c8b68f2a0b"
+        },
+        {
+          "code_package_id": "9693bc73-4c17-535b-9cd4-02ccd1dcd372",
+          "domain_commit_id": "6accbc35-eafe-5e5c-af1d-3d60a2415ca3",
+          "file_count": 12,
+          "object_instance_graph_commit_id": "b9bd4a7b-e71f-5068-a0ce-1b12d9b66de1",
+          "package_name": "aware-storage",
+          "package_root": "workspaces/aware_kernel/modules/storage/ontology/runtime/python",
+          "revision_code_package_id": "ce000927-d80c-5423-8435-1f06edc5c509"
+        },
+        {
+          "code_package_id": "98bbf6e2-7819-5a58-bdb8-c395665cb14f",
+          "domain_commit_id": "e43d68d5-442e-52e4-a42e-365f8567827a",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "cc414949-d1b6-5a73-85ec-95eda9c421a7",
+          "package_name": "rust-tooling",
+          "package_root": "workspaces/aware_kernel/languages/rust/tooling",
+          "revision_code_package_id": "e607baf6-8e94-5acf-900a-50280aff8195"
+        },
+        {
+          "code_package_id": "99077ad7-4d86-5e2a-9f8a-f2f8e7a41506",
+          "domain_commit_id": "c9bd5263-184c-5e50-ba13-1fa839bd079f",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "d7ed7fa6-fe51-5036-bc9c-c4cfecbeb815",
+          "package_name": "aware_reactivity_service_protocol",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/reactivity-service-api/service_protocol/python/package",
+          "revision_code_package_id": "98549835-5b1d-55c0-83c5-60f884ca9d4b"
+        },
+        {
+          "code_package_id": "995e615e-8043-5313-a282-780de853839b",
+          "domain_commit_id": "bd2d8063-9bb1-5d3e-81ef-059611ff8cd9",
+          "file_count": 14,
+          "object_instance_graph_commit_id": "f3887749-d93a-5e73-bf69-ab956b10e6c6",
+          "package_name": "aware-ontology-ontology-orm-models",
+          "package_root": "workspaces/aware_kernel/modules/ontology/ontology/structure/python/orm_models",
+          "revision_code_package_id": "bb3d81d0-fe9b-5b09-ac66-d70469cdac4b"
+        },
+        {
+          "code_package_id": "9985d562-ff2a-5639-ba49-d1e588f88755",
+          "domain_commit_id": "ac32893b-2cb1-53f8-860f-b46bdf9ba9f8",
+          "file_count": 89,
+          "object_instance_graph_commit_id": "ab12b199-0e30-5b72-aef9-d649456c4370",
+          "package_name": "ontology-ontology",
+          "package_root": "workspaces/aware_kernel/modules/ontology/ontology",
+          "revision_code_package_id": "9b8e4c83-1230-599c-a333-e19db21b52af"
+        },
+        {
+          "code_package_id": "9e42ebbd-3482-5eb8-a234-b31b00252fc4",
+          "domain_commit_id": "4d33a8ad-987d-5f3a-93d6-614c753c062f",
+          "file_count": 1,
+          "object_instance_graph_commit_id": "5894a3ca-5758-5e87-b785-4b5a69d6ebcf",
+          "package_name": "content-service-dto",
+          "package_root": "workspaces/aware_kernel/modules/content/apis/content/dto",
+          "revision_code_package_id": "3286bcbf-1d7d-5a28-8cbe-077f53fbfb67"
+        },
+        {
+          "code_package_id": "9e6e1ab7-7674-5e71-8508-ececa98659ab",
+          "domain_commit_id": "bea4e315-6f68-55e2-ac1a-6d7f3a9f2736",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "528de98c-bd33-580a-b4b3-65f23629d034",
+          "package_name": "ontology-ontology",
+          "package_root": "workspaces/aware_kernel/modules/ontology/ontology/structure/sql/schema",
+          "revision_code_package_id": "47e9533e-28e5-510b-bd35-400d74e64ddd"
+        },
+        {
+          "code_package_id": "9f239774-339c-5eed-8522-2520a716927f",
+          "domain_commit_id": "e2ccd8e5-b8ce-5ab5-aabe-b5f49599eb5f",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "031445a0-7d95-5ce4-bf7d-b70de90c9c67",
+          "package_name": "aware_storage_service_api",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/storage-service-api/public_package/python/package",
+          "revision_code_package_id": "e3ec350d-1886-50f5-87dd-ccb3134d9564"
+        },
+        {
+          "code_package_id": "9fe5fb97-0700-52b4-8b9c-d7a52e04805e",
+          "domain_commit_id": "b791d16c-316b-5f32-ad00-e3a7c8fbba85",
+          "file_count": 46,
+          "object_instance_graph_commit_id": "88e986ad-b858-553d-b55d-42620dd94ade",
+          "package_name": "storage-service-api",
+          "package_root": "workspaces/aware_kernel/modules/storage/apis/storage",
+          "revision_code_package_id": "be3d696a-df2a-509b-aef5-c7f276175c67"
+        },
+        {
+          "code_package_id": "a117b66a-eb8e-5c2b-95a5-8fc63e5d95b5",
+          "domain_commit_id": "14aa67fa-5142-5d54-bc5e-b2f8d75f12ee",
+          "file_count": 372,
+          "object_instance_graph_commit_id": "0f9f48f5-e478-5067-86e4-17a821d51940",
+          "package_name": "aware-code",
+          "package_root": "workspaces/aware_kernel/modules/code/ontology/runtime/python",
+          "revision_code_package_id": "bb24251f-4875-5b39-991d-9e8bb3d91b70"
+        },
+        {
+          "code_package_id": "a1789630-7e45-5888-bebe-74bcb328f462",
+          "domain_commit_id": "0fa39626-0ba7-5572-b396-443b97005d6d",
+          "file_count": 13,
+          "object_instance_graph_commit_id": "6e16718f-6832-51e9-afec-2fa11df5c2c7",
+          "package_name": "aware-storage-ontology",
+          "package_root": "workspaces/aware_kernel/modules/storage/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "b5f2b9f2-8764-5837-b599-0170876f9dd8"
+        },
+        {
+          "code_package_id": "a1e450de-9c24-52e5-8909-3bd879bb9079",
+          "domain_commit_id": "cc0ef276-bfd3-5032-9bff-7ef1b8525fe2",
+          "file_count": 1598,
+          "object_instance_graph_commit_id": "ec54b241-809c-529f-bbe8-8892f21f1c60",
+          "package_name": "meta-ontology",
+          "package_root": "workspaces/aware_kernel/modules/meta/ontology",
+          "revision_code_package_id": "d7466c2e-0a6b-5e6f-ac7c-a79a6360c8e3"
+        },
+        {
+          "code_package_id": "a4e4778b-830f-55b5-91ca-2d145a745797",
+          "domain_commit_id": "47e79663-688c-541b-a8a3-0c34eeff388a",
+          "file_count": 771,
+          "object_instance_graph_commit_id": "f4fc4134-10c7-55c0-8d08-064f7ec8af2f",
+          "package_name": "aware-meta",
+          "package_root": "workspaces/aware_kernel/modules/meta/ontology/runtime/python",
+          "revision_code_package_id": "24e57d1b-19e1-517c-b94b-60ff879b3131"
+        },
+        {
+          "code_package_id": "a6a38378-db02-5cc3-9ac2-e798957a6658",
+          "domain_commit_id": "70bdc4d8-be0b-5515-95fb-ad99ec875c00",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "c21f55b1-7f2d-5e2f-a597-d23c553b8828",
+          "package_name": "aware_file_system_service_api",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/file-system-service-api/public_package/python/package",
+          "revision_code_package_id": "c206b76a-7b4e-55e1-81e2-6bb3828b262b"
+        },
+        {
+          "code_package_id": "a9387a1d-c579-54c9-b58f-36e535043091",
+          "domain_commit_id": "3a36d46a-d380-5ce7-894d-9bcf72834dcf",
+          "file_count": 91,
+          "object_instance_graph_commit_id": "7eb605e7-e77c-5872-a9a1-a53671b27604",
+          "package_name": "tree-sitter-sql",
+          "package_root": "workspaces/aware_kernel/languages/sql/grammar/tree_sitter",
+          "revision_code_package_id": "429ca452-bc51-568b-a56d-c4dec5f66b76"
+        },
+        {
+          "code_package_id": "aa04529e-2a17-5f83-aa8f-a42d05ff8a3c",
+          "domain_commit_id": "498565ce-143a-5867-be9b-4534760c6298",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "c524a710-3b4f-5335-8bb6-f2384bb0a6bb",
+          "package_name": "aware-ontology-sdk",
+          "package_root": "workspaces/aware_kernel/modules/ontology/sdks/ontology/python",
+          "revision_code_package_id": "bb06139a-4faf-5e0a-9c52-91fde25e7a73"
+        },
+        {
+          "code_package_id": "ab2b20b7-7ed5-533c-829c-27bba88bdeb4",
+          "domain_commit_id": "3d0b6327-41ab-52c8-84f0-fde0b342a4d8",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "f60d6687-472d-51f8-b33a-2180b6a78fa0",
+          "package_name": "aware_code_service_api",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/code-service-api/public_package/python/package",
+          "revision_code_package_id": "60f99d72-22c6-5a55-88b7-1af153a75a4f"
+        },
+        {
+          "code_package_id": "abaffb4d-14af-520d-930b-5ab61bf0a38b",
+          "domain_commit_id": "c5312d4f-eac7-5242-a754-69eaae92141f",
+          "file_count": 12,
+          "object_instance_graph_commit_id": "2e61934f-fd0a-5116-998b-9980768256f3",
+          "package_name": "aware-storage-ontology-dto",
+          "package_root": "workspaces/aware_kernel/modules/storage/ontology/structure/python/dto",
+          "revision_code_package_id": "5c383841-46f5-5fd8-a0ac-acdf934b755e"
+        },
+        {
+          "code_package_id": "aca3c57a-b8ee-5238-8106-47827b3f64c5",
+          "domain_commit_id": "4864b639-c2ac-52d8-89f1-31e0568ad1eb",
+          "file_count": 53,
+          "object_instance_graph_commit_id": "8377b415-1068-5de1-a056-8fc0c9fe1278",
+          "package_name": "meta-service-api",
+          "package_root": "workspaces/aware_kernel/modules/meta/apis/meta",
+          "revision_code_package_id": "5cb0bfd8-0f3b-532e-9fac-0e3bb5726445"
+        },
+        {
+          "code_package_id": "b24fdd86-3a88-5802-a6a6-035e28608124",
+          "domain_commit_id": "ea550422-d1ed-54d2-a926-b5be705c25e7",
+          "file_count": 92,
+          "object_instance_graph_commit_id": "f183e817-894d-5eae-a394-62fc2aaad493",
+          "package_name": "tree-sitter-dart",
+          "package_root": "workspaces/aware_kernel/languages/dart/grammar/tree_sitter",
+          "revision_code_package_id": "a3c6147c-04d0-540d-b6c1-2a9b60b97fa9"
+        },
+        {
+          "code_package_id": "b357e3b7-9664-577d-9dfb-31770e18f526",
+          "domain_commit_id": "51e268ea-86e6-50f2-af64-818b60ea1626",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "c7c731b0-9e5f-5e9b-912c-c9eafa74f679",
+          "package_name": "aware_ontology_service_api",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/ontology-service-api/public_package/python/package",
+          "revision_code_package_id": "b2910f73-8137-57ae-ab69-158113873652"
+        },
+        {
+          "code_package_id": "b56b860d-2699-5d11-999f-9aeb8c9d7007",
+          "domain_commit_id": "80ead3e1-97ee-52a6-ad4b-ddb26797d218",
+          "file_count": 85,
+          "object_instance_graph_commit_id": "f63199d1-aa20-53d3-a33a-6bc02585509f",
+          "package_name": "tree-sitter-sql",
+          "package_root": "workspaces/aware_kernel/languages/sql/grammar/tree_sitter",
+          "revision_code_package_id": "a2dd1a2b-9574-598a-8f6b-19185e93c83e"
+        },
+        {
+          "code_package_id": "b72444cf-ed1b-5075-af32-7807a3d8e71a",
+          "domain_commit_id": "37b50907-e4c8-5873-b1d8-24a206a0e9b3",
+          "file_count": 201,
+          "object_instance_graph_commit_id": "a262fb96-07b6-5f9c-98aa-118be1a37340",
+          "package_name": "content-ontology",
+          "package_root": "workspaces/aware_kernel/modules/content/ontology",
+          "revision_code_package_id": "2efed838-a9fd-5782-92f8-3b52587b7b19"
+        },
+        {
+          "code_package_id": "b8964e88-5fa9-5eab-aa43-7d0222d7273f",
+          "domain_commit_id": "485adeef-d148-5495-9ed3-5330ab9feb70",
+          "file_count": 333,
+          "object_instance_graph_commit_id": "c9a0bd49-0a6b-5064-8593-b9433bcd576a",
+          "package_name": "api-ontology",
+          "package_root": "workspaces/aware_kernel/modules/api/ontology",
+          "revision_code_package_id": "53f261a8-9a61-5297-81e0-0e1de9589ea9"
+        },
+        {
+          "code_package_id": "b918f563-c0a1-54c8-9688-450993d53862",
+          "domain_commit_id": "e1bc78df-0716-57e2-98c7-ffd1f5fffc40",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "2d08d8ba-f57c-505a-bbe2-7a93a79f35ca",
+          "package_name": "aware-types",
+          "package_root": "workspaces/aware_kernel/libs/types/python",
+          "revision_code_package_id": "a28d14eb-5e86-5002-864a-aa39f81357b1"
+        },
+        {
+          "code_package_id": "bc8642f4-48e2-50ae-8f84-c9009547282b",
+          "domain_commit_id": "d0e328ac-61e0-59b9-9396-6a0fa5ebca21",
+          "file_count": 4,
+          "object_instance_graph_commit_id": "ac9addc5-a3a6-52e4-948d-58676ea9a0f1",
+          "package_name": "aware-kernel-package-manager",
+          "package_root": "workspaces/aware_kernel",
+          "revision_code_package_id": "07ae02c5-18fa-5036-8b3e-ac44bb06b457"
+        },
+        {
+          "code_package_id": "bcb4a120-9c3e-505b-9a4f-767632d80c42",
+          "domain_commit_id": "a3a5672c-e4a3-5ecf-9802-4ac43f757b62",
+          "file_count": 32,
+          "object_instance_graph_commit_id": "2e9afd63-e4fc-51d9-82f2-b63e6d9ca651",
+          "package_name": "aware-api-ontology-dto",
+          "package_root": "workspaces/aware_kernel/modules/api/ontology/structure/python/dto",
+          "revision_code_package_id": "6a397a65-af23-5849-afeb-2f70da59e211"
+        },
+        {
+          "code_package_id": "bd05877f-40a8-5abf-96d0-61d41eb6554d",
+          "domain_commit_id": "e0755e33-965d-530b-8c4e-24e36d2f12fc",
+          "file_count": 24,
+          "object_instance_graph_commit_id": "bdc1e060-d80d-502c-87a0-bd5b6bb0432a",
+          "package_name": "aware_api",
+          "package_root": "workspaces/aware_kernel/modules/api/libs/api/dart",
+          "revision_code_package_id": "60b40423-ce02-5e0f-9e84-395d2ad1a5e1"
+        },
+        {
+          "code_package_id": "c100877b-3fc8-51b1-9a33-e768e4e1b47c",
+          "domain_commit_id": "d1d611c4-1305-540f-a66e-e6014d7d5488",
+          "file_count": 825,
+          "object_instance_graph_commit_id": "8fa49f42-a82e-5e7a-9eb9-35152b8c0ea5",
+          "package_name": "code-ontology",
+          "package_root": "workspaces/aware_kernel/modules/code/ontology",
+          "revision_code_package_id": "0b2a9b20-301e-590c-83d1-8801b5d43a22"
+        },
+        {
+          "code_package_id": "c40270f6-a328-5412-8f2c-86418e1dfc7c",
+          "domain_commit_id": "2c6d4c4e-7d53-5fa2-b490-c751531c227b",
+          "file_count": 143,
+          "object_instance_graph_commit_id": "5fc5bb7d-226a-5844-b16d-ccf5b761a8ef",
+          "package_name": "aware-meta-ontology-dto",
+          "package_root": "workspaces/aware_kernel/modules/meta/ontology/structure/python/dto",
+          "revision_code_package_id": "c5631ba6-1748-5ee1-b853-7362feb3b150"
+        },
+        {
+          "code_package_id": "c463c5c3-4b97-57fa-acdf-5a2bf560878a",
+          "domain_commit_id": "ef629bf6-081e-51d8-8d3a-d9a3a15f030f",
+          "file_count": 24,
+          "object_instance_graph_commit_id": "3ae64f84-bb32-5897-b10e-d09dbbb75cdc",
+          "package_name": "tree-sitter-aware",
+          "package_root": "workspaces/aware_kernel/languages/aware/grammar/tree_sitter",
+          "revision_code_package_id": "98799da8-b691-5ddf-8531-1253095bb37d"
+        },
+        {
+          "code_package_id": "c4fdaf1d-c27c-5ef4-ae53-cde69c1820e8",
+          "domain_commit_id": "0624d107-92c9-5192-a487-3b7914fadf94",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "f7616653-eec5-50b5-b514-6f15a090103a",
+          "package_name": "aware-types",
+          "package_root": "workspaces/aware_kernel/libs/types/python",
+          "revision_code_package_id": "399e85f8-fca7-5ebb-bb2e-15a1234e9a4f"
+        },
+        {
+          "code_package_id": "c55d78bc-c725-5e1b-80e7-e28af86b5a73",
+          "domain_commit_id": "6b38ed04-5130-5fe1-8e2b-8affda424057",
+          "file_count": 64,
+          "object_instance_graph_commit_id": "d8406ff7-4b18-5b5a-a20b-9f3dfd7da04b",
+          "package_name": "sql-grammar",
+          "package_root": "workspaces/aware_kernel/languages/sql/grammar/grammar",
+          "revision_code_package_id": "d52d9e36-5a18-59e4-a899-558252f7d834"
+        },
+        {
+          "code_package_id": "c6f093c0-46f9-52a2-9fb4-9ab5ec655012",
+          "domain_commit_id": "9190a2f5-cc2f-5648-b56f-e8ad169fc23a",
+          "file_count": 19,
+          "object_instance_graph_commit_id": "8e176953-63bc-5b64-b7cd-414a93f43616",
+          "package_name": "aware-code-sdk",
+          "package_root": "workspaces/aware_kernel/modules/code/sdks/code/python",
+          "revision_code_package_id": "d9036a75-c055-5489-a9a8-53ccf94782fb"
+        },
+        {
+          "code_package_id": "c7539a01-a880-5ae3-881f-f5770e859418",
+          "domain_commit_id": "8199c503-e62c-54fd-acdf-67bbe71cfe3e",
+          "file_count": 129,
+          "object_instance_graph_commit_id": "4f85cc97-e5bf-5d24-a880-c6416bd239ff",
+          "package_name": "meta-ontology",
+          "package_root": "workspaces/aware_kernel/modules/meta/ontology/structure/sql/schema",
+          "revision_code_package_id": "1330a1fa-3993-58b6-8de4-cecb9571233a"
+        },
+        {
+          "code_package_id": "c903ae17-7500-5431-94c0-6cbfc623f349",
+          "domain_commit_id": "2dd7c5ab-fc34-5948-8a6d-d039aac3f23c",
+          "file_count": 98,
+          "object_instance_graph_commit_id": "bf6f236f-70e4-545b-a6d5-62034b945594",
+          "package_name": "tree-sitter-dart",
+          "package_root": "workspaces/aware_kernel/languages/dart/grammar/tree_sitter",
+          "revision_code_package_id": "70bb77c0-66b8-5ef3-8262-960522a37a78"
+        },
+        {
+          "code_package_id": "c92746a4-01c7-5dc4-986c-27f1d49de405",
+          "domain_commit_id": "b8f6f10d-8ad3-5ec6-bf0c-65e29878ff5d",
+          "file_count": 2,
+          "object_instance_graph_commit_id": "051b9cf4-21f4-52e1-b5a1-526684fc12e8",
+          "package_name": "file-system-service-dto",
+          "package_root": "workspaces/aware_kernel/modules/filesystem/apis/filesystem/dto",
+          "revision_code_package_id": "b3867d2d-9c1b-536c-80bf-3b4d603432bf"
+        },
+        {
+          "code_package_id": "c931d91c-ee9a-57eb-82f9-54172b5bd793",
+          "domain_commit_id": "bc422aae-1dc5-5971-bd5c-11ed14b504b5",
+          "file_count": 24,
+          "object_instance_graph_commit_id": "ab1f91d4-8f69-5837-a1a8-84d8e1bdda2b",
+          "package_name": "aware-history-ontology-dto",
+          "package_root": "workspaces/aware_kernel/modules/history/ontology/structure/python/dto",
+          "revision_code_package_id": "d3ddc47f-5f9c-52d0-b4ae-38835ba0b586"
+        },
+        {
+          "code_package_id": "cd544725-4ea9-55ac-97a3-e953cdc22646",
+          "domain_commit_id": "1504dae9-d834-5c0c-acf0-18e24dda8da9",
+          "file_count": 103,
+          "object_instance_graph_commit_id": "005b0a73-3e1b-5b17-8b6b-a0460f15d704",
+          "package_name": "aware-grammar",
+          "package_root": "workspaces/aware_kernel/languages/aware/grammar/grammar",
+          "revision_code_package_id": "0e1f934e-74be-5b66-aded-16cd1f5f7a9a"
+        },
+        {
+          "code_package_id": "cf408cb1-49a3-5092-afe0-36679d0cda78",
+          "domain_commit_id": "4c4e6786-ba54-5891-989f-87a508b34ae6",
+          "file_count": 333,
+          "object_instance_graph_commit_id": "0ea8613a-0c2f-50d8-a996-f4ecd56476fb",
+          "package_name": "api-ontology",
+          "package_root": "workspaces/aware_kernel/modules/api/ontology",
+          "revision_code_package_id": "6c361afd-8fac-5ee0-845e-6897a697964b"
+        },
+        {
+          "code_package_id": "cf8b9716-6939-588d-8cc7-9ffbc63a2d4a",
+          "domain_commit_id": "3187827e-f926-59bb-9c0d-7fa63445df7d",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "6f0494d6-0251-5f79-b04f-d1b234d7d415",
+          "package_name": "aware-sdk-core",
+          "package_root": "workspaces/aware_kernel/modules/sdk/libs/sdk/python",
+          "revision_code_package_id": "4b74aa3e-b5bf-539b-87c3-3c66ab63d466"
+        },
+        {
+          "code_package_id": "d9fa35cf-a535-54a1-9656-55b49ffb578b",
+          "domain_commit_id": "e4825ac2-ecb8-598b-a0b0-7e4f4daab8c0",
+          "file_count": 35,
+          "object_instance_graph_commit_id": "7bfe33e5-2923-5d60-9c86-009e3eca2817",
+          "package_name": "aware-reactivity-ontology",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "0c47b66d-8e16-5db8-a083-fe1173a556a0"
+        },
+        {
+          "code_package_id": "d9fe5c8b-f882-511e-b8a9-facefd93c319",
+          "domain_commit_id": "ca66e4ab-71e5-520c-a6fb-525324caa5f3",
+          "file_count": 84,
+          "object_instance_graph_commit_id": "52d39bb1-317c-54b2-8ac2-b8d40a291ebd",
+          "package_name": "aware-code-ontology-dto",
+          "package_root": "workspaces/aware_kernel/modules/code/ontology/structure/python/dto",
+          "revision_code_package_id": "8ed9608c-bf02-59fd-ae62-976fbb4fa5cd"
+        },
+        {
+          "code_package_id": "dafe805a-78ae-5986-8d91-e4fea54ccdd6",
+          "domain_commit_id": "efadf46b-4846-56fa-b559-5cd27248ed72",
+          "file_count": 12,
+          "object_instance_graph_commit_id": "3104a613-6298-50a4-82a9-30c74b665830",
+          "package_name": "history-ontology",
+          "package_root": "workspaces/aware_kernel/modules/history/ontology/structure/sql/schema",
+          "revision_code_package_id": "57f88e78-a90f-54f6-ab5d-312730a77a2f"
+        },
+        {
+          "code_package_id": "dbf13b92-4d0d-5afa-bd2d-8c6718565c92",
+          "domain_commit_id": "8449251e-404e-55f5-88d3-270d73901933",
+          "file_count": 215,
+          "object_instance_graph_commit_id": "bc2d470b-dd4f-53aa-a059-81bc6def509c",
+          "package_name": "sdk-ontology",
+          "package_root": "workspaces/aware_kernel/modules/sdk/ontology",
+          "revision_code_package_id": "65b8056e-d262-5ba7-b219-a59563814e02"
+        },
+        {
+          "code_package_id": "dd86b582-6b00-5f08-b785-e8ffe6c01cad",
+          "domain_commit_id": "59c8650b-4462-5e84-ac67-e8a98eab23a1",
+          "file_count": 67,
+          "object_instance_graph_commit_id": "e994a2fa-a4d9-59ad-b129-b7c987686dba",
+          "package_name": "dart-grammar",
+          "package_root": "workspaces/aware_kernel/languages/dart/grammar/grammar",
+          "revision_code_package_id": "487ffa8c-9cdb-5f0d-b952-3a731b58d0b1"
+        },
+        {
+          "code_package_id": "decabc91-13c5-5f41-a23c-4f890fa4a4e2",
+          "domain_commit_id": "6f928abc-b78f-58fd-9bda-50fd91f11534",
+          "file_count": 27,
+          "object_instance_graph_commit_id": "a6f845b8-cfcc-545a-820d-eae02798951f",
+          "package_name": "api-service-api",
+          "package_root": "workspaces/aware_kernel/modules/api/apis/api",
+          "revision_code_package_id": "0b5d2a86-792a-599a-ac34-98af81a47c52"
+        },
+        {
+          "code_package_id": "df1bb79c-0e73-5d48-8dc3-1de1fb686806",
+          "domain_commit_id": "70aa4315-62b0-54b7-adf0-7823d9a58c66",
+          "file_count": 236,
+          "object_instance_graph_commit_id": "e470cda3-5836-5401-baa6-5e8857cdaefa",
+          "package_name": "reactivity-ontology",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/ontology",
+          "revision_code_package_id": "d92426f6-a594-5c25-873a-1e33b73c469e"
+        },
+        {
+          "code_package_id": "dfaca7da-bf6c-5bc5-97e1-f19015317b62",
+          "domain_commit_id": "4957d5f1-52a6-567e-8235-5e766aeb3279",
+          "file_count": 144,
+          "object_instance_graph_commit_id": "71ad5591-f9fd-5d83-8807-eea36d91faa4",
+          "package_name": "aware-meta-ontology-orm-models",
+          "package_root": "workspaces/aware_kernel/modules/meta/ontology/structure/python/orm_models",
+          "revision_code_package_id": "eb42eefd-d5f2-5f2a-b0f3-6b4b3339ac60"
+        },
+        {
+          "code_package_id": "e2d0da9c-3dc3-5959-818e-efe5646e44df",
+          "domain_commit_id": "1de276e0-f73e-5bd9-85f0-21cae186fe9f",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "418fdaf2-2c56-5aa5-8494-dc267dca424c",
+          "package_name": "aware_storage_service_protocol",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/storage-service-api/service_protocol/python/package",
+          "revision_code_package_id": "550f0eef-b7bb-5f85-9630-2ef8eea67e3a"
+        },
+        {
+          "code_package_id": "e5d2ba41-2336-5fa3-b485-3e2ee46a271e",
+          "domain_commit_id": "c27ed125-618f-5ae0-9f77-65d78074505e",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "5fabe74a-1575-5368-a5c2-198afbf735f6",
+          "package_name": "aware_content_service_dto",
+          "package_root": "workspaces/aware_kernel/modules/content/apis/content/python/aware_content_service_dto",
+          "revision_code_package_id": "67d712e8-cca9-599b-8199-647a5744f6ca"
+        },
+        {
+          "code_package_id": "e9a6297b-76d6-5085-ba65-d7822a76e1f1",
+          "domain_commit_id": "0aed2017-79f3-54b5-a70a-d49169dfa5b2",
+          "file_count": 48,
+          "object_instance_graph_commit_id": "8d627fbb-4205-58d2-8531-4c26f88bc47d",
+          "package_name": "aware-sdk-runtime",
+          "package_root": "workspaces/aware_kernel/modules/sdk/ontology/runtime/python",
+          "revision_code_package_id": "3a3b2d09-7e76-5a25-96b4-ae38e4557cb9"
+        },
+        {
+          "code_package_id": "ec5ff897-b10f-5eec-924e-5225fc8d6f6f",
+          "domain_commit_id": "68e041a9-eda1-5373-8b4f-a65ce8f7d5c6",
+          "file_count": 33,
+          "object_instance_graph_commit_id": "9dfdaec4-1600-5fa9-bdef-602e4b2434c2",
+          "package_name": "aware-utils",
+          "package_root": "workspaces/aware_kernel/libs/utils/python",
+          "revision_code_package_id": "2e8d7dfb-07f7-5f91-af65-43e1768b2db4"
+        },
+        {
+          "code_package_id": "ed421b49-1a4d-5c17-9cce-1d19e1499250",
+          "domain_commit_id": "855123f2-7422-5e30-bfc5-ec47311c8261",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "92e776ce-7097-596a-8551-bcfc98b261a1",
+          "package_name": "aware-content-sdk",
+          "package_root": "workspaces/aware_kernel/modules/content/sdks/content/python",
+          "revision_code_package_id": "a8246e7a-0568-5342-ba2a-5483ee9aec35"
+        },
+        {
+          "code_package_id": "ef6d6aa2-fb4f-5ed0-a01e-2339060c2682",
+          "domain_commit_id": "941663e9-b3c4-531c-843c-4ec8cb140a77",
+          "file_count": 45,
+          "object_instance_graph_commit_id": "c0f1eacd-f358-56b2-b300-a5de1fc05f5e",
+          "package_name": "aware-reactivity",
+          "package_root": "workspaces/aware_kernel/modules/reactivity/ontology/runtime/python",
+          "revision_code_package_id": "b81d11e8-32e7-5cec-ad81-1ff09c0d9174"
+        },
+        {
+          "code_package_id": "f0dd320c-cfce-5091-a30e-5f675368e303",
+          "domain_commit_id": "5f0dafa5-57cd-5923-b5ef-b82c4ec1fe27",
+          "file_count": 34,
+          "object_instance_graph_commit_id": "48877efc-8016-5141-9565-acedc29dd747",
+          "package_name": "aware-content-ontology-dto",
+          "package_root": "workspaces/aware_kernel/modules/content/ontology/structure/python/dto",
+          "revision_code_package_id": "f1aab0fc-275e-51ea-bc8e-499171ba3e9a"
+        },
+        {
+          "code_package_id": "f254f4e9-7ff2-595e-9a3d-c1141d89bdc2",
+          "domain_commit_id": "508ce238-0c7a-58a1-8c85-b3c974cf7f63",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "3ffa774a-daaf-5e9f-81ce-793d8217aa1e",
+          "package_name": "aware_meta_service_api",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/meta-service-api/public_package/python/package",
+          "revision_code_package_id": "1a344a76-8805-5905-817b-86d51aa52002"
+        },
+        {
+          "code_package_id": "f3c6e023-161f-5ce0-941d-9bdc611dfa85",
+          "domain_commit_id": "2316c750-2520-59b1-b119-d12d2c45a16b",
+          "file_count": 15,
+          "object_instance_graph_commit_id": "edd1e074-f4a3-5cd0-9d11-08d5dd94b415",
+          "package_name": "aware-history",
+          "package_root": "workspaces/aware_kernel/modules/history/ontology/runtime/python",
+          "revision_code_package_id": "711c9887-2760-5539-ac2c-9af1d373d325"
+        },
+        {
+          "code_package_id": "f4e33d9b-e5a8-5c51-9460-c5b92149f896",
+          "domain_commit_id": "400310af-57b3-5954-ab63-875078ee2a67",
+          "file_count": 65,
+          "object_instance_graph_commit_id": "73bfe550-8ca9-50ce-a9c0-b9c3d51629dd",
+          "package_name": "sql-grammar",
+          "package_root": "workspaces/aware_kernel/languages/sql/grammar/grammar",
+          "revision_code_package_id": "2b5cf889-6389-5d97-9ab2-aace960afb16"
+        },
+        {
+          "code_package_id": "f51af085-6cac-57af-bf7d-fca0b999b4f7",
+          "domain_commit_id": "e8553e7f-ff19-5fe6-a25a-d99d462f3dd8",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "efdb3ff5-ab50-5aa1-9a27-515a8d5c7ce1",
+          "package_name": "aware_api_service_protocol",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/api-service-api/service_protocol/python/package",
+          "revision_code_package_id": "3411aa3b-d2cf-5679-affd-a14d08ebd5aa"
+        },
+        {
+          "code_package_id": "f61fd5f4-4e81-585a-93b8-ab4af52b8245",
+          "domain_commit_id": "cd96fb0f-6a6a-5540-99dd-31eecca47e3c",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "2b49a60a-fef4-5101-9bbf-b0c56c3ad786",
+          "package_name": "aware_api_service_api",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/api-service-api/public_package/python/package",
+          "revision_code_package_id": "65b15fcb-b520-50bf-a710-d83d62044554"
+        },
+        {
+          "code_package_id": "f877b213-d08b-5f1c-bc14-08dca5921549",
+          "domain_commit_id": "e62095ae-cd71-537a-be18-877498d57a75",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "1122725e-a6a3-52ed-84ef-0d2d7ee5b638",
+          "package_name": "aware_code_service_protocol",
+          "package_root": "workspaces/aware_kernel/.aware/api/runtime/code-service-api/service_protocol/python/package",
+          "revision_code_package_id": "0264a955-9dba-56e8-b4bd-6c90036ef9c6"
+        },
+        {
+          "code_package_id": "f88feff3-fda8-57c4-9161-21181a0b414b",
+          "domain_commit_id": "c2970612-8fa0-542e-b8ff-890659c3c600",
+          "file_count": 507,
+          "object_instance_graph_commit_id": "eacc6c59-6ff2-5229-9d02-122ab1ed0f88",
+          "package_name": "aware-meta",
+          "package_root": "workspaces/aware_kernel/modules/meta/ontology/runtime/python",
+          "revision_code_package_id": "596d47b3-c58f-5f39-ab1b-8a01fd608581"
+        },
+        {
+          "code_package_id": "f9f27fa5-23fe-5366-b774-3c741c39f806",
+          "domain_commit_id": "2dfd03ac-3482-55a0-83d4-6412c8933437",
+          "file_count": 155,
+          "object_instance_graph_commit_id": "f6594b03-ad2c-50c6-8970-13d0cc3212c1",
+          "package_name": "aware-api-runtime",
+          "package_root": "workspaces/aware_kernel/modules/api/ontology/runtime/python",
+          "revision_code_package_id": "da898dc3-e2b4-5485-a19a-d0e4a46a6d0f"
+        }
+      ],
+      "target_path": "workspaces/aware_kernel",
+      "workspace_handle": "aware_kernel",
+      "workspace_id": "4446f32a-623a-50cf-a493-18955d35f3a4",
+      "workspace_revision_id": "7df46699-11d2-5164-b705-912002c17dda"
+    },
+    {
+      "package_count": 153,
+      "packages": [
+        {
+          "code_package_id": "00a33546-5dbf-506a-bdee-2f408fb1e036",
+          "domain_commit_id": "f0a98639-5da9-5738-b0f3-8613359b3a7f",
+          "file_count": 35,
+          "object_instance_graph_commit_id": "44ae08a2-17ff-5ee3-9a6f-ed93fe8f36cc",
+          "package_name": "aware-content-ontology",
+          "package_root": "workspaces/aware_network/modules/content/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "f56a4a09-5dc4-5058-a958-44ae9efac6b3"
+        },
+        {
+          "code_package_id": "02a919cf-73ce-5ef9-810e-890217abeab1",
+          "domain_commit_id": "0a2cf5db-6e3b-5d1d-901d-71592bf8d100",
+          "file_count": 28,
+          "object_instance_graph_commit_id": "f50a51c0-94ba-5c59-9cd6-f425ce61e8d2",
+          "package_name": "file-system-service-api",
+          "package_root": "workspaces/aware_network/modules/filesystem/apis/filesystem",
+          "revision_code_package_id": "a669238e-0b99-5726-9d22-64303b239c43"
+        },
+        {
+          "code_package_id": "05995a44-a2eb-5c34-ad2b-51a1ae84fa1f",
+          "domain_commit_id": "7a0c300d-8454-521b-9172-4bd8638a43f2",
+          "file_count": 105,
+          "object_instance_graph_commit_id": "f098f82b-e5f1-5c32-8cba-9e6b65d51453",
+          "package_name": "aware-grammar",
+          "package_root": "workspaces/aware_network/languages/aware/grammar/grammar",
+          "revision_code_package_id": "4837f6fa-c786-5290-bf54-dc24b63522bd"
+        },
+        {
+          "code_package_id": "062c4464-0b2e-5aa6-b58e-52fc83fb058b",
+          "domain_commit_id": "de4b0c10-075a-5edf-ba5f-815de5dbb104",
+          "file_count": 22,
+          "object_instance_graph_commit_id": "37a98aca-1eba-5b17-9ed7-123ab6b55c9b",
+          "package_name": "aware_comms",
+          "package_root": "workspaces/aware_network/libs/comms/dart",
+          "revision_code_package_id": "a6f06cc6-ab4b-540c-b644-cac7d225b3d6"
+        },
+        {
+          "code_package_id": "065b00da-2046-5e46-8a2d-7e6479dbb621",
+          "domain_commit_id": "eaffd824-e856-5332-b2c8-249befd4667d",
+          "file_count": 144,
+          "object_instance_graph_commit_id": "71a0333c-06b1-54e4-8f7c-4ebef82ddf17",
+          "package_name": "aware-meta-ontology",
+          "package_root": "workspaces/aware_network/modules/meta/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "8f3e7fe9-59fb-50c3-a05d-c582522b77a2"
+        },
+        {
+          "code_package_id": "08bbbf48-5dbb-5389-ba5f-442f97c9d0af",
+          "domain_commit_id": "ec56a4df-73ef-533b-8891-9550ad2ef3de",
+          "file_count": 97,
+          "object_instance_graph_commit_id": "1218fed4-3bec-5d75-9985-cd278fef2d46",
+          "package_name": "python-grammar",
+          "package_root": "workspaces/aware_network/languages/python/grammar/grammar",
+          "revision_code_package_id": "c4d6e24d-479d-5d2d-804c-d8cffb3bd4fa"
+        },
+        {
+          "code_package_id": "08df0485-230a-5f8e-ad01-87cbe58ac9a8",
+          "domain_commit_id": "66590dd2-ea37-56ab-a1f8-ca3a70741089",
+          "file_count": 245,
+          "object_instance_graph_commit_id": "5f857e3f-b467-5e9e-a3ef-2c63fe668677",
+          "package_name": "reactivity-ontology",
+          "package_root": "workspaces/aware_network/modules/reactivity/ontology",
+          "revision_code_package_id": "3f48c9b3-768e-5f77-a099-43477b05073c"
+        },
+        {
+          "code_package_id": "09e38213-b46e-5a78-90c3-57dac7195d61",
+          "domain_commit_id": "3d3b8391-875b-52f9-931d-254e4c83c925",
+          "file_count": 21,
+          "object_instance_graph_commit_id": "3099ac22-a44c-5c7b-aaad-247bc880761a",
+          "package_name": "code-sdk",
+          "package_root": "workspaces/aware_network/modules/code/sdks/code",
+          "revision_code_package_id": "1a0f2cd9-1162-5cc9-b8ba-7074dab9abf7"
+        },
+        {
+          "code_package_id": "0dfa359e-abfd-566f-bb61-37c9aa3ba38e",
+          "domain_commit_id": "5f4ed224-a1c3-522d-8312-1004b35c2705",
+          "file_count": 14,
+          "object_instance_graph_commit_id": "86904301-1b9d-5bb7-8a1c-bcbc19ff6680",
+          "package_name": "aware_messaging",
+          "package_root": "workspaces/aware_network/modules/interface/libs/messaging/dart/aware_messaging",
+          "revision_code_package_id": "2929a095-e91b-5ef7-a6fd-5b54b286716a"
+        },
+        {
+          "code_package_id": "103dcc58-3aef-52d3-911a-bfa3c3183102",
+          "domain_commit_id": "af4ed5e0-e823-5cd0-aba2-1ba90c766aad",
+          "file_count": 8,
+          "object_instance_graph_commit_id": "fa1beafc-aae0-58e6-b428-cb92ae031ce6",
+          "package_name": "aware_model_helpers",
+          "package_root": "workspaces/aware_network/libs/model_helpers/dart/aware_model_helpers",
+          "revision_code_package_id": "2f73f573-e2ca-5ffb-acda-87a71cbcf057"
+        },
+        {
+          "code_package_id": "115546fa-25b0-5b7e-9a26-0fe052bc674e",
+          "domain_commit_id": "e22013c7-db51-5726-acaf-cf4f80879f1a",
+          "file_count": 48,
+          "object_instance_graph_commit_id": "edb644a5-7cd0-5f33-890d-5e01d9e32a62",
+          "package_name": "reactivity-service-api",
+          "package_root": "workspaces/aware_network/modules/reactivity/apis/reactivity",
+          "revision_code_package_id": "5c7d0412-9270-587d-abf5-246d9a9468db"
+        },
+        {
+          "code_package_id": "137f9d85-5d44-5e99-ad74-47fe0b8b863e",
+          "domain_commit_id": "68d1aea7-c817-55a7-bd41-ade66f3c2ec0",
+          "file_count": 20,
+          "object_instance_graph_commit_id": "20dcffd8-0810-51a5-a67f-085424df2da2",
+          "package_name": "aware_interface_control",
+          "package_root": "workspaces/aware_network/modules/interface/libs/interface_control/dart/aware_interface_control",
+          "revision_code_package_id": "73347186-89a9-5189-afe8-6bee45781d9d"
+        },
+        {
+          "code_package_id": "13ba824c-99c8-5a2e-9d07-310769a49812",
+          "domain_commit_id": "c1efb1fb-34ee-5fde-93c0-71e79b117646",
+          "file_count": 68,
+          "object_instance_graph_commit_id": "4134d4ea-f964-5eda-8bd0-51e375eff3a8",
+          "package_name": "aware-identity",
+          "package_root": "workspaces/aware_network/modules/identity/ontology/runtime/python",
+          "revision_code_package_id": "1d77eaa5-6cff-5e65-9a60-93f6675d3417"
+        },
+        {
+          "code_package_id": "14290132-5936-5f8c-a642-c8c88c553ea8",
+          "domain_commit_id": "d7428374-06ae-5ec2-a960-72bd6f1db619",
+          "file_count": 14,
+          "object_instance_graph_commit_id": "4565423f-4c27-54ad-b87c-87557c315b47",
+          "package_name": "storage-sdk",
+          "package_root": "workspaces/aware_network/modules/storage/sdks/storage",
+          "revision_code_package_id": "8ee989c9-8127-51b9-9405-826c815e0245"
+        },
+        {
+          "code_package_id": "154fc60b-ab17-5068-b021-189489cec55a",
+          "domain_commit_id": "b46cabaf-daa2-5199-915d-faf3f4b6cf76",
+          "file_count": 8,
+          "object_instance_graph_commit_id": "62979a6d-9822-541e-8e01-5d99c0e5a9bf",
+          "package_name": "ontology-sdk",
+          "package_root": "workspaces/aware_network/modules/ontology/sdks/ontology",
+          "revision_code_package_id": "9f600435-f108-5d2e-8162-3f0912209306"
+        },
+        {
+          "code_package_id": "188c0331-046b-5f15-bf79-5c3ae88c690d",
+          "domain_commit_id": "edf5cf34-d488-5354-8b8d-3a0214d54434",
+          "file_count": 22,
+          "object_instance_graph_commit_id": "5274561a-212f-5cf6-af42-8df1946628ba",
+          "package_name": "aware-sdk-ontology",
+          "package_root": "workspaces/aware_network/modules/sdk/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "95c62184-6cb8-5831-a0d2-0d78120c0b1d"
+        },
+        {
+          "code_package_id": "19bd54ed-7eb5-5f67-8066-e1f290c88a50",
+          "domain_commit_id": "0e48c731-1306-5fd1-98b0-87b88dac6256",
+          "file_count": 12,
+          "object_instance_graph_commit_id": "961538e0-f544-54eb-a1fe-c2a3b1a89653",
+          "package_name": "aware-file-system-sdk",
+          "package_root": "workspaces/aware_network/modules/filesystem/sdks/filesystem/python",
+          "revision_code_package_id": "8048fae5-e085-5ed7-96b9-91bc1973125e"
+        },
+        {
+          "code_package_id": "1b099806-d54a-5a48-9875-cf787401b93c",
+          "domain_commit_id": "ddd422b4-ef90-5328-9660-0cc2b8e0aa6f",
+          "file_count": 8,
+          "object_instance_graph_commit_id": "a2f0bbf6-a04c-55a7-a501-80789ed49976",
+          "package_name": "content-sdk",
+          "package_root": "workspaces/aware_network/modules/content/sdks/content",
+          "revision_code_package_id": "43474145-85cd-5350-a477-2929d7ab1e2f"
+        },
+        {
+          "code_package_id": "1c9141b0-dcc5-57aa-bece-e40dc9c5a234",
+          "domain_commit_id": "6b32728f-1540-51b5-8d70-00065cb75177",
+          "file_count": 14,
+          "object_instance_graph_commit_id": "3578e153-7c26-587c-9e9c-b686433be87a",
+          "package_name": "filesystem-sdk",
+          "package_root": "workspaces/aware_network/modules/filesystem/sdks/filesystem",
+          "revision_code_package_id": "9bdd739f-3e9f-56c1-b1f5-ae65248de5e0"
+        },
+        {
+          "code_package_id": "1d0dc89f-5e4a-5ae6-9036-7a5bd44f448e",
+          "domain_commit_id": "aee02f82-4c40-55c1-ac11-a5d00eca2d06",
+          "file_count": 3,
+          "object_instance_graph_commit_id": "0fdaf473-10f2-53b3-9e56-3282e1af52ea",
+          "package_name": "aware-network-package-manager",
+          "package_root": "workspaces/aware_network",
+          "revision_code_package_id": "5fb3f5d3-7509-5aff-ba73-4c0dd1c9cf91"
+        },
+        {
+          "code_package_id": "1e68d4ea-9174-5a6f-b650-5c88d6e3d8fb",
+          "domain_commit_id": "87efbb15-f51d-5f6e-9423-c2bf2c26063f",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "febe880d-3092-5c17-ab5c-ee67a3916ebc",
+          "package_name": "aware_file_system_service_api",
+          "package_root": "workspaces/aware_network/modules/filesystem/apis/filesystem/python/aware_file_system_service_api",
+          "revision_code_package_id": "3051d059-865f-538a-9499-64af23449ea1"
+        },
+        {
+          "code_package_id": "201a66d4-5be7-5fa5-9488-df4b434d82c3",
+          "domain_commit_id": "46171fd9-1942-53f0-8a10-0e6a3a18df93",
+          "file_count": 1510,
+          "object_instance_graph_commit_id": "560a383f-0862-587a-987e-120777abcf94",
+          "package_name": "experience-ontology",
+          "package_root": "workspaces/aware_network/modules/experience/ontology",
+          "revision_code_package_id": "4ed01eb4-e887-5977-8027-756fd620d5f7"
+        },
+        {
+          "code_package_id": "219f5ba4-d875-529a-845b-546286532485",
+          "domain_commit_id": "95734d3e-5f3b-5761-b754-d0101d86396b",
+          "file_count": 12,
+          "object_instance_graph_commit_id": "4d69f18f-f22a-5eb0-b39d-a03aea19ebf8",
+          "package_name": "meta-service-dto",
+          "package_root": "workspaces/aware_network/modules/meta/apis/meta/dto",
+          "revision_code_package_id": "ed1adb1e-8933-5d75-adc5-fd6bb3fb6a1d"
+        },
+        {
+          "code_package_id": "22dc86f6-7ab4-5552-b14e-ce7c13269b80",
+          "domain_commit_id": "358b267b-2233-5c01-a571-8efb1623f18a",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "e99f98ec-19de-5f67-9add-b6e6e8d052e9",
+          "package_name": "rust-tooling",
+          "package_root": "workspaces/aware_network/languages/rust/tooling",
+          "revision_code_package_id": "6512dfab-dbe7-5c22-aa6f-81544254b2a7"
+        },
+        {
+          "code_package_id": "274b5dc5-6283-5fd6-8fed-7c878c39f3aa",
+          "domain_commit_id": "5b8ca611-47b5-5fbe-a619-6d0850450026",
+          "file_count": 157,
+          "object_instance_graph_commit_id": "7801d9c1-d047-5e45-b9da-3009e6c978c8",
+          "package_name": "aware-api-runtime",
+          "package_root": "workspaces/aware_network/modules/api/ontology/runtime/python",
+          "revision_code_package_id": "47e0ae68-04f6-5ad9-974a-8da51a0d5a39"
+        },
+        {
+          "code_package_id": "2752e450-3827-51ab-a48f-5bfae1b2714c",
+          "domain_commit_id": "06055cf3-7482-5f98-a24e-06a0edd4d20e",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "84d396e0-fac5-58ec-a5f1-fe3547715863",
+          "package_name": "ontology-service-dto",
+          "package_root": "workspaces/aware_network/modules/ontology/apis/ontology/dto",
+          "revision_code_package_id": "81aae2ea-0d6e-5310-ada4-d191060e5d15"
+        },
+        {
+          "code_package_id": "288f97c2-5f58-549f-aa4d-5f8938c578f4",
+          "domain_commit_id": "ddaf170c-6248-5058-a843-0a5c5094f461",
+          "file_count": 508,
+          "object_instance_graph_commit_id": "4e126f42-d5be-5e58-a8de-21035aba47bf",
+          "package_name": "aware-meta",
+          "package_root": "workspaces/aware_network/modules/meta/ontology/runtime/python/aware_meta",
+          "revision_code_package_id": "14150594-4a31-585d-b690-a6943e7ec6ad"
+        },
+        {
+          "code_package_id": "2b104905-43ea-5b49-99b4-51a4c178283f",
+          "domain_commit_id": "b884b298-c67a-5d73-a74d-90c7b5eda4ae",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "eae26445-977d-55b1-b40e-81587bf3ab8e",
+          "package_name": "aware_api_service_protocol",
+          "package_root": "workspaces/aware_network/modules/api/apis/api/python/aware_api_service_protocol",
+          "revision_code_package_id": "d9d7e8a7-807a-51bf-a4fe-0de174cfd83f"
+        },
+        {
+          "code_package_id": "2d2ad7af-cf1d-5b1c-837f-e4c61e6f7670",
+          "domain_commit_id": "83f5e114-71d0-59e2-b458-b4afa7af5303",
+          "file_count": 77,
+          "object_instance_graph_commit_id": "d1236db4-d146-5d54-999f-28b63584a02c",
+          "package_name": "aware-environment",
+          "package_root": "workspaces/aware_network/modules/environment/ontology/runtime/python",
+          "revision_code_package_id": "f9ee252b-2ee5-548c-a941-9698357967a9"
+        },
+        {
+          "code_package_id": "2dc1706f-1e4c-5835-9e1d-a3b7003e0bff",
+          "domain_commit_id": "e65971ed-0b0e-5693-bf2a-856b2debf740",
+          "file_count": 15,
+          "object_instance_graph_commit_id": "3c98e479-f27c-518f-8323-8667ac900a61",
+          "package_name": "aware-content",
+          "package_root": "workspaces/aware_network/modules/content/ontology/runtime/python/aware_content",
+          "revision_code_package_id": "2bb97f1e-3841-5759-9932-b3cba1923deb"
+        },
+        {
+          "code_package_id": "3004e621-4349-59f8-856f-76926b5e6dcc",
+          "domain_commit_id": "56ddee4c-83a3-5523-b854-aeccbe3f4eb4",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "4b543f7e-2b44-5b7d-8ce0-5461e4b4e289",
+          "package_name": "aware_file_system_service_protocol",
+          "package_root": "workspaces/aware_network/modules/filesystem/apis/filesystem/python/aware_file_system_service_protocol",
+          "revision_code_package_id": "1839dfd2-4f48-50ea-8653-8d89aa14e229"
+        },
+        {
+          "code_package_id": "307964f0-512d-5a71-9add-6a34ddde3d88",
+          "domain_commit_id": "9ea2ccf0-2e85-5ae8-92fd-3e7da5c828a7",
+          "file_count": 20,
+          "object_instance_graph_commit_id": "564e7ff4-5d24-53dc-9158-c52a04b953b1",
+          "package_name": "aware-content",
+          "package_root": "workspaces/aware_network/modules/content/ontology/runtime/python",
+          "revision_code_package_id": "f51f571f-f37d-5497-942e-12db0ce0425c"
+        },
+        {
+          "code_package_id": "311c44eb-8fc5-520f-9a91-8efa325f32ef",
+          "domain_commit_id": "aa923ff4-1c31-5308-89ba-b489110ca205",
+          "file_count": 337,
+          "object_instance_graph_commit_id": "3e0ba192-0d5f-507f-9827-05367a7105cd",
+          "package_name": "environment-ontology",
+          "package_root": "workspaces/aware_network/modules/environment/ontology",
+          "revision_code_package_id": "7763d10f-0150-59a5-af68-1bb50e8b920a"
+        },
+        {
+          "code_package_id": "31e9bf4d-f24b-52c7-bef6-db6892089872",
+          "domain_commit_id": "d00d0b71-67a6-56d8-8fb0-655a19d4f036",
+          "file_count": 10,
+          "object_instance_graph_commit_id": "17adb852-e634-589f-93f7-b5f819bccca9",
+          "package_name": "reactivity-sdk",
+          "package_root": "workspaces/aware_network/modules/reactivity/sdks/reactivity",
+          "revision_code_package_id": "ff1c8bfe-4550-566b-92e2-3acc580d2545"
+        },
+        {
+          "code_package_id": "32f267d8-a5b1-5db0-aeef-3a0b681e21b1",
+          "domain_commit_id": "fbff73eb-b1db-5557-a24e-7de8f484000d",
+          "file_count": 281,
+          "object_instance_graph_commit_id": "b60fe623-5095-5dcc-9c31-e4bdba3fe1be",
+          "package_name": "aware-experience",
+          "package_root": "workspaces/aware_network/modules/experience/ontology/runtime/python",
+          "revision_code_package_id": "07c2f44c-fd54-56a1-8c6a-2a0f32359ccf"
+        },
+        {
+          "code_package_id": "34e28b47-d8fa-5683-b493-886c260f9661",
+          "domain_commit_id": "fbf715e0-19db-5681-b23e-0d0b2f45f9f5",
+          "file_count": 15,
+          "object_instance_graph_commit_id": "c9461a16-317a-57f9-ad3b-03e88055d74a",
+          "package_name": "meta-sdk",
+          "package_root": "workspaces/aware_network/modules/meta/sdks/meta",
+          "revision_code_package_id": "107b5439-9398-5a57-9209-77fcc74a4a48"
+        },
+        {
+          "code_package_id": "3cfb8c49-5d2d-5056-aa4d-5e17bbbae067",
+          "domain_commit_id": "cb4b77f6-5b2a-5ece-933f-dfdef9a883db",
+          "file_count": 13,
+          "object_instance_graph_commit_id": "70ce29df-4b66-57f1-804f-1ca73f3ddc03",
+          "package_name": "aware-meta-sdk",
+          "package_root": "workspaces/aware_network/modules/meta/sdks/meta/python",
+          "revision_code_package_id": "c172451a-3e0d-5703-9a01-8eb2829af6ce"
+        },
+        {
+          "code_package_id": "3df0e74f-091c-51e7-8d5f-cc912a67e807",
+          "domain_commit_id": "a07c1324-cfe8-5911-b00a-38116270c29e",
+          "file_count": 10,
+          "object_instance_graph_commit_id": "43061d50-5414-5209-9ef1-ec9eb1e24601",
+          "package_name": "aware-storage",
+          "package_root": "workspaces/aware_network/modules/storage/ontology/runtime/python/aware_storage",
+          "revision_code_package_id": "0fdbcd15-7f2e-54bf-898f-e40a3a5ab8a2"
+        },
+        {
+          "code_package_id": "3e8290cc-58fe-5e22-831d-4bb2959f5a8c",
+          "domain_commit_id": "8101e2ad-8a0a-5d90-a453-d26640023855",
+          "file_count": 462,
+          "object_instance_graph_commit_id": "69af2e80-ee63-5d70-a98f-72fb0fc1e139",
+          "package_name": "identity-ontology",
+          "package_root": "workspaces/aware_network/modules/identity/ontology",
+          "revision_code_package_id": "230bf778-2000-5135-9c12-6588acb9d923"
+        },
+        {
+          "code_package_id": "40181667-a6f4-5f05-a754-f5f4f56c86c0",
+          "domain_commit_id": "7769ceaa-87cf-5e96-8274-4d0441324e03",
+          "file_count": 40,
+          "object_instance_graph_commit_id": "48af31b2-3a46-502b-85fa-3334516dc221",
+          "package_name": "aware-sdk-runtime",
+          "package_root": "workspaces/aware_network/modules/sdk/ontology/runtime/python/aware_sdk_runtime",
+          "revision_code_package_id": "01b81964-54a6-5d7d-8da8-7db21a7bc9ba"
+        },
+        {
+          "code_package_id": "4154dde1-86fa-58ce-81e4-a13e6a64d87a",
+          "domain_commit_id": "06916b24-c4f0-50f8-b9a9-10f6c6366254",
+          "file_count": 33,
+          "object_instance_graph_commit_id": "473aaef2-6461-56a2-89fb-26cd234d8f7c",
+          "package_name": "aware-api-ontology-orm-models",
+          "package_root": "workspaces/aware_network/modules/api/ontology/structure/python/orm_models",
+          "revision_code_package_id": "b014927f-19c7-552d-a189-b3e0232bd2ff"
+        },
+        {
+          "code_package_id": "440094ac-a3b4-5690-9377-83d225fdfb90",
+          "domain_commit_id": "3adaec86-db98-55ae-a4ee-d0b8356b522e",
+          "file_count": 85,
+          "object_instance_graph_commit_id": "3c269068-5659-532c-b624-edacc58dfac8",
+          "package_name": "aware-code-ontology",
+          "package_root": "workspaces/aware_network/modules/code/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "f4ef6a8d-c95a-578b-b9f5-4bb3e9aec4a3"
+        },
+        {
+          "code_package_id": "4553a098-3fe6-5beb-a959-3ffa9650692f",
+          "domain_commit_id": "0c3e8b0d-2cc9-5f30-a7c6-078bd1354d27",
+          "file_count": 34,
+          "object_instance_graph_commit_id": "cc4daea1-9d1a-550c-9d69-4cd797778e37",
+          "package_name": "aware-reactivity",
+          "package_root": "workspaces/aware_network/modules/reactivity/ontology/runtime/python/aware_reactivity",
+          "revision_code_package_id": "4ad11435-f38e-5232-8d8e-56c4c3e736ce"
+        },
+        {
+          "code_package_id": "459d5e1c-3c98-5925-a66c-9f1d15a6fe38",
+          "domain_commit_id": "8944dcf7-c0e9-5a84-80e5-26354b346d73",
+          "file_count": 25,
+          "object_instance_graph_commit_id": "2342f9a6-a209-5a95-81b4-0f4fcde7353e",
+          "package_name": "aware-history-ontology",
+          "package_root": "workspaces/aware_network/modules/history/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "88214f59-e710-5c08-afde-d0e8313ba127"
+        },
+        {
+          "code_package_id": "469896af-58d2-5199-9144-24fcdd772b88",
+          "domain_commit_id": "f1915940-577b-586d-bc82-cc3e6bcaeb33",
+          "file_count": 35,
+          "object_instance_graph_commit_id": "33555208-87f5-56bc-9632-53fca06133be",
+          "package_name": "aware-reactivity-ontology-dto",
+          "package_root": "workspaces/aware_network/modules/reactivity/ontology/structure/python/dto",
+          "revision_code_package_id": "54ed8aed-1ec7-573d-a8d9-a538a7839d11"
+        },
+        {
+          "code_package_id": "47facc70-cd14-53eb-9bb0-4f07fab90e7f",
+          "domain_commit_id": "971e8aa5-9a91-55f0-b50f-1eda3073a54c",
+          "file_count": 462,
+          "object_instance_graph_commit_id": "0de4cd8e-e343-5dd2-a8eb-0b7832da24ec",
+          "package_name": "identity-ontology",
+          "package_root": "workspaces/aware_network/modules/identity/ontology",
+          "revision_code_package_id": "074c5e23-2f47-5bc6-a488-390a8da993f1"
+        },
+        {
+          "code_package_id": "4a85c214-53b5-55ba-852c-c9ead7b3c7d8",
+          "domain_commit_id": "09fdd681-9167-5cf1-a0d5-50c2090e2e05",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "71ea1ec4-f9f9-5819-a109-6c9042057c49",
+          "package_name": "aware-ontology-sdk",
+          "package_root": "workspaces/aware_network/modules/ontology/sdks/ontology/python",
+          "revision_code_package_id": "28e65b74-dad5-5a06-9aba-b9424416d273"
+        },
+        {
+          "code_package_id": "4b6f697a-e113-5262-887e-0e2d26d2f7ff",
+          "domain_commit_id": "669bfa34-6c3c-5239-858b-5ed8eea4a288",
+          "file_count": 22,
+          "object_instance_graph_commit_id": "c9fa1809-559e-5b5e-8eeb-ed9c77db6a76",
+          "package_name": "aware-sdk-ontology-orm-models",
+          "package_root": "workspaces/aware_network/modules/sdk/ontology/structure/python/orm_models",
+          "revision_code_package_id": "09f96e36-fe4e-5ecf-927d-02485e0d7bb6"
+        },
+        {
+          "code_package_id": "4b8adb4d-2726-57ab-a578-a3ec3dd7588b",
+          "domain_commit_id": "9cc4bfc3-bebd-5ea4-af1c-5f9a2dee7e09",
+          "file_count": 1510,
+          "object_instance_graph_commit_id": "fa089935-0572-539a-8dda-fdb0876e43d8",
+          "package_name": "experience-ontology",
+          "package_root": "workspaces/aware_network/modules/experience/ontology",
+          "revision_code_package_id": "2598c27c-54d0-50b1-829e-76806324cf87"
+        },
+        {
+          "code_package_id": "4d4a3085-cb2e-5072-89f3-f819b89f41aa",
+          "domain_commit_id": "432c6c36-737e-5491-8eac-9bb545aeeab7",
+          "file_count": 383,
+          "object_instance_graph_commit_id": "b8904769-5976-5eda-bbb8-b7110c90c96d",
+          "package_name": "aware-code",
+          "package_root": "workspaces/aware_network/modules/code/ontology/runtime/python",
+          "revision_code_package_id": "c2032127-b3b0-5f49-a821-19c8dd478148"
+        },
+        {
+          "code_package_id": "4f7c21d6-f072-5110-bd7e-decbaef423c4",
+          "domain_commit_id": "828d5126-6913-5f3a-90d7-5c1487397611",
+          "file_count": 202,
+          "object_instance_graph_commit_id": "b577419d-b898-5054-b581-44f4b782d4a2",
+          "package_name": "content-ontology",
+          "package_root": "workspaces/aware_network/modules/content/ontology",
+          "revision_code_package_id": "9f44b634-70a8-531c-a464-f9fecfdb7888"
+        },
+        {
+          "code_package_id": "504c8659-58ba-5598-aef7-207dfbb9470c",
+          "domain_commit_id": "021c5c89-2ef8-500c-93eb-f62fd7b4eb53",
+          "file_count": 13,
+          "object_instance_graph_commit_id": "6297636b-0f28-52e8-b534-8a37897c993a",
+          "package_name": "reactivity-service-dto",
+          "package_root": "workspaces/aware_network/modules/reactivity/apis/reactivity/dto",
+          "revision_code_package_id": "b8cae697-6835-59ea-9a85-15f6b0ef69a0"
+        },
+        {
+          "code_package_id": "510bfe1d-fc4f-5e00-9379-f15dd5f2aae4",
+          "domain_commit_id": "0c0ac2f1-18fa-50ba-9e26-a17fc701c186",
+          "file_count": 19,
+          "object_instance_graph_commit_id": "0276272e-9a5c-5270-83ac-25b471098c26",
+          "package_name": "code-service-dto",
+          "package_root": "workspaces/aware_network/modules/code/apis/code/dto",
+          "revision_code_package_id": "4fbcd62a-8c6e-5002-bbe1-e066c9b402e2"
+        },
+        {
+          "code_package_id": "54f1cecc-e813-5d44-889e-96f28f421dce",
+          "domain_commit_id": "3700d179-9d95-5721-bcac-74d6d4597985",
+          "file_count": 39,
+          "object_instance_graph_commit_id": "58f7b54b-70cc-5f80-87af-22a9eda895f6",
+          "package_name": "content-service-api",
+          "package_root": "workspaces/aware_network/modules/content/apis/content",
+          "revision_code_package_id": "5da91c1d-7099-55e6-a2d2-ed657867c446"
+        },
+        {
+          "code_package_id": "57dacb83-d6e2-5f12-8c3f-f1687efa8335",
+          "domain_commit_id": "7c3b903f-8443-53f0-a3b2-639c57f98d93",
+          "file_count": 13,
+          "object_instance_graph_commit_id": "d54091e3-1a41-576c-8b71-b00f4f241255",
+          "package_name": "aware-storage-ontology-orm-models",
+          "package_root": "workspaces/aware_network/modules/storage/ontology/structure/python/orm_models",
+          "revision_code_package_id": "41d44e8f-09bc-5a6f-a195-5b8e3d396484"
+        },
+        {
+          "code_package_id": "581c22cf-17e6-5ead-b747-45c5be0a1702",
+          "domain_commit_id": "6a766b42-9d3d-5d92-8599-db355d308b62",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "4251612a-166c-5dc5-847c-7f7a7cb0af34",
+          "package_name": "aware_api_service_api",
+          "package_root": "workspaces/aware_network/modules/api/apis/api/python/aware_api_service_api",
+          "revision_code_package_id": "dd0b6d4b-aafd-5ee4-a29b-697880c97422"
+        },
+        {
+          "code_package_id": "5b2deee0-f11e-5194-9375-a9d5a2286b6b",
+          "domain_commit_id": "aa710d7f-5bc5-580e-ba7a-2a7ac700f745",
+          "file_count": 35,
+          "object_instance_graph_commit_id": "b5b36a7f-1623-5616-961b-9ecc90cf0006",
+          "package_name": "aware-content-ontology-orm-models",
+          "package_root": "workspaces/aware_network/modules/content/ontology/structure/python/orm_models",
+          "revision_code_package_id": "0a68d7bc-f315-549a-89c0-192cbec52519"
+        },
+        {
+          "code_package_id": "5b320d72-285e-5c1e-ad4b-0add3721add5",
+          "domain_commit_id": "321245d2-95d6-53f0-90ef-62072f36746e",
+          "file_count": 25,
+          "object_instance_graph_commit_id": "caf4aec4-6396-569e-aab4-b6aa46dc5cd1",
+          "package_name": "aware_api",
+          "package_root": "workspaces/aware_network/modules/api/libs/api/dart",
+          "revision_code_package_id": "4b41b6f6-1e01-5574-8de3-0601269f83f7"
+        },
+        {
+          "code_package_id": "5c4ed78e-43d2-5abb-9fe9-4527c10aae78",
+          "domain_commit_id": "f9c0738d-0a47-5aaf-a053-a45a4a69c00f",
+          "file_count": 26,
+          "object_instance_graph_commit_id": "b3707c2c-e8b0-59af-a789-4d0ba296f2b2",
+          "package_name": "aware-ontology",
+          "package_root": "workspaces/aware_network/modules/ontology/ontology/runtime/python",
+          "revision_code_package_id": "88df9733-1727-5b2b-9e40-95bc4796977b"
+        },
+        {
+          "code_package_id": "5d25a890-d738-51a9-98b1-698a6c55019b",
+          "domain_commit_id": "12db7cea-c918-5b6b-8bfa-6b457bb11586",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "aab2b35f-a516-5e9f-bec8-7f44152df376",
+          "package_name": "aware_storage_service_api",
+          "package_root": "workspaces/aware_network/modules/storage/apis/storage/python/aware_storage_service_api",
+          "revision_code_package_id": "ff81d8cb-0069-57b9-a084-8506cab79309"
+        },
+        {
+          "code_package_id": "5f10f357-d67c-571f-ac47-f5fe3080d94c",
+          "domain_commit_id": "2bbdadbb-b3f9-5d68-a00b-5fe09c6621e7",
+          "file_count": 111,
+          "object_instance_graph_commit_id": "a56e831f-dc4f-506a-ad42-b8b017cbea2c",
+          "package_name": "aware-api-runtime",
+          "package_root": "workspaces/aware_network/modules/api/ontology/runtime/python/aware_api_runtime",
+          "revision_code_package_id": "822a3718-d2d0-57e8-9ed4-fdb410a25d4c"
+        },
+        {
+          "code_package_id": "603559ac-74d9-5143-aed3-1b781c3b8376",
+          "domain_commit_id": "f5f06dc5-30b7-5fdb-935c-b5563ce49f9d",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "7510655a-da89-50ec-92c9-5e6cab47eab5",
+          "package_name": "aware-storage-sdk",
+          "package_root": "workspaces/aware_network/modules/storage/sdks/storage/python",
+          "revision_code_package_id": "0bed6754-8694-5fe9-89e0-c3bc3614fcfa"
+        },
+        {
+          "code_package_id": "63a96bab-c2c2-5bcf-878b-842a37ef3beb",
+          "domain_commit_id": "f4fdf309-c16a-56c4-a340-792087b9d868",
+          "file_count": 314,
+          "object_instance_graph_commit_id": "5199222d-44ff-530d-b099-47330f2d7146",
+          "package_name": "attention-ontology",
+          "package_root": "workspaces/aware_network/modules/attention/ontology",
+          "revision_code_package_id": "bcf043f8-0401-53a9-8680-7b47886e2963"
+        },
+        {
+          "code_package_id": "6494e02a-4f67-53a9-befe-a34eb0ec73c7",
+          "domain_commit_id": "f5847aca-f443-572c-845c-cab36d2c80ae",
+          "file_count": 156,
+          "object_instance_graph_commit_id": "4563d42c-a422-55ba-8241-f8ed87ca8599",
+          "package_name": "aware-orm",
+          "package_root": "workspaces/aware_network/libs/orm",
+          "revision_code_package_id": "9ada8260-7345-5180-8db8-facba0110c9a"
+        },
+        {
+          "code_package_id": "64a25a40-1fe2-5f63-bec3-39320b795772",
+          "domain_commit_id": "6e3df7ed-8526-5dcb-a470-eba79d89ffca",
+          "file_count": 12,
+          "object_instance_graph_commit_id": "59bdff5e-0f31-522f-974f-9ef069d1484e",
+          "package_name": "aware-sdk-network",
+          "package_root": "workspaces/aware_network/modules/sdk/libs/sdk_network/python",
+          "revision_code_package_id": "c51ae19a-864c-5c6e-8f53-28c7196c36cf"
+        },
+        {
+          "code_package_id": "67a1ec77-76b0-5558-936d-b64b51a91d1d",
+          "domain_commit_id": "94db22ad-d3d2-5317-a763-21dedaac72da",
+          "file_count": 78,
+          "object_instance_graph_commit_id": "f65f1646-3c4e-5785-96c6-6c9f70891607",
+          "package_name": "tree-sitter-python",
+          "package_root": "workspaces/aware_network/languages/python/grammar/tree_sitter",
+          "revision_code_package_id": "84460841-7380-5535-8dfd-dbd0fad6ed0d"
+        },
+        {
+          "code_package_id": "6c9b2279-6614-5ee5-acd2-51db9a02ebe5",
+          "domain_commit_id": "dc96b463-fde4-56d9-80d7-aeeac65117f5",
+          "file_count": 27,
+          "object_instance_graph_commit_id": "ce98db3a-23ff-58fc-9f05-5a966c210a82",
+          "package_name": "aware_code_service_dto",
+          "package_root": "workspaces/aware_network/modules/code/apis/code/python/aware_code_service_dto",
+          "revision_code_package_id": "caaf8069-7f05-5ba7-9c30-bf900acd1183"
+        },
+        {
+          "code_package_id": "6caa3c37-4aeb-5ab4-a8cc-9ad4fd34fbec",
+          "domain_commit_id": "bce9fcc5-86b0-50d6-9f5b-53a994139543",
+          "file_count": 85,
+          "object_instance_graph_commit_id": "5aa1dc69-651e-5251-924d-d42d74230bff",
+          "package_name": "aware-code-ontology-orm-models",
+          "package_root": "workspaces/aware_network/modules/code/ontology/structure/python/orm_models",
+          "revision_code_package_id": "a14dc8df-f421-5ca9-8dba-13bd20d11ca3"
+        },
+        {
+          "code_package_id": "6cd21029-a785-5380-b54b-6b8a173eaaae",
+          "domain_commit_id": "3784b917-e53b-5387-9304-200186da26ee",
+          "file_count": 10,
+          "object_instance_graph_commit_id": "57b13f8c-881f-5f71-8be8-202faf2e1cf6",
+          "package_name": "aware_storage_service_dto",
+          "package_root": "workspaces/aware_network/modules/storage/apis/storage/python/aware_storage_service_dto",
+          "revision_code_package_id": "99b817ef-b6fd-58b8-b9b7-94824d7fe2d1"
+        },
+        {
+          "code_package_id": "6d461e2d-5ece-5ceb-8f15-e5abe99bad4e",
+          "domain_commit_id": "125831d1-ef57-5318-a427-c041db5800e6",
+          "file_count": 129,
+          "object_instance_graph_commit_id": "f00ef8ef-5460-590b-b7f9-a3ac83bb62c9",
+          "package_name": "history-ontology",
+          "package_root": "workspaces/aware_network/modules/history/ontology",
+          "revision_code_package_id": "deaa072d-e4e2-5e92-8f4e-14e7a1a08a9f"
+        },
+        {
+          "code_package_id": "6d70da8b-e80e-5abf-b2cc-27d82e141b94",
+          "domain_commit_id": "502936d3-7818-5f3b-9cd0-ba85d58cadb4",
+          "file_count": 83,
+          "object_instance_graph_commit_id": "f9861c7b-6ba4-52e1-b560-7d611bbff73e",
+          "package_name": "code-service-api",
+          "package_root": "workspaces/aware_network/modules/code/apis/code",
+          "revision_code_package_id": "48786fc6-3524-5c03-8613-3f6b077e9c45"
+        },
+        {
+          "code_package_id": "6d7e3054-2941-5ef1-a221-2a7630a897b6",
+          "domain_commit_id": "e0e0c267-4a23-598b-a5c6-e274d03fb42a",
+          "file_count": 33,
+          "object_instance_graph_commit_id": "826862ec-0113-5edd-a2fa-c3f81087f464",
+          "package_name": "aware-api-ontology",
+          "package_root": "workspaces/aware_network/modules/api/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "41c9c7e8-9687-5105-8e62-d71c54d01641"
+        },
+        {
+          "code_package_id": "6e840ecb-ae49-55a8-b231-5cecfa9a5cde",
+          "domain_commit_id": "7f50e845-e3cd-5f20-b90c-8c94572b0006",
+          "file_count": 25,
+          "object_instance_graph_commit_id": "79d3cf80-f327-5aac-a8e9-230ec42f773e",
+          "package_name": "aware-history-ontology-orm-models",
+          "package_root": "workspaces/aware_network/modules/history/ontology/structure/python/orm_models",
+          "revision_code_package_id": "e065f3d2-71b1-59ef-a544-65ed5ecfb81a"
+        },
+        {
+          "code_package_id": "6eeb4ab8-54e6-5cf6-8a4f-71740a396759",
+          "domain_commit_id": "5fa22954-e72d-558d-a29d-f526c170c324",
+          "file_count": 337,
+          "object_instance_graph_commit_id": "6f5aa0f6-9a93-5494-9213-5013486a22ae",
+          "package_name": "environment-ontology",
+          "package_root": "workspaces/aware_network/modules/environment/ontology",
+          "revision_code_package_id": "6db0bc7d-cbde-5675-8f0a-eaa507ddc262"
+        },
+        {
+          "code_package_id": "70777b8d-ee02-5633-aa2c-7738ee71ec29",
+          "domain_commit_id": "67757e01-bc38-5e56-947a-37b8c64e07c5",
+          "file_count": 19,
+          "object_instance_graph_commit_id": "428fadf5-3094-5ff7-9f20-d9f425b6c0f1",
+          "package_name": "aware-code-sdk",
+          "package_root": "workspaces/aware_network/modules/code/sdks/code/python",
+          "revision_code_package_id": "2bf87976-78ee-5685-bab9-efb7e107b5e5"
+        },
+        {
+          "code_package_id": "72ccb245-5a82-5d1b-9796-dae7b14385d8",
+          "domain_commit_id": "ddde993a-f14f-51d3-91d4-6f872235b7d9",
+          "file_count": 20,
+          "object_instance_graph_commit_id": "1c41b3fd-4b81-5d25-9afc-9c902edea4f8",
+          "package_name": "aware_reactivity_service_dto",
+          "package_root": "workspaces/aware_network/modules/reactivity/apis/reactivity/python/aware_reactivity_service_dto",
+          "revision_code_package_id": "cc32e4c3-9dcc-512a-8c5c-8ddc83aa46d0"
+        },
+        {
+          "code_package_id": "75fa7484-6a1d-5e1d-b957-9d0974592657",
+          "domain_commit_id": "8eb21eb1-8b3e-507d-b277-ad6ca0708723",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "9e162517-ecc7-5907-bc1a-b2848a82eb12",
+          "package_name": "aware_code_service_api",
+          "package_root": "workspaces/aware_network/modules/code/apis/code/python/aware_code_service_api",
+          "revision_code_package_id": "4065cbb2-c453-56ea-b338-fcb823f01331"
+        },
+        {
+          "code_package_id": "7747a868-8c6e-5885-8fcd-bb65fd9b5185",
+          "domain_commit_id": "bfd12ef8-8d7c-5c3c-9f5d-1156f7c2ff1b",
+          "file_count": 72,
+          "object_instance_graph_commit_id": "21640706-a655-5753-b00e-d3a00e68878e",
+          "package_name": "storage-ontology",
+          "package_root": "workspaces/aware_network/modules/storage/ontology",
+          "revision_code_package_id": "77f6fdea-9b0c-52be-9e0f-ba41870de427"
+        },
+        {
+          "code_package_id": "78fc879a-e120-5056-bca5-df1906779bed",
+          "domain_commit_id": "2df895b6-7504-5ddf-b940-a32b2ce4c057",
+          "file_count": 10,
+          "object_instance_graph_commit_id": "7a3117d6-6c49-5bce-85c0-0324b9559cf9",
+          "package_name": "aware_api_service_dto",
+          "package_root": "workspaces/aware_network/modules/api/apis/api/python/aware_api_service_dto",
+          "revision_code_package_id": "31c78d9c-7dbd-58ee-ae33-2f2e0b767916"
+        },
+        {
+          "code_package_id": "79f52ce2-53fa-513f-81be-60e1b7dd6514",
+          "domain_commit_id": "6f6f3527-3073-5139-bb34-c62f4b6bddc6",
+          "file_count": 3,
+          "object_instance_graph_commit_id": "91586f55-9561-58b2-9184-66d97f626bdf",
+          "package_name": "storage-service-dto",
+          "package_root": "workspaces/aware_network/modules/storage/apis/storage/dto",
+          "revision_code_package_id": "f3ec11b0-2b27-5164-b417-1f2b97454241"
+        },
+        {
+          "code_package_id": "7a483b7c-7d23-5dce-a563-c32a27e56efc",
+          "domain_commit_id": "6a37b45f-fbdb-5c5b-956b-0d062b029694",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "2c76f0d0-b199-53c7-95bb-675ef73db313",
+          "package_name": "aware-command-runtime",
+          "package_root": "workspaces/aware_network/libs/command_runtime/python",
+          "revision_code_package_id": "6d3f0ed8-82a0-5f49-82f6-7cc0be5b33d3"
+        },
+        {
+          "code_package_id": "7ba4f76f-7152-513e-8ca8-3d6a78d3a4a2",
+          "domain_commit_id": "83d1ef23-b5ca-5e88-9a54-d4600749266a",
+          "file_count": 42,
+          "object_instance_graph_commit_id": "aea63622-8b73-57d2-816e-94b52855bc18",
+          "package_name": "ontology-service-api",
+          "package_root": "workspaces/aware_network/modules/ontology/apis/ontology",
+          "revision_code_package_id": "71d824e7-b16b-5460-8593-ae39c402ef4d"
+        },
+        {
+          "code_package_id": "7bcfa0d0-d72a-53fd-8ae9-4b1f8389e0c2",
+          "domain_commit_id": "a6df820d-feb6-51a5-94af-c2f8b9bbcfec",
+          "file_count": 49,
+          "object_instance_graph_commit_id": "aa75f2bc-b21b-5c6c-b883-194aaf88983c",
+          "package_name": "aware-sdk-runtime",
+          "package_root": "workspaces/aware_network/modules/sdk/ontology/runtime/python",
+          "revision_code_package_id": "dda25dcc-d6ff-541a-908b-4e2ea038c8a6"
+        },
+        {
+          "code_package_id": "7ec488f6-fbb1-53d9-8444-cfa8d5fb5e84",
+          "domain_commit_id": "3fb79521-6771-51aa-b77d-3f1e7d230a96",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "98f66c6e-3bb5-535b-983c-cceda85e5ccc",
+          "package_name": "aware-sdk-core",
+          "package_root": "workspaces/aware_network/modules/sdk/libs/sdk/python",
+          "revision_code_package_id": "73cf4cea-8d3b-51e3-83d2-30a7aedbd26b"
+        },
+        {
+          "code_package_id": "8185de81-deb8-5448-825f-ff75f50c1535",
+          "domain_commit_id": "86b9edc7-05e2-56f8-b6e2-960a5b6ab4ef",
+          "file_count": 21,
+          "object_instance_graph_commit_id": "00581bb9-c555-5c3e-8ca3-e21118785e8a",
+          "package_name": "aware-sdk-ontology-dto",
+          "package_root": "workspaces/aware_network/modules/sdk/ontology/structure/python/dto",
+          "revision_code_package_id": "300bc19d-5d32-5f5f-8284-38b74379fe9f"
+        },
+        {
+          "code_package_id": "82531bc5-a525-59be-bad5-cbe2ff8367ef",
+          "domain_commit_id": "d588ff8b-8cfa-5916-8012-afcd7adf997e",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "2d4c0a0d-147d-5cff-ad95-33d64daa1d8b",
+          "package_name": "aware_content_service_api",
+          "package_root": "workspaces/aware_network/modules/content/apis/content/python/aware_content_service_api",
+          "revision_code_package_id": "9b7cbe7a-5470-5302-b5c1-492f87c87632"
+        },
+        {
+          "code_package_id": "82847e8d-b927-5933-9836-931a170bdf9a",
+          "domain_commit_id": "a95deaac-beec-5d66-9249-fe3d2de7680c",
+          "file_count": 36,
+          "object_instance_graph_commit_id": "5a8e75c1-6cfc-521e-a293-1dc497d931f5",
+          "package_name": "aware-reactivity-ontology-orm-models",
+          "package_root": "workspaces/aware_network/modules/reactivity/ontology/structure/python/orm_models",
+          "revision_code_package_id": "ba1ae9a2-a15c-5bc1-aa34-657a9b921936"
+        },
+        {
+          "code_package_id": "831cd01b-a39a-5c88-8c88-b4aaa2f981a1",
+          "domain_commit_id": "68447dcc-7731-5ceb-b804-243ced4e7aac",
+          "file_count": 91,
+          "object_instance_graph_commit_id": "9582ea2d-914b-54a1-9907-1bd427937e6d",
+          "package_name": "ontology-ontology",
+          "package_root": "workspaces/aware_network/modules/ontology/ontology",
+          "revision_code_package_id": "1d983e6b-8c4b-5428-aae3-07b15e3863bd"
+        },
+        {
+          "code_package_id": "86c3b6be-8cdc-5cd6-83aa-bc71125642b8",
+          "domain_commit_id": "eeda3ab3-4ed7-5773-a88f-7be7db137273",
+          "file_count": 14,
+          "object_instance_graph_commit_id": "6be686af-367c-5b86-b2ac-7aee7c25df40",
+          "package_name": "aware-ontology-ontology",
+          "package_root": "workspaces/aware_network/modules/ontology/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "c9524ad3-2e45-50bf-9dd4-28e345417e3d"
+        },
+        {
+          "code_package_id": "8db1a6ca-8b7c-5c88-8501-7e1139289808",
+          "domain_commit_id": "cf25eedc-6b87-5548-87e1-b1ac27b0df49",
+          "file_count": 13,
+          "object_instance_graph_commit_id": "ebbb1fa1-429c-5256-b41a-0669139892fa",
+          "package_name": "aware-ontology-ontology-dto",
+          "package_root": "workspaces/aware_network/modules/ontology/ontology/structure/python/dto",
+          "revision_code_package_id": "c1856a99-1777-54d3-8d70-98adceb7867c"
+        },
+        {
+          "code_package_id": "90407bfc-4165-54a7-891d-00d2906cd875",
+          "domain_commit_id": "d8524760-d8fc-5c6e-a202-50c017a21bc6",
+          "file_count": 336,
+          "object_instance_graph_commit_id": "2ef404e2-6db7-55a5-bf3e-8c1f4cf80eca",
+          "package_name": "aware-code",
+          "package_root": "workspaces/aware_network/modules/code/ontology/runtime/python/aware_code",
+          "revision_code_package_id": "e03cf79b-9d5a-5b81-baa8-1d770a8f16e5"
+        },
+        {
+          "code_package_id": "920d25d7-0537-540b-9a56-a061180b8449",
+          "domain_commit_id": "7db85328-a034-57b7-9c8a-5a57e4d3566b",
+          "file_count": 2,
+          "object_instance_graph_commit_id": "3d9a6132-634d-52d3-8c62-399f3569940b",
+          "package_name": "api-service-dto",
+          "package_root": "workspaces/aware_network/modules/api/apis/api/dto",
+          "revision_code_package_id": "c069dd26-8094-5026-ae9e-5a8a258c817b"
+        },
+        {
+          "code_package_id": "94ee7e63-434b-53a4-b917-2a48f5434d86",
+          "domain_commit_id": "25b70cbf-3856-5070-b189-db0fc653c375",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "f9e92579-4622-59bf-b4f8-554ec6ff8e9e",
+          "package_name": "aware_storage_service_protocol",
+          "package_root": "workspaces/aware_network/modules/storage/apis/storage/python/aware_storage_service_protocol",
+          "revision_code_package_id": "3e688da1-92f5-548f-b969-b3ec076120d0"
+        },
+        {
+          "code_package_id": "95b54947-ce33-5572-a1fc-0403d9a37b27",
+          "domain_commit_id": "3c5eb7f9-20f2-53f4-9e92-5b2420d50856",
+          "file_count": 12,
+          "object_instance_graph_commit_id": "4f04cb2a-6c50-5544-841e-77ed1d497400",
+          "package_name": "aware-api-client",
+          "package_root": "workspaces/aware_network/modules/api/libs/api/python",
+          "revision_code_package_id": "52ee96f0-59bb-5d34-99f2-be3e75658c47"
+        },
+        {
+          "code_package_id": "95c65da5-c727-5d0d-a035-ad36a38540b9",
+          "domain_commit_id": "9c594e55-94e7-5b14-8aad-7612a07bf33a",
+          "file_count": 71,
+          "object_instance_graph_commit_id": "2ef69a99-2cc9-5861-94f2-021a121f430a",
+          "package_name": "aware-file-system",
+          "package_root": "workspaces/aware_network/modules/filesystem/libs/file_system/python",
+          "revision_code_package_id": "2a9feb7c-a122-50f4-9048-3c7521e409a4"
+        },
+        {
+          "code_package_id": "9693bc73-4c17-535b-9cd4-02ccd1dcd372",
+          "domain_commit_id": "de8939af-2712-5f87-8a10-ea3895dff94c",
+          "file_count": 18,
+          "object_instance_graph_commit_id": "dde7759b-c05e-5d79-a444-19f48bfc1902",
+          "package_name": "aware-storage",
+          "package_root": "workspaces/aware_network/modules/storage/ontology/runtime/python",
+          "revision_code_package_id": "c391e003-183c-5cdc-9578-eeef79299e08"
+        },
+        {
+          "code_package_id": "995e615e-8043-5313-a282-780de853839b",
+          "domain_commit_id": "536e1df9-214a-5adf-8f94-18815774395b",
+          "file_count": 14,
+          "object_instance_graph_commit_id": "3d2a2236-ed20-5383-be6e-8b1dd5830b69",
+          "package_name": "aware-ontology-ontology-orm-models",
+          "package_root": "workspaces/aware_network/modules/ontology/ontology/structure/python/orm_models",
+          "revision_code_package_id": "002f190d-c521-5f97-a1fe-f0757fa3238f"
+        },
+        {
+          "code_package_id": "9b3f0e7d-c3e1-5197-bc31-a11909c6545c",
+          "domain_commit_id": "d12f5a4f-7675-51bb-a6f3-18bc4e818c54",
+          "file_count": 15,
+          "object_instance_graph_commit_id": "13721f57-f7b2-5c54-9985-2c57ebdeacb7",
+          "package_name": "aware-ontology",
+          "package_root": "workspaces/aware_network/modules/ontology/ontology/runtime/python/aware_ontology",
+          "revision_code_package_id": "e4125a35-4d51-5cea-aa45-2ee7b48ce596"
+        },
+        {
+          "code_package_id": "9be1bf27-e335-5f17-ba5f-e0aa408a0d0c",
+          "domain_commit_id": "47b26916-a15f-57f5-963c-72c1f7640eaa",
+          "file_count": 11,
+          "object_instance_graph_commit_id": "c8144048-a181-5f24-9515-9429bb973f5f",
+          "package_name": "aware-history",
+          "package_root": "workspaces/aware_network/modules/history/ontology/runtime/python/aware_history",
+          "revision_code_package_id": "e8b52a48-a726-58b3-ade5-22cbffeb92fd"
+        },
+        {
+          "code_package_id": "9e42ebbd-3482-5eb8-a234-b31b00252fc4",
+          "domain_commit_id": "1ec15f14-2aa4-56e9-8440-4f4b6983cd89",
+          "file_count": 2,
+          "object_instance_graph_commit_id": "735d4bfe-561c-5e3c-b113-f12bf1261130",
+          "package_name": "content-service-dto",
+          "package_root": "workspaces/aware_network/modules/content/apis/content/dto",
+          "revision_code_package_id": "e97ef904-43ae-5b1c-b97c-5e71e4715a6c"
+        },
+        {
+          "code_package_id": "9fe5fb97-0700-52b4-8b9c-d7a52e04805e",
+          "domain_commit_id": "1dccf264-044b-59d2-b94a-0649339364f4",
+          "file_count": 47,
+          "object_instance_graph_commit_id": "f07bd4e4-d64c-58aa-96ae-fa8b2e328376",
+          "package_name": "storage-service-api",
+          "package_root": "workspaces/aware_network/modules/storage/apis/storage",
+          "revision_code_package_id": "1665463d-432b-5f7b-b29e-9b8151067ef2"
+        },
+        {
+          "code_package_id": "a160965b-6841-546f-bdea-246a7335d654",
+          "domain_commit_id": "e87d84ad-d952-5339-97df-8675339b6275",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "fd3de867-ad9e-5abc-8ae7-ef1dd408a753",
+          "package_name": "aware_meta_service_protocol",
+          "package_root": "workspaces/aware_network/modules/meta/apis/meta/python/aware_meta_service_protocol",
+          "revision_code_package_id": "36afddf7-008a-536b-9f63-b33644f27521"
+        },
+        {
+          "code_package_id": "a1789630-7e45-5888-bebe-74bcb328f462",
+          "domain_commit_id": "c42b6ccb-8c34-5350-a235-0ce29ed57799",
+          "file_count": 13,
+          "object_instance_graph_commit_id": "a6ab9c10-93bc-53df-82c8-2e908fa5f37a",
+          "package_name": "aware-storage-ontology",
+          "package_root": "workspaces/aware_network/modules/storage/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "45f9744b-d33d-56eb-9154-72b6dd3aa855"
+        },
+        {
+          "code_package_id": "a1e450de-9c24-52e5-8909-3bd879bb9079",
+          "domain_commit_id": "0a41c09f-1dcc-5318-9e5c-ef57e230631b",
+          "file_count": 1614,
+          "object_instance_graph_commit_id": "b13be083-0640-5495-aba2-4cc1629dee84",
+          "package_name": "meta-ontology",
+          "package_root": "workspaces/aware_network/modules/meta/ontology",
+          "revision_code_package_id": "39a35076-61e0-5d63-aafc-0cc408d9afd0"
+        },
+        {
+          "code_package_id": "a3600608-371a-5949-8553-6e193c1dd2f0",
+          "domain_commit_id": "3b7125ff-7a64-5de0-ae58-155f3fe532d7",
+          "file_count": 22,
+          "object_instance_graph_commit_id": "7d7d8f82-8abe-5422-91c7-bcf7face9042",
+          "package_name": "aware_widgets",
+          "package_root": "workspaces/aware_network/modules/interface/libs/widgets/dart/aware_widgets",
+          "revision_code_package_id": "7dc17d44-fca0-5b01-8685-f29656b826cf"
+        },
+        {
+          "code_package_id": "a4a888af-0a85-5035-b763-07e2f08fc88f",
+          "domain_commit_id": "882542a3-50ff-51a4-90d2-b2dd3aa682c4",
+          "file_count": 8,
+          "object_instance_graph_commit_id": "ba41563f-7edc-540e-a7b4-222f2ac405c4",
+          "package_name": "aware_meta_service_api",
+          "package_root": "workspaces/aware_network/modules/meta/apis/meta/python/aware_meta_service_api",
+          "revision_code_package_id": "e2d9a5b9-ae6f-5e9c-bf19-4c5d93ea5f61"
+        },
+        {
+          "code_package_id": "a9387a1d-c579-54c9-b58f-36e535043091",
+          "domain_commit_id": "c775c4b2-0d56-5949-a203-88dd81a52528",
+          "file_count": 86,
+          "object_instance_graph_commit_id": "6e7b68a2-0fb5-5966-a502-1402a5954823",
+          "package_name": "tree-sitter-sql",
+          "package_root": "workspaces/aware_network/languages/sql/grammar/tree_sitter",
+          "revision_code_package_id": "e0c57060-2eec-50b7-92b0-db579e6a0660"
+        },
+        {
+          "code_package_id": "abaffb4d-14af-520d-930b-5ab61bf0a38b",
+          "domain_commit_id": "a63d31c4-b70e-5052-a75a-07d102ea587c",
+          "file_count": 12,
+          "object_instance_graph_commit_id": "142a14df-a568-57e7-aee8-2710c438c3a1",
+          "package_name": "aware-storage-ontology-dto",
+          "package_root": "workspaces/aware_network/modules/storage/ontology/structure/python/dto",
+          "revision_code_package_id": "f6ebbbf7-f952-5abc-b7c0-bc48fc19c083"
+        },
+        {
+          "code_package_id": "aca3c57a-b8ee-5238-8106-47827b3f64c5",
+          "domain_commit_id": "5ad943fe-51d0-5633-82a8-2c977846a2a0",
+          "file_count": 54,
+          "object_instance_graph_commit_id": "b49ffbe0-9bc9-5298-a5a0-6b0058189068",
+          "package_name": "meta-service-api",
+          "package_root": "workspaces/aware_network/modules/meta/apis/meta",
+          "revision_code_package_id": "6dc67298-5bf4-5189-b43e-0d06287f5ca9"
+        },
+        {
+          "code_package_id": "b8964e88-5fa9-5eab-aa43-7d0222d7273f",
+          "domain_commit_id": "359a8455-c46a-5bc7-8e09-0c992f7e7521",
+          "file_count": 335,
+          "object_instance_graph_commit_id": "2aca7ca5-287d-570a-a6a7-bd743a17939f",
+          "package_name": "api-ontology",
+          "package_root": "workspaces/aware_network/modules/api/ontology",
+          "revision_code_package_id": "ed34813f-0e07-5dd9-9c86-d743eaa452b9"
+        },
+        {
+          "code_package_id": "b918f563-c0a1-54c8-9688-450993d53862",
+          "domain_commit_id": "7764d80c-7a06-5b77-bf02-afa2e0573150",
+          "file_count": 8,
+          "object_instance_graph_commit_id": "be30c283-3818-5cdd-9942-8ec1effe52b4",
+          "package_name": "aware-types",
+          "package_root": "workspaces/aware_network/libs/types/python",
+          "revision_code_package_id": "42ec778c-f0b1-5fb0-b4c7-5d02e3c08d05"
+        },
+        {
+          "code_package_id": "b9e821b1-df7f-54f7-9532-2c49060fdcb9",
+          "domain_commit_id": "c3505758-2601-5083-b90e-b40c57bfaf5e",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "1501e052-a92b-54cd-91f5-3c48320e220b",
+          "package_name": "aware-content-sdk",
+          "package_root": "workspaces/aware_network/modules/content/sdks/content/python",
+          "revision_code_package_id": "2b36a1da-9321-5c1e-803c-b41518e10c29"
+        },
+        {
+          "code_package_id": "bcb4a120-9c3e-505b-9a4f-767632d80c42",
+          "domain_commit_id": "a90548fb-462a-5c80-afeb-e6b82235483e",
+          "file_count": 32,
+          "object_instance_graph_commit_id": "7dd57240-1eaa-57a7-8e36-14a068236eb1",
+          "package_name": "aware-api-ontology-dto",
+          "package_root": "workspaces/aware_network/modules/api/ontology/structure/python/dto",
+          "revision_code_package_id": "0fe2580a-5de2-5749-8a42-f253f359ddf4"
+        },
+        {
+          "code_package_id": "bcf8b8d0-6b1e-58e7-98fd-91240820488d",
+          "domain_commit_id": "eae92f2e-1e54-57bc-af56-7fa6f7409de3",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "377e9d28-df6d-5b5d-b4fe-a9842b60646f",
+          "package_name": "aware_content_service_protocol",
+          "package_root": "workspaces/aware_network/modules/content/apis/content/python/aware_content_service_protocol",
+          "revision_code_package_id": "15dad0f5-5ab2-52ea-b4c6-bdeb4c29a175"
+        },
+        {
+          "code_package_id": "bda912a6-a707-522d-92fe-7c5a3b2c7350",
+          "domain_commit_id": "50dbf337-0abd-5cee-b251-fd79fc86c94d",
+          "file_count": 44,
+          "object_instance_graph_commit_id": "84068b6e-af8a-5b68-9119-347313bf6567",
+          "package_name": "aware_pane_runtime",
+          "package_root": "workspaces/aware_network/modules/interface/libs/pane_runtime/dart/aware_pane_runtime",
+          "revision_code_package_id": "62cadef1-b87d-5e8f-be6e-7375a9376744"
+        },
+        {
+          "code_package_id": "c100877b-3fc8-51b1-9a33-e768e4e1b47c",
+          "domain_commit_id": "a3cc3c1f-7244-5a98-a0b6-aad5ea5346e0",
+          "file_count": 836,
+          "object_instance_graph_commit_id": "52cbe1a9-f7e1-5bc1-a755-659da4f48aa6",
+          "package_name": "code-ontology",
+          "package_root": "workspaces/aware_network/modules/code/ontology",
+          "revision_code_package_id": "f8fd75c2-be40-590e-b87f-701670d2157c"
+        },
+        {
+          "code_package_id": "c12f1a89-fa0b-5b67-b144-77a3c3e1a8ad",
+          "domain_commit_id": "0f0645ec-a4ef-57af-aeb3-39b884c8eb29",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "6a906fc1-991d-5f72-9532-721e44507ce8",
+          "package_name": "aware_reactivity_service_api",
+          "package_root": "workspaces/aware_network/modules/reactivity/apis/reactivity/python/aware_reactivity_service_api",
+          "revision_code_package_id": "a121ebf0-b8ea-5440-af49-adc6e03babfa"
+        },
+        {
+          "code_package_id": "c330dbad-2004-5a99-aa2b-7a93a301ed08",
+          "domain_commit_id": "6604fb85-26f5-5de1-920d-6566734c303b",
+          "file_count": 25,
+          "object_instance_graph_commit_id": "347b4abc-ce3a-5c3b-9efe-a4578c608d6b",
+          "package_name": "aware_meta_service_dto",
+          "package_root": "workspaces/aware_network/modules/meta/apis/meta/python/aware_meta_service_dto",
+          "revision_code_package_id": "56a0e475-9ff1-57b0-bd6e-e132b7470509"
+        },
+        {
+          "code_package_id": "c40270f6-a328-5412-8f2c-86418e1dfc7c",
+          "domain_commit_id": "eba4caef-18c5-5f39-ba2b-a2ade4936727",
+          "file_count": 143,
+          "object_instance_graph_commit_id": "1d26e621-9448-56aa-952e-16cfe5252462",
+          "package_name": "aware-meta-ontology-dto",
+          "package_root": "workspaces/aware_network/modules/meta/ontology/structure/python/dto",
+          "revision_code_package_id": "b58b629d-7571-5386-a6bf-5a89ae77a07d"
+        },
+        {
+          "code_package_id": "c463c5c3-4b97-57fa-acdf-5a2bf560878a",
+          "domain_commit_id": "80460ad9-9f14-5770-bcf6-1660f1899241",
+          "file_count": 20,
+          "object_instance_graph_commit_id": "ecf89370-e5c2-5f47-856d-1fc3ee22b28b",
+          "package_name": "tree-sitter-aware",
+          "package_root": "workspaces/aware_network/languages/aware/grammar/tree_sitter",
+          "revision_code_package_id": "7ca0c3a8-0a09-5f2e-9a05-179ceab36364"
+        },
+        {
+          "code_package_id": "c74e0c2f-4885-54a1-b730-f35eccacf879",
+          "domain_commit_id": "34dc7a19-6dba-5bd4-b177-506d8294e517",
+          "file_count": 5,
+          "object_instance_graph_commit_id": "9d9e4f00-e674-506b-a5f0-74ef65cd77ac",
+          "package_name": "aware-interface-pane-runtime",
+          "package_root": "workspaces/aware_network/modules/interface/libs/pane_runtime/python",
+          "revision_code_package_id": "5549899d-36cc-55b3-8766-16419fc97042"
+        },
+        {
+          "code_package_id": "c81fcf32-5f27-56ae-9cff-c816396cdbca",
+          "domain_commit_id": "9ab51856-9013-5cb0-8f5d-e15e1a6512ba",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "df22117f-e84c-5567-8303-4b20621b569b",
+          "package_name": "aware_code_service_protocol",
+          "package_root": "workspaces/aware_network/modules/code/apis/code/python/aware_code_service_protocol",
+          "revision_code_package_id": "b6ee73b1-7afd-5a15-863e-ad9a46803280"
+        },
+        {
+          "code_package_id": "c903ae17-7500-5431-94c0-6cbfc623f349",
+          "domain_commit_id": "56f5034e-1115-5f7d-ba1a-700f1e99220e",
+          "file_count": 93,
+          "object_instance_graph_commit_id": "e3246c96-57b6-5da9-b371-74e08a7392bd",
+          "package_name": "tree-sitter-dart",
+          "package_root": "workspaces/aware_network/languages/dart/grammar/tree_sitter",
+          "revision_code_package_id": "4cace288-4c33-5ab7-9515-9c032681f082"
+        },
+        {
+          "code_package_id": "c92746a4-01c7-5dc4-986c-27f1d49de405",
+          "domain_commit_id": "8cecc694-4634-5833-b3ca-d443ddc8af03",
+          "file_count": 3,
+          "object_instance_graph_commit_id": "f09a8b8f-d91b-5dec-be96-e3f5326baff3",
+          "package_name": "file-system-service-dto",
+          "package_root": "workspaces/aware_network/modules/filesystem/apis/filesystem/dto",
+          "revision_code_package_id": "e2692677-f5b6-5df7-8cd9-193a21eeac1b"
+        },
+        {
+          "code_package_id": "c931d91c-ee9a-57eb-82f9-54172b5bd793",
+          "domain_commit_id": "043432d4-c76b-5d4b-9111-2e5238b577f6",
+          "file_count": 24,
+          "object_instance_graph_commit_id": "55f891a4-d6a4-5caf-bdb8-416adb408f60",
+          "package_name": "aware-history-ontology-dto",
+          "package_root": "workspaces/aware_network/modules/history/ontology/structure/python/dto",
+          "revision_code_package_id": "2504098f-4153-5677-8d01-4f571dc47943"
+        },
+        {
+          "code_package_id": "ca007cc7-b8c3-5ed8-be79-49f59b400072",
+          "domain_commit_id": "152d1f12-2228-5dcd-a5e9-147602da21e5",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "d1641b73-66e4-5e59-acc5-10131c5f7d4a",
+          "package_name": "aware_reactivity_service_protocol",
+          "package_root": "workspaces/aware_network/modules/reactivity/apis/reactivity/python/aware_reactivity_service_protocol",
+          "revision_code_package_id": "24d7719a-e5c8-5e8f-b352-c89f95d6c0e9"
+        },
+        {
+          "code_package_id": "cce17bec-7dab-51ad-a8ec-01c8187ce277",
+          "domain_commit_id": "a79e49aa-2552-547a-bf73-680bf66d60b1",
+          "file_count": 63,
+          "object_instance_graph_commit_id": "01724fc1-6be0-5100-b38f-6b302a252722",
+          "package_name": "aware_windows",
+          "package_root": "workspaces/aware_network/modules/interface/libs/windows/dart/aware_windows",
+          "revision_code_package_id": "676c82a4-8129-501e-9969-ef207383480b"
+        },
+        {
+          "code_package_id": "ce9eb6fa-69bc-5468-ab3e-4379a6076606",
+          "domain_commit_id": "5bf65611-0ee3-549e-bbbc-4552f63a488a",
+          "file_count": 25,
+          "object_instance_graph_commit_id": "69a4f17b-fdc7-5c3b-bfab-5349656349cc",
+          "package_name": "aware_pane",
+          "package_root": "workspaces/aware_network/modules/interface/libs/pane/dart/aware_pane",
+          "revision_code_package_id": "fb1b1f69-3bcb-5d93-b912-90c09175cf6b"
+        },
+        {
+          "code_package_id": "d3ad36a7-61cf-58e4-86c7-dbda8f121080",
+          "domain_commit_id": "79c1cc46-7b9b-5a19-adb7-26ec607c99bf",
+          "file_count": 9,
+          "object_instance_graph_commit_id": "5ba757da-5c57-57a0-81a7-9ba6e1301d77",
+          "package_name": "aware_content_service_dto",
+          "package_root": "workspaces/aware_network/modules/content/apis/content/python/aware_content_service_dto",
+          "revision_code_package_id": "5027dc03-eb79-587a-894f-948a14aa3916"
+        },
+        {
+          "code_package_id": "d9d4dca2-4e4c-5190-9310-31dad81b16d2",
+          "domain_commit_id": "ac4b24a1-0c74-5358-b4ef-99eef8662de5",
+          "file_count": 46,
+          "object_instance_graph_commit_id": "90277529-cf48-5c66-8b44-1b188990385e",
+          "package_name": "aware-attention",
+          "package_root": "workspaces/aware_network/modules/attention/ontology/runtime/python",
+          "revision_code_package_id": "206d64e1-d89b-5c98-bb61-bb065655d729"
+        },
+        {
+          "code_package_id": "d9fa35cf-a535-54a1-9656-55b49ffb578b",
+          "domain_commit_id": "e04152e4-18d5-5af9-ac45-a650001ebfe9",
+          "file_count": 36,
+          "object_instance_graph_commit_id": "7155af69-f5c7-5ba0-abef-0dc2f0a4e3a4",
+          "package_name": "aware-reactivity-ontology",
+          "package_root": "workspaces/aware_network/modules/reactivity/ontology/structure/python/orm_runtime",
+          "revision_code_package_id": "01f8eb85-58cc-55b5-a0fa-3ecae78f8098"
+        },
+        {
+          "code_package_id": "d9fe5c8b-f882-511e-b8a9-facefd93c319",
+          "domain_commit_id": "dfc6f39c-7cca-5e3e-a8f3-9cf1f79904ba",
+          "file_count": 84,
+          "object_instance_graph_commit_id": "28f56571-5527-5366-802c-c43c29b3e23c",
+          "package_name": "aware-code-ontology-dto",
+          "package_root": "workspaces/aware_network/modules/code/ontology/structure/python/dto",
+          "revision_code_package_id": "cffa1430-7827-562c-8909-fc5c78636052"
+        },
+        {
+          "code_package_id": "dabd73c0-a9b5-565a-9d7c-356b7643cbbe",
+          "domain_commit_id": "f983d2ec-5ca2-5bd2-bd42-3e0e44803e55",
+          "file_count": 10,
+          "object_instance_graph_commit_id": "1eea43a4-b0c5-574e-bad3-affbe42a86ce",
+          "package_name": "aware_file_system_service_dto",
+          "package_root": "workspaces/aware_network/modules/filesystem/apis/filesystem/python/aware_file_system_service_dto",
+          "revision_code_package_id": "eed14603-a369-511b-8ab2-b9596c567e87"
+        },
+        {
+          "code_package_id": "dbf13b92-4d0d-5afa-bd2d-8c6718565c92",
+          "domain_commit_id": "0392a2bc-7b62-5cf0-b39a-474dda204a40",
+          "file_count": 216,
+          "object_instance_graph_commit_id": "09517530-911e-54ee-be86-4dec29fd73aa",
+          "package_name": "sdk-ontology",
+          "package_root": "workspaces/aware_network/modules/sdk/ontology",
+          "revision_code_package_id": "59819d94-85d5-5c43-a37c-251264319d54"
+        },
+        {
+          "code_package_id": "dd86b582-6b00-5f08-b785-e8ffe6c01cad",
+          "domain_commit_id": "571875ab-0cc6-58af-ae94-cc53d1fa219a",
+          "file_count": 70,
+          "object_instance_graph_commit_id": "16575d7a-2672-5262-b3cb-c6a80ac963a4",
+          "package_name": "dart-grammar",
+          "package_root": "workspaces/aware_network/languages/dart/grammar/grammar",
+          "revision_code_package_id": "c1c442f4-500c-58bb-91a1-2cc0ea6140fe"
+        },
+        {
+          "code_package_id": "de63341b-ae13-597b-a418-fa5d6ddf8061",
+          "domain_commit_id": "16273687-b1e6-505d-beb1-e702dd037c60",
+          "file_count": 6,
+          "object_instance_graph_commit_id": "873e8b46-1910-5e62-aa97-22e00c256fc6",
+          "package_name": "aware_ontology_service_protocol",
+          "package_root": "workspaces/aware_network/modules/ontology/apis/ontology/python/aware_ontology_service_protocol",
+          "revision_code_package_id": "60e266ad-9055-573e-b741-7b56245eaa04"
+        },
+        {
+          "code_package_id": "decabc91-13c5-5f41-a23c-4f890fa4a4e2",
+          "domain_commit_id": "1d9d2764-51ae-5640-b79b-c92963f27a74",
+          "file_count": 28,
+          "object_instance_graph_commit_id": "86e8a877-15af-5aaf-85f9-f8b0bffcacca",
+          "package_name": "api-service-api",
+          "package_root": "workspaces/aware_network/modules/api/apis/api",
+          "revision_code_package_id": "2ba28bf3-6a22-57ee-95e1-55ec4ca62700"
+        },
+        {
+          "code_package_id": "dedcb205-9fec-52ef-ab2e-553a69080b67",
+          "domain_commit_id": "8c188b11-e6f3-586d-bbc7-754d6d8b9dcd",
+          "file_count": 43,
+          "object_instance_graph_commit_id": "8943ea03-3fa2-5f3e-ade2-3cfb596995a9",
+          "package_name": "aware-comms",
+          "package_root": "workspaces/aware_network/libs/comms/python",
+          "revision_code_package_id": "18844297-d31c-5d82-bc50-1d1b5eeeb938"
+        },
+        {
+          "code_package_id": "dfaca7da-bf6c-5bc5-97e1-f19015317b62",
+          "domain_commit_id": "a37d2139-9862-5069-ab30-2a0e3cfc8dd7",
+          "file_count": 144,
+          "object_instance_graph_commit_id": "a5ec8b7c-351c-5431-8f24-fe04fec5e7df",
+          "package_name": "aware-meta-ontology-orm-models",
+          "package_root": "workspaces/aware_network/modules/meta/ontology/structure/python/orm_models",
+          "revision_code_package_id": "52dbbf9d-2e5c-5d6a-8b07-23418ab1d4d4"
+        },
+        {
+          "code_package_id": "e3d533eb-71ee-5af3-976b-b585f71a85cb",
+          "domain_commit_id": "7c58d869-e162-5f85-b977-da43622282b7",
+          "file_count": 53,
+          "object_instance_graph_commit_id": "58db9046-64ab-5020-ba6e-022910a42fb5",
+          "package_name": "aware_shell",
+          "package_root": "workspaces/aware_network/modules/interface/libs/shell/dart/aware_shell",
+          "revision_code_package_id": "e240cc44-6b8f-5de5-b535-0d170994ffcf"
+        },
+        {
+          "code_package_id": "e9594fcc-3ec9-5bf6-a90a-bd423231adaf",
+          "domain_commit_id": "242982db-acdd-531d-bd36-838f9a405367",
+          "file_count": 8,
+          "object_instance_graph_commit_id": "cc9ced74-4d37-55d8-8b44-6c8a92983d9f",
+          "package_name": "aware-reactivity-sdk",
+          "package_root": "workspaces/aware_network/modules/reactivity/sdks/reactivity/python",
+          "revision_code_package_id": "4dfe66f7-5508-5549-9121-d91e9afd7cf7"
+        },
+        {
+          "code_package_id": "ead25fa1-810f-57b2-bc14-288b7fdef576",
+          "domain_commit_id": "a4b6062c-e906-5675-9aa0-7cc416b027b8",
+          "file_count": 21,
+          "object_instance_graph_commit_id": "bda1c969-ed94-5eb4-b154-f70a2a5875aa",
+          "package_name": "aware_app_factory",
+          "package_root": "workspaces/aware_network/modules/interface/libs/app_factory/dart/aware_app_factory",
+          "revision_code_package_id": "4c00410e-c1b0-5f14-99d5-c307356bb0c5"
+        },
+        {
+          "code_package_id": "ec5ff897-b10f-5eec-924e-5225fc8d6f6f",
+          "domain_commit_id": "6ebec4b5-662d-5bdb-aaa0-5f0525dd6a3a",
+          "file_count": 33,
+          "object_instance_graph_commit_id": "68261123-ed66-5048-b794-9255827454d5",
+          "package_name": "aware-utils",
+          "package_root": "workspaces/aware_network/libs/utils/python",
+          "revision_code_package_id": "123b92dc-9858-532e-823f-571fe57be20b"
+        },
+        {
+          "code_package_id": "ec9cdc94-8280-56e8-9a60-37c17a937c43",
+          "domain_commit_id": "5b29caf6-7224-5572-96c8-69025ae1de37",
+          "file_count": 21,
+          "object_instance_graph_commit_id": "e245d065-dc2c-5a3e-aa9a-8e59cd899fd5",
+          "package_name": "aware-node-operator",
+          "package_root": "workspaces/aware_network/modules/node/tools/node_operator",
+          "revision_code_package_id": "f6105caa-5bc1-5921-8f5e-f24a645a8aca"
+        },
+        {
+          "code_package_id": "ef6d6aa2-fb4f-5ed0-a01e-2339060c2682",
+          "domain_commit_id": "5b7ad8eb-3a27-52ae-9718-fce65f9d4a94",
+          "file_count": 47,
+          "object_instance_graph_commit_id": "2d3c3e34-27d6-5ee6-ad53-1efccaf3f4f8",
+          "package_name": "aware-reactivity",
+          "package_root": "workspaces/aware_network/modules/reactivity/ontology/runtime/python",
+          "revision_code_package_id": "13c61528-3df0-53a1-a215-06b2836a60ad"
+        },
+        {
+          "code_package_id": "f0dd320c-cfce-5091-a30e-5f675368e303",
+          "domain_commit_id": "7ce0ebd7-8811-52eb-9a67-ac4b5c59b900",
+          "file_count": 34,
+          "object_instance_graph_commit_id": "63521063-5aed-5c2a-8746-84d34dff43f5",
+          "package_name": "aware-content-ontology-dto",
+          "package_root": "workspaces/aware_network/modules/content/ontology/structure/python/dto",
+          "revision_code_package_id": "b9a85a35-e7ee-5127-a899-80a4a85d075f"
+        },
+        {
+          "code_package_id": "f3b76bba-a958-5740-93fd-5c0b95a74418",
+          "domain_commit_id": "31e587bd-2b59-524f-bf47-ce37b4abf7d4",
+          "file_count": 314,
+          "object_instance_graph_commit_id": "3aba052a-34e2-5fd1-b6fd-505e94921066",
+          "package_name": "attention-ontology",
+          "package_root": "workspaces/aware_network/modules/attention/ontology",
+          "revision_code_package_id": "785eceec-a8f1-5370-8809-eb0dcba6fb85"
+        },
+        {
+          "code_package_id": "f3bb3a9a-58a0-54bb-a9f8-f1db89cf2b94",
+          "domain_commit_id": "0cde7eff-d419-513e-bfeb-0d3b6750cb97",
+          "file_count": 18,
+          "object_instance_graph_commit_id": "3337cd45-d075-5516-89e4-f3f6379124fb",
+          "package_name": "aware_ontology_service_dto",
+          "package_root": "workspaces/aware_network/modules/ontology/apis/ontology/python/aware_ontology_service_dto",
+          "revision_code_package_id": "c86aa592-1b28-596a-9d93-1a557bc0a4be"
+        },
+        {
+          "code_package_id": "f3c6e023-161f-5ce0-941d-9bdc611dfa85",
+          "domain_commit_id": "49adc9d8-07ae-5820-a73c-2a89c509128b",
+          "file_count": 15,
+          "object_instance_graph_commit_id": "a5978aa5-2959-5ddb-a085-74401956579d",
+          "package_name": "aware-history",
+          "package_root": "workspaces/aware_network/modules/history/ontology/runtime/python",
+          "revision_code_package_id": "d3a90329-1607-56b7-a9dd-f4df347592bb"
+        },
+        {
+          "code_package_id": "f4e33d9b-e5a8-5c51-9460-c5b92149f896",
+          "domain_commit_id": "7958cc84-e0cf-5625-b848-581960595951",
+          "file_count": 65,
+          "object_instance_graph_commit_id": "6a01836d-a5b4-5ccd-99fd-2c71ed3b6f77",
+          "package_name": "sql-grammar",
+          "package_root": "workspaces/aware_network/languages/sql/grammar/grammar",
+          "revision_code_package_id": "99702d46-24cc-5e11-b8f3-1738a01a182f"
+        },
+        {
+          "code_package_id": "f88feff3-fda8-57c4-9161-21181a0b414b",
+          "domain_commit_id": "202a6486-33ab-55b6-917d-5712644a6fef",
+          "file_count": 787,
+          "object_instance_graph_commit_id": "d5e5d6f2-3980-5562-ae15-ce6c837a5406",
+          "package_name": "aware-meta",
+          "package_root": "workspaces/aware_network/modules/meta/ontology/runtime/python",
+          "revision_code_package_id": "4fcae2d0-8803-525e-8399-79a2fdfa18f6"
+        },
+        {
+          "code_package_id": "fd1a16fb-8728-5e83-a838-e067518fb27e",
+          "domain_commit_id": "1befd8be-3945-577c-affd-b61bc8d983ca",
+          "file_count": 19,
+          "object_instance_graph_commit_id": "dd84956e-20a7-5479-9313-d79fb54f87c4",
+          "package_name": "aware-economy-providers",
+          "package_root": "workspaces/aware_network/modules/economy/providers/economy",
+          "revision_code_package_id": "36a5a9ee-301f-5fcf-95b2-f5550c978088"
+        },
+        {
+          "code_package_id": "ff0e4a98-8184-5662-ae32-f5733b39a2b7",
+          "domain_commit_id": "03a76be5-3c8e-505f-ad8f-02d7f0ab6570",
+          "file_count": 7,
+          "object_instance_graph_commit_id": "fd55e117-215e-5173-9a28-552969bbb8d6",
+          "package_name": "aware_ontology_service_api",
+          "package_root": "workspaces/aware_network/modules/ontology/apis/ontology/python/aware_ontology_service_api",
+          "revision_code_package_id": "0a9f657c-2ccc-5106-bcdd-75198fab9582"
+        }
+      ],
+      "target_path": "workspaces/aware_network",
+      "workspace_handle": "aware_network",
+      "workspace_id": "058800e8-e76f-5a58-a73a-01573c911343",
+      "workspace_revision_id": "7df470af-c42e-5229-bcc0-69eb6096527b"
+    }
+  ]
+}

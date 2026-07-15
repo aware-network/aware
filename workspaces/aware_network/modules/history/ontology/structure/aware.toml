@@ -1,0 +1,15 @@
+aware = 1
+
+[package]
+package_name = "history-ontology"
+fqn_prefix = "aware_history"
+kind = "ontology"
+version_number = 1
+title = "History"
+description = "SSOT canonical (.aware) sources for history"
+
+[build]
+environment_slug = "aware_history"
+
+[[dependencies]]
+package_name = "code-ontology"

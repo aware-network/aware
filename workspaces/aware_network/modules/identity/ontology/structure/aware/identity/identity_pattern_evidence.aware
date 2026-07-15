@@ -1,0 +1,24 @@
+class IdentityPatternEvidence {
+    // Relationships
+    observer Identity?
+    content_part_text aware_content.part.ContentPartText key
+
+    // Attributes
+    confidence_impact Float  // Impact on pattern confidence from -1.0 (strong negative) to +1.0 (strong positive)
+    context_summary String  // Brief summary of context where evidence was collected
+    evidence_type String key  // type of evidence: application, observation, test, validation, etc.
+    outcome String  // Outcome: successful, failed, mixed, inconclusive, etc.
+
+    fn find_similar_by_content(query_vector Vector, result_count Int, min_similarity Float, identity_pattern_id UUID, evidence_type String? = null, outcome String? = null) -> {
+        """
+        Finds similar identity pattern evidence by content similarity search.
+        Parameters: identity_pattern_id: Pattern to search evidence for
+        query_vector: Vector to search against evidence content
+        result_count: Maximum number of results
+        min_similarity: Minimum similarity threshold
+        evidence_type: Optional filter by evidence type
+        outcome: Optional filter by outcome
+        Returns: Table with evidence details and similarity scores
+        """
+    }
+}

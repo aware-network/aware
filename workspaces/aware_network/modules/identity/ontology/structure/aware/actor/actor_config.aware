@@ -1,0 +1,50 @@
+/// Identity-owned ActorConfig policy archetype.
+///
+/// Contract:
+/// - ActorConfig is reusable admission vocabulary, not Experience-local truth.
+/// - Environment and Experience consume ActorConfig to describe which actor
+///   archetypes may enter a scope.
+/// - Identity owns the RoleConfig bundle and later resolves concrete ActorRole
+///   truth through admission services.
+class ActorConfig {
+    // Relationships
+    role_configs ActorConfigRoleConfig[]
+
+    // Attributes
+    key String key
+    title String?
+    description String?
+    type ActorType?
+
+    fn create construct (
+        key String key,
+        title String? = null,
+        description String? = null,
+        type ActorType? = null
+    ) -> ActorConfig {
+        """
+        Create one deterministic Identity-owned ActorConfig.
+
+        Contract:
+        - Stable identity is derived from `key`.
+        - The object is pure policy vocabulary; it does not grant access by itself.
+        - Concrete grants are Identity Role / ActorRole materialization.
+        """
+    }
+
+    fn add_role_config (role_config_id UUID key) -> ActorConfigRoleConfig {
+        """
+        Attach one RoleConfig to this ActorConfig archetype.
+
+        Contract:
+        - The edge is eligibility vocabulary only.
+        - Admission scopes consume this bundle and delegate concrete role
+          assignment back to Identity.
+        """
+        let created = construct role_configs.create(
+            role_config_id = role_config_id,
+        )
+    }
+}
+
+ann actor.ActorConfig::role_configs load eager

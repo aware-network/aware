@@ -1,0 +1,4 @@
+enum IdentityPatternType {
+    fact
+    hypothesis
+}

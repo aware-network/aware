@@ -1,0 +1,79 @@
+/// Relationship Subject (Actor) -> Attention (Focus) -> Branch (Object)
+class ActorFocus {
+    // Relationships
+    actor aware_identity.actor.Actor key
+    focus focus.Focus key
+
+    // Evidence receipts explaining why this focus matters for the actor.
+    evidences ActorFocusEvidence[]
+
+    // Attributes
+    // Coarse level remains the human/actor-facing bucket. Weight is the
+    // evidence-derived ordering value used by Identity service resolution.
+    level ActorFocusLevelType? = medium
+    weight Float = 0.0
+    weight_algorithm String?
+    weight_computed_at DateTime?
+    evidence_count Int = 0
+    last_evidence_at DateTime?
+    expires_at DateTime?
+    is_active Bool = true
+    last_accessed DateTime?
+    updated_at DateTime?
+
+    fn create construct (
+        actor_id UUID key,
+        focus_id UUID key,
+        level ActorFocusLevelType? = medium,
+        weight Float = 0.0,
+        expires_at DateTime? = null,
+        is_active Bool = true
+    ) -> ActorFocus {
+        """
+        Builds a new ActorFocus owned by Attention for one Identity Actor.
+        """
+    }
+
+    fn create_request (
+        sender_id UUID,
+        confidence Float,
+        expires_at DateTime,
+        rationale String,
+        suggested_level ActorFocusLevelType = medium
+    ) -> ActorFocusRequest {
+        """
+        Creates a new ActorFocusRequest.
+        """
+    }
+
+    fn record_evidence (
+        evidence_key String,
+        kind String,
+        source_type String? = null,
+        source_id UUID? = null,
+        source_key String? = null,
+        weight_delta Float = 0.0,
+        confidence Float? = null,
+        observed_at DateTime? = null,
+        expires_at DateTime? = null,
+        rationale String? = null,
+        metadata JsonObject? = null
+    ) -> ActorFocusEvidence {
+        """
+        Records one evidence receipt that contributes to this ActorFocus weight.
+        """
+        let created_evidence = construct evidences.create(
+            evidence_key = evidence_key,
+            kind = kind,
+            source_type = source_type,
+            source_id = source_id,
+            source_key = source_key,
+            weight_delta = weight_delta,
+            confidence = confidence,
+            observed_at = observed_at,
+            expires_at = expires_at,
+            rationale = rationale,
+            metadata = metadata,
+        )
+    }
+}

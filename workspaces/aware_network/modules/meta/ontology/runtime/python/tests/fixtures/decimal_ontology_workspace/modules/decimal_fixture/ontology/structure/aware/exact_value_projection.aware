@@ -1,0 +1,7 @@
+projection ExactValue is_branchable {
+    root exact.ExactValue
+
+    observable exact {
+        """Exact Decimal fixture state."""
+    }
+}

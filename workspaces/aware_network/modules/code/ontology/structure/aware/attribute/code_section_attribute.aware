@@ -1,0 +1,33 @@
+class CodeSectionAttribute {
+    // Relationships
+    // Segment pointers are optional because some attributes may be synthesized without a backing segment.
+    name_segment aware_content.part.ContentPartTextSegment?
+    code_section_comments comment.CodeSectionComment[]
+    default_value_segment aware_content.part.ContentPartTextSegment?
+    type_segment aware_content.part.ContentPartTextSegment?
+
+    // Attributes
+    name String
+    description String?
+    type_text String?
+    default_value_text String?
+    is_required Bool
+    is_public Bool
+    is_unique Bool
+    is_primary Bool
+    is_many_to_many Bool = false
+    edge_spec_name String?
+
+    fn build construct() -> CodeSectionAttribute {
+        """
+        Build the attribute payload under a CodeSection.
+        """
+    }
+}
+
+/// Eager comments + segments
+ann attribute.CodeSectionAttribute::name_segment load eager
+ann attribute.CodeSectionAttribute::code_section_comments load eager
+ann attribute.CodeSectionAttribute::code_section_comments override fk nullable
+ann attribute.CodeSectionAttribute::default_value_segment load eager
+ann attribute.CodeSectionAttribute::type_segment load eager

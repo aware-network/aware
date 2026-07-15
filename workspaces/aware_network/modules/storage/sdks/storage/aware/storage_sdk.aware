@@ -1,0 +1,18 @@
+sdk storage_sdk {
+    api storage;
+
+    operation register_blob {
+        "Register committed blob metadata in Storage without carrying raw bytes in the API payload."
+        endpoint storage.blob.register;
+    }
+
+    operation describe_blob {
+        "Describe committed Storage blob metadata by canonical object id."
+        endpoint storage.blob.describe;
+    }
+
+    operation resolve_media {
+        "Resolve a Storage blob reference into renderer-facing media metadata and optional data-plane URL."
+        endpoint storage.media.resolve;
+    }
+}

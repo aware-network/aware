@@ -1,0 +1,10 @@
+type Permission {
+    // Attributes
+    name String unique
+}
+
+edge UserRolePermissionAudit {
+    // Attributes
+    action String
+    created_at DateTime = "CURRENT_TIMESTAMP"
+}

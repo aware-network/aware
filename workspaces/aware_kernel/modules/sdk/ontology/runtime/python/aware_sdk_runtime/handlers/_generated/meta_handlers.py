@@ -412,6 +412,36 @@ async def _call_sdk_operation__bind_api_capability_endpoint(
     return result
 
 
+def _bind_sdk_operation__bind_api_view_capability_endpoint(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "sdk_operation_api_capability_endpoint_id",
+            "api_view_id",
+            "api_view_capability_endpoint_id",
+            "api_view_ref",
+            "action_key",
+            "endpoint_ref",
+        ),
+        function_name="bind_api_view_capability_endpoint",
+    )
+
+
+async def _call_sdk_operation__bind_api_view_capability_endpoint(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> object:
+    from aware_sdk_runtime.handlers.impl.sdk.sdk_operation import bind_api_view_capability_endpoint as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: SdkOperation.bind_api_view_capability_endpoint"
+        )
+    result = await _impl(sdk_operation=target, **call_kwargs)
+    return result
+
+
 def _bind_sdk_operation__bind_sdk_operation_dependency(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
     return _bind_keyword_payload(
         positional=positional,
@@ -605,6 +635,79 @@ def _root_id_sdk_operation_api_capability_endpoint__create_via_sdk_operation(
     if _aware_missing_self_keys:
         raise MetaGraphLanguageHandlerExecutionError(
             "Missing stable-id input for generated Meta constructor bootstrap: SdkOperationApiCapabilityEndpoint.create_via_sdk_operation"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_sdk_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
+def _bind_sdk_operation_api_view_capability_endpoint__create_via_sdk_operation(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "sdk_operation_id",
+            "sdk_operation_api_capability_endpoint_id",
+            "api_view_id",
+            "api_view_capability_endpoint_id",
+            "api_view_ref",
+            "action_key",
+            "endpoint_ref",
+        ),
+        function_name="create_via_sdk_operation",
+    )
+
+
+async def _call_sdk_operation_api_view_capability_endpoint__create_via_sdk_operation(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    from aware_sdk_runtime.handlers.impl.sdk.sdk_operation_api_view_capability_endpoint import (
+        create_via_sdk_operation as _impl,
+    )
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_sdk_operation_api_view_capability_endpoint__create_via_sdk_operation(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_sdk_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    sdk_operation_id = bound_input.get("sdk_operation_id")
+    sdk_operation_api_capability_endpoint_id = bound_input.get("sdk_operation_api_capability_endpoint_id")
+    api_view_id = bound_input.get("api_view_id")
+    api_view_capability_endpoint_id = bound_input.get("api_view_capability_endpoint_id")
+    api_view_ref = bound_input.get("api_view_ref")
+    action_key = bound_input.get("action_key")
+    endpoint_ref = bound_input.get("endpoint_ref")
+    _aware_self_values = {
+        "sdk_operation_id": sdk_operation_id,
+        "sdk_operation_api_capability_endpoint_id": sdk_operation_api_capability_endpoint_id,
+        "api_view_id": api_view_id,
+        "api_view_capability_endpoint_id": api_view_capability_endpoint_id,
+        "api_view_ref": api_view_ref,
+        "action_key": action_key,
+        "endpoint_ref": endpoint_ref,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("b0574e8b-47c9-5fad-ae81-312923af68d1")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: SdkOperationApiViewCapabilityEndpoint.create_via_sdk_operation"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: SdkOperationApiViewCapabilityEndpoint.create_via_sdk_operation"
             + f": {_aware_missing_self_keys}"
         )
     _aware_self_stable_values = {
@@ -1688,6 +1791,33 @@ async def sdk_operation__bind_api_capability_endpoint__handler(
     )
 
 
+async def sdk_operation__bind_api_view_capability_endpoint__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_sdk_operation__bind_api_view_capability_endpoint(positional=positional, keyword=keyword)
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="SdkOperation",
+    )
+    result = await _call_sdk_operation__bind_api_view_capability_endpoint(bound_input=bound_input, target=target)
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
 async def sdk_operation__bind_sdk_operation_dependency__handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -1837,6 +1967,57 @@ def sdk_operation_api_capability_endpoint__create_via_sdk_operation__empty_lane_
         root_object_id=root_object_id,
         name="SdkOperationApiCapabilityEndpoint",
         description="Meta constructor bootstrap for SdkOperationApiCapabilityEndpoint.",
+    )
+
+
+async def sdk_operation_api_view_capability_endpoint__create_via_sdk_operation__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_sdk_operation_api_view_capability_endpoint__create_via_sdk_operation(
+        positional=positional, keyword=keyword
+    )
+    result = await _call_sdk_operation_api_view_capability_endpoint__create_via_sdk_operation(bound_input=bound_input)
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="SdkOperationApiViewCapabilityEndpoint")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def sdk_operation_api_view_capability_endpoint__create_via_sdk_operation__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_sdk_operation_api_view_capability_endpoint__create_via_sdk_operation(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_sdk_operation_api_view_capability_endpoint__create_via_sdk_operation(
+        request=request, bound_input=bound_input
+    )
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="SdkOperationApiViewCapabilityEndpoint",
+        description="Meta constructor bootstrap for SdkOperationApiViewCapabilityEndpoint.",
     )
 
 
@@ -2493,6 +2674,20 @@ async def sdk_operation__bind_api_capability_endpoint__invocation_handler(
     return await _call_sdk_operation__bind_api_capability_endpoint(bound_input=bound_input, target=target)
 
 
+async def sdk_operation__bind_api_view_capability_endpoint__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_sdk_operation__bind_api_view_capability_endpoint(positional=positional, keyword=keyword)
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_sdk_operation__bind_api_view_capability_endpoint(bound_input=bound_input, target=target)
+
+
 async def sdk_operation__bind_sdk_operation_dependency__invocation_handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -2553,6 +2748,24 @@ async def sdk_operation_api_capability_endpoint__create_via_sdk_operation__invoc
             "Generated Meta constructor invocation requires ORMModel class target."
         )
     return await _call_sdk_operation_api_capability_endpoint__create_via_sdk_operation(bound_input=bound_input)
+
+
+async def sdk_operation_api_view_capability_endpoint__create_via_sdk_operation__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_sdk_operation_api_view_capability_endpoint__create_via_sdk_operation(
+        positional=positional, keyword=keyword
+    )
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_sdk_operation_api_view_capability_endpoint__create_via_sdk_operation(bound_input=bound_input)
 
 
 async def sdk_operation_call__create_via_sdk_operation__invocation_handler(
@@ -2818,6 +3031,13 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
     ): sdk_operation__bind_api_capability_endpoint__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_sdk.sdk.SdkOperation",
+        function_name="bind_api_view_capability_endpoint",
+        is_constructor=False,
+        owner_class_fqn="aware_sdk.sdk.SdkOperation",
+        owner_class_name="SdkOperation",
+    ): sdk_operation__bind_api_view_capability_endpoint__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_sdk.sdk.SdkOperation",
         function_name="bind_sdk_operation_dependency",
         is_constructor=False,
         owner_class_fqn="aware_sdk.sdk.SdkOperation",
@@ -2844,6 +3064,13 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
         owner_class_fqn="aware_sdk.sdk.SdkOperationApiCapabilityEndpoint",
         owner_class_name="SdkOperationApiCapabilityEndpoint",
     ): sdk_operation_api_capability_endpoint__create_via_sdk_operation__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_sdk.sdk.SdkOperationApiViewCapabilityEndpoint",
+        function_name="create_via_sdk_operation",
+        is_constructor=True,
+        owner_class_fqn="aware_sdk.sdk.SdkOperationApiViewCapabilityEndpoint",
+        owner_class_name="SdkOperationApiViewCapabilityEndpoint",
+    ): sdk_operation_api_view_capability_endpoint__create_via_sdk_operation__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_sdk.sdk.SdkOperationCall",
         function_name="create_via_sdk_operation",
@@ -2984,6 +3211,13 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
     ): sdk_operation__bind_api_capability_endpoint__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_sdk.sdk.SdkOperation",
+        function_name="bind_api_view_capability_endpoint",
+        is_constructor=False,
+        owner_class_fqn="aware_sdk.sdk.SdkOperation",
+        owner_class_name="SdkOperation",
+    ): sdk_operation__bind_api_view_capability_endpoint__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_sdk.sdk.SdkOperation",
         function_name="bind_sdk_operation_dependency",
         is_constructor=False,
         owner_class_fqn="aware_sdk.sdk.SdkOperation",
@@ -3010,6 +3244,13 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
         owner_class_fqn="aware_sdk.sdk.SdkOperationApiCapabilityEndpoint",
         owner_class_name="SdkOperationApiCapabilityEndpoint",
     ): sdk_operation_api_capability_endpoint__create_via_sdk_operation__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_sdk.sdk.SdkOperationApiViewCapabilityEndpoint",
+        function_name="create_via_sdk_operation",
+        is_constructor=True,
+        owner_class_fqn="aware_sdk.sdk.SdkOperationApiViewCapabilityEndpoint",
+        owner_class_name="SdkOperationApiViewCapabilityEndpoint",
+    ): sdk_operation_api_view_capability_endpoint__create_via_sdk_operation__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_sdk.sdk.SdkOperationCall",
         function_name="create_via_sdk_operation",
@@ -3141,6 +3382,13 @@ AWARE_META_GRAPH_EMPTY_LANE_BOOTSTRAPS: dict[
         owner_class_fqn="aware_sdk.sdk.SdkOperationApiCapabilityEndpoint",
         owner_class_name="SdkOperationApiCapabilityEndpoint",
     ): sdk_operation_api_capability_endpoint__create_via_sdk_operation__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_sdk.sdk.SdkOperationApiViewCapabilityEndpoint",
+        function_name="create_via_sdk_operation",
+        is_constructor=True,
+        owner_class_fqn="aware_sdk.sdk.SdkOperationApiViewCapabilityEndpoint",
+        owner_class_name="SdkOperationApiViewCapabilityEndpoint",
+    ): sdk_operation_api_view_capability_endpoint__create_via_sdk_operation__empty_lane_bootstrap,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_sdk.sdk.SdkOperationCall",
         function_name="create_via_sdk_operation",

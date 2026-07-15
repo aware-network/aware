@@ -1,0 +1,24 @@
+name: aware_pane_runtime
+description: Shared pane runtime infrastructure for AWARE panes.
+version: 0.0.1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  aware_pane:
+    path: ../../../pane/dart/aware_pane
+  aware_api:
+    path: ../../../../../../../aware_kernel/modules/api/libs/api/dart
+  flutter_riverpod: ^2.6.1
+  logging: ^1.2.0
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^3.0.0

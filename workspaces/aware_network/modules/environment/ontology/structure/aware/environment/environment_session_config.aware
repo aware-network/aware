@@ -1,0 +1,60 @@
+/// Environment-specific wrapper around an Identity SessionConfig.
+///
+/// Contract:
+/// - Parent constructor is EnvironmentConfig.
+/// - Identity SessionConfig owns reusable actor participation policy.
+/// - EnvironmentSessionConfig owns Environment-level session meaning, title,
+///   purpose, status, provider-facing metadata, and optional bootstrap
+///   profile/process/thread defaults.
+/// - Concrete membership is never stored here; it lives on Identity Session.
+/// - Runtime EnvironmentSession instances are Environment-owned, not
+///   EnvironmentSessionConfig-owned.
+class EnvironmentSessionConfig {
+    // Relationships
+    identity_session_config aware_identity.session.SessionConfig
+    default_profile_config EnvironmentProfileConfig?
+    default_process_config process.ProcessConfig?
+    default_thread_config thread.ThreadConfig?
+
+    // Attributes
+    key String key
+    title String?
+    description String?
+    purpose String?
+    status String = "active"
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject? = {}
+
+    fn build construct (
+        key String key,
+        identity_session_config_id UUID,
+        default_profile_config_id UUID? = null,
+        default_process_config_id UUID? = null,
+        default_thread_config_id UUID? = null,
+        title String? = null,
+        description String? = null,
+        purpose String? = null,
+        status String = "active",
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentSessionConfig {
+        """
+        Construct one EnvironmentSessionConfig under an EnvironmentConfig.
+
+        Contract:
+        - Stable identity is EnvironmentConfig path + `key`.
+        - `identity_session_config_id` resolves the Identity SessionConfig
+          portal. It is required and must not be inferred from keys.
+        - Optional default profile/process/thread refs are bootstrap defaults
+          and must not define runtime session containment.
+        - This object never owns actor membership.
+        """
+    }
+}
+
+ann environment.EnvironmentSessionConfig::identity_session_config load eager
+ann environment.EnvironmentSessionConfig::default_profile_config load eager
+ann environment.EnvironmentSessionConfig::default_process_config load eager
+ann environment.EnvironmentSessionConfig::default_thread_config load eager

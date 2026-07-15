@@ -10,7 +10,6 @@ import tomllib
 
 from aware_code.module_manifest.spec import (
     AwareModulePackageSpec,
-    AwareModulePackageSemanticBindingSpec,
     AwareModulePackageSemanticContractBindingSpec,
     AwareModulePackageSemanticContractSpec,
     AwareModulePluginCapabilityPolicySpec,
@@ -438,19 +437,14 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
                 raise AwareModuleTomlError(
                     f"plugins[{i}].name is not allowed when kind='{_CODE_MODULE_PLUGIN_KIND}'"
                 )
-            if module and provider_key:
+            if module:
                 raise AwareModuleTomlError(
-                    f"plugins[{i}] cannot set both module and provider_key when kind='{_CODE_MODULE_PLUGIN_KIND}'"
+                    f"plugins[{i}].module is not allowed when kind='{_CODE_MODULE_PLUGIN_KIND}'; "
+                    "use provider_key with explicit contract/execution modules"
                 )
-            if not module and not provider_key:
+            if not provider_key:
                 raise AwareModuleTomlError(
-                    f"plugins[{i}] must set either module or provider_key when kind='{_CODE_MODULE_PLUGIN_KIND}'"
-                )
-            if module and not _PYTHON_MODULE_RE.fullmatch(module):
-                raise AwareModuleTomlError(
-                    f"plugins[{i}].module must match "
-                    "^([a-z_][a-z0-9_]*)(\\.[a-z_][a-z0-9_]*)*$ "
-                    f"when kind='{_CODE_MODULE_PLUGIN_KIND}': {module!r}"
+                    f"plugins[{i}] must set provider_key when kind='{_CODE_MODULE_PLUGIN_KIND}'"
                 )
             if provider_key is not None and not _MODULE_PROVIDER_KEY_RE.fullmatch(
                 provider_key
@@ -497,25 +491,6 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
                     f"plugins[{i}].code_package_materialization_contract_module must match "
                     "^([a-z_][a-z0-9_]*)(\\.[a-z_][a-z0-9_]*)*$ "
                     f"when kind='{_CODE_MODULE_PLUGIN_KIND}': {code_package_materialization_contract_module!r}"
-                )
-            if module and (
-                capability_execution_module
-                or code_package_materialization_contract_module
-            ):
-                raise AwareModuleTomlError(
-                    f"plugins[{i}] cannot mix legacy module wrapper mode with "
-                    f"capability_execution_module/code_package_materialization_contract_module/"
-                    f"when kind='{_CODE_MODULE_PLUGIN_KIND}'"
-                )
-            if module and capability_policy:
-                raise AwareModuleTomlError(
-                    f"plugins[{i}] cannot declare capability_policy in legacy module wrapper mode "
-                    f"when kind='{_CODE_MODULE_PLUGIN_KIND}'"
-                )
-            if provider_key is None and capability_policy:
-                raise AwareModuleTomlError(
-                    f"plugins[{i}] must set provider_key when capability_policy is declared "
-                    f"for kind='{_CODE_MODULE_PLUGIN_KIND}'"
                 )
         else:
             if not name and not module:
@@ -577,16 +552,11 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
                 "id",
                 "kind",
                 "manifest",
-                "aware_toml_path",
                 "visibility",
                 "semantic_contract",
-                "semantic_bindings",
                 "mirrors_ontology",
             },
             ctx=f"[[packages]] (index={i})",
-        )
-        legacy_aware_toml_path = _expect_opt_str(
-            p_tbl, "aware_toml_path", ctx=f"packages[{i}]"
         )
         package_id = _expect_opt_str(p_tbl, "id", ctx=f"packages[{i}]")
         package_kind = _expect_opt_str(p_tbl, "kind", ctx=f"packages[{i}]")
@@ -601,40 +571,24 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
                 f"packages[{i}].visibility must be one of: {', '.join(_PACKAGE_VISIBILITIES)}"
             )
 
-        if legacy_aware_toml_path is not None:
-            if (
-                package_id is not None
-                or package_kind is not None
-                or manifest is not None
-            ):
-                raise AwareModuleTomlError(
-                    f"packages[{i}] cannot mix legacy aware_toml_path with id/kind/manifest"
-                )
-            manifest = legacy_aware_toml_path.strip()
-            package_id = _legacy_package_id_for_manifest(manifest)
-            package_kind = _legacy_package_kind_for_manifest(manifest)
-        else:
-            missing = [
-                field
-                for field, value in (
-                    ("id", package_id),
-                    ("kind", package_kind),
-                    ("manifest", manifest),
-                )
-                if value is None
-            ]
-            if missing:
-                raise AwareModuleTomlError(
-                    f"packages[{i}] must set either aware_toml_path or all of id/kind/manifest; "
-                    f"missing: {missing}"
-                )
-            if package_id is None or package_kind is None or manifest is None:
-                raise AwareModuleTomlError(
-                    f"packages[{i}] must set either aware_toml_path or all of id/kind/manifest"
-                )
-            package_id = package_id.strip()
-            package_kind = package_kind.strip().lower()
-            manifest = manifest.strip()
+        missing = [
+            field
+            for field, value in (
+                ("id", package_id),
+                ("kind", package_kind),
+                ("manifest", manifest),
+            )
+            if value is None
+        ]
+        if missing:
+            raise AwareModuleTomlError(
+                f"packages[{i}] must set id/kind/manifest; missing: {missing}"
+            )
+        if package_id is None or package_kind is None or manifest is None:
+            raise AwareModuleTomlError(f"packages[{i}] must set id/kind/manifest")
+        package_id = package_id.strip()
+        package_kind = package_kind.strip().lower()
+        manifest = manifest.strip()
 
         assert package_id is not None
         assert package_kind is not None
@@ -657,14 +611,6 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
             p_tbl.get("semantic_contract"),
             ctx=f"packages[{i}].semantic_contract",
         )
-        semantic_bindings = _parse_package_semantic_bindings(
-            p_tbl.get("semantic_bindings"),
-            ctx=f"packages[{i}].semantic_bindings",
-        )
-        if semantic_contract is not None and semantic_bindings:
-            raise AwareModuleTomlError(
-                f"packages[{i}] cannot mix semantic_contract with legacy semantic_bindings"
-            )
         mirrors_ontology = (
             _expect_opt_bool(p_tbl, "mirrors_ontology", ctx=f"packages[{i}]") or False
         )
@@ -673,10 +619,8 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
                 id=package_id,
                 kind=package_kind,
                 manifest=manifest,
-                aware_toml_path=manifest,
                 visibility=visibility,
                 semantic_contract=semantic_contract,
-                semantic_bindings=semantic_bindings,
                 mirrors_ontology=mirrors_ontology,
             )
         )
@@ -705,30 +649,6 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
         plugins=tuple(plugins),
         packages=tuple(packages),
     )
-
-
-def _legacy_package_id_for_manifest(manifest: str) -> str:
-    path = Path(manifest)
-    if path.name == "aware.toml" and path.parent.name:
-        raw = path.parent.name
-    else:
-        raw = path.stem
-    normalized = re.sub(r"[^a-z0-9_]+", "_", raw.strip().lower()).strip("_")
-    if normalized and normalized[0].isdigit():
-        normalized = f"package_{normalized}"
-    return normalized or "package"
-
-
-def _legacy_package_kind_for_manifest(manifest: str) -> str:
-    path = Path(manifest)
-    if path.name == "aware.toml" and path.parent.name:
-        raw = path.parent.name
-    else:
-        raw = path.stem
-    normalized = re.sub(r"[^a-z0-9_]+", "_", raw.strip().lower()).strip("_")
-    if normalized and normalized[0].isdigit():
-        normalized = f"package_{normalized}"
-    return normalized or "package"
 
 
 def _expect_keys(
@@ -840,78 +760,6 @@ def _normalize_manifest_kinds(
         seen.add(value)
         normalized.append(value)
     return tuple(normalized)
-
-
-def _parse_package_semantic_bindings(
-    value: object,
-    *,
-    ctx: str,
-) -> tuple[AwareModulePackageSemanticBindingSpec, ...]:
-    binding_tables = _as_table_list(value, ctx=ctx)
-    bindings: list[AwareModulePackageSemanticBindingSpec] = []
-    seen_roles: set[str] = set()
-    for i, binding_tbl in enumerate(binding_tables):
-        binding_ctx = f"{ctx}[{i}]"
-        _expect_keys(
-            binding_tbl,
-            required={"role", "contract"},
-            optional={"binding_module", "capabilities", "callable"},
-            ctx=binding_ctx,
-        )
-        role = _expect_str(binding_tbl, "role", ctx=binding_ctx).strip().lower()
-        contract = _expect_str(binding_tbl, "contract", ctx=binding_ctx).strip().lower()
-        if not _SEMANTIC_BINDING_KEY_RE.fullmatch(role):
-            raise AwareModuleTomlError(
-                f"{binding_ctx}.role must match ^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$"
-            )
-        if role in seen_roles:
-            raise AwareModuleTomlError(
-                f"{binding_ctx} declares duplicate semantic binding role {role!r}"
-            )
-        seen_roles.add(role)
-        if not _SEMANTIC_BINDING_KEY_RE.fullmatch(contract):
-            raise AwareModuleTomlError(
-                f"{binding_ctx}.contract must match ^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$"
-            )
-
-        binding_module = _expect_opt_str(
-            binding_tbl,
-            "binding_module",
-            ctx=binding_ctx,
-        )
-        if binding_module is not None:
-            binding_module = binding_module.strip() or None
-        if binding_module is not None and not _PYTHON_MODULE_RE.fullmatch(
-            binding_module
-        ):
-            raise AwareModuleTomlError(
-                f"{binding_ctx}.binding_module must match "
-                f"^[a-z_][a-z0-9_]*(\\.[a-z_][a-z0-9_]*)*$"
-            )
-
-        capabilities = _normalize_capability_names(
-            _expect_opt_str_list(binding_tbl, "capabilities", ctx=binding_ctx),
-            ctx=f"{binding_ctx}.capabilities",
-        )
-        callable_name = _expect_opt_str(binding_tbl, "callable", ctx=binding_ctx)
-        if callable_name is not None:
-            callable_name = callable_name.strip() or None
-        if callable_name is not None and not _PYTHON_IDENTIFIER_RE.fullmatch(
-            callable_name
-        ):
-            raise AwareModuleTomlError(
-                f"{binding_ctx}.callable must match ^[a-z_][a-z0-9_]*$"
-            )
-        bindings.append(
-            AwareModulePackageSemanticBindingSpec(
-                role=role,
-                contract=contract,
-                binding_module=binding_module,
-                capabilities=capabilities or (),
-                callable_name=callable_name,
-            )
-        )
-    return tuple(bindings)
 
 
 def _parse_package_semantic_contract(

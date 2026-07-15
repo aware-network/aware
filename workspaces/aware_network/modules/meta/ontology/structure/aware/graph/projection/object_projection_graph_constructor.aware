@@ -1,0 +1,18 @@
+class ObjectProjectionGraphConstructor { 
+    // Relationships
+    root_node ObjectProjectionGraphNode key
+    function_constructor class.ClassConfigFunctionConfig key
+
+    fn build construct(
+        root_node_id UUID key,
+        function_constructor_id UUID key
+    ) -> ObjectProjectionGraphConstructor {
+        """
+        Create deterministic ObjectProjectionGraphConstructor under one ObjectProjectionGraph.
+
+        Contract:
+        - Parent `object_projection_graph_id` is propagated by constructor lowering.
+        - Identity is always OPG-scoped.
+        """
+    }
+}

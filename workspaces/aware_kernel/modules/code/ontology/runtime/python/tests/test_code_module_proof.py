@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib
+from enum import Enum
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -12,6 +14,7 @@ from aware_code.stable_ids import (
     stable_code_package_id,
 )
 from aware_code_ontology.package.code_package_artifact import CodePackageArtifactRef
+from aware_meta_ontology.class_.class_instance import ClassInstance
 from aware_meta.handlers._generated import meta_handlers as meta_meta_handlers
 from aware_meta.runtime import (
     MetaGraphFunctionImplOwnership,
@@ -149,6 +152,75 @@ async def test_code_package_text_snapshot_builds_package_artifacts() -> None:
     assert artifact.artifact_key == "runtime/client.py"
     assert artifact.digest == "sha256:client"
     assert artifact.id in objects_by_id
+
+
+@pytest.mark.asyncio
+async def test_code_package_text_snapshot_accepts_enum_values_across_import_roots() -> (
+    None
+):
+    from aware_code.package import snapshot_commit  # noqa: WPS433
+    from aware_code.package.text_upsert import (  # noqa: WPS433
+        build_code_content_plan_copy_from_text,
+    )
+    from aware_code_ontology.code.code_enums import CodeLanguage  # noqa: WPS433
+    from aware_code_ontology.code.code_plan import CodePackagePathRole  # noqa: WPS433
+
+    class ForeignCodeLanguage(Enum):
+        python = "python"
+
+    class ForeignCodePackagePathRole(Enum):
+        authored_source = "authored_source"
+
+    code_package_config_id = _source_code_package_config_id(
+        manifest_kind="pyproject_toml",
+        surface="runtime",
+    )
+    package_name = "aware-demo-runtime"
+    expected_code_package_id = stable_code_package_id(
+        code_package_config_id=code_package_config_id,
+        package_name=package_name,
+        language=CodeLanguage.python,
+    )
+    assert (
+        stable_code_package_id(
+            code_package_config_id=code_package_config_id,
+            package_name=package_name,
+            language=ForeignCodeLanguage.python,  # type: ignore[arg-type]
+        )
+        == expected_code_package_id
+    )
+    source_plan = build_code_content_plan_copy_from_text(
+        content_text="def main():\n    return None\n",
+        language=ForeignCodeLanguage.python,
+    )
+    assert source_plan.language == CodeLanguage.python
+
+    code_package, _objects_by_id = (
+        await snapshot_commit._build_code_package_text_snapshot_objects(  # noqa: SLF001
+            code_package_id=expected_code_package_id,
+            code_package_config_id=code_package_config_id,
+            package_name=package_name,
+            language=ForeignCodeLanguage.python,  # type: ignore[arg-type]
+            surface="runtime",
+            manifest_kind="pyproject_toml",
+            manifest_relative_path="modules/demo/runtime/pyproject.toml",
+            package_root="modules/demo/runtime",
+            sources_root="modules/demo/runtime/aware_demo_runtime",
+            fqn_prefix="aware_demo_runtime",
+            source_texts_by_relative_path={},
+            source_plans_by_relative_path={},
+            unparsed_texts_by_relative_path={"aware_demo_runtime/client.py": ""},
+            path_roles_by_relative_path={
+                "aware_demo_runtime/client.py": ForeignCodePackagePathRole.authored_source  # type: ignore[dict-item]
+            },
+            code_package_artifact_refs=(),
+        )
+    )
+
+    assert code_package.language == CodeLanguage.python
+    package_code = code_package.code_package_codes[0]
+    assert package_code.path_role == CodePackagePathRole.authored_source
+    assert package_code.code.language == CodeLanguage.python
 
 
 def test_code_module_projection_portals_through_package_slot_edge() -> None:
@@ -377,6 +449,7 @@ async def test_code_package_text_snapshot_uses_lane_index_for_identical_snapshot
         code_package_artifact_ref_signature_hash,
     )
     from aware_code_ontology.code.code_enums import CodeLanguage
+    from aware_meta.graph.instance.commit.fs_snapshot_store import FSSnapshotStore
 
     code_package_config_id = _source_code_package_config_id(
         manifest_kind="pyproject_toml",
@@ -431,6 +504,19 @@ async def test_code_package_text_snapshot_uses_lane_index_for_identical_snapshot
             },
             code_package_artifact_refs=(artifact_ref,),
         )
+        assert not FSSnapshotStore().has_snapshot(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=first.commit_id,
+        )
+        assert (
+            await FSSnapshotStore().get_snapshot_state_rows(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                commit_id=first.commit_id,
+            )
+            is not None
+        )
 
         class _UnexpectedMaterializer:
             async def get(self, **_: object) -> object:
@@ -470,6 +556,16 @@ async def test_code_package_text_snapshot_uses_lane_index_for_identical_snapshot
                 code_package_id=code_package_id,
             )
         )
+        raw_snapshot_restored = FSSnapshotStore().has_snapshot(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=first.commit_id,
+        )
+        state_snapshot_still_valid = await FSSnapshotStore().get_snapshot_state_rows(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=first.commit_id,
+        )
 
     assert second.commit_id == first.commit_id
     assert second.head_commit_id == first.head_commit_id
@@ -479,6 +575,8 @@ async def test_code_package_text_snapshot_uses_lane_index_for_identical_snapshot
     assert second.change_count == 0
     assert second.object_count == first.object_count
     assert artifact_state is not None
+    assert not raw_snapshot_restored
+    assert state_snapshot_still_valid is not None
     assert artifact_state["current_state_status"] == (
         "hydrated_from_code_package_text_snapshot_index"
     )
@@ -501,6 +599,668 @@ async def test_code_package_text_snapshot_uses_lane_index_for_identical_snapshot
     )
     assert CODE_PACKAGE_ARTIFACT_DELTA_PLAN_SCHEMA == (
         "aware.code.package.artifact_delta_plan.v1"
+    )
+
+
+@pytest.mark.asyncio
+async def test_code_package_text_snapshot_fast_noop_skips_oig_build(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = REPO_ROOT
+
+    from aware_code.package import snapshot_commit
+    from aware_code_ontology.code.code_enums import CodeLanguage
+
+    code_package_config_id = _source_code_package_config_id(
+        manifest_kind="pyproject_toml",
+        surface="runtime",
+    )
+    common_paths = {
+        "aware_demo_runtime/__init__.py": "",
+        "aware_demo_runtime/client.py": "def value() -> int:\n    return 1\n",
+    }
+
+    with IsolatedAwareRoot(
+        tmp_path / "aware_root",
+        persistence_backend="fs",
+    ) as aware_root:
+        runtime = _build_code_meta_runtime(repo_root=repo_root, aware_root=aware_root)
+        assert runtime.context is not None
+        idx = runtime.context.index
+        projection_hash = _single_projection_hash_by_name(idx, "CodePackage")
+        branch_id = uuid4()
+        common_kwargs = {
+            "index": idx,
+            "actor_id": None,
+            "branch_id": branch_id,
+            "projection_hash": projection_hash,
+            "code_package_config_id": code_package_config_id,
+            "package_name": "aware_demo_runtime",
+            "language": CodeLanguage.python,
+            "surface": "runtime",
+            "manifest_kind": "pyproject_toml",
+            "manifest_relative_path": "modules/demo/runtime/pyproject.toml",
+            "package_root": "modules/demo/runtime/aware_demo_runtime",
+            "sources_root": "modules/demo/runtime/aware_demo_runtime",
+            "fqn_prefix": "aware_demo_runtime",
+            "source_texts_by_relative_path": {},
+            "unparsed_texts_by_relative_path": common_paths,
+        }
+
+        first = await snapshot_commit.commit_code_package_text_snapshot(
+            **common_kwargs,
+        )
+
+        async def _unexpected_object_build(**_: object) -> object:
+            raise AssertionError("warm no-op should not build package objects")
+
+        def _unexpected_oig_build(**_: object) -> object:
+            raise AssertionError("warm no-op should not build desired OIG")
+
+        async def _unexpected_before_oig(**_: object) -> object:
+            raise AssertionError("warm no-op should not load before OIG")
+
+        monkeypatch.setattr(
+            snapshot_commit,
+            "_build_code_package_text_snapshot_objects",
+            _unexpected_object_build,
+        )
+        monkeypatch.setattr(
+            snapshot_commit,
+            "_build_code_package_direct_desired_oig",
+            _unexpected_oig_build,
+        )
+        monkeypatch.setattr(
+            snapshot_commit,
+            "_build_code_package_generic_desired_oig",
+            _unexpected_oig_build,
+        )
+        monkeypatch.setattr(
+            snapshot_commit,
+            "_load_code_package_before_oig",
+            _unexpected_before_oig,
+        )
+
+        second = await snapshot_commit.commit_code_package_text_snapshot(
+            **common_kwargs,
+        )
+
+    assert second.commit_id == first.commit_id
+    assert second.head_commit_id == first.head_commit_id
+    assert (
+        second.object_instance_graph_commit_id == first.object_instance_graph_commit_id
+    )
+    assert second.object_count == first.object_count
+    assert second.change_count == 0
+
+
+@pytest.mark.asyncio
+async def test_code_package_direct_desired_oig_matches_generic_state_rows(
+    tmp_path: Path,
+) -> None:
+    repo_root = REPO_ROOT
+
+    from aware_code.package import snapshot_commit
+    from aware_code_ontology.code.code_enums import CodeLanguage
+    from aware_code_ontology.code.code_plan import CodeContentPlan, CodeSectionPlan
+    from aware_code_ontology.code.code_section_enums import CodeSectionType
+    from aware_meta.graph.instance.commit.state_index import build_commit_state_index
+    from aware_meta_ontology.stable_ids import stable_object_instance_graph_id
+
+    package_name = "aware_demo_runtime"
+    code_package_config_id = _source_code_package_config_id(
+        manifest_kind="pyproject_toml",
+        surface="runtime",
+    )
+    package_id = stable_code_package_id(
+        code_package_config_id=code_package_config_id,
+        package_name=package_name,
+        language=CodeLanguage.python,
+    )
+    artifact_ref = CodePackageArtifactRef(
+        code_package_id=package_id,
+        output_key="python.orm_runtime",
+        artifact_key="runtime/client.py",
+        artifact_family="python",
+        artifact_role="orm_runtime",
+        required_for=["workspace_revision"],
+        producer_key="aware_python.orm_runtime",
+        relative_path="aware_demo_runtime/client.py",
+        digest="sha256:client-v1",
+    )
+    content_plan = CodeContentPlan(
+        language=CodeLanguage.python,
+        content_text="def value() -> int:\n    return 1\n",
+        section_plans=[
+            CodeSectionPlan(
+                section_key="function:value",
+                section_type=CodeSectionType.function,
+                qualname="value",
+                identity_hash="sha256:value",
+                byte_start=0,
+                byte_end=32,
+                metadata={"kind": "function"},
+            )
+        ],
+    )
+
+    with IsolatedAwareRoot(
+        tmp_path / "aware_root",
+        persistence_backend="fs",
+    ) as aware_root:
+        runtime = _build_code_meta_runtime(repo_root=repo_root, aware_root=aware_root)
+        assert runtime.context is not None
+        idx = runtime.context.index
+        projection_hash = _single_projection_hash_by_name(idx, "CodePackage")
+        opg = idx.opg_by_hash[projection_hash]
+        branch_id = uuid4()
+        domain_oig_id = stable_object_instance_graph_id(
+            object_projection_graph_id=opg.id,
+            key=str(branch_id),
+        )
+        code_package, objects_by_id = (
+            await snapshot_commit._build_code_package_text_snapshot_objects(
+                code_package_id=package_id,
+                code_package_config_id=code_package_config_id,
+                package_name=package_name,
+                language=CodeLanguage.python,
+                surface="runtime",
+                manifest_kind="pyproject_toml",
+                manifest_relative_path="modules/demo/runtime/pyproject.toml",
+                package_root="modules/demo/runtime",
+                sources_root="modules/demo/runtime/aware_demo_runtime",
+                fqn_prefix="aware_demo_runtime",
+                source_texts_by_relative_path={},
+                source_plans_by_relative_path={
+                    "aware_demo_runtime/client.py": content_plan,
+                },
+                unparsed_texts_by_relative_path={},
+                path_roles_by_relative_path={},
+                code_package_artifact_refs=(artifact_ref,),
+            )
+        )
+
+        direct_desired_state = snapshot_commit._build_code_package_direct_desired_state(
+            index=idx,
+            opg=opg,
+            branch_id=branch_id,
+            domain_oig_id=domain_oig_id,
+            code_package=code_package,
+            code_package_config_id=code_package_config_id,
+            manifest_kind="pyproject_toml",
+            surface="runtime",
+            objects_by_id=objects_by_id,
+        )
+        lean_desired_state = snapshot_commit._build_code_package_direct_desired_state(
+            index=idx,
+            opg=opg,
+            branch_id=branch_id,
+            domain_oig_id=domain_oig_id,
+            code_package=code_package,
+            code_package_config_id=code_package_config_id,
+            manifest_kind="pyproject_toml",
+            surface="runtime",
+            objects_by_id=objects_by_id,
+            materialize_class_instances=False,
+        )
+        direct_oig = snapshot_commit._build_code_package_direct_desired_oig(
+            index=idx,
+            opg=opg,
+            branch_id=branch_id,
+            domain_oig_id=domain_oig_id,
+            code_package=code_package,
+            code_package_config_id=code_package_config_id,
+            manifest_kind="pyproject_toml",
+            surface="runtime",
+            objects_by_id=objects_by_id,
+        )
+        generic_oig = snapshot_commit._build_code_package_generic_desired_oig(
+            index=idx,
+            opg=opg,
+            branch_id=branch_id,
+            domain_oig_id=domain_oig_id,
+            code_package=code_package,
+            code_package_config_id=code_package_config_id,
+            manifest_kind="pyproject_toml",
+            surface="runtime",
+            objects_by_id=objects_by_id,
+        )
+
+    direct_state = direct_desired_state.state_index
+    lean_state = lean_desired_state.state_index
+    direct_oig_state = build_commit_state_index(direct_oig)
+    generic_state = build_commit_state_index(generic_oig)
+    direct_relationships = {
+        (
+            rel.class_config_relationship_id,
+            rel.source_class_instance_id,
+            rel.target_class_instance_id,
+        )
+        for rel in direct_oig.class_instance_relationships
+    }
+    generic_relationships = {
+        (
+            rel.class_config_relationship_id,
+            rel.source_class_instance_id,
+            rel.target_class_instance_id,
+        )
+        for rel in generic_oig.class_instance_relationships
+    }
+
+    assert direct_state.rows == direct_oig_state.rows
+    assert lean_state.rows == direct_state.rows
+    assert direct_state.rows == generic_state.rows
+    assert direct_state.compute_hash() == generic_state.compute_hash()
+    assert lean_state.compute_hash() == generic_state.compute_hash()
+    assert direct_relationships == generic_relationships
+    assert len(direct_oig.class_instances) == len(generic_oig.class_instances)
+    assert lean_desired_state.class_instance_payloads
+    assert len(lean_desired_state.class_instances) == 1
+    assert (
+        len(lean_desired_state.class_instance_payloads)
+        == len(generic_oig.class_instances) - 1
+    )
+    for payload in lean_desired_state.class_instance_payloads:
+        assert ClassInstance.model_validate(payload).id is not None
+
+
+@pytest.mark.asyncio
+async def test_code_package_text_snapshot_initializes_with_snapshot_seed_commit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = REPO_ROOT
+
+    from aware_code.package import snapshot_commit
+    from aware_code_ontology.code.code_enums import CodeLanguage
+    from aware_meta.graph.instance.commit.committer import FSLaneCommitter
+    from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+    from aware_meta.graph.instance.commit.fs_snapshot_store import FSSnapshotStore
+
+    calls = {"seed": 0}
+
+    class _SeedOnlyCommitter(FSLaneCommitter):
+        async def commit(self, **_: object) -> object:
+            raise AssertionError(
+                "Initial CodePackage text snapshots must not use legacy ORM commits"
+            )
+
+        async def commit_shallow(self, **_: object) -> object:
+            raise AssertionError(
+                "Initial CodePackage text snapshots must not use shallow update commits"
+            )
+
+        async def commit_record_seed(self, **kwargs: object) -> object:
+            calls["seed"] += 1
+            return await super().commit_record_seed(**kwargs)
+
+    monkeypatch.setattr(
+        snapshot_commit,
+        "FSLaneCommitter",
+        _SeedOnlyCommitter,
+    )
+
+    with IsolatedAwareRoot(
+        tmp_path / "aware_root",
+        persistence_backend="fs",
+    ) as aware_root:
+        runtime = _build_code_meta_runtime(repo_root=repo_root, aware_root=aware_root)
+        assert runtime.context is not None
+        idx = runtime.context.index
+        projection_hash = _single_projection_hash_by_name(idx, "CodePackage")
+        branch_id = uuid4()
+
+        result = await snapshot_commit.commit_code_package_text_snapshot(
+            index=idx,
+            actor_id=None,
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            code_package_config_id=_source_code_package_config_id(
+                manifest_kind="pyproject_toml",
+                surface="runtime",
+            ),
+            package_name="aware_demo_runtime",
+            language=CodeLanguage.python,
+            surface="runtime",
+            manifest_kind="pyproject_toml",
+            manifest_relative_path="modules/demo/runtime/pyproject.toml",
+            package_root="modules/demo/runtime/aware_demo_runtime",
+            sources_root="modules/demo/runtime/aware_demo_runtime",
+            fqn_prefix="aware_demo_runtime",
+            source_texts_by_relative_path={},
+            unparsed_texts_by_relative_path={
+                "aware_demo_runtime/client.py": "def value() -> int:\n    return 1\n",
+            },
+        )
+
+        assert result.change_count == 0
+        assert result.object_instance_graph_commit_id
+        assert calls["seed"] == 1
+        assert not FSSnapshotStore().has_snapshot(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=result.commit_id,
+        )
+        assert (
+            await FSSnapshotStore().get_snapshot_state_rows(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                commit_id=result.commit_id,
+            )
+            is not None
+        )
+        store = FSCommitStore()
+        record = await store.get_commit_record(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=result.commit_id,
+        )
+        commit_wrapper = await store.get_commit(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=result.commit_id,
+        )
+
+    assert record is not None
+    assert record.commit_id == result.commit_id
+    assert record.object_instance_graph_commit_id == (
+        result.object_instance_graph_commit_id
+    )
+    assert record.body.payload["r"] == []
+    assert commit_wrapper is not None
+    assert commit_wrapper.id == result.object_instance_graph_commit_id
+    assert commit_wrapper.commit.id == result.commit_id
+
+
+@pytest.mark.asyncio
+async def test_code_package_text_snapshot_uses_direct_desired_state(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = REPO_ROOT
+
+    from aware_code.package import snapshot_commit
+    from aware_code_ontology.code.code_enums import CodeLanguage
+
+    direct_desired_state_calls = {"count": 0}
+    reused_direct_desired_state_calls = {"count": 0}
+    original_direct_desired_state = (
+        snapshot_commit._build_code_package_direct_desired_state
+    )
+    original_reused_direct_desired_state = (
+        snapshot_commit._try_build_code_package_reused_direct_desired_state
+    )
+
+    def _count_direct_desired_state(**kwargs: object) -> object:
+        direct_desired_state_calls["count"] += 1
+        return original_direct_desired_state(**kwargs)
+
+    async def _count_reused_direct_desired_state(**kwargs: object) -> object:
+        reused_direct_desired_state_calls["count"] += 1
+        return await original_reused_direct_desired_state(**kwargs)
+
+    def _unexpected_desired_oig(**_: object) -> object:
+        raise AssertionError(
+            "CodePackage text snapshot hot path must use direct desired state, "
+            "not desired-OIG construction"
+        )
+
+    def _unexpected_generic_desired_oig(**_: object) -> object:
+        raise AssertionError(
+            "CodePackage text snapshot hot path must use the direct desired-OIG "
+            "builder"
+        )
+
+    monkeypatch.setattr(
+        snapshot_commit,
+        "_build_code_package_direct_desired_state",
+        _count_direct_desired_state,
+    )
+    monkeypatch.setattr(
+        snapshot_commit,
+        "_try_build_code_package_reused_direct_desired_state",
+        _count_reused_direct_desired_state,
+    )
+    monkeypatch.setattr(
+        snapshot_commit,
+        "_build_code_package_direct_desired_oig",
+        _unexpected_desired_oig,
+    )
+    monkeypatch.setattr(
+        snapshot_commit,
+        "_build_code_package_generic_desired_oig",
+        _unexpected_generic_desired_oig,
+    )
+
+    with IsolatedAwareRoot(
+        tmp_path / "aware_root",
+        persistence_backend="fs",
+    ) as aware_root:
+        runtime = _build_code_meta_runtime(repo_root=repo_root, aware_root=aware_root)
+        assert runtime.context is not None
+        idx = runtime.context.index
+        projection_hash = _single_projection_hash_by_name(idx, "CodePackage")
+        branch_id = uuid4()
+        common_kwargs = {
+            "index": idx,
+            "actor_id": None,
+            "branch_id": branch_id,
+            "projection_hash": projection_hash,
+            "code_package_config_id": _source_code_package_config_id(
+                manifest_kind="pyproject_toml",
+                surface="runtime",
+            ),
+            "package_name": "aware_demo_runtime",
+            "language": CodeLanguage.python,
+            "surface": "runtime",
+            "manifest_kind": "pyproject_toml",
+            "manifest_relative_path": "modules/demo/runtime/pyproject.toml",
+            "package_root": "modules/demo/runtime",
+            "sources_root": "modules/demo/runtime/aware_demo_runtime",
+            "fqn_prefix": "aware_demo_runtime",
+            "source_texts_by_relative_path": {},
+        }
+
+        first = await snapshot_commit.commit_code_package_text_snapshot(
+            **common_kwargs,
+            unparsed_texts_by_relative_path={
+                "aware_demo_runtime/client.py": "VALUE = 1\n",
+            },
+        )
+        second = await snapshot_commit.commit_code_package_text_snapshot(
+            **common_kwargs,
+            unparsed_texts_by_relative_path={
+                "aware_demo_runtime/client.py": "VALUE = 2\n",
+            },
+        )
+
+    assert first.change_count == 0
+    assert second.change_count > 0
+    assert direct_desired_state_calls["count"] == 1
+    assert reused_direct_desired_state_calls["count"] == 2
+
+
+@pytest.mark.asyncio
+async def test_code_package_text_snapshot_update_uses_identity_snapshot_diff(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root = REPO_ROOT
+
+    from aware_meta.graph.instance import diff_orm
+
+    def _unexpected_orm_translation(**_: object) -> object:
+        raise AssertionError(
+            "CodePackage text snapshots must not use ORM change-set translation"
+        )
+
+    monkeypatch.setattr(
+        diff_orm,
+        "build_object_instance_graph_changes_from_orm_change_set",
+        _unexpected_orm_translation,
+    )
+
+    from aware_code.package import snapshot_commit as snapshot_commit_module
+    from aware_code_ontology.code.code_enums import CodeLanguage
+    from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+    from aware_meta.graph.instance.commit.fs_snapshot_store import FSSnapshotStore
+
+    snapshot_commit = importlib.reload(snapshot_commit_module)
+    direct_state_diff_calls = {"count": 0}
+    original_direct_state_diff = (
+        snapshot_commit._build_code_package_direct_state_row_changes
+    )
+
+    def _count_direct_state_diff(**kwargs: object) -> object:
+        direct_state_diff_calls["count"] += 1
+        return original_direct_state_diff(**kwargs)
+
+    def _unexpected_raw_snapshot_diff(**_: object) -> object:
+        raise AssertionError(
+            "sidecar-valid CodePackage update must not use raw snapshot OIG diff"
+        )
+
+    monkeypatch.setattr(
+        snapshot_commit,
+        "_build_code_package_direct_state_row_changes",
+        _count_direct_state_diff,
+    )
+    monkeypatch.setattr(
+        snapshot_commit,
+        "_build_code_package_text_snapshot_changes",
+        _unexpected_raw_snapshot_diff,
+    )
+
+    source_paths = {
+        f"aware_demo_runtime/generated_{index:03d}.py": (f"VALUE = {index}\n")
+        for index in range(64)
+    }
+    updated_source_paths = dict(source_paths)
+    updated_source_paths["aware_demo_runtime/generated_031.py"] = "VALUE = 310\n"
+    updated_source_paths["aware_demo_runtime/generated_064.py"] = "VALUE = 64\n"
+
+    with IsolatedAwareRoot(
+        tmp_path / "aware_root",
+        persistence_backend="fs",
+    ) as aware_root:
+        runtime = _build_code_meta_runtime(repo_root=repo_root, aware_root=aware_root)
+        assert runtime.context is not None
+        idx = runtime.context.index
+        projection_hash = _single_projection_hash_by_name(idx, "CodePackage")
+        branch_id = uuid4()
+        common_kwargs = {
+            "index": idx,
+            "actor_id": None,
+            "branch_id": branch_id,
+            "projection_hash": projection_hash,
+            "code_package_config_id": _source_code_package_config_id(
+                manifest_kind="pyproject_toml",
+                surface="runtime",
+            ),
+            "package_name": "aware_demo_runtime",
+            "language": CodeLanguage.python,
+            "surface": "runtime",
+            "manifest_kind": "pyproject_toml",
+            "manifest_relative_path": "modules/demo/runtime/pyproject.toml",
+            "package_root": "modules/demo/runtime",
+            "sources_root": "modules/demo/runtime/aware_demo_runtime",
+            "fqn_prefix": "aware_demo_runtime",
+            "source_texts_by_relative_path": {},
+        }
+
+        first = await snapshot_commit.commit_code_package_text_snapshot(
+            **common_kwargs,
+            unparsed_texts_by_relative_path=source_paths,
+        )
+
+        async def _unexpected_raw_snapshot_load(*_: object, **__: object) -> object:
+            raise AssertionError(
+                "sidecar-valid CodePackage update must not load raw before OIG"
+            )
+
+        state_selection_calls = {"count": 0}
+        original_state_selection_by_witness = (
+            FSSnapshotStore.get_snapshot_state_selection_by_file_witness
+        )
+
+        async def _count_state_selection_by_witness(
+            self: FSSnapshotStore,
+            *args: object,
+            **kwargs: object,
+        ) -> object:
+            state_selection_calls["count"] += 1
+            return await original_state_selection_by_witness(
+                self,
+                *args,
+                **kwargs,
+            )
+
+        monkeypatch.setattr(
+            FSSnapshotStore,
+            "get",
+            _unexpected_raw_snapshot_load,
+        )
+        monkeypatch.setattr(
+            FSSnapshotStore,
+            "get_snapshot_state_selection_by_file_witness",
+            _count_state_selection_by_witness,
+        )
+
+        second = await snapshot_commit.commit_code_package_text_snapshot(
+            **common_kwargs,
+            unparsed_texts_by_relative_path=updated_source_paths,
+        )
+        second_raw_snapshot_exists = FSSnapshotStore().has_snapshot(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=second.commit_id,
+        )
+        first_raw_snapshot_exists = FSSnapshotStore().has_snapshot(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=first.commit_id,
+        )
+        second_state_snapshot_exists = (
+            await FSSnapshotStore().get_snapshot_state_rows(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                commit_id=second.commit_id,
+            )
+            is not None
+        )
+        first_state_snapshot_exists = (
+            await FSSnapshotStore().get_snapshot_state_rows(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                commit_id=first.commit_id,
+            )
+            is not None
+        )
+        refs_by_id = await FSCommitStore().domain_commit_refs_for_object_instance_graph_commit_ids(
+            projection_hash=projection_hash,
+            object_instance_graph_commit_ids=(
+                first.object_instance_graph_commit_id,
+                second.object_instance_graph_commit_id,
+            ),
+            allow_head_fallback=False,
+        )
+
+    assert first.commit_id != second.commit_id
+    assert second.change_count > 0
+    assert direct_state_diff_calls["count"] == 1
+    assert state_selection_calls["count"] == 1
+    assert not first_raw_snapshot_exists
+    assert not second_raw_snapshot_exists
+    assert first_state_snapshot_exists
+    assert second_state_snapshot_exists
+    assert (
+        refs_by_id[first.object_instance_graph_commit_id][0].domain_commit_id
+        == first.commit_id
+    )
+    assert (
+        refs_by_id[second.object_instance_graph_commit_id][0].domain_commit_id
+        == second.commit_id
     )
 
 
@@ -621,7 +1381,7 @@ async def test_code_package_text_snapshot_resets_when_package_root_changes(
 
     from aware_code.package import snapshot_commit
     from aware_code_ontology.code.code_enums import CodeLanguage
-    from aware_meta.graph.instance.commit.fs_store import FSCommitStore
+    from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 
     legacy_config_id = _source_code_package_config_id(
         manifest_kind="aware_toml",

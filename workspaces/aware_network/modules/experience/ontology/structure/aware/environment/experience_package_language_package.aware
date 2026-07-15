@@ -1,0 +1,43 @@
+class ExperiencePackageLanguagePackage {
+    // Relationships
+    code_package aware_code.package.CodePackage key
+
+    // Attributes
+    exclude_paths JsonArray = []
+    import_root String
+    include_paths JsonArray = []
+    language aware_code.code.CodeLanguage
+    manifest_relative_path String
+    output_key String = "experience.language_contract.generated_code_packages"
+    package_name String
+    package_root String = "."
+    role String = "view_model_package"
+    sources_root String?
+
+    fn build construct (
+        code_package_id UUID key,
+        package_name String,
+        language aware_code.code.CodeLanguage,
+        import_root String,
+        manifest_relative_path String,
+        package_root String = ".",
+        sources_root String? = null,
+        role String = "view_model_package",
+        output_key String = "experience.language_contract.generated_code_packages",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = []
+    ) -> ExperiencePackageLanguagePackage {
+        """
+        Create one Experience-owned generated language package declaration.
+
+        Contract:
+        - Parent `ExperiencePackage` scope is injected by propagation.
+        - Identity is keyed by the attached generated CodePackage.
+        - The payload is the canonical import/install contract for Experience consumers.
+        - Consumers must not infer generated Experience packages from local layout or
+          `aware.experience.toml` targets alone.
+        """
+    }
+}
+
+ann environment.ExperiencePackageLanguagePackage::code_package load eager

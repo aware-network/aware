@@ -25,10 +25,39 @@ Alignment must answer two questions:
 Alignment must not track per-issue status, duplicate FEED, or become an
 unowned planning notebook.
 
+## Alignment Center
+
+The alignment center is the maintained synthesis/index over protocol, issue,
+goal, FEED, spec, service, and receipt evidence. It is not a new authority and
+not a replacement for the source surfaces.
+
+- `docs/alignment/README.md` is the global invariant index and entrypoint.
+- `docs/alignment/CURRENT.md` is the private current synthesis for this
+  workspace.
+- `docs/alignment/PUBLIC.md` is the public-safe synthesis for public checkouts.
+- `docs/alignment/daily/YYYY/MM/DD.md` is the append-only receipt aggregation
+  track that lets maintainers or future services promote stable coordinates.
+
+Agents maintain the alignment center by:
+
+1. working through one active issue;
+2. citing the issue, actor, surface, environment, receipt, and goal coordinate;
+3. appending daily alignment receipt movement when shared direction changes;
+4. promoting only issue-derived, receipt-backed statements into the index or
+   current synthesis;
+5. keeping `AGENTS.md` as bootstrap only;
+6. updating public-safe source docs and checkout profiles instead of manually
+   patching generated public checkout targets.
+
+The long-term service path is: Issue/Goal/FEED/Spec receipts -> Alignment
+service synthesis -> public/current alignment views -> aware-dev and external
+agent contribution surfaces.
+
 ## Files
 
 - `docs/alignment/PROTOCOL.md`: this protocol.
-- `docs/alignment/README.md`: global invariant index.
+- `docs/alignment/README.md`: global invariant index and alignment-center
+  entrypoint.
 - `docs/alignment/CURRENT.md`: mutable present-tense topic board for this
   workspace.
 - `docs/alignment/PUBLIC.md`: public-safe current alignment surface for the
@@ -125,6 +154,27 @@ These categories are public-safe lenses. Internal current evidence belongs in
 - Public refs: `docs/issues/PROTOCOL.md`, `docs/feed/PROTOCOL.md`,
   `docs/goals/PROTOCOL.md`, `docs/specs/PROTOCOL.md`.
 
+`alignment-center-evolution`
+
+- The alignment center is a maintained synthesis/index over receipts, not an
+  execution queue.
+- Agents contribute by issue-first daily alignment receipts; maintainers or
+  future services aggregate durable coordinates into current/public views.
+- `AGENTS.md` stays bootstrap-only so generated checkouts do not drift through
+  duplicated invariant prose.
+- Public refs: `docs/alignment/README.md`, `docs/alignment/PROTOCOL.md`,
+  `docs/alignment/PUBLIC.md`, `AGENTS.md`.
+
+`workspace-content-materialization`
+
+- Coordination content such as goals, issues, FEED, and alignment can be
+  materialized into shared Workspace files for checkout without becoming code.
+- Services remain provider truth; filesystem content is a readable projection
+  for agents, humans, and external contributors.
+- SDK/local SDK and service routes own writes and refreshes as they mature.
+- Public refs: `docs/goals/PROTOCOL.md`, `docs/issues/PROTOCOL.md`,
+  `docs/alignment/README.md`.
+
 `public-aware-facade`
 
 - Public Aware starts alignment-first from the SDK/API monorepo facade.
@@ -187,6 +237,24 @@ These categories are public-safe lenses. Internal current evidence belongs in
 - Agent providers are bounded behind AgentProvider/GoalRunner contracts and use
   generated API/SDK rails.
 - Public refs: `docs/goals/PROTOCOL.md`, `docs/issues/PROTOCOL.md`.
+
+`one-wallet-actor-economy`
+
+- Humans and AIs are the same actor shape: Identity -> FinanceEntity -> one
+  Wallet. AGENT = IDENTITY = FINANCE ENTITY -> 1 WALLET; AI models act as
+  Actors under that Identity.
+- Wallet funding is the sole capital ingress; per-action settlement is the
+  sole metering; payout/distribution receipts are the sole egress. No
+  service, app, or surface ships its own payment path — a side-rail capital
+  channel is a trap and a double rail.
+- Paid execution requires a wallet-backed `SmartContractPermit` spend
+  envelope. An agent's process threads collaborate by allocating capital from
+  the shared agent wallet through permits.
+- Direction (locked, later implementation): self-funding agents — agents
+  register their own Event-Action subscriptions and allocate capital for
+  their own runs, moving activation from "human triggers AI" to "AI ensures
+  its own allocation" over the same reactive rail.
+- Public refs: `docs/goals/PROTOCOL.md`, `docs/alignment/README.md`.
 
 ## Daily Alignment Track
 

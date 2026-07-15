@@ -1,0 +1,192 @@
+/// FileSystem API DTOs for local observation, delta exchange, and apply receipts.
+///
+/// Contract:
+/// - These DTOs are transport payloads, not filesystem ontology/state entities.
+/// - FileSystem owns path safety, stable relative paths, metadata, hashes, and
+///   backend execution receipts.
+/// - Workspace, Issue, and other consumers own semantic meaning above these
+///   paths. FileSystem must not infer package/source ownership.
+/// - Python may route the protocol while Rust or another native backend performs
+///   hot filesystem work behind this contract.
+
+enum FileSystemEntryKind {
+    file
+    directory
+    symlink
+    other
+    missing
+}
+
+enum FileSystemDeltaOperation {
+    create
+    update
+    delete
+}
+
+enum FileSystemFilterProfile {
+    canonical_source
+    all_user_source
+    artifact_output
+    no_filter
+}
+
+enum FileSystemDigestAlgorithm {
+    sha256
+}
+
+enum FileSystemBackendKind {
+    python
+    rust
+    service
+    unknown
+}
+
+enum FileSystemPathSafetyMode {
+    root_relative
+    no_follow_verified
+    unsupported
+}
+
+class FileSystemRootRef {
+    root_path String
+    root_id String?
+    workspace_id UUID?
+    workspace_revision_id UUID?
+    checkout_id String?
+    display_name String?
+}
+
+class FileSystemRelativePath {
+    relative_path String
+}
+
+class FileSystemContentDigest {
+    algorithm FileSystemDigestAlgorithm = sha256
+    hex String
+    byte_length Int?
+}
+
+class FileSystemEntryMetadata {
+    kind FileSystemEntryKind
+    size_bytes Int?
+    modified_time_ns Int?
+    mode String?
+    executable Bool = false
+    symlink_target String?
+}
+
+class FileSystemEntrySnapshot {
+    path FileSystemRelativePath
+    metadata FileSystemEntryMetadata
+    digest FileSystemContentDigest?
+}
+
+class FileSystemScanStats {
+    scanned_entry_count Int = 0
+    file_count Int = 0
+    directory_count Int = 0
+    symlink_count Int = 0
+    content_read_count Int = 0
+    cache_hit_count Int = 0
+    cache_miss_count Int = 0
+    changed_directory_count Int = 0
+    duration_s Float?
+}
+
+class FileSystemBackendReceipt {
+    backend_kind FileSystemBackendKind = unknown
+    backend_name String?
+    backend_version String?
+    implementation_language String?
+    native_accelerated Bool = false
+    platform String?
+    receipt_path String?
+    timings JsonObject = {}
+    metadata JsonObject = {}
+}
+
+class FileSystemSnapshot {
+    root FileSystemRootRef
+    filter_profile FileSystemFilterProfile = canonical_source
+    entries FileSystemEntrySnapshot[] = []
+    stats FileSystemScanStats?
+    backend_receipt FileSystemBackendReceipt?
+}
+
+class FileSystemDeltaEntry {
+    operation FileSystemDeltaOperation
+    path FileSystemRelativePath
+    before_metadata FileSystemEntryMetadata?
+    after_metadata FileSystemEntryMetadata?
+    before_digest FileSystemContentDigest?
+    after_digest FileSystemContentDigest?
+    content_text String?
+    content_ref String?
+}
+
+class FileSystemDeltaTotals {
+    create_count Int = 0
+    update_count Int = 0
+    delete_count Int = 0
+    byte_count Int = 0
+    digest_count Int = 0
+}
+
+class FileSystemDeltaSet {
+    root FileSystemRootRef
+    base_revision_id String?
+    target_revision_id String?
+    filter_profile FileSystemFilterProfile = canonical_source
+    entries FileSystemDeltaEntry[] = []
+    totals FileSystemDeltaTotals?
+    backend_receipt FileSystemBackendReceipt?
+}
+
+class FileSystemArtifactReceipt {
+    artifact_ref String
+    relative_path FileSystemRelativePath?
+    digest FileSystemContentDigest?
+    media_type String?
+    byte_length Int?
+    stored Bool = false
+}
+
+class FileSystemApplyPolicy {
+    verify_digests Bool = true
+    reject_path_escape Bool = true
+    allow_delete_missing Bool = true
+    store_artifacts Bool = false
+    path_safety_mode FileSystemPathSafetyMode = root_relative
+}
+
+class FileSystemApplyReceipt {
+    root FileSystemRootRef
+    success Bool = true
+    error String?
+    created_count Int = 0
+    updated_count Int = 0
+    deleted_count Int = 0
+    bytes_written Int = 0
+    bytes_deleted Int = 0
+    digest_verified_count Int = 0
+    artifact_receipts FileSystemArtifactReceipt[] = []
+    backend_receipt FileSystemBackendReceipt?
+}
+
+class FileSystemBackendCapability {
+    backend_kind FileSystemBackendKind = unknown
+    backend_name String
+    implementation_language String?
+    native_accelerated Bool = false
+    supports_snapshot Bool = false
+    supports_delta_collect Bool = false
+    supports_delta_apply Bool = false
+    supports_digest_verification Bool = false
+    supports_artifact_storage Bool = false
+    path_safety_mode FileSystemPathSafetyMode = unsupported
+}
+
+class FileSystemBackendCapabilities {
+    capabilities FileSystemBackendCapability[] = []
+    selected_backend FileSystemBackendCapability?
+}

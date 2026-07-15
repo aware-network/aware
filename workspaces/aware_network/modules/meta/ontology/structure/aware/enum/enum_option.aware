@@ -1,0 +1,38 @@
+class EnumOption {
+    // Attributes
+    value String key
+    label String?
+    description String?
+    position Int = 0
+
+    fn create construct (
+        value String key,
+        label String? = null,
+        description String? = null,
+        position Int = 0
+    ) -> EnumOption {
+        """
+        Create deterministic EnumOption under one EnumConfig.
+
+        Contract:
+        - Parent `EnumConfig` scope is propagated by traversal lowering.
+        - Deterministic identity derives from parent scope + `(value)`.
+        """
+    }
+
+    fn update_config(
+        label String? = null,
+        description String? = null,
+        position Int = 0
+    ) -> {
+        """
+        Update mutable EnumOption metadata.
+
+        Contract:
+        - `value` is identity and is not mutable here.
+        - Moving an option to another EnumConfig is replacement semantics.
+        - This full-payload update treats nullable arguments as current
+          semantic truth.
+        """
+    }
+}

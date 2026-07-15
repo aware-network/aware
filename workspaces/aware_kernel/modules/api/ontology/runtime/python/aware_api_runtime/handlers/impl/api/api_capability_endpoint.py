@@ -212,7 +212,7 @@ async def create_via_api_capability(
         api_capability_id=api_capability_id,
         name=name,
     )
-    existing = ApiCapabilityEndpoint.get_by_id_sync(endpoint_id)
+    existing = ApiCapabilityEndpoint.by_id_cached(endpoint_id)
     if existing is not None:
         if existing.api_capability_id != api_capability_id:
             raise ValueError(

@@ -1,0 +1,69 @@
+class Role {
+    // Relationships
+    role_class_instances RoleClassInstance[]
+    role_config RoleConfig key
+    object_instance_graph_identity aware_meta.graph.instance.ObjectInstanceGraphIdentity key
+    object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch?
+
+    // Attributes
+    object_instance_graph_branch_key String key = "all"
+
+    fn create construct (
+        role_config_id UUID key,
+        object_instance_graph_identity_id UUID key,
+        object_instance_graph_branch_key String key = "all",
+        object_instance_graph_branch_id UUID? = null
+    ) -> Role {
+        """
+        Create a canonical Role binding scoped to graph identity.
+
+        Contract (v0):
+        - Deterministic id from (role_config_id, object_instance_graph_identity_id, object_instance_graph_branch_key).
+        - `object_instance_graph_branch_id` is an optional reference binding and does not participate in identity.
+        - Role scope is the lane envelope only (OIGI required, OIGB optional).
+        - Concrete object grants are modeled under `RoleClassInstance`.
+        """
+    }
+
+    fn add_class_instance (
+        class_instance_identity_id UUID,
+        role_config_class_config_id UUID
+    ) -> RoleClassInstance {
+        """
+        Add one concrete ClassInstanceIdentity grant under this Role.
+
+        Contract:
+        - Role remains the lane envelope; `RoleClassInstance` carries object-worldline membership.
+        - Capabilities are inherited from the linked `RoleConfigClassConfig`.
+        - Idempotent for repeated grants of the same class-instance under the same role.
+        """
+        let created_grant = construct role_class_instances.create(
+            class_instance_identity_id = class_instance_identity_id,
+            role_config_class_config_id = role_config_class_config_id,
+        )
+    }
+
+    fn remove_class_instance (
+        class_instance_identity_id UUID,
+        role_config_class_config_id UUID
+    ) -> {
+        """
+        Remove one concrete ClassInstanceIdentity grant under this Role.
+
+        Contract:
+        - This is only honest when the caller has already proven that the enclosing Role
+          envelope should no longer expose the target class-instance grant.
+        - Missing target grants are a no-op.
+        - Ambiguous policy bindings for one class-instance fail closed.
+        """
+    }
+
+    fn delete() -> {
+        """
+        Delete an empty Role envelope after all actor-role edges and class-instance grants
+        have already been removed.
+        """
+    }
+}
+
+ann role.Role::role_class_instances load eager

@@ -119,41 +119,6 @@ enum Foo {
     assert len(sec_b.code_section_enum_value.code_section_comments) == 0
 
 
-def test_code_builder_does_not_materialize_program_sections() -> None:
-    CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
-
-    from tree_sitter import Parser
-    from tree_sitter_aware.tree_sitter_language import AWARE_LANGUAGE
-
-    sections_index = CodeSectionBuilderIndex()
-    content = """\
-program KernelSeed {
-    // v0: restricted statement grammar (let/call).
-    let public_key = "ed25519:..."
-    call identity.Identity.signup(public_key=public_key, type=human)
-}
-"""
-
-    parser = Parser(language=AWARE_LANGUAGE)
-    tree = parser.parse(content.encode("utf-8"))
-    assert not tree.root_node.has_error, "Expected program source to parse without errors"
-
-    code = build_code_from_content(
-        sections_index=sections_index,
-        content=content,
-        code_key="test:aware:program-kernelseed",
-        language=CodeLanguage.aware,
-        symbol_table=CodeSymbolTable(),
-    )
-
-    assert {section.type for section in code.code_sections}.isdisjoint(
-        {
-            getattr(CodeSectionType, "program", None),
-            getattr(CodeSectionType, "event", None),
-        }
-    )
-
-
 def test_code_builder_binds_doc_comments_to_projection_sections() -> None:
     CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
 

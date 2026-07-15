@@ -1,0 +1,30 @@
+/// Actuator instance.
+///
+/// Contract:
+/// - An Actuator instance is a runtime fulfillment of an Actuator config.
+/// - It links concrete invocations to the shared Experience invocation spine.
+class Actuator {
+    // Relationships
+    invocation_actions ActuatorInvocationAction[]
+
+    // Attributes
+    actuator_instance_key String key
+    external_ref String?
+    status String = "active"
+
+    fn build construct (
+        actuator_instance_key String key,
+        external_ref String? = null,
+        status String = "active"
+    ) -> Actuator {
+        """
+        Create one deterministic Actuator instance under an ActuatorConfig.
+
+        Contract:
+        - Parent `ActuatorConfig` scope is propagated by constructor lowering.
+        - `actuator_instance_key` identifies this runtime fulfillment.
+        """
+    }
+}
+
+ann actuator.Actuator::invocation_actions load eager

@@ -1,0 +1,34 @@
+/// Declarative "representation unit" as section for Attention contract via FocusScope.
+class Section {
+    // Relationships
+    focus_scopes SectionFocusScope[]
+    active_focus_scope SectionFocusScope?
+
+    // Attributes
+    key String key
+    title String
+    description String?
+
+    fn build construct (key String key, title String, description String? = null) -> Section {
+        """
+        Builds a deterministic Section for a key.
+        """
+    }
+
+    fn add_focus_scope (focus_scope_id UUID, title String, description String? = null) -> SectionFocusScope {
+        """
+        Adds a FocusScope binding to this Section.
+        """
+        let created_section_focus_scope = construct focus_scopes.build(
+            focus_scope_id = focus_scope_id,
+            title = title,
+            description = description,
+        )
+    }
+
+    fn set_active_focus_scope (focus_scope_id UUID) -> SectionFocusScope {
+        """
+        Set active_focus_scope to the given focus_scope_id.
+        """
+    }
+}

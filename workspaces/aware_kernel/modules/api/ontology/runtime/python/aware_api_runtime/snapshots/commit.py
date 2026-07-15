@@ -15,6 +15,16 @@ from aware_api_ontology.api.api_capability_endpoint_function import (
 from aware_api_ontology.api.api_capability_endpoint_request_config import (
     ApiCapabilityEndpointRequestConfig,
 )
+from aware_api_ontology.api.api_capability_endpoint_stream_config import (
+    ApiCapabilityEndpointStreamConfig,
+)
+from aware_api_ontology.api.api_capability_endpoint_stream_enums import (
+    ApiCapabilityEndpointStreamEventKind,
+    ApiCapabilityEndpointStreamMode,
+)
+from aware_api_ontology.api.api_capability_endpoint_stream_event_config import (
+    ApiCapabilityEndpointStreamEventConfig,
+)
 from aware_api_ontology.api.api_graph import ApiGraph
 from aware_api_ontology.api.api_graph_capability import ApiGraphCapability
 from aware_api_ontology.api.api_graph_capability_function import (
@@ -25,10 +35,13 @@ from aware_api_ontology.api.api_package import ApiPackage
 from aware_api_ontology.api.api_package_language_package import (
     ApiPackageLanguagePackage,
 )
+from aware_api_ontology.api.api_view import ApiView
 from aware_api_ontology.stable_ids import (
     stable_api_capability_endpoint_function_id,
     stable_api_capability_endpoint_id,
     stable_api_capability_endpoint_request_config_id,
+    stable_api_capability_endpoint_stream_config_id,
+    stable_api_capability_endpoint_stream_event_config_id,
     stable_api_capability_id,
     stable_api_graph_capability_function_id,
     stable_api_graph_capability_id,
@@ -37,15 +50,14 @@ from aware_api_ontology.stable_ids import (
     stable_api_id,
     stable_api_package_id,
     stable_api_package_language_package_id,
+    stable_api_view_id,
 )
 from aware_code.types import JsonArray, JsonObject
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_meta.graph.instance.builder import build_rooted_object_instance_graph_base
 from aware_meta.graph.instance.commit.committer import FSLaneCommitter
-from aware_meta.graph.instance.commit.fs_store import (
-    CommitActionDescriptor,
-    FSCommitStore,
-)
+from aware_meta.graph.instance.commit.contract import CommitActionDescriptor
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 from aware_meta.graph.instance.commit.materializer import OIGMaterializer
 from aware_meta.graph.instance.diff_orm import (
     build_object_instance_graph_changes_from_orm_change_set,
@@ -71,6 +83,8 @@ class ApiReferenceSnapshotCommitResult:
     api: Api
     endpoint_ids_by_ref: dict[str, UUID]
     endpoint_function_ids_by_ref: dict[str, dict[str, UUID]]
+    endpoint_stream_event_config_ids_by_ref: dict[str, dict[str, UUID]]
+    api_view_ids_by_ref: dict[str, UUID]
     commit_id: UUID
     head_commit_id: UUID
     object_instance_graph_commit_id: UUID
@@ -86,6 +100,16 @@ class ApiPackageManifestSnapshotCommitResult:
     object_instance_graph_commit_id: UUID
     object_count: int
     change_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class ApiReferenceSnapshotViewRef:
+    view_ref: str
+    name: str
+    object_projection_graph_observable_id: UUID
+    state_model_id: UUID
+    view_key: str | None = None
+    description: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -120,7 +144,14 @@ async def commit_api_reference_snapshot(
     projection_hash: str,
     api_name: str,
     endpoint_refs: Sequence[str],
+    api_view_refs: Sequence[ApiReferenceSnapshotViewRef] = (),
     endpoint_request_class_config_ids: Mapping[str, UUID] | None = None,
+    endpoint_stream_event_class_config_ids: (
+        Mapping[str, Mapping[str | ApiCapabilityEndpointStreamEventKind, UUID]] | None
+    ) = None,
+    endpoint_stream_modes: (
+        Mapping[str, str | ApiCapabilityEndpointStreamMode] | None
+    ) = None,
     endpoint_fulfillment_names: Mapping[str, Sequence[str]] | None = None,
     api_graph_function_config_id: UUID | None = None,
 ) -> ApiReferenceSnapshotCommitResult:
@@ -139,12 +170,19 @@ async def commit_api_reference_snapshot(
         api,
         endpoint_ids_by_ref,
         endpoint_function_ids_by_ref,
+        endpoint_stream_event_config_ids_by_ref,
+        api_view_ids_by_ref,
         objects_by_id,
     ) = _build_api_reference_snapshot_objects(
         api_name=api_name,
         endpoint_refs=endpoint_refs,
+        api_view_refs=api_view_refs,
         object_config_graph_id=object_config_graph_id,
         endpoint_request_class_config_ids=endpoint_request_class_config_ids or {},
+        endpoint_stream_event_class_config_ids=(
+            endpoint_stream_event_class_config_ids or {}
+        ),
+        endpoint_stream_modes=endpoint_stream_modes or {},
         endpoint_fulfillment_names=endpoint_fulfillment_names or {},
         api_graph_function_config_id=api_graph_function_config_id,
     )
@@ -243,6 +281,10 @@ async def commit_api_reference_snapshot(
         api=api,
         endpoint_ids_by_ref=endpoint_ids_by_ref,
         endpoint_function_ids_by_ref=endpoint_function_ids_by_ref,
+        endpoint_stream_event_config_ids_by_ref=(
+            endpoint_stream_event_config_ids_by_ref
+        ),
+        api_view_ids_by_ref=api_view_ids_by_ref,
         commit_id=commit.commit.id,
         head_commit_id=commit.commit.id,
         object_instance_graph_commit_id=stable_object_instance_graph_commit_id(
@@ -514,11 +556,23 @@ def _build_api_reference_snapshot_objects(
     *,
     api_name: str,
     endpoint_refs: Sequence[str],
+    api_view_refs: Sequence[ApiReferenceSnapshotViewRef],
     object_config_graph_id: UUID,
     endpoint_request_class_config_ids: Mapping[str, UUID],
+    endpoint_stream_event_class_config_ids: Mapping[
+        str, Mapping[str | ApiCapabilityEndpointStreamEventKind, UUID]
+    ],
+    endpoint_stream_modes: Mapping[str, str | ApiCapabilityEndpointStreamMode],
     endpoint_fulfillment_names: Mapping[str, Sequence[str]],
     api_graph_function_config_id: UUID | None,
-) -> tuple[Api, dict[str, UUID], dict[str, dict[str, UUID]], dict[UUID, BaseORMModel]]:
+) -> tuple[
+    Api,
+    dict[str, UUID],
+    dict[str, dict[str, UUID]],
+    dict[str, dict[str, UUID]],
+    dict[str, UUID],
+    dict[UUID, BaseORMModel],
+]:
     normalized_api_name = (api_name or "").casefold().strip()
     if not normalized_api_name:
         raise RuntimeError("Api reference snapshot requires non-empty api_name")
@@ -535,6 +589,8 @@ def _build_api_reference_snapshot_objects(
     objects_by_id: dict[UUID, BaseORMModel] = {}
     endpoint_ids_by_ref: dict[str, UUID] = {}
     endpoint_function_ids_by_ref: dict[str, dict[str, UUID]] = {}
+    endpoint_stream_event_config_ids_by_ref: dict[str, dict[str, UUID]] = {}
+    api_view_ids_by_ref: dict[str, UUID] = {}
     api = _remember(
         objects_by_id,
         Api(
@@ -589,6 +645,7 @@ def _build_api_reference_snapshot_objects(
         capability.api_capability_endpoints.append(endpoint)
         endpoint_ids_by_ref[endpoint_ref] = endpoint.id
         request_class_config_id = endpoint_request_class_config_ids.get(endpoint_ref)
+        request_config: ApiCapabilityEndpointRequestConfig | None = None
         if request_class_config_id is not None:
             request_config = _remember(
                 objects_by_id,
@@ -603,6 +660,61 @@ def _build_api_reference_snapshot_objects(
                 ),
             )
             endpoint.request_config = request_config
+
+        stream_event_class_configs = endpoint_stream_event_class_config_ids.get(
+            endpoint_ref,
+            {},
+        )
+        if stream_event_class_configs:
+            if request_config is None:
+                raise RuntimeError(
+                    "Api reference snapshot stream configs require request_config: "
+                    f"endpoint_ref={endpoint_ref!r}"
+                )
+            stream_mode = _coerce_stream_mode(
+                endpoint_stream_modes.get(
+                    endpoint_ref,
+                    ApiCapabilityEndpointStreamMode.server,
+                )
+            )
+            stream_config = _remember(
+                objects_by_id,
+                ApiCapabilityEndpointStreamConfig(
+                    id=stable_api_capability_endpoint_stream_config_id(
+                        api_capability_endpoint_request_config_id=request_config.id,
+                        stream_mode=stream_mode.value,
+                    ),
+                    api_capability_endpoint_request_config_id=request_config.id,
+                    stream_mode=stream_mode,
+                    description=None,
+                ),
+            )
+            request_config.stream_config = stream_config
+            stream_event_ids: dict[str, UUID] = {}
+            for kind_input, class_config_id in sorted(
+                stream_event_class_configs.items(),
+                key=lambda item: _coerce_stream_event_kind(item[0]).value,
+            ):
+                kind = _coerce_stream_event_kind(kind_input)
+                event_config = _remember(
+                    objects_by_id,
+                    ApiCapabilityEndpointStreamEventConfig(
+                        id=stable_api_capability_endpoint_stream_event_config_id(
+                            api_capability_endpoint_stream_config_id=(stream_config.id),
+                            class_config_id=class_config_id,
+                            kind=kind.value,
+                        ),
+                        api_capability_endpoint_stream_config_id=stream_config.id,
+                        kind=kind,
+                        class_config_id=class_config_id,
+                        description=None,
+                    ),
+                )
+                stream_config.api_capability_endpoint_stream_event_configs.append(
+                    event_config
+                )
+                stream_event_ids[kind.value] = event_config.id
+            endpoint_stream_event_config_ids_by_ref[endpoint_ref] = stream_event_ids
 
         fulfillment_names = tuple(
             sorted(
@@ -721,7 +833,52 @@ def _build_api_reference_snapshot_objects(
             endpoint.api_capability_endpoint_functions.append(endpoint_function)
             endpoint_function_ids[fulfillment_name] = endpoint_function.id
         endpoint_function_ids_by_ref[endpoint_ref] = endpoint_function_ids
-    return api, endpoint_ids_by_ref, endpoint_function_ids_by_ref, objects_by_id
+    for view_ref in sorted(
+        api_view_refs,
+        key=lambda item: ((item.view_ref or "").casefold().strip(), item.name),
+    ):
+        normalized_view_ref = (view_ref.view_ref or "").casefold().strip()
+        normalized_name = (view_ref.name or "").casefold().strip()
+        if not normalized_view_ref:
+            raise RuntimeError("Api reference snapshot requires non-empty view_ref")
+        if not normalized_name:
+            raise RuntimeError("Api reference snapshot requires non-empty view name")
+        if normalized_view_ref in api_view_ids_by_ref:
+            raise RuntimeError(
+                "Api reference snapshot view_ref must be unique: "
+                f"view_ref={view_ref.view_ref!r}"
+            )
+        api_view = _remember(
+            objects_by_id,
+            ApiView(
+                id=stable_api_view_id(
+                    api_id=api.id,
+                    object_projection_graph_observable_id=(
+                        view_ref.object_projection_graph_observable_id
+                    ),
+                    name=normalized_name,
+                ),
+                api_id=api.id,
+                object_projection_graph_observable_id=(
+                    view_ref.object_projection_graph_observable_id
+                ),
+                state_model_id=view_ref.state_model_id,
+                name=normalized_name,
+                view_ref=normalized_view_ref,
+                view_key=(view_ref.view_key or "").strip() or None,
+                description=(view_ref.description or "").strip() or None,
+            ),
+        )
+        api.api_views.append(api_view)
+        api_view_ids_by_ref[normalized_view_ref] = api_view.id
+    return (
+        api,
+        endpoint_ids_by_ref,
+        endpoint_function_ids_by_ref,
+        endpoint_stream_event_config_ids_by_ref,
+        api_view_ids_by_ref,
+        objects_by_id,
+    )
 
 
 async def _load_api_package_before_oig(
@@ -792,6 +949,22 @@ def _split_endpoint_ref(endpoint_ref: str) -> tuple[str, str, str]:
             f"got {endpoint_ref!r}"
         )
     return parts
+
+
+def _coerce_stream_mode(
+    value: str | ApiCapabilityEndpointStreamMode,
+) -> ApiCapabilityEndpointStreamMode:
+    if isinstance(value, ApiCapabilityEndpointStreamMode):
+        return value
+    return ApiCapabilityEndpointStreamMode((value or "").strip())
+
+
+def _coerce_stream_event_kind(
+    value: str | ApiCapabilityEndpointStreamEventKind,
+) -> ApiCapabilityEndpointStreamEventKind:
+    if isinstance(value, ApiCapabilityEndpointStreamEventKind):
+        return value
+    return ApiCapabilityEndpointStreamEventKind((value or "").strip())
 
 
 def _remember(

@@ -1,0 +1,31 @@
+/// Identity Session projection.
+///
+/// Contract:
+/// - Session is the generic actor participation container.
+/// - Domains such as Environment, Experience, and Attention reference/bridge to
+///   this projection instead of owning independent actor-session role rails.
+/// - SessionConfig and SessionProvider references are portals to their owning
+///   projections.
+projection Session {
+    root session.Session
+
+    session.Session::parent_session Session
+    session.Session::created_by_actor Identity
+    session.Session::members
+    session.SessionMember::actor Identity
+    session.SessionMember::session_actor_config SessionConfig
+    session.SessionMember::actor_roles
+    session.SessionMemberActorRole::actor_role Identity
+    session.Session::provider_sessions
+    session.SessionProviderSession::provider_session_config SessionProvider
+    session.SessionProviderSession::provider_object_instance_graph_identity ObjectInstanceGraphIdentity
+    session.SessionProviderSession::provider_class_instance_identity ObjectInstanceGraphIdentity
+    session.SessionProviderSession::provider_object_instance_graph_branch ObjectInstanceGraphIdentity
+
+    observable session {
+        """
+        Identity-owned concrete session membership, ActorRole evidence, and
+        provider capability attachments.
+        """
+    }
+}

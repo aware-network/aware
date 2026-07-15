@@ -6,7 +6,7 @@ from typing import Any, Literal
 from uuid import UUID, uuid4
 
 from aware_code.types import JsonArray, JsonObject
-from aware_meta.graph.instance.commit.fs_store import FSCommitStore
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 from aware_meta.graph.instance.commit.materializer import OIGMaterializer
 from aware_meta.runtime.author import META_SYSTEM_ACTOR_ID
 from aware_meta.runtime.graph_runtime import MetaGraphRuntime

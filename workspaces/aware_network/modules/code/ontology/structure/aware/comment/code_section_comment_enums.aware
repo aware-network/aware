@@ -1,0 +1,6 @@
+enum CodeSectionCommentType {
+    block
+    doc
+    line
+    metadata
+}

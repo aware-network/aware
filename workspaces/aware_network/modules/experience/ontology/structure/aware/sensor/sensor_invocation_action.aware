@@ -1,0 +1,31 @@
+/// Sensor-owned provenance bridge for one concrete invocation action.
+///
+/// Contract:
+/// - `SensorInvocationActionConfig` is sensor-level configuration.
+/// - `ExperienceInvocationAction` is the actual invocation receipt.
+/// - This bridge records that the invocation happened through one concrete
+///   Sensor instance.
+class SensorInvocationAction {
+    // Relationships
+    sensor_invocation_action_config SensorInvocationActionConfig key
+    experience_invocation_action invocation.ExperienceInvocationAction key
+
+    fn build construct (
+        sensor_id UUID key,
+        sensor_invocation_action_config_id UUID key,
+        experience_invocation_action_id UUID key
+    ) -> SensorInvocationAction {
+        """
+        Create one deterministic Sensor provenance bridge under a Sensor.
+
+        Contract:
+        - `sensor_id` is explicit provenance for the concrete Sensor instance.
+        - `sensor_invocation_action_config` proves the action was exposed by
+          the Sensor config.
+        - `experience_invocation_action` carries the actual invocation receipt.
+        """
+    }
+}
+
+ann sensor.SensorInvocationAction::sensor_invocation_action_config load eager
+ann sensor.SensorInvocationAction::experience_invocation_action load eager

@@ -1,0 +1,38 @@
+/// Connector provider session.
+///
+/// Contract:
+/// - A ConnectorSession is the concrete provider/session fulfillment context.
+/// - It links a provider config to one runtime Connector instance.
+/// - Connector owns the fulfilled Sensor/Actuator instances and invocation
+///   receipts remain on the shared Experience invocation spine.
+class ConnectorSession {
+    // Relationships
+    connector Connector key
+
+    // Attributes
+    session_key String key
+    session_ref String?
+    host_ref String?
+    principal_ref String?
+    status String = "active"
+
+    fn build construct (
+        connector_id UUID key,
+        session_key String key,
+        session_ref String? = null,
+        host_ref String? = null,
+        principal_ref String? = null,
+        status String = "active"
+    ) -> ConnectorSession {
+        """
+        Create one deterministic Connector session under a ConnectorProvider.
+
+        Contract:
+        - Parent `ConnectorProvider` scope is propagated by constructor lowering.
+        - `connector_id` binds the session to the runtime Connector fulfillment.
+        - `session_key` identifies the concrete provider session.
+        """
+    }
+}
+
+ann connector.ConnectorSession::connector load eager

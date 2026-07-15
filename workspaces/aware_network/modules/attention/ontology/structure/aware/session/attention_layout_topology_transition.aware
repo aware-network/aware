@@ -1,0 +1,57 @@
+/// Immutable active-membership transition under one AttentionSessionLayout.
+///
+/// Contract:
+/// - One transition is the atomic authority for the complete ordered set of
+///   active AttentionSessionSection anchors.
+/// - The active pointer lives on AttentionSessionLayout; history is immutable.
+/// - Omitted anchors are inactive for this revision, not deleted.
+class AttentionLayoutTopologyTransition {
+    // Relationships
+    previous_topology_transition AttentionLayoutTopologyTransition?
+    section_states AttentionLayoutTopologyTransitionSection[]
+
+    // Replay identity and provenance
+    client_intent_id String key
+    sequence Int = 0
+    transition_kind String = "topology"
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject? = {}
+
+    fn create construct (
+        client_intent_id String key,
+        previous_topology_transition_id UUID? = null,
+        sequence Int = 0,
+        transition_kind String = "topology",
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> AttentionLayoutTopologyTransition {
+        """
+        Create one immutable layout-topology transition header.
+
+        The owning AttentionSessionLayout plus client_intent_id provide stable
+        replay identity. Section-state rows are constructed only after the
+        parent handler validates the complete topology vector.
+        """
+    }
+
+    fn attach_section_state (
+        attention_session_section_id UUID key,
+        order Int
+    ) -> AttentionLayoutTopologyTransitionSection {
+        """
+        Construct one typed membership row through its immutable parent.
+
+        The public atomic boundary remains
+        AttentionSessionLayout.apply_topology_transition.
+        """
+        let section_state = construct section_states.create(
+            attention_session_section_id = attention_session_section_id,
+            order = order,
+        )
+    }
+}
+
+ann session.AttentionLayoutTopologyTransition::previous_topology_transition load eager
+ann session.AttentionLayoutTopologyTransition::section_states load eager

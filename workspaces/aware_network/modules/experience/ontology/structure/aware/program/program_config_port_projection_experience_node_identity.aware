@@ -1,0 +1,21 @@
+/// Port-level ProjectionExperienceNodeIdentity reference edge.
+///
+/// Contract:
+/// - Edge is owned by ProgramConfigPortProjectionExperienceNode.
+/// - References one stable identity contract owned by ProjectionExperienceNode.
+class ProgramConfigPortProjectionExperienceNodeIdentity {
+    // Relationships
+    projection_experience_node_identity projection.ProjectionExperienceNodeIdentity key
+
+    // Attributes
+    key String key
+
+    fn build construct (
+        projection_experience_node_identity_id UUID key,
+        key String key
+    ) -> ProgramConfigPortProjectionExperienceNodeIdentity {
+        """
+        Create deterministic ProgramConfigPortProjectionExperienceNodeIdentity edge.
+        """
+    }
+}

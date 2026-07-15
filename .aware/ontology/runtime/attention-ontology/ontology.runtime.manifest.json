@@ -1,0 +1,22 @@
+{
+  "code_package_id": "f3b76bba-a958-5740-93fd-5c0b95a74418",
+  "db_schema": {
+    "backend_targets": [
+      "postgres"
+    ],
+    "package_kind": "ontology",
+    "sql_roots": [
+      {
+        "path": "../../../../workspaces/aware_network/modules/attention/ontology/structure/sql/schema",
+        "path_mode": "manifest_relative"
+      }
+    ]
+  },
+  "domain_commit_id": "31e587bd-2b59-524f-bf47-ce37b4abf7d4",
+  "object_instance_graph_commit_id": "3aba052a-34e2-5fd1-b6fd-505e94921066",
+  "package_name": "attention-ontology",
+  "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
+  "source_kind": "workspace_revision",
+  "workspace_relative_package_root": "workspaces/aware_network/modules/attention/ontology",
+  "workspace_revision_code_package_id": "785eceec-a8f1-5370-8809-eb0dcba6fb85"
+}

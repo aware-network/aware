@@ -214,6 +214,14 @@ def _descendant_class_instance_ids(
             relationship.source_class_instance_id,
             [],
         ).append(relationship.target_class_instance_id)
+    for root in mutation_set.changes:
+        for relationship_change in root.class_instance_relationship_changes:
+            if relationship_change.change.type is ChangeType.delete:
+                continue
+            relationships_by_source.setdefault(
+                relationship_change.source_class_instance_id,
+                [],
+            ).append(relationship_change.target_class_instance_id)
 
     descendants: set[UUID] = set()
     stack = list(relationships_by_source.get(target_class_instance_id, ()))

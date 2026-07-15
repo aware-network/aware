@@ -6,13 +6,13 @@ from hashlib import sha256
 from pathlib import Path, PurePosixPath
 from typing import cast
 
-from aware_code_service_dto.code.features.grammar_anchor_binding import (
+from aware_code_sdk.dto import (
     CodeGrammarAnchorBinding,
     CodeGrammarAnchorBindingResolutionStatus,
     CodeGrammarAnchorTextEvidence,
     CodeGrammarAnchorTextTargetEvidence,
 )
-from aware_code_service_dto.code.features.grammar_anchor_render_delta import (
+from aware_code_sdk.dto import (
     CodeGrammarAnchorRenderEntry,
     CodeGrammarAnchorRenderReplacement,
     CodeGrammarAnchorRenderSource,
@@ -21,16 +21,16 @@ from aware_code_service_dto.code.features.grammar_anchor_render_delta import (
     ResolveCodeGrammarAnchorRenderDeltaRequest,
     ResolveCodeGrammarAnchorRenderDeltaResponse,
 )
-from aware_code_service_dto.code.features.package_common import (
+from aware_code_sdk.dto import (
     CodePackagePathRole,
 )
-from aware_code_service_dto.code.features.package_delta import (
+from aware_code_sdk.dto import (
     CodePackageDelta,
     CodePackageDeltaAuthorityKind,
     CodePackageDeltaKind,
     CodePackageDeltaPath,
 )
-from aware_code_service_dto.code.features.package_distribution import (
+from aware_code_sdk.dto import (
     CodeLanguage,
 )
 from aware_code.source_index import (

@@ -1,0 +1,11 @@
+{
+  "dependency_import_roots": [
+    "aware_reactivity_service_dto"
+  ],
+  "modules": [
+    "aware_reactivity_service_api._bindings",
+    "aware_reactivity_service_api.client"
+  ],
+  "package_prefix": "aware_reactivity_service_api",
+  "version": "v1"
+}

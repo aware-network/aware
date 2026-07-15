@@ -1,0 +1,30 @@
+class Attribute {
+    // Relationships
+    attribute_config attribute.AttributeConfig key
+    attribute_changes AttributeChange[]
+    /// Canonical value representation (descriptor-driven value tree).
+    value_root AttributeValue
+
+    // Attributes
+    /// Stable owner anchor for shared contained structural Attribute identity.
+    owner_key UUID key
+
+    fn create construct (
+        owner_key UUID key,
+        attribute_config_id UUID key,
+        value_root_id UUID? = null
+    ) -> Attribute {
+        """
+        Create deterministic Attribute identity from caller-owned `owner_key` + `attribute_config_id`.
+
+        Contract:
+        - `owner_key` is the owner-scoped semantic anchor for shared structural Attribute identity.
+        - Parent containment / edge routing must not enter the Attribute stable-id formula.
+        - Direct owner foreign keys remain topology truth only.
+        """
+    }
+}
+
+/// Load canonical value_root eagerly (children hydrate via AttributeValue annotations).
+ann attribute.Attribute::value_root load eager
+ann attribute.Attribute identity standalone

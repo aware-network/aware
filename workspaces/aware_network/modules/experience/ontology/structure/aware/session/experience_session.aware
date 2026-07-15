@@ -1,0 +1,55 @@
+/// Experience-owned committed resolution state for one child Identity Session.
+///
+/// Contract:
+/// - Identity Session owns participation, roles, lifecycle, and providers.
+/// - EnvironmentSession owns shared thread/layout and Attention portals.
+/// - ExperienceSession owns session-local profile mount rows and local state.
+/// - Concrete visible/active state remains scoped through Attention and
+///   Experience view bindings; there is no session-global active projection.
+class ExperienceSession {
+    // Relationships
+    identity_session aware_identity.session.Session key
+    environment_session aware_environment.environment.EnvironmentSession
+    profiles ExperienceSessionProfile[]
+
+    // Attributes
+    state ExperienceSessionState
+
+    fn build construct (
+        identity_session_id UUID key,
+        environment_session_id UUID,
+        state ExperienceSessionState = active
+    ) -> ExperienceSession {
+        """
+        Construct one Experience session under EnvironmentExperience.
+
+        Stable identity is EnvironmentExperience plus child Identity Session.
+        Replaying the same child Identity Session resolves the same committed
+        Experience session instead of creating a second authority.
+        """
+    }
+
+    fn mount_profile (
+        profile_id UUID key,
+        status String = "active",
+        metadata_json JsonObject? = {}
+    ) -> ExperienceSessionProfile {
+        """
+        Mount one applied Experience profile into this session.
+
+        Contract:
+        - Stable identity is ExperienceSession plus applied profile.
+        - Many applied profiles may be mounted in one ExperienceSession.
+        - Mounting does not select a global active profile or projection.
+        """
+        let mounted = construct profiles.build(
+            profile_id = profile_id,
+            status = status,
+            metadata_json = metadata_json,
+        )
+    }
+}
+
+ann session.ExperienceSession::identity_session load eager
+ann session.ExperienceSession::environment_session load eager
+ann session.ExperienceSession::profiles load eager

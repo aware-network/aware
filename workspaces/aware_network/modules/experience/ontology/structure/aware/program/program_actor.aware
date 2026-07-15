@@ -1,0 +1,39 @@
+/// Runtime actor binding for one Program actor alias.
+///
+/// Contract:
+/// - Binds one ProgramConfigActorConfig alias contract to one concrete Actor.
+/// - Identity is deterministic under Program for `(program_config_actor_config_id, actor_id)`.
+class ProgramActor {
+    // Relationships
+    program_config_actor_config aware_experience.program.ProgramConfigActorConfig key
+    actor aware_identity.actor.Actor key
+
+    // Derived role bindings for this program actor
+    program_actor_roles ProgramActorRole[]
+
+    fn build construct (
+        program_config_actor_config_id UUID key,
+        actor_id UUID key
+    ) -> ProgramActor {
+        """
+        Create deterministic ProgramActor binding under Program.
+        """
+    }
+
+    fn add_actor_role (
+        actor_role_id UUID,
+        actor_config_role_config_id UUID
+    ) -> ProgramActorRole {
+        """
+        Bind one ActorRole that is eligible for this ProgramActor via ActorConfigRoleConfig.
+
+        Contract:
+        - Mutates only ProgramActor membership (`program_actor_roles`).
+        - Program run attribution must resolve invoke actor context via ProgramActorRole.
+        """
+        let created_assoc = construct program_actor_roles.build(
+            actor_role_id = actor_role_id,
+            actor_config_role_config_id = actor_config_role_config_id,
+        )
+    }
+}

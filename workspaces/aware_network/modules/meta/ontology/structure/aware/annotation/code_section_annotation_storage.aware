@@ -1,0 +1,37 @@
+/// Ontology-level view of a `storage` ANN.
+///
+/// Purpose:
+/// - Declare SQL/storage-specific table-level indexes and uniqueness constraints.
+/// - Keep semantic identity (`key`) separate from physical storage constraints.
+///
+/// Canonical surface (v0):
+/// - Storage index:  `ann schema.Class storage index by_name member1 member2 ...`
+/// - Storage unique: `ann schema.Class storage unique by_name member1 member2 ...`
+///
+/// Notes:
+/// - `operation = index` declares a non-unique table-level index.
+/// - `operation = unique` declares table-level tuple uniqueness over `member_names`.
+/// - Attribute-level `unique` remains unary; class-attribute `key` remains semantic identity.
+/// - `member_names` are canonical class members (attributes / relationship pointers).
+/// - SQL lowering determines physical columns:
+///   - primitives/enums -> column name
+///   - relationship pointers -> FK column (`<member>_id`)
+/// - Collections/JSON/expression indexes are out of scope for v0.
+class CodeSectionAnnotationStorage {
+    // Relationships
+    code_section_annotation aware_code.annotation.CodeSectionAnnotation?
+
+    /// Location within the canonical graph
+    fqn_prefix String key
+    namespace String key
+    class_name String key
+
+    /// Operator-facing stable storage name.
+    name String key
+
+    /// Storage operation over the ordered member tuple.
+    operation CodeSectionAnnotationStorageOperation key
+
+    /// Canonical member names forming the storage key (order matters).
+    member_names String[]
+}

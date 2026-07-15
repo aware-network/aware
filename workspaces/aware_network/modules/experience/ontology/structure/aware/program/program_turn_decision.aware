@@ -1,0 +1,35 @@
+/// Canonical per-instruction checkpoint decision receipt.
+///
+/// Contract:
+/// - Captures runtime transition semantics as commit-backed facts.
+/// - Linked through `ProgramTurnInstruction` membership.
+class ProgramTurnInstructionDecision {
+
+    // Attributes
+    transition ProgramTurnTransition
+    reason ProgramTurnDecisionReason
+    step_index Int
+    total_steps Int
+    invokes_in_turn Int = 0
+    elapsed_ms_in_turn Int = 0
+    awaiting_external_signal Bool = false
+    instruction_failed Bool = false
+
+    fn build construct (
+        transition ProgramTurnTransition,
+        reason ProgramTurnDecisionReason,
+        step_index Int,
+        total_steps Int,
+        invokes_in_turn Int = 0,
+        elapsed_ms_in_turn Int = 0,
+        awaiting_external_signal Bool = false,
+        instruction_failed Bool = false
+    ) -> ProgramTurnInstructionDecision {
+        """
+        Construct a deterministic ProgramTurnInstructionDecision.
+
+        Contract:
+        - Constructor is idempotent for repeated calls with the same payload under one ProgramTurnInstruction.
+        """
+    }
+}

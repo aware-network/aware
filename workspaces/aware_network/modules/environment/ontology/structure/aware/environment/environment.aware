@@ -1,0 +1,169 @@
+class Environment {
+    /// Canonical composition truth bound to this runtime environment.
+    ///
+    /// Contract:
+    /// - Required runtime binder input.
+    /// - Owned by Environment through `EnvironmentConfig`; `Environment` binds it.
+    /// - Not part of `Environment` class-key identity in this cut.
+    config EnvironmentConfig
+    /// Optional territory image override for this environment.
+    ///
+    /// Fallback guidance:
+    /// - If unset, UI should resolve through the caller-selected Experience/profile
+    ///   surface, not through Environment-owned profile selection.
+    ///
+    /// Contract:
+    /// - Image bytes are uploaded out-of-band (data-plane).
+    /// - Commits reference StorageBlob metadata only.
+    image aware_storage.blob.StorageBlob? unique
+    /// Concrete Environment-applied profiles.
+    ///
+    /// Contract:
+    /// - Reusable OS topology lives in EnvironmentProfileConfig.
+    /// - Applied profiles own runtime Process/Thread provenance.
+    /// - Environment does not point at Experience profiles for canonical boot.
+    profiles EnvironmentProfile[]
+    /// Runtime Environment sessions.
+    ///
+    /// Contract:
+    /// - Environment owns concrete shared session wrappers.
+    /// - Identity owns actor membership through the linked Identity Session.
+    /// - Profiles remain Process/Thread provenance; sessions resolve threads
+    ///   through EnvironmentSessionThread pins and may cross applied profiles.
+    sessions EnvironmentSession[]
+    /// Ontology authorities available to this runtime Environment.
+    ///
+    /// Contract:
+    /// - Environment selects Ontology instances through this portal only.
+    /// - ObjectInstanceGraphIdentity inventory remains owned by Ontology.
+    /// - Environment must not point directly at Meta ObjectInstanceGraph/OIGI
+    ///   membership.
+    ontologies EnvironmentOntology[]
+
+    // Attributes
+    key String key
+    title String
+    description String?
+
+    fn build construct (
+        key String key,
+        title String,
+        description String? = null
+    ) -> Environment {
+        """
+        Create a runtime Environment territory.
+
+        Contract:
+        - Environment creation does not install an Experience profile.
+        - Process, Thread, layout, and branch pointers are explicit follow-up mutations.
+        """
+    }
+
+    fn apply_profile (
+        profile_config_id UUID key,
+        title String? = null,
+        description String? = null,
+        status String = "active",
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentProfile {
+        """
+        Apply one EnvironmentProfileConfig under this Environment.
+
+        Contract:
+        - Mutates only Environment-owned applied profile membership.
+        - ProcessConfig and ThreadConfig remain under EnvironmentProfileConfig.
+        - EnvironmentSessionConfig remains under EnvironmentConfig.
+        - Does not install or inspect any Experience.
+        """
+        let created_profile = construct profiles.build(
+            profile_config_id = profile_config_id,
+            title = title,
+            description = description,
+            status = status,
+            metadata_json = metadata_json,
+        )
+    }
+
+    fn start_session (
+        identity_session_id UUID key,
+        session_config_id UUID? = null,
+        key String? = null,
+        title String? = null,
+        description String? = null,
+        purpose String? = null,
+        status String = "active",
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentSession {
+        """
+        Start or attach one runtime EnvironmentSession under this Environment.
+
+        Contract:
+        - Stable identity is Environment path + Identity Session.
+        - `session_config_id` is optional non-key provenance/defaults.
+        - Actor membership, ActorRole evidence, and provider sessions live on
+          the linked Identity Session.
+        - Process/Thread/Layout selection is EnvironmentSession-owned through
+          navigation contexts and session-thread pins.
+        """
+        let created_session = construct sessions.build(
+            identity_session_id = identity_session_id,
+            session_config_id = session_config_id,
+            key = key,
+            title = title,
+            description = description,
+            purpose = purpose,
+            status = status,
+            source_kind = source_kind,
+            source_ref = source_ref,
+            metadata_json = metadata_json,
+        )
+    }
+
+    fn attach_ontology (
+        ontology_id UUID key,
+        role String = "runtime",
+        status String = "active",
+        title String? = null,
+        description String? = null
+    ) -> EnvironmentOntology {
+        """
+        Attach one Ontology authority to this runtime Environment.
+
+        Contract:
+        - Mutates only Environment-owned ontology membership.
+        - The target Ontology owns OIGI inventory discovery.
+        - Environment does not duplicate ObjectInstanceGraph membership or
+          commit pins.
+        """
+        let created = construct ontologies.build(
+            ontology_id = ontology_id,
+            role = role,
+            status = status,
+            title = title,
+            description = description,
+        )
+    }
+
+    fn update_picture(image_id UUID? = null, image_sha String? = null, image_mime_type String? = null, image_size_bytes Int? = null) -> {
+        """
+        Updates (or clears) the environment territory image override.
+
+        Contract:
+        - Raw bytes are uploaded out-of-band via HTTP file operations.
+        - Commits must reference commit-backed StorageBlob metadata only.
+        - When setting a picture, image_sha/image_mime_type/image_size_bytes must be provided together.
+
+        Parameters:
+            image_id: Optional uploaded blob id to assert against image_sha-derived stable id.
+            image_sha: SHA-256 hex digest of uploaded bytes.
+            image_mime_type: MIME type of uploaded bytes.
+            image_size_bytes: Size of uploaded bytes.
+        Returns: None.
+        """
+    }
+}
+
+ann environment.Environment::ontologies load forward eager reverse lazy
+ann environment.Environment::sessions load eager

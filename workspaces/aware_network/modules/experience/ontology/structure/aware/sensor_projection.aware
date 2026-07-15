@@ -1,0 +1,10 @@
+/// Sensor instance projection.
+projection Sensor {
+    root sensor.Sensor
+
+    observable sensor {
+        """
+        Sensor instance surface for runtime connector observation fulfillments.
+        """
+    }
+}

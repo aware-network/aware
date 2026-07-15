@@ -1,0 +1,22 @@
+/// ProgramConfig actor alias contract.
+///
+/// Contract:
+/// - Binds one ProgramConfig alias to one Identity ActorConfig.
+/// - Alias identity is parent-path scoped under ProgramConfig.
+/// - Multiple aliases may reference the same ActorConfig.
+class ProgramConfigActorConfig {
+    // Relationships
+    actor_config aware_identity.actor.ActorConfig
+
+    // Attributes
+    alias String key
+
+    fn build construct (
+        actor_config_id UUID,
+        alias String key
+    ) -> ProgramConfigActorConfig {
+        """
+        Create deterministic ProgramConfig actor alias association.
+        """
+    }
+}

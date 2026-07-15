@@ -1,0 +1,15 @@
+class EnvironmentExperienceProjection {
+    // Relationships
+    projection_experience projection.ProjectionExperience key
+
+    fn build construct (
+        projection_experience_id UUID key
+    ) -> EnvironmentExperienceProjection {
+        """
+        Create a deterministic EnvironmentExperienceProjection association edge.
+
+        Notes:
+        - Identity is derived from `(environment_experience_profile_config_id, projection_experience_id)`.
+        """
+    }
+}

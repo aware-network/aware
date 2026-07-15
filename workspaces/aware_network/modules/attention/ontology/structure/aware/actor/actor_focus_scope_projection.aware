@@ -1,0 +1,16 @@
+// ActorFocusScope projection
+//
+// Contract:
+// - Attention owns actor-specific focus-scope priority over shared FocusScope
+//   state.
+// - Identity only names the Actor; Attention owns scope ranking, requests, and
+//   evidence history.
+
+projection ActorFocusScope {
+    root actor.ActorFocusScope
+    actor.ActorFocusScope::actor Identity
+    actor.ActorFocusScope::focus_scope FocusScope
+    actor.ActorFocusScope::requests
+    actor.ActorFocusScopeRequest::focus_scope_request FocusScope
+    actor.ActorFocusScope::evidences
+}

@@ -33,6 +33,21 @@ def stable_sdk_operation_api_capability_endpoint_id(
     )
 
 
+def stable_sdk_operation_api_view_capability_endpoint_id(
+    *,
+    sdk_operation_id: UUID,
+    sdk_operation_api_capability_endpoint_id: UUID,
+    api_view_id: UUID,
+    api_view_capability_endpoint_id: UUID,
+) -> UUID:
+    """Compiler-generated from class-attribute identity keys: sdk_operation_id, sdk_operation_api_capability_endpoint_id, api_view_id, api_view_capability_endpoint_id"""
+
+    return uuid5(
+        NS_SDK,
+        f"aware:sdk_operation_api_view_capability_endpoint:{sdk_operation_id}:{sdk_operation_api_capability_endpoint_id}:{api_view_id}:{api_view_capability_endpoint_id}",
+    )
+
+
 def stable_sdk_operation_call_id(*, sdk_operation_id: UUID, call_key: UUID) -> UUID:
     """Compiler-generated from class-attribute identity keys: sdk_operation_id, call_key"""
 
@@ -113,6 +128,15 @@ CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID: dict[str, tuple[str, tuple[st
     ),
     "a09c72bf-fcda-5317-8550-aca8ec000ab8": ("stable_sdk_package_api_package_id", ("sdk_package_id", "api_package_id")),
     "a828776e-f2f7-5982-8797-1d9c59abb857": ("stable_sdk_surface_id", ("sdk_config_id", "name")),
+    "b0574e8b-47c9-5fad-ae81-312923af68d1": (
+        "stable_sdk_operation_api_view_capability_endpoint_id",
+        (
+            "sdk_operation_id",
+            "sdk_operation_api_capability_endpoint_id",
+            "api_view_id",
+            "api_view_capability_endpoint_id",
+        ),
+    ),
     "ce242d31-16cd-5493-86f9-2fba0f873932": (
         "stable_sdk_surface_method_id",
         ("sdk_surface_id", "target_sdk_operation_id", "name"),
@@ -131,6 +155,7 @@ __all__ = [
     "stable_sdk_config_id",
     "stable_sdk_operation_id",
     "stable_sdk_operation_api_capability_endpoint_id",
+    "stable_sdk_operation_api_view_capability_endpoint_id",
     "stable_sdk_operation_call_id",
     "stable_sdk_operation_dependency_id",
     "stable_sdk_package_id",

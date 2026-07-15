@@ -1,0 +1,10 @@
+/// ObjectProjectionGraphIdentity projection
+///
+/// Purpose:
+/// - Provide a stable, commit-backed identity object for projection graph families.
+/// - Kept separate from `object_projection_graph` to avoid coupling OPG payload to identity internals.
+projection ObjectProjectionGraphIdentity {
+    root projection.ObjectProjectionGraphIdentity
+    projection.ObjectProjectionGraphIdentity::object_instance_graph_identities
+    projection.ObjectProjectionGraphIdentity::object_projection_graph_observables
+}

@@ -1,0 +1,21 @@
+class Migration {
+    // Relationships
+    codes aware_code.code.Code[] many
+
+    // Attributes
+    applied_at DateTime?
+    description String?
+    name String key
+    status MigrationStatus = pending
+
+    fn create construct (
+        name String key,
+        description String? = null,
+        applied_at DateTime? = null,
+        status MigrationStatus = pending
+    ) -> Migration {
+        """
+        Create one Migration under this Version.
+        """
+    }
+}

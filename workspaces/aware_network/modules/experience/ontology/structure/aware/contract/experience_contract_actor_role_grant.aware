@@ -1,0 +1,47 @@
+/// Experience-owned contract-visible actor-role grant.
+///
+/// Contract:
+/// - Experience owns public actor participation eligibility for an Experience.
+/// - Identity owns ActorConfig, RoleConfig, and concrete ActorRole assignment truth.
+/// - Provider contracts may later reference this grant, but providers do not
+///   invent Experience actor-role grants.
+class ExperienceContractActorRoleGrant {
+    // Relationships
+    actor_config_role_config aware_identity.actor.ActorConfigRoleConfig key
+    role_config aware_identity.role.RoleConfig key
+
+    // Attributes
+    access_scope String = "experience"
+    class_instance_identity_required Bool = false
+    description String?
+    grant_key String key
+    grant_policy_json JsonObject? = {}
+    participant_kind String = "actor"
+    role_assignment_binding_required Bool = true
+
+    fn build construct (
+        grant_key String key,
+        actor_config_role_config_id UUID key,
+        role_config_id UUID key,
+        access_scope String = "experience",
+        participant_kind String = "actor",
+        class_instance_identity_required Bool = false,
+        role_assignment_binding_required Bool = true,
+        grant_policy_json JsonObject? = {},
+        description String? = null
+    ) -> ExperienceContractActorRoleGrant {
+        """
+        Create one Experience-owned public actor-role grant.
+
+        Contract:
+        - Parent ProjectionExperience scope is propagated by constructor lowering.
+        - Stable identity is `(projection_experience_id, grant_key)`.
+        - The grant is not a global RoleConfig grant; it is RoleConfig eligibility
+          through an Identity ActorConfigRoleConfig.
+        - Runtime must reject mismatched actor-config/role-config pairs.
+        """
+    }
+}
+
+ann contract.ExperienceContractActorRoleGrant::actor_config_role_config load eager
+ann contract.ExperienceContractActorRoleGrant::role_config load eager

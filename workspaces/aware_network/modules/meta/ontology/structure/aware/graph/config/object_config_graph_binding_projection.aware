@@ -1,0 +1,19 @@
+/// ObjectConfigGraphBinding projection
+///
+/// Purpose:
+/// - Expose cross-OCG binding truth through canonical projection traversal.
+/// - Make the target OCG the portal edge for cross-graph zoom.
+/// - Keep ProjectionKey out of this layer; this projection is structural, not identity-resolution logic.
+projection ObjectConfigGraphBinding {
+    root config.ObjectConfigGraphBinding
+
+    /// Cross-OCG portal
+    config.ObjectConfigGraphBinding::target_object_config_graph ObjectConfigGraph
+
+    /// Class-level binding anchors
+    config.ObjectConfigGraphBinding::object_config_graph_binding_classes
+    config.ObjectConfigGraphBindingClass::source_class
+    config.ObjectConfigGraphBindingClass::source_attr
+    config.ObjectConfigGraphBindingClass::target_class
+    config.ObjectConfigGraphBindingClass::target_attribute
+}

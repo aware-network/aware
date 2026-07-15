@@ -1,0 +1,2562 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "7fd8ad81-14db-58b6-82d0-53fe069b6ab9",
+      "module": "aware_experience_ontology.action.action_experience",
+      "name": "ActionExperience",
+      "aware_class_ref": "aware_experience.action.ActionExperience",
+      "functions": [
+        {
+          "function_config_id": "75a29dfa-8645-53c2-b5a4-ae9edac8d75e",
+          "name": "add_invocation_action_config",
+          "input_model": "ActionExperienceAddInvocationActionConfigInput",
+          "output_model": "ActionExperienceAddInvocationActionConfigOutput"
+        },
+        {
+          "function_config_id": "99effd06-9acd-5dd3-9876-5e6190f950fa",
+          "name": "add_program_config",
+          "input_model": "ActionExperienceAddProgramConfigInput",
+          "output_model": "ActionExperienceAddProgramConfigOutput"
+        },
+        {
+          "function_config_id": "2e429b2f-6a0b-5d3e-8fbf-1651ec497413",
+          "name": "build",
+          "input_model": "ActionExperienceBuildInput",
+          "output_model": "ActionExperienceBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f18ff342-80af-52dc-a9b3-104a18027ec8",
+      "module": "aware_experience_ontology.action.action_experience_invocation",
+      "name": "ActionExperienceInvocation",
+      "aware_class_ref": "aware_experience.action.ActionExperienceInvocation",
+      "functions": [
+        {
+          "function_config_id": "2ebec4c9-b62f-5578-b94c-ca2ec7cc956b",
+          "name": "add_request_field",
+          "input_model": "ActionExperienceInvocationAddRequestFieldInput",
+          "output_model": "ActionExperienceInvocationAddRequestFieldOutput"
+        },
+        {
+          "function_config_id": "80a532bb-9e2b-5350-bf00-bd24bf008288",
+          "name": "build_via_action_experience",
+          "input_model": "ActionExperienceInvocationBuildViaActionExperienceInput",
+          "output_model": "ActionExperienceInvocationBuildViaActionExperienceOutput"
+        },
+        {
+          "function_config_id": "8daa2ce4-f62b-50a3-bd6a-0ca6eb45a5e1",
+          "name": "record_invocation",
+          "input_model": "ActionExperienceInvocationRecordInvocationInput",
+          "output_model": "ActionExperienceInvocationRecordInvocationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e5811a3b-5c1b-54ca-aadc-94095f2a113c",
+      "module": "aware_experience_ontology.action.action_experience_invocation_action",
+      "name": "ActionExperienceInvocationAction",
+      "aware_class_ref": "aware_experience.action.ActionExperienceInvocationAction",
+      "functions": [
+        {
+          "function_config_id": "dbb8eb51-4e83-5698-af58-1a9f0d307678",
+          "name": "build_via_action_experience_invocation",
+          "input_model": "ActionExperienceInvocationActionBuildViaActionExperienceInvocationInput",
+          "output_model": "ActionExperienceInvocationActionBuildViaActionExperienceInvocationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "27a9c9a5-e5fa-5d98-8b87-15d0765fc1a4",
+      "module": "aware_experience_ontology.action.action_experience_invocation_request_field",
+      "name": "ActionExperienceInvocationRequestField",
+      "aware_class_ref": "aware_experience.action.ActionExperienceInvocationRequestField",
+      "functions": [
+        {
+          "function_config_id": "8c9c2ab8-c3da-507c-9f49-921c2e851d02",
+          "name": "build_via_action_experience_invocation",
+          "input_model": "ActionExperienceInvocationRequestFieldBuildViaActionExperienceInvocationInput",
+          "output_model": "ActionExperienceInvocationRequestFieldBuildViaActionExperienceInvocationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fe79eb06-9a92-58f8-a20d-86e78727b127",
+      "module": "aware_experience_ontology.action.action_experience_program",
+      "name": "ActionExperienceProgram",
+      "aware_class_ref": "aware_experience.action.ActionExperienceProgram",
+      "functions": [
+        {
+          "function_config_id": "dbeec01e-f62e-5812-8693-5f820d514216",
+          "name": "build_via_action_experience",
+          "input_model": "ActionExperienceProgramBuildViaActionExperienceInput",
+          "output_model": "ActionExperienceProgramBuildViaActionExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "49393e83-333f-5b29-914d-9abe0d8b0f1a",
+      "module": "aware_experience_ontology.actuator.actuator",
+      "name": "Actuator",
+      "aware_class_ref": "aware_experience.actuator.Actuator",
+      "functions": [
+        {
+          "function_config_id": "f5f6b8c6-85aa-5b1f-ae48-fd718f81d194",
+          "name": "build_via_actuator_config",
+          "input_model": "ActuatorBuildViaActuatorConfigInput",
+          "output_model": "ActuatorBuildViaActuatorConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "77c96bb4-285f-5425-86ff-83b3e0dbfeb3",
+      "module": "aware_experience_ontology.actuator.actuator_config",
+      "name": "ActuatorConfig",
+      "aware_class_ref": "aware_experience.actuator.ActuatorConfig",
+      "functions": [
+        {
+          "function_config_id": "06cc9770-1ab2-5a4c-bd3f-606abb5b2550",
+          "name": "add_affected_state_node",
+          "input_model": "ActuatorConfigAddAffectedStateNodeInput",
+          "output_model": "ActuatorConfigAddAffectedStateNodeOutput"
+        },
+        {
+          "function_config_id": "2ec567d1-fff5-5a81-9830-b37a690c1566",
+          "name": "bind_invocation_action_config",
+          "input_model": "ActuatorConfigBindInvocationActionConfigInput",
+          "output_model": "ActuatorConfigBindInvocationActionConfigOutput"
+        },
+        {
+          "function_config_id": "70b6fbb5-8032-5be3-b514-a6adb44e7c9a",
+          "name": "build_via_connector_config",
+          "input_model": "ActuatorConfigBuildViaConnectorConfigInput",
+          "output_model": "ActuatorConfigBuildViaConnectorConfigOutput"
+        },
+        {
+          "function_config_id": "30d8c3ea-3829-51cd-84c1-4f238a93bd36",
+          "name": "create_actuator",
+          "input_model": "ActuatorConfigCreateActuatorInput",
+          "output_model": "ActuatorConfigCreateActuatorOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "70a5dd96-c9ce-5928-8076-03ff9cc55f7c",
+      "module": "aware_experience_ontology.actuator.actuator_config_state_node",
+      "name": "ActuatorConfigStateNode",
+      "aware_class_ref": "aware_experience.actuator.ActuatorConfigStateNode",
+      "functions": [
+        {
+          "function_config_id": "a42786f8-6444-5321-9034-8afd3aa8874f",
+          "name": "build_via_actuator_config",
+          "input_model": "ActuatorConfigStateNodeBuildViaActuatorConfigInput",
+          "output_model": "ActuatorConfigStateNodeBuildViaActuatorConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "087c7e46-6fd0-5876-9a06-9b79f2a520c6",
+      "module": "aware_experience_ontology.actuator.actuator_invocation_action",
+      "name": "ActuatorInvocationAction",
+      "aware_class_ref": "aware_experience.actuator.ActuatorInvocationAction",
+      "functions": [
+        {
+          "function_config_id": "c0126443-a509-55e8-a55f-0bf38b03110e",
+          "name": "build",
+          "input_model": "ActuatorInvocationActionBuildInput",
+          "output_model": "ActuatorInvocationActionBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1ccf1e19-8acf-5f1f-bb83-bcc587f6c0b0",
+      "module": "aware_experience_ontology.actuator.actuator_invocation_action_config",
+      "name": "ActuatorInvocationActionConfig",
+      "aware_class_ref": "aware_experience.actuator.ActuatorInvocationActionConfig",
+      "functions": [
+        {
+          "function_config_id": "ff9d2a99-cc6e-52f1-b442-d620322526ae",
+          "name": "build_via_actuator_config",
+          "input_model": "ActuatorInvocationActionConfigBuildViaActuatorConfigInput",
+          "output_model": "ActuatorInvocationActionConfigBuildViaActuatorConfigOutput"
+        },
+        {
+          "function_config_id": "51d97a8b-6a25-5bb9-b7e6-86659bd0a843",
+          "name": "record_invocation",
+          "input_model": "ActuatorInvocationActionConfigRecordInvocationInput",
+          "output_model": "ActuatorInvocationActionConfigRecordInvocationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "979e5681-4f17-59d4-92a6-cd020fd1e9b4",
+      "module": "aware_experience_ontology.connector.connector",
+      "name": "Connector",
+      "aware_class_ref": "aware_experience.connector.Connector",
+      "functions": [
+        {
+          "function_config_id": "d64a661e-399d-5bc1-aaf7-74ccd9598718",
+          "name": "build_via_connector_config",
+          "input_model": "ConnectorBuildViaConnectorConfigInput",
+          "output_model": "ConnectorBuildViaConnectorConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f419ee08-ec4d-5ab2-9174-ff4a53b4048c",
+      "module": "aware_experience_ontology.connector.connector_config",
+      "name": "ConnectorConfig",
+      "aware_class_ref": "aware_experience.connector.ConnectorConfig",
+      "functions": [
+        {
+          "function_config_id": "1210d3a1-c78d-586d-8eb9-b3c665c0dc43",
+          "name": "add_actuator_config",
+          "input_model": "ConnectorConfigAddActuatorConfigInput",
+          "output_model": "ConnectorConfigAddActuatorConfigOutput"
+        },
+        {
+          "function_config_id": "e4093e69-4c75-5eb3-add5-6eea1f892b49",
+          "name": "add_provider",
+          "input_model": "ConnectorConfigAddProviderInput",
+          "output_model": "ConnectorConfigAddProviderOutput"
+        },
+        {
+          "function_config_id": "7a6626db-725c-5999-9ee9-3e39c768ef22",
+          "name": "add_sensor_config",
+          "input_model": "ConnectorConfigAddSensorConfigInput",
+          "output_model": "ConnectorConfigAddSensorConfigOutput"
+        },
+        {
+          "function_config_id": "582afa98-b4ea-5620-8f16-7cb58f99e5c2",
+          "name": "create",
+          "input_model": "ConnectorConfigCreateInput",
+          "output_model": "ConnectorConfigCreateOutput"
+        },
+        {
+          "function_config_id": "d7d4909c-5d0f-5013-8f86-42865c7f7bee",
+          "name": "create_connector",
+          "input_model": "ConnectorConfigCreateConnectorInput",
+          "output_model": "ConnectorConfigCreateConnectorOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c82d2f6b-25d7-5992-91c7-f5fd1046b815",
+      "module": "aware_experience_ontology.connector.connector_provider",
+      "name": "ConnectorProvider",
+      "aware_class_ref": "aware_experience.connector.ConnectorProvider",
+      "functions": [
+        {
+          "function_config_id": "583665bb-9f6f-5379-bbd0-88e22d1c9626",
+          "name": "build_via_connector_config",
+          "input_model": "ConnectorProviderBuildViaConnectorConfigInput",
+          "output_model": "ConnectorProviderBuildViaConnectorConfigOutput"
+        },
+        {
+          "function_config_id": "3ecc0cb8-6849-5ad7-ab5a-5fade5c28646",
+          "name": "create_session",
+          "input_model": "ConnectorProviderCreateSessionInput",
+          "output_model": "ConnectorProviderCreateSessionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9bac3af5-5343-5d05-9642-e1ab1756a7ff",
+      "module": "aware_experience_ontology.connector.connector_session",
+      "name": "ConnectorSession",
+      "aware_class_ref": "aware_experience.connector.ConnectorSession",
+      "functions": [
+        {
+          "function_config_id": "52848e0d-c069-5cc6-887e-8c61d71408c2",
+          "name": "build_via_connector_provider",
+          "input_model": "ConnectorSessionBuildViaConnectorProviderInput",
+          "output_model": "ConnectorSessionBuildViaConnectorProviderOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8021108c-8bb7-53d2-b754-1cca400e2bbb",
+      "module": "aware_experience_ontology.contract.experience_contract_actor_role_grant",
+      "name": "ExperienceContractActorRoleGrant",
+      "aware_class_ref": "aware_experience.contract.ExperienceContractActorRoleGrant",
+      "functions": [
+        {
+          "function_config_id": "4132e8c2-3fc0-5bee-b00b-b511239ff01a",
+          "name": "build_via_projection_experience",
+          "input_model": "ExperienceContractActorRoleGrantBuildViaProjectionExperienceInput",
+          "output_model": "ExperienceContractActorRoleGrantBuildViaProjectionExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e30d9203-8dd0-5a08-851a-0b1fbebe6cb0",
+      "module": "aware_experience_ontology.environment.environment_experience",
+      "name": "EnvironmentExperience",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperience",
+      "functions": [
+        {
+          "function_config_id": "f94d5a46-28c3-5c72-b1cd-ad238c0f19ca",
+          "name": "build",
+          "input_model": "EnvironmentExperienceBuildInput",
+          "output_model": "EnvironmentExperienceBuildOutput"
+        },
+        {
+          "function_config_id": "28340428-8d5a-582b-85a0-896cfa534178",
+          "name": "create_profile",
+          "input_model": "EnvironmentExperienceCreateProfileInput",
+          "output_model": "EnvironmentExperienceCreateProfileOutput"
+        },
+        {
+          "function_config_id": "e7d6a7ef-38a7-564b-853c-bb141d9a0507",
+          "name": "create_profile_config",
+          "input_model": "EnvironmentExperienceCreateProfileConfigInput",
+          "output_model": "EnvironmentExperienceCreateProfileConfigOutput"
+        },
+        {
+          "function_config_id": "fa238a45-403a-565c-a19b-fb95d7d34f1a",
+          "name": "create_topology_seed",
+          "input_model": "EnvironmentExperienceCreateTopologySeedInput",
+          "output_model": "EnvironmentExperienceCreateTopologySeedOutput"
+        },
+        {
+          "function_config_id": "b9d32d0e-daf2-5bb9-b416-f8aa8312523c",
+          "name": "start_session",
+          "input_model": "EnvironmentExperienceStartSessionInput",
+          "output_model": "EnvironmentExperienceStartSessionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1073b835-e224-5f1d-8b96-b2d278375464",
+      "module": "aware_experience_ontology.environment.environment_experience_actor",
+      "name": "EnvironmentExperienceActorConfig",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceActorConfig",
+      "functions": [
+        {
+          "function_config_id": "610239c0-5e63-5612-9247-69ed7913b819",
+          "name": "build_via_environment_experience_profile_config",
+          "input_model": "EnvironmentExperienceActorConfigBuildViaEnvironmentExperienceProfileConfigInput",
+          "output_model": "EnvironmentExperienceActorConfigBuildViaEnvironmentExperienceProfileConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7afcad14-d946-52fc-a807-05eef6ee8c29",
+      "module": "aware_experience_ontology.environment.environment_experience_event",
+      "name": "EnvironmentExperienceEvent",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceEvent",
+      "functions": [
+        {
+          "function_config_id": "6980bee0-bc0c-50bc-bd15-daed4f7a3554",
+          "name": "add_action_experience",
+          "input_model": "EnvironmentExperienceEventAddActionExperienceInput",
+          "output_model": "EnvironmentExperienceEventAddActionExperienceOutput"
+        },
+        {
+          "function_config_id": "c7c8466c-7f66-5509-9876-b3445a8092e6",
+          "name": "add_node_scope",
+          "input_model": "EnvironmentExperienceEventAddNodeScopeInput",
+          "output_model": "EnvironmentExperienceEventAddNodeScopeOutput"
+        },
+        {
+          "function_config_id": "dd99d45d-a620-5fc2-917a-709168137cee",
+          "name": "build_via_environment_experience_profile_config",
+          "input_model": "EnvironmentExperienceEventBuildViaEnvironmentExperienceProfileConfigInput",
+          "output_model": "EnvironmentExperienceEventBuildViaEnvironmentExperienceProfileConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1ea2d20e-7720-5fcc-b1f5-7b65e1b9c09d",
+      "module": "aware_experience_ontology.environment.environment_experience_event_action",
+      "name": "EnvironmentExperienceEventAction",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceEventAction",
+      "functions": [
+        {
+          "function_config_id": "87c7334e-a77e-536e-99a1-5247af75948e",
+          "name": "build_via_environment_experience_event",
+          "input_model": "EnvironmentExperienceEventActionBuildViaEnvironmentExperienceEventInput",
+          "output_model": "EnvironmentExperienceEventActionBuildViaEnvironmentExperienceEventOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4a3343f0-6c80-53b3-93e4-538af505b4cf",
+      "module": "aware_experience_ontology.environment.environment_experience_event_node_scope",
+      "name": "EnvironmentExperienceEventNodeScope",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceEventNodeScope",
+      "functions": [
+        {
+          "function_config_id": "bad91c99-4fad-5396-81e9-e3bc13d5e019",
+          "name": "build_via_environment_experience_event",
+          "input_model": "EnvironmentExperienceEventNodeScopeBuildViaEnvironmentExperienceEventInput",
+          "output_model": "EnvironmentExperienceEventNodeScopeBuildViaEnvironmentExperienceEventOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4be3594a-f25e-5cef-877b-9778fbc3c8f4",
+      "module": "aware_experience_ontology.environment.environment_experience_process_config",
+      "name": "EnvironmentExperienceProcessConfig",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceProcessConfig",
+      "functions": [
+        {
+          "function_config_id": "ac3f015f-e68f-5901-b8a0-acf1c2ffc960",
+          "name": "add_thread_config",
+          "input_model": "EnvironmentExperienceProcessConfigAddThreadConfigInput",
+          "output_model": "EnvironmentExperienceProcessConfigAddThreadConfigOutput"
+        },
+        {
+          "function_config_id": "1dbf5624-8889-5ec8-8c8a-a642f6699e49",
+          "name": "build_via_environment_experience_profile_config",
+          "input_model": "EnvironmentExperienceProcessConfigBuildViaEnvironmentExperienceProfileConfigInput",
+          "output_model": "EnvironmentExperienceProcessConfigBuildViaEnvironmentExperienceProfileConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "98bba6b0-7c87-5b4e-b57e-fd1dc6440628",
+      "module": "aware_experience_ontology.environment.environment_experience_profile",
+      "name": "EnvironmentExperienceProfile",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceProfile",
+      "functions": [
+        {
+          "function_config_id": "0cd5b647-e186-5e2c-9bfb-9d74f039be85",
+          "name": "build_via_environment_experience",
+          "input_model": "EnvironmentExperienceProfileBuildViaEnvironmentExperienceInput",
+          "output_model": "EnvironmentExperienceProfileBuildViaEnvironmentExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "45c3d8b0-eab2-56b8-bdff-3edd94294883",
+      "module": "aware_experience_ontology.environment.environment_experience_profile_config",
+      "name": "EnvironmentExperienceProfileConfig",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceProfileConfig",
+      "functions": [
+        {
+          "function_config_id": "1d1172bf-500a-5df2-8a39-8d19f2bb7d33",
+          "name": "add_actor_config",
+          "input_model": "EnvironmentExperienceProfileConfigAddActorConfigInput",
+          "output_model": "EnvironmentExperienceProfileConfigAddActorConfigOutput"
+        },
+        {
+          "function_config_id": "0bd38731-c045-59e8-a1b4-e1bdb52e167d",
+          "name": "add_event",
+          "input_model": "EnvironmentExperienceProfileConfigAddEventInput",
+          "output_model": "EnvironmentExperienceProfileConfigAddEventOutput"
+        },
+        {
+          "function_config_id": "145d75e4-03bc-55fb-a780-a985ea64009a",
+          "name": "add_process_config",
+          "input_model": "EnvironmentExperienceProfileConfigAddProcessConfigInput",
+          "output_model": "EnvironmentExperienceProfileConfigAddProcessConfigOutput"
+        },
+        {
+          "function_config_id": "2c06c7e2-1cdb-5c2b-b784-23d46b84657e",
+          "name": "add_projection_experience",
+          "input_model": "EnvironmentExperienceProfileConfigAddProjectionExperienceInput",
+          "output_model": "EnvironmentExperienceProfileConfigAddProjectionExperienceOutput"
+        },
+        {
+          "function_config_id": "b26d1083-2beb-5f77-a5ee-2abcc6312285",
+          "name": "add_view_event_transition",
+          "input_model": "EnvironmentExperienceProfileConfigAddViewEventTransitionInput",
+          "output_model": "EnvironmentExperienceProfileConfigAddViewEventTransitionOutput"
+        },
+        {
+          "function_config_id": "544daaad-d26d-5eee-83fb-2853a644b65b",
+          "name": "build_via_environment_experience",
+          "input_model": "EnvironmentExperienceProfileConfigBuildViaEnvironmentExperienceInput",
+          "output_model": "EnvironmentExperienceProfileConfigBuildViaEnvironmentExperienceOutput"
+        },
+        {
+          "function_config_id": "8806ef59-b0eb-57a0-96d9-84c5d4c2b86b",
+          "name": "update_picture",
+          "input_model": "EnvironmentExperienceProfileConfigUpdatePictureInput",
+          "output_model": "EnvironmentExperienceProfileConfigUpdatePictureOutput"
+        },
+        {
+          "function_config_id": "caa41b5a-baf5-510b-9235-01cf23d81762",
+          "name": "update_title",
+          "input_model": "EnvironmentExperienceProfileConfigUpdateTitleInput",
+          "output_model": "EnvironmentExperienceProfileConfigUpdateTitleOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "de8c344a-014e-5fcd-a0e4-489f5fe9808d",
+      "module": "aware_experience_ontology.environment.environment_experience_program",
+      "name": "EnvironmentExperienceProgram",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceProgram",
+      "functions": [
+        {
+          "function_config_id": "a30503cb-dad1-52c9-b580-c847d6f57b72",
+          "name": "build_via_environment_experience_thread_config",
+          "input_model": "EnvironmentExperienceProgramBuildViaEnvironmentExperienceThreadConfigInput",
+          "output_model": "EnvironmentExperienceProgramBuildViaEnvironmentExperienceThreadConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c80fc42c-925a-5902-a311-396b24bfcb72",
+      "module": "aware_experience_ontology.environment.environment_experience_program_apply",
+      "name": "EnvironmentExperienceProgramApply",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceProgramApply",
+      "functions": [
+        {
+          "function_config_id": "87c5170f-1973-54a3-b292-471c16c17388",
+          "name": "build_via_environment_experience_thread_config",
+          "input_model": "EnvironmentExperienceProgramApplyBuildViaEnvironmentExperienceThreadConfigInput",
+          "output_model": "EnvironmentExperienceProgramApplyBuildViaEnvironmentExperienceThreadConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1a43bbad-601e-5498-a9ff-6db8de277b9a",
+      "module": "aware_experience_ontology.environment.environment_experience_projection",
+      "name": "EnvironmentExperienceProjection",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceProjection",
+      "functions": [
+        {
+          "function_config_id": "bdc5cb98-78a9-5d7d-8aba-744cc3081c69",
+          "name": "build_via_environment_experience_profile_config",
+          "input_model": "EnvironmentExperienceProjectionBuildViaEnvironmentExperienceProfileConfigInput",
+          "output_model": "EnvironmentExperienceProjectionBuildViaEnvironmentExperienceProfileConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "560e3d37-5724-5a63-b617-f411a502cfd5",
+      "module": "aware_experience_ontology.environment.environment_experience_thread_config",
+      "name": "EnvironmentExperienceThreadConfig",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceThreadConfig",
+      "functions": [
+        {
+          "function_config_id": "35c54d30-1454-509f-95bc-4c8462684f7f",
+          "name": "add_program",
+          "input_model": "EnvironmentExperienceThreadConfigAddProgramInput",
+          "output_model": "EnvironmentExperienceThreadConfigAddProgramOutput"
+        },
+        {
+          "function_config_id": "20afc09b-bcd9-5932-af6a-7068002250ca",
+          "name": "add_program_apply",
+          "input_model": "EnvironmentExperienceThreadConfigAddProgramApplyInput",
+          "output_model": "EnvironmentExperienceThreadConfigAddProgramApplyOutput"
+        },
+        {
+          "function_config_id": "e04ea679-5a5d-5c56-85e0-0032304213d1",
+          "name": "build_via_environment_experience_process_config",
+          "input_model": "EnvironmentExperienceThreadConfigBuildViaEnvironmentExperienceProcessConfigInput",
+          "output_model": "EnvironmentExperienceThreadConfigBuildViaEnvironmentExperienceProcessConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6627a3d7-fc97-5287-99fc-60744d25ee5f",
+      "module": "aware_experience_ontology.environment.environment_experience_view_event_transition",
+      "name": "EnvironmentExperienceViewEventTransition",
+      "aware_class_ref": "aware_experience.environment.EnvironmentExperienceViewEventTransition",
+      "functions": [
+        {
+          "function_config_id": "ba66820d-37f6-515d-b9ed-ca0aee7ae376",
+          "name": "build_via_environment_experience_profile_config",
+          "input_model": "EnvironmentExperienceViewEventTransitionBuildViaEnvironmentExperienceProfileConfigInput",
+          "output_model": "EnvironmentExperienceViewEventTransitionBuildViaEnvironmentExperienceProfileConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9be8f01b-d092-5022-becb-3a7141aac8e8",
+      "module": "aware_experience_ontology.environment.environment_topology_process_seed",
+      "name": "EnvironmentTopologyProcessSeed",
+      "aware_class_ref": "aware_experience.environment.EnvironmentTopologyProcessSeed",
+      "functions": [
+        {
+          "function_config_id": "79d4ba7c-c92b-5e01-b8c1-6ccb30e32a95",
+          "name": "add_thread_seed",
+          "input_model": "EnvironmentTopologyProcessSeedAddThreadSeedInput",
+          "output_model": "EnvironmentTopologyProcessSeedAddThreadSeedOutput"
+        },
+        {
+          "function_config_id": "9861c844-6125-53d0-a7b4-31c408217236",
+          "name": "build_via_environment_topology_seed",
+          "input_model": "EnvironmentTopologyProcessSeedBuildViaEnvironmentTopologySeedInput",
+          "output_model": "EnvironmentTopologyProcessSeedBuildViaEnvironmentTopologySeedOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fa3657db-e65f-597e-8a8c-119166c6c423",
+      "module": "aware_experience_ontology.environment.environment_topology_seed",
+      "name": "EnvironmentTopologySeed",
+      "aware_class_ref": "aware_experience.environment.EnvironmentTopologySeed",
+      "functions": [
+        {
+          "function_config_id": "4e5be94d-9df6-5bb1-bf37-464fdbcb176d",
+          "name": "add_process_seed",
+          "input_model": "EnvironmentTopologySeedAddProcessSeedInput",
+          "output_model": "EnvironmentTopologySeedAddProcessSeedOutput"
+        },
+        {
+          "function_config_id": "5e00b55e-f334-58d7-a64d-c670ad740aae",
+          "name": "build_via_environment_experience",
+          "input_model": "EnvironmentTopologySeedBuildViaEnvironmentExperienceInput",
+          "output_model": "EnvironmentTopologySeedBuildViaEnvironmentExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e9a24b0f-849d-5e62-a79f-b4c713ee7da2",
+      "module": "aware_experience_ontology.environment.environment_topology_thread_layout_seed",
+      "name": "EnvironmentTopologyThreadLayoutSeed",
+      "aware_class_ref": "aware_experience.environment.EnvironmentTopologyThreadLayoutSeed",
+      "functions": [
+        {
+          "function_config_id": "795b1bef-f84d-5ec8-8c14-1a4e22b207b1",
+          "name": "build_via_environment_topology_thread_seed",
+          "input_model": "EnvironmentTopologyThreadLayoutSeedBuildViaEnvironmentTopologyThreadSeedInput",
+          "output_model": "EnvironmentTopologyThreadLayoutSeedBuildViaEnvironmentTopologyThreadSeedOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5dd63812-3102-509f-93fa-3311e6e82ce2",
+      "module": "aware_experience_ontology.environment.environment_topology_thread_seed",
+      "name": "EnvironmentTopologyThreadSeed",
+      "aware_class_ref": "aware_experience.environment.EnvironmentTopologyThreadSeed",
+      "functions": [
+        {
+          "function_config_id": "9211a072-3adc-5e23-91ae-9101e5d6079f",
+          "name": "add_layout_seed",
+          "input_model": "EnvironmentTopologyThreadSeedAddLayoutSeedInput",
+          "output_model": "EnvironmentTopologyThreadSeedAddLayoutSeedOutput"
+        },
+        {
+          "function_config_id": "de23f8ab-73d9-515c-b2c9-53a127a4faa9",
+          "name": "build_via_environment_topology_process_seed",
+          "input_model": "EnvironmentTopologyThreadSeedBuildViaEnvironmentTopologyProcessSeedInput",
+          "output_model": "EnvironmentTopologyThreadSeedBuildViaEnvironmentTopologyProcessSeedOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9f16ad62-8316-5ad6-b8d6-7529b2f9a620",
+      "module": "aware_experience_ontology.environment.experience_package",
+      "name": "ExperiencePackage",
+      "aware_class_ref": "aware_experience.environment.ExperiencePackage",
+      "functions": [
+        {
+          "function_config_id": "1ffd0adc-82df-5483-950a-7fc252125339",
+          "name": "attach_api_package",
+          "input_model": "ExperiencePackageAttachApiPackageInput",
+          "output_model": "ExperiencePackageAttachApiPackageOutput"
+        },
+        {
+          "function_config_id": "8c508b3a-8852-5bca-b062-9bb62ca005a5",
+          "name": "attach_attention_package",
+          "input_model": "ExperiencePackageAttachAttentionPackageInput",
+          "output_model": "ExperiencePackageAttachAttentionPackageOutput"
+        },
+        {
+          "function_config_id": "7f476d64-c3c7-5173-ae1e-684e805b3d82",
+          "name": "attach_experience_package_dependency",
+          "input_model": "ExperiencePackageAttachExperiencePackageDependencyInput",
+          "output_model": "ExperiencePackageAttachExperiencePackageDependencyOutput"
+        },
+        {
+          "function_config_id": "92604b53-33ab-5053-9e0e-a95edf516015",
+          "name": "attach_language_package",
+          "input_model": "ExperiencePackageAttachLanguagePackageInput",
+          "output_model": "ExperiencePackageAttachLanguagePackageOutput"
+        },
+        {
+          "function_config_id": "20298aff-e1f0-56bc-abe4-ff1511bac377",
+          "name": "attach_sdk_package",
+          "input_model": "ExperiencePackageAttachSdkPackageInput",
+          "output_model": "ExperiencePackageAttachSdkPackageOutput"
+        },
+        {
+          "function_config_id": "adf0bc3d-781c-5d5f-9560-e12cc908c933",
+          "name": "build",
+          "input_model": "ExperiencePackageBuildInput",
+          "output_model": "ExperiencePackageBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "45eb3eb6-df4f-5b55-abab-e947d91b5dac",
+      "module": "aware_experience_ontology.environment.experience_package_api_package",
+      "name": "ExperiencePackageApiPackage",
+      "aware_class_ref": "aware_experience.environment.ExperiencePackageApiPackage",
+      "functions": [
+        {
+          "function_config_id": "8f0fabfe-131e-5ff5-880b-fee587cdb77a",
+          "name": "build_via_experience_package",
+          "input_model": "ExperiencePackageApiPackageBuildViaExperiencePackageInput",
+          "output_model": "ExperiencePackageApiPackageBuildViaExperiencePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "42f81410-f217-5374-83b9-4751422db454",
+      "module": "aware_experience_ontology.environment.experience_package_attention_package",
+      "name": "ExperiencePackageAttentionPackage",
+      "aware_class_ref": "aware_experience.environment.ExperiencePackageAttentionPackage",
+      "functions": [
+        {
+          "function_config_id": "665be172-b242-5f88-8b50-24915cb43420",
+          "name": "build_via_experience_package",
+          "input_model": "ExperiencePackageAttentionPackageBuildViaExperiencePackageInput",
+          "output_model": "ExperiencePackageAttentionPackageBuildViaExperiencePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f7699132-21f3-520e-8922-de33a6604d97",
+      "module": "aware_experience_ontology.environment.experience_package_dependency",
+      "name": "ExperiencePackageDependency",
+      "aware_class_ref": "aware_experience.environment.ExperiencePackageDependency",
+      "functions": [
+        {
+          "function_config_id": "dae5420a-46cd-5c93-ba37-c3b83bc662db",
+          "name": "build_via_experience_package",
+          "input_model": "ExperiencePackageDependencyBuildViaExperiencePackageInput",
+          "output_model": "ExperiencePackageDependencyBuildViaExperiencePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "45d7a5e2-0fa9-5220-a2b9-484cd0f4c9f8",
+      "module": "aware_experience_ontology.environment.experience_package_language_package",
+      "name": "ExperiencePackageLanguagePackage",
+      "aware_class_ref": "aware_experience.environment.ExperiencePackageLanguagePackage",
+      "functions": [
+        {
+          "function_config_id": "f995fadd-8ef2-59aa-9099-903efc3e1802",
+          "name": "build_via_experience_package",
+          "input_model": "ExperiencePackageLanguagePackageBuildViaExperiencePackageInput",
+          "output_model": "ExperiencePackageLanguagePackageBuildViaExperiencePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3f8bf5ca-f718-5441-9a34-1862cade3f18",
+      "module": "aware_experience_ontology.environment.experience_package_sdk_package",
+      "name": "ExperiencePackageSdkPackage",
+      "aware_class_ref": "aware_experience.environment.ExperiencePackageSdkPackage",
+      "functions": [
+        {
+          "function_config_id": "7bdf97d6-7842-5a20-ac0d-4c2157a0efe0",
+          "name": "build_via_experience_package",
+          "input_model": "ExperiencePackageSdkPackageBuildViaExperiencePackageInput",
+          "output_model": "ExperiencePackageSdkPackageBuildViaExperiencePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c99d5620-8bda-5fc4-9ee4-41fd8f613f3e",
+      "module": "aware_experience_ontology.invocation.experience_invocation_action",
+      "name": "ExperienceInvocationAction",
+      "aware_class_ref": "aware_experience.invocation.ExperienceInvocationAction",
+      "functions": [
+        {
+          "function_config_id": "8faf0a3d-0c42-5d3e-b3a4-3b429c0cbe8f",
+          "name": "add_commit",
+          "input_model": "ExperienceInvocationActionAddCommitInput",
+          "output_model": "ExperienceInvocationActionAddCommitOutput"
+        },
+        {
+          "function_config_id": "0bac91a4-fb47-5ab8-abf4-414d9aea2bf7",
+          "name": "add_propagation",
+          "input_model": "ExperienceInvocationActionAddPropagationInput",
+          "output_model": "ExperienceInvocationActionAddPropagationOutput"
+        },
+        {
+          "function_config_id": "4812352b-84a6-579d-b4d7-6005dd1b899c",
+          "name": "build",
+          "input_model": "ExperienceInvocationActionBuildInput",
+          "output_model": "ExperienceInvocationActionBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "30e843ac-c577-575c-a382-32db29c4439c",
+      "module": "aware_experience_ontology.invocation.experience_invocation_action_commit",
+      "name": "ExperienceInvocationActionCommit",
+      "aware_class_ref": "aware_experience.invocation.ExperienceInvocationActionCommit",
+      "functions": [
+        {
+          "function_config_id": "d9dc8f5d-c050-5f02-aa64-f79acdc5d805",
+          "name": "add_event",
+          "input_model": "ExperienceInvocationActionCommitAddEventInput",
+          "output_model": "ExperienceInvocationActionCommitAddEventOutput"
+        },
+        {
+          "function_config_id": "7a044d8f-71f5-59a6-b072-3bd1c9ace2ab",
+          "name": "build_via_experience_invocation_action",
+          "input_model": "ExperienceInvocationActionCommitBuildViaExperienceInvocationActionInput",
+          "output_model": "ExperienceInvocationActionCommitBuildViaExperienceInvocationActionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d290496b-508a-584c-9ccb-60547cb08b9b",
+      "module": "aware_experience_ontology.invocation.experience_invocation_action_commit_event",
+      "name": "ExperienceInvocationActionCommitEvent",
+      "aware_class_ref": "aware_experience.invocation.ExperienceInvocationActionCommitEvent",
+      "functions": [
+        {
+          "function_config_id": "e834d301-e414-519e-939a-86da21f065c0",
+          "name": "build_via_experience_invocation_action_commit",
+          "input_model": "ExperienceInvocationActionCommitEventBuildViaExperienceInvocationActionCommitInput",
+          "output_model": "ExperienceInvocationActionCommitEventBuildViaExperienceInvocationActionCommitOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "58f36b51-59d8-5cd2-911d-db6a8f655cb1",
+      "module": "aware_experience_ontology.invocation.experience_invocation_action_config",
+      "name": "ExperienceInvocationActionConfig",
+      "aware_class_ref": "aware_experience.invocation.ExperienceInvocationActionConfig",
+      "functions": [
+        {
+          "function_config_id": "9b3b0224-d807-5ab5-ae86-8d2485a3e429",
+          "name": "allow_role_config",
+          "input_model": "ExperienceInvocationActionConfigAllowRoleConfigInput",
+          "output_model": "ExperienceInvocationActionConfigAllowRoleConfigOutput"
+        },
+        {
+          "function_config_id": "78afc379-c46a-53ce-96ef-2bb55e733c65",
+          "name": "build_via_projection_experience",
+          "input_model": "ExperienceInvocationActionConfigBuildViaProjectionExperienceInput",
+          "output_model": "ExperienceInvocationActionConfigBuildViaProjectionExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f916170a-52b4-5c6b-8301-01a84c0c8eca",
+      "module": "aware_experience_ontology.invocation.experience_invocation_action_propagation",
+      "name": "ExperienceInvocationActionPropagation",
+      "aware_class_ref": "aware_experience.invocation.ExperienceInvocationActionPropagation",
+      "functions": [
+        {
+          "function_config_id": "a3ed6941-c2ab-576a-8384-341d9b44957f",
+          "name": "build_via_experience_invocation_action",
+          "input_model": "ExperienceInvocationActionPropagationBuildViaExperienceInvocationActionInput",
+          "output_model": "ExperienceInvocationActionPropagationBuildViaExperienceInvocationActionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f10514c4-24c6-5bc8-9f61-0f657647a374",
+      "module": "aware_experience_ontology.invocation.experience_view_invocation_action_transport",
+      "name": "ExperienceViewInvocationActionRequest",
+      "aware_class_ref": "aware_experience.invocation.ExperienceViewInvocationActionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "0931062f-a010-5caf-bee2-6a598d435dd3",
+      "module": "aware_experience_ontology.invocation.experience_view_invocation_action_transport",
+      "name": "ExperienceViewInvocationActionResponse",
+      "aware_class_ref": "aware_experience.invocation.ExperienceViewInvocationActionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "d86c87f1-17ac-5ba0-94a7-f98ea64c5738",
+      "module": "aware_experience_ontology.invocation.role_config_invocation_action_config",
+      "name": "RoleConfigInvocationActionConfig",
+      "aware_class_ref": "aware_experience.invocation.RoleConfigInvocationActionConfig",
+      "functions": [
+        {
+          "function_config_id": "7a7be907-1740-5481-b6bd-25313d856604",
+          "name": "build_via_experience_invocation_action_config",
+          "input_model": "RoleConfigInvocationActionConfigBuildViaExperienceInvocationActionConfigInput",
+          "output_model": "RoleConfigInvocationActionConfigBuildViaExperienceInvocationActionConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "cb6ccf2a-ff4b-512e-a1d0-7df94d15ac80",
+      "module": "aware_experience_ontology.program.impl.program_impl",
+      "name": "ProgramImpl",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImpl",
+      "functions": [
+        {
+          "function_config_id": "c1f93098-4b0a-528c-b4d5-45ed1c47a756",
+          "name": "build",
+          "input_model": "ProgramImplBuildInput",
+          "output_model": "ProgramImplBuildOutput"
+        },
+        {
+          "function_config_id": "ee83b712-7a86-5a28-adab-06c0bcc784d0",
+          "name": "create_bind_instruction",
+          "input_model": "ProgramImplCreateBindInstructionInput",
+          "output_model": "ProgramImplCreateBindInstructionOutput"
+        },
+        {
+          "function_config_id": "7a15aadd-b9f2-51c7-8d32-e0a3e3a9e796",
+          "name": "create_expect_instruction",
+          "input_model": "ProgramImplCreateExpectInstructionInput",
+          "output_model": "ProgramImplCreateExpectInstructionOutput"
+        },
+        {
+          "function_config_id": "add0eaa1-187c-5aba-a13c-f0d6cdcca0f8",
+          "name": "create_input_instruction",
+          "input_model": "ProgramImplCreateInputInstructionInput",
+          "output_model": "ProgramImplCreateInputInstructionOutput"
+        },
+        {
+          "function_config_id": "d5437d4e-bb3e-54d4-9d72-e7e890e23838",
+          "name": "create_intent_instruction",
+          "input_model": "ProgramImplCreateIntentInstructionInput",
+          "output_model": "ProgramImplCreateIntentInstructionOutput"
+        },
+        {
+          "function_config_id": "68188c95-0e16-54bb-8862-ea2f2fb77a4e",
+          "name": "create_invoke_instruction",
+          "input_model": "ProgramImplCreateInvokeInstructionInput",
+          "output_model": "ProgramImplCreateInvokeInstructionOutput"
+        },
+        {
+          "function_config_id": "73f71455-24f0-560b-8acc-06a2d18af9ac",
+          "name": "create_let_instruction",
+          "input_model": "ProgramImplCreateLetInstructionInput",
+          "output_model": "ProgramImplCreateLetInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "bb6f9b4c-d71a-5463-bae6-b5470f66a444",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction",
+      "name": "ProgramImplInstruction",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImplInstruction",
+      "functions": [
+        {
+          "function_config_id": "9f95ba48-f0b4-57a1-b1b8-e00b165ee2a7",
+          "name": "create_bind_via_program_impl",
+          "input_model": "ProgramImplInstructionCreateBindViaProgramImplInput",
+          "output_model": "ProgramImplInstructionCreateBindViaProgramImplOutput"
+        },
+        {
+          "function_config_id": "825ca1cd-f2e5-5bc1-8868-1e6d2575bc72",
+          "name": "create_expect_via_program_impl",
+          "input_model": "ProgramImplInstructionCreateExpectViaProgramImplInput",
+          "output_model": "ProgramImplInstructionCreateExpectViaProgramImplOutput"
+        },
+        {
+          "function_config_id": "5e3d0a5f-072c-5529-83de-ff44ce45f01d",
+          "name": "create_input_via_program_impl",
+          "input_model": "ProgramImplInstructionCreateInputViaProgramImplInput",
+          "output_model": "ProgramImplInstructionCreateInputViaProgramImplOutput"
+        },
+        {
+          "function_config_id": "501351dc-43c0-53a9-9183-e760db399d53",
+          "name": "create_intent_via_program_impl",
+          "input_model": "ProgramImplInstructionCreateIntentViaProgramImplInput",
+          "output_model": "ProgramImplInstructionCreateIntentViaProgramImplOutput"
+        },
+        {
+          "function_config_id": "321fd9c9-35f2-56fe-be35-ef69b4ba24db",
+          "name": "create_invoke_via_program_impl",
+          "input_model": "ProgramImplInstructionCreateInvokeViaProgramImplInput",
+          "output_model": "ProgramImplInstructionCreateInvokeViaProgramImplOutput"
+        },
+        {
+          "function_config_id": "2e84fd76-8e71-5192-a4b6-fc8d31edbff7",
+          "name": "create_let_via_program_impl",
+          "input_model": "ProgramImplInstructionCreateLetViaProgramImplInput",
+          "output_model": "ProgramImplInstructionCreateLetViaProgramImplOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6720f9c0-b173-520d-ace3-5cee07daa389",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_bind",
+      "name": "ProgramImplInstructionBind",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImplInstructionBind",
+      "functions": [
+        {
+          "function_config_id": "c25af409-1d0c-5e92-9b08-1f3601613138",
+          "name": "build_via_program_impl_instruction",
+          "input_model": "ProgramImplInstructionBindBuildViaProgramImplInstructionInput",
+          "output_model": "ProgramImplInstructionBindBuildViaProgramImplInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "554f5e78-44ee-5418-b97e-fe06ac4a6346",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_expect",
+      "name": "ProgramImplInstructionExpect",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImplInstructionExpect",
+      "functions": [
+        {
+          "function_config_id": "8db85f68-abff-55bd-ae77-03ead643d10a",
+          "name": "build_via_program_impl_instruction",
+          "input_model": "ProgramImplInstructionExpectBuildViaProgramImplInstructionInput",
+          "output_model": "ProgramImplInstructionExpectBuildViaProgramImplInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "abf535c9-8610-5402-83a5-50ef19ec9f70",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_input",
+      "name": "ProgramImplInstructionInput",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImplInstructionInput",
+      "functions": [
+        {
+          "function_config_id": "364f3501-70b7-5b0a-a17c-0c7b45b9f473",
+          "name": "build_via_program_impl_instruction",
+          "input_model": "ProgramImplInstructionInputBuildViaProgramImplInstructionInput",
+          "output_model": "ProgramImplInstructionInputBuildViaProgramImplInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "81d94713-7292-5540-9e7b-92d49d064d3f",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_intent",
+      "name": "ProgramImplInstructionIntent",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImplInstructionIntent",
+      "functions": [
+        {
+          "function_config_id": "f5f0adc8-36d7-5986-b98e-d38c56c5dcdc",
+          "name": "add_activation_field_binding",
+          "input_model": "ProgramImplInstructionIntentAddActivationFieldBindingInput",
+          "output_model": "ProgramImplInstructionIntentAddActivationFieldBindingOutput"
+        },
+        {
+          "function_config_id": "c3191b7a-424a-567e-ac7c-f82fb6ef651c",
+          "name": "add_outcome_field_binding",
+          "input_model": "ProgramImplInstructionIntentAddOutcomeFieldBindingInput",
+          "output_model": "ProgramImplInstructionIntentAddOutcomeFieldBindingOutput"
+        },
+        {
+          "function_config_id": "7228dad9-1ab1-5108-abf7-c152d5eb18c3",
+          "name": "add_receipt_field_binding",
+          "input_model": "ProgramImplInstructionIntentAddReceiptFieldBindingInput",
+          "output_model": "ProgramImplInstructionIntentAddReceiptFieldBindingOutput"
+        },
+        {
+          "function_config_id": "211b3ed0-60db-5959-b7d9-40c011e81099",
+          "name": "build_via_program_impl_instruction",
+          "input_model": "ProgramImplInstructionIntentBuildViaProgramImplInstructionInput",
+          "output_model": "ProgramImplInstructionIntentBuildViaProgramImplInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "84cd9128-45fa-5770-af1e-959214689004",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_intent_activation_field_binding",
+      "name": "ProgramImplInstructionIntentActivationFieldBinding",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImplInstructionIntentActivationFieldBinding",
+      "functions": [
+        {
+          "function_config_id": "0831a17b-b748-5add-9b03-2b5e8edee195",
+          "name": "build_via_program_impl_instruction_intent",
+          "input_model": "ProgramImplInstructionIntentActivationFieldBindingBuildViaProgramImplInstructionIntentInput",
+          "output_model": "ProgramImplInstructionIntentActivationFieldBindingBuildViaProgramImplInstructionIntentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3a5ff034-9cc0-53e3-9968-6027e0944cca",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_intent_outcome_field_binding",
+      "name": "ProgramImplInstructionIntentOutcomeFieldBinding",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImplInstructionIntentOutcomeFieldBinding",
+      "functions": [
+        {
+          "function_config_id": "047d93f1-962f-5be1-8530-7cc952dab2f4",
+          "name": "build_via_program_impl_instruction_intent",
+          "input_model": "ProgramImplInstructionIntentOutcomeFieldBindingBuildViaProgramImplInstructionIntentInput",
+          "output_model": "ProgramImplInstructionIntentOutcomeFieldBindingBuildViaProgramImplInstructionIntentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7137ed21-89e8-5445-9094-73b2047d4a67",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_intent_receipt_field_binding",
+      "name": "ProgramImplInstructionIntentReceiptFieldBinding",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImplInstructionIntentReceiptFieldBinding",
+      "functions": [
+        {
+          "function_config_id": "6d9430ed-4879-5284-a4da-7b4a1a122152",
+          "name": "build_via_program_impl_instruction_intent",
+          "input_model": "ProgramImplInstructionIntentReceiptFieldBindingBuildViaProgramImplInstructionIntentInput",
+          "output_model": "ProgramImplInstructionIntentReceiptFieldBindingBuildViaProgramImplInstructionIntentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b3a35f4b-0df4-50d6-9642-8c0047fe963f",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_invoke",
+      "name": "ProgramImplInstructionInvoke",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImplInstructionInvoke",
+      "functions": [
+        {
+          "function_config_id": "2c473007-1c5b-57d6-9071-86634528b7ee",
+          "name": "add_attribute_config",
+          "input_model": "ProgramImplInstructionInvokeAddAttributeConfigInput",
+          "output_model": "ProgramImplInstructionInvokeAddAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "d2fcca1a-e30c-56bb-ac14-1f923a1eddf1",
+          "name": "build_via_program_impl_instruction",
+          "input_model": "ProgramImplInstructionInvokeBuildViaProgramImplInstructionInput",
+          "output_model": "ProgramImplInstructionInvokeBuildViaProgramImplInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7ff945fc-a992-54df-b4c2-6e99e5625042",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_invoke_attribute_config",
+      "name": "ProgramImplInstructionInvokeAttributeConfig",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImplInstructionInvokeAttributeConfig",
+      "functions": [
+        {
+          "function_config_id": "a0918e0c-b415-56e0-ba66-dc0627573020",
+          "name": "build_via_program_impl_instruction_invoke",
+          "input_model": "ProgramImplInstructionInvokeAttributeConfigBuildViaProgramImplInstructionInvokeInput",
+          "output_model": "ProgramImplInstructionInvokeAttributeConfigBuildViaProgramImplInstructionInvokeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d4f12eff-42ea-5a7c-b6ee-44e76a9ca394",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_let",
+      "name": "ProgramImplInstructionLet",
+      "aware_class_ref": "aware_experience.program.impl.ProgramImplInstructionLet",
+      "functions": [
+        {
+          "function_config_id": "9c2b64b3-2f8d-53f6-9aae-264d66a38c9a",
+          "name": "build_via_program_impl_instruction",
+          "input_model": "ProgramImplInstructionLetBuildViaProgramImplInstructionInput",
+          "output_model": "ProgramImplInstructionLetBuildViaProgramImplInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "32cb0462-97e3-5ca0-9c65-1e3116e50c43",
+      "module": "aware_experience_ontology.program.program",
+      "name": "Program",
+      "aware_class_ref": "aware_experience.program.Program",
+      "functions": [
+        {
+          "function_config_id": "e373fe3a-a741-56e5-9c5f-14ee888c0133",
+          "name": "add_actor",
+          "input_model": "ProgramAddActorInput",
+          "output_model": "ProgramAddActorOutput"
+        },
+        {
+          "function_config_id": "2256fbf5-62a9-5165-b820-ede2301a3ce3",
+          "name": "attach_branch",
+          "input_model": "ProgramAttachBranchInput",
+          "output_model": "ProgramAttachBranchOutput"
+        },
+        {
+          "function_config_id": "440b74ec-d298-5d7a-8f69-58b5f761fe63",
+          "name": "attach_turn",
+          "input_model": "ProgramAttachTurnInput",
+          "output_model": "ProgramAttachTurnOutput"
+        },
+        {
+          "function_config_id": "4f633049-44d4-5ad0-8e06-37207f7f6dad",
+          "name": "build",
+          "input_model": "ProgramBuildInput",
+          "output_model": "ProgramBuildOutput"
+        },
+        {
+          "function_config_id": "3b118d35-7958-51b1-b24b-521a5b3b530f",
+          "name": "finish_terminal",
+          "input_model": "ProgramFinishTerminalInput",
+          "output_model": "ProgramFinishTerminalOutput"
+        },
+        {
+          "function_config_id": "2efe8b73-d55f-58c7-8f02-1276bfd48a9a",
+          "name": "set_active_turn",
+          "input_model": "ProgramSetActiveTurnInput",
+          "output_model": "ProgramSetActiveTurnOutput"
+        },
+        {
+          "function_config_id": "60cc221f-6f39-5765-bfdb-1f9c9e59666d",
+          "name": "set_running",
+          "input_model": "ProgramSetRunningInput",
+          "output_model": "ProgramSetRunningOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3c614420-4d9a-502c-abeb-95fa0434f685",
+      "module": "aware_experience_ontology.program.program_action_continuation_receipt",
+      "name": "ProgramActionContinuationReceipt",
+      "aware_class_ref": "aware_experience.program.ProgramActionContinuationReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "668383f1-de52-55f3-b616-1f7599b30f37",
+      "module": "aware_experience_ontology.program.program_actor",
+      "name": "ProgramActor",
+      "aware_class_ref": "aware_experience.program.ProgramActor",
+      "functions": [
+        {
+          "function_config_id": "4163bdfd-8498-5e91-ae50-bd44cca19944",
+          "name": "add_actor_role",
+          "input_model": "ProgramActorAddActorRoleInput",
+          "output_model": "ProgramActorAddActorRoleOutput"
+        },
+        {
+          "function_config_id": "46a5f592-bbf8-5a83-a266-e79ecbfaa3d3",
+          "name": "build_via_program",
+          "input_model": "ProgramActorBuildViaProgramInput",
+          "output_model": "ProgramActorBuildViaProgramOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "505d2867-3148-5355-891d-9dbfbd46ddf4",
+      "module": "aware_experience_ontology.program.program_actor_role",
+      "name": "ProgramActorRole",
+      "aware_class_ref": "aware_experience.program.ProgramActorRole",
+      "functions": [
+        {
+          "function_config_id": "e4dbb35c-a25c-59e2-bf5e-3f05f3b46331",
+          "name": "build_via_program_actor",
+          "input_model": "ProgramActorRoleBuildViaProgramActorInput",
+          "output_model": "ProgramActorRoleBuildViaProgramActorOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "75050f09-93c6-53ad-8495-7c61233ea085",
+      "module": "aware_experience_ontology.program.program_attribute",
+      "name": "ProgramAttribute",
+      "aware_class_ref": "aware_experience.program.ProgramAttribute",
+      "functions": [
+        {
+          "function_config_id": "85265351-b373-5d94-ac88-55cc35f0e195",
+          "name": "build",
+          "input_model": "ProgramAttributeBuildInput",
+          "output_model": "ProgramAttributeBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6c9beeb2-1b7b-58b8-afaa-00d1309983bd",
+      "module": "aware_experience_ontology.program.program_branch",
+      "name": "ProgramBranch",
+      "aware_class_ref": "aware_experience.program.ProgramBranch",
+      "functions": [
+        {
+          "function_config_id": "ef017b23-be30-518d-9337-222c49909648",
+          "name": "build_via_program",
+          "input_model": "ProgramBranchBuildViaProgramInput",
+          "output_model": "ProgramBranchBuildViaProgramOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6c07c3db-6b44-54ed-9eb4-852bf996a423",
+      "module": "aware_experience_ontology.program.program_config",
+      "name": "ProgramConfig",
+      "aware_class_ref": "aware_experience.program.ProgramConfig",
+      "functions": [
+        {
+          "function_config_id": "ad1e27d0-9fca-5e64-907b-fbf78de19f59",
+          "name": "add_attribute_config",
+          "input_model": "ProgramConfigAddAttributeConfigInput",
+          "output_model": "ProgramConfigAddAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "2b498372-7ec7-5470-949c-c3ed41074688",
+          "name": "build",
+          "input_model": "ProgramConfigBuildInput",
+          "output_model": "ProgramConfigBuildOutput"
+        },
+        {
+          "function_config_id": "409b4864-46f8-5770-8427-8afbaf0d38f7",
+          "name": "create_actor_config",
+          "input_model": "ProgramConfigCreateActorConfigInput",
+          "output_model": "ProgramConfigCreateActorConfigOutput"
+        },
+        {
+          "function_config_id": "475794cf-8436-5bdb-b587-9b596a1fa040",
+          "name": "create_attribute_config",
+          "input_model": "ProgramConfigCreateAttributeConfigInput",
+          "output_model": "ProgramConfigCreateAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "b73cd4de-a9c6-5c91-a849-079027395945",
+          "name": "create_input_config",
+          "input_model": "ProgramConfigCreateInputConfigInput",
+          "output_model": "ProgramConfigCreateInputConfigOutput"
+        },
+        {
+          "function_config_id": "c94d87f2-664f-54a0-b42b-2e4aa1f4e896",
+          "name": "create_layout",
+          "input_model": "ProgramConfigCreateLayoutInput",
+          "output_model": "ProgramConfigCreateLayoutOutput"
+        },
+        {
+          "function_config_id": "0a37fbe2-f82d-5662-9cba-0513c07da65e",
+          "name": "create_port",
+          "input_model": "ProgramConfigCreatePortInput",
+          "output_model": "ProgramConfigCreatePortOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e6500325-bbc5-57ed-acd3-8404bd5a9d96",
+      "module": "aware_experience_ontology.program.program_config_actor_config",
+      "name": "ProgramConfigActorConfig",
+      "aware_class_ref": "aware_experience.program.ProgramConfigActorConfig",
+      "functions": [
+        {
+          "function_config_id": "3640c353-0508-5d2a-8e2c-abe8ee12eebc",
+          "name": "build_via_program_config",
+          "input_model": "ProgramConfigActorConfigBuildViaProgramConfigInput",
+          "output_model": "ProgramConfigActorConfigBuildViaProgramConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1314d177-a357-510c-b57e-078d4a76c5c3",
+      "module": "aware_experience_ontology.program.program_config_attribute_config",
+      "name": "ProgramConfigAttributeConfig",
+      "aware_class_ref": "aware_experience.program.ProgramConfigAttributeConfig",
+      "functions": [
+        {
+          "function_config_id": "1fa04585-06f6-5057-be5d-631c90986868",
+          "name": "create_via_program_config",
+          "input_model": "ProgramConfigAttributeConfigCreateViaProgramConfigInput",
+          "output_model": "ProgramConfigAttributeConfigCreateViaProgramConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f8d0b3e1-30e3-5721-b170-3af20d4cdc36",
+      "module": "aware_experience_ontology.program.program_config_graph",
+      "name": "ProgramConfigGraph",
+      "aware_class_ref": "aware_experience.program.ProgramConfigGraph",
+      "functions": [
+        {
+          "function_config_id": "150d6522-7fe3-51f5-b91a-1a1037f2d16c",
+          "name": "add_program_config",
+          "input_model": "ProgramConfigGraphAddProgramConfigInput",
+          "output_model": "ProgramConfigGraphAddProgramConfigOutput"
+        },
+        {
+          "function_config_id": "aea48560-649c-507a-b27c-87e268d77bc4",
+          "name": "add_projection_experience_oigi",
+          "input_model": "ProgramConfigGraphAddProjectionExperienceOigiInput",
+          "output_model": "ProgramConfigGraphAddProjectionExperienceOigiOutput"
+        },
+        {
+          "function_config_id": "aa38dd89-b346-5f2a-ad2e-f727d3b648eb",
+          "name": "build",
+          "input_model": "ProgramConfigGraphBuildInput",
+          "output_model": "ProgramConfigGraphBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8464a138-03ba-5d25-b2e4-975167bd6f51",
+      "module": "aware_experience_ontology.program.program_config_graph_object_config_graph",
+      "name": "ProgramConfigGraphObjectConfigGraph",
+      "aware_class_ref": "aware_experience.program.ProgramConfigGraphObjectConfigGraph",
+      "functions": [
+        {
+          "function_config_id": "ac4fb460-d37a-521c-bd40-574b5c0536a7",
+          "name": "build_via_program_config_graph",
+          "input_model": "ProgramConfigGraphObjectConfigGraphBuildViaProgramConfigGraphInput",
+          "output_model": "ProgramConfigGraphObjectConfigGraphBuildViaProgramConfigGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e28d64f5-be4f-5082-8855-4c9b53847c36",
+      "module": "aware_experience_ontology.program.program_config_graph_program_config",
+      "name": "ProgramConfigGraphProgramConfig",
+      "aware_class_ref": "aware_experience.program.ProgramConfigGraphProgramConfig",
+      "functions": [
+        {
+          "function_config_id": "b2932b83-9e10-538d-99a0-d2281ca3092d",
+          "name": "add_port_projection_experience_node_class",
+          "input_model": "ProgramConfigGraphProgramConfigAddPortProjectionExperienceNodeClassInput",
+          "output_model": "ProgramConfigGraphProgramConfigAddPortProjectionExperienceNodeClassOutput"
+        },
+        {
+          "function_config_id": "53277fe4-cb06-5cf6-b832-9fc2d9aad882",
+          "name": "build_via_program_config_graph",
+          "input_model": "ProgramConfigGraphProgramConfigBuildViaProgramConfigGraphInput",
+          "output_model": "ProgramConfigGraphProgramConfigBuildViaProgramConfigGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "26cbfef5-9121-5738-b34e-ade7b31b8eed",
+      "module": "aware_experience_ontology.program.program_config_graph_program_config_port_projection_experience_node_class",
+      "name": "ProgramConfigGraphProgramConfigPortProjectionExperienceNodeClass",
+      "aware_class_ref": "aware_experience.program.ProgramConfigGraphProgramConfigPortProjectionExperienceNodeClass",
+      "functions": [
+        {
+          "function_config_id": "0398f0ce-ab81-5870-b88b-95edee007415",
+          "name": "build_via_program_config_graph_program_config",
+          "input_model": "ProgramConfigGraphProgramConfigPortProjectionExperienceNodeClassBuildViaProgramConfigGraphProgramConfigInput",
+          "output_model": "ProgramConfigGraphProgramConfigPortProjectionExperienceNodeClassBuildViaProgramConfigGraphProgramConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fbd925de-dda4-5c3e-bb7f-3e8d5bdea4c5",
+      "module": "aware_experience_ontology.program.program_config_graph_projection_experience_oigi",
+      "name": "ProgramConfigGraphProjectionExperienceOIGI",
+      "aware_class_ref": "aware_experience.program.ProgramConfigGraphProjectionExperienceOIGI",
+      "functions": [
+        {
+          "function_config_id": "6f4f379f-75be-5493-ae81-f70c7fb503b4",
+          "name": "build_via_program_config_graph",
+          "input_model": "ProgramConfigGraphProjectionExperienceOIGIBuildViaProgramConfigGraphInput",
+          "output_model": "ProgramConfigGraphProjectionExperienceOIGIBuildViaProgramConfigGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "eb1f1022-8f20-5012-8d52-56915d5a19e0",
+      "module": "aware_experience_ontology.program.program_config_input_config",
+      "name": "ProgramConfigInputConfig",
+      "aware_class_ref": "aware_experience.program.ProgramConfigInputConfig",
+      "functions": [
+        {
+          "function_config_id": "97df1bd4-2745-5ec6-9296-2998fc2af04e",
+          "name": "add_attribute_config",
+          "input_model": "ProgramConfigInputConfigAddAttributeConfigInput",
+          "output_model": "ProgramConfigInputConfigAddAttributeConfigOutput"
+        },
+        {
+          "function_config_id": "b9f445b3-0a54-557c-a76c-31b4e6470c3b",
+          "name": "build_via_program_config",
+          "input_model": "ProgramConfigInputConfigBuildViaProgramConfigInput",
+          "output_model": "ProgramConfigInputConfigBuildViaProgramConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ec9cd507-d220-522c-b5e7-9ece37449b79",
+      "module": "aware_experience_ontology.program.program_config_input_config_attribute_config",
+      "name": "ProgramConfigInputConfigAttributeConfig",
+      "aware_class_ref": "aware_experience.program.ProgramConfigInputConfigAttributeConfig",
+      "functions": [
+        {
+          "function_config_id": "2619d28e-5560-5c0c-8acc-d634b6f0e366",
+          "name": "build_via_program_config_input_config",
+          "input_model": "ProgramConfigInputConfigAttributeConfigBuildViaProgramConfigInputConfigInput",
+          "output_model": "ProgramConfigInputConfigAttributeConfigBuildViaProgramConfigInputConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9dd91452-f2f0-5fa7-ac75-1a92849cd925",
+      "module": "aware_experience_ontology.program.program_config_layout",
+      "name": "ProgramConfigLayout",
+      "aware_class_ref": "aware_experience.program.ProgramConfigLayout",
+      "functions": [
+        {
+          "function_config_id": "1a105fa4-acdc-521d-a6a3-b170bc86fd61",
+          "name": "add_port_section",
+          "input_model": "ProgramConfigLayoutAddPortSectionInput",
+          "output_model": "ProgramConfigLayoutAddPortSectionOutput"
+        },
+        {
+          "function_config_id": "e042041a-bf89-5adb-93b4-16abd0a0440d",
+          "name": "build_via_program_config",
+          "input_model": "ProgramConfigLayoutBuildViaProgramConfigInput",
+          "output_model": "ProgramConfigLayoutBuildViaProgramConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d03bd277-09fa-5555-8ebb-aa7b30f1f428",
+      "module": "aware_experience_ontology.program.program_config_layout_port_section",
+      "name": "ProgramConfigLayoutPortSection",
+      "aware_class_ref": "aware_experience.program.ProgramConfigLayoutPortSection",
+      "functions": [
+        {
+          "function_config_id": "e7b9a124-2799-5f97-b90a-d988f9c06cb9",
+          "name": "build_via_program_config_layout",
+          "input_model": "ProgramConfigLayoutPortSectionBuildViaProgramConfigLayoutInput",
+          "output_model": "ProgramConfigLayoutPortSectionBuildViaProgramConfigLayoutOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1df3f42b-b1b3-5da2-ae27-b78848e3331a",
+      "module": "aware_experience_ontology.program.program_config_port",
+      "name": "ProgramConfigPort",
+      "aware_class_ref": "aware_experience.program.ProgramConfigPort",
+      "functions": [
+        {
+          "function_config_id": "59b5464b-3787-58d3-a60c-6af9947de830",
+          "name": "build_via_program_config",
+          "input_model": "ProgramConfigPortBuildViaProgramConfigInput",
+          "output_model": "ProgramConfigPortBuildViaProgramConfigOutput"
+        },
+        {
+          "function_config_id": "c8bb0eca-9586-583f-bbb5-5086de081a78",
+          "name": "create_projection_node",
+          "input_model": "ProgramConfigPortCreateProjectionNodeInput",
+          "output_model": "ProgramConfigPortCreateProjectionNodeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5d40fb03-d15a-546b-8ea7-b73396dc6d84",
+      "module": "aware_experience_ontology.program.program_config_port_projection_experience_node",
+      "name": "ProgramConfigPortProjectionExperienceNode",
+      "aware_class_ref": "aware_experience.program.ProgramConfigPortProjectionExperienceNode",
+      "functions": [
+        {
+          "function_config_id": "3823f681-26b2-54f4-b9f1-b044c7fee76a",
+          "name": "build_via_program_config_port",
+          "input_model": "ProgramConfigPortProjectionExperienceNodeBuildViaProgramConfigPortInput",
+          "output_model": "ProgramConfigPortProjectionExperienceNodeBuildViaProgramConfigPortOutput"
+        },
+        {
+          "function_config_id": "4172ee17-ec01-553c-8b8d-8b89206c6d50",
+          "name": "create_identity",
+          "input_model": "ProgramConfigPortProjectionExperienceNodeCreateIdentityInput",
+          "output_model": "ProgramConfigPortProjectionExperienceNodeCreateIdentityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5dffd795-29b6-5673-b2f9-c71701721172",
+      "module": "aware_experience_ontology.program.program_config_port_projection_experience_node_identity",
+      "name": "ProgramConfigPortProjectionExperienceNodeIdentity",
+      "aware_class_ref": "aware_experience.program.ProgramConfigPortProjectionExperienceNodeIdentity",
+      "functions": [
+        {
+          "function_config_id": "9d648cf1-29e7-505f-967a-9f2438041f1b",
+          "name": "build_via_program_config_port_projection_experience_node",
+          "input_model": "ProgramConfigPortProjectionExperienceNodeIdentityBuildViaProgramConfigPortProjectionExperienceNodeInput",
+          "output_model": "ProgramConfigPortProjectionExperienceNodeIdentityBuildViaProgramConfigPortProjectionExperienceNodeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0a524453-210c-5bf4-b5b7-043ba7f39d51",
+      "module": "aware_experience_ontology.program.program_input_attribute",
+      "name": "ProgramInputAttribute",
+      "aware_class_ref": "aware_experience.program.ProgramInputAttribute",
+      "functions": [
+        {
+          "function_config_id": "c436e5b2-3e4a-5965-878d-cf29acfc1f91",
+          "name": "build",
+          "input_model": "ProgramInputAttributeBuildInput",
+          "output_model": "ProgramInputAttributeBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e09da287-230d-5055-9ade-b9c6fcf64804",
+      "module": "aware_experience_ontology.program.program_layout",
+      "name": "ProgramLayout",
+      "aware_class_ref": "aware_experience.program.ProgramLayout",
+      "functions": [
+        {
+          "function_config_id": "e0e42551-34ef-5465-9567-50e74776d654",
+          "name": "build",
+          "input_model": "ProgramLayoutBuildInput",
+          "output_model": "ProgramLayoutBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d95128b8-61bc-5a02-8f48-55d193413072",
+      "module": "aware_experience_ontology.program.program_layout_section",
+      "name": "ProgramLayoutSection",
+      "aware_class_ref": "aware_experience.program.ProgramLayoutSection",
+      "functions": [
+        {
+          "function_config_id": "c5f28a3b-f130-568c-bc1c-94b8b8ceda13",
+          "name": "build",
+          "input_model": "ProgramLayoutSectionBuildInput",
+          "output_model": "ProgramLayoutSectionBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0cb35c4f-eba1-59fb-a20c-32ee27d3cb64",
+      "module": "aware_experience_ontology.program.program_turn",
+      "name": "ProgramTurn",
+      "aware_class_ref": "aware_experience.program.ProgramTurn",
+      "functions": [
+        {
+          "function_config_id": "9739c333-0d34-57a2-8ee7-a8349ca74212",
+          "name": "build_via_program",
+          "input_model": "ProgramTurnBuildViaProgramInput",
+          "output_model": "ProgramTurnBuildViaProgramOutput"
+        },
+        {
+          "function_config_id": "827f6707-36a8-5846-bbb8-c1867d928634",
+          "name": "create_instruction",
+          "input_model": "ProgramTurnCreateInstructionInput",
+          "output_model": "ProgramTurnCreateInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f1078e0e-809c-5d9d-bfde-6114a9cea1b0",
+      "module": "aware_experience_ontology.program.program_turn_decision",
+      "name": "ProgramTurnInstructionDecision",
+      "aware_class_ref": "aware_experience.program.ProgramTurnInstructionDecision",
+      "functions": [
+        {
+          "function_config_id": "f498ca47-afa7-52b5-a1e2-5d0d2898b105",
+          "name": "build_via_program_turn_instruction",
+          "input_model": "ProgramTurnInstructionDecisionBuildViaProgramTurnInstructionInput",
+          "output_model": "ProgramTurnInstructionDecisionBuildViaProgramTurnInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c668a9c0-864d-5c4e-a20f-d5d523553ea5",
+      "module": "aware_experience_ontology.program.program_turn_instruction",
+      "name": "ProgramTurnInstruction",
+      "aware_class_ref": "aware_experience.program.ProgramTurnInstruction",
+      "functions": [
+        {
+          "function_config_id": "d6565958-7568-509b-9315-518b04bdd812",
+          "name": "build_via_program_turn",
+          "input_model": "ProgramTurnInstructionBuildViaProgramTurnInput",
+          "output_model": "ProgramTurnInstructionBuildViaProgramTurnOutput"
+        },
+        {
+          "function_config_id": "57dbe2bc-46f1-5338-869e-833d79a2e734",
+          "name": "record_action",
+          "input_model": "ProgramTurnInstructionRecordActionInput",
+          "output_model": "ProgramTurnInstructionRecordActionOutput"
+        },
+        {
+          "function_config_id": "cbd831c3-5f94-5c73-a8a2-a5793ddc2f67",
+          "name": "record_bind",
+          "input_model": "ProgramTurnInstructionRecordBindInput",
+          "output_model": "ProgramTurnInstructionRecordBindOutput"
+        },
+        {
+          "function_config_id": "dfc3b954-f1a5-58d7-a3ac-6698e7520d49",
+          "name": "record_decision",
+          "input_model": "ProgramTurnInstructionRecordDecisionInput",
+          "output_model": "ProgramTurnInstructionRecordDecisionOutput"
+        },
+        {
+          "function_config_id": "71d6c21a-02df-5760-a021-b75e6cb775c9",
+          "name": "record_invoke",
+          "input_model": "ProgramTurnInstructionRecordInvokeInput",
+          "output_model": "ProgramTurnInstructionRecordInvokeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "75dcdeb2-d881-5fb2-8649-d840ed3b5a38",
+      "module": "aware_experience_ontology.program.program_turn_instruction_action",
+      "name": "ProgramTurnInstructionAction",
+      "aware_class_ref": "aware_experience.program.ProgramTurnInstructionAction",
+      "functions": [
+        {
+          "function_config_id": "6653d7a1-60aa-53cd-a862-ddc3254cdc2c",
+          "name": "build_via_program_turn_instruction",
+          "input_model": "ProgramTurnInstructionActionBuildViaProgramTurnInstructionInput",
+          "output_model": "ProgramTurnInstructionActionBuildViaProgramTurnInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9ad09d56-8e29-5a8b-95d1-7de40439575b",
+      "module": "aware_experience_ontology.program.program_turn_instruction_bind",
+      "name": "ProgramTurnInstructionBind",
+      "aware_class_ref": "aware_experience.program.ProgramTurnInstructionBind",
+      "functions": [
+        {
+          "function_config_id": "ffaadeb1-372d-5e0d-b14e-f60181a3f512",
+          "name": "add_resolved_node_identity",
+          "input_model": "ProgramTurnInstructionBindAddResolvedNodeIdentityInput",
+          "output_model": "ProgramTurnInstructionBindAddResolvedNodeIdentityOutput"
+        },
+        {
+          "function_config_id": "8c3ecec2-bb19-5e6e-8e10-2cb6283bc82c",
+          "name": "build_via_program_turn_instruction",
+          "input_model": "ProgramTurnInstructionBindBuildViaProgramTurnInstructionInput",
+          "output_model": "ProgramTurnInstructionBindBuildViaProgramTurnInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "bc4e905e-4f61-5d4b-a4a1-4c327a298f1d",
+      "module": "aware_experience_ontology.program.program_turn_instruction_bind_identity",
+      "name": "ProgramTurnInstructionBindIdentity",
+      "aware_class_ref": "aware_experience.program.ProgramTurnInstructionBindIdentity",
+      "functions": [
+        {
+          "function_config_id": "e511703c-dc85-5803-b24c-113d4c21b7b0",
+          "name": "build_via_program_turn_instruction_bind",
+          "input_model": "ProgramTurnInstructionBindIdentityBuildViaProgramTurnInstructionBindInput",
+          "output_model": "ProgramTurnInstructionBindIdentityBuildViaProgramTurnInstructionBindOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4b34683d-c10c-5956-b97d-a972f588f07d",
+      "module": "aware_experience_ontology.program.program_turn_instruction_invoke",
+      "name": "ProgramTurnInstructionInvoke",
+      "aware_class_ref": "aware_experience.program.ProgramTurnInstructionInvoke",
+      "functions": [
+        {
+          "function_config_id": "fce7edbe-2ae4-594d-b738-766fd36f3406",
+          "name": "add_attribute_config_receipt",
+          "input_model": "ProgramTurnInstructionInvokeAddAttributeConfigReceiptInput",
+          "output_model": "ProgramTurnInstructionInvokeAddAttributeConfigReceiptOutput"
+        },
+        {
+          "function_config_id": "5eb482cf-7665-5703-921f-d413e3b9b171",
+          "name": "build_via_program_turn_instruction",
+          "input_model": "ProgramTurnInstructionInvokeBuildViaProgramTurnInstructionInput",
+          "output_model": "ProgramTurnInstructionInvokeBuildViaProgramTurnInstructionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d0ff7a15-5372-5199-a98c-52f4516400de",
+      "module": "aware_experience_ontology.program.program_turn_instruction_invoke_attribute_config",
+      "name": "ProgramTurnInstructionInvokeAttributeConfig",
+      "aware_class_ref": "aware_experience.program.ProgramTurnInstructionInvokeAttributeConfig",
+      "functions": [
+        {
+          "function_config_id": "b2d9505a-bdab-57cf-b118-d893a59f0b99",
+          "name": "build_via_program_turn_instruction_invoke",
+          "input_model": "ProgramTurnInstructionInvokeAttributeConfigBuildViaProgramTurnInstructionInvokeInput",
+          "output_model": "ProgramTurnInstructionInvokeAttributeConfigBuildViaProgramTurnInstructionInvokeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0956de29-ed71-5092-9b77-a8be627775c0",
+      "module": "aware_experience_ontology.projection.projection_experience",
+      "name": "ProjectionExperience",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperience",
+      "functions": [
+        {
+          "function_config_id": "2f4bc981-b640-596e-b5eb-22facd5ff839",
+          "name": "create",
+          "input_model": "ProjectionExperienceCreateInput",
+          "output_model": "ProjectionExperienceCreateOutput"
+        },
+        {
+          "function_config_id": "06c2bc33-cb7b-53cd-a3bd-c352df824575",
+          "name": "create_branch",
+          "input_model": "ProjectionExperienceCreateBranchInput",
+          "output_model": "ProjectionExperienceCreateBranchOutput"
+        },
+        {
+          "function_config_id": "6916daf9-6256-5339-89d8-19a2d184545a",
+          "name": "create_contract_actor_role_grant",
+          "input_model": "ProjectionExperienceCreateContractActorRoleGrantInput",
+          "output_model": "ProjectionExperienceCreateContractActorRoleGrantOutput"
+        },
+        {
+          "function_config_id": "e6355063-eecc-5431-8e1c-2941f6e9a57e",
+          "name": "create_graph",
+          "input_model": "ProjectionExperienceCreateGraphInput",
+          "output_model": "ProjectionExperienceCreateGraphOutput"
+        },
+        {
+          "function_config_id": "1a7de2a1-2d68-58e1-afd9-7167eaf6ebd7",
+          "name": "create_invocation_action_config",
+          "input_model": "ProjectionExperienceCreateInvocationActionConfigInput",
+          "output_model": "ProjectionExperienceCreateInvocationActionConfigOutput"
+        },
+        {
+          "function_config_id": "caa2e3e6-ba8a-5302-b1cb-d8c82140d427",
+          "name": "create_layout_graph_binding",
+          "input_model": "ProjectionExperienceCreateLayoutGraphBindingInput",
+          "output_model": "ProjectionExperienceCreateLayoutGraphBindingOutput"
+        },
+        {
+          "function_config_id": "fca9ed21-76d9-503a-b7d9-5af973f66d34",
+          "name": "create_node",
+          "input_model": "ProjectionExperienceCreateNodeInput",
+          "output_model": "ProjectionExperienceCreateNodeOutput"
+        },
+        {
+          "function_config_id": "4c311397-3895-5f4a-8141-2a36febd3f1c",
+          "name": "create_oigi",
+          "input_model": "ProjectionExperienceCreateOigiInput",
+          "output_model": "ProjectionExperienceCreateOigiOutput"
+        },
+        {
+          "function_config_id": "b4cc7004-cde7-5e87-94bd-78dc3d44ba0d",
+          "name": "create_provider",
+          "input_model": "ProjectionExperienceCreateProviderInput",
+          "output_model": "ProjectionExperienceCreateProviderOutput"
+        },
+        {
+          "function_config_id": "820ec17a-8d41-5a00-a1e6-cf0cab2d9b2f",
+          "name": "create_section",
+          "input_model": "ProjectionExperienceCreateSectionInput",
+          "output_model": "ProjectionExperienceCreateSectionOutput"
+        },
+        {
+          "function_config_id": "75b86e01-e486-560a-89f7-5b9a7f82d6c0",
+          "name": "create_section_graph_binding",
+          "input_model": "ProjectionExperienceCreateSectionGraphBindingInput",
+          "output_model": "ProjectionExperienceCreateSectionGraphBindingOutput"
+        },
+        {
+          "function_config_id": "ea18cecf-94f2-5eda-876e-5caab4965252",
+          "name": "create_view",
+          "input_model": "ProjectionExperienceCreateViewInput",
+          "output_model": "ProjectionExperienceCreateViewOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3c8b9b1a-1d09-5c79-8b28-7030e5f874bf",
+      "module": "aware_experience_ontology.projection.projection_experience_branch",
+      "name": "ProjectionExperienceBranch",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceBranch",
+      "functions": [
+        {
+          "function_config_id": "39bf81f4-7bd3-5cbe-8bf7-9d87f30b8b5a",
+          "name": "create_via_projection_experience",
+          "input_model": "ProjectionExperienceBranchCreateViaProjectionExperienceInput",
+          "output_model": "ProjectionExperienceBranchCreateViaProjectionExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e3cc6858-9bff-56ac-8cc2-5e0032bd8dc5",
+      "module": "aware_experience_ontology.projection.projection_experience_graph",
+      "name": "ProjectionExperienceGraph",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceGraph",
+      "functions": [
+        {
+          "function_config_id": "36c0269e-a004-58c1-aa8f-8a6b30ef12ff",
+          "name": "create_graph_identity_edge",
+          "input_model": "ProjectionExperienceGraphCreateGraphIdentityEdgeInput",
+          "output_model": "ProjectionExperienceGraphCreateGraphIdentityEdgeOutput"
+        },
+        {
+          "function_config_id": "341abc8c-9193-50b1-a671-ebb6c6512521",
+          "name": "create_identity",
+          "input_model": "ProjectionExperienceGraphCreateIdentityInput",
+          "output_model": "ProjectionExperienceGraphCreateIdentityOutput"
+        },
+        {
+          "function_config_id": "8a18f1e3-ed0d-5157-9467-8116bb452a5b",
+          "name": "create_node_identity_edge",
+          "input_model": "ProjectionExperienceGraphCreateNodeIdentityEdgeInput",
+          "output_model": "ProjectionExperienceGraphCreateNodeIdentityEdgeOutput"
+        },
+        {
+          "function_config_id": "02aa787b-fd24-5545-ac55-774182fe4b30",
+          "name": "create_via_projection_experience",
+          "input_model": "ProjectionExperienceGraphCreateViaProjectionExperienceInput",
+          "output_model": "ProjectionExperienceGraphCreateViaProjectionExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2f9d0788-485b-5ab3-99fa-f1974f03f07b",
+      "module": "aware_experience_ontology.projection.projection_experience_graph_identity",
+      "name": "ProjectionExperienceGraphIdentity",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceGraphIdentity",
+      "functions": [
+        {
+          "function_config_id": "49bc5cc9-2cd1-50cc-a8be-a2eff0d01e86",
+          "name": "build_via_projection_experience_graph",
+          "input_model": "ProjectionExperienceGraphIdentityBuildViaProjectionExperienceGraphInput",
+          "output_model": "ProjectionExperienceGraphIdentityBuildViaProjectionExperienceGraphOutput"
+        },
+        {
+          "function_config_id": "80cc5f8c-d95f-5854-8b1e-637548dd8aec",
+          "name": "create_profile",
+          "input_model": "ProjectionExperienceGraphIdentityCreateProfileInput",
+          "output_model": "ProjectionExperienceGraphIdentityCreateProfileOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "30420de5-7d19-5d9f-b05a-a905b2a2670a",
+      "module": "aware_experience_ontology.projection.projection_experience_graph_identity_edge",
+      "name": "ProjectionExperienceGraphIdentityEdge",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceGraphIdentityEdge",
+      "functions": [
+        {
+          "function_config_id": "dcda68f9-9915-5882-a79e-b1bcf290cbf0",
+          "name": "build_via_projection_experience_graph",
+          "input_model": "ProjectionExperienceGraphIdentityEdgeBuildViaProjectionExperienceGraphInput",
+          "output_model": "ProjectionExperienceGraphIdentityEdgeBuildViaProjectionExperienceGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ce77e182-eeae-51cd-a64c-a4a9a00ebe05",
+      "module": "aware_experience_ontology.projection.projection_experience_graph_identity_profile",
+      "name": "ProjectionExperienceGraphIdentityProfile",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceGraphIdentityProfile",
+      "functions": [
+        {
+          "function_config_id": "8fbf2eb8-182e-559b-869f-6ef65ee7a66d",
+          "name": "build_via_projection_experience_graph_identity",
+          "input_model": "ProjectionExperienceGraphIdentityProfileBuildViaProjectionExperienceGraphIdentityInput",
+          "output_model": "ProjectionExperienceGraphIdentityProfileBuildViaProjectionExperienceGraphIdentityOutput"
+        },
+        {
+          "function_config_id": "0bf467c3-8790-578b-9f52-152210acea05",
+          "name": "create_exemplar",
+          "input_model": "ProjectionExperienceGraphIdentityProfileCreateExemplarInput",
+          "output_model": "ProjectionExperienceGraphIdentityProfileCreateExemplarOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1dbd1a9f-e448-515f-bc86-2a6d0c472807",
+      "module": "aware_experience_ontology.projection.projection_experience_graph_identity_profile_exemplar",
+      "name": "ProjectionExperienceGraphIdentityProfileExemplar",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceGraphIdentityProfileExemplar",
+      "functions": [
+        {
+          "function_config_id": "211cea8b-df71-5534-ad99-b1a5a73f1624",
+          "name": "build_via_projection_experience_graph_identity_profile",
+          "input_model": "ProjectionExperienceGraphIdentityProfileExemplarBuildViaProjectionExperienceGraphIdentityProfileInput",
+          "output_model": "ProjectionExperienceGraphIdentityProfileExemplarBuildViaProjectionExperienceGraphIdentityProfileOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "511f8b7d-1454-52b0-9da7-0b853a46743a",
+      "module": "aware_experience_ontology.projection.projection_experience_layout_graph_binding",
+      "name": "ProjectionExperienceLayoutGraphBinding",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceLayoutGraphBinding",
+      "functions": [
+        {
+          "function_config_id": "14d4fcee-4162-5b56-913c-83cb881e415a",
+          "name": "add_section_graph_binding",
+          "input_model": "ProjectionExperienceLayoutGraphBindingAddSectionGraphBindingInput",
+          "output_model": "ProjectionExperienceLayoutGraphBindingAddSectionGraphBindingOutput"
+        },
+        {
+          "function_config_id": "5b7dd06d-413a-5692-aead-987627de27fc",
+          "name": "build_via_projection_experience",
+          "input_model": "ProjectionExperienceLayoutGraphBindingBuildViaProjectionExperienceInput",
+          "output_model": "ProjectionExperienceLayoutGraphBindingBuildViaProjectionExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "cc6d00a8-73f0-53e1-9ed2-bf0e233adb12",
+      "module": "aware_experience_ontology.projection.projection_experience_layout_section_graph_binding",
+      "name": "ProjectionExperienceLayoutSectionGraphBinding",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceLayoutSectionGraphBinding",
+      "functions": [
+        {
+          "function_config_id": "3cd10985-b5e4-54e9-b85b-cab48773d736",
+          "name": "build_via_projection_experience_layout_graph_binding",
+          "input_model": "ProjectionExperienceLayoutSectionGraphBindingBuildViaProjectionExperienceLayoutGraphBindingInput",
+          "output_model": "ProjectionExperienceLayoutSectionGraphBindingBuildViaProjectionExperienceLayoutGraphBindingOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "44d064f6-7eea-5303-9426-fb9bd0acb33d",
+      "module": "aware_experience_ontology.projection.projection_experience_node",
+      "name": "ProjectionExperienceNode",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceNode",
+      "functions": [
+        {
+          "function_config_id": "7f9e6e5e-5d46-583e-a2f2-72aaa03f70d8",
+          "name": "add_key",
+          "input_model": "ProjectionExperienceNodeAddKeyInput",
+          "output_model": "ProjectionExperienceNodeAddKeyOutput"
+        },
+        {
+          "function_config_id": "dbc4839e-1d45-5d46-bc86-6ac60051c428",
+          "name": "build_via_projection_experience",
+          "input_model": "ProjectionExperienceNodeBuildViaProjectionExperienceInput",
+          "output_model": "ProjectionExperienceNodeBuildViaProjectionExperienceOutput"
+        },
+        {
+          "function_config_id": "b73c9e10-93eb-51be-b9f0-a89834fc6a70",
+          "name": "create_identity",
+          "input_model": "ProjectionExperienceNodeCreateIdentityInput",
+          "output_model": "ProjectionExperienceNodeCreateIdentityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d8d98f95-a157-5e94-9ad3-8066406c7906",
+      "module": "aware_experience_ontology.projection.projection_experience_node_class_identity",
+      "name": "ProjectionExperienceNodeClassIdentity",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceNodeClassIdentity",
+      "functions": [
+        {
+          "function_config_id": "4cd81b9f-b309-5516-883e-d5f770bbf81f",
+          "name": "add_key_binding",
+          "input_model": "ProjectionExperienceNodeClassIdentityAddKeyBindingInput",
+          "output_model": "ProjectionExperienceNodeClassIdentityAddKeyBindingOutput"
+        },
+        {
+          "function_config_id": "69fad18e-f3a5-5dbe-9141-aeb3a6ac436a",
+          "name": "build_via_projection_experience_oigi",
+          "input_model": "ProjectionExperienceNodeClassIdentityBuildViaProjectionExperienceOigiInput",
+          "output_model": "ProjectionExperienceNodeClassIdentityBuildViaProjectionExperienceOigiOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d351be81-dd60-5448-b086-c35edb85ccf5",
+      "module": "aware_experience_ontology.projection.projection_experience_node_class_identity_edge",
+      "name": "ProjectionExperienceNodeClassIdentityEdge",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceNodeClassIdentityEdge",
+      "functions": [
+        {
+          "function_config_id": "75647e43-c414-5566-a62f-fc8712c9ea1a",
+          "name": "build_via_projection_experience_oigi",
+          "input_model": "ProjectionExperienceNodeClassIdentityEdgeBuildViaProjectionExperienceOigiInput",
+          "output_model": "ProjectionExperienceNodeClassIdentityEdgeBuildViaProjectionExperienceOigiOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ec1c70ae-83f8-51cd-ae77-9f92b57d84a0",
+      "module": "aware_experience_ontology.projection.projection_experience_node_class_identity_key_binding",
+      "name": "ProjectionExperienceNodeClassIdentityKeyBinding",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceNodeClassIdentityKeyBinding",
+      "functions": [
+        {
+          "function_config_id": "2e543b85-3dbd-5a35-a72c-1d9e52183832",
+          "name": "build_via_projection_experience_node_class_identity",
+          "input_model": "ProjectionExperienceNodeClassIdentityKeyBindingBuildViaProjectionExperienceNodeClassIdentityInput",
+          "output_model": "ProjectionExperienceNodeClassIdentityKeyBindingBuildViaProjectionExperienceNodeClassIdentityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b74875f3-4cad-59c8-ba2c-b840800592bf",
+      "module": "aware_experience_ontology.projection.projection_experience_node_identity",
+      "name": "ProjectionExperienceNodeIdentity",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceNodeIdentity",
+      "functions": [
+        {
+          "function_config_id": "c822941a-8c97-5520-baed-a49fb519e9bd",
+          "name": "build_via_projection_experience_node",
+          "input_model": "ProjectionExperienceNodeIdentityBuildViaProjectionExperienceNodeInput",
+          "output_model": "ProjectionExperienceNodeIdentityBuildViaProjectionExperienceNodeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3fcd133d-6e45-567d-8b5c-19ce370c160c",
+      "module": "aware_experience_ontology.projection.projection_experience_node_identity_edge",
+      "name": "ProjectionExperienceNodeIdentityEdge",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceNodeIdentityEdge",
+      "functions": [
+        {
+          "function_config_id": "67b5cadd-cd93-52c2-b7cd-73157eb48c68",
+          "name": "build_via_projection_experience_graph",
+          "input_model": "ProjectionExperienceNodeIdentityEdgeBuildViaProjectionExperienceGraphInput",
+          "output_model": "ProjectionExperienceNodeIdentityEdgeBuildViaProjectionExperienceGraphOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "da390689-107c-5282-8664-f31f965e42a1",
+      "module": "aware_experience_ontology.projection.projection_experience_node_key",
+      "name": "ProjectionExperienceNodeKey",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceNodeKey",
+      "functions": [
+        {
+          "function_config_id": "b0e352a9-832b-5968-8170-2f8fecde598c",
+          "name": "build_via_projection_experience_node",
+          "input_model": "ProjectionExperienceNodeKeyBuildViaProjectionExperienceNodeInput",
+          "output_model": "ProjectionExperienceNodeKeyBuildViaProjectionExperienceNodeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "49dabb94-3902-5632-8f90-1bb9c05f6383",
+      "module": "aware_experience_ontology.projection.projection_experience_oigi",
+      "name": "ProjectionExperienceOIGI",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceOIGI",
+      "functions": [
+        {
+          "function_config_id": "fb10bb45-face-52db-949b-b78e7126faa3",
+          "name": "build_via_projection_experience",
+          "input_model": "ProjectionExperienceOIGIBuildViaProjectionExperienceInput",
+          "output_model": "ProjectionExperienceOIGIBuildViaProjectionExperienceOutput"
+        },
+        {
+          "function_config_id": "79a2a4dc-ec5c-59c6-b848-b3d71fe4123c",
+          "name": "create_node_class_identity",
+          "input_model": "ProjectionExperienceOIGICreateNodeClassIdentityInput",
+          "output_model": "ProjectionExperienceOIGICreateNodeClassIdentityOutput"
+        },
+        {
+          "function_config_id": "72d72228-48bd-5aea-a854-e2126d1c1b42",
+          "name": "create_node_class_identity_edge",
+          "input_model": "ProjectionExperienceOIGICreateNodeClassIdentityEdgeInput",
+          "output_model": "ProjectionExperienceOIGICreateNodeClassIdentityEdgeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ff3ea221-91fc-5478-a853-5893f39c745b",
+      "module": "aware_experience_ontology.projection.projection_experience_section",
+      "name": "ProjectionExperienceSection",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceSection",
+      "functions": [
+        {
+          "function_config_id": "6b6a7380-4f6b-5224-bc23-42f32ba7f597",
+          "name": "bind_view",
+          "input_model": "ProjectionExperienceSectionBindViewInput",
+          "output_model": "ProjectionExperienceSectionBindViewOutput"
+        },
+        {
+          "function_config_id": "c6426035-19f6-5e99-bc4b-6bfb1cc85a41",
+          "name": "build_via_projection_experience",
+          "input_model": "ProjectionExperienceSectionBuildViaProjectionExperienceInput",
+          "output_model": "ProjectionExperienceSectionBuildViaProjectionExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2e0f924e-7c02-5608-b74b-f9b52689fcaf",
+      "module": "aware_experience_ontology.projection.projection_experience_section_graph_binding",
+      "name": "ProjectionExperienceSectionGraphBinding",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceSectionGraphBinding",
+      "functions": [
+        {
+          "function_config_id": "7b5f1a79-05e6-57b1-ad84-f29f6c71cd6c",
+          "name": "build_via_projection_experience",
+          "input_model": "ProjectionExperienceSectionGraphBindingBuildViaProjectionExperienceInput",
+          "output_model": "ProjectionExperienceSectionGraphBindingBuildViaProjectionExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "62052fc9-d3c4-5216-924c-0632d5452550",
+      "module": "aware_experience_ontology.projection.projection_experience_section_view",
+      "name": "ProjectionExperienceSectionView",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceSectionView",
+      "functions": [
+        {
+          "function_config_id": "cdde9f8a-d383-5166-9030-4c45721dd0f4",
+          "name": "build_via_projection_experience_section",
+          "input_model": "ProjectionExperienceSectionViewBuildViaProjectionExperienceSectionInput",
+          "output_model": "ProjectionExperienceSectionViewBuildViaProjectionExperienceSectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4f2286fc-d0a5-5692-8733-3fda969fd22f",
+      "module": "aware_experience_ontology.projection.projection_experience_view",
+      "name": "ProjectionExperienceView",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceView",
+      "functions": [
+        {
+          "function_config_id": "23ad5e2a-c8d3-5e6b-8f58-739738729bcd",
+          "name": "add_invocation_action",
+          "input_model": "ProjectionExperienceViewAddInvocationActionInput",
+          "output_model": "ProjectionExperienceViewAddInvocationActionOutput"
+        },
+        {
+          "function_config_id": "d4f56077-d374-5349-b9f0-b52de9a83a6d",
+          "name": "bind_invocation_action_config",
+          "input_model": "ProjectionExperienceViewBindInvocationActionConfigInput",
+          "output_model": "ProjectionExperienceViewBindInvocationActionConfigOutput"
+        },
+        {
+          "function_config_id": "4913b901-d17a-58a9-9679-ef4fb5f667db",
+          "name": "create_instance",
+          "input_model": "ProjectionExperienceViewCreateInstanceInput",
+          "output_model": "ProjectionExperienceViewCreateInstanceOutput"
+        },
+        {
+          "function_config_id": "c5342c80-6024-5e18-9045-aa8e65fff44d",
+          "name": "create_via_projection_experience",
+          "input_model": "ProjectionExperienceViewCreateViaProjectionExperienceInput",
+          "output_model": "ProjectionExperienceViewCreateViaProjectionExperienceOutput"
+        },
+        {
+          "function_config_id": "3ff2010e-8800-5abf-8d7e-ec4a68f462e5",
+          "name": "set_state_provider",
+          "input_model": "ProjectionExperienceViewSetStateProviderInput",
+          "output_model": "ProjectionExperienceViewSetStateProviderOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "95fa2998-3dcd-56d2-a2ce-e1b63e651445",
+      "module": "aware_experience_ontology.projection.projection_experience_view_instance",
+      "name": "ProjectionExperienceViewInstance",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceViewInstance",
+      "functions": [
+        {
+          "function_config_id": "67044883-75d8-5656-a505-cc6e8e4bcd26",
+          "name": "build_via_projection_experience_view",
+          "input_model": "ProjectionExperienceViewInstanceBuildViaProjectionExperienceViewInput",
+          "output_model": "ProjectionExperienceViewInstanceBuildViaProjectionExperienceViewOutput"
+        },
+        {
+          "function_config_id": "66e29f6a-d43e-573f-a282-aaa949cd554c",
+          "name": "record_action_invocation",
+          "input_model": "ProjectionExperienceViewInstanceRecordActionInvocationInput",
+          "output_model": "ProjectionExperienceViewInstanceRecordActionInvocationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "349fd81c-0d4a-58d2-aee1-42f039ffd314",
+      "module": "aware_experience_ontology.projection.projection_experience_view_invocation_action",
+      "name": "ProjectionExperienceViewInvocationAction",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceViewInvocationAction",
+      "functions": [
+        {
+          "function_config_id": "a6945928-f96a-5070-b655-0beaca3f8151",
+          "name": "build",
+          "input_model": "ProjectionExperienceViewInvocationActionBuildInput",
+          "output_model": "ProjectionExperienceViewInvocationActionBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9e352b0a-8d4d-5369-b288-afdf1c6bebd1",
+      "module": "aware_experience_ontology.projection.projection_experience_view_invocation_action_config",
+      "name": "ProjectionExperienceViewInvocationActionConfig",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceViewInvocationActionConfig",
+      "functions": [
+        {
+          "function_config_id": "49910851-4d13-5bcb-8b2b-c6dc2c0d2b37",
+          "name": "build_via_projection_experience_view",
+          "input_model": "ProjectionExperienceViewInvocationActionConfigBuildViaProjectionExperienceViewInput",
+          "output_model": "ProjectionExperienceViewInvocationActionConfigBuildViaProjectionExperienceViewOutput"
+        },
+        {
+          "function_config_id": "2e515919-1611-5b0a-b45b-1fbb28cac154",
+          "name": "record_invocation",
+          "input_model": "ProjectionExperienceViewInvocationActionConfigRecordInvocationInput",
+          "output_model": "ProjectionExperienceViewInvocationActionConfigRecordInvocationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7ab1f768-8c62-521d-b183-8672396ebd01",
+      "module": "aware_experience_ontology.projection.projection_experience_view_state_provider",
+      "name": "ProjectionExperienceViewStateProvider",
+      "aware_class_ref": "aware_experience.projection.ProjectionExperienceViewStateProvider",
+      "functions": [
+        {
+          "function_config_id": "771480e2-0733-5d2b-a968-80468d144e02",
+          "name": "build_via_projection_experience_view",
+          "input_model": "ProjectionExperienceViewStateProviderBuildViaProjectionExperienceViewInput",
+          "output_model": "ProjectionExperienceViewStateProviderBuildViaProjectionExperienceViewOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fd9ca2cc-f343-59d8-8740-c442044c3a12",
+      "module": "aware_experience_ontology.provider.experience_provider",
+      "name": "ExperienceProvider",
+      "aware_class_ref": "aware_experience.provider.ExperienceProvider",
+      "functions": [
+        {
+          "function_config_id": "67ce3a06-efa4-5b2c-acf5-5b5fae8c9f3a",
+          "name": "bind_action",
+          "input_model": "ExperienceProviderBindActionInput",
+          "output_model": "ExperienceProviderBindActionOutput"
+        },
+        {
+          "function_config_id": "abfd3010-52c7-5436-8177-bcc05b84bd0e",
+          "name": "build_via_projection_experience",
+          "input_model": "ExperienceProviderBuildViaProjectionExperienceInput",
+          "output_model": "ExperienceProviderBuildViaProjectionExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d473973b-1659-5116-a213-f89cf1bf0edb",
+      "module": "aware_experience_ontology.provider.experience_provider_action_binding",
+      "name": "ExperienceProviderActionBinding",
+      "aware_class_ref": "aware_experience.provider.ExperienceProviderActionBinding",
+      "functions": [
+        {
+          "function_config_id": "7af42681-2930-501d-85f7-639c9a79bcf5",
+          "name": "build_via_experience_provider",
+          "input_model": "ExperienceProviderActionBindingBuildViaExperienceProviderInput",
+          "output_model": "ExperienceProviderActionBindingBuildViaExperienceProviderOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8dc45102-14c9-5c5e-b642-e63b2a740f23",
+      "module": "aware_experience_ontology.sensor.sensor",
+      "name": "Sensor",
+      "aware_class_ref": "aware_experience.sensor.Sensor",
+      "functions": [
+        {
+          "function_config_id": "61248b26-99ef-5aa8-9d65-86a28dc1ab48",
+          "name": "build_via_sensor_config",
+          "input_model": "SensorBuildViaSensorConfigInput",
+          "output_model": "SensorBuildViaSensorConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8a6bfb48-18e7-50fa-b4a9-7ff6897cbab6",
+      "module": "aware_experience_ontology.sensor.sensor_config",
+      "name": "SensorConfig",
+      "aware_class_ref": "aware_experience.sensor.SensorConfig",
+      "functions": [
+        {
+          "function_config_id": "190e8d33-bb02-539f-89fe-7a0b3e5d8cf7",
+          "name": "add_observed_state_node",
+          "input_model": "SensorConfigAddObservedStateNodeInput",
+          "output_model": "SensorConfigAddObservedStateNodeOutput"
+        },
+        {
+          "function_config_id": "62032b85-1ba7-593e-a06b-e190e48bbbec",
+          "name": "bind_invocation_action_config",
+          "input_model": "SensorConfigBindInvocationActionConfigInput",
+          "output_model": "SensorConfigBindInvocationActionConfigOutput"
+        },
+        {
+          "function_config_id": "d3d78a01-ab74-5459-9cb4-02766d7e05a1",
+          "name": "build_via_connector_config",
+          "input_model": "SensorConfigBuildViaConnectorConfigInput",
+          "output_model": "SensorConfigBuildViaConnectorConfigOutput"
+        },
+        {
+          "function_config_id": "a5ef11e0-13f6-51b2-acfd-9d5da79a9aea",
+          "name": "create_sensor",
+          "input_model": "SensorConfigCreateSensorInput",
+          "output_model": "SensorConfigCreateSensorOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "70e03bdb-9dad-51e5-8d2f-1d2935ee180b",
+      "module": "aware_experience_ontology.sensor.sensor_config_state_node",
+      "name": "SensorConfigStateNode",
+      "aware_class_ref": "aware_experience.sensor.SensorConfigStateNode",
+      "functions": [
+        {
+          "function_config_id": "62c70a0f-69d1-5d5c-992b-97183c8d0023",
+          "name": "build_via_sensor_config",
+          "input_model": "SensorConfigStateNodeBuildViaSensorConfigInput",
+          "output_model": "SensorConfigStateNodeBuildViaSensorConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "95987a77-fdc9-5eeb-9b21-9c2345f6f90a",
+      "module": "aware_experience_ontology.sensor.sensor_invocation_action",
+      "name": "SensorInvocationAction",
+      "aware_class_ref": "aware_experience.sensor.SensorInvocationAction",
+      "functions": [
+        {
+          "function_config_id": "6b3ff057-7666-5635-a5e3-a55ab3e80747",
+          "name": "build",
+          "input_model": "SensorInvocationActionBuildInput",
+          "output_model": "SensorInvocationActionBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c06bce47-f719-500c-b6c7-e98a4e3d01f5",
+      "module": "aware_experience_ontology.sensor.sensor_invocation_action_config",
+      "name": "SensorInvocationActionConfig",
+      "aware_class_ref": "aware_experience.sensor.SensorInvocationActionConfig",
+      "functions": [
+        {
+          "function_config_id": "8229d735-d7cb-554b-a896-f4e097561538",
+          "name": "build_via_sensor_config",
+          "input_model": "SensorInvocationActionConfigBuildViaSensorConfigInput",
+          "output_model": "SensorInvocationActionConfigBuildViaSensorConfigOutput"
+        },
+        {
+          "function_config_id": "c57b945c-eb6d-561b-bda5-ccf06874f964",
+          "name": "record_invocation",
+          "input_model": "SensorInvocationActionConfigRecordInvocationInput",
+          "output_model": "SensorInvocationActionConfigRecordInvocationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4b74bddb-922d-5532-b60c-4bd7bf87ad7b",
+      "module": "aware_experience_ontology.session.experience_session",
+      "name": "ExperienceSession",
+      "aware_class_ref": "aware_experience.session.ExperienceSession",
+      "functions": [
+        {
+          "function_config_id": "8d62a1e8-4489-5b9f-ad7a-39713a780802",
+          "name": "build_via_environment_experience",
+          "input_model": "ExperienceSessionBuildViaEnvironmentExperienceInput",
+          "output_model": "ExperienceSessionBuildViaEnvironmentExperienceOutput"
+        },
+        {
+          "function_config_id": "a92231d9-493f-5396-9ef2-d7fbf14bce27",
+          "name": "mount_profile",
+          "input_model": "ExperienceSessionMountProfileInput",
+          "output_model": "ExperienceSessionMountProfileOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9e8812e6-d746-55ab-bdfa-93433db344ca",
+      "module": "aware_experience_ontology.session.experience_session_profile",
+      "name": "ExperienceSessionProfile",
+      "aware_class_ref": "aware_experience.session.ExperienceSessionProfile",
+      "functions": [
+        {
+          "function_config_id": "791d9bcd-c530-5ede-b937-96f0618c2036",
+          "name": "build_via_experience_session",
+          "input_model": "ExperienceSessionProfileBuildViaExperienceSessionInput",
+          "output_model": "ExperienceSessionProfileBuildViaExperienceSessionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "aac904d0-be5d-5972-b931-34cb30a79fbd",
+      "module": "aware_experience_ontology.thread.thread_program",
+      "name": "ThreadProgram",
+      "aware_class_ref": "aware_experience.thread.ThreadProgram",
+      "functions": [
+        {
+          "function_config_id": "79ce9795-3b71-5160-ab44-ce90e4dd68ce",
+          "name": "create",
+          "input_model": "ThreadProgramCreateInput",
+          "output_model": "ThreadProgramCreateOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "144c3f90-9b30-591a-9033-02f5d51e2eaa",
+      "module": "aware_experience_ontology.turn.turn",
+      "name": "Turn",
+      "aware_class_ref": "aware_experience.turn.Turn",
+      "functions": [
+        {
+          "function_config_id": "fadf8572-4b1f-5ac9-aadd-e3857bbd8d37",
+          "name": "add_feedback",
+          "input_model": "TurnAddFeedbackInput",
+          "output_model": "TurnAddFeedbackOutput"
+        },
+        {
+          "function_config_id": "3981d2ff-4eae-5dd6-b6e9-894793099884",
+          "name": "build",
+          "input_model": "TurnBuildInput",
+          "output_model": "TurnBuildOutput"
+        },
+        {
+          "function_config_id": "9ea42633-3c10-5472-abfb-8a32aa0a297e",
+          "name": "claim_running",
+          "input_model": "TurnClaimRunningInput",
+          "output_model": "TurnClaimRunningOutput"
+        },
+        {
+          "function_config_id": "fe62ce15-6c24-58dd-ac48-02b611fe96a1",
+          "name": "finish_terminal",
+          "input_model": "TurnFinishTerminalInput",
+          "output_model": "TurnFinishTerminalOutput"
+        },
+        {
+          "function_config_id": "1e52237e-3e1f-5a8c-81aa-07052d943e62",
+          "name": "mark_retry_pending",
+          "input_model": "TurnMarkRetryPendingInput",
+          "output_model": "TurnMarkRetryPendingOutput"
+        },
+        {
+          "function_config_id": "88538468-c4af-539c-907f-c1353c69dcf4",
+          "name": "set_lane_resolution",
+          "input_model": "TurnSetLaneResolutionInput",
+          "output_model": "TurnSetLaneResolutionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "50f598f2-2f51-535e-9831-eba1c9e0f0ee",
+      "module": "aware_experience_ontology.turn.turn_feedback",
+      "name": "TurnFeedback",
+      "aware_class_ref": "aware_experience.turn.TurnFeedback",
+      "functions": [
+        {
+          "function_config_id": "29215db7-1c5a-5932-af91-cba2b7d19ee1",
+          "name": "create_via_turn",
+          "input_model": "TurnFeedbackCreateViaTurnInput",
+          "output_model": "TurnFeedbackCreateViaTurnOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "fadb6ad6-4e89-5d02-b05c-e039b7f9a981",
+      "module": "aware_experience_ontology.invocation.experience_invocation_action_target_kind",
+      "name": "ExperienceInvocationActionTargetKind"
+    },
+    {
+      "enum_config_id": "97e0238a-64ae-5b99-9d37-1eb14cc77c06",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_enums",
+      "name": "ProgramImplInstructionType"
+    },
+    {
+      "enum_config_id": "fa8b4beb-1e94-51e8-8f03-c1bd7094d09a",
+      "module": "aware_experience_ontology.program.impl.program_impl_instruction_enums",
+      "name": "ProgramImplInvokeTargetKind"
+    },
+    {
+      "enum_config_id": "fbc23d26-ce15-50f0-bb8a-1298bd5e1322",
+      "module": "aware_experience_ontology.program.program_enums",
+      "name": "ProgramAttributeType"
+    },
+    {
+      "enum_config_id": "13af854f-2096-5c4b-b7c0-19e733e6a741",
+      "module": "aware_experience_ontology.program.program_enums",
+      "name": "ProgramBranchBindingMode"
+    },
+    {
+      "enum_config_id": "61b68d34-5aaa-5971-8b25-dc4362ffc628",
+      "module": "aware_experience_ontology.program.program_enums",
+      "name": "ProgramRunStatus"
+    },
+    {
+      "enum_config_id": "fde94e0c-d02f-55d3-9790-06bf3b584ccb",
+      "module": "aware_experience_ontology.program.program_enums",
+      "name": "ProgramSlotOnBind"
+    },
+    {
+      "enum_config_id": "081ff49a-1afa-5091-b368-22fa499bc3fe",
+      "module": "aware_experience_ontology.program.program_enums",
+      "name": "ProgramTurnDecisionReason"
+    },
+    {
+      "enum_config_id": "c8db8c09-fb97-54a9-bda0-b0f1eb9f65d9",
+      "module": "aware_experience_ontology.program.program_enums",
+      "name": "ProgramTurnTransition"
+    },
+    {
+      "enum_config_id": "d19e1b40-72ce-5ebe-bea4-9d9ac8ffcfa9",
+      "module": "aware_experience_ontology.session.experience_session_enums",
+      "name": "ExperienceSessionState"
+    },
+    {
+      "enum_config_id": "c971929d-6769-5760-a5aa-80d5d10c023d",
+      "module": "aware_experience_ontology.turn.turn_enums",
+      "name": "TurnExecutionState"
+    },
+    {
+      "enum_config_id": "96fef74d-648b-5c47-af73-306e4ac4c3d6",
+      "module": "aware_experience_ontology.turn.turn_enums",
+      "name": "TurnExecutionTerminalStatus"
+    }
+  ]
+}

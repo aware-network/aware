@@ -1,0 +1,27 @@
+enum SubscriptionFilterMode {
+    all_instances
+    owned_instances
+    role_instances
+    specific_instances
+    tagged_instances
+}
+
+enum SubscriptionAddressingPolicy {
+    any
+    routed_only
+    unrouted_only
+}
+
+enum SubscriptionStatus {
+    active
+    disabled
+    expired
+    paused
+}
+
+enum SubscriptionActivationStatus {
+    ready
+    blocked_by_route
+    done
+    skipped
+}

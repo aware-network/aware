@@ -1,0 +1,8 @@
+class Primitive {
+    // Relationships
+    primitive_changes PrimitiveChange[]
+    primitive_config PrimitiveConfig key
+
+    // Attributes
+    value Json
+}

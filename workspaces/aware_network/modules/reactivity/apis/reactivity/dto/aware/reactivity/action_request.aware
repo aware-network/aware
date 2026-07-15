@@ -1,0 +1,37 @@
+/// Canonical DTOs for Reactivity-owned action execution dispatch.
+///
+/// Reactivity owns the semantic action request/result lifecycle. Caller
+/// attribution lives above this rail in request context or provenance receipts.
+
+class ReactivityActionExecutionRequest {
+    action_execution_id UUID?
+    event_id UUID
+    event_type String
+    source String
+    branch_id UUID
+    projection_hash String
+    commit_id UUID
+    event_config_condition_config_id UUID?
+    action_binding_id UUID?
+    action_config_id UUID?
+    action_type String?
+    root_object_id UUID?
+    object_instance_graph_id UUID?
+    focus_scope_id UUID?
+    focus_id UUID?
+    view_id UUID?
+    interface_id UUID?
+    window_id UUID?
+    window_layout_id UUID?
+    window_section_id UUID?
+    visible_window_section_ids UUID[] = []
+    graph_hash_post String?
+}
+
+class ReactivityActionExecutionResult {
+    action_execution_id UUID?
+    event_id UUID
+    handled Bool = true
+    info String?
+    execution_request_id UUID?
+}

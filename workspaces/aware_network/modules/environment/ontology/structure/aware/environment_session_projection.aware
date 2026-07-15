@@ -1,0 +1,65 @@
+/// EnvironmentSession projection.
+///
+/// Contract:
+/// - EnvironmentSession is the Environment-owned wrapper over Identity Session.
+/// - Optional EnvironmentSessionConfig is a portal to EnvironmentConfig-owned
+///   defaults/provenance.
+/// - Actor membership and ActorRole evidence stay on Identity Session.
+/// - Navigation contexts are session-owned shared OS pointers and are exposed
+///   as portals to their own root projection.
+/// - Session thread and attention-session rows are Environment-owned
+///   resolution portals; they do not inline Thread or Attention internals.
+projection EnvironmentSession {
+    root environment.EnvironmentSession
+
+    environment.EnvironmentSession::session_config EnvironmentSessionConfig
+    environment.EnvironmentSession::identity_session aware_identity.Session
+    environment.EnvironmentSession::navigation_contexts EnvironmentNavigationContext
+    environment.EnvironmentSession::session_threads EnvironmentSessionThread
+    environment.EnvironmentSession::attention_sessions EnvironmentSessionAttentionSession
+
+    observable session {
+        """
+        Environment session wrapper with Identity Session portal, shared
+        navigation context portals, and session-local thread/attention
+        resolution portals.
+        """
+    }
+}
+
+/// EnvironmentSessionThread projection.
+///
+/// Contract:
+/// - Root is the Environment-owned session-local Thread/Layout resolution row.
+/// - Thread is the portal target for both the Thread and its ThreadLayout
+///   member; there is no standalone ThreadLayout projection.
+projection EnvironmentSessionThread {
+    root environment.EnvironmentSessionThread
+
+    environment.EnvironmentSessionThread::thread Thread
+    environment.EnvironmentSessionThread::thread_layout Thread
+    environment.EnvironmentSessionThread::attention_session EnvironmentSessionAttentionSession
+
+    observable session_thread {
+        """
+        Session-local thread layout resolution row.
+        """
+    }
+}
+
+/// EnvironmentSessionAttentionSession projection.
+///
+/// Contract:
+/// - Root is the Environment-owned portal row to an AttentionSession.
+/// - Attention owns AttentionSession layout/section/focus internals.
+projection EnvironmentSessionAttentionSession {
+    root environment.EnvironmentSessionAttentionSession
+
+    environment.EnvironmentSessionAttentionSession::attention_session aware_attention.AttentionSession
+
+    observable attention_session {
+        """
+        EnvironmentSession to AttentionSession portal row.
+        """
+    }
+}

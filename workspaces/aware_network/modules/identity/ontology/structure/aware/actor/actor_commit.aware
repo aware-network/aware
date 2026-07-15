@@ -1,0 +1,63 @@
+/// Identity-owned personal-history binding from Actor to a durable lane commit.
+///
+/// Contract:
+/// - Actor owns the personal-history row.
+/// - Meta remains the commit authority through ObjectInstanceGraphCommit.
+/// - The idempotency coordinate is `(actor_id, domain_branch_id, domain_projection_hash, domain_commit_id)`.
+/// - `object_instance_graph_commit` is mandatory provenance for every ActorCommit.
+class ActorCommit {
+    // Relationships
+    object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit
+
+    // Attributes
+    domain_branch_id UUID key
+    domain_projection_hash String key
+    domain_commit_id UUID key
+    environment_id UUID?
+    process_id UUID?
+    thread_id UUID?
+    receipt_actor_id UUID?
+    created_at_unix_ms Int?
+    operation_label String?
+    call_target String?
+    function_id UUID?
+    object_id UUID?
+    class_instance_identity_id UUID?
+    graph_hash_post String?
+    object_instance_graph_id UUID?
+    root_object_id UUID?
+    head_version Int?
+    source String = "environment_lane_commit_receipt"
+
+    fn create construct(
+        domain_branch_id UUID key,
+        domain_projection_hash String key,
+        domain_commit_id UUID key,
+        object_instance_graph_commit_id UUID,
+        environment_id UUID? = null,
+        process_id UUID? = null,
+        thread_id UUID? = null,
+        receipt_actor_id UUID? = null,
+        created_at_unix_ms Int? = null,
+        operation_label String? = null,
+        call_target String? = null,
+        function_id UUID? = null,
+        object_id UUID? = null,
+        class_instance_identity_id UUID? = null,
+        graph_hash_post String? = null,
+        object_instance_graph_id UUID? = null,
+        root_object_id UUID? = null,
+        head_version Int? = null,
+        source String = "environment_lane_commit_receipt"
+    ) -> ActorCommit {
+        """
+        Create or ensure one ActorCommit personal-history binding.
+
+        This is the post-commit reaction record for Environment lane commit fanout.
+        It does not rewrite History Commit authorship; it binds the actor whose
+        personal history should include the durable commit.
+        """
+    }
+}
+
+ann actor.ActorCommit::object_instance_graph_commit load eager

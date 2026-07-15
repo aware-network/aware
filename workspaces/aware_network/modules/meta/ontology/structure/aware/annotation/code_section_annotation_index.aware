@@ -1,0 +1,28 @@
+/// Ontology-level view of an `index` ANN.
+///
+/// Purpose:
+/// - Declare compiler-owned SQL indexes as part of the canonical OCG.
+/// - Keep DB indexes aligned with commit-keyed migrations (`AWARE_DB_BOOT_POLICY=migrate`).
+///
+/// Canonical surface (v0):
+/// - Single-column: `ann schema.Class::member index`
+/// - Composite:     `ann schema.Class index member1 member2 ...`
+///
+/// Notes:
+/// - `member_names` are canonical class members (attributes / relationship pointers).
+/// - SQL lowering determines the physical columns:
+///   - primitives/enums -> column name
+///   - relationship pointers -> FK column (`<member>_id`)
+/// - Collections/JSON/expression indexes are out of scope for v0.
+class CodeSectionAnnotationIndex {
+    // Relationships
+    code_section_annotation aware_code.annotation.CodeSectionAnnotation?
+
+    /// Location within the canonical graph
+    fqn_prefix String key
+    namespace String key
+    class_name String key
+
+    /// Canonical member names forming the index key (order matters).
+    member_names String[]
+}

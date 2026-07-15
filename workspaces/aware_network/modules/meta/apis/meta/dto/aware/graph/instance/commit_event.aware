@@ -1,0 +1,75 @@
+/// Canonical Meta commit fan-out DTOs.
+///
+/// These payloads are API truth for remote-safe Meta commit subscribers.
+/// They do not grant graph mutation authority to subscribers: services must
+/// re-enter Meta APIs for follow-up graph mutations.
+
+class MetaCommitActionMetadata {
+    call_target graph.instance.MetaGraphFunctionCallTarget?
+    function_id UUID?
+    operation_label String?
+    object_id UUID?
+    source_class_instance_identity_id UUID?
+}
+
+class MetaRequiredReactionReceipt {
+    reaction_key String
+    status String
+    commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    object_instance_graph_identity_id UUID?
+    graph_hash_post String?
+    error String?
+    metadata JsonObject = {}
+}
+
+class MetaCommitArtifactRef {
+    artifact_kind String
+    artifact_ref String
+    artifact_hash String?
+    content_type String?
+    metadata JsonObject = {}
+}
+
+class MetaCommitEventEnvelope {
+    event_id UUID
+    event_family String = "meta.oig_commit"
+    schema_version Int = 1
+    emitted_at_unix_ms Int
+    meta_authority_id String
+    actor_id UUID
+    domain_branch_id UUID
+    domain_projection_hash String
+    domain_commit_id UUID
+    object_instance_graph_commit_id UUID
+    object_instance_graph_id UUID
+    object_instance_graph_identity_id UUID
+    object_instance_graph_branch_id UUID
+    graph_hash_pre String?
+    graph_hash_post String
+    root_object_id UUID?
+    head_version Int?
+    commit_action graph.instance.MetaCommitActionMetadata?
+    required_meta_reactions graph.instance.MetaRequiredReactionReceipt[] = []
+    artifact_refs graph.instance.MetaCommitArtifactRef[] = []
+    metadata JsonObject = {}
+}
+
+class MetaCommitSubscriptionRequest {
+    subscriber_id String
+    event_families String[] = []
+    branch_filters UUID[] = []
+    projection_hash_filters String[] = []
+    object_instance_graph_identity_filters UUID[] = []
+    package_filters String[] = []
+    include_artifact_refs Bool = true
+    resume_after_event_id UUID?
+}
+
+class MetaCommitSubscriptionResponse {
+    subscriber_id String
+    accepted Bool = true
+    resume_after_event_id UUID?
+    info String?
+    error String?
+}

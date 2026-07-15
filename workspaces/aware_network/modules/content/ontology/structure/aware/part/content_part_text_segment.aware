@@ -1,0 +1,97 @@
+class ContentPartTextSegment {
+    // Relationships
+    content_part_text_segment_translations ContentPartTextSegmentTranslation[]
+    parent ContentPartTextSegment?
+    style ContentPartTextStyle? unique
+
+    // Attributes
+    key String key = "default"
+    byte_end Int?
+    byte_start Int?
+
+    fn upsert construct(
+        segment_id UUID? = null,
+        content_part_text_id UUID? = null,
+        key String key = "default",
+        byte_start Int? = null,
+        byte_end Int? = null,
+        style_id UUID? = null,
+        parent_id UUID? = null
+    ) -> ContentPartTextSegment {
+        """
+        Creates a text segment with a deterministic id.
+
+        Contract:
+        - `content_part_text_id` is required for new segments.
+        - `byte_start`/`byte_end` are UTF-8 byte offsets into the target text's `inline_text`.
+        - `style_id` references a `ContentPartTextStyle` (caller may create-or-get styles separately).
+        """
+        construct ContentPartTextSegment(
+            key = key,
+            byte_start = byte_start,
+            byte_end = byte_end,
+        )
+    }
+
+    fn update_segment(
+        content_part_text_id UUID,
+        byte_start Int? = null,
+        byte_end Int? = null,
+        style_id UUID? = null,
+        parent_id UUID? = null,
+    ) -> {
+        """
+        Updates an existing segment (v1).
+
+        Contract:
+        - `content_part_text_id` remains required.
+        - `byte_start`/`byte_end` are UTF-8 byte offsets into the attached text's `inline_text`.
+        """
+        set byte_start = byte_start
+        set byte_end = byte_end
+    }
+
+    fn delete_segment() -> {
+        """
+        Deletes this segment explicitly from the lane.
+        """
+    }
+
+    fn add_translation(
+        language String key,
+        text String,
+    ) -> ContentPartTextSegmentTranslation {
+        """
+        Adds a translated value for this segment.
+        """
+        let translation = construct content_part_text_segment_translations.create_translation(
+            language = language,
+            text = text,
+        )
+    }
+
+    fn apply_style(
+        font_family String? = null,
+        font_size Int? = null,
+        bold Bool? = false,
+        italic Bool? = false,
+        underline Bool? = false,
+        color String? = null,
+        background_color String? = null,
+        block_semantic_type String? = null
+    ) -> ContentPartTextStyle {
+        """
+        Creates or reuses a style for this segment.
+        """
+        let created = construct style.create_or_get_style(
+            font_family = font_family,
+            font_size = font_size,
+            bold = bold,
+            italic = italic,
+            underline = underline,
+            color = color,
+            background_color = background_color,
+            block_semantic_type = block_semantic_type,
+        )
+    }
+}

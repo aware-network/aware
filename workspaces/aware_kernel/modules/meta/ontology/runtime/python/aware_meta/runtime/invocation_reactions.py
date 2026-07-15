@@ -8,6 +8,7 @@ from aware_meta.runtime.commit.required_reactions import (
     RuntimeCommitReactionReceipt,
     run_required_runtime_commit_reactions,
 )
+from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
 from aware_meta.runtime.invocation_commit_actions import MetaInvocationCommitAction
 from aware_meta_ontology.graph.instance.object_instance_graph_commit import (
     ObjectInstanceGraphCommit,
@@ -37,25 +38,56 @@ async def run_invocation_required_commit_reactions(
     perf_ms: dict[str, int] | None = None,
     runner: InvocationRequiredReactionRunner = run_required_runtime_commit_reactions,
 ) -> tuple[RuntimeCommitReactionReceipt, ...]:
-    source_identity_id = source_class_instance_identity_id
-    if source_identity_id is None and action is not None:
-        source_identity_id = action.class_instance_identity_id
+    metadata = {
+        "domain_branch_id": str(domain_branch_id),
+        "domain_projection_hash": domain_projection_hash,
+        "domain_commit_id": str(domain_commit.id),
+        "operation_label": action.operation_label if action is not None else None,
+    }
+    with commit_perf_span(
+        phase="runtime.invoke_function.required_commit_reactions.resolve_source_identity",
+        category="meta.runtime.invoke_function",
+        metadata=metadata,
+    ):
+        source_identity_id = source_class_instance_identity_id
+        if source_identity_id is None and action is not None:
+            source_identity_id = action.class_instance_identity_id
 
-    token = set_mutation_owner(None)
+    with commit_perf_span(
+        phase="runtime.invoke_function.required_commit_reactions.set_mutation_owner",
+        category="meta.runtime.invoke_function",
+        metadata=metadata,
+    ):
+        token = set_mutation_owner(None)
     try:
-        return await runner(
-            RuntimeCommitReactionContext(
-                index=index,
-                actor_id=actor_id,
-                domain_branch_id=domain_branch_id,
-                domain_projection_hash=domain_projection_hash,
-                domain_commit=domain_commit,
-                source_class_instance_identity_id=source_identity_id,
-                perf_ms=perf_ms,
+        with commit_perf_span(
+            phase="runtime.invoke_function.required_commit_reactions.runner",
+            category="meta.runtime.invoke_function",
+            metadata={
+                **metadata,
+                "source_class_instance_identity_id": (
+                    str(source_identity_id) if source_identity_id is not None else None
+                ),
+            },
+        ):
+            return await runner(
+                RuntimeCommitReactionContext(
+                    index=index,
+                    actor_id=actor_id,
+                    domain_branch_id=domain_branch_id,
+                    domain_projection_hash=domain_projection_hash,
+                    domain_commit=domain_commit,
+                    source_class_instance_identity_id=source_identity_id,
+                    perf_ms=perf_ms,
+                )
             )
-        )
     finally:
-        reset_mutation_owner(token)
+        with commit_perf_span(
+            phase="runtime.invoke_function.required_commit_reactions.reset_mutation_owner",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            reset_mutation_owner(token)
 
 
 __all__ = [

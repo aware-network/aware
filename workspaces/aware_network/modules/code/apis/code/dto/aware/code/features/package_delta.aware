@@ -1,0 +1,104 @@
+/// Raw Code delta operation kind.
+enum CodePackageDeltaKind {
+    create
+    update
+    delete
+}
+
+/// How a raw CodePackageDelta entered the Code API boundary.
+enum CodePackageDeltaAuthorityKind {
+    local_fs_view
+    remote_workspace_view
+    code_package_delta
+    semantic_materialization
+    tool_materialization
+}
+
+/// Generic producer pointer for CodePackageDelta output.
+class CodePackageDeltaProducerRef : inline_value {
+    provider_key String
+    producer_key String
+    producer_kind String?
+    provider_payload JsonObject?
+}
+
+/// One producer emission for CodePackageDelta output.
+class CodePackageDeltaProduction : inline_value {
+    producer code.CodePackageDeltaProducerRef
+    input_code_package_id UUID?
+    input_object_instance_graph_commit_id UUID?
+    input_digest String?
+    output_digest String?
+    emission_payload JsonObject?
+}
+
+/// One package-relative code path delta.
+class CodePackageDeltaPath : inline_value {
+    relative_path String
+    kind code.CodePackageDeltaKind
+    content_text String?
+    content_plan code.CodeContentPlan?
+    before_hash String?
+    after_hash String?
+    size_bytes Int?
+    language code.CodeLanguage?
+    is_structural Bool?
+    path_role code.CodePackagePathRole = authored_source
+    production code.CodePackageDeltaProduction?
+    metadata JsonObject?
+}
+
+/// API-owned CodePackage delta DTO for local and remote semantic operations.
+class CodePackageDelta : inline_value {
+    package_name String?
+    package_root String?
+    sources_root String?
+    manifest_relative_path String?
+    authority code.CodePackageDeltaAuthorityKind?
+    authority_kind String?
+    source_revision_id String?
+    production code.CodePackageDeltaProduction?
+    paths code.CodePackageDeltaPath[] = []
+    warnings String[] = []
+    metadata JsonObject?
+}
+
+/// Normalize raw package delta input into the public CodePackageDelta DTO.
+class NormalizeCodePackageDeltaRequest augment code.CodeServiceRequest {
+    operation String = "normalize_package_delta"
+    delta code.CodePackageDelta
+}
+
+class NormalizeCodePackageDeltaResponse augment code.CodeServiceResponse {
+    operation String = "normalize_package_delta"
+    delta code.CodePackageDelta?
+}
+
+/// Fingerprint a CodePackageDelta for cache/status/materialization receipts.
+class FingerprintCodePackageDeltaRequest augment code.CodeServiceRequest {
+    operation String = "fingerprint_package_delta"
+    delta code.CodePackageDelta
+    algorithm String = "sha256"
+}
+
+class FingerprintCodePackageDeltaResponse augment code.CodeServiceResponse {
+    operation String = "fingerprint_package_delta"
+    fingerprint String?
+    path_count Int = 0
+}
+
+/// Result of applying a CodePackageDelta through the CodePackage mutation boundary.
+class CodePackageDeltaApplyResult : inline_value {
+    applied_path_count Int = 0
+    created_path_count Int = 0
+    updated_path_count Int = 0
+    deleted_path_count Int = 0
+    deleted_missing_path_count Int = 0
+    skipped_path_count Int = 0
+}
+
+ann code.NormalizeCodePackageDeltaRequest::operation discriminate tag "normalize_package_delta"
+ann code.FingerprintCodePackageDeltaRequest::operation discriminate tag "fingerprint_package_delta"
+
+ann code.NormalizeCodePackageDeltaResponse::operation discriminate tag "normalize_package_delta"
+ann code.FingerprintCodePackageDeltaResponse::operation discriminate tag "fingerprint_package_delta"

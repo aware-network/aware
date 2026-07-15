@@ -1,0 +1,29 @@
+# Ignore compiled Python files
+*.pyc
+**/__pycache__/
+
+# Ignore distribution/build files
+dist/
+build/
+*.egg-info/
+
+# Ignore virtual environment
+venv/
+env/
+*.env/
+.env
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.iml
+*.ipynb_checkpoints/
+
+# Ignore logs
+**/logs/*
+
+# Ignore test cache
+**/.pytest_cache/*
+
+# Ignore poetry files
+**/poetry.lock

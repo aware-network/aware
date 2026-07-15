@@ -19,6 +19,11 @@ from aware_meta.attribute.instance.value.builder import build_attribute_value_tr
 from aware_meta.graph.instance.hash import compute_hash
 from aware_meta.graph.instance.index import build_index
 from aware_meta.graph.config.stable_ids import stable_attribute_id
+from aware_meta.graph.instance.commit.perf_trace import (
+    CommitPerfTraceRecorder,
+    active_commit_perf_trace,
+    summarize_commit_perf_events,
+)
 from aware_meta.primitive.config.builder import build_primitive_config
 from aware_meta.runtime import (
     build_meta_graph_generated_handler_executor,
@@ -35,6 +40,7 @@ from aware_meta.runtime import (
     MetaGraphExecutionSessionDelta,
     MetaGraphExecutionSessionDeltaBuilder,
     MetaGraphExecutionSessionDeltaError,
+    MetaGraphEmptyLaneBootstrap,
     MetaGraphFunctionImplementationDescriptor,
     MetaGraphFunctionImplOwnership,
     MetaGraphAwareFunctionImplExecutionError,
@@ -270,6 +276,7 @@ def _meta_graph_commit_index(
         id=class_config_id,
         name=class_name,
         class_fqn=f"aware.tests.{class_name}",
+        class_config_attribute_configs=[],
         class_config_function_configs=[
             SimpleNamespace(
                 function_config_id=function_config.id,
@@ -280,15 +287,21 @@ def _meta_graph_commit_index(
     )
     return SimpleNamespace(
         ocg=SimpleNamespace(
+            id=uuid4(),
             fqn_prefix="aware.tests",
             name="Aware Tests",
             object_config_graph_identity=None,
             object_config_graph_nodes=[
                 SimpleNamespace(
+                    type=ObjectConfigGraphNodeType.class_,
+                    class_config=class_config,
+                ),
+                SimpleNamespace(
                     type=ObjectConfigGraphNodeType.function,
                     function_config=function_config,
-                )
+                ),
             ],
+            object_config_graph_relationships=[],
         ),
         class_configs_by_id={class_config_id: class_config},
         opg_by_id={opg_id: opg},
@@ -728,8 +741,12 @@ async def test_meta_pre_state_materializer_phase_reads_provider_and_validates_pl
         )
     )
     phase = MetaGraphPreStateMaterializerPhase(provider=provider)
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
+    )
 
-    pre_state = await phase.materialize_pre_state(handler_request)
+    with active_commit_perf_trace(recorder):
+        pre_state = await phase.materialize_pre_state(handler_request)
 
     assert provider.requests == [handler_request]
     assert pre_state.execution_plan is execution_plan
@@ -738,6 +755,28 @@ async def test_meta_pre_state_materializer_phase_reads_provider_and_validates_pl
     assert pre_state.target_object_id == target_object_id
     assert pre_state.root_object_id == root_object_id
     assert pre_state.root_class_instance_identity_id == root_class_instance_identity_id
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert set(trace_summary) >= {
+        "handler_execution.pre_state.read_provider",
+        "handler_execution.pre_state.build_pre_state",
+        "handler_execution.pre_state.builder.resolve_index",
+        "handler_execution.pre_state.builder.validate_oig_identity",
+        "handler_execution.pre_state.builder.validate_graph_hash",
+        "handler_execution.pre_state.builder.validate_head",
+        "handler_execution.pre_state.builder.resolve_target",
+        "handler_execution.pre_state.builder.assemble_result",
+    }
+    assert trace_summary["handler_execution.pre_state.read_provider"]["count"] == 1
+    event_metadata = {
+        str(event.get("phase")): event.get("metadata")
+        for event in recorder.snapshot_json()
+    }
+    build_metadata = cast(
+        dict[str, object],
+        event_metadata["handler_execution.pre_state.build_pre_state"],
+    )
+    assert build_metadata["operation_label"] == "Thread.mutate"
+    assert build_metadata["target_object_id"] == str(target_object_id)
 
 
 def test_meta_pre_state_builder_rejects_hash_mismatch() -> None:
@@ -769,8 +808,12 @@ async def test_meta_oig_materializer_pre_state_provider_uses_execution_plan() ->
     )
     materializer = _RecordingOigMaterializer(before_oig=before_oig)
     provider = MetaGraphOigMaterializerPreStateProvider(materializer=materializer)
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
+    )
 
-    snapshot = await provider.read_pre_state(handler_request)
+    with active_commit_perf_trace(recorder):
+        snapshot = await provider.read_pre_state(handler_request)
 
     call = materializer.calls[0]
     plan = handler_request.execution_plan
@@ -785,6 +828,58 @@ async def test_meta_oig_materializer_pre_state_provider_uses_execution_plan() ->
     assert call.oig_id == lane_scope.object_instance_graph_id
     assert call.attribute_configs_by_id is plan.index.attribute_configs_by_id
     assert call.class_configs_by_id is plan.index.class_configs_by_id
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert set(trace_summary) >= {
+        "handler_execution.pre_state.provider.materializer_get",
+        "handler_execution.pre_state.provider.build_index",
+    }
+    assert (
+        trace_summary["handler_execution.pre_state.provider.materializer_get"]["count"]
+        == 1
+    )
+
+
+@pytest.mark.asyncio
+async def test_meta_oig_materializer_pre_state_provider_treats_head_without_commit_as_empty_lane() -> (
+    None
+):
+    handler_request = _meta_handler_execution_request(is_constructor=True)
+    if not hasattr(
+        handler_request.execution_plan.object_projection_graph, "description"
+    ):
+        handler_request.execution_plan.object_projection_graph.description = ""
+    root_object_id = uuid4()
+    before_oig = ObjectInstanceGraph.model_construct(
+        id=handler_request.staged_call.lane_scope.object_instance_graph_id,
+        hash="sha256:test:unused",
+    )
+    materializer = _RecordingOigMaterializer(
+        before_oig=before_oig,
+        head={
+            "projection_hash": (
+                handler_request.staged_call.lane_scope.domain_projection_hash
+            ),
+        },
+    )
+    bootstrap_resolver = _StaticEmptyLaneBootstrapResolver(
+        root_object_id=root_object_id,
+    )
+    provider = MetaGraphOigMaterializerPreStateProvider(
+        materializer=materializer,
+        empty_lane_bootstrap_resolver=bootstrap_resolver,
+    )
+
+    snapshot = await provider.read_pre_state(handler_request)
+
+    assert materializer.calls == []
+    assert len(materializer.commits.head_calls) == 1
+    assert bootstrap_resolver.requests == [handler_request]
+    assert snapshot.head_commit_id is None
+    assert snapshot.root_object_id == root_object_id
+    assert (
+        snapshot.before_oig.id
+        == handler_request.staged_call.lane_scope.object_instance_graph_id
+    )
 
 
 @pytest.mark.asyncio
@@ -2664,7 +2759,7 @@ async def test_meta_generated_language_handler_runner_resolves_descriptor() -> N
         ]
     ] = []
 
-    def generated_handler(
+    async def generated_handler(
         request: MetaGraphHandlerExecutionRequest,
         pre_state_arg: MetaGraphPreState,
         positional: JsonArray,
@@ -2684,12 +2779,16 @@ async def test_meta_generated_language_handler_runner_resolves_descriptor() -> N
     handlers.clear()
     runner = MetaGraphGeneratedLanguageHandlerRunner(handler_resolver=registry)
     phase = MetaGraphImplementationDispatcherPhase(language_handler_runner=runner)
-
-    dispatch_result = await phase.dispatch_implementation(
-        handler_request,
-        pre_state,
-        bound_arguments,
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
     )
+
+    with active_commit_perf_trace(recorder):
+        dispatch_result = await phase.dispatch_implementation(
+            handler_request,
+            pre_state,
+            bound_arguments,
+        )
 
     assert key.function_id == descriptor.function_config.id
     assert key.owner_key == "aware.tests"
@@ -2705,6 +2804,36 @@ async def test_meta_generated_language_handler_runner_resolves_descriptor() -> N
     assert dispatch_result.session_delta is not None
     assert dispatch_result.session_delta.changes == changes
     assert dispatch_result.session_delta.graph_hash_post == expected_post_hash
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert set(trace_summary) >= {
+        "handler_execution.language_handler.resolve_generated_handler",
+        "handler_execution.language_handler.run_session_delta_handler",
+        "handler_execution.language_handler.execute_language_handler",
+        "handler_execution.language_handler.build_context",
+        "handler_execution.language_handler.bind_pre_state_models",
+        "handler_execution.language_handler.call_generated_handler",
+        "handler_execution.language_handler.await_generated_handler",
+        "handler_execution.language_handler.validate_result",
+        "handler_execution.language_handler.validate_execution_evidence",
+        "handler_execution.language_handler.build_session_delta",
+        "handler_execution.language_handler.build_dispatch_result",
+    }
+    assert (
+        trace_summary["handler_execution.language_handler.resolve_generated_handler"][
+            "count"
+        ]
+        == 1
+    )
+    event_metadata = {
+        str(event.get("phase")): event.get("metadata")
+        for event in recorder.snapshot_json()
+    }
+    handler_metadata = cast(
+        dict[str, object],
+        event_metadata["handler_execution.language_handler.call_generated_handler"],
+    )
+    assert handler_metadata["operation_label"] == "Thread.mutate"
+    assert handler_metadata["function_name"] == "mutate"
 
 
 @pytest.mark.asyncio
@@ -3013,15 +3142,21 @@ def _oigi_generated_handler_fixture() -> _OigiGeneratedHandlerFixture:
 
     index = SimpleNamespace(
         ocg=SimpleNamespace(
+            id=ocg_id,
             fqn_prefix="aware_meta",
             name="Aware Meta",
             object_config_graph_identity=None,
             object_config_graph_nodes=[
                 SimpleNamespace(
+                    type=ObjectConfigGraphNodeType.class_,
+                    class_config=class_config,
+                ),
+                SimpleNamespace(
                     type=ObjectConfigGraphNodeType.function,
                     function_config=function_config,
-                )
+                ),
             ],
+            object_config_graph_relationships=[],
             object_projection_graphs=[opg],
         ),
         class_configs_by_id={
@@ -4465,8 +4600,12 @@ async def test_meta_phase_executor_returns_append_ready_result() -> None:
         ),
         append_ready_change_assembler=MetaGraphAppendReadyChangeAssemblerPhase(),
     )
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
+    )
 
-    result = await executor.execute_function(handler_request)
+    with active_commit_perf_trace(recorder):
+        result = await executor.execute_function(handler_request)
 
     assert events == ["pre_state", "arguments", "dispatch", "mutations"]
     assert result.success is True
@@ -4480,6 +4619,27 @@ async def test_meta_phase_executor_returns_append_ready_result() -> None:
     assert result.changes == changes
     assert result.append_ready_changes is not None
     assert result.append_ready_changes.graph_hash_post == "sha256:test:post"
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert set(trace_summary) >= {
+        "handler_execution.materialize_pre_state",
+        "handler_execution.bind_arguments",
+        "handler_execution.dispatch_implementation",
+        "handler_execution.record_mutations",
+        "handler_execution.validate_mutation_boundary",
+        "handler_execution.assemble_append_ready_changes",
+        "handler_execution.build_execution_result",
+    }
+    assert trace_summary["handler_execution.dispatch_implementation"]["count"] == 1
+    event_metadata = {
+        str(event.get("phase")): event.get("metadata")
+        for event in recorder.snapshot_json()
+    }
+    dispatch_metadata = cast(
+        dict[str, object],
+        event_metadata["handler_execution.dispatch_implementation"],
+    )
+    assert dispatch_metadata["operation_label"] == "Thread.mutate"
+    assert dispatch_metadata["implementation_kind"] == "language_handler"
 
 
 def test_meta_function_implementation_descriptor_names_allowed_rails() -> None:
@@ -4752,7 +4912,16 @@ def _function_impl_self_set_fixture(
         class_config_id=target_edge_class_config_id or class_config_id,
         attribute_config=attribute_config,
         attribute_config_id=attribute_config.id,
+        position=0,
     )
+    target_class_config = handler_request.execution_plan.index.class_configs_by_id.get(
+        target_edge.class_config_id
+    )
+    if target_class_config is not None:
+        target_class_config.class_config_attribute_configs = [
+            *getattr(target_class_config, "class_config_attribute_configs", []),
+            target_edge,
+        ]
     value_root = build_attribute_value_tree(
         type_descriptor=type_descriptor,
         value=initial_value,
@@ -5492,9 +5661,15 @@ class _RecordingMutationSource:
 
 
 class _RecordingOigMaterializer:
-    def __init__(self, *, before_oig: ObjectInstanceGraph) -> None:
+    def __init__(
+        self,
+        *,
+        before_oig: ObjectInstanceGraph,
+        head: dict[str, object] | None = None,
+    ) -> None:
         self.before_oig = before_oig
         self.calls: list[SimpleNamespace] = []
+        self.commits = _RecordingCommitStore(head=head)
 
     async def get(
         self,
@@ -5502,3 +5677,30 @@ class _RecordingOigMaterializer:
     ) -> tuple[ObjectInstanceGraph, dict[str, object]]:
         self.calls.append(SimpleNamespace(**kwargs))
         return self.before_oig, {}
+
+
+class _RecordingCommitStore:
+    def __init__(self, *, head: dict[str, object] | None) -> None:
+        self._head = head
+        self.head_calls: list[SimpleNamespace] = []
+
+    async def head(self, **kwargs: object) -> dict[str, object] | None:
+        self.head_calls.append(SimpleNamespace(**kwargs))
+        return self._head
+
+
+class _StaticEmptyLaneBootstrapResolver:
+    def __init__(self, *, root_object_id: UUID) -> None:
+        self.root_object_id = root_object_id
+        self.requests: list[MetaGraphHandlerExecutionRequest] = []
+
+    def resolve_empty_lane_bootstrap(
+        self,
+        request: MetaGraphHandlerExecutionRequest,
+    ) -> MetaGraphEmptyLaneBootstrap:
+        self.requests.append(request)
+        return MetaGraphEmptyLaneBootstrap(
+            root_object_id=self.root_object_id,
+            key="test-empty-lane",
+            name="Test Empty Lane",
+        )

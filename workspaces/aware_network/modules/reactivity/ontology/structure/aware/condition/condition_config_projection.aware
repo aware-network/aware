@@ -1,0 +1,20 @@
+// ConditionConfig projection (policy lane)
+//
+// Goal:
+// - Keep condition policies in a canonical lane that can be evaluated from commit receipts.
+// - Materialize nested condition payloads required for deterministic evaluation.
+
+projection ConditionConfig {
+    root condition.ConditionConfig
+
+    condition.ConditionConfig::condition_config_class_configs
+    condition.ConditionConfigClassConfig::condition_config_attribute_configs
+
+    condition.ConditionConfigAttributeConfig::condition_config_primitive_config
+    condition.ConditionConfigAttributeConfig::condition_config_enum_config
+    condition.ConditionConfigAttributeConfig::condition_config_relationship_config
+
+    condition.ConditionConfigEnumConfig::condition_config_enum_options
+
+    condition.ConditionConfigRelationshipConfig::nested_condition_config
+}

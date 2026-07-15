@@ -48,6 +48,7 @@ from aware_meta.runtime.value_resolvers import default_meta_enum_option_resolver
 # Meta Ontology
 from aware_meta_ontology.attribute.attribute import Attribute
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
+from aware_meta_ontology.attribute.attribute_enums import AttributeCollectionType
 from aware_meta_ontology.attribute.attribute_type_descriptor import AttributeTypeDescriptor
 from aware_meta_ontology.attribute.attribute_type_descriptor_enums import AttributeTypeDescriptorRole
 from aware_meta_ontology.attribute.attribute_type_descriptor_link import AttributeTypeDescriptorLink
@@ -156,13 +157,16 @@ from aware_meta_ontology.graph.instance.object_instance_graph_commit import Obje
 from aware_meta_ontology.graph.instance.object_instance_graph_identity import ObjectInstanceGraphIdentity
 from aware_meta_ontology.graph.instance.object_instance_graph_lane import ObjectInstanceGraphLane
 from aware_meta_ontology.graph.projection.object_projection_graph import ObjectProjectionGraph
+from aware_meta_ontology.graph.projection.object_projection_graph_binding import ObjectProjectionGraphBinding
 from aware_meta_ontology.graph.projection.object_projection_graph_constructor import ObjectProjectionGraphConstructor
+from aware_meta_ontology.graph.projection.object_projection_graph_declaration import ObjectProjectionGraphDeclaration
 from aware_meta_ontology.graph.projection.object_projection_graph_edge import ObjectProjectionGraphEdge
 from aware_meta_ontology.graph.projection.object_projection_graph_enums import (
     ObjectProjectionGraphAttributeRole,
     ObjectProjectionGraphEdgeInclude,
     ObjectProjectionGraphEdgeMultiplicity,
     ObjectProjectionGraphNodeSelection,
+    ObjectProjectionGraphObservableKind,
 )
 from aware_meta_ontology.graph.projection.object_projection_graph_identity import ObjectProjectionGraphIdentity
 from aware_meta_ontology.graph.projection.object_projection_graph_node import ObjectProjectionGraphNode
@@ -755,6 +759,105 @@ def _root_id_attribute_config__create_class(*, request: MetaGraphHandlerExecutio
     return getattr(import_module("aware_meta_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
 
 
+def _bind_attribute_config__create_collection_primitive(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "owner_key",
+            "name",
+            "collection_kind",
+            "primitive_base_type",
+            "description",
+            "default_value",
+            "is_primary",
+            "is_public",
+            "is_required",
+            "is_unique",
+            "is_virtual",
+        ),
+        function_name="create_collection_primitive",
+    )
+
+
+async def _call_attribute_config__create_collection_primitive(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    from aware_meta.handlers.impl.attribute.attribute_config import create_collection_primitive as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_attribute_config__create_collection_primitive(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_meta_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    owner_key = bound_input.get("owner_key")
+    name = bound_input.get("name")
+    collection_kind = bound_input.get("collection_kind")
+    if collection_kind is None:
+        collection_kind = "list"
+    primitive_base_type = bound_input.get("primitive_base_type")
+    if primitive_base_type is None:
+        primitive_base_type = "any"
+    description = bound_input.get("description")
+    if description is None:
+        description = None
+    default_value = bound_input.get("default_value")
+    if default_value is None:
+        default_value = None
+    is_primary = bound_input.get("is_primary")
+    if is_primary is None:
+        is_primary = False
+    is_public = bound_input.get("is_public")
+    if is_public is None:
+        is_public = True
+    is_required = bound_input.get("is_required")
+    if is_required is None:
+        is_required = False
+    is_unique = bound_input.get("is_unique")
+    if is_unique is None:
+        is_unique = False
+    is_virtual = bound_input.get("is_virtual")
+    if is_virtual is None:
+        is_virtual = False
+    _aware_self_values = {
+        "owner_key": owner_key,
+        "name": name,
+        "collection_kind": collection_kind,
+        "primitive_base_type": primitive_base_type,
+        "description": description,
+        "default_value": default_value,
+        "is_primary": is_primary,
+        "is_public": is_public,
+        "is_required": is_required,
+        "is_unique": is_unique,
+        "is_virtual": is_virtual,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("615953a6-9d3f-50fa-b385-08a8343d22fa")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: AttributeConfig.create_collection_primitive"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: AttributeConfig.create_collection_primitive"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_meta_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
 def _bind_attribute_config__update_primitive(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
     return _bind_keyword_payload(
         positional=positional,
@@ -970,6 +1073,60 @@ def _root_id_attribute_type_descriptor__create_class(
     return getattr(import_module("aware_meta_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
 
 
+def _bind_attribute_type_descriptor__create_collection_primitive(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=("collection_kind", "primitive_base_type"),
+        function_name="create_collection_primitive",
+    )
+
+
+async def _call_attribute_type_descriptor__create_collection_primitive(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    from aware_meta.handlers.impl.attribute.attribute_type_descriptor import create_collection_primitive as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_attribute_type_descriptor__create_collection_primitive(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_meta_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    collection_kind = bound_input.get("collection_kind")
+    if collection_kind is None:
+        collection_kind = "list"
+    primitive_base_type = bound_input.get("primitive_base_type")
+    if primitive_base_type is None:
+        primitive_base_type = "any"
+    _aware_self_values = {"collection_kind": collection_kind, "primitive_base_type": primitive_base_type}
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("d3fac7a1-b0db-5840-8fa8-b3d30f3ab9df")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: AttributeTypeDescriptor.create_collection_primitive"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: AttributeTypeDescriptor.create_collection_primitive"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_meta_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
 def _bind_attribute_type_descriptor__create_child_link(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
     return _bind_keyword_payload(
         positional=positional,
@@ -1116,6 +1273,27 @@ async def _call_class_config__update_config(*, bound_input: JsonObject, target: 
     return result
 
 
+def _bind_class_config__update_parent_class(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=("parent_class_config_id",),
+        function_name="update_parent_class",
+    )
+
+
+async def _call_class_config__update_parent_class(*, bound_input: JsonObject, target: ORMModel | None = None) -> object:
+    from aware_meta.handlers.impl.class_.class_config import update_parent_class as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: ClassConfig.update_parent_class"
+        )
+    result = await _impl(class_config=target, **call_kwargs)
+    return result
+
+
 def _bind_class_config__create_primitive_attribute_config(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
     return _bind_keyword_payload(
         positional=positional,
@@ -1213,6 +1391,88 @@ async def _call_class_config__create_class_attribute_config(
     if target is None:
         raise MetaGraphLanguageHandlerExecutionError(
             "Generated Meta instance invocation requires target: ClassConfig.create_class_attribute_config"
+        )
+    result = await _impl(class_config=target, **call_kwargs)
+    return result
+
+
+def _bind_class_config__create_collection_primitive_attribute_config(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "name",
+            "collection_kind",
+            "primitive_base_type",
+            "description",
+            "default_value",
+            "is_primary",
+            "is_public",
+            "is_required",
+            "is_unique",
+            "is_virtual",
+            "position",
+        ),
+        function_name="create_collection_primitive_attribute_config",
+    )
+
+
+async def _call_class_config__create_collection_primitive_attribute_config(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> object:
+    async def _impl(
+        class_config: ClassConfig,
+        name: str,
+        collection_kind: AttributeCollectionType = AttributeCollectionType.list,
+        primitive_base_type: CodePrimitiveBaseType = CodePrimitiveBaseType.any,
+        description: str | None = None,
+        default_value: str | None = None,
+        is_primary: bool = False,
+        is_public: bool = True,
+        is_required: bool = False,
+        is_unique: bool = False,
+        is_virtual: bool = False,
+        position: int = 0,
+    ) -> AttributeConfig:
+        created_link = await ClassConfigAttributeConfig.create_collection_primitive_via_class_config(
+            class_config_id=class_config.id,
+            owner_key=class_config.class_fqn,
+            name=name,
+            collection_kind=collection_kind,
+            primitive_base_type=primitive_base_type,
+            description=description,
+            default_value=default_value,
+            is_primary=is_primary,
+            is_public=is_public,
+            is_required=is_required,
+            is_unique=is_unique,
+            is_virtual=is_virtual,
+            position=position,
+        )
+        _aware_relationship_member_instruction_0 = class_config.class_config_attribute_configs
+        if _aware_relationship_member_instruction_0 is None:
+            class_config.class_config_attribute_configs = []
+            _aware_relationship_member_instruction_0 = class_config.class_config_attribute_configs
+        if all(
+            getattr(item, "id", None) != getattr(created_link, "id", None)
+            for item in _aware_relationship_member_instruction_0
+        ):
+            if hasattr(_aware_relationship_member_instruction_0, "append"):
+                _aware_relationship_member_instruction_0.append(created_link)
+            elif hasattr(_aware_relationship_member_instruction_0, "add"):
+                _aware_relationship_member_instruction_0.add(created_link)
+            else:
+                raise RuntimeError(
+                    "ClassConfig.create_collection_primitive_attribute_config sequence=0: relationship member 'class_config_attribute_configs' is not appendable"
+                )
+        return created_link
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: ClassConfig.create_collection_primitive_attribute_config"
         )
     result = await _impl(class_config=target, **call_kwargs)
     return result
@@ -1606,6 +1866,138 @@ def _root_id_class_config_attribute_config__create_class_via_class_config(
     if _aware_missing_self_keys:
         raise MetaGraphLanguageHandlerExecutionError(
             "Missing stable-id input for generated Meta constructor bootstrap: ClassConfigAttributeConfig.create_class_via_class_config"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_meta_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
+def _bind_class_config_attribute_config__create_collection_primitive_via_class_config(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "class_config_id",
+            "owner_key",
+            "name",
+            "collection_kind",
+            "primitive_base_type",
+            "description",
+            "default_value",
+            "is_primary",
+            "is_public",
+            "is_required",
+            "is_unique",
+            "is_virtual",
+            "position",
+            "is_identity_key",
+        ),
+        function_name="create_collection_primitive_via_class_config",
+    )
+
+
+async def _call_class_config_attribute_config__create_collection_primitive_via_class_config(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    async def _impl(
+        class_config_id: UUID,
+        owner_key: str,
+        name: str,
+        collection_kind: AttributeCollectionType = AttributeCollectionType.list,
+        primitive_base_type: CodePrimitiveBaseType = CodePrimitiveBaseType.any,
+        description: str | None = None,
+        default_value: str | None = None,
+        is_primary: bool = False,
+        is_public: bool = True,
+        is_required: bool = False,
+        is_unique: bool = False,
+        is_virtual: bool = False,
+        position: int = 0,
+        is_identity_key: bool = False,
+    ) -> ClassConfigAttributeConfig:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Compiler-owned FunctionImpl lowering unavailable for ClassConfigAttributeConfig.create_collection_primitive_via_class_config"
+        )
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_class_config_attribute_config__create_collection_primitive_via_class_config(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_meta_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    class_config_id = bound_input.get("class_config_id")
+    owner_key = bound_input.get("owner_key")
+    name = bound_input.get("name")
+    collection_kind = bound_input.get("collection_kind")
+    if collection_kind is None:
+        collection_kind = "list"
+    primitive_base_type = bound_input.get("primitive_base_type")
+    if primitive_base_type is None:
+        primitive_base_type = "any"
+    description = bound_input.get("description")
+    if description is None:
+        description = None
+    default_value = bound_input.get("default_value")
+    if default_value is None:
+        default_value = None
+    is_primary = bound_input.get("is_primary")
+    if is_primary is None:
+        is_primary = False
+    is_public = bound_input.get("is_public")
+    if is_public is None:
+        is_public = True
+    is_required = bound_input.get("is_required")
+    if is_required is None:
+        is_required = False
+    is_unique = bound_input.get("is_unique")
+    if is_unique is None:
+        is_unique = False
+    is_virtual = bound_input.get("is_virtual")
+    if is_virtual is None:
+        is_virtual = False
+    position = bound_input.get("position")
+    if position is None:
+        position = 0
+    is_identity_key = bound_input.get("is_identity_key")
+    if is_identity_key is None:
+        is_identity_key = False
+    _aware_self_values = {
+        "class_config_id": class_config_id,
+        "owner_key": owner_key,
+        "name": name,
+        "collection_kind": collection_kind,
+        "primitive_base_type": primitive_base_type,
+        "description": description,
+        "default_value": default_value,
+        "is_primary": is_primary,
+        "is_public": is_public,
+        "is_required": is_required,
+        "is_unique": is_unique,
+        "is_virtual": is_virtual,
+        "position": position,
+        "is_identity_key": is_identity_key,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("d53964f4-3a0b-582d-9bc2-91f401f6dca7")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: ClassConfigAttributeConfig.create_collection_primitive_via_class_config"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: ClassConfigAttributeConfig.create_collection_primitive_via_class_config"
             + f": {_aware_missing_self_keys}"
         )
     _aware_self_stable_values = {
@@ -3567,6 +3959,94 @@ async def _call_function_config__add_class_attribute_config(
     return result
 
 
+def _bind_function_config__add_collection_primitive_attribute_config(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "name",
+            "collection_kind",
+            "primitive_base_type",
+            "description",
+            "default_value",
+            "is_primary",
+            "is_public",
+            "is_required",
+            "is_unique",
+            "is_virtual",
+            "type",
+            "position",
+            "is_identity_key",
+        ),
+        function_name="add_collection_primitive_attribute_config",
+    )
+
+
+async def _call_function_config__add_collection_primitive_attribute_config(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> object:
+    async def _impl(
+        function_config: FunctionConfig,
+        name: str,
+        collection_kind: AttributeCollectionType = AttributeCollectionType.list,
+        primitive_base_type: CodePrimitiveBaseType = CodePrimitiveBaseType.any,
+        description: str | None = None,
+        default_value: str | None = None,
+        is_primary: bool = False,
+        is_public: bool = True,
+        is_required: bool = False,
+        is_unique: bool = False,
+        is_virtual: bool = False,
+        type: FunctionAttributeType = FunctionAttributeType.input,
+        position: int = 0,
+        is_identity_key: bool = False,
+    ) -> FunctionConfigAttributeConfig:
+        created = await FunctionConfigAttributeConfig.create_collection_primitive_via_function_config(
+            function_config_id=function_config.id,
+            owner_key=function_config.owner_key,
+            name=name,
+            collection_kind=collection_kind,
+            primitive_base_type=primitive_base_type,
+            description=description,
+            default_value=default_value,
+            is_primary=is_primary,
+            is_public=is_public,
+            is_required=is_required,
+            is_unique=is_unique,
+            is_virtual=is_virtual,
+            type=type,
+            position=position,
+            is_identity_key=is_identity_key,
+        )
+        _aware_relationship_member_instruction_0 = function_config.function_config_attribute_configs
+        if _aware_relationship_member_instruction_0 is None:
+            function_config.function_config_attribute_configs = []
+            _aware_relationship_member_instruction_0 = function_config.function_config_attribute_configs
+        if all(
+            getattr(item, "id", None) != getattr(created, "id", None)
+            for item in _aware_relationship_member_instruction_0
+        ):
+            if hasattr(_aware_relationship_member_instruction_0, "append"):
+                _aware_relationship_member_instruction_0.append(created)
+            elif hasattr(_aware_relationship_member_instruction_0, "add"):
+                _aware_relationship_member_instruction_0.add(created)
+            else:
+                raise RuntimeError(
+                    "FunctionConfig.add_collection_primitive_attribute_config sequence=0: relationship member 'function_config_attribute_configs' is not appendable"
+                )
+        return created
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: FunctionConfig.add_collection_primitive_attribute_config"
+        )
+    result = await _impl(function_config=target, **call_kwargs)
+    return result
+
+
 def _bind_function_config__remove_attribute_config(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
     return _bind_keyword_payload(
         positional=positional,
@@ -3796,6 +4276,150 @@ def _root_id_function_config_attribute_config__create_class_via_function_config(
     if _aware_missing_self_keys:
         raise MetaGraphLanguageHandlerExecutionError(
             "Missing stable-id input for generated Meta constructor bootstrap: FunctionConfigAttributeConfig.create_class_via_function_config"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_meta_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
+def _bind_function_config_attribute_config__create_collection_primitive_via_function_config(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "function_config_id",
+            "owner_key",
+            "name",
+            "collection_kind",
+            "primitive_base_type",
+            "description",
+            "default_value",
+            "is_primary",
+            "is_public",
+            "is_required",
+            "is_unique",
+            "is_virtual",
+            "type",
+            "position",
+            "is_identity_key",
+            "identity_key_origin",
+        ),
+        function_name="create_collection_primitive_via_function_config",
+    )
+
+
+async def _call_function_config_attribute_config__create_collection_primitive_via_function_config(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    async def _impl(
+        function_config_id: UUID,
+        owner_key: str,
+        name: str,
+        collection_kind: AttributeCollectionType = AttributeCollectionType.list,
+        primitive_base_type: CodePrimitiveBaseType = CodePrimitiveBaseType.any,
+        description: str | None = None,
+        default_value: str | None = None,
+        is_primary: bool = False,
+        is_public: bool = True,
+        is_required: bool = False,
+        is_unique: bool = False,
+        is_virtual: bool = False,
+        type: FunctionAttributeType = FunctionAttributeType.input,
+        position: int = 0,
+        is_identity_key: bool = False,
+        identity_key_origin: FunctionIdentityKeyOrigin = FunctionIdentityKeyOrigin.standalone,
+    ) -> FunctionConfigAttributeConfig:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Compiler-owned FunctionImpl lowering unavailable for FunctionConfigAttributeConfig.create_collection_primitive_via_function_config"
+        )
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_function_config_attribute_config__create_collection_primitive_via_function_config(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_meta_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    function_config_id = bound_input.get("function_config_id")
+    owner_key = bound_input.get("owner_key")
+    name = bound_input.get("name")
+    collection_kind = bound_input.get("collection_kind")
+    if collection_kind is None:
+        collection_kind = "list"
+    primitive_base_type = bound_input.get("primitive_base_type")
+    if primitive_base_type is None:
+        primitive_base_type = "any"
+    description = bound_input.get("description")
+    if description is None:
+        description = None
+    default_value = bound_input.get("default_value")
+    if default_value is None:
+        default_value = None
+    is_primary = bound_input.get("is_primary")
+    if is_primary is None:
+        is_primary = False
+    is_public = bound_input.get("is_public")
+    if is_public is None:
+        is_public = True
+    is_required = bound_input.get("is_required")
+    if is_required is None:
+        is_required = False
+    is_unique = bound_input.get("is_unique")
+    if is_unique is None:
+        is_unique = False
+    is_virtual = bound_input.get("is_virtual")
+    if is_virtual is None:
+        is_virtual = False
+    type = bound_input.get("type")
+    if type is None:
+        type = "input"
+    position = bound_input.get("position")
+    if position is None:
+        position = 0
+    is_identity_key = bound_input.get("is_identity_key")
+    if is_identity_key is None:
+        is_identity_key = False
+    identity_key_origin = bound_input.get("identity_key_origin")
+    if identity_key_origin is None:
+        identity_key_origin = "standalone"
+    _aware_self_values = {
+        "function_config_id": function_config_id,
+        "owner_key": owner_key,
+        "name": name,
+        "collection_kind": collection_kind,
+        "primitive_base_type": primitive_base_type,
+        "description": description,
+        "default_value": default_value,
+        "is_primary": is_primary,
+        "is_public": is_public,
+        "is_required": is_required,
+        "is_unique": is_unique,
+        "is_virtual": is_virtual,
+        "type": type,
+        "position": position,
+        "is_identity_key": is_identity_key,
+        "identity_key_origin": identity_key_origin,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("c7ad7495-ce85-5e58-a538-6cbc4aaeb937")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: FunctionConfigAttributeConfig.create_collection_primitive_via_function_config"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: FunctionConfigAttributeConfig.create_collection_primitive_via_function_config"
             + f": {_aware_missing_self_keys}"
         )
     _aware_self_stable_values = {
@@ -6657,6 +7281,38 @@ async def _call_object_config_graph__create_object_projection_graph(
     return result
 
 
+def _bind_object_config_graph__create_object_projection_graph_declaration(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "key",
+            "projection_name",
+            "label",
+            "description",
+            "is_branchable",
+            "object_projection_graph_declaration_id",
+        ),
+        function_name="create_object_projection_graph_declaration",
+    )
+
+
+async def _call_object_config_graph__create_object_projection_graph_declaration(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> object:
+    from aware_meta.handlers.impl.config.object_config_graph import create_object_projection_graph_declaration as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: ObjectConfigGraph.create_object_projection_graph_declaration"
+        )
+    result = await _impl(object_config_graph=target, **call_kwargs)
+    return result
+
+
 def _bind_object_config_graph__get_topology_description(*, positional: JsonArray, keyword: JsonObject) -> JsonObject:
     return _bind_keyword_payload(
         positional=positional,
@@ -8911,6 +9567,130 @@ def _root_id_object_projection_graph__build_via_object_config_graph(
     return getattr(import_module("aware_meta_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
 
 
+def _bind_object_projection_graph_binding__create_via_object_projection_graph_declaration(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "object_projection_graph_declaration_id",
+            "fqn_prefix",
+            "namespace",
+            "class_name",
+            "attribute_name",
+            "target_projection_name",
+            "side",
+        ),
+        function_name="create_via_object_projection_graph_declaration",
+    )
+
+
+async def _call_object_projection_graph_binding__create_via_object_projection_graph_declaration(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    async def _impl(
+        object_projection_graph_declaration_id: UUID,
+        fqn_prefix: str,
+        namespace: str,
+        class_name: str,
+        attribute_name: str | None = None,
+        target_projection_name: str | None = None,
+        side: str | None = None,
+    ) -> ObjectProjectionGraphBinding:
+        _aware_self_values = {
+            "object_projection_graph_declaration_id": object_projection_graph_declaration_id,
+            "fqn_prefix": fqn_prefix,
+            "namespace": namespace,
+            "class_name": class_name,
+            "attribute_name": attribute_name,
+            "target_projection_name": target_projection_name,
+            "side": side,
+        }
+        _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get(
+            "03847d0a-cb3f-5366-9808-5195549c62eb"
+        )
+        if _aware_self_binding is None:
+            raise RuntimeError(
+                "ObjectProjectionGraphBinding.create_via_object_projection_graph_declaration cannot resolve constructor self id: missing stable-id binding"
+            )
+        _aware_self_fn, _aware_self_key_names = _aware_self_binding
+        _aware_missing_self_keys = [key for key in _aware_self_key_names if key not in _aware_self_values]
+        if _aware_missing_self_keys:
+            raise RuntimeError(
+                "ObjectProjectionGraphBinding.create_via_object_projection_graph_declaration cannot resolve constructor self id: missing stable identity values"
+                + f": {_aware_missing_self_keys}"
+            )
+        _aware_self_stable_values = {
+            key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+        }
+        _aware_self_id = getattr(import_module("aware_meta_ontology.stable_ids"), _aware_self_fn)(
+            **_aware_self_stable_values
+        )
+        return ObjectProjectionGraphBinding(
+            id=_aware_self_id,
+            object_projection_graph_declaration_id=object_projection_graph_declaration_id,
+            fqn_prefix=fqn_prefix,
+            namespace=namespace,
+            class_name=class_name,
+            attribute_name=attribute_name,
+            target_projection_name=target_projection_name,
+            side=side,
+        )
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_object_projection_graph_binding__create_via_object_projection_graph_declaration(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_meta_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    object_projection_graph_declaration_id = bound_input.get("object_projection_graph_declaration_id")
+    fqn_prefix = bound_input.get("fqn_prefix")
+    namespace = bound_input.get("namespace")
+    class_name = bound_input.get("class_name")
+    attribute_name = bound_input.get("attribute_name")
+    if attribute_name is None:
+        attribute_name = None
+    target_projection_name = bound_input.get("target_projection_name")
+    if target_projection_name is None:
+        target_projection_name = None
+    side = bound_input.get("side")
+    if side is None:
+        side = None
+    _aware_self_values = {
+        "object_projection_graph_declaration_id": object_projection_graph_declaration_id,
+        "fqn_prefix": fqn_prefix,
+        "namespace": namespace,
+        "class_name": class_name,
+        "attribute_name": attribute_name,
+        "target_projection_name": target_projection_name,
+        "side": side,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("03847d0a-cb3f-5366-9808-5195549c62eb")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: ObjectProjectionGraphBinding.create_via_object_projection_graph_declaration"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: ObjectProjectionGraphBinding.create_via_object_projection_graph_declaration"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_meta_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
 def _bind_object_projection_graph_constructor__build_via_object_projection_graph(
     *, positional: JsonArray, keyword: JsonObject
 ) -> JsonObject:
@@ -9006,6 +9786,150 @@ def _root_id_object_projection_graph_constructor__build_via_object_projection_gr
     if _aware_missing_self_keys:
         raise MetaGraphLanguageHandlerExecutionError(
             "Missing stable-id input for generated Meta constructor bootstrap: ObjectProjectionGraphConstructor.build_via_object_projection_graph"
+            + f": {_aware_missing_self_keys}"
+        )
+    _aware_self_stable_values = {
+        key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+    }
+    return getattr(import_module("aware_meta_ontology.stable_ids"), _aware_self_fn)(**_aware_self_stable_values)
+
+
+def _bind_object_projection_graph_declaration__create_binding(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=(
+            "fqn_prefix",
+            "namespace",
+            "class_name",
+            "attribute_name",
+            "target_projection_name",
+            "side",
+            "object_projection_graph_binding_id",
+        ),
+        function_name="create_binding",
+    )
+
+
+async def _call_object_projection_graph_declaration__create_binding(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> object:
+    from aware_meta.handlers.impl.projection.object_projection_graph_declaration import create_binding as _impl
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    if target is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta instance invocation requires target: ObjectProjectionGraphDeclaration.create_binding"
+        )
+    result = await _impl(object_projection_graph_declaration=target, **call_kwargs)
+    return result
+
+
+def _bind_object_projection_graph_declaration__create_via_object_config_graph(
+    *, positional: JsonArray, keyword: JsonObject
+) -> JsonObject:
+    return _bind_keyword_payload(
+        positional=positional,
+        keyword=keyword,
+        field_names=("object_config_graph_id", "key", "projection_name", "label", "description", "is_branchable"),
+        function_name="create_via_object_config_graph",
+    )
+
+
+async def _call_object_projection_graph_declaration__create_via_object_config_graph(
+    *, bound_input: JsonObject, target: ORMModel | None = None
+) -> ORMModel:
+    async def _impl(
+        object_config_graph_id: UUID,
+        key: str,
+        projection_name: str,
+        label: str | None = None,
+        description: str | None = None,
+        is_branchable: bool = False,
+    ) -> ObjectProjectionGraphDeclaration:
+        _aware_self_values = {
+            "object_config_graph_id": object_config_graph_id,
+            "key": key,
+            "projection_name": projection_name,
+            "label": label,
+            "description": description,
+            "is_branchable": is_branchable,
+        }
+        _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get(
+            "2aed4242-2577-5da7-9932-a5acd4d51530"
+        )
+        if _aware_self_binding is None:
+            raise RuntimeError(
+                "ObjectProjectionGraphDeclaration.create_via_object_config_graph cannot resolve constructor self id: missing stable-id binding"
+            )
+        _aware_self_fn, _aware_self_key_names = _aware_self_binding
+        _aware_missing_self_keys = [key for key in _aware_self_key_names if key not in _aware_self_values]
+        if _aware_missing_self_keys:
+            raise RuntimeError(
+                "ObjectProjectionGraphDeclaration.create_via_object_config_graph cannot resolve constructor self id: missing stable identity values"
+                + f": {_aware_missing_self_keys}"
+            )
+        _aware_self_stable_values = {
+            key: getattr(_aware_self_values[key], "value", _aware_self_values[key]) for key in _aware_self_key_names
+        }
+        _aware_self_id = getattr(import_module("aware_meta_ontology.stable_ids"), _aware_self_fn)(
+            **_aware_self_stable_values
+        )
+        return ObjectProjectionGraphDeclaration(
+            id=_aware_self_id,
+            object_config_graph_id=object_config_graph_id,
+            key=key,
+            projection_name=projection_name,
+            label=label,
+            description=description,
+            is_branchable=is_branchable,
+        )
+
+    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
+    result = await _impl(**call_kwargs)
+    return cast(ORMModel, result)
+
+
+def _root_id_object_projection_graph_declaration__create_via_object_config_graph(
+    *, request: MetaGraphHandlerExecutionRequest, bound_input: JsonObject
+):
+    from importlib import import_module
+    from aware_meta_ontology.stable_ids import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID
+
+    object_config_graph_id = bound_input.get("object_config_graph_id")
+    key = bound_input.get("key")
+    projection_name = bound_input.get("projection_name")
+    label = bound_input.get("label")
+    if label is None:
+        label = None
+    description = bound_input.get("description")
+    if description is None:
+        description = None
+    is_branchable = bound_input.get("is_branchable")
+    if is_branchable is None:
+        is_branchable = False
+    _aware_self_values = {
+        "object_config_graph_id": object_config_graph_id,
+        "key": key,
+        "projection_name": projection_name,
+        "label": label,
+        "description": description,
+        "is_branchable": is_branchable,
+    }
+    _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("2aed4242-2577-5da7-9932-a5acd4d51530")
+    if _aware_self_binding is None:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor bootstrap cannot resolve stable-id binding: ObjectProjectionGraphDeclaration.create_via_object_config_graph"
+        )
+    _aware_self_fn, _aware_self_key_names = _aware_self_binding
+    _aware_missing_self_keys = [
+        key for key in _aware_self_key_names if key not in _aware_self_values or _aware_self_values[key] is None
+    ]
+    if _aware_missing_self_keys:
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Missing stable-id input for generated Meta constructor bootstrap: ObjectProjectionGraphDeclaration.create_via_object_config_graph"
             + f": {_aware_missing_self_keys}"
         )
     _aware_self_stable_values = {
@@ -9193,7 +10117,7 @@ def _bind_object_projection_graph_identity__create_observable(
     return _bind_keyword_payload(
         positional=positional,
         keyword=keyword,
-        field_names=("observable_key", "key", "kind", "label", "description", "position", "is_default"),
+        field_names=("observable_key", "key", "kind", "label", "description", "position"),
         function_name="create_observable",
     )
 
@@ -9618,7 +10542,6 @@ def _bind_object_projection_graph_observable__create_via_object_projection_graph
             "label",
             "description",
             "position",
-            "is_default",
         ),
         function_name="create_via_object_projection_graph_identity",
     )
@@ -9631,11 +10554,10 @@ async def _call_object_projection_graph_observable__create_via_object_projection
         object_projection_graph_identity_id: UUID,
         observable_key: str,
         key: str,
-        kind: str | None = None,
+        kind: ObjectProjectionGraphObservableKind = ObjectProjectionGraphObservableKind.instance,
         label: str | None = None,
         description: str | None = None,
         position: int | None = None,
-        is_default: bool = False,
     ) -> ObjectProjectionGraphObservable:
         _aware_self_values = {
             "object_projection_graph_identity_id": object_projection_graph_identity_id,
@@ -9645,7 +10567,6 @@ async def _call_object_projection_graph_observable__create_via_object_projection
             "label": label,
             "description": description,
             "position": position,
-            "is_default": is_default,
         }
         _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get(
             "2c740880-fd3a-5341-a7a4-e5f8cba606e0"
@@ -9676,7 +10597,6 @@ async def _call_object_projection_graph_observable__create_via_object_projection
             label=label,
             description=description,
             position=position,
-            is_default=is_default,
         )
 
     call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))
@@ -9695,7 +10615,7 @@ def _root_id_object_projection_graph_observable__create_via_object_projection_gr
     key = bound_input.get("key")
     kind = bound_input.get("kind")
     if kind is None:
-        kind = None
+        kind = "instance"
     label = bound_input.get("label")
     if label is None:
         label = None
@@ -9705,9 +10625,6 @@ def _root_id_object_projection_graph_observable__create_via_object_projection_gr
     position = bound_input.get("position")
     if position is None:
         position = None
-    is_default = bound_input.get("is_default")
-    if is_default is None:
-        is_default = False
     _aware_self_values = {
         "object_projection_graph_identity_id": object_projection_graph_identity_id,
         "observable_key": observable_key,
@@ -9716,7 +10633,6 @@ def _root_id_object_projection_graph_observable__create_via_object_projection_gr
         "label": label,
         "description": description,
         "position": position,
-        "is_default": is_default,
     }
     _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("2c740880-fd3a-5341-a7a4-e5f8cba606e0")
     if _aware_self_binding is None:
@@ -10091,6 +11007,53 @@ def attribute_config__create_class__empty_lane_bootstrap(
     )
 
 
+async def attribute_config__create_collection_primitive__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_attribute_config__create_collection_primitive(positional=positional, keyword=keyword)
+    result = await _call_attribute_config__create_collection_primitive(bound_input=bound_input)
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="AttributeConfig")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def attribute_config__create_collection_primitive__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_attribute_config__create_collection_primitive(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_attribute_config__create_collection_primitive(request=request, bound_input=bound_input)
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="AttributeConfig",
+        description="Meta constructor bootstrap for AttributeConfig.",
+    )
+
+
 async def attribute_config__update_primitive__handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -10313,6 +11276,55 @@ def attribute_type_descriptor__create_class__empty_lane_bootstrap(
     )
 
 
+async def attribute_type_descriptor__create_collection_primitive__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_attribute_type_descriptor__create_collection_primitive(positional=positional, keyword=keyword)
+    result = await _call_attribute_type_descriptor__create_collection_primitive(bound_input=bound_input)
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="AttributeTypeDescriptor")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def attribute_type_descriptor__create_collection_primitive__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_attribute_type_descriptor__create_collection_primitive(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_attribute_type_descriptor__create_collection_primitive(
+        request=request, bound_input=bound_input
+    )
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="AttributeTypeDescriptor",
+        description="Meta constructor bootstrap for AttributeTypeDescriptor.",
+    )
+
+
 async def attribute_type_descriptor__create_child_link__handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -10418,6 +11430,33 @@ async def class_config__update_config__handler(
     )
 
 
+async def class_config__update_parent_class__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_class_config__update_parent_class(positional=positional, keyword=keyword)
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="ClassConfig",
+    )
+    result = await _call_class_config__update_parent_class(bound_input=bound_input, target=target)
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
 async def class_config__create_primitive_attribute_config__handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -10485,6 +11524,37 @@ async def class_config__create_class_attribute_config__handler(
         expected_class_name="ClassConfig",
     )
     result = await _call_class_config__create_class_attribute_config(bound_input=bound_input, target=target)
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
+async def class_config__create_collection_primitive_attribute_config__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_class_config__create_collection_primitive_attribute_config(
+        positional=positional, keyword=keyword
+    )
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="ClassConfig",
+    )
+    result = await _call_class_config__create_collection_primitive_attribute_config(
+        bound_input=bound_input, target=target
+    )
     changes, constructed_class_instance_ids = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
@@ -10752,6 +11822,59 @@ def class_config_attribute_config__create_class_via_class_config__empty_lane_boo
         keyword=JsonObject(dict(request.request.kwargs)),
     )
     root_object_id = _root_id_class_config_attribute_config__create_class_via_class_config(
+        request=request, bound_input=bound_input
+    )
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="ClassConfigAttributeConfig",
+        description="Meta constructor bootstrap for ClassConfigAttributeConfig.",
+    )
+
+
+async def class_config_attribute_config__create_collection_primitive_via_class_config__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_class_config_attribute_config__create_collection_primitive_via_class_config(
+        positional=positional, keyword=keyword
+    )
+    result = await _call_class_config_attribute_config__create_collection_primitive_via_class_config(
+        bound_input=bound_input
+    )
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="ClassConfigAttributeConfig")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def class_config_attribute_config__create_collection_primitive_via_class_config__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_class_config_attribute_config__create_collection_primitive_via_class_config(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_class_config_attribute_config__create_collection_primitive_via_class_config(
         request=request, bound_input=bound_input
     )
     return MetaGraphEmptyLaneBootstrap(
@@ -11882,6 +13005,37 @@ async def function_config__add_class_attribute_config__handler(
     )
 
 
+async def function_config__add_collection_primitive_attribute_config__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_function_config__add_collection_primitive_attribute_config(
+        positional=positional, keyword=keyword
+    )
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="FunctionConfig",
+    )
+    result = await _call_function_config__add_collection_primitive_attribute_config(
+        bound_input=bound_input, target=target
+    )
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
 async def function_config__remove_attribute_config__handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -12032,6 +13186,59 @@ def function_config_attribute_config__create_class_via_function_config__empty_la
         keyword=JsonObject(dict(request.request.kwargs)),
     )
     root_object_id = _root_id_function_config_attribute_config__create_class_via_function_config(
+        request=request, bound_input=bound_input
+    )
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="FunctionConfigAttributeConfig",
+        description="Meta constructor bootstrap for FunctionConfigAttributeConfig.",
+    )
+
+
+async def function_config_attribute_config__create_collection_primitive_via_function_config__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_function_config_attribute_config__create_collection_primitive_via_function_config(
+        positional=positional, keyword=keyword
+    )
+    result = await _call_function_config_attribute_config__create_collection_primitive_via_function_config(
+        bound_input=bound_input
+    )
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="FunctionConfigAttributeConfig")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def function_config_attribute_config__create_collection_primitive_via_function_config__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_function_config_attribute_config__create_collection_primitive_via_function_config(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_function_config_attribute_config__create_collection_primitive_via_function_config(
         request=request, bound_input=bound_input
     )
     return MetaGraphEmptyLaneBootstrap(
@@ -13845,6 +15052,37 @@ async def object_config_graph__create_object_projection_graph__handler(
     )
 
 
+async def object_config_graph__create_object_projection_graph_declaration__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_object_config_graph__create_object_projection_graph_declaration(
+        positional=positional, keyword=keyword
+    )
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="ObjectConfigGraph",
+    )
+    result = await _call_object_config_graph__create_object_projection_graph_declaration(
+        bound_input=bound_input, target=target
+    )
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
 async def object_config_graph__get_topology_description__handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -15400,6 +16638,59 @@ def object_projection_graph__build_via_object_config_graph__empty_lane_bootstrap
     )
 
 
+async def object_projection_graph_binding__create_via_object_projection_graph_declaration__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_object_projection_graph_binding__create_via_object_projection_graph_declaration(
+        positional=positional, keyword=keyword
+    )
+    result = await _call_object_projection_graph_binding__create_via_object_projection_graph_declaration(
+        bound_input=bound_input
+    )
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="ObjectProjectionGraphBinding")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def object_projection_graph_binding__create_via_object_projection_graph_declaration__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_object_projection_graph_binding__create_via_object_projection_graph_declaration(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_object_projection_graph_binding__create_via_object_projection_graph_declaration(
+        request=request, bound_input=bound_input
+    )
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="ObjectProjectionGraphBinding",
+        description="Meta constructor bootstrap for ObjectProjectionGraphBinding.",
+    )
+
+
 async def object_projection_graph_constructor__build_via_object_projection_graph__handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -15448,6 +16739,84 @@ def object_projection_graph_constructor__build_via_object_projection_graph__empt
         root_object_id=root_object_id,
         name="ObjectProjectionGraphConstructor",
         description="Meta constructor bootstrap for ObjectProjectionGraphConstructor.",
+    )
+
+
+async def object_projection_graph_declaration__create_binding__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_object_projection_graph_declaration__create_binding(positional=positional, keyword=keyword)
+    root_model, target = _root_and_target_models_from_pre_state(
+        request=request,
+        pre_state=pre_state,
+        expected_class_name="ObjectProjectionGraphDeclaration",
+    )
+    result = await _call_object_projection_graph_declaration__create_binding(bound_input=bound_input, target=target)
+    changes, constructed_class_instance_ids = _changes_from_current_collector(
+        request=request,
+        pre_state=pre_state,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        changes=changes,
+        root_object_id=root_model.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=constructed_class_instance_ids,
+    )
+
+
+async def object_projection_graph_declaration__create_via_object_config_graph__handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> MetaGraphLanguageHandlerExecution:
+    bound_input = _bind_object_projection_graph_declaration__create_via_object_config_graph(
+        positional=positional, keyword=keyword
+    )
+    result = await _call_object_projection_graph_declaration__create_via_object_config_graph(bound_input=bound_input)
+    if not isinstance(result, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta constructor handler must return ORMModel.")
+    _assert_constructor_owner_class(request=request, expected_class_name="ObjectProjectionGraphDeclaration")
+    root_object_id = pre_state.root_object_id
+    if isinstance(root_object_id, UUID):
+        result.id = root_object_id
+    post_oig = _post_oig_with_root_model(
+        request=request,
+        pre_state=pre_state,
+        root_model=result,
+    )
+    return MetaGraphLanguageHandlerExecution(
+        success=True,
+        payload=JsonObject({"value": _json_payload_value(result)}),
+        post_oig=post_oig,
+        root_object_id=result.id,
+        root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+        constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+            pre_state=pre_state,
+            post_oig=post_oig,
+        ),
+    )
+
+
+def object_projection_graph_declaration__create_via_object_config_graph__empty_lane_bootstrap(
+    request: MetaGraphHandlerExecutionRequest,
+) -> MetaGraphEmptyLaneBootstrap:
+    bound_input = _bind_object_projection_graph_declaration__create_via_object_config_graph(
+        positional=JsonArray(list(request.request.args)),
+        keyword=JsonObject(dict(request.request.kwargs)),
+    )
+    root_object_id = _root_id_object_projection_graph_declaration__create_via_object_config_graph(
+        request=request, bound_input=bound_input
+    )
+    return MetaGraphEmptyLaneBootstrap(
+        root_object_id=root_object_id,
+        name="ObjectProjectionGraphDeclaration",
+        description="Meta constructor bootstrap for ObjectProjectionGraphDeclaration.",
     )
 
 
@@ -15961,6 +17330,22 @@ async def attribute_config__create_class__invocation_handler(
     return await _call_attribute_config__create_class(bound_input=bound_input)
 
 
+async def attribute_config__create_collection_primitive__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_attribute_config__create_collection_primitive(positional=positional, keyword=keyword)
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_attribute_config__create_collection_primitive(bound_input=bound_input)
+
+
 async def attribute_config__update_primitive__invocation_handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -16051,6 +17436,22 @@ async def attribute_type_descriptor__create_class__invocation_handler(
     return await _call_attribute_type_descriptor__create_class(bound_input=bound_input)
 
 
+async def attribute_type_descriptor__create_collection_primitive__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_attribute_type_descriptor__create_collection_primitive(positional=positional, keyword=keyword)
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_attribute_type_descriptor__create_collection_primitive(bound_input=bound_input)
+
+
 async def attribute_type_descriptor__create_child_link__invocation_handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -16097,6 +17498,20 @@ async def class_config__update_config__invocation_handler(
     return await _call_class_config__update_config(bound_input=bound_input, target=target)
 
 
+async def class_config__update_parent_class__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_class_config__update_parent_class(positional=positional, keyword=keyword)
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_class_config__update_parent_class(bound_input=bound_input, target=target)
+
+
 async def class_config__create_primitive_attribute_config__invocation_handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -16137,6 +17552,24 @@ async def class_config__create_class_attribute_config__invocation_handler(
     if not isinstance(target, ORMModel):
         raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
     return await _call_class_config__create_class_attribute_config(bound_input=bound_input, target=target)
+
+
+async def class_config__create_collection_primitive_attribute_config__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_class_config__create_collection_primitive_attribute_config(
+        positional=positional, keyword=keyword
+    )
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_class_config__create_collection_primitive_attribute_config(
+        bound_input=bound_input, target=target
+    )
 
 
 async def class_config__remove_attribute_config__invocation_handler(
@@ -16255,6 +17688,26 @@ async def class_config_attribute_config__create_class_via_class_config__invocati
             "Generated Meta constructor invocation requires ORMModel class target."
         )
     return await _call_class_config_attribute_config__create_class_via_class_config(bound_input=bound_input)
+
+
+async def class_config_attribute_config__create_collection_primitive_via_class_config__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_class_config_attribute_config__create_collection_primitive_via_class_config(
+        positional=positional, keyword=keyword
+    )
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_class_config_attribute_config__create_collection_primitive_via_class_config(
+        bound_input=bound_input
+    )
 
 
 async def class_config_attribute_config__create_enum_via_class_config__invocation_handler(
@@ -16711,6 +18164,24 @@ async def function_config__add_class_attribute_config__invocation_handler(
     return await _call_function_config__add_class_attribute_config(bound_input=bound_input, target=target)
 
 
+async def function_config__add_collection_primitive_attribute_config__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_function_config__add_collection_primitive_attribute_config(
+        positional=positional, keyword=keyword
+    )
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_function_config__add_collection_primitive_attribute_config(
+        bound_input=bound_input, target=target
+    )
+
+
 async def function_config__remove_attribute_config__invocation_handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -16783,6 +18254,26 @@ async def function_config_attribute_config__create_class_via_function_config__in
             "Generated Meta constructor invocation requires ORMModel class target."
         )
     return await _call_function_config_attribute_config__create_class_via_function_config(bound_input=bound_input)
+
+
+async def function_config_attribute_config__create_collection_primitive_via_function_config__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_function_config_attribute_config__create_collection_primitive_via_function_config(
+        positional=positional, keyword=keyword
+    )
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_function_config_attribute_config__create_collection_primitive_via_function_config(
+        bound_input=bound_input
+    )
 
 
 async def function_config_attribute_config__create_enum_via_function_config__invocation_handler(
@@ -17527,6 +19018,24 @@ async def object_config_graph__create_object_projection_graph__invocation_handle
     return await _call_object_config_graph__create_object_projection_graph(bound_input=bound_input, target=target)
 
 
+async def object_config_graph__create_object_projection_graph_declaration__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_object_config_graph__create_object_projection_graph_declaration(
+        positional=positional, keyword=keyword
+    )
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_object_config_graph__create_object_projection_graph_declaration(
+        bound_input=bound_input, target=target
+    )
+
+
 async def object_config_graph__get_topology_description__invocation_handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -18197,6 +19706,26 @@ async def object_projection_graph__build_via_object_config_graph__invocation_han
     return await _call_object_projection_graph__build_via_object_config_graph(bound_input=bound_input)
 
 
+async def object_projection_graph_binding__create_via_object_projection_graph_declaration__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_object_projection_graph_binding__create_via_object_projection_graph_declaration(
+        positional=positional, keyword=keyword
+    )
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_object_projection_graph_binding__create_via_object_projection_graph_declaration(
+        bound_input=bound_input
+    )
+
+
 async def object_projection_graph_constructor__build_via_object_projection_graph__invocation_handler(
     request: MetaGraphHandlerExecutionRequest,
     pre_state: MetaGraphPreState,
@@ -18213,6 +19742,38 @@ async def object_projection_graph_constructor__build_via_object_projection_graph
             "Generated Meta constructor invocation requires ORMModel class target."
         )
     return await _call_object_projection_graph_constructor__build_via_object_projection_graph(bound_input=bound_input)
+
+
+async def object_projection_graph_declaration__create_binding__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_object_projection_graph_declaration__create_binding(positional=positional, keyword=keyword)
+    if not isinstance(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError("Generated Meta instance invocation requires ORMModel target.")
+    return await _call_object_projection_graph_declaration__create_binding(bound_input=bound_input, target=target)
+
+
+async def object_projection_graph_declaration__create_via_object_config_graph__invocation_handler(
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    target: ORMModel | type[ORMModel],
+    positional: JsonArray,
+    keyword: JsonObject,
+) -> object:
+    _ = request, pre_state
+    bound_input = _bind_object_projection_graph_declaration__create_via_object_config_graph(
+        positional=positional, keyword=keyword
+    )
+    if not isinstance(target, type) or not issubclass(target, ORMModel):
+        raise MetaGraphLanguageHandlerExecutionError(
+            "Generated Meta constructor invocation requires ORMModel class target."
+        )
+    return await _call_object_projection_graph_declaration__create_via_object_config_graph(bound_input=bound_input)
 
 
 async def object_projection_graph_edge__build_via_object_projection_graph__invocation_handler(
@@ -18420,6 +19981,13 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
     ): attribute_config__create_class__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.attribute.AttributeConfig",
+        function_name="create_collection_primitive",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.attribute.AttributeConfig",
+        owner_class_name="AttributeConfig",
+    ): attribute_config__create_collection_primitive__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.attribute.AttributeConfig",
         function_name="update_primitive",
         is_constructor=False,
         owner_class_fqn="aware_meta.attribute.AttributeConfig",
@@ -18462,6 +20030,13 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
     ): attribute_type_descriptor__create_class__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.attribute.AttributeTypeDescriptor",
+        function_name="create_collection_primitive",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.attribute.AttributeTypeDescriptor",
+        owner_class_name="AttributeTypeDescriptor",
+    ): attribute_type_descriptor__create_collection_primitive__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.attribute.AttributeTypeDescriptor",
         function_name="create_child_link",
         is_constructor=False,
         owner_class_fqn="aware_meta.attribute.AttributeTypeDescriptor",
@@ -18483,6 +20058,13 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
     ): class_config__update_config__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.class.ClassConfig",
+        function_name="update_parent_class",
+        is_constructor=False,
+        owner_class_fqn="aware_meta.class.ClassConfig",
+        owner_class_name="ClassConfig",
+    ): class_config__update_parent_class__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.class.ClassConfig",
         function_name="create_primitive_attribute_config",
         is_constructor=False,
         owner_class_fqn="aware_meta.class.ClassConfig",
@@ -18502,6 +20084,13 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
         owner_class_fqn="aware_meta.class.ClassConfig",
         owner_class_name="ClassConfig",
     ): class_config__create_class_attribute_config__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.class.ClassConfig",
+        function_name="create_collection_primitive_attribute_config",
+        is_constructor=False,
+        owner_class_fqn="aware_meta.class.ClassConfig",
+        owner_class_name="ClassConfig",
+    ): class_config__create_collection_primitive_attribute_config__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.class.ClassConfig",
         function_name="remove_attribute_config",
@@ -18558,6 +20147,13 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
         owner_class_fqn="aware_meta.class.ClassConfigAttributeConfig",
         owner_class_name="ClassConfigAttributeConfig",
     ): class_config_attribute_config__create_class_via_class_config__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.class.ClassConfigAttributeConfig",
+        function_name="create_collection_primitive_via_class_config",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.class.ClassConfigAttributeConfig",
+        owner_class_name="ClassConfigAttributeConfig",
+    ): class_config_attribute_config__create_collection_primitive_via_class_config__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.class.ClassConfigAttributeConfig",
         function_name="create_enum_via_class_config",
@@ -18763,6 +20359,13 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
     ): function_config__add_class_attribute_config__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.function.FunctionConfig",
+        function_name="add_collection_primitive_attribute_config",
+        is_constructor=False,
+        owner_class_fqn="aware_meta.function.FunctionConfig",
+        owner_class_name="FunctionConfig",
+    ): function_config__add_collection_primitive_attribute_config__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.function.FunctionConfig",
         function_name="remove_attribute_config",
         is_constructor=False,
         owner_class_fqn="aware_meta.function.FunctionConfig",
@@ -18796,6 +20399,13 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
         owner_class_fqn="aware_meta.function.FunctionConfigAttributeConfig",
         owner_class_name="FunctionConfigAttributeConfig",
     ): function_config_attribute_config__create_class_via_function_config__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.function.FunctionConfigAttributeConfig",
+        function_name="create_collection_primitive_via_function_config",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.function.FunctionConfigAttributeConfig",
+        owner_class_name="FunctionConfigAttributeConfig",
+    ): function_config_attribute_config__create_collection_primitive_via_function_config__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.function.FunctionConfigAttributeConfig",
         function_name="create_enum_via_function_config",
@@ -19120,6 +20730,13 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
     ): object_config_graph__create_object_projection_graph__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.graph.config.ObjectConfigGraph",
+        function_name="create_object_projection_graph_declaration",
+        is_constructor=False,
+        owner_class_fqn="aware_meta.graph.config.ObjectConfigGraph",
+        owner_class_name="ObjectConfigGraph",
+    ): object_config_graph__create_object_projection_graph_declaration__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.graph.config.ObjectConfigGraph",
         function_name="get_topology_description",
         is_constructor=False,
         owner_class_fqn="aware_meta.graph.config.ObjectConfigGraph",
@@ -19406,12 +21023,33 @@ AWARE_META_GRAPH_HANDLERS: dict[MetaGraphGeneratedLanguageHandlerKey, MetaGraphG
         owner_class_name="ObjectProjectionGraph",
     ): object_projection_graph__build_via_object_config_graph__handler,
     MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.graph.projection.ObjectProjectionGraphBinding",
+        function_name="create_via_object_projection_graph_declaration",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.graph.projection.ObjectProjectionGraphBinding",
+        owner_class_name="ObjectProjectionGraphBinding",
+    ): object_projection_graph_binding__create_via_object_projection_graph_declaration__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.graph.projection.ObjectProjectionGraphConstructor",
         function_name="build_via_object_projection_graph",
         is_constructor=True,
         owner_class_fqn="aware_meta.graph.projection.ObjectProjectionGraphConstructor",
         owner_class_name="ObjectProjectionGraphConstructor",
     ): object_projection_graph_constructor__build_via_object_projection_graph__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.graph.projection.ObjectProjectionGraphDeclaration",
+        function_name="create_binding",
+        is_constructor=False,
+        owner_class_fqn="aware_meta.graph.projection.ObjectProjectionGraphDeclaration",
+        owner_class_name="ObjectProjectionGraphDeclaration",
+    ): object_projection_graph_declaration__create_binding__handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.graph.projection.ObjectProjectionGraphDeclaration",
+        function_name="create_via_object_config_graph",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.graph.projection.ObjectProjectionGraphDeclaration",
+        owner_class_name="ObjectProjectionGraphDeclaration",
+    ): object_projection_graph_declaration__create_via_object_config_graph__handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.graph.projection.ObjectProjectionGraphEdge",
         function_name="build_via_object_projection_graph",
@@ -19517,6 +21155,13 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
     ): attribute_config__create_class__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.attribute.AttributeConfig",
+        function_name="create_collection_primitive",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.attribute.AttributeConfig",
+        owner_class_name="AttributeConfig",
+    ): attribute_config__create_collection_primitive__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.attribute.AttributeConfig",
         function_name="update_primitive",
         is_constructor=False,
         owner_class_fqn="aware_meta.attribute.AttributeConfig",
@@ -19559,6 +21204,13 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
     ): attribute_type_descriptor__create_class__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.attribute.AttributeTypeDescriptor",
+        function_name="create_collection_primitive",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.attribute.AttributeTypeDescriptor",
+        owner_class_name="AttributeTypeDescriptor",
+    ): attribute_type_descriptor__create_collection_primitive__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.attribute.AttributeTypeDescriptor",
         function_name="create_child_link",
         is_constructor=False,
         owner_class_fqn="aware_meta.attribute.AttributeTypeDescriptor",
@@ -19580,6 +21232,13 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
     ): class_config__update_config__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.class.ClassConfig",
+        function_name="update_parent_class",
+        is_constructor=False,
+        owner_class_fqn="aware_meta.class.ClassConfig",
+        owner_class_name="ClassConfig",
+    ): class_config__update_parent_class__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.class.ClassConfig",
         function_name="create_primitive_attribute_config",
         is_constructor=False,
         owner_class_fqn="aware_meta.class.ClassConfig",
@@ -19599,6 +21258,13 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
         owner_class_fqn="aware_meta.class.ClassConfig",
         owner_class_name="ClassConfig",
     ): class_config__create_class_attribute_config__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.class.ClassConfig",
+        function_name="create_collection_primitive_attribute_config",
+        is_constructor=False,
+        owner_class_fqn="aware_meta.class.ClassConfig",
+        owner_class_name="ClassConfig",
+    ): class_config__create_collection_primitive_attribute_config__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.class.ClassConfig",
         function_name="remove_attribute_config",
@@ -19655,6 +21321,13 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
         owner_class_fqn="aware_meta.class.ClassConfigAttributeConfig",
         owner_class_name="ClassConfigAttributeConfig",
     ): class_config_attribute_config__create_class_via_class_config__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.class.ClassConfigAttributeConfig",
+        function_name="create_collection_primitive_via_class_config",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.class.ClassConfigAttributeConfig",
+        owner_class_name="ClassConfigAttributeConfig",
+    ): class_config_attribute_config__create_collection_primitive_via_class_config__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.class.ClassConfigAttributeConfig",
         function_name="create_enum_via_class_config",
@@ -19860,6 +21533,13 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
     ): function_config__add_class_attribute_config__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.function.FunctionConfig",
+        function_name="add_collection_primitive_attribute_config",
+        is_constructor=False,
+        owner_class_fqn="aware_meta.function.FunctionConfig",
+        owner_class_name="FunctionConfig",
+    ): function_config__add_collection_primitive_attribute_config__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.function.FunctionConfig",
         function_name="remove_attribute_config",
         is_constructor=False,
         owner_class_fqn="aware_meta.function.FunctionConfig",
@@ -19893,6 +21573,13 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
         owner_class_fqn="aware_meta.function.FunctionConfigAttributeConfig",
         owner_class_name="FunctionConfigAttributeConfig",
     ): function_config_attribute_config__create_class_via_function_config__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.function.FunctionConfigAttributeConfig",
+        function_name="create_collection_primitive_via_function_config",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.function.FunctionConfigAttributeConfig",
+        owner_class_name="FunctionConfigAttributeConfig",
+    ): function_config_attribute_config__create_collection_primitive_via_function_config__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.function.FunctionConfigAttributeConfig",
         function_name="create_enum_via_function_config",
@@ -20217,6 +21904,13 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
     ): object_config_graph__create_object_projection_graph__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.graph.config.ObjectConfigGraph",
+        function_name="create_object_projection_graph_declaration",
+        is_constructor=False,
+        owner_class_fqn="aware_meta.graph.config.ObjectConfigGraph",
+        owner_class_name="ObjectConfigGraph",
+    ): object_config_graph__create_object_projection_graph_declaration__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.graph.config.ObjectConfigGraph",
         function_name="get_topology_description",
         is_constructor=False,
         owner_class_fqn="aware_meta.graph.config.ObjectConfigGraph",
@@ -20503,12 +22197,33 @@ AWARE_META_GRAPH_INVOCATION_HANDLERS: dict[
         owner_class_name="ObjectProjectionGraph",
     ): object_projection_graph__build_via_object_config_graph__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.graph.projection.ObjectProjectionGraphBinding",
+        function_name="create_via_object_projection_graph_declaration",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.graph.projection.ObjectProjectionGraphBinding",
+        owner_class_name="ObjectProjectionGraphBinding",
+    ): object_projection_graph_binding__create_via_object_projection_graph_declaration__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.graph.projection.ObjectProjectionGraphConstructor",
         function_name="build_via_object_projection_graph",
         is_constructor=True,
         owner_class_fqn="aware_meta.graph.projection.ObjectProjectionGraphConstructor",
         owner_class_name="ObjectProjectionGraphConstructor",
     ): object_projection_graph_constructor__build_via_object_projection_graph__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.graph.projection.ObjectProjectionGraphDeclaration",
+        function_name="create_binding",
+        is_constructor=False,
+        owner_class_fqn="aware_meta.graph.projection.ObjectProjectionGraphDeclaration",
+        owner_class_name="ObjectProjectionGraphDeclaration",
+    ): object_projection_graph_declaration__create_binding__invocation_handler,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.graph.projection.ObjectProjectionGraphDeclaration",
+        function_name="create_via_object_config_graph",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.graph.projection.ObjectProjectionGraphDeclaration",
+        owner_class_name="ObjectProjectionGraphDeclaration",
+    ): object_projection_graph_declaration__create_via_object_config_graph__invocation_handler,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.graph.projection.ObjectProjectionGraphEdge",
         function_name="build_via_object_projection_graph",
@@ -20613,6 +22328,13 @@ AWARE_META_GRAPH_EMPTY_LANE_BOOTSTRAPS: dict[
         owner_class_name="AttributeConfig",
     ): attribute_config__create_class__empty_lane_bootstrap,
     MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.attribute.AttributeConfig",
+        function_name="create_collection_primitive",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.attribute.AttributeConfig",
+        owner_class_name="AttributeConfig",
+    ): attribute_config__create_collection_primitive__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.attribute.AttributeTypeDescriptor",
         function_name="create_primitive",
         is_constructor=True,
@@ -20634,6 +22356,13 @@ AWARE_META_GRAPH_EMPTY_LANE_BOOTSTRAPS: dict[
         owner_class_name="AttributeTypeDescriptor",
     ): attribute_type_descriptor__create_class__empty_lane_bootstrap,
     MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.attribute.AttributeTypeDescriptor",
+        function_name="create_collection_primitive",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.attribute.AttributeTypeDescriptor",
+        owner_class_name="AttributeTypeDescriptor",
+    ): attribute_type_descriptor__create_collection_primitive__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.attribute.AttributeTypeDescriptorLink",
         function_name="build_via_attribute_type_descriptor",
         is_constructor=True,
@@ -20654,6 +22383,13 @@ AWARE_META_GRAPH_EMPTY_LANE_BOOTSTRAPS: dict[
         owner_class_fqn="aware_meta.class.ClassConfigAttributeConfig",
         owner_class_name="ClassConfigAttributeConfig",
     ): class_config_attribute_config__create_class_via_class_config__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.class.ClassConfigAttributeConfig",
+        function_name="create_collection_primitive_via_class_config",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.class.ClassConfigAttributeConfig",
+        owner_class_name="ClassConfigAttributeConfig",
+    ): class_config_attribute_config__create_collection_primitive_via_class_config__empty_lane_bootstrap,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.class.ClassConfigAttributeConfig",
         function_name="create_enum_via_class_config",
@@ -20766,6 +22502,13 @@ AWARE_META_GRAPH_EMPTY_LANE_BOOTSTRAPS: dict[
         owner_class_fqn="aware_meta.function.FunctionConfigAttributeConfig",
         owner_class_name="FunctionConfigAttributeConfig",
     ): function_config_attribute_config__create_class_via_function_config__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.function.FunctionConfigAttributeConfig",
+        function_name="create_collection_primitive_via_function_config",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.function.FunctionConfigAttributeConfig",
+        owner_class_name="FunctionConfigAttributeConfig",
+    ): function_config_attribute_config__create_collection_primitive_via_function_config__empty_lane_bootstrap,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.function.FunctionConfigAttributeConfig",
         function_name="create_enum_via_function_config",
@@ -21047,12 +22790,26 @@ AWARE_META_GRAPH_EMPTY_LANE_BOOTSTRAPS: dict[
         owner_class_name="ObjectProjectionGraph",
     ): object_projection_graph__build_via_object_config_graph__empty_lane_bootstrap,
     MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.graph.projection.ObjectProjectionGraphBinding",
+        function_name="create_via_object_projection_graph_declaration",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.graph.projection.ObjectProjectionGraphBinding",
+        owner_class_name="ObjectProjectionGraphBinding",
+    ): object_projection_graph_binding__create_via_object_projection_graph_declaration__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.graph.projection.ObjectProjectionGraphConstructor",
         function_name="build_via_object_projection_graph",
         is_constructor=True,
         owner_class_fqn="aware_meta.graph.projection.ObjectProjectionGraphConstructor",
         owner_class_name="ObjectProjectionGraphConstructor",
     ): object_projection_graph_constructor__build_via_object_projection_graph__empty_lane_bootstrap,
+    MetaGraphGeneratedLanguageHandlerKey(
+        owner_key="aware_meta.graph.projection.ObjectProjectionGraphDeclaration",
+        function_name="create_via_object_config_graph",
+        is_constructor=True,
+        owner_class_fqn="aware_meta.graph.projection.ObjectProjectionGraphDeclaration",
+        owner_class_name="ObjectProjectionGraphDeclaration",
+    ): object_projection_graph_declaration__create_via_object_config_graph__empty_lane_bootstrap,
     MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.graph.projection.ObjectProjectionGraphEdge",
         function_name="build_via_object_projection_graph",

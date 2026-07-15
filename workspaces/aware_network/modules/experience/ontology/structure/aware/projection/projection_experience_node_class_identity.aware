@@ -1,0 +1,38 @@
+/// Shared semantic node identity -> runtime class identity bridge.
+///
+/// Contract:
+/// - Bridges one ProjectionExperienceNodeIdentity to one Meta ClassInstanceIdentity.
+/// - Traversal context is expressed via ProjectionExperienceNodeClassIdentityEdge.
+/// - Key bindings live under this edge as mapping data.
+class ProjectionExperienceNodeClassIdentity {
+    // Relationships
+    projection_experience_node_identity ProjectionExperienceNodeIdentity key
+    class_instance_identity aware_meta.class.ClassInstanceIdentity key
+    key_bindings ProjectionExperienceNodeClassIdentityKeyBinding[]
+
+    // Attributes
+    key String key
+
+    fn build construct (
+        projection_experience_node_identity_id UUID key,
+        class_instance_identity_id UUID key,
+        key String key
+    ) -> ProjectionExperienceNodeClassIdentity {
+        """
+        Create deterministic ProjectionExperienceNodeClassIdentity.
+        """
+    }
+
+    fn add_key_binding (
+        projection_experience_node_key_id UUID,
+        value JsonObject? = null
+    ) -> ProjectionExperienceNodeClassIdentityKeyBinding {
+        """
+        Attach one ProjectionKey resolution payload row under this projection node-class identity bridge.
+        """
+        let created = construct key_bindings.build(
+            projection_experience_node_key_id = projection_experience_node_key_id,
+            value = value,
+        )
+    }
+}

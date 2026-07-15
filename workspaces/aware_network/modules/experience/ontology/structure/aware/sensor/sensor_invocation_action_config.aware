@@ -1,0 +1,46 @@
+/// Sensor-owned binding to one generic Experience invocation action config.
+///
+/// Contract:
+/// - A Sensor config can expose one or more reusable invocation action targets.
+/// - API/SDK/service target metadata lives on `ExperienceInvocationActionConfig`.
+/// - Actual invocation receipts are linked to concrete Sensor instances by
+///   `SensorInvocationAction`.
+class SensorInvocationActionConfig {
+    // Relationships
+    experience_invocation_action_config invocation.ExperienceInvocationActionConfig key
+
+    fn build construct (
+        experience_invocation_action_config_id UUID key
+    ) -> SensorInvocationActionConfig {
+        """
+        Bind one generic invocation action config under a SensorConfig.
+
+        Contract:
+        - Parent `SensorConfig` scope is propagated by constructor lowering.
+        - This object only says that the sensor config can invoke that reusable
+          Experience action target.
+        """
+    }
+
+    fn record_invocation (
+        invocation_key UUID key,
+        actor_id UUID? = null,
+        api_call_id UUID? = null,
+        sdk_operation_call_id UUID? = null,
+        request_ref String? = null,
+        receipt_ref String? = null,
+        status String = "pending"
+    ) -> invocation.ExperienceInvocationAction {
+        """
+        Record one actual invocation handled through this sensor action config.
+
+        Contract:
+        - Parentage is `SensorConfig -> SensorInvocationActionConfig`.
+        - `ExperienceInvocationActionConfig` remains target metadata only.
+        - Concrete Sensor instance provenance is recorded by `SensorInvocationAction`,
+          which links to the actual Experience invocation receipt.
+        """
+    }
+}
+
+ann sensor.SensorInvocationActionConfig::experience_invocation_action_config load eager

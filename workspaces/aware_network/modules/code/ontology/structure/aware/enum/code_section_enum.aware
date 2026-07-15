@@ -1,0 +1,24 @@
+class CodeSectionEnum {
+    // Relationships
+    code_section_comments comment.CodeSectionComment[]
+    name_segment aware_content.part.ContentPartTextSegment
+    code_section_enum_values enum.CodeSectionEnumValue[]
+    content_part_text_segments aware_content.part.ContentPartTextSegment[] many
+
+    // Attributes
+    name String
+    description String?
+
+    fn build construct() -> CodeSectionEnum {
+        """
+        Build the enum payload under a CodeSection.
+        """
+    }
+}
+
+/// Eager comments + enum values + name segment
+ann enum.CodeSectionEnum::name_segment load eager
+ann enum.CodeSectionEnum::code_section_comments load eager
+ann enum.CodeSectionEnum::code_section_comments override fk nullable
+ann enum.CodeSectionEnum::code_section_enum_values load eager
+ann enum.CodeSectionEnum::content_part_text_segments load eager

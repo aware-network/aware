@@ -1,0 +1,27 @@
+/// Program branch+view context selection step.
+///
+/// Contract:
+/// - `program_config_port` selects branch connectivity contract.
+/// - `view_key` selects representation contract.
+/// - No stable-id resolution occurs in config; runtime resolves at turn execution.
+class ProgramImplInstructionBind {
+    // Relationships
+    program_config_port program.ProgramConfigPort
+
+    // Attributes
+    is_active Bool = true
+    view_key String
+
+    fn build construct (
+        program_config_port_id UUID,
+        view_key String,
+        is_active Bool = true
+    ) -> ProgramImplInstructionBind {
+        """
+        Create deterministic bind payload for one ProgramImplInstruction.
+
+        Contract:
+        - Parent context (`program_impl_instruction_id`) is injected by parent-edge lowering.
+        """
+    }
+}

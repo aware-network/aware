@@ -1,0 +1,36 @@
+{
+    "grammars": [
+        {
+            "name": "aware",
+            "camelcase": "Aware",
+            "scope": "source.aware",
+            "path": ".",
+            "file-types": [
+                "aware"
+            ],
+            "highlights": "queries/highlights.scm",
+            "tags": "queries/tags.scm",
+            "injection-regex": "aware"
+        }
+    ],
+    "metadata": {
+        "version": "0.0.1",
+        "license": "MIT",
+        "description": "Aware language grammar",
+        "authors": [
+            {
+                "name": "Aware Team",
+                "email": "team@aware.network"
+            }
+        ],
+        "links": {
+            "repository": "https://github.com/aware-network/aware"
+        }
+    },
+    "bindings": {
+        "c": true,
+        "node": true,
+        "python": true,
+        "rust": true
+    }
+}

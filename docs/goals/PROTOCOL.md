@@ -112,6 +112,46 @@ Operational consumers must use the Goal SDK contract as the interface:
   Markdown, and Codex/agents consume either the SDK or the projected filesystem
   view.
 
+## Workspace content materialization
+
+Goal content must participate in shared Workspace materializations, but it is
+content, not code.
+
+Provider truth stays with Goal:
+
+- Goal service owns canonical `Goal`, `GoalLane`, and `GoalLaneIssue`
+  operations.
+- Goal service resolves typed goal view state from live service/ontology
+  replica truth.
+- Goal service should become the provider for any durable Goal content export
+  or materialization contract.
+
+The SDK/CLI path is the migration boundary:
+
+- Public Goal SDK owns caller-facing view rendering, Markdown import seed, and
+  generated API wrapping.
+- Local Goal SDK owns local ServiceHost or in-process service dogfood routes.
+- CLI commands route through SDK/local SDK. They must not own independent goal
+  parsing, status semantics, or raw file mutation rules.
+- Raw `docs/goals/**` edits are migration/bootstrap behavior until the
+  service-backed path can write or refresh the projection.
+
+Workspace materialization should treat Goal output as coordination content:
+
+- First content projection: `docs/goals/LATEST.md` plus selected goal files
+  needed for active alignment.
+- Projection input: service-resolved Goal home/view state and lane issue rows,
+  not ad hoc filesystem scans.
+- Projection output: deterministic Markdown/content files suitable for shared
+  checkout and external agent read participation.
+- Writes back to Goal truth should route through Goal service operations; the
+  Workspace content projection is a readable shared surface, not a second Goal
+  authority.
+
+This mirrors the Issue direction: services own the truth; filesystem output is
+a materialized view for agents, humans, and checkout. The difference is that
+Goal content is a product direction surface, not a commit rail.
+
 ## How goals relate to issues
 
 Issues are execution units; goals are product targets.

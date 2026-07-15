@@ -1,0 +1,61 @@
+/// Canonical profile for one ProjectionExperienceGraphIdentity.
+///
+/// Contract:
+/// - Owned by one graph occurrence identity, not by generic node identity.
+/// - Stores review-facing label and deterministic resolution hints for later
+///   profile-based binding.
+/// - Remains perception-agnostic: it holds identity-side truth, not observations.
+class ProjectionExperienceGraphIdentityProfile {
+    // Relationships
+    exemplars ProjectionExperienceGraphIdentityProfileExemplar[]
+
+    // Attributes
+    review_label String
+    resolution_prompts String[] = []
+    aliases String[] = []
+    summary String?
+    notes String?
+
+    fn build construct (
+        review_label String,
+        resolution_prompts String[] = [],
+        aliases String[] = [],
+        summary String? = null,
+        notes String? = null
+    ) -> ProjectionExperienceGraphIdentityProfile {
+        """
+        Construct one canonical graph-identity profile under a ProjectionExperienceGraphIdentity.
+
+        Contract:
+        - Parent graph identity is the canonical anchor for this profile.
+        - `review_label` is the human-facing label used in review/UI rails.
+        - `resolution_prompts` are deterministic matcher hints, not identity by themselves.
+        - Richer content/location extensions may evolve later without redefining this core surface.
+        """
+    }
+
+    fn create_exemplar (
+        key String,
+        label String? = null,
+        prompt_hint String? = null,
+        note String? = null,
+        is_primary Bool = false,
+        image_id UUID? = null
+    ) -> ProjectionExperienceGraphIdentityProfileExemplar {
+        """
+        Attach one exemplar row under this graph-identity profile.
+
+        Contract:
+        - Exemplar bytes are uploaded out-of-band; commits reference StorageBlob metadata only.
+        - Exemplars improve future matching quality but do not redefine graph identity.
+        """
+        let created = construct exemplars.build(
+            key = key,
+            label = label,
+            prompt_hint = prompt_hint,
+            note = note,
+            is_primary = is_primary,
+            image_id = image_id,
+        )
+    }
+}

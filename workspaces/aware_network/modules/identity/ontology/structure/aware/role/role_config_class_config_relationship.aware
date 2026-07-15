@@ -1,0 +1,4 @@
+edge RoleConfigClassConfigRelationship {
+    // Attributes
+    access_level AccessLevelType key
+}

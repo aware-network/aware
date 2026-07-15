@@ -1,0 +1,48 @@
+/// Concrete provider capability attached to one shared Identity Session.
+///
+/// Contract:
+/// - Parent constructor is Session.
+/// - Points to SessionProviderSessionConfig for provider/config eligibility.
+/// - Provider-specific object state is referenced through generic Meta graph
+///   portals and/or an opaque bridge ref.
+/// - Identity does not import Environment, Conversation, Workflow, Workspace,
+///   Attention, or provider service ontology.
+class SessionProviderSession {
+    // Relationships
+    provider_session_config SessionProviderSessionConfig key
+    provider_object_instance_graph_identity aware_meta.graph.instance.ObjectInstanceGraphIdentity?
+    provider_class_instance_identity aware_meta.class.ClassInstanceIdentity?
+    provider_object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch?
+
+    // Attributes
+    provider_session_key String key
+    provider_session_ref String?
+    status String = "active"
+    metadata_json JsonObject? = {}
+
+    fn create construct (
+        provider_session_config_id UUID key,
+        provider_session_key String key,
+        provider_session_ref String? = null,
+        provider_object_instance_graph_identity_id UUID? = null,
+        provider_class_instance_identity_id UUID? = null,
+        provider_object_instance_graph_branch_id UUID? = null,
+        status String = "active",
+        metadata_json JsonObject? = {}
+    ) -> SessionProviderSession {
+        """
+        Attach one concrete provider capability to the parent Identity Session.
+
+        Contract:
+        - Stable identity is `(session_id, provider_session_config_id,
+          provider_session_key)`.
+        - This is not session ownership; many provider sessions may attach to
+          one Identity Session.
+        """
+    }
+}
+
+ann session.SessionProviderSession::provider_session_config load eager
+ann session.SessionProviderSession::provider_object_instance_graph_identity load eager
+ann session.SessionProviderSession::provider_class_instance_identity load eager
+ann session.SessionProviderSession::provider_object_instance_graph_branch load eager

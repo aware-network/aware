@@ -1,0 +1,96 @@
+class Process {
+    // Relationships
+    parent Process?
+    /// Reusable ProcessConfig this runtime Process instantiates.
+    ///
+    /// Contract:
+    /// - ProcessConfig is a reusable key/config portal.
+    /// - EnvironmentProfile owns runtime Process containment.
+    process_config ProcessConfig key
+    /// Optional territory image override for this process.
+    ///
+    /// Fallback guidance:
+    /// - If unset, UI should resolve via parent ProcessConfig image/profile context.
+    ///
+    /// Contract:
+    /// - Image bytes are uploaded out-of-band (data-plane).
+    /// - Commits reference StorageBlob metadata only.
+    image aware_storage.blob.StorageBlob? unique
+    object_instance_graphs aware_meta.graph.instance.ObjectInstanceGraph[] many
+    overview_content aware_content.content.Content?
+    backlog_chain aware_content.chain.ContentChain?
+    /// Runtime Thread instances under this Process.
+    ///
+    /// Contract:
+    /// - Process owns concrete Thread containment.
+    /// - ThreadConfig remains a reusable key/config portal.
+    threads thread.Thread[]
+
+    // Attributes
+    key String key
+    description String?
+    priority_level priority.PriorityLevel = medium
+    status ProcessStatus = pending
+    title String
+
+    fn build construct (
+        process_config_id UUID key,
+        key String key,
+        title String,
+        description String? = null
+    ) -> Process {
+        """
+        Create a runtime Process under an EnvironmentProfile.
+
+        Contract:
+        - Parent EnvironmentProfile context is propagated by constructor lowering.
+        - ProcessConfig is a reusable config portal/key.
+        - Runtime identity is `(environment_profile_id via path, process_config_id, key)`.
+        """
+    }
+
+    fn create_thread (
+        thread_config_id UUID key,
+        key String key,
+        title String? = null,
+        description String? = null,
+        is_main Bool = false
+    ) -> thread.Thread {
+        """
+        Instantiate one runtime Thread under this Process.
+
+        Contract:
+        - Process owns runtime Thread membership.
+        - ThreadConfig remains a reusable config portal/key.
+        - Runtime identity is `(process_id via path, thread_config_id, key)`.
+        """
+        let thread = construct threads.build(
+            thread_config_id = thread_config_id,
+            key = key,
+            title = title,
+            description = description,
+            is_main = is_main,
+        )
+    }
+
+    fn update_picture(image_id UUID? = null, image_sha String? = null, image_mime_type String? = null, image_size_bytes Int? = null) -> {
+        """
+        Updates (or clears) the process territory image override.
+
+        Contract:
+        - Raw bytes are uploaded out-of-band via HTTP file operations.
+        - Commits must reference commit-backed StorageBlob metadata only.
+        - When setting a picture, image_sha/image_mime_type/image_size_bytes must be provided together.
+
+        Parameters:
+            image_id: Optional uploaded blob id to assert against image_sha-derived stable id.
+            image_sha: SHA-256 hex digest of uploaded bytes.
+            image_mime_type: MIME type of uploaded bytes.
+            image_size_bytes: Size of uploaded bytes.
+        Returns: None.
+        """
+    }
+}
+
+ann process.Process::process_config load eager
+ann process.Process::threads load eager

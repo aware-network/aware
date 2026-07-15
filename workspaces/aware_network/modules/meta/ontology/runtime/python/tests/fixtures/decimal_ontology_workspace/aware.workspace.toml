@@ -1,0 +1,9 @@
+aware = 1
+
+[workspace]
+handle = "aware_decimal_fixture"
+title = "Aware Decimal Primitive Fixture"
+
+[[workspace.modules]]
+id = "decimal_fixture"
+path = "modules/decimal_fixture"

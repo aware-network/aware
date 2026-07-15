@@ -63,10 +63,8 @@ class AwareModulePackageSpec:
     id: str
     kind: str
     manifest: str
-    aware_toml_path: str
     visibility: str = "module"
     semantic_contract: "AwareModulePackageSemanticContractSpec | None" = None
-    semantic_bindings: tuple["AwareModulePackageSemanticBindingSpec", ...] = ()
     # When true for an API package, allows the package to reference its own module ontology
     # at `.aware` level for mirroring/copying types into the DTO OCG (no language-level deps).
     mirrors_ontology: bool = False
@@ -88,15 +86,6 @@ class AwareModulePackageSemanticContractSpec:
     owns_manifest_kinds: tuple[str, ...] = ()
     capabilities: tuple[str, ...] = ()
     bindings: tuple[AwareModulePackageSemanticContractBindingSpec, ...] = ()
-
-
-@dataclass(frozen=True, slots=True)
-class AwareModulePackageSemanticBindingSpec:
-    role: str
-    contract: str
-    binding_module: str | None = None
-    capabilities: tuple[str, ...] = ()
-    callable_name: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -140,7 +129,6 @@ __all__ = [
     "AwareModuleServiceSpec",
     "AwareModuleSpec",
     "AwareModulePackageSpec",
-    "AwareModulePackageSemanticBindingSpec",
     "AwareModulePackageSemanticContractBindingSpec",
     "AwareModulePackageSemanticContractSpec",
     "AwareModuleRuntimeSpec",

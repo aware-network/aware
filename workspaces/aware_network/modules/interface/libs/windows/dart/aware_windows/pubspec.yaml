@@ -1,0 +1,27 @@
+name: aware_windows
+version: 0.4.0
+publish_to: 'none'
+description: "Reusable window and pane infrastructure shared across Aware clients"
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
+  aware_messaging:
+    path: ../../../messaging/dart/aware_messaging
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  build_runner: ^2.4.11
+  freezed: ^3.2.3
+  json_serializable: ^6.11.1
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,26 @@
+/// Deterministic Thread -> Attention Layout association edge.
+///
+/// Contract:
+/// - Canonical portal from environment thread context to attention layout topology.
+/// - Thread remains narrative/layout-management context; attention owns section/focus truth.
+class ThreadLayout {
+    // Relationships
+    layout aware_attention.layout.Layout key
+
+    // Attributes
+    /// Stable association key under a Thread for layout attachments.
+    key String? = null
+
+    fn create construct (
+        layout_id UUID key,
+        key String? = null
+    ) -> ThreadLayout {
+        """
+        Create a deterministic ThreadLayout association edge.
+
+        Contract:
+        - Identity is derived from propagated parent Thread context (`_via_thread_layouts`) + `layout_id`.
+        - Idempotent for repeated calls with the same parent/layout pair.
+        """
+    }
+}

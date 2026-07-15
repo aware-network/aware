@@ -1,0 +1,20 @@
+class RoleConfigClassConfigFunctionConfig {
+    // Relationships
+    function_config aware_meta.function.FunctionConfig key
+
+    // Attributes
+    access_level AccessLevelType
+
+    fn create construct (
+        function_config_id UUID key,
+        access_level AccessLevelType
+    ) -> RoleConfigClassConfigFunctionConfig {
+        """
+        Create a commit-backed function policy edge under a class policy node.
+
+        Contract (v0):
+        - Stable id from (`role_config_class_config_id`, `function_config_id`).
+        - Idempotent constructor for deterministic role policy commits.
+        """
+    }
+}

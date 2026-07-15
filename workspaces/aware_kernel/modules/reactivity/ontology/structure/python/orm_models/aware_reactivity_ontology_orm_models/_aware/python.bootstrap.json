@@ -1,5 +1,6 @@
 {
   "dependency_import_roots": [
+    "aware_api_ontology_orm_models",
     "aware_content_ontology_orm_models",
     "aware_meta_ontology_orm_models"
   ],
@@ -32,6 +33,7 @@
   ],
   "package_prefix": "aware_reactivity_ontology_orm_models",
   "pydantic_model_dependency_import_roots": [
+    "aware_api_ontology_orm_models",
     "aware_content_ontology_orm_models",
     "aware_meta_ontology_orm_models"
   ],

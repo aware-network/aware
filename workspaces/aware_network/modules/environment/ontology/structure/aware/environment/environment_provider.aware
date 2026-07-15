@@ -1,0 +1,72 @@
+/// Provider-neutral Environment slot.
+///
+/// Contract:
+/// - Environment declares approved provider slots without importing Experience.
+/// - Experiences bind to these slots in the Experience-owned provider rail.
+/// - Concrete service fulfillment remains outside Environment ontology.
+class EnvironmentProvider {
+    // Relationships
+    grants EnvironmentProviderGrant[]
+
+    // Attributes
+    contract_ref String?
+    description String?
+    metadata_json JsonObject? = {}
+    provider_key String key
+    provider_kind String = "provider"
+    selection_policy String = "contract_required"
+    status String = "active"
+    title String?
+
+    fn build construct (
+        provider_key String key,
+        provider_kind String = "provider",
+        contract_ref String? = null,
+        selection_policy String = "contract_required",
+        status String = "active",
+        title String? = null,
+        description String? = null,
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentProvider {
+        """
+        Create one provider-neutral slot under an EnvironmentProfileConfig.
+
+        Contract:
+        - Parent EnvironmentProfileConfig scope is propagated by constructor lowering.
+        - Stable identity is `(environment_profile_config_id, provider_key)`.
+        """
+    }
+
+    fn grant_scope (
+        grant_key String key,
+        scope_kind String = "profile",
+        process_config_id UUID? = null,
+        thread_config_id UUID? = null,
+        object_projection_graph_id UUID? = null,
+        action_scope String? = null,
+        status String = "active",
+        description String? = null,
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentProviderGrant {
+        """
+        Grant this provider slot a scoped Environment capability.
+
+        Contract:
+        - Grants are provider-neutral and Experience-free.
+        - Experience resolves these grants before issuing graph gateway context.
+        """
+        let grant = construct grants.build(
+            grant_key = grant_key,
+            scope_kind = scope_kind,
+            process_config_id = process_config_id,
+            thread_config_id = thread_config_id,
+            object_projection_graph_id = object_projection_graph_id,
+            action_scope = action_scope,
+            status = status,
+            description = description,
+            metadata_json = metadata_json,
+        )
+    }
+}
+
+ann environment.EnvironmentProvider::grants load eager

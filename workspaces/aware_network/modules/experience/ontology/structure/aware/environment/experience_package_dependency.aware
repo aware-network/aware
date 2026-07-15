@@ -1,0 +1,42 @@
+/// Experience package to Experience package dependency bridge.
+///
+/// The authored `aware.experience.toml` dependency row is selector truth. The
+/// resolved OIG commit pin, when present, is exact reproducibility authority for
+/// WorkspaceRevision/Hub consumers and cross-Experience transition linking.
+class ExperiencePackageDependency {
+    // Relationships
+    target_experience_package ExperiencePackage key
+    target_experience_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    target_package_name String
+    target_version_number Int?
+    expected_hash_sha256 String?
+    description String?
+
+    fn build construct (
+        target_experience_package_id UUID key,
+        target_package_name String,
+        target_experience_package_object_instance_graph_commit_id UUID? = null,
+        target_version_number Int? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null
+    ) -> ExperiencePackageDependency {
+        """
+        Create one package-level Experience dependency edge.
+
+        Contract:
+        - Parent `ExperiencePackage` scope is injected by propagation.
+        - Identity is keyed by the target `ExperiencePackage`.
+        - `target_package_name` is retained as authored selector text.
+        - `target_version_number` is compatibility/selector metadata, not reproducibility authority.
+        - `target_experience_package_object_instance_graph_commit_id`, when present, pins exact
+          semantic package truth.
+        - Cross-Experience transitions and profile composition may resolve only through this
+          dependency closure.
+        """
+    }
+}
+
+ann environment.ExperiencePackageDependency::target_experience_package load eager
+ann environment.ExperiencePackageDependency::target_experience_package_object_instance_graph_commit load eager

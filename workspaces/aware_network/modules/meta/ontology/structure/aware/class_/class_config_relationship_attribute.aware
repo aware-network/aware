@@ -1,0 +1,29 @@
+/// Relationship attribute representation.
+///
+/// This models how a `ClassConfigRelationship` is represented via one or more
+/// `AttributeConfig`s (e.g. REFERENCE attribute, FOREIGN_KEY attribute, AUXILIARY).
+///
+/// NOTE: OCG is general-purpose. Canonical constraints (e.g. emitting exactly one
+/// REFERENCE+FORWARD attribute) are enforced by builders/transformers, not the schema.
+class ClassConfigRelationshipAttribute {
+    // Relationships
+    attribute_config attribute.AttributeConfig key
+
+    // Attributes
+    direction ClassConfigRelationshipDirection key
+    role ClassConfigRelationshipAttributeRole key
+
+    fn create construct(
+        attribute_config_id UUID key,
+        direction ClassConfigRelationshipDirection key,
+        role ClassConfigRelationshipAttributeRole key
+    ) -> ClassConfigRelationshipAttribute {
+        """
+        Create deterministic ClassConfigRelationshipAttribute under a parent relationship scope.
+
+        Contract:
+        - Parent `ClassConfigRelationship` scope is propagated by traversal lowering.
+        - Stable identity derives from parent scope + `(attribute_config_id, direction, role)`.
+        """
+    }
+}

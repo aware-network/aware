@@ -1,0 +1,59 @@
+/// Experience-owned runtime topology seed.
+///
+/// Purpose:
+/// - Keep reusable Environment topology config separate from concrete runtime topology.
+/// - Provide named genesis/entrypoint recipes that can be selected explicitly.
+class EnvironmentTopologySeed {
+    // Relationships
+    environment_experience_profile_config EnvironmentExperienceProfileConfig key
+    process_seeds EnvironmentTopologyProcessSeed[]
+
+    // Attributes
+    description String?
+    key String key
+    narrative String?
+    title String?
+
+    fn build construct (
+        environment_experience_profile_config_id UUID key,
+        key String key,
+        title String? = null,
+        description String? = null,
+        narrative String? = null
+    ) -> EnvironmentTopologySeed {
+        """
+        Construct one topology seed under an EnvironmentExperience.
+
+        Contract:
+        - Identity is scoped by EnvironmentExperience and seed key.
+        - The referenced profile config supplies Experience config over Environment
+          ProcessConfig/ThreadConfig contracts.
+        - This seed supplies runtime process/thread/layout keys.
+        """
+    }
+
+    fn add_process_seed (
+        process_config_id UUID,
+        process_key String,
+        key String? = null,
+        title String? = null,
+        description String? = null,
+        position Int? = null,
+        narrative String? = null,
+        intent String? = null
+    ) -> EnvironmentTopologyProcessSeed {
+        """
+        Add one runtime Process seed referencing a reusable Environment ProcessConfig.
+        """
+        let seed = construct process_seeds.build(
+            process_config_id = process_config_id,
+            process_key = process_key,
+            key = key,
+            title = title,
+            description = description,
+            position = position,
+            narrative = narrative,
+            intent = intent,
+        )
+    }
+}

@@ -1,0 +1,89 @@
+/// Code-owned semantic workflow coverage status.
+enum CodeSemanticWorkflowCoverageStatus {
+    covered
+    blocked
+    skipped
+}
+
+/// Diagnostic emitted while resolving semantic workflow grammar/source coverage.
+class CodeSemanticWorkflowCoverageDiagnostic : inline_value {
+    severity String = "error"
+    reason String
+    message String
+    provider_key String?
+    workflow_key String?
+    ref_kind String?
+    ref String?
+    rule_name String?
+    metadata JsonObject?
+}
+
+/// Grammar-rule evidence attached to a semantic workflow graph-binding ref.
+class CodeSemanticWorkflowGrammarRuleEvidence : inline_value {
+    grammar_profile_key String
+    rule_name String
+    provider_key String
+    lane_key String
+    semantic_owner String
+    compiler_owner String
+    code_section_type String?
+    semantic_token_types String[] = []
+    semantic_token_modifiers String[] = []
+    metadata JsonObject?
+}
+
+/// Coverage result for one workflow graph-binding ref.
+class CodeSemanticWorkflowGraphBindingCoverage : inline_value {
+    graph_binding_ref String
+    rule_name String
+    covered Bool = false
+    metadata JsonObject?
+}
+
+/// Coverage entry for one provider-owned semantic workflow.
+class CodeSemanticWorkflowCoverageEntry : inline_value {
+    provider_key String
+    workflow_key String
+    semantic_owner String
+    stage_keys String[] = []
+    status code.CodeSemanticWorkflowCoverageStatus = blocked
+    covered Bool = false
+    grammar_profile_refs String[] = []
+    source_meaning_refs String[] = []
+    ontology_feature_refs String[] = []
+    graph_binding_refs String[] = []
+    grammar_rule_evidence code.CodeSemanticWorkflowGrammarRuleEvidence[] = []
+    graph_binding_coverage code.CodeSemanticWorkflowGraphBindingCoverage[] = []
+    diagnostics code.CodeSemanticWorkflowCoverageDiagnostic[] = []
+    metadata JsonObject?
+}
+
+/// Resolve workflow grammar/source/graph-binding coverage from semantic contracts.
+class ResolveCodeSemanticWorkflowCoverageRequest augment code.CodeServiceRequest {
+    operation String = "resolve_semantic_workflow_coverage"
+    profile_key String?
+    language String = "aware"
+    backend_key String?
+    provider_keys String[] = []
+    workflow_keys String[] = []
+    semantic_contracts code.CodeSemanticContract[] = []
+    include_current_code_sections Bool = false
+    strict Bool = true
+    metadata JsonObject?
+}
+
+class ResolveCodeSemanticWorkflowCoverageResponse augment code.CodeServiceResponse {
+    operation String = "resolve_semantic_workflow_coverage"
+    status code.CodeSemanticWorkflowCoverageStatus = blocked
+    covered Bool = false
+    entries code.CodeSemanticWorkflowCoverageEntry[] = []
+    diagnostics code.CodeSemanticWorkflowCoverageDiagnostic[] = []
+    missing_provider_keys String[] = []
+    invalid_rule_names String[] = []
+    provider_count Int = 0
+    workflow_count Int = 0
+    covered_workflow_count Int = 0
+}
+
+ann code.ResolveCodeSemanticWorkflowCoverageRequest::operation discriminate tag "resolve_semantic_workflow_coverage"
+ann code.ResolveCodeSemanticWorkflowCoverageResponse::operation discriminate tag "resolve_semantic_workflow_coverage"

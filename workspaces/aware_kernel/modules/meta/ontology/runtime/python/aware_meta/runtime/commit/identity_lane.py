@@ -26,11 +26,13 @@ from aware_meta_ontology.graph.projection.object_projection_graph import (
 
 # Meta Runtime
 from aware_meta.graph.instance.builder import build_rooted_object_instance_graph_base
-from aware_meta.graph.instance.commit.committer import FSLaneCommitter
-from aware_meta.graph.instance.commit.fs_store import (
-    CommitActionDescriptor,
-    FSCommitStore,
+from aware_meta.graph.instance.commit.builder import (
+    extract_object_instance_graph_commit_root_metadata,
 )
+from aware_meta.graph.instance.commit.committer import FSLaneCommitter
+from aware_meta.graph.instance.commit.contract import CommitActionDescriptor
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+from aware_meta.graph.instance.commit.state_index import build_commit_state_index
 from aware_meta.graph.instance.commit.materialization_cache import (
     get_shared_materialization_cache,
 )
@@ -327,6 +329,23 @@ def resolve_domain_object_instance_graph_identity_id(
     )
 
 
+def reset_invalid_object_instance_graph_identity_lane(
+    *,
+    aware_root: Path,
+    branch_id: UUID,
+    projection_hash: str,
+) -> None:
+    """Drop the rebuildable OIGI derived lane for one domain OIG/projection."""
+    branch_dir = aware_root / ".aware" / "oig" / str(branch_id)
+    lane_dir = branch_dir / projection_hash
+    if lane_dir.exists():
+        shutil.rmtree(lane_dir)
+    get_shared_materialization_cache().invalidate_lane(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+    )
+
+
 def _reset_invalid_object_instance_graph_identity_lane(
     *,
     aware_root: Path,
@@ -334,10 +353,8 @@ def _reset_invalid_object_instance_graph_identity_lane(
     projection_hash: str,
 ) -> None:
     branch_dir = aware_root / ".aware" / "oig" / str(branch_id)
-    lane_dir = branch_dir / projection_hash
-    if lane_dir.exists():
-        shutil.rmtree(lane_dir)
-    get_shared_materialization_cache().invalidate_lane(
+    reset_invalid_object_instance_graph_identity_lane(
+        aware_root=aware_root,
         branch_id=branch_id,
         projection_hash=projection_hash,
     )
@@ -508,9 +525,9 @@ async def ensure_object_instance_graph_identity_lane_head(
         function_id=handler_request.request.function_id,
         object_id=oigi_id,
     )
-    committer = FSLaneCommitter()
+    committer = FSLaneCommitter(store=store)
     fs_commit_started = time.monotonic()
-    _ = await committer.commit(
+    _ = await committer.commit_record_shallow(
         branch_id=domain_oig_id,
         projection_hash=ctx.projection_hash,
         object_projection_graph_identity_id=(
@@ -518,7 +535,10 @@ async def ensure_object_instance_graph_identity_lane_head(
         ),
         object_instance_graph_identity_id=oigi_id,
         object_instance_graph_id=before_oig.id,
-        before_oig=before_oig,
+        pre_state_index=build_commit_state_index(before_oig),
+        root_metadata=extract_object_instance_graph_commit_root_metadata(
+            graph=before_oig,
+        ),
         root_object_id=oigi_id,
         changes=changes,
         graph_hash_pre=append_ready.graph_hash_pre,

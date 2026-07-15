@@ -4,7 +4,7 @@ from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Mappin
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Protocol, TypeAlias, runtime_checkable
+from typing import Literal, Protocol, TypeAlias, runtime_checkable
 from uuid import UUID
 
 from aware_code_ontology.code.code_enums import CodeLanguage
@@ -23,8 +23,17 @@ from aware_meta.graph.instance.commit.state_index import (
     CommitStateIndex,
     CommitStateRow,
 )
+from aware_meta.graph.instance.commit.body_codec import (
+    ObjectInstanceGraphCommitBodyV1,
+    OigCommitBodyDraft,
+)
 
 JsonObject: TypeAlias = dict[str, object]
+ObjectInstanceGraphCommitGraphHashSource: TypeAlias = Literal[
+    "state_hash",
+    "witness_hash",
+    "witness_cursor_hash",
+]
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,6 +43,19 @@ class ObjectInstanceGraphCommitRootMetadata:
     object_instance_graph_description: str | None
     root_class_config_id: UUID
     root_source_object_id: UUID
+
+
+@dataclass(frozen=True, slots=True)
+class ObjectInstanceGraphCommitPreStateEvidence:
+    """Trusted pre-state hash evidence for shallow append callers."""
+
+    graph_hash_source: ObjectInstanceGraphCommitGraphHashSource = "state_hash"
+    state_hash: str | None = None
+    witness_hash: str | None = None
+    witness_cursor_hash: str | None = None
+    row_count: int | None = None
+    source_contract: str | None = None
+    source_ref: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,6 +121,38 @@ class ObjectInstanceGraphCommitEnvelope:
     graph_hash_post: str
     projection_hash: str | None
     source_language: str
+    graph_hash_source: ObjectInstanceGraphCommitGraphHashSource = "state_hash"
+    body_contract: str | None = None
+    body_media_type: str | None = None
+    body_ref: str | None = None
+    body_sha256: str | None = None
+    body_size_bytes: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ObjectInstanceGraphCommitBodyRecord:
+    envelope: ObjectInstanceGraphCommitEnvelope
+    body: ObjectInstanceGraphCommitBodyV1
+
+    @property
+    def commit_id(self) -> UUID:
+        return self.envelope.commit_id
+
+    @property
+    def object_instance_graph_commit_id(self) -> UUID:
+        return self.envelope.object_instance_graph_commit_id
+
+    @property
+    def object_instance_graph_identity_id(self) -> UUID:
+        return self.envelope.object_instance_graph_identity_id
+
+    @property
+    def object_instance_graph_id(self) -> UUID:
+        return self.envelope.object_instance_graph_id
+
+    @property
+    def parent_commit_ids(self) -> tuple[UUID, ...]:
+        return self.envelope.parent_commit_ids
 
 
 @dataclass(frozen=True, slots=True)
@@ -202,6 +256,30 @@ class LaneCommitStore(CommitEnvelopeReader, Protocol):
         commit_id: UUID,
     ) -> ObjectInstanceGraphCommit | None: ...
 
+    def commit_body_file_path(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        commit_id: UUID,
+    ) -> Path: ...
+
+    async def get_commit_body(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        commit_id: UUID,
+    ) -> ObjectInstanceGraphCommitBodyV1 | None: ...
+
+    async def get_commit_record(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        commit_id: UUID,
+    ) -> ObjectInstanceGraphCommitBodyRecord | None: ...
+
     async def head(
         self, *, branch_id: UUID, projection_hash: str
     ) -> JsonObject | None: ...
@@ -236,6 +314,15 @@ class LaneCommitStore(CommitEnvelopeReader, Protocol):
         stop_at_commit_id: UUID | None,
     ) -> AsyncIterator[ObjectInstanceGraphCommit]: ...
 
+    async def iter_lineage_forward_records(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        head_commit_id: UUID,
+        stop_at_commit_id: UUID | None,
+    ) -> AsyncIterator[ObjectInstanceGraphCommitBodyRecord]: ...
+
 
 @runtime_checkable
 class LaneCommitBackend(LaneCommitStore, Protocol):
@@ -254,6 +341,17 @@ class LaneCommitBackend(LaneCommitStore, Protocol):
         branch_id: UUID,
         projection_hash: str,
         commit: ObjectInstanceGraphCommit,
+        root_object_id: UUID | None = None,
+        commit_action: CommitActionDescriptor | None = None,
+        object_projection_graph_identity_id: UUID | None = None,
+    ) -> dict[str, int]: ...
+
+    async def append_record(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        record: ObjectInstanceGraphCommitBodyRecord,
         root_object_id: UUID | None = None,
         commit_action: CommitActionDescriptor | None = None,
         object_projection_graph_identity_id: UUID | None = None,
@@ -360,6 +458,7 @@ class LaneCommitter(Protocol):
         root_metadata: ObjectInstanceGraphCommitRootMetadata,
         root_object_id: UUID | None = None,
         changes: list[ObjectInstanceGraphChange],
+        body_draft: OigCommitBodyDraft | None = None,
         graph_hash_pre: str,
         graph_hash_post: str,
         author_id: UUID,
@@ -368,6 +467,48 @@ class LaneCommitter(Protocol):
         status: CommitStatus,
         commit_action: CommitActionDescriptor | None = None,
     ) -> ObjectInstanceGraphCommit | None: ...
+
+    async def commit_record_shallow(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        object_projection_graph_identity_id: UUID | None = None,
+        object_instance_graph_identity_id: UUID,
+        object_instance_graph_id: UUID,
+        pre_state_index: CommitStateIndex,
+        root_metadata: ObjectInstanceGraphCommitRootMetadata,
+        root_object_id: UUID | None = None,
+        changes: list[ObjectInstanceGraphChange],
+        graph_hash_pre: str,
+        graph_hash_post: str,
+        author_id: UUID,
+        commit_id: UUID | None = None,
+        source_language: CodeLanguage,
+        status: CommitStatus,
+        commit_action: CommitActionDescriptor | None = None,
+    ) -> ObjectInstanceGraphCommitBodyRecord: ...
+
+    async def commit_record_shallow_from_pre_state_evidence(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        object_projection_graph_identity_id: UUID | None = None,
+        object_instance_graph_identity_id: UUID,
+        object_instance_graph_id: UUID,
+        pre_state_evidence: ObjectInstanceGraphCommitPreStateEvidence,
+        root_metadata: ObjectInstanceGraphCommitRootMetadata,
+        root_object_id: UUID | None = None,
+        changes: list[ObjectInstanceGraphChange],
+        graph_hash_pre: str,
+        graph_hash_post: str,
+        author_id: UUID,
+        commit_id: UUID | None = None,
+        source_language: CodeLanguage,
+        status: CommitStatus,
+        commit_action: CommitActionDescriptor | None = None,
+    ) -> ObjectInstanceGraphCommitBodyRecord: ...
 
 
 __all__ = [
@@ -385,6 +526,8 @@ __all__ = [
     "ObjectInstanceGraphCommitHealthMetadata",
     "ObjectInstanceGraphCommitIdentityMetadata",
     "ObjectInstanceGraphCommitIdentitySidecar",
+    "ObjectInstanceGraphCommitGraphHashSource",
+    "ObjectInstanceGraphCommitPreStateEvidence",
     "ObjectInstanceGraphCommitRef",
     "ObjectInstanceGraphCommitRootMetadata",
     "ObjectInstanceGraphSnapshotHealthMetadata",

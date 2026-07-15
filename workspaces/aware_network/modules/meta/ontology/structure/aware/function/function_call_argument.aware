@@ -1,0 +1,4 @@
+edge FunctionCallArgument {
+    // Attributes
+    position Int
+}

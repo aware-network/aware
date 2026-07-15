@@ -36,6 +36,7 @@ from aware_code.module_semantic_contract import (
     ModuleSemanticMaterializationRuntimeContextDescriptor,
     ModuleSemanticMaterializationToolingDescriptor,
     WorkspaceSemanticArtifactLeafOwnershipResolver,
+    WorkspaceSemanticPackageLayoutResolver,
 )
 from aware_code.semantic_materialization import (
     SEMANTIC_MATERIALIZATION_CAPABILITY,
@@ -48,7 +49,6 @@ from aware_code.module_code_package_materialization_contract import (
 )
 from aware_code.module_plugin import (
     AwareModulePackageContract,
-    AwareModulePackageSemanticBindingContract,
     AwareModulePackageSemanticContract,
     AwareModulePackageSemanticContractBinding,
     AwareModulePlugin,
@@ -65,7 +65,6 @@ if TYPE_CHECKING:
     from aware_code.language.plugin import CodeLanguagePlugin
 
 
-_AWARE_MODULE_PLUGIN_EXPORT_NAME = "AWARE_MODULE_PLUGIN"
 _CODE_MODULE_PLUGIN_KIND = "code.module_plugin"
 _SEMANTIC_PROVIDER_CONTRACT = "aware.semantic_provider"
 
@@ -73,7 +72,6 @@ _SEMANTIC_PROVIDER_CONTRACT = "aware.semantic_provider"
 @dataclass(frozen=True, slots=True)
 class _AwarePluginBootstrapSpec:
     provider_key: str | None = None
-    module_path: str | None = None
     runtime_root: Path | None = None
     capability_contract_module: str | None = None
     capability_execution_module: str | None = None
@@ -113,6 +111,15 @@ class ResolvedSemanticArtifactLeafOwnershipResolver:
     callable_module: str
     callable_name: str
     resolver: WorkspaceSemanticArtifactLeafOwnershipResolver
+
+
+@dataclass(frozen=True, slots=True)
+class ResolvedSemanticPackageLayoutResolver:
+    provider_key: str
+    semantic_owner: str
+    callable_module: str
+    callable_name: str
+    resolver: WorkspaceSemanticPackageLayoutResolver
 
 
 @dataclass(frozen=True, slots=True)
@@ -196,10 +203,6 @@ _BUILTIN_PLUGIN_BOOTSTRAP_SPECS: tuple[_AwarePluginBootstrapSpec, ...] = (
         meta_language_plugin_export_name="DART_META_PLUGIN",
         meta_language_plugin_required=False,
     ),
-    _AwarePluginBootstrapSpec(
-        provider_key="aware_workspace",
-        semantic_contract_module="aware_workspace.semantic_contract",
-    ),
 )
 
 
@@ -243,6 +246,7 @@ class AwareModulePluginRegistry:
         existing = cls._plugins.get(plugin.provider_key)
         if existing is None:
             cls._plugins[plugin.provider_key] = plugin
+            cls._invalidate_provider_cache(provider_key=plugin.provider_key)
             return
         if not replace_existing or _plugin_bootstrap_equivalent(existing, plugin):
             return
@@ -297,9 +301,7 @@ class AwareModulePluginRegistry:
             )
             if spec is None:
                 continue
-            spec_key = (spec.provider_key or "").strip() or (
-                spec.module_path or ""
-            ).strip()
+            spec_key = (spec.provider_key or "").strip()
             if not spec_key or spec_key in seen:
                 continue
             seen.add(spec_key)
@@ -1038,17 +1040,10 @@ class AwareModulePluginRegistry:
             )
             for descriptor in participation_descriptors
         }
-        candidate_semantic_owners = _semantic_owner_query_candidates_for_capability(
-            contract=contract,
-            requested_semantic_owner=normalized_semantic_owner,
-            capability=normalized_capability,
-        )
-        candidate_semantic_owner_set = (
+        exact_semantic_owner_set = (
             None
-            if candidate_semantic_owners == (None,)
-            else frozenset(
-                owner for owner in candidate_semantic_owners if owner is not None
-            )
+            if normalized_semantic_owner is None
+            else frozenset((normalized_semantic_owner,))
         )
         execution_policies = tuple(
             sorted(
@@ -1063,13 +1058,39 @@ class AwareModulePluginRegistry:
                     )
                     in participation_keys
                     and (
-                        candidate_semantic_owner_set is None
-                        or policy.semantic_owner in candidate_semantic_owner_set
+                        exact_semantic_owner_set is None
+                        or policy.semantic_owner in exact_semantic_owner_set
                     )
                 ),
                 key=lambda item: (item.priority, item.semantic_owner),
             )
         )
+        if not execution_policies and normalized_semantic_owner is not None:
+            candidate_semantic_owners = _semantic_owner_query_candidates_for_capability(
+                contract=contract,
+                requested_semantic_owner=normalized_semantic_owner,
+                capability=normalized_capability,
+            )
+            candidate_semantic_owner_set = frozenset(
+                owner for owner in candidate_semantic_owners if owner is not None
+            )
+            execution_policies = tuple(
+                sorted(
+                    (
+                        policy
+                        for policy in contract.capability_execution_policy_for(
+                            capability=normalized_capability
+                        )
+                        if (
+                            policy.capability,
+                            policy.semantic_owner,
+                        )
+                        in participation_keys
+                        and policy.semantic_owner in candidate_semantic_owner_set
+                    ),
+                    key=lambda item: (item.priority, item.semantic_owner),
+                )
+            )
         if not execution_policies:
             cls._semantic_capability_providers[cache_key] = None
             return None
@@ -1178,6 +1199,65 @@ class AwareModulePluginRegistry:
                         WorkspaceSemanticArtifactLeafOwnershipResolver,
                         resolver,
                     ),
+                )
+            )
+        return tuple(resolved)
+
+    @classmethod
+    def resolve_semantic_package_layout_resolvers(
+        cls,
+        *,
+        provider_key: str,
+        semantic_owner: str,
+        manifest_kind: str,
+    ) -> tuple[ResolvedSemanticPackageLayoutResolver, ...]:
+        cls.ensure_builtin_plugins_registered()
+        normalized_provider_key = provider_key.strip()
+        normalized_semantic_owner = semantic_owner.strip()
+        normalized_manifest_kind = manifest_kind.strip()
+        if (
+            not normalized_provider_key
+            or not normalized_semantic_owner
+            or not normalized_manifest_kind
+        ):
+            return ()
+
+        contract = cls.module_semantic_contract_for_provider_key(
+            normalized_provider_key
+        )
+        if contract is None:
+            return ()
+
+        resolved: list[ResolvedSemanticPackageLayoutResolver] = []
+        for descriptor in contract.package_layout_for(
+            semantic_owner=normalized_semantic_owner,
+            manifest_kind=normalized_manifest_kind,
+        ):
+            callable_module = descriptor.callable_module.strip()
+            callable_name = descriptor.callable_name.strip()
+            if not callable_module or not callable_name:
+                continue
+            try:
+                module = import_module(callable_module)
+            except ModuleNotFoundError:
+                continue
+            resolver = getattr(module, callable_name, None)
+            if not callable(resolver):
+                logger.warning(
+                    "Aware semantic package layout resolver is not callable for %s:%s at %s.%s",
+                    normalized_provider_key,
+                    descriptor.semantic_owner,
+                    callable_module,
+                    callable_name,
+                )
+                continue
+            resolved.append(
+                ResolvedSemanticPackageLayoutResolver(
+                    provider_key=normalized_provider_key,
+                    semantic_owner=descriptor.semantic_owner,
+                    callable_module=callable_module,
+                    callable_name=callable_name,
+                    resolver=cast(WorkspaceSemanticPackageLayoutResolver, resolver),
                 )
             )
         return tuple(resolved)
@@ -1840,22 +1920,6 @@ class AwareModulePluginRegistry:
         replace_existing: bool = False,
     ) -> None:
         _ensure_runtime_root_on_sys_path(spec.runtime_root)
-        module_path = (spec.module_path or "").strip()
-        if module_path:
-            cls._register_plugin_export(
-                module_path=module_path,
-                plugin_export_name=_AWARE_MODULE_PLUGIN_EXPORT_NAME,
-                capability_contract_module=spec.capability_contract_module,
-                capability_execution_module=spec.capability_execution_module,
-                semantic_contract_module=spec.semantic_contract_module,
-                code_package_materialization_contract_module=(
-                    spec.code_package_materialization_contract_module
-                ),
-                packages=spec.packages,
-                replace_existing=replace_existing,
-            )
-            return
-
         provider_key = (spec.provider_key or "").strip()
         if not provider_key:
             return
@@ -1903,7 +1967,7 @@ def _module_plugin_bootstrap_specs_from_manifests(
         spec = _module_plugin_bootstrap_spec_from_manifest(module_root=module_root)
         if spec is None:
             continue
-        spec_key = (spec.provider_key or "").strip() or (spec.module_path or "").strip()
+        spec_key = (spec.provider_key or "").strip()
         if not spec_key or spec_key in seen:
             continue
         seen.add(spec_key)
@@ -1932,7 +1996,6 @@ def _module_plugin_bootstrap_spec_from_manifest(
     for plugin in module_spec.plugins:
         if plugin.kind != _CODE_MODULE_PLUGIN_KIND or not plugin.required:
             continue
-        module_path = (plugin.module or "").strip() or None
         provider_key = (plugin.provider_key or "").strip() or None
         capability_contract_module = (
             plugin.capability_contract_module or ""
@@ -1983,16 +2046,6 @@ def _module_plugin_bootstrap_spec_from_manifest(
                     if package.semantic_contract is not None
                     else None
                 ),
-                semantic_bindings=tuple(
-                    AwareModulePackageSemanticBindingContract(
-                        role=binding.role,
-                        contract=binding.contract,
-                        binding_module=binding.binding_module,
-                        capabilities=binding.capabilities,
-                        callable_name=binding.callable_name,
-                    )
-                    for binding in package.semantic_bindings
-                ),
                 mirrors_ontology=package.mirrors_ontology,
             )
             for package in module_spec.packages
@@ -2003,10 +2056,9 @@ def _module_plugin_bootstrap_spec_from_manifest(
                 provider_key=provider_key,
             )
         )
-        if module_path or provider_key:
+        if provider_key:
             return _AwarePluginBootstrapSpec(
                 provider_key=provider_key,
-                module_path=module_path,
                 runtime_root=(module_root / module_spec.runtime_root).resolve(),
                 capability_contract_module=capability_contract_module,
                 capability_execution_module=capability_execution_module,
@@ -2384,4 +2436,5 @@ __all__ = [
     "AwareModulePluginRegistry",
     "ResolvedSemanticArtifactLeafOwnershipResolver",
     "ResolvedSemanticCapabilityProvider",
+    "ResolvedSemanticPackageLayoutResolver",
 ]

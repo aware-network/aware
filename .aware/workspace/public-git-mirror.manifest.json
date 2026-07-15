@@ -1,23 +1,42 @@
 {
-  "byte_count": 66853663,
-  "file_count": 4926,
-  "json_file_count": 135,
+  "byte_count": 157579831,
+  "excluded_path_count": 14,
+  "excluded_paths": [
+    "workspaces/aware_kernel/modules/api/libs/api/dart/.dart_tool",
+    "workspaces/aware_kernel/modules/content/apis/content/dart/aware_content_service_api/.dart_tool",
+    "workspaces/aware_kernel/modules/sdk/ontology/structure/dart/.dart_tool",
+    "workspaces/aware_kernel/modules/storage/apis/storage/dart/aware_storage_service_api/.dart_tool",
+    "workspaces/aware_network/libs/model_helpers/dart/aware_model_helpers/.dart_tool",
+    "workspaces/aware_network/modules/api/libs/api/dart/.dart_tool",
+    "workspaces/aware_network/modules/content/apis/content/dart/aware_content_service_api/.dart_tool",
+    "workspaces/aware_network/modules/interface/libs/app_factory/dart/aware_app_factory/.dart_tool",
+    "workspaces/aware_network/modules/interface/libs/interface_control/dart/aware_interface_control/.dart_tool",
+    "workspaces/aware_network/modules/interface/libs/shell/dart/aware_shell/.dart_tool",
+    "workspaces/aware_network/modules/interface/libs/windows/dart/aware_windows/.dart_tool",
+    "workspaces/aware_network/modules/sdk/ontology/structure/dart/.dart_tool",
+    "workspaces/aware_network/modules/storage/apis/storage/dart/aware_storage_service_api/.dart_tool",
+    "workspaces/aware_network/modules/storage/sdks/storage/dart/aware_storage_sdk/.dart_tool"
+  ],
+  "file_count": 13306,
+  "json_file_count": 326,
   "manifest_version": "aware.workspace.public_git_mirror.v1",
   "policy": {
     "base_authority": "workspace_revision_filesystem",
     "forbidden_roots": [
       ".aware/oig",
       ".aware/reports",
+      ".dart_tool",
       ".git",
       ".pytest_cache",
       ".ruff_cache",
       ".venv",
       "__pycache__",
+      "build",
       "node_modules"
     ],
     "local_absolute_paths": "rejected_in_json",
     "secret_looking_files": "rejected"
   },
   "status": "ready",
-  "workspace_revision_id": "c18bf2c6-9080-5ea3-a876-288449eb3a66"
+  "workspace_revision_id": "8f164961-a29b-5244-9953-8d6cb53e0ed6"
 }

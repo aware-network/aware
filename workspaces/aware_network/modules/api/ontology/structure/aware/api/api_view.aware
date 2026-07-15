@@ -1,0 +1,76 @@
+/// API-owned readable view-state contract.
+///
+/// Contract:
+/// - `ApiCapabilityEndpoint` is for doing.
+/// - `ApiView` is for seeing.
+/// - The observable remains Meta-owned.
+/// - The state model is the exact DTO/ClassConfig a service must fulfill.
+class ApiView {
+    // Relationships
+    object_projection_graph_observable aware_meta.graph.projection.ObjectProjectionGraphObservable key
+    state_model aware_meta.class.ClassConfig
+    stream_policy ApiViewStreamPolicy? unique
+    capability_endpoints ApiViewCapabilityEndpoint[]
+
+    // Attributes
+    name String key
+    view_ref String unique
+    view_key String?
+    description String?
+
+    fn create construct (
+        object_projection_graph_observable_id UUID key,
+        name String key,
+        state_model_id UUID,
+        view_ref String,
+        view_key String? = null,
+        description String? = null
+    ) -> ApiView {
+        """
+        Create one deterministic API view-state contract under Api.
+
+        Contract:
+        - `ApiView.id` is deterministic for `(api_id, object_projection_graph_observable_id, name)`.
+        - `view_ref` is the service/experience-facing stable API view reference.
+        - `view_key` is optional renderer-facing shorthand and is not endpoint identity.
+        """
+    }
+
+    fn set_stream_policy (
+        stream_mode ApiViewStreamMode,
+        description String? = null
+    ) -> ApiViewStreamPolicy {
+        """
+        Bind one optional stream policy to this readable API view.
+        """
+        let created = construct stream_policy.build(
+            stream_mode = stream_mode,
+            description = description,
+        )
+    }
+
+    fn bind_capability_endpoint (
+        action_key String,
+        api_capability_endpoint_id UUID,
+        endpoint_ref String,
+        description String? = null
+    ) -> ApiViewCapabilityEndpoint {
+        """
+        Bind one service-callable API capability endpoint to this readable API view.
+
+        Contract:
+        - API view actions are endpoint-backed.
+        - `endpoint_ref` is the authored stable API endpoint reference.
+        - No endpointless view action rail exists at API level.
+        """
+        let created = construct capability_endpoints.build(
+            action_key = action_key,
+            api_capability_endpoint_id = api_capability_endpoint_id,
+            endpoint_ref = endpoint_ref,
+            description = description,
+        )
+    }
+}
+
+ann api.ApiView::stream_policy load eager
+ann api.ApiView::capability_endpoints load eager

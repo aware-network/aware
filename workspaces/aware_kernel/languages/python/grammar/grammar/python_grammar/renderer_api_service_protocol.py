@@ -24,7 +24,9 @@ from aware_meta.graph.config.render.renderer_language import (
     build_renderer_empty_code,
 )
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
-from aware_meta_ontology.attribute.attribute_type_descriptor_enums import AttributeTypeDescriptorKind
+from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
+    AttributeTypeDescriptorKind,
+)
 from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.function.function_config import FunctionConfig
 from aware_meta_ontology.function.function_config_enums import FunctionAttributeType
@@ -247,14 +249,20 @@ class PythonApiServiceProtocolRendererLanguage(ObjectConfigGraphRendererLanguage
         if meta_objects:
             return
 
-        _ = writer.token("\n".join(line for section in self.render_sections() for line in section.lines))
+        _ = writer.token(
+            "\n".join(
+                line for section in self.render_sections() for line in section.lines
+            )
+        )
 
     def render_sections(self) -> tuple[PythonApiServiceProtocolRenderSection, ...]:
         service_plan = self._require_payload("api.service_protocol_plan")
         public_plan = self._require_payload("api.public_package_plan")
         invocation_manifest = self._require_payload("api.invocation_manifest")
         interface_spec = self._require_payload("api.interface_spec")
-        public_package_import_root = _derive_public_package_import_root(public_plan=public_plan)
+        public_package_import_root = _derive_public_package_import_root(
+            public_plan=public_plan
+        )
         endpoint_bindings = _build_endpoint_bindings(
             service_plan=service_plan,
             public_plan=public_plan,
@@ -350,12 +358,16 @@ def render_python_api_service_protocol_sections(
     service_plan: dict[str, object],
     endpoint_bindings: tuple[_EndpointProtocolBinding, ...],
 ) -> tuple[PythonApiServiceProtocolRenderSection, ...]:
-    root_protocol_name = _root_service_protocol_name(import_root=service_package_import_root)
+    root_protocol_name = _root_service_protocol_name(
+        import_root=service_package_import_root
+    )
     api_package_name = _require_string(service_plan, "package_name")
     api_fqn_prefix = _require_string(service_plan, "fqn_prefix")
 
     type_bindings = _collect_imported_types(endpoint_bindings=endpoint_bindings)
-    aware_type_imports = _collect_aware_type_imports(endpoint_bindings=endpoint_bindings)
+    aware_type_imports = _collect_aware_type_imports(
+        endpoint_bindings=endpoint_bindings
+    )
     execution_models_for_imports = tuple(
         model
         for binding in endpoint_bindings
@@ -369,7 +381,9 @@ def render_python_api_service_protocol_sections(
 
     by_api: dict[str, dict[str, list[_EndpointProtocolBinding]]] = {}
     for binding in endpoint_bindings:
-        by_api.setdefault(binding.api_name, {}).setdefault(binding.capability_name, []).append(binding)
+        by_api.setdefault(binding.api_name, {}).setdefault(
+            binding.capability_name, []
+        ).append(binding)
 
     sections: list[PythonApiServiceProtocolRenderSection] = []
 
@@ -422,13 +436,18 @@ def render_python_api_service_protocol_sections(
     lines.append("")
 
     for module_path in sorted(imports_by_module, key=str.casefold):
-        class_names = sorted({binding.class_name for binding in imports_by_module[module_path]}, key=str.casefold)
+        class_names = sorted(
+            {binding.class_name for binding in imports_by_module[module_path]},
+            key=str.casefold,
+        )
         lines.append(f"from {module_path} import {', '.join(class_names)}")
 
     lines.append("")
     lines.append(f"API_PACKAGE_NAME: Final[str] = {api_package_name!r}")
     lines.append(f"API_FQN_PREFIX: Final[str] = {api_fqn_prefix!r}")
-    lines.append(f"PUBLIC_PACKAGE_IMPORT_ROOT: Final[str] = {public_package_import_root!r}")
+    lines.append(
+        f"PUBLIC_PACKAGE_IMPORT_ROOT: Final[str] = {public_package_import_root!r}"
+    )
     lines.append("")
     append_section(
         section_kind="service_protocol_module_prelude",
@@ -479,7 +498,9 @@ def render_python_api_service_protocol_sections(
         + "]"
     )
     lines.append("")
-    lines.append("def _coerce_model_payload(value: object, *, model_cls: type[BaseModel]) -> object:")
+    lines.append(
+        "def _coerce_model_payload(value: object, *, model_cls: type[BaseModel]) -> object:"
+    )
     lines.append("    if isinstance(value, BaseModel):")
     lines.append("        payload = value.model_dump(mode='json')")
     lines.append("    else:")
@@ -508,7 +529,9 @@ def render_python_api_service_protocol_sections(
     lines.append("    execution_protocol_ref: str | None")
     lines.append("    build_execution: ServiceProtocolExecutionFactory | None")
     lines.append("    stream_invoke: ServiceProtocolStreamInvoker | None")
-    lines.append("    fulfillment_bindings: tuple[ServiceProtocolFulfillmentBinding, ...]")
+    lines.append(
+        "    fulfillment_bindings: tuple[ServiceProtocolFulfillmentBinding, ...]"
+    )
     lines.append("    invoke: ServiceProtocolInvoker")
     lines.append("")
     append_section(
@@ -530,13 +553,17 @@ def render_python_api_service_protocol_sections(
                 lines.append("")
             if fulfillment.response_model is not None:
                 execution_model_names.append(fulfillment.response_model.class_name)
-                lines.extend(_render_execution_model(binding=fulfillment.response_model))
+                lines.extend(
+                    _render_execution_model(binding=fulfillment.response_model)
+                )
                 lines.append("")
         if binding.fulfillment_bindings:
             execution_protocol_names.append(binding.execution_protocol_name)
             lines.extend(_render_execution_protocol_class(endpoint_binding=binding))
             lines.append("")
-            lines.extend(_render_execution_implementation_class(endpoint_binding=binding))
+            lines.extend(
+                _render_execution_implementation_class(endpoint_binding=binding)
+            )
             lines.append("")
         append_section(
             section_kind="service_protocol_endpoint_execution",
@@ -551,18 +578,20 @@ def render_python_api_service_protocol_sections(
         lines = []
         if binding.stream_events:
             stream_alias_names.append(binding.stream_alias_name)
-            alias_targets = " | ".join(event.class_name for event in binding.stream_events)
+            alias_targets = " | ".join(
+                event.class_name for event in binding.stream_events
+            )
             lines.append(f"{binding.stream_alias_name}: TypeAlias = {alias_targets}")
-        response_annotation = binding.response.class_name if binding.response is not None else "None"
+        response_annotation = (
+            binding.response.class_name if binding.response is not None else "None"
+        )
         lines.append(
             f"async def {binding.invoke_function_name}("
             + "handler: object, request: BaseModel, "
             + "execution: ServiceProtocolExecution | None = None) "
             + f"-> {response_annotation}:"
         )
-        lines.append(
-            f"    typed_handler = cast({root_protocol_name}, handler)"
-        )
+        lines.append(f"    typed_handler = cast({root_protocol_name}, handler)")
         lines.append(
             f"    typed_request = {binding.request.class_name}.model_validate(request)"
         )
@@ -570,8 +599,8 @@ def render_python_api_service_protocol_sections(
             lines.append("    if execution is None:")
             lines.append(
                 "        raise RuntimeError("
-                + "\"Compiled API service protocol requires execution context "
-                + f"for endpoint_ref={binding.endpoint_ref!r}\""
+                + '"Compiled API service protocol requires execution context '
+                + f'for endpoint_ref={binding.endpoint_ref!r}"'
                 + ")"
             )
             lines.append(
@@ -598,9 +627,7 @@ def render_python_api_service_protocol_sections(
                 + "execution: ServiceProtocolExecution | None = None) "
                 + f"-> AsyncIterator[{binding.stream_alias_name}]:"
             )
-            lines.append(
-                f"    typed_handler = cast({root_protocol_name}, handler)"
-            )
+            lines.append(f"    typed_handler = cast({root_protocol_name}, handler)")
             lines.append(
                 f"    typed_request = {binding.request.class_name}.model_validate(request)"
             )
@@ -608,8 +635,8 @@ def render_python_api_service_protocol_sections(
                 lines.append("    if execution is None:")
                 lines.append(
                     "        raise RuntimeError("
-                    + "\"Compiled API service protocol requires execution context "
-                    + f"for endpoint_ref={binding.endpoint_ref!r} stream\""
+                    + '"Compiled API service protocol requires execution context '
+                    + f'for endpoint_ref={binding.endpoint_ref!r} stream"'
                     + ")"
                 )
                 lines.append(
@@ -640,7 +667,9 @@ def render_python_api_service_protocol_sections(
         )
 
         lines = []
-        lines.append(f"{binding.endpoint_constant_name}: Final[str] = {binding.endpoint_ref!r}")
+        lines.append(
+            f"{binding.endpoint_constant_name}: Final[str] = {binding.endpoint_ref!r}"
+        )
         lines.append(
             f"{binding.binding_constant_name}: Final[ServiceProtocolEndpointBinding] = "
             + "ServiceProtocolEndpointBinding("
@@ -659,7 +688,9 @@ def render_python_api_service_protocol_sections(
             lines.append(f"        {event.class_ref!r},")
         lines.append("    ),")
         if binding.fulfillment_bindings:
-            lines.append(f"    execution_protocol_ref={binding.execution_protocol_ref!r},")
+            lines.append(
+                f"    execution_protocol_ref={binding.execution_protocol_ref!r},"
+            )
             lines.append(f"    build_execution={binding.execution_factory_name},")
         else:
             lines.append("    execution_protocol_ref=None,")
@@ -705,9 +736,13 @@ def render_python_api_service_protocol_sections(
         )
 
     lines = []
-    lines.append("ENDPOINT_BINDINGS: Final[dict[str, ServiceProtocolEndpointBinding]] = {")
+    lines.append(
+        "ENDPOINT_BINDINGS: Final[dict[str, ServiceProtocolEndpointBinding]] = {"
+    )
     for binding in endpoint_bindings:
-        lines.append(f"    {binding.endpoint_constant_name}: {binding.binding_constant_name},")
+        lines.append(
+            f"    {binding.endpoint_constant_name}: {binding.binding_constant_name},"
+        )
     lines.append("}")
     lines.append("")
     append_section(
@@ -726,9 +761,7 @@ def render_python_api_service_protocol_sections(
                 capability_bindings[capability_name],
                 key=lambda item: (item.endpoint_name.casefold(), item.endpoint_ref),
             )
-            capability_protocol_name = (
-                f"{to_pascal_case(api_name)}{to_pascal_case(capability_name)}CapabilityServiceProtocol"
-            )
+            capability_protocol_name = f"{to_pascal_case(api_name)}{to_pascal_case(capability_name)}CapabilityServiceProtocol"
             capability_protocol_class_names.append(capability_protocol_name)
             lines = _render_capability_protocol_class(
                 class_name=capability_protocol_name,
@@ -828,9 +861,7 @@ def _render_service_protocol_section_text_manifest_lines(
         indent=2,
         sort_keys=True,
     )
-    lines = [
-        f"{API_SERVICE_PROTOCOL_SECTION_TEXT_MANIFEST_JSON_NAME}: Final[str] = ("
-    ]
+    lines = [f"{API_SERVICE_PROTOCOL_SECTION_TEXT_MANIFEST_JSON_NAME}: Final[str] = ("]
     for line in manifest_json.splitlines():
         lines.append(f"    {line!r}")
     lines.append(")")
@@ -867,7 +898,9 @@ def _render_capability_protocol_class(
         return lines
 
     for binding in endpoint_bindings:
-        response_annotation = binding.response.class_name if binding.response is not None else "None"
+        response_annotation = (
+            binding.response.class_name if binding.response is not None else "None"
+        )
         lines.append("")
         if binding.fulfillment_bindings:
             lines.append(
@@ -907,9 +940,7 @@ def _render_api_protocol_class(
         lines.append("    pass")
         return lines
     for capability_name in capability_names:
-        capability_protocol_name = (
-            f"{to_pascal_case(api_name)}{to_pascal_case(capability_name)}CapabilityServiceProtocol"
-        )
+        capability_protocol_name = f"{to_pascal_case(api_name)}{to_pascal_case(capability_name)}CapabilityServiceProtocol"
         lines.append(
             f"    {_safe_python_identifier(capability_name)}: {capability_protocol_name}"
         )
@@ -941,7 +972,9 @@ def _render_execution_model(*, binding: _ExecutionModelBinding) -> list[str]:
         if field.default_expr is None:
             lines.append(f"    {field.name}: {field.type_annotation}")
             continue
-        lines.append(f"    {field.name}: {field.type_annotation} = {field.default_expr}")
+        lines.append(
+            f"    {field.name}: {field.type_annotation} = {field.default_expr}"
+        )
     return lines
 
 
@@ -949,7 +982,9 @@ def _render_execution_protocol_class(
     *,
     endpoint_binding: _EndpointProtocolBinding,
 ) -> list[str]:
-    lines: list[str] = [f"class {endpoint_binding.execution_protocol_name}(ServiceProtocolExecution, Protocol):"]
+    lines: list[str] = [
+        f"class {endpoint_binding.execution_protocol_name}(ServiceProtocolExecution, Protocol):"
+    ]
     if not endpoint_binding.fulfillment_bindings:
         lines.append("    pass")
         return lines
@@ -978,7 +1013,9 @@ def _render_execution_implementation_class(
     lines: list[str] = [
         f"class {endpoint_binding.execution_impl_name}({endpoint_binding.execution_protocol_name}):"
     ]
-    lines.append("    def __init__(self, backend: ServiceProtocolExecutionBackend) -> None:")
+    lines.append(
+        "    def __init__(self, backend: ServiceProtocolExecutionBackend) -> None:"
+    )
     lines.append("        self._backend = backend")
     if not endpoint_binding.fulfillment_bindings:
         lines.append("")
@@ -998,12 +1035,8 @@ def _render_execution_implementation_class(
             f"    async def {fulfillment.method_name}(self, request: {fulfillment.request_model.class_name}) "
             + f"-> {fulfillment.response_model.class_name}:"
         )
-        lines.append(
-            "        response = await self._backend.invoke_fulfillment("
-        )
-        lines.append(
-            f"            fulfillment_name={fulfillment.name!r},"
-        )
+        lines.append("        response = await self._backend.invoke_fulfillment(")
+        lines.append(f"            fulfillment_name={fulfillment.name!r},")
         lines.append("            request=request,")
         lines.append("        )")
         lines.append(
@@ -1049,7 +1082,9 @@ def _enrich_endpoint_bindings_with_execution(
             )
             for fulfillment_binding in endpoint_binding.fulfillment_bindings
         )
-        enriched.append(replace(endpoint_binding, fulfillment_bindings=fulfillment_bindings))
+        enriched.append(
+            replace(endpoint_binding, fulfillment_bindings=fulfillment_bindings)
+        )
     return tuple(enriched)
 
 
@@ -1109,12 +1144,12 @@ def _resolve_function_config(
         for link in class_config.class_config_function_configs
         if (
             link.function_config is not None
-            and _normalize_token(link.function_config.name) == _normalize_token(function_name)
+            and _normalize_token(link.function_config.name)
+            == _normalize_token(function_name)
         )
     ]
     unique_matches = {
-        function_config.id: function_config
-        for function_config in matches
+        function_config.id: function_config for function_config in matches
     }
     if not unique_matches:
         raise ValueError(
@@ -1208,19 +1243,32 @@ def _build_execution_field_binding(
     imported_types: list[_PythonTypeBinding] = []
 
     base_type = "Any"
-    if type_info.kind == AttributeTypeDescriptorKind.primitive and type_info.primitive_config is not None:
-        primitive_type = CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type)
+    if (
+        type_info.kind == AttributeTypeDescriptorKind.primitive
+        and type_info.primitive_config is not None
+    ):
+        primitive_type = CodePrimitiveType.model_validate(
+            type_info.primitive_config.primitive_type
+        )
         base_type = _render_primitive_type(primitive_type.base_type)
-    elif type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config is not None:
+    elif (
+        type_info.kind == AttributeTypeDescriptorKind.enum
+        and type_info.enum_config is not None
+    ):
         binding = _require_type_binding(
             class_ref=str(type_info.enum_config.enum_fqn or type_info.enum_config.name),
             resolved_type_bindings_by_identity=resolved_type_bindings_by_identity,
         )
         base_type = binding.class_name
         imported_types.append(binding)
-    elif type_info.kind == AttributeTypeDescriptorKind.class_ and type_info.class_config is not None:
+    elif (
+        type_info.kind == AttributeTypeDescriptorKind.class_
+        and type_info.class_config is not None
+    ):
         binding = _require_type_binding(
-            class_ref=str(type_info.class_config.class_fqn or type_info.class_config.name),
+            class_ref=str(
+                type_info.class_config.class_fqn or type_info.class_config.name
+            ),
             resolved_type_bindings_by_identity=resolved_type_bindings_by_identity,
         )
         base_type = binding.class_name
@@ -1229,14 +1277,19 @@ def _build_execution_field_binding(
     type_annotation = base_type
     if type_info.is_collection:
         type_annotation = f"list[{type_annotation}]"
-    if _is_nullable(attribute_config=attribute_config, type_info=type_info) and not type_info.is_collection:
+    if (
+        _is_nullable(attribute_config=attribute_config, type_info=type_info)
+        and not type_info.is_collection
+    ):
         type_annotation = f"{type_annotation} | None"
 
     return (
         _ExecutionFieldBinding(
             name=_safe_python_identifier(attribute_config.name),
             type_annotation=type_annotation,
-            default_expr=_render_field_default(attribute_config=attribute_config, type_info=type_info),
+            default_expr=_render_field_default(
+                attribute_config=attribute_config, type_info=type_info
+            ),
             description=attribute_config.description,
         ),
         tuple(imported_types),
@@ -1295,12 +1348,18 @@ def _build_endpoint_bindings(
 ) -> tuple[_EndpointProtocolBinding, ...]:
     interface_refs = _collect_interface_endpoint_refs(interface_spec=interface_spec)
     public_endpoints = _build_public_endpoint_index(public_plan=public_plan)
-    invocation_endpoints = _build_invocation_endpoint_index(invocation_manifest=invocation_manifest)
+    invocation_endpoints = _build_invocation_endpoint_index(
+        invocation_manifest=invocation_manifest
+    )
 
     bindings: list[_EndpointProtocolBinding] = []
-    for api in _iter_object_list(service_plan.get("apis"), label="api.service_protocol_plan.apis"):
+    for api in _iter_object_list(
+        service_plan.get("apis"), label="api.service_protocol_plan.apis"
+    ):
         api_name = _require_string(api, "name")
-        for capability in _iter_object_list(api.get("capabilities"), label=f"{api_name}.capabilities"):
+        for capability in _iter_object_list(
+            api.get("capabilities"), label=f"{api_name}.capabilities"
+        ):
             capability_name = _require_string(capability, "name")
             for endpoint in _iter_object_list(
                 capability.get("endpoints"),
@@ -1321,7 +1380,9 @@ def _build_endpoint_bindings(
                         + f"{endpoint_ref!r} in api.public_package_plan"
                     )
                 public_discriminant = _require_string(public_endpoint, "discriminant")
-                if _normalize_token(public_discriminant) != _normalize_token(discriminant):
+                if _normalize_token(public_discriminant) != _normalize_token(
+                    discriminant
+                ):
                     raise ValueError(
                         "API service protocol renderer discriminant drift for "
                         + f"{endpoint_ref!r}: service_plan={discriminant!r}, public_plan={public_discriminant!r}"
@@ -1334,23 +1395,34 @@ def _build_endpoint_bindings(
                         + f"{endpoint_ref!r} in api.invocation_manifest"
                     )
 
-                request_payload = _require_object(endpoint.get("request"), label=f"{endpoint_ref}.request")
+                request_payload = _require_object(
+                    endpoint.get("request"), label=f"{endpoint_ref}.request"
+                )
                 request_ref = _require_string(request_payload, "class_ref")
                 public_request_payload = _require_object(
                     public_endpoint.get("request"),
                     label=f"{endpoint_ref}.public_request",
                 )
-                public_request_ref = _require_string(public_request_payload, "class_ref")
-                if _normalize_token(public_request_ref) != _normalize_token(request_ref):
+                public_request_ref = _require_string(
+                    public_request_payload, "class_ref"
+                )
+                if _normalize_token(public_request_ref) != _normalize_token(
+                    request_ref
+                ):
                     raise ValueError(
                         "API service protocol renderer request class drift for "
                         + f"{endpoint_ref!r}: service_plan={request_ref!r}, public_plan={public_request_ref!r}"
                     )
                 invocation_request_ref = _require_string(
-                    _require_object(invocation.get("request"), label=f"{endpoint_ref}.invocation.request"),
+                    _require_object(
+                        invocation.get("request"),
+                        label=f"{endpoint_ref}.invocation.request",
+                    ),
                     "class_ref",
                 )
-                if _normalize_token(invocation_request_ref) != _normalize_token(request_ref):
+                if _normalize_token(invocation_request_ref) != _normalize_token(
+                    request_ref
+                ):
                     raise ValueError(
                         "API service protocol renderer request class drift for "
                         + f"{endpoint_ref!r}: service_plan={request_ref!r}, invocation={invocation_request_ref!r}"
@@ -1431,9 +1503,15 @@ def _resolve_optional_response_binding(
     if service_response is None and public_response is None:
         return None
     if service_response is None or public_response is None:
-        raise ValueError(f"API service protocol renderer response drift for {endpoint_ref!r}.")
-    service_payload = _require_object(service_response, label=f"{endpoint_ref}.response")
-    public_payload = _require_object(public_response, label=f"{endpoint_ref}.public_response")
+        raise ValueError(
+            f"API service protocol renderer response drift for {endpoint_ref!r}."
+        )
+    service_payload = _require_object(
+        service_response, label=f"{endpoint_ref}.response"
+    )
+    public_payload = _require_object(
+        public_response, label=f"{endpoint_ref}.public_response"
+    )
     service_ref = _require_string(service_payload, "class_ref")
     public_ref = _require_string(public_payload, "class_ref")
     if _normalize_token(service_ref) != _normalize_token(public_ref):
@@ -1461,10 +1539,16 @@ def _resolve_stream_bindings(
     if service_stream is None and public_stream is None:
         return ()
     if service_stream is None or public_stream is None:
-        raise ValueError(f"API service protocol renderer stream drift for {endpoint_ref!r}.")
+        raise ValueError(
+            f"API service protocol renderer stream drift for {endpoint_ref!r}."
+        )
 
-    service_stream_object = _require_object(service_stream, label=f"{endpoint_ref}.stream")
-    public_stream_object = _require_object(public_stream, label=f"{endpoint_ref}.public_stream")
+    service_stream_object = _require_object(
+        service_stream, label=f"{endpoint_ref}.stream"
+    )
+    public_stream_object = _require_object(
+        public_stream, label=f"{endpoint_ref}.public_stream"
+    )
     service_mode = _require_string(service_stream_object, "stream_mode")
     public_mode = _require_string(public_stream_object, "stream_mode")
     if _normalize_token(service_mode) != _normalize_token(public_mode):
@@ -1508,11 +1592,17 @@ def _resolve_stream_bindings(
     return tuple(bindings)
 
 
-def _build_public_endpoint_index(*, public_plan: dict[str, object]) -> dict[str, dict[str, object]]:
+def _build_public_endpoint_index(
+    *, public_plan: dict[str, object]
+) -> dict[str, dict[str, object]]:
     endpoints: dict[str, dict[str, object]] = {}
-    for api in _iter_object_list(public_plan.get("apis"), label="api.public_package_plan.apis"):
+    for api in _iter_object_list(
+        public_plan.get("apis"), label="api.public_package_plan.apis"
+    ):
         api_name = _require_string(api, "name")
-        for capability in _iter_object_list(api.get("capabilities"), label=f"{api_name}.capabilities"):
+        for capability in _iter_object_list(
+            api.get("capabilities"), label=f"{api_name}.capabilities"
+        ):
             capability_name = _require_string(capability, "name")
             for endpoint in _iter_object_list(
                 capability.get("endpoints"),
@@ -1527,9 +1617,13 @@ def _build_invocation_endpoint_index(
     invocation_manifest: dict[str, object],
 ) -> dict[str, dict[str, object]]:
     endpoints: dict[str, dict[str, object]] = {}
-    for api in _iter_object_list(invocation_manifest.get("apis"), label="api.invocation_manifest.apis"):
+    for api in _iter_object_list(
+        invocation_manifest.get("apis"), label="api.invocation_manifest.apis"
+    ):
         api_name = _require_string(api, "name")
-        for capability in _iter_object_list(api.get("capabilities"), label=f"{api_name}.capabilities"):
+        for capability in _iter_object_list(
+            api.get("capabilities"), label=f"{api_name}.capabilities"
+        ):
             capability_name = _require_string(capability, "name")
             for endpoint in _iter_object_list(
                 capability.get("endpoints"),
@@ -1541,9 +1635,13 @@ def _build_invocation_endpoint_index(
 
 def _collect_interface_endpoint_refs(*, interface_spec: dict[str, object]) -> set[str]:
     refs: set[str] = set()
-    for api in _iter_object_list(interface_spec.get("apis"), label="api.interface_spec.apis"):
+    for api in _iter_object_list(
+        interface_spec.get("apis"), label="api.interface_spec.apis"
+    ):
         api_name = _require_string(api, "name")
-        for capability in _iter_object_list(api.get("capabilities"), label=f"{api_name}.capabilities"):
+        for capability in _iter_object_list(
+            api.get("capabilities"), label=f"{api_name}.capabilities"
+        ):
             capability_name = _require_string(capability, "name")
             for endpoint in _iter_object_list(
                 capability.get("endpoints"),
@@ -1593,7 +1691,14 @@ def _collect_aware_type_imports(
                         .replace(",", " ")
                         .split()
                     }
-                    for symbol in ("Json", "JsonArray", "JsonObject", "JsonValue", "Vector", "VectorDim"):
+                    for symbol in (
+                        "Json",
+                        "JsonArray",
+                        "JsonObject",
+                        "JsonValue",
+                        "Vector",
+                        "VectorDim",
+                    ):
                         if symbol in tokens:
                             symbols.add(symbol)
     return tuple(sorted(symbols))
@@ -1630,9 +1735,25 @@ def _build_external_type_binding_index(
     external_type_bindings_by_entity_id: dict[str, _ExternalPythonTypeBinding],
 ) -> dict[str, _PythonTypeBinding]:
     bindings: dict[str, _PythonTypeBinding] = {}
+    for external_binding in external_type_bindings_by_entity_id.values():
+        type_ref = external_binding.type_ref.strip()
+        if not type_ref:
+            continue
+        binding = _PythonTypeBinding(
+            class_ref=type_ref,
+            class_name=external_binding.class_name,
+            module_path=external_binding.module_path,
+        )
+        for identity in {
+            *_type_binding_identities(type_ref),
+            *_type_binding_identities(external_binding.class_name),
+        }:
+            bindings.setdefault(identity, binding)
     for node in graph.object_config_graph_nodes:
         if node.class_config is not None and node.class_config.class_fqn:
-            external_binding = external_type_bindings_by_entity_id.get(str(node.class_config.id))
+            external_binding = external_type_bindings_by_entity_id.get(
+                str(node.class_config.id)
+            )
             if external_binding is None:
                 continue
             type_ref = external_binding.type_ref or node.class_config.class_fqn
@@ -1651,7 +1772,9 @@ def _build_external_type_binding_index(
             bindings.setdefault(_leaf_token(node.class_config.name), binding)
             continue
         if node.enum_config is not None and node.enum_config.enum_fqn:
-            external_binding = external_type_bindings_by_entity_id.get(str(node.enum_config.id))
+            external_binding = external_type_bindings_by_entity_id.get(
+                str(node.enum_config.id)
+            )
             if external_binding is None:
                 continue
             type_ref = external_binding.type_ref or node.enum_config.enum_fqn
@@ -1721,7 +1844,11 @@ def _type_binding_identities(class_ref: str) -> tuple[str, ...]:
     normalized = _normalize_token(class_ref)
     if not normalized:
         return ()
-    values = {normalized, _leaf_token(class_ref), _normalize_token(_class_name_from_ref(class_ref))}
+    values = {
+        normalized,
+        _leaf_token(class_ref),
+        _normalize_token(_class_name_from_ref(class_ref)),
+    }
     parts = [part for part in normalized.split(".") if part]
     if "default" in parts[1:-1]:
         values.add(".".join(part for part in parts if part != "default"))
@@ -1750,7 +1877,9 @@ def _build_external_python_type_bindings_by_entity_id(
     if payload is None:
         return {}
     if not isinstance(payload, dict):
-        raise ValueError("Expected profile input 'api.external_python_type_index' to be a JSON object.")
+        raise ValueError(
+            "Expected profile input 'api.external_python_type_index' to be a JSON object."
+        )
 
     bindings: dict[str, _ExternalPythonTypeBinding] = {}
     for label in ("classes", "enums"):
@@ -1805,14 +1934,21 @@ def _render_field_default(
             attribute_config=attribute_config,
             type_info=type_info,
         )
-    elif _is_nullable(attribute_config=attribute_config, type_info=type_info) or type_info.is_collection:
-        default_expr = "Field(default=None)" if not type_info.is_collection else "Field(default_factory=list)"
+    elif (
+        _is_nullable(attribute_config=attribute_config, type_info=type_info)
+        or type_info.is_collection
+    ):
+        default_expr = (
+            "Field(default=None)"
+            if not type_info.is_collection
+            else "Field(default_factory=list)"
+        )
 
     if attribute_config.description:
         if default_expr is None:
             return f"Field(description={json.dumps(attribute_config.description)})"
         if default_expr.startswith("Field(") and default_expr.endswith(")"):
-            inner = default_expr[len("Field("):-1].strip()
+            inner = default_expr[len("Field(") : -1].strip()
             if inner:
                 return f"Field({inner}, description={json.dumps(attribute_config.description)})"
             return f"Field(description={json.dumps(attribute_config.description)})"
@@ -1836,8 +1972,13 @@ def _render_default_literal(
 
     if value is None:
         return "Field(default=None)"
-    if type_info.kind == AttributeTypeDescriptorKind.primitive and type_info.primitive_config is not None:
-        primitive_type = CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type)
+    if (
+        type_info.kind == AttributeTypeDescriptorKind.primitive
+        and type_info.primitive_config is not None
+    ):
+        primitive_type = CodePrimitiveType.model_validate(
+            type_info.primitive_config.primitive_type
+        )
         if primitive_type.base_type == CodePrimitiveBaseType.string:
             return f"Field(default={json.dumps(str(value))})"
         if primitive_type.base_type == CodePrimitiveBaseType.boolean:
@@ -1865,7 +2006,10 @@ def _render_primitive_type(base_type: CodePrimitiveBaseType) -> str:
 
 
 def _derive_public_package_import_root(*, public_plan: dict[str, object]) -> str:
-    token = (_optional_string(public_plan, "fqn_prefix") or _require_string(public_plan, "package_name")).strip()
+    token = (
+        _optional_string(public_plan, "fqn_prefix")
+        or _require_string(public_plan, "package_name")
+    ).strip()
     token = token.replace("-", "_")
     return token or "aware_api_public_package"
 

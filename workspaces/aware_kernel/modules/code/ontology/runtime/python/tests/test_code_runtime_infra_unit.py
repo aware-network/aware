@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from types import SimpleNamespace
-from typing import Iterator
+from typing import Iterator, cast
 from uuid import uuid4
 
 import pytest
@@ -11,6 +11,7 @@ from tree_sitter_aware.tree_sitter_language import AWARE_LANGUAGE
 
 from aware_code.builder import build_code_from_content, collect_nodes
 from aware_code.handlers.impl.code import code as code_handler
+from aware_code.language.plugin import CodeLanguagePlugin
 from aware_code.language.registry import CodeLanguagePluginRegistry
 from aware_code.ontology.materialization import (
     apply_code_content_plan,
@@ -40,11 +41,15 @@ def _isolated_registry() -> Iterator[None]:
         setup_code_plugins()
 
 
-def _sample_tree_sitter_node():
+def _sample_tree_sitter_node(
+    source: bytes = b"class A {}",
+    *,
+    child_index: int = 0,
+):
     parser = Parser(language=AWARE_LANGUAGE)
-    tree = parser.parse(b"class A {}")
+    tree = parser.parse(source)
     root = tree.root_node
-    first = root.children[0] if root.children else root
+    first = root.children[child_index] if root.children else root
     return first
 
 
@@ -64,6 +69,49 @@ def test_setup_code_plugins_registers_languages_idempotently() -> None:
         setup_code_plugins()
         second = set(CodeLanguagePluginRegistry.get_supported_languages())
         assert second == first
+
+
+def test_code_language_plugin_registry_uses_reload_stable_language_key() -> None:
+    with _isolated_registry():
+        plugin = cast(
+            CodeLanguagePlugin[object],
+            SimpleNamespace(language=CodeLanguage.aware, extensions=[".aware"]),
+        )
+
+        class ReloadedAwareLanguage:
+            value = "aware"
+
+        CodeLanguagePluginRegistry.register(plugin)
+
+        assert (
+            CodeLanguagePluginRegistry.get(cast(CodeLanguage, ReloadedAwareLanguage()))
+            is plugin
+        )
+        assert CodeLanguagePluginRegistry.has_language(
+            cast(CodeLanguage, ReloadedAwareLanguage())
+        )
+        assert (
+            CodeLanguagePluginRegistry.get_language_from_extension(".aware")
+            is CodeLanguage.aware
+        )
+
+
+def test_build_code_from_content_normalizes_reloaded_language_enum() -> None:
+    with _isolated_registry():
+        setup_code_plugins()
+
+        class ReloadedAwareLanguage:
+            value = "aware"
+
+        code = build_code_from_content(
+            sections_index=CodeSectionBuilderIndex(),
+            content="class A {}",
+            code_key="models.aware",
+            language=cast(CodeLanguage, ReloadedAwareLanguage()),
+            symbol_table=CodeSymbolTable(),
+        )
+
+        assert code.language is CodeLanguage.aware
 
 
 def test_registry_get_fail_closed_for_missing_language() -> None:
@@ -86,13 +134,23 @@ def test_builder_index_reference_collision_rules() -> None:
 def test_builder_index_add_section_node_is_idempotent_for_same_range() -> None:
     index = CodeSectionBuilderIndex()
     section_id = uuid4()
-    raw_node = _sample_tree_sitter_node()
+    raw_node = _sample_tree_sitter_node(b"class A {}\nclass B {}")
+    different_raw_node = _sample_tree_sitter_node(
+        b"class A {}\nclass B {}",
+        child_index=1,
+    )
     node_first = CodeNode(node=raw_node, byte_start=4, byte_end=10)
     node_same = CodeNode(node=raw_node, byte_start=4, byte_end=10)
-    node_different = CodeNode(node=raw_node, byte_start=5, byte_end=11)
+    node_duplicate_text_different_range = CodeNode(
+        node=raw_node,
+        byte_start=14,
+        byte_end=20,
+    )
+    node_different = CodeNode(node=different_raw_node, byte_start=14, byte_end=20)
 
     index.add_section_node(section_id, node_first)
     index.add_section_node(section_id, node_same)
+    index.add_section_node(section_id, node_duplicate_text_different_range)
     assert index.get_section_node(section_id) is node_first
 
     with pytest.raises(ValueError, match="different byte range"):

@@ -1,0 +1,18 @@
+class ExactValue {
+    amount Decimal key = 1.2300
+    optional_amount Decimal?
+    samples Decimal[] = [1.00, 2.500]
+
+    fn create construct(
+        amount Decimal key = 1.2300,
+        optional_amount Decimal? = null,
+        samples Decimal[] = [3.000, 4.2500]
+    ) -> ExactValue {
+        """Create an exact Decimal fixture value."""
+    }
+
+    fn replace_amount(amount Decimal = 2.500) -> ExactValue {
+        """Replace the exact amount without binary-float conversion."""
+        set amount = amount
+    }
+}

@@ -1,0 +1,31 @@
+name: aware_app_factory
+description: Workspace-owned Flutter app factory for mounting Aware Interface runtimes over aware_shell.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  uuid: ^4.5.1
+
+  aware_shell:
+    path: ../../../shell/dart/aware_shell
+  aware_pane_runtime:
+    path: ../../../pane_runtime/dart/aware_pane_runtime
+  aware_windows:
+    path: ../../../windows/dart/aware_windows
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: any
+  aware_pane:
+    path: ../../../pane/dart/aware_pane
+
+flutter:
+  uses-material-design: true

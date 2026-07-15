@@ -1,0 +1,58 @@
+/// Temporal mutation service-operation payload DTOs.
+///
+/// These DTOs preserve the useful convergence/session shape for future
+/// service-to-service infrastructure. They are not an ontology mutation product
+/// rail, do not sit behind Environment, and intentionally do not augment or
+/// register with the Environment service-operation discriminator.
+
+class TemporalMutationDiagnostic {
+    code String
+    severity String = "error"
+    summary String
+    detail String?
+    context JsonObject = {}
+}
+
+class TemporalMutationServiceOperation {
+    service String = "temporal_mutation"
+
+    /// Operation discriminator for temporal mutation messages.
+    operation String = "open_session"
+
+    /// Session identifier (server-assigned unless provided by client).
+    session_id UUID?
+
+    /// Lane identity (base of the overlay).
+    branch_id UUID?
+    projection_hash String?
+    base_commit_id UUID?
+    base_graph_hash_post String?
+
+    /// Server-ordered revision for subscriber convergence.
+    revision Int?
+    expected_revision Int?
+    from_revision Int?
+
+    /// Provenance (author of the applied op; distinct from subscriber actor).
+    actor_id UUID?
+
+    /// Temporal apply payload.
+    function_id UUID?
+    object_id UUID?
+    args JsonArray = []
+    kwargs JsonObject = {}
+
+    /// Result payload.
+    status String?
+    error_code String?
+    error String?
+    diagnostic TemporalMutationDiagnostic?
+    payload JsonValue?
+    changes JsonArray = []
+    graph_hash_pre String?
+    graph_hash_post String?
+
+    /// Optional finalized receipt-plane commit evidence.
+    commit_id UUID?
+    commit_message String?
+}

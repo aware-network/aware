@@ -1,0 +1,7 @@
+/// Package-relative path role visible to local filesystem classification.
+enum CodePackagePathRole {
+    authored_source
+    generated_code
+    generated_manifest
+    generated_metadata
+}

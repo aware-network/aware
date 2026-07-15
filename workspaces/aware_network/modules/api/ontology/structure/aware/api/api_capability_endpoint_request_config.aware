@@ -1,0 +1,50 @@
+/// Required request contract under one endpoint.
+///
+/// Caller-facing contract truth:
+/// - owns the endpoint request DTO `ClassConfig`
+/// - may own one terminal response contract
+/// - may own one stream contract
+class ApiCapabilityEndpointRequestConfig {
+    // Relationships
+    class_config aware_meta.class.ClassConfig key
+    response_config ApiCapabilityEndpointResponseConfig? unique
+    stream_config ApiCapabilityEndpointStreamConfig? unique
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        class_config_id UUID key,
+        description String? = null
+    ) -> ApiCapabilityEndpointRequestConfig {
+        """
+        Create one endpoint request contract beneath ApiCapabilityEndpoint.
+        """
+    }
+
+    fn create_response_config (
+        class_config_id UUID,
+        description String? = null
+    ) -> ApiCapabilityEndpointResponseConfig {
+        """
+        Create one optional terminal response contract beneath this request contract.
+        """
+        let created = construct response_config.build(
+            class_config_id = class_config_id,
+            description = description,
+        )
+    }
+
+    fn create_stream_config (
+        stream_mode ApiCapabilityEndpointStreamMode,
+        description String? = null
+    ) -> ApiCapabilityEndpointStreamConfig {
+        """
+        Create one optional stream contract beneath this request contract.
+        """
+        let created = construct stream_config.build(
+            stream_mode = stream_mode,
+            description = description,
+        )
+    }
+}

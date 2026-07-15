@@ -1,0 +1,5 @@
+aware = 1
+
+[workflow]
+mode = "build"
+module_toml_path = "workspaces/aware_kernel/modules/api/aware.module.toml"

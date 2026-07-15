@@ -1,0 +1,33 @@
+/// Optional stream contract beneath one request contract.
+class ApiCapabilityEndpointStreamConfig {
+    // Relationships
+    api_capability_endpoint_stream_event_configs ApiCapabilityEndpointStreamEventConfig[]
+
+    // Attributes
+    stream_mode ApiCapabilityEndpointStreamMode key
+    description String?
+
+    fn build construct (
+        stream_mode ApiCapabilityEndpointStreamMode key,
+        description String? = null
+    ) -> ApiCapabilityEndpointStreamConfig {
+        """
+        Create one endpoint stream contract beneath ApiCapabilityEndpointRequestConfig.
+        """
+    }
+
+    fn create_event_config (
+        kind ApiCapabilityEndpointStreamEventKind,
+        class_config_id UUID,
+        description String? = null
+    ) -> ApiCapabilityEndpointStreamEventConfig {
+        """
+        Create one typed stream event contract beneath this stream config.
+        """
+        let created = construct api_capability_endpoint_stream_event_configs.create(
+            kind = kind,
+            class_config_id = class_config_id,
+            description = description,
+        )
+    }
+}

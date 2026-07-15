@@ -1,0 +1,10 @@
+// LayoutConfig projection (config-level layout topology)
+//
+// Contract:
+// - Roots configuration classes for compiler-token lowering.
+// - Runtime layout instances are out of scope for this projection.
+projection LayoutConfig {
+    root layout.LayoutConfig
+    layout.LayoutConfig::section_configs
+    layout.LayoutConfigSectionConfig::section_config
+}

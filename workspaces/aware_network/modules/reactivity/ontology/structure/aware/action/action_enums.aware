@@ -1,0 +1,41 @@
+enum ActionStatus {
+    executing
+    handled_failure
+    handled_success
+    requested
+    skipped
+}
+
+enum ActionIntentStatus {
+    requested
+    skipped
+    superseded
+}
+
+enum ActionExecutionStatus {
+    accepted
+    canceled
+    created
+    failed
+    rejected
+    running
+    succeeded
+    timed_out
+}
+
+enum ActionFeedbackStage {
+    dispatch
+    execute
+    terminal
+}
+
+enum ActionFeedbackStatus {
+    accepted
+    failed
+    rejected
+    requested
+    responded
+    running
+    skipped
+    succeeded
+}

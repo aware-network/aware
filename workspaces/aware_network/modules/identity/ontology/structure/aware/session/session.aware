@@ -1,0 +1,118 @@
+/// Identity-owned concrete actor-session container.
+///
+/// Contract:
+/// - Parent constructor is SessionConfig.
+/// - Session is generic actor participation state, not Environment,
+///   Experience, or Attention topology.
+/// - Domains wrap/bridge to this object when they need domain-specific
+///   session meaning.
+class Session {
+    // Relationships
+    parent_session Session?
+    created_by_actor actor.Actor?
+    members SessionMember[]
+    provider_sessions SessionProviderSession[]
+
+    // Attributes
+    key String key
+    parent_session_scope_key String key = "root"
+    title String?
+    description String?
+    purpose String?
+    status String = "active"
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject? = {}
+
+    fn build construct (
+        key String key,
+        parent_session_scope_key String key = "root",
+        parent_session_id UUID? = null,
+        title String? = null,
+        description String? = null,
+        purpose String? = null,
+        status String = "active",
+        created_by_actor_id UUID? = null,
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> Session {
+        """
+        Construct one Session under a SessionConfig.
+
+        Contract:
+        - Stable identity is SessionConfig path + `key` + `parent_session_scope_key`.
+        - Root sessions use `parent_session_scope_key = "root"` and
+          `parent_session_id = null`.
+        - Child sessions use `parent_session_scope_key = parent_session_id`.
+        - The relationship is parent-only. Do not add a reverse child-session
+          ownership rail.
+        - Does not resolve Process/Thread/Layout/Attention.
+        - Does not grant roles; Identity ActorRole truth remains separate.
+        """
+    }
+
+    fn join_actor (
+        actor_id UUID key,
+        session_actor_config_id UUID,
+        status String = "active",
+        joined_at_unix_ms Int? = null,
+        left_at_unix_ms Int? = null,
+        metadata_json JsonObject? = {}
+    ) -> SessionMember {
+        """
+        Join one Actor to this Session under a SessionConfigActorConfig.
+
+        Contract:
+        - `session_actor_config_id` is required and points to session policy.
+        - Stable identity is `(session_id, actor_id)`.
+        - Member ActorRole evidence is added through SessionMemberActorRole.
+        """
+        let member = construct members.create(
+            actor_id = actor_id,
+            session_actor_config_id = session_actor_config_id,
+            status = status,
+            joined_at_unix_ms = joined_at_unix_ms,
+            left_at_unix_ms = left_at_unix_ms,
+            metadata_json = metadata_json,
+        )
+    }
+
+    fn attach_provider_session (
+        provider_session_config_id UUID key,
+        provider_session_key String key,
+        provider_session_ref String? = null,
+        provider_object_instance_graph_identity_id UUID? = null,
+        provider_class_instance_identity_id UUID? = null,
+        provider_object_instance_graph_branch_id UUID? = null,
+        status String = "active",
+        metadata_json JsonObject? = {}
+    ) -> SessionProviderSession {
+        """
+        Attach one provider-owned domain session/capability to this shared
+        Identity Session.
+
+        Contract:
+        - Session remains the actor participation envelope.
+        - Provider attachment is many-per-Session, not a singular owner.
+        - Provider-specific detail is referenced through generic Meta graph
+          portals or an opaque bridge ref; Identity does not import provider
+          domain ontology.
+        """
+        let attached = construct provider_sessions.create(
+            provider_session_config_id = provider_session_config_id,
+            provider_session_key = provider_session_key,
+            provider_session_ref = provider_session_ref,
+            provider_object_instance_graph_identity_id = provider_object_instance_graph_identity_id,
+            provider_class_instance_identity_id = provider_class_instance_identity_id,
+            provider_object_instance_graph_branch_id = provider_object_instance_graph_branch_id,
+            status = status,
+            metadata_json = metadata_json,
+        )
+    }
+}
+
+ann session.Session::parent_session load eager
+ann session.Session::created_by_actor load eager
+ann session.Session::members load eager
+ann session.Session::provider_sessions load eager

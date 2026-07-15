@@ -1,0 +1,28 @@
+/// ObjectConfigGraphPackage projection
+///
+/// Purpose:
+/// - Expose the semantic package rail for canonical OCG package truth.
+/// - Keep source code provenance explicit through `CodePackage`.
+/// - Portal from semantic package truth into owned `ObjectConfigGraph` truth without collapsing the layers.
+projection ObjectConfigGraphPackage {
+    root config.ObjectConfigGraphPackage
+
+    /// Source package provenance
+    config.ObjectConfigGraphPackage::source_code_package CodePackage
+
+    /// Owned semantic graph portal
+    config.ObjectConfigGraphPackage::object_config_graph ObjectConfigGraph
+
+    /// Owned semantic graph root commit portal
+    config.ObjectConfigGraphPackage::object_config_graph_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    aware_meta.graph.instance.ObjectInstanceGraphCommit::commit
+
+    /// Explicit dependency universe
+    config.ObjectConfigGraphPackage::dependencies
+    config.ObjectConfigGraphPackageDependency::target_object_config_graph_package ObjectConfigGraphPackage
+
+    /// Declared language CodePackage materialization targets
+    config.ObjectConfigGraphPackage::language_materializations
+    config.ObjectConfigGraphPackageLanguageMaterialization::materialized_packages
+    config.ObjectConfigGraphPackageLanguageMaterializationPackage::code_package CodePackage
+}

@@ -24,6 +24,12 @@
           "name": "create_capability",
           "input_model": "ApiCreateCapabilityInput",
           "output_model": "ApiCreateCapabilityOutput"
+        },
+        {
+          "function_config_id": "78f7ef2d-f956-51ca-aa25-d634114b67e7",
+          "name": "create_view",
+          "input_model": "ApiCreateViewInput",
+          "output_model": "ApiCreateViewOutput"
         }
       ]
     },
@@ -44,6 +50,12 @@
           "name": "create_via_api_capability_endpoint",
           "input_model": "ApiCallCreateViaApiCapabilityEndpointInput",
           "output_model": "ApiCallCreateViaApiCapabilityEndpointOutput"
+        },
+        {
+          "function_config_id": "9f0a0afe-9cc6-5acb-9045-ddd6e954925a",
+          "name": "record_stream_event",
+          "input_model": "ApiCallRecordStreamEventInput",
+          "output_model": "ApiCallRecordStreamEventOutput"
         }
       ]
     },
@@ -58,6 +70,20 @@
           "name": "build_via_api_call",
           "input_model": "ApiCallOutcomeBuildViaApiCallInput",
           "output_model": "ApiCallOutcomeBuildViaApiCallOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "62b646d0-907e-57be-a122-205dc839e8e1",
+      "module": "aware_api_ontology_orm_models.api.api_call_stream_event",
+      "name": "ApiCallStreamEvent",
+      "aware_class_ref": "aware_api.api.ApiCallStreamEvent",
+      "functions": [
+        {
+          "function_config_id": "bb93ce69-f893-5db2-97d4-813e90973c86",
+          "name": "create_via_api_call",
+          "input_model": "ApiCallStreamEventCreateViaApiCallInput",
+          "output_model": "ApiCallStreamEventCreateViaApiCallOutput"
         }
       ]
     },
@@ -346,6 +372,60 @@
           "output_model": "ApiPackageLanguagePackageBuildViaApiPackageOutput"
         }
       ]
+    },
+    {
+      "class_config_id": "4997a134-251f-58a7-a23d-cbe5b3e683f6",
+      "module": "aware_api_ontology_orm_models.api.api_view",
+      "name": "ApiView",
+      "aware_class_ref": "aware_api.api.ApiView",
+      "functions": [
+        {
+          "function_config_id": "ec58da72-2541-5581-b658-f58a3175ee9d",
+          "name": "bind_capability_endpoint",
+          "input_model": "ApiViewBindCapabilityEndpointInput",
+          "output_model": "ApiViewBindCapabilityEndpointOutput"
+        },
+        {
+          "function_config_id": "27200409-3e10-58ff-9d64-b64c5900e2e4",
+          "name": "create_via_api",
+          "input_model": "ApiViewCreateViaApiInput",
+          "output_model": "ApiViewCreateViaApiOutput"
+        },
+        {
+          "function_config_id": "b2364ace-ac51-5458-a29a-ffd608962c06",
+          "name": "set_stream_policy",
+          "input_model": "ApiViewSetStreamPolicyInput",
+          "output_model": "ApiViewSetStreamPolicyOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "634a6db1-f04f-5db8-a6ef-b1790472e47d",
+      "module": "aware_api_ontology_orm_models.api.api_view_capability_endpoint",
+      "name": "ApiViewCapabilityEndpoint",
+      "aware_class_ref": "aware_api.api.ApiViewCapabilityEndpoint",
+      "functions": [
+        {
+          "function_config_id": "5223d9fa-d792-5c60-b56e-485eec3afe5c",
+          "name": "build_via_api_view",
+          "input_model": "ApiViewCapabilityEndpointBuildViaApiViewInput",
+          "output_model": "ApiViewCapabilityEndpointBuildViaApiViewOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ab47e10d-8d6e-51e6-8bc9-04b5e109920e",
+      "module": "aware_api_ontology_orm_models.api.api_view_stream_policy",
+      "name": "ApiViewStreamPolicy",
+      "aware_class_ref": "aware_api.api.ApiViewStreamPolicy",
+      "functions": [
+        {
+          "function_config_id": "7a4f0732-da77-53c8-b7e1-acb26d9eaac2",
+          "name": "build_via_api_view",
+          "input_model": "ApiViewStreamPolicyBuildViaApiViewInput",
+          "output_model": "ApiViewStreamPolicyBuildViaApiViewOutput"
+        }
+      ]
     }
   ],
   "enums": [
@@ -363,6 +443,11 @@
       "enum_config_id": "e9e9b312-e3a3-541a-a896-0166b0127224",
       "module": "aware_api_ontology_orm_models.api.api_capability_endpoint_stream_enums",
       "name": "ApiCapabilityEndpointStreamMode"
+    },
+    {
+      "enum_config_id": "3a0e6527-5235-5fb6-ad75-8a6a4e06950c",
+      "module": "aware_api_ontology_orm_models.api.api_view_stream_enums",
+      "name": "ApiViewStreamMode"
     }
   ]
 }

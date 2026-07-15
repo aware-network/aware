@@ -1,0 +1,18 @@
+/// RoleConfig eligibility edge under an Identity ActorConfig.
+class ActorConfigRoleConfig {
+    // Relationships
+    role_config aware_identity.role.RoleConfig key
+
+    fn create construct (role_config_id UUID key) -> ActorConfigRoleConfig {
+        """
+        Create a deterministic ActorConfigRoleConfig association edge.
+
+        Contract:
+        - Parent ActorConfig scope is propagated by constructor lowering.
+        - Stable identity is `(actor_config_id, role_config_id)`.
+        - This is policy vocabulary only; it is not an ActorRole grant.
+        """
+    }
+}
+
+ann actor.ActorConfigRoleConfig::role_config load eager

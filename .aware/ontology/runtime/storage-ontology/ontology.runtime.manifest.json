@@ -1,0 +1,22 @@
+{
+  "code_package_id": "7747a868-8c6e-5885-8fcd-bb65fd9b5185",
+  "db_schema": {
+    "backend_targets": [
+      "postgres"
+    ],
+    "package_kind": "ontology",
+    "sql_roots": [
+      {
+        "path": "../../../../workspaces/aware_network/modules/storage/ontology/structure/sql/schema",
+        "path_mode": "manifest_relative"
+      }
+    ]
+  },
+  "domain_commit_id": "bfd12ef8-8d7c-5c3c-9f5d-1156f7c2ff1b",
+  "object_instance_graph_commit_id": "21640706-a655-5753-b00e-d3a00e68878e",
+  "package_name": "storage-ontology",
+  "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
+  "source_kind": "workspace_revision",
+  "workspace_relative_package_root": "workspaces/aware_network/modules/storage/ontology",
+  "workspace_revision_code_package_id": "77f6fdea-9b0c-52be-9e0f-ba41870de427"
+}

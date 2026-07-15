@@ -1,0 +1,72 @@
+class IdentityProfile {
+    // Relationships
+    image aware_storage.blob.StorageBlob? unique
+
+    // Attributes
+    public_handle String key
+    display_name String
+    full_name String
+    country_code String
+    language_code String
+    bio String?
+
+    fn create construct(public_handle String key, display_name String, full_name String, country_code String, language_code String, bio String?, image_id UUID?) -> IdentityProfile {
+        """
+        Creates a new identity profile.
+
+        Parameters: 
+            public_handle: The public handle of the identity profile.
+            display_name: The display name of the identity profile.
+            full_name: The full name of the identity profile.
+            country_code: The country code of the identity profile.
+            language_code: The language code of the identity profile.
+            bio: The bio of the identity profile, by default NULL.
+            image_id: The ID of the image to set as the profile image, by default NULL.
+
+        Returns: The new identity profile.
+        """
+    }
+
+    fn update_bio(bio String) -> {
+        """
+        Updates the bio of the identity.
+        Parameters: bio: The new bio of the identity.
+        Returns: None.
+        """
+    }
+
+    fn update_country(country_code String) -> {
+        """
+        Updates the country code of the identity profile.
+        Parameters: country_code: ISO 3166-1 alpha-2 country code.
+        Returns: None.
+        """
+    }
+
+    fn update_language(language_code String) -> {
+        """
+        Updates the language code of the identity profile.
+        Parameters: language_code: ISO 639-1 language code.
+        Returns: None.
+        """
+    }
+
+    fn update_picture(image_id UUID? = null, image_sha String? = null, image_mime_type String? = null, image_size_bytes Int? = null) -> {
+        """
+        Updates (or clears) the profile picture.
+
+        Contract:
+        - Raw bytes are uploaded out-of-band via HTTP file operations.
+        - Commits must reference commit-backed StorageBlob metadata only.
+        - When setting a picture, image_sha/image_mime_type/image_size_bytes must be provided together.
+
+        Parameters:
+            image_id: Optional uploaded blob id to assert against image_sha-derived stable id.
+            image_sha: SHA-256 hex digest of uploaded bytes.
+            image_mime_type: MIME type of uploaded bytes.
+            image_size_bytes: Size of uploaded bytes.
+        Returns: None.
+        """
+    }
+
+}

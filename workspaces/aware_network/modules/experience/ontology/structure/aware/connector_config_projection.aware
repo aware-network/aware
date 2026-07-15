@@ -1,0 +1,19 @@
+/// Connector config projection.
+///
+/// Contract:
+/// - This is the raw config surface for external integration capability families.
+/// - Providers, Connector/Sensor/Actuator instances, and Sensor/Actuator
+///   configs are portal-backed by their own projections.
+projection ConnectorConfig {
+    root connector.ConnectorConfig
+    connector.ConnectorConfig::providers ConnectorProvider
+    connector.ConnectorConfig::sensor_configs SensorConfig
+    connector.ConnectorConfig::actuator_configs ActuatorConfig
+    connector.ConnectorConfig::connectors Connector
+
+    observable connector_config {
+        """
+        Connector config surface with portal-backed providers, Connector instances, and Sensor/Actuator configs.
+        """
+    }
+}

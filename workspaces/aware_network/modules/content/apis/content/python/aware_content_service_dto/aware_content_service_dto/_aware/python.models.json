@@ -1,0 +1,132 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "bdd9f1b5-1f2e-565a-af1c-fc45d69147cf",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "CommitContentTextRequest",
+      "aware_class_ref": "aware_content_service_dto.content.CommitContentTextRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "566670f2-407b-5b3f-8219-73f9ff035af5",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "CommitContentTextResponse",
+      "aware_class_ref": "aware_content_service_dto.content.CommitContentTextResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "600d37df-32f6-5dcb-9b11-533472a83bec",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentOperationReceipt",
+      "aware_class_ref": "aware_content_service_dto.content.ContentOperationReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "240a71d4-74e8-58b8-9b76-943a42bc3e6e",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentPackageArtifactProjectionV1",
+      "aware_class_ref": "aware_content_service_dto.content.ContentPackageArtifactProjectionV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "69fb2e22-0221-5a02-9e3b-10d6b5a2481d",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentPackageExportDocumentV1",
+      "aware_class_ref": "aware_content_service_dto.content.ContentPackageExportDocumentV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "0dbc196e-31de-534b-9f04-f9d372bc50c2",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentPackageExportPartV1",
+      "aware_class_ref": "aware_content_service_dto.content.ContentPackageExportPartV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "2c2e3c6d-27b4-544e-a494-23fa5034b198",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentPackageMaterializationResultV1",
+      "aware_class_ref": "aware_content_service_dto.content.ContentPackageMaterializationResultV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "4bc1da32-22fa-522e-b4b9-720f116e653f",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentPackageMaterializedArtifactRefV1",
+      "aware_class_ref": "aware_content_service_dto.content.ContentPackageMaterializedArtifactRefV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "8834a171-7032-5f66-808f-55687a051f54",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentServiceRequest",
+      "aware_class_ref": "aware_content_service_dto.content.ContentServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8b27476c-da65-5a62-97d6-2b1061ed7472",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentServiceResponse",
+      "aware_class_ref": "aware_content_service_dto.content.ContentServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e6fd957e-c7ff-57fd-ad5b-c35df31f3f8b",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentTextCommitPartV1",
+      "aware_class_ref": "aware_content_service_dto.content.ContentTextCommitPartV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "3fb63903-2a7f-58b1-bb91-d3894d68949e",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentTextCommitResultV1",
+      "aware_class_ref": "aware_content_service_dto.content.ContentTextCommitResultV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "a6b9eb1c-754c-5dc0-b8b6-253e6782a33f",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentTextPartV1",
+      "aware_class_ref": "aware_content_service_dto.content.ContentTextPartV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "8e7bc429-1a8e-59d5-8a3f-86974d9e4edd",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentTextResolutionV1",
+      "aware_class_ref": "aware_content_service_dto.content.ContentTextResolutionV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "e2d855ff-51e2-513b-a41e-b2f7d7be3485",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "MaterializeContentPackageRequest",
+      "aware_class_ref": "aware_content_service_dto.content.MaterializeContentPackageRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "ed1fbbae-8243-544a-85eb-b9a99e2f8efe",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "MaterializeContentPackageResponse",
+      "aware_class_ref": "aware_content_service_dto.content.MaterializeContentPackageResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "9b9e36fe-41fd-5b88-aac0-a2b0a6f99ec3",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ResolveContentTextRequest",
+      "aware_class_ref": "aware_content_service_dto.content.ResolveContentTextRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "38484196-4399-5b63-bfb2-e068ecd6fc35",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ResolveContentTextResponse",
+      "aware_class_ref": "aware_content_service_dto.content.ResolveContentTextResponse",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

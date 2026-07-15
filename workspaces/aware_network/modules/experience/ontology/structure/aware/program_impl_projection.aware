@@ -1,0 +1,34 @@
+/// ProgramImpl projection
+///
+/// Contract:
+/// - Per-program implementation with explicit instruction bindings.
+projection ProgramImpl {
+    root program.impl.ProgramImpl
+
+    /// Instructions (ordered polymorphic contract)
+    program.impl.ProgramImpl::program_config ProgramConfig
+    program.impl.ProgramImpl::instructions
+    program.impl.ProgramImplInstruction::instruction_let
+    program.impl.ProgramImplInstruction::instruction_bind
+    program.impl.ProgramImplInstruction::instruction_invoke
+    program.impl.ProgramImplInstructionInvoke::program_config_actor_config ProgramConfig
+    program.impl.ProgramImplInstructionInvoke::program_config_port_projection_experience_node ProgramConfig
+    program.impl.ProgramImplInstructionInvoke::attribute_configs
+    program.impl.ProgramImplInstructionInvokeAttributeConfig::attribute_config ProgramConfig
+    program.impl.ProgramImplInstruction::instruction_expect
+    program.impl.ProgramImplInstruction::instruction_intent
+    program.impl.ProgramImplInstructionIntent::activation_field_bindings
+    program.impl.ProgramImplInstructionIntent::outcome_field_bindings
+    program.impl.ProgramImplInstructionIntent::receipt_field_bindings
+
+    /// Input as contract Impl-Config
+    program.impl.ProgramImplInstruction::instruction_input
+    program.impl.ProgramImplInstructionInput::program_config_input_config ProgramConfig
+
+
+    observable program_impl {
+        """
+        Per-program implementation surface with explicit instruction bindings.
+        """
+    }
+}

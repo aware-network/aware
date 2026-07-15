@@ -1,0 +1,10 @@
+/// Program input as instruction
+class ProgramImplInstructionInput {
+    program_config_input_config aware_experience.program.ProgramConfigInputConfig key
+
+    fn build construct (program_config_input_config_id UUID key) -> ProgramImplInstructionInput {
+        """
+        Create a deterministic ProgramImplInstructionInput.
+        """
+    }
+}

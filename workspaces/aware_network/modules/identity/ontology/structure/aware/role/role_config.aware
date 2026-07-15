@@ -1,0 +1,37 @@
+class RoleConfig {
+    // Relationships
+    class_config_relationships aware_meta.class.ClassConfigRelationship[] @RoleConfigClassConfigRelationship many
+    role_config_class_configs RoleConfigClassConfig[]
+
+    // Attributes
+    description String?
+    name String key
+
+    fn create construct (name String key, description String? = null) -> RoleConfig {
+        """
+        Create a RoleConfig (policy root) inside the `role_config` projection.
+
+        Contract (v0):
+        - Policy creation is commit-backed (no transport-only RoleConfigs).
+        - `name` is the canonical key (runtime derives a stable id from it).
+        - Idempotent by name: creating the same RoleConfig twice returns the existing instance.
+        """
+    }
+
+    fn upsert_class_config_policy (class_config_id UUID, access_level AccessLevelType) -> RoleConfigClassConfig {
+        """
+        Upsert a class-level policy edge for a given meta ClassConfig.
+
+        Notes:
+        - `class_config_id` refers to `aware_meta.class.ClassConfig` via the `role_config` → `object_config_graph` portal.
+        - Function-level policy is modeled on `RoleConfigClassConfigFunctionConfig`.
+        """
+        let created_policy = construct role_config_class_configs.create(
+            class_config_id = class_config_id,
+            access_level = access_level,
+        )
+    }
+}
+
+/// Load RoleConfigClassConfigs eagerly
+ann role.RoleConfig::role_config_class_configs load eager

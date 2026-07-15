@@ -1,0 +1,19 @@
+class ConditionConfigRelationshipConfig {
+    // Relationships
+    nested_condition_config ConditionConfig?
+    class_config_relationship aware_meta.class.ClassConfigRelationship key
+
+    // Attributes
+    count_threshold Int?
+    eval_mode RelationshipEvalMode = exists
+
+    fn create construct(
+        class_config_relationship_id UUID key,
+        eval_mode RelationshipEvalMode = exists,
+        count_threshold Int? = null
+    ) -> ConditionConfigRelationshipConfig {
+        """
+        Create a relationship payload condition node.
+        """
+    }
+}

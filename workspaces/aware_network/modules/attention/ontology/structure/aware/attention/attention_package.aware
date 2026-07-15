@@ -1,0 +1,46 @@
+class AttentionPackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    layout_configs AttentionPackageLayoutConfig[]
+
+    // Attributes
+    name String key
+
+    fn build construct(
+        name String key,
+        source_code_package_id UUID? = null
+    ) -> AttentionPackage {
+        """
+        Create the canonical Attention-owned semantic package root.
+
+        Contract:
+        - Identity is keyed by Attention package `name`.
+        - `AttentionPackage` is the package/public root over authored layout topology owned by one
+          `aware.attention.toml` package.
+        - `source_code_package_id` is the explicit raw-source provenance link for this semantic leaf
+          package.
+        - Workspace and later Interface/workflow rails should mount `AttentionPackage`, not raw
+          `LayoutConfig` objects.
+        """
+    }
+
+    fn attach_layout_config(
+        layout_config_id UUID key
+    ) -> AttentionPackageLayoutConfig {
+        """
+        Attach one canonical `LayoutConfig` under this Attention package root.
+
+        Contract:
+        - Parent `AttentionPackage` scope is injected by propagation.
+        - Identity is keyed by the attached `LayoutConfig`.
+        - One Attention package may own multiple layouts without collapsing package truth and layout
+          topology into one object.
+        """
+        let created = construct layout_configs.build(
+            layout_config_id = layout_config_id,
+        )
+    }
+}
+
+ann attention.AttentionPackage::source_code_package load eager
+ann attention.AttentionPackage::layout_configs load eager

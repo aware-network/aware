@@ -1,0 +1,490 @@
+from __future__ import annotations
+
+from contextlib import contextmanager
+from types import SimpleNamespace
+from typing import Iterator, cast
+from uuid import uuid4
+
+import pytest
+from tree_sitter import Parser
+from tree_sitter_aware.tree_sitter_language import AWARE_LANGUAGE
+
+from aware_code.builder import CodeSyntaxError, build_code_from_content, collect_nodes
+from aware_code.handlers.impl.code import code as code_handler
+from aware_code.language.plugin import CodeLanguagePlugin
+from aware_code.language.registry import CodeLanguagePluginRegistry
+from aware_code.ontology.materialization import (
+    apply_code_content_plan,
+    build_code_content_plan_from_text,
+    create_code_in_package_from_text,
+    upsert_code_in_package_from_text,
+)
+from aware_code.node.adapter import CodeNodeAdapter
+from aware_code.node.node import CodeNode
+from aware_code.semantic_package.registry import SemanticPackageRegistry
+from aware_code.section.builder_index import CodeSectionBuilderIndex
+from aware_code.setup_language_plugins import setup_code_plugins
+from aware_code.symbol_table import CodeSymbolTable
+from aware_code_ontology.code.code_enums import CodeLanguage
+from aware_code_ontology.code.code_section_enums import CodeSectionType
+
+
+@contextmanager
+def _isolated_registry() -> Iterator[None]:
+    CodeLanguagePluginRegistry.clear()
+    SemanticPackageRegistry.clear()
+    try:
+        yield
+    finally:
+        SemanticPackageRegistry.clear()
+        CodeLanguagePluginRegistry.clear()
+        setup_code_plugins()
+
+
+def _sample_tree_sitter_node(
+    source: bytes = b"class A {}",
+    *,
+    child_index: int = 0,
+):
+    parser = Parser(language=AWARE_LANGUAGE)
+    tree = parser.parse(source)
+    root = tree.root_node
+    first = root.children[child_index] if root.children else root
+    return first
+
+
+def test_setup_code_plugins_registers_languages_idempotently() -> None:
+    with _isolated_registry():
+        setup_code_plugins()
+        expected = {
+            CodeLanguage.aware,
+            CodeLanguage.dart,
+            CodeLanguage.python,
+            CodeLanguage.sql,
+        }
+
+        first = set(CodeLanguagePluginRegistry.get_supported_languages())
+        assert expected <= first
+
+        setup_code_plugins()
+        second = set(CodeLanguagePluginRegistry.get_supported_languages())
+        assert second == first
+
+
+def test_code_language_plugin_registry_uses_reload_stable_language_key() -> None:
+    with _isolated_registry():
+        plugin = cast(
+            CodeLanguagePlugin[object],
+            SimpleNamespace(language=CodeLanguage.aware, extensions=[".aware"]),
+        )
+
+        class ReloadedAwareLanguage:
+            value = "aware"
+
+        CodeLanguagePluginRegistry.register(plugin)
+
+        assert (
+            CodeLanguagePluginRegistry.get(cast(CodeLanguage, ReloadedAwareLanguage()))
+            is plugin
+        )
+        assert CodeLanguagePluginRegistry.has_language(
+            cast(CodeLanguage, ReloadedAwareLanguage())
+        )
+        assert (
+            CodeLanguagePluginRegistry.get_language_from_extension(".aware")
+            is CodeLanguage.aware
+        )
+
+
+def test_build_code_from_content_normalizes_reloaded_language_enum() -> None:
+    with _isolated_registry():
+        setup_code_plugins()
+
+        class ReloadedAwareLanguage:
+            value = "aware"
+
+        code = build_code_from_content(
+            sections_index=CodeSectionBuilderIndex(),
+            content="class A {}",
+            code_key="models.aware",
+            language=cast(CodeLanguage, ReloadedAwareLanguage()),
+            symbol_table=CodeSymbolTable(),
+        )
+
+        assert code.language is CodeLanguage.aware
+
+
+def test_registry_get_fail_closed_for_missing_language() -> None:
+    with _isolated_registry():
+        with pytest.raises(KeyError, match="No language plugin registered"):
+            CodeLanguagePluginRegistry.get(CodeLanguage.aware)
+
+
+def test_builder_index_reference_collision_rules() -> None:
+    index = CodeSectionBuilderIndex()
+
+    first = SimpleNamespace(id=uuid4())
+    second = SimpleNamespace(id=uuid4())
+
+    index.add_reference(CodeSectionType.class_, "User", first)
+    with pytest.raises(ValueError, match="Reference collision"):
+        index.add_reference(CodeSectionType.class_, "User", second)
+
+
+def test_builder_index_add_section_node_is_idempotent_for_same_range() -> None:
+    index = CodeSectionBuilderIndex()
+    section_id = uuid4()
+    raw_node = _sample_tree_sitter_node(b"class A {}\nclass B {}")
+    different_raw_node = _sample_tree_sitter_node(
+        b"class A {}\nclass B {}",
+        child_index=1,
+    )
+    node_first = CodeNode(node=raw_node, byte_start=4, byte_end=10)
+    node_same = CodeNode(node=raw_node, byte_start=4, byte_end=10)
+    node_duplicate_text_different_range = CodeNode(
+        node=raw_node,
+        byte_start=14,
+        byte_end=20,
+    )
+    node_different = CodeNode(node=different_raw_node, byte_start=14, byte_end=20)
+
+    index.add_section_node(section_id, node_first)
+    index.add_section_node(section_id, node_same)
+    index.add_section_node(section_id, node_duplicate_text_different_range)
+    assert index.get_section_node(section_id) is node_first
+
+    with pytest.raises(ValueError, match="different byte range"):
+        index.add_section_node(section_id, node_different)
+
+
+class _FakeAdapter(CodeNodeAdapter[int]):
+    @property
+    def section_type(self) -> CodeSectionType:
+        return CodeSectionType.class_
+
+    def match_nodes(self, root: int, source: bytes):  # noqa: ARG002
+        _ = root
+        _ = source
+        return [
+            CodeNode(node=1, byte_start=12, byte_end=13),
+            CodeNode(node=2, byte_start=2, byte_end=3),
+            CodeNode(node=3, byte_start=8, byte_end=9),
+        ]
+
+    def qualname(
+        self, node: CodeNode[int], parent: str | None = None
+    ) -> str:  # noqa: ARG002
+        _ = parent
+        return f"n{node.node}"
+
+    def body_bytes(self, node: CodeNode[int], source: bytes) -> bytes:  # noqa: ARG002
+        _ = node
+        _ = source
+        return b""
+
+
+def test_collect_nodes_returns_deterministic_byte_order() -> None:
+    adapter = _FakeAdapter()
+    fake_tree = SimpleNamespace(
+        root=SimpleNamespace(node=0),
+        source_bytes=b"irrelevant",
+    )
+
+    nodes = collect_nodes(adapter=adapter, code_tree=fake_tree)
+    assert [node.byte_start for node in nodes] == [2, 8, 12]
+
+
+def test_build_code_from_content_fails_closed_when_plugin_missing() -> None:
+    with _isolated_registry():
+        with pytest.raises(KeyError, match="No language plugin registered"):
+            build_code_from_content(
+                sections_index=CodeSectionBuilderIndex(),
+                content="class A {}",
+                code_key="inline://missing-plugin",
+                language=CodeLanguage.aware,
+                symbol_table=CodeSymbolTable(),
+            )
+
+
+def test_build_code_from_content_basic_path_smoke() -> None:
+    setup_code_plugins()
+    built = build_code_from_content(
+        sections_index=CodeSectionBuilderIndex(),
+        content="class A {}",
+        code_key="inline://basic-smoke",
+        language=CodeLanguage.aware,
+        symbol_table=CodeSymbolTable(),
+    )
+    assert built.language == CodeLanguage.aware
+    assert built.content_part_text is not None
+
+
+def test_build_code_from_content_reports_parser_recovery_before_index_mutation() -> (
+    None
+):
+    setup_code_plugins()
+    source = '''class InterfaceLayoutTransitionSectionIntent {
+    """One stable-id row in a complete shared-layout transition intent."""
+
+    layout_config_section_config_id UUID
+    order Int
+    weight_micros Int
+    is_visible Bool = true
+    is_collapsed Bool = false
+}
+'''
+    code_key = "comms/models/interface_attention_layout_transition.aware"
+
+    diagnostics = []
+    for _ in range(2):
+        sections_index = CodeSectionBuilderIndex()
+        with pytest.raises(CodeSyntaxError) as exc_info:
+            build_code_from_content(
+                sections_index=sections_index,
+                content=source,
+                code_key=code_key,
+                language=CodeLanguage.aware,
+                symbol_table=CodeSymbolTable(),
+            )
+
+        error = exc_info.value
+        assert error.code_key == code_key
+        assert error.language is CodeLanguage.aware
+        assert 1 <= len(error.diagnostics) <= 8
+        assert error.diagnostics[0].node_kind == "ERROR"
+        assert error.diagnostics[0].start_line == 2
+        assert error.diagnostics[0].start_byte < error.diagnostics[0].end_byte
+        assert "stable-id row" in error.diagnostics[0].source_excerpt
+        assert code_key in str(error)
+        assert "language='aware'" in str(error)
+        assert "diagnostic_count=" in str(error)
+        assert "line=" in str(error)
+        assert "bytes=" in str(error)
+        assert "excerpt=" in str(error)
+        assert sections_index.get_all_sections() == []
+        diagnostics.append(error.diagnostics)
+
+    assert diagnostics[0] == diagnostics[1]
+
+
+def test_build_code_from_content_accepts_aware_member_doc_comment() -> None:
+    setup_code_plugins()
+    built = build_code_from_content(
+        sections_index=CodeSectionBuilderIndex(),
+        content="""/// One stable-id row in a complete shared-layout transition intent.
+class InterfaceLayoutTransitionSectionIntent {
+    layout_config_section_config_id UUID
+}
+""",
+        code_key="comms/models/interface_attention_layout_transition.aware",
+        language=CodeLanguage.aware,
+        symbol_table=CodeSymbolTable(),
+    )
+
+    assert built.language is CodeLanguage.aware
+    assert any(
+        section.type is CodeSectionType.class_ for section in built.code_sections
+    )
+
+
+def test_code_syntax_diagnostics_are_capped() -> None:
+    setup_code_plugins()
+    source = "\n".join(
+        f'''class Broken{index} {{
+    """invalid syntax {index}"""
+    value String
+}}'''
+        for index in range(12)
+    )
+
+    with pytest.raises(CodeSyntaxError) as exc_info:
+        build_code_from_content(
+            sections_index=CodeSectionBuilderIndex(),
+            content=source,
+            code_key="inline://many-syntax-errors",
+            language=CodeLanguage.aware,
+            symbol_table=CodeSymbolTable(),
+        )
+
+    assert len(exc_info.value.diagnostics) == 8
+
+
+def test_build_code_from_content_accepts_recovered_chained_annotation_path() -> None:
+    setup_code_plugins()
+    source = """class CodeSectionClass {
+    code_section_attributes attribute.CodeSectionAttribute[]
+    code_section_functions function.CodeSectionFunction[]
+}
+ann class.CodeSectionClass::code_section_attributes::CodeSectionClassAttribute load eager
+ann class.CodeSectionClass::code_section_functions::CodeSectionClassFunction load eager
+"""
+    parser = Parser(language=AWARE_LANGUAGE)
+    assert parser.parse(source.encode()).root_node.has_error is True
+
+    built = build_code_from_content(
+        sections_index=CodeSectionBuilderIndex(),
+        content=source,
+        code_key="class_/code_section_class.aware",
+        language=CodeLanguage.aware,
+        symbol_table=CodeSymbolTable(),
+    )
+
+    assert built.language is CodeLanguage.aware
+    assert (
+        sum(
+            section.type is CodeSectionType.annotation
+            for section in built.code_sections
+        )
+        == 2
+    )
+
+
+def test_build_code_from_content_allows_documented_relationship_field_without_attribute_section() -> (
+    None
+):
+    setup_code_plugins()
+    content = """
+class ObjectConfigGraph {
+    // Relationships
+    /// Stable identity for this config graph family.
+    object_config_graph_identity ObjectConfigGraphIdentity?
+    object_config_graph_nodes ObjectConfigGraphNode[]
+
+    // Attributes
+    name String unique
+}
+"""
+
+    built = build_code_from_content(
+        sections_index=CodeSectionBuilderIndex(),
+        content=content,
+        code_key="inline://documented-relationship-field",
+        language=CodeLanguage.aware,
+        symbol_table=CodeSymbolTable(),
+    )
+
+    assert built.language == CodeLanguage.aware
+    assert any(
+        section.type is CodeSectionType.comment for section in built.code_sections
+    )
+
+
+def test_build_code_content_plan_from_text_sets_up_plugins() -> None:
+    with _isolated_registry():
+        plan = build_code_content_plan_from_text(
+            content_text="class A {}",
+            language=CodeLanguage.aware,
+        )
+
+    assert plan.language.value == CodeLanguage.aware.value
+    assert plan.section_plans
+    assert plan.section_plans[0].section_key == "A"
+
+
+@pytest.mark.asyncio
+async def test_apply_code_content_plan_invokes_canonical_code_surface() -> None:
+    plan = build_code_content_plan_from_text(
+        content_text="class A {}",
+        language=CodeLanguage.aware,
+    )
+    captured: dict[str, object] = {}
+
+    class _FakeCode:
+        async def apply_content_plan(self, *, plan):  # noqa: ANN001
+            captured["plan"] = plan
+
+    await apply_code_content_plan(
+        code=_FakeCode(),  # type: ignore[arg-type]
+        plan=plan,
+    )
+
+    assert captured == {
+        "plan": plan,
+    }
+
+
+@pytest.mark.asyncio
+async def test_replace_content_handler_delegates_to_ontology_materialization(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake_code = object()
+    captured: dict[str, object] = {}
+
+    async def _fake_replace_code_content_from_text(
+        *, code, content_text: str, language
+    ):  # noqa: ANN001
+        captured["code"] = code
+        captured["content_text"] = content_text
+        captured["language"] = language
+
+    monkeypatch.setattr(
+        code_handler,
+        "replace_code_content_from_text",
+        _fake_replace_code_content_from_text,
+    )
+
+    await code_handler.replace_content(
+        fake_code,  # type: ignore[arg-type]
+        content_text="class A {}",
+        language=CodeLanguage.aware,
+    )
+
+    assert captured == {
+        "code": fake_code,
+        "content_text": "class A {}",
+        "language": CodeLanguage.aware,
+    }
+
+
+@pytest.mark.asyncio
+async def test_create_code_in_package_from_text_invokes_canonical_package_surface() -> (
+    None
+):
+    captured: dict[str, object] = {}
+
+    class _FakeCodePackage:
+        language = CodeLanguage.aware
+
+        async def create_code(self, *, relative_path: str, plan):  # noqa: ANN001
+            captured["relative_path"] = relative_path
+            captured["plan"] = plan
+            return "created"
+
+    result = await create_code_in_package_from_text(
+        code_package=_FakeCodePackage(),  # type: ignore[arg-type]
+        relative_path="src/main.aware",
+        content_text="class A {}",
+        language=None,
+    )
+
+    assert result == "created"
+    assert captured["relative_path"] == "src/main.aware"
+    assert captured["plan"].language == CodeLanguage.aware
+    assert captured["plan"].content_text == "class A {}"
+
+
+@pytest.mark.asyncio
+async def test_upsert_code_in_package_from_text_invokes_canonical_package_surface() -> (
+    None
+):
+    captured: dict[str, object] = {}
+
+    class _FakeCodePackage:
+        language = CodeLanguage.aware
+
+        async def upsert_code(self, *, relative_path: str, plan):  # noqa: ANN001
+            captured["relative_path"] = relative_path
+            captured["plan"] = plan
+            return "upserted"
+
+    result = await upsert_code_in_package_from_text(
+        code_package=_FakeCodePackage(),  # type: ignore[arg-type]
+        relative_path="src/main.aware",
+        content_text="class B {}",
+        language=None,
+    )
+
+    assert result == "upserted"
+    assert captured["relative_path"] == "src/main.aware"
+    assert captured["plan"].language == CodeLanguage.aware
+    assert captured["plan"].content_text == "class B {}"

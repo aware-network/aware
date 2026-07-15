@@ -1,0 +1,2145 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_META"
+kind = "ns_url"
+value = "aware://meta/v1"
+
+[[functions]]
+name = "stable_attribute_id"
+namespace = "NS_META"
+template = "aware:attribute:{attribute_config_id}:{owner_key}"
+doc = "Compiler-generated from class-attribute identity keys: attribute_config_id, owner_key"
+
+[[functions.params]]
+name = "attribute_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "owner_key"
+type = "uuid"
+
+[[functions]]
+name = "stable_attribute_change_id"
+namespace = "NS_META"
+template = "aware:attribute_change:{change_id}"
+doc = "Compiler-generated from class-attribute identity keys: change_id"
+
+[[functions.params]]
+name = "change_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_attribute_config_id"
+namespace = "NS_META"
+template = "aware:attribute_config:{owner_key_norm}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: owner_key, name"
+
+[[functions.params]]
+name = "owner_key"
+type = "str"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "owner_key_norm"
+param = "owner_key"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_attribute_config_overlay_id"
+namespace = "NS_META"
+template = "aware:attribute_config_overlay:{object_config_graph_overlay_id}:{attribute_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_overlay_id, attribute_config_id"
+
+[[functions.params]]
+name = "object_config_graph_overlay_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_attribute_type_descriptor_id"
+namespace = "NS_META"
+template = "aware:attribute_type_descriptor:{collection_kind_norm}:{kind_norm}:{entity_id_str}:{child_links_fingerprint}"
+doc = "Compiler-generated from class-attribute identity keys: collection_kind, kind, entity_id, child_links_fingerprint"
+
+[[functions.params]]
+name = "collection_kind"
+type = "str"
+default = "single"
+
+[[functions.params]]
+name = "kind"
+type = "str"
+
+[[functions.params]]
+name = "entity_id"
+type = "uuid"
+optional = true
+
+[[functions.params]]
+name = "child_links_fingerprint"
+type = "str"
+default = ""
+
+[[functions.lets]]
+op = "normalize_default"
+name = "collection_kind_norm"
+param = "collection_kind"
+normalize = ["casefold", "strip"]
+default = "single"
+
+[[functions.lets]]
+op = "normalize"
+name = "kind_norm"
+param = "kind"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "uuid_str_default"
+name = "entity_id_str"
+param = "entity_id"
+default = ""
+
+[[functions]]
+name = "stable_attribute_type_descriptor_link_id"
+namespace = "NS_META"
+template = "aware:attribute_type_descriptor_link:{attribute_type_descriptor_id}:{child_id}:{role_norm}:{position}"
+doc = "Compiler-generated from class-attribute identity keys: attribute_type_descriptor_id, child_id, role, position"
+
+[[functions.params]]
+name = "attribute_type_descriptor_id"
+type = "uuid"
+
+[[functions.params]]
+name = "child_id"
+type = "uuid"
+
+[[functions.params]]
+name = "role"
+type = "str"
+
+[[functions.params]]
+name = "position"
+type = "int"
+default = 0
+
+[[functions.lets]]
+op = "normalize"
+name = "role_norm"
+param = "role"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_attribute_value_id"
+namespace = "NS_META"
+template = "aware:attribute_value:{type_descriptor_id}"
+doc = "Compiler-generated from class-attribute identity keys: type_descriptor_id"
+
+[[functions.params]]
+name = "type_descriptor_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_attribute_value_change_id"
+namespace = "NS_META"
+template = "aware:attribute_value_change:{change_id}"
+doc = "Compiler-generated from class-attribute identity keys: change_id"
+
+[[functions.params]]
+name = "change_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_attribute_value_link_id"
+namespace = "NS_META"
+template = "aware:attribute_value_link:{child_id}"
+doc = "Compiler-generated from class-attribute identity keys: child_id"
+
+[[functions.params]]
+name = "child_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_attribute_value_link_change_id"
+namespace = "NS_META"
+template = "aware:attribute_value_link_change:{change_id}"
+doc = "Compiler-generated from class-attribute identity keys: change_id"
+
+[[functions.params]]
+name = "change_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_class_config_id"
+namespace = "NS_META"
+template = "aware:class_config:{object_config_graph_node_id}:{class_fqn_norm}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_node_id, class_fqn"
+
+[[functions.params]]
+name = "object_config_graph_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_fqn"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "class_fqn_norm"
+param = "class_fqn"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_class_config_attribute_config_id"
+namespace = "NS_META"
+template = "aware:class_config_attribute_config:{class_config_id}:{attribute_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: class_config_id, attribute_config_id"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_class_config_function_config_id"
+namespace = "NS_META"
+template = "aware:class_config_function_config:{class_config_id}:{function_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: class_config_id, function_config_id"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "function_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_class_config_overlay_id"
+namespace = "NS_META"
+template = "aware:class_config_overlay:{object_config_graph_overlay_id}:{class_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_overlay_id, class_config_id"
+
+[[functions.params]]
+name = "object_config_graph_overlay_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_class_config_relationship_id"
+namespace = "NS_META"
+template = "aware:class_config_relationship:{class_config_id}:{target_class_config_id}:{relationship_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: class_config_id, target_class_config_id, relationship_key"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_class_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "relationship_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "relationship_key_norm"
+param = "relationship_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_class_config_relationship_association_id"
+namespace = "NS_META"
+template = "aware:class_config_relationship_association:{class_config_id}:{class_config_relationship_id}"
+doc = "Compiler-generated from class-attribute identity keys: class_config_id, class_config_relationship_id"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_relationship_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_class_config_relationship_attribute_id"
+namespace = "NS_META"
+template = "aware:class_config_relationship_attribute:{class_config_relationship_id}:{attribute_config_id}:{direction_norm}:{role_norm}"
+doc = "Compiler-generated from class-attribute identity keys: class_config_relationship_id, attribute_config_id, direction, role"
+
+[[functions.params]]
+name = "class_config_relationship_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "direction"
+type = "str"
+
+[[functions.params]]
+name = "role"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "direction_norm"
+param = "direction"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "role_norm"
+param = "role"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_class_instance_id"
+namespace = "NS_META"
+template = "aware:class_instance:{object_instance_graph_id}:{class_config_id}:{source_object_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_instance_graph_id, class_config_id, source_object_id"
+
+[[functions.params]]
+name = "object_instance_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "source_object_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_class_instance_attribute_id"
+namespace = "NS_META"
+template = "aware:class_instance_attribute:{class_instance_id}:{attribute_id}"
+doc = "Compiler-generated from class-attribute identity keys: class_instance_id, attribute_id"
+
+[[functions.params]]
+name = "class_instance_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_class_instance_change_id"
+namespace = "NS_META"
+template = "aware:class_instance_change:{change_id}"
+doc = "Compiler-generated from class-attribute identity keys: change_id"
+
+[[functions.params]]
+name = "change_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_class_instance_identity_id"
+namespace = "NS_META"
+template = "aware:class_instance_identity:{object_instance_graph_identity_id}:{class_instance_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_instance_graph_identity_id, class_instance_id"
+
+[[functions.params]]
+name = "object_instance_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_instance_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_class_instance_relationship_id"
+namespace = "NS_META"
+template = "aware:class_instance_relationship:{class_config_relationship_id}:{source_class_instance_id}:{target_class_instance_id}"
+doc = "Compiler-generated from class-attribute identity keys: class_config_relationship_id, source_class_instance_id, target_class_instance_id"
+
+[[functions.params]]
+name = "class_config_relationship_id"
+type = "uuid"
+
+[[functions.params]]
+name = "source_class_instance_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_class_instance_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_class_instance_relationship_change_id"
+namespace = "NS_META"
+template = "aware:class_instance_relationship_change:{change_id}:{class_config_relationship_id}:{source_class_instance_id}:{target_class_instance_id}"
+doc = "Compiler-generated from class-attribute identity keys: change_id, class_config_relationship_id, source_class_instance_id, target_class_instance_id"
+
+[[functions.params]]
+name = "change_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_relationship_id"
+type = "uuid"
+
+[[functions.params]]
+name = "source_class_instance_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_class_instance_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_class_instance_relationship_identity_id"
+namespace = "NS_META"
+template = "aware:class_instance_relationship_identity:{object_instance_graph_identity_id}:{class_instance_relationship_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_instance_graph_identity_id, class_instance_relationship_id"
+
+[[functions.params]]
+name = "object_instance_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_instance_relationship_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_code_section_annotation_discriminate_id"
+namespace = "NS_META"
+template = "aware:code_section_annotation_discriminate:{fqn_prefix_norm}:{namespace_norm}:{class_name_norm}:{attribute_name_norm}:{mode_norm}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix, namespace, class_name, attribute_name, mode"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "namespace"
+type = "str"
+
+[[functions.params]]
+name = "class_name"
+type = "str"
+
+[[functions.params]]
+name = "attribute_name"
+type = "str"
+
+[[functions.params]]
+name = "mode"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "namespace_norm"
+param = "namespace"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "class_name_norm"
+param = "class_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "attribute_name_norm"
+param = "attribute_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "mode_norm"
+param = "mode"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_section_annotation_identity_id"
+namespace = "NS_META"
+template = "aware:code_section_annotation_identity:{fqn_prefix_norm}:{namespace_norm}:{class_name_norm}:{mode_norm}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix, namespace, class_name, mode"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "namespace"
+type = "str"
+
+[[functions.params]]
+name = "class_name"
+type = "str"
+
+[[functions.params]]
+name = "mode"
+type = "str"
+default = "contained"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "namespace_norm"
+param = "namespace"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "class_name_norm"
+param = "class_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize_default"
+name = "mode_norm"
+param = "mode"
+normalize = ["casefold", "strip"]
+default = "contained"
+
+[[functions]]
+name = "stable_code_section_annotation_index_id"
+namespace = "NS_META"
+template = "aware:code_section_annotation_index:{fqn_prefix_norm}:{namespace_norm}:{class_name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix, namespace, class_name"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "namespace"
+type = "str"
+
+[[functions.params]]
+name = "class_name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "namespace_norm"
+param = "namespace"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "class_name_norm"
+param = "class_name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_section_annotation_load_id"
+namespace = "NS_META"
+template = "aware:code_section_annotation_load:{fqn_prefix_norm}:{namespace_norm}:{class_name_norm}:{attribute_name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix, namespace, class_name, attribute_name"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "namespace"
+type = "str"
+
+[[functions.params]]
+name = "class_name"
+type = "str"
+
+[[functions.params]]
+name = "attribute_name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "namespace_norm"
+param = "namespace"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "class_name_norm"
+param = "class_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "attribute_name_norm"
+param = "attribute_name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_section_annotation_one_of_id"
+namespace = "NS_META"
+template = "aware:code_section_annotation_one_of:{fqn_prefix_norm}:{namespace_norm}:{class_name_norm}:{mode_norm}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix, namespace, class_name, mode"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "namespace"
+type = "str"
+
+[[functions.params]]
+name = "class_name"
+type = "str"
+
+[[functions.params]]
+name = "mode"
+type = "str"
+default = "validation"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "namespace_norm"
+param = "namespace"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "class_name_norm"
+param = "class_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize_default"
+name = "mode_norm"
+param = "mode"
+normalize = ["casefold", "strip"]
+default = "validation"
+
+[[functions]]
+name = "stable_code_section_annotation_overlay_id"
+namespace = "NS_META"
+template = "aware:code_section_annotation_overlay:{source_path_norm}:{language_norm}:{entity_norm}:{fqn_prefix_norm}:{namespace_norm}"
+doc = "Compiler-generated from class-attribute identity keys: source_path, language, entity, fqn_prefix, namespace"
+
+[[functions.params]]
+name = "source_path"
+type = "str"
+
+[[functions.params]]
+name = "language"
+type = "str"
+
+[[functions.params]]
+name = "entity"
+type = "str"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "namespace"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "source_path_norm"
+param = "source_path"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "language_norm"
+param = "language"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "entity_norm"
+param = "entity"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "namespace_norm"
+param = "namespace"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_section_annotation_override_id"
+namespace = "NS_META"
+template = "aware:code_section_annotation_override:{fqn_prefix_norm}:{namespace_norm}:{class_name_norm}:{attribute_name_norm}:{target_norm}:{nullable_int}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix, namespace, class_name, attribute_name, target, nullable"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "namespace"
+type = "str"
+
+[[functions.params]]
+name = "class_name"
+type = "str"
+
+[[functions.params]]
+name = "attribute_name"
+type = "str"
+
+[[functions.params]]
+name = "target"
+type = "str"
+
+[[functions.params]]
+name = "nullable"
+type = "bool"
+default = false
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "namespace_norm"
+param = "namespace"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "class_name_norm"
+param = "class_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "attribute_name_norm"
+param = "attribute_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "target_norm"
+param = "target"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "bool_int"
+name = "nullable_int"
+param = "nullable"
+
+[[functions]]
+name = "stable_code_section_annotation_reference_id"
+namespace = "NS_META"
+template = "aware:code_section_annotation_reference:{fqn_prefix_norm}:{namespace_norm}:{class_name_norm}:{attribute_name_norm}:{mode_norm}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix, namespace, class_name, attribute_name, mode"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "namespace"
+type = "str"
+
+[[functions.params]]
+name = "class_name"
+type = "str"
+
+[[functions.params]]
+name = "attribute_name"
+type = "str"
+
+[[functions.params]]
+name = "mode"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "namespace_norm"
+param = "namespace"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "class_name_norm"
+param = "class_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "attribute_name_norm"
+param = "attribute_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "mode_norm"
+param = "mode"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_code_section_annotation_storage_id"
+namespace = "NS_META"
+template = "aware:code_section_annotation_storage:{fqn_prefix_norm}:{namespace_norm}:{class_name_norm}:{name_norm}:{operation_norm}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix, namespace, class_name, name, operation"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "namespace"
+type = "str"
+
+[[functions.params]]
+name = "class_name"
+type = "str"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.params]]
+name = "operation"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "namespace_norm"
+param = "namespace"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "class_name_norm"
+param = "class_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "operation_norm"
+param = "operation"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_enum_id"
+namespace = "NS_META"
+template = "aware:enum:{enum_config_id}:{enum_option_id}"
+doc = "Compiler-generated from class-attribute identity keys: enum_config_id, enum_option_id"
+
+[[functions.params]]
+name = "enum_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "enum_option_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_enum_change_id"
+namespace = "NS_META"
+template = "aware:enum_change:{change_id}:{enum_option_id}"
+doc = "Compiler-generated from class-attribute identity keys: change_id, enum_option_id"
+
+[[functions.params]]
+name = "change_id"
+type = "uuid"
+
+[[functions.params]]
+name = "enum_option_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_enum_config_id"
+namespace = "NS_META"
+template = "aware:enum_config:{object_config_graph_node_id}:{enum_fqn_norm}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_node_id, enum_fqn"
+
+[[functions.params]]
+name = "object_config_graph_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "enum_fqn"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "enum_fqn_norm"
+param = "enum_fqn"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_enum_config_overlay_id"
+namespace = "NS_META"
+template = "aware:enum_config_overlay:{object_config_graph_overlay_id}:{enum_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_overlay_id, enum_config_id"
+
+[[functions.params]]
+name = "object_config_graph_overlay_id"
+type = "uuid"
+
+[[functions.params]]
+name = "enum_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_enum_option_id"
+namespace = "NS_META"
+template = "aware:enum_option:{enum_config_id}:{value_norm}"
+doc = "Compiler-generated from class-attribute identity keys: enum_config_id, value"
+
+[[functions.params]]
+name = "enum_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "value"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "value_norm"
+param = "value"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_enum_option_overlay_id"
+namespace = "NS_META"
+template = "aware:enum_option_overlay:{object_config_graph_overlay_id}:{enum_option_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_overlay_id, enum_option_id"
+
+[[functions.params]]
+name = "object_config_graph_overlay_id"
+type = "uuid"
+
+[[functions.params]]
+name = "enum_option_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_call_id"
+namespace = "NS_META"
+template = "aware:function_call:{object_instance_graph_lane_id}:{function_config_id}:{call_key}"
+doc = "Compiler-generated from class-attribute identity keys: object_instance_graph_lane_id, function_config_id, call_key"
+
+[[functions.params]]
+name = "object_instance_graph_lane_id"
+type = "uuid"
+
+[[functions.params]]
+name = "function_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "call_key"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_call_argument_id"
+namespace = "NS_META"
+template = "aware:function_call_argument:{function_call_id}:{attribute_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_call_id, attribute_id"
+
+[[functions.params]]
+name = "function_call_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_call_response_id"
+namespace = "NS_META"
+template = "aware:function_call_response:{function_call_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_call_id"
+
+[[functions.params]]
+name = "function_call_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_call_response_attribute_id"
+namespace = "NS_META"
+template = "aware:function_call_response_attribute:{function_call_response_id}:{attribute_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_call_response_id, attribute_id"
+
+[[functions.params]]
+name = "function_call_response_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_call_response_commit_id"
+namespace = "NS_META"
+template = "aware:function_call_response_commit:{function_call_response_id}:{object_instance_graph_commit_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_call_response_id, object_instance_graph_commit_id"
+
+[[functions.params]]
+name = "function_call_response_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_instance_graph_commit_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_config_id"
+namespace = "NS_META"
+template = "aware:function_config:{owner_key_norm}:{name_norm}:{kind_norm}"
+doc = "Compiler-generated from class-attribute identity keys: owner_key, name, kind"
+
+[[functions.params]]
+name = "owner_key"
+type = "str"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.params]]
+name = "kind"
+type = "str"
+default = "instance"
+
+[[functions.lets]]
+op = "normalize"
+name = "owner_key_norm"
+param = "owner_key"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize_default"
+name = "kind_norm"
+param = "kind"
+normalize = ["casefold", "strip"]
+default = "instance"
+
+[[functions]]
+name = "stable_function_config_attribute_config_id"
+namespace = "NS_META"
+template = "aware:function_config_attribute_config:{function_config_id}:{name_norm}:{type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: function_config_id, name, type"
+
+[[functions.params]]
+name = "function_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.params]]
+name = "type"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "type_norm"
+param = "type"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_function_config_invocation_id"
+namespace = "NS_META"
+template = "aware:function_config_invocation:{function_config_id}:{target_function_config_id}:{position}:{kind_norm}:{relationship_fingerprint_norm}"
+doc = "Compiler-generated from class-attribute identity keys: function_config_id, target_function_config_id, position, kind, relationship_fingerprint"
+
+[[functions.params]]
+name = "function_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_function_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions.params]]
+name = "kind"
+type = "str"
+
+[[functions.params]]
+name = "relationship_fingerprint"
+type = "str"
+default = "owner"
+
+[[functions.lets]]
+op = "normalize"
+name = "kind_norm"
+param = "kind"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize_default"
+name = "relationship_fingerprint_norm"
+param = "relationship_fingerprint"
+normalize = ["casefold", "strip"]
+default = "owner"
+
+[[functions]]
+name = "stable_function_config_overlay_id"
+namespace = "NS_META"
+template = "aware:function_config_overlay:{object_config_graph_overlay_id}:{function_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_overlay_id, function_config_id"
+
+[[functions.params]]
+name = "object_config_graph_overlay_id"
+type = "uuid"
+
+[[functions.params]]
+name = "function_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_id"
+namespace = "NS_META"
+template = "aware:function_impl:{function_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_config_id"
+
+[[functions.params]]
+name = "function_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_instruction_id"
+namespace = "NS_META"
+template = "aware:function_impl_instruction:{function_impl_id}:{type_norm}:{sequence}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_id, type, sequence"
+
+[[functions.params]]
+name = "function_impl_id"
+type = "uuid"
+
+[[functions.params]]
+name = "type"
+type = "str"
+
+[[functions.params]]
+name = "sequence"
+type = "int"
+
+[[functions.lets]]
+op = "normalize"
+name = "type_norm"
+param = "type"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_function_impl_instruction_construct_id"
+namespace = "NS_META"
+template = "aware:function_impl_instruction_construct:{function_impl_instruction_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_instruction_id"
+
+[[functions.params]]
+name = "function_impl_instruction_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_instruction_construct_assignment_id"
+namespace = "NS_META"
+template = "aware:function_impl_instruction_construct_assignment:{function_impl_instruction_construct_id}:{target_class_config_attribute_config_id}:{value_source_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_instruction_construct_id, target_class_config_attribute_config_id, value_source_id"
+
+[[functions.params]]
+name = "function_impl_instruction_construct_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_class_config_attribute_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "value_source_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_instruction_invoke_id"
+namespace = "NS_META"
+template = "aware:function_impl_instruction_invoke:{function_impl_instruction_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_instruction_id"
+
+[[functions.params]]
+name = "function_impl_instruction_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_instruction_invoke_attribute_config_id"
+namespace = "NS_META"
+template = "aware:function_impl_instruction_invoke_attribute_config:{function_impl_instruction_invoke_id}:{attribute_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_instruction_invoke_id, attribute_config_id"
+
+[[functions.params]]
+name = "function_impl_instruction_invoke_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_instruction_let_id"
+namespace = "NS_META"
+template = "aware:function_impl_instruction_let:{function_impl_instruction_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_instruction_id"
+
+[[functions.params]]
+name = "function_impl_instruction_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_instruction_require_id"
+namespace = "NS_META"
+template = "aware:function_impl_instruction_require:{function_impl_instruction_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_instruction_id"
+
+[[functions.params]]
+name = "function_impl_instruction_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_instruction_require_operand_id"
+namespace = "NS_META"
+template = "aware:function_impl_instruction_require_operand:{function_impl_instruction_require_id}:{position}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_instruction_require_id, position"
+
+[[functions.params]]
+name = "function_impl_instruction_require_id"
+type = "uuid"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions]]
+name = "stable_function_impl_instruction_delete_id"
+namespace = "NS_META"
+template = "aware:function_impl_instruction_delete:{function_impl_instruction_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_instruction_id"
+
+[[functions.params]]
+name = "function_impl_instruction_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_instruction_set_id"
+namespace = "NS_META"
+template = "aware:function_impl_instruction_set:{function_impl_instruction_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_instruction_id"
+
+[[functions.params]]
+name = "function_impl_instruction_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_value_source_id"
+namespace = "NS_META"
+template = "aware:function_impl_value_source:{function_impl_instruction_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_instruction_id, key"
+
+[[functions.params]]
+name = "function_impl_instruction_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_function_impl_value_source_literal_primitive_id"
+namespace = "NS_META"
+template = "aware:function_impl_value_source_literal_primitive:{function_impl_value_source_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_value_source_id"
+
+[[functions.params]]
+name = "function_impl_value_source_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_value_source_transform_id"
+namespace = "NS_META"
+template = "aware:function_impl_value_source_transform:{function_impl_value_source_id}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_value_source_id"
+
+[[functions.params]]
+name = "function_impl_value_source_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_function_impl_value_source_transform_operand_id"
+namespace = "NS_META"
+template = "aware:function_impl_value_source_transform_operand:{function_impl_value_source_transform_id}:{position}"
+doc = "Compiler-generated from class-attribute identity keys: function_impl_value_source_transform_id, position"
+
+[[functions.params]]
+name = "function_impl_value_source_transform_id"
+type = "uuid"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions]]
+name = "stable_inline_value_instance_id"
+namespace = "NS_META"
+template = "aware:inline_value_instance:{class_config_id}:{owner_key}"
+doc = "Compiler-generated from class-attribute identity keys: class_config_id, owner_key"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "owner_key"
+type = "uuid"
+
+[[functions]]
+name = "stable_inline_value_instance_attribute_id"
+namespace = "NS_META"
+template = "aware:inline_value_instance_attribute:{inline_value_instance_id}:{attribute_id}"
+doc = "Compiler-generated from class-attribute identity keys: inline_value_instance_id, attribute_id"
+
+[[functions.params]]
+name = "inline_value_instance_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attribute_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_config_graph_id"
+namespace = "NS_META"
+template = "aware:object_config_graph:{fqn_prefix_norm}:{language_norm}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix, language"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "language"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "language_norm"
+param = "language"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_config_graph_annotation_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_annotation:{kind_norm}"
+doc = "Compiler-generated from class-attribute identity keys: kind"
+
+[[functions.params]]
+name = "kind"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "kind_norm"
+param = "kind"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_config_graph_binding_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_binding:{object_config_graph_id}:{target_object_config_graph_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_id, target_object_config_graph_id"
+
+[[functions.params]]
+name = "object_config_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_object_config_graph_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_config_graph_binding_class_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_binding_class:{object_config_graph_binding_id}:{source_class_id}:{target_class_id}:{target_attribute_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_binding_id, source_class_id, target_class_id, target_attribute_id"
+
+[[functions.params]]
+name = "object_config_graph_binding_id"
+type = "uuid"
+
+[[functions.params]]
+name = "source_class_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_class_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_attribute_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_config_graph_binding_formula_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_binding_formula:{object_config_graph_binding_class_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_binding_class_id, key"
+
+[[functions.params]]
+name = "object_config_graph_binding_class_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_object_config_graph_binding_formula_segment_reference_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_binding_formula_segment_reference:{object_config_graph_binding_formula_id}:{content_part_text_segment_id}:{source_class_config_attribute_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_binding_formula_id, content_part_text_segment_id, source_class_config_attribute_config_id"
+
+[[functions.params]]
+name = "object_config_graph_binding_formula_id"
+type = "uuid"
+
+[[functions.params]]
+name = "content_part_text_segment_id"
+type = "uuid"
+
+[[functions.params]]
+name = "source_class_config_attribute_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_config_graph_identity_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_identity:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_config_graph_mirror_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_mirror:{source_object_config_graph_id}:{code_section_mirror_id}:{fqn_prefix_norm}:{namespace_norm}:{target_text_norm}:{layout_kind_norm}:{relative_path_norm}:{target_kind_norm}"
+doc = "Compiler-generated from class-attribute identity keys: source_object_config_graph_id, code_section_mirror_id, fqn_prefix, namespace, target_text, layout_kind, relative_path, target_kind"
+
+[[functions.params]]
+name = "source_object_config_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_section_mirror_id"
+type = "uuid"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "namespace"
+type = "str"
+
+[[functions.params]]
+name = "target_text"
+type = "str"
+
+[[functions.params]]
+name = "layout_kind"
+type = "str"
+default = "aware"
+
+[[functions.params]]
+name = "relative_path"
+type = "str"
+
+[[functions.params]]
+name = "target_kind"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "namespace_norm"
+param = "namespace"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "target_text_norm"
+param = "target_text"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize_default"
+name = "layout_kind_norm"
+param = "layout_kind"
+normalize = ["casefold", "strip"]
+default = "aware"
+
+[[functions.lets]]
+op = "normalize"
+name = "relative_path_norm"
+param = "relative_path"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "target_kind_norm"
+param = "target_kind"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_config_graph_node_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_node:{object_config_graph_id}:{type_norm}:{node_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_id, type, node_key"
+
+[[functions.params]]
+name = "object_config_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "type"
+type = "str"
+
+[[functions.params]]
+name = "node_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "type_norm"
+param = "type"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "node_key_norm"
+param = "node_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_config_graph_node_layout_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_node_layout:{layout_kind_norm}:{relative_path_norm}"
+doc = "Compiler-generated from class-attribute identity keys: layout_kind, relative_path"
+
+[[functions.params]]
+name = "layout_kind"
+type = "str"
+default = "aware"
+
+[[functions.params]]
+name = "relative_path"
+type = "str"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "layout_kind_norm"
+param = "layout_kind"
+normalize = ["casefold", "strip"]
+default = "aware"
+
+[[functions.lets]]
+op = "normalize"
+name = "relative_path_norm"
+param = "relative_path"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_config_graph_overlay_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_overlay:{language_norm}"
+doc = "Compiler-generated from class-attribute identity keys: language"
+
+[[functions.params]]
+name = "language"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "language_norm"
+param = "language"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_config_graph_package_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_package:{package_name_norm}:{fqn_prefix_norm}"
+doc = "Compiler-generated from class-attribute identity keys: package_name, fqn_prefix"
+
+[[functions.params]]
+name = "package_name"
+type = "str"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "package_name_norm"
+param = "package_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_config_graph_package_build_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_package_build:{object_config_graph_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_package_id"
+
+[[functions.params]]
+name = "object_config_graph_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_config_graph_package_dependency_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_package_dependency:{target_object_config_graph_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: target_object_config_graph_package_id"
+
+[[functions.params]]
+name = "target_object_config_graph_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_config_graph_package_language_materialization_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_package_language_materialization:{target_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: target_key"
+
+[[functions.params]]
+name = "target_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "target_key_norm"
+param = "target_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_config_graph_package_language_materialization_package_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_package_language_materialization_package:{code_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: code_package_id"
+
+[[functions.params]]
+name = "code_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_config_graph_relationship_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_relationship:{object_config_graph_id}:{target_object_config_graph_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_id, target_object_config_graph_id"
+
+[[functions.params]]
+name = "object_config_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_object_config_graph_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_config_graph_relationship_class_id"
+namespace = "NS_META"
+template = "aware:object_config_graph_relationship_class:{object_config_graph_relationship_id}:{class_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_relationship_id, class_config_id"
+
+[[functions.params]]
+name = "object_config_graph_relationship_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_instance_graph_id"
+namespace = "NS_META"
+template = "aware:object_instance_graph:{object_projection_graph_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: object_projection_graph_id, key"
+
+[[functions.params]]
+name = "object_projection_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_instance_graph_branch_id"
+namespace = "NS_META"
+template = "aware:object_instance_graph_branch:{object_instance_graph_identity_id}:{branch_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_instance_graph_identity_id, branch_id"
+
+[[functions.params]]
+name = "object_instance_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "branch_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_instance_graph_branch_relationship_id"
+namespace = "NS_META"
+template = "aware:object_instance_graph_branch_relationship:{object_instance_graph_branch_id}:{target_object_instance_graph_branch_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_instance_graph_branch_id, target_object_instance_graph_branch_id"
+
+[[functions.params]]
+name = "object_instance_graph_branch_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_object_instance_graph_branch_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_instance_graph_change_id"
+namespace = "NS_META"
+template = "aware:object_instance_graph_change:{object_instance_graph_identity_id}:{change_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_instance_graph_identity_id, change_id"
+
+[[functions.params]]
+name = "object_instance_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "change_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_instance_graph_commit_id"
+namespace = "NS_META"
+template = "aware:object_instance_graph_commit:{object_instance_graph_identity_id}:{commit_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_instance_graph_identity_id, commit_id"
+
+[[functions.params]]
+name = "object_instance_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "commit_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_instance_graph_identity_id"
+namespace = "NS_META"
+template = "aware:object_instance_graph_identity:{object_projection_graph_identity_id}:{object_instance_graph_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_projection_graph_identity_id, object_instance_graph_id"
+
+[[functions.params]]
+name = "object_projection_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_instance_graph_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_instance_graph_lane_id"
+namespace = "NS_META"
+template = "aware:object_instance_graph_lane:{object_instance_graph_branch_id}:{lane_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_instance_graph_branch_id, lane_id"
+
+[[functions.params]]
+name = "object_instance_graph_branch_id"
+type = "uuid"
+
+[[functions.params]]
+name = "lane_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_instance_graph_relationship_id"
+namespace = "NS_META"
+template = "aware:object_instance_graph_relationship:{target_object_instance_graph_id}:{source_class_instance_id}:{target_class_instance_id}"
+doc = "Compiler-generated from class-attribute identity keys: target_object_instance_graph_id, source_class_instance_id, target_class_instance_id"
+
+[[functions.params]]
+name = "target_object_instance_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "source_class_instance_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_class_instance_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_projection_graph_id"
+namespace = "NS_META"
+template = "aware:object_projection_graph:{object_config_graph_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_id, name"
+
+[[functions.params]]
+name = "object_config_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_projection_graph_binding_id"
+namespace = "NS_META"
+template = "aware:object_projection_graph_binding:{fqn_prefix_norm}:{namespace_norm}:{class_name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: fqn_prefix, namespace, class_name"
+
+[[functions.params]]
+name = "fqn_prefix"
+type = "str"
+
+[[functions.params]]
+name = "namespace"
+type = "str"
+
+[[functions.params]]
+name = "class_name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "fqn_prefix_norm"
+param = "fqn_prefix"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "namespace_norm"
+param = "namespace"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "class_name_norm"
+param = "class_name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_projection_graph_constructor_id"
+namespace = "NS_META"
+template = "aware:object_projection_graph_constructor:{object_projection_graph_id}:{root_node_id}:{function_constructor_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_projection_graph_id, root_node_id, function_constructor_id"
+
+[[functions.params]]
+name = "object_projection_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "root_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "function_constructor_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_projection_graph_declaration_id"
+namespace = "NS_META"
+template = "aware:object_projection_graph_declaration:{projection_name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_name"
+
+[[functions.params]]
+name = "projection_name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "projection_name_norm"
+param = "projection_name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_projection_graph_edge_id"
+namespace = "NS_META"
+template = "aware:object_projection_graph_edge:{object_projection_graph_id}:{class_config_relationship_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_projection_graph_id, class_config_relationship_id"
+
+[[functions.params]]
+name = "object_projection_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_relationship_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_projection_graph_identity_id"
+namespace = "NS_META"
+template = "aware:object_projection_graph_identity:{object_config_graph_identity_id}:{object_projection_graph_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_config_graph_identity_id, object_projection_graph_id"
+
+[[functions.params]]
+name = "object_config_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_projection_graph_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_projection_graph_node_id"
+namespace = "NS_META"
+template = "aware:object_projection_graph_node:{object_projection_graph_id}:{class_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_projection_graph_id, class_config_id"
+
+[[functions.params]]
+name = "object_projection_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_object_projection_graph_node_key_id"
+namespace = "NS_META"
+template = "aware:object_projection_graph_node_key:{object_projection_graph_node_id}:{object_config_graph_binding_class_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: object_projection_graph_node_id, object_config_graph_binding_class_id, key"
+
+[[functions.params]]
+name = "object_projection_graph_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_config_graph_binding_class_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_projection_graph_observable_id"
+namespace = "NS_META"
+template = "aware:object_projection_graph_observable:{object_projection_graph_identity_id}:{observable_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: object_projection_graph_identity_id, observable_key"
+
+[[functions.params]]
+name = "object_projection_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "observable_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "observable_key_norm"
+param = "observable_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_object_projection_graph_relationship_id"
+namespace = "NS_META"
+template = "aware:object_projection_graph_relationship:{object_projection_graph_id}:{target_object_projection_graph_id}:{class_config_relationship_id}:{source_object_projection_graph_node_id}:{target_object_projection_graph_node_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_projection_graph_id, target_object_projection_graph_id, class_config_relationship_id, source_object_projection_graph_node_id, target_object_projection_graph_node_id"
+
+[[functions.params]]
+name = "object_projection_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_object_projection_graph_id"
+type = "uuid"
+
+[[functions.params]]
+name = "class_config_relationship_id"
+type = "uuid"
+
+[[functions.params]]
+name = "source_object_projection_graph_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_object_projection_graph_node_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_primitive_id"
+namespace = "NS_META"
+template = "aware:primitive:{primitive_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: primitive_config_id"
+
+[[functions.params]]
+name = "primitive_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_primitive_change_id"
+namespace = "NS_META"
+template = "aware:primitive_change:{change_id}"
+doc = "Compiler-generated from class-attribute identity keys: change_id"
+
+[[functions.params]]
+name = "change_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_primitive_config_id"
+namespace = "NS_META"
+template = "aware:primitive_config:{primitive_type_id}"
+doc = "Compiler-generated from class-attribute identity keys: primitive_type_id"
+
+[[functions.params]]
+name = "primitive_type_id"
+type = "uuid"

@@ -85,6 +85,7 @@ def build_meta_graph_runtime_for_aware_package_manifests(
     package_graph_cache_request_signature: str | None = None,
     handler_owner_prefixes: Iterable[str] | None = None,
     load_source_graph_payloads: bool = True,
+    runtime_context_graph_body_requirement: str = "runtime_graph_body",
 ) -> MetaGraphRuntime:
     """Build a Meta-owned graph runtime from package OCG truth.
 
@@ -127,6 +128,7 @@ def build_meta_graph_runtime_for_aware_package_manifests(
         source_analysis_allowed_manifest_paths=source_analysis_allowed_manifest_paths,
         package_graph_cache_request_signature=package_graph_cache_request_signature,
         load_source_graph_payloads=load_source_graph_payloads,
+        runtime_context_graph_body_requirement=runtime_context_graph_body_requirement,
     )
     _record_meta_runtime_factory_phase_timing(
         phase_timings_s=phase_timings_s,
@@ -250,10 +252,8 @@ def _workspace_root_pre_state_provider(
     if workspace_root is None:
         return None
 
-    from aware_meta.graph.instance.commit.fs_store import (  # noqa: WPS433
-        FSCommitStore,
-        FSSnapshotStore,
-    )
+    from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+    from aware_meta.graph.instance.commit.fs_snapshot_store import FSSnapshotStore
     from aware_meta.graph.instance.commit.materializer import (  # noqa: WPS433
         OIGMaterializer,
     )
@@ -276,7 +276,7 @@ def _workspace_root_lane_committer(
     from aware_meta.graph.instance.commit.committer import (  # noqa: WPS433
         FSLaneCommitter,
     )
-    from aware_meta.graph.instance.commit.fs_store import FSCommitStore  # noqa: WPS433
+    from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 
     return FSLaneCommitter(store=FSCommitStore(root_dir=workspace_root))
 

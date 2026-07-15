@@ -1,0 +1,10 @@
+enum ChangeType {
+    create
+    delete
+    update
+}
+
+enum ChangeDeltaKind {
+    scalar_set
+    text_patch
+}

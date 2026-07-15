@@ -1,0 +1,140 @@
+class EnvironmentConfig {
+    // Relationships
+    ontology_configs EnvironmentConfigOntologyConfig[]
+    /// Reusable Environment profile topology templates.
+    ///
+    /// Contract:
+    /// - EnvironmentConfig owns profile config vocabulary for this Environment
+    ///   composition.
+    /// - EnvironmentProfileConfig owns Process/Thread/provider/actor topology.
+    /// - Runtime EnvironmentProfile instances are Environment-owned, not
+    ///   config-owned.
+    profile_configs EnvironmentProfileConfig[]
+    /// Reusable Environment session templates.
+    ///
+    /// Contract:
+    /// - EnvironmentConfig owns session config vocabulary for this Environment
+    ///   composition.
+    /// - EnvironmentSessionConfig may point at default profile/process/thread
+    ///   topology, but it does not own runtime EnvironmentSession instances.
+    session_configs EnvironmentSessionConfig[]
+
+    // Attributes
+    canonical_language aware_code.code.CodeLanguage
+    description String?
+    handle String key
+    is_kernel Bool = false
+    languages aware_code.code.CodeLanguage[]
+    title String
+
+    fn build construct(
+        handle String key,
+        title String,
+        canonical_language aware_code.code.CodeLanguage,
+        languages aware_code.code.CodeLanguage[],
+        description String? = null,
+        is_kernel Bool = false
+    ) -> EnvironmentConfig {
+        """
+        Build one EnvironmentConfig for a deterministic module/environment handle.
+
+        Contract:
+        - `handle` is the identity key used by compiler-owned stable IDs.
+        - EnvironmentConfig does not own repository, ownership, or raw Meta OCG
+          composition truth.
+        - OCG resolution is reachable only through attached OntologyConfig roots.
+        """
+    }
+
+    fn attach_ontology_config(
+        name String key,
+        fqn_prefix String key,
+        ontology_config_object_instance_graph_commit_id UUID? = null,
+    ) -> EnvironmentConfigOntologyConfig {
+        """
+        Attach one ontology config requirement to this environment config.
+
+        Contract:
+        - Parent `EnvironmentConfig` scope is injected by propagation.
+        - Target OntologyConfig identity is resolved from `(name, fqn_prefix)`.
+        - The optional OIG commit pin is exact OntologyConfig replay truth.
+        - EnvironmentConfig never resolves ObjectConfigGraph directly; it goes
+          through `OntologyConfig.object_config_graph`.
+        """
+        let created = construct ontology_configs.build(
+            name = name,
+            fqn_prefix = fqn_prefix,
+            ontology_config_object_instance_graph_commit_id = ontology_config_object_instance_graph_commit_id,
+        )
+    }
+
+    fn add_profile_config (
+        key String key,
+        title String? = null,
+        description String? = null,
+        narrative String? = null
+    ) -> EnvironmentProfileConfig {
+        """
+        Declare one Environment-level profile config.
+
+        Contract:
+        - EnvironmentConfig owns reusable profile topology for this
+          Environment composition.
+        - Stable identity is EnvironmentConfig path + `key`.
+        - EnvironmentProfileConfig remains topology/config truth only; runtime
+          EnvironmentProfile instances are Environment-owned.
+        """
+        let profile_config = construct profile_configs.build(
+            key = key,
+            title = title,
+            description = description,
+            narrative = narrative,
+        )
+    }
+
+    fn add_session_config (
+        key String key,
+        identity_session_config_id UUID,
+        default_profile_config_id UUID? = null,
+        default_process_config_id UUID? = null,
+        default_thread_config_id UUID? = null,
+        title String? = null,
+        description String? = null,
+        purpose String? = null,
+        status String = "active",
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentSessionConfig {
+        """
+        Declare one Environment-level session config.
+
+        Contract:
+        - EnvironmentConfig owns reusable session defaults for this Environment
+          composition.
+        - Identity owns reusable SessionConfig policy and concrete membership.
+        - Optional default profile/process/thread config portals are bootstrap
+          defaults only; runtime session/thread resolution remains
+          EnvironmentSession-owned.
+        """
+        let session_config = construct session_configs.build(
+            key = key,
+            identity_session_config_id = identity_session_config_id,
+            default_profile_config_id = default_profile_config_id,
+            default_process_config_id = default_process_config_id,
+            default_thread_config_id = default_thread_config_id,
+            title = title,
+            description = description,
+            purpose = purpose,
+            status = status,
+            source_kind = source_kind,
+            source_ref = source_ref,
+            metadata_json = metadata_json,
+        )
+    }
+}
+
+ann environment.EnvironmentConfig identity standalone
+ann EnvironmentConfig::ontology_configs load forward eager reverse lazy
+ann EnvironmentConfig::profile_configs load forward eager reverse lazy
+ann EnvironmentConfig::session_configs load forward eager reverse lazy

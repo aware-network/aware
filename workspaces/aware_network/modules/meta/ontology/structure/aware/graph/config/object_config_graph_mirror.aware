@@ -1,0 +1,25 @@
+/// Ontology-level view of a `mirror` statement.
+///
+/// Mirrors declare an explicit allowlist of types that will be copied
+/// into the API DTO graph. This stays self-contained and avoids runtime
+/// ontology dependencies.
+class ObjectConfigGraphMirror {
+    // Relationships
+    source_object_config_graph ObjectConfigGraph key
+    class_config class.ClassConfig?
+    enum_config enum.EnumConfig?
+    code_section_mirror aware_code.mirror.CodeSectionMirror key
+
+    /// Location within the canonical graph
+    fqn_prefix String key
+    namespace String key
+    /// Mirror target text as written in source (fully-qualified symbol).
+    target_text String key
+    /// Layout metadata for deterministic placement in generated DTO packages.
+    layout_kind String key = "aware"
+    relative_path String key
+    source_position Int? = null
+
+    /// Target identity (exactly one of class_name/enum_name is set)
+    target_kind ObjectConfigGraphMirrorTargetKind key
+}

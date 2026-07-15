@@ -1,0 +1,98 @@
+/// Package-owned materialized output evidence.
+///
+/// Contract:
+/// - CodePackageArtifact is durable package output evidence, not a
+///   WorkspaceRevision artifact pointer.
+/// - Identity is package-scoped by `(code_package_id, output_key, artifact_key)`.
+/// - Digest/path/URI/provider receipts are payload, not the primary identity.
+/// - WorkspaceRevision hydrates these artifacts through the pinned
+///   WorkspaceRevisionCodePackage commit; it must not duplicate per-artifact
+///   revision pointers.
+class CodePackageArtifact {
+    // Attributes
+    output_key String key
+    artifact_key String key
+    status CodePackageArtifactStatus = available
+    artifact_family String?
+    artifact_role String?
+    required_for String[] = []
+    producer_key String?
+    producer_kind String?
+    materialization_index Int?
+    source_code_package_id UUID?
+    source_object_instance_graph_commit_id UUID?
+    input_code_package_id UUID?
+    input_object_instance_graph_commit_id UUID?
+    digest String?
+    relative_path String?
+    uri String?
+    media_type String?
+    runtime_contract_version String?
+    provider_payload JsonObject?
+    receipt_payload JsonObject?
+    error String?
+
+    fn build construct(
+        output_key String key,
+        artifact_key String key,
+        status CodePackageArtifactStatus = available,
+        artifact_family String? = null,
+        artifact_role String? = null,
+        required_for String[] = [],
+        producer_key String? = null,
+        producer_kind String? = null,
+        materialization_index Int? = null,
+        source_code_package_id UUID? = null,
+        source_object_instance_graph_commit_id UUID? = null,
+        input_code_package_id UUID? = null,
+        input_object_instance_graph_commit_id UUID? = null,
+        digest String? = null,
+        relative_path String? = null,
+        uri String? = null,
+        media_type String? = null,
+        runtime_contract_version String? = null,
+        provider_payload JsonObject? = null,
+        receipt_payload JsonObject? = null,
+        error String? = null
+    ) -> CodePackageArtifact {
+        """
+        Create one package-owned artifact evidence row under CodePackage.
+
+        Contract:
+        - Parent CodePackage context is propagated by constructor lowering.
+        - `output_key` identifies the declared CodePackageConfigOutput.
+        - `artifact_key` identifies one deterministic output member.
+        - WorkspaceRevision id is never an identity input here.
+        """
+    }
+}
+
+/// Transport shape for package-owned artifact evidence.
+///
+/// This inline value is for runtime/build receipts and consumer DTOs. Durable
+/// package ownership remains CodePackageArtifact.
+class CodePackageArtifactRef : inline_value {
+    code_package_id UUID?
+    code_package_config_output_id UUID?
+    output_key String
+    artifact_key String
+    status CodePackageArtifactStatus = available
+    artifact_family String?
+    artifact_role String?
+    required_for String[] = []
+    producer_key String?
+    producer_kind String?
+    materialization_index Int?
+    source_code_package_id UUID?
+    source_object_instance_graph_commit_id UUID?
+    input_code_package_id UUID?
+    input_object_instance_graph_commit_id UUID?
+    digest String?
+    relative_path String?
+    uri String?
+    media_type String?
+    runtime_contract_version String?
+    provider_payload JsonObject?
+    receipt_payload JsonObject?
+    error String?
+}

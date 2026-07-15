@@ -1,0 +1,107 @@
+class Identity {
+    // Relationships
+    human human.Human? unique
+    organization organization.Organization? unique
+    identity_patterns IdentityPattern[]
+    identity_profile IdentityProfile? unique
+    credential_profiles credential.CredentialProfile[]
+
+    // Attributes
+    public_key String key
+    type IdentityType key
+
+    fn signup construct(public_key String key, type IdentityType key = human) -> Identity {
+        """
+        Canonical identity signup (v0).
+
+        This is the first end-to-end identity mutation:
+        `.aware` → runtime handler → OIG delta → OIG commit → UI materialization.
+
+        Notes:
+        - Signup is a state mutation and must always be commit-backed (no transport-only identity creation).
+        - The public key is the canonical identity anchor (human + AI).
+        """
+    }
+
+    fn signup_via_profile construct(public_key String key, create_profile_request CreateProfileRequest, type IdentityType key = human) -> Identity {
+        """
+        Creates identity and profile in a single commit (canonical onboarding).
+
+        Contract:
+        - public_key is device-generated; runtime canonicalizes and derives stable ids.
+        - idempotent by public key (stable Identity.id).
+        - profile handle is unique (stable IdentityProfile.id).
+        """
+    }
+
+    fn create_profile(public_handle String, display_name String, full_name String, country_code String, language_code String, bio String? = null, image_id uuid? = null) -> IdentityProfile {
+        """
+        Creates and links a profile to this Identity (v0).
+
+        Runtime invariants:
+        - Mutate-self-only: this handler may only mutate the Identity instance.
+        - Profile creation must occur via the IdentityProfile constructor handler (propagation).
+        """
+    }
+
+    fn ensure_actor(key String = "default") -> actor.Actor {
+        """
+        Ensure an Actor instance exists for this Identity.
+
+        Contract:
+        - `IdentityType.agent` may own multiple keyed actors (deterministic by key).
+        - `IdentityType.human`/`organization`/`system` remain 1:1 and only allow `key=default`.
+        - Returns existing actor when the deterministic id already exists.
+        """
+    }
+
+    fn create_credential_profile(
+        profile_key String key,
+        target_kind credential.CredentialTargetKind key = aware_api,
+        credential_kind credential.CredentialKind = api_key,
+        status credential.CredentialProfileStatus = planned,
+        display_name String? = null,
+        target_name String? = null,
+        issuer String? = null,
+        audience String? = null,
+        external_subject String? = null,
+        created_at_utc String? = null,
+        updated_at_utc String? = null,
+        expires_at_utc String? = null,
+        revoked_at_utc String? = null,
+        metadata JsonObject? = null
+    ) -> credential.CredentialProfile {
+        """
+        Create one Identity-owned credential profile.
+
+        Contract:
+        - Parent Identity context is propagated by traversal.
+        - Organizations use Identity.type=organization on this same rail.
+        - Secret values are never stored on this object.
+        - Secret material is resolved through profile-owned refs.
+        """
+        let created_credential_profile = construct credential_profiles.create(
+            profile_key = profile_key,
+            target_kind = target_kind,
+            credential_kind = credential_kind,
+            status = status,
+            display_name = display_name,
+            target_name = target_name,
+            issuer = issuer,
+            audience = audience,
+            external_subject = external_subject,
+            created_at_utc = created_at_utc,
+            updated_at_utc = updated_at_utc,
+            expires_at_utc = expires_at_utc,
+            revoked_at_utc = revoked_at_utc,
+            metadata = metadata,
+        )
+    }
+
+    fn find_relevant_patterns(category String? = null, pattern_type IdentityPatternType? = null, min_confidence Float? = 0.0) -> {
+        """
+        Experimentally finds relevant patterns for an identity.
+        """
+    }
+
+}

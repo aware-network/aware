@@ -1,0 +1,19 @@
+/// EnvironmentExperienceProfile projection.
+///
+/// Contract:
+/// - Owns only the applied Experience bridge over one concrete Environment
+///   EnvironmentProfile.
+/// - Reusable Experience policy stays in EnvironmentExperienceProfileConfig.
+/// - Session/mount ownership is intentionally added after this split is proven.
+projection EnvironmentExperienceProfile {
+    root environment.EnvironmentExperienceProfile
+
+    environment.EnvironmentExperienceProfile::profile_config EnvironmentExperienceProfileConfig
+    environment.EnvironmentExperienceProfile::environment_profile aware_environment.EnvironmentProfile
+
+    observable environment_experience_profile {
+        """
+        Applied Experience profile bridge over an Environment EnvironmentProfile.
+        """
+    }
+}

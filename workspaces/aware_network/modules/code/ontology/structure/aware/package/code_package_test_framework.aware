@@ -1,0 +1,20 @@
+/// Package-level declaration edge for a test framework.
+///
+/// Contract:
+/// - The framework object remains Code-owned and relational.
+/// - This edge records package declaration/provenance, not installation state.
+edge CodePackageTestFramework {
+    // Attributes
+    declaration_kind String = "unknown"
+    declaration_ref String?
+
+    fn build construct(
+        code_test_framework_id UUID key,
+        declaration_kind String = "unknown",
+        declaration_ref String? = null
+    ) -> CodePackageTestFramework {
+        """
+        Attach an existing CodeTestFramework under this CodePackage.
+        """
+    }
+}

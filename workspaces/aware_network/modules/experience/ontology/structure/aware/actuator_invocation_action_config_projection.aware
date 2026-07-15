@@ -1,0 +1,12 @@
+/// Actuator invocation action config projection.
+projection ActuatorInvocationActionConfig {
+    root actuator.ActuatorInvocationActionConfig
+    actuator.ActuatorInvocationActionConfig::experience_invocation_action_config ExperienceInvocationActionConfig
+
+    observable actuator_invocation_action_config {
+        """
+        Actuator invocation action config bridge with portal-backed generic target
+        metadata and actual invocation receipts.
+        """
+    }
+}

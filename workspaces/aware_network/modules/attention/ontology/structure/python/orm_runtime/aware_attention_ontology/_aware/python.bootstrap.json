@@ -1,0 +1,48 @@
+{
+  "dependency_import_roots": [
+    "aware_code_ontology",
+    "aware_identity_ontology",
+    "aware_meta_ontology"
+  ],
+  "modules": [
+    "aware_attention_ontology.actor.actor_focus",
+    "aware_attention_ontology.actor.actor_focus_enums",
+    "aware_attention_ontology.actor.actor_focus_evidence",
+    "aware_attention_ontology.actor.actor_focus_request",
+    "aware_attention_ontology.actor.actor_focus_request_response",
+    "aware_attention_ontology.actor.actor_focus_scope",
+    "aware_attention_ontology.actor.actor_focus_scope_evidence",
+    "aware_attention_ontology.actor.actor_focus_scope_request",
+    "aware_attention_ontology.attention.attention_package",
+    "aware_attention_ontology.attention.attention_package_layout_config",
+    "aware_attention_ontology.focus.focus",
+    "aware_attention_ontology.focus.focus_enums",
+    "aware_attention_ontology.focus.focus_scope",
+    "aware_attention_ontology.focus.focus_scope_commit",
+    "aware_attention_ontology.focus.focus_scope_request",
+    "aware_attention_ontology.focus.focus_scope_request_response",
+    "aware_attention_ontology.layout.layout",
+    "aware_attention_ontology.layout.layout_config",
+    "aware_attention_ontology.layout.layout_config_section_config",
+    "aware_attention_ontology.layout.layout_section",
+    "aware_attention_ontology.section.section",
+    "aware_attention_ontology.section.section_config",
+    "aware_attention_ontology.section.section_focus_scope",
+    "aware_attention_ontology.session.attention_focus_transition",
+    "aware_attention_ontology.session.attention_layout_topology_transition",
+    "aware_attention_ontology.session.attention_layout_topology_transition_section",
+    "aware_attention_ontology.session.attention_layout_transition",
+    "aware_attention_ontology.session.attention_layout_transition_section",
+    "aware_attention_ontology.session.attention_session",
+    "aware_attention_ontology.session.attention_session_layout",
+    "aware_attention_ontology.session.attention_session_section",
+    "aware_attention_ontology.stable_ids"
+  ],
+  "package_prefix": "aware_attention_ontology",
+  "pydantic_model_dependency_import_roots": [
+    "aware_code_ontology",
+    "aware_identity_ontology",
+    "aware_meta_ontology"
+  ],
+  "version": "v1"
+}

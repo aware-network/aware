@@ -1,0 +1,23 @@
+class IdentityProfileSearchResult : inline_value {
+    // Identity root (lane) id
+    identity_id UUID
+
+    // Profile id (stable by public_handle)
+    identity_profile_id UUID
+
+    // Profile summary
+    public_handle String
+    display_name String
+    full_name String
+    country_code String
+    language_code String
+    bio String?
+
+    // Weighted similarity score (0..1)
+    search_rank Float
+}
+
+class IdentityProfileSearchResponse : inline_value {
+    results IdentityProfileSearchResult[]
+}
+

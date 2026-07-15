@@ -1,0 +1,157 @@
+/// Declarative program configuration unit.
+///
+/// Contract:
+/// - Stores stable config intent and projection-port bindings.
+/// - Is graph-agnostic; graph membership is represented by ProgramConfigGraphProgramConfig edges.
+/// - Does not execute; runtime creates Program instances and Turn receipts.
+class ProgramConfig {
+    // Actors
+    actor_configs ProgramConfigActorConfig[]
+
+    // Entry Attribute
+    attribute_configs ProgramConfigAttributeConfig[]
+
+    // Inputs
+    input_configs ProgramConfigInputConfig[]
+
+    // Ports
+    ports ProgramConfigPort[]
+
+    // Layouts
+    layouts ProgramConfigLayout[]
+
+    // Attributes
+    description String?
+    intent String?
+    is_default Bool = false
+    key String key
+    narrative String?
+    title String?
+
+    fn build construct (
+        key String key,
+        title String? = null,
+        description String? = null,
+        narrative String? = null,
+        intent String? = null,
+        is_default Bool = false
+    ) -> ProgramConfig {
+        """
+        Create a deterministic graph-agnostic ProgramConfig.
+
+        Contract:
+        - Identity is compiler-derived from stable-id formula using `(key)`.
+        - Graph ownership/linkage is represented only by ProgramConfigGraphProgramConfig.
+        - Projection-port references are optional but explicit when present.
+        """
+    }
+
+    fn add_attribute_config (
+        attribute_config_id UUID,
+        type ProgramAttributeType = input,
+        position Int? = null,
+        required Bool = true,
+        attribute_name String? = null
+    ) -> ProgramConfigAttributeConfig {
+        """
+        Attach one pre-existing typed AttributeConfig contract edge under this ProgramConfig.
+
+        Contract:
+        - Represents canonical program I/O schema intent.
+        - Idempotent per `(program_config_id, attribute_config_id, type)`.
+        - Fails closed when referenced AttributeConfig does not exist.
+        """
+        let created = construct attribute_configs.create(
+            attribute_config_id = attribute_config_id,
+            type = type,
+            position = position,
+            required = required,
+        )
+    }
+
+    fn create_attribute_config (
+        attribute_config_id UUID,
+        attribute_name String,
+        attribute_type_ref String = "Any",
+        enum_config_id UUID? = null,
+        class_config_id UUID? = null,
+        type ProgramAttributeType = input,
+        position Int? = null,
+        required Bool = true
+    ) -> ProgramConfigAttributeConfig {
+        """
+        Create AttributeConfig contract truth and attach typed association under this ProgramConfig.
+
+        Contract:
+        - Materializes AttributeConfig descriptor chain through canonical facade constructors.
+        - Enum/Class contracts are link-only and must reference pre-existing OCG configs.
+        - Creates/ensures ProgramConfigAttributeConfig association deterministically.
+        """
+        let created = construct attribute_configs.create(
+            attribute_config_id = attribute_config_id,
+            type = type,
+            position = position,
+            required = required,
+        )
+    }
+
+    fn create_input_config (
+        name String,
+        source String,
+        required Bool = true,
+        default_expr JsonObject? = null
+    ) -> ProgramConfigInputConfig {
+        """
+        Create one deterministic ProgramConfigInputConfig under this ProgramConfig.
+        """
+        let created = construct input_configs.build(
+            name = name,
+            source = source,
+            required = required,
+            default_expr = default_expr,
+        )
+    }
+
+    fn create_actor_config (
+        actor_config_id UUID,
+        alias String
+    ) -> ProgramConfigActorConfig {
+        """
+        Create one deterministic ProgramConfigActorConfig under this ProgramConfig.
+        """
+        let created = construct actor_configs.build(
+            actor_config_id = actor_config_id,
+            alias = alias,
+        )
+    }
+
+    fn create_port (
+        projection_id UUID,
+        key String? = null,
+        intent String? = null,
+        branch_binding_mode ProgramBranchBindingMode = reference
+    ) -> ProgramConfigPort {
+        """
+        Create one deterministic ProgramConfigPort under this ProgramConfig.
+        """
+        let created = construct ports.build(
+            projection_id = projection_id,
+            key = key,
+            intent = intent,
+            branch_binding_mode = branch_binding_mode,
+        )
+    }
+
+    fn create_layout (
+        key String,
+        is_default Bool = false
+    ) -> ProgramConfigLayout {
+        """
+        Create one deterministic ProgramConfigLayout under this ProgramConfig.
+        """
+        let created = construct layouts.build(
+            key = key,
+            is_default = is_default,
+        )
+    }
+}

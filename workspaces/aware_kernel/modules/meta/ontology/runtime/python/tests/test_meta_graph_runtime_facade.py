@@ -43,6 +43,11 @@ from aware_meta.runtime.commit.required_reactions import (
     RuntimeCommitReactionContext,
     RuntimeCommitReactionReceipt,
 )
+from aware_meta.graph.instance.commit.perf_trace import (
+    CommitPerfTraceRecorder,
+    active_commit_perf_trace,
+    summarize_commit_perf_events,
+)
 from aware_meta_ontology.graph.config.object_config_graph_enums import (
     ObjectConfigGraphNodeType,
 )
@@ -762,8 +767,12 @@ async def test_meta_graph_commit_backend_appends_domain_commit_and_returns_recei
         lane_committer=committer,
         required_reaction_runner=reaction_runner.run,
     )
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.invoke_function"
+    )
 
-    receipt = await backend.invoke_function(request)
+    with active_commit_perf_trace(recorder):
+        receipt = await backend.invoke_function(request)
 
     assert len(committer.calls) == 1
     committed = committer.calls[0]
@@ -814,6 +823,35 @@ async def test_meta_graph_commit_backend_appends_domain_commit_and_returns_recei
     assert receipt.commit_action.operation_label == "mutate"
     assert receipt.commit_action.call_target == MetaGraphCallTarget.instance.value
     assert receipt.commit_action.function_id == function_id
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert set(trace_summary) >= {
+        "runtime.invoke_function.stage_function_call",
+        "runtime.invoke_function.execute_staged_function_call",
+        "runtime.invoke_function.build_execution_plan",
+        "runtime.invoke_function.handler_execute_function",
+        "runtime.invoke_function.stage_function_call_response",
+        "runtime.invoke_function.stage_commit_action",
+        "runtime.invoke_function.append_domain_commit",
+        "runtime.invoke_function.build_domain_commit_append_request",
+        "runtime.invoke_function.ensure_identity_lane_head",
+        "runtime.invoke_function.append_invocation_domain_commit",
+        "runtime.invoke_function.link_function_call_response_commit",
+        "runtime.invoke_function.required_commit_reactions",
+        "runtime.invoke_function.build_commit_receipt",
+    }
+    assert trace_summary["runtime.invoke_function.handler_execute_function"][
+        "count"
+    ] == 1
+    event_metadata = {
+        str(event.get("phase")): event.get("metadata")
+        for event in recorder.snapshot_json()
+    }
+    handler_metadata = cast(
+        dict[str, object],
+        event_metadata["runtime.invoke_function.handler_execute_function"],
+    )
+    assert handler_metadata["operation_label"] == "mutate"
+    assert handler_metadata["call_target"] == MetaGraphCallTarget.instance.value
 
 
 @pytest.mark.asyncio

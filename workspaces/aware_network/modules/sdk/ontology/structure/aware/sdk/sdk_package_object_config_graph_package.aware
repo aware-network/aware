@@ -1,0 +1,41 @@
+/// SDK package to owned ObjectConfigGraphPackage bridge.
+///
+/// This records OCG/state packages declared by `aware.sdk.toml` as SDK-owned
+/// package surfaces. These are not package dependencies; they are part of the
+/// SDK package truth and should travel with WorkspaceRevision/Hub receipts.
+class SdkPackageObjectConfigGraphPackage {
+    // Relationships
+    object_config_graph_package aware_meta.graph.config.ObjectConfigGraphPackage key
+    object_config_graph_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    role String = "local_state"
+    manifest_relative_path String
+    package_kind String = "state"
+    expected_hash_sha256 String?
+    description String?
+
+    fn build construct (
+        object_config_graph_package_id UUID key,
+        manifest_relative_path String,
+        role String = "local_state",
+        package_kind String = "state",
+        object_config_graph_package_object_instance_graph_commit_id UUID? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null
+    ) -> SdkPackageObjectConfigGraphPackage {
+        """
+        Attach one SDK-owned ObjectConfigGraphPackage to this SdkPackage.
+
+        Contract:
+        - Parent `SdkPackage` scope is injected by propagation.
+        - Identity is keyed by the owned ObjectConfigGraphPackage.
+        - `manifest_relative_path` preserves the SDK-authored child package manifest path.
+        - `object_config_graph_package_object_instance_graph_commit_id`, when present,
+          pins the exact committed OCG package truth included in a WorkspaceRevision.
+        """
+    }
+}
+
+ann sdk.SdkPackageObjectConfigGraphPackage::object_config_graph_package load eager
+ann sdk.SdkPackageObjectConfigGraphPackage::object_config_graph_package_object_instance_graph_commit load eager

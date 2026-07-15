@@ -1,0 +1,56 @@
+class ObjectInstanceGraph {
+    // Snapshot state
+    root_class_instance class.ClassInstance
+    class_instances class.ClassInstance[]
+    class_instance_relationships class.ClassInstanceRelationship[]
+
+    // Attributes
+    key String key
+    name String
+    description String?
+    hash String
+
+    fn build construct (
+        key String key,
+        root_class_config_id UUID,
+        root_source_object_id UUID,
+        name String,
+        description String? = null,
+        hash String = ""
+    ) -> ObjectInstanceGraph {
+        """
+        Create deterministic ObjectInstanceGraph under one ObjectProjectionGraph.
+
+        Contract:
+        - Parent `object_projection_graph_id` is propagated by constructor lowering.
+        - Identity resolves from `(object_projection_graph_id via path, key)`.
+        - Root ClassInstance is created eagerly from `(root_class_config_id, root_source_object_id)`.
+        - Empty OIGs are not allowed.
+        - `name` is mutable payload metadata and must not participate in stable identity.
+        - `hash` is snapshot metadata and must not participate in stable identity.
+        """
+    }
+
+    fn create_class_instance (
+        class_config_id UUID,
+        source_object_id UUID key
+    ) -> class.ClassInstance {
+        """
+        Create deterministic ClassInstance under this ObjectInstanceGraph.
+
+        Contract:
+        - Parent ObjectInstanceGraph identity is propagated by constructor lowering.
+        - The child ClassInstance stable id must resolve from
+          `(object_instance_graph_id via path, class_config_id, source_object_id)`.
+        """
+        let created = construct class_instances.create(
+            class_config_id = class_config_id,
+            source_object_id = source_object_id,
+        )
+    }
+}
+
+/// Load class instances and relationships eagerly
+ann instance.ObjectInstanceGraph::root_class_instance load eager
+ann instance.ObjectInstanceGraph::class_instances load eager
+ann instance.ObjectInstanceGraph::class_instance_relationships load eager

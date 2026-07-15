@@ -1,0 +1,30 @@
+/// View-owned provenance bridge for one concrete invocation action.
+///
+/// Contract:
+/// - `ProjectionExperienceViewInvocationActionConfig` is view-level configuration.
+/// - `ExperienceInvocationAction` is the actual invocation receipt.
+/// - This bridge records that the invocation happened through one concrete
+///   `ProjectionExperienceViewInstance`.
+class ProjectionExperienceViewInvocationAction {
+    // Relationships
+    view_invocation_action_config ProjectionExperienceViewInvocationActionConfig key
+    experience_invocation_action invocation.ExperienceInvocationAction key
+
+    fn build construct (
+        projection_experience_view_instance_id UUID key,
+        view_invocation_action_config_id UUID key,
+        experience_invocation_action_id UUID key
+    ) -> ProjectionExperienceViewInvocationAction {
+        """
+        Create one deterministic view provenance bridge under a view instance.
+
+        Contract:
+        - `projection_experience_view_instance_id` is explicit provenance for the concrete view instance.
+        - `view_invocation_action_config` proves the action was exposed by the view.
+        - `experience_invocation_action` carries the actual invocation receipt.
+        """
+    }
+}
+
+ann projection.ProjectionExperienceViewInvocationAction::view_invocation_action_config load eager
+ann projection.ProjectionExperienceViewInvocationAction::experience_invocation_action load eager

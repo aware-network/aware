@@ -1,0 +1,26 @@
+/// EnvironmentTopologySeed projection.
+///
+/// Contract:
+/// - Owns Experience-authored runtime topology seed recipes.
+/// - ProcessConfig and ThreadConfig targets are Environment profile-config portals.
+/// - LayoutConfig targets are Attention portals.
+/// - Runtime Process/Thread/ThreadLayout instances are constructed by the
+///   Environment/Attention rails, not by this projection.
+projection EnvironmentTopologySeed {
+    root environment.EnvironmentTopologySeed
+
+    environment.EnvironmentTopologySeed::environment_experience_profile_config EnvironmentExperienceProfileConfig
+    environment.EnvironmentTopologySeed::process_seeds
+    environment.EnvironmentTopologyProcessSeed::process_config aware_environment.EnvironmentProfileConfig
+    environment.EnvironmentTopologyProcessSeed::thread_seeds
+    environment.EnvironmentTopologyThreadSeed::thread_config aware_environment.EnvironmentProfileConfig
+    environment.EnvironmentTopologyThreadSeed::layout_seeds
+    environment.EnvironmentTopologyThreadLayoutSeed::layout_config aware_attention.LayoutConfig
+
+    observable topology_seed {
+        """
+        Experience-authored runtime topology seed recipe with Environment and
+        Attention portals.
+        """
+    }
+}

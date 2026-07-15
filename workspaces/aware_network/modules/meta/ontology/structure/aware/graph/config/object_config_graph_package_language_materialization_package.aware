@@ -1,0 +1,53 @@
+/// Generated CodePackage output produced by one OCG package language target.
+///
+/// This is materialized output truth, not declaration intent. The parent
+/// `ObjectConfigGraphPackageLanguageMaterialization` declares what should be
+/// produced; this child points at the actual generated `CodePackage` committed
+/// from that materialization.
+class ObjectConfigGraphPackageLanguageMaterializationPackage {
+    // Relationships
+    /// Generated CodePackage containing materialized files for this target.
+    code_package aware_code.package.CodePackage key
+
+    // Attributes
+    /// Output key from the semantic materialization artifact contract.
+    package_output_key String = "language_package"
+
+    /// Generated language package/distribution name.
+    package_name String
+
+    /// Target language plugin used to produce the package.
+    language aware_code.code.CodeLanguage
+
+    /// Package-root-relative output directory declared by the target.
+    output_dir String
+
+    /// Materialized package root relative to the workspace root.
+    package_root String
+
+    /// Generated source root relative to the CodePackage package root.
+    sources_root String?
+
+    /// Import root / SQL namespace exposed by this package.
+    import_root String?
+
+    /// Materialization source profile, e.g. "ontology" or "ontology_orm_models".
+    materialization_source String = "ontology"
+
+    /// Optional renderer implementation selector, e.g. "sqlite".
+    renderer_kind String?
+
+    /// Optional renderer profile, e.g. "orm_models".
+    renderer_profile String?
+
+    /// Historical OIG commit for the source OCG used to render this package.
+    object_config_graph_object_instance_graph_commit_id UUID?
+
+    /// Historical OIG commit for the generated CodePackage snapshot.
+    code_package_object_instance_graph_commit_id UUID?
+
+    /// Materialization status from the language plugin/package writer.
+    status String = "materialized"
+}
+
+ann config.ObjectConfigGraphPackageLanguageMaterializationPackage::code_package load eager

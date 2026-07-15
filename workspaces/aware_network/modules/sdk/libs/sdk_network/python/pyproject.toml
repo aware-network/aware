@@ -1,0 +1,29 @@
+[project]
+name = "aware-sdk-network"
+version = "0.1.0"
+description = "Network transport adapters for Aware SDK packages."
+authors = [{ name = "AWARE Team" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aware-api-client",
+  "aware-api-service-dto",
+  "aware-comms",
+  "aware-network-service-dto",
+  "aware-sdk-core",
+  "aware-types",
+  "pydantic>=2.8.0,<3.0.0",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.4.2",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_sdk_network"]
+include = ["aware_sdk_network/py.typed"]

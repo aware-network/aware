@@ -1,0 +1,22 @@
+{
+  "code_package_id": "08df0485-230a-5f8e-ad01-87cbe58ac9a8",
+  "db_schema": {
+    "backend_targets": [
+      "postgres"
+    ],
+    "package_kind": "ontology",
+    "sql_roots": [
+      {
+        "path": "../../../../workspaces/aware_network/modules/reactivity/ontology/structure/sql/schema",
+        "path_mode": "manifest_relative"
+      }
+    ]
+  },
+  "domain_commit_id": "66590dd2-ea37-56ab-a1f8-ca3a70741089",
+  "object_instance_graph_commit_id": "5f857e3f-b467-5e9e-a3ef-2c63fe668677",
+  "package_name": "reactivity-ontology",
+  "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
+  "source_kind": "workspace_revision",
+  "workspace_relative_package_root": "workspaces/aware_network/modules/reactivity/ontology",
+  "workspace_revision_code_package_id": "3f48c9b3-768e-5f77-a099-43477b05073c"
+}

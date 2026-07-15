@@ -1,0 +1,40 @@
+sdk ontology_sdk {
+    "Canonical Ontology SDK operations over the Ontology service API."
+
+    api ontology;
+
+    operation ensure_object_config_graph_package {
+        "Ensure one Ontology-owned ObjectConfigGraphPackage through the Ontology service API."
+        endpoint ontology.package.ensure_object_config_graph_package;
+    }
+
+    operation ensure_ready {
+        "Ensure Ontology GraphOS persistence is ready through the Ontology service API."
+        endpoint ontology.persistence.ensure_ready;
+    }
+
+    operation resolve_runtime_artifact_set {
+        "Resolve Ontology runtime artifact-set provenance and typed semantic roots."
+        endpoint ontology.runtime.resolve_runtime_artifact_set;
+    }
+
+    operation get_lane_head {
+        "Read the current committed Ontology graph lane head."
+        endpoint ontology.graph.get_lane_head;
+    }
+
+    operation get_object_instance_graph_commit {
+        "Read one committed ObjectInstanceGraphCommit through Ontology service authority."
+        endpoint ontology.graph.get_object_instance_graph_commit;
+    }
+
+    operation resolve_projection {
+        "Resolve Ontology runtime projection coordinates without mutating graph state."
+        endpoint ontology.graph.resolve_projection;
+    }
+
+    operation invoke_function {
+        "Invoke one Ontology graph function through Ontology-owned GraphOS authority."
+        endpoint ontology.graph.invoke_function;
+    }
+}

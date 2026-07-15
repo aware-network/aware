@@ -1,0 +1,16 @@
+/// Runtime materialized layout state for one Program run.
+class ProgramLayout {
+    // Relationships
+    config aware_experience.program.ProgramConfigLayout?
+    sections ProgramLayoutSection[]
+
+    // Attributes
+    key String key
+    is_active Bool = false
+
+    fn build construct (program_id UUID, key String, config_id UUID? = null, is_active Bool = false) -> ProgramLayout {
+        """
+        Create a deterministic ProgramLayout under a Program.
+        """
+    }
+}

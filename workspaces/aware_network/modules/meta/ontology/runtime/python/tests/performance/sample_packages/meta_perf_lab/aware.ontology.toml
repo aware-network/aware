@@ -1,0 +1,16 @@
+aware_ontology = 1
+
+[ontology]
+package_name = "meta-perf-lab-ontology"
+fqn_prefix = "aware_meta_perf_lab"
+source_manifest = "structure/ontology/aware.toml"
+title = "Meta Performance Lab Ontology"
+description = "Neutral Meta-owned sample package for performance contracts."
+
+[semantic_contract]
+provider_key = "aware_ontology"
+role = "aware_ontology.provider"
+module = "aware_ontology.semantic_contract"
+owns_manifest_kinds = ["aware_ontology_toml"]
+capabilities = ["materialize", "provider_delta"]
+

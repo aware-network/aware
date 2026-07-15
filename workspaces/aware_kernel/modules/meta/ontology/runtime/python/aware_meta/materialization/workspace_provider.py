@@ -9,11 +9,12 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from hashlib import sha256
 from inspect import isawaitable
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from time import perf_counter
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from aware_code.package.snapshot_commit import commit_code_package_text_snapshot
+from aware_code.semantic_contract_config import source_code_package_config_ref
 from aware_code.stable_ids import (
     code_package_generated_config_key,
     stable_code_package_config_id,
@@ -174,6 +175,10 @@ class _LanguageMaterializationTarget:
     stable_ids_import_root: str | None = None
     stable_ids_ownership: str | None = None
     stable_ids_resolution_policy: str | None = None
+    declared_code_package_manifest_kind: str | None = None
+    declared_code_package_manifest_relative_path: str | None = None
+    declared_code_package_package_root: str | None = None
+    declared_code_package_sources_root: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -207,6 +212,19 @@ class _LanguageMaterializationCodePackageOutputs:
 
     def __getitem__(self, index: int) -> dict[str, object]:
         return self.refs[index]
+
+
+@dataclass(frozen=True, slots=True)
+class _LanguageMaterializationDeltaPackageBinding:
+    package_name: str
+    package_root: str
+    sources_root: str | None
+    manifest_relative_path: str
+    manifest_kind: str
+    code_package_config_key: str
+    code_package_config_id: UUID
+    code_package_id: UUID
+    path_prefix: str | None = None
 
 
 class _ProviderDeltaOutputPhaseTimings:
@@ -1014,7 +1032,7 @@ async def materialize_provider_delta_outputs(
                 if manifest_path is not None
                 else _external_runtime_object_config_graphs_from_context(
                     context=context,
-                    source_graph=source_graph,
+                    source_graph=source_graph.graph,
                 )
             )
         try:
@@ -1207,10 +1225,8 @@ async def _provider_delta_hydrated_output_source_graph(
     )
     if not projection_hashes:
         return None
-    from aware_meta.graph.instance.commit.fs_store import (  # noqa: WPS433
-        FSCommitStore,
-        FSSnapshotStore,
-    )
+    from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+    from aware_meta.graph.instance.commit.fs_snapshot_store import FSSnapshotStore
     from aware_meta.graph.instance.commit.materialization_cache import (  # noqa: WPS433,E501
         CachedLaneMaterializer,
     )
@@ -2095,6 +2111,8 @@ async def _materialize_leaf_package_if_supported(
         workspace_root=request.workspace_root,
         aware_toml_path=request.manifest_path,
         source_code_package_id=request.source_code_package_id,
+        source_code_package_config_id=request.source_code_package_config_id,
+        source_code_package_manifest_kind=request.source_code_package_manifest_kind,
         external_graphs=list(
             _leaf_external_object_config_graphs_from_context(
                 context=request.context,
@@ -2403,7 +2421,10 @@ def _package_dependency_runtime_object_config_graphs_from_manifest(
     )
     if not package_manifest_paths:
         return ()
-    dependency_context = build_meta_graph_runtime_context_for_aware_package_manifests(
+    dependency_context = _build_runtime_only_dependency_context_for_package_manifests(
+        build_meta_graph_runtime_context_for_aware_package_manifests=(
+            build_meta_graph_runtime_context_for_aware_package_manifests
+        ),
         package_manifest_paths=package_manifest_paths,
         workspace_root=workspace_root,
         composite_name=(
@@ -2416,6 +2437,34 @@ def _package_dependency_runtime_object_config_graphs_from_manifest(
         for graph in dependency_context.runtime_graphs
         if graph.id != source_graph.id and graph.fqn_prefix != source_graph.fqn_prefix
     )
+
+
+def _build_runtime_only_dependency_context_for_package_manifests(
+    *,
+    build_meta_graph_runtime_context_for_aware_package_manifests: Callable[..., object],
+    package_manifest_paths: Iterable[Path],
+    workspace_root: Path,
+    composite_name: str,
+) -> object:
+    kwargs = {
+        "package_manifest_paths": package_manifest_paths,
+        "workspace_root": workspace_root,
+        "composite_name": composite_name,
+    }
+    try:
+        return build_meta_graph_runtime_context_for_aware_package_manifests(
+            **kwargs,
+            strict_package_graph_cache=True,
+            load_source_graph_payloads=False,
+        )
+    except RuntimeError as exc:
+        if not _is_strict_runtime_only_context_cache_miss(exc):
+            raise
+    return build_meta_graph_runtime_context_for_aware_package_manifests(**kwargs)
+
+
+def _is_strict_runtime_only_context_cache_miss(exc: RuntimeError) -> bool:
+    return str(exc).startswith("Strict Meta package graph cache")
 
 
 def _semantic_ontology_package_catalog_from_context(
@@ -2850,7 +2899,7 @@ def _ontology_package_fqn_prefix_catalog(
     *,
     workspace_root: Path,
 ) -> Mapping[str, str]:
-    from aware_grammar.module.loader import load_aware_module_spec  # noqa: WPS433
+    from aware_code.module_manifest.loader import load_aware_module_spec  # noqa: WPS433
     from aware_meta.manifest.loader import load_aware_toml_spec  # noqa: WPS433
     from aware_ontology.manifest.loader import (  # noqa: WPS433
         load_aware_ontology_toml_spec,
@@ -3988,11 +4037,6 @@ async def _commit_language_materialization_code_packages(
             package_name=package_name,
             language=target.target_language_plugin_id.value,
         )
-        declared_code_package_id = stable_code_package_id(
-            code_package_config_id=code_package_config_id,
-            package_name=target.package_name,
-            language=target.target_language_plugin_id.value,
-        )
         branch_id = _stable_language_materialization_code_package_branch_id(
             object_config_graph_package_id=leaf_result.object_config_graph_package.id,
             code_package_id=code_package_id,
@@ -4006,6 +4050,19 @@ async def _commit_language_materialization_code_packages(
             import_root=str(
                 getattr(package_output, "import_root", None) or target.import_root
             ),
+        )
+        delta_binding = _language_materialization_delta_package_binding(
+            target=target,
+            package_name=package_name,
+            generated_package_root=package_root,
+            generated_sources_root=sources_root,
+            generated_manifest_relative_path=manifest_relative_path,
+            generated_manifest_kind=manifest_kind,
+            generated_code_package_config_key=code_package_config_key,
+            generated_code_package_config_id=code_package_config_id,
+            generated_code_package_id=code_package_id,
+            output_root=output_root,
+            workspace_root=request.workspace_root,
         )
         progress_payload = {
             "package_output_index": package_output_index,
@@ -4065,18 +4122,24 @@ async def _commit_language_materialization_code_packages(
             delta = _language_materialization_code_package_delta(
                 leaf_result=leaf_result,
                 target=target,
-                package_name=package_name,
-                package_root=package_root,
-                sources_root=sources_root,
-                manifest_relative_path=manifest_relative_path,
-                declared_code_package_id=declared_code_package_id,
-                code_package_config_key=code_package_config_key,
-                code_package_config_id=code_package_config_id,
-                generated_texts=generated_texts,
+                package_name=delta_binding.package_name,
+                package_root=delta_binding.package_root,
+                sources_root=delta_binding.sources_root,
+                manifest_relative_path=delta_binding.manifest_relative_path,
+                declared_code_package_id=delta_binding.code_package_id,
+                code_package_config_key=delta_binding.code_package_config_key,
+                code_package_config_id=delta_binding.code_package_config_id,
+                generated_texts=_language_materialization_delta_texts(
+                    generated_texts=generated_texts,
+                    path_prefix=delta_binding.path_prefix,
+                ),
                 deleted_relative_paths=deleted_relative_paths,
-                code_package_id=snapshot.code_package.id,
+                deleted_path_prefix=delta_binding.path_prefix,
+                code_package_id=delta_binding.code_package_id,
                 code_package_commit_id=snapshot.commit_id,
-                manifest_kind=manifest_kind,
+                generated_snapshot_code_package_id=snapshot.code_package.id,
+                generated_snapshot_code_package_commit_id=snapshot.commit_id,
+                manifest_kind=delta_binding.manifest_kind,
             )
             deltas.append(delta.model_dump(mode="json"))
         refs.append(
@@ -4095,7 +4158,7 @@ async def _commit_language_materialization_code_packages(
                     is not None
                     else None
                 ),
-                "declared_code_package_id": str(declared_code_package_id),
+                "declared_code_package_id": str(delta_binding.code_package_id),
                 "declared_package_name": target.package_name,
                 "code_package_id": str(snapshot.code_package.id),
                 "code_package_branch_id": str(branch_id),
@@ -4156,8 +4219,11 @@ def _language_materialization_code_package_delta(
     code_package_config_id: UUID,
     generated_texts: Mapping[str, str],
     deleted_relative_paths: tuple[str, ...],
+    deleted_path_prefix: str | None = None,
     code_package_id: UUID,
     code_package_commit_id: UUID,
+    generated_snapshot_code_package_id: UUID | None = None,
+    generated_snapshot_code_package_commit_id: UUID | None = None,
     manifest_kind: str,
 ) -> CodePackageDelta:
     output_digest = _generated_code_package_delta_output_digest(
@@ -4182,6 +4248,16 @@ def _language_materialization_code_package_delta(
             "declared_code_package_id": str(declared_code_package_id),
             "code_package_id": str(code_package_id),
             "code_package_commit_id": str(code_package_commit_id),
+            "generated_snapshot_code_package_id": (
+                str(generated_snapshot_code_package_id)
+                if generated_snapshot_code_package_id is not None
+                else None
+            ),
+            "generated_snapshot_code_package_commit_id": (
+                str(generated_snapshot_code_package_commit_id)
+                if generated_snapshot_code_package_commit_id is not None
+                else None
+            ),
         },
     )
     production = CodePackageDeltaProduction(
@@ -4228,7 +4304,10 @@ def _language_materialization_code_package_delta(
     ]
     paths.extend(
         CodePackageDeltaPath(
-            relative_path=relative_path,
+            relative_path=_join_generated_delta_path(
+                path_prefix=deleted_path_prefix,
+                relative_path=relative_path,
+            ),
             kind=CodePackageDeltaKind.delete,
             language=target.target_language_plugin_id,
             is_structural=True,
@@ -4253,6 +4332,152 @@ def _language_materialization_code_package_delta(
         production=production,
         paths=paths,
     )
+
+
+def _language_materialization_delta_package_binding(
+    *,
+    target: _LanguageMaterializationTarget,
+    package_name: str,
+    generated_package_root: str,
+    generated_sources_root: str | None,
+    generated_manifest_relative_path: str,
+    generated_manifest_kind: str,
+    generated_code_package_config_key: str,
+    generated_code_package_config_id: UUID,
+    generated_code_package_id: UUID,
+    output_root: Path,
+    workspace_root: Path,
+) -> _LanguageMaterializationDeltaPackageBinding:
+    if not target.source_is_runtime:
+        return _LanguageMaterializationDeltaPackageBinding(
+            package_name=package_name,
+            package_root=generated_package_root,
+            sources_root=generated_sources_root,
+            manifest_relative_path=generated_manifest_relative_path,
+            manifest_kind=generated_manifest_kind,
+            code_package_config_key=generated_code_package_config_key,
+            code_package_config_id=generated_code_package_config_id,
+            code_package_id=generated_code_package_id,
+        )
+    manifest_kind = _required_target_declared_code_package_text(
+        value=target.declared_code_package_manifest_kind,
+        target=target,
+        field_name="declared_code_package_manifest_kind",
+    )
+    manifest_relative_path = _required_target_declared_code_package_text(
+        value=target.declared_code_package_manifest_relative_path,
+        target=target,
+        field_name="declared_code_package_manifest_relative_path",
+    )
+    package_root = _required_target_declared_code_package_text(
+        value=target.declared_code_package_package_root,
+        target=target,
+        field_name="declared_code_package_package_root",
+    )
+    sources_root = _required_target_declared_code_package_text(
+        value=target.declared_code_package_sources_root,
+        target=target,
+        field_name="declared_code_package_sources_root",
+    )
+    config_ref = source_code_package_config_ref(
+        manifest_kind=manifest_kind,
+        surface=target.code_package_surface,
+    )
+    code_package_id = stable_code_package_id(
+        code_package_config_id=config_ref.config_id,
+        package_name=target.package_name,
+        language=target.target_language_plugin_id.value,
+    )
+    return _LanguageMaterializationDeltaPackageBinding(
+        package_name=target.package_name,
+        package_root=package_root,
+        sources_root=sources_root,
+        manifest_relative_path=manifest_relative_path,
+        manifest_kind=config_ref.manifest_kind,
+        code_package_config_key=config_ref.config_key,
+        code_package_config_id=config_ref.config_id,
+        code_package_id=code_package_id,
+        path_prefix=_language_materialization_delta_path_prefix(
+            package_root=package_root,
+            output_root=output_root,
+            workspace_root=workspace_root,
+        ),
+    )
+
+
+def _required_target_declared_code_package_text(
+    *,
+    value: str | None,
+    target: _LanguageMaterializationTarget,
+    field_name: str,
+) -> str:
+    if value is not None and value.strip():
+        return _clean_posix_path_text(value)
+    raise RuntimeError(
+        "Runtime language materialization target must declare its owning "
+        f"CodePackage binding: package_name={target.package_name!r} "
+        f"renderer_kind={target.renderer_kind!r} field={field_name!r}"
+    )
+
+
+def _language_materialization_delta_path_prefix(
+    *,
+    package_root: str,
+    output_root: Path,
+    workspace_root: Path,
+) -> str | None:
+    package_root_path = Path(package_root)
+    if not package_root_path.is_absolute():
+        package_root_path = workspace_root / package_root_path
+    try:
+        prefix = (
+            output_root.resolve().relative_to(package_root_path.resolve()).as_posix()
+        )
+    except ValueError as exc:
+        raise RuntimeError(
+            "Runtime language materialization output root must be inside the "
+            "declared runtime CodePackage root: "
+            f"package_root={package_root!r} output_root={output_root.as_posix()!r}"
+        ) from exc
+    return _clean_posix_path_text(prefix) if prefix not in {"", "."} else None
+
+
+def _language_materialization_delta_texts(
+    *,
+    generated_texts: Mapping[str, str],
+    path_prefix: str | None,
+) -> dict[str, str]:
+    return {
+        _join_generated_delta_path(
+            path_prefix=path_prefix,
+            relative_path=relative_path,
+        ): text
+        for relative_path, text in generated_texts.items()
+    }
+
+
+def _join_generated_delta_path(
+    *,
+    path_prefix: str | None,
+    relative_path: str,
+) -> str:
+    clean_relative_path = _clean_posix_path_text(relative_path)
+    if path_prefix is None:
+        return clean_relative_path
+    return f"{path_prefix}/{clean_relative_path}"
+
+
+def _clean_posix_path_text(value: str) -> str:
+    path = PurePosixPath(value.strip().replace("\\", "/"))
+    parts = tuple(part for part in path.parts if part not in {"", ".", "/"})
+    if any(part == ".." for part in parts):
+        raise RuntimeError(
+            f"CodePackage path must not escape its package root: {value!r}"
+        )
+    cleaned = "/".join(parts) if parts else "."
+    if path.is_absolute() and cleaned != ".":
+        return f"/{cleaned}"
+    return cleaned
 
 
 def _stable_language_materialization_code_package_branch_id(
@@ -4566,6 +4791,22 @@ def _provider_delta_language_target_payload(
         payload["stable_ids_ownership"] = target.stable_ids_ownership
     if target.stable_ids_resolution_policy is not None:
         payload["stable_ids_resolution_policy"] = target.stable_ids_resolution_policy
+    if target.declared_code_package_manifest_kind is not None:
+        payload["declared_code_package_manifest_kind"] = (
+            target.declared_code_package_manifest_kind
+        )
+    if target.declared_code_package_manifest_relative_path is not None:
+        payload["declared_code_package_manifest_relative_path"] = (
+            target.declared_code_package_manifest_relative_path
+        )
+    if target.declared_code_package_package_root is not None:
+        payload["declared_code_package_package_root"] = (
+            target.declared_code_package_package_root
+        )
+    if target.declared_code_package_sources_root is not None:
+        payload["declared_code_package_sources_root"] = (
+            target.declared_code_package_sources_root
+        )
     return payload
 
 
@@ -4778,6 +5019,18 @@ def _language_materialization_target_from_payload(
         ),
         stable_ids_resolution_policy=_optional_string_value(
             payload.get("stable_ids_resolution_policy")
+        ),
+        declared_code_package_manifest_kind=_optional_string_value(
+            payload.get("declared_code_package_manifest_kind")
+        ),
+        declared_code_package_manifest_relative_path=_optional_string_value(
+            payload.get("declared_code_package_manifest_relative_path")
+        ),
+        declared_code_package_package_root=_optional_string_value(
+            payload.get("declared_code_package_package_root")
+        ),
+        declared_code_package_sources_root=_optional_string_value(
+            payload.get("declared_code_package_sources_root")
         ),
     )
 

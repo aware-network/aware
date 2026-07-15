@@ -1,0 +1,19 @@
+/// Runtime role attribution edge under one ProgramActor.
+///
+/// Contract:
+/// - Stores the role snapshot used by runtime invoke attribution.
+/// - Links role eligibility provenance through Identity ActorConfigRoleConfig.
+class ProgramActorRole {
+    // Relationships
+    actor_role aware_identity.actor.ActorRole key
+    actor_config_role_config aware_identity.actor.ActorConfigRoleConfig key
+
+    fn build construct (
+        actor_role_id UUID key,
+        actor_config_role_config_id UUID key
+    ) -> ProgramActorRole {
+        """
+        Create deterministic ProgramActorRole under ProgramActor.
+        """
+    }
+}

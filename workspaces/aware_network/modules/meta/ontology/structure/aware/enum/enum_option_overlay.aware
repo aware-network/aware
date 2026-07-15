@@ -1,0 +1,5 @@
+/// Per-language overrides for EnumOption entities
+edge EnumOptionOverlay {
+    rendered_name String?
+    wire_name String?
+}

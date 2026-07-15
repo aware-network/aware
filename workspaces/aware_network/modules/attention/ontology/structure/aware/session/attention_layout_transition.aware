@@ -1,0 +1,66 @@
+/// Immutable shared-layout transition under one AttentionSessionLayout.
+///
+/// Contract:
+/// - One transition is the atomic authority for a complete mounted-section
+///   geometry vector.
+/// - The active pointer lives on AttentionSessionLayout; history is immutable.
+/// - Renderer pixels and mutable package defaults are not persisted here.
+class AttentionLayoutTransition {
+    // Relationships
+    previous_transition AttentionLayoutTransition?
+    topology_transition AttentionLayoutTopologyTransition?
+    section_states AttentionLayoutTransitionSection[]
+
+    // Replay identity and provenance
+    client_intent_id String key
+    sequence Int = 0
+    transition_kind String = "layout"
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject? = {}
+
+    fn create construct (
+        client_intent_id String key,
+        previous_transition_id UUID? = null,
+        topology_transition_id UUID? = null,
+        sequence Int = 0,
+        transition_kind String = "layout",
+        source_kind String? = null,
+        source_ref String? = null,
+        metadata_json JsonObject? = {}
+    ) -> AttentionLayoutTransition {
+        """
+        Create one immutable layout-transition header.
+
+        The owning AttentionSessionLayout plus client_intent_id provide stable
+        replay identity. Section-state rows are constructed only after the
+        parent handler validates the complete vector.
+        """
+    }
+
+    fn attach_section_state (
+        attention_session_section_id UUID key,
+        order Int,
+        weight_micros Int,
+        is_visible Bool = true,
+        is_collapsed Bool = false
+    ) -> AttentionLayoutTransitionSection {
+        """
+        Construct one typed row through its immutable transition parent.
+
+        This constructor is an internal composition primitive. The public
+        atomic boundary remains AttentionSessionLayout.apply_layout_transition.
+        """
+        let section_state = construct section_states.create(
+            attention_session_section_id = attention_session_section_id,
+            order = order,
+            weight_micros = weight_micros,
+            is_visible = is_visible,
+            is_collapsed = is_collapsed,
+        )
+    }
+}
+
+ann session.AttentionLayoutTransition::previous_transition load eager
+ann session.AttentionLayoutTransition::topology_transition load eager
+ann session.AttentionLayoutTransition::section_states load eager

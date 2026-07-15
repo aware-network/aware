@@ -1,0 +1,28 @@
+/// Declarative layout for Attention Contracts.
+///
+/// Contract:
+/// - Defines section topology for one attention contract.
+class Layout {
+    // Relationships
+    sections LayoutSection[]
+
+    // Attributes
+    key String key
+    title String
+    description String?
+
+    fn build construct (key String key, title String, description String? = null) -> Layout {
+        """
+        Create a deterministic Layout by key.
+        """
+    }
+
+    fn add_section (section_id UUID, title String, description String? = null) -> LayoutSection {
+        """
+        Adds a Section to this Layout.
+        """
+        let created_layout_section = construct sections.create(
+            section_id = section_id,
+        )
+    }
+}

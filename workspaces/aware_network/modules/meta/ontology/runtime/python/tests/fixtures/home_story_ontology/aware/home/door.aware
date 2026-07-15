@@ -1,0 +1,44 @@
+class Door {
+    // Attributes
+    label String key
+    is_locked Bool = true
+    is_open Bool = false
+
+    fn create construct(
+        label String key,
+        is_locked Bool = true,
+        is_open Bool = false
+    ) -> Door {
+        """
+        Create a Door under a Home.
+        """
+    }
+
+    fn lock() -> Door {
+        """
+        Lock this Door.
+        """
+        set is_locked = true
+    }
+
+    fn unlock() -> Door {
+        """
+        Unlock this Door.
+        """
+        set is_locked = false
+    }
+
+    fn open() -> Door {
+        """
+        Open this Door.
+        """
+        set is_open = true
+    }
+
+    fn close() -> Door {
+        """
+        Close this Door.
+        """
+        set is_open = false
+    }
+}

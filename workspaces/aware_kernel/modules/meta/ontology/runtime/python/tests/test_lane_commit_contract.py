@@ -9,21 +9,21 @@ import pytest
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_history_ontology.commit.commit import Commit
 from aware_history_ontology.commit.commit_enums import CommitStatus
-from aware_meta.graph.instance.commit import fs_store as fs_store_module
 from aware_meta.graph.instance.commit.committer import FSLaneCommitter
 from aware_meta.graph.instance.commit.contract import (
     CommitEnvelopeReader,
+    JsonObject,
     LaneCommitBackend,
     LaneCommitStore,
     LaneCommitter,
     ObjectInstanceGraphCommitEnvelope,
     ObjectInstanceGraphCommitIdentitySidecar,
 )
-from aware_meta.graph.instance.commit.fs_store import (
-    FSCommitStore,
-    ObjectInstanceGraphCommitEnvelope as LegacyCommitEnvelope,
-    ObjectInstanceGraphCommitIdentitySidecar as LegacyCommitIdentitySidecar,
+from aware_meta.graph.instance.commit.fs_runtime_state import (
+    _SESSION_JSON_FILE_CACHE,
 )
+from aware_meta.graph.instance.commit import fs_commit_store as fs_commit_store_module
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 from aware_meta_ontology.graph.instance.object_instance_graph_commit import (
     ObjectInstanceGraphCommit,
 )
@@ -40,9 +40,13 @@ def test_filesystem_store_satisfies_neutral_commit_protocols(tmp_path: Path) -> 
     assert isinstance(committer, LaneCommitter)
 
 
-def test_legacy_fs_store_contract_types_are_neutral_reexports() -> None:
-    assert LegacyCommitEnvelope is ObjectInstanceGraphCommitEnvelope
-    assert LegacyCommitIdentitySidecar is ObjectInstanceGraphCommitIdentitySidecar
+def test_contract_types_are_neutral_imports() -> None:
+    assert ObjectInstanceGraphCommitEnvelope.__name__ == (
+        "ObjectInstanceGraphCommitEnvelope"
+    )
+    assert ObjectInstanceGraphCommitIdentitySidecar.__name__ == (
+        "ObjectInstanceGraphCommitIdentitySidecar"
+    )
 
 
 @pytest.mark.asyncio
@@ -132,24 +136,75 @@ async def test_neutral_envelope_reader_metrics_count_full_body_fallback(
     assert metrics["commit_identity_sidecar_fallback_failure_count"] == 0
 
 
+@pytest.mark.asyncio
+async def test_commit_store_writes_rebuildable_indexes_on_sidecar_rail(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    durable_paths: list[Path] = []
+    rebuildable_paths: list[Path] = []
+    original_durable_write = fs_commit_store_module._atomic_write
+    original_rebuildable_write = fs_commit_store_module._atomic_write_rebuildable_sidecar
+
+    def _record_durable_write(path: Path, data: str) -> None:
+        durable_paths.append(path)
+        original_durable_write(path, data)
+
+    def _record_rebuildable_write(path: Path, data: str) -> None:
+        rebuildable_paths.append(path)
+        original_rebuildable_write(path, data)
+
+    monkeypatch.setattr(
+        fs_commit_store_module,
+        "_atomic_write",
+        _record_durable_write,
+    )
+    monkeypatch.setattr(
+        fs_commit_store_module,
+        "_atomic_write_rebuildable_sidecar",
+        _record_rebuildable_write,
+    )
+
+    store = FSCommitStore(root_dir=tmp_path)
+    branch_id = uuid4()
+    projection_hash = "CodePackage"
+    commit = _make_commit(projection_hash=projection_hash)
+    await store.put_commit_file(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        commit=commit,
+    )
+
+    assert durable_paths
+    assert all("indexes" not in path.parts for path in durable_paths)
+    assert {
+        path.parent.name for path in rebuildable_paths if "indexes" in path.parts
+    } >= {
+        "object_instance_graph_commits",
+        "commit_envelopes",
+        "commit_identity_sidecars",
+        "commit_health",
+    }
+
+
 def _fail_on_commit_body_read(
     *,
     monkeypatch: pytest.MonkeyPatch,
     commit_path: Path,
 ) -> None:
-    original_reader = fs_store_module._SESSION_JSON_FILE_CACHE.try_read_json_object
+    original_reader = _SESSION_JSON_FILE_CACHE.try_read_json_object
 
     def _guarded_try_read_json_object(
         path: Path,
         *,
         log_prefix: str,
-    ) -> fs_store_module.JsonObject | None:
+    ) -> JsonObject | None:
         if path == commit_path:
             raise AssertionError("envelope reader must not read commit body")
         return original_reader(path, log_prefix=log_prefix)
 
     monkeypatch.setattr(
-        fs_store_module._SESSION_JSON_FILE_CACHE,
+        _SESSION_JSON_FILE_CACHE,
         "try_read_json_object",
         _guarded_try_read_json_object,
     )

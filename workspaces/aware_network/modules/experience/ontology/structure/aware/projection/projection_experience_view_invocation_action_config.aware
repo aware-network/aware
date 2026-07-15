@@ -1,0 +1,75 @@
+/// View-owned binding to one generic Experience invocation action config.
+///
+/// Contract:
+/// - Panes render and dispatch these actions by `action_key`; they do not own
+///   the SDK/API capability target.
+/// - API-owned `ApiViewCapabilityEndpoint` is mandatory view-action truth.
+/// - SDK-owned `SdkOperationApiViewCapabilityEndpoint` is optional client-facing
+///   operation truth for the same API view capability endpoint.
+/// - Generic executable target relationships live on `ExperienceInvocationActionConfig`.
+/// - Reactivity actions remain separate under `ActionConfig` / `ActionExperience`.
+class ProjectionExperienceViewInvocationActionConfig {
+    // Relationships
+    api_view_capability_endpoint aware_api.api.ApiViewCapabilityEndpoint key
+    sdk_operation_api_view_capability_endpoint aware_sdk.sdk.SdkOperationApiViewCapabilityEndpoint?
+    experience_invocation_action_config invocation.ExperienceInvocationActionConfig
+
+    // Attributes
+    action_key String
+    label String?
+    receipt_policy String?
+    confirmation_policy String?
+    optimistic_policy String?
+
+    fn build construct (
+        api_view_capability_endpoint_id UUID key,
+        experience_invocation_action_config_id UUID,
+        action_key String,
+        sdk_operation_api_view_capability_endpoint_id UUID? = null,
+        label String? = null,
+        receipt_policy String? = null,
+        confirmation_policy String? = null,
+        optimistic_policy String? = null
+    ) -> ProjectionExperienceViewInvocationActionConfig {
+        """
+        Bind one API-owned view action under a ProjectionExperienceView.
+
+        Contract:
+        - Parent `ProjectionExperienceView` scope is propagated by constructor lowering.
+        - Identity is scoped by parent `ProjectionExperienceView` and
+          `ApiViewCapabilityEndpoint`.
+        - `experience_invocation_action_config` holds executable API endpoint XOR
+          SDK operation target metadata.
+        - `sdk_operation_api_view_capability_endpoint` may wrap the API view action
+          with an SDK operation but must resolve to the same API view capability
+          endpoint.
+        - `action_key` is copied from API-owned view action truth for panes.
+        """
+    }
+
+    fn record_invocation (
+        invocation_key UUID key,
+        actor_id UUID? = null,
+        api_call_id UUID? = null,
+        sdk_operation_call_id UUID? = null,
+        request_ref String? = null,
+        receipt_ref String? = null,
+        status String = "pending"
+    ) -> invocation.ExperienceInvocationAction {
+        """
+        Record one actual invocation handled through this view action config.
+
+        Contract:
+        - `ExperienceInvocationAction` is the single standalone invocation
+          receipt for one crossing.
+        - `ExperienceInvocationActionConfig` remains target metadata only.
+        - Concrete view provenance attaches through
+          `ProjectionExperienceViewInvocationAction`.
+        - This view config does not own receipt identity.
+        """
+    }
+}
+
+ann projection.ProjectionExperienceViewInvocationActionConfig::api_view_capability_endpoint load eager
+ann projection.ProjectionExperienceViewInvocationActionConfig::sdk_operation_api_view_capability_endpoint load eager
+ann projection.ProjectionExperienceViewInvocationActionConfig::experience_invocation_action_config load eager

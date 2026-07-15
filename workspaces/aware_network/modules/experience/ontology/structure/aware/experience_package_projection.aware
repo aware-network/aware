@@ -1,0 +1,28 @@
+/// ExperiencePackage projection
+///
+/// Purpose:
+/// - Expose the Experience-owned package rail for Workspace/package consumers.
+/// - Keep `EnvironmentExperience` as the semantic Experience definition root under the package
+///   boundary.
+/// - Avoid collapsing package truth and Experience semantics into one object.
+projection ExperiencePackage is_branchable {
+    root environment.ExperiencePackage
+
+    environment.ExperiencePackage::attention_packages
+    environment.ExperiencePackageAttentionPackage::attention_package aware_attention.AttentionPackage
+
+    environment.ExperiencePackage::api_packages
+    environment.ExperiencePackageApiPackage::api_package aware_api.ApiPackage
+
+    environment.ExperiencePackage::environment_experience EnvironmentExperience
+
+    environment.ExperiencePackage::experience_package_dependencies
+    environment.ExperiencePackageDependency::target_experience_package ExperiencePackage
+    environment.ExperiencePackageDependency::target_experience_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+
+    environment.ExperiencePackage::language_packages
+    environment.ExperiencePackageLanguagePackage::code_package aware_code.CodePackage
+
+    environment.ExperiencePackage::sdk_packages
+    environment.ExperiencePackageSdkPackage::sdk_package aware_sdk.SdkPackage
+}

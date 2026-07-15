@@ -1,0 +1,37 @@
+/// Declarative layout contract under one ProgramConfig.
+///
+/// Contract:
+/// - Defines section topology and port placement policies for one program config.
+/// - Runtime materializes ProgramConfigLayout instances from this config rail.
+class ProgramConfigLayout {
+    // Relationships
+    layout aware_attention.layout.Layout
+    port_sections ProgramConfigLayoutPortSection[]
+
+    // Attributes
+    key String key
+    is_default Bool = false
+
+    fn build construct (key String key, is_default Bool = false) -> ProgramConfigLayout {
+        """
+        Create a deterministic ProgramConfigLayout under a ProgramConfig.
+        """
+    }
+
+    fn add_port_section (
+        program_config_port_id UUID,
+        layout_section_id UUID,
+        on_bind ProgramSlotOnBind = replace,
+        is_visible_default Bool? = null
+    ) -> ProgramConfigLayoutPortSection {
+        """
+        Attach one deterministic ProgramConfigLayoutPortSection under this ProgramConfigLayout.
+        """
+        let created = construct port_sections.build(
+            program_config_port_id = program_config_port_id,
+            layout_section_id = layout_section_id,
+            on_bind = on_bind,
+            is_visible_default = is_visible_default,
+        )
+    }
+}

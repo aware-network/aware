@@ -1,0 +1,30 @@
+/// One commit-backed exemplar row for a graph-identity profile.
+///
+/// Contract:
+/// - Image bytes are uploaded out-of-band (data-plane).
+/// - Commits reference StorageBlob metadata only.
+/// - Future content/location specialization may aggregate on top of this row.
+class ProjectionExperienceGraphIdentityProfileExemplar {
+    // Relationships
+    image aware_storage.blob.StorageBlob? unique
+
+    // Attributes
+    key String key
+    label String?
+    prompt_hint String?
+    note String?
+    is_primary Bool = false
+
+    fn build construct (
+        key String key,
+        label String? = null,
+        prompt_hint String? = null,
+        note String? = null,
+        is_primary Bool = false,
+        image_id UUID? = null
+    ) -> ProjectionExperienceGraphIdentityProfileExemplar {
+        """
+        Construct one exemplar row under a ProjectionExperienceGraphIdentityProfile.
+        """
+    }
+}

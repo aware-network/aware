@@ -1,0 +1,364 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_ENVIRONMENT"
+kind = "ns_url"
+value = "aware://environment/v1"
+
+[[functions]]
+name = "stable_environment_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:environment:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_navigation_context_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:environment_navigation_context:{environment_session_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_session_id, key"
+
+[[functions.params]]
+name = "environment_session_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_profile_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:environment_profile:{environment_id}:{profile_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: environment_id, profile_config_id"
+
+[[functions.params]]
+name = "environment_id"
+type = "uuid"
+
+[[functions.params]]
+name = "profile_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_environment_profile_config_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:environment_profile_config:{environment_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_config_id, key"
+
+[[functions.params]]
+name = "environment_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_profile_actor_config_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:environment_profile_actor_config:{environment_profile_config_id}:{actor_config_id}:{policy_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_profile_config_id, actor_config_id, policy_key"
+
+[[functions.params]]
+name = "environment_profile_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "actor_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "policy_key"
+type = "str"
+default = "admit"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "policy_key_norm"
+param = "policy_key"
+normalize = ["casefold", "strip"]
+default = "admit"
+
+[[functions]]
+name = "stable_environment_provider_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:environment_provider:{environment_profile_config_id}:{provider_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_profile_config_id, provider_key"
+
+[[functions.params]]
+name = "environment_profile_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "provider_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "provider_key_norm"
+param = "provider_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_provider_grant_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:environment_provider_grant:{environment_provider_id}:{grant_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_provider_id, grant_key"
+
+[[functions.params]]
+name = "environment_provider_id"
+type = "uuid"
+
+[[functions.params]]
+name = "grant_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "grant_key_norm"
+param = "grant_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_session_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:environment_session:{environment_session_config_id}:{identity_session_id}"
+doc = "Compiler-generated from class-attribute identity keys: environment_session_config_id, identity_session_id"
+
+[[functions.params]]
+name = "environment_session_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "identity_session_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_environment_session_attention_session_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:environment_session_attention_session:{environment_session_id}:{attention_session_id}"
+doc = "Compiler-generated from class-relationship identity keys: environment_session_id, attention_session_id"
+
+[[functions.params]]
+name = "environment_session_id"
+type = "uuid"
+
+[[functions.params]]
+name = "attention_session_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_environment_session_config_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:environment_session_config:{environment_profile_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_profile_config_id, key"
+
+[[functions.params]]
+name = "environment_profile_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_environment_session_thread_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:environment_session_thread:{environment_session_id}:{navigation_context_id}:{thread_id}"
+doc = "Compiler-generated from class-relationship identity keys: environment_session_id, navigation_context_id, thread_id"
+
+[[functions.params]]
+name = "environment_session_id"
+type = "uuid"
+
+[[functions.params]]
+name = "navigation_context_id"
+type = "uuid"
+
+[[functions.params]]
+name = "thread_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_process_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:process:{environment_profile_id}:{process_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_profile_id, process_config_id, key"
+
+[[functions.params]]
+name = "environment_profile_id"
+type = "uuid"
+
+[[functions.params]]
+name = "process_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_process_config_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:process_config:{environment_profile_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: environment_profile_config_id, key"
+
+[[functions.params]]
+name = "environment_profile_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_thread_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:thread:{process_id}:{thread_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: process_id, thread_config_id, key"
+
+[[functions.params]]
+name = "process_id"
+type = "uuid"
+
+[[functions.params]]
+name = "thread_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_thread_config_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:thread_config:{process_config_id}:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: process_config_id, key"
+
+[[functions.params]]
+name = "process_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_thread_config_layout_config_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:thread_config_layout_config:{thread_config_id}:{layout_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: thread_config_id, layout_config_id"
+
+[[functions.params]]
+name = "thread_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_thread_config_layout_config_section_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:thread_config_layout_config_section:{thread_config_layout_config_id}:{layout_config_section_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: thread_config_layout_config_id, layout_config_section_config_id"
+
+[[functions.params]]
+name = "thread_config_layout_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_config_section_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_thread_config_object_projection_graph_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:thread_config_object_projection_graph:{thread_config_id}:{object_projection_graph_id}"
+doc = "Compiler-generated from class-attribute identity keys: thread_config_id, object_projection_graph_id"
+
+[[functions.params]]
+name = "thread_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_projection_graph_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_thread_layout_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:thread_layout:{thread_id}:{layout_id}"
+doc = "Compiler-generated from class-attribute identity keys: thread_id, layout_id"
+
+[[functions.params]]
+name = "thread_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_thread_object_instance_graph_branch_id"
+namespace = "NS_ENVIRONMENT"
+template = "aware:thread_object_instance_graph_branch:{object_instance_graph_branch_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_instance_graph_branch_id"
+
+[[functions.params]]
+name = "object_instance_graph_branch_id"
+type = "uuid"

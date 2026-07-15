@@ -1,0 +1,69 @@
+/// Experience config bridge for one Environment ProcessConfig.
+///
+/// Contract:
+/// - Environment owns the ProcessConfig topology object.
+/// - Experience owns only the process-level participation config over that
+///   Environment object.
+/// - This class never constructs ProcessConfig or runtime Process instances.
+class EnvironmentExperienceProcessConfig {
+    // Relationships
+    process_config aware_environment.process.ProcessConfig key
+    thread_configs EnvironmentExperienceThreadConfig[]
+
+    // Attributes
+    description String?
+    intent String?
+    key String key
+    narrative String?
+    position Int? = null
+    title String?
+
+    fn build construct (
+        process_config_id UUID key,
+        key String key,
+        title String? = null,
+        description String? = null,
+        position Int? = null,
+        narrative String? = null,
+        intent String? = null
+    ) -> EnvironmentExperienceProcessConfig {
+        """
+        Construct one Experience process config bridge.
+
+        Contract:
+        - Identity is derived from parent profile plus `(process_config_id, key)`.
+        - `process_config_id` references Environment ProcessConfig topology truth.
+        """
+    }
+
+    fn add_thread_config (
+        thread_config_id UUID key,
+        key String key,
+        title String? = null,
+        description String? = null,
+        position Int? = null,
+        narrative String? = null,
+        intent String? = null
+    ) -> EnvironmentExperienceThreadConfig {
+        """
+        Attach one Experience config bridge for an Environment ThreadConfig.
+
+        Contract:
+        - `thread_config_id` references Environment-owned topology.
+        - This function never constructs ThreadConfig.
+        - Program and action semantics are attached under the thread config bridge.
+        """
+        let thread_config = construct thread_configs.build(
+            thread_config_id = thread_config_id,
+            key = key,
+            title = title,
+            description = description,
+            position = position,
+            narrative = narrative,
+            intent = intent,
+        )
+    }
+}
+
+ann environment.EnvironmentExperienceProcessConfig::process_config load eager
+ann environment.EnvironmentExperienceProcessConfig::thread_configs load eager

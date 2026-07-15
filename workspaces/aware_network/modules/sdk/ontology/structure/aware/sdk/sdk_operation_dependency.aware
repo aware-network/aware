@@ -1,0 +1,45 @@
+/// SDK operation-to-operation dependency edge.
+///
+/// This is SDK composition truth. It does not replace API endpoint bindings;
+/// it records that one SDK operation is allowed to orchestrate another SDK
+/// operation from the same SDK config or from a declared SDK package
+/// dependency closure.
+class SdkOperationDependency {
+    // Relationships
+    target_sdk_operation SdkOperation key
+
+    // Attributes
+    target_operation_ref String
+    target_sdk_name String
+    target_operation_name String
+    target_package_name String?
+    role String = "dependency"
+    order Int = 1
+    required Bool = true
+    description String?
+
+    fn create construct (
+        target_sdk_operation_id UUID key,
+        target_operation_ref String,
+        target_sdk_name String,
+        target_operation_name String,
+        target_package_name String? = null,
+        role String = "dependency",
+        order Int = 1,
+        required Bool = true,
+        description String? = null
+    ) -> SdkOperationDependency {
+        """
+        Create one deterministic SDK operation dependency edge.
+
+        Contract:
+        - Parent `SdkOperation` scope is injected by propagation.
+        - `target_sdk_operation_id` points at the canonical target operation identity.
+        - `target_operation_ref` preserves authored `sdk_name.operation_name` syntax.
+        - External operation refs must be backed by a declared `SdkPackageDependency`.
+        - Runtime composition may use this edge; API endpoint bindings remain ingress truth.
+        """
+    }
+}
+
+ann sdk.SdkOperationDependency::target_sdk_operation load eager

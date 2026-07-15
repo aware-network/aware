@@ -1,0 +1,82 @@
+/// Attention abstraction that allows to set an scope over DYNAMIC FOCUS.
+class FocusScope {
+    // Relationships
+    focus Focus?
+    /// Selected observable for the current focus scope.
+    ///
+    /// Contract:
+    /// - This is a canonical, network-shared selector (commit-backed).
+    /// - FocusScope never owns Experience views. It only owns ontology-backed
+    ///   observable selection.
+    /// - The observable must be an ObjectProjectionGraphObservable (meta) so it can be shared and replayed.
+    observable aware_meta.graph.projection.ObjectProjectionGraphObservable?
+    requests FocusScopeRequest[]
+    /// Commit pins observed while this FocusScope is active.
+    ///
+    /// Contract:
+    /// - FocusScopeCommit is provenance, not a semantic change rail.
+    /// - Each row links the active Focus and an existing Meta ObjectInstanceGraphCommit.
+    /// - Observation time is the create commit time for the FocusScopeCommit itself.
+    commits FocusScopeCommit[]
+
+    // Metadata
+    title String key
+    description String?
+    rationale String?
+    expires_at DateTime?
+    is_active Bool = true
+    last_accessed DateTime?
+
+    fn build construct (
+        title String,
+        description String? = null,
+        expires_at DateTime? = null,
+        is_active Bool = true,
+        last_accessed DateTime? = null
+    ) -> FocusScope {
+        """
+        Builds a new FocusScope.
+        """
+    }
+
+    fn create_request (focus_id UUID, rationale String?) -> FocusScopeRequest {
+        """
+        Creates a new FocusScopeRequest.
+        """
+        let created_request = construct requests.create(
+            focus_id = focus_id,
+            rationale = rationale,
+        )
+    }
+
+    fn set_focus (focus_id UUID, rationale String? = null) -> FocusScope {
+        """
+        Sets the current focus for this scope (commit-backed).
+        """
+    }
+
+    fn set_observable (observable_id UUID, rationale String? = null) -> FocusScope {
+        """
+        Sets the current observable for this scope (commit-backed).
+        """
+    }
+
+    fn ensure_commit(
+        focus_id UUID key,
+        object_instance_graph_commit_id UUID key
+    ) -> FocusScopeCommit {
+        """
+        Pin one existing Meta OIG commit under this FocusScope context.
+
+        Canonical v0:
+        - `focus_id` is mandatory so consumers can replay the attention context.
+        - `object_instance_graph_commit_id` points to Meta-owned commit truth.
+        - The FocusScopeCommit create commit time is the observed time; no
+          separate `observed_at` scalar is modeled in v0.
+        """
+        let created = construct commits.create(
+            focus_id = focus_id,
+            object_instance_graph_commit_id = object_instance_graph_commit_id,
+        )
+    }
+}

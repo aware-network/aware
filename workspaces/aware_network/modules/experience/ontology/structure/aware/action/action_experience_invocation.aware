@@ -1,0 +1,93 @@
+/// ActionExperience-owned binding to a reusable invocation action config.
+///
+/// Contract:
+/// - `ActionExperience` remains environment-scoped policy for Reactivity
+///   action vocabulary.
+/// - `ExperienceInvocationActionConfig` remains the shared API/SDK target and
+///   typed contract binding.
+/// - Many invocation configs may bind to one action experience; later dispatch
+///   lanes choose among them.
+class ActionExperienceInvocation {
+    // Relationships
+    experience_invocation_action_config invocation.ExperienceInvocationActionConfig key
+    invocation_actions ActionExperienceInvocationAction[]
+    request_fields ActionExperienceInvocationRequestField[]
+
+    fn build construct (
+        experience_invocation_action_config_id UUID key
+    ) -> ActionExperienceInvocation {
+        """
+        Create a deterministic ActionExperience invocation binding edge.
+        """
+    }
+
+    fn record_invocation (
+        invocation_key UUID key,
+        actor_id UUID? = null,
+        api_call_id UUID? = null,
+        sdk_operation_call_id UUID? = null,
+        request_ref String? = null,
+        receipt_ref String? = null,
+        status String = "pending"
+    ) -> invocation.ExperienceInvocationAction {
+        """
+        Record one actual invocation handled through this action experience binding.
+
+        Contract:
+        - Parentage is `ActionExperience -> ActionExperienceInvocation`.
+        - `ExperienceInvocationActionConfig` remains target metadata only.
+        - `ExperienceInvocationAction` is the single standalone invocation
+          receipt for one action crossing.
+        - The action-experience surface records provenance through
+          `ActionExperienceInvocationAction`; it does not own receipt identity.
+        - Concrete actuator/sensor/view provenance must attach to this same
+          receipt through their provenance bridge objects; it must not create
+          another invocation receipt for the same crossing.
+        """
+        let created = construct invocation_actions.build(
+            experience_invocation_action_config_id = experience_invocation_action_config_id,
+            invocation_key = invocation_key,
+            actor_id = actor_id,
+            api_call_id = api_call_id,
+            sdk_operation_call_id = sdk_operation_call_id,
+            request_ref = request_ref,
+            receipt_ref = receipt_ref,
+            status = status,
+        )
+    }
+
+    fn add_request_field (
+        attribute_config_id UUID,
+        source_ref String,
+        required Bool = true,
+        position Int? = null
+    ) -> ActionExperienceInvocationRequestField {
+        """
+        Declare how this action activation composes one endpoint request field.
+
+        Contract:
+        - Parentage is `ActionExperience -> ActionExperienceInvocation`.
+        - `attribute_config` must belong to the anchored endpoint request
+          ClassConfig; runtime dispatch and materialization fail closed if it
+          does not.
+        - `source_ref` is a closed dispatch-context vocabulary entry:
+          event.*, commit.*, intent.*, execution.*, api_call.key, binding.*,
+          binding.node.<alias>.class_instance_identity_id,
+          binding.node.<alias>.class_config_id, actor.id, or
+          subscription.id. No payload paths and no graph reads.
+        - This is Tier 1 composition only: declarative field copy from context
+          to endpoint request payload. Domain enrichment belongs to the target
+          service or to a prior Program step.
+        """
+        let created = construct request_fields.build(
+            attribute_config_id = attribute_config_id,
+            source_ref = source_ref,
+            required = required,
+            position = position,
+        )
+    }
+}
+
+ann action.ActionExperienceInvocation::experience_invocation_action_config load eager
+ann action.ActionExperienceInvocation::invocation_actions load eager
+ann action.ActionExperienceInvocation::request_fields load eager

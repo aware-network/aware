@@ -1,0 +1,19 @@
+edge ClassConfigRelationshipAssociation {
+    // Attributes
+    forward_loading_strategy ClassConfigRelationshipSideLoadingStrategy?
+    reverse_loading_strategy ClassConfigRelationshipSideLoadingStrategy?
+
+    fn create construct (
+        class_config_id UUID key,
+        forward_loading_strategy ClassConfigRelationshipSideLoadingStrategy? = null,
+        reverse_loading_strategy ClassConfigRelationshipSideLoadingStrategy? = null
+    ) -> ClassConfigRelationshipAssociation {
+        """
+        Create deterministic association metadata under a ClassConfigRelationship scope.
+
+        Contract:
+        - Parent `ClassConfigRelationship` scope is propagated by traversal lowering.
+        - Stable identity derives from propagated relationship scope + `class_config_id`.
+        """
+    }
+}

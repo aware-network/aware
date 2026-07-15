@@ -1,0 +1,14 @@
+// IdentityConnection projection (v0)
+//
+// Contract:
+// - Rooted at IdentityConnection.
+// - Identity endpoints are referenced via portals to the `identity` projection.
+// - No implicit cross-lane IO; listing is provided via explicit READ functions.
+
+projection IdentityConnection {
+    root identity.IdentityConnection
+
+    /// Portals: identity_connection -> identity
+    identity.IdentityConnection::requester_identity Identity
+    identity.IdentityConnection::recipient_identity Identity
+}

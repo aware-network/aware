@@ -1,0 +1,118 @@
+class Thread {
+    // Relationships
+    parent Thread?
+    /// Reusable ThreadConfig this runtime Thread instantiates.
+    ///
+    /// Contract:
+    /// - ThreadConfig is a reusable key/config portal.
+    /// - Process owns runtime Thread containment through the parent path.
+    thread_config ThreadConfig key
+    /// Optional territory image override for this thread.
+    ///
+    /// Fallback guidance:
+    /// - If unset, UI should resolve via parent ThreadConfig image/profile context.
+    ///
+    /// Contract:
+    /// - Image bytes are uploaded out-of-band (data-plane).
+    /// - Commits reference StorageBlob metadata only.
+    image aware_storage.blob.StorageBlob? unique
+    overview_content aware_content.content.Content?
+    backlog_chain aware_content.chain.ContentChain?
+    /// Canonical layout portal for attention-owned section/focus resolution.
+    ///
+    /// Contract:
+    /// - Thread stores layout attachments as orchestration context.
+    /// - Attention session/layout/section/focus transition owns active focus semantics.
+    /// - Active layout selection is session/navigation scoped, not a Thread property.
+    thread_layouts ThreadLayout[]
+    thread_object_instance_graph_branches ThreadObjectInstanceGraphBranch[]
+
+    // Attributes
+    key String key
+    description String?
+    is_main Bool = false
+    title String?
+
+    fn build construct (
+        thread_config_id UUID key,
+        key String key,
+        title String? = null,
+        description String? = null,
+        is_main Bool = false
+    ) -> Thread {
+        """
+        Create a runtime Thread under a Process.
+
+        Contract:
+        - Parent Process context is propagated by constructor lowering.
+        - ThreadConfig is a reusable config portal/key.
+        - Runtime identity is `(process_id via path, thread_config_id, key)`.
+        """
+    }
+
+    fn attach_lane (
+        domain_branch_id UUID,
+        projection_hash String,
+        title String? = null,
+        is_active Bool = true
+    ) -> ThreadObjectInstanceGraphBranch {
+        """
+        Attach an existing domain lane (branch_id, projection_hash) to this Thread.
+
+        Canonical v0 intent:
+        - Enables cross-environment reuse of global lanes (e.g. Identity) without copying commits.
+        - OS lane commit only: does not create or mutate domain commits; commits are always SSOT.
+        - Idempotent: safe to call multiple times for the same lane.
+        """
+    }
+
+    fn add_layout (
+        layout_id UUID,
+        key String? = null
+    ) -> ThreadLayout {
+        """
+        Register a Layout for this Thread via canonical ThreadLayout association.
+
+        Contract:
+        - Uses parent->child propagation (`construct thread_layouts.create(...)`) so child identity derives from `_via_thread_layouts` + `layout_id`.
+        - Idempotent for repeated parent/layout pairs.
+        """
+        let created_thread_layout = construct thread_layouts.create(
+            layout_id = layout_id,
+            key = key,
+        )
+    }
+
+    fn update_picture(image_id UUID? = null, image_sha String? = null, image_mime_type String? = null, image_size_bytes Int? = null) -> {
+        """
+        Updates (or clears) the thread territory image override.
+
+        Contract:
+        - Raw bytes are uploaded out-of-band via HTTP file operations.
+        - Commits must reference commit-backed StorageBlob metadata only.
+        - When setting a picture, image_sha/image_mime_type/image_size_bytes must be provided together.
+
+        Parameters:
+            image_id: Optional uploaded blob id to assert against image_sha-derived stable id.
+            image_sha: SHA-256 hex digest of uploaded bytes.
+            image_mime_type: MIME type of uploaded bytes.
+            image_size_bytes: Size of uploaded bytes.
+        Returns: None.
+        """
+    }
+
+}
+
+class ActorDirectoryEntry : inline_value {
+    actor_id UUID
+    identity_id UUID
+}
+
+class ActorDirectoryResponse : inline_value {
+    entries ActorDirectoryEntry[]
+}
+/// Load overview content and object instance graph branches eagerly
+ann thread.Thread::thread_config load eager
+ann thread.Thread::overview_content load eager
+ann thread.Thread::thread_object_instance_graph_branches load eager
+ann thread.Thread::thread_layouts load eager

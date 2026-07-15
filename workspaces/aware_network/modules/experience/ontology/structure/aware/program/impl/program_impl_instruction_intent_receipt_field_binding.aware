@@ -1,0 +1,23 @@
+/// One prior action terminal receipt field projected into a continuation request.
+class ProgramImplInstructionIntentReceiptFieldBinding {
+    // Relationships
+    source_program_impl_instruction_intent ProgramImplInstructionIntent key
+    source_receipt_class_config aware_meta.class.ClassConfig key
+    source_receipt_attribute_config aware_meta.attribute.AttributeConfig key
+    target_request_attribute_config aware_meta.attribute.AttributeConfig key
+
+    // Attributes
+    required Bool = true
+    position Int? = null
+
+    fn build construct (
+        source_program_impl_instruction_intent_id UUID key,
+        source_receipt_class_config_id UUID key,
+        source_receipt_attribute_config_id UUID key,
+        target_request_attribute_config_id UUID key,
+        required Bool = true,
+        position Int? = null
+    ) -> ProgramImplInstructionIntentReceiptFieldBinding {
+        """Create one deterministic terminal-receipt field edge under its target intent."""
+    }
+}

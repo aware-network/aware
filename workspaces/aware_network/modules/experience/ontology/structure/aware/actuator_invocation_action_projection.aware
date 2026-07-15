@@ -1,0 +1,13 @@
+/// Actuator invocation action instance projection.
+projection ActuatorInvocationAction {
+    root actuator.ActuatorInvocationAction
+    actuator.ActuatorInvocationAction::actuator_invocation_action_config ActuatorInvocationActionConfig
+    actuator.ActuatorInvocationAction::experience_invocation_action ExperienceInvocationAction
+
+    observable actuator_invocation_action {
+        """
+        Actuator invocation action bridge from a concrete Actuator instance to
+        one generic Experience invocation action receipt.
+        """
+    }
+}

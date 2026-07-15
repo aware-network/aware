@@ -1,0 +1,9 @@
+class ClassInstanceChange {
+    // Relationships
+    attribute_changes attribute.AttributeChange[]
+    change aware_history.change.Change key
+}
+
+/// Load nested changes eagerly for recursive hydration.
+ann class.ClassInstanceChange::attribute_changes load eager
+ann class.ClassInstanceChange::change load eager

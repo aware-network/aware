@@ -1,0 +1,16 @@
+/// Connector session projection.
+///
+/// Contract:
+/// - This is the concrete provider/session fulfillment surface.
+/// - The linked Connector remains the owner of fulfilled Sensor/Actuator
+///   instances.
+projection ConnectorSession {
+    root connector.ConnectorSession
+    connector.ConnectorSession::connector Connector
+
+    observable connector_session {
+        """
+        Connector session surface linked to one runtime Connector fulfillment.
+        """
+    }
+}

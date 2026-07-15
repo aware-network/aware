@@ -978,7 +978,6 @@ module.exports = grammar({
             $.projection_edge,
             $.projection_branch,
             $.projection_root,
-            $.projection_view_group,
             $.projection_view_def
         ),
 
@@ -1023,30 +1022,16 @@ module.exports = grammar({
         ),
 
         // ----  Projection Observables (OPGI + ObjectProjectionGraphObservable) ----------
-        // Canonical keyword is `observable`.
-        // Legacy compatibility aliases `observation` and `view` are accepted
-        // during migration.
-        projection_observation_kw: _ => choice('observable', 'observation', 'view'),
+        // Projection observables are flat Meta attention selectors. API and
+        // Experience layers own view-state contracts over these observables.
+        projection_observation_kw: _ => 'observable',
 
         view_kind: _ => choice('construct', 'instance'),
-
-        projection_view_group: $ => seq(
-            field('keyword', $.projection_observation_kw),
-            field('prefix', $.view_path),
-            '{',
-            repeat(choice(
-                $.comment,
-                $.projection_view_group,
-                $.projection_view_def
-            )),
-            '}'
-        ),
 
         projection_view_def: $ => seq(
             field('keyword', $.projection_observation_kw),
             field('view_key', $.view_path),
-            field('kind', $.view_kind),
-            optional('default'),
+            optional(field('kind', $.view_kind)),
             field('body', $.block)
         ),
 
@@ -1104,12 +1089,20 @@ module.exports = grammar({
             'view',
             field('view_key', $.view_path),
             optional('default'),
-            'state',
-            field('state_model', $.ann_path),
-            optional(seq(
-                'provider',
-                field('state_provider', $.ann_path)
-            )),
+            choice(
+                seq(
+                    'state',
+                    field('state_model', $.ann_path),
+                    optional(seq(
+                        'provider',
+                        field('state_provider', $.ann_path)
+                    ))
+                ),
+                seq(
+                    'api_view',
+                    field('api_view', $.view_path)
+                )
+            ),
             field('body', $.experience_view_block)
         ),
 
@@ -1838,6 +1831,7 @@ module.exports = grammar({
 
         api_item: $ => choice(
             $.api_capability_def,
+            $.api_view_def,
             $.api_graph_def
         ),
 
@@ -1860,6 +1854,61 @@ module.exports = grammar({
 
         api_capability_item: $ => choice(
             $.api_capability_endpoint_def
+        ),
+
+        api_view_def: $ => seq(
+            'view',
+            field('view_name', $.ident),
+            'on',
+            field('observable', $.qualified_name),
+            'state',
+            field('state_model', $.qualified_name),
+            choice(
+                field('body', $.api_view_block),
+                ';'
+            )
+        ),
+
+        api_view_block: $ => seq(
+            '{',
+            repeat(choice(
+                $.comment,
+                $.triple_string_literal,
+                $.string_literal,
+                $.api_view_item
+            )),
+            '}'
+        ),
+
+        api_view_item: $ => choice(
+            $.api_view_stream_policy_def,
+            $.api_view_capability_endpoint_def
+        ),
+
+        api_view_stream_policy_def: $ => seq(
+            'stream',
+            field('stream_mode', $.ident),
+            choice(
+                field('body', $.api_view_stream_policy_block),
+                optional(';')
+            )
+        ),
+
+        api_view_stream_policy_block: $ => seq(
+            '{',
+            repeat(choice(
+                $.comment,
+                $.triple_string_literal,
+                $.string_literal
+            )),
+            '}'
+        ),
+
+        api_view_capability_endpoint_def: $ => seq(
+            'endpoint',
+            field('action_key', $.ident),
+            field('endpoint', $.qualified_name),
+            optional(';')
         ),
 
         api_capability_endpoint_def: $ => seq(
@@ -2578,12 +2627,19 @@ module.exports = grammar({
 
         sdk_operation_item: $ => choice(
             $.sdk_operation_endpoint_def,
+            $.sdk_operation_view_def,
             $.sdk_operation_dependency_def
         ),
 
         sdk_operation_endpoint_def: $ => seq(
             'endpoint',
             field('endpoint', $.qualified_name),
+            optional(';')
+        ),
+
+        sdk_operation_view_def: $ => seq(
+            'view',
+            field('view', $.qualified_name),
             optional(';')
         ),
 

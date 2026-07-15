@@ -1,0 +1,25 @@
+class RoleClassInstance {
+    // Relationships
+    class_instance_identity aware_meta.class.ClassInstanceIdentity key
+    role_config_class_config RoleConfigClassConfig key
+
+    fn create construct (
+        class_instance_identity_id UUID key,
+        role_config_class_config_id UUID key
+    ) -> RoleClassInstance {
+        """
+        Create a concrete class-instance grant membership under one Role.
+
+        Contract (v0):
+        - Deterministic id from (`role_id`, `class_instance_identity_id`, `role_config_class_config_id`).
+        - `role_config_class_config_id` points to the inherited class-kind capability policy.
+        - One Role may include many concrete ClassInstanceIdentity grants.
+        """
+    }
+
+    fn delete() -> {
+        """
+        Delete this concrete class-instance grant membership.
+        """
+    }
+}

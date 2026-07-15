@@ -1,0 +1,62 @@
+/// Concrete runtime/display instance of one ProjectionExperienceView.
+///
+/// Contract:
+/// - `ProjectionExperienceView` remains configuration.
+/// - This object identifies one concrete fulfillment of a view for a
+///   section-graph binding and optional materialized branch.
+/// - Attention is not part of this object's identity. Attention selects
+///   Section -> FocusScope -> Observable; Experience resolves Section + Observable
+///   to this view instance through ProjectionExperienceSectionView.
+class ProjectionExperienceViewInstance {
+    // Relationships
+    section_graph_binding ProjectionExperienceSectionGraphBinding key
+    object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch?
+    invocation_actions ProjectionExperienceViewInvocationAction[]
+
+    // Attributes
+    view_instance_key String key
+    state_commit_id UUID?
+    status String = "active"
+
+    fn build construct (
+        section_graph_binding_id UUID key,
+        view_instance_key String key,
+        object_instance_graph_branch_id UUID? = null,
+        state_commit_id UUID? = null,
+        status String = "active"
+    ) -> ProjectionExperienceViewInstance {
+        """
+        Create one deterministic view instance under a ProjectionExperienceView.
+
+        Contract:
+        - Identity is scoped by parent view, section graph binding, and view instance key.
+        - `section_graph_binding` is the canonical bridge to view + layout section + graph occurrence.
+        - Runtime focus/environment/thread evidence belongs on invocation or transition receipts,
+          not on the view-instance identity.
+        """
+    }
+
+    fn record_action_invocation (
+        view_invocation_action_config_id UUID key,
+        invocation_key UUID key,
+        api_call_id UUID? = null,
+        sdk_operation_call_id UUID? = null,
+        actor_id UUID? = null,
+        request_ref String? = null,
+        receipt_ref String? = null,
+        status String = "pending"
+    ) -> ProjectionExperienceViewInvocationAction {
+        """
+        Record one action invocation performed through this concrete view instance.
+
+        Contract:
+        - `view_invocation_action_config_id` points to the view-exposed action config binding.
+        - The actual call is recorded as a generic `ExperienceInvocationAction`.
+        - This view instance stores only the provenance bridge to that invocation.
+        """
+    }
+}
+
+ann projection.ProjectionExperienceViewInstance::section_graph_binding load eager
+ann projection.ProjectionExperienceViewInstance::object_instance_graph_branch load eager
+ann projection.ProjectionExperienceViewInstance::invocation_actions load eager

@@ -1,0 +1,36 @@
+/// EnvironmentSession-owned portal to one AttentionSession.
+///
+/// Contract:
+/// - Environment does not own or inspect AttentionSession internals.
+/// - One EnvironmentSession may resolve against many AttentionSessions.
+/// - The same AttentionSession may be shared by other EnvironmentSessions.
+/// - This is a pure relationship object, not a capability.
+class EnvironmentSessionAttentionSession {
+    // Relationships
+    attention_session aware_attention.session.AttentionSession key
+
+    // Attributes
+    key String?
+    title String?
+    status String = "active"
+    metadata_json JsonObject? = {}
+
+    fn build construct (
+        attention_session_id UUID key,
+        key String? = null,
+        title String? = null,
+        status String = "active",
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentSessionAttentionSession {
+        """
+        Construct one EnvironmentSession -> AttentionSession portal row.
+
+        Contract:
+        - Stable identity is EnvironmentSession path + AttentionSession.
+        - AttentionSession is only a portal target here.
+        - No Attention layout/section/focus internals are authored here.
+        """
+    }
+}
+
+ann environment.EnvironmentSessionAttentionSession::attention_session load eager

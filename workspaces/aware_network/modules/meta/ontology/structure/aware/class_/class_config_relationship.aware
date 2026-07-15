@@ -1,0 +1,101 @@
+/// Canonical relationship SSOT.
+///
+/// A relationship is declared by exactly one class attribute (single-sided). Any "backref"
+/// attribute is treated as a separate relationship in canonical mode.
+///
+/// This model stores:
+/// - Declaring endpoints (ClassConfig ↔ ClassConfig) for augmentation honesty
+/// - Optional association edge container
+/// - Loading semantics (forward/reverse) derived from annotations
+///
+class ClassConfigRelationship {
+    // Relationships
+    target_class_config ClassConfig key
+    class_config_relationship_association ClassConfig? @ClassConfigRelationshipAssociation
+    class_config_relationship_attributes ClassConfigRelationshipAttribute[]
+
+    // Attributes
+    relationship_key String key
+    relationship_type ClassConfigRelationshipType
+    identity_rail ClassConfigRelationshipIdentityRail?
+    forward_required Bool
+    forward_loading_strategy ClassConfigRelationshipSideLoadingStrategy?
+    reverse_loading_strategy ClassConfigRelationshipSideLoadingStrategy?
+    reified_from_relationship ClassConfigRelationship?
+    reified_role ClassConfigRelationshipReifiedRole?
+
+    fn create construct (
+        target_class_config_id UUID key,
+        relationship_key String key,
+        relationship_type ClassConfigRelationshipType,
+        identity_rail ClassConfigRelationshipIdentityRail? = null,
+        forward_required Bool = false,
+        forward_loading_strategy ClassConfigRelationshipSideLoadingStrategy? = null,
+        reverse_loading_strategy ClassConfigRelationshipSideLoadingStrategy? = null,
+        reified_from_relationship_id UUID? = null,
+        reified_role ClassConfigRelationshipReifiedRole? = null
+    ) -> ClassConfigRelationship {
+        """
+        Create deterministic ClassConfigRelationship under a source ClassConfig scope.
+
+        Contract:
+        - Parent `ClassConfig` scope is propagated by traversal lowering.
+        - Stable identity derives from propagated source class + `(target_class_config_id, relationship_key)`.
+        - Association edges are materialized under this relationship via `create_association`.
+        - Optional reification metadata does not participate in stable identity.
+        """
+    }
+
+    fn create_association(
+        class_config_id UUID key,
+        forward_loading_strategy ClassConfigRelationshipSideLoadingStrategy? = null,
+        reverse_loading_strategy ClassConfigRelationshipSideLoadingStrategy? = null
+    ) -> ClassConfigRelationshipAssociation {
+        """
+        Attach one deterministic association edge under this relationship.
+        """
+        let created = construct class_config_relationship_association.create(
+            class_config_id = class_config_id,
+            forward_loading_strategy = forward_loading_strategy,
+            reverse_loading_strategy = reverse_loading_strategy,
+        )
+    }
+
+    fn create_attribute(
+        attribute_config_id UUID key,
+        direction ClassConfigRelationshipDirection key,
+        role ClassConfigRelationshipAttributeRole key
+    ) -> ClassConfigRelationshipAttribute {
+        """
+        Attach one deterministic relationship-attribute edge under this relationship.
+        """
+        let created = construct class_config_relationship_attributes.create(
+            attribute_config_id = attribute_config_id,
+            direction = direction,
+            role = role,
+        )
+    }
+
+    fn update_config(
+        relationship_type ClassConfigRelationshipType,
+        identity_rail ClassConfigRelationshipIdentityRail? = null,
+        forward_required Bool = false,
+        forward_loading_strategy ClassConfigRelationshipSideLoadingStrategy? = null,
+        reverse_loading_strategy ClassConfigRelationshipSideLoadingStrategy? = null,
+        reified_from_relationship_id UUID? = null,
+        reified_role ClassConfigRelationshipReifiedRole? = null
+    ) -> {
+        """
+        Update mutable relationship configuration for an existing ClassConfigRelationship.
+
+        Contract:
+        - `target_class_config_id` and `relationship_key` are identity and are not mutable here.
+        - Changing either identity field is replacement semantics, not in-place update.
+        - This full-payload update treats nullable arguments as current semantic truth.
+        """
+    }
+}
+
+/// Load relationship containers eagerly
+ann class.ClassConfigRelationship::class_config_relationship_association load eager
+ann class.ClassConfigRelationship::class_config_relationship_attributes load eager

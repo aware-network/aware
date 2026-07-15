@@ -1,0 +1,11 @@
+// Focus projection (v0)
+//
+// Contract:
+// - Focus resolves directly to ObjectProjectionGraphIdentity and optional ObjectInstanceGraphBranch.
+
+/// Root class for the projection
+projection Focus {
+    root focus.Focus
+    focus.Focus::object_instance_graph_branch ObjectInstanceGraphIdentity
+    focus.Focus::object_projection_graph_identity ObjectProjectionGraphIdentity
+}

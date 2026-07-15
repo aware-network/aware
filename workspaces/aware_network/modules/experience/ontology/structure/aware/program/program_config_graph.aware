@@ -1,0 +1,68 @@
+/// Canonical experience-level graph that binds program configs to one meta config graph.
+///
+/// Contract:
+/// - This is the Experience bridge between Environment ThreadConfig context
+///   and Meta structure truth.
+/// - Branch/identity resolution remains runtime-owned (Thread/Turn/Projection); this object stores declarative config.
+class ProgramConfigGraph {
+    // Relationships
+    object_config_graphs ProgramConfigGraphObjectConfigGraph[]
+    program_configs ProgramConfigGraphProgramConfig[]
+    projection_experience_oigis ProgramConfigGraphProjectionExperienceOIGI[]
+
+    // Attributes
+    description String?
+    intent String?
+    key String key
+    narrative String?
+    title String?
+
+    fn build construct (
+        key String key,
+        thread_config_id UUID,
+        object_config_graph_id UUID,
+        title String? = null,
+        description String? = null,
+        narrative String? = null,
+        intent String? = null
+    ) -> ProgramConfigGraph {
+        """
+        Create a deterministic ProgramConfigGraph bound to one Environment ThreadConfig and one ObjectConfigGraph.
+
+        Contract:
+        - Identity is derived from class key `key`.
+        - Constructor is idempotent for the same key.
+        """
+        let bridge = construct object_config_graphs.build(
+            object_config_graph_id = object_config_graph_id,
+            key = key,
+        )
+    }
+
+    fn add_program_config (program_config_id UUID, key String? = null) -> ProgramConfigGraphProgramConfig {
+        """
+        Link one existing ProgramConfig under this ProgramConfigGraph.
+
+        Contract:
+        - Association identity is deterministic from `(program_config_graph_id, program_config_id)`.
+        - ProgramConfig creation is graph-agnostic and happens outside this edge API.
+        """
+        let created_assoc = construct program_configs.build(
+            program_config_id = program_config_id,
+            key = key,
+        )
+    }
+
+    fn add_projection_experience_oigi (
+        projection_experience_oigi_id UUID,
+        key String? = null
+    ) -> ProgramConfigGraphProjectionExperienceOIGI {
+        """
+        Link one ProjectionExperienceOIGI under this ProgramConfigGraph.
+        """
+        let created_assoc = construct projection_experience_oigis.build(
+            projection_experience_oigi_id = projection_experience_oigi_id,
+            key = key,
+        )
+    }
+}

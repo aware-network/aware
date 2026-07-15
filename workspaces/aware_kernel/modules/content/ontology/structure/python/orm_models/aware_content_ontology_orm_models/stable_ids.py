@@ -21,10 +21,10 @@ def stable_content_chain_id(*, key: str = "default") -> UUID:
     return uuid5(NS_CONTENT, f"aware:content_chain:{key_norm}")
 
 
-def stable_content_chain_content_id(*, content_chain_id: UUID, position: int) -> UUID:
-    """Compiler-generated from class-attribute identity keys: content_chain_id, position"""
+def stable_content_chain_content_id(*, content_id: UUID, content_chain_id: UUID, position: int) -> UUID:
+    """Compiler-generated from class-attribute identity keys: content_id, content_chain_id, position"""
 
-    return uuid5(NS_CONTENT, f"aware:content_chain_content:{content_chain_id}:{position}")
+    return uuid5(NS_CONTENT, f"aware:content_chain_content:{content_id}:{content_chain_id}:{position}")
 
 
 def stable_content_chain_section_id(*, content_chain_id: UUID, key: str = "default") -> UUID:
@@ -46,6 +46,36 @@ def stable_content_layout_id(*, content_id: UUID, name: str) -> UUID:
 
     name_norm = (name or "").casefold().strip()
     return uuid5(NS_CONTENT, f"aware:content_layout:{content_id}:{name_norm}")
+
+
+def stable_content_package_id(*, package_name: str) -> UUID:
+    """Compiler-generated from class-attribute identity keys: package_name"""
+
+    package_name_norm = (package_name or "").casefold().strip()
+    return uuid5(NS_CONTENT, f"aware:content_package:{package_name_norm}")
+
+
+def stable_content_package_artifact_id(*, content_package_id: UUID, output_key: str, artifact_key: str) -> UUID:
+    """Compiler-generated from class-attribute identity keys: content_package_id, output_key, artifact_key"""
+
+    output_key_norm = (output_key or "").casefold().strip()
+    artifact_key_norm = (artifact_key or "").casefold().strip()
+    return uuid5(
+        NS_CONTENT, f"aware:content_package_artifact:{content_package_id}:{output_key_norm}:{artifact_key_norm}"
+    )
+
+
+def stable_content_package_content_id(
+    *, content_id: UUID, content_package_id: UUID, relative_path: str, content_role: str = "content"
+) -> UUID:
+    """Compiler-generated from class-attribute identity keys: content_id, content_package_id, relative_path, content_role"""
+
+    relative_path_norm = (relative_path or "").casefold().strip()
+    content_role_norm = (content_role or "").casefold().strip() or "content"
+    return uuid5(
+        NS_CONTENT,
+        f"aware:content_package_content:{content_id}:{content_package_id}:{relative_path_norm}:{content_role_norm}",
+    )
 
 
 def stable_content_part_id(*, content_part_content_id: UUID, type: str) -> UUID:
@@ -143,7 +173,10 @@ def stable_content_part_text_style_id(
 
 
 CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID: dict[str, tuple[str, tuple[str, ...]]] = {
-    "03b2e8f1-ae21-5b2d-8bcf-8e0ecc92cb58": ("stable_content_chain_content_id", ("content_chain_id", "position")),
+    "03b2e8f1-ae21-5b2d-8bcf-8e0ecc92cb58": (
+        "stable_content_chain_content_id",
+        ("content_id", "content_chain_id", "position"),
+    ),
     "0f8eded0-c183-57c5-9033-3516cfba14c5": ("stable_content_chain_id", ("key",)),
     "10b11ef0-7b72-519a-9ef2-3cafe22165f6": ("stable_content_id", ("key",)),
     "20cccfaa-af38-5821-86a7-608381982308": ("stable_content_part_file_id", ("content_part_id", "modality_type")),
@@ -153,6 +186,10 @@ CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID: dict[str, tuple[str, tuple[st
         ("content_part_content_id", "content_layout_id", "layout_order"),
     ),
     "8cd14d4b-78c4-582b-a15f-bbeaf4175500": ("stable_content_part_id", ("content_part_content_id", "type")),
+    "98714846-7e9f-5aa6-a7f3-cfa4a2f22919": (
+        "stable_content_package_artifact_id",
+        ("content_package_id", "output_key", "artifact_key"),
+    ),
     "9eb60876-520f-5eb4-a82d-310c69c393f1": (
         "stable_content_part_text_style_id",
         (
@@ -166,6 +203,11 @@ CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID: dict[str, tuple[str, tuple[st
             "italic",
             "underline",
         ),
+    ),
+    "9ec4d14f-138f-5672-8561-a927e1b6e458": ("stable_content_package_id", ("package_name",)),
+    "adc589fd-2ff0-5ae0-8514-c67bdcce836d": (
+        "stable_content_package_content_id",
+        ("content_id", "content_package_id", "relative_path", "content_role"),
     ),
     "b285b1b6-ca58-5dc8-ba9a-b94fdc7aa0cb": ("stable_content_part_text_index_id", ("content_part_text_id", "key")),
     "cef18a06-8871-5127-bcbb-830eb67b0396": ("stable_content_index_id", ("content_id", "key")),
@@ -187,6 +229,9 @@ __all__ = [
     "stable_content_chain_section_id",
     "stable_content_index_id",
     "stable_content_layout_id",
+    "stable_content_package_id",
+    "stable_content_package_artifact_id",
+    "stable_content_package_content_id",
     "stable_content_part_id",
     "stable_content_part_content_id",
     "stable_content_part_content_layout_id",

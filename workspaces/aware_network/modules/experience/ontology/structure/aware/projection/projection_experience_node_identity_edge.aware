@@ -1,0 +1,23 @@
+/// Semantic parent->child edge between two ProjectionExperienceNodeIdentity anchors.
+///
+/// Contract:
+/// - Topology contract for node identities, independent from runtime class-instance edges.
+/// - Later materialization can instantiate this into ProjectionExperienceNodeClassIdentityEdge.
+class ProjectionExperienceNodeIdentityEdge {
+    // Relationships
+    child_projection_experience_node_identity ProjectionExperienceNodeIdentity key
+    parent_projection_experience_node_identity ProjectionExperienceNodeIdentity key
+
+    // Attributes
+    key String?
+
+    fn build construct (
+        parent_projection_experience_node_identity_id UUID key,
+        child_projection_experience_node_identity_id UUID key,
+        key String? = null
+    ) -> ProjectionExperienceNodeIdentityEdge {
+        """
+        Create deterministic ProjectionExperienceNodeIdentityEdge.
+        """
+    }
+}

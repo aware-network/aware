@@ -142,13 +142,14 @@ def stable_event_config_condition_config_id(*, event_config_id: UUID, condition_
 
 
 def stable_event_config_condition_config_scope_id(
-    *, event_config_condition_config_id: UUID, object_instance_graph_identity_id: UUID
+    *, event_config_condition_config_id: UUID, object_instance_graph_identity_id: UUID, scope_key: str
 ) -> UUID:
-    """Compiler-generated from class-attribute identity keys: event_config_condition_config_id, object_instance_graph_identity_id"""
+    """Compiler-generated from class-attribute identity keys: event_config_condition_config_id, object_instance_graph_identity_id, scope_key"""
 
+    scope_key_norm = (scope_key or "").casefold().strip()
     return uuid5(
         NS_REACTIVITY,
-        f"aware:event_config_condition_config_scope:{event_config_condition_config_id}:{object_instance_graph_identity_id}",
+        f"aware:event_config_condition_config_scope:{event_config_condition_config_id}:{object_instance_graph_identity_id}:{scope_key_norm}",
     )
 
 
@@ -184,7 +185,7 @@ CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID: dict[str, tuple[str, tuple[st
     "3fcc925b-0fec-5bb6-a730-7f69d3ea35c6": ("stable_action_id", ("event_id", "config_id")),
     "46116ca2-dc07-5464-9489-f19ad4368939": (
         "stable_event_config_condition_config_scope_id",
-        ("event_config_condition_config_id", "object_instance_graph_identity_id"),
+        ("event_config_condition_config_id", "object_instance_graph_identity_id", "scope_key"),
     ),
     "4ee96aab-24ad-5bec-be0f-46ef4e7ee8a5": ("stable_condition_config_id", ("name",)),
     "50bd4b3a-42b7-5914-afbb-9fb5cca5f192": (

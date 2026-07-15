@@ -17,14 +17,14 @@ from api_runtime_fixture_artifacts import (
 from aware_code.semantic_contract_config import source_code_package_config_ref
 from aware_code.semantic_materialization import (
     SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY,
-    SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_ENTRYPOINT,
-    SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_METADATA_KEY,
     SEMANTIC_PROVIDER_DELTA_DURABLE_EXECUTION_INPUTS_KEY,
     SEMANTIC_LANGUAGE_MATERIALIZATION_TOOLING_CONTEXT_KEY,
     SemanticFunctionCallContext,
     SemanticPackageMaterializationInput,
     SemanticPackageMaterializationRequest,
     SemanticProviderDeltaDurableExecutionInputs,
+    SemanticProviderDeltaRequest,
+    SemanticProviderDeltaResult,
     encode_semantic_function_call_context_by_provider,
 )
 from aware_code.semantic_function_call_execution import (
@@ -46,8 +46,9 @@ from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_code_ontology.package.code_package import CodePackage
 from aware_code.package.snapshot_commit import commit_code_package_text_snapshot
 from aware_code_ontology.stable_ids import stable_code_package_id
-from aware_meta.graph.instance.commit.fs_store import FSCommitStore
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 from aware_meta.graph.instance.commit.materializer import OIGMaterializer
+from aware_meta_ontology.stable_ids import stable_object_instance_graph_commit_id
 from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
 from aware_meta_ontology.graph.config.object_config_graph_enums import (
@@ -69,6 +70,7 @@ from aware_orm.session.session import Session
 from _api_runtime_test_paths import (
     API_META_PACKAGE_MANIFEST_PATHS,
     API_META_PYTHON_ROOTS,
+    KERNEL_WORKSPACE_ROOT,
     REPO_ROOT,
 )
 from aware_api_runtime.handlers._generated import meta_handlers as api_meta_handlers
@@ -117,13 +119,6 @@ from aware_api_runtime.semantic_function_refs import (
     API_CREATE_CAPABILITY_FUNCTION_REF,
     API_CREATE_FUNCTION_REF,
 )
-from aware_workspace.features.semantic_materialization.delta_contract import (
-    WorkspaceSemanticMaterializationProviderDeltaRequest,
-    build_workspace_semantic_materialization_provider_delta_request_bundle,
-    classify_workspace_semantic_materialization_provider_delta_request,
-    plan_workspace_semantic_materialization_provider_delta_adapter,
-)
-
 _API_META_HANDLERS_ANY: Any = api_meta_handlers
 _API_META_HANDLER_MODULE = cast(
     MetaGraphGeneratedLanguageHandlerModule,
@@ -431,7 +426,7 @@ def _api_provider_delta_request(
     include_code_package_delta: bool = True,
     hint_package_relative_path: str = "apis/demo.aware",
     delta_relative_path: str = "apis/demo.aware",
-) -> WorkspaceSemanticMaterializationProviderDeltaRequest:
+) -> SemanticProviderDeltaRequest:
     request_kwargs: dict[str, object] = {
         "package": {
             "package_name": "demo-api",
@@ -490,9 +485,7 @@ def _api_provider_delta_request(
                 )
             ],
         )
-    return WorkspaceSemanticMaterializationProviderDeltaRequest.model_validate(
-        request_kwargs
-    )
+    return SemanticProviderDeltaRequest.model_validate(request_kwargs)
 
 
 @pytest.mark.asyncio
@@ -526,6 +519,7 @@ async def test_api_workspace_provider_reports_full_rebuild_fallback_contract(
             package_head_commit_id=package_head_commit_id,
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
+            direct_dependency_materialization_details=(),
         )
 
     def _fake_compile_api_workspace_for_product_runtime_receipts(**kwargs: object):
@@ -706,6 +700,7 @@ async def test_api_workspace_provider_compile_plan_input_emits_product_runtime_r
             api_endpoint_catalog={},
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
+            direct_dependency_materialization_details=(),
             api_commit_id=uuid4(),
             api_object_instance_graph_commit_id=uuid4(),
             package_commit_id=package_commit_id,
@@ -723,6 +718,16 @@ async def test_api_workspace_provider_compile_plan_input_emits_product_runtime_r
             )
         )
 
+    code_package_config_id = source_code_package_config_ref(
+        manifest_kind="pyproject_toml",
+        surface="api",
+    ).config_id
+    code_package_id = stable_code_package_id(
+        code_package_config_id=code_package_config_id,
+        package_name="aware_actor_view_api",
+        language=CodeLanguage.python.value,
+    )
+
     def _fake_api_product_runtime_artifact_ownership_receipts(**kwargs: object):
         assert kwargs["package_name"] == "aware-actor-view-api"
         assert kwargs["workspace_root"] == tmp_path
@@ -739,6 +744,24 @@ async def test_api_workspace_provider_compile_plan_input_emits_product_runtime_r
                 "artifact_role": "runtime_file",
                 "artifact_key": ("aware-actor-view-api:runtime_file:api.manifest.json"),
                 "package_name": "aware-actor-view-api",
+                "code_package_id": str(code_package_id),
+                "code_package_config_id": str(code_package_config_id),
+                "code_package_name": "aware_actor_view_api",
+                "code_package_surface": "api",
+                "language": CodeLanguage.python.value,
+                "manifest_kind": "pyproject_toml",
+                "manifest_relative_path": (
+                    ".aware/api/runtime/aware-actor-view-api/"
+                    "public_package/python/package/pyproject.toml"
+                ),
+                "package_root": (
+                    ".aware/api/runtime/aware-actor-view-api/"
+                    "public_package/python/package"
+                ),
+                "sources_root": (
+                    ".aware/api/runtime/aware-actor-view-api/"
+                    "public_package/python/package/aware_actor_view_api"
+                ),
                 "path": (runtime_package_dir / "api.manifest.json").as_posix(),
                 "manifest_path": (
                     ".aware/api/runtime/aware-actor-view-api/api.manifest.json"
@@ -793,6 +816,33 @@ async def test_api_workspace_provider_compile_plan_input_emits_product_runtime_r
     )
     assert result.details["compile_parity_receipts"][0]["package_name"] == (
         "aware-actor-view-api"
+    )
+    assert result.bundle_packages[0].runtime_code_package_refs == (
+        {
+            "role": "runtime_file",
+            "output_key": "api.product_runtime_file",
+            "source_code_package_id": str(code_package_id),
+            "code_package_id": str(code_package_id),
+            "source_object_instance_graph_commit_id": None,
+            "package_name": "aware_actor_view_api",
+            "manifest_relative_path": (
+                ".aware/api/runtime/aware-actor-view-api/"
+                "public_package/python/package/pyproject.toml"
+            ),
+            "package_root": (
+                ".aware/api/runtime/aware-actor-view-api/"
+                "public_package/python/package"
+            ),
+            "sources_root": (
+                ".aware/api/runtime/aware-actor-view-api/"
+                "public_package/python/package/aware_actor_view_api"
+            ),
+            "language": CodeLanguage.python.value,
+            "code_package_surface": "api",
+            "surface": "api",
+            "manifest_kind": "pyproject_toml",
+            "code_package_config_id": str(code_package_config_id),
+        },
     )
 
 
@@ -1099,6 +1149,7 @@ async def test_api_workspace_provider_reuses_product_runtime_receipts_without_co
             package_head_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
+            direct_dependency_materialization_details=(),
         )
 
     def _fake_existing_product_runtime_receipts(**kwargs: object):
@@ -1578,6 +1629,47 @@ def test_api_workspace_provider_product_runtime_receipts_classify_roots(
         == str(source_object_instance_graph_commit_id)
         for receipt in receipts
     )
+    code_package_config_id = source_code_package_config_ref(
+        manifest_kind="pyproject_toml",
+        surface="api",
+    ).config_id
+    public_receipt = next(
+        receipt
+        for receipt in receipts
+        if receipt["artifact_role"] == "public_package_file"
+        and str(receipt["manifest_path"]).endswith("demo_api/client.py")
+    )
+    service_receipt = next(
+        receipt
+        for receipt in receipts
+        if receipt["artifact_role"] == "service_protocol_package_file"
+        and str(receipt["manifest_path"]).endswith("demo_api_protocol/client.py")
+    )
+    assert public_receipt["code_package_id"] == str(
+        stable_code_package_id(
+            code_package_config_id=code_package_config_id,
+            package_name="demo-api",
+            language=CodeLanguage.python.value,
+        )
+    )
+    assert public_receipt["manifest_relative_path"] == (
+        ".aware/api/runtime/demo-api/public_package/python/package/pyproject.toml"
+    )
+    assert public_receipt["package_root"] == (
+        ".aware/api/runtime/demo-api/public_package/python/package"
+    )
+    assert public_receipt["sources_root"] == (
+        ".aware/api/runtime/demo-api/public_package/python/package"
+    )
+    assert public_receipt["code_package_surface"] == "api"
+    assert service_receipt["code_package_id"] == str(
+        stable_code_package_id(
+            code_package_config_id=code_package_config_id,
+            package_name="demo-api-protocol",
+            language=CodeLanguage.python.value,
+        )
+    )
+    assert service_receipt["manifest_kind"] == "pyproject_toml"
 
 
 def test_api_product_runtime_receipts_reject_source_package_roots(
@@ -1658,8 +1750,9 @@ def test_api_provider_delta_semantic_analysis_indexes_authored_aware_delta(
 ) -> None:
     api_toml_path = _write_simple_api_delta_fixture(tmp_path)
     request = _api_provider_delta_request(api_toml_path=api_toml_path)
-    request = request.model_copy(
-        update={
+    request = SemanticProviderDeltaRequest.model_validate(
+        {
+            **request.model_dump(mode="json"),
             "code_package_delta": CodePackageDelta(
                 package_name="demo-api",
                 package_root=".",
@@ -1685,7 +1778,7 @@ def test_api_provider_delta_semantic_analysis_indexes_authored_aware_delta(
                         is_structural=True,
                     ),
                 ],
-            )
+            ),
         }
     )
 
@@ -2299,6 +2392,8 @@ def test_api_provider_delta_artifact_patch_emits_language_artifact_delta_apply(
     changed_path = (
         tmp_path / ".aware" / "api" / "runtime" / "demo-api" / changed_relpath
     )
+    changed_path.parent.mkdir(parents=True)
+    changed_path.write_text("def read_demo() -> None:\n    pass\n", encoding="utf-8")
 
     def _fake_renderer(
         **_: object,
@@ -2318,6 +2413,10 @@ def test_api_provider_delta_artifact_patch_emits_language_artifact_delta_apply(
                 "strategy": "before_after_digest",
                 "receipt_scope": "changed_files",
                 "requested_patch_targets": ("api_client",),
+                "runtime_package_dir": (
+                    tmp_path / ".aware" / "api" / "runtime" / "demo-api"
+                ).as_posix(),
+                "workspace_root": tmp_path.as_posix(),
                 "changed_file_count": 1,
                 "upserted_file_count": 1,
                 "deleted_file_count": 0,
@@ -2443,6 +2542,29 @@ def test_api_provider_delta_artifact_patch_emits_language_artifact_delta_apply(
     assert operation["semantic_event_refs"][0]["semantic_key"] == (
         "api:demo/capability:read/endpoint:read"
     )
+
+    generated_deltas = (
+        api_artifact_patch.api_delta_generated_code_package_deltas_from_patch_receipt(
+            generated_artifact_file_patch=receipt["generated_artifact_file_patch"],
+        )
+    )
+    assert len(generated_deltas) == 1
+    generated_delta = generated_deltas[0]
+    assert generated_delta.package_name == "aware_demo_api"
+    assert generated_delta.package_root == (
+        ".aware/api/runtime/demo-api/public_package/python/package"
+    )
+    assert generated_delta.manifest_relative_path == (
+        ".aware/api/runtime/demo-api/public_package/python/package/pyproject.toml"
+    )
+    assert len(generated_delta.paths) == 1
+    generated_path = generated_delta.paths[0]
+    assert generated_path.relative_path == "aware_demo_api/client.py"
+    assert generated_path.kind == CodePackageDeltaKind.update
+    assert generated_path.path_role == CodePackagePathRole.generated_code
+    assert generated_path.before_hash == "previous-digest"
+    assert generated_path.after_hash == "current-digest"
+    assert generated_path.content_text == "def read_demo() -> None:\n    pass\n"
 
 
 def test_api_provider_delta_artifact_patch_requires_plan_head_refs(
@@ -2717,6 +2839,7 @@ def test_api_provider_delta_default_renderer_honors_api_client_target(
             "public_package_candidate_paths": (),
             "service_protocol_candidate_paths": (),
             "public_package_render_input_class_refs": None,
+            "accessible_graphs": (),
         }
     ]
     assert tuple(receipt["artifact_role"] for receipt in receipts) == (
@@ -2816,6 +2939,7 @@ def test_api_provider_delta_default_renderer_consumes_generated_path_candidates(
             "public_package_candidate_paths": (Path("client.py"),),
             "service_protocol_candidate_paths": (),
             "public_package_render_input_class_refs": None,
+            "accessible_graphs": (),
         }
     ]
     assert tuple(receipt["manifest_path"] for receipt in receipts) == (
@@ -2956,6 +3080,7 @@ def test_api_provider_delta_default_renderer_prefers_fragment_candidates(
             "public_package_candidate_paths": (Path("client.py"),),
             "service_protocol_candidate_paths": (),
             "public_package_render_input_class_refs": (),
+            "accessible_graphs": (),
         }
     ]
     file_patch = render_result.generated_artifact_file_patch
@@ -3063,6 +3188,7 @@ def test_api_provider_delta_default_renderer_passes_fragment_class_refs_to_rende
             "public_package_candidate_paths": (Path("models/lock_door.py"),),
             "service_protocol_candidate_paths": (),
             "public_package_render_input_class_refs": ("aware_demo_api.LockDoor",),
+            "accessible_graphs": (),
         }
     ]
     file_patch = render_result.generated_artifact_file_patch
@@ -3236,6 +3362,7 @@ def test_api_provider_delta_default_renderer_carries_service_protocol_sections(
             "public_package_candidate_paths": (Path("models/lock_door.py"),),
             "service_protocol_candidate_paths": (Path("protocols.py"),),
             "public_package_render_input_class_refs": ("aware_demo_api.LockDoor",),
+            "accessible_graphs": (),
         }
     ]
     file_patch = render_result.generated_artifact_file_patch
@@ -3395,6 +3522,7 @@ def test_api_provider_delta_default_renderer_consumes_materialization_events(
             "public_package_candidate_paths": (Path("client.py"),),
             "service_protocol_candidate_paths": (),
             "public_package_render_input_class_refs": None,
+            "accessible_graphs": (),
         }
     ]
     assert tuple(receipt["manifest_path"] for receipt in receipts) == (
@@ -4343,58 +4471,30 @@ async def test_api_provider_delta_uses_code_package_delta_over_path_hints(
 
 
 @pytest.mark.asyncio
-async def test_api_provider_delta_bundle_dry_run_invokes_real_adapter(
+async def test_api_provider_delta_adapter_contract_invokes_real_adapter(
     tmp_path: Path,
 ) -> None:
     api_toml_path = _write_simple_api_delta_fixture(tmp_path)
     request = _api_provider_delta_request(api_toml_path=api_toml_path)
-    provider = {
-        "provider_key": "aware_api",
-        "semantic_owner": "aware_api.provider",
-        "callable_module": "aware_api_runtime.workspace_provider",
-        "callable_name": "materialize",
-        "metadata": {
-            SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_METADATA_KEY: {
-                "callable_module": ("aware_api_runtime.workspace_provider"),
-                "callable_name": SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_ENTRYPOINT,
-            },
-        },
+    raw_result = await api_workspace_provider.materialize_delta(request=request)
+    result_model = SemanticProviderDeltaResult.model_validate(raw_result)
+    result = result_model.model_dump(mode="json")
+    diagnostic = {
+        "provider_delta_request_key": request.provider_delta_request_key,
+        "dry_run_status": "passed",
+        "dry_run_reason": "adapter_result_contract_valid",
+        "adapter_invoked": True,
+        "production_execution_wired": False,
+        "result_status": result_model.status,
+        "result": result,
     }
-    classification = classify_workspace_semantic_materialization_provider_delta_request(
-        request=request,
-        provider=provider,
+    assert (
+        result["contract_version"]
+        == "aware.workspace.semantic-materialization.provider-delta-result.v1"
     )
-    adapter_plan = plan_workspace_semantic_materialization_provider_delta_adapter(
-        request=request,
-        classification=classification,
-    )
-    bundle = build_workspace_semantic_materialization_provider_delta_request_bundle(
-        requests=(request,),
-        classifications=(classification,),
-        adapter_plans=(adapter_plan,),
-    )
-    bundle_path = tmp_path / "provider-delta-request-bundle.json"
-    bundle_path.write_text(
-        json.dumps(bundle.model_dump(mode="json"), indent=2, sort_keys=True),
-        encoding="utf-8",
-    )
-    from aware_workspace.cli.workspace_command import (  # noqa: WPS433
-        _workspace_provider_delta_adapter_dry_run_diagnostics_from_bundle_path,
-    )
-
-    diagnostics = (
-        await _workspace_provider_delta_adapter_dry_run_diagnostics_from_bundle_path(
-            bundle_path=bundle_path,
-        )
-    )
-
-    diagnostic = diagnostics[0]
-    result = diagnostic["result"]
     bundle_package = result["bundle_package"]
     commit_ref_contract = result["commit_ref_contract"]
     operation_plan = result["details"]["delta_operation_plan"]
-    assert classification.reason == "provider_declares_delta_adapter"
-    assert adapter_plan.status == "ready_non_executing"
     assert (
         diagnostic["provider_delta_request_key"] == request.provider_delta_request_key
     )
@@ -4462,13 +4562,13 @@ async def test_api_provider_delta_bundle_dry_run_invokes_real_adapter(
     assert operation_plan["plan_kind"] == "api_provider_delta_operation_plan"
     assert operation_plan["status"] == "ready_non_executing"
     assert operation_plan["reason"] == "api_provider_delta_operation_plan_ready"
-    assert operation_plan["changed_source_files"] == ["apis/demo.aware"]
-    assert operation_plan["affected_api_names"] == ["demo"]
-    assert operation_plan["affected_capability_names"] == ["read_demo"]
-    assert operation_plan["required_materializations"] == [
+    assert tuple(operation_plan["changed_source_files"]) == ("apis/demo.aware",)
+    assert tuple(operation_plan["affected_api_names"]) == ("demo",)
+    assert tuple(operation_plan["affected_capability_names"]) == ("read_demo",)
+    assert tuple(operation_plan["required_materializations"]) == (
         "api_compile_plan",
         "api_ontology_plan",
-    ]
+    )
     assert operation_plan["operation_count"] == 3
     assert operation_plan["semantic_delta_count"] == 3
     assert operation_plan["semantic_event_count"] == 3
@@ -4489,14 +4589,16 @@ async def test_api_provider_delta_bundle_dry_run_invokes_real_adapter(
         plan["metadata"]["preview_status"]
         for plan in operation_plan["semantic_function_call_plans"]
     ] == ["unresolved_templates", "ready", "ready"]
-    assert operation_plan["semantic_function_call_plans"][0]["metadata"][
-        "unresolved_templates"
-    ] == [
+    assert tuple(
+        operation_plan["semantic_function_call_plans"][0]["metadata"][
+            "unresolved_templates"
+        ]
+    ) == (
         {
             "target": "arguments.description",
             "template": "payload.description",
-        }
-    ]
+        },
+    )
     assert operation_plan["apply_wired"] is False
     assert operation_plan["would_execute"] is False
     assert operation_plan["would_persist"] is False
@@ -4750,7 +4852,7 @@ async def test_api_provider_delta_commit_ref_probe_materializes_durable_refs(
         package_name="home-story-api",
         language=CodeLanguage.aware.value,
     )
-    base_request = WorkspaceSemanticMaterializationProviderDeltaRequest.model_validate(
+    base_request = SemanticProviderDeltaRequest.model_validate(
         {
             "package": {
                 "package_name": "home-story-api",
@@ -4879,7 +4981,7 @@ async def test_api_provider_delta_commit_ref_probe_materializes_durable_refs(
             workspace_root=workspace_root,
             context={
                 "workspace_dependency_roots": {
-                    "roots": [repo_root.as_posix()],
+                    "roots": [KERNEL_WORKSPACE_ROOT.as_posix()],
                 },
                 SEMANTIC_LANGUAGE_MATERIALIZATION_TOOLING_CONTEXT_KEY: {
                     "contract_version": (
@@ -5005,6 +5107,7 @@ async def test_api_workspace_provider_passes_context_graphs_to_materialization(
             package_head_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
+            direct_dependency_materialization_details=(),
         )
 
     monkeypatch.setattr(
@@ -5139,6 +5242,22 @@ async def test_api_dto_export_provider_passes_context_graphs_to_materialization(
         "_api_dto_artifact_ownership_receipts",
         lambda **_: (),
     )
+    source_code_package_id = stable_code_package_id(
+        code_package_config_id=source_code_package_config_ref(
+            manifest_kind="aware_toml",
+            surface="api",
+        ).config_id,
+        package_name="network-service-dto",
+        language=CodeLanguage.aware.value,
+    )
+    generated_code_package_id = stable_code_package_id(
+        code_package_config_id=source_code_package_config_ref(
+            manifest_kind="pyproject_toml",
+            surface="api",
+        ).config_id,
+        package_name="aware_network_service_dto",
+        language=CodeLanguage.python.value,
+    )
 
     request = SemanticPackageMaterializationRequest(
         runtime=object(),
@@ -5150,6 +5269,7 @@ async def test_api_dto_export_provider_passes_context_graphs_to_materialization(
         context={
             "workspace_manifest_kind": "api_dto",
             "semantic_object_config_graphs": (context_graph,),
+            "source_code_package_id": str(source_code_package_id),
         },
     )
 
@@ -5166,6 +5286,24 @@ async def test_api_dto_export_provider_passes_context_graphs_to_materialization(
     assert delta["package_root"] == "dto/python"
     assert delta["sources_root"] == "aware_network_service_dto"
     assert delta["manifest_relative_path"] == "dto/python/pyproject.toml"
+    production = cast(dict[str, object], delta["production"])
+    producer = cast(dict[str, object], production["producer"])
+    provider_payload = cast(dict[str, object], producer["provider_payload"])
+    config_ref = source_code_package_config_ref(
+        manifest_kind="pyproject_toml",
+        surface="api",
+    )
+    assert producer["provider_key"] == "aware_api"
+    assert producer["producer_key"] == "aware_api.api_dto.generated_code_package"
+    assert provider_payload["code_package_config_key"] == config_ref.config_key
+    assert provider_payload["code_package_config_id"] == str(config_ref.config_id)
+    assert provider_payload["declared_code_package_id"] == str(
+        generated_code_package_id
+    )
+    assert provider_payload["code_package_id"] == str(generated_code_package_id)
+    assert provider_payload["semantic_source_code_package_id"] == str(
+        source_code_package_id
+    )
     delta_paths = cast(list[dict[str, object]], delta["paths"])
     assert {path["relative_path"] for path in delta_paths} == {
         "pyproject.toml",
@@ -5308,6 +5446,7 @@ async def test_api_workspace_provider_reports_semantic_function_call_plan_previe
             package_head_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
+            direct_dependency_materialization_details=(),
         )
 
     monkeypatch.setattr(
@@ -5446,6 +5585,7 @@ async def test_api_workspace_provider_resolves_function_call_plans_from_context(
             package_head_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
+            direct_dependency_materialization_details=(),
         )
 
     monkeypatch.setattr(
@@ -5580,6 +5720,7 @@ async def test_api_workspace_provider_executes_function_call_plans_when_enabled(
             package_head_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
+            direct_dependency_materialization_details=(),
         )
 
     monkeypatch.setattr(
@@ -5849,6 +5990,7 @@ async def test_api_semantic_analysis_preview_flows_into_workspace_provider(
             package_head_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
+            direct_dependency_materialization_details=(),
         )
 
     monkeypatch.setattr(
@@ -6353,7 +6495,10 @@ def _write_environment_module_fixture(*, workspace_root: Path) -> None:
                 'stable_ids_parity_policy = "error"',
                 "",
                 "[[packages]]",
-                'aware_toml_path = "structure/ontology/aware.toml"',
+                'id = "ontology"',
+                'kind = "ontology"',
+                'manifest = "structure/ontology/aware.toml"',
+                'visibility = "module"',
             ]
         )
         + "\n",
@@ -6654,7 +6799,7 @@ async def test_materialize_api_package_from_manifest_commits_canonical_package_r
             branch_id=branch_id,
             workspace_root=workspace_root,
             api_toml_path=api_toml_path,
-            dependency_repo_roots=(repo_root,),
+            dependency_repo_roots=(repo_root / "workspaces" / "aware_kernel",),
             post_step_tool_env_by_tool_id={
                 "dart.pub_get": {
                     "HOME": str(dart_home),
@@ -6799,6 +6944,7 @@ async def test_materialize_api_package_from_manifest_commits_canonical_package_r
             / "runtime"
             / "environment.manifest.json"
         ).exists()
+
         assert not (
             workspace_root
             / "modules"
@@ -6897,7 +7043,7 @@ async def test_materialize_api_package_from_manifest_commits_canonical_package_r
             branch_id=branch_id,
             workspace_root=workspace_root,
             api_toml_path=api_toml_path,
-            dependency_repo_roots=(repo_root,),
+            dependency_repo_roots=(repo_root / "workspaces" / "aware_kernel",),
             post_step_tool_env_by_tool_id={
                 "dart.pub_get": {
                     "HOME": str(dart_home),
@@ -6982,7 +7128,7 @@ async def test_materialize_api_package_from_manifest_commits_canonical_package_r
             branch_id=branch_id,
             workspace_root=workspace_root,
             api_toml_path=api_toml_path,
-            dependency_repo_roots=(repo_root,),
+            dependency_repo_roots=(repo_root / "workspaces" / "aware_kernel",),
             post_step_tool_env_by_tool_id={
                 "dart.pub_get": {
                     "HOME": str(dart_home),
@@ -7054,7 +7200,7 @@ async def test_materialize_api_package_from_manifest_commits_canonical_package_r
             branch_id=branch_id,
             workspace_root=workspace_root,
             api_toml_path=api_toml_path,
-            dependency_repo_roots=(repo_root,),
+            dependency_repo_roots=(repo_root / "workspaces" / "aware_kernel",),
             post_step_tool_env_by_tool_id={
                 "dart.pub_get": {
                     "HOME": str(dart_home),
@@ -7132,7 +7278,7 @@ async def test_materialize_api_package_from_manifest_commits_canonical_package_r
             branch_id=branch_id,
             workspace_root=workspace_root,
             api_toml_path=api_toml_path,
-            dependency_repo_roots=(repo_root,),
+            dependency_repo_roots=(repo_root / "workspaces" / "aware_kernel",),
             post_step_tool_env_by_tool_id={
                 "dart.pub_get": {
                     "HOME": str(dart_home),
@@ -7237,7 +7383,7 @@ async def test_materialize_api_package_from_manifest_commits_code_snapshot(
             branch_id=uuid4(),
             workspace_root=workspace_root,
             api_toml_path=api_toml_path,
-            dependency_repo_roots=(repo_root,),
+            dependency_repo_roots=(repo_root / "workspaces" / "aware_kernel",),
             post_step_tool_env_by_tool_id=post_step_tool_env_by_tool_id,
             post_step_executable_overrides_by_tool_id=(
                 post_step_executable_overrides_by_tool_id
@@ -7330,7 +7476,7 @@ async def test_materialize_api_package_from_manifest_allows_shared_branch_with_u
             branch_id=branch_id,
             workspace_root=workspace_root,
             api_toml_path=api_toml_path,
-            dependency_repo_roots=(repo_root,),
+            dependency_repo_roots=(repo_root / "workspaces" / "aware_kernel",),
             post_step_tool_env_by_tool_id=post_step_tool_env_by_tool_id,
             post_step_executable_overrides_by_tool_id=(
                 post_step_executable_overrides_by_tool_id
@@ -7388,7 +7534,7 @@ async def test_materialize_api_package_from_manifest_uses_authored_projection_fa
             branch_id=uuid4(),
             workspace_root=workspace_root,
             api_toml_path=api_toml_path,
-            dependency_repo_roots=(repo_root,),
+            dependency_repo_roots=(repo_root / "workspaces" / "aware_kernel",),
             post_step_tool_env_by_tool_id=post_step_tool_env_by_tool_id,
             post_step_executable_overrides_by_tool_id=(
                 post_step_executable_overrides_by_tool_id
@@ -7418,3 +7564,78 @@ async def test_materialize_api_package_from_manifest_uses_authored_projection_fa
             / "runtime"
             / "environment.manifest.json"
         ).exists()
+
+
+@pytest.mark.asyncio
+async def test_api_domain_commit_oig_id_uses_shallow_identity_metadata(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import aware_api_runtime.compile_materialization.service as package_service  # noqa: WPS433
+
+    branch_id = uuid4()
+    projection_hash = "api-projection"
+    domain_commit_id = uuid4()
+    identity_id = uuid4()
+
+    class _Store:
+        async def get_commit_identity_metadata(self, **kwargs: object) -> object:
+            assert kwargs == {
+                "branch_id": branch_id,
+                "projection_hash": projection_hash,
+                "commit_id": domain_commit_id,
+            }
+            return SimpleNamespace(object_instance_graph_identity_id=identity_id)
+
+        async def get_commit_envelope(self, **_: object) -> object:  # pragma: no cover
+            raise AssertionError(
+                "envelope read should not run when identity metadata exists"
+            )
+
+        async def get_commit(self, **_: object) -> object:  # pragma: no cover
+            raise AssertionError(
+                "legacy commit hydration must not run for shallow metadata"
+            )
+
+    monkeypatch.setattr(package_service, "FSCommitStore", _Store)
+
+    assert await package_service._object_instance_graph_commit_id_from_domain_commit(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        domain_commit_id=domain_commit_id,
+    ) == stable_object_instance_graph_commit_id(
+        object_instance_graph_identity_id=identity_id,
+        commit_id=domain_commit_id,
+    )
+
+
+@pytest.mark.asyncio
+async def test_api_domain_commit_oig_id_uses_envelope_without_legacy_hydration(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import aware_api_runtime.compile_materialization.service as package_service  # noqa: WPS433
+
+    domain_commit_id = uuid4()
+    identity_id = uuid4()
+
+    class _Store:
+        async def get_commit_identity_metadata(self, **_: object) -> None:
+            return None
+
+        async def get_commit_envelope(self, **_: object) -> object:
+            return SimpleNamespace(object_instance_graph_identity_id=identity_id)
+
+        async def get_commit(self, **_: object) -> object:  # pragma: no cover
+            raise AssertionError(
+                "legacy commit hydration must not run for envelope metadata"
+            )
+
+    monkeypatch.setattr(package_service, "FSCommitStore", _Store)
+
+    assert await package_service._object_instance_graph_commit_id_from_domain_commit(
+        branch_id=uuid4(),
+        projection_hash="api-projection",
+        domain_commit_id=domain_commit_id,
+    ) == stable_object_instance_graph_commit_id(
+        object_instance_graph_identity_id=identity_id,
+        commit_id=domain_commit_id,
+    )

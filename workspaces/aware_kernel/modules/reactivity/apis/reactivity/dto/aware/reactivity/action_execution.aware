@@ -26,6 +26,11 @@ class ActionExecution {
     execution_key String = "primary"
     status ActionExecutionStatus = created
     execution_context JsonValue?
+    /// API receipt correlated to this execution attempt.
+    ///
+    /// This is an evidence link to the API-owned ingress receipt. The request
+    /// value itself lives once on `ApiCall.request_model`.
+    api_call_id UUID?
     executor_ref String?
     result_info String?
 }

@@ -1,0 +1,48 @@
+/// Graph occurrence identity under ProjectionExperienceGraph.
+///
+/// Contract:
+/// - Binds one graph occurrence handle to one ProjectionExperienceNodeIdentity.
+/// - `is_root` marks the canonical root occurrence for deterministic path derivation.
+class ProjectionExperienceGraphIdentity {
+    // Relationships
+    projection_experience_graph_identity_profile ProjectionExperienceGraphIdentityProfile? unique
+    projection_experience_node_identity ProjectionExperienceNodeIdentity key
+
+    // Attributes
+    is_root Bool = false
+    key String key
+
+    fn build construct (
+        projection_experience_node_identity_id UUID key,
+        key String key,
+        is_root Bool = false
+    ) -> ProjectionExperienceGraphIdentity {
+        """
+        Create deterministic ProjectionExperienceGraphIdentity.
+        """
+    }
+
+    fn create_profile (
+        review_label String,
+        resolution_prompts String[] = [],
+        aliases String[] = [],
+        summary String? = null,
+        notes String? = null
+    ) -> ProjectionExperienceGraphIdentityProfile {
+        """
+        Attach the canonical graph-identity profile under this ProjectionExperienceGraphIdentity.
+
+        Contract:
+        - Graph occurrence identity is the canonical anchor for profile truth.
+        - The profile remains Experience-owned and perception-agnostic.
+        - Future API/Service rails should consume this profile rather than direct ontology search.
+        """
+        let created = construct projection_experience_graph_identity_profile.build(
+            review_label = review_label,
+            resolution_prompts = resolution_prompts,
+            aliases = aliases,
+            summary = summary,
+            notes = notes,
+        )
+    }
+}

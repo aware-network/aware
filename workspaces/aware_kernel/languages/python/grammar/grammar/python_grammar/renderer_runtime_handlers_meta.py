@@ -29,12 +29,18 @@ from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.class_.class_config_function_config import (
     ClassConfigFunctionConfig,
 )
+from aware_meta_ontology.annotation.code_section_annotation_oneof_enums import (
+    CodeSectionAnnotationOneOfMode,
+)
 from aware_meta_ontology.function.function_config import FunctionConfig
 from aware_meta_ontology.function.function_config_attribute_config import (
     FunctionConfigAttributeConfig,
 )
 from aware_meta_ontology.function.function_config_enums import FunctionAttributeType
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
+from aware_meta_ontology.graph.config.object_config_graph_annotation_enums import (
+    ObjectConfigGraphAnnotationKind,
+)
 from aware_utils.string_transform import to_snake_case
 from python_grammar.import_grouping import (
     PythonImportGroupingPolicy,
@@ -204,13 +210,19 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         if ownership_raw is not None:
             ownership = str(ownership_raw).strip().lower()
             if ownership not in {"authored", "compiler"}:
-                raise ValueError("function_impl_ownership must be one of: authored, compiler " + f"(got {ownership!r})")
+                raise ValueError(
+                    "function_impl_ownership must be one of: authored, compiler "
+                    + f"(got {ownership!r})"
+                )
             self._function_impl_ownership = ownership
         parity_raw = policy.get("function_impl_parity_policy")
         if parity_raw is not None:
             parity = str(parity_raw).strip().lower()
             if parity not in {"off", "warn", "error"}:
-                raise ValueError("function_impl_parity_policy must be one of: off, warn, error " + f"(got {parity!r})")
+                raise ValueError(
+                    "function_impl_parity_policy must be one of: off, warn, error "
+                    + f"(got {parity!r})"
+                )
             self._function_impl_parity_policy = parity
 
     def create_empty_code(self) -> Code:
@@ -233,7 +245,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         self._clear_compiler_render_cache()
         super().bind_profile_inputs(profile_inputs)
 
-    def set_external_class_lookup(self, external_class_lookup: dict[UUID, ClassConfig]) -> None:
+    def set_external_class_lookup(
+        self, external_class_lookup: dict[UUID, ClassConfig]
+    ) -> None:
         self._clear_compiler_render_cache()
         super().set_external_class_lookup(external_class_lookup)
 
@@ -279,13 +293,15 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         self,
         meta_objects: list[object],
         writer: CodeSectionWriter,
-        schema: str = "default",
+        namespace: str = "default",
         class_to_class_config_map: dict[UUID, ClassConfig] | None = None,
         base_class_module: str | None = None,
         base_class_name: str | None = None,
     ) -> None:
-        _ = schema, class_to_class_config_map, base_class_module, base_class_name
-        if meta_objects and not all(isinstance(obj, FunctionConfig) for obj in meta_objects):
+        _ = namespace, class_to_class_config_map, base_class_module, base_class_name
+        if meta_objects and not all(
+            isinstance(obj, FunctionConfig) for obj in meta_objects
+        ):
             return
         self._emit_meta_handlers_file(writer=writer)
 
@@ -301,7 +317,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
                 "uuid": {"UUID"},
                 "aware_code.types": {"JsonArray", "JsonObject"},
                 "aware_meta.graph.instance.builder": {"build_object_instance_graph"},
-                "aware_meta.graph.instance.diff_orm": {"build_object_instance_graph_changes_from_orm_change_set"},
+                "aware_meta.graph.instance.diff_orm": {
+                    "build_object_instance_graph_changes_from_orm_change_set"
+                },
                 "aware_meta.runtime.handler_executor.contracts": {
                     "MetaGraphHandlerExecutionRequest",
                     "MetaGraphPreState",
@@ -345,7 +363,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         with self._record_render_phase("generated_helpers"):
             self._emit_generated_helpers(writer=writer, entries=entries)
         with self._record_render_phase("constructor_entries"):
-            constructor_entries = [(owner, link, fn) for owner, link, fn in entries if link.is_constructor]
+            constructor_entries = [
+                (owner, link, fn) for owner, link, fn in entries if link.is_constructor
+            ]
         with self._record_render_phase("wrappers"):
             for owner, link, fn in entries:
                 self._emit_wrapper(
@@ -412,7 +432,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
     def _handler_entries(
         self,
     ) -> list[tuple[ClassConfig, ClassConfigFunctionConfig, FunctionConfig]]:
-        entries: list[tuple[ClassConfig, ClassConfigFunctionConfig, FunctionConfig]] = []
+        entries: list[tuple[ClassConfig, ClassConfigFunctionConfig, FunctionConfig]] = (
+            []
+        )
         for owner in self._class_by_id.values():
             for link in owner.class_config_function_configs:
                 entries.append((owner, link, link.function_config))
@@ -443,7 +465,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
                 "(positional=positional, keyword=keyword)\n"
             )
             if not link.is_constructor:
-                iw.write("root_model, target = _root_and_target_models_from_pre_state(\n")
+                iw.write(
+                    "root_model, target = _root_and_target_models_from_pre_state(\n"
+                )
                 with iw:
                     iw.write("request=request,\n")
                     iw.write("pre_state=pre_state,\n")
@@ -453,7 +477,10 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
                     f"result = await _call_{self._function_token(owner=owner, fn=fn)}"
                     "(bound_input=bound_input, target=target)\n"
                 )
-                iw.write("changes, constructed_class_instance_ids = " "_changes_from_current_collector(\n")
+                iw.write(
+                    "changes, constructed_class_instance_ids = "
+                    "_changes_from_current_collector(\n"
+                )
                 with iw:
                     iw.write("request=request,\n")
                     iw.write("pre_state=pre_state,\n")
@@ -469,7 +496,10 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
                     ")\n"
                 )
                 return
-            iw.write(f"result = await _call_{self._function_token(owner=owner, fn=fn)}" "(bound_input=bound_input)\n")
+            iw.write(
+                f"result = await _call_{self._function_token(owner=owner, fn=fn)}"
+                "(bound_input=bound_input)\n"
+            )
             iw.write("if not isinstance(result, ORMModel):\n")
             with iw:
                 iw.write(
@@ -477,7 +507,10 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
                     '    "Generated Meta constructor handler must return ORMModel."\n'
                     ")\n"
                 )
-            iw.write("_assert_constructor_owner_class(request=request, " f"expected_class_name={owner.name!r})\n")
+            iw.write(
+                "_assert_constructor_owner_class(request=request, "
+                f"expected_class_name={owner.name!r})\n"
+            )
             iw.write("root_object_id = pre_state.root_object_id\n")
             iw.write("if isinstance(root_object_id, UUID):\n")
             with iw:
@@ -510,7 +543,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         link: ClassConfigFunctionConfig,
         fn: FunctionConfig,
     ) -> None:
-        wrapper_name = self._callable_name(owner=owner, fn=fn, suffix="invocation_handler")
+        wrapper_name = self._callable_name(
+            owner=owner, fn=fn, suffix="invocation_handler"
+        )
         _emit_token(
             writer,
             f"async def {wrapper_name}(\n"
@@ -528,14 +563,19 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
                 "(positional=positional, keyword=keyword)\n"
             )
             if link.is_constructor:
-                iw.write("if not isinstance(target, type) or not issubclass(target, ORMModel):\n")
+                iw.write(
+                    "if not isinstance(target, type) or not issubclass(target, ORMModel):\n"
+                )
                 with iw:
                     iw.write(
                         "raise MetaGraphLanguageHandlerExecutionError(\n"
                         '    "Generated Meta constructor invocation requires ORMModel class target."\n'
                         ")\n"
                     )
-                iw.write(f"return await _call_{self._function_token(owner=owner, fn=fn)}" "(bound_input=bound_input)\n")
+                iw.write(
+                    f"return await _call_{self._function_token(owner=owner, fn=fn)}"
+                    "(bound_input=bound_input)\n"
+                )
                 return
             iw.write("if not isinstance(target, ORMModel):\n")
             with iw:
@@ -568,7 +608,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
             ") -> MetaGraphEmptyLaneBootstrap:\n",
         )
         with _IndentWriter(writer, indent_size=self.indent) as iw:
-            iw.write(f"bound_input = _bind_{self._function_token(owner=owner, fn=fn)}" "(\n")
+            iw.write(
+                f"bound_input = _bind_{self._function_token(owner=owner, fn=fn)}" "(\n"
+            )
             with iw:
                 iw.write("positional=JsonArray(list(request.request.args)),\n")
                 iw.write("keyword=JsonObject(dict(request.request.kwargs)),\n")
@@ -597,15 +639,20 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
     ) -> None:
         _emit_token(
             writer,
-            f"{registry_name}: dict[MetaGraphGeneratedLanguageHandlerKey, " f"{value_type}] = {{\n",
+            f"{registry_name}: dict[MetaGraphGeneratedLanguageHandlerKey, "
+            f"{value_type}] = {{\n",
         )
         for owner, link, fn in entries:
             _ = link
             _emit_token(writer, "    MetaGraphGeneratedLanguageHandlerKey(\n")
             _emit_token(writer, f"        owner_key={fn.owner_key!r},\n")
             _emit_token(writer, f"        function_name={fn.name!r},\n")
-            _emit_token(writer, f"        is_constructor={bool(link.is_constructor)!r},\n")
-            _emit_token(writer, f"        owner_class_fqn={self._class_fqn(owner)!r},\n")
+            _emit_token(
+                writer, f"        is_constructor={bool(link.is_constructor)!r},\n"
+            )
+            _emit_token(
+                writer, f"        owner_class_fqn={self._class_fqn(owner)!r},\n"
+            )
             _emit_token(writer, f"        owner_class_name={owner.name!r},\n")
             _emit_token(writer, "    ): ")
             _emit_token(
@@ -674,7 +721,8 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         if self._function_impl_ownership == "compiler":
             if link is None:
                 raise ValueError(
-                    "Generated Meta compiler-owned handler missing class/function edge: " + f"{owner.name}.{fn.name}"
+                    "Generated Meta compiler-owned handler missing class/function edge: "
+                    + f"{owner.name}.{fn.name}"
                 )
             authored_impl_name = self._authored_impl_function_name(owner=owner, fn=fn)
             if authored_impl_name is not None:
@@ -690,7 +738,10 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
             owner=owner,
             link=link,
             fn=fn,
-            impl_function=(self._authored_impl_function_name(owner=owner, fn=fn) or _safe_identifier(fn.name)),
+            impl_function=(
+                self._authored_impl_function_name(owner=owner, fn=fn)
+                or _safe_identifier(fn.name)
+            ),
         )
 
     def _authored_impl_call_helper_source(
@@ -706,7 +757,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
             class_config=owner,
             import_root=self._runtime_handlers_import_root(),
         )
-        return_type = "ORMModel" if link is not None and link.is_constructor else "object"
+        return_type = (
+            "ORMModel" if link is not None and link.is_constructor else "object"
+        )
         lines = [
             f"async def _call_{self._function_token(owner=owner, fn=fn)}("
             f"*, bound_input: JsonObject, target: ORMModel | None = None) -> {return_type}:",
@@ -767,7 +820,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
     ) -> FunctionConfig | None:
         code_section_id = fn.code_section_function_id
         if code_section_id is not None:
-            source_fn = self._function_impl_source_by_code_section_id.get(code_section_id)
+            source_fn = self._function_impl_source_by_code_section_id.get(
+                code_section_id
+            )
             if source_fn is not None:
                 return source_fn
         return self._function_impl_source_by_id.get(fn.id)
@@ -792,7 +847,10 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
             if generated is not None
             else (
                 "raise MetaGraphLanguageHandlerExecutionError("
-                + repr("Compiler-owned FunctionImpl lowering unavailable for " f"{owner.name}.{fn.name}")
+                + repr(
+                    "Compiler-owned FunctionImpl lowering unavailable for "
+                    f"{owner.name}.{fn.name}"
+                )
                 + ")"
             )
         )
@@ -803,7 +861,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         ]
         for body_line in impl_body.splitlines() or ["pass"]:
             lines.append(f"        {body_line}" if body_line.strip() else "")
-        lines.append("    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))")
+        lines.append(
+            "    call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))"
+        )
         if link.is_constructor:
             lines.append("    result = await _impl(**call_kwargs)")
             lines.append("    return cast(ORMModel, result)")
@@ -845,7 +905,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         if self._compiler_delegate is not None:
             return self._compiler_delegate
         if self._bound_graph is None:
-            raise ValueError("PythonMetaRuntimeHandlersRenderer requires a bound ObjectConfigGraph.")
+            raise ValueError(
+                "PythonMetaRuntimeHandlersRenderer requires a bound ObjectConfigGraph."
+            )
         delegate = PythonRendererRuntimeHandlersAware(self.layout_strategy)
         delegate.set_policy(
             {
@@ -916,7 +978,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
                     and param.type_name is not None
                     and param.default_expr.startswith(f"{param.type_name}.")
                 ):
-                    module = delegate._resolve_type_module_by_id(param.type_id)  # noqa: SLF001
+                    module = delegate._resolve_type_module_by_id(
+                        param.type_id
+                    )  # noqa: SLF001
                     if module:
                         imports.setdefault(module, set()).add(param.type_name)
             delegate._collect_type_imports(  # noqa: SLF001
@@ -952,7 +1016,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
             return "\n".join(lines)
         stable_ids_module = self._stable_ids_module(owner=owner)
         lines.append("    from importlib import import_module")
-        lines.append(f"    from {stable_ids_module} import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID")
+        lines.append(
+            f"    from {stable_ids_module} import CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID"
+        )
         input_edges = self._input_edges(fn)
         for edge in input_edges:
             attr = edge.attribute_config
@@ -962,12 +1028,43 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
             if default_expr is not None:
                 lines.append(f"    if {name} is None:")
                 lines.append(f"        {name} = {default_expr}")
-        input_names = [_safe_identifier(edge.attribute_config.name) for edge in input_edges]
+        input_names = [
+            _safe_identifier(edge.attribute_config.name) for edge in input_edges
+        ]
         values_expr = ", ".join(f"{name!r}: {name}" for name in input_names)
         lines.append(f"    _aware_self_values = {{{values_expr}}}")
+        for (
+            synthetic_name,
+            discriminator_name,
+            discriminator_cases,
+        ) in self._identity_oneof_synthetic_stable_values(
+            owner=owner,
+            input_edges=input_edges,
+        ):
+            discriminator_var = _safe_identifier(discriminator_name)
+            synthetic_token = _safe_identifier(synthetic_name)
+            lines.append(
+                f"    _aware_{synthetic_token}_discriminator_value = "
+                f"getattr({discriminator_var}, 'value', {discriminator_var})"
+            )
+            lines.append(
+                f"    _aware_{synthetic_token}_discriminator_key = "
+                f"str(_aware_{synthetic_token}_discriminator_value or '').strip().casefold()"
+            )
+            for position, (variant, input_name) in enumerate(discriminator_cases):
+                branch = "if" if position == 0 else "elif"
+                input_var = _safe_identifier(input_name)
+                lines.append(
+                    f"    {branch} _aware_{synthetic_token}_discriminator_key == "
+                    f"{variant.casefold()!r}:"
+                )
+                lines.append(
+                    f"        _aware_self_values[{synthetic_name!r}] = {input_var}"
+                )
         lines.append(
             "    _aware_self_binding = "
-            "CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get(" + f"{str(owner.id)!r})"
+            "CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("
+            + f"{str(owner.id)!r})"
         )
         lines.append("    if _aware_self_binding is None:")
         lines.append("        raise MetaGraphLanguageHandlerExecutionError(")
@@ -996,10 +1093,89 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
             "}"
         )
         lines.append(
-            f"    return getattr(import_module({stable_ids_module!r}), _aware_self_fn)" "(**_aware_self_stable_values)"
+            f"    return getattr(import_module({stable_ids_module!r}), _aware_self_fn)"
+            "(**_aware_self_stable_values)"
         )
         lines.append("")
         return "\n".join(lines)
+
+    def _identity_oneof_synthetic_stable_values(
+        self,
+        *,
+        owner: ClassConfig,
+        input_edges: tuple[FunctionConfigAttributeConfig, ...],
+    ) -> tuple[tuple[str, str, tuple[tuple[str, str], ...]], ...]:
+        graph = self._bound_graph
+        if graph is None:
+            return ()
+        input_names = {
+            str(edge.attribute_config.name or "").strip()
+            for edge in input_edges
+            if str(edge.attribute_config.name or "").strip()
+        }
+        if not input_names:
+            return ()
+        specs: list[tuple[str, str, tuple[tuple[str, str], ...]]] = []
+        for annotation in graph.object_config_graph_annotations:
+            kind = getattr(annotation.kind, "value", annotation.kind)
+            if kind != ObjectConfigGraphAnnotationKind.oneof.value:
+                continue
+            oneof = annotation.code_section_annotation_oneof
+            if oneof is None:
+                continue
+            mode = getattr(oneof.mode, "value", oneof.mode)
+            if mode != CodeSectionAnnotationOneOfMode.identity.value:
+                continue
+            discriminator_name = str(oneof.discriminator_attribute_name or "").strip()
+            if not discriminator_name or discriminator_name not in input_names:
+                continue
+            if not self._oneof_targets_owner(owner=owner, oneof=oneof):
+                continue
+            cases: list[tuple[str, str]] = []
+            for raw_case in oneof.discriminator_cases:
+                variant, separator, member_name = str(raw_case).partition("=")
+                variant = variant.strip()
+                member_name = member_name.strip()
+                if not separator or not variant or not member_name:
+                    continue
+                input_name = self._oneof_member_input_name(
+                    member_name=member_name,
+                    input_names=input_names,
+                )
+                if input_name is None:
+                    continue
+                cases.append((variant, input_name))
+            if cases:
+                specs.append(("entity_id", discriminator_name, tuple(cases)))
+        return tuple(specs)
+
+    def _oneof_targets_owner(self, *, owner: ClassConfig, oneof: object) -> bool:
+        class_name = str(getattr(oneof, "class_name", "") or "").strip()
+        if class_name != owner.name:
+            return False
+        namespace = str(getattr(oneof, "namespace", "") or "").strip()
+        fqn_prefix = str(getattr(oneof, "fqn_prefix", "") or "").strip()
+        expected_suffix = f"{namespace}.{class_name}" if namespace else class_name
+        expected_fqn = (
+            f"{fqn_prefix}.{expected_suffix}" if fqn_prefix else expected_suffix
+        )
+        owner_fqn = str(owner.class_fqn or "").strip()
+        if owner_fqn == expected_fqn:
+            return True
+        return bool(expected_suffix and owner_fqn.endswith(f".{expected_suffix}"))
+
+    def _oneof_member_input_name(
+        self,
+        *,
+        member_name: str,
+        input_names: set[str],
+    ) -> str | None:
+        if member_name in input_names:
+            return member_name
+        member_id_name = f"{member_name}_id"
+        if member_id_name in input_names:
+            return member_id_name
+        return None
 
     def _emit_generated_helpers(
         self,
@@ -1345,7 +1521,11 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         cached = self._input_edges_cache.get(cache_key)
         if cached is not None:
             return cached
-        edges = [edge for edge in fn.function_config_attribute_configs if edge.type == FunctionAttributeType.input]
+        edges = [
+            edge
+            for edge in fn.function_config_attribute_configs
+            if edge.type == FunctionAttributeType.input
+        ]
         edges.sort(key=lambda edge: int(edge.position))
         cached = tuple(edges)
         self._input_edges_cache[cache_key] = cached
@@ -1359,7 +1539,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         cached = self._identity_edges_cache.get(cache_key)
         if cached is not None:
             return cached
-        cached = tuple(edge for edge in self._input_edges(fn) if bool(edge.is_identity_key))
+        cached = tuple(
+            edge for edge in self._input_edges(fn) if bool(edge.is_identity_key)
+        )
         self._identity_edges_cache[cache_key] = cached
         return cached
 
@@ -1425,7 +1607,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
                 semantic_import_roots=semantic_import_roots_from_renderer_inputs(
                     import_root=self.layout_strategy.import_root,
                     import_overrides=self.import_overrides,
-                    external_graph_fqn_prefixes=(graph.fqn_prefix for graph in self.external_graphs),
+                    external_graph_fqn_prefixes=(
+                        graph.fqn_prefix for graph in self.external_graphs
+                    ),
                 ),
                 support_import_roots=DEFAULT_ORM_SUPPORT_IMPORT_ROOTS,
             ),

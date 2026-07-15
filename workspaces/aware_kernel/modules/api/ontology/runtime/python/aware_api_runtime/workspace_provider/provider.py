@@ -19,10 +19,12 @@ from aware_code.semantic_graph_execution import (
 )
 from aware_code.semantic_materialization import (
     SEMANTIC_LANGUAGE_MATERIALIZATION_TOOLING_CONTEXT_KEY,
+    SEMANTIC_SOURCE_SESSION_CONTEXT_KEY,
     SemanticFunctionCallContext,
     SemanticPackageMaterializationBundle,
     SemanticPackageMaterializationRequest,
     SemanticPackageMaterializationResult,
+    SemanticSourceSessionContext,
     build_semantic_provider_delta_head_move_plan,
 )
 from aware_code.semantic_contract_config import source_code_package_config_ref
@@ -31,6 +33,8 @@ from aware_code_ontology.code.code_plan import CodePackageDelta
 from aware_code_ontology.code.code_plan import CodePackageDeltaAuthorityKind
 from aware_code_ontology.code.code_plan import CodePackageDeltaKind
 from aware_code_ontology.code.code_plan import CodePackageDeltaPath
+from aware_code_ontology.code.code_plan import CodePackageDeltaProducerRef
+from aware_code_ontology.code.code_plan import CodePackageDeltaProduction
 from aware_code_ontology.code.code_plan import CodePackagePathRole
 
 from aware_code_ontology.stable_ids import stable_code_package_id
@@ -42,6 +46,9 @@ from aware_api_runtime.compile_materialization import (
 from aware_api_runtime.manifest import (
     AwareApiTomlError,
     load_aware_api_toml_spec,
+)
+from aware_api_runtime.dependencies.runtime_resolution import (
+    object_config_graph_has_api_accessible_namespace_evidence,
 )
 from aware_api_runtime.workspace_provider.deltas.transport import (
     api_delta_unsupported_reason as _api_delta_unsupported_reason,
@@ -74,6 +81,7 @@ from aware_api_runtime.workspace_provider.deltas.source_package import (
 )
 from aware_api_runtime.workspace_provider.deltas.artifact_patch import (
     api_delta_api_client_service_protocol_patch_receipt as _api_delta_api_client_service_protocol_patch_receipt,
+    api_delta_generated_code_package_deltas_from_patch_receipt as _api_delta_generated_code_package_deltas_from_patch_receipt,
 )
 from aware_api_runtime.workspace_provider.deltas.artifact_plan import (
     api_product_runtime_delta_plan as _api_product_runtime_delta_plan,
@@ -155,16 +163,31 @@ def build_api_provider_delta_function_call_context(
     request: object,
 ) -> dict[str, object]:
     manifest_path = _api_provider_delta_context_manifest_path(request=request)
-    if manifest_path is None:
-        return SemanticFunctionCallContext().evidence_payload()
-    workspace_root = Path(getattr(request, "workspace_root", manifest_path.parent))
-    return SemanticFunctionCallContext(
-        resolved_argument_ref_object_ids=(
-            _api_provider_delta_resolved_argument_refs(
-                manifest_path=manifest_path,
-                workspace_root=workspace_root,
+    workspace_root = Path(
+        getattr(
+            request,
+            "workspace_root",
+            manifest_path.parent if manifest_path is not None else Path.cwd(),
+        )
+    )
+    resolved_argument_refs: dict[str, str] = {}
+    resolved_argument_refs.update(
+        _api_provider_delta_runtime_index_argument_refs(
+            index=getattr(request, "index", None),
+        )
+    )
+    if manifest_path is not None and not resolved_argument_refs:
+        try:
+            resolved_argument_refs.update(
+                _api_provider_delta_resolved_argument_refs(
+                    manifest_path=manifest_path,
+                    workspace_root=workspace_root,
+                )
             )
-        ),
+        except (FileNotFoundError, RuntimeError, ValueError):
+            pass
+    return SemanticFunctionCallContext(
+        resolved_argument_ref_object_ids=resolved_argument_refs,
     ).evidence_payload()
 
 
@@ -272,6 +295,14 @@ async def materialize(
             getattr(result, "language_code_package_refs", ()) or (),
         )
     )
+    runtime_code_package_refs = _dedupe_runtime_code_package_refs(
+        (
+            *_runtime_code_package_refs(language_code_package_refs),
+            *_runtime_code_package_refs_from_artifact_ownership_receipts(
+                artifact_ownership_receipts
+            ),
+        )
+    )
     return SemanticPackageMaterializationResult(
         details={
             "api_toml_path": result.api_toml_path.as_posix(),
@@ -291,6 +322,9 @@ async def materialize(
             "api_source_path": result.api_source_path,
             "source_files": list(result.source_files),
             "api_phase_timings_s": dict(sorted(result.phase_timings_s.items())),
+            "api_direct_dependency_materialization_details": [
+                dict(item) for item in result.direct_dependency_materialization_details
+            ],
             "api_endpoint_catalog": _encode_api_endpoint_catalog_detail(
                 result.api_endpoint_catalog
             ),
@@ -363,10 +397,12 @@ async def materialize(
                 source_object_instance_graph_commit_id=(
                     source_object_instance_graph_commit_id
                 ),
-                runtime_code_package_refs=_runtime_code_package_refs(
-                    language_code_package_refs
+                runtime_code_package_refs=runtime_code_package_refs,
+                implementation_code_packages=(
+                    _dedupe_runtime_code_package_refs(
+                        (*language_code_package_refs, *runtime_code_package_refs)
+                    )
                 ),
-                implementation_code_packages=language_code_package_refs,
             ),
         ),
         mode="full_rebuild",
@@ -407,6 +443,7 @@ async def _materialize_api_dto_export(
     )
     runtime_package_dir = resolve_api_runtime_package_dir(snapshot=snapshot)
     phase_timings_s: dict[str, float] = {}
+    direct_dependency_materialization_details: list[Mapping[str, object]] = []
     accessible_graphs = await resolve_source_owned_api_dto_export_accessible_graphs(
         runtime=request.runtime,
         index=request.index,
@@ -417,6 +454,9 @@ async def _materialize_api_dto_export(
         accessible_graphs=_semantic_object_config_graphs_from_context(request.context),
         dependency_repo_roots=_workspace_dependency_roots_from_context(request.context),
         phase_timings_s=phase_timings_s,
+        direct_dependency_materialization_details=(
+            direct_dependency_materialization_details
+        ),
     )
     dto_materializations = materialize_api_dto_packages(
         snapshot=snapshot,
@@ -442,6 +482,7 @@ async def _materialize_api_dto_export(
     generated_code_package_deltas = _api_dto_generated_code_package_deltas(
         workspace_root=request.workspace_root,
         dto_materializations=(dto_materialization,),
+        source_code_package_id=source_code_package_id,
     )
     materialized_files = tuple(
         _workspace_relative_path(workspace_root=request.workspace_root, path=path)
@@ -470,6 +511,9 @@ async def _materialize_api_dto_export(
             "api_dto_graph_fqn_prefix": graph.fqn_prefix,
             "api_dto_graph_node_count": len(graph.object_config_graph_nodes),
             "api_dto_phase_timings_s": dict(sorted(phase_timings_s.items())),
+            "api_dto_direct_dependency_materialization_details": [
+                dict(item) for item in direct_dependency_materialization_details
+            ],
             "api_dto_materialized_file_count": len(materialized_files),
             "api_dto_materialized_files": list(materialized_files),
             "source_code_package_id": str(source_code_package_id),
@@ -504,12 +548,14 @@ def _api_dto_generated_code_package_deltas(
     *,
     workspace_root: Path,
     dto_materializations: tuple[object, ...],
+    source_code_package_id: UUID | None = None,
 ) -> tuple[CodePackageDelta, ...]:
     deltas: list[CodePackageDelta] = []
     for dto_materialization in dto_materializations:
         delta = _api_dto_generated_code_package_delta(
             workspace_root=workspace_root,
             dto_materialization=dto_materialization,
+            source_code_package_id=source_code_package_id,
         )
         if delta is not None:
             deltas.append(delta)
@@ -520,6 +566,7 @@ def _api_dto_generated_code_package_delta(
     *,
     workspace_root: Path,
     dto_materialization: object,
+    source_code_package_id: UUID | None = None,
 ) -> CodePackageDelta | None:
     package_root = Path(getattr(dto_materialization, "package_root")).resolve()
     import_root = str(getattr(dto_materialization, "import_root")).strip()
@@ -563,14 +610,77 @@ def _api_dto_generated_code_package_delta(
         workspace_root=workspace_root,
         path=package_root,
     )
+    manifest_relative_path = f"{package_root_text}/pyproject.toml"
+    production = (
+        _api_dto_generated_code_package_delta_production(
+            package_name=import_root,
+            package_root=package_root_text,
+            sources_root=import_root,
+            manifest_relative_path=manifest_relative_path,
+            source_code_package_id=source_code_package_id,
+        )
+        if source_code_package_id is not None
+        else None
+    )
     return CodePackageDelta(
         package_name=import_root,
         package_root=package_root_text,
         sources_root=import_root,
-        manifest_relative_path=f"{package_root_text}/pyproject.toml",
+        manifest_relative_path=manifest_relative_path,
         authority=CodePackageDeltaAuthorityKind.semantic_materialization,
         authority_kind=CodePackageDeltaAuthorityKind.semantic_materialization.value,
+        production=production,
         paths=paths,
+    )
+
+
+def _api_dto_generated_code_package_delta_production(
+    *,
+    package_name: str,
+    package_root: str,
+    sources_root: str,
+    manifest_relative_path: str,
+    source_code_package_id: UUID,
+) -> CodePackageDeltaProduction:
+    config_ref = source_code_package_config_ref(
+        manifest_kind="pyproject_toml",
+        surface="api",
+    )
+    generated_code_package_id = stable_code_package_id(
+        code_package_config_id=config_ref.config_id,
+        package_name=package_name,
+        language=CodeLanguage.python.value,
+    )
+    return CodePackageDeltaProduction(
+        producer=CodePackageDeltaProducerRef(
+            provider_key="aware_api",
+            producer_key="aware_api.api_dto.generated_code_package",
+            producer_kind="semantic_materializer",
+            provider_payload={
+                "materialization_source": "api",
+                "output_key": "api_dto.generated_code_package",
+                "target_language_plugin_id": CodeLanguage.python.value,
+                "code_package_surface": "api",
+                "manifest_kind": "pyproject_toml",
+                "manifest_relative_path": manifest_relative_path,
+                "package_name": package_name,
+                "package_root": package_root,
+                "sources_root": sources_root,
+                "code_package_config_key": config_ref.config_key,
+                "code_package_config_id": str(config_ref.config_id),
+                "declared_code_package_id": str(generated_code_package_id),
+                "code_package_id": str(generated_code_package_id),
+                "semantic_source_code_package_id": str(source_code_package_id),
+            },
+        ),
+        emission_payload={
+            "contract_version": "aware.api.api_dto.generated_code_package_delta.v1",
+            "package_name": package_name,
+            "package_root": package_root,
+            "sources_root": sources_root,
+            "manifest_relative_path": manifest_relative_path,
+            "semantic_source_code_package_id": str(source_code_package_id),
+        },
     )
 
 
@@ -786,6 +896,11 @@ async def _materialize_compile_plan_input(
             ),
         )
     )
+    runtime_code_package_refs = (
+        _runtime_code_package_refs_from_artifact_ownership_receipts(
+            artifact_ownership_receipts
+        )
+    )
     compile_parity_receipts = _api_client_service_protocol_compile_parity_receipts(
         request=request,
         result=result,
@@ -815,10 +930,14 @@ async def _materialize_compile_plan_input(
             "api_source_path": result.api_source_path,
             "source_files": list(result.source_files),
             "api_phase_timings_s": dict(sorted(result.phase_timings_s.items())),
+            "api_direct_dependency_materialization_details": [
+                dict(item) for item in result.direct_dependency_materialization_details
+            ],
             "api_endpoint_catalog": _encode_api_endpoint_catalog_detail(
                 result.api_endpoint_catalog
             ),
             "artifact_ownership_receipts": artifact_ownership_receipts,
+            "runtime_code_package_refs": runtime_code_package_refs,
             "compile_parity_receipts": compile_parity_receipts,
             "generated_dto_graph_count": result.generated_dto_graph_count,
             "generated_dto_class_config_count": (
@@ -851,6 +970,8 @@ async def _materialize_compile_plan_input(
                     result.api_object_instance_graph_commit_id
                 ),
                 source_code_package_id=None,
+                runtime_code_package_refs=runtime_code_package_refs,
+                implementation_code_packages=runtime_code_package_refs,
             ),
         ),
         mode="full_rebuild",
@@ -1090,6 +1211,7 @@ async def _materialize_delta_impl(request: object) -> dict[str, object]:
             workspace_root=_api_delta_workspace_root_from_manifest_path(
                 manifest_path=manifest_path,
             ),
+            accessible_graphs=semantic_context_accessible_graphs,
         )
     )
     api_materialization_event_report = (
@@ -1098,6 +1220,14 @@ async def _materialize_delta_impl(request: object) -> dict[str, object]:
             api_client_service_protocol_delta_patch=(
                 api_client_service_protocol_delta_patch
             ),
+        )
+    )
+    generated_artifact_file_patch = _mapping_payload(
+        api_client_service_protocol_delta_patch.get("generated_artifact_file_patch")
+    )
+    generated_code_package_deltas = (
+        _api_delta_generated_code_package_deltas_from_patch_receipt(
+            generated_artifact_file_patch=generated_artifact_file_patch,
         )
     )
     raw_artifact_ownership_receipts = api_client_service_protocol_delta_patch.get(
@@ -1169,6 +1299,13 @@ async def _materialize_delta_impl(request: object) -> dict[str, object]:
         "api_client_service_protocol_delta_patch": (
             api_client_service_protocol_delta_patch
         ),
+        "generated_code_package_delta_count": len(generated_code_package_deltas),
+        "generated_code_package_delta_path_count": sum(
+            len(delta.paths) for delta in generated_code_package_deltas
+        ),
+        "generated_code_package_deltas": [
+            delta.model_dump(mode="json") for delta in generated_code_package_deltas
+        ],
         "artifact_ownership_receipts": artifact_ownership_receipts,
         "production_execution_wired": bool(operation_execution.get("did_execute")),
         **_api_delta_request_detail(request=request),
@@ -1194,6 +1331,9 @@ async def _materialize_delta_impl(request: object) -> dict[str, object]:
         "commit_ref_contract": commit_ref_payload["commit_ref_contract"],
         "bundle_package": commit_ref_payload["bundle_package"],
         "bundle_packages": (commit_ref_payload["bundle_package"],),
+        "generated_code_package_deltas": [
+            delta.model_dump(mode="json") for delta in generated_code_package_deltas
+        ],
         "details": details,
         "error": None,
     }
@@ -2920,6 +3060,9 @@ def _api_delta_commit_ref_probe_context(
 def _api_delta_request_detail(*, request: object) -> dict[str, object]:
     hints = getattr(request, "delta_cause_hints", None)
     changed_paths = _top_changed_path_payloads(request=request)
+    source_session_context = _api_delta_source_session_context_payload(
+        request=request,
+    )
     return {
         "baseline_hydration_preflight": _api_delta_baseline_hydration_preflight(
             request=request,
@@ -2937,7 +3080,40 @@ def _api_delta_request_detail(*, request: object) -> dict[str, object]:
             "top_changed_path_limit": _int_attr(hints, "top_changed_path_limit"),
             "top_changed_paths": changed_paths,
         },
+        "semantic_source_session_context_available": bool(source_session_context),
+        "semantic_source_session_context": source_session_context,
+        "source_session_id": source_session_context.get("source_session_id"),
+        "source_delta_fingerprint": source_session_context.get(
+            "source_delta_fingerprint"
+        ),
     }
+
+
+def _api_delta_source_session_context_payload(
+    *,
+    request: object,
+) -> dict[str, object]:
+    raw_context = getattr(request, SEMANTIC_SOURCE_SESSION_CONTEXT_KEY, None)
+    if raw_context is None:
+        for context_name in ("semantic_function_call_execution_context", "context"):
+            context = getattr(request, context_name, None)
+            if not isinstance(context, Mapping):
+                continue
+            raw_context = context.get(SEMANTIC_SOURCE_SESSION_CONTEXT_KEY)
+            if raw_context is not None:
+                break
+    if raw_context is None:
+        return {}
+    context = SemanticSourceSessionContext.from_payload(raw_context)
+    payload = context.evidence_payload()
+    if (
+        payload.get("source_session_id") is None
+        and payload.get("source_delta_fingerprint") is None
+        and not payload.get("packages")
+        and not payload.get("cache_refs")
+    ):
+        return {}
+    return payload
 
 
 def _workspace_dependency_roots_from_context(
@@ -3025,6 +3201,27 @@ def _api_provider_delta_resolved_argument_refs(
                 )
                 if class_ref is not None and class_config_id is not None:
                     refs[class_ref] = class_config_id
+    return dict(sorted(refs.items()))
+
+
+def _api_provider_delta_runtime_index_argument_refs(
+    *,
+    index: object | None,
+) -> dict[str, str]:
+    class_configs_by_id = getattr(index, "class_configs_by_id", None)
+    if not isinstance(class_configs_by_id, Mapping):
+        return {}
+    refs: dict[str, str] = {}
+    for raw_class_config_id, class_config in class_configs_by_id.items():
+        class_ref = _optional_text(getattr(class_config, "class_fqn", None))
+        if class_ref is None:
+            continue
+        class_config_id = _optional_text(getattr(class_config, "id", None))
+        if class_config_id is None:
+            class_config_id = _optional_text(raw_class_config_id)
+        if class_config_id is None:
+            continue
+        refs[class_ref] = class_config_id
     return dict(sorted(refs.items()))
 
 
@@ -4421,6 +4618,99 @@ def _runtime_code_package_refs(
     return tuple(refs)
 
 
+def _runtime_code_package_refs_from_artifact_ownership_receipts(
+    artifact_ownership_receipts: tuple[Mapping[str, object], ...],
+) -> tuple[dict[str, object], ...]:
+    refs: list[dict[str, object]] = []
+    for receipt in artifact_ownership_receipts:
+        provider_payload = _mapping_payload(receipt.get("provider_payload"))
+        code_package_id = _optional_text(
+            receipt.get("code_package_id")
+        ) or _optional_text(provider_payload.get("code_package_id"))
+        package_name = (
+            _optional_text(receipt.get("code_package_name"))
+            or _optional_text(receipt.get("generated_code_package_name"))
+            or _optional_text(provider_payload.get("code_package_name"))
+            or _optional_text(provider_payload.get("generated_code_package_name"))
+        )
+        manifest_relative_path = _optional_text(
+            receipt.get("manifest_relative_path")
+        ) or _optional_text(provider_payload.get("manifest_relative_path"))
+        package_root = _optional_text(receipt.get("package_root")) or _optional_text(
+            provider_payload.get("package_root")
+        )
+        language = (
+            _optional_text(receipt.get("language"))
+            or _optional_text(receipt.get("target_language_plugin_id"))
+            or _optional_text(provider_payload.get("language"))
+            or _optional_text(provider_payload.get("target_language_plugin_id"))
+        )
+        surface = (
+            _optional_text(receipt.get("code_package_surface"))
+            or _optional_text(receipt.get("surface"))
+            or _optional_text(provider_payload.get("code_package_surface"))
+            or _optional_text(provider_payload.get("surface"))
+        )
+        manifest_kind = _optional_text(receipt.get("manifest_kind")) or _optional_text(
+            provider_payload.get("manifest_kind")
+        )
+        if (
+            code_package_id is None
+            or package_name is None
+            or manifest_relative_path is None
+            or package_root is None
+            or language is None
+            or surface is None
+            or manifest_kind is None
+        ):
+            continue
+        code_package_ref: dict[str, object] = {
+            "role": (
+                _optional_text(receipt.get("artifact_role"))
+                or "api_generated_code_package"
+            ),
+            "output_key": _optional_text(receipt.get("output_key")),
+            "source_code_package_id": code_package_id,
+            "code_package_id": code_package_id,
+            "source_object_instance_graph_commit_id": _optional_text(
+                receipt.get("source_object_instance_graph_commit_id")
+            ),
+            "package_name": package_name,
+            "manifest_relative_path": manifest_relative_path,
+            "package_root": package_root,
+            "sources_root": (
+                _optional_text(receipt.get("sources_root"))
+                or _optional_text(provider_payload.get("sources_root"))
+                or package_root
+            ),
+            "language": language,
+            "code_package_surface": surface,
+            "surface": surface,
+            "manifest_kind": manifest_kind,
+        }
+        code_package_config_id = _optional_text(
+            receipt.get("code_package_config_id")
+        ) or _optional_text(provider_payload.get("code_package_config_id"))
+        if code_package_config_id is not None:
+            code_package_ref["code_package_config_id"] = code_package_config_id
+        refs.append(code_package_ref)
+    return _dedupe_runtime_code_package_refs(tuple(refs))
+
+
+def _dedupe_runtime_code_package_refs(
+    refs: tuple[Mapping[str, object], ...],
+) -> tuple[dict[str, object], ...]:
+    refs_by_id: dict[str, dict[str, object]] = {}
+    for ref in refs:
+        code_package_id = _optional_text(ref.get("code_package_id")) or _optional_text(
+            ref.get("source_code_package_id")
+        )
+        if code_package_id is None:
+            continue
+        refs_by_id[code_package_id] = dict(ref)
+    return tuple(refs_by_id[key] for key in sorted(refs_by_id))
+
+
 def _is_uuid(value: object) -> bool:
     return isinstance(value, UUID)
 
@@ -4431,7 +4721,12 @@ def _semantic_object_config_graphs_from_context(
     raw_graphs = context.get("semantic_object_config_graphs")
     if not isinstance(raw_graphs, (list, tuple)):
         return ()
-    return tuple(graph for graph in raw_graphs if isinstance(graph, ObjectConfigGraph))
+    return tuple(
+        graph
+        for graph in raw_graphs
+        if isinstance(graph, ObjectConfigGraph)
+        and object_config_graph_has_api_accessible_namespace_evidence(graph=graph)
+    )
 
 
 def _api_delta_semantic_object_config_graphs_from_request(

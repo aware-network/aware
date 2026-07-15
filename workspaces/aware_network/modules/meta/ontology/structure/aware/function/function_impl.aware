@@ -1,0 +1,51 @@
+/// Canonical execution rail for one function body.
+///
+/// Contract:
+/// - Runtime executes `FunctionImplInstruction*` payloads, not raw source text.
+/// - `kind` distinguishes executable instruction bodies from declarative auto constructors.
+/// - `FunctionConfig` remains signature/contract truth.
+class FunctionImpl {
+    // Relationships
+    instructions FunctionImplInstruction[]
+
+    // Attributes
+    key String
+    kind FunctionImplKind = instruction_body
+
+    fn build construct (
+        key String = "default",
+        kind FunctionImplKind = instruction_body
+    ) -> FunctionImpl {
+        """
+        Create deterministic FunctionImpl under one FunctionConfig parent path.
+
+        Contract:
+        - `instruction_body` means the implementation owns executable instruction payloads.
+        - `auto_constructor` means a bodyless construct declaration materializes through constructor identity rails.
+        """
+    }
+
+    fn create_instruction (
+        type FunctionImplInstructionType,
+        sequence Int
+    ) -> FunctionImplInstruction {
+        """
+        Create one deterministic instruction under this FunctionImpl.
+        """
+        let created = construct instructions.build(
+            type = type,
+            sequence = sequence,
+        )
+    }
+
+    fn remove_instruction (
+        type FunctionImplInstructionType,
+        sequence Int
+    ) -> {
+        """
+        Remove one deterministic instruction from this FunctionImpl.
+        """
+    }
+}
+
+ann function.FunctionImpl::instructions load eager

@@ -1,0 +1,57 @@
+class CodeSemanticContractProfile {
+    // Relationships
+    semantic_provider_registrations CodeSemanticProviderRegistration[] many
+    profile_imports CodeSemanticContractProfileImport[]
+
+    // Attributes
+    profile_key String key
+    title String?
+    description String?
+    status String = "active"
+
+    fn build construct(
+        profile_key String key,
+        title String? = null,
+        description String? = null,
+        semantic_provider_registration_ids UUID[] = [],
+        status String = "active"
+    ) -> CodeSemanticContractProfile {
+        """
+        Build one Code-owned semantic contract profile.
+
+        Contract:
+        - Profiles group CodeSemanticProviderRegistration entries.
+        - Profiles may compose other CodeSemanticContractProfile entries.
+        - Workspace selects and snapshots resolved profiles but does not author
+          provider registration or package binding truth.
+        """
+    }
+
+    fn attach_semantic_provider(
+        semantic_provider_registration_id UUID key
+    ) -> CodeSemanticContractProfile {
+        """
+        Attach one existing CodeSemanticProviderRegistration to this profile.
+        """
+    }
+
+    fn import_profile(
+        imported_profile_id UUID key,
+        import_key String key,
+        required Bool = true,
+        status String = "active"
+    ) -> CodeSemanticContractProfileImport {
+        """
+        Compose this Code semantic contract profile with another Code profile.
+        """
+        let created = construct profile_imports.build(
+            imported_profile_id = imported_profile_id,
+            import_key = import_key,
+            required = required,
+            status = status,
+        )
+    }
+}
+
+ann semantic.CodeSemanticContractProfile::semantic_provider_registrations load eager
+ann semantic.CodeSemanticContractProfile::profile_imports load eager

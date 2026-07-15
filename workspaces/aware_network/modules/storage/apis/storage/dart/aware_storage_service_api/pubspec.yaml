@@ -1,0 +1,21 @@
+name: aware_storage_service_api
+description: Public API boundary for commit-backed StorageBlob metadata and Storage-owned media resolution.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+
+dependencies:
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+  uuid: ^4.5.1
+  aware_api:
+    path: ../../../../../api/libs/api/dart
+  aware_model_helpers:
+    path: ../../../../../../libs/model_helpers/dart/aware_model_helpers
+
+dev_dependencies:
+  build_runner: ^2.4.11
+  freezed: ^3.0.0
+  json_serializable: ^6.8.0

@@ -1,0 +1,52 @@
+/// ProjectionExperience -> ObjectInstanceGraphIdentity bridge.
+///
+/// Contract:
+/// - Owns ProjectionExperience semantic-to-runtime identity topology.
+/// - Environment/Thread bind to this object; they do not own node/edge topology.
+class ProjectionExperienceOIGI {
+    // Relationships
+    node_class_identities ProjectionExperienceNodeClassIdentity[]
+    node_class_identity_edges ProjectionExperienceNodeClassIdentityEdge[]
+    object_instance_graph_identity aware_meta.graph.instance.ObjectInstanceGraphIdentity key
+
+    // Attributes
+    key String?
+
+    fn build construct (object_instance_graph_identity_id UUID key, key String? = null) -> ProjectionExperienceOIGI {
+        """
+        Create deterministic ProjectionExperienceOIGI.
+        """
+    }
+
+    fn create_node_class_identity (
+        projection_experience_node_identity_id UUID,
+        class_instance_identity_id UUID,
+        key String
+    ) -> ProjectionExperienceNodeClassIdentity {
+        """
+        Attach one semantic ProjectionExperienceNodeIdentity -> ClassInstanceIdentity anchor.
+        """
+        let created = construct node_class_identities.build(
+            projection_experience_node_identity_id = projection_experience_node_identity_id,
+            class_instance_identity_id = class_instance_identity_id,
+            key = key,
+        )
+    }
+
+    fn create_node_class_identity_edge (
+        parent_node_class_identity_id UUID,
+        child_node_class_identity_id UUID,
+        class_instance_relationship_identity_id UUID,
+        key String? = null
+    ) -> ProjectionExperienceNodeClassIdentityEdge {
+        """
+        Attach one explicit parent->child edge under this ProjectionExperienceOIGI.
+        """
+        let created = construct node_class_identity_edges.build(
+            parent_node_class_identity_id = parent_node_class_identity_id,
+            child_node_class_identity_id = child_node_class_identity_id,
+            class_instance_relationship_identity_id = class_instance_relationship_identity_id,
+            key = key,
+        )
+    }
+}

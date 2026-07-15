@@ -1,0 +1,20 @@
+edge ContentPartFile {
+    // Attributes
+    inline_data Bytes?
+    mime_type String
+    modality_type content.ModalityType key
+    provider_id String?
+    raw_path String?
+
+    fn create_content_part_file construct(
+        modality_type content.ModalityType key,
+        mime_type String,
+        inline_data Bytes? = null,
+        provider_id String? = null,
+        raw_path String? = null,
+    ) -> ContentPartFile {
+        """
+        Creates file/media metadata for a ContentPart to StorageBlob edge.
+        """
+    }
+}

@@ -1,0 +1,198 @@
+/// Section-delta operation kind accepted at the Code API boundary.
+enum CodeSectionDeltaOperationKind {
+    replace_segment
+    replace_section
+    insert_before_section
+    insert_after_section
+    delete_section
+}
+
+/// Value domain accepted or emitted by a section segment delta.
+enum CodeSegmentContentDomain {
+    raw_segment_text
+    semantic_segment_value
+}
+
+/// Nested member insertion position inside a resolved parent section.
+enum CodeNestedMemberInsertPosition {
+    end
+}
+
+/// Segment render policy resolution status.
+enum CodeSegmentRenderPolicyResolutionStatus {
+    resolved
+    blocked
+    skipped
+}
+
+/// Stable section identity plus parser evidence for a package-relative file.
+class CodeSectionRef : inline_value {
+    package_name String?
+    relative_path String
+    language String?
+    section_type String
+    section_id UUID?
+    qualname String?
+    identity_hash String?
+    semantic_key String?
+    source_refs String[] = []
+    metadata JsonObject?
+}
+
+/// Stable segment identity and optional byte/hash evidence inside a section.
+class CodeSegmentRef : inline_value {
+    segment_name String
+    before_segment_hash String?
+    byte_start Int?
+    byte_end Int?
+    metadata JsonObject?
+}
+
+/// Parser-backed nested member insertion anchor inside a parent CodeSectionRef.
+class CodeNestedMemberInsertAnchor : inline_value {
+    member_section_type String
+    member_qualname String?
+    insert_position code.CodeNestedMemberInsertPosition = end
+}
+
+/// Code-owned policy for mapping semantic segment values to raw parser segments.
+class CodeSegmentRenderPolicy : inline_value {
+    policy_key String
+    language String
+    section_type String
+    segment_name String
+    content_text_domain code.CodeSegmentContentDomain = raw_segment_text
+    rendered_content_text_domain code.CodeSegmentContentDomain = raw_segment_text
+    before_hash_domains code.CodeSegmentContentDomain[] = []
+    after_hash_domain code.CodeSegmentContentDomain = raw_segment_text
+    parser_segment_scope String?
+    renderer_key String?
+    metadata JsonObject?
+}
+
+/// Diagnostic emitted while resolving Code segment render policies.
+class CodeSegmentRenderPolicyDiagnostic : inline_value {
+    severity String = "error"
+    reason String
+    message String
+    language String?
+    section_type String?
+    segment_name String?
+    metadata JsonObject?
+}
+
+/// One section/segment delta requested against parsed Code section truth.
+class CodeSectionDeltaEntry : inline_value {
+    operation code.CodeSectionDeltaOperationKind
+    section_ref code.CodeSectionRef
+    segment_ref code.CodeSegmentRef?
+    nested_member_insert_anchor code.CodeNestedMemberInsertAnchor?
+    content_text String?
+    before_hash String?
+    after_hash String?
+    event_ref String?
+    semantic_key String?
+    provider_key String?
+    metadata JsonObject?
+}
+
+/// API-owned section-delta DTO for semantic-event to CodePackageDelta resolution.
+class CodeSectionDeltaSet : inline_value {
+    package_name String?
+    package_root String?
+    sources_root String?
+    baseline_fingerprint String?
+    baseline_fingerprint_algorithm String = "sha256"
+    production code.CodePackageDeltaProduction?
+    entries code.CodeSectionDeltaEntry[] = []
+    warnings String[] = []
+    metadata JsonObject?
+}
+
+/// Validate section/segment delta intent before resolver execution.
+class ValidateCodeSectionDeltaRequest augment code.CodeServiceRequest {
+    operation String = "validate_section_delta"
+    delta_set code.CodeSectionDeltaSet
+    strict Bool = true
+}
+
+class ValidateCodeSectionDeltaResponse augment code.CodeServiceResponse {
+    operation String = "validate_section_delta"
+    valid Bool = false
+    diagnostics String[] = []
+    entry_count Int = 0
+}
+
+/// Normalize section/segment delta intent into stable Code API DTO shape.
+class NormalizeCodeSectionDeltaRequest augment code.CodeServiceRequest {
+    operation String = "normalize_section_delta"
+    delta_set code.CodeSectionDeltaSet
+}
+
+class NormalizeCodeSectionDeltaResponse augment code.CodeServiceResponse {
+    operation String = "normalize_section_delta"
+    delta_set code.CodeSectionDeltaSet?
+}
+
+/// Fingerprint a section-delta set for semantic event and resolver receipts.
+class FingerprintCodeSectionDeltaRequest augment code.CodeServiceRequest {
+    operation String = "fingerprint_section_delta"
+    delta_set code.CodeSectionDeltaSet
+    algorithm String = "sha256"
+}
+
+class FingerprintCodeSectionDeltaResponse augment code.CodeServiceResponse {
+    operation String = "fingerprint_section_delta"
+    fingerprint String?
+    entry_count Int = 0
+}
+
+/// Resolve a section-delta set to a package text delta.
+class ResolveCodeSectionDeltaPackageDeltaRequest augment code.CodeServiceRequest {
+    operation String = "resolve_section_delta_package_delta"
+    delta_set code.CodeSectionDeltaSet
+    layout_contract code.CodePackageLayoutContract?
+    semantic_contract code.CodeSemanticContract?
+    strict Bool = true
+}
+
+class ResolveCodeSectionDeltaPackageDeltaResponse augment code.CodeServiceResponse {
+    operation String = "resolve_section_delta_package_delta"
+    resolved Bool = false
+    package_delta code.CodePackageDelta?
+    diagnostics String[] = []
+    entry_count Int = 0
+    path_count Int = 0
+}
+
+/// Resolve Code-owned render policy metadata for one or more section segments.
+class ResolveCodeSegmentRenderPolicyRequest augment code.CodeServiceRequest {
+    operation String = "resolve_segment_render_policy"
+    language String = "aware"
+    section_type String?
+    segment_name String?
+    include_unsupported Bool = false
+    strict Bool = true
+    metadata JsonObject?
+}
+
+class ResolveCodeSegmentRenderPolicyResponse augment code.CodeServiceResponse {
+    operation String = "resolve_segment_render_policy"
+    status code.CodeSegmentRenderPolicyResolutionStatus = blocked
+    resolved Bool = false
+    policies code.CodeSegmentRenderPolicy[] = []
+    diagnostics code.CodeSegmentRenderPolicyDiagnostic[] = []
+    policy_count Int = 0
+}
+
+ann code.ValidateCodeSectionDeltaRequest::operation discriminate tag "validate_section_delta"
+ann code.NormalizeCodeSectionDeltaRequest::operation discriminate tag "normalize_section_delta"
+ann code.FingerprintCodeSectionDeltaRequest::operation discriminate tag "fingerprint_section_delta"
+ann code.ResolveCodeSectionDeltaPackageDeltaRequest::operation discriminate tag "resolve_section_delta_package_delta"
+ann code.ResolveCodeSegmentRenderPolicyRequest::operation discriminate tag "resolve_segment_render_policy"
+
+ann code.ValidateCodeSectionDeltaResponse::operation discriminate tag "validate_section_delta"
+ann code.NormalizeCodeSectionDeltaResponse::operation discriminate tag "normalize_section_delta"
+ann code.FingerprintCodeSectionDeltaResponse::operation discriminate tag "fingerprint_section_delta"
+ann code.ResolveCodeSectionDeltaPackageDeltaResponse::operation discriminate tag "resolve_section_delta_package_delta"
+ann code.ResolveCodeSegmentRenderPolicyResponse::operation discriminate tag "resolve_segment_render_policy"

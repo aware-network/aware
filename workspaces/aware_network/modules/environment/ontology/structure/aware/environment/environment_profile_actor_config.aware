@@ -1,0 +1,43 @@
+/// EnvironmentProfileConfig actor eligibility policy.
+///
+/// Contract:
+/// - Environment owns admission eligibility for shared OS entrance.
+/// - Identity owns ActorConfig, RoleConfig, Role, ActorRole, and concrete
+///   role assignment truth.
+/// - This edge never embeds actors and never grants access by itself.
+/// - Environment service admission resolves ActorConfig -> RoleConfig[] and
+///   delegates concrete role assignment to Identity.
+class EnvironmentProfileActorConfig {
+    // Relationships
+    actor_config aware_identity.actor.ActorConfig key
+
+    // Attributes
+    access_scope String = "profile"
+    description String?
+    metadata_json JsonObject = {}
+    policy_key String key = "admit"
+    requirement_kind String = "environment_actor_config"
+    status String = "active"
+
+    fn create construct (
+        actor_config_id UUID key,
+        policy_key String key = "admit",
+        requirement_kind String = "environment_actor_config",
+        access_scope String = "profile",
+        status String = "active",
+        description String? = null,
+        metadata_json JsonObject? = {}
+    ) -> EnvironmentProfileActorConfig {
+        """
+        Create one EnvironmentProfileConfig ActorConfig eligibility edge.
+
+        Contract:
+        - Stable identity is `(environment_profile_config_id, actor_config_id, policy_key)`.
+        - The edge is policy eligibility only; concrete admission is Identity-owned.
+        - `access_scope` is explicit so v0 profile admission does not imply hidden
+          ProcessConfig or ThreadConfig rights.
+        """
+    }
+}
+
+ann environment.EnvironmentProfileActorConfig::actor_config load eager

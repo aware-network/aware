@@ -1,0 +1,192 @@
+/// Reusable Experience policy/config over one Environment EnvironmentProfileConfig.
+///
+/// Purpose:
+/// - Bind Experience actor, projection, event, and policy semantics to stable
+///   Environment Environment topology config.
+/// - Keep EnvironmentProfileConfig/ProcessConfig/ThreadConfig construction in
+///   Environment while Experience config declares how it participates.
+///
+/// Contract:
+/// - This object references Environment EnvironmentProfileConfig and optional
+///   EnvironmentProviderGrant truth.
+/// - It never constructs Environment topology config or applied EnvironmentProfile state.
+/// - Process/thread participation is represented by Experience config bridge
+///   objects keyed to Environment ProcessConfig/ThreadConfig.
+class EnvironmentExperienceProfileConfig {
+    // Environment topology authority refs
+    environment_profile_config aware_environment.environment.EnvironmentProfileConfig key
+    environment_provider_grant aware_environment.environment.EnvironmentProviderGrant?
+
+    // Actors
+    actors EnvironmentExperienceActorConfig[]
+
+    // Experiences
+    experiences EnvironmentExperienceProjection[]
+
+    // Events
+    events EnvironmentExperienceEvent[]
+    /// Experience-owned View -> Event -> View transition policies.
+    ///
+    /// Contract:
+    /// - The target is always a ProjectionExperienceSectionGraphBinding.
+    /// - Attention focus is reached only through that binding, never directly here.
+    view_event_transitions EnvironmentExperienceViewEventTransition[]
+
+    // Experience config bridge over Environment topology config.
+    process_configs EnvironmentExperienceProcessConfig[]
+
+    /// Optional experience-level image used as a default for territory surfaces.
+    ///
+    /// Contract:
+    /// - Image bytes are uploaded out-of-band (data-plane).
+    /// - Commits reference StorageBlob metadata only.
+    image aware_storage.blob.StorageBlob? unique
+
+    // Attributes
+    description String?
+    /// Canonical experience-level narrative used by experience selection and AI context.
+    narrative String?
+    /// Stable profile key (recommended: `control.default`, `coordination.default`, etc).
+    key String key
+    title String?
+
+    fn build construct (
+        environment_profile_config_id UUID key,
+        key String key,
+        environment_provider_grant_id UUID? = null,
+        title String? = null,
+        description String? = null,
+        narrative String? = null
+    ) -> EnvironmentExperienceProfileConfig {
+        """
+        Construct one canonical EnvironmentExperienceProfileConfig under EnvironmentExperience.
+
+        Contract:
+        - Identity is derived from parent path plus `(environment_profile_config_id, key)`.
+        - The target EnvironmentProfileConfig is Environment-owned reusable topology truth.
+        - `environment_provider_grant_id` records the approved Environment provider
+          grant when present; it does not make Environment depend on Experience.
+        """
+    }
+
+    fn add_process_config (
+        process_config_id UUID key,
+        key String,
+        title String? = null,
+        description String? = null,
+        position Int? = null,
+        narrative String? = null,
+        intent String? = null
+    ) -> EnvironmentExperienceProcessConfig {
+        """
+        Attach one Experience config bridge for an Environment ProcessConfig.
+
+        Contract:
+        - `process_config_id` references Environment-owned topology config.
+        - This function never constructs ProcessConfig.
+        - Mutates only this profile config's Experience bridge membership.
+        """
+        let process_config = construct process_configs.build(
+            process_config_id = process_config_id,
+            key = key,
+            title = title,
+            description = description,
+            position = position,
+            narrative = narrative,
+            intent = intent,
+        )
+    }
+
+    fn add_actor_config (
+        actor_config_id UUID
+    ) -> EnvironmentExperienceActorConfig {
+        """
+        Attach one ActorConfig association edge under this EnvironmentExperienceProfileConfig.
+        """
+        let created = construct actors.build(
+            actor_config_id = actor_config_id,
+        )
+    }
+
+    fn add_projection_experience (
+        projection_experience_id UUID
+    ) -> EnvironmentExperienceProjection {
+        """
+        Attach one ProjectionExperience association edge under this EnvironmentExperienceProfileConfig.
+        """
+        let created = construct experiences.build(
+            projection_experience_id = projection_experience_id,
+        )
+    }
+
+    fn add_event (
+        event_config_id UUID
+    ) -> EnvironmentExperienceEvent {
+        """
+        Attach one EventConfig association edge under this EnvironmentExperienceProfileConfig.
+        """
+        let created = construct events.build(
+            event_config_id = event_config_id,
+        )
+    }
+
+    fn add_view_event_transition (
+        source_view_id UUID,
+        trigger_event_id UUID,
+        target_section_graph_binding_id UUID,
+        transition_key String,
+        name String? = null,
+        rationale String? = null,
+        idempotency_policy String? = null
+    ) -> EnvironmentExperienceViewEventTransition {
+        """
+        Attach one Experience-owned View -> Event -> View transition policy.
+
+        Contract:
+        - `source_view_id` is the currently focused ProjectionExperienceView.
+        - `trigger_event_id` is the profile-config-owned EnvironmentExperienceEvent emitted by Reactivity.
+        - `target_section_graph_binding_id` points to the target view/graph/layout section contract.
+        - This contract does not talk to Attention directly; runtime focus activation goes through
+          ProjectionExperienceSectionGraphBinding.
+        """
+        let created = construct view_event_transitions.build(
+            source_view_id = source_view_id,
+            trigger_event_id = trigger_event_id,
+            target_section_graph_binding_id = target_section_graph_binding_id,
+            transition_key = transition_key,
+            name = name,
+            rationale = rationale,
+            idempotency_policy = idempotency_policy,
+        )
+    }
+
+    fn update_title(title String? = null) -> {
+        """
+        Replace or clear the title of this Experience profile config.
+
+        Contract:
+        - Mutates only the invoked EnvironmentExperienceProfileConfig.
+        - `null` explicitly clears the title.
+        - Description, narrative, identity, and relationship fields are preserved.
+        """
+        set title = title
+    }
+
+    fn update_picture(image_id UUID? = null, image_sha String? = null, image_mime_type String? = null, image_size_bytes Int? = null) -> {
+        """
+        Updates (or clears) the experience profile config image.
+
+        Contract:
+        - Raw bytes are uploaded out-of-band via HTTP file operations.
+        - Commits must reference commit-backed StorageBlob metadata only.
+        - When setting a picture, image_sha/image_mime_type/image_size_bytes must be provided together.
+
+        Parameters:
+            image_id: Optional uploaded blob id to assert against image_sha-derived stable id.
+            image_sha: SHA-256 hex digest of uploaded bytes.
+            image_mime_type: MIME type of uploaded bytes.
+            image_size_bytes: Size of uploaded bytes.
+        Returns: None.
+        """
+    }
+}

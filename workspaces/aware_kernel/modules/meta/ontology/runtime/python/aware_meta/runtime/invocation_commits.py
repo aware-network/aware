@@ -5,7 +5,8 @@ from typing import Protocol
 from uuid import UUID
 
 from aware_meta.graph.instance.commit.committer import FSLaneCommitter
-from aware_meta.graph.instance.commit.fs_store import CommitActionDescriptor
+from aware_meta.graph.instance.commit.contract import CommitActionDescriptor
+from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
 from aware_meta.runtime.invocation_commit_actions import MetaInvocationCommitAction
 from aware_meta_ontology.graph.instance.object_instance_graph import ObjectInstanceGraph
 from aware_meta_ontology.graph.instance.object_instance_graph_change import (
@@ -59,24 +60,48 @@ async def append_invocation_domain_commit(
     action: MetaInvocationCommitAction,
     committer: InvocationLaneCommitter | None = None,
 ) -> InvocationDomainCommitAppendResult:
-    lane_committer = committer if committer is not None else FSLaneCommitter()
-    commit = await lane_committer.commit(
-        branch_id=branch_id,
-        projection_hash=projection_hash,
-        object_projection_graph_identity_id=object_projection_graph_identity_id,
-        object_instance_graph_identity_id=object_instance_graph_identity_id,
-        object_instance_graph_id=object_instance_graph_id,
-        before_oig=before_oig,
-        root_object_id=root_object_id,
-        changes=changes,
-        graph_hash_pre=graph_hash_pre,
-        graph_hash_post=graph_hash_post,
-        author_id=author_id,
-        commit_action=_commit_action_descriptor(action),
-    )
+    metadata = {
+        "branch_id": str(branch_id),
+        "projection_hash": projection_hash,
+        "object_instance_graph_identity_id": str(object_instance_graph_identity_id),
+        "object_instance_graph_id": str(object_instance_graph_id),
+        "change_count": len(changes),
+        "operation_label": action.operation_label,
+    }
+    with commit_perf_span(
+        phase="runtime.invoke_function.domain_commit.resolve_committer",
+        category="meta.runtime.invoke_function",
+        metadata=metadata,
+    ):
+        lane_committer = committer if committer is not None else FSLaneCommitter()
+    with commit_perf_span(
+        phase="runtime.invoke_function.domain_commit.invoke_committer",
+        category="meta.runtime.invoke_function",
+        metadata=metadata,
+    ):
+        commit = await lane_committer.commit(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            object_projection_graph_identity_id=object_projection_graph_identity_id,
+            object_instance_graph_identity_id=object_instance_graph_identity_id,
+            object_instance_graph_id=object_instance_graph_id,
+            before_oig=before_oig,
+            root_object_id=root_object_id,
+            changes=changes,
+            graph_hash_pre=graph_hash_pre,
+            graph_hash_post=graph_hash_post,
+            author_id=author_id,
+            commit_action=_commit_action_descriptor(action),
+        )
+    with commit_perf_span(
+        phase="runtime.invoke_function.domain_commit.perf_profile_snapshot",
+        category="meta.runtime.invoke_function",
+        metadata=metadata,
+    ):
+        perf_profile = lane_committer.last_commit_perf_profile_snapshot()
     return InvocationDomainCommitAppendResult(
         commit=commit,
-        perf_profile=lane_committer.last_commit_perf_profile_snapshot(),
+        perf_profile=perf_profile,
     )
 
 

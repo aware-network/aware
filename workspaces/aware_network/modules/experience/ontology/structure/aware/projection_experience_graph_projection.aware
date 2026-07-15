@@ -1,0 +1,27 @@
+/// ProjectionExperienceGraph projection.
+///
+/// Contract:
+/// - ProjectionExperience-scoped semantic graph topology rail.
+/// - Reached canonically from ProjectionExperience through a parent->child portal.
+/// - Owns graph identities, graph edges, and graph-bound profile/exemplar mutation.
+projection ProjectionExperienceGraph {
+    root projection.ProjectionExperienceGraph
+    projection.ProjectionExperienceGraph::projection_experience_graph_identities
+    projection.ProjectionExperienceGraphIdentity::projection_experience_node_identity ProjectionExperience
+    projection.ProjectionExperienceGraphIdentity::projection_experience_graph_identity_profile
+    projection.ProjectionExperienceGraphIdentityProfile::exemplars
+    projection.ProjectionExperienceGraphIdentityProfileExemplar::image aware_storage.StorageBlob
+    projection.ProjectionExperienceGraph::projection_experience_node_identity_edges
+    projection.ProjectionExperienceNodeIdentityEdge::parent_projection_experience_node_identity ProjectionExperience
+    projection.ProjectionExperienceNodeIdentityEdge::child_projection_experience_node_identity ProjectionExperience
+    projection.ProjectionExperienceGraph::projection_experience_graph_identity_edges
+    projection.ProjectionExperienceGraphIdentityEdge::parent_projection_experience_graph_identity ProjectionExperienceGraph
+    projection.ProjectionExperienceGraphIdentityEdge::child_projection_experience_graph_identity ProjectionExperienceGraph
+    projection.ProjectionExperienceGraphIdentityEdge::projection_experience_node_identity_edge ProjectionExperienceGraph
+
+    observable projection_experience_graph {
+        """
+        ProjectionExperience graph topology and graph-bound profile surface.
+        """
+    }
+}

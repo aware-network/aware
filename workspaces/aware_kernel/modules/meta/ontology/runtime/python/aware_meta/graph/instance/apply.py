@@ -122,7 +122,9 @@ def apply_object_instance_graph_deltas(
         if delta.kind == K.relationship_instance:
             _apply_relationship_delta(graph=graph, delta=delta)
             continue
-        raise OigDeltaApplyError(f"Unsupported root delta kind={delta.kind} op={delta.operation} path={delta.path_key}")
+        raise OigDeltaApplyError(
+            f"Unsupported root delta kind={delta.kind} op={delta.operation} path={delta.path_key}"
+        )
 
     # Deterministic ordering for stable downstream operations (hash/diff).
     graph.class_instances.sort(key=lambda ci: (str(ci.class_config_id), str(ci.id)))
@@ -147,7 +149,9 @@ def _apply_class_instance_delta(
 
     if delta.operation == ChangeType.create:
         if existing is not None:
-            raise OigDeltaApplyError(f"CREATE ClassInstance {delta.stable_id} already exists")
+            raise OigDeltaApplyError(
+                f"CREATE ClassInstance {delta.stable_id} already exists"
+            )
         class_config_id = _require_field_uuid(delta, "class_config_id")
         source_object_id = _require_field_uuid(delta, "source_object_id")
         with disable_autobind():
@@ -163,23 +167,33 @@ def _apply_class_instance_delta(
 
     elif delta.operation == ChangeType.update:
         if existing is None:
-            raise OigDeltaApplyError(f"UPDATE ClassInstance {delta.stable_id} missing from base graph")
+            raise OigDeltaApplyError(
+                f"UPDATE ClassInstance {delta.stable_id} missing from base graph"
+            )
         for fd in delta.field_deltas:
             if fd.property == "class_config_id":
                 existing.class_config_id = _as_uuid(fd.value)
             elif fd.property == "source_object_id":
                 existing.source_object_id = _as_uuid(fd.value)
             else:
-                raise OigDeltaApplyError(f"Unsupported ClassInstance field delta: {fd.property}")
+                raise OigDeltaApplyError(
+                    f"Unsupported ClassInstance field delta: {fd.property}"
+                )
 
     elif delta.operation == ChangeType.delete:
         if existing is None:
-            raise OigDeltaApplyError(f"DELETE ClassInstance {delta.stable_id} missing from base graph")
-        graph.class_instances = [ci for ci in graph.class_instances if ci.id != delta.stable_id]
+            raise OigDeltaApplyError(
+                f"DELETE ClassInstance {delta.stable_id} missing from base graph"
+            )
+        graph.class_instances = [
+            ci for ci in graph.class_instances if ci.id != delta.stable_id
+        ]
         return  # Deletion implies subtree deletion; do not descend.
 
     else:
-        raise OigDeltaApplyError(f"Unsupported operation for ClassInstance: {delta.operation}")
+        raise OigDeltaApplyError(
+            f"Unsupported operation for ClassInstance: {delta.operation}"
+        )
 
     # Apply attribute deltas (child membership under this ClassInstance).
     for attr_delta in delta.child_deltas.get(K.attribute, []):
@@ -208,20 +222,32 @@ def _apply_attribute_delta(
 
     if delta.operation == ChangeType.create:
         if existing is not None:
-            raise OigDeltaApplyError(f"CREATE Attribute {delta.stable_id} already exists")
+            raise OigDeltaApplyError(
+                f"CREATE Attribute {delta.stable_id} already exists"
+            )
         attr_cfg_id = _require_field_uuid(delta, "attribute_config_id")
         cfg = attribute_configs_by_id.get(attr_cfg_id)
         if cfg is None:
-            raise OigDeltaApplyError(f"AttributeConfig not provided for id={attr_cfg_id}")
+            raise OigDeltaApplyError(
+                f"AttributeConfig not provided for id={attr_cfg_id}"
+            )
         value_delta = _require_attribute_create_value_root_delta(delta)
-        node = _create_value_node(delta=value_delta, type_descriptor=cfg.type_descriptor)
+        node = _create_value_node(
+            delta=value_delta, type_descriptor=cfg.type_descriptor
+        )
         _apply_value_node_children(
             node=node,
             delta=value_delta,
             attribute_configs_by_id=attribute_configs_by_id,
         )
+        _reattach_value_tree_type_descriptors(
+            node=node,
+            expected_descriptor=cfg.type_descriptor,
+        )
         canonicalize_attribute_value_tree(node)
-        validate_attribute_value_tree_with_context(node, class_configs_by_id=class_configs_by_id)
+        validate_attribute_value_tree_with_context(
+            node, class_configs_by_id=class_configs_by_id
+        )
         with disable_autobind():
             attr = Attribute(
                 id=delta.stable_id,
@@ -235,16 +261,22 @@ def _apply_attribute_delta(
 
     elif delta.operation == ChangeType.update:
         if existing is None:
-            raise OigDeltaApplyError(f"UPDATE Attribute {delta.stable_id} missing from base graph")
+            raise OigDeltaApplyError(
+                f"UPDATE Attribute {delta.stable_id} missing from base graph"
+            )
         for fd in delta.field_deltas:
             if fd.property == "attribute_config_id":
                 existing.attribute_config_id = _as_uuid(fd.value)
             else:
-                raise OigDeltaApplyError(f"Unsupported Attribute field delta: {fd.property}")
+                raise OigDeltaApplyError(
+                    f"Unsupported Attribute field delta: {fd.property}"
+                )
 
     elif delta.operation == ChangeType.delete:
         if existing is None:
-            raise OigDeltaApplyError(f"DELETE Attribute {delta.stable_id} missing from base graph")
+            raise OigDeltaApplyError(
+                f"DELETE Attribute {delta.stable_id} missing from base graph"
+            )
         class_instance.class_instance_attributes = [
             edge
             for edge in class_instance.class_instance_attributes
@@ -254,7 +286,9 @@ def _apply_attribute_delta(
         return
 
     else:
-        raise OigDeltaApplyError(f"Unsupported operation for Attribute: {delta.operation}")
+        raise OigDeltaApplyError(
+            f"Unsupported operation for Attribute: {delta.operation}"
+        )
 
     existing.owner_key = class_instance.source_object_id
 
@@ -270,8 +304,19 @@ def _apply_attribute_delta(
                 delta=value_deltas[0],
                 attribute_configs_by_id=attribute_configs_by_id,
             )
+        cfg = attribute_configs_by_id.get(existing.attribute_config_id)
+        if cfg is None:
+            raise OigDeltaApplyError(
+                f"AttributeConfig not provided for id={existing.attribute_config_id}"
+            )
+        _reattach_value_tree_type_descriptors(
+            node=existing.value_root,
+            expected_descriptor=cfg.type_descriptor,
+        )
         canonicalize_attribute_value_tree(existing.value_root)
-        validate_attribute_value_tree_with_context(existing.value_root, class_configs_by_id=class_configs_by_id)
+        validate_attribute_value_tree_with_context(
+            existing.value_root, class_configs_by_id=class_configs_by_id
+        )
         existing.value_root_id = existing.value_root.id
 
 
@@ -283,7 +328,9 @@ def _apply_attribute_value_delta_under_attribute(
 ) -> None:
     attr_cfg = attribute_configs_by_id.get(attribute.attribute_config_id)
     if attr_cfg is None:
-        raise OigDeltaApplyError(f"AttributeConfig not provided for id={attribute.attribute_config_id}")
+        raise OigDeltaApplyError(
+            f"AttributeConfig not provided for id={attribute.attribute_config_id}"
+        )
 
     if delta.operation == ChangeType.create:
         raise OigDeltaApplyError(
@@ -296,10 +343,18 @@ def _apply_attribute_value_delta_under_attribute(
 
     node = attribute.value_root
     if node.id != delta.stable_id:
-        raise OigDeltaApplyError(f"value_root id mismatch: have={node.id} delta={delta.stable_id}")
+        raise OigDeltaApplyError(
+            f"value_root id mismatch: have={node.id} delta={delta.stable_id}"
+        )
+    _reattach_value_tree_type_descriptors(
+        node=node,
+        expected_descriptor=attr_cfg.type_descriptor,
+    )
     _apply_value_node_update(node=node, delta=delta)
 
-    _apply_value_node_children(node=node, delta=delta, attribute_configs_by_id=attribute_configs_by_id)
+    _apply_value_node_children(
+        node=node, delta=delta, attribute_configs_by_id=attribute_configs_by_id
+    )
 
 
 def _apply_value_node_children(
@@ -327,8 +382,12 @@ def _apply_value_link_delta(
 
     if delta.operation == ChangeType.delete:
         if existing is None:
-            raise OigDeltaApplyError(f"DELETE AttributeValueLink {delta.stable_id} missing from base tree")
-        parent.child_links = [link for link in parent.child_links if link.id != delta.stable_id]
+            raise OigDeltaApplyError(
+                f"DELETE AttributeValueLink {delta.stable_id} missing from base tree"
+            )
+        parent.child_links = [
+            link for link in parent.child_links if link.id != delta.stable_id
+        ]
         return  # subtree deletion
 
     # For CREATE/UPDATE we need to resolve the link slot key and child descriptor.
@@ -337,7 +396,9 @@ def _apply_value_link_delta(
 
     if delta.operation == ChangeType.create:
         if existing is not None:
-            raise OigDeltaApplyError(f"CREATE AttributeValueLink {delta.stable_id} already exists")
+            raise OigDeltaApplyError(
+                f"CREATE AttributeValueLink {delta.stable_id} already exists"
+            )
         child_delta = _require_single_child(delta, kind=K.attribute_value)
         child_node = _create_value_node(delta=child_delta, type_descriptor=child_desc)
         _apply_value_node_children(
@@ -360,10 +421,14 @@ def _apply_value_link_delta(
         return
 
     if delta.operation != ChangeType.update:
-        raise OigDeltaApplyError(f"Unsupported operation for AttributeValueLink: {delta.operation}")
+        raise OigDeltaApplyError(
+            f"Unsupported operation for AttributeValueLink: {delta.operation}"
+        )
 
     if existing is None:
-        raise OigDeltaApplyError(f"UPDATE AttributeValueLink {delta.stable_id} missing from base tree")
+        raise OigDeltaApplyError(
+            f"UPDATE AttributeValueLink {delta.stable_id} missing from base tree"
+        )
 
     # Link has no scalar payload; apply child value deltas.
     child_delta = _require_single_child(delta, kind=K.attribute_value)
@@ -382,7 +447,9 @@ def _apply_value_link_delta(
     )
 
 
-def _apply_value_node_update(*, node: AttributeValue, delta: ObjectInstanceGraphDelta) -> None:
+def _apply_value_node_update(
+    *, node: AttributeValue, delta: ObjectInstanceGraphDelta
+) -> None:
     if delta.operation not in (ChangeType.update, ChangeType.create):
         raise OigDeltaApplyError(f"Cannot apply field updates for op={delta.operation}")
     for fd in delta.field_deltas:
@@ -391,16 +458,26 @@ def _apply_value_node_update(*, node: AttributeValue, delta: ObjectInstanceGraph
         elif fd.property == "enum_option_id":
             node.enum_option_id = _as_uuid(fd.value) if fd.value is not None else None
         elif fd.property == "class_instance_id":
-            node.class_instance_id = _as_uuid(fd.value) if fd.value is not None else None
+            node.class_instance_id = (
+                _as_uuid(fd.value) if fd.value is not None else None
+            )
         elif fd.property == "inline_value_instance_id":
-            node.inline_value_instance_id = _as_uuid(fd.value) if fd.value is not None else None
+            node.inline_value_instance_id = (
+                _as_uuid(fd.value) if fd.value is not None else None
+            )
         else:
-            raise OigDeltaApplyError(f"Unsupported AttributeValue field delta: {fd.property}")
+            raise OigDeltaApplyError(
+                f"Unsupported AttributeValue field delta: {fd.property}"
+            )
 
 
-def _create_value_node(*, delta: ObjectInstanceGraphDelta, type_descriptor: AttributeTypeDescriptor) -> AttributeValue:
+def _create_value_node(
+    *, delta: ObjectInstanceGraphDelta, type_descriptor: AttributeTypeDescriptor
+) -> AttributeValue:
     if delta.operation != ChangeType.create:
-        raise OigDeltaApplyError(f"_create_value_node requires CREATE delta, got {delta.operation}")
+        raise OigDeltaApplyError(
+            f"_create_value_node requires CREATE delta, got {delta.operation}"
+        )
 
     with disable_autobind():
         node = AttributeValue(
@@ -417,12 +494,16 @@ def _create_value_node(*, delta: ObjectInstanceGraphDelta, type_descriptor: Attr
     return node
 
 
-def _apply_relationship_delta(*, graph: ObjectInstanceGraph, delta: ObjectInstanceGraphDelta) -> None:
+def _apply_relationship_delta(
+    *, graph: ObjectInstanceGraph, delta: ObjectInstanceGraphDelta
+) -> None:
     existing = _find_by_id(graph.class_instance_relationships, delta.stable_id)
 
     if delta.operation == ChangeType.create:
         if existing is not None:
-            raise OigDeltaApplyError(f"CREATE ClassInstanceRelationship {delta.stable_id} already exists")
+            raise OigDeltaApplyError(
+                f"CREATE ClassInstanceRelationship {delta.stable_id} already exists"
+            )
         spec = _parse_relationship_path_key(delta.path_key)
         with disable_autobind():
             rel = ClassInstanceRelationship(
@@ -437,15 +518,23 @@ def _apply_relationship_delta(*, graph: ObjectInstanceGraph, delta: ObjectInstan
 
     if delta.operation == ChangeType.delete:
         if existing is None:
-            raise OigDeltaApplyError(f"DELETE ClassInstanceRelationship {delta.stable_id} missing from base graph")
-        graph.class_instance_relationships = [r for r in graph.class_instance_relationships if r.id != delta.stable_id]
+            raise OigDeltaApplyError(
+                f"DELETE ClassInstanceRelationship {delta.stable_id} missing from base graph"
+            )
+        graph.class_instance_relationships = [
+            r for r in graph.class_instance_relationships if r.id != delta.stable_id
+        ]
         return
 
     if delta.operation == ChangeType.update:
         # v0: relationships are structural; treat updates as unsupported.
-        raise OigDeltaApplyError(f"UPDATE ClassInstanceRelationship not supported: {delta.stable_id}")
+        raise OigDeltaApplyError(
+            f"UPDATE ClassInstanceRelationship not supported: {delta.stable_id}"
+        )
 
-    raise OigDeltaApplyError(f"Unsupported operation for relationship: {delta.operation}")
+    raise OigDeltaApplyError(
+        f"Unsupported operation for relationship: {delta.operation}"
+    )
 
 
 # ----------------------------
@@ -479,7 +568,11 @@ def _sort_class_instance_attributes(
             return str(attribute.id)
         return str(edge.id)
 
-    class_config = None if class_configs_by_id is None else class_configs_by_id.get(class_instance.class_config_id)
+    class_config = (
+        None
+        if class_configs_by_id is None
+        else class_configs_by_id.get(class_instance.class_config_id)
+    )
     if class_config is None:
         class_instance.class_instance_attributes.sort(
             key=lambda edge: (
@@ -533,7 +626,9 @@ def _field_uuid(delta: ObjectInstanceGraphDelta, name: str) -> UUID | None:
 def _require_field_uuid(delta: ObjectInstanceGraphDelta, name: str) -> UUID:
     value = _field_uuid(delta, name)
     if value is None:
-        raise OigDeltaApplyError(f"Missing required field delta: {name} for {delta.kind} {delta.operation}")
+        raise OigDeltaApplyError(
+            f"Missing required field delta: {name} for {delta.kind} {delta.operation}"
+        )
     return value
 
 
@@ -561,10 +656,14 @@ def _coerce_json_value(value: object) -> JsonValue:
         normalized: dict[str, object] = {}
         for key, item in cast(dict[object, object], value).items():
             if not isinstance(key, str):
-                raise OigDeltaApplyError(f"JSON object keys must be strings, got {type(key).__name__}")
+                raise OigDeltaApplyError(
+                    f"JSON object keys must be strings, got {type(key).__name__}"
+                )
             normalized[key] = _coerce_json_value(item)
         return normalized
-    raise OigDeltaApplyError(f"Expected JSON-compatible primitive value, got {type(value).__name__}")
+    raise OigDeltaApplyError(
+        f"Expected JSON-compatible primitive value, got {type(value).__name__}"
+    )
 
 
 def _json_object_from_mapping(mapping: dict[str, object]) -> Json:
@@ -574,14 +673,20 @@ def _json_object_from_mapping(mapping: dict[str, object]) -> Json:
     return json_object
 
 
-def _require_single_child(delta: ObjectInstanceGraphDelta, *, kind: K) -> ObjectInstanceGraphDelta:
+def _require_single_child(
+    delta: ObjectInstanceGraphDelta, *, kind: K
+) -> ObjectInstanceGraphDelta:
     children = delta.child_deltas.get(kind, [])
     if len(children) != 1:
-        raise OigDeltaApplyError(f"Expected exactly 1 child of kind={kind}, got {len(children)} for {delta.path_key}")
+        raise OigDeltaApplyError(
+            f"Expected exactly 1 child of kind={kind}, got {len(children)} for {delta.path_key}"
+        )
     return children[0]
 
 
-def _require_attribute_create_value_root_delta(delta: ObjectInstanceGraphDelta) -> ObjectInstanceGraphDelta:
+def _require_attribute_create_value_root_delta(
+    delta: ObjectInstanceGraphDelta,
+) -> ObjectInstanceGraphDelta:
     value_delta = _require_single_child(delta, kind=K.attribute_value)
     if value_delta.operation != ChangeType.create:
         raise OigDeltaApplyError(
@@ -616,10 +721,14 @@ def _role_from_value(value: str) -> Role:
     try:
         return Role(value)
     except ValueError as exc:
-        raise OigDeltaApplyError(f"Unknown AttributeTypeDescriptorRole value: {value!r}") from exc
+        raise OigDeltaApplyError(
+            f"Unknown AttributeTypeDescriptorRole value: {value!r}"
+        ) from exc
 
 
-def _resolve_child_descriptor(parent_desc: AttributeTypeDescriptor, slot: _ValueLinkSlot) -> AttributeTypeDescriptor:
+def _resolve_child_descriptor(
+    parent_desc: AttributeTypeDescriptor, slot: _ValueLinkSlot
+) -> AttributeTypeDescriptor:
     kind = parent_desc.kind
 
     # COLLECTION/MAPPING: role selects; slot keys are instance-level identity, not descriptor positions.
@@ -627,21 +736,70 @@ def _resolve_child_descriptor(parent_desc: AttributeTypeDescriptor, slot: _Value
         for link in parent_desc.child_links or []:
             if link.role == slot.role:
                 return link.child
-        raise OigDeltaApplyError(f"Descriptor missing role={slot.role} child for kind={kind}")
+        raise OigDeltaApplyError(
+            f"Descriptor missing role={slot.role} child for kind={kind}"
+        )
 
     # TUPLE/UNION: MEMBER position selects.
     if kind in (DescKind.tuple, DescKind.union):
         if slot.role != Role.member:
-            raise OigDeltaApplyError(f"{kind} expects member links, got role={slot.role}")
+            raise OigDeltaApplyError(
+                f"{kind} expects member links, got role={slot.role}"
+            )
         if slot.position is None:
             raise OigDeltaApplyError(f"{kind} member link missing position")
         for link in parent_desc.child_links or []:
             if link.role == Role.member and link.position == slot.position:
                 return link.child
-        raise OigDeltaApplyError(f"{kind} missing member position={slot.position} in descriptor")
+        raise OigDeltaApplyError(
+            f"{kind} missing member position={slot.position} in descriptor"
+        )
 
     # Leaf nodes should not have children.
     raise OigDeltaApplyError(f"Leaf descriptor kind={kind} cannot have child links")
+
+
+def _reattach_value_tree_type_descriptors(
+    *,
+    node: AttributeValue,
+    expected_descriptor: AttributeTypeDescriptor,
+) -> None:
+    actual_descriptor = node.type_descriptor
+    if (
+        actual_descriptor is not None
+        and getattr(actual_descriptor, "id", None) is not None
+        and actual_descriptor.id != expected_descriptor.id
+    ):
+        return
+    node.type_descriptor = expected_descriptor
+    node.type_descriptor_id = expected_descriptor.id
+    for link in tuple(node.child_links or ()):
+        child_descriptor = _expected_child_descriptor_for_link(
+            parent_descriptor=expected_descriptor,
+            value_link=link,
+        )
+        if child_descriptor is None:
+            continue
+        _reattach_value_tree_type_descriptors(
+            node=link.child,
+            expected_descriptor=child_descriptor,
+        )
+
+
+def _expected_child_descriptor_for_link(
+    *,
+    parent_descriptor: AttributeTypeDescriptor,
+    value_link: AttributeValueLink,
+) -> AttributeTypeDescriptor | None:
+    slot = _ValueLinkSlot(
+        role=value_link.role,
+        position=value_link.position,
+        identity_key=value_link.identity_key,
+    )
+    try:
+        return _resolve_child_descriptor(parent_descriptor, slot)
+    except OigDeltaApplyError:
+        return None
 
 
 @dataclass(frozen=True)
@@ -683,7 +841,9 @@ def apply_object_instance_graph_changes(
     Commit → ObjectInstanceGraphChange tree → Change(type) → ChangeDelta[] (delta-only)
     """
     attr_cfgs = attribute_configs_by_id or {}
-    class_instances_by_id: dict[UUID, ClassInstance] = {ci.id: ci for ci in graph.class_instances}
+    class_instances_by_id: dict[UUID, ClassInstance] = {
+        ci.id: ci for ci in graph.class_instances
+    }
 
     for change_tree in changes:
         if change_tree.type == ObjectInstanceGraphChangeType.object_instance:
@@ -697,14 +857,19 @@ def apply_object_instance_graph_changes(
                 )
             continue
 
-        if change_tree.type == ObjectInstanceGraphChangeType.object_instance_relationship:
+        if (
+            change_tree.type
+            == ObjectInstanceGraphChangeType.object_instance_relationship
+        ):
             _apply_relationship_changes_bulk(
                 graph=graph,
                 changes=change_tree.class_instance_relationship_changes,
             )
             continue
 
-        raise OigChangeApplyError(f"Unsupported ObjectInstanceGraphChangeType: {change_tree.type}")
+        raise OigChangeApplyError(
+            f"Unsupported ObjectInstanceGraphChangeType: {change_tree.type}"
+        )
 
     # Deterministic ordering for stable downstream operations (hash/diff).
     graph.class_instances.sort(key=lambda ci: (str(ci.class_config_id), str(ci.id)))
@@ -754,13 +919,17 @@ def _apply_class_instance_change(
 
     elif op == ChangeType.update:
         if existing is None:
-            raise OigChangeApplyError(f"UPDATE ClassInstance {ci_id} missing from base graph")
+            raise OigChangeApplyError(
+                f"UPDATE ClassInstance {ci_id} missing from base graph"
+            )
         for cd in change.change.change_deltas:
             _apply_scalar_set_to_class_instance(ci=existing, delta=cd)
 
     elif op == ChangeType.delete:
         if existing is None:
-            raise OigChangeApplyError(f"DELETE ClassInstance {ci_id} missing from base graph")
+            raise OigChangeApplyError(
+                f"DELETE ClassInstance {ci_id} missing from base graph"
+            )
         graph.class_instances = [ci for ci in graph.class_instances if ci.id != ci_id]
         if class_instances_by_id is not None:
             _ = class_instances_by_id.pop(ci_id, None)
@@ -783,16 +952,22 @@ def _apply_class_instance_change(
     )
 
 
-def _apply_scalar_set_to_class_instance(*, ci: ClassInstance, delta: ChangeDelta) -> None:
+def _apply_scalar_set_to_class_instance(
+    *, ci: ClassInstance, delta: ChangeDelta
+) -> None:
     if delta.kind != ChangeDeltaKind.scalar_set:
-        raise OigChangeApplyError(f"Unsupported ChangeDeltaKind for ClassInstance: {delta.kind}")
+        raise OigChangeApplyError(
+            f"Unsupported ChangeDeltaKind for ClassInstance: {delta.kind}"
+        )
     if delta.property == "class_config_id":
         ci.class_config_id = _as_uuid(_delta_value(delta))
         return
     if delta.property == "source_object_id":
         ci.source_object_id = _as_uuid(_delta_value(delta))
         return
-    raise OigChangeApplyError(f"Unsupported ClassInstance delta property: {delta.property!r}")
+    raise OigChangeApplyError(
+        f"Unsupported ClassInstance delta property: {delta.property!r}"
+    )
 
 
 def _apply_attribute_change(
@@ -831,14 +1006,22 @@ def _apply_attribute_change(
                 + str(change.value_root_change.change.type)
             )
 
-        node = _create_value_node_from_change(change=change.value_root_change, type_descriptor=cfg.type_descriptor)
+        node = _create_value_node_from_change(
+            change=change.value_root_change, type_descriptor=cfg.type_descriptor
+        )
         _apply_value_node_children_from_change(
             node=node,
             change=change.value_root_change,
             attribute_configs_by_id=attribute_configs_by_id,
         )
+        _reattach_value_tree_type_descriptors(
+            node=node,
+            expected_descriptor=cfg.type_descriptor,
+        )
         canonicalize_attribute_value_tree(node)
-        validate_attribute_value_tree_with_context(node, class_configs_by_id=class_configs_by_id)
+        validate_attribute_value_tree_with_context(
+            node, class_configs_by_id=class_configs_by_id
+        )
         with disable_autobind():
             existing = Attribute(
                 id=attr_id,
@@ -851,22 +1034,31 @@ def _apply_attribute_change(
 
     elif op == ChangeType.update:
         if existing is None:
-            raise OigChangeApplyError(f"UPDATE Attribute {attr_id} missing from base graph")
+            raise OigChangeApplyError(
+                f"UPDATE Attribute {attr_id} missing from base graph"
+            )
         for cd in change.change.change_deltas:
             if cd.kind != ChangeDeltaKind.scalar_set:
-                raise OigChangeApplyError(f"Unsupported ChangeDeltaKind for Attribute: {cd.kind}")
+                raise OigChangeApplyError(
+                    f"Unsupported ChangeDeltaKind for Attribute: {cd.kind}"
+                )
             if cd.property == "attribute_config_id":
                 existing.attribute_config_id = _as_uuid(_delta_value(cd))
                 continue
-            raise OigChangeApplyError(f"Unsupported Attribute delta property: {cd.property!r}")
+            raise OigChangeApplyError(
+                f"Unsupported Attribute delta property: {cd.property!r}"
+            )
 
     elif op == ChangeType.delete:
         if existing is None:
-            raise OigChangeApplyError(f"DELETE Attribute {attr_id} missing from base graph")
+            raise OigChangeApplyError(
+                f"DELETE Attribute {attr_id} missing from base graph"
+            )
         class_instance.class_instance_attributes = [
             edge
             for edge in class_instance.class_instance_attributes
-            if edge.attribute_id != attr_id and getattr(edge.attribute, "id", None) != attr_id
+            if edge.attribute_id != attr_id
+            and getattr(edge.attribute, "id", None) != attr_id
         ]
         return
 
@@ -911,7 +1103,13 @@ def _apply_attribute_value_change_under_attribute(
     elif op == ChangeType.update:
         node = attribute.value_root
         if node.id != change.attribute_value_id:
-            raise OigChangeApplyError(f"value_root id mismatch: have={node.id} change={change.attribute_value_id}")
+            raise OigChangeApplyError(
+                f"value_root id mismatch: have={node.id} change={change.attribute_value_id}"
+            )
+        _reattach_value_tree_type_descriptors(
+            node=node,
+            expected_descriptor=cfg.type_descriptor,
+        )
         _apply_value_node_update_from_change(node=node, change=change)
 
     elif op == ChangeType.delete:
@@ -922,9 +1120,17 @@ def _apply_attribute_value_change_under_attribute(
     else:
         raise OigChangeApplyError(f"Unsupported AttributeValue change type: {op}")
 
-    _apply_value_node_children_from_change(node=node, change=change, attribute_configs_by_id=attribute_configs_by_id)
+    _apply_value_node_children_from_change(
+        node=node, change=change, attribute_configs_by_id=attribute_configs_by_id
+    )
+    _reattach_value_tree_type_descriptors(
+        node=node,
+        expected_descriptor=cfg.type_descriptor,
+    )
     canonicalize_attribute_value_tree(node)
-    validate_attribute_value_tree_with_context(node, class_configs_by_id=class_configs_by_id)
+    validate_attribute_value_tree_with_context(
+        node, class_configs_by_id=class_configs_by_id
+    )
     attribute.value_root_id = node.id
 
 
@@ -957,7 +1163,11 @@ def _apply_value_link_change(
             raise OigChangeApplyError(
                 f"DELETE AttributeValueLink {change.attribute_value_link_id} missing from base tree"
             )
-        parent.child_links = [link for link in parent.child_links if link.id != change.attribute_value_link_id]
+        parent.child_links = [
+            link
+            for link in parent.child_links
+            if link.id != change.attribute_value_link_id
+        ]
         return
 
     if op == ChangeType.create:
@@ -965,9 +1175,13 @@ def _apply_value_link_change(
         slot = _ValueLinkSlot(role=role, position=pos, identity_key=ident)
         child_desc = _resolve_child_descriptor(parent.type_descriptor, slot)
         if existing is not None:
-            raise OigChangeApplyError(f"CREATE AttributeValueLink {change.attribute_value_link_id} already exists")
+            raise OigChangeApplyError(
+                f"CREATE AttributeValueLink {change.attribute_value_link_id} already exists"
+            )
         if change.child_attribute_value_change is None:
-            raise OigChangeApplyError("CREATE AttributeValueLink missing child_attribute_value_change")
+            raise OigChangeApplyError(
+                "CREATE AttributeValueLink missing child_attribute_value_change"
+            )
 
         child_node = _create_value_node_from_change(
             change=change.child_attribute_value_change, type_descriptor=child_desc
@@ -995,9 +1209,13 @@ def _apply_value_link_change(
         raise OigChangeApplyError(f"Unsupported operation for AttributeValueLink: {op}")
 
     if existing is None:
-        raise OigChangeApplyError(f"UPDATE AttributeValueLink {change.attribute_value_link_id} missing from base tree")
+        raise OigChangeApplyError(
+            f"UPDATE AttributeValueLink {change.attribute_value_link_id} missing from base tree"
+        )
     if change.child_attribute_value_change is None:
-        raise OigChangeApplyError("UPDATE AttributeValueLink missing child_attribute_value_change")
+        raise OigChangeApplyError(
+            "UPDATE AttributeValueLink missing child_attribute_value_change"
+        )
 
     child_node = existing.child
     if child_node.id != change.child_attribute_value_change.attribute_value_id:
@@ -1006,7 +1224,9 @@ def _apply_value_link_change(
             + f"have={child_node.id} "
             + f"change={change.child_attribute_value_change.attribute_value_id}"
         )
-    _apply_value_node_update_from_change(node=child_node, change=change.child_attribute_value_change)
+    _apply_value_node_update_from_change(
+        node=child_node, change=change.child_attribute_value_change
+    )
     _apply_value_node_children_from_change(
         node=child_node,
         change=change.child_attribute_value_change,
@@ -1014,14 +1234,18 @@ def _apply_value_link_change(
     )
 
 
-def _apply_value_node_update_from_change(*, node: AttributeValue, change: AttributeValueChange) -> None:
+def _apply_value_node_update_from_change(
+    *, node: AttributeValue, change: AttributeValueChange
+) -> None:
     op = change.change.type
     if op not in (ChangeType.update, ChangeType.create):
         raise OigChangeApplyError(f"Cannot apply field updates for op={op}")
 
     for cd in change.change.change_deltas:
         if cd.kind != ChangeDeltaKind.scalar_set:
-            raise OigChangeApplyError(f"Unsupported ChangeDeltaKind for AttributeValue: {cd.kind}")
+            raise OigChangeApplyError(
+                f"Unsupported ChangeDeltaKind for AttributeValue: {cd.kind}"
+            )
         raw = _delta_value(cd)
         if cd.property == "primitive_value":
             node.primitive_value = _wrap_primitive(raw)
@@ -1032,14 +1256,18 @@ def _apply_value_node_update_from_change(*, node: AttributeValue, change: Attrib
         elif cd.property == "inline_value_instance_id":
             node.inline_value_instance_id = _as_uuid(raw) if raw is not None else None
         else:
-            raise OigChangeApplyError(f"Unsupported AttributeValue delta property: {cd.property!r}")
+            raise OigChangeApplyError(
+                f"Unsupported AttributeValue delta property: {cd.property!r}"
+            )
 
 
 def _create_value_node_from_change(
     *, change: AttributeValueChange, type_descriptor: AttributeTypeDescriptor
 ) -> AttributeValue:
     if change.change.type != ChangeType.create:
-        raise OigChangeApplyError(f"_create_value_node_from_change requires CREATE, got {change.change.type}")
+        raise OigChangeApplyError(
+            f"_create_value_node_from_change requires CREATE, got {change.change.type}"
+        )
 
     with disable_autobind():
         node = AttributeValue(
@@ -1107,7 +1335,9 @@ def _apply_relationship_changes_bulk(
 
         raise OigChangeApplyError(f"Unsupported relationship change type: {op}")
 
-    graph.class_instance_relationships = [rel for rels in rels_by_key.values() for rel in rels]
+    graph.class_instance_relationships = [
+        rel for rels in rels_by_key.values() for rel in rels
+    ]
 
 
 def _delta_value(delta: ChangeDelta) -> JsonValue:
@@ -1161,8 +1391,12 @@ def _as_int(value: object) -> int:
         try:
             return int(value)
         except ValueError as exc:
-            raise OigChangeApplyError(f"Expected integer slot position, got {value!r}") from exc
-    raise OigChangeApplyError(f"Expected integer slot position, got {type(value).__name__}")
+            raise OigChangeApplyError(
+                f"Expected integer slot position, got {value!r}"
+            ) from exc
+    raise OigChangeApplyError(
+        f"Expected integer slot position, got {type(value).__name__}"
+    )
 
 
 __all__ = [

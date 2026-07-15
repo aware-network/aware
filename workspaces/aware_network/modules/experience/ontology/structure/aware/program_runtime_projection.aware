@@ -1,0 +1,55 @@
+/// Program runtime projection
+///
+/// Contract:
+/// - Runtime program execution surface is Experience-owned.
+/// - Environment participation is explicit through ThreadProgram binding objects.
+/// - Turn receipts remain canonical Experience runtime lifecycle truth.
+projection ProgramRuntime {
+    root program.Program
+
+    program.Program::program_impl ProgramImpl
+    program.Program::active_turn
+
+    program.Program::program_actors
+    program.ProgramActor::program_config_actor_config ProgramConfig
+    program.ProgramActor::actor aware_identity.Identity
+    program.ProgramActor::program_actor_roles
+    program.ProgramActorRole::actor_role aware_identity.Identity
+    program.ProgramActorRole::actor_config_role_config aware_identity.ActorConfig
+
+    program.Program::branches
+    program.ProgramBranch::object_instance_graph_branch aware_meta.ObjectInstanceGraphIdentity
+
+    program.Program::layouts
+    program.ProgramLayout::config ProgramConfig
+    program.ProgramLayout::sections
+    program.ProgramLayoutSection::port_section ProgramConfig
+    program.ProgramLayoutSection::program_branch
+
+    program.Program::turns
+    program.ProgramTurn::turn Turn
+    program.ProgramTurn::instructions
+    program.ProgramTurnInstruction::program_instruction ProgramImpl
+    program.ProgramTurnInstruction::bind_receipt
+    program.ProgramTurnInstruction::invoke_receipt
+    program.ProgramTurnInstruction::action_receipt
+    program.ProgramTurnInstructionBind::program_impl_instruction_bind ProgramImpl
+    program.ProgramTurnInstructionBind::object_instance_graph_branch aware_meta.ObjectInstanceGraphIdentity
+    program.ProgramTurnInstructionBind::projection_experience_view ProjectionExperience
+    program.ProgramTurnInstructionBind::resolved_node_identities
+    program.ProgramTurnInstructionBindIdentity::program_config_port_projection_experience_node ProgramConfig
+    program.ProgramTurnInstructionBindIdentity::projection_experience_node_class_identity ProjectionExperienceOIGI
+    program.ProgramTurnInstructionInvoke::program_impl_instruction_invoke ProgramImpl
+    program.ProgramTurnInstructionInvoke::program_actor_role
+    program.ProgramTurnInstructionInvoke::projection_experience_node_class_identity ProjectionExperienceOIGI
+    program.ProgramTurnInstructionInvoke::attribute_config_receipts
+    program.ProgramTurnInstructionInvokeAttributeConfig::program_impl_instruction_invoke_attribute_config ProgramImpl
+    program.ProgramTurnInstructionAction::program_impl_instruction_intent ProgramImpl
+    program.ProgramTurnInstruction::decisions
+
+    observable program.runtime {
+        """
+        Program runtime timeline with Turn-linked execution receipts.
+        """
+    }
+}

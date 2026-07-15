@@ -49,6 +49,96 @@ def test_meta_materialization_runtime_declares_ontology_package_dependencies() -
     assert descriptors[0].include_package_dependency_closure is False
 
 
+def test_meta_object_config_graph_manifest_contract_is_public_facade() -> None:
+    from aware_meta.graph.package.manifest_contract import (
+        OBJECT_CONFIG_GRAPH_PACKAGE_MANIFEST_KIND,
+        OBJECT_CONFIG_GRAPH_PACKAGE_PROJECTION_NAME,
+        OBJECT_CONFIG_GRAPH_PACKAGE_SEMANTIC_KIND,
+        object_config_graph_package_manifest_contract,
+    )
+
+    contract = object_config_graph_package_manifest_contract()
+
+    assert contract.provider_key == AWARE_META_SEMANTIC_CONTRACT.provider_key
+    assert contract.semantic_owner == META_PROVIDER_OWNER
+    assert contract.manifest_kind == OBJECT_CONFIG_GRAPH_PACKAGE_MANIFEST_KIND
+    assert OBJECT_CONFIG_GRAPH_PACKAGE_MANIFEST_KIND == "aware_toml"
+    assert contract.filename == "aware.toml"
+    assert contract.semantic_package_kind == OBJECT_CONFIG_GRAPH_PACKAGE_SEMANTIC_KIND
+    assert OBJECT_CONFIG_GRAPH_PACKAGE_SEMANTIC_KIND == "object_config_graph_package"
+    assert contract.semantic_projection_name == (
+        OBJECT_CONFIG_GRAPH_PACKAGE_PROJECTION_NAME
+    )
+    assert OBJECT_CONFIG_GRAPH_PACKAGE_PROJECTION_NAME == "ObjectConfigGraphPackage"
+    assert contract.code_package_surface_for_package_kind("api") == "api"
+    assert contract.code_package_surface_for_package_kind("ontology") == "structure"
+
+
+def test_meta_generated_materialization_intent_metadata_is_shared_contract() -> None:
+    from aware_meta.materialization.deltas.generated_materialization_dispatch import (
+        generated_materialization_intent_target_metadata as dispatch_metadata,
+    )
+    from aware_meta.generated_materialization_contract import (
+        generated_materialization_intent_target_metadata as shared_metadata,
+    )
+    from aware_meta.generated_materialization_contract import (
+        ORM_RUNTIME_TARGET_PROFILE,
+    )
+    from aware_meta.semantic_contract import (
+        generated_materialization_intent_target_metadata as semantic_metadata,
+    )
+
+    kwargs = {
+        "policy_key": "aware_meta.test_policy",
+        "materialization_target": "aware_meta.test_target",
+    }
+
+    expected = {
+        "policy_key": "aware_meta.test_policy",
+        "materialization_target": "aware_meta.test_target",
+        "target_profile": ORM_RUNTIME_TARGET_PROFILE.descriptor_key,
+        "renderer_profile": ORM_RUNTIME_TARGET_PROFILE.renderer_profile,
+        "materialization_source": ORM_RUNTIME_TARGET_PROFILE.materialization_source,
+        "product_intent": "orm_runtime",
+    }
+    assert shared_metadata(**kwargs) == expected
+    assert semantic_metadata(**kwargs) == expected
+    assert dispatch_metadata(**kwargs) == expected
+
+
+def test_api_and_ontology_do_not_claim_meta_aware_toml_manifest_kind() -> None:
+    from aware_api_runtime.semantic_contract import AWARE_API_SEMANTIC_CONTRACT
+    from aware_ontology.semantic_contract import AWARE_ONTOLOGY_SEMANTIC_CONTRACT
+    from aware_meta.graph.package.manifest_contract import (
+        OBJECT_CONFIG_GRAPH_PACKAGE_MANIFEST_KIND,
+    )
+
+    api_manifest_kinds = {
+        descriptor.manifest_kind
+        for descriptor in AWARE_API_SEMANTIC_CONTRACT.manifest_resolution
+    }
+    ontology_manifest_kinds = {
+        descriptor.manifest_kind
+        for descriptor in AWARE_ONTOLOGY_SEMANTIC_CONTRACT.manifest_resolution
+    }
+    api_owned_manifest_kinds = {
+        manifest_kind
+        for role in AWARE_API_SEMANTIC_CONTRACT.package_roles
+        for manifest_kind in role.owns_manifest_kinds
+    }
+    ontology_owned_manifest_kinds = {
+        manifest_kind
+        for role in AWARE_ONTOLOGY_SEMANTIC_CONTRACT.package_roles
+        for manifest_kind in role.owns_manifest_kinds
+    }
+
+    assert OBJECT_CONFIG_GRAPH_PACKAGE_MANIFEST_KIND == "aware_toml"
+    assert api_manifest_kinds == {"aware_api_toml"}
+    assert ontology_manifest_kinds == {"aware_ontology_toml"}
+    assert OBJECT_CONFIG_GRAPH_PACKAGE_MANIFEST_KIND not in api_owned_manifest_kinds
+    assert OBJECT_CONFIG_GRAPH_PACKAGE_MANIFEST_KIND not in ontology_owned_manifest_kinds
+
+
 def test_meta_materialization_runtime_context_payload_omits_module_ids() -> None:
     descriptors = AWARE_META_SEMANTIC_CONTRACT.materialization_runtime_context_for(
         semantic_owner=META_OBJECT_CONFIG_GRAPH_OWNER,
@@ -681,7 +771,7 @@ def test_meta_enum_source_meaning_contract_resolves_structural_create_delete() -
     assert delete_operation.before_payload["name"] == "PlaybackState"
 
 
-def test_meta_enum_source_meaning_contract_resolves_identity_rename_as_fallback_pair() -> (
+def test_meta_enum_source_meaning_contract_resolves_identity_rename_explicitly() -> (
     None
 ):
     from aware_code.semantic_source_meaning import (  # noqa: WPS433
@@ -698,22 +788,26 @@ def test_meta_enum_source_meaning_contract_resolves_identity_rename_as_fallback_
         current_source_index=current,
     )
 
-    structural_operations = tuple(
+    rename_operations = tuple(
         operation
         for operation in resolution.typed_operations
         if operation.semantic_operation_type
-        in {
-            "aware_meta.object_config_graph.enum.create",
-            "aware_meta.object_config_graph.enum.delete",
-        }
+        == "aware_meta.object_config_graph.enum.identity.rename"
     )
     assert resolution.resolved is True
-    assert len(structural_operations) == 2
-    operations_by_family = {
-        operation.operation_family: operation for operation in structural_operations
-    }
-    assert operations_by_family["delete"].semantic_key == "meta.enum:PlaybackState"
-    assert operations_by_family["create"].semantic_key == "meta.enum:PlaybackMode"
+    assert len(rename_operations) == 1
+    [rename_operation] = rename_operations
+    assert rename_operation.operation_family == "rename"
+    assert rename_operation.semantic_key == "meta.enum:PlaybackMode"
+    assert rename_operation.before_payload is not None
+    assert rename_operation.after_payload is not None
+    assert rename_operation.before_payload["name"] == "PlaybackState"
+    assert rename_operation.after_payload["name"] == "PlaybackMode"
+    assert rename_operation.metadata["fallback_required"] is True
+    assert rename_operation.metadata["fallback_reason"] == (
+        "meta_enum_identity_rename_requires_explicit_policy"
+    )
+    assert rename_operation.metadata["preview_only"] is True
 
 
 def test_meta_enum_option_source_meaning_contract_resolves_create_delta() -> None:

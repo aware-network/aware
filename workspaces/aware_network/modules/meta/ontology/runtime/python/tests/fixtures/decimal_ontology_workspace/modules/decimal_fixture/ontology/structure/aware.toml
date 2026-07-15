@@ -1,0 +1,12 @@
+aware = 1
+
+[package]
+package_name = "decimal-fixture-ontology"
+fqn_prefix = "aware_decimal_fixture"
+kind = "ontology"
+version_number = 1
+title = "Decimal Fixture"
+description = "Isolated exact Decimal primitive materialization fixture."
+
+[build]
+environment_slug = "aware_decimal_fixture"

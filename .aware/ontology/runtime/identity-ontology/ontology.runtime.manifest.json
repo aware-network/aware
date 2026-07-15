@@ -1,0 +1,22 @@
+{
+  "code_package_id": "3e8290cc-58fe-5e22-831d-4bb2959f5a8c",
+  "db_schema": {
+    "backend_targets": [
+      "postgres"
+    ],
+    "package_kind": "ontology",
+    "sql_roots": [
+      {
+        "path": "../../../../workspaces/aware_network/modules/identity/ontology/structure/sql/schema",
+        "path_mode": "manifest_relative"
+      }
+    ]
+  },
+  "domain_commit_id": "8101e2ad-8a0a-5d90-a453-d26640023855",
+  "object_instance_graph_commit_id": "69af2e80-ee63-5d70-a98f-72fb0fc1e139",
+  "package_name": "identity-ontology",
+  "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
+  "source_kind": "workspace_revision",
+  "workspace_relative_package_root": "workspaces/aware_network/modules/identity/ontology",
+  "workspace_revision_code_package_id": "230bf778-2000-5135-9c12-6588acb9d923"
+}

@@ -1,0 +1,25 @@
+/// Graph occurrence parent->child edge under ProjectionExperienceGraph.
+///
+/// Contract:
+/// - Encodes graph occurrence traversal using parent/child ProjectionExperienceGraphIdentity.
+/// - Requires a semantic ProjectionExperienceNodeIdentityEdge contract boundary.
+class ProjectionExperienceGraphIdentityEdge {
+    // Relationships
+    child_projection_experience_graph_identity ProjectionExperienceGraphIdentity key
+    parent_projection_experience_graph_identity ProjectionExperienceGraphIdentity key
+    projection_experience_node_identity_edge ProjectionExperienceNodeIdentityEdge key
+
+    // Attributes
+    key String?
+
+    fn build construct (
+        parent_projection_experience_graph_identity_id UUID key,
+        child_projection_experience_graph_identity_id UUID key,
+        projection_experience_node_identity_edge_id UUID key,
+        key String? = null
+    ) -> ProjectionExperienceGraphIdentityEdge {
+        """
+        Create deterministic ProjectionExperienceGraphIdentityEdge.
+        """
+    }
+}

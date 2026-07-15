@@ -1,0 +1,16 @@
+class EventConfigConditionConfigScopeEvent {
+    // Relationships
+    event Event key
+
+    fn create construct (
+        event_id UUID key
+    ) -> EventConfigConditionConfigScopeEvent {
+        """
+        Record canonical scope-level event activation evidence.
+
+        Contract:
+        - Event-first evidence rail: one raised Event can be linked to one or more scopes.
+        - Deterministic id derived from (scope_id, event_id).
+        """
+    }
+}

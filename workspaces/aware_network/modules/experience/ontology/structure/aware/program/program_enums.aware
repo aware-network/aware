@@ -1,0 +1,38 @@
+enum ProgramBranchBindingMode {
+    create
+    reference
+}
+
+enum ProgramSlotOnBind {
+    replace
+    if_empty
+    sticky
+}
+
+enum ProgramAttributeType {
+    input
+    output
+}
+
+enum ProgramRunStatus {
+    pending
+    running
+    terminal
+}
+
+enum ProgramTurnTransition {
+    stay_in_turn
+    switch_turn_continue_run
+    switch_turn_wait_signal
+    terminal_program_run
+}
+
+enum ProgramTurnDecisionReason {
+    continue_current_turn
+    input_instruction_requires_runtime_unlock
+    invoke_budget_reached
+    turn_time_budget_reached
+    awaiting_external_signal
+    instruction_failed
+    plan_exhausted
+}

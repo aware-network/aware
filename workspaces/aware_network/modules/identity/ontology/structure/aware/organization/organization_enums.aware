@@ -1,0 +1,6 @@
+enum OrganizationMemberRole {
+    admin
+    guest
+    member
+    owner
+}

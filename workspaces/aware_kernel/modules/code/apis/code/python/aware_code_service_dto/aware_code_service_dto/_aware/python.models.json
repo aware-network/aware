@@ -1297,6 +1297,104 @@
       "functions": []
     },
     {
+      "class_config_id": "d4205684-15dd-5ff6-925a-b8d88db8712f",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "CodeEditorViewStateV1",
+      "aware_class_ref": "aware_code_service_dto.code.CodeEditorViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "455b86ae-1044-5651-9d85-213b2a17dbe9",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "CodePackageSelectorViewStateV1",
+      "aware_class_ref": "aware_code_service_dto.code.CodePackageSelectorViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "92f59837-83be-52b7-a418-d9779c41d592",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "CodeViewStateCode",
+      "aware_class_ref": "aware_code_service_dto.code.CodeViewStateCode",
+      "functions": []
+    },
+    {
+      "class_config_id": "dc84a39b-4364-5b2f-b825-912a6ffd3099",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "CodeViewStatePackage",
+      "aware_class_ref": "aware_code_service_dto.code.CodeViewStatePackage",
+      "functions": []
+    },
+    {
+      "class_config_id": "b6e584f0-011b-5770-9ec0-71fec8c9106a",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "CodeViewStateSectionAnchor",
+      "aware_class_ref": "aware_code_service_dto.code.CodeViewStateSectionAnchor",
+      "functions": []
+    },
+    {
+      "class_config_id": "9b5c2ccf-1ad0-517e-b5ad-add91e70e54a",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "CodeViewStateSourceRef",
+      "aware_class_ref": "aware_code_service_dto.code.CodeViewStateSourceRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "f42dc112-d9c7-503a-80f1-08c705a72c06",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "ResolveCodeEditorViewRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeEditorViewRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "46af2c5f-8858-5719-b6da-fd272b0a30d0",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "ResolveCodeEditorViewResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodeEditorViewResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "6586f143-b241-5ebe-a5ca-855e50e1e031",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "ResolveCodePackageSelectorViewRequest",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodePackageSelectorViewRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "08844902-469b-5fb7-bf85-abf417615753",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "ResolveCodePackageSelectorViewResponse",
+      "aware_class_ref": "aware_code_service_dto.code.ResolveCodePackageSelectorViewResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7ea55588-cec1-592c-a1f3-87db076add10",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "SelectCodeSectionViewActionRequest",
+      "aware_class_ref": "aware_code_service_dto.code.SelectCodeSectionViewActionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "bfa08e74-e814-5da5-8ab0-8aef2b851ce9",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "SelectCodeSectionViewActionResponse",
+      "aware_class_ref": "aware_code_service_dto.code.SelectCodeSectionViewActionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "a03e887c-b965-5bab-8570-e6f7a87b8616",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "SelectCodeViewActionRequest",
+      "aware_class_ref": "aware_code_service_dto.code.SelectCodeViewActionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "cc2f6322-013e-5c5e-8121-ea54fb191f72",
+      "module": "aware_code_service_dto.code.features.view_state",
+      "name": "SelectCodeViewActionResponse",
+      "aware_class_ref": "aware_code_service_dto.code.SelectCodeViewActionResponse",
+      "functions": []
+    },
+    {
       "class_config_id": "e8c2458d-9477-5a3c-a398-4b3f107cdee2",
       "module": "aware_code_service_dto.code.service",
       "name": "CodeServiceRequest",

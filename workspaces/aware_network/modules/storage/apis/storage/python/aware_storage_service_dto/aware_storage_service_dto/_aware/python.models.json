@@ -1,0 +1,103 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "9a2432a8-217f-56af-aaf5-e10f382950ba",
+      "module": "aware_storage_service_dto.storage.media",
+      "name": "StorageBlobMetadata",
+      "aware_class_ref": "aware_storage_service_dto.storage.StorageBlobMetadata",
+      "functions": []
+    },
+    {
+      "class_config_id": "b0aaf906-9715-5027-be24-ebd04448319c",
+      "module": "aware_storage_service_dto.storage.media",
+      "name": "StorageBlobRef",
+      "aware_class_ref": "aware_storage_service_dto.storage.StorageBlobRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "57abe64d-f4fe-5c41-b5e9-368d11f6d708",
+      "module": "aware_storage_service_dto.storage.media",
+      "name": "StorageMediaRef",
+      "aware_class_ref": "aware_storage_service_dto.storage.StorageMediaRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "4ac417d3-68fc-545d-9d48-90e5bae9f824",
+      "module": "aware_storage_service_dto.storage.media",
+      "name": "StorageMediaResolution",
+      "aware_class_ref": "aware_storage_service_dto.storage.StorageMediaResolution",
+      "functions": []
+    },
+    {
+      "class_config_id": "573ca571-3a8f-5da6-ae0f-9e8fe6796e33",
+      "module": "aware_storage_service_dto.storage.media",
+      "name": "StorageOperationReceipt",
+      "aware_class_ref": "aware_storage_service_dto.storage.StorageOperationReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "646e8b40-7533-5dec-82ea-19c9c538b76d",
+      "module": "aware_storage_service_dto.storage.service_operation",
+      "name": "DescribeStorageBlobRequest",
+      "aware_class_ref": "aware_storage_service_dto.storage.DescribeStorageBlobRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "19304c4e-c2f0-51dd-96df-5a756358730e",
+      "module": "aware_storage_service_dto.storage.service_operation",
+      "name": "DescribeStorageBlobResponse",
+      "aware_class_ref": "aware_storage_service_dto.storage.DescribeStorageBlobResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "561c07ed-702c-5cd7-a541-390aa45730ae",
+      "module": "aware_storage_service_dto.storage.service_operation",
+      "name": "RegisterStorageBlobRequest",
+      "aware_class_ref": "aware_storage_service_dto.storage.RegisterStorageBlobRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "93b5f16b-5945-5f57-8f5b-2be58c668311",
+      "module": "aware_storage_service_dto.storage.service_operation",
+      "name": "RegisterStorageBlobResponse",
+      "aware_class_ref": "aware_storage_service_dto.storage.RegisterStorageBlobResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "0369a136-88f3-5a6e-8f8d-e16d8cc927bd",
+      "module": "aware_storage_service_dto.storage.service_operation",
+      "name": "ResolveStorageMediaRequest",
+      "aware_class_ref": "aware_storage_service_dto.storage.ResolveStorageMediaRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8fac4a50-1930-56ca-8809-d7b3b5c5a081",
+      "module": "aware_storage_service_dto.storage.service_operation",
+      "name": "ResolveStorageMediaResponse",
+      "aware_class_ref": "aware_storage_service_dto.storage.ResolveStorageMediaResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "be572139-2317-5d7a-a09f-c3f633394648",
+      "module": "aware_storage_service_dto.storage.service_operation",
+      "name": "StorageServiceRequest",
+      "aware_class_ref": "aware_storage_service_dto.storage.StorageServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "1eae5bcd-3596-5f77-9929-5ebc3684d24e",
+      "module": "aware_storage_service_dto.storage.service_operation",
+      "name": "StorageServiceResponse",
+      "aware_class_ref": "aware_storage_service_dto.storage.StorageServiceResponse",
+      "functions": []
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "9af11a4b-f3f3-53ee-880e-eb1708d27567",
+      "module": "aware_storage_service_dto.storage.media",
+      "name": "StorageMediaDisposition"
+    }
+  ]
+}

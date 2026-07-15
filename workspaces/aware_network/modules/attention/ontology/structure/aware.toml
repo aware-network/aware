@@ -1,0 +1,21 @@
+aware = 1
+
+[package]
+package_name = "attention-ontology"
+fqn_prefix = "aware_attention"
+kind = "ontology"
+version_number = 1
+title = "Attention"
+description = "SSOT canonical (.aware) sources for attention."
+
+[build]
+environment_slug = "aware_attention"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "identity-ontology"

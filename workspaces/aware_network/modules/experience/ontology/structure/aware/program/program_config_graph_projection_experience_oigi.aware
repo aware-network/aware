@@ -1,0 +1,21 @@
+/// ProgramConfigGraph -> ProjectionExperienceOIGI association edge.
+///
+/// Contract:
+/// - Declares which projection/meta topology rail is in scope for this graph.
+/// - Keeps ProgramConfigGraph independent from Environment bindings.
+class ProgramConfigGraphProjectionExperienceOIGI {
+    // Relationships
+    projection_experience_oigi aware_experience.projection.ProjectionExperienceOIGI key
+
+    // Attributes
+    key String?
+
+    fn build construct (
+        projection_experience_oigi_id UUID key,
+        key String? = null
+    ) -> ProgramConfigGraphProjectionExperienceOIGI {
+        """
+        Create deterministic ProgramConfigGraphProjectionExperienceOIGI edge.
+        """
+    }
+}

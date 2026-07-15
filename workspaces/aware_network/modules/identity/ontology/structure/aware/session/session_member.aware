@@ -1,0 +1,63 @@
+/// Actor participation in one Identity-owned Session.
+///
+/// Contract:
+/// - Parent constructor is Session.
+/// - Member points to Actor directly and to required SessionConfigActorConfig.
+/// - ActorRole evidence is stored through SessionMemberActorRole child edges.
+/// - This object is domain-neutral and does not own Environment/Experience/
+///   Attention-specific state.
+class SessionMember {
+    // Relationships
+    actor actor.Actor key
+    session_actor_config SessionConfigActorConfig
+    actor_roles SessionMemberActorRole[]
+
+    // Attributes
+    status String = "active"
+    joined_at_unix_ms Int?
+    left_at_unix_ms Int?
+    metadata_json JsonObject? = {}
+
+    fn create construct (
+        actor_id UUID key,
+        session_actor_config_id UUID,
+        status String = "active",
+        joined_at_unix_ms Int? = null,
+        left_at_unix_ms Int? = null,
+        metadata_json JsonObject? = {}
+    ) -> SessionMember {
+        """
+        Construct one SessionMember under a Session.
+
+        Contract:
+        - Identity is Session-scoped by Actor.
+        - Session participation policy is selected by SessionConfigActorConfig.
+        - Role evidence must be added as child ActorRole edges, not scalar UUIDs.
+        """
+    }
+
+    fn add_actor_role (
+        actor_role_id UUID key,
+        source_kind String = "identity_session",
+        status String = "active",
+        evidence_json JsonObject? = {}
+    ) -> SessionMemberActorRole {
+        """
+        Record an existing Identity ActorRole as SessionMember evidence.
+
+        Contract:
+        - This does not grant, revoke, scope, or expire permission.
+        - Identity owns ActorRole lifecycle and any future temporal semantics.
+        """
+        let created = construct actor_roles.create(
+            actor_role_id = actor_role_id,
+            source_kind = source_kind,
+            status = status,
+            evidence_json = evidence_json,
+        )
+    }
+}
+
+ann session.SessionMember::actor load eager
+ann session.SessionMember::session_actor_config load eager
+ann session.SessionMember::actor_roles load eager

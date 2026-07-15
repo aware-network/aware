@@ -1,0 +1,39 @@
+class Commit {
+    // Relationships
+    author_id UUID
+    commit_parents CommitParent[]
+
+    // Attributes
+    key String key
+    created_at DateTime
+    status CommitStatus = local
+
+    fn create construct (
+        key String key,
+        author_id UUID,
+        created_at DateTime,
+        status CommitStatus = local
+    ) -> Commit {
+        """
+        Creates a new Commit in the current Lane.
+        """
+    }
+
+    fn add_parent (parent_id UUID) -> CommitParent {
+        """
+        Attach one parent edge under this Commit.
+
+        Contract:
+        - Owner `commit_id` is propagated from Commit via traversal lowering.
+        - Only the explicit reference-side `parent_commit_id` is authored here.
+        - Stable identity is keyed by `(commit_id, parent_id)`.
+        """
+        let created_parent = construct commit_parents.create(
+            parent_commit_id = parent_id,
+        )
+    }
+}
+
+/// Load commit parents eagerly
+ann commit.Commit::commit_parents load eager
+ann commit.Commit::author_id reference port

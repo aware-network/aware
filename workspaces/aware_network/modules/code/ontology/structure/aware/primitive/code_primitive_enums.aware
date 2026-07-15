@@ -1,0 +1,26 @@
+/// Code Primitive BaseType enum.
+enum CodePrimitiveBaseType {
+    // Simple types
+    boolean
+    bytes
+    datetime
+    decimal
+    float
+    integer
+    string
+    uuid
+
+    // Container types
+    array
+    dict
+    tuple
+    set
+    union
+
+    // Special types
+    any
+    null
+    json
+    // Vector class for embeddings
+    vector
+}

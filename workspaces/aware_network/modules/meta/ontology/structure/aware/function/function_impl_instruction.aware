@@ -1,0 +1,133 @@
+/// Polymorphic instruction payload owned by `FunctionImpl`.
+class FunctionImplInstruction {
+    // Relationships (one-way polymorphism ownership)
+    instruction_let FunctionImplInstructionLet? unique
+    instruction_invoke FunctionImplInstructionInvoke? unique
+    instruction_construct FunctionImplInstructionConstruct? unique
+    instruction_set FunctionImplInstructionSet? unique
+    instruction_require FunctionImplInstructionRequire? unique
+    instruction_delete FunctionImplInstructionDelete? unique
+    value_sources FunctionImplValueSource[]
+
+    // Attributes
+    type FunctionImplInstructionType key
+    sequence Int key
+
+    fn build construct (
+        type FunctionImplInstructionType key,
+        sequence Int key
+    ) -> FunctionImplInstruction {
+        """
+        Create deterministic FunctionImplInstruction under one FunctionImpl parent path.
+
+        Contract:
+        - Parent context (`function_impl_id`) is injected by parent-edge lowering.
+        - Constructor identity keys are `(type, sequence)` plus propagated parent scope.
+        """
+    }
+
+    fn attach_let (
+        name String,
+        value_expr JsonObject
+    ) -> FunctionImplInstructionLet {
+        """
+        Attach deterministic `let` payload under this instruction.
+        """
+        let created = construct instruction_let.build(
+            name = name,
+            value_expr = value_expr,
+        )
+    }
+
+    fn attach_invoke (
+        target_function_config_id UUID,
+        class_config_relationship_id UUID? = null,
+        kind FunctionImplInvokeKind = call
+    ) -> FunctionImplInstructionInvoke {
+        """
+        Attach deterministic `invoke` payload under this instruction.
+        """
+        let created = construct instruction_invoke.build(
+            target_function_config_id = target_function_config_id,
+            class_config_relationship_id = class_config_relationship_id,
+            kind = kind,
+        )
+    }
+
+    fn attach_construct (
+        target_class_config_id UUID
+    ) -> FunctionImplInstructionConstruct {
+        """
+        Attach deterministic object-construction payload under this instruction.
+        """
+        let created = construct instruction_construct.build(
+            target_class_config_id = target_class_config_id,
+        )
+    }
+
+    fn attach_set (
+        target_class_config_attribute_config_id UUID,
+        value_source_id UUID
+    ) -> FunctionImplInstructionSet {
+        """
+        Attach deterministic `set` payload under this instruction.
+        """
+        let created = construct instruction_set.build(
+            target_class_config_attribute_config_id = target_class_config_attribute_config_id,
+            value_source_id = value_source_id,
+        )
+    }
+
+    fn attach_require (
+        kind FunctionImplRequireKind,
+        compare_operator FunctionImplRequireCompareOperator? = null,
+        expected_count Int? = null,
+        message String? = null
+    ) -> FunctionImplInstructionRequire {
+        """
+        Attach deterministic `require` payload under this instruction.
+        """
+        let created = construct instruction_require.build(
+            kind = kind,
+            compare_operator = compare_operator,
+            expected_count = expected_count,
+            message = message,
+        )
+    }
+
+    fn attach_delete (
+        target_kind FunctionImplDeleteTargetKind = self
+    ) -> FunctionImplInstructionDelete {
+        """
+        Attach deterministic `delete self` payload under this instruction.
+        """
+        let created = construct instruction_delete.build(
+            target_kind = target_kind,
+        )
+    }
+
+    fn create_value_source (
+        key String,
+        kind FunctionImplValueSourceKind,
+        source_function_config_attribute_config_id UUID? = null,
+        source_instruction_let_id UUID? = null
+    ) -> FunctionImplValueSource {
+        """
+        Create one deterministic value source local to this instruction.
+        """
+        let created = construct value_sources.build(
+            key = key,
+            kind = kind,
+            source_function_config_attribute_config_id = source_function_config_attribute_config_id,
+            source_instruction_let_id = source_instruction_let_id,
+        )
+    }
+}
+
+ann function.FunctionImplInstruction::instruction_let load eager
+ann function.FunctionImplInstruction::instruction_invoke load eager
+ann function.FunctionImplInstruction::instruction_construct load eager
+ann function.FunctionImplInstruction::instruction_set load eager
+ann function.FunctionImplInstruction::instruction_require load eager
+ann function.FunctionImplInstruction::instruction_delete load eager
+ann function.FunctionImplInstruction::value_sources load eager

@@ -1,0 +1,32 @@
+/// Ontology-level view of a `overlay` ANN.
+/// This sits on top of the generic CodeSectionAnnotation and captures
+/// the resolved, object-centric semantics used by overlays.
+/// It is intentionally grammar-agnostic: the compiler only knows about
+/// CodeSectionAnnotation entries where `verb == \"overlay\"`.
+class CodeSectionAnnotationOverlay {
+    // Relationships
+    code_section_annotation aware_code.annotation.CodeSectionAnnotation?
+
+    // Attributes
+    /// Original raw ANN path (e.g. "pkg.namespace.Class::attribute").
+    /// Stored here so overlay application can reason about edge-endpoint overlays
+    /// without depending on the primitive CodeSectionAnnotation graph.
+    source_path String key
+
+    language aware_code.code.CodeLanguage key
+    entity CodeSectionAnnotationOverlayEntity key
+
+    /// Location within the canonical graph
+    fqn_prefix String key
+    namespace String key
+    class_name String?
+    attribute_name String?
+    enum_name String?
+    enum_option_name String?
+    function_name String?
+
+    /// Per-language identifier
+    rename String?
+    /// Serialized name/value when different from rename/canonical.
+    wire_name String?
+}

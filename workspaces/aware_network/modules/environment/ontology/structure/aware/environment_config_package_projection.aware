@@ -1,0 +1,28 @@
+// EnvironmentConfigPackage projection
+//
+// Contract:
+// - EnvironmentConfigPackage is the Environment-owned semantic aggregate package.
+// - EnvironmentConfig remains the canonical environment config node under that package.
+// - Ontology-owned OntologyPackage is the semantic package leaf portal.
+// - ObjectConfigGraph resolution is only through OntologyConfig, never through
+//   EnvironmentConfigPackage-owned raw OCG package composition.
+// - Repository layout remains outside this package rail.
+
+projection EnvironmentConfigPackage is_branchable {
+    root environment.EnvironmentConfigPackage
+
+    environment.EnvironmentConfigPackage::environment_config EnvironmentConfig
+    environment.EnvironmentConfigPackage::environment_config_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    environment.EnvironmentConfigPackage::ontology_packages
+    environment.EnvironmentConfigPackageOntologyPackage::ontology_package OntologyPackage
+    environment.EnvironmentConfigPackageOntologyPackage::ontology_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    environment.EnvironmentConfigPackage::dependencies
+    environment.EnvironmentConfigPackageDependency::target_environment_config_package EnvironmentConfigPackage
+    environment.EnvironmentConfigPackageDependency::target_environment_config_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+
+    observable editor {
+        """
+        EnvironmentConfigPackage semantic aggregate lane view.
+        """
+    }
+}

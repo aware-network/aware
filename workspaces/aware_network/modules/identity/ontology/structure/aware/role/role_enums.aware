@@ -1,0 +1,10 @@
+enum AccessLevelType {
+    admin
+    read
+    write
+}
+
+enum VisibilityType {
+    private
+    public
+}

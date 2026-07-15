@@ -1,0 +1,94 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "3a311d6d-1093-5c6a-b021-15f2bbe6d12d",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "ApiInvocationAttentionScope",
+      "aware_class_ref": "aware_api_service_dto.comms.models.ApiInvocationAttentionScope",
+      "functions": []
+    },
+    {
+      "class_config_id": "c63d6895-33b7-5fd7-90e4-16201d962391",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "ApiInvocationContext",
+      "aware_class_ref": "aware_api_service_dto.comms.models.ApiInvocationContext",
+      "functions": []
+    },
+    {
+      "class_config_id": "b100df77-120a-5d4d-8663-2db6e19e45aa",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "ApiInvocationExperienceContext",
+      "aware_class_ref": "aware_api_service_dto.comms.models.ApiInvocationExperienceContext",
+      "functions": []
+    },
+    {
+      "class_config_id": "4439f8ba-783f-58f8-adb2-837eea9b5682",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "ApiInvocationSurfaceContext",
+      "aware_class_ref": "aware_api_service_dto.comms.models.ApiInvocationSurfaceContext",
+      "functions": []
+    },
+    {
+      "class_config_id": "6446f923-db99-5e05-9ad6-6c3ae7218811",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "ApiOperation",
+      "aware_class_ref": "aware_api_service_dto.comms.models.ApiOperation",
+      "functions": []
+    },
+    {
+      "class_config_id": "777d9724-de3d-5310-9ace-ede382e7003f",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "ApiOperationContext",
+      "aware_class_ref": "aware_api_service_dto.comms.models.ApiOperationContext",
+      "functions": []
+    },
+    {
+      "class_config_id": "82cefc3b-58a6-5cad-b082-24baff179d07",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "ApiOperationRequest",
+      "aware_class_ref": "aware_api_service_dto.comms.models.ApiOperationRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "309b0c47-72b9-5044-9d7a-0170c9d96851",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "ApiOperationResponse",
+      "aware_class_ref": "aware_api_service_dto.comms.models.ApiOperationResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "37852b4c-533c-5e49-a09a-920c38d9fe14",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "InvokeApiEndpointRequest",
+      "aware_class_ref": "aware_api_service_dto.comms.models.InvokeApiEndpointRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b4486fc6-7162-5fed-a928-715b491c5c90",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "InvokeApiEndpointResponse",
+      "aware_class_ref": "aware_api_service_dto.comms.models.InvokeApiEndpointResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "3f1d18c9-a34f-563c-8c5a-5ab53ddcac01",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "StreamApiEndpointRequest",
+      "aware_class_ref": "aware_api_service_dto.comms.models.StreamApiEndpointRequest",
+      "functions": []
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "47fae4cc-7d51-5102-9c08-a5d58420ce97",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "ApiRequestStatus"
+    },
+    {
+      "enum_config_id": "515f4c09-0436-5b76-892d-18e4ba94ee0e",
+      "module": "aware_api_service_dto.comms.models.api",
+      "name": "ApiStreamLifecycle"
+    }
+  ]
+}

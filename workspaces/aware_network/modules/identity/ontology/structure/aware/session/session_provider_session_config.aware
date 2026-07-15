@@ -1,0 +1,40 @@
+/// Provider capability binding to one Identity SessionConfig.
+///
+/// Contract:
+/// - Parent constructor is SessionProvider.
+/// - Points to Identity SessionConfig vocabulary.
+/// - Does not create a concrete provider session and does not grant actor
+///   access.
+class SessionProviderSessionConfig {
+    // Relationships
+    session_config SessionConfig key
+
+    // Attributes
+    config_key String key
+    title String?
+    status String = "active"
+    provider_contract_ref String?
+    selection_policy String = "contract_required"
+    metadata_json JsonObject? = {}
+
+    fn create construct (
+        config_key String key,
+        session_config_id UUID key,
+        title String? = null,
+        status String = "active",
+        provider_contract_ref String? = null,
+        selection_policy String = "contract_required",
+        metadata_json JsonObject? = {}
+    ) -> SessionProviderSessionConfig {
+        """
+        Bind one provider capability to one Identity SessionConfig.
+
+        Contract:
+        - Stable identity is `(session_provider_id, config_key,
+          session_config_id)`.
+        - This is provider capability eligibility only.
+        """
+    }
+}
+
+ann session.SessionProviderSessionConfig::session_config load eager

@@ -1,0 +1,32 @@
+/// ActorConfig participation policy edge under a SessionConfig.
+///
+/// Contract:
+/// - Parent constructor is SessionConfig.
+/// - Points to Identity ActorConfig vocabulary.
+/// - Does not grant access or create a concrete member.
+class SessionConfigActorConfig {
+    // Relationships
+    actor_config actor.ActorConfig key
+
+    // Attributes
+    status String = "active"
+    purpose String?
+    metadata_json JsonObject? = {}
+
+    fn create construct (
+        actor_config_id UUID key,
+        status String = "active",
+        purpose String? = null,
+        metadata_json JsonObject? = {}
+    ) -> SessionConfigActorConfig {
+        """
+        Create one deterministic SessionConfig -> ActorConfig policy edge.
+
+        Contract:
+        - Stable identity is `(session_config_id, actor_config_id)`.
+        - This is eligibility vocabulary only.
+        """
+    }
+}
+
+ann session.SessionConfigActorConfig::actor_config load eager

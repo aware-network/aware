@@ -1,0 +1,56 @@
+aware_ontology = 1
+
+[ontology]
+package_name = "experience-ontology"
+fqn_prefix = "aware_experience"
+version_number = 1
+title = "Experience"
+description = "SSOT canonical (.aware) sources for experience."
+source_manifest = "structure/aware.toml"
+package_root = "."
+sources_root = "structure/aware"
+stable_ids_ownership = "compiler"
+stable_ids_parity_policy = "error"
+stable_ids_resolution_policy = "class_strict"
+
+[runtime]
+manifest = "runtime/python/pyproject.toml"
+project_name = "aware-experience"
+import_root = "aware_experience"
+
+[layout]
+profile = "ontology_structure_v1"
+
+[semantic_contract]
+provider_key = "aware_experience"
+role = "aware_experience.provider"
+module = "aware_experience.semantic_contract"
+owns_manifest_kinds = ["aware_experience_toml"]
+capabilities = ["diagnostics", "semantic_tokens", "semantic_analysis", "materialize"]
+
+[[dependencies]]
+package_name = "attention-ontology"
+
+[[dependencies]]
+package_name = "api-ontology"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "reactivity-ontology"
+
+[[dependencies]]
+package_name = "sdk-ontology"
+
+[[dependencies]]
+package_name = "storage-ontology"
+
+[[dependencies]]
+package_name = "identity-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "environment-ontology"

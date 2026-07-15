@@ -1,0 +1,28 @@
+class Action {
+    // Relationships
+    config ActionConfig key
+
+    // Attributes
+    execution_context JsonObject = {}
+    result_info String? = null
+    status ActionStatus = requested
+
+    fn create construct(
+        config_id UUID key,
+        status ActionStatus = requested,
+        execution_context JsonObject = {}
+    ) -> Action {
+        """
+        Create runtime action evidence for a raised event.
+        """
+    }
+
+    fn set_status(
+        status ActionStatus,
+        result_info String? = null
+    ) -> {
+        """
+        Update runtime action status after execution handling.
+        """
+    }
+}

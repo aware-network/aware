@@ -1,0 +1,36 @@
+/// Port-level ProjectionExperienceNode reference edge.
+///
+/// Contract:
+/// - Port does not declare structural traversal; it references one ProjectionExperienceNode
+///   owned by ProjectionExperience contracts.
+/// - Node-level identities are attached under this edge.
+class ProgramConfigPortProjectionExperienceNode {
+    // Relationships
+    projection_experience_node projection.ProjectionExperienceNode key
+    projection_node_identity ProgramConfigPortProjectionExperienceNodeIdentity? unique
+
+    // Attributes
+    key String key
+
+    fn build construct (
+        projection_experience_node_id UUID key,
+        key String key
+    ) -> ProgramConfigPortProjectionExperienceNode {
+        """
+        Create deterministic ProgramConfigPortProjectionExperienceNode edge.
+        """
+    }
+
+    fn create_identity (
+        projection_experience_node_identity_id UUID,
+        key String
+    ) -> ProgramConfigPortProjectionExperienceNodeIdentity {
+        """
+        Attach one optional ProjectionExperienceNodeIdentity under this port node edge.
+        """
+        let created = construct projection_node_identity.build(
+            projection_experience_node_identity_id = projection_experience_node_identity_id,
+            key = key
+        )
+    }
+}

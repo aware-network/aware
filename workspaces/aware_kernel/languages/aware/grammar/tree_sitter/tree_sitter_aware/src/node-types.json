@@ -742,6 +742,10 @@
         {
           "type": "api_graph_def",
           "named": true
+        },
+        {
+          "type": "api_view_def",
+          "named": true
         }
       ]
     }
@@ -761,6 +765,173 @@
         ]
       },
       "relationship": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "api_view_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "api_view_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_view_capability_endpoint_def",
+    "named": true,
+    "fields": {
+      "action_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      },
+      "endpoint": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "api_view_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "api_view_block",
+            "named": true
+          }
+        ]
+      },
+      "observable": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "state_model": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      },
+      "view_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "api_view_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "api_view_capability_endpoint_def",
+          "named": true
+        },
+        {
+          "type": "api_view_stream_policy_def",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_view_stream_policy_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "triple_string_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "api_view_stream_policy_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "api_view_stream_policy_block",
+            "named": true
+          }
+        ]
+      },
+      "stream_mode": {
         "multiple": false,
         "required": true,
         "types": [
@@ -4062,6 +4233,16 @@
     "type": "experience_view_def",
     "named": true,
     "fields": {
+      "api_view": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      },
       "body": {
         "multiple": false,
         "required": true,
@@ -4074,7 +4255,7 @@
       },
       "state_model": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "ann_path",
@@ -7304,10 +7485,6 @@
         {
           "type": "projection_view_def",
           "named": true
-        },
-        {
-          "type": "projection_view_group",
-          "named": true
         }
       ]
     }
@@ -7429,7 +7606,7 @@
       },
       "kind": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "view_kind",
@@ -7447,50 +7624,6 @@
           }
         ]
       }
-    }
-  },
-  {
-    "type": "projection_view_group",
-    "named": true,
-    "fields": {
-      "keyword": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "projection_observation_kw",
-            "named": true
-          }
-        ]
-      },
-      "prefix": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "view_path",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "comment",
-          "named": true
-        },
-        {
-          "type": "projection_view_def",
-          "named": true
-        },
-        {
-          "type": "projection_view_group",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -7774,8 +7907,28 @@
         {
           "type": "sdk_operation_endpoint_def",
           "named": true
+        },
+        {
+          "type": "sdk_operation_view_def",
+          "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "sdk_operation_view_def",
+    "named": true,
+    "fields": {
+      "view": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "qualified_name",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -9691,6 +9844,10 @@
     "named": false
   },
   {
+    "type": "api_view",
+    "named": false
+  },
+  {
     "type": "as",
     "named": false
   },
@@ -10056,10 +10213,6 @@
   },
   {
     "type": "observable",
-    "named": false
-  },
-  {
-    "type": "observation",
     "named": false
   },
   {

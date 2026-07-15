@@ -1,0 +1,24 @@
+/// A Relationship between two OPGs with optional related nodes.
+class ObjectProjectionGraphRelationship {
+    // Relationships
+    target_object_projection_graph ObjectProjectionGraph key
+    class_config_relationship class.ClassConfigRelationship key
+    source_object_projection_graph_node ObjectProjectionGraphNode key
+    target_object_projection_graph_node ObjectProjectionGraphNode key
+    object_instance_graph_relationships instance.ObjectInstanceGraphRelationship[]
+
+    fn build construct(
+        target_object_projection_graph_id UUID key,
+        class_config_relationship_id UUID key,
+        source_object_projection_graph_node_id UUID key,
+        target_object_projection_graph_node_id UUID key
+    ) -> ObjectProjectionGraphRelationship {
+        """
+        Create deterministic ObjectProjectionGraphRelationship under one ObjectProjectionGraph.
+
+        Contract:
+        - Parent `object_projection_graph_id` is propagated by constructor lowering.
+        - Identity is always source-OPG-scoped.
+        """
+    }
+}

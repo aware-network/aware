@@ -1,0 +1,12 @@
+class Class {
+    name String
+}
+
+class ObjectConfigSample {
+    classes Class[] @ObjectClassEdge
+}
+
+edge ObjectClassEdge {
+    is_base Bool = false
+    status String
+}

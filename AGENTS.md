@@ -140,6 +140,25 @@ Goal: alignment first, issue-driven execution, canonical engineering only.
 - Public-safe alignment lives in `docs/alignment/PUBLIC.md`; do not publish private issue/feed refs into the public facade.
 - If current direction is unclear, read today's issue index, the current week's issue headings, `docs/alignment/CURRENT.md`, and the relevant issue files before claiming implementation.
 
+### G) Alignment center is the evolution index
+
+- The alignment center lives in `docs/alignment/`:
+  - `README.md` is the invariant index and entrypoint.
+  - `CURRENT.md` is private current synthesis.
+  - `PUBLIC.md` is public-safe current synthesis.
+  - `daily/YYYY/MM/DD.md` is the receipt aggregation track.
+- Agents keep the center current through issue-first, receipt-backed movement:
+  append daily alignment entries when shared coordinates change, then promote
+  stable statements only when `docs/alignment/PROTOCOL.md` allows it.
+- Do not copy weekly direction or product strategy into `AGENTS.md`. This file
+  bootstraps agent behavior and points to the center.
+- Do not hand-edit generated public checkout targets to fix alignment drift.
+  Update the source docs/templates and rerun the Workspace/aware-dev
+  publication rail.
+- Common/external agents should enter through `aware-dev` and service-backed
+  SDK/API boundaries as they become available:
+  `aware-dev-sdk -> aware-dev-service -> Workspace/Coordination services`.
+
 ## 1) Read once (SSOT map)
 
 - [Architecture Overview](./docs/architecture/overview.md)
@@ -152,6 +171,7 @@ Goal: alignment first, issue-driven execution, canonical engineering only.
 - [Agent Feed Protocol](./docs/feed/PROTOCOL.md)
 - [Goals Protocol](./docs/goals/PROTOCOL.md)
 - [Alignment Protocol](./docs/alignment/PROTOCOL.md)
+- [Alignment Center](./docs/alignment/README.md)
 - [Current Alignment](./docs/alignment/CURRENT.md)
 - [Specs Protocol (SPEC/PHASES/ITERATIONS)](./docs/specs/PROTOCOL.md)
 - [Live Feed](./docs/feed/FEED.md)

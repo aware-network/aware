@@ -1,0 +1,13 @@
+class ActionExperienceProgram {
+    // Relationships
+    program_config program.ProgramConfig key
+
+    // Attributes
+    fn build construct (
+        program_config_id UUID key
+    ) -> ActionExperienceProgram {
+        """
+        Create a deterministic ActionExperienceProgram association edge.
+        """
+    }
+}

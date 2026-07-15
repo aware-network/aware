@@ -1,0 +1,109 @@
+/// Canonical API ingress DTOs (transport-layer, graph/ORM agnostic).
+///
+/// SSOT: `api-service-dto` generated from this API-owned `.aware` contract.
+///
+/// `aware_comms` may re-export these DTOs for transport/client import
+/// stability, but schema ownership remains under `modules/api/apis/api/dto`.
+
+enum ApiRequestStatus {
+    succeeded
+    failed
+    pending
+}
+
+enum ApiStreamLifecycle {
+    auto_close
+    started
+    closed
+}
+
+class ApiOperationContext {
+    actor_id UUID?
+}
+
+class ApiOperation {
+    request ApiOperationRequest?
+    response ApiOperationResponse?
+}
+
+ann comms.models.ApiOperation oneof request response
+
+class ApiOperationRequest augment comms.models.ApiOperationContext {
+    operation String
+}
+
+class ApiOperationResponse augment comms.models.ApiOperationContext {
+    operation String
+}
+
+class ApiInvocationSurfaceContext {
+    pane_ref String?
+    window_key String?
+    layout_key String?
+    section_key String?
+    pane_kind String?
+    state_source_kind String?
+    pane_config_id UUID?
+    pane_package_id UUID?
+    pane_package_name String?
+    view_ref String?
+    projection_view_key String?
+    projection_experience_view_id UUID?
+    state_model_id UUID?
+    state_provider_ref String?
+    state_provider_kind String?
+}
+
+class ApiInvocationExperienceContext {
+    experience_name String?
+    experience_ref String?
+    projection_experience_id UUID?
+    projection_experience_view_id UUID?
+    experience_revision String?
+}
+
+class ApiInvocationAttentionScope {
+    layout_section_id UUID?
+    section_focus_scope_id UUID?
+    focus_scope_id UUID?
+    observable_id UUID?
+    branch_id UUID?
+    state_projection_hash String?
+}
+
+class ApiInvocationContext {
+    surface ApiInvocationSurfaceContext?
+    experience ApiInvocationExperienceContext?
+    attention ApiInvocationAttentionScope?
+}
+
+class InvokeApiEndpointRequest augment comms.models.ApiOperationRequest {
+    operation String = "invoke_api_endpoint"
+    endpoint_ref String
+    discriminant String
+    request_payload JsonObject
+    invocation_context ApiInvocationContext?
+}
+
+class StreamApiEndpointRequest augment comms.models.ApiOperationRequest {
+    operation String = "stream_api_endpoint"
+    endpoint_ref String
+    discriminant String
+    request_payload JsonObject
+    invocation_context ApiInvocationContext?
+}
+
+class InvokeApiEndpointResponse augment comms.models.ApiOperationResponse {
+    operation String = "invoke_api_endpoint"
+    status ApiRequestStatus
+    error String?
+    response_payload JsonValue?
+    stream_lifecycle ApiStreamLifecycle = auto_close
+}
+
+ann comms.models.ApiOperationRequest::operation discriminate key
+ann comms.models.InvokeApiEndpointRequest::operation discriminate tag "invoke_api_endpoint"
+ann comms.models.StreamApiEndpointRequest::operation discriminate tag "stream_api_endpoint"
+
+ann comms.models.ApiOperationResponse::operation discriminate key
+ann comms.models.InvokeApiEndpointResponse::operation discriminate tag "invoke_api_endpoint"

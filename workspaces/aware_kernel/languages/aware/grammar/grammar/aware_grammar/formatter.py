@@ -418,7 +418,12 @@ class _AwareFormatter:
                         [
                             inner
                             for inner in child.named_children
-                            if inner.type in {"api_capability_def", "api_graph_def"}
+                            if inner.type
+                            in {
+                                "api_capability_def",
+                                "api_view_def",
+                                "api_graph_def",
+                            }
                         ]
                     )
             self._emit_api_members(members)
@@ -487,7 +492,7 @@ class _AwareFormatter:
             if api_node is not None
             else ""
         )
-        self._w.line(f"api {api};".rstrip())
+        self._w.line(f"api {api}".rstrip())
 
     def _emit_service_experience_decl(self, node: Node) -> None:
         experience_node = node.child_by_field_name("experience")
@@ -496,7 +501,7 @@ class _AwareFormatter:
             if experience_node is not None
             else ""
         )
-        self._w.line(f"experience {experience};".rstrip())
+        self._w.line(f"experience {experience}".rstrip())
 
     def _emit_service_operation_def(self, node: Node) -> None:
         operation_name_node = node.child_by_field_name("operation_name")
@@ -582,31 +587,16 @@ class _AwareFormatter:
             if endpoint_node is not None
             else ""
         )
-        self._w.line(f"endpoint {endpoint};".rstrip())
+        self._w.line(f"endpoint {endpoint}".rstrip())
 
     def _emit_service_operation_view_def(self, node: Node) -> None:
         view_node = node.child_by_field_name("view")
-        body_node = node.child_by_field_name("body")
         view = (
             _node_text(source_bytes=self._source_bytes, node=view_node).strip()
             if view_node is not None
             else ""
         )
-        if body_node is None:
-            self._w.line(f"view {view};".rstrip())
-            return
-        self._w.line(f"view {view} {{".rstrip())
-        with self._w.indent():
-            members: list[Node] = []
-            for child in body_node.named_children:
-                if child.type in {
-                    "comment",
-                    "service_operation_view_item",
-                    "service_operation_view_provider_decl",
-                }:
-                    members.append(child)
-            self._emit_service_operation_view_members(members)
-        self._w.line("}")
+        self._w.line(f"view {view}".rstrip())
 
     def _emit_service_operation_view_members(self, members: list[Node]) -> None:
         for idx, member in enumerate(members):
@@ -638,7 +628,7 @@ class _AwareFormatter:
             if provider_kind_node is not None
             else ""
         )
-        self._w.line(f"provider {provider_kind};".rstrip())
+        self._w.line(f"provider {provider_kind}".rstrip())
 
     def _emit_service_operation_role_requirement_def(self, node: Node) -> None:
         role_node = node.child_by_field_name("role")
@@ -649,7 +639,7 @@ class _AwareFormatter:
             else ""
         )
         if body_node is None:
-            self._w.line(f"role {role};".rstrip())
+            self._w.line(f"role {role}".rstrip())
             return
         self._w.line(f"role {role} {{".rstrip())
         self._emit_service_role_gate_body(body_node)
@@ -664,7 +654,7 @@ class _AwareFormatter:
             if admission_mode_node is not None
             else ""
         )
-        self._w.line(f"admission {admission_mode};".rstrip())
+        self._w.line(f"admission {admission_mode}".rstrip())
 
     def _emit_service_operation_receipt_policy_decl(self, node: Node) -> None:
         receipt_policy_node = node.child_by_field_name("receipt_policy")
@@ -675,7 +665,7 @@ class _AwareFormatter:
             if receipt_policy_node is not None
             else ""
         )
-        self._w.line(f"receipt {receipt_policy};".rstrip())
+        self._w.line(f"receipt {receipt_policy}".rstrip())
 
     def _emit_service_operation_settlement_decl(self, node: Node) -> None:
         settlement_policy_node = node.child_by_field_name("settlement_policy")
@@ -686,7 +676,7 @@ class _AwareFormatter:
             if settlement_policy_node is not None
             else ""
         )
-        self._w.line(f"settlement {settlement_policy};".rstrip())
+        self._w.line(f"settlement {settlement_policy}".rstrip())
 
     def _emit_service_operation_price_def(self, node: Node) -> None:
         body_node = node.child_by_field_name("body")
@@ -755,7 +745,7 @@ class _AwareFormatter:
             if coin_symbol_node is not None
             else ""
         )
-        self._w.line(f"coin {coin_symbol};".rstrip())
+        self._w.line(f"coin {coin_symbol}".rstrip())
 
     def _emit_service_operation_price_type_decl(self, node: Node) -> None:
         price_type_node = node.child_by_field_name("price_type")
@@ -764,7 +754,7 @@ class _AwareFormatter:
             if price_type_node is not None
             else ""
         )
-        self._w.line(f"type {price_type};".rstrip())
+        self._w.line(f"type {price_type}".rstrip())
 
     def _emit_service_operation_price_fixed_amount_decl(self, node: Node) -> None:
         fixed_amount_node = node.child_by_field_name("fixed_amount")
@@ -773,7 +763,7 @@ class _AwareFormatter:
             if fixed_amount_node is not None
             else ""
         )
-        self._w.line(f"fixed_amount {fixed_amount};".rstrip())
+        self._w.line(f"fixed_amount {fixed_amount}".rstrip())
 
     def _emit_service_operation_price_markup_percentage_decl(self, node: Node) -> None:
         markup_percentage_node = node.child_by_field_name("markup_percentage")
@@ -784,7 +774,7 @@ class _AwareFormatter:
             if markup_percentage_node is not None
             else ""
         )
-        self._w.line(f"markup_percentage {markup_percentage};".rstrip())
+        self._w.line(f"markup_percentage {markup_percentage}".rstrip())
 
     def _emit_service_operation_price_effective_from_decl(self, node: Node) -> None:
         effective_from_node = node.child_by_field_name("effective_from")
@@ -795,7 +785,7 @@ class _AwareFormatter:
             if effective_from_node is not None
             else ""
         )
-        self._w.line(f"effective_from {effective_from};".rstrip())
+        self._w.line(f"effective_from {effective_from}".rstrip())
 
     def _emit_service_operation_price_effective_until_decl(self, node: Node) -> None:
         effective_until_node = node.child_by_field_name("effective_until")
@@ -806,7 +796,7 @@ class _AwareFormatter:
             if effective_until_node is not None
             else ""
         )
-        self._w.line(f"effective_until {effective_until};".rstrip())
+        self._w.line(f"effective_until {effective_until}".rstrip())
 
     def _emit_service_operation_price_policy_def(self, node: Node) -> None:
         body_node = node.child_by_field_name("body")
@@ -856,7 +846,7 @@ class _AwareFormatter:
             if fail_closed_node is not None
             else ""
         )
-        self._w.line(f"fail_closed {fail_closed};".rstrip())
+        self._w.line(f"fail_closed {fail_closed}".rstrip())
 
     def _emit_service_contract_config_def(self, node: Node) -> None:
         name_node = node.child_by_field_name("name")
@@ -922,7 +912,7 @@ class _AwareFormatter:
             if contract_kind_node is not None
             else ""
         )
-        self._w.line(f"kind {contract_kind};".rstrip())
+        self._w.line(f"kind {contract_kind}".rstrip())
 
     def _emit_service_contract_projection_experience_decl(self, node: Node) -> None:
         projection_experience_node = node.child_by_field_name("projection_experience")
@@ -933,7 +923,7 @@ class _AwareFormatter:
             if projection_experience_node is not None
             else ""
         )
-        self._w.line(f"projection_experience {projection_experience};".rstrip())
+        self._w.line(f"projection_experience {projection_experience}".rstrip())
 
     def _emit_service_contract_operation_grant_def(self, node: Node) -> None:
         operation_node = node.child_by_field_name("operation")
@@ -944,7 +934,7 @@ class _AwareFormatter:
             else ""
         )
         if body_node is None:
-            self._w.line(f"grant operation {operation};".rstrip())
+            self._w.line(f"grant operation {operation}".rstrip())
             return
         self._w.line(f"grant operation {operation} {{".rstrip())
         with self._w.indent():
@@ -993,7 +983,7 @@ class _AwareFormatter:
             else ""
         )
         if body_node is None:
-            self._w.line(f"grant actor_role {role};".rstrip())
+            self._w.line(f"grant actor_role {role}".rstrip())
             return
         self._w.line(f"grant actor_role {role} {{".rstrip())
         self._emit_service_role_gate_body(body_node)
@@ -1053,7 +1043,7 @@ class _AwareFormatter:
             if access_scope_node is not None
             else ""
         )
-        self._w.line(f"access {access_scope};".rstrip())
+        self._w.line(f"access {access_scope}".rstrip())
 
     def _emit_service_role_scope_decl(self, node: Node) -> None:
         scope_kind_node = node.child_by_field_name("scope_kind")
@@ -1069,7 +1059,7 @@ class _AwareFormatter:
             else ""
         )
         suffix = f" {scope_ref}" if scope_ref else ""
-        self._w.line(f"scope {scope_kind}{suffix};".rstrip())
+        self._w.line(f"scope {scope_kind}{suffix}".rstrip())
 
     def _emit_service_role_class_instance_identity_required_decl(
         self, node: Node
@@ -1080,7 +1070,7 @@ class _AwareFormatter:
             if value_node is not None
             else ""
         )
-        self._w.line(f"class_instance_identity_required {value};".rstrip())
+        self._w.line(f"class_instance_identity_required {value}".rstrip())
 
     def _emit_service_role_assignment_binding_required_decl(self, node: Node) -> None:
         value_node = node.child_by_field_name("role_assignment_binding_required")
@@ -1089,7 +1079,7 @@ class _AwareFormatter:
             if value_node is not None
             else ""
         )
-        self._w.line(f"role_assignment_binding_required {value};".rstrip())
+        self._w.line(f"role_assignment_binding_required {value}".rstrip())
 
     def _emit_binding_def(self, node: Node) -> None:
         source_graph_node = node.child_by_field_name("source_graph")
@@ -1235,6 +1225,8 @@ class _AwareFormatter:
                 self._emit_comment(member)
             elif member.type == "api_capability_def":
                 self._emit_api_capability_def(member)
+            elif member.type == "api_view_def":
+                self._emit_api_view_def(member)
             elif member.type == "api_graph_def":
                 self._emit_api_graph_def(member)
             else:
@@ -1249,6 +1241,124 @@ class _AwareFormatter:
                 right=members[idx + 1],
             ):
                 self._w.blank_line()
+
+    def _emit_api_view_def(self, node: Node) -> None:
+        view_name_node = node.child_by_field_name("view_name")
+        observable_node = node.child_by_field_name("observable")
+        state_model_node = node.child_by_field_name("state_model")
+        body_node = node.child_by_field_name("body")
+        view_name = (
+            _node_text(source_bytes=self._source_bytes, node=view_name_node).strip()
+            if view_name_node is not None
+            else ""
+        )
+        observable = (
+            _node_text(source_bytes=self._source_bytes, node=observable_node).strip()
+            if observable_node is not None
+            else ""
+        )
+        state_model = (
+            _node_text(source_bytes=self._source_bytes, node=state_model_node).strip()
+            if state_model_node is not None
+            else ""
+        )
+        head = f"view {view_name} on {observable} state {state_model}".strip()
+        if body_node is None:
+            self._w.line(head)
+            return
+        self._w.line(f"{head} {{".rstrip())
+        with self._w.indent():
+            members: list[Node] = []
+            for child in body_node.named_children:
+                if child.type in {
+                    "comment",
+                    "triple_string_literal",
+                    "string_literal",
+                    "api_view_item",
+                    "api_view_stream_policy_def",
+                    "api_view_capability_endpoint_def",
+                }:
+                    members.append(child)
+            self._emit_api_view_members(members)
+        self._w.line("}")
+
+    def _emit_api_view_members(self, members: list[Node]) -> None:
+        idx = 0
+        while idx < len(members):
+            member = members[idx]
+            next_idx = self._emit_string_literal_sequence_if_any(members, idx)
+            if next_idx is not None:
+                last_member = members[next_idx - 1]
+                idx = next_idx
+            else:
+                if member.type == "comment":
+                    self._emit_comment(member)
+                elif member.type == "api_view_item":
+                    for inner in member.named_children:
+                        if inner.type == "api_view_stream_policy_def":
+                            self._emit_api_view_stream_policy_def(inner)
+                        elif inner.type == "api_view_capability_endpoint_def":
+                            self._emit_api_view_capability_endpoint_def(inner)
+                elif member.type == "api_view_stream_policy_def":
+                    self._emit_api_view_stream_policy_def(member)
+                elif member.type == "api_view_capability_endpoint_def":
+                    self._emit_api_view_capability_endpoint_def(member)
+                else:
+                    raw = _node_text(
+                        source_bytes=self._source_bytes, node=member
+                    ).strip()
+                    if raw:
+                        for line in raw.splitlines():
+                            self._w.line(line.rstrip())
+                last_member = member
+                idx += 1
+
+            if idx < len(members) and _has_blank_line_between(
+                source_bytes=self._source_bytes,
+                left=last_member,
+                right=members[idx],
+            ):
+                self._w.blank_line()
+
+    def _emit_api_view_stream_policy_def(self, node: Node) -> None:
+        stream_mode_node = node.child_by_field_name("stream_mode")
+        body_node = node.child_by_field_name("body")
+        stream_mode = (
+            _node_text(source_bytes=self._source_bytes, node=stream_mode_node).strip()
+            if stream_mode_node is not None
+            else ""
+        )
+        if body_node is None:
+            self._w.line(f"stream {stream_mode}".rstrip())
+            return
+        self._w.line(f"stream {stream_mode} {{".rstrip())
+        with self._w.indent():
+            for child in body_node.named_children:
+                if child.type == "comment":
+                    self._emit_comment(child)
+                    continue
+                if child.type in {"triple_string_literal", "string_literal"}:
+                    raw = _node_text(
+                        source_bytes=self._source_bytes, node=child
+                    ).strip()
+                    if raw:
+                        self._w.line(raw)
+        self._w.line("}")
+
+    def _emit_api_view_capability_endpoint_def(self, node: Node) -> None:
+        action_key_node = node.child_by_field_name("action_key")
+        endpoint_node = node.child_by_field_name("endpoint")
+        action_key = (
+            _node_text(source_bytes=self._source_bytes, node=action_key_node).strip()
+            if action_key_node is not None
+            else ""
+        )
+        endpoint = (
+            _node_text(source_bytes=self._source_bytes, node=endpoint_node).strip()
+            if endpoint_node is not None
+            else ""
+        )
+        self._w.line(f"endpoint {action_key} {endpoint}".rstrip())
 
     def _emit_api_capability_def(self, node: Node) -> None:
         capability_name_node = node.child_by_field_name("capability_name")
@@ -1986,6 +2096,7 @@ class _AwareFormatter:
         view_key_node = node.child_by_field_name("view_key")
         state_model_node = node.child_by_field_name("state_model")
         state_provider_node = node.child_by_field_name("state_provider")
+        api_view_node = node.child_by_field_name("api_view")
         body_node = node.child_by_field_name("body")
         view_key = (
             _node_text(source_bytes=self._source_bytes, node=view_key_node).strip()
@@ -2004,13 +2115,21 @@ class _AwareFormatter:
             if state_provider_node is not None
             else ""
         )
+        api_view = (
+            _node_text(source_bytes=self._source_bytes, node=api_view_node).strip()
+            if api_view_node is not None
+            else ""
+        )
         is_default = any(ch.type == "default" for ch in node.children)
 
         head_parts = ["view", view_key]
         if is_default:
             head_parts.append("default")
-        head_parts.extend(["state", state_model])
-        if state_provider:
+        if api_view:
+            head_parts.extend(["api_view", api_view])
+        else:
+            head_parts.extend(["state", state_model])
+        if state_provider and not api_view:
             head_parts.extend(["provider", state_provider])
         self._w.line(" ".join(p for p in head_parts if p) + " {")
         if body_node is not None:
@@ -2249,13 +2368,12 @@ class _AwareFormatter:
         kind = (
             _node_text(source_bytes=self._source_bytes, node=kind_node).strip()
             if kind_node is not None
-            else ""
+            else "instance"
         )
-        is_default = any(ch.type == "default" for ch in node.children)
 
-        head_parts = ["observable", view_key, kind]
-        if is_default:
-            head_parts.append("default")
+        head_parts = ["observable", view_key]
+        if kind and kind != "instance":
+            head_parts.append(kind)
 
         self._w.line(" ".join(p for p in head_parts if p) + " {")
         if body_node is not None:

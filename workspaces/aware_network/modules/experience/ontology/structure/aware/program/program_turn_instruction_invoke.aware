@@ -1,0 +1,33 @@
+/// Canonical invoke execution receipt under one ProgramTurnInstruction.
+///
+/// Contract:
+/// - Captures one invoke execution for one program instruction.
+/// - Freezes actor-role attribution and optional resolved target node-class identity.
+class ProgramTurnInstructionInvoke {
+    // Relationships
+    program_impl_instruction_invoke aware_experience.program.impl.ProgramImplInstructionInvoke key
+    program_actor_role ProgramActorRole key
+    projection_experience_node_class_identity aware_experience.projection.ProjectionExperienceNodeClassIdentity key
+    attribute_config_receipts ProgramTurnInstructionInvokeAttributeConfig[]
+
+    fn build construct (
+        program_impl_instruction_invoke_id UUID key,
+        program_actor_role_id UUID key,
+        projection_experience_node_class_identity_id UUID key
+    ) -> ProgramTurnInstructionInvoke {
+        """
+        Create deterministic ProgramTurnInstructionInvoke under ProgramTurnInstruction.
+        """
+    }
+
+    fn add_attribute_config_receipt (
+        program_impl_instruction_invoke_attribute_config_id UUID
+    ) -> ProgramTurnInstructionInvokeAttributeConfig {
+        """
+        Record one deterministic invoke-argument receipt row for this invoke execution.
+        """
+        let created_receipt = construct attribute_config_receipts.build(
+            program_impl_instruction_invoke_attribute_config_id = program_impl_instruction_invoke_attribute_config_id,
+        )
+    }
+}

@@ -1,0 +1,20 @@
+class CodeSectionClassBase {
+    // Relationships
+    segment aware_content.part.ContentPartTextSegment?
+
+    // Attributes
+    base_ref String key
+    is_augment Bool = false
+
+    fn build construct(
+        base_ref String key,
+        is_augment Bool = false
+    ) -> CodeSectionClassBase {
+        """
+        Build a deterministic class-base entry under a class section.
+        """
+    }
+}
+
+/// Load segment eagerly
+ann aware_code.class.CodeSectionClassBase::segment load eager

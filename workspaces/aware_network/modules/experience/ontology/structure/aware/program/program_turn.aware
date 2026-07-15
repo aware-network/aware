@@ -1,0 +1,28 @@
+class ProgramTurn {
+    turn turn.Turn key
+    instructions ProgramTurnInstruction[]
+    order Int
+
+    fn build construct (turn_id UUID key, order Int = 0) -> ProgramTurn {
+        """
+        Create a deterministic ProgramTurn.
+        """
+    }
+
+    fn create_instruction (
+        program_instruction_id UUID,
+        sequence Int
+    ) -> ProgramTurnInstruction {
+        """
+        Create one instruction execution receipt under this ProgramTurn.
+
+        Contract:
+        - Mutates only ProgramTurn membership (`instructions`).
+        - Instruction linkage is typed via `aware_experience.program.impl.ProgramImplInstruction`.
+        """
+        let created_instruction = construct instructions.build(
+            program_instruction_id = program_instruction_id,
+            sequence = sequence,
+        )
+    }
+}

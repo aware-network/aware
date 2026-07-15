@@ -1,0 +1,112 @@
+aware = 1
+
+[workspace]
+handle = "aware_network"
+title = "Aware Network"
+
+# Above-kernel network dynamics workspace. Product packages are module-owned in
+# `modules/**/aware.module.toml`; retired top-level package-family arrays are
+# intentionally absent from the active Workspace materialize rail. Root shared
+# libraries are generic CodePackages and stay on the Workspace -> Code rail.
+codes = [
+    "libs/comms/python/pyproject.toml",
+    "libs/comms/dart/pubspec.yaml",
+]
+
+[[workspace.modules]]
+id = "sdk"
+path = "modules/sdk"
+
+[[workspace.modules]]
+id = "storage"
+path = "modules/storage"
+
+[[workspace.modules]]
+id = "content"
+path = "modules/content"
+
+[[workspace.modules]]
+id = "code"
+path = "modules/code"
+
+[[workspace.modules]]
+id = "filesystem"
+path = "modules/filesystem"
+
+[[workspace.modules]]
+id = "meta"
+path = "modules/meta"
+
+[[workspace.modules]]
+id = "ontology"
+path = "modules/ontology"
+
+[[workspace.modules]]
+id = "reactivity"
+path = "modules/reactivity"
+
+[[workspace.modules]]
+id = "attention"
+path = "modules/attention"
+
+[[workspace.modules]]
+id = "identity"
+path = "modules/identity"
+
+[[workspace.modules]]
+id = "memory"
+path = "modules/memory"
+
+[[workspace.modules]]
+id = "economy"
+path = "modules/economy"
+
+[[workspace.modules]]
+id = "environment"
+path = "modules/environment"
+
+[[workspace.modules]]
+id = "experience"
+path = "modules/experience"
+
+[[workspace.modules]]
+id = "service"
+path = "modules/service"
+
+[[workspace.modules]]
+id = "network"
+path = "modules/network"
+
+[[workspace.modules]]
+id = "interface"
+path = "modules/interface"
+
+[[workspace.modules]]
+id = "node"
+path = "modules/node"
+
+[[workspace.modules]]
+id = "skill"
+path = "modules/skill"
+
+[[workspace.modules]]
+id = "hub"
+path = "modules/hub"
+
+[[workspace.dependencies]]
+id = "aware_kernel"
+kind = "workspace"
+source = "workspace://aware_kernel"
+channel = "local"
+revision = "workspace-revision:local"
+
+[[workspace.dependencies.code_semantic_contract_profile_packages]]
+profile_package_ref = "workspace://aware_kernel#kernel.default"
+profile_key = "kernel.default"
+semantic_contract_provider_keys = [
+    "aware_api",
+    "aware_code",
+    "aware_meta",
+    "aware_ontology",
+    "aware_sdk",
+]

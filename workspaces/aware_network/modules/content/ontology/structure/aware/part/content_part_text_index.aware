@@ -1,0 +1,19 @@
+class ContentPartTextIndex {
+    // Attributes
+    key String key = "default"
+    embedding Vector(768)?
+
+    fn create_content_part_text_index construct(
+        key String key = "default",
+        embedding Vector(768)? = null,
+    ) -> ContentPartTextIndex {
+        """
+        Creates a text-part embedding/index record.
+        """
+        construct ContentPartTextIndex(
+            key = key,
+            embedding = embedding,
+        )
+    }
+
+}

@@ -1,0 +1,23 @@
+[project]
+name = "aware-sdk-core"
+version = "0.1.0"
+description = "Common public support utilities for Aware SDK packages."
+authors = [{ name = "AWARE Team" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aware-types",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.4.2",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_sdk_core"]
+include = ["aware_sdk_core/py.typed"]

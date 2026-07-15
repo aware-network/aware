@@ -381,6 +381,172 @@ def test_reifier_skips_stale_attribute_payloads_removed_from_active_schema() -> 
         ORMModelRegistry.restore_state(registry_snapshot)
 
 
+def test_reify_oig_root_model_accepts_reloaded_generated_model_class() -> None:
+    registry_snapshot = ORMModelRegistry.snapshot_state()
+    try:
+        reloaded_parent = type(
+            "_ReifierParent",
+            (ORMModel,),
+            {
+                "__annotations__": {"name": str},
+                "__module__": _ReifierParent.__module__,
+            },
+        )
+        parent_cc = _class_config(
+            name="ReifierParent",
+            model_class=cast(type[ORMModel], reloaded_parent),
+        )
+        _attach_model(parent_cc, cast(type[ORMModel], reloaded_parent))
+
+        name_attr = _primitive_attr_config(owner_key="parent", name="name")
+        parent_object_id = uuid4()
+        parent_ci = _class_instance(
+            oig_id=uuid4(),
+            class_config_id=parent_cc.id,
+            source_object_id=parent_object_id,
+            attributes=[_class_instance_attribute(parent_object_id, name_attr, "root")],
+        )
+        opg = ObjectProjectionGraph.model_construct(
+            id=uuid4(),
+            object_config_graph_id=uuid4(),
+            description=None,
+            language=CodeLanguage.python,
+            name="ReifierProjection",
+            projection_hash="sha256:reifier",
+            supports_virtual_build=True,
+            object_projection_graph_edges=[],
+            object_projection_graph_nodes=[],
+            object_projection_graph_constructors=[],
+            object_projection_graph_relationships=[],
+            object_instance_graphs=[],
+        )
+        oig = ObjectInstanceGraph.model_construct(
+            id=parent_ci.object_instance_graph_id,
+            object_projection_graph_id=opg.id,
+            key="reifier",
+            name="Reifier",
+            description=None,
+            hash="sha256:oig",
+            root_class_instance=parent_ci,
+            root_class_instance_id=parent_ci.id,
+            class_instances=[parent_ci],
+            class_instance_relationships=[],
+        )
+        index = SimpleNamespace(
+            attribute_configs_by_id={name_attr.id: name_attr},
+            class_configs_by_id={parent_cc.id: parent_cc},
+            relationships_by_id={},
+        )
+
+        root = reify_oig_root_model(
+            index=cast(Any, index),
+            opg=opg,
+            oig=oig,
+            model_type=_ReifierParent,
+            root_id=parent_object_id,
+        )
+
+        assert root is not None
+        assert type(root) is reloaded_parent
+        assert not isinstance(root, _ReifierParent)
+        assert root.id == parent_object_id
+        assert root.name == "root"
+    finally:
+        ORMModelRegistry.restore_state(registry_snapshot)
+
+
+def test_reify_oig_root_model_prefers_explicit_model_type_over_registry_binding() -> (
+    None
+):
+    registry_snapshot = ORMModelRegistry.snapshot_state()
+    try:
+        ORMModelRegistry.clear_registry()
+        requested_model = cast(
+            type[ORMModel],
+            type(
+                "RequestedReifierModel",
+                (ORMModel,),
+                {
+                    "__annotations__": {"name": str},
+                    "__module__": __name__,
+                },
+            ),
+        )
+        stale_model = cast(
+            type[ORMModel],
+            type(
+                "StaleRegistryReifierModel",
+                (ORMModel,),
+                {
+                    "__annotations__": {"name": str},
+                    "__module__": __name__,
+                },
+            ),
+        )
+        parent_cc = _class_config(
+            name="RequestedReifierModel",
+            model_class=requested_model,
+        )
+        requested_model.bind_class_config(parent_cc)
+        _attach_model(parent_cc, stale_model)
+
+        name_attr = _primitive_attr_config(owner_key="parent", name="name")
+        parent_object_id = uuid4()
+        parent_ci = _class_instance(
+            oig_id=uuid4(),
+            class_config_id=parent_cc.id,
+            source_object_id=parent_object_id,
+            attributes=[_class_instance_attribute(parent_object_id, name_attr, "root")],
+        )
+        opg = ObjectProjectionGraph.model_construct(
+            id=uuid4(),
+            object_config_graph_id=uuid4(),
+            description=None,
+            language=CodeLanguage.python,
+            name="ReifierProjection",
+            projection_hash="sha256:reifier",
+            supports_virtual_build=True,
+            object_projection_graph_edges=[],
+            object_projection_graph_nodes=[],
+            object_projection_graph_constructors=[],
+            object_projection_graph_relationships=[],
+            object_instance_graphs=[],
+        )
+        oig = ObjectInstanceGraph.model_construct(
+            id=parent_ci.object_instance_graph_id,
+            object_projection_graph_id=opg.id,
+            key="reifier",
+            name="Reifier",
+            description=None,
+            hash="sha256:oig",
+            root_class_instance=parent_ci,
+            root_class_instance_id=parent_ci.id,
+            class_instances=[parent_ci],
+            class_instance_relationships=[],
+        )
+        index = SimpleNamespace(
+            attribute_configs_by_id={name_attr.id: name_attr},
+            class_configs_by_id={parent_cc.id: parent_cc},
+            relationships_by_id={},
+        )
+
+        root = reify_oig_root_model(
+            index=cast(Any, index),
+            opg=opg,
+            oig=oig,
+            model_type=requested_model,
+            root_id=parent_object_id,
+        )
+
+        assert root is not None
+        assert type(root) is requested_model
+        assert not isinstance(root, stale_model)
+        assert root.id == parent_object_id
+        assert root.name == "root"
+    finally:
+        ORMModelRegistry.restore_state(registry_snapshot)
+
+
 def test_meta_materialization_lane_rehydration_stays_off_runtime_executor() -> None:
     source = (
         _REPO_ROOT

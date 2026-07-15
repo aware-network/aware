@@ -11,7 +11,15 @@ from aware_meta_ontology.graph.config.object_config_graph_enums import (
 from aware_meta_ontology.graph.projection.object_projection_graph import (
     ObjectProjectionGraph,
 )
+from aware_meta_ontology.graph.projection.object_projection_graph_identity import (
+    ObjectProjectionGraphIdentity,
+)
+from aware_meta_ontology.graph.projection.object_projection_graph_observable import (
+    ObjectProjectionGraphObservable,
+)
+from aware_meta_ontology.stable_ids import stable_object_projection_graph_identity_id
 
+from aware_meta.runtime.graph_identity import resolve_meta_graph_ocgi_opgi
 from aware_meta.runtime.handler_executor import MetaGraphRuntimeIndex
 
 
@@ -53,12 +61,32 @@ def _collect_accessible_object_config_graphs(
 
 def _object_config_graph_detail_score(
     graph: ObjectConfigGraph,
-) -> tuple[int, int, int, int]:
+) -> tuple[int, int, int, int, int, int]:
     return (
         len(graph.object_projection_graphs),
+        _object_config_graph_identity_observable_count(graph),
+        _object_config_graph_identity_projection_count(graph),
         len(graph.object_config_graph_nodes),
         len(graph.object_config_graph_bindings),
         len(graph.object_config_graph_relationships),
+    )
+
+
+def _object_config_graph_identity_projection_count(graph: ObjectConfigGraph) -> int:
+    ocgi = getattr(graph, "object_config_graph_identity", None)
+    if ocgi is None:
+        return 0
+    return len(ocgi.object_projection_graph_identities)
+
+
+def _object_config_graph_identity_observable_count(graph: ObjectConfigGraph) -> int:
+    ocgi = getattr(graph, "object_config_graph_identity", None)
+    if ocgi is None:
+        return 0
+    return sum(
+        len(identity.object_projection_graph_observables)
+        for identity in ocgi.object_projection_graph_identities
+        if isinstance(identity, ObjectProjectionGraphIdentity)
     )
 
 
@@ -181,6 +209,165 @@ def _resolve_object_projection_graph(
     raise RuntimeError(
         f"Could not resolve api ontology projection target {projection_target!r}"
     )
+
+
+def _resolve_object_projection_graph_observable(
+    *,
+    index: MetaGraphRuntimeIndex,
+    accessible_graphs: Sequence[ObjectConfigGraph],
+    observable_ref: str,
+) -> ObjectProjectionGraphObservable:
+    normalized_ref = _normalize_token(observable_ref)
+    if not normalized_ref:
+        raise RuntimeError(
+            "Invalid api ontology view observable: observable_ref is required"
+        )
+
+    matches: list[ObjectProjectionGraphObservable] = []
+    for projection_ref, observable_key in _observable_ref_candidates(observable_ref):
+        for graph in accessible_graphs:
+            for opg in graph.object_projection_graphs:
+                if projection_ref and not _projection_matches(
+                    target_graph=graph,
+                    opg=opg,
+                    target=projection_ref,
+                ):
+                    continue
+                opgi = _resolve_object_projection_graph_identity_for_graph(
+                    index=index,
+                    graph=graph,
+                    opg=opg,
+                )
+                if opgi is None:
+                    continue
+                for observable in opgi.object_projection_graph_observables or ():
+                    if _observable_matches(
+                        observable=observable,
+                        observable_ref=observable_ref,
+                        observable_key=observable_key,
+                        projection_ref=projection_ref,
+                        projection_name=opgi.projection_name,
+                    ):
+                        matches.append(observable)
+
+    unique_matches = tuple(
+        {observable.id: observable for observable in matches}.values()
+    )
+    if len(unique_matches) == 1:
+        return unique_matches[0]
+    if len(unique_matches) > 1:
+        raise RuntimeError(
+            "Ambiguous api ontology view observable "
+            + f"(observable_ref={observable_ref!r}, matches={[item.key for item in unique_matches]!r})"
+        )
+    raise RuntimeError(
+        f"Could not resolve api ontology view observable {observable_ref!r}"
+    )
+
+
+def _resolve_object_projection_graph_identity_for_graph(
+    *,
+    index: MetaGraphRuntimeIndex,
+    graph: ObjectConfigGraph,
+    opg: ObjectProjectionGraph,
+) -> ObjectProjectionGraphIdentity | None:
+    ocgi = graph.object_config_graph_identity
+    if ocgi is not None:
+        matching_identities = tuple(
+            identity
+            for identity in ocgi.object_projection_graph_identities
+            if isinstance(identity, ObjectProjectionGraphIdentity)
+            and identity.object_projection_graph_id == opg.id
+        )
+        if len(matching_identities) == 1:
+            return matching_identities[0]
+        if len(matching_identities) > 1:
+            expected_identity_id = stable_object_projection_graph_identity_id(
+                object_config_graph_identity_id=ocgi.id,
+                object_projection_graph_id=opg.id,
+            )
+            exact_matches = tuple(
+                identity
+                for identity in matching_identities
+                if identity.id == expected_identity_id
+            )
+            if len(exact_matches) == 1:
+                return exact_matches[0]
+            raise RuntimeError(
+                "Ambiguous api ontology view observable projection identity "
+                + f"(graph={graph.fqn_prefix!r}, projection={opg.name!r})"
+            )
+
+    _ocgi, indexed_opgi = resolve_meta_graph_ocgi_opgi(
+        index=index,
+        projection_hash=opg.projection_hash,
+    )
+    return indexed_opgi
+
+
+def _split_observable_ref(observable_ref: str) -> tuple[str | None, str]:
+    normalized_ref = (observable_ref or "").strip()
+    head, separator, tail = normalized_ref.rpartition(".")
+    if separator and head and tail:
+        return head, tail
+    return None, normalized_ref
+
+
+def _observable_ref_candidates(
+    observable_ref: str,
+) -> tuple[tuple[str | None, str], ...]:
+    normalized_ref = (observable_ref or "").strip()
+    if not normalized_ref:
+        return ()
+    candidates: list[tuple[str | None, str]] = []
+    parts = normalized_ref.split(".")
+    if len(parts) > 1:
+        for split_index in range(len(parts) - 1, 0, -1):
+            projection_ref = ".".join(parts[:split_index])
+            observable_key = ".".join(parts[split_index:])
+            if projection_ref and observable_key:
+                candidates.append((projection_ref, observable_key))
+    candidates.append((None, normalized_ref))
+    return tuple(dict.fromkeys(candidates))
+
+
+def _observable_matches(
+    *,
+    observable: ObjectProjectionGraphObservable,
+    observable_ref: str,
+    observable_key: str,
+    projection_ref: str | None,
+    projection_name: str | None,
+) -> bool:
+    target_key = _normalize_token(observable_key)
+    actual_observable_key = _normalize_token(observable.observable_key)
+    actual_key = _normalize_token(observable.key)
+    if projection_ref:
+        return target_key in {actual_observable_key, actual_key}
+
+    ref_variants = _observable_ref_variants(
+        observable_ref=observable_ref,
+        projection_name=projection_name,
+    )
+    actual_variants = _observable_ref_variants(
+        observable_ref=observable.key,
+        projection_name=projection_name,
+    )
+    actual_variants.add(actual_observable_key)
+    return any(candidate in actual_variants for candidate in ref_variants)
+
+
+def _observable_ref_variants(
+    *, observable_ref: str | None, projection_name: str | None
+) -> set[str]:
+    normalized = _normalize_token(observable_ref)
+    variants = {normalized, normalized.replace(":", ".")}
+    if projection_name:
+        projection = _normalize_token(projection_name)
+        if normalized and projection:
+            variants.add(f"{projection}:{normalized}")
+            variants.add(f"{projection}.{normalized}")
+    return {variant for variant in variants if variant}
 
 
 def _resolve_public_function_config_id_within_graph(

@@ -1,0 +1,41 @@
+/// Declarative layout configuration for Attention.
+///
+/// Contract:
+/// - Config-level topology source for layout token lowering.
+/// - Not a runtime instance surface.
+class LayoutConfig {
+    // Relationships
+    section_configs LayoutConfigSectionConfig[]
+
+    // Attributes
+    key String key
+    title String
+    description String?
+
+    fn build construct (key String key, title String, description String? = null) -> LayoutConfig {
+        """
+        Build a deterministic LayoutConfig by key.
+        """
+    }
+
+    fn add_section_config (
+        section_key String,
+        title String,
+        description String? = null,
+        order Int = 0,
+        flex Float = 1.0,
+        is_visible Bool = true
+    ) -> LayoutConfigSectionConfig {
+        """
+        Add a SectionConfig binding to this LayoutConfig.
+        """
+        let created_layout_config_section_config = construct section_configs.create(
+            section_key = section_key,
+            title = title,
+            description = description,
+            order = order,
+            flex = flex,
+            is_visible = is_visible,
+        )
+    }
+}

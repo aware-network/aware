@@ -1,0 +1,13 @@
+/// Sensor invocation action instance projection.
+projection SensorInvocationAction {
+    root sensor.SensorInvocationAction
+    sensor.SensorInvocationAction::sensor_invocation_action_config SensorInvocationActionConfig
+    sensor.SensorInvocationAction::experience_invocation_action ExperienceInvocationAction
+
+    observable sensor_invocation_action {
+        """
+        Sensor invocation action bridge from a concrete Sensor instance to one
+        generic Experience invocation action receipt.
+        """
+    }
+}

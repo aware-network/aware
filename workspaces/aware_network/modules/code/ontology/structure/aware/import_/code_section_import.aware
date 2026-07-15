@@ -1,0 +1,60 @@
+class CodeSectionImport {
+    // Relationships
+    code_section_import_names CodeSectionImportName[]
+    module_segment aware_content.part.ContentPartTextSegment
+
+    // Attributes
+    module_text String
+    is_from_import Bool
+    is_star_import Bool
+    relative_level Int = 0
+
+    fn build construct(
+        module_text String,
+        is_from_import Bool,
+        module_slot_key String,
+        module_byte_start Int,
+        module_byte_end Int,
+        is_star_import Bool = false,
+        relative_level Int = 0
+    ) -> CodeSectionImport {
+        """
+        Build the import payload under a CodeSection.
+        """
+    }
+
+    fn delete() -> {
+        """
+        Delete this import payload and its owned import-name entries through the owned handler rail.
+        """
+    }
+
+    fn create_name(
+        name_text String key,
+        name_slot_key String,
+        name_byte_start Int,
+        name_byte_end Int,
+        alias_text String? = null,
+        alias_slot_key String? = null,
+        alias_byte_start Int? = null,
+        alias_byte_end Int? = null
+    ) -> import.CodeSectionImportName {
+        """
+        Create a deterministic import-name entry under this import.
+        """
+        let created = construct code_section_import_names.build(
+            name_text = name_text,
+            alias_text = alias_text,
+            name_slot_key = name_slot_key,
+            name_byte_start = name_byte_start,
+            name_byte_end = name_byte_end,
+            alias_slot_key = alias_slot_key,
+            alias_byte_start = alias_byte_start,
+            alias_byte_end = alias_byte_end,
+        )
+    }
+}
+
+/// Eager import names + module segment
+ann import.CodeSectionImport::code_section_import_names load eager
+ann import.CodeSectionImport::module_segment load eager

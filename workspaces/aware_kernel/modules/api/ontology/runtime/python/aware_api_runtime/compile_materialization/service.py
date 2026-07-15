@@ -4,7 +4,7 @@ import asyncio
 from collections.abc import Awaitable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from contextvars import ContextVar
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from hashlib import sha256
 from inspect import isawaitable
 import json
@@ -21,6 +21,7 @@ from aware_api_ontology.api.api import Api
 from aware_api_ontology.api.api_capability import ApiCapability
 from aware_api_ontology.api.api_capability_endpoint import ApiCapabilityEndpoint
 from aware_api_ontology.api.api_package import ApiPackage
+from aware_api_ontology.api.api_view import ApiView
 from aware_api_ontology.stable_ids import stable_api_id, stable_api_package_id
 from aware_code.semantic_contract_config import source_code_package_config_ref
 from aware_code.types import JsonArray, JsonObject, JsonValue
@@ -56,7 +57,7 @@ from aware_meta_ontology.stable_ids import (
 )
 from aware_meta.graph.config.handlers import build_object_projection_graphs
 from aware_meta.fqn_resolver import authored_ref_from_fqn as _authored_ref_from_fqn
-from aware_meta.graph.instance.commit.fs_store import FSCommitStore
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 from aware_meta.graph.instance.commit.materialization_cache import (
     get_shared_materialization_cache,
 )
@@ -99,6 +100,7 @@ from ..dependencies.runtime_resolution import (
     load_api_accessible_dependency_graphs,
     load_api_accessible_dependency_graph_source_digests,
     load_api_accessible_dependency_graphs_from_runtime_artifact,
+    object_config_graph_has_api_accessible_namespace_evidence,
 )
 from ..source.semantic_analysis import analyze_api_sources
 
@@ -107,6 +109,12 @@ if TYPE_CHECKING:
 
 _TRoot = TypeVar("_TRoot", bound=ORMModel)
 ApiEndpointCatalog = dict[str, dict[str, tuple[str, ...]]]
+ApiViewCatalog = dict[str, tuple[str, ...]]
+_API_DIRECT_DEPENDENCY_MATERIALIZATION_CACHE_MAX = 256
+_API_DIRECT_DEPENDENCY_MATERIALIZATION_CACHE: dict[
+    tuple[object, ...],
+    ObjectConfigGraph,
+] = {}
 
 
 class ApiMaterializationProgressCallback(Protocol):
@@ -208,6 +216,7 @@ class ApiPackageMaterializationSpec:
     dependency_accessible_graphs: tuple[ObjectConfigGraph, ...]
     dependency_graph_context_source: str
     runtime_compile_plan_hash: str
+    api_view_catalog: ApiViewCatalog = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
@@ -295,6 +304,7 @@ class ApiPackageMaterializationResult:
     product_runtime_compile_result: object | None = None
     dart_public_package_compile_result: object | None = None
     language_post_step_receipts: tuple[dict[str, object], ...] = ()
+    direct_dependency_materialization_details: tuple[Mapping[str, object], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -367,6 +377,10 @@ def _api_dependency_graph_context_reusable_graphs_for_materialization(
         source=source,
     ):
         return None
+    if not _object_config_graphs_have_api_namespace_evidence(
+        accessible_graphs=context_graphs,
+    ):
+        return None
 
     dependency_packages = _resolve_api_dependency_packages(
         snapshot=snapshot,
@@ -386,7 +400,7 @@ def _api_dependency_graph_context_reusable_graphs_for_materialization(
             return None
         if (
             package.package_name in source_owned_api_dto_exports
-            and not _source_owned_api_dto_graph_preserves_source_layouts(
+            and not _source_owned_api_dto_graph_preserves_artifact_contract(
                 package=package,
                 graph=graph,
             )
@@ -535,10 +549,16 @@ def _api_dependency_graph_context(
         accessible_graphs=accessible_graphs,
         dependency_repo_roots=dependency_repo_roots,
     )
-    if context_graphs is not None and _dependency_graphs_cover_current_endpoint_refs(
-        snapshot=snapshot,
-        accessible_graphs=context_graphs,
-        source="workspace_semantic_context",
+    if (
+        context_graphs is not None
+        and _dependency_graphs_cover_current_endpoint_refs(
+            snapshot=snapshot,
+            accessible_graphs=context_graphs,
+            source="workspace_semantic_context",
+        )
+        and _object_config_graphs_have_api_namespace_evidence(
+            accessible_graphs=context_graphs,
+        )
     ):
         return _ApiDependencyGraphContext(
             class_config_ids=collect_api_dependency_class_config_ids_from_graphs(
@@ -654,7 +674,7 @@ def _refresh_stale_source_owned_api_dto_export_graphs(
         if (
             recorded_source_digests.get(package_name) == expected_digest
             and current_graph is not None
-            and _source_owned_api_dto_graph_preserves_source_layouts(
+            and _source_owned_api_dto_graph_preserves_artifact_contract(
                 package=package,
                 graph=current_graph,
             )
@@ -662,7 +682,7 @@ def _refresh_stale_source_owned_api_dto_export_graphs(
             continue
         if (
             current_graph is not None
-            and _source_owned_api_dto_graph_preserves_source_layouts(
+            and _source_owned_api_dto_graph_preserves_artifact_contract(
                 package=package,
                 graph=current_graph,
             )
@@ -740,6 +760,10 @@ def _source_owned_api_dto_export_graph_refresh_package_names(
         dependency_packages=dependency_packages,
         accessible_graphs=accessible_graphs,
     )
+    class_config_ids = collect_api_dependency_class_config_ids_from_graphs(
+        accessible_graphs=tuple(accessible_graphs),
+    )
+    current_contract_refs = _current_api_contract_class_refs(snapshot=snapshot)
     refresh_package_names: list[str] = []
     for package_name in source_owned_api_dto_exports:
         package = package_by_name.get(package_name)
@@ -749,10 +773,29 @@ def _source_owned_api_dto_export_graph_refresh_package_names(
         if current_graph is None:
             refresh_package_names.append(package_name)
             continue
-        if not _source_owned_api_dto_graph_preserves_source_layouts(
+        if not _source_owned_api_dto_graph_preserves_artifact_contract(
             package=package,
             graph=current_graph,
         ):
+            refresh_package_names.append(package_name)
+            continue
+        package_fqn_prefix = _dependency_package_fqn_prefix(package=package)
+        missing_current_refs = tuple(
+            ref
+            for ref in current_contract_refs
+            if package_fqn_prefix
+            and ref.startswith(f"{package_fqn_prefix}.")
+            and ref not in class_config_ids
+        )
+        if missing_current_refs:
+            logger.info(
+                "API source-owned DTO export graph is stale for current API "
+                "contract refs; refreshing through semantic materialization: "
+                "api_package=%s export_package=%s missing=%s",
+                snapshot.spec.api.package_name,
+                package_name,
+                missing_current_refs,
+            )
             refresh_package_names.append(package_name)
             continue
         expected_digest = _compute_runtime_dependency_source_digest(package=package)
@@ -765,6 +808,12 @@ def _source_owned_api_dto_export_graph_refresh_package_names(
             continue
         refresh_package_names.append(package_name)
     return tuple(dict.fromkeys(refresh_package_names))
+
+
+def _dependency_package_fqn_prefix(*, package: object) -> str:
+    spec = getattr(package, "spec", None)
+    package_spec = getattr(spec, "package", None)
+    return str(getattr(package_spec, "fqn_prefix", "") or "").strip()
 
 
 def _source_owned_api_dto_graph_cache_is_fresh_for_inputs(
@@ -803,6 +852,27 @@ def _source_owned_api_dto_graph_preserves_source_layouts(
     return all(_node_has_aware_source_layout(node=node) for node in local_nodes)
 
 
+def _source_owned_api_dto_graph_preserves_artifact_contract(
+    *,
+    package: object,
+    graph: ObjectConfigGraph,
+) -> bool:
+    return _source_owned_api_dto_graph_preserves_source_layouts(
+        package=package,
+        graph=graph,
+    ) and object_config_graph_has_api_accessible_namespace_evidence(graph=graph)
+
+
+def _object_config_graphs_have_api_namespace_evidence(
+    *,
+    accessible_graphs: Sequence[ObjectConfigGraph],
+) -> bool:
+    return all(
+        object_config_graph_has_api_accessible_namespace_evidence(graph=graph)
+        for graph in accessible_graphs
+    )
+
+
 def _source_owned_api_dto_node_fqn(*, node: object) -> str:
     class_config = getattr(node, "class_config", None)
     class_fqn = str(getattr(class_config, "class_fqn", "") or "").strip()
@@ -833,12 +903,12 @@ def _dependency_graphs_cover_current_endpoint_refs(
     class_config_ids = collect_api_dependency_class_config_ids_from_graphs(
         accessible_graphs=tuple(accessible_graphs),
     )
-    required_refs = _current_api_endpoint_class_refs(snapshot=snapshot)
+    required_refs = _current_api_contract_class_refs(snapshot=snapshot)
     missing_refs = tuple(ref for ref in required_refs if ref not in class_config_ids)
     if not missing_refs:
         return True
     logger.info(
-        "API dependency graph context missing current endpoint class refs; "
+        "API dependency graph context missing current API contract class refs; "
         "falling back to source graph resolution: api_package=%s source=%s missing=%s",
         snapshot.spec.api.package_name,
         source,
@@ -847,7 +917,7 @@ def _dependency_graphs_cover_current_endpoint_refs(
     return False
 
 
-def _current_api_endpoint_class_refs(
+def _current_api_contract_class_refs(
     *, snapshot: APIWorkspaceSnapshot
 ) -> tuple[str, ...]:
     analysis = analyze_api_sources(
@@ -870,6 +940,7 @@ def _current_api_endpoint_class_refs(
                         event_config.class_ref.strip()
                         for event_config in stream_config.event_configs
                     )
+        refs.extend(view.state_model_ref.strip() for view in api.views)
     return tuple(dict.fromkeys(ref for ref in refs if ref))
 
 
@@ -968,6 +1039,77 @@ def _accessible_graph_matches_dependency_package(
     )
 
 
+def _api_direct_dependency_materialization_cache_key(
+    *,
+    package: object,
+    package_workspace_root: Path,
+    package_branch_id: UUID,
+    branch_id: UUID,
+    include_object_config_graph: bool,
+    dependency_graphs: Sequence[ObjectConfigGraph],
+) -> tuple[object, ...] | None:
+    package_name = str(getattr(package, "package_name", "") or "").strip()
+    aware_toml_path = getattr(package, "aware_toml_path", None)
+    if not package_name or not isinstance(aware_toml_path, Path):
+        return None
+    try:
+        source_digest = _compute_runtime_dependency_source_digest(package=package)
+    except Exception as exc:
+        logger.info(
+            "API direct dependency materialization session cache disabled for package: "
+            "package=%s error=%s",
+            package_name,
+            exc,
+        )
+        return None
+    dependency_signature = tuple(
+        (
+            str(graph.id),
+            str(graph.hash or ""),
+            str(graph.name or ""),
+            str(graph.fqn_prefix or ""),
+        )
+        for graph in dependency_graphs
+    )
+    return (
+        package_workspace_root.resolve().as_posix(),
+        aware_toml_path.resolve().as_posix(),
+        package_name,
+        _dependency_package_fqn_prefix(package=package),
+        source_digest,
+        str(branch_id),
+        str(package_branch_id),
+        bool(include_object_config_graph),
+        dependency_signature,
+    )
+
+
+def _api_direct_dependency_materialization_cache_get(
+    *,
+    cache_key: tuple[object, ...] | None,
+) -> ObjectConfigGraph | None:
+    if cache_key is None:
+        return None
+    return _API_DIRECT_DEPENDENCY_MATERIALIZATION_CACHE.get(cache_key)
+
+
+def _api_direct_dependency_materialization_cache_put(
+    *,
+    cache_key: tuple[object, ...] | None,
+    graph: ObjectConfigGraph,
+) -> None:
+    if cache_key is None:
+        return
+    if len(_API_DIRECT_DEPENDENCY_MATERIALIZATION_CACHE) >= (
+        _API_DIRECT_DEPENDENCY_MATERIALIZATION_CACHE_MAX
+    ):
+        _API_DIRECT_DEPENDENCY_MATERIALIZATION_CACHE.pop(
+            next(iter(_API_DIRECT_DEPENDENCY_MATERIALIZATION_CACHE)),
+            None,
+        )
+    _API_DIRECT_DEPENDENCY_MATERIALIZATION_CACHE[cache_key] = graph
+
+
 async def build_api_accessible_dependency_graphs_via_meta_runtime(
     *,
     snapshot: APIWorkspaceSnapshot,
@@ -980,6 +1122,8 @@ async def build_api_accessible_dependency_graphs_via_meta_runtime(
     include_object_config_graph: bool = True,
     accessible_graphs: Sequence[ObjectConfigGraph] = (),
     dependency_repo_roots: Sequence[str | Path] = (),
+    phase_timings_s: dict[str, float] | None = None,
+    direct_dependency_materialization_details: list[Mapping[str, object]] | None = None,
 ) -> tuple[ObjectConfigGraph, ...]:
     """Resolve API dependency OCGs through direct Meta ontology/runtime materialization."""
 
@@ -1000,7 +1144,7 @@ async def build_api_accessible_dependency_graphs_via_meta_runtime(
         if package.package_name not in graphs_by_package_name
         or (
             package.package_name in source_owned_api_dto_exports
-            and not _source_owned_api_dto_graph_preserves_source_layouts(
+            and not _source_owned_api_dto_graph_preserves_artifact_contract(
                 package=package,
                 graph=graphs_by_package_name[package.package_name],
             )
@@ -1042,7 +1186,7 @@ async def build_api_accessible_dependency_graphs_via_meta_runtime(
         existing_graph = graphs_by_package_name.get(package.package_name)
         if existing_graph is not None and (
             package.package_name not in source_owned_api_dto_exports
-            or _source_owned_api_dto_graph_preserves_source_layouts(
+            or _source_owned_api_dto_graph_preserves_artifact_contract(
                 package=package,
                 graph=existing_graph,
             )
@@ -1095,6 +1239,40 @@ async def build_api_accessible_dependency_graphs_via_meta_runtime(
             package_name=package.package_name,
             fqn_prefix=package.spec.package.fqn_prefix,
         )
+        cache_key = _api_direct_dependency_materialization_cache_key(
+            package=package,
+            package_workspace_root=package_workspace_root,
+            package_branch_id=package_branch_id,
+            branch_id=branch_id,
+            include_object_config_graph=include_object_config_graph,
+            dependency_graphs=dependency_graphs,
+        )
+        cached_graph = _api_direct_dependency_materialization_cache_get(
+            cache_key=cache_key,
+        )
+        if cached_graph is not None:
+            graph = _ensure_dependency_object_projection_graphs(
+                package=package,
+                graph=cached_graph,
+                graphs_by_package_name=graphs_by_package_name,
+            )
+            graphs_by_package_name[package.package_name] = graph
+            ordered_graphs.append(graph)
+            if phase_timings_s is not None:
+                phase_timings_s[
+                    "api_dependency_direct_materialization."
+                    f"{package.package_name}.session_cache_hit"
+                ] = 1.0
+            logger.info(
+                "API Meta dependency package direct materialization session cache hit: "
+                "package=%s position=%d/%d nodes=%d duration=%.3fs",
+                package.package_name,
+                package_index,
+                len(dependency_packages),
+                len(graph.object_config_graph_nodes),
+                perf_counter() - package_started_at,
+            )
+            continue
         try:
             result = await materialize_object_config_graph_package_leaf_from_manifest(
                 runtime=runtime,
@@ -1117,6 +1295,15 @@ async def build_api_accessible_dependency_graphs_via_meta_runtime(
                 f"error={str(exc)!r}"
             ) from exc
         graph = result.object_config_graph
+        _record_api_direct_dependency_materialization_detail(
+            package=package,
+            graph=graph,
+            result=result,
+            phase_timings_s=phase_timings_s,
+            direct_dependency_materialization_details=(
+                direct_dependency_materialization_details
+            ),
+        )
         if graph.id is None:
             raise RuntimeError(
                 "Direct Meta runtime package OCG materialization returned an ObjectConfigGraph without id "
@@ -1152,6 +1339,10 @@ async def build_api_accessible_dependency_graphs_via_meta_runtime(
             package=package,
             graph=graph,
             graphs_by_package_name=graphs_by_package_name,
+        )
+        _api_direct_dependency_materialization_cache_put(
+            cache_key=cache_key,
+            graph=graph,
         )
         graphs_by_package_name[package.package_name] = graph
         ordered_graphs.append(graph)
@@ -1204,6 +1395,7 @@ async def resolve_source_owned_api_dto_export_accessible_graphs(
     accessible_graphs: Sequence[ObjectConfigGraph] = (),
     dependency_repo_roots: Sequence[str | Path] = (),
     phase_timings_s: dict[str, float] | None = None,
+    direct_dependency_materialization_details: list[Mapping[str, object]] | None = None,
 ) -> tuple[ObjectConfigGraph, ...]:
     timings = phase_timings_s if phase_timings_s is not None else {}
     resolved_input_accessible_graphs = tuple(accessible_graphs)
@@ -1238,7 +1430,19 @@ async def resolve_source_owned_api_dto_export_accessible_graphs(
         )
         if not refresh_package_names:
             return _dedupe_accessible_graphs(
-                (*resolved_input_accessible_graphs, *complete_artifact_graphs)
+                (
+                    *_drop_all_accessible_dependency_package_graphs(
+                        dependency_packages=_resolve_api_dependency_packages(
+                            snapshot=snapshot,
+                            dependency_repo_roots=dependency_repo_roots,
+                        ),
+                        accessible_graphs=resolved_input_accessible_graphs,
+                        package_names=_source_owned_api_dto_export_package_names(
+                            snapshot=snapshot,
+                        ),
+                    ),
+                    *complete_artifact_graphs,
+                )
             )
         refresh_input_graphs = _drop_accessible_dependency_package_graphs(
             dependency_packages=_resolve_api_dependency_packages(
@@ -1272,10 +1476,26 @@ async def resolve_source_owned_api_dto_export_accessible_graphs(
                     ),
                     accessible_graphs=refresh_input_graphs,
                     dependency_repo_roots=dependency_repo_roots,
+                    phase_timings_s=timings,
+                    direct_dependency_materialization_details=(
+                        direct_dependency_materialization_details
+                    ),
                 )
             )
-        return _dedupe_accessible_graphs(
-            (*resolved_input_accessible_graphs, *refreshed_graphs)
+        resolved_input_accessible_graphs = _drop_accessible_dependency_package_graphs(
+            dependency_packages=_resolve_api_dependency_packages(
+                snapshot=snapshot,
+                dependency_repo_roots=dependency_repo_roots,
+            ),
+            accessible_graphs=resolved_input_accessible_graphs,
+            package_names=refresh_package_names,
+        )
+        return _authoritative_source_owned_api_dto_refresh_graphs(
+            snapshot=snapshot,
+            dependency_repo_roots=dependency_repo_roots,
+            accessible_graphs=resolved_input_accessible_graphs,
+            refreshed_graphs=refreshed_graphs,
+            package_names=refresh_package_names,
         )
     with _record_phase(
         timings,
@@ -1324,11 +1544,132 @@ async def resolve_source_owned_api_dto_export_accessible_graphs(
                 ),
                 accessible_graphs=resolved_input_accessible_graphs,
                 dependency_repo_roots=dependency_repo_roots,
+                phase_timings_s=timings,
+                direct_dependency_materialization_details=(
+                    direct_dependency_materialization_details
+                ),
             )
         )
-    return _dedupe_accessible_graphs(
-        (*resolved_input_accessible_graphs, *source_owned_accessible_graphs)
+    return _authoritative_source_owned_api_dto_refresh_graphs(
+        snapshot=snapshot,
+        dependency_repo_roots=dependency_repo_roots,
+        accessible_graphs=resolved_input_accessible_graphs,
+        refreshed_graphs=source_owned_accessible_graphs,
+        package_names=_source_owned_api_dto_export_package_names(snapshot=snapshot),
     )
+
+
+def _authoritative_source_owned_api_dto_refresh_graphs(
+    *,
+    snapshot: APIWorkspaceSnapshot,
+    dependency_repo_roots: Sequence[str | Path],
+    accessible_graphs: Sequence[ObjectConfigGraph],
+    refreshed_graphs: Sequence[ObjectConfigGraph],
+    package_names: Sequence[str],
+) -> tuple[ObjectConfigGraph, ...]:
+    package_name_set = frozenset(
+        package_name for package_name in package_names if package_name
+    )
+    if not package_name_set:
+        return _dedupe_accessible_graphs((*accessible_graphs, *refreshed_graphs))
+    dependency_packages = _resolve_api_dependency_packages(
+        snapshot=snapshot,
+        dependency_repo_roots=dependency_repo_roots,
+    )
+    package_by_name = {
+        package.package_name: package
+        for package in dependency_packages
+        if package.package_name in package_name_set
+    }
+    authoritative_graphs: list[ObjectConfigGraph] = []
+    for package_name in sorted(package_name_set):
+        package = package_by_name.get(package_name)
+        if package is None:
+            continue
+        matches = tuple(
+            graph
+            for graph in refreshed_graphs
+            if _accessible_graph_matches_dependency_package(
+                package=package,
+                graph=graph,
+            )
+            and _source_owned_api_dto_graph_preserves_artifact_contract(
+                package=package,
+                graph=graph,
+            )
+        )
+        matches_by_id = {graph.id: graph for graph in matches}
+        if len(matches_by_id) != 1:
+            raise RuntimeError(
+                "API source-owned DTO refresh did not produce exactly one "
+                "namespace-complete graph for declared package: "
+                f"package={package_name!r} match_count={len(matches_by_id)}"
+            )
+        authoritative_graphs.append(next(iter(matches_by_id.values())))
+    remaining_graphs = _drop_all_accessible_dependency_package_graphs(
+        dependency_packages=dependency_packages,
+        accessible_graphs=(*accessible_graphs, *refreshed_graphs),
+        package_names=tuple(package_name_set),
+    )
+    return _dedupe_accessible_graphs((*remaining_graphs, *authoritative_graphs))
+
+
+def _record_api_direct_dependency_materialization_detail(
+    *,
+    package: object,
+    graph: ObjectConfigGraph,
+    result: object,
+    phase_timings_s: dict[str, float] | None,
+    direct_dependency_materialization_details: list[Mapping[str, object]] | None,
+) -> None:
+    package_name = str(getattr(package, "package_name", "") or "").strip()
+    if not package_name:
+        return
+    leaf_phase_timings = _float_timing_map(
+        getattr(result, "phase_timings_s", None),
+    )
+    semantic_commit_phase_timings = _float_timing_map(
+        getattr(result, "semantic_commit_phase_timings_s", None),
+    )
+    if phase_timings_s is not None:
+        prefix = f"api_dependency_direct_materialization.{package_name}"
+        for key, value in leaf_phase_timings.items():
+            phase_timings_s[f"{prefix}.meta_leaf.{key}"] = value
+        for key, value in semantic_commit_phase_timings.items():
+            phase_timings_s[f"{prefix}.semantic_commit.{key}"] = value
+    if direct_dependency_materialization_details is not None:
+        direct_dependency_materialization_details.append(
+            {
+                "package_name": package_name,
+                "graph_id": str(graph.id) if graph.id is not None else None,
+                "graph_name": graph.name,
+                "graph_fqn_prefix": graph.fqn_prefix,
+                "graph_node_count": len(graph.object_config_graph_nodes),
+                "semantic_commit_strategy": str(
+                    getattr(result, "semantic_commit_strategy", "") or ""
+                ),
+                "semantic_commit_fallback_reset": bool(
+                    getattr(result, "semantic_commit_fallback_reset", False)
+                ),
+                "phase_timings_s": dict(sorted(leaf_phase_timings.items())),
+                "semantic_commit_phase_timings_s": dict(
+                    sorted(semantic_commit_phase_timings.items())
+                ),
+            }
+        )
+
+
+def _float_timing_map(value: object) -> dict[str, float]:
+    if not isinstance(value, Mapping):
+        return {}
+    timings: dict[str, float] = {}
+    for key, metric in value.items():
+        if not isinstance(key, str):
+            continue
+        if not isinstance(metric, int | float):
+            continue
+        timings[key] = float(metric)
+    return timings
 
 
 def _drop_accessible_dependency_package_graphs(
@@ -1351,6 +1692,30 @@ def _drop_accessible_dependency_package_graphs(
     }
     return tuple(
         graph for graph in accessible_graphs if graph.id not in excluded_graph_ids
+    )
+
+
+def _drop_all_accessible_dependency_package_graphs(
+    *,
+    dependency_packages: Sequence[object],
+    accessible_graphs: Sequence[ObjectConfigGraph],
+    package_names: Sequence[str],
+) -> tuple[ObjectConfigGraph, ...]:
+    package_name_set = {package_name for package_name in package_names if package_name}
+    if not package_name_set:
+        return tuple(accessible_graphs)
+    packages = tuple(
+        package
+        for package in dependency_packages
+        if getattr(package, "package_name", None) in package_name_set
+    )
+    return tuple(
+        graph
+        for graph in accessible_graphs
+        if not any(
+            _accessible_graph_matches_dependency_package(package=package, graph=graph)
+            for package in packages
+        )
     )
 
 
@@ -1791,6 +2156,7 @@ def resolve_api_package_materialization_spec(
         timings, "resolve_api_package_materialization_spec.build_api_endpoint_catalog"
     ):
         api_endpoint_catalog = _build_api_endpoint_catalog(plan=compile_plan)
+        api_view_catalog = _build_api_view_catalog(plan=compile_plan)
     with _record_phase(
         timings,
         "resolve_api_package_materialization_spec.encode_api_compile_plan_payload",
@@ -1817,6 +2183,7 @@ def resolve_api_package_materialization_spec(
             dependency_accessible_graphs=dependency_graph_context.accessible_graphs,
             dependency_graph_context_source=dependency_graph_context.source,
             runtime_compile_plan_hash=runtime_compile_plan_hash,
+            api_view_catalog=api_view_catalog,
         )
 
 
@@ -1877,6 +2244,7 @@ async def _materialize_api_package_from_manifest_impl(
 ) -> ApiPackageMaterializationResult:
     materialization_started_at = perf_counter()
     phase_timings_s: dict[str, float] = {}
+    direct_dependency_materialization_details: list[Mapping[str, object]] = []
     resolved_input_accessible_graphs = (
         await resolve_source_owned_api_dto_export_accessible_graphs(
             runtime=runtime,
@@ -1888,6 +2256,9 @@ async def _materialize_api_package_from_manifest_impl(
             accessible_graphs=accessible_graphs,
             dependency_repo_roots=dependency_repo_roots,
             phase_timings_s=phase_timings_s,
+            direct_dependency_materialization_details=(
+                direct_dependency_materialization_details
+            ),
         )
     )
     with _record_phase(phase_timings_s, "resolve_api_package_materialization_spec"):
@@ -1992,6 +2363,10 @@ async def _materialize_api_package_from_manifest_impl(
                     object_config_graph_projection_hash=object_config_graph_projection_hash,
                     accessible_graphs=resolved_accessible_graphs,
                     dependency_repo_roots=dependency_repo_roots,
+                    phase_timings_s=phase_timings_s,
+                    direct_dependency_materialization_details=(
+                        direct_dependency_materialization_details
+                    ),
                 )
     with _record_phase(phase_timings_s, "hydrate_api_from_head"):
         api = await _hydrate_lane_root_from_head(
@@ -2002,13 +2377,14 @@ async def _materialize_api_package_from_manifest_impl(
             root_type=Api,
         )
     if api is not None:
-        with _record_phase(phase_timings_s, "validate_api_endpoint_catalog"):
+        with _record_phase(phase_timings_s, "validate_api_contract_catalog"):
             if not await _api_lane_has_endpoint_catalog(
                 index=index,
                 branch_id=branch_id,
                 projection_hash=api_projection_hash,
                 expected_api_id=expected_api_id,
                 api_endpoint_catalog=spec.api_endpoint_catalog,
+                api_view_catalog=spec.api_view_catalog,
             ):
                 _reset_generated_api_lane(
                     aware_root=FSCommitStore().aware_root,
@@ -2432,6 +2808,9 @@ async def _materialize_api_package_from_manifest_impl(
         product_runtime_compile_result=product_runtime_compile_result,
         dart_public_package_compile_result=dart_public_package_compile_result,
         language_post_step_receipts=language_post_step_receipts,
+        direct_dependency_materialization_details=tuple(
+            direct_dependency_materialization_details
+        ),
     )
 
 
@@ -2607,6 +2986,9 @@ async def _materialize_api_package_from_compile_plan_input_impl(
         api_endpoint_catalog = _build_api_endpoint_catalog_from_ontology_plans(
             plans=api_plans,
         )
+        api_view_catalog = _build_api_view_catalog_from_ontology_plans(
+            plans=api_plans,
+        )
         generated_dto_graph = _build_generated_compile_plan_dto_graph(
             package_name=package_name,
             fqn_prefix=fqn_prefix,
@@ -2646,13 +3028,14 @@ async def _materialize_api_package_from_compile_plan_input_impl(
             root_type=Api,
         )
     if api is not None:
-        with _record_phase(phase_timings_s, "validate_api_endpoint_catalog"):
+        with _record_phase(phase_timings_s, "validate_api_contract_catalog"):
             if not await _api_lane_has_endpoint_catalog(
                 index=index,
                 branch_id=branch_id,
                 projection_hash=api_projection_hash,
                 expected_api_id=expected_api_id,
                 api_endpoint_catalog=api_endpoint_catalog,
+                api_view_catalog=api_view_catalog,
             ):
                 _reset_generated_api_lane(
                     aware_root=FSCommitStore().aware_root,
@@ -2971,6 +3354,16 @@ def _build_api_endpoint_catalog(*, plan: APICompilePlan) -> ApiEndpointCatalog:
     return catalog
 
 
+def _build_api_view_catalog(*, plan: APICompilePlan) -> ApiViewCatalog:
+    catalog: ApiViewCatalog = {}
+    for api in plan.api_ownership:
+        api_key = api.name.strip().casefold()
+        if not api_key:
+            continue
+        catalog[api_key] = tuple(view.name for view in api.views if view.name.strip())
+    return catalog
+
+
 def _build_api_endpoint_catalog_from_ontology_plans(
     *,
     plans: Sequence[APIOntologyPlan],
@@ -3000,6 +3393,19 @@ def _build_api_endpoint_catalog_from_ontology_plans(
                     key=lambda item: item.casefold(),
                 )
             )
+    return catalog
+
+
+def _build_api_view_catalog_from_ontology_plans(
+    *,
+    plans: Sequence[APIOntologyPlan],
+) -> ApiViewCatalog:
+    catalog: ApiViewCatalog = {}
+    for plan in plans:
+        api_key = plan.api.name.strip().casefold()
+        if not api_key:
+            continue
+        catalog[api_key] = tuple(view.name for view in plan.views if view.name.strip())
     return catalog
 
 
@@ -3208,6 +3614,12 @@ def _generated_compile_plan_dto_class_refs(
                 fqn_prefix=normalized_prefix,
             ):
                 refs.add(row.class_ref.strip())
+        for row in plan.views:
+            if row.state_model_id is None and _class_ref_is_local_to_prefix(
+                class_ref=row.state_model_ref,
+                fqn_prefix=normalized_prefix,
+            ):
+                refs.add(row.state_model_ref.strip())
     return tuple(sorted(refs, key=str.casefold))
 
 
@@ -4113,6 +4525,7 @@ async def _api_lane_has_endpoint_catalog(
     projection_hash: str,
     expected_api_id: UUID,
     api_endpoint_catalog: ApiEndpointCatalog,
+    api_view_catalog: ApiViewCatalog | None = None,
 ) -> bool:
     session = await _hydrate_lane_session_from_head(
         index=index,
@@ -4129,6 +4542,7 @@ async def _api_lane_has_endpoint_catalog(
     return _api_endpoint_catalog_is_satisfied_by_session(
         session=session,
         api_endpoint_catalog=api_endpoint_catalog,
+        api_view_catalog=api_view_catalog or {},
     )
 
 
@@ -4136,6 +4550,7 @@ def _api_endpoint_catalog_is_satisfied_by_session(
     *,
     session: Session,
     api_endpoint_catalog: ApiEndpointCatalog,
+    api_view_catalog: ApiViewCatalog | None = None,
 ) -> bool:
     apis_by_name = {
         (obj.name or "").casefold().strip(): obj
@@ -4151,6 +4566,11 @@ def _api_endpoint_catalog_is_satisfied_by_session(
         (obj.api_capability_id, (obj.name or "").casefold().strip()): obj
         for obj in session.imap_all_objects()
         if isinstance(obj, ApiCapabilityEndpoint) and obj.id is not None
+    }
+    views_by_key = {
+        (obj.api_id, (obj.name or "").casefold().strip()): obj
+        for obj in session.imap_all_objects()
+        if isinstance(obj, ApiView) and obj.id is not None
     }
 
     for api_name, capability_catalog in api_endpoint_catalog.items():
@@ -4169,6 +4589,14 @@ def _api_endpoint_catalog_is_satisfied_by_session(
                 )
                 if endpoint is None:
                     return False
+    for api_name, view_names in (api_view_catalog or {}).items():
+        api_obj = apis_by_name.get(api_name.casefold().strip())
+        if api_obj is None or api_obj.id is None:
+            return False
+        for view_name in view_names:
+            view = views_by_key.get((api_obj.id, view_name.casefold().strip()))
+            if view is None:
+                return False
     return True
 
 
@@ -4256,7 +4684,32 @@ async def _object_instance_graph_commit_id_from_domain_commit(
     projection_hash: str,
     domain_commit_id: UUID,
 ) -> UUID | None:
-    domain_commit = await FSCommitStore().get_commit(
+    commit_store = FSCommitStore()
+    identity_metadata = await commit_store.get_commit_identity_metadata(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        commit_id=domain_commit_id,
+    )
+    if identity_metadata is not None:
+        return stable_object_instance_graph_commit_id(
+            object_instance_graph_identity_id=(
+                identity_metadata.object_instance_graph_identity_id
+            ),
+            commit_id=domain_commit_id,
+        )
+    domain_commit_envelope = await commit_store.get_commit_envelope(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        commit_id=domain_commit_id,
+    )
+    if domain_commit_envelope is not None:
+        return stable_object_instance_graph_commit_id(
+            object_instance_graph_identity_id=(
+                domain_commit_envelope.object_instance_graph_identity_id
+            ),
+            commit_id=domain_commit_id,
+        )
+    domain_commit = await commit_store.get_commit(
         branch_id=branch_id,
         projection_hash=projection_hash,
         commit_id=domain_commit_id,
@@ -4313,6 +4766,7 @@ def _relative_to(*, path: Path, root: Path, label: str) -> str:
 
 __all__ = [
     "ApiEndpointCatalog",
+    "ApiViewCatalog",
     "ApiCompilePlanPackageMaterializationResult",
     "ApiPackageMaterializationResult",
     "ApiPackageMaterializationSpec",

@@ -1,0 +1,12 @@
+// Auth token projection (v1, execution/session scoped)
+//
+// Contract:
+// - Rooted at AuthTokenRegistry (stable id).
+// - Covers APT env/process/thread execution credentials only.
+// - Public Identity/API credentials are modeled by CredentialProfile.
+// - Token secrets are never stored; only sha256 is persisted.
+projection AuthToken {
+    root auth.AuthTokenRegistry
+
+    auth.AuthTokenRegistry::tokens
+}

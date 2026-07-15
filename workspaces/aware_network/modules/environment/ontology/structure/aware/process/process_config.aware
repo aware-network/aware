@@ -1,0 +1,99 @@
+/// Environment-owned process topology config.
+///
+/// Contract:
+/// - Owned by Environment under EnvironmentProfileConfig.
+/// - Reusable key/config for runtime Process instances.
+/// - Does not reference Experience-owned profile/config classes.
+class ProcessConfig {
+    // Relationships
+    thread_configs thread.ThreadConfig[]
+    /// Optional profile-level image used as the default for Process instances.
+    ///
+    /// Contract:
+    /// - Image bytes are uploaded out-of-band (data-plane).
+    /// - Commits reference StorageBlob metadata only.
+    image aware_storage.blob.StorageBlob? unique
+
+    // Attributes
+    description String?
+    /// Narrative text for this continuous process topology.
+    narrative String?
+    /// Short canonical intent for process routing and UX composition.
+    intent String?
+    /// Stable topology key for this process config.
+    key String key
+    /// Optional shape hint for process replication variants.
+    shape String?
+    /// Display label override for desktop surfaces.
+    title String?
+    type String
+    /// Ordering hint for selectors/home cards.
+    position Int? = null
+    /// Profile-level default process option for Environment session entrypoints.
+    is_default Bool = false
+
+    fn build construct (
+        type String,
+        key String key,
+        title String? = null,
+        description String? = null,
+        shape String? = null,
+        position Int? = null,
+        is_default Bool = false,
+        narrative String? = null,
+        intent String? = null
+    ) -> ProcessConfig {
+        """
+        Construct a deterministic ProcessConfig under an EnvironmentProfileConfig.
+
+        Contract:
+        - Identity is profile-scoped configuration and does not derive from runtime Process.
+        - Runtime Process instances are created under EnvironmentProfile.
+        """
+    }
+
+    fn create_thread_config (
+        key String key,
+        title String? = null,
+        description String? = null,
+        workspace_view_key String? = null,
+        position Int? = null,
+        is_default Bool = false,
+        narrative String? = null,
+        intent String? = null,
+        state_prompt_template String? = null
+    ) -> thread.ThreadConfig {
+        """
+        Create a ThreadConfig under this ProcessConfig.
+
+        Contract:
+        - Deterministic identity under this ProcessConfig using config-level keys.
+        - Runtime Thread instances are created under Process.
+        - Does not carry Experience program/action semantics.
+        """
+        let thread_config = construct thread_configs.build(
+            key = key,
+            title = title,
+            description = description,
+            workspace_view_key = workspace_view_key,
+            position = position,
+            is_default = is_default,
+            narrative = narrative,
+            intent = intent,
+            state_prompt_template = state_prompt_template,
+        )
+    }
+
+    fn update_picture(image_id UUID? = null, image_sha String? = null, image_mime_type String? = null, image_size_bytes Int? = null) -> {
+        """
+        Updates (or clears) the process config image.
+
+        Contract:
+        - Raw bytes are uploaded out-of-band via HTTP file operations.
+        - Commits must reference commit-backed StorageBlob metadata only.
+        - When setting a picture, image_sha/image_mime_type/image_size_bytes must be provided together.
+        """
+    }
+}
+
+ann process.ProcessConfig::thread_configs load eager

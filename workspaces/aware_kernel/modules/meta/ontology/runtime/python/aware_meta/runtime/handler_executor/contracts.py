@@ -50,10 +50,17 @@ class MetaGraphCommitIndex(Protocol):
     that currently happens to provide them.
     """
 
-    ocg: ObjectConfigGraph
-    class_configs_by_id: Mapping[UUID, ClassConfig]
-    opg_by_id: Mapping[UUID, ObjectProjectionGraph]
-    opg_by_hash: Mapping[str, ObjectProjectionGraph]
+    @property
+    def ocg(self) -> ObjectConfigGraph: ...
+
+    @property
+    def class_configs_by_id(self) -> Mapping[UUID, ClassConfig]: ...
+
+    @property
+    def opg_by_id(self) -> Mapping[UUID, ObjectProjectionGraph]: ...
+
+    @property
+    def opg_by_hash(self) -> Mapping[str, ObjectProjectionGraph]: ...
 
 
 @runtime_checkable
@@ -65,9 +72,14 @@ class MetaGraphRuntimeIndex(MetaGraphCommitIndex, Protocol):
     remain an adapter during migration.
     """
 
-    attribute_configs_by_id: Mapping[UUID, AttributeConfig]
-    relationships_by_id: Mapping[UUID, ClassConfigRelationship]
-    portal_index: ObjectProjectionGraphPortalIndex
+    @property
+    def attribute_configs_by_id(self) -> Mapping[UUID, AttributeConfig]: ...
+
+    @property
+    def relationships_by_id(self) -> Mapping[UUID, ClassConfigRelationship]: ...
+
+    @property
+    def portal_index(self) -> ObjectProjectionGraphPortalIndex: ...
 
 
 class MetaGraphImplementationKind(Enum):
@@ -180,6 +192,13 @@ class MetaGraphBoundArguments:
 
 
 @dataclass(frozen=True, slots=True)
+class MetaGraphMaterializationCachePrimeSnapshot:
+    execution_plan: MetaGraphExecutionPlan
+    post_oig: ObjectInstanceGraph
+    graph_hash_post: str
+
+
+@dataclass(frozen=True, slots=True)
 class MetaGraphExecutionSessionDelta:
     execution_plan: MetaGraphExecutionPlan
     before_oig: ObjectInstanceGraph
@@ -190,6 +209,9 @@ class MetaGraphExecutionSessionDelta:
     root_class_instance_identity_id: UUID | None = None
     target_class_instance_id: UUID | None = None
     constructed_class_instance_ids: tuple[UUID, ...] = ()
+    materialization_cache_prime_snapshot: (
+        MetaGraphMaterializationCachePrimeSnapshot | None
+    ) = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -214,6 +236,9 @@ class MetaGraphMutationSet:
     root_class_instance_identity_id: UUID | None = None
     target_class_instance_id: UUID | None = None
     constructed_class_instance_ids: tuple[UUID, ...] = ()
+    materialization_cache_prime_snapshot: (
+        MetaGraphMaterializationCachePrimeSnapshot | None
+    ) = None
 
 
 class MetaGraphMutationBoundaryStatus(Enum):
@@ -240,6 +265,9 @@ class MetaGraphAppendReadyChanges:
     graph_hash_post: str
     root_object_id: UUID | None = None
     root_class_instance_identity_id: UUID | None = None
+    materialization_cache_prime_snapshot: (
+        MetaGraphMaterializationCachePrimeSnapshot | None
+    ) = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -255,6 +283,9 @@ class MetaGraphHandlerExecutionResult:
     before_oig: ObjectInstanceGraph | None = None
     changes: tuple[ObjectInstanceGraphChange, ...] = ()
     append_ready_changes: MetaGraphAppendReadyChanges | None = None
+    materialization_cache_prime_snapshot: (
+        MetaGraphMaterializationCachePrimeSnapshot | None
+    ) = None
 
 
 class MetaGraphPreStateMaterializer(Protocol):
@@ -341,6 +372,7 @@ __all__ = [
     "MetaGraphImplementationKind",
     "MetaGraphImplementationDispatcher",
     "MetaGraphInvocationLaneScope",
+    "MetaGraphMaterializationCachePrimeSnapshot",
     "MetaGraphMutationBoundaryStatus",
     "MetaGraphMutationBoundaryValidation",
     "MetaGraphMutationBoundaryValidator",

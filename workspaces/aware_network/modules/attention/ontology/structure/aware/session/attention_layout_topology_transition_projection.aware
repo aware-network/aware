@@ -1,0 +1,13 @@
+// AttentionLayoutTopologyTransition projection
+//
+// Contract:
+// - Topology revisions are immutable full-vector membership history under one
+//   AttentionSessionLayout.
+// - Section anchors remain owned by the parent AttentionSession projection.
+
+projection AttentionLayoutTopologyTransition {
+    root session.AttentionLayoutTopologyTransition
+    session.AttentionLayoutTopologyTransition::previous_topology_transition AttentionLayoutTopologyTransition
+    session.AttentionLayoutTopologyTransition::section_states
+    session.AttentionLayoutTopologyTransitionSection::attention_session_section AttentionSession
+}

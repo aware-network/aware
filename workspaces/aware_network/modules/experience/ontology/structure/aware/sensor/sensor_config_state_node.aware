@@ -1,0 +1,21 @@
+/// SensorConfig-owned observed state-node footprint.
+///
+/// Contract:
+/// - Anchors one Sensor config to one Meta ObjectProjectionGraphNode it
+///   observes.
+/// - The linked node gives projection scope and class (`node.class_config`).
+/// - This is not a payload schema rail.
+class SensorConfigStateNode {
+    // Relationships
+    object_projection_graph_node aware_meta.graph.projection.ObjectProjectionGraphNode key
+
+    fn build construct (
+        object_projection_graph_node_id UUID key
+    ) -> SensorConfigStateNode {
+        """
+        Create deterministic SensorConfig observed state-node footprint edge.
+        """
+    }
+}
+
+ann sensor.SensorConfigStateNode::object_projection_graph_node load eager
