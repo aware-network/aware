@@ -1,0 +1,86 @@
+version = 1
+track = "graph-os-v1"
+target_index = "testpypi"
+entrypoint_package = "aware-sdk"
+entrypoint_publish_wave = "wave-09-sdk"
+
+[[waves]]
+id = "wave-00-protocol-contracts"
+goal = "Leaf API and ontology contracts consumed by compiler/runtime."
+packages = [
+  "aware-code-api",
+  "aware-history-api",
+  "aware-meta-api",
+  "aware_network_service_dto",
+  "aware-environment-api",
+  "aware-code-ontology",
+  "aware-history-ontology",
+  "aware-meta-ontology",
+  "aware-network-ontology",
+  "aware-environment-ontology",
+  "aware-interface-ontology",
+]
+
+[[waves]]
+id = "wave-01-graph-core"
+goal = "Core graph and module foundations."
+packages = [
+  "aware-utils",
+  "aware-code",
+  "aware-history",
+  "aware-meta",
+  "aware-orm",
+]
+
+[[waves]]
+id = "wave-02-grammars"
+goal = "Language rails required by compile/runtime plugin setup."
+packages = [
+  "tree-sitter-aware",
+  "tree-sitter-sql",
+  "tree-sitter-python",
+  "tree-sitter-dart",
+  "aware-grammar",
+  "sql-grammar",
+  "python-grammar",
+  "dart-grammar",
+]
+
+[[waves]]
+id = "wave-03-compiler"
+goal = "Compiler/materialization rail."
+packages = [
+  "aware-environment-artifacts",
+  "aware-workspace-experience",
+  "aware-language-service",
+]
+
+[[waves]]
+id = "wave-04-runtime-programs"
+goal = "Program execution and runtime commit rail."
+packages = [
+  "aware-runtime",
+]
+
+[[waves]]
+id = "wave-05-api-session"
+goal = "External API + session/client runtime."
+packages = [
+  "aware-comms",
+  "aware-api",
+  "aware-tui-framework",
+]
+
+[[waves]]
+id = "wave-06-cli"
+goal = "Canonical user command transport."
+packages = [
+  "aware-cli",
+]
+
+[[waves]]
+id = "wave-09-sdk"
+goal = "Top-level Graph OS entrypoint package."
+packages = [
+  "aware-sdk",
+]

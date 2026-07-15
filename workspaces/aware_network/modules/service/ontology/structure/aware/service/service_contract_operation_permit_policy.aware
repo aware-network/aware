@@ -1,0 +1,27 @@
+class ServiceContractOperationPermitPolicy {
+    // Attributes
+    fail_closed Bool = true
+    idempotency_scope ServiceContractOperationPermitIdempotencyScope = request_hash
+    permit_scope ServiceContractOperationPermitScope = operation
+    requires_active_contract Bool = true
+    requires_reservation_before_execute Bool = false
+    requires_smart_contract_permit Bool = false
+
+    fn build construct (
+        requires_active_contract Bool = true,
+        requires_smart_contract_permit Bool = false,
+        requires_reservation_before_execute Bool = false,
+        permit_scope ServiceContractOperationPermitScope = operation,
+        idempotency_scope ServiceContractOperationPermitIdempotencyScope = request_hash,
+        fail_closed Bool = true
+    ) -> ServiceContractOperationPermitPolicy {
+        """
+        Creates the Service-owned permit policy intent for one operation grant.
+
+        Contract:
+        - Parent ServiceContractConfigOperationGrant scope is propagated by constructor lowering.
+        - Permit policy declares required execution proofs before an operation may run.
+        - Identity still owns ActorRole evidence; Economy still owns smart-contract permits and reservations.
+        """
+    }
+}

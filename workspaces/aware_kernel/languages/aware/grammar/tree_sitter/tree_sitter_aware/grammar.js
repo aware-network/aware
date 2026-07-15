@@ -54,6 +54,7 @@ module.exports = grammar({
             $.attention_layout_def,
             $.pane_def,
             $.interface_def,
+            $.app_def,
             $.node_def,
             $.class_def,
             $.edge_def,
@@ -912,7 +913,9 @@ module.exports = grammar({
             seq("'", /[^']*/, "'")
         ))),
 
-        number_literal: $ => /[0-9]+(\.[0-9]+)?/,
+        // Source numeric literals preserve authored base-10 text. Declared-type
+        // lowering decides whether that text is Int, Float, or exact Decimal.
+        number_literal: _ => token(/-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?/),
 
         boolean_literal: $ => choice('true', 'false'),
 
@@ -2274,7 +2277,11 @@ module.exports = grammar({
 
         service_operation_price_def: $ => seq(
             'price',
-            field('body', $.service_operation_price_block)
+            choice(
+                field('body', $.service_operation_price_block),
+                field('price', $.qualified_name)
+            ),
+            optional(';')
         ),
 
         service_operation_price_block: $ => seq(
@@ -3093,15 +3100,73 @@ module.exports = grammar({
 
         interface_pane_mount_def: $ => seq(
             'mount',
-            field('view', $.qualified_name),
             field('target', $.qualified_name),
-            optional(field('default_marker', $.default_marker)),
             optional(';')
         ),
 
         interface_pane_narrative_def: $ => seq(
             'narrative',
             field('narrative', $.qualified_name),
+            optional(';')
+        ),
+
+        app_def: $ => seq(
+            'app',
+            field('name', $.ident),
+            field('body', $.app_block)
+        ),
+
+        app_block: $ => seq(
+            '{',
+            repeat(choice(
+                $.comment,
+                $.app_item
+            )),
+            '}'
+        ),
+
+        app_item: $ => choice(
+            $.app_title_decl,
+            $.app_description_decl,
+            $.app_screen_def
+        ),
+
+        app_title_decl: $ => seq(
+            'title',
+            field('title', $.string_literal),
+            optional(';')
+        ),
+
+        app_description_decl: $ => seq(
+            'description',
+            field('description', $.string_literal),
+            optional(';')
+        ),
+
+        app_screen_def: $ => seq(
+            'screen',
+            field('screen_key', $.ident),
+            field('body', $.app_screen_block)
+        ),
+
+        app_screen_block: $ => seq(
+            '{',
+            repeat(choice(
+                $.comment,
+                $.app_screen_item
+            )),
+            '}'
+        ),
+
+        app_screen_item: $ => choice(
+            $.app_screen_projection_layout_decl
+        ),
+
+        app_screen_projection_layout_decl: $ => seq(
+            'projection',
+            field('projection', $.view_path),
+            'layout',
+            field('layout', $.view_path),
             optional(';')
         ),
 
@@ -3207,7 +3272,7 @@ module.exports = grammar({
             'ann',
             field('path', $.ann_path),
             field('verb', $.ident),
-            repeat(field('arg', $.ann_arg)),
+            repeat(seq($._ann_arg_separator, field('arg', $.ann_arg))),
             optional(';')
         ),
 
@@ -3222,10 +3287,16 @@ module.exports = grammar({
             optional(seq('::', field('member', $.member_path)))
         ),
 
-        ann_arg: $ => choice(
-            $.ident,
-            $.literal
-        ),
+        // Annotation payloads are line-scoped and interpreted by the owning
+        // semantic annotation compiler. Explicit horizontal separators keep a
+        // following top-level declaration distinct while allowing any keyword
+        // (for example `api` or `sdk`) to remain a normal argument token.
+        _ann_arg_separator: _ => token.immediate(/[ \t]+/),
+        ann_arg: _ => token.immediate(choice(
+            /"([^"\\]|\\.)*"/,
+            /'([^'\\]|\\.)*'/,
+            /[^ \t\r\n;]+/
+        )),
     }
 });
 

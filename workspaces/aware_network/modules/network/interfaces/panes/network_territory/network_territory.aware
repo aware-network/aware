@@ -1,0 +1,166 @@
+pane network_territory {
+    kind network_territory
+
+    view aware_network.territory.discovery.v1 default {
+        """Network node, environment, hosted-service, and peer territory discovery pane."""
+    }
+
+    render default {
+        view aware_network.territory.discovery.v1;
+        version "0.1.0";
+
+        require node_kind scroll;
+        require node_kind column;
+        require node_kind row;
+        require node_kind repeat;
+        require node_kind field;
+        require node_kind list_item;
+        require node_kind metric;
+        require node_kind section_header;
+        require node_kind status;
+        require node_kind button;
+        require node_kind receipt;
+        require action_binding view_action;
+
+        node root scroll pane {
+            style density = "compact";
+        }
+
+        node root.header row section;
+
+        node root.header.title text heading {
+            text "Network territory";
+            style emphasis = "primary";
+        }
+
+        node root.header.status status status {
+            bind text status fallback "waiting";
+        }
+
+        node root.summary field metadata {
+            label "Summary";
+            bind text summary fallback "Network nodes, environments, hosted services, and peers.";
+        }
+
+        node root.refresh button action {
+            label "Refresh territory";
+            style emphasis = "primary";
+            action activate view discover_territory {
+                receipt show_receipt;
+            }
+        }
+
+        node root.error receipt receipt {
+            style tone = "warning";
+            bind text error;
+            bind visible error not_empty;
+        }
+
+        node root.empty_message text paragraph {
+            bind visible nodes is_empty;
+            bind text empty_message fallback "No Network territory has been published yet";
+        }
+
+        node root.source field metadata {
+            label "Source";
+            style tone = "muted";
+            bind text authority_source_url;
+            bind visible authority_source_url not_empty;
+        }
+
+        node root.nodes repeat section {
+            bind items nodes;
+        }
+
+        node root.nodes.card list_item section {
+            bind text item.node.hostname::nodes fallback "unknown node";
+        }
+
+        node root.nodes.card.status status status {
+            bind text item.node.status::nodes fallback "active";
+        }
+
+        node root.nodes.card.route field metadata {
+            label "Route";
+            style tone = "provenance";
+            bind text item.node.base_url::nodes;
+            bind visible item.node.base_url::nodes not_empty;
+        }
+
+        node root.nodes.card.metrics row section;
+
+        node root.nodes.card.metrics.environments metric metric {
+            label "environments";
+            bind text item.environments::nodes count fallback "0";
+        }
+
+        node root.nodes.card.metrics.services metric metric {
+            label "services";
+            bind text item.hosted_services::nodes count fallback "0";
+        }
+
+        node root.nodes.card.metrics.peers metric metric {
+            label "peers";
+            bind text item.peers::nodes count fallback "0";
+        }
+
+        node root.nodes.card.environments_header section_header heading {
+            text "Environments";
+            bind visible item.environments::nodes not_empty;
+        }
+
+        node root.nodes.card.environments repeat section {
+            bind items item.environments::nodes;
+        }
+
+        node root.nodes.card.environments.row list_item section {
+            bind text item.environment_title::nodes fallback "environment";
+        }
+
+        node root.nodes.card.environments.row.status status status {
+            bind text item.status::nodes fallback "active";
+        }
+
+        node root.nodes.card.environments.row.key field metadata {
+            label "Key";
+            style tone = "provenance";
+            bind text item.environment_key::nodes;
+            bind visible item.environment_key::nodes not_empty;
+        }
+
+        node root.nodes.card.services_header section_header heading {
+            text "Hosted services";
+            bind visible item.hosted_services::nodes not_empty;
+        }
+
+        node root.nodes.card.hosted_services repeat section {
+            bind items item.hosted_services::nodes;
+        }
+
+        node root.nodes.card.hosted_services.row list_item section {
+            bind text item.service_name::nodes fallback "service";
+        }
+
+        node root.nodes.card.hosted_services.row.endpoint_count metric metric {
+            label "endpoints";
+            bind text item.endpoint_refs::nodes count fallback "0";
+        }
+
+        node root.nodes.card.peers_header section_header heading {
+            text "Peers";
+            bind visible item.peers::nodes not_empty;
+        }
+
+        node root.nodes.card.peers repeat section {
+            bind items item.peers::nodes;
+        }
+
+        node root.nodes.card.peers.row list_item section {
+            bind text item.peer_base_url::nodes fallback "peer";
+        }
+
+        node root.nodes.card.peers.row.status status status {
+            bind text item.status::nodes fallback "unknown";
+        }
+    }
+}

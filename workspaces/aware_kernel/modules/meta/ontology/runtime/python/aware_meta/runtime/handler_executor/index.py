@@ -3,16 +3,24 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Protocol, cast
+from typing import Any, TYPE_CHECKING, Protocol, cast
 from uuid import UUID
+
+from pydantic import TypeAdapter
+from pydantic.fields import FieldInfo
 
 from aware_meta.runtime.handler_executor.contracts import (
     MetaGraphCommitIndex,
     MetaGraphFunctionImplementationDescriptor,
     MetaGraphImplementationKind,
+    MetaGraphOigModelConstructionPlanCache,
     MetaGraphResolvedFunctionTarget,
+    MetaGraphRuntimeIndex,
 )
 from aware_meta_ontology.class_.class_config import ClassConfig
+from aware_meta_ontology.class_.class_config_relationship import (
+    ClassConfigRelationship,
+)
 from aware_meta_ontology.class_.class_config_function_config import (
     ClassConfigFunctionConfig,
 )
@@ -32,6 +40,17 @@ from aware_meta_ontology.graph.config.object_config_graph_package_implementation
 from aware_meta_ontology.graph.config.object_config_graph_enums import (
     ObjectConfigGraphNodeType,
 )
+from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
+from aware_meta_ontology.graph.projection.object_projection_graph import (
+    ObjectProjectionGraph,
+)
+from aware_orm.runtime.class_resolver import ORMClassResolutionIndex
+
+if TYPE_CHECKING:
+    from aware_meta.graph.instance.diff_orm import (
+        OrmChangeTranslationIndexCache,
+        OrmChangeTranslationRelationshipProjectionContext,
+    )
 
 
 class _FunctionObjectConfigGraphNode(Protocol):
@@ -44,6 +63,118 @@ class MetaGraphFunctionImplOwnership(Enum):
 
     authored = "authored"
     compiler = "compiler"
+
+
+@dataclass(frozen=True, slots=True)
+class _OigModelFieldConstructionPlan:
+    field_name: str
+    is_model_field: bool
+    type_adapter: TypeAdapter[Any] | None
+
+    def coerce(self, value: object) -> object:
+        if self.type_adapter is None:
+            return value
+        try:
+            return cast(object, self.type_adapter.validate_python(value))
+        except Exception:
+            return value
+
+
+@dataclass(slots=True)
+class OigModelConstructionPlanCache:
+    """Exact-runtime-index cache for immutable OIG-to-ORM construction plans."""
+
+    index: MetaGraphRuntimeIndex
+    class_resolution_index: ORMClassResolutionIndex = field(init=False)
+    _field_plans: dict[tuple[type[object], str], _OigModelFieldConstructionPlan] = (
+        field(default_factory=dict, init=False, repr=False)
+    )
+
+    def __post_init__(self) -> None:
+        self.class_resolution_index = ORMClassResolutionIndex.from_class_configs_by_id(
+            cast(Mapping[UUID, Any], self.index.class_configs_by_id),
+        )
+
+    def require_index(self, index: MetaGraphRuntimeIndex) -> None:
+        if self.index is not index:
+            raise ValueError(
+                "OigModelConstructionPlanCache belongs to a different runtime "
+                "index object"
+            )
+
+    def field_plan(
+        self,
+        *,
+        orm_class: type[object],
+        config_name: str,
+    ) -> _OigModelFieldConstructionPlan:
+        key = (orm_class, config_name)
+        plan = self._field_plans.get(key)
+        if plan is None:
+            plan = build_oig_model_field_construction_plan(
+                orm_class=orm_class,
+                config_name=config_name,
+            )
+            self._field_plans[key] = plan
+        return plan
+
+
+def build_oig_model_field_construction_plan(
+    *,
+    orm_class: type[object],
+    config_name: str,
+) -> _OigModelFieldConstructionPlan:
+    fields = _model_fields(orm_class)
+    field_name = _orm_field_name_for_config_name(
+        fields=fields,
+        config_name=config_name,
+    )
+    field_info = fields.get(field_name)
+    if field_info is None:
+        return _OigModelFieldConstructionPlan(
+            field_name=field_name,
+            is_model_field=False,
+            type_adapter=None,
+        )
+    field_type = field_info.annotation
+    if field_type is None:
+        return _OigModelFieldConstructionPlan(
+            field_name=field_name,
+            is_model_field=True,
+            type_adapter=None,
+        )
+    try:
+        type_adapter = TypeAdapter(field_type)
+    except Exception:
+        type_adapter = None
+    return _OigModelFieldConstructionPlan(
+        field_name=field_name,
+        is_model_field=True,
+        type_adapter=type_adapter,
+    )
+
+
+def _model_fields(orm_class: type[object]) -> Mapping[str, FieldInfo]:
+    try:
+        fields = type.__getattribute__(orm_class, "model_fields")
+    except AttributeError:
+        return {}
+    if isinstance(fields, Mapping):
+        return cast(Mapping[str, FieldInfo], fields)
+    return {}
+
+
+def _orm_field_name_for_config_name(
+    *,
+    fields: Mapping[str, FieldInfo],
+    config_name: str,
+) -> str:
+    if config_name in fields:
+        return config_name
+    for field_name, field_info in fields.items():
+        if field_info.alias == config_name:
+            return str(field_name)
+    return config_name
 
 
 @dataclass(frozen=True, slots=True)
@@ -154,15 +285,78 @@ class MetaGraphRuntimeIndexView:
     _implementation_descriptors_by_id: (
         dict[UUID, MetaGraphFunctionImplementationDescriptor] | None
     ) = field(default=None, init=False, repr=False)
-    _function_input_edges_by_id: (
-        dict[UUID, FunctionConfigAttributeConfig] | None
-    ) = field(default=None, init=False, repr=False)
+    _function_input_edges_by_id: dict[UUID, FunctionConfigAttributeConfig] | None = (
+        field(default=None, init=False, repr=False)
+    )
     _function_input_edges_by_function_id: (
         dict[UUID, tuple[FunctionConfigAttributeConfig, ...]] | None
     ) = field(default=None, init=False, repr=False)
     _function_input_edges_by_attribute_config_id: (
         dict[UUID, dict[UUID, FunctionConfigAttributeConfig]] | None
     ) = field(default=None, init=False, repr=False)
+    _orm_change_translation_index_cache: OrmChangeTranslationIndexCache | None = field(
+        default=None,
+        init=False,
+        repr=False,
+    )
+    _oig_model_construction_plan_cache: (
+        MetaGraphOigModelConstructionPlanCache | None
+    ) = field(
+        default=None,
+        init=False,
+        repr=False,
+    )
+
+    def oig_model_construction_plan_cache(
+        self,
+        *,
+        index: MetaGraphRuntimeIndex,
+    ) -> MetaGraphOigModelConstructionPlanCache:
+        if self.index is not index:
+            raise ValueError(
+                "MetaGraphRuntimeIndexView belongs to a different runtime index "
+                "object"
+            )
+        cache = self._oig_model_construction_plan_cache
+        if cache is None:
+            cache = OigModelConstructionPlanCache(index=index)
+            self._oig_model_construction_plan_cache = cache
+        return cache
+
+    def orm_change_translation_index_cache(
+        self,
+        *,
+        object_config_graph: ObjectConfigGraph,
+        class_configs_by_id: Mapping[UUID, ClassConfig],
+        relationships_by_id: Mapping[UUID, ClassConfigRelationship],
+    ) -> OrmChangeTranslationIndexCache:
+        cache = self._orm_change_translation_index_cache
+        if cache is None:
+            from aware_meta.graph.instance.diff_orm import (
+                OrmChangeTranslationIndexCache,
+            )
+
+            cache = OrmChangeTranslationIndexCache(
+                object_config_graph=object_config_graph,
+                class_configs_by_id=class_configs_by_id,
+                relationships_by_id=relationships_by_id,
+            )
+            self._orm_change_translation_index_cache = cache
+        return cache
+
+    def existing_orm_change_translation_relationship_projection_context(
+        self,
+        *,
+        object_config_graph: ObjectConfigGraph,
+        object_projection_graph: ObjectProjectionGraph,
+    ) -> OrmChangeTranslationRelationshipProjectionContext | None:
+        cache = self._orm_change_translation_index_cache
+        if cache is None:
+            return None
+        return cache.relationship_projection_context(
+            ocg=object_config_graph,
+            opg=object_projection_graph,
+        )
 
     @property
     def function_targets_by_id(
@@ -453,10 +647,12 @@ def _function_attribute_type(
 
 
 __all__ = [
+    "build_oig_model_field_construction_plan",
     "build_meta_graph_implementation_policy_from_packages",
     "build_meta_graph_implementation_descriptor_index",
     "build_meta_graph_function_target_index",
     "MetaGraphFunctionImplOwnership",
     "MetaGraphImplementationPolicy",
     "MetaGraphRuntimeIndexView",
+    "OigModelConstructionPlanCache",
 ]

@@ -1,0 +1,65 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "c2fff86f-1ee8-592d-97ba-a4dfde9bbcee",
+      "node_type": "class",
+      "entity_id": "2117a2db-03f9-5e02-87c3-eff2f357b637",
+      "relative_path": "skill/service_operation.py"
+    },
+    {
+      "node_id": "208d5366-d925-551d-8c2a-2807ac4248e7",
+      "node_type": "class",
+      "entity_id": "406fa1b4-c2fb-52b0-9906-8651a19d21fe",
+      "relative_path": "skill/service_operation.py"
+    },
+    {
+      "node_id": "72ee6661-ce43-5ad1-ba50-109c83657b8d",
+      "node_type": "class",
+      "entity_id": "616b57bb-2f03-5906-940a-06e70a1e4374",
+      "relative_path": "skill/service_operation.py"
+    },
+    {
+      "node_id": "dbe75fff-831b-50f0-81a0-584fb745e0fa",
+      "node_type": "class",
+      "entity_id": "63a9fabb-f12a-56e5-815a-7f1ef9d9b250",
+      "relative_path": "skill/service_operation.py"
+    },
+    {
+      "node_id": "0a67ff24-7535-5e71-9454-128d502e54d2",
+      "node_type": "class",
+      "entity_id": "7ddeee24-6648-5854-ae75-0e15ded8a13a",
+      "relative_path": "skill/service_operation.py"
+    },
+    {
+      "node_id": "5d912ac9-060a-5d9d-a0a4-44796290341a",
+      "node_type": "class",
+      "entity_id": "800fa8b0-eb7d-5532-8913-b593d824f0ab",
+      "relative_path": "skill/service_operation.py"
+    },
+    {
+      "node_id": "038abdb8-52eb-5e48-8571-3e59d726e9b5",
+      "node_type": "class",
+      "entity_id": "9dcdc23c-487c-5e72-bddf-70fad58f6bc0",
+      "relative_path": "skill/service_operation.py"
+    },
+    {
+      "node_id": "5c0cd427-6339-53b5-a9d2-05bf349f6f60",
+      "node_type": "class",
+      "entity_id": "a65cc26e-91b6-53ec-a7f5-67fdb67c5d9f",
+      "relative_path": "skill/service_operation.py"
+    },
+    {
+      "node_id": "5cefccbb-4a38-520a-b78f-b17756ce8d79",
+      "node_type": "class",
+      "entity_id": "c9a84139-dd4a-53c7-b44c-7ba7abe9dddc",
+      "relative_path": "skill/service_operation.py"
+    },
+    {
+      "node_id": "1f7bb4a6-2f15-58b2-92e3-a67f8b93ecee",
+      "node_type": "class",
+      "entity_id": "f51cde00-8475-53f8-9a7d-4a39296ac812",
+      "relative_path": "skill/service_operation.py"
+    }
+  ]
+}

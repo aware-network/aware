@@ -1,0 +1,335 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "21e932b2-5a8b-5751-beaf-aaa44196ec67",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyActorStatusRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyActorStatusRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "ffa6862a-334f-5223-be78-612c2908ad72",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyActorStatusResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyActorStatusResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "a6c71c17-5866-538f-bf01-ade1ffc57f93",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyEnsureFinanceEntityRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyEnsureFinanceEntityRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "38c85ce6-ef08-5be8-92db-22b48460b4a4",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyEnsureFinanceEntityResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyEnsureFinanceEntityResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "9a2f24b6-c557-54c6-ae40-90034069e8f7",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyPriceReservationFinalizeRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyPriceReservationFinalizeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "420650c8-85e9-57b1-839b-1cd91e79f90a",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyPriceReservationFinalizeResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyPriceReservationFinalizeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "1d933dfc-e1c3-5853-8375-7aea08362e0d",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyPriceReservationReserveRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyPriceReservationReserveRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "0760132f-230f-5179-981d-40f8c0bdf617",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyPriceReservationReserveResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyPriceReservationReserveResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "2e680a0b-5660-5b63-b49e-91f7a0c9b32c",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyProviderLifecycleRecordRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyProviderLifecycleRecordRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "eec85bd5-0929-5811-87fa-6401e6cf02ef",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyProviderLifecycleRecordResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyProviderLifecycleRecordResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "90b24ac8-6c3b-5745-9b5d-12f0db54d7f9",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyServiceOperationPermitEnsureRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyServiceOperationPermitEnsureRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "084663f3-8c7d-5994-8462-f9d56a3b83e0",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyServiceOperationPermitEnsureResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyServiceOperationPermitEnsureResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c7359b42-69e9-5d4e-a79a-7417db61c2e4",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomySmartContractReservationPrepareRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomySmartContractReservationPrepareRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b3af0f3f-6d5f-5a5d-88b1-70329e896b36",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomySmartContractReservationPrepareResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomySmartContractReservationPrepareResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "845547d2-6a2a-5ebd-bf2c-3d2ce421492d",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomySmartContractReservationReleaseRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomySmartContractReservationReleaseRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "905839a2-82c6-556e-827b-4f0fd30c063c",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomySmartContractReservationReleaseResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomySmartContractReservationReleaseResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "849c1f16-5732-5fee-bb78-f3fd77a26bd0",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomySmartContractSettlementFinalizeRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomySmartContractSettlementFinalizeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "151fed11-0d8b-5da6-bd04-f82c79c53d6d",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomySmartContractSettlementFinalizeResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomySmartContractSettlementFinalizeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "54d09869-57ff-54d9-b453-445af2cc66ad",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletBalanceDescribeRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletBalanceDescribeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "58185aaa-255a-5b00-a702-3c3c77efd802",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletBalanceDescribeResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletBalanceDescribeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "78ccf01b-a1b6-550a-a417-d589852c2e1d",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalBalanceSummary",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalBalanceSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "b87da48d-c48d-5681-bea2-ba51c6d38ad6",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalConversionQuoteSummary",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalConversionQuoteSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "47f78ad5-5171-563d-ad51-e49560284bde",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalEscrowSummary",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalEscrowSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "232a5724-b612-5173-ac6b-ab639d1f634d",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalFrameResolveRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalFrameResolveRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b1ec43de-1aa4-55ee-8b1a-bad9a6db0b94",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalFrameResolveResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalFrameResolveResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "825cfe22-f73b-5722-bfd2-164fa25b527a",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalFundingProviderSummary",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalFundingProviderSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "a2a15424-4be7-5d19-9c86-03c2ff202501",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalProviderLifecycleSummary",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalProviderLifecycleSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "3fab2144-9ec4-514d-84c9-922ff342fc42",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalReservationSummary",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalReservationSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "58303fe5-4a13-5836-87b6-5d6fbfbaf3dc",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalSettlementSummary",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalSettlementSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "321f34b7-3ed1-59fa-93a6-fd137f4cb672",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalTransactionExternalSummary",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalTransactionExternalSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "b9c496d5-3ffd-5465-b4b3-dc8adefc7768",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalTransactionIntentSummary",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalTransactionIntentSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "3d7fdcba-863b-572f-bcfb-eaef73342830",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalTransactionSummary",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalTransactionSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "543fbdc3-653b-5404-ac8b-f387e1f34768",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletCapitalViewStateResolveRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalViewStateResolveRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "60df77f2-d642-59dc-addc-4a3e17593df6",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletFundingCancelRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletFundingCancelRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "3a9126e0-4dfe-54a1-812d-59baad725bca",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletFundingCancelResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletFundingCancelResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "a14d01e2-2510-506a-8263-b47881cfac57",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletFundingContextResolveRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletFundingContextResolveRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d6f3983b-b2a5-50c0-ae6a-e6c1463edbda",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletFundingContextResolveResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletFundingContextResolveResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "2501b01d-1e17-576b-868e-381efaaf3c4b",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletFundingPrepareRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletFundingPrepareRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "78ade13f-d155-51c5-9b4e-e7447ae209ca",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletFundingPrepareResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletFundingPrepareResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "b01c3d6c-23ac-591f-82cd-98dce31dd316",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletFundingRecordRequest",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletFundingRecordRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9326c75f-5475-5d3f-a1ca-5e60a3282ec9",
+      "module": "aware_economy_service_dto.economy.service",
+      "name": "EconomyWalletFundingRecordResponse",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletFundingRecordResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "08ca7f2d-a1d3-5be4-bf33-4ec4bb7032fa",
+      "module": "aware_economy_service_dto.economy.view",
+      "name": "EconomyWalletCapitalActionViewStateV1",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalActionViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "100cd4c5-be13-5178-8979-d2eec5e9fe50",
+      "module": "aware_economy_service_dto.economy.view",
+      "name": "EconomyWalletCapitalActivityViewStateV1",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalActivityViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "098e64df-13fb-5503-a553-a1bff9562e83",
+      "module": "aware_economy_service_dto.economy.view",
+      "name": "EconomyWalletCapitalBalanceViewStateV1",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalBalanceViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "a9b8b91c-6250-52ff-8f5c-5d6134edfbe9",
+      "module": "aware_economy_service_dto.economy.view",
+      "name": "EconomyWalletCapitalFundingIntentViewStateV1",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalFundingIntentViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "5457486c-41bc-5e5d-86a0-03ef8689db11",
+      "module": "aware_economy_service_dto.economy.view",
+      "name": "EconomyWalletCapitalFundingProviderViewStateV1",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalFundingProviderViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "922ddf12-2bbc-5dd7-b2d4-a0da9348b857",
+      "module": "aware_economy_service_dto.economy.view",
+      "name": "EconomyWalletCapitalViewStateV1",
+      "aware_class_ref": "aware_economy_service_dto.economy.EconomyWalletCapitalViewStateV1",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

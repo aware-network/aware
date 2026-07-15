@@ -1,0 +1,23 @@
+/// NodeConfig projection
+///
+/// Purpose:
+/// - Expose the Node-owned desired hosted-composition rail.
+/// - Keep target family resolution explicit through contained target objects.
+/// - Avoid collapsing desired node composition into live network/runtime state.
+projection NodeConfig is_branchable {
+    root node.NodeConfig
+
+    node.NodeConfig::environment_targets
+    node.NodeConfigEnvironmentTarget::environment_config aware_environment.EnvironmentConfig
+    node.NodeConfigEnvironmentTarget::profile_mounts
+    node.NodeConfigEnvironmentProfileMount::environment_profile_package aware_environment.EnvironmentProfilePackage
+    node.NodeConfig::ontology_targets
+    node.NodeConfigOntologyTarget::ontology_package aware_ontology.OntologyPackage
+    node.NodeConfig::service_targets
+    node.NodeConfigServiceTarget::service_config aware_service.ServiceConfig
+    node.NodeConfigServiceTarget::code_packages
+    node.NodeConfigServiceCodePackage::service_config_code_package_config aware_service.ServiceConfig
+    node.NodeConfigServiceCodePackage::code_package aware_code.CodePackage
+    node.NodeConfig::interface_targets
+    node.NodeConfigInterfaceTarget::interface_config aware_interface.InterfaceConfig
+}

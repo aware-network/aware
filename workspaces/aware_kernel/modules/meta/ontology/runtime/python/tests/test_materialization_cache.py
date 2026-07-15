@@ -23,11 +23,22 @@ async def test_shared_materialization_cache_store_hit_and_watcher_invalidate() -
     cache_key = cache_module.MaterializationCacheKey(
         branch_id=branch_id,
         projection_hash=projection_hash,
+        store_authority="test:first",
         commit_id=uuid4(),
+    )
+    second_authority_key = cache_module.MaterializationCacheKey(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        store_authority="test:second",
+        commit_id=cache_key.commit_id,
     )
     first_graph = _make_graph()
     first_snapshot = (first_graph, {"state": "first"})
     cache.store(cache_key=cache_key, snapshot=first_snapshot)
+    cache.store(
+        cache_key=second_authority_key,
+        snapshot=(_make_graph(), {"state": "second-authority"}),
+    )
 
     cached_snapshot, cache_hit = await cache.get_or_load(
         cache_key=cache_key,
@@ -58,8 +69,9 @@ async def test_shared_materialization_cache_store_hit_and_watcher_invalidate() -
 
     metrics = cache.snapshot_cache_metrics()
     assert metrics["cache_hit_count"] >= 1
-    assert metrics["cache_store_count"] >= 2
-    assert metrics["cache_invalidation_evict_count"] >= 1
+    assert metrics["cache_store_count"] >= 3
+    assert metrics["cache_invalidation_evict_count"] >= 2
+    assert metrics["cache_entry_count"] == 1
 
 
 @pytest.mark.asyncio
@@ -73,16 +85,19 @@ async def test_shared_materialization_cache_lru_eviction_is_bounded() -> None:
     key_a = cache_module.MaterializationCacheKey(
         branch_id=branch_a,
         projection_hash=projection_hash,
+        store_authority="test:lru",
         commit_id=uuid4(),
     )
     key_b = cache_module.MaterializationCacheKey(
         branch_id=branch_b,
         projection_hash=projection_hash,
+        store_authority="test:lru",
         commit_id=uuid4(),
     )
     key_c = cache_module.MaterializationCacheKey(
         branch_id=branch_c,
         projection_hash=projection_hash,
+        store_authority="test:lru",
         commit_id=uuid4(),
     )
 
@@ -125,11 +140,15 @@ async def test_cached_lane_materializer_prime_stores_derived_snapshot(
         oig_id=oig_id,
         graph=graph,
         indexes={"instance_map": {}, "classcfg_map": {}},
+        commit_state_hash="sha256:test:state-hash",
     )
 
     cache_key = cache_module.MaterializationCacheKey(
         branch_id=branch_id,
         projection_hash=projection_hash,
+        store_authority=FSCommitStore(root_dir=tmp_path)
+        .aware_root.resolve()
+        .as_posix(),
         commit_id=commit_id,
         object_instance_graph_id=oig_id,
     )
@@ -139,7 +158,76 @@ async def test_cached_lane_materializer_prime_stores_derived_snapshot(
     )
 
     assert cache_hit is True
-    assert snapshot == (graph, {"instance_map": {}, "classcfg_map": {}})
+    assert snapshot == (
+        graph,
+        {
+            "instance_map": {},
+            "classcfg_map": {},
+            cache_module.COMMIT_STATE_HASH_INDEX_KEY: "sha256:test:state-hash",
+        },
+    )
+
+
+@pytest.mark.asyncio
+async def test_cached_lane_materializer_isolates_shared_cache_by_store_authority(
+    tmp_path: Path,
+) -> None:
+    cache = cache_module.SharedMaterializationCache(max_entries=8)
+    branch_id = uuid4()
+    oig_id = uuid4()
+    projection_hash = f"sha256:test:store-authority:{uuid4()}"
+    opg = ObjectProjectionGraph.model_construct(projection_hash=projection_hash)
+    ocg = object()
+    first_graph = _make_graph(oig_id=oig_id)
+    second_graph = _make_graph(oig_id=oig_id)
+    first_loader = _RecordingMaterializer(
+        commits=FSCommitStore(root_dir=tmp_path / "first"),
+        snapshot=(first_graph, {"store": "first"}),
+    )
+    second_loader = _RecordingMaterializer(
+        commits=FSCommitStore(root_dir=tmp_path / "second"),
+        snapshot=(second_graph, {"store": "second"}),
+    )
+    first = cache_module.CachedLaneMaterializer(
+        materializer=first_loader,
+        cache=cache,
+    )
+    second = cache_module.CachedLaneMaterializer(
+        materializer=second_loader,
+        cache=cache,
+    )
+
+    first_snapshot = await first.get(
+        branch_id=branch_id,
+        ocg=ocg,
+        opg=opg,
+        commit_id=None,
+        oig_id=oig_id,
+    )
+    second_snapshot = await second.get(
+        branch_id=branch_id,
+        ocg=ocg,
+        opg=opg,
+        commit_id=None,
+        oig_id=oig_id,
+    )
+
+    assert first_snapshot == (first_graph, {"store": "first"})
+    assert second_snapshot == (second_graph, {"store": "second"})
+    assert first_loader.get_call_count == 1
+    assert second_loader.get_call_count == 1
+    assert cache.snapshot_cache_metrics()["cache_entry_count"] == 2
+
+
+class _RecordingMaterializer:
+    def __init__(self, *, commits: FSCommitStore, snapshot) -> None:
+        self.commits = commits
+        self._snapshot = snapshot
+        self.get_call_count = 0
+
+    async def get(self, **_kwargs):
+        self.get_call_count += 1
+        return self._snapshot
 
 
 def _make_graph(*, oig_id=None) -> ObjectInstanceGraph:

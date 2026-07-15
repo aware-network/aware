@@ -1,0 +1,60 @@
+sdk attention_sdk {
+    "Canonical Attention SDK operations over the Attention service API."
+
+    api attention;
+
+    operation get_section_state {
+        "Read current section-scoped focus-scope and observable state."
+        endpoint attention.get_section_state.get_section_state;
+    }
+
+    operation activate_section_observable {
+        "Activate one ontology-backed observable for one section-scoped Attention focus scope."
+        endpoint attention.activate_section_observable.activate_section_observable;
+    }
+
+    operation get_focus_scope_commits {
+        "Read committed graph commit pointers observed by one Attention focus scope."
+        endpoint attention.get_focus_scope_commits.get_focus_scope_commits;
+    }
+
+    operation describe_attention_session {
+        "Read one AttentionSession and its active layout/section/transition pins."
+        endpoint attention.describe_attention_session.describe_attention_session;
+    }
+
+    operation apply_session_layout_transition {
+        "Commit one complete typed shared-layout vector with optimistic reconciliation."
+        endpoint attention.apply_session_layout_transition.apply_session_layout_transition;
+    }
+
+    operation apply_session_layout_topology_transition {
+        "Commit one complete active-membership/order vector with optimistic reconciliation."
+        endpoint attention.apply_session_layout_topology_transition.apply_session_layout_topology_transition;
+    }
+
+    operation describe_attention_transition {
+        "Read one AttentionFocusTransition pin plus its parent session chain."
+        endpoint attention.describe_attention_transition.describe_attention_transition;
+    }
+
+    operation list_attention_transitions {
+        "List AttentionFocusTransition pins by session, section, focus-scope, or kind."
+        endpoint attention.list_attention_transitions.list_attention_transitions;
+    }
+
+    operation validate_attention_transition {
+        "Validate one AttentionFocusTransition against expected session coordinates."
+        endpoint attention.validate_attention_transition.validate_attention_transition;
+    }
+
+    operation get_runtime_mount {
+        "Read one typed batch snapshot of Attention-owned section state for the mounted runtime layout."
+        endpoint attention.get_runtime_mount.get_runtime_mount;
+    }
+
+    operation watch_runtime_mount {
+        "Subscribe to streamed Attention runtime-mount snapshots."
+        endpoint attention.watch_runtime_mount.watch_runtime_mount;
+    }
+}

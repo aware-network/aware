@@ -48,6 +48,7 @@ from sql_grammar.renderer_delta_orm_runtime import (
     SQL_ORM_SOURCE_RENDERER_KIND,
     SQL_ORM_SOURCE_RENDERER_PROFILE,
     SqlOrmRuntimeGeneratedDeltaRenderer,
+    build_sql_orm_source_artifact_payload,
 )
 from test_sql_orm_models_profile import _build_code, _build_graph, _ns
 
@@ -74,29 +75,31 @@ def test_sql_orm_class_create_delta_emits_package_delta_source_artifact(
         )
     )
 
-    evidence = SqlOrmRuntimeGeneratedDeltaRenderer().render_generated_materialization_delta(
-        MetaLanguageGeneratedMaterializationDeltaRenderRequest(
-            operation=operation,
-            context=MetaLanguageGeneratedMaterializationDeltaContext(
-                package_name="content-ontology-sql",
-                package_root="/tmp/content-ontology-sql",
-                sources_root="sql",
-                target_language="sql",
-                renderer_profile=SQL_ORM_RENDERER_PROFILE,
-                materialization_source=SQL_ORM_MATERIALIZATION_SOURCE,
-                product_intent="orm_runtime",
-                target_hints=(
-                    MetaLanguageGeneratedMaterializationTargetHint(
-                        descriptor_key="orm_runtime",
-                        capability_key=SQL_ORM_GENERATED_DELTA_RENDERER_NAME,
-                        target_language="sql",
-                        renderer_profile=SQL_ORM_RENDERER_PROFILE,
-                        materialization_source=SQL_ORM_MATERIALIZATION_SOURCE,
-                        owner_key="content.default.RemoteControl",
-                        relative_path=relative_path,
+    evidence = (
+        SqlOrmRuntimeGeneratedDeltaRenderer().render_generated_materialization_delta(
+            MetaLanguageGeneratedMaterializationDeltaRenderRequest(
+                operation=operation,
+                context=MetaLanguageGeneratedMaterializationDeltaContext(
+                    package_name="content-ontology-sql",
+                    package_root="/tmp/content-ontology-sql",
+                    sources_root="sql",
+                    target_language="sql",
+                    renderer_profile=SQL_ORM_RENDERER_PROFILE,
+                    materialization_source=SQL_ORM_MATERIALIZATION_SOURCE,
+                    product_intent="orm_runtime",
+                    target_hints=(
+                        MetaLanguageGeneratedMaterializationTargetHint(
+                            descriptor_key="orm_runtime",
+                            capability_key=SQL_ORM_GENERATED_DELTA_RENDERER_NAME,
+                            target_language="sql",
+                            renderer_profile=SQL_ORM_RENDERER_PROFILE,
+                            materialization_source=SQL_ORM_MATERIALIZATION_SOURCE,
+                            owner_key="content.default.RemoteControl",
+                            relative_path=relative_path,
+                        ),
                     ),
                 ),
-            ),
+            )
         )
     )
 
@@ -107,9 +110,15 @@ def test_sql_orm_class_create_delta_emits_package_delta_source_artifact(
     assert evidence.delta_request.product_intent == "orm_runtime"
     assert evidence.delta_request.targets[0].target_language == "sql"
     assert evidence.delta_request.targets[0].renderer_profile == "orm_runtime"
-    assert evidence.delta_request.targets[0].materialization_source == "ontology_orm_models"
+    assert (
+        evidence.delta_request.targets[0].materialization_source
+        == "ontology_orm_models"
+    )
     assert evidence.delta_request.targets[0].relative_path == relative_path
-    assert evidence.result.mode is CodeGeneratedMaterializationDeltaMode.package_delta_ready
+    assert (
+        evidence.result.mode
+        is CodeGeneratedMaterializationDeltaMode.package_delta_ready
+    )
 
     [entry] = evidence.result.entries
     assert entry.mode is CodeGeneratedMaterializationDeltaMode.package_delta_ready
@@ -125,7 +134,10 @@ def test_sql_orm_class_create_delta_emits_package_delta_source_artifact(
     assert "CREATE TABLE remote_control" in path.content_text
 
     [renderer_operation] = entry.renderer_operations
-    assert renderer_operation.kind is CodeGeneratedRendererDeltaOperationKind.replace_section
+    assert (
+        renderer_operation.kind
+        is CodeGeneratedRendererDeltaOperationKind.replace_section
+    )
     assert renderer_operation.renderer_key == "sql.orm.class.source_artifact"
     assert renderer_operation.renderer_profile == "orm_runtime"
     assert renderer_operation.content_text == path.content_text
@@ -165,29 +177,31 @@ class RemoteButton {
         )
     )
 
-    evidence = SqlOrmRuntimeGeneratedDeltaRenderer().render_generated_materialization_delta(
-        MetaLanguageGeneratedMaterializationDeltaRenderRequest(
-            operation=operation,
-            context=MetaLanguageGeneratedMaterializationDeltaContext(
-                package_name="content-ontology-sql",
-                package_root="/tmp/content-ontology-sql",
-                sources_root="sql",
-                target_language="sql",
-                renderer_profile=SQL_ORM_RENDERER_PROFILE,
-                materialization_source=SQL_ORM_MATERIALIZATION_SOURCE,
-                product_intent="orm_runtime",
-                target_hints=(
-                    MetaLanguageGeneratedMaterializationTargetHint(
-                        descriptor_key="orm_runtime",
-                        capability_key=SQL_ORM_GENERATED_DELTA_RENDERER_NAME,
-                        target_language="sql",
-                        renderer_profile=SQL_ORM_RENDERER_PROFILE,
-                        materialization_source=SQL_ORM_MATERIALIZATION_SOURCE,
-                        owner_key="content.default.RemoteControl",
-                        relative_path=relative_path,
+    evidence = (
+        SqlOrmRuntimeGeneratedDeltaRenderer().render_generated_materialization_delta(
+            MetaLanguageGeneratedMaterializationDeltaRenderRequest(
+                operation=operation,
+                context=MetaLanguageGeneratedMaterializationDeltaContext(
+                    package_name="content-ontology-sql",
+                    package_root="/tmp/content-ontology-sql",
+                    sources_root="sql",
+                    target_language="sql",
+                    renderer_profile=SQL_ORM_RENDERER_PROFILE,
+                    materialization_source=SQL_ORM_MATERIALIZATION_SOURCE,
+                    product_intent="orm_runtime",
+                    target_hints=(
+                        MetaLanguageGeneratedMaterializationTargetHint(
+                            descriptor_key="orm_runtime",
+                            capability_key=SQL_ORM_GENERATED_DELTA_RENDERER_NAME,
+                            target_language="sql",
+                            renderer_profile=SQL_ORM_RENDERER_PROFILE,
+                            materialization_source=SQL_ORM_MATERIALIZATION_SOURCE,
+                            owner_key="content.default.RemoteControl",
+                            relative_path=relative_path,
+                        ),
                     ),
                 ),
-            ),
+            )
         )
     )
 
@@ -399,6 +413,64 @@ class RemoteControl {
     assert comparison.equivalent, comparison.summary()
 
 
+def test_sql_orm_enum_create_uses_typed_source_container_payload(
+    tmp_path: Path,
+) -> None:
+    payload, expected_content, relative_path = _sql_source_artifact_payload(
+        tmp_path,
+        content="""
+enum RemoteMode {
+    tv
+    stereo
+}
+
+class RemoteControl {
+    remote_id String key
+    mode RemoteMode
+}
+""",
+    )
+    operation = _typed_operation(
+        _enum_create_operation(
+            relative_path=relative_path,
+            source_artifact_payload=payload,
+        )
+    )
+
+    evidence = _render_sql_orm_generated_delta(operation)
+
+    assert evidence.handled is True
+    assert evidence.result is not None
+    [entry] = evidence.result.entries
+    assert entry.package_delta is not None
+    [path] = entry.package_delta.paths
+    assert path.kind is CodePackageDeltaKind.create
+    assert path.content_text == expected_content
+    assert "-- enum remote_mode:" in expected_content
+
+
+def test_sql_orm_relationship_create_uses_typed_source_container_payload(
+    tmp_path: Path,
+) -> None:
+    payload, expected_content, relative_path = _sql_source_artifact_payload(tmp_path)
+    operation = _typed_operation(
+        _relationship_create_operation(
+            relative_path=relative_path,
+            source_artifact_payload=payload,
+        )
+    )
+
+    evidence = _render_sql_orm_generated_delta(operation)
+
+    assert evidence.handled is True
+    assert evidence.result is not None
+    [entry] = evidence.result.entries
+    assert entry.package_delta is not None
+    [path] = entry.package_delta.paths
+    assert path.kind is CodePackageDeltaKind.create
+    assert path.content_text == expected_content
+
+
 def test_sql_orm_attribute_create_optional_delta_emits_migration_artifact() -> None:
     operation = _typed_operation(
         _attribute_create_operation(
@@ -411,9 +483,15 @@ def test_sql_orm_attribute_create_optional_delta_emits_migration_artifact() -> N
     evidence = _render_sql_orm_generated_delta(operation)
 
     assert evidence.handled is True
-    assert evidence.reason == "sql_orm_runtime_attribute_migration_generated_delta_rendered"
+    assert (
+        evidence.reason
+        == "sql_orm_runtime_attribute_migration_generated_delta_rendered"
+    )
     assert evidence.result is not None
-    assert evidence.result.mode is CodeGeneratedMaterializationDeltaMode.package_delta_ready
+    assert (
+        evidence.result.mode
+        is CodeGeneratedMaterializationDeltaMode.package_delta_ready
+    )
     [entry] = evidence.result.entries
     assert entry.artifact_role == "sql_orm_migration"
     assert entry.package_delta is not None
@@ -424,7 +502,9 @@ def test_sql_orm_attribute_create_optional_delta_emits_migration_artifact() -> N
     assert path.relative_path.endswith(".sql")
     assert path.metadata is not None
     assert path.metadata["artifact_role"] == "sql_orm_migration"
-    assert path.content_text == ('ALTER TABLE "remote_control" ADD COLUMN "nickname" TEXT;\n')
+    assert path.content_text == (
+        'ALTER TABLE "remote_control" ADD COLUMN "nickname" TEXT;\n'
+    )
     [renderer_operation] = entry.renderer_operations
     assert renderer_operation.renderer_key == "sql.orm.attribute.migration"
     assert renderer_operation.diagnostics == [
@@ -450,7 +530,9 @@ def test_sql_orm_attribute_create_required_delta_uses_empty_table_guard() -> Non
     assert entry.package_delta is not None
     [path] = entry.package_delta.paths
     assert path.content_text is not None
-    assert 'ALTER TABLE "remote_control" ADD COLUMN "serial_number" TEXT NOT NULL;' in (path.content_text)
+    assert 'ALTER TABLE "remote_control" ADD COLUMN "serial_number" TEXT NOT NULL;' in (
+        path.content_text
+    )
     assert "RAISE EXCEPTION" in path.content_text
     assert entry.renderer_operations[0].diagnostics == [
         "sql_orm_migration_artifact_ready",
@@ -474,7 +556,9 @@ def test_sql_orm_attribute_delete_delta_emits_drop_column_migration_artifact() -
     [entry] = evidence.result.entries
     assert entry.package_delta is not None
     [path] = entry.package_delta.paths
-    assert path.content_text == ('ALTER TABLE "remote_control" DROP COLUMN IF EXISTS "legacy_label";\n')
+    assert path.content_text == (
+        'ALTER TABLE "remote_control" DROP COLUMN IF EXISTS "legacy_label";\n'
+    )
     assert entry.renderer_operations[0].diagnostics == [
         "sql_orm_migration_artifact_ready",
         "sql_orm_migration_attribute_delete_drop_column",
@@ -499,7 +583,9 @@ def test_sql_orm_attribute_required_to_optional_update_emits_drop_not_null() -> 
     [entry] = evidence.result.entries
     assert entry.package_delta is not None
     [path] = entry.package_delta.paths
-    assert path.content_text == ('ALTER TABLE "remote_control" ALTER COLUMN "label" DROP NOT NULL;\n')
+    assert path.content_text == (
+        'ALTER TABLE "remote_control" ALTER COLUMN "label" DROP NOT NULL;\n'
+    )
     assert entry.renderer_operations[0].diagnostics == [
         "sql_orm_migration_artifact_ready",
         "sql_orm_migration_attribute_update_drop_not_null",
@@ -526,7 +612,9 @@ def test_sql_orm_attribute_type_update_emits_failfast_migration_artifact() -> No
     [path] = entry.package_delta.paths
     assert path.content_text is not None
     assert "RAISE EXCEPTION" in path.content_text
-    assert "unsupported SQL attribute update migration: remote_control.label" in (path.content_text)
+    assert "unsupported SQL attribute update migration: remote_control.label" in (
+        path.content_text
+    )
     assert entry.renderer_operations[0].diagnostics == [
         "sql_orm_migration_artifact_ready",
         "sql_orm_migration_unsupported_attribute_update",
@@ -560,7 +648,9 @@ def test_meta_generated_materialization_dispatch_routes_to_real_sql_plugin(
     assert result.reason == "meta_generated_materialization_language_plugin_rendered"
     assert result.delta_request is not None
     assert result.result is not None
-    assert result.result.mode is CodeGeneratedMaterializationDeltaMode.package_delta_ready
+    assert (
+        result.result.mode is CodeGeneratedMaterializationDeltaMode.package_delta_ready
+    )
     assert result.delta_request.targets[0].relative_path == relative_path
     assert result.entry_count == 1
     assert result.renderer_operation_count == 1
@@ -591,7 +681,9 @@ def test_meta_generated_materialization_dispatch_routes_sql_migration_artifact(
     assert result.status == "generated_materialization_projected"
     assert result.reason == "meta_generated_materialization_language_plugin_rendered"
     assert result.result is not None
-    assert result.result.mode is CodeGeneratedMaterializationDeltaMode.package_delta_ready
+    assert (
+        result.result.mode is CodeGeneratedMaterializationDeltaMode.package_delta_ready
+    )
     [entry] = result.result.entries
     assert entry.artifact_role == "sql_orm_migration"
     assert entry.package_delta is not None
@@ -599,7 +691,9 @@ def test_meta_generated_materialization_dispatch_routes_sql_migration_artifact(
     assert path.relative_path.startswith("migrations/")
     assert path.metadata is not None
     assert path.metadata["artifact_role"] == "sql_orm_migration"
-    assert path.content_text == ('ALTER TABLE "remote_control" ADD COLUMN "nickname" TEXT;\n')
+    assert path.content_text == (
+        'ALTER TABLE "remote_control" ADD COLUMN "nickname" TEXT;\n'
+    )
     assert result.entry_count == 1
     assert result.renderer_operation_count == 1
 
@@ -724,7 +818,9 @@ def test_provider_delta_generated_materialization_stage_reports_sql_migration_ar
         dict[str, object],
         stage["generated_materialization_evidence_manifest"],
     )
-    assert manifest["contract_version"] == ("aware.meta.generated-materialization-evidence-manifest.v1")
+    assert manifest["contract_version"] == (
+        "aware.meta.generated-materialization-evidence-manifest.v1"
+    )
     assert manifest["result_count"] == 1
     assert manifest["entry_count"] == 1
     assert manifest["package_delta_entry_count"] == 1
@@ -743,8 +839,12 @@ def test_provider_delta_generated_materialization_stage_reports_sql_migration_ar
     package_delta = cast(dict[str, object], entries[0]["package_delta"])
     paths = cast(list[dict[str, object]], package_delta["paths"])
     assert paths[0]["relative_path"].startswith("migrations/")
-    assert cast(dict[str, object], paths[0]["metadata"])["artifact_role"] == ("sql_orm_migration")
-    assert cast(str, paths[0]["content_text"]) == ('ALTER TABLE "remote_control" ADD COLUMN "nickname" TEXT;\n')
+    assert cast(dict[str, object], paths[0]["metadata"])["artifact_role"] == (
+        "sql_orm_migration"
+    )
+    assert cast(str, paths[0]["content_text"]) == (
+        'ALTER TABLE "remote_control" ADD COLUMN "nickname" TEXT;\n'
+    )
 
 
 def _register_sql_plugin(monkeypatch) -> None:
@@ -839,19 +939,19 @@ class RemoteControl {
     assert len(result.generated_files) == 1
     [generated] = result.generated_files
     expected_content = (output_root / generated.path).read_text(encoding="utf-8")
+    payload = build_sql_orm_source_artifact_payload(
+        language_graph=result.language_graph,
+        relative_path=generated.path.as_posix(),
+        renderer_kind=SQL_ORM_SOURCE_RENDERER_KIND,
+        source_renderer_profile=SQL_ORM_SOURCE_RENDERER_PROFILE,
+        materialization_source=SQL_ORM_MATERIALIZATION_SOURCE,
+        generated_ocg_node_manifest=result.generated_ocg_node_manifest,
+        external_language_graphs=result.language_external_graphs,
+        owner_key="content.default.RemoteControl",
+    )
+    assert payload is not None
     return (
-        {
-            "renderer_kind": SQL_ORM_SOURCE_RENDERER_KIND,
-            "source_renderer_profile": SQL_ORM_SOURCE_RENDERER_PROFILE,
-            "materialization_source": SQL_ORM_MATERIALIZATION_SOURCE,
-            "owner_key": "content.default.RemoteControl",
-            "class_name": "RemoteControl",
-            "relative_path": generated.path.as_posix(),
-            "language_graph": result.language_graph.model_dump(
-                mode="json",
-                exclude_none=True,
-            ),
-        },
+        payload.evidence_payload(),
         expected_content,
         generated.path.as_posix(),
     )
@@ -895,27 +995,28 @@ def _sql_package_source_artifacts(
         )
     )
     expected_by_path = {
-        generated.path.as_posix(): (output_root / generated.path).read_text(encoding="utf-8")
+        generated.path.as_posix(): (output_root / generated.path).read_text(
+            encoding="utf-8"
+        )
         for generated in result.generated_files
     }
     assert expected_by_path
     assert set(expected_by_path) == set(owner_by_relative_path)
 
-    language_graph_payload = result.language_graph.model_dump(
-        mode="json",
-        exclude_none=True,
-    )
     payload_by_path: dict[str, object] = {}
     for relative_path, (owner_key, class_name) in owner_by_relative_path.items():
-        payload_by_path[relative_path] = {
-            "renderer_kind": SQL_ORM_SOURCE_RENDERER_KIND,
-            "source_renderer_profile": SQL_ORM_SOURCE_RENDERER_PROFILE,
-            "materialization_source": SQL_ORM_MATERIALIZATION_SOURCE,
-            "owner_key": owner_key,
-            "class_name": class_name,
-            "relative_path": relative_path,
-            "language_graph": language_graph_payload,
-        }
+        payload = build_sql_orm_source_artifact_payload(
+            language_graph=result.language_graph,
+            relative_path=relative_path,
+            renderer_kind=SQL_ORM_SOURCE_RENDERER_KIND,
+            source_renderer_profile=SQL_ORM_SOURCE_RENDERER_PROFILE,
+            materialization_source=SQL_ORM_MATERIALIZATION_SOURCE,
+            generated_ocg_node_manifest=result.generated_ocg_node_manifest,
+            external_language_graphs=result.language_external_graphs,
+            owner_key=owner_key,
+        )
+        assert payload is not None, class_name
+        payload_by_path[relative_path] = payload.evidence_payload()
 
     return {
         "expected_by_path": expected_by_path,
@@ -1037,6 +1138,75 @@ def _class_delete_operation(
             "generated_materialization": _sql_orm_runtime_targets(
                 relative_path,
                 owner_key=class_fqn,
+            ),
+        },
+    }
+
+
+def _enum_create_operation(
+    *,
+    enum_fqn: str = "content.default.RemoteMode",
+    enum_name: str = "RemoteMode",
+    relative_path: str,
+    source_artifact_payload: dict[str, object],
+) -> dict[str, object]:
+    semantic_key = f"ocg:content/node:{enum_fqn}"
+    return {
+        "operation_kind": "meta_ocg_provider_delta_typed_operation",
+        "operation_key": f"meta_ocg.enum.create:{semantic_key}",
+        "operation_family": "create",
+        "provider_operation_type": "meta_ocg.enum.create",
+        "semantic_key": semantic_key,
+        "semantic_subject_type": "aware_meta.ObjectConfigGraphNode",
+        "ontology_subject_kind": "enum",
+        "source_refs": ("schema/remote_control.aware",),
+        "baseline": {"object": {}},
+        "current": {
+            "semantic_key": semantic_key,
+            "object_kind": "enum",
+            "enum_fqn": enum_fqn,
+            "enum_name": enum_name,
+            "name": enum_name,
+            SQL_ORM_SOURCE_ARTIFACT_PAYLOAD_KEY: source_artifact_payload,
+            "generated_materialization": _sql_orm_runtime_targets(
+                relative_path,
+                owner_key=enum_fqn,
+            ),
+        },
+    }
+
+
+def _relationship_create_operation(
+    *,
+    source_class_fqn: str = "content.default.RemoteControl",
+    target_class_fqn: str = "content.default.RemoteDevice",
+    relationship_key: str = "devices",
+    relative_path: str,
+    source_artifact_payload: dict[str, object],
+) -> dict[str, object]:
+    semantic_key = (
+        f"ocg:content/node:{source_class_fqn}/relationship:{relationship_key}"
+    )
+    return {
+        "operation_kind": "meta_ocg_provider_delta_typed_operation",
+        "operation_key": f"meta_ocg.relationship.create:{semantic_key}",
+        "operation_family": "create",
+        "provider_operation_type": "meta_ocg.relationship.create",
+        "semantic_key": semantic_key,
+        "semantic_subject_type": "aware_meta.ClassConfigRelationship",
+        "ontology_subject_kind": "relationship",
+        "source_refs": ("schema/remote_control.aware",),
+        "baseline": {"object": {}},
+        "current": {
+            "semantic_key": semantic_key,
+            "object_kind": "relationship",
+            "source_class_fqn": source_class_fqn,
+            "target_class_fqn": target_class_fqn,
+            "relationship_key": relationship_key,
+            SQL_ORM_SOURCE_ARTIFACT_PAYLOAD_KEY: source_artifact_payload,
+            "generated_materialization": _sql_orm_runtime_targets(
+                relative_path,
+                owner_key=source_class_fqn,
             ),
         },
     }

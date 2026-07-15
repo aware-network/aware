@@ -31,6 +31,7 @@ _VALID_PARAM_TYPES: set[str] = {
     "bool",
     "int",
     "float",
+    "decimal",
     "str_list",
 }
 _VALID_LET_OPS: set[str] = {
@@ -42,6 +43,8 @@ _VALID_LET_OPS: set[str] = {
     "bool_int",
     "uuid_str_default",
     "int_str_default",
+    "decimal_text",
+    "decimal_text_default",
     "list_join",
 }
 

@@ -1,0 +1,8 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_skill_service_dto.skill.service_operation"
+  ],
+  "package_prefix": "aware_skill_service_dto",
+  "version": "v1"
+}

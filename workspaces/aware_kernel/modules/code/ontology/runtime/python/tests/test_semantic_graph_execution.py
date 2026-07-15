@@ -29,6 +29,7 @@ class RecordingSemanticGraphBackend:
             object_id="created-object-id",
             commit_id="commit-id",
             head_commit_id="head-id",
+            object_instance_graph_commit_id="oig-commit-id",
             adapter_kind="local",
             evidence={"ordinal": len(self.invocations)},
         )
@@ -80,6 +81,7 @@ async def test_semantic_graph_backend_protocol_records_commit_evidence() -> None
         "object_id": "created-object-id",
         "commit_id": "commit-id",
         "head_commit_id": "head-id",
+        "object_instance_graph_commit_id": "oig-commit-id",
         "adapter_kind": "local",
         "evidence": {"ordinal": 1},
     }

@@ -1,0 +1,32 @@
+class HubProducerProvenance {
+    // Attributes
+    build_ref String?
+    materialization_ref String?
+    metadata JsonObject = {}
+    producer_key String key
+    producer_kind String key
+    producer_revision_id String?
+    provenance_key String key = "default"
+    source_revision_id String?
+    source_revision_kind String?
+
+    fn build construct(
+        producer_kind String key,
+        producer_key String key = "default",
+        provenance_key String key = "default",
+        producer_revision_id String? = null,
+        source_revision_id String? = null,
+        source_revision_kind String? = null,
+        materialization_ref String? = null,
+        build_ref String? = null,
+        metadata JsonObject = {}
+    ) -> HubProducerProvenance {
+        """
+        Create one generic producer provenance record.
+
+        Contract:
+        - Producer-specific revision fields remain opaque to Hub.
+        - WorkspaceRevision can appear here without making Workspace API part of Hub.
+        """
+    }
+}

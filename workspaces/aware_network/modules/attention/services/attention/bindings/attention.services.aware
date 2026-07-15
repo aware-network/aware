@@ -1,0 +1,60 @@
+service aware_attention {
+    api attention {
+        projection aware_attention.FocusScope;
+    }
+
+    operation get_section_state {
+        endpoint attention.get_section_state.get_section_state;
+        admission identity_required;
+    }
+
+    operation activate_section_observable {
+        endpoint attention.activate_section_observable.activate_section_observable;
+        admission identity_required;
+    }
+
+    operation get_focus_scope_commits {
+        endpoint attention.get_focus_scope_commits.get_focus_scope_commits;
+        admission identity_required;
+    }
+
+    operation describe_attention_session {
+        endpoint attention.describe_attention_session.describe_attention_session;
+        admission identity_required;
+    }
+
+    operation apply_session_layout_transition {
+        endpoint attention.apply_session_layout_transition.apply_session_layout_transition;
+        admission identity_required;
+    }
+
+    operation apply_session_layout_topology_transition {
+        endpoint attention.apply_session_layout_topology_transition.apply_session_layout_topology_transition;
+        admission identity_required;
+    }
+
+    operation describe_attention_transition {
+        endpoint attention.describe_attention_transition.describe_attention_transition;
+        admission identity_required;
+    }
+
+    operation list_attention_transitions {
+        endpoint attention.list_attention_transitions.list_attention_transitions;
+        admission identity_required;
+    }
+
+    operation validate_attention_transition {
+        endpoint attention.validate_attention_transition.validate_attention_transition;
+        admission identity_required;
+    }
+
+    operation get_runtime_mount {
+        endpoint attention.get_runtime_mount.get_runtime_mount;
+        admission identity_required;
+    }
+
+    operation watch_runtime_mount {
+        endpoint attention.watch_runtime_mount.watch_runtime_mount;
+        admission identity_required;
+    }
+}

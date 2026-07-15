@@ -22,6 +22,7 @@ class MetaLanguageGeneratedMaterializationTargetHint:
     target_language: str | None = None
     target_language_plugin_id: str | None = None
     renderer_profile: str | None = None
+    renderer_kind: str | None = None
     materialization_source: str | None = None
     product_intent: str | None = None
     semantic_key: str | None = None
@@ -41,6 +42,7 @@ class MetaLanguageGeneratedMaterializationDeltaContext:
     target_language: str | None = None
     target_language_plugin_id: str | None = None
     renderer_profile: str | None = None
+    renderer_kind: str | None = None
     materialization_source: str | None = None
     product_intent: str | None = None
     artifact_family: str | None = None
@@ -55,6 +57,7 @@ class MetaLanguageGeneratedMaterializationDeltaContext:
         context: MetaProviderDeltaGeneratedMaterializationContext,
         *,
         renderer_profile: str | None = None,
+        renderer_kind: str | None = None,
         materialization_source: str | None = None,
         product_intent: str | None = None,
         artifact_family: str | None = None,
@@ -69,6 +72,7 @@ class MetaLanguageGeneratedMaterializationDeltaContext:
             or context.target_language,
             target_language_plugin_id=context.target_language_plugin_id,
             renderer_profile=renderer_profile,
+            renderer_kind=renderer_kind,
             materialization_source=materialization_source,
             product_intent=product_intent,
             artifact_family=artifact_family,
@@ -90,6 +94,7 @@ class MetaLanguageGeneratedMaterializationDeltaRenderRequest:
     operation: MetaProviderDeltaTypedOperation
     context: MetaLanguageGeneratedMaterializationDeltaContext
     renderer_profile: str | None = None
+    renderer_kind: str | None = None
     materialization_source: str | None = None
     capability_key: str | None = None
 

@@ -8,6 +8,8 @@ from typing import cast
 
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_meta.materialization.deltas.code_dto import (
+    CodeGrammarAnchorRenderAction,
+    CodeGrammarAnchorRenderSemanticValueKind,
     CodeSectionDeltaEntry,
     CodeSectionDeltaOperationKind,
 )
@@ -186,14 +188,11 @@ def test_meta_semantic_apply_attribute_update_preserves_descriptor_and_object_id
                                 "aware_meta.object_config_graph."
                                 "attribute.type.update"
                             ),
-                            "semantic_key": (
-                                "meta.attribute:DeltaReadyContent.title"
-                            ),
+                            "semantic_key": ("meta.attribute:DeltaReadyContent.title"),
                             "semantic_subject_type": "aware_meta.AttributeConfig",
                             "field_path": "type",
                             "event_key": (
-                                "meta.attribute:DeltaReadyContent.title:"
-                                "type:update"
+                                "meta.attribute:DeltaReadyContent.title:" "type:update"
                             ),
                             "source_refs": ("content/content.aware",),
                             "before_payload": {
@@ -235,9 +234,7 @@ def test_meta_semantic_apply_attribute_update_preserves_descriptor_and_object_id
                                     "targets": {
                                         "orm_runtime": {
                                             "target_language": "python",
-                                            "relative_path": (
-                                                "content/content.py"
-                                            ),
+                                            "relative_path": ("content/content.py"),
                                         },
                                     },
                                 },
@@ -284,9 +281,7 @@ def test_meta_semantic_apply_attribute_update_preserves_descriptor_and_object_id
 def test_meta_semantic_apply_relationship_load_policy_annotation_effect_contract() -> (
     None
 ):
-    relationship_config_id = str(
-        provider_delta_uuid("relationship-load-policy-update")
-    )
+    relationship_config_id = str(provider_delta_uuid("relationship-load-policy-update"))
     semantic_status = {
         "status": "ready",
         "packages": (
@@ -306,8 +301,7 @@ def test_meta_semantic_apply_relationship_load_policy_annotation_effect_contract
                                 "load_policy.update"
                             ),
                             "semantic_key": (
-                                "meta.relationship:"
-                                "RemoteControl.selected_channel"
+                                "meta.relationship:" "RemoteControl.selected_channel"
                             ),
                             "semantic_subject_type": (
                                 "aware_meta.ClassConfigRelationship"
@@ -338,9 +332,7 @@ def test_meta_semantic_apply_relationship_load_policy_annotation_effect_contract
                                     "targets": {
                                         "orm_runtime": {
                                             "target_language": "python",
-                                            "relative_path": (
-                                                "home/tv_channel.py"
-                                            ),
+                                            "relative_path": ("home/tv_channel.py"),
                                         },
                                     },
                                 },
@@ -634,7 +626,7 @@ def test_meta_source_projection_section_delta_adapter_skips_structural_operation
     assert entries == ()
 
 
-def test_meta_attribute_config_primitive_type_update_emits_code_section_delta_entry() -> (
+def test_meta_attribute_config_primitive_type_update_emits_grammar_anchor_value() -> (
     None
 ):
     typed_operation_plan = _typed_operation_plan(_attribute_type_operation())
@@ -649,7 +641,7 @@ def test_meta_attribute_config_primitive_type_update_emits_code_section_delta_en
     assert result.feature_key == "attribute_config"
     assert result.status == "source_projection_projected"
     assert result.reason == (
-        "meta_source_projection_attribute_config_type_segment_delta_ready"
+        "meta_source_projection_attribute_config_type_grammar_anchor_ready"
     )
     assert result.projected is True
     assert result.grammar_anchor_binding_count == 1
@@ -661,25 +653,7 @@ def test_meta_attribute_config_primitive_type_update_emits_code_section_delta_en
         "owner_key",
         "renderable_primitive_type_descriptor",
     )
-    assert len(result.entries) == 1
-    entry = result.entries[0]
-    assert entry.operation is CodeSectionDeltaOperationKind.replace_segment
-    assert entry.provider_key == META_SOURCE_PROJECTION_PROVIDER_KEY
-    assert entry.event_ref == "aware_meta.provider_delta.world_change.attribute.update"
-    assert entry.semantic_key == (
-        "ocg:aware_demo/node:aware_demo.default.home.TvChannel/attribute:selected_channel"
-    )
-    assert entry.content_text == "String?"
-    assert entry.before_hash is None
-    assert entry.after_hash == _digest("String?")
-    assert entry.section_ref.package_name == "home-ontology"
-    assert entry.section_ref.relative_path == "home/tv_channel.aware"
-    assert entry.section_ref.language == "aware"
-    assert entry.section_ref.section_type == "attribute"
-    assert entry.section_ref.qualname == "TvChannel.selected_channel"
-    assert entry.segment_ref is not None
-    assert entry.segment_ref.segment_name == "type"
-    assert entry.segment_ref.before_segment_hash == _digest("Int?")
+    assert result.entries == ()
     binding = result.grammar_anchor_bindings[0]
     source = result.grammar_anchor_sources[0]
     replacement = result.grammar_anchor_replacements[0]
@@ -692,15 +666,20 @@ def test_meta_attribute_config_primitive_type_update_emits_code_section_delta_en
     assert source.source_key == "home/tv_channel.aware"
     assert source.relative_path == "home/tv_channel.aware"
     assert replacement.binding_key == binding.binding_key
-    assert replacement.replacement_text == "String?"
+    assert replacement.replacement_text is None
+    assert replacement.semantic_value is not None
+    assert replacement.semantic_value.kind is (
+        CodeGrammarAnchorRenderSemanticValueKind.type_ref
+    )
+    assert replacement.semantic_value.type_ref_value is not None
+    assert replacement.semantic_value.type_ref_value.type_name == "string"
+    assert replacement.semantic_value.type_ref_value.nullable is True
     assert replacement.before_text_hash is None
     replacement_metadata = cast(dict[str, object], replacement.metadata)
-    assert replacement_metadata["semantic_baseline_text"] == "Int?"
-    assert replacement_metadata["semantic_baseline_text_hash"] == _digest("Int?")
     assert replacement_metadata["source_context_before_text_hash"] is None
 
 
-def test_meta_attribute_config_default_value_update_emits_code_section_delta_entry() -> (
+def test_meta_attribute_config_default_value_update_emits_grammar_anchor_value() -> (
     None
 ):
     typed_operation_plan = _typed_operation_plan(_attribute_default_value_operation())
@@ -715,7 +694,7 @@ def test_meta_attribute_config_default_value_update_emits_code_section_delta_ent
     assert result.feature_key == "attribute_config"
     assert result.status == "source_projection_projected"
     assert result.reason == (
-        "meta_source_projection_attribute_config_default_value_segment_delta_ready"
+        "meta_source_projection_attribute_config_default_value_grammar_anchor_ready"
     )
     assert result.grammar_anchor_binding_count == 1
     assert result.grammar_anchor_source_count == 1
@@ -727,19 +706,7 @@ def test_meta_attribute_config_default_value_update_emits_code_section_delta_ent
         "renderable_default_value",
     )
     assert result.missing_evidence_fields == ()
-    assert len(result.entries) == 1
-    entry = result.entries[0]
-    assert entry.operation is CodeSectionDeltaOperationKind.replace_segment
-    assert entry.provider_key == META_SOURCE_PROJECTION_PROVIDER_KEY
-    assert entry.event_ref == "aware_meta.provider_delta.world_change.attribute.update"
-    assert entry.content_text == "11"
-    assert entry.before_hash is None
-    assert entry.after_hash == _digest("11")
-    assert entry.section_ref.section_type == "attribute"
-    assert entry.section_ref.qualname == "TvChannel.selected_channel"
-    assert entry.segment_ref is not None
-    assert entry.segment_ref.segment_name == "default_value"
-    assert entry.segment_ref.before_segment_hash == _digest("7")
+    assert result.entries == ()
     binding = result.grammar_anchor_bindings[0]
     replacement = result.grammar_anchor_replacements[0]
     assert binding.grammar_rule_name == "attr_def"
@@ -749,11 +716,14 @@ def test_meta_attribute_config_default_value_update_emits_code_section_delta_ent
     )
     assert binding.compatibility_segment_name == "default_value"
     assert replacement.binding_key == binding.binding_key
-    assert replacement.replacement_text == "11"
+    assert replacement.replacement_text is None
+    assert replacement.semantic_value is not None
+    assert replacement.semantic_value.kind is (
+        CodeGrammarAnchorRenderSemanticValueKind.integer
+    )
+    assert replacement.semantic_value.integer_value == 11
     assert replacement.before_text_hash is None
     replacement_metadata = cast(dict[str, object], replacement.metadata)
-    assert replacement_metadata["semantic_baseline_text"] == "7"
-    assert replacement_metadata["semantic_baseline_text_hash"] == _digest("7")
     assert replacement_metadata["source_context_before_text_hash"] is None
 
 
@@ -1077,7 +1047,7 @@ def test_meta_provider_delta_source_projection_stage_exposes_code_evidence(
     assert stage["projected"] is True
     assert stage["change_count"] == 1
     assert stage["action_count"] == 1
-    assert stage["projected_entry_count"] == 1
+    assert stage["projected_entry_count"] == 0
     assert stage["grammar_anchor_binding_count"] == 1
     assert stage["grammar_anchor_source_count"] == 1
     assert stage["grammar_anchor_replacement_count"] == 1
@@ -1085,19 +1055,13 @@ def test_meta_provider_delta_source_projection_stage_exposes_code_evidence(
     assert stage["skipped_feature_result_count"] == 0
     projection = cast(dict[str, object], stage["projection"])
     result = cast(dict[str, object], stage["result"])
-    delta_set = cast(dict[str, object], result["delta_set"])
-    entries = cast(list[dict[str, object]], delta_set["entries"])
-    section_ref = cast(dict[str, object], entries[0]["section_ref"])
-    segment_ref = cast(dict[str, object], entries[0]["segment_ref"])
 
     assert projection["provider_key"] == "aware_meta"
     assert projection["package_name"] == "home-ontology"
     assert projection["package_root"] == tmp_path.as_posix()
     assert projection["sources_root"] == "aware"
     assert projection["target_language"] == "aware"
-    assert section_ref["section_type"] == "attribute"
-    assert segment_ref["segment_name"] == "default_value"
-    assert entries[0]["content_text"] == "11"
+    assert result["delta_set"] is None
     render_request = cast(
         dict[str, object],
         stage["grammar_anchor_render_delta_request"],
@@ -1116,11 +1080,12 @@ def test_meta_provider_delta_source_projection_stage_exposes_code_evidence(
         "TvChannel.selected_channel.default_value"
     )
     assert sources[0]["source_key"] == "home/tv_channel.aware"
-    assert replacements[0]["replacement_text"] == "11"
+    assert replacements[0]["replacement_text"] is None
+    semantic_value = cast(dict[str, object], replacements[0]["semantic_value"])
+    assert semantic_value["kind"] == "integer"
+    assert semantic_value["integer_value"] == 11
     assert replacements[0]["before_text_hash"] is None
     replacement_metadata = cast(dict[str, object], replacements[0]["metadata"])
-    assert replacement_metadata["semantic_baseline_text"] == "7"
-    assert replacement_metadata["semantic_baseline_text_hash"] == _digest("7")
     assert replacement_metadata["source_context_before_text_hash"] is None
 
 
@@ -1217,8 +1182,8 @@ def test_meta_semantic_apply_source_projection_evidence_builds_provider_result(
     assert typed_plan["status"] == "typed_operation_plan_ready"
     stage = cast(dict[str, object], details["provider_delta_source_projection"])
     assert stage["status"] == "source_projection_ready"
-    assert stage["reason"] == "meta_source_projection_section_delta_entries_ready"
-    assert stage["projected_entry_count"] == 1
+    assert stage["reason"] == "meta_source_projection_grammar_anchor_render_delta_ready"
+    assert stage["projected_entry_count"] == 0
     assert stage["grammar_anchor_binding_count"] == 1
     assert stage["grammar_anchor_source_count"] == 1
     assert stage["grammar_anchor_replacement_count"] == 1
@@ -1251,10 +1216,13 @@ def test_meta_semantic_apply_source_projection_evidence_builds_provider_result(
     assert sources[0]["source_key"] == "home/tv_channel.aware"
     assert sources[0]["source_text"] == source_text
     assert sources[0]["before_hash"] == _digest(source_text)
-    assert replacements[0]["replacement_text"] == "String"
+    assert replacements[0]["replacement_text"] is None
+    semantic_value = cast(dict[str, object], replacements[0]["semantic_value"])
+    assert semantic_value["kind"] == "type_ref"
+    type_ref_value = cast(dict[str, object], semantic_value["type_ref_value"])
+    assert type_ref_value == {"type_name": "string", "nullable": False}
     replacement_metadata = cast(dict[str, object], replacements[0]["metadata"])
-    assert replacement_metadata["semantic_baseline_text"] == "Int"
-    assert replacement_metadata["semantic_baseline_text_hash"] == _digest("Int")
+    assert replacement_metadata["source_context_before_text_hash"] is None
 
 
 def test_meta_semantic_apply_class_update_preserves_baseline_generated_targets(
@@ -2822,7 +2790,9 @@ def test_meta_enum_structural_delete_source_projection_emits_node_anchor() -> No
     )
     assert binding.graph_selector.field_path == "LegacySource.__node__"
     assert source.source_key == "content/content_enums.aware"
-    assert replacement.replacement_text == ""
+    assert replacement.replacement_text is None
+    assert replacement.action is CodeGrammarAnchorRenderAction.delete
+    assert replacement.semantic_value is None
     assert replacement.binding_key == binding.binding_key
 
 
@@ -2901,7 +2871,9 @@ def test_meta_enum_structural_delete_source_projection_stage_is_ready(
     assert render_request["package_name"] == "content-ontology"
     assert bindings[0]["grammar_rule_name"] == "enum_def"
     assert bindings[0]["anchor_field_path"] == "__node__"
-    assert replacements[0]["replacement_text"] == ""
+    assert replacements[0]["replacement_text"] is None
+    assert replacements[0]["action"] == "delete"
+    assert replacements[0]["semantic_value"] is None
 
 
 def test_meta_class_structural_delete_source_projection_emits_node_anchor() -> None:
@@ -2938,7 +2910,9 @@ def test_meta_class_structural_delete_source_projection_emits_node_anchor() -> N
     assert binding.graph_selector.class_name == "ContentPlacement"
     assert binding.graph_selector.field_path == "ContentPlacement.__node__"
     assert source.source_key == "content/content_layout.aware"
-    assert replacement.replacement_text == ""
+    assert replacement.replacement_text is None
+    assert replacement.action is CodeGrammarAnchorRenderAction.delete
+    assert replacement.semantic_value is None
     assert replacement.binding_key == binding.binding_key
 
 
@@ -3017,7 +2991,9 @@ def test_meta_class_structural_delete_source_projection_stage_is_ready(
     assert render_request["package_name"] == "content-ontology"
     assert bindings[0]["grammar_rule_name"] == "class_def"
     assert bindings[0]["anchor_field_path"] == "__node__"
-    assert replacements[0]["replacement_text"] == ""
+    assert replacements[0]["replacement_text"] is None
+    assert replacements[0]["action"] == "delete"
+    assert replacements[0]["semantic_value"] is None
 
 
 def test_meta_semantic_apply_function_signature_source_meaning_builds_update_operation() -> (
@@ -3064,9 +3040,7 @@ def test_meta_semantic_apply_function_signature_source_meaning_builds_update_ope
                                     "targets": {
                                         "orm_runtime": {
                                             "target_language": "python",
-                                            "relative_path": (
-                                                "home/tv_channel.py"
-                                            ),
+                                            "relative_path": ("home/tv_channel.py"),
                                         },
                                     },
                                 },
@@ -3279,15 +3253,11 @@ def test_meta_semantic_apply_relationship_delete_preserves_source_class_identity
                             "source_refs": ("content/content_layout.aware",),
                             "before_payload": {
                                 "relationship_config_id": "relationship-id",
-                                "class_config_relationship_id": (
-                                    "relationship-id"
-                                ),
+                                "class_config_relationship_id": ("relationship-id"),
                                 "semantic_source_object_id": "relationship-id",
                                 "class_config_id": "source-class-id",
                                 "class_name": "ContentLayout",
-                                "class_fqn": (
-                                    "aware_content.content.ContentLayout"
-                                ),
+                                "class_fqn": ("aware_content.content.ContentLayout"),
                                 "source_class_fqn": (
                                     "aware_content.content.ContentLayout"
                                 ),

@@ -1,0 +1,12 @@
+class NetworkOperation {
+    // Relationships
+    network_operation_hops NetworkOperationHop[]
+    network_request NetworkRequest?
+    network_response NetworkResponse?
+    network_stream NetworkStream?
+    network_stream_frame NetworkStreamFrame?
+
+    // Attributes
+    message_type NetworkOperationMessageType key
+    type NetworkOperationType key
+}

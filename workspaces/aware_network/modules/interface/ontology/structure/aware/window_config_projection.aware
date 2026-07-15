@@ -1,0 +1,12 @@
+projection WindowConfig is_branchable {
+    root interface.WindowConfig
+
+    interface.WindowConfig::layout_configs
+    interface.WindowConfigLayoutConfig::layout_config LayoutConfig
+
+    observable home {
+        """
+        Interface-side window configuration overview, including attached Attention layouts.
+        """
+    }
+}

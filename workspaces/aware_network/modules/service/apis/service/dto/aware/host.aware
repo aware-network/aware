@@ -1,0 +1,138 @@
+/// ServiceHost <-> ServiceProvider runtime contract DTOs.
+///
+/// SSOT: `service-service-dto` generated from `apis/service/dto`.
+///
+/// This file is intentionally separate from `comms/models/service.aware`.
+/// `comms` owns operation envelopes and transport control payloads; `host`
+/// owns the typed contract a ServiceHost uses to ask a hosted service provider
+/// what it requires to run under a Node-provided backend.
+
+enum ServiceHostContractCapabilityKey {
+    db_requirements
+    projection_runtime_requirements
+    actor_context
+    service_contract
+    dependency_routes
+    runtime_session
+    transport
+}
+
+enum ServiceHostDbRequirementKind {
+    activation_projection
+    ontology_authority
+    ontology_replica
+    local_state
+}
+
+enum ServiceHostProjectionRuntimeRequirementKind {
+    activation_projection
+    experience_projection
+    service_projection
+}
+
+enum ServiceHostContractStatus {
+    succeeded
+    failed
+    pending
+}
+
+class ServiceHostTargetContext {
+    service_package_name String?
+    service_fqn_prefix String?
+    service_toml_path String?
+    service_import_root String?
+    node_kind String?
+    backend String?
+    runtime_manifest_path String?
+    artifact_root String?
+    authority_root String?
+    ontology_authority_source_kind String?
+    ontology_authority_package_names String[] = []
+    implementation_toml_paths String[] = []
+}
+
+class ServiceHostBackendContext {
+    backend_key String = "default"
+    persistence_backend String?
+    adapter String?
+    database_url_present Bool = false
+}
+
+class ServiceHostCapability {
+    capability_key host.ServiceHostContractCapabilityKey
+    required Bool = true
+    status String = "requested"
+    description String?
+    metadata JsonObject = {}
+}
+
+class ServiceHostDbRequirement {
+    kind host.ServiceHostDbRequirementKind
+    provider_key String?
+    package_name String?
+    package_names String[] = []
+    role String?
+    requirement_mode String = "required"
+    schema_scope String?
+    manifest_paths String[] = []
+    sql_roots String[] = []
+    db_schema_hash String?
+    authority Bool = false
+    required Bool = true
+    description String?
+    metadata JsonObject = {}
+}
+
+class ServiceHostDbRequirementPlan {
+    requirements ServiceHostDbRequirement[] = []
+    metadata JsonObject = {}
+}
+
+class ServiceHostProjectionRuntimeRequirement {
+    kind host.ServiceHostProjectionRuntimeRequirementKind
+    provider_key String?
+    package_name String?
+    package_names String[] = []
+    projection_name String?
+    projection_names String[] = []
+    role String?
+    requirement_mode String = "required"
+    required Bool = true
+    description String?
+    metadata JsonObject = {}
+}
+
+class ServiceHostProjectionRuntimeRequirementPlan {
+    requirements ServiceHostProjectionRuntimeRequirement[] = []
+    metadata JsonObject = {}
+}
+
+class ServiceHostRuntimeRequirementReceipt {
+    capability_key host.ServiceHostContractCapabilityKey
+    status host.ServiceHostContractStatus = succeeded
+    requirement_kind host.ServiceHostDbRequirementKind?
+    projection_requirement_kind host.ServiceHostProjectionRuntimeRequirementKind?
+    requirement_count Int = 0
+    installed_count Int = 0
+    skipped_count Int = 0
+    error String?
+    evidence JsonObject = {}
+}
+
+class ServiceHostContractRequest {
+    request_id UUID?
+    target ServiceHostTargetContext
+    backend ServiceHostBackendContext
+    capabilities ServiceHostCapability[] = []
+}
+
+class ServiceHostContractResponse {
+    request_id UUID?
+    status host.ServiceHostContractStatus = succeeded
+    error String?
+    capabilities ServiceHostCapability[] = []
+    db_requirement_plan ServiceHostDbRequirementPlan?
+    projection_runtime_requirement_plan ServiceHostProjectionRuntimeRequirementPlan?
+    receipts ServiceHostRuntimeRequirementReceipt[] = []
+    metadata JsonObject = {}
+}

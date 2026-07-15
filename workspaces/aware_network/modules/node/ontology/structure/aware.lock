@@ -1,0 +1,272 @@
+{
+  "aware_lock": 4,
+  "packages": {
+    "api-ontology": {
+      "dependencies": [
+        "code-ontology",
+        "meta-ontology"
+      ],
+      "fqn_prefix": "aware_api",
+      "ocg_commit_id": "c42a8767-16fb-5d74-b99e-ac6f6ac6111f",
+      "ocg_hash": "bdce1087bb7b1bd9baf85cae577585202abce9c40add1ae74d77c85799fa9b58",
+      "ocg_lane_branch_id": "88eece6f-f50f-53b6-8dd8-08549b5162f3",
+      "ocg_lane_projection_hash": "a41380b76d9a87bf3cbfee59dd38748729b2ad3b7308f084482422e62a94b3fe",
+      "package_name": "api-ontology",
+      "version_number": 1
+    },
+    "attention-ontology": {
+      "dependencies": [
+        "code-ontology",
+        "meta-ontology"
+      ],
+      "fqn_prefix": "aware_attention",
+      "ocg_commit_id": "12bdf3aa-cd44-5fd2-a4f0-c816ddad717c",
+      "ocg_hash": "35ad68c01f48110ce400bb647d0c52a207169ee014651e610c1284ab53c7d5ac",
+      "ocg_lane_branch_id": "3207a63e-9cc5-5609-bb35-faadad042bf8",
+      "ocg_lane_projection_hash": "a41380b76d9a87bf3cbfee59dd38748729b2ad3b7308f084482422e62a94b3fe",
+      "package_name": "attention-ontology",
+      "version_number": 1
+    },
+    "code-ontology": {
+      "dependencies": [
+        "content-ontology"
+      ],
+      "fqn_prefix": "aware_code",
+      "ocg_commit_id": null,
+      "ocg_hash": "018374b8742dc58061bebfbf123cf4e14f895649568d43e57a63af087b6c33bc",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "code-ontology",
+      "version_number": 1
+    },
+    "content-ontology": {
+      "dependencies": [
+        "storage-ontology"
+      ],
+      "fqn_prefix": "aware_content",
+      "ocg_commit_id": null,
+      "ocg_hash": "140d620c10e063604ba1d0070ce50d3ae7448102e2db5071067aefe5ccde6b6b",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "content-ontology",
+      "version_number": 1
+    },
+    "economy-ontology": {
+      "dependencies": [
+        "code-ontology",
+        "identity-ontology"
+      ],
+      "fqn_prefix": "aware_economy",
+      "ocg_commit_id": null,
+      "ocg_hash": "57107e4d924d6bed2056d7f3cc813a161799afc4392acd0b4c1464a0fcc4fb4c",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "economy-ontology",
+      "version_number": 1
+    },
+    "experience-ontology": {
+      "dependencies": [
+        "attention-ontology",
+        "code-ontology",
+        "identity-ontology",
+        "meta-ontology",
+        "reactivity-ontology",
+        "storage-ontology"
+      ],
+      "fqn_prefix": "aware_experience",
+      "ocg_commit_id": "2e25a86f-9723-50a5-ae0e-31dd4a0d725d",
+      "ocg_hash": "ce29cc7bf6eee18cd3edb29d9887f2c332aaf0ff2b2ba3d899fe885c614ed623",
+      "ocg_lane_branch_id": "796778df-d26c-512a-bcba-ba1bbb0d970b",
+      "ocg_lane_projection_hash": "a41380b76d9a87bf3cbfee59dd38748729b2ad3b7308f084482422e62a94b3fe",
+      "package_name": "experience-ontology",
+      "version_number": 1
+    },
+    "history-ontology": {
+      "dependencies": [
+        "code-ontology"
+      ],
+      "fqn_prefix": "aware_history",
+      "ocg_commit_id": null,
+      "ocg_hash": "64a6ea9e69a80c5f6566bf1d848e30ac05d038ba731be1ee0515c0a961be6b7d",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "history-ontology",
+      "version_number": 1
+    },
+    "identity-ontology": {
+      "dependencies": [
+        "attention-ontology",
+        "content-ontology",
+        "history-ontology",
+        "meta-ontology",
+        "reactivity-ontology",
+        "storage-ontology"
+      ],
+      "fqn_prefix": "aware_identity",
+      "ocg_commit_id": null,
+      "ocg_hash": "7fc01de068a323791f104be0cba030609adad87ea051a72e3bee874c8cd8ebb1",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "identity-ontology",
+      "version_number": 1
+    },
+    "interface-ontology": {
+      "dependencies": [
+        "api-ontology",
+        "attention-ontology",
+        "code-ontology",
+        "experience-ontology",
+        "identity-ontology",
+        "meta-ontology",
+        "network-ontology",
+        "environment-ontology",
+        "sdk-ontology"
+      ],
+      "fqn_prefix": "aware_interface",
+      "ocg_commit_id": "dc557188-8ed4-5cb8-9455-bdbdf712922f",
+      "ocg_hash": "6c4051815acca265cb6b8d8fbb0674dee67f9a5a812d72a03a5e888c15b76282",
+      "ocg_lane_branch_id": "97cda069-aac9-5abe-969e-fdfeb1dba7fd",
+      "ocg_lane_projection_hash": "a41380b76d9a87bf3cbfee59dd38748729b2ad3b7308f084482422e62a94b3fe",
+      "package_name": "interface-ontology",
+      "version_number": 1
+    },
+    "meta-ontology": {
+      "dependencies": [
+        "code-ontology",
+        "content-ontology",
+        "history-ontology"
+      ],
+      "fqn_prefix": "aware_meta",
+      "ocg_commit_id": "bd0f9c4d-4b10-596c-a63c-546f0399c9e2",
+      "ocg_hash": "176205b18cd68f2d7ef80da34eafe495fd4386c827e5812c42c4703f2cf2219b",
+      "ocg_lane_branch_id": "03a180f2-225f-5cd3-adb4-594321c0bf9b",
+      "ocg_lane_projection_hash": "a41380b76d9a87bf3cbfee59dd38748729b2ad3b7308f084482422e62a94b3fe",
+      "package_name": "meta-ontology",
+      "version_number": 1
+    },
+    "network-ontology": {
+      "dependencies": [
+        "code-ontology",
+        "identity-ontology",
+        "meta-ontology",
+        "environment-ontology",
+        "service-ontology",
+        "structure-ontology"
+      ],
+      "fqn_prefix": "aware_network",
+      "ocg_commit_id": null,
+      "ocg_hash": "514128c35d308f2902e7045023194f150ab3481982d8ae3ea8b2caa06bc3af4b",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "network-ontology",
+      "version_number": 1
+    },
+    "node-ontology": {
+      "dependencies": [
+        "code-ontology",
+        "experience-ontology",
+        "interface-ontology",
+        "service-ontology",
+        "structure-ontology"
+      ],
+      "fqn_prefix": "aware_node",
+      "ocg_commit_id": "86b3eb50-50ee-527d-ae05-4a4bb435901b",
+      "ocg_hash": "a9640442dde6ef240101da0edec6a5ce8416bdea22ddadd13b234ad865279334",
+      "ocg_lane_branch_id": "6f390931-04d4-5cd6-928b-f8d9f1c0e897",
+      "ocg_lane_projection_hash": "a41380b76d9a87bf3cbfee59dd38748729b2ad3b7308f084482422e62a94b3fe",
+      "package_name": "node-ontology",
+      "version_number": 1
+    },
+    "environment-ontology": {
+      "dependencies": [
+        "attention-ontology",
+        "content-ontology",
+        "experience-ontology",
+        "history-ontology",
+        "identity-ontology",
+        "meta-ontology",
+        "reactivity-ontology",
+        "storage-ontology",
+        "structure-ontology"
+      ],
+      "fqn_prefix": "aware_environment",
+      "ocg_commit_id": null,
+      "ocg_hash": "d1072b82d042e10a022d0faa2982f119410fb2d81d3a9a73fd010af3d50c3e9b",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "environment-ontology",
+      "version_number": 1
+    },
+    "reactivity-ontology": {
+      "dependencies": [
+        "content-ontology",
+        "meta-ontology"
+      ],
+      "fqn_prefix": "aware_reactivity",
+      "ocg_commit_id": null,
+      "ocg_hash": "4372238dc53952e58d9bc1beb7b5cf1cb61cfba9ade95d2c5ccfeb2ad6df5c57",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "reactivity-ontology",
+      "version_number": 1
+    },
+    "sdk-ontology": {
+      "dependencies": [
+        "api-ontology",
+        "code-ontology",
+        "meta-ontology"
+      ],
+      "fqn_prefix": "aware_sdk",
+      "ocg_commit_id": null,
+      "ocg_hash": "60bb19aea668ca857bebe471a25760254f9dbccd7d44ad5682a4d57be25fec70",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "sdk-ontology",
+      "version_number": 1
+    },
+    "service-ontology": {
+      "dependencies": [
+        "api-ontology",
+        "code-ontology",
+        "economy-ontology",
+        "experience-ontology",
+        "identity-ontology",
+        "meta-ontology"
+      ],
+      "fqn_prefix": "aware_service",
+      "ocg_commit_id": "07b7cd96-2822-5b4e-bfc7-efd0e1191f7e",
+      "ocg_hash": "e8e9e295ee71aca7945831da5de5b834b8ac35e5677dfa8e088a61ca52f39a88",
+      "ocg_lane_branch_id": "82aa2de8-e15a-545f-b289-da0288caed10",
+      "ocg_lane_projection_hash": "a41380b76d9a87bf3cbfee59dd38748729b2ad3b7308f084482422e62a94b3fe",
+      "package_name": "service-ontology",
+      "version_number": 1
+    },
+    "storage-ontology": {
+      "dependencies": [],
+      "fqn_prefix": "aware_storage",
+      "ocg_commit_id": null,
+      "ocg_hash": "f76135d28074c4363ae1f6d5067426bb818edec2da5dc8cda697341267e01cb9",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "storage-ontology",
+      "version_number": 1
+    },
+    "structure-ontology": {
+      "dependencies": [
+        "code-ontology",
+        "content-ontology",
+        "history-ontology",
+        "meta-ontology",
+        "storage-ontology"
+      ],
+      "fqn_prefix": "aware_structure",
+      "ocg_commit_id": null,
+      "ocg_hash": "3a92ca767e903b108c5924249ce73d62a19518a1229cf195de8a12c04113b938",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "structure-ontology",
+      "version_number": 1
+    }
+  },
+  "root_package_name": "node-ontology"
+}

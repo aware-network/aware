@@ -30,6 +30,7 @@ async def build_via_api_package(
     language: CodeLanguage,
     import_root: str,
     manifest_relative_path: str,
+    object_instance_graph_commit_id: UUID,
     package_root: str = ".",
     role: str = "public_package",
     output_key: str = "python.public_package",
@@ -43,6 +44,8 @@ async def build_via_api_package(
     - Parent `ApiPackage` scope is injected by propagation.
     - Identity is keyed by the attached generated CodePackage.
     - The payload is the canonical import/install contract for API consumers.
+    - `object_instance_graph_commit_id` is the exact WorkspaceRevision/Hub
+      replay pin for the generated CodePackage.
     - Consumers must not infer API generated packages from local layout or
       `aware.api.toml` target JSON alone.
     """
@@ -73,6 +76,7 @@ async def build_via_api_package(
         package_root=(package_root or "").strip() or ".",
         role=(role or "").strip() or "public_package",
         output_key=(output_key or "").strip() or "python.public_package",
+        object_instance_graph_commit_id=object_instance_graph_commit_id,
         include_paths=JsonArray(include_paths or []),
         exclude_paths=JsonArray(exclude_paths or []),
     )

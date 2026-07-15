@@ -1,18 +1,33 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
+from typing import cast
 
-from aware_meta.graph.instance.apply import apply_object_instance_graph_changes
+from aware_meta.graph.instance.apply import (
+    apply_object_instance_graph_body_draft,
+    apply_object_instance_graph_changes,
+)
+from aware_meta.graph.instance.commit.body_codec import (
+    OigCommitBodyDraft,
+    oig_body_draft_change_set_sha256,
+    oig_change_set_sha256,
+)
 from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
-from aware_meta.graph.instance.diff import diff_object_instance_graph_changes
+from aware_meta.graph.instance.diff import (
+    build_object_instance_graph_dirty_class_instance_changes,
+    build_object_instance_graph_identity_snapshot_changes,
+    diff_object_instance_graph_changes,
+)
 from aware_meta.graph.instance.hash import compute_hash
 from aware_meta.graph.instance.index import build_index
+from aware_meta.graph.instance.replay import copy_object_instance_graph_for_changes
 from aware_meta.runtime.handler_executor.contracts import (
     MetaGraphExecutionSessionDelta,
     MetaGraphHandlerExecutionRequest,
     MetaGraphMaterializationCachePrimeSnapshot,
     MetaGraphPreState,
+    MetaGraphValidatedReplayArtifact,
 )
 from aware_meta_ontology.graph.instance.object_instance_graph import ObjectInstanceGraph
 from aware_meta_ontology.graph.instance.object_instance_graph_change import (
@@ -47,17 +62,58 @@ class MetaGraphExecutionSessionDeltaBuilder:
             pre_state=pre_state,
             changes=change_tuple,
         )
-        post_oig = pre_state.before_oig.model_copy(deep=True)
-        apply_object_instance_graph_changes(
-            graph=post_oig,
-            changes=change_tuple,
-            attribute_configs_by_id=request.execution_plan.index.attribute_configs_by_id,
-            class_configs_by_id=request.execution_plan.index.class_configs_by_id,
-        )
-        graph_hash_post = _compute_post_hash(
-            post_oig=post_oig,
-            expected_graph_hash_post=expected_graph_hash_post,
-        )
+        metadata = _session_delta_trace_metadata(request)
+        with commit_perf_span(
+            phase="handler_execution.session_delta.copy_direct_change_graph",
+            category="meta.runtime.handler_execution",
+            metadata={
+                **metadata,
+                "change_count": len(change_tuple),
+            },
+        ):
+            replay_copy = copy_object_instance_graph_for_changes(
+                before_oig=pre_state.before_oig,
+                changes=change_tuple,
+            )
+        post_oig = replay_copy.graph
+        with commit_perf_span(
+            phase="handler_execution.session_delta.apply_direct_changes_for_hash",
+            category="meta.runtime.handler_execution",
+            metadata={
+                **metadata,
+                "change_count": len(change_tuple),
+                "class_instance_copy_count": replay_copy.class_instance_copy_count,
+                "attribute_copy_count": replay_copy.attribute_copy_count,
+                "value_node_copy_count": replay_copy.value_node_copy_count,
+            },
+        ):
+            apply_object_instance_graph_changes(
+                graph=post_oig,
+                changes=change_tuple,
+                attribute_configs_by_id=(
+                    request.execution_plan.index.attribute_configs_by_id
+                ),
+                class_configs_by_id=request.execution_plan.index.class_configs_by_id,
+                trace_phase_prefix=("handler_execution.session_delta.canonical_apply"),
+            )
+        with commit_perf_span(
+            phase="handler_execution.session_delta.hash_direct_changes",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            graph_hash_post = _compute_post_hash(
+                post_oig=post_oig,
+                expected_graph_hash_post=expected_graph_hash_post,
+            )
+        with commit_perf_span(
+            phase="handler_execution.session_delta.fingerprint_direct_changes",
+            category="meta.runtime.handler_execution",
+            metadata={
+                **metadata,
+                "change_count": len(change_tuple),
+            },
+        ):
+            change_set_sha256 = oig_change_set_sha256(change_tuple)
         return MetaGraphExecutionSessionDelta(
             execution_plan=request.execution_plan,
             before_oig=pre_state.before_oig,
@@ -76,6 +132,100 @@ class MetaGraphExecutionSessionDeltaBuilder:
                 post_oig=post_oig,
                 graph_hash_post=graph_hash_post,
             ),
+            validated_replay_artifact=MetaGraphValidatedReplayArtifact(
+                execution_plan=request.execution_plan,
+                before_oig=pre_state.before_oig,
+                changes=change_tuple,
+                graph_hash_pre=pre_state.graph_hash_pre,
+                post_oig=post_oig,
+                graph_hash_post=graph_hash_post,
+                change_set_sha256=change_set_sha256,
+            ),
+        )
+
+    def build_delta_from_body_draft(
+        self,
+        *,
+        request: MetaGraphHandlerExecutionRequest,
+        pre_state: MetaGraphPreState,
+        body_draft: OigCommitBodyDraft,
+        expected_graph_hash_post: str | None = None,
+        root_object_id: UUID | None = None,
+        root_class_instance_identity_id: UUID | None = None,
+        constructed_class_instance_ids: Iterable[UUID] = (),
+    ) -> MetaGraphExecutionSessionDelta:
+        _validate_session_delta_inputs(request=request, pre_state=pre_state)
+        if not body_draft.roots:
+            raise MetaGraphExecutionSessionDeltaError(
+                "Meta execution-session body draft requires at least one root."
+            )
+        metadata = _session_delta_trace_metadata(request)
+        with commit_perf_span(
+            phase="handler_execution.session_delta.copy_body_draft_graph",
+            category="meta.runtime.handler_execution",
+            metadata={**metadata, "root_count": len(body_draft.roots)},
+        ):
+            replay_copy = copy_object_instance_graph_for_changes(
+                before_oig=pre_state.before_oig,
+                changes=cast(
+                    Iterable[ObjectInstanceGraphChange],
+                    body_draft.roots,
+                ),
+            )
+        post_oig = replay_copy.graph
+        with commit_perf_span(
+            phase="handler_execution.session_delta.apply_body_draft_for_hash",
+            category="meta.runtime.handler_execution",
+            metadata={**metadata, "root_count": len(body_draft.roots)},
+        ):
+            apply_object_instance_graph_body_draft(
+                graph=post_oig,
+                body_draft=body_draft,
+                attribute_configs_by_id=(
+                    request.execution_plan.index.attribute_configs_by_id
+                ),
+                class_configs_by_id=request.execution_plan.index.class_configs_by_id,
+                trace_phase_prefix=("handler_execution.session_delta.canonical_apply"),
+            )
+        with commit_perf_span(
+            phase="handler_execution.session_delta.hash_body_draft",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            graph_hash_post = _compute_post_hash(
+                post_oig=post_oig,
+                expected_graph_hash_post=expected_graph_hash_post,
+            )
+        change_set_sha256 = oig_body_draft_change_set_sha256(body_draft)
+        constructed_ids = tuple(constructed_class_instance_ids)
+        return MetaGraphExecutionSessionDelta(
+            execution_plan=request.execution_plan,
+            before_oig=pre_state.before_oig,
+            body_draft=body_draft,
+            graph_hash_pre=pre_state.graph_hash_pre,
+            graph_hash_post=graph_hash_post,
+            root_object_id=root_object_id or pre_state.root_object_id,
+            root_class_instance_identity_id=(
+                root_class_instance_identity_id
+                or pre_state.root_class_instance_identity_id
+            ),
+            target_class_instance_id=pre_state.target_object_id,
+            constructed_class_instance_ids=constructed_ids,
+            materialization_cache_prime_snapshot=_materialization_cache_prime_snapshot(
+                request=request,
+                post_oig=post_oig,
+                graph_hash_post=graph_hash_post,
+            ),
+            validated_replay_artifact=MetaGraphValidatedReplayArtifact(
+                execution_plan=request.execution_plan,
+                before_oig=pre_state.before_oig,
+                changes=(),
+                graph_hash_pre=pre_state.graph_hash_pre,
+                post_oig=post_oig,
+                graph_hash_post=graph_hash_post,
+                change_set_sha256=change_set_sha256,
+                body_draft=body_draft,
+            ),
         )
 
     def build_delta_from_post_oig(
@@ -88,6 +238,7 @@ class MetaGraphExecutionSessionDeltaBuilder:
         root_object_id: UUID | None = None,
         root_class_instance_identity_id: UUID | None = None,
         constructed_class_instance_ids: Iterable[UUID] = (),
+        dirty_source_object_ids: Iterable[UUID] = (),
     ) -> MetaGraphExecutionSessionDelta:
         _validate_session_delta_inputs(request=request, pre_state=pre_state)
         if post_oig.id != pre_state.before_oig.id:
@@ -96,20 +247,17 @@ class MetaGraphExecutionSessionDeltaBuilder:
                 "ObjectInstanceGraph."
             )
         metadata = _session_delta_trace_metadata(request)
-        with commit_perf_span(
-            phase="handler_execution.session_delta.diff_post_oig",
-            category="meta.runtime.handler_execution",
+        constructed_class_instance_id_tuple = tuple(constructed_class_instance_ids)
+        diff_result = _diff_post_oig_changes(
+            request=request,
+            pre_state=pre_state,
+            post_oig=post_oig,
             metadata=metadata,
-        ):
-            changes = tuple(
-                diff_object_instance_graph_changes(
-                    old=pre_state.before_oig,
-                    new=post_oig,
-                    object_instance_graph_identity_id=(
-                        request.staged_call.lane_scope.object_instance_graph_identity_id
-                    ),
-                )
-            )
+            constructed_class_instance_ids=constructed_class_instance_id_tuple,
+            dirty_source_object_ids=tuple(dirty_source_object_ids),
+        )
+        changes = diff_result.changes
+        metadata = {**metadata, "diff_mode": diff_result.mode}
         if _can_hash_constructor_post_oig_directly(request=request):
             with commit_perf_span(
                 phase="handler_execution.session_delta.constructor_post_oig_hash",
@@ -131,10 +279,22 @@ class MetaGraphExecutionSessionDeltaBuilder:
                     request=request,
                     pre_state=pre_state,
                     changes=changes,
-                    constructed_class_instance_ids=tuple(constructed_class_instance_ids),
+                    constructed_class_instance_ids=constructed_class_instance_id_tuple,
                 )
                 changes = scoped_changes.changes
             if scoped_changes.filtered:
+                with commit_perf_span(
+                    phase=(
+                        "handler_execution.session_delta." "copy_scoped_change_graph"
+                    ),
+                    category="meta.runtime.handler_execution",
+                    metadata=metadata,
+                ):
+                    scoped_replay_copy = copy_object_instance_graph_for_changes(
+                        before_oig=pre_state.before_oig,
+                        changes=changes,
+                    )
+                scoped_post_oig = scoped_replay_copy.graph
                 with commit_perf_span(
                     phase=(
                         "handler_execution.session_delta."
@@ -143,7 +303,6 @@ class MetaGraphExecutionSessionDeltaBuilder:
                     category="meta.runtime.handler_execution",
                     metadata=metadata,
                 ):
-                    scoped_post_oig = pre_state.before_oig.model_copy(deep=True)
                     apply_object_instance_graph_changes(
                         graph=scoped_post_oig,
                         changes=changes,
@@ -167,8 +326,7 @@ class MetaGraphExecutionSessionDeltaBuilder:
             else:
                 with commit_perf_span(
                     phase=(
-                        "handler_execution.session_delta."
-                        "scoped_post_oig_hash_direct"
+                        "handler_execution.session_delta." "scoped_post_oig_hash_direct"
                     ),
                     category="meta.runtime.handler_execution",
                     metadata=metadata,
@@ -190,7 +348,7 @@ class MetaGraphExecutionSessionDeltaBuilder:
                 or pre_state.root_class_instance_identity_id
             ),
             target_class_instance_id=pre_state.target_object_id,
-            constructed_class_instance_ids=tuple(constructed_class_instance_ids),
+            constructed_class_instance_ids=constructed_class_instance_id_tuple,
             materialization_cache_prime_snapshot=_materialization_cache_prime_snapshot(
                 request=request,
                 post_oig=cache_prime_post_oig,
@@ -203,6 +361,190 @@ class MetaGraphExecutionSessionDeltaBuilder:
 class _ScopedInstanceCallChanges:
     changes: tuple[ObjectInstanceGraphChange, ...]
     filtered: bool
+
+
+@dataclass(frozen=True, slots=True)
+class _PostOigDiffChanges:
+    changes: tuple[ObjectInstanceGraphChange, ...]
+    mode: str
+
+
+def _diff_post_oig_changes(
+    *,
+    request: MetaGraphHandlerExecutionRequest,
+    pre_state: MetaGraphPreState,
+    post_oig: ObjectInstanceGraph,
+    metadata: dict[str, object],
+    constructed_class_instance_ids: tuple[UUID, ...],
+    dirty_source_object_ids: tuple[UUID, ...],
+) -> _PostOigDiffChanges:
+    identity_id = request.staged_call.lane_scope.object_instance_graph_identity_id
+    with commit_perf_span(
+        phase="handler_execution.session_delta.diff_post_oig",
+        category="meta.runtime.handler_execution",
+        metadata=metadata,
+    ):
+        dirty_class_instance_ids = _dirty_class_instance_ids_from_source_object_ids(
+            pre_state=pre_state,
+            post_oig=post_oig,
+            dirty_source_object_ids=dirty_source_object_ids,
+            constructed_class_instance_ids=constructed_class_instance_ids,
+        )
+        if dirty_class_instance_ids:
+            try:
+                dirty_metadata = {
+                    **metadata,
+                    "dirty_class_instance_count": len(dirty_class_instance_ids),
+                    "dirty_source_object_count": len(dirty_source_object_ids),
+                }
+                with commit_perf_span(
+                    phase=(
+                        "handler_execution.session_delta."
+                        "diff_post_oig_dirty_class_instance_set"
+                    ),
+                    category="meta.runtime.handler_execution",
+                    metadata=dirty_metadata,
+                ):
+                    changes = tuple(
+                        build_object_instance_graph_dirty_class_instance_changes(
+                            old=pre_state.before_oig,
+                            new=post_oig,
+                            object_instance_graph_identity_id=identity_id,
+                            dirty_class_instance_ids=dirty_class_instance_ids,
+                        )
+                    )
+                    if not changes:
+                        raise ValueError(
+                            "Dirty class-instance diff produced no changes"
+                        )
+                return _PostOigDiffChanges(
+                    changes=changes,
+                    mode="dirty_class_instance_set",
+                )
+            except (TypeError, ValueError) as exc:
+                fallback_metadata = {
+                    **metadata,
+                    "dirty_diff_fallback_reason": type(exc).__name__,
+                }
+                with commit_perf_span(
+                    phase=(
+                        "handler_execution.session_delta."
+                        "diff_post_oig_dirty_class_instance_set_fallback"
+                    ),
+                    category="meta.runtime.handler_execution",
+                    metadata=fallback_metadata,
+                ):
+                    pass
+                metadata = fallback_metadata
+        try:
+            with commit_perf_span(
+                phase=(
+                    "handler_execution.session_delta."
+                    "diff_post_oig_sparse_identity_snapshot"
+                ),
+                category="meta.runtime.handler_execution",
+                metadata=metadata,
+            ):
+                changes = tuple(
+                    build_object_instance_graph_identity_snapshot_changes(
+                        old=pre_state.before_oig,
+                        new=post_oig,
+                        object_instance_graph_identity_id=identity_id,
+                    )
+                )
+            return _PostOigDiffChanges(
+                changes=changes,
+                mode="sparse_identity_snapshot",
+            )
+        except (TypeError, ValueError) as exc:
+            fallback_metadata = {
+                **metadata,
+                "fallback_reason": type(exc).__name__,
+            }
+            with commit_perf_span(
+                phase=(
+                    "handler_execution.session_delta." "diff_post_oig_full_fallback"
+                ),
+                category="meta.runtime.handler_execution",
+                metadata=fallback_metadata,
+            ):
+                changes = tuple(
+                    diff_object_instance_graph_changes(
+                        old=pre_state.before_oig,
+                        new=post_oig,
+                        object_instance_graph_identity_id=identity_id,
+                    )
+                )
+            return _PostOigDiffChanges(changes=changes, mode="full_fallback")
+
+
+def _dirty_class_instance_ids_from_source_object_ids(
+    *,
+    pre_state: MetaGraphPreState,
+    post_oig: ObjectInstanceGraph,
+    dirty_source_object_ids: tuple[UUID, ...],
+    constructed_class_instance_ids: tuple[UUID, ...],
+) -> tuple[UUID, ...]:
+    dirty_sources = frozenset(dirty_source_object_ids)
+    dirty_class_instance_ids = set(constructed_class_instance_ids)
+    if not dirty_sources:
+        return tuple(sorted(dirty_class_instance_ids, key=str))
+
+    if pre_state.oig_index is not None:
+        for source_object_id in dirty_sources:
+            class_instance = (
+                pre_state.oig_index.class_instances_by_source_object_id.get(
+                    source_object_id
+                )
+                or pre_state.oig_index.class_instances_by_id.get(source_object_id)
+            )
+            class_instance_id = _class_instance_id(class_instance)
+            if isinstance(class_instance_id, UUID):
+                dirty_class_instance_ids.add(class_instance_id)
+    else:
+        _add_matching_dirty_class_instance_ids(
+            dirty_class_instance_ids=dirty_class_instance_ids,
+            class_instances=pre_state.before_oig.class_instances,
+            dirty_sources=dirty_sources,
+        )
+
+    _add_matching_dirty_class_instance_ids(
+        dirty_class_instance_ids=dirty_class_instance_ids,
+        class_instances=post_oig.class_instances,
+        dirty_sources=dirty_sources,
+    )
+    return tuple(sorted(dirty_class_instance_ids, key=str))
+
+
+def _add_matching_dirty_class_instance_ids(
+    *,
+    dirty_class_instance_ids: set[UUID],
+    class_instances: Iterable[object],
+    dirty_sources: frozenset[UUID],
+) -> None:
+    for class_instance in class_instances:
+        class_instance_id = _class_instance_id(class_instance)
+        source_object_id = _class_instance_source_object_id(class_instance)
+        if isinstance(class_instance_id, UUID) and (
+            class_instance_id in dirty_sources or source_object_id in dirty_sources
+        ):
+            dirty_class_instance_ids.add(class_instance_id)
+
+
+def _class_instance_id(class_instance: object) -> UUID | None:
+    try:
+        class_instance_id = object.__getattribute__(class_instance, "id")
+    except AttributeError:
+        return None
+    return class_instance_id if isinstance(class_instance_id, UUID) else None
+
+
+def _class_instance_source_object_id(class_instance: object) -> UUID | None:
+    try:
+        source_object_id = object.__getattribute__(class_instance, "source_object_id")
+    except AttributeError:
+        return None
+    return source_object_id if isinstance(source_object_id, UUID) else None
 
 
 def _scope_instance_call_changes(

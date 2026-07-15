@@ -1,0 +1,377 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "6537a712-82c6-5694-8832-840420533e64",
+      "module": "aware_attention_service_dto.attention.section.models",
+      "name": "AttentionEnvironmentRuntimeTarget",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionEnvironmentRuntimeTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "23bafdc0-9614-53b1-a28c-e0c5255ce228",
+      "module": "aware_attention_service_dto.attention.section.models",
+      "name": "AttentionFocusScopeCommitPin",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionFocusScopeCommitPin",
+      "functions": []
+    },
+    {
+      "class_config_id": "9b803cf2-a9c5-5b0b-a055-82c9629373af",
+      "module": "aware_attention_service_dto.attention.section.models",
+      "name": "AttentionRuntimeLayoutSectionState",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionRuntimeLayoutSectionState",
+      "functions": []
+    },
+    {
+      "class_config_id": "9976779c-7072-51bd-b69f-d7a485fd0dea",
+      "module": "aware_attention_service_dto.attention.section.models",
+      "name": "AttentionRuntimeMountLayoutRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionRuntimeMountLayoutRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "00ff0e90-b12f-51a0-a195-ecbe42513613",
+      "module": "aware_attention_service_dto.attention.section.models",
+      "name": "AttentionRuntimeMountSectionRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionRuntimeMountSectionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d73665e3-cecd-5e81-ba03-9bf92fe968cf",
+      "module": "aware_attention_service_dto.attention.section.models",
+      "name": "AttentionRuntimeMountSnapshot",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionRuntimeMountSnapshot",
+      "functions": []
+    },
+    {
+      "class_config_id": "f5864fe0-2ce7-577e-9402-f6e3bde634a5",
+      "module": "aware_attention_service_dto.attention.section.models",
+      "name": "AttentionRuntimeMountSnapshotEvent",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionRuntimeMountSnapshotEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "a4594a8b-997e-5aa9-8efa-671916911cf9",
+      "module": "aware_attention_service_dto.attention.section.models",
+      "name": "AttentionSectionFocusTarget",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionSectionFocusTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "66c8ecd3-92c7-5c9a-bd15-872d4c685032",
+      "module": "aware_attention_service_dto.attention.section.models",
+      "name": "AttentionSectionSnapshot",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionSectionSnapshot",
+      "functions": []
+    },
+    {
+      "class_config_id": "91cd5bed-3772-5634-ae80-3755cf9d7e49",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "ActivateAttentionSectionObservableRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.ActivateAttentionSectionObservableRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a82446ca-6b94-5106-bf18-4c5f62abbe65",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "ActivateAttentionSectionObservableResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.ActivateAttentionSectionObservableResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "0481f656-754c-522e-ad5a-0cb44438082e",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "AttentionSectionActivationScope",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionSectionActivationScope",
+      "functions": []
+    },
+    {
+      "class_config_id": "efa5453c-4277-5544-8d81-dc114d21fa34",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "AttentionSectionServiceRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionSectionServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "90d0572e-047d-5727-9e7b-9a616a63f51e",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "AttentionSectionServiceResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.AttentionSectionServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "63dc13bf-22c9-5184-aa24-67e782fb8c63",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "GetAttentionFocusScopeCommitsRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.GetAttentionFocusScopeCommitsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "90222116-9df5-5099-9b65-97ba65628d0d",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "GetAttentionFocusScopeCommitsResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.GetAttentionFocusScopeCommitsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ed69503a-cbc6-5528-b500-d658a29596a8",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "GetAttentionRuntimeMountRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.GetAttentionRuntimeMountRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "677c15df-c3b4-5072-8fdc-9b7d3df49016",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "GetAttentionRuntimeMountResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.GetAttentionRuntimeMountResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "d7a65bbe-e0cb-5126-9cab-f3188de1f83b",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "GetAttentionSectionStateRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.GetAttentionSectionStateRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9a59eb29-b58b-530a-acda-2b645a8b6ec8",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "GetAttentionSectionStateResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.GetAttentionSectionStateResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "39ce9bca-3965-58d1-af41-369506ec28e7",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "WatchAttentionRuntimeMountRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.WatchAttentionRuntimeMountRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b8d18c21-d335-5a84-af25-dd6c64c97ac3",
+      "module": "aware_attention_service_dto.attention.section.service_operation",
+      "name": "WatchAttentionRuntimeMountResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.section.WatchAttentionRuntimeMountResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "a8c42017-7f4f-5454-b4c6-b18f6b56e9e6",
+      "module": "aware_attention_service_dto.attention.session.models",
+      "name": "AttentionFocusTransitionPin",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionFocusTransitionPin",
+      "functions": []
+    },
+    {
+      "class_config_id": "d3177784-f5ac-5159-9e6d-3ad204c484b2",
+      "module": "aware_attention_service_dto.attention.session.models",
+      "name": "AttentionLayoutTopologyTransitionPin",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionLayoutTopologyTransitionPin",
+      "functions": []
+    },
+    {
+      "class_config_id": "da54edbd-b3a9-59cf-8dbe-161630e0500d",
+      "module": "aware_attention_service_dto.attention.session.models",
+      "name": "AttentionLayoutTopologyTransitionSectionInput",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionLayoutTopologyTransitionSectionInput",
+      "functions": []
+    },
+    {
+      "class_config_id": "81d190db-f372-5135-a74c-d7fb9984f2dc",
+      "module": "aware_attention_service_dto.attention.session.models",
+      "name": "AttentionLayoutTopologyTransitionSectionState",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionLayoutTopologyTransitionSectionState",
+      "functions": []
+    },
+    {
+      "class_config_id": "c8d460f8-48e5-511a-8bbf-734507e83f28",
+      "module": "aware_attention_service_dto.attention.session.models",
+      "name": "AttentionLayoutTransitionPin",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionLayoutTransitionPin",
+      "functions": []
+    },
+    {
+      "class_config_id": "70882a25-8f2b-5d3f-bcac-522ab41588c0",
+      "module": "aware_attention_service_dto.attention.session.models",
+      "name": "AttentionLayoutTransitionSectionInput",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionLayoutTransitionSectionInput",
+      "functions": []
+    },
+    {
+      "class_config_id": "4d6bcba0-aa2a-5ca6-965c-2c3cf3117d52",
+      "module": "aware_attention_service_dto.attention.session.models",
+      "name": "AttentionLayoutTransitionSectionState",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionLayoutTransitionSectionState",
+      "functions": []
+    },
+    {
+      "class_config_id": "eb5eb61f-eb41-53de-8118-7e710100d3b6",
+      "module": "aware_attention_service_dto.attention.session.models",
+      "name": "AttentionSessionLayoutPin",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionSessionLayoutPin",
+      "functions": []
+    },
+    {
+      "class_config_id": "33dd603c-b67b-542d-89be-fc7774981df5",
+      "module": "aware_attention_service_dto.attention.session.models",
+      "name": "AttentionSessionPin",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionSessionPin",
+      "functions": []
+    },
+    {
+      "class_config_id": "51f1759c-2426-58e0-85d5-39cfe8522637",
+      "module": "aware_attention_service_dto.attention.session.models",
+      "name": "AttentionSessionSectionPin",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionSessionSectionPin",
+      "functions": []
+    },
+    {
+      "class_config_id": "c0a9da44-c99c-5e9e-a4a7-d76279792394",
+      "module": "aware_attention_service_dto.attention.session.models",
+      "name": "AttentionTransitionValidationResult",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionTransitionValidationResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "d74adc07-d722-540f-975d-4cbce2bfc58d",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "ApplyAttentionSessionLayoutTopologyTransitionRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.ApplyAttentionSessionLayoutTopologyTransitionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "5a90e858-1a2a-59e6-83cb-b2cc3b57d899",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "ApplyAttentionSessionLayoutTopologyTransitionResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.ApplyAttentionSessionLayoutTopologyTransitionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c136a7b9-0bcd-5c22-820d-2bdb93e7dd2a",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "ApplyAttentionSessionLayoutTransitionRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.ApplyAttentionSessionLayoutTransitionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "773a18f6-139c-5cda-b93b-2e748da47bd5",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "ApplyAttentionSessionLayoutTransitionResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.ApplyAttentionSessionLayoutTransitionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "d179cc64-3f47-5bf7-a25c-ec660b033f1b",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "AttentionSessionServiceRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionSessionServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9f77e285-7418-5e94-a1bb-981833a6ef1d",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "AttentionSessionServiceResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.AttentionSessionServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "caea676a-f017-5342-8061-4c12ff76b985",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "DescribeAttentionSessionRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.DescribeAttentionSessionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "0b72230f-781d-5c03-b388-c2577b05167b",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "DescribeAttentionSessionResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.DescribeAttentionSessionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "465d7014-25f9-57c5-a9af-23d1f1134f5a",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "DescribeAttentionTransitionRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.DescribeAttentionTransitionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "ecfbfc78-c477-59bc-839e-84040b2a4b57",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "DescribeAttentionTransitionResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.DescribeAttentionTransitionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "939ad593-8b6d-51f0-b99d-cb5eb48c6f21",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "ListAttentionTransitionsRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.ListAttentionTransitionsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "ec30f55a-7411-53d6-90a7-cc773a870ef4",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "ListAttentionTransitionsResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.ListAttentionTransitionsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "36aa1253-5ff8-5375-9dfb-846508c13036",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "MountAttentionSessionLayoutRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.MountAttentionSessionLayoutRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "659fd1c6-d915-5564-bff7-886274ed19d4",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "MountAttentionSessionLayoutResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.MountAttentionSessionLayoutResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "4e142ae4-0c09-5a86-b5af-b39ce2962cbd",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "MountAttentionSessionSectionRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.MountAttentionSessionSectionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "cc986c09-7a79-5732-921f-9e4886e7ee70",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "MountAttentionSessionSectionResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.MountAttentionSessionSectionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "9606085d-0d66-5856-98d8-c5660dbe3101",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "StartAttentionSessionRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.StartAttentionSessionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "bd817950-ae37-522a-ab49-b21b133dc2ea",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "StartAttentionSessionResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.StartAttentionSessionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "a2b36a23-aeab-5e28-b39d-80ea7ca2c861",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "ValidateAttentionTransitionRequest",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.ValidateAttentionTransitionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "13901261-2602-5261-b64a-dcbc6d55b7ea",
+      "module": "aware_attention_service_dto.attention.session.service_operation",
+      "name": "ValidateAttentionTransitionResponse",
+      "aware_class_ref": "aware_attention_service_dto.attention.session.ValidateAttentionTransitionResponse",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

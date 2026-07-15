@@ -1,0 +1,5 @@
+experience aware_memory_working on aware_memory.memory.MemoryWorking {
+    node memory.MemoryWorking {
+        id default
+    }
+}

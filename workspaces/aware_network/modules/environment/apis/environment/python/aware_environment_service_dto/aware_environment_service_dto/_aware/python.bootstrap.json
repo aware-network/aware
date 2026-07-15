@@ -1,0 +1,14 @@
+{
+  "dependency_import_roots": [
+    "aware_attention_service_dto",
+    "aware_identity_service_dto"
+  ],
+  "modules": [
+    "aware_environment_service_dto.environment.environment",
+    "aware_environment_service_dto.environment.environment_service_operation",
+    "aware_environment_service_dto.environment.service_diagnostic",
+    "aware_environment_service_dto.environment.view"
+  ],
+  "package_prefix": "aware_environment_service_dto",
+  "version": "v1"
+}

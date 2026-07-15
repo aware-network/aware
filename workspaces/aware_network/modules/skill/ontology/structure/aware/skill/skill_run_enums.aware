@@ -1,0 +1,7 @@
+enum SkillRunStatus {
+    failed
+    queued
+    running
+    skipped
+    succeeded
+}

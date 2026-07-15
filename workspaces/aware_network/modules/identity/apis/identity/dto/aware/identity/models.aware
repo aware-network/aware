@@ -1,0 +1,9 @@
+/// Canonical DTOs for first public Identity admission receipts.
+
+class IdentityAdmissionReceipt {
+    identity_id UUID?
+    actor_id UUID?
+    identity_profile_id UUID?
+    public_handle String?
+    info String?
+}

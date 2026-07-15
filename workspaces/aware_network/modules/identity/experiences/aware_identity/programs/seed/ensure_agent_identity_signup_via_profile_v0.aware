@@ -1,0 +1,42 @@
+// Ensure deterministic agent identity signup via profile request.
+//
+// Required symbols:
+// - plan.identity_public_key
+// - plan.agent_label
+// - plan.seed_id
+// - plan.seed_version
+//
+// Idempotency:
+// - Constructor calls are lane-head guarded by the seed executor.
+
+program EnsureAgentIdentitySignupViaProfile_v0Config(
+    identity_public_key String = plan.identity_public_key,
+    agent_label String = plan.agent_label,
+    seed_id UUID = plan.seed_id,
+    seed_version String = plan.seed_version,
+    identity_id UUID = identity.stable_identity_id(
+        public_key=identity_public_key,
+        type=agent
+    )
+) {
+    actor identity_agent agent
+
+    port identity_identity_id identity {
+        node identity identity.Identity(identity=identity_id)
+    }
+}
+
+program EnsureAgentIdentitySignupViaProfile_v0 impl EnsureAgentIdentitySignupViaProfile_v0Config {
+    let profile_request = kernel.seed_agent_profile_request(
+        label=agent_label,
+        identity_id=identity_id,
+        seed_id=seed_id,
+        seed_version=seed_version
+    )
+
+    bind identity_identity_id identity.main
+    identity_agent call identity identity.Identity.signup_via_profile(
+        public_key=identity_public_key,
+        create_profile_request=profile_request
+    )
+}

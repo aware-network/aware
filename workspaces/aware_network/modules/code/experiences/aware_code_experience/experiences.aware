@@ -1,0 +1,15 @@
+experience aware_code_package on aware_code.package.CodePackage {
+    observable codes {
+        view selector.v1 default api_view code.package_selector {
+            """Code-owned selector over package and source membership evidence."""
+        }
+
+        view editor.v1 api_view code.editor {
+            """Code-owned source editor view over selected source text and section anchors."""
+        }
+    }
+
+    node package.CodePackage {
+        id default
+    }
+}

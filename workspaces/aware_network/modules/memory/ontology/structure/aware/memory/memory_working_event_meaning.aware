@@ -1,0 +1,69 @@
+/// Provider-neutral resolved meaning for one remembered event.
+///
+/// Contract:
+/// - Memory owns persistence and this normalized envelope.
+/// - The domain provider owns interpretation and returns only normalized text
+///   plus an optional opaque provider reference.
+/// - Resolver action/API/commit provenance comes from Experience terminal
+///   continuation truth, never from provider-echoed fields.
+/// - V0 accepts exactly one resolved meaning under one event frame.
+class MemoryWorkingEventMeaning {
+    meaning_text String
+    provider_reference String?
+    resolved_at DateTime
+
+    resolver_status String
+    resolver_endpoint_ref String
+    resolver_discriminant String
+    resolver_program_impl_instruction_intent_id UUID
+    resolver_action_config_id UUID
+    resolver_api_capability_endpoint_id UUID
+    resolver_api_call_id UUID
+    resolver_api_call_key UUID
+    resolver_request_model_id UUID
+    resolver_api_call_outcome_id UUID key
+    resolver_response_model_id UUID
+    resolver_response_class_config_id UUID
+    resolver_service_operation_id UUID
+    resolver_service_operation_config_id UUID
+    resolver_service_operation_commit_id UUID
+    resolver_service_operation_head_commit_id UUID
+    resolver_service_operation_branch_id UUID
+    resolver_service_operation_projection_hash String
+    resolver_api_call_outcome_commit_id UUID
+    resolver_api_call_outcome_head_commit_id UUID
+    resolver_api_call_outcome_branch_id UUID
+    resolver_api_call_outcome_projection_hash String
+
+    fn build construct(
+        resolver_api_call_outcome_id UUID key,
+        meaning_text String,
+        resolver_status String,
+        resolver_endpoint_ref String,
+        resolver_discriminant String,
+        resolver_program_impl_instruction_intent_id UUID,
+        resolver_action_config_id UUID,
+        resolver_api_capability_endpoint_id UUID,
+        resolver_api_call_id UUID,
+        resolver_api_call_key UUID,
+        resolver_request_model_id UUID,
+        resolver_response_model_id UUID,
+        resolver_response_class_config_id UUID,
+        resolver_service_operation_id UUID,
+        resolver_service_operation_config_id UUID,
+        resolver_service_operation_commit_id UUID,
+        resolver_service_operation_head_commit_id UUID,
+        resolver_service_operation_branch_id UUID,
+        resolver_service_operation_projection_hash String,
+        resolver_api_call_outcome_commit_id UUID,
+        resolver_api_call_outcome_head_commit_id UUID,
+        resolver_api_call_outcome_branch_id UUID,
+        resolver_api_call_outcome_projection_hash String,
+        provider_reference String? = null,
+        resolved_at DateTime? = null
+    ) -> MemoryWorkingEventMeaning {
+        """
+        Build one normalized provider result with terminal resolver evidence.
+        """
+    }
+}

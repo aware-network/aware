@@ -1,0 +1,16 @@
+class ServiceConfigExperience {
+    // Relationships
+    projection_experience aware_experience.projection.ProjectionExperience key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        projection_experience_id UUID key,
+        description String? = null
+    ) -> ServiceConfigExperience {
+        """
+        Create one config-level bridge between a ServiceConfig and one shared ProjectionExperience.
+        """
+    }
+}

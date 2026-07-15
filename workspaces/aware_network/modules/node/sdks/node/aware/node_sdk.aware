@@ -1,0 +1,30 @@
+sdk node_sdk {
+    "Canonical Node SDK operations over the Node service API."
+
+    api node;
+
+    operation discover_environment_configs {
+        "Discover EnvironmentConfig descriptors available for live Node provisioning."
+        endpoint node.host.discover_environment_configs;
+    }
+
+    operation discover_service_api_dependency_routes {
+        "Discover live service API dependency routes bound by Node."
+        endpoint node.host.discover_service_api_dependency_routes;
+    }
+
+    operation get_boot_environment_descriptor {
+        "Read the Node-managed boot Environment descriptor."
+        endpoint node.host.get_boot_environment_descriptor;
+    }
+
+    operation provision_environment {
+        "Provision or resume one Environment through live Node authority."
+        endpoint node.host.provision_environment;
+    }
+
+    operation get_environment_status {
+        "Read live Node-owned status for one provisioned Environment."
+        endpoint node.host.get_environment_status;
+    }
+}

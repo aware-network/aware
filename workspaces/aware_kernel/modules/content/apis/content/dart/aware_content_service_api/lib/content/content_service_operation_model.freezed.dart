@@ -620,6 +620,601 @@ as Map<String, dynamic>,
 
 
 /// @nodoc
+mixin _$ContentTextCommitPartV1 {
+
+ int get position; String? get partKey; String get mediaType; String get text; String get digestAlgorithm; String? get digest; int? get sizeBytes; Map<String, dynamic> get provenance;
+/// Create a copy of ContentTextCommitPartV1
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ContentTextCommitPartV1CopyWith<ContentTextCommitPartV1> get copyWith => _$ContentTextCommitPartV1CopyWithImpl<ContentTextCommitPartV1>(this as ContentTextCommitPartV1, _$identity);
+
+  /// Serializes this ContentTextCommitPartV1 to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContentTextCommitPartV1&&(identical(other.position, position) || other.position == position)&&(identical(other.partKey, partKey) || other.partKey == partKey)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.text, text) || other.text == text)&&(identical(other.digestAlgorithm, digestAlgorithm) || other.digestAlgorithm == digestAlgorithm)&&(identical(other.digest, digest) || other.digest == digest)&&(identical(other.sizeBytes, sizeBytes) || other.sizeBytes == sizeBytes)&&const DeepCollectionEquality().equals(other.provenance, provenance));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,position,partKey,mediaType,text,digestAlgorithm,digest,sizeBytes,const DeepCollectionEquality().hash(provenance));
+
+@override
+String toString() {
+  return 'ContentTextCommitPartV1(position: $position, partKey: $partKey, mediaType: $mediaType, text: $text, digestAlgorithm: $digestAlgorithm, digest: $digest, sizeBytes: $sizeBytes, provenance: $provenance)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ContentTextCommitPartV1CopyWith<$Res>  {
+  factory $ContentTextCommitPartV1CopyWith(ContentTextCommitPartV1 value, $Res Function(ContentTextCommitPartV1) _then) = _$ContentTextCommitPartV1CopyWithImpl;
+@useResult
+$Res call({
+ int position, String? partKey, String mediaType, String text, String digestAlgorithm, String? digest, int? sizeBytes, Map<String, dynamic> provenance
+});
+
+
+
+
+}
+/// @nodoc
+class _$ContentTextCommitPartV1CopyWithImpl<$Res>
+    implements $ContentTextCommitPartV1CopyWith<$Res> {
+  _$ContentTextCommitPartV1CopyWithImpl(this._self, this._then);
+
+  final ContentTextCommitPartV1 _self;
+  final $Res Function(ContentTextCommitPartV1) _then;
+
+/// Create a copy of ContentTextCommitPartV1
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? position = null,Object? partKey = freezed,Object? mediaType = null,Object? text = null,Object? digestAlgorithm = null,Object? digest = freezed,Object? sizeBytes = freezed,Object? provenance = null,}) {
+  return _then(_self.copyWith(
+position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
+as int,partKey: freezed == partKey ? _self.partKey : partKey // ignore: cast_nullable_to_non_nullable
+as String?,mediaType: null == mediaType ? _self.mediaType : mediaType // ignore: cast_nullable_to_non_nullable
+as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
+as String,digestAlgorithm: null == digestAlgorithm ? _self.digestAlgorithm : digestAlgorithm // ignore: cast_nullable_to_non_nullable
+as String,digest: freezed == digest ? _self.digest : digest // ignore: cast_nullable_to_non_nullable
+as String?,sizeBytes: freezed == sizeBytes ? _self.sizeBytes : sizeBytes // ignore: cast_nullable_to_non_nullable
+as int?,provenance: null == provenance ? _self.provenance : provenance // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ContentTextCommitPartV1].
+extension ContentTextCommitPartV1Patterns on ContentTextCommitPartV1 {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _ContentTextCommitPartV1 value)?  def,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ContentTextCommitPartV1() when def != null:
+return def(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _ContentTextCommitPartV1 value)  def,}){
+final _that = this;
+switch (_that) {
+case _ContentTextCommitPartV1():
+return def(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _ContentTextCommitPartV1 value)?  def,}){
+final _that = this;
+switch (_that) {
+case _ContentTextCommitPartV1() when def != null:
+return def(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( int position,  String? partKey,  String mediaType,  String text,  String digestAlgorithm,  String? digest,  int? sizeBytes,  Map<String, dynamic> provenance)?  def,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ContentTextCommitPartV1() when def != null:
+return def(_that.position,_that.partKey,_that.mediaType,_that.text,_that.digestAlgorithm,_that.digest,_that.sizeBytes,_that.provenance);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( int position,  String? partKey,  String mediaType,  String text,  String digestAlgorithm,  String? digest,  int? sizeBytes,  Map<String, dynamic> provenance)  def,}) {final _that = this;
+switch (_that) {
+case _ContentTextCommitPartV1():
+return def(_that.position,_that.partKey,_that.mediaType,_that.text,_that.digestAlgorithm,_that.digest,_that.sizeBytes,_that.provenance);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( int position,  String? partKey,  String mediaType,  String text,  String digestAlgorithm,  String? digest,  int? sizeBytes,  Map<String, dynamic> provenance)?  def,}) {final _that = this;
+switch (_that) {
+case _ContentTextCommitPartV1() when def != null:
+return def(_that.position,_that.partKey,_that.mediaType,_that.text,_that.digestAlgorithm,_that.digest,_that.sizeBytes,_that.provenance);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+@JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
+class _ContentTextCommitPartV1 implements ContentTextCommitPartV1 {
+   _ContentTextCommitPartV1({required this.position, this.partKey, required this.mediaType, required this.text, required this.digestAlgorithm, this.digest, this.sizeBytes, required final  Map<String, dynamic> provenance}): _provenance = provenance;
+  factory _ContentTextCommitPartV1.fromJson(Map<String, dynamic> json) => _$ContentTextCommitPartV1FromJson(json);
+
+@override final  int position;
+@override final  String? partKey;
+@override final  String mediaType;
+@override final  String text;
+@override final  String digestAlgorithm;
+@override final  String? digest;
+@override final  int? sizeBytes;
+ final  Map<String, dynamic> _provenance;
+@override Map<String, dynamic> get provenance {
+  if (_provenance is EqualUnmodifiableMapView) return _provenance;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_provenance);
+}
+
+
+/// Create a copy of ContentTextCommitPartV1
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ContentTextCommitPartV1CopyWith<_ContentTextCommitPartV1> get copyWith => __$ContentTextCommitPartV1CopyWithImpl<_ContentTextCommitPartV1>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ContentTextCommitPartV1ToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContentTextCommitPartV1&&(identical(other.position, position) || other.position == position)&&(identical(other.partKey, partKey) || other.partKey == partKey)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.text, text) || other.text == text)&&(identical(other.digestAlgorithm, digestAlgorithm) || other.digestAlgorithm == digestAlgorithm)&&(identical(other.digest, digest) || other.digest == digest)&&(identical(other.sizeBytes, sizeBytes) || other.sizeBytes == sizeBytes)&&const DeepCollectionEquality().equals(other._provenance, _provenance));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,position,partKey,mediaType,text,digestAlgorithm,digest,sizeBytes,const DeepCollectionEquality().hash(_provenance));
+
+@override
+String toString() {
+  return 'ContentTextCommitPartV1.def(position: $position, partKey: $partKey, mediaType: $mediaType, text: $text, digestAlgorithm: $digestAlgorithm, digest: $digest, sizeBytes: $sizeBytes, provenance: $provenance)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ContentTextCommitPartV1CopyWith<$Res> implements $ContentTextCommitPartV1CopyWith<$Res> {
+  factory _$ContentTextCommitPartV1CopyWith(_ContentTextCommitPartV1 value, $Res Function(_ContentTextCommitPartV1) _then) = __$ContentTextCommitPartV1CopyWithImpl;
+@override @useResult
+$Res call({
+ int position, String? partKey, String mediaType, String text, String digestAlgorithm, String? digest, int? sizeBytes, Map<String, dynamic> provenance
+});
+
+
+
+
+}
+/// @nodoc
+class __$ContentTextCommitPartV1CopyWithImpl<$Res>
+    implements _$ContentTextCommitPartV1CopyWith<$Res> {
+  __$ContentTextCommitPartV1CopyWithImpl(this._self, this._then);
+
+  final _ContentTextCommitPartV1 _self;
+  final $Res Function(_ContentTextCommitPartV1) _then;
+
+/// Create a copy of ContentTextCommitPartV1
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? position = null,Object? partKey = freezed,Object? mediaType = null,Object? text = null,Object? digestAlgorithm = null,Object? digest = freezed,Object? sizeBytes = freezed,Object? provenance = null,}) {
+  return _then(_ContentTextCommitPartV1(
+position: null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
+as int,partKey: freezed == partKey ? _self.partKey : partKey // ignore: cast_nullable_to_non_nullable
+as String?,mediaType: null == mediaType ? _self.mediaType : mediaType // ignore: cast_nullable_to_non_nullable
+as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
+as String,digestAlgorithm: null == digestAlgorithm ? _self.digestAlgorithm : digestAlgorithm // ignore: cast_nullable_to_non_nullable
+as String,digest: freezed == digest ? _self.digest : digest // ignore: cast_nullable_to_non_nullable
+as String?,sizeBytes: freezed == sizeBytes ? _self.sizeBytes : sizeBytes // ignore: cast_nullable_to_non_nullable
+as int?,provenance: null == provenance ? _self._provenance : provenance // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ContentTextCommitResultV1 {
+
+@UuidValueConverter() UuidValue get contentId; String get contentKey; String? get title; String get sourceKind; String get sourceRef; String get mediaType; String get digestAlgorithm; String get digest; int get sizeBytes;@UuidValueConverter() UuidValue? get domainCommitId;@UuidValueConverter() UuidValue? get objectInstanceGraphCommitId; String? get serviceHostReceiptRef; Map<String, dynamic> get provenance;
+/// Create a copy of ContentTextCommitResultV1
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ContentTextCommitResultV1CopyWith<ContentTextCommitResultV1> get copyWith => _$ContentTextCommitResultV1CopyWithImpl<ContentTextCommitResultV1>(this as ContentTextCommitResultV1, _$identity);
+
+  /// Serializes this ContentTextCommitResultV1 to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContentTextCommitResultV1&&(identical(other.contentId, contentId) || other.contentId == contentId)&&(identical(other.contentKey, contentKey) || other.contentKey == contentKey)&&(identical(other.title, title) || other.title == title)&&(identical(other.sourceKind, sourceKind) || other.sourceKind == sourceKind)&&(identical(other.sourceRef, sourceRef) || other.sourceRef == sourceRef)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.digestAlgorithm, digestAlgorithm) || other.digestAlgorithm == digestAlgorithm)&&(identical(other.digest, digest) || other.digest == digest)&&(identical(other.sizeBytes, sizeBytes) || other.sizeBytes == sizeBytes)&&(identical(other.domainCommitId, domainCommitId) || other.domainCommitId == domainCommitId)&&(identical(other.objectInstanceGraphCommitId, objectInstanceGraphCommitId) || other.objectInstanceGraphCommitId == objectInstanceGraphCommitId)&&(identical(other.serviceHostReceiptRef, serviceHostReceiptRef) || other.serviceHostReceiptRef == serviceHostReceiptRef)&&const DeepCollectionEquality().equals(other.provenance, provenance));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,contentId,contentKey,title,sourceKind,sourceRef,mediaType,digestAlgorithm,digest,sizeBytes,domainCommitId,objectInstanceGraphCommitId,serviceHostReceiptRef,const DeepCollectionEquality().hash(provenance));
+
+@override
+String toString() {
+  return 'ContentTextCommitResultV1(contentId: $contentId, contentKey: $contentKey, title: $title, sourceKind: $sourceKind, sourceRef: $sourceRef, mediaType: $mediaType, digestAlgorithm: $digestAlgorithm, digest: $digest, sizeBytes: $sizeBytes, domainCommitId: $domainCommitId, objectInstanceGraphCommitId: $objectInstanceGraphCommitId, serviceHostReceiptRef: $serviceHostReceiptRef, provenance: $provenance)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ContentTextCommitResultV1CopyWith<$Res>  {
+  factory $ContentTextCommitResultV1CopyWith(ContentTextCommitResultV1 value, $Res Function(ContentTextCommitResultV1) _then) = _$ContentTextCommitResultV1CopyWithImpl;
+@useResult
+$Res call({
+@UuidValueConverter() UuidValue contentId, String contentKey, String? title, String sourceKind, String sourceRef, String mediaType, String digestAlgorithm, String digest, int sizeBytes,@UuidValueConverter() UuidValue? domainCommitId,@UuidValueConverter() UuidValue? objectInstanceGraphCommitId, String? serviceHostReceiptRef, Map<String, dynamic> provenance
+});
+
+
+
+
+}
+/// @nodoc
+class _$ContentTextCommitResultV1CopyWithImpl<$Res>
+    implements $ContentTextCommitResultV1CopyWith<$Res> {
+  _$ContentTextCommitResultV1CopyWithImpl(this._self, this._then);
+
+  final ContentTextCommitResultV1 _self;
+  final $Res Function(ContentTextCommitResultV1) _then;
+
+/// Create a copy of ContentTextCommitResultV1
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? contentId = null,Object? contentKey = null,Object? title = freezed,Object? sourceKind = null,Object? sourceRef = null,Object? mediaType = null,Object? digestAlgorithm = null,Object? digest = null,Object? sizeBytes = null,Object? domainCommitId = freezed,Object? objectInstanceGraphCommitId = freezed,Object? serviceHostReceiptRef = freezed,Object? provenance = null,}) {
+  return _then(_self.copyWith(
+contentId: null == contentId ? _self.contentId : contentId // ignore: cast_nullable_to_non_nullable
+as UuidValue,contentKey: null == contentKey ? _self.contentKey : contentKey // ignore: cast_nullable_to_non_nullable
+as String,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String?,sourceKind: null == sourceKind ? _self.sourceKind : sourceKind // ignore: cast_nullable_to_non_nullable
+as String,sourceRef: null == sourceRef ? _self.sourceRef : sourceRef // ignore: cast_nullable_to_non_nullable
+as String,mediaType: null == mediaType ? _self.mediaType : mediaType // ignore: cast_nullable_to_non_nullable
+as String,digestAlgorithm: null == digestAlgorithm ? _self.digestAlgorithm : digestAlgorithm // ignore: cast_nullable_to_non_nullable
+as String,digest: null == digest ? _self.digest : digest // ignore: cast_nullable_to_non_nullable
+as String,sizeBytes: null == sizeBytes ? _self.sizeBytes : sizeBytes // ignore: cast_nullable_to_non_nullable
+as int,domainCommitId: freezed == domainCommitId ? _self.domainCommitId : domainCommitId // ignore: cast_nullable_to_non_nullable
+as UuidValue?,objectInstanceGraphCommitId: freezed == objectInstanceGraphCommitId ? _self.objectInstanceGraphCommitId : objectInstanceGraphCommitId // ignore: cast_nullable_to_non_nullable
+as UuidValue?,serviceHostReceiptRef: freezed == serviceHostReceiptRef ? _self.serviceHostReceiptRef : serviceHostReceiptRef // ignore: cast_nullable_to_non_nullable
+as String?,provenance: null == provenance ? _self.provenance : provenance // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ContentTextCommitResultV1].
+extension ContentTextCommitResultV1Patterns on ContentTextCommitResultV1 {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _ContentTextCommitResultV1 value)?  def,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ContentTextCommitResultV1() when def != null:
+return def(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _ContentTextCommitResultV1 value)  def,}){
+final _that = this;
+switch (_that) {
+case _ContentTextCommitResultV1():
+return def(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _ContentTextCommitResultV1 value)?  def,}){
+final _that = this;
+switch (_that) {
+case _ContentTextCommitResultV1() when def != null:
+return def(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function(@UuidValueConverter()  UuidValue contentId,  String contentKey,  String? title,  String sourceKind,  String sourceRef,  String mediaType,  String digestAlgorithm,  String digest,  int sizeBytes, @UuidValueConverter()  UuidValue? domainCommitId, @UuidValueConverter()  UuidValue? objectInstanceGraphCommitId,  String? serviceHostReceiptRef,  Map<String, dynamic> provenance)?  def,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ContentTextCommitResultV1() when def != null:
+return def(_that.contentId,_that.contentKey,_that.title,_that.sourceKind,_that.sourceRef,_that.mediaType,_that.digestAlgorithm,_that.digest,_that.sizeBytes,_that.domainCommitId,_that.objectInstanceGraphCommitId,_that.serviceHostReceiptRef,_that.provenance);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function(@UuidValueConverter()  UuidValue contentId,  String contentKey,  String? title,  String sourceKind,  String sourceRef,  String mediaType,  String digestAlgorithm,  String digest,  int sizeBytes, @UuidValueConverter()  UuidValue? domainCommitId, @UuidValueConverter()  UuidValue? objectInstanceGraphCommitId,  String? serviceHostReceiptRef,  Map<String, dynamic> provenance)  def,}) {final _that = this;
+switch (_that) {
+case _ContentTextCommitResultV1():
+return def(_that.contentId,_that.contentKey,_that.title,_that.sourceKind,_that.sourceRef,_that.mediaType,_that.digestAlgorithm,_that.digest,_that.sizeBytes,_that.domainCommitId,_that.objectInstanceGraphCommitId,_that.serviceHostReceiptRef,_that.provenance);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function(@UuidValueConverter()  UuidValue contentId,  String contentKey,  String? title,  String sourceKind,  String sourceRef,  String mediaType,  String digestAlgorithm,  String digest,  int sizeBytes, @UuidValueConverter()  UuidValue? domainCommitId, @UuidValueConverter()  UuidValue? objectInstanceGraphCommitId,  String? serviceHostReceiptRef,  Map<String, dynamic> provenance)?  def,}) {final _that = this;
+switch (_that) {
+case _ContentTextCommitResultV1() when def != null:
+return def(_that.contentId,_that.contentKey,_that.title,_that.sourceKind,_that.sourceRef,_that.mediaType,_that.digestAlgorithm,_that.digest,_that.sizeBytes,_that.domainCommitId,_that.objectInstanceGraphCommitId,_that.serviceHostReceiptRef,_that.provenance);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+@JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
+class _ContentTextCommitResultV1 implements ContentTextCommitResultV1 {
+   _ContentTextCommitResultV1({@UuidValueConverter() required this.contentId, required this.contentKey, this.title, required this.sourceKind, required this.sourceRef, required this.mediaType, required this.digestAlgorithm, required this.digest, required this.sizeBytes, @UuidValueConverter() this.domainCommitId, @UuidValueConverter() this.objectInstanceGraphCommitId, this.serviceHostReceiptRef, required final  Map<String, dynamic> provenance}): _provenance = provenance;
+  factory _ContentTextCommitResultV1.fromJson(Map<String, dynamic> json) => _$ContentTextCommitResultV1FromJson(json);
+
+@override@UuidValueConverter() final  UuidValue contentId;
+@override final  String contentKey;
+@override final  String? title;
+@override final  String sourceKind;
+@override final  String sourceRef;
+@override final  String mediaType;
+@override final  String digestAlgorithm;
+@override final  String digest;
+@override final  int sizeBytes;
+@override@UuidValueConverter() final  UuidValue? domainCommitId;
+@override@UuidValueConverter() final  UuidValue? objectInstanceGraphCommitId;
+@override final  String? serviceHostReceiptRef;
+ final  Map<String, dynamic> _provenance;
+@override Map<String, dynamic> get provenance {
+  if (_provenance is EqualUnmodifiableMapView) return _provenance;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_provenance);
+}
+
+
+/// Create a copy of ContentTextCommitResultV1
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ContentTextCommitResultV1CopyWith<_ContentTextCommitResultV1> get copyWith => __$ContentTextCommitResultV1CopyWithImpl<_ContentTextCommitResultV1>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ContentTextCommitResultV1ToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ContentTextCommitResultV1&&(identical(other.contentId, contentId) || other.contentId == contentId)&&(identical(other.contentKey, contentKey) || other.contentKey == contentKey)&&(identical(other.title, title) || other.title == title)&&(identical(other.sourceKind, sourceKind) || other.sourceKind == sourceKind)&&(identical(other.sourceRef, sourceRef) || other.sourceRef == sourceRef)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.digestAlgorithm, digestAlgorithm) || other.digestAlgorithm == digestAlgorithm)&&(identical(other.digest, digest) || other.digest == digest)&&(identical(other.sizeBytes, sizeBytes) || other.sizeBytes == sizeBytes)&&(identical(other.domainCommitId, domainCommitId) || other.domainCommitId == domainCommitId)&&(identical(other.objectInstanceGraphCommitId, objectInstanceGraphCommitId) || other.objectInstanceGraphCommitId == objectInstanceGraphCommitId)&&(identical(other.serviceHostReceiptRef, serviceHostReceiptRef) || other.serviceHostReceiptRef == serviceHostReceiptRef)&&const DeepCollectionEquality().equals(other._provenance, _provenance));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,contentId,contentKey,title,sourceKind,sourceRef,mediaType,digestAlgorithm,digest,sizeBytes,domainCommitId,objectInstanceGraphCommitId,serviceHostReceiptRef,const DeepCollectionEquality().hash(_provenance));
+
+@override
+String toString() {
+  return 'ContentTextCommitResultV1.def(contentId: $contentId, contentKey: $contentKey, title: $title, sourceKind: $sourceKind, sourceRef: $sourceRef, mediaType: $mediaType, digestAlgorithm: $digestAlgorithm, digest: $digest, sizeBytes: $sizeBytes, domainCommitId: $domainCommitId, objectInstanceGraphCommitId: $objectInstanceGraphCommitId, serviceHostReceiptRef: $serviceHostReceiptRef, provenance: $provenance)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ContentTextCommitResultV1CopyWith<$Res> implements $ContentTextCommitResultV1CopyWith<$Res> {
+  factory _$ContentTextCommitResultV1CopyWith(_ContentTextCommitResultV1 value, $Res Function(_ContentTextCommitResultV1) _then) = __$ContentTextCommitResultV1CopyWithImpl;
+@override @useResult
+$Res call({
+@UuidValueConverter() UuidValue contentId, String contentKey, String? title, String sourceKind, String sourceRef, String mediaType, String digestAlgorithm, String digest, int sizeBytes,@UuidValueConverter() UuidValue? domainCommitId,@UuidValueConverter() UuidValue? objectInstanceGraphCommitId, String? serviceHostReceiptRef, Map<String, dynamic> provenance
+});
+
+
+
+
+}
+/// @nodoc
+class __$ContentTextCommitResultV1CopyWithImpl<$Res>
+    implements _$ContentTextCommitResultV1CopyWith<$Res> {
+  __$ContentTextCommitResultV1CopyWithImpl(this._self, this._then);
+
+  final _ContentTextCommitResultV1 _self;
+  final $Res Function(_ContentTextCommitResultV1) _then;
+
+/// Create a copy of ContentTextCommitResultV1
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? contentId = null,Object? contentKey = null,Object? title = freezed,Object? sourceKind = null,Object? sourceRef = null,Object? mediaType = null,Object? digestAlgorithm = null,Object? digest = null,Object? sizeBytes = null,Object? domainCommitId = freezed,Object? objectInstanceGraphCommitId = freezed,Object? serviceHostReceiptRef = freezed,Object? provenance = null,}) {
+  return _then(_ContentTextCommitResultV1(
+contentId: null == contentId ? _self.contentId : contentId // ignore: cast_nullable_to_non_nullable
+as UuidValue,contentKey: null == contentKey ? _self.contentKey : contentKey // ignore: cast_nullable_to_non_nullable
+as String,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String?,sourceKind: null == sourceKind ? _self.sourceKind : sourceKind // ignore: cast_nullable_to_non_nullable
+as String,sourceRef: null == sourceRef ? _self.sourceRef : sourceRef // ignore: cast_nullable_to_non_nullable
+as String,mediaType: null == mediaType ? _self.mediaType : mediaType // ignore: cast_nullable_to_non_nullable
+as String,digestAlgorithm: null == digestAlgorithm ? _self.digestAlgorithm : digestAlgorithm // ignore: cast_nullable_to_non_nullable
+as String,digest: null == digest ? _self.digest : digest // ignore: cast_nullable_to_non_nullable
+as String,sizeBytes: null == sizeBytes ? _self.sizeBytes : sizeBytes // ignore: cast_nullable_to_non_nullable
+as int,domainCommitId: freezed == domainCommitId ? _self.domainCommitId : domainCommitId // ignore: cast_nullable_to_non_nullable
+as UuidValue?,objectInstanceGraphCommitId: freezed == objectInstanceGraphCommitId ? _self.objectInstanceGraphCommitId : objectInstanceGraphCommitId // ignore: cast_nullable_to_non_nullable
+as UuidValue?,serviceHostReceiptRef: freezed == serviceHostReceiptRef ? _self.serviceHostReceiptRef : serviceHostReceiptRef // ignore: cast_nullable_to_non_nullable
+as String?,provenance: null == provenance ? _self._provenance : provenance // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$ContentPackageExportPartV1 {
 
  String get partKey; int get position; String get modalityType; String get contentPartType; String get mediaType; String? get text; String? get rawPath; String? get uri; String? get providerId; String get digestAlgorithm; String? get digest; int? get sizeBytes; Map<String, dynamic> get awareContentMapping; Map<String, dynamic> get provenance;
@@ -2633,6 +3228,10 @@ ContentServiceRequest _$ContentServiceRequestFromJson(
           return ResolveContentTextRequest.fromJson(
             json
           );
+                case 'commit_content_text':
+          return CommitContentTextRequest.fromJson(
+            json
+          );
                 case 'materialize_content_package':
           return MaterializeContentPackageRequest.fromJson(
             json
@@ -2728,11 +3327,12 @@ extension ContentServiceRequestPatterns on ContentServiceRequest {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ResolveContentTextRequest value)?  resolveContentText,TResult Function( MaterializeContentPackageRequest value)?  materializeContentPackage,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ResolveContentTextRequest value)?  resolveContentText,TResult Function( CommitContentTextRequest value)?  commitContentText,TResult Function( MaterializeContentPackageRequest value)?  materializeContentPackage,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ResolveContentTextRequest() when resolveContentText != null:
-return resolveContentText(_that);case MaterializeContentPackageRequest() when materializeContentPackage != null:
+return resolveContentText(_that);case CommitContentTextRequest() when commitContentText != null:
+return commitContentText(_that);case MaterializeContentPackageRequest() when materializeContentPackage != null:
 return materializeContentPackage(_that);case _:
   return orElse();
 
@@ -2751,11 +3351,12 @@ return materializeContentPackage(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ResolveContentTextRequest value)  resolveContentText,required TResult Function( MaterializeContentPackageRequest value)  materializeContentPackage,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ResolveContentTextRequest value)  resolveContentText,required TResult Function( CommitContentTextRequest value)  commitContentText,required TResult Function( MaterializeContentPackageRequest value)  materializeContentPackage,}){
 final _that = this;
 switch (_that) {
 case ResolveContentTextRequest():
-return resolveContentText(_that);case MaterializeContentPackageRequest():
+return resolveContentText(_that);case CommitContentTextRequest():
+return commitContentText(_that);case MaterializeContentPackageRequest():
 return materializeContentPackage(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -2773,11 +3374,12 @@ return materializeContentPackage(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ResolveContentTextRequest value)?  resolveContentText,TResult? Function( MaterializeContentPackageRequest value)?  materializeContentPackage,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ResolveContentTextRequest value)?  resolveContentText,TResult? Function( CommitContentTextRequest value)?  commitContentText,TResult? Function( MaterializeContentPackageRequest value)?  materializeContentPackage,}){
 final _that = this;
 switch (_that) {
 case ResolveContentTextRequest() when resolveContentText != null:
-return resolveContentText(_that);case MaterializeContentPackageRequest() when materializeContentPackage != null:
+return resolveContentText(_that);case CommitContentTextRequest() when commitContentText != null:
+return commitContentText(_that);case MaterializeContentPackageRequest() when materializeContentPackage != null:
 return materializeContentPackage(_that);case _:
   return null;
 
@@ -2795,10 +3397,11 @@ return materializeContentPackage(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId, @UuidValueConverter()  UuidValue? contentId, @UuidValueConverter()  UuidValue? contentClassInstanceIdentityId, @UuidValueConverter()  UuidValue? contentClassConfigId,  String mediaType,  bool includeParts,  int? maxChars)?  resolveContentText,TResult Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId,  ContentPackageExportDocumentV1 packageExport)?  materializeContentPackage,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId, @UuidValueConverter()  UuidValue? contentId, @UuidValueConverter()  UuidValue? contentClassInstanceIdentityId, @UuidValueConverter()  UuidValue? contentClassConfigId,  String mediaType,  bool includeParts,  int? maxChars)?  resolveContentText,TResult Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId,  String contentKey,  String? title,  String sourceKind,  String sourceRef,  String mediaType,  String? text,  List<ContentTextCommitPartV1> parts,  String digestAlgorithm,  String? digest,  int? sizeBytes,  Map<String, dynamic> provenance)?  commitContentText,TResult Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId,  ContentPackageExportDocumentV1 packageExport)?  materializeContentPackage,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ResolveContentTextRequest() when resolveContentText != null:
-return resolveContentText(_that.requestId,_that.actorId,_that.branchId,_that.contentId,_that.contentClassInstanceIdentityId,_that.contentClassConfigId,_that.mediaType,_that.includeParts,_that.maxChars);case MaterializeContentPackageRequest() when materializeContentPackage != null:
+return resolveContentText(_that.requestId,_that.actorId,_that.branchId,_that.contentId,_that.contentClassInstanceIdentityId,_that.contentClassConfigId,_that.mediaType,_that.includeParts,_that.maxChars);case CommitContentTextRequest() when commitContentText != null:
+return commitContentText(_that.requestId,_that.actorId,_that.branchId,_that.contentKey,_that.title,_that.sourceKind,_that.sourceRef,_that.mediaType,_that.text,_that.parts,_that.digestAlgorithm,_that.digest,_that.sizeBytes,_that.provenance);case MaterializeContentPackageRequest() when materializeContentPackage != null:
 return materializeContentPackage(_that.requestId,_that.actorId,_that.branchId,_that.packageExport);case _:
   return orElse();
 
@@ -2817,10 +3420,11 @@ return materializeContentPackage(_that.requestId,_that.actorId,_that.branchId,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId, @UuidValueConverter()  UuidValue? contentId, @UuidValueConverter()  UuidValue? contentClassInstanceIdentityId, @UuidValueConverter()  UuidValue? contentClassConfigId,  String mediaType,  bool includeParts,  int? maxChars)  resolveContentText,required TResult Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId,  ContentPackageExportDocumentV1 packageExport)  materializeContentPackage,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId, @UuidValueConverter()  UuidValue? contentId, @UuidValueConverter()  UuidValue? contentClassInstanceIdentityId, @UuidValueConverter()  UuidValue? contentClassConfigId,  String mediaType,  bool includeParts,  int? maxChars)  resolveContentText,required TResult Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId,  String contentKey,  String? title,  String sourceKind,  String sourceRef,  String mediaType,  String? text,  List<ContentTextCommitPartV1> parts,  String digestAlgorithm,  String? digest,  int? sizeBytes,  Map<String, dynamic> provenance)  commitContentText,required TResult Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId,  ContentPackageExportDocumentV1 packageExport)  materializeContentPackage,}) {final _that = this;
 switch (_that) {
 case ResolveContentTextRequest():
-return resolveContentText(_that.requestId,_that.actorId,_that.branchId,_that.contentId,_that.contentClassInstanceIdentityId,_that.contentClassConfigId,_that.mediaType,_that.includeParts,_that.maxChars);case MaterializeContentPackageRequest():
+return resolveContentText(_that.requestId,_that.actorId,_that.branchId,_that.contentId,_that.contentClassInstanceIdentityId,_that.contentClassConfigId,_that.mediaType,_that.includeParts,_that.maxChars);case CommitContentTextRequest():
+return commitContentText(_that.requestId,_that.actorId,_that.branchId,_that.contentKey,_that.title,_that.sourceKind,_that.sourceRef,_that.mediaType,_that.text,_that.parts,_that.digestAlgorithm,_that.digest,_that.sizeBytes,_that.provenance);case MaterializeContentPackageRequest():
 return materializeContentPackage(_that.requestId,_that.actorId,_that.branchId,_that.packageExport);case _:
   throw StateError('Unexpected subclass');
 
@@ -2838,10 +3442,11 @@ return materializeContentPackage(_that.requestId,_that.actorId,_that.branchId,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId, @UuidValueConverter()  UuidValue? contentId, @UuidValueConverter()  UuidValue? contentClassInstanceIdentityId, @UuidValueConverter()  UuidValue? contentClassConfigId,  String mediaType,  bool includeParts,  int? maxChars)?  resolveContentText,TResult? Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId,  ContentPackageExportDocumentV1 packageExport)?  materializeContentPackage,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId, @UuidValueConverter()  UuidValue? contentId, @UuidValueConverter()  UuidValue? contentClassInstanceIdentityId, @UuidValueConverter()  UuidValue? contentClassConfigId,  String mediaType,  bool includeParts,  int? maxChars)?  resolveContentText,TResult? Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId,  String contentKey,  String? title,  String sourceKind,  String sourceRef,  String mediaType,  String? text,  List<ContentTextCommitPartV1> parts,  String digestAlgorithm,  String? digest,  int? sizeBytes,  Map<String, dynamic> provenance)?  commitContentText,TResult? Function(@UuidValueConverter()  UuidValue? requestId, @UuidValueConverter()  UuidValue? actorId, @UuidValueConverter()  UuidValue? branchId,  ContentPackageExportDocumentV1 packageExport)?  materializeContentPackage,}) {final _that = this;
 switch (_that) {
 case ResolveContentTextRequest() when resolveContentText != null:
-return resolveContentText(_that.requestId,_that.actorId,_that.branchId,_that.contentId,_that.contentClassInstanceIdentityId,_that.contentClassConfigId,_that.mediaType,_that.includeParts,_that.maxChars);case MaterializeContentPackageRequest() when materializeContentPackage != null:
+return resolveContentText(_that.requestId,_that.actorId,_that.branchId,_that.contentId,_that.contentClassInstanceIdentityId,_that.contentClassConfigId,_that.mediaType,_that.includeParts,_that.maxChars);case CommitContentTextRequest() when commitContentText != null:
+return commitContentText(_that.requestId,_that.actorId,_that.branchId,_that.contentKey,_that.title,_that.sourceKind,_that.sourceRef,_that.mediaType,_that.text,_that.parts,_that.digestAlgorithm,_that.digest,_that.sizeBytes,_that.provenance);case MaterializeContentPackageRequest() when materializeContentPackage != null:
 return materializeContentPackage(_that.requestId,_that.actorId,_that.branchId,_that.packageExport);case _:
   return null;
 
@@ -2942,6 +3547,117 @@ as int?,
 /// @nodoc
 
 @JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
+class CommitContentTextRequest implements ContentServiceRequest {
+   CommitContentTextRequest({@UuidValueConverter() this.requestId, @UuidValueConverter() this.actorId, @UuidValueConverter() this.branchId, required this.contentKey, this.title, required this.sourceKind, required this.sourceRef, required this.mediaType, this.text, final  List<ContentTextCommitPartV1> parts = const [], required this.digestAlgorithm, this.digest, this.sizeBytes, required final  Map<String, dynamic> provenance, final  String? $type}): _parts = parts,_provenance = provenance,$type = $type ?? 'commit_content_text';
+  factory CommitContentTextRequest.fromJson(Map<String, dynamic> json) => _$CommitContentTextRequestFromJson(json);
+
+@override@UuidValueConverter() final  UuidValue? requestId;
+@override@UuidValueConverter() final  UuidValue? actorId;
+@override@UuidValueConverter() final  UuidValue? branchId;
+ final  String contentKey;
+ final  String? title;
+ final  String sourceKind;
+ final  String sourceRef;
+ final  String mediaType;
+ final  String? text;
+ final  List<ContentTextCommitPartV1> _parts;
+@JsonKey() List<ContentTextCommitPartV1> get parts {
+  if (_parts is EqualUnmodifiableListView) return _parts;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_parts);
+}
+
+ final  String digestAlgorithm;
+ final  String? digest;
+ final  int? sizeBytes;
+ final  Map<String, dynamic> _provenance;
+ Map<String, dynamic> get provenance {
+  if (_provenance is EqualUnmodifiableMapView) return _provenance;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_provenance);
+}
+
+
+@JsonKey(name: 'operation')
+final String $type;
+
+
+/// Create a copy of ContentServiceRequest
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CommitContentTextRequestCopyWith<CommitContentTextRequest> get copyWith => _$CommitContentTextRequestCopyWithImpl<CommitContentTextRequest>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$CommitContentTextRequestToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommitContentTextRequest&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.actorId, actorId) || other.actorId == actorId)&&(identical(other.branchId, branchId) || other.branchId == branchId)&&(identical(other.contentKey, contentKey) || other.contentKey == contentKey)&&(identical(other.title, title) || other.title == title)&&(identical(other.sourceKind, sourceKind) || other.sourceKind == sourceKind)&&(identical(other.sourceRef, sourceRef) || other.sourceRef == sourceRef)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.text, text) || other.text == text)&&const DeepCollectionEquality().equals(other._parts, _parts)&&(identical(other.digestAlgorithm, digestAlgorithm) || other.digestAlgorithm == digestAlgorithm)&&(identical(other.digest, digest) || other.digest == digest)&&(identical(other.sizeBytes, sizeBytes) || other.sizeBytes == sizeBytes)&&const DeepCollectionEquality().equals(other._provenance, _provenance));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,requestId,actorId,branchId,contentKey,title,sourceKind,sourceRef,mediaType,text,const DeepCollectionEquality().hash(_parts),digestAlgorithm,digest,sizeBytes,const DeepCollectionEquality().hash(_provenance));
+
+@override
+String toString() {
+  return 'ContentServiceRequest.commitContentText(requestId: $requestId, actorId: $actorId, branchId: $branchId, contentKey: $contentKey, title: $title, sourceKind: $sourceKind, sourceRef: $sourceRef, mediaType: $mediaType, text: $text, parts: $parts, digestAlgorithm: $digestAlgorithm, digest: $digest, sizeBytes: $sizeBytes, provenance: $provenance)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $CommitContentTextRequestCopyWith<$Res> implements $ContentServiceRequestCopyWith<$Res> {
+  factory $CommitContentTextRequestCopyWith(CommitContentTextRequest value, $Res Function(CommitContentTextRequest) _then) = _$CommitContentTextRequestCopyWithImpl;
+@override @useResult
+$Res call({
+@UuidValueConverter() UuidValue? requestId,@UuidValueConverter() UuidValue? actorId,@UuidValueConverter() UuidValue? branchId, String contentKey, String? title, String sourceKind, String sourceRef, String mediaType, String? text, List<ContentTextCommitPartV1> parts, String digestAlgorithm, String? digest, int? sizeBytes, Map<String, dynamic> provenance
+});
+
+
+
+
+}
+/// @nodoc
+class _$CommitContentTextRequestCopyWithImpl<$Res>
+    implements $CommitContentTextRequestCopyWith<$Res> {
+  _$CommitContentTextRequestCopyWithImpl(this._self, this._then);
+
+  final CommitContentTextRequest _self;
+  final $Res Function(CommitContentTextRequest) _then;
+
+/// Create a copy of ContentServiceRequest
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? requestId = freezed,Object? actorId = freezed,Object? branchId = freezed,Object? contentKey = null,Object? title = freezed,Object? sourceKind = null,Object? sourceRef = null,Object? mediaType = null,Object? text = freezed,Object? parts = null,Object? digestAlgorithm = null,Object? digest = freezed,Object? sizeBytes = freezed,Object? provenance = null,}) {
+  return _then(CommitContentTextRequest(
+requestId: freezed == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
+as UuidValue?,actorId: freezed == actorId ? _self.actorId : actorId // ignore: cast_nullable_to_non_nullable
+as UuidValue?,branchId: freezed == branchId ? _self.branchId : branchId // ignore: cast_nullable_to_non_nullable
+as UuidValue?,contentKey: null == contentKey ? _self.contentKey : contentKey // ignore: cast_nullable_to_non_nullable
+as String,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String?,sourceKind: null == sourceKind ? _self.sourceKind : sourceKind // ignore: cast_nullable_to_non_nullable
+as String,sourceRef: null == sourceRef ? _self.sourceRef : sourceRef // ignore: cast_nullable_to_non_nullable
+as String,mediaType: null == mediaType ? _self.mediaType : mediaType // ignore: cast_nullable_to_non_nullable
+as String,text: freezed == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
+as String?,parts: null == parts ? _self._parts : parts // ignore: cast_nullable_to_non_nullable
+as List<ContentTextCommitPartV1>,digestAlgorithm: null == digestAlgorithm ? _self.digestAlgorithm : digestAlgorithm // ignore: cast_nullable_to_non_nullable
+as String,digest: freezed == digest ? _self.digest : digest // ignore: cast_nullable_to_non_nullable
+as String?,sizeBytes: freezed == sizeBytes ? _self.sizeBytes : sizeBytes // ignore: cast_nullable_to_non_nullable
+as int?,provenance: null == provenance ? _self._provenance : provenance // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+@JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
 class MaterializeContentPackageRequest implements ContentServiceRequest {
    MaterializeContentPackageRequest({@UuidValueConverter() this.requestId, @UuidValueConverter() this.actorId, @UuidValueConverter() this.branchId, required this.packageExport, final  String? $type}): $type = $type ?? 'materialize_content_package';
   factory MaterializeContentPackageRequest.fromJson(Map<String, dynamic> json) => _$MaterializeContentPackageRequestFromJson(json);
@@ -3033,6 +3749,10 @@ ContentServiceResponse _$ContentServiceResponseFromJson(
         switch (json['operation']) {
                   case 'resolve_content_text':
           return ResolveContentTextResponse.fromJson(
+            json
+          );
+                case 'commit_content_text':
+          return CommitContentTextResponse.fromJson(
             json
           );
                 case 'materialize_content_package':
@@ -3143,11 +3863,12 @@ extension ContentServiceResponsePatterns on ContentServiceResponse {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ResolveContentTextResponse value)?  resolveContentText,TResult Function( MaterializeContentPackageResponse value)?  materializeContentPackage,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ResolveContentTextResponse value)?  resolveContentText,TResult Function( CommitContentTextResponse value)?  commitContentText,TResult Function( MaterializeContentPackageResponse value)?  materializeContentPackage,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ResolveContentTextResponse() when resolveContentText != null:
-return resolveContentText(_that);case MaterializeContentPackageResponse() when materializeContentPackage != null:
+return resolveContentText(_that);case CommitContentTextResponse() when commitContentText != null:
+return commitContentText(_that);case MaterializeContentPackageResponse() when materializeContentPackage != null:
 return materializeContentPackage(_that);case _:
   return orElse();
 
@@ -3166,11 +3887,12 @@ return materializeContentPackage(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ResolveContentTextResponse value)  resolveContentText,required TResult Function( MaterializeContentPackageResponse value)  materializeContentPackage,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ResolveContentTextResponse value)  resolveContentText,required TResult Function( CommitContentTextResponse value)  commitContentText,required TResult Function( MaterializeContentPackageResponse value)  materializeContentPackage,}){
 final _that = this;
 switch (_that) {
 case ResolveContentTextResponse():
-return resolveContentText(_that);case MaterializeContentPackageResponse():
+return resolveContentText(_that);case CommitContentTextResponse():
+return commitContentText(_that);case MaterializeContentPackageResponse():
 return materializeContentPackage(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -3188,11 +3910,12 @@ return materializeContentPackage(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ResolveContentTextResponse value)?  resolveContentText,TResult? Function( MaterializeContentPackageResponse value)?  materializeContentPackage,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ResolveContentTextResponse value)?  resolveContentText,TResult? Function( CommitContentTextResponse value)?  commitContentText,TResult? Function( MaterializeContentPackageResponse value)?  materializeContentPackage,}){
 final _that = this;
 switch (_that) {
 case ResolveContentTextResponse() when resolveContentText != null:
-return resolveContentText(_that);case MaterializeContentPackageResponse() when materializeContentPackage != null:
+return resolveContentText(_that);case CommitContentTextResponse() when commitContentText != null:
+return commitContentText(_that);case MaterializeContentPackageResponse() when materializeContentPackage != null:
 return materializeContentPackage(_that);case _:
   return null;
 
@@ -3210,10 +3933,11 @@ return materializeContentPackage(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentTextResolutionV1? resolution)?  resolveContentText,TResult Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentPackageMaterializationResultV1? materialization)?  materializeContentPackage,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentTextResolutionV1? resolution)?  resolveContentText,TResult Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentTextCommitResultV1? commitResult)?  commitContentText,TResult Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentPackageMaterializationResultV1? materialization)?  materializeContentPackage,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ResolveContentTextResponse() when resolveContentText != null:
-return resolveContentText(_that.requestId,_that.success,_that.error,_that.receipt,_that.resolution);case MaterializeContentPackageResponse() when materializeContentPackage != null:
+return resolveContentText(_that.requestId,_that.success,_that.error,_that.receipt,_that.resolution);case CommitContentTextResponse() when commitContentText != null:
+return commitContentText(_that.requestId,_that.success,_that.error,_that.receipt,_that.commitResult);case MaterializeContentPackageResponse() when materializeContentPackage != null:
 return materializeContentPackage(_that.requestId,_that.success,_that.error,_that.receipt,_that.materialization);case _:
   return orElse();
 
@@ -3232,10 +3956,11 @@ return materializeContentPackage(_that.requestId,_that.success,_that.error,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentTextResolutionV1? resolution)  resolveContentText,required TResult Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentPackageMaterializationResultV1? materialization)  materializeContentPackage,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentTextResolutionV1? resolution)  resolveContentText,required TResult Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentTextCommitResultV1? commitResult)  commitContentText,required TResult Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentPackageMaterializationResultV1? materialization)  materializeContentPackage,}) {final _that = this;
 switch (_that) {
 case ResolveContentTextResponse():
-return resolveContentText(_that.requestId,_that.success,_that.error,_that.receipt,_that.resolution);case MaterializeContentPackageResponse():
+return resolveContentText(_that.requestId,_that.success,_that.error,_that.receipt,_that.resolution);case CommitContentTextResponse():
+return commitContentText(_that.requestId,_that.success,_that.error,_that.receipt,_that.commitResult);case MaterializeContentPackageResponse():
 return materializeContentPackage(_that.requestId,_that.success,_that.error,_that.receipt,_that.materialization);case _:
   throw StateError('Unexpected subclass');
 
@@ -3253,10 +3978,11 @@ return materializeContentPackage(_that.requestId,_that.success,_that.error,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentTextResolutionV1? resolution)?  resolveContentText,TResult? Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentPackageMaterializationResultV1? materialization)?  materializeContentPackage,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentTextResolutionV1? resolution)?  resolveContentText,TResult? Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentTextCommitResultV1? commitResult)?  commitContentText,TResult? Function(@UuidValueConverter()  UuidValue? requestId,  bool success,  String? error,  ContentOperationReceipt? receipt,  ContentPackageMaterializationResultV1? materialization)?  materializeContentPackage,}) {final _that = this;
 switch (_that) {
 case ResolveContentTextResponse() when resolveContentText != null:
-return resolveContentText(_that.requestId,_that.success,_that.error,_that.receipt,_that.resolution);case MaterializeContentPackageResponse() when materializeContentPackage != null:
+return resolveContentText(_that.requestId,_that.success,_that.error,_that.receipt,_that.resolution);case CommitContentTextResponse() when commitContentText != null:
+return commitContentText(_that.requestId,_that.success,_that.error,_that.receipt,_that.commitResult);case MaterializeContentPackageResponse() when materializeContentPackage != null:
 return materializeContentPackage(_that.requestId,_that.success,_that.error,_that.receipt,_that.materialization);case _:
   return null;
 
@@ -3366,6 +4092,111 @@ $ContentTextResolutionV1CopyWith<$Res>? get resolution {
 
   return $ContentTextResolutionV1CopyWith<$Res>(_self.resolution!, (value) {
     return _then(_self.copyWith(resolution: value));
+  });
+}
+}
+
+/// @nodoc
+
+@JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
+class CommitContentTextResponse implements ContentServiceResponse {
+   CommitContentTextResponse({@UuidValueConverter() this.requestId, required this.success, this.error, this.receipt, this.commitResult, final  String? $type}): $type = $type ?? 'commit_content_text';
+  factory CommitContentTextResponse.fromJson(Map<String, dynamic> json) => _$CommitContentTextResponseFromJson(json);
+
+@override@UuidValueConverter() final  UuidValue? requestId;
+@override final  bool success;
+@override final  String? error;
+@override final  ContentOperationReceipt? receipt;
+ final  ContentTextCommitResultV1? commitResult;
+
+@JsonKey(name: 'operation')
+final String $type;
+
+
+/// Create a copy of ContentServiceResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CommitContentTextResponseCopyWith<CommitContentTextResponse> get copyWith => _$CommitContentTextResponseCopyWithImpl<CommitContentTextResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$CommitContentTextResponseToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommitContentTextResponse&&(identical(other.requestId, requestId) || other.requestId == requestId)&&(identical(other.success, success) || other.success == success)&&(identical(other.error, error) || other.error == error)&&(identical(other.receipt, receipt) || other.receipt == receipt)&&(identical(other.commitResult, commitResult) || other.commitResult == commitResult));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,requestId,success,error,receipt,commitResult);
+
+@override
+String toString() {
+  return 'ContentServiceResponse.commitContentText(requestId: $requestId, success: $success, error: $error, receipt: $receipt, commitResult: $commitResult)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $CommitContentTextResponseCopyWith<$Res> implements $ContentServiceResponseCopyWith<$Res> {
+  factory $CommitContentTextResponseCopyWith(CommitContentTextResponse value, $Res Function(CommitContentTextResponse) _then) = _$CommitContentTextResponseCopyWithImpl;
+@override @useResult
+$Res call({
+@UuidValueConverter() UuidValue? requestId, bool success, String? error, ContentOperationReceipt? receipt, ContentTextCommitResultV1? commitResult
+});
+
+
+@override $ContentOperationReceiptCopyWith<$Res>? get receipt;$ContentTextCommitResultV1CopyWith<$Res>? get commitResult;
+
+}
+/// @nodoc
+class _$CommitContentTextResponseCopyWithImpl<$Res>
+    implements $CommitContentTextResponseCopyWith<$Res> {
+  _$CommitContentTextResponseCopyWithImpl(this._self, this._then);
+
+  final CommitContentTextResponse _self;
+  final $Res Function(CommitContentTextResponse) _then;
+
+/// Create a copy of ContentServiceResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? requestId = freezed,Object? success = null,Object? error = freezed,Object? receipt = freezed,Object? commitResult = freezed,}) {
+  return _then(CommitContentTextResponse(
+requestId: freezed == requestId ? _self.requestId : requestId // ignore: cast_nullable_to_non_nullable
+as UuidValue?,success: null == success ? _self.success : success // ignore: cast_nullable_to_non_nullable
+as bool,error: freezed == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
+as String?,receipt: freezed == receipt ? _self.receipt : receipt // ignore: cast_nullable_to_non_nullable
+as ContentOperationReceipt?,commitResult: freezed == commitResult ? _self.commitResult : commitResult // ignore: cast_nullable_to_non_nullable
+as ContentTextCommitResultV1?,
+  ));
+}
+
+/// Create a copy of ContentServiceResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ContentOperationReceiptCopyWith<$Res>? get receipt {
+    if (_self.receipt == null) {
+    return null;
+  }
+
+  return $ContentOperationReceiptCopyWith<$Res>(_self.receipt!, (value) {
+    return _then(_self.copyWith(receipt: value));
+  });
+}/// Create a copy of ContentServiceResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ContentTextCommitResultV1CopyWith<$Res>? get commitResult {
+    if (_self.commitResult == null) {
+    return null;
+  }
+
+  return $ContentTextCommitResultV1CopyWith<$Res>(_self.commitResult!, (value) {
+    return _then(_self.copyWith(commitResult: value));
   });
 }
 }

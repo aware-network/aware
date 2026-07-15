@@ -254,6 +254,13 @@
       "functions": []
     },
     {
+      "class_config_id": "9bceb0dd-5634-55d2-a299-d13e5a08214f",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+      "name": "CodeGrammarAnchorRenderSemanticValue",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorRenderSemanticValue",
+      "functions": []
+    },
+    {
       "class_config_id": "284c549a-0301-5008-8267-9ce3e3f44f65",
       "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
       "name": "CodeGrammarAnchorRenderSource",
@@ -265,6 +272,13 @@
       "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
       "name": "CodeGrammarAnchorRenderSpanTarget",
       "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorRenderSpanTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "83368502-e8e3-5a0c-8dfd-9740436fb119",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+      "name": "CodeGrammarAnchorRenderTypeRefValue",
+      "aware_class_ref": "aware_code_service_dto.code.CodeGrammarAnchorRenderTypeRefValue",
       "functions": []
     },
     {
@@ -723,6 +737,13 @@
       "functions": []
     },
     {
+      "class_config_id": "53208848-9659-53bc-99dc-a87948a03bf4",
+      "module": "aware_code_service_dto.code.features.semantic_analysis",
+      "name": "CodeSemanticAnalysisDependencyGraph",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticAnalysisDependencyGraph",
+      "functions": []
+    },
+    {
       "class_config_id": "3b933a6b-f98c-5556-abfa-302916e9869c",
       "module": "aware_code_service_dto.code.features.semantic_analysis",
       "name": "CodeSemanticAnalysisDependencyRequirement",
@@ -1087,6 +1108,20 @@
       "functions": []
     },
     {
+      "class_config_id": "3bfddd59-86f4-560e-8f1c-0cc07cee2238",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "CodeSemanticSourceMeaningTemplateValueBinding",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticSourceMeaningTemplateValueBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "e7e6e8ba-7a3a-59e9-8fd2-8c966450d42a",
+      "module": "aware_code_service_dto.code.features.semantic_source_meaning",
+      "name": "CodeSemanticSourceMeaningTypedOperationBinding",
+      "aware_class_ref": "aware_code_service_dto.code.CodeSemanticSourceMeaningTypedOperationBinding",
+      "functions": []
+    },
+    {
       "class_config_id": "1dd92fea-e3c1-5e67-8bfa-0b639ba61e9d",
       "module": "aware_code_service_dto.code.features.semantic_source_meaning",
       "name": "ResolveCodeSemanticSourceDeltaMeaningRequest",
@@ -1434,6 +1469,16 @@
       "enum_config_id": "c263d5ac-57f6-5da9-8776-8feb50394bb4",
       "module": "aware_code_service_dto.code.features.grammar_anchor_binding",
       "name": "CodeGrammarAnchorBindingResolutionStatus"
+    },
+    {
+      "enum_config_id": "aba60caa-1432-50a1-98c0-bf28fc6e897d",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+      "name": "CodeGrammarAnchorRenderAction"
+    },
+    {
+      "enum_config_id": "9832dd5c-289d-5f12-8309-d1dae655bb98",
+      "module": "aware_code_service_dto.code.features.grammar_anchor_render_delta",
+      "name": "CodeGrammarAnchorRenderSemanticValueKind"
     },
     {
       "enum_config_id": "2ac39855-b811-5180-8c60-034ffc2d2f9a",

@@ -1,0 +1,23 @@
+aware_experience = 1
+
+[experience]
+package_name = "aware-code-experience"
+fqn_prefix = "aware_code_experience"
+version_number = 1
+title = "Aware Code"
+description = "Code-owned selector and editor view contracts for service-backed Code surfaces."
+
+[build]
+environment_handle = "kernel"
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+
+[targets.dart]
+root_dir = "languages/dart"
+package_dir = "aware_code_experience"
+
+[targets.python]
+root_dir = "languages/python"
+package_dir = "aware_code_experience"

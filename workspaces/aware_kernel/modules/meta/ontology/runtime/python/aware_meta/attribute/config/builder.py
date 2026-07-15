@@ -1,4 +1,5 @@
 import json
+from decimal import Decimal
 from typing import cast
 
 # Kernel Graph Ontology
@@ -6,11 +7,20 @@ from aware_code_ontology.attribute.code_section_attribute import CodeSectionAttr
 from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBaseType
 from aware_code_ontology.primitive.code_primitive_type import CodePrimitiveType
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
-from aware_meta_ontology.attribute.attribute_type_descriptor import AttributeTypeDescriptor
-from aware_meta_ontology.attribute.attribute_type_descriptor_enums import AttributeTypeDescriptorKind
+from aware_meta_ontology.attribute.attribute_type_descriptor import (
+    AttributeTypeDescriptor,
+)
+from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
+    AttributeTypeDescriptorKind,
+)
 
 # Code Runtime
 from aware_code.primitive_codec import CodePrimitiveCodec
+from aware_code.decimal_value import (
+    DecimalValueError,
+    canonical_decimal_literal,
+    canonical_decimal_text,
+)
 from aware_code.type_descriptor_adapter import CodeTypeDescriptorAdapter
 
 # Meta
@@ -59,7 +69,9 @@ def build_attribute_config_from_primitive_type(
     Returns:
         An AttributeConfig instance
     """
-    type_descriptor = from_primitive_type(type_descriptor_adapter, primitive_codec, fqn_scope, primitive_type)
+    type_descriptor = from_primitive_type(
+        type_descriptor_adapter, primitive_codec, fqn_scope, primitive_type
+    )
     # Create the attribute config
     payload = {
         "name": name,
@@ -142,7 +154,9 @@ def build_attribute_config_from_code(
         "code_section_attribute": code_section_attribute,
     }
     if owner_key is not None:
-        payload["id"] = stable_attribute_config_id(owner_key=owner_key, name=code_section_attribute.name)
+        payload["id"] = stable_attribute_config_id(
+            owner_key=owner_key, name=code_section_attribute.name
+        )
         payload["owner_key"] = owner_key
     attribute_config = AttributeConfig.model_validate(payload)
     return attribute_config
@@ -174,16 +188,37 @@ def _parse_descriptor_aware_default(
     if type_descriptor.kind == AttributeTypeDescriptorKind.enum:
         return _parse_scalar_enum_default(text=text, primitive_codec=primitive_codec)
 
+    if _primitive_base_type(type_descriptor) == CodePrimitiveBaseType.decimal:
+        try:
+            return canonical_decimal_literal(text, field_name="Decimal default")
+        except DecimalValueError:
+            parsed = primitive_codec.parse_literal(text)
+            if isinstance(parsed, Decimal):
+                return canonical_decimal_text(parsed, field_name="Decimal default")
+            raise
+
     if type_descriptor.kind == AttributeTypeDescriptorKind.collection:
         child = _first_child_descriptor(type_descriptor)
         if child is not None and child.kind == AttributeTypeDescriptorKind.enum:
-            return _parse_enum_collection_default(text=text, primitive_codec=primitive_codec)
+            return _parse_enum_collection_default(
+                text=text, primitive_codec=primitive_codec
+            )
+        decimal_child = _decimal_collection_child(child)
+        if decimal_child is not None:
+            return _parse_decimal_collection_default(
+                text=text,
+                allow_null_items=decimal_child,
+            )
         return _DEFAULT_VALUE_UNSET
 
     if type_descriptor.kind == AttributeTypeDescriptorKind.union:
         if _is_null_default_literal(text):
             return None
-        non_null_members = [child for child in _child_descriptors(type_descriptor) if not _is_null_descriptor(child)]
+        non_null_members = [
+            child
+            for child in _child_descriptors(type_descriptor)
+            if not _is_null_descriptor(child)
+        ]
         if len(non_null_members) == 1:
             return _parse_descriptor_aware_default(
                 default_value_text=text,
@@ -194,7 +229,9 @@ def _parse_descriptor_aware_default(
     return _DEFAULT_VALUE_UNSET
 
 
-def _parse_scalar_enum_default(*, text: str, primitive_codec: CodePrimitiveCodec) -> object:
+def _parse_scalar_enum_default(
+    *, text: str, primitive_codec: CodePrimitiveCodec
+) -> object:
     if _is_null_default_literal(text):
         return None
     if _is_quoted_literal(text):
@@ -202,7 +239,9 @@ def _parse_scalar_enum_default(*, text: str, primitive_codec: CodePrimitiveCodec
     return _normalize_enum_token(text)
 
 
-def _parse_enum_collection_default(*, text: str, primitive_codec: CodePrimitiveCodec) -> object:
+def _parse_enum_collection_default(
+    *, text: str, primitive_codec: CodePrimitiveCodec
+) -> object:
     if _is_null_default_literal(text):
         return None
     if not (text.startswith("[") and text.endswith("]")):
@@ -224,7 +263,55 @@ def _parse_enum_collection_default(*, text: str, primitive_codec: CodePrimitiveC
     inner = text[1:-1].strip()
     if not inner:
         return []
-    return [_parse_scalar_enum_default(text=part.strip(), primitive_codec=primitive_codec) for part in inner.split(",")]
+    return [
+        _parse_scalar_enum_default(text=part.strip(), primitive_codec=primitive_codec)
+        for part in inner.split(",")
+    ]
+
+
+def _parse_decimal_collection_default(
+    *,
+    text: str,
+    allow_null_items: bool,
+) -> object:
+    def reject_non_finite(token: str) -> object:
+        raise DecimalValueError(
+            f"Decimal collection default must be finite, got {token!r}"
+        )
+
+    try:
+        parsed = json.loads(
+            text,
+            parse_float=Decimal,
+            parse_int=int,
+            parse_constant=reject_non_finite,
+        )
+    except (DecimalValueError, json.JSONDecodeError) as exc:
+        raise DecimalValueError(
+            "Decimal collection default must be a JSON array of exact numbers"
+        ) from exc
+    if not isinstance(parsed, list):
+        raise DecimalValueError(
+            "Decimal collection default must be a JSON array of exact numbers"
+        )
+
+    canonical_items: list[str | None] = []
+    for index, item in enumerate(cast(list[object], parsed)):
+        if item is None and allow_null_items:
+            canonical_items.append(None)
+            continue
+        if isinstance(item, bool) or not isinstance(item, (Decimal, int)):
+            raise DecimalValueError(
+                "Decimal collection default items must be authored as exact "
+                f"numbers; item {index} has type {type(item).__name__}"
+            )
+        canonical_items.append(
+            canonical_decimal_text(
+                item,
+                field_name=f"Decimal collection default item {index}",
+            )
+        )
+    return canonical_items
 
 
 def _normalize_enum_token(text: str) -> str:
@@ -235,30 +322,71 @@ def _normalize_enum_token(text: str) -> str:
 
 
 def _is_quoted_literal(text: str) -> bool:
-    return (
-        len(text) >= 2
-        and text[0] == text[-1]
-        and text[0] in {"'", '"'}
-    )
+    return len(text) >= 2 and text[0] == text[-1] and text[0] in {"'", '"'}
 
 
 def _is_null_default_literal(text: str) -> bool:
     return text in {"null", "NULL", "None"}
 
 
-def _first_child_descriptor(type_descriptor: AttributeTypeDescriptor) -> AttributeTypeDescriptor | None:
+def _first_child_descriptor(
+    type_descriptor: AttributeTypeDescriptor,
+) -> AttributeTypeDescriptor | None:
     children = _child_descriptors(type_descriptor)
     if not children:
         return None
     return children[0]
 
 
-def _child_descriptors(type_descriptor: AttributeTypeDescriptor) -> list[AttributeTypeDescriptor]:
+def _decimal_collection_child(
+    child: AttributeTypeDescriptor | None,
+) -> bool | None:
+    if child is None:
+        return None
+    if _primitive_base_type(child) == CodePrimitiveBaseType.decimal:
+        return False
+    if child.kind != AttributeTypeDescriptorKind.union:
+        return None
+    non_null_members = [
+        member
+        for member in _child_descriptors(child)
+        if not _is_null_descriptor(member)
+    ]
+    if (
+        len(non_null_members) == 1
+        and _primitive_base_type(non_null_members[0]) == CodePrimitiveBaseType.decimal
+    ):
+        return True
+    return None
+
+
+def _child_descriptors(
+    type_descriptor: AttributeTypeDescriptor,
+) -> list[AttributeTypeDescriptor]:
     return [link.child for link in type_descriptor.child_links]
 
 
 def _is_null_descriptor(type_descriptor: AttributeTypeDescriptor) -> bool:
-    if type_descriptor.kind != AttributeTypeDescriptorKind.primitive or type_descriptor.primitive_config is None:
+    if (
+        type_descriptor.kind != AttributeTypeDescriptorKind.primitive
+        or type_descriptor.primitive_config is None
+    ):
         return False
-    primitive_type = CodePrimitiveType.model_validate(type_descriptor.primitive_config.primitive_type)
+    primitive_type = CodePrimitiveType.model_validate(
+        type_descriptor.primitive_config.primitive_type
+    )
     return primitive_type.base_type == CodePrimitiveBaseType.null
+
+
+def _primitive_base_type(
+    type_descriptor: AttributeTypeDescriptor,
+) -> CodePrimitiveBaseType | None:
+    if (
+        type_descriptor.kind != AttributeTypeDescriptorKind.primitive
+        or type_descriptor.primitive_config is None
+    ):
+        return None
+    primitive_type = CodePrimitiveType.model_validate(
+        type_descriptor.primitive_config.primitive_type
+    )
+    return primitive_type.base_type

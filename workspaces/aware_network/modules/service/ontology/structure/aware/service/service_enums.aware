@@ -1,0 +1,118 @@
+enum ServiceOperationStatus {
+    failed
+    queued
+    running
+    skipped
+    succeeded
+}
+
+enum ServiceOperationFulfillmentKind {
+    actuation
+    coordination
+    view
+}
+
+enum ServiceOperationSettlementPolicy {
+    none
+    reserve_and_finalize
+    reserve_before_execute
+}
+
+enum ServiceOperationReceiptPolicy {
+    committed
+    read_model
+}
+
+enum ServiceOperationAdmissionMode {
+    contract_and_permit_required
+    contract_required
+    identity_required
+    metered_settlement_required
+    public_read
+}
+
+enum ServiceContractKind {
+    metered
+    one_time
+    subscription
+}
+
+enum ServiceConfigCodePackageConfigCardinality {
+    many
+    one
+}
+
+enum ServiceContractStatus {
+    active
+    canceled
+    expired
+    pending
+    suspended
+}
+
+enum ServiceContractOperationQuotaUnit {
+    artifact
+    byte
+    custom
+    operation
+    request
+    token
+}
+
+enum ServiceContractOperationQuotaWindow {
+    billing_period
+    day
+    hour
+    minute
+    month
+    none
+}
+
+enum ServiceContractOperationQuotaOverLimitBehavior {
+    allow_metered
+    deny
+    throttle
+}
+
+enum ServiceContractOperationPermitScope {
+    contract
+    operation
+    session
+}
+
+enum ServiceContractOperationPermitIdempotencyScope {
+    none
+    operation_nonce
+    request_hash
+}
+
+enum ServiceContractOperationPriceSource {
+    contract_override
+    operation_default
+}
+
+enum ServicePlanCycle {
+    annual
+    monthly
+    one_time
+}
+
+enum ServiceSubscriptionCycleStatus {
+    failed
+    paid
+    pending
+}
+
+enum ServiceSubscriptionInvoiceStatus {
+    open
+    paid
+    uncollectible
+    void
+}
+
+enum ServiceSubscriptionStatus {
+    active
+    canceled
+    past_due
+    trial
+}

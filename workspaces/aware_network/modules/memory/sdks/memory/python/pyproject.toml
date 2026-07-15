@@ -1,0 +1,25 @@
+[project]
+name = "aware-memory-sdk"
+version = "0.1.0"
+description = "Memory SDK facade over the generated Memory service API."
+authors = [{ name = "AWARE Team" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aware_memory_service_api",
+]
+
+[project.optional-dependencies]
+test = [
+  "aware-sdk-network",
+  "pytest>=8.4.2",
+  "pytest-asyncio>=0.23.7",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_memory_sdk"]
+include = ["README.md", "aware_memory_sdk/py.typed"]

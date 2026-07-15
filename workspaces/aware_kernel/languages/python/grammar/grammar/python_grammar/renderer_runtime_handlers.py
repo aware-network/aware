@@ -28,7 +28,9 @@ from aware_code_ontology.code.code import Code
 from aware_code_ontology.code.code_enums import CodeLanguage
 
 # Code Runtime
+from aware_code.section.builder_index import CodeSectionBuilderIndex
 from aware_code.section.writer import CodeSectionWriter
+from aware_content.builder import get_text
 
 # Content Runtime
 # Meta Ontology
@@ -650,7 +652,11 @@ class PythonRendererRuntimeHandlers(ObjectConfigGraphRendererLanguage):
     # Impl stubs
     # ---------------------------------------------------------------------
     def _emit_impl_file(
-        self, *, writer: CodeSectionWriter, class_config: ClassConfig
+        self,
+        *,
+        writer: CodeSectionWriter,
+        class_config: ClassConfig,
+        existing_source: str | None = None,
     ) -> None:
         class_config = self._runtime_surface_class_for(class_config)
         self._rendered_class_by_id[class_config.id] = class_config
@@ -674,8 +680,8 @@ class PythonRendererRuntimeHandlers(ObjectConfigGraphRendererLanguage):
             Path(self.layout_strategy.base_dir).resolve() / file_path
         ).resolve()
 
-        existing_src = ""
-        if output_path.exists():
+        existing_src = existing_source or ""
+        if existing_source is None and output_path.exists():
             try:
                 existing_src = output_path.read_text(encoding="utf-8")
             except Exception:
@@ -823,6 +829,31 @@ class PythonRendererRuntimeHandlers(ObjectConfigGraphRendererLanguage):
                 preserved_logic=preserved,
             )
             _emit_token(writer, "\n\n")
+
+    def render_impl_source_artifact(
+        self,
+        *,
+        class_config: ClassConfig,
+        relative_path: Path,
+        baseline_source_text: str,
+    ) -> str:
+        """Reconcile one authored impl file through the managed emit path."""
+
+        code = self.create_empty_code()
+        with CodeSectionWriter(
+            code,
+            CodeSectionBuilderIndex(),
+            indent_size=self.indent,
+        ) as writer:
+            self._emit_impl_file(
+                writer=writer,
+                class_config=class_config,
+                existing_source=baseline_source_text,
+            )
+        return self.canonicalize_generated_source(
+            relative_path=relative_path,
+            source=get_text(code.content_part_text),
+        )
 
     def _emit_impl_function(
         self,
@@ -986,6 +1017,8 @@ class PythonRendererRuntimeHandlers(ObjectConfigGraphRendererLanguage):
         type_info = type_info or resolve_type_info(attr)
         if attr.default_value is not None:
             default_value = cast(object, json.loads(attr.default_value))
+            if default_value is None:
+                return "None"
             if (
                 type_info.kind == AttributeTypeDescriptorKind.primitive
                 and type_info.primitive_config is not None
@@ -1000,6 +1033,12 @@ class PythonRendererRuntimeHandlers(ObjectConfigGraphRendererLanguage):
                     )
                     if rendered_json_default is not None:
                         return rendered_json_default
+                if type_info.is_collection:
+                    primitive_type = _PRIMITIVE_CODEC.array(primitive_type)
+                return _PRIMITIVE_CODEC.to_typed_literal_string(
+                    default_value,
+                    primitive_type,
+                )
             if (
                 type_info.kind == AttributeTypeDescriptorKind.enum
                 and type_info.enum_config
@@ -1159,6 +1198,12 @@ class PythonRendererRuntimeHandlers(ObjectConfigGraphRendererLanguage):
             return "datetime"
         if name == "UUID":
             return "uuid"
+        if name == "Decimal":
+            return "decimal"
+        if name == "Annotated":
+            return "typing"
+        if name == "DecimalWire":
+            return "aware_types"
 
         # AWARE primitive helper types.
         if name in {

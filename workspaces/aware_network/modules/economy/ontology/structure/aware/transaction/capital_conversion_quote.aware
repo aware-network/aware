@@ -1,0 +1,37 @@
+class CapitalConversionQuote {
+    // Relationships
+    provider_route external_capital.ExternalCapitalProviderRoute
+    target_coin coin.Coin
+
+    // Attributes
+    captured_at DateTime
+    conversion_mode external_capital.ExternalCapitalConversionMode
+    expires_at DateTime?
+    external_amount_minor Int
+    external_currency String
+    quote_hash String
+    quote_key String key
+    source String
+    target_amount Decimal
+
+    fn build construct (
+        provider_route_id UUID,
+        target_coin_id UUID,
+        quote_key String key,
+        quote_hash String,
+        external_amount_minor Int,
+        external_currency String,
+        target_amount Decimal,
+        conversion_mode external_capital.ExternalCapitalConversionMode,
+        source String,
+        captured_at DateTime,
+        expires_at DateTime? = null
+    ) -> CapitalConversionQuote {
+        """
+        Captures the immutable external-to-Aware capital conversion accepted by one TransactionIntent.
+
+        V0 accepts direct denomination only. The quote is contained by its
+        TransactionIntent and has no independent lifecycle.
+        """
+    }
+}

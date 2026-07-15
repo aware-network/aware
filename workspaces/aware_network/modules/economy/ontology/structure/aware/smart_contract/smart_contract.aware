@@ -1,0 +1,126 @@
+class SmartContract {
+    // Relationships
+    smart_contract_members SmartContractMember[]
+    smart_contract_permits SmartContractPermit[]
+
+    // Attributes
+    arguments JsonObject = {}
+    blockchain_address String key
+    status SmartContractStatus
+
+    fn build construct (blockchain_address String key, status SmartContractStatus = active, arguments JsonObject? = null) -> SmartContract {
+        """
+        Creates a SmartContract instance.
+
+        Receipt: SmartContract instance.
+        """
+    }
+
+    fn add_member (finance_entity_id UUID, type SmartContractMemberType) -> SmartContractMember {
+        """
+        Adds a finance entity member to the contract.
+        """
+        let created = construct smart_contract_members.create(
+            finance_entity_id = finance_entity_id,
+            type = type,
+        )
+    }
+
+    fn open_session_permit (finance_entity_id UUID, permit_nonce Int, cap_amount Decimal, expires_at DateTime, price_schedule_id UUID, coin_id UUID, parent_id UUID? = null) -> SmartContractPermit {
+        """
+        Opens a session permit for a finance entity under this contract.
+
+        Returns: the created SmartContractPermit.
+        """
+        let created = construct smart_contract_permits.create(
+            finance_entity_id = finance_entity_id,
+            permit_nonce = permit_nonce,
+            cap_amount = cap_amount,
+            expires_at = expires_at,
+            price_schedule_id = price_schedule_id,
+            coin_id = coin_id,
+            parent_id = parent_id,
+        )
+    }
+
+    fn reserve_operation (permit_id UUID, permit_nonce Int, finance_entity_id UUID, payer_wallet_public_id UUID, op_nonce Int, args_hash String, max_cost Decimal, rate_snapshot_id UUID, deadline DateTime, coin_id UUID) -> SmartContractReservation {
+        """
+        Reserves up to max_cost by creating a deterministic reservation + escrow under this contract.
+
+        Permit-local price schedule authority must match the referenced rate snapshot.
+
+        Returns: the created SmartContractReservation receipt.
+        """
+    }
+
+    fn prepare_settlement (permit_id UUID, reservation_id UUID, final_cost Decimal, payer_finance_entity_id UUID, payer_wallet_public_id UUID, receiver_finance_entity_id UUID, receiver_wallet_public_id UUID, coin_id UUID) -> SmartContractSettlement {
+        """
+        Builds a prepared smart-contract settlement receipt without finalizing reservation.
+
+        Returns: the prepared SmartContractSettlement receipt.
+        """
+    }
+
+    fn finalize_settlement (permit_id UUID, reservation_id UUID, final_cost Decimal, payer_finance_entity_id UUID, payer_wallet_public_id UUID, receiver_finance_entity_id UUID, receiver_wallet_public_id UUID, coin_id UUID) -> SmartContractSettlement {
+        """
+        Finalizes a prepared settlement receipt and closes reservation lifecycle.
+
+        Returns: the finalized SmartContractSettlement receipt.
+        """
+    }
+
+    fn settle_operation (permit_id UUID, reservation_id UUID, final_cost Decimal, payer_finance_entity_id UUID, payer_wallet_public_id UUID, receiver_finance_entity_id UUID, receiver_wallet_public_id UUID, coin_id UUID) -> SmartContractSettlement {
+        """
+        Compatibility settlement entrypoint that runs prepare/finalize on reservation lifecycle receipts.
+
+        Note: escrow release is orchestrated by canonical settlement programs/service choreography.
+
+        Returns: the finalized SmartContractSettlement receipt.
+        """
+    }
+
+    fn release_reservation (permit_id UUID, reservation_id UUID, status ReservationStatus) -> SmartContractReservation {
+        """
+        Releases a pending smart-contract reservation as cancelled or expired.
+
+        Receipt: SmartContractReservation(status=cancelled/expired) and Escrow(status=completed).
+        """
+    }
+
+    fn prepare_settlement_canonical (permit_id UUID, reservation_id UUID, payer_finance_entity_id UUID, payer_wallet_public_id UUID, receiver_finance_entity_id UUID, receiver_wallet_public_id UUID, coin_id UUID) -> SmartContractSettlement {
+        """
+        Canonical prepare path that derives final_cost from reservation state (no caller-provided final_cost).
+
+        v1 policy: final_cost is derived as reservation.max_cost.
+        """
+    }
+
+    fn finalize_settlement_canonical (permit_id UUID, reservation_id UUID, payer_finance_entity_id UUID, payer_wallet_public_id UUID, receiver_finance_entity_id UUID, receiver_wallet_public_id UUID, coin_id UUID) -> SmartContractSettlement {
+        """
+        Canonical finalize path that derives final_cost from reservation state (no caller-provided final_cost).
+
+        v1 policy: final_cost is derived as reservation.max_cost.
+        """
+    }
+
+    fn validate_settlement_wallet_transitions_canonical (permit_id UUID, reservation_id UUID, payer_expected_coin_balance Decimal, payer_new_coin_balance Decimal, receiver_expected_coin_balance Decimal, receiver_new_coin_balance Decimal, coin_id UUID) -> Decimal {
+        """
+        Validates v2 wallet transitions against reservation economics.
+
+        Fail-closed:
+        - Enforces payer debit == receiver credit (conservation).
+        - Enforces transfer amount == reservation.max_cost (canonical final cost).
+        - Enforces non-negative debit/credit deltas.
+
+        Returns: the canonical transfer amount derived from reservation state.
+        """
+    }
+
+    fn settle_operation_canonical (permit_id UUID, reservation_id UUID, payer_finance_entity_id UUID, payer_wallet_public_id UUID, receiver_finance_entity_id UUID, receiver_wallet_public_id UUID, coin_id UUID) -> SmartContractSettlement {
+        """
+        Canonical compatibility wrapper over prepare/finalize canonical settlement functions.
+
+        Note: escrow release is orchestrated by canonical settlement programs/service choreography.
+        """
+    }
+}

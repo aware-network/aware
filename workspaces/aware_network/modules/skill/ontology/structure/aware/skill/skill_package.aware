@@ -1,0 +1,55 @@
+class SkillPackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    api_packages SkillPackageApiPackage[]
+    skill_config SkillConfig unique
+    skill_config_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    name String key
+
+    fn build construct (
+        name String key,
+        skill_config_id UUID,
+        skill_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null
+    ) -> SkillPackage {
+        """
+        Create the canonical Skill-owned package root over an existing `SkillConfig`.
+
+        Contract:
+        - Identity is keyed by Skill package `name`.
+        - `SkillPackage` is the package/public root over an existing canonical `SkillConfig`.
+        - `skill_config_id` must point at the canonical SkillConfig stable id for this package root.
+        - `skill_config_object_instance_graph_commit_id` pins the historical ObjectInstanceGraphCommit
+          for the semantic SkillConfig root so package consumers can replay exact skill truth without
+          resolving branch head or reopening authoring TOML.
+        - `source_code_package_id` is explicit raw-source provenance for this semantic leaf package.
+        - Workspace will later mount `SkillPackage`, not raw `SkillConfig`.
+        """
+    }
+
+    fn attach_api_package (
+        api_package_id UUID key,
+        description String? = null
+    ) -> SkillPackageApiPackage {
+        """
+        Attach one API package to this SkillPackage.
+
+        Contract:
+        - This is the package/import rail for authored Skill source.
+        - It declares which API packages are available to this Skill package.
+        - Config/runtime semantic API use remains a separate `SkillConfig -> Api` and
+          `SkillConfigApiEndpoint -> ApiCapabilityEndpoint` bridge.
+        """
+        let created = construct api_packages.build(
+            api_package_id = api_package_id,
+            description = description,
+        )
+    }
+}
+
+ann skill.SkillPackage::source_code_package load eager
+ann skill.SkillPackage::api_packages load eager
+ann skill.SkillPackage::skill_config load eager
+ann skill.SkillPackage::skill_config_object_instance_graph_commit load eager

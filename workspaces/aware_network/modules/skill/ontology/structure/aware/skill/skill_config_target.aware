@@ -1,0 +1,24 @@
+class SkillConfigTarget {
+    // Relationships
+    projection_experience_graph_identity aware_experience.projection.ProjectionExperienceGraphIdentity key
+
+    // Attributes
+    description String?
+    name String key
+
+    fn build construct (
+        projection_experience_graph_identity_id UUID key,
+        name String key,
+        description String? = null
+    ) -> SkillConfigTarget {
+        """
+        Create one Skill-owned target alias over an Experience graph identity.
+
+        Contract:
+        - `name` is the Skill-local alias used by authored steps.
+        - `projection_experience_graph_identity` is Experience-owned semantic target truth.
+        """
+    }
+}
+
+ann skill.SkillConfigTarget::projection_experience_graph_identity load eager

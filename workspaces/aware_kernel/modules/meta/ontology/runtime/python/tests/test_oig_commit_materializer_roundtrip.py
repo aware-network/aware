@@ -47,9 +47,16 @@ from aware_meta_ontology.graph.projection.object_projection_graph_enums import (
 from aware_meta_ontology.graph.projection.object_projection_graph_node import (
     ObjectProjectionGraphNode,
 )
+from aware_meta_ontology.primitive.primitive_config import PrimitiveConfig
 from aware_code_ontology.code.code_enums import CodeLanguage
+from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBaseType
+from aware_code_ontology.primitive.code_primitive_type import CodePrimitiveType
 
 from aware_meta.class_.instance.builder import build_class_instance
+from aware_meta.attribute.instance.value.descriptor_hydration import (
+    AttributeValueDescriptorHydrationError,
+    hydrate_object_instance_graph_value_type_descriptors,
+)
 from aware_meta.graph.instance.builder import (
     build_rooted_object_instance_graph_base,
     build_object_instance_graph_from_class_instances,
@@ -214,6 +221,162 @@ def _make_ocg_and_opg(
     ]
 
     return ocg, opg, user_cc
+
+
+def _single_attribute_graph(
+    *, attribute_config: AttributeConfig
+) -> ObjectInstanceGraph:
+    from aware_orm.models.base_model import BaseORMModel
+
+    class User(BaseORMModel):
+        name: str
+
+    ocg, opg, user_cc = _make_ocg_and_opg(name_cfg=attribute_config)
+    graph_id = uuid4()
+    class_instance = build_class_instance(
+        object_instance_graph_id=graph_id,
+        class_config=user_cc,
+        source=User(id=uuid4(), name="Ada"),
+    )
+    return build_object_instance_graph_from_class_instances(
+        name="descriptor-hydration",
+        description=None,
+        object_config_graph_id=ocg.id,
+        object_projection_graph_id=opg.id,
+        root_class_instance=class_instance,
+        class_instances=[class_instance],
+        class_instance_relationships=[],
+        oig_id=graph_id,
+    )
+
+
+def test_descriptor_hydration_resolves_missing_config_by_canonical_descriptor_id() -> (
+    None
+):
+    descriptor = _primitive_desc()
+    missing_config = make_attribute_config(
+        owner_key=_USER_FQN,
+        name="name",
+        is_required=True,
+        type_descriptor=descriptor,
+    )
+    first_canonical_config = make_attribute_config(
+        owner_key=_USER_FQN,
+        name="canonical_name",
+        is_required=True,
+        type_descriptor=descriptor.model_copy(deep=True),
+    )
+    second_canonical_config = make_attribute_config(
+        owner_key=_USER_FQN,
+        name="canonical_alias",
+        is_required=True,
+        type_descriptor=descriptor.model_copy(deep=True),
+    )
+    graph = _single_attribute_graph(attribute_config=missing_config)
+    attribute = graph.class_instances[0].attributes[0]
+    attribute.value_root.type_descriptor = None
+
+    hydrate_object_instance_graph_value_type_descriptors(
+        graph=graph,
+        attribute_configs_by_id={
+            first_canonical_config.id: first_canonical_config,
+            second_canonical_config.id: second_canonical_config,
+        },
+    )
+
+    assert attribute.value_root.type_descriptor is not None
+    assert attribute.value_root.type_descriptor.id == descriptor.id
+
+
+def test_descriptor_hydration_rejects_missing_config_and_unknown_descriptor() -> None:
+    missing_config = make_attribute_config(
+        owner_key=_USER_FQN,
+        name="name",
+        is_required=True,
+        type_descriptor=_primitive_desc(),
+    )
+    graph = _single_attribute_graph(attribute_config=missing_config)
+
+    with pytest.raises(
+        AttributeValueDescriptorHydrationError,
+        match="without AttributeConfig or canonical persisted descriptor",
+    ):
+        hydrate_object_instance_graph_value_type_descriptors(
+            graph=graph,
+            attribute_configs_by_id={},
+        )
+
+
+def test_descriptor_hydration_accepts_compact_primitive_descriptor_payload() -> None:
+    primitive_type = CodePrimitiveType(
+        signature="uuid",
+        base_type=CodePrimitiveBaseType.uuid,
+    )
+    primitive_config = PrimitiveConfig(
+        primitive_type=primitive_type,
+        primitive_type_id=primitive_type.id,
+    )
+    descriptor = AttributeTypeDescriptor(
+        kind=Kind.primitive,
+        primitive_config=primitive_config,
+        primitive_config_id=primitive_config.id,
+    )
+    missing_config = make_attribute_config(
+        owner_key=_USER_FQN,
+        name="name",
+        is_required=True,
+        type_descriptor=descriptor,
+    )
+    canonical_config = make_attribute_config(
+        owner_key=_USER_FQN,
+        name="canonical_name",
+        is_required=True,
+        type_descriptor=descriptor.model_copy(deep=True),
+    )
+    graph = _single_attribute_graph(attribute_config=missing_config)
+    value_root = graph.class_instances[0].attributes[0].value_root
+    assert value_root is not None
+    persisted_descriptor = value_root.type_descriptor
+    assert persisted_descriptor is not None
+    persisted_descriptor.primitive_config = None
+
+    hydrate_object_instance_graph_value_type_descriptors(
+        graph=graph,
+        attribute_configs_by_id={canonical_config.id: canonical_config},
+    )
+
+    hydrated_descriptor = value_root.type_descriptor
+    assert hydrated_descriptor is not None
+    assert hydrated_descriptor.primitive_config is not None
+    assert hydrated_descriptor.primitive_config.primitive_type.signature == "uuid"
+
+
+def test_descriptor_hydration_rejects_same_id_descriptor_payload_mismatch() -> None:
+    descriptor = _primitive_desc()
+    missing_config = make_attribute_config(
+        owner_key=_USER_FQN,
+        name="name",
+        is_required=True,
+        type_descriptor=descriptor,
+    )
+    conflicting_descriptor = descriptor.model_copy(deep=True)
+    conflicting_descriptor.collection_kind = AttributeCollectionType.list
+    canonical_config = make_attribute_config(
+        owner_key=_USER_FQN,
+        name="canonical_name",
+        is_required=True,
+        type_descriptor=conflicting_descriptor,
+    )
+    graph = _single_attribute_graph(attribute_config=missing_config)
+
+    with pytest.raises(
+        AttributeValueDescriptorHydrationError,
+        match="descriptor payload mismatch",
+    ):
+        hydrate_object_instance_graph_value_type_descriptors(
+            graph=graph,
+            attribute_configs_by_id={canonical_config.id: canonical_config},
+        )
 
 
 def test_oig_commit_roundtrip_materializer(tmp_path, monkeypatch) -> None:

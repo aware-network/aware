@@ -6,6 +6,7 @@ from typing import Any, cast
 from aware_meta.materialization.deltas.code_dto import (
     CodeGrammarAnchorBinding,
     CodeGrammarAnchorBindingDirection,
+    CodeGrammarAnchorRenderAction,
     CodeGrammarAnchorRenderReplacement,
     CodeGrammarAnchorRenderSource,
     CodeGraphFieldSelector,
@@ -168,7 +169,7 @@ def _structural_enum_delete_render_delta(
         replacement_key=f"{binding_key}.replace",
         binding_key=binding_key,
         source_key=relative_path,
-        replacement_text="",
+        action=CodeGrammarAnchorRenderAction.delete,
         before_text_hash=None,
         event_ref=event_ref,
         semantic_key=operation.semantic_key,
@@ -251,9 +252,8 @@ def _source_ref_relative_to_sources_root(
             package_root=package_root,
             sources_root=sources_root,
         )
-        if (
-            source_root_relative is not None
-            and package_relative.startswith(f"{source_root_relative}/")
+        if source_root_relative is not None and package_relative.startswith(
+            f"{source_root_relative}/"
         ):
             return package_relative[len(source_root_relative) + 1 :]
         return package_relative

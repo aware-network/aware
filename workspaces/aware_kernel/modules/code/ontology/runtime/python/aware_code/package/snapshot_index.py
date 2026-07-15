@@ -420,6 +420,20 @@ async def _snapshot_index_head_commit_record_readable(
     head_commit_id = head_uuid(head, "commit_id")
     if head_commit_id is None:
         return False
+    get_commit_health_metadata = getattr(store, "get_commit_health_metadata", None)
+    if get_commit_health_metadata is not None:
+        health = await get_commit_health_metadata(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=head_commit_id,
+        )
+        if health is not None:
+            return (
+                health.commit_id == head_commit_id
+                and health.graph_hash_post == head_string(head, "graph_hash_post")
+                and str(health.object_instance_graph_id)
+                == head_string(head, "object_instance_graph_id")
+            )
     get_commit_record = getattr(store, "get_commit_record", None)
     if get_commit_record is None:
         return True

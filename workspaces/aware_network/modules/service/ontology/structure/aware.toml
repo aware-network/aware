@@ -1,0 +1,33 @@
+aware = 1
+
+[package]
+package_name = "service-ontology"
+fqn_prefix = "aware_service"
+kind = "ontology"
+version_number = 1
+title = "Service"
+description = "SSOT canonical (.aware) sources for service."
+
+[build]
+environment_slug = "aware_service"
+
+[[dependencies]]
+package_name = "api-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "ontology-ontology"
+
+[[dependencies]]
+package_name = "economy-ontology"
+
+[[dependencies]]
+package_name = "experience-ontology"
+
+[[dependencies]]
+package_name = "identity-ontology"

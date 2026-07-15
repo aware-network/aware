@@ -1,0 +1,15 @@
+/// API-owned view-state contract for first Identity admission.
+/// Public API view key: identity.identity_admission
+
+class IdentityAdmissionViewStateV1 : inline_value {
+    admitted Bool = false
+    identity_id UUID?
+    actor_id UUID?
+    identity_profile_id UUID?
+    display_name String?
+    public_handle String?
+    bio String?
+    status String?
+    status_tone String?
+    provenance JsonObject = {}
+}

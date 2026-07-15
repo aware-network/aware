@@ -44,6 +44,7 @@ from aware_meta.graph.config.render.renderer_language import (
     ObjectConfigGraphRendererPolicy,
 )
 from aware_meta.graph.config.model_bootstrap import get_node_function_config
+from aware_meta.materialization_diagnostics import enrich_materialization_error
 
 # Aware Utils
 from aware_utils.logging import logger
@@ -399,11 +400,62 @@ class ObjectConfigGraphRenderer:
                 import traceback
 
                 logger.error(traceback.format_exc())
-                raise e
+                enriched_error = enrich_materialization_error(
+                    e,
+                    phase="semantic_render_preflight",
+                    target_language=str(
+                        getattr(
+                            self.renderer_language.language,
+                            "value",
+                            self.renderer_language.language,
+                        )
+                    ),
+                    source_paths=self._source_paths_for_meta_objects(
+                        graph=graph,
+                        meta_objects=meta_objects,
+                    ),
+                    output_path=file_path.as_posix(),
+                )
+                if enriched_error is e:
+                    raise
+                raise enriched_error from e
 
         phase_timings["collect.emit_files"] = _elapsed_s(phase_started_at)
         phase_timings["collect.total"] = sum(phase_timings.values())
         return results
+
+    @staticmethod
+    def _source_paths_for_meta_objects(
+        *,
+        graph: ObjectConfigGraph,
+        meta_objects: list[Any],
+    ) -> tuple[str, ...]:
+        meta_object_ids = {
+            object_id
+            for item in meta_objects
+            if (object_id := getattr(item, "id", None)) is not None
+        }
+        source_paths: list[str] = []
+        for node in graph.object_config_graph_nodes:
+            node_object_ids = {
+                object_id
+                for item in (
+                    node.class_config,
+                    node.enum_config,
+                    node.class_config_relationship,
+                )
+                if item is not None
+                and (object_id := getattr(item, "id", None)) is not None
+            }
+            if meta_object_ids.isdisjoint(node_object_ids):
+                continue
+            source_paths.extend(
+                layout.relative_path
+                for layout in node.layouts
+                if layout.relative_path
+                and (not layout.layout_kind or layout.layout_kind == "aware")
+            )
+        return tuple(dict.fromkeys(source_paths))
 
     def _collect_extra_output_render_results(
         self,

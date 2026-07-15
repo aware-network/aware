@@ -1,0 +1,5 @@
+edge EconomyAnalyticExecutionMetric {
+    // Attributes
+    key String key = "default"
+    quantity Float
+}

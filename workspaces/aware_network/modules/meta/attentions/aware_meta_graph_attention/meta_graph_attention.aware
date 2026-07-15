@@ -1,0 +1,9 @@
+layout graph_canvas default {
+    section graph {
+        title "Graph"
+        description "General Meta graph canvas section."
+        order 0
+        flex 1.0
+        visible true
+    }
+}

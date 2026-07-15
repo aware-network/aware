@@ -5,9 +5,14 @@ from dataclasses import dataclass, field
 from typing import Any, TypeVar, cast
 from uuid import UUID
 
-from pydantic import TypeAdapter
-
-from aware_meta.runtime.handler_executor import MetaGraphRuntimeIndex
+from aware_meta.runtime.handler_executor.contracts import (
+    MetaGraphOigModelConstructionPlanCache,
+    MetaGraphOigModelFieldConstructionPlan,
+    MetaGraphRuntimeIndex,
+)
+from aware_meta.runtime.handler_executor.index import (
+    build_oig_model_field_construction_plan,
+)
 from aware_meta.runtime.oig_value_decoder import decode_oig_attribute_value
 from aware_meta_ontology.attribute.attribute_enums import AttributeCollectionType
 from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
@@ -111,8 +116,23 @@ def reify_oig_session(
     opg: ObjectProjectionGraph,
     oig: ObjectInstanceGraph,
     branch_id: UUID | None = None,
+    preferred_model_type: type[ORMModel] | None = None,
+    preferred_model_types_by_class_config_id: (
+        Mapping[UUID, type[ORMModel]] | None
+    ) = None,
 ) -> Session:
     """Rebuild committed OIG participants into a scratch ORM session."""
+
+    preferred_model_types: dict[UUID, type[ORMModel]] = dict(
+        preferred_model_types_by_class_config_id or {}
+    )
+    if preferred_model_type is not None:
+        preferred_model_types.update(
+            _preferred_model_types_by_class_config_id(
+                index=index,
+                model_type=preferred_model_type,
+            )
+        )
 
     session = Session(branch_id=branch_id, skip_db=True)
     reifier = _OigModelReifier(
@@ -120,6 +140,7 @@ def reify_oig_session(
         opg=opg,
         oig=oig,
         branch_id=branch_id,
+        preferred_model_types_by_class_config_id=preferred_model_types,
     )
     with disable_autobind(), disable_change_tracking_hooks():
         instances_by_class_instance_id = reifier._construct_instances()
@@ -136,6 +157,7 @@ def bind_oig_models_to_current_handler_session(
     opg: ObjectProjectionGraph,
     oig: ObjectInstanceGraph,
     branch_id: UUID | None = None,
+    construction_plan_cache: MetaGraphOigModelConstructionPlanCache | None = None,
 ) -> int:
     """Hydrate committed OIG participants into the active handler session."""
 
@@ -144,6 +166,7 @@ def bind_oig_models_to_current_handler_session(
         opg=opg,
         oig=oig,
         branch_id=branch_id,
+        construction_plan_cache=construction_plan_cache,
     )
     with disable_autobind(), disable_change_tracking_hooks():
         instances_by_class_instance_id = reifier._construct_instances()
@@ -287,6 +310,7 @@ class _OigModelReifier:
     preferred_model_types_by_class_config_id: Mapping[UUID, type[ORMModel]] = field(
         default_factory=dict
     )
+    construction_plan_cache: MetaGraphOigModelConstructionPlanCache | None = None
 
     def reify_root(
         self,
@@ -331,9 +355,12 @@ class _OigModelReifier:
     def _construct_instances(self) -> dict[UUID, ORMModel]:
         derived_fk_values = self._derived_fk_values_by_instance_id()
         instances_by_class_instance_id: dict[UUID, ORMModel] = {}
-        class_resolution_index = ORMClassResolutionIndex.from_class_configs_by_id(
-            self.index.class_configs_by_id,
-        )
+        construction_plan_cache = self.construction_plan_cache
+        if construction_plan_cache is None:
+            class_resolution_index = _build_class_resolution_index(index=self.index)
+        else:
+            construction_plan_cache.require_index(self.index)
+            class_resolution_index = construction_plan_cache.class_resolution_index
 
         for class_instance in tuple(self.oig.class_instances or ()):
             preferred_orm_class = self.preferred_model_types_by_class_config_id.get(
@@ -378,12 +405,12 @@ class _OigModelReifier:
                     # to bind, so treat the stale attribute as historical payload.
                     continue
 
-                field_name = _orm_field_name_for_config_name(
-                    orm_class,
-                    attr_cfg.name,
+                field_plan = _field_construction_plan(
+                    construction_plan_cache=construction_plan_cache,
+                    orm_class=orm_class,
+                    config_name=attr_cfg.name,
                 )
-                fields = _model_fields(orm_class)
-                if field_name not in fields:
+                if not field_plan.is_model_field:
                     continue
 
                 value_root = _value_with_schema_type_descriptors(
@@ -405,19 +432,19 @@ class _OigModelReifier:
                     value_root,
                     class_configs_by_id=self.index.class_configs_by_id,
                 )
-                model_data[field_name] = _coerce_field_value(
-                    orm_class=orm_class,
-                    field_name=field_name,
-                    value=decoded_value,
-                )
+                model_data[field_plan.field_name] = field_plan.coerce(decoded_value)
 
             for fk_field_name, fk_value in derived_fk_values.get(
                 class_instance.id,
                 {},
             ).items():
-                field_name = _orm_field_name_for_config_name(orm_class, fk_field_name)
-                if field_name in _model_fields(orm_class):
-                    model_data.setdefault(field_name, fk_value)
+                field_plan = _field_construction_plan(
+                    construction_plan_cache=construction_plan_cache,
+                    orm_class=orm_class,
+                    config_name=fk_field_name,
+                )
+                if field_plan.is_model_field:
+                    model_data.setdefault(field_plan.field_name, fk_value)
 
             orm_model = orm_class.model_construct(
                 _fields_set=set(model_data.keys()),
@@ -678,20 +705,30 @@ def _orm_field_name_for_config_name(orm_class: type[object], name: str) -> str:
     return name
 
 
-def _coerce_field_value(
+def _build_class_resolution_index(
     *,
+    index: MetaGraphRuntimeIndex,
+) -> ORMClassResolutionIndex:
+    return ORMClassResolutionIndex.from_class_configs_by_id(
+        cast(Mapping[UUID, Any], index.class_configs_by_id),
+    )
+
+
+def _field_construction_plan(
+    *,
+    construction_plan_cache: MetaGraphOigModelConstructionPlanCache | None,
     orm_class: type[object],
-    field_name: str,
-    value: object,
-) -> object:
-    field_info = _model_fields(orm_class).get(field_name)
-    field_type = getattr(field_info, "annotation", None)
-    if field_type is None:
-        return value
-    try:
-        return cast(object, TypeAdapter(field_type).validate_python(value))
-    except Exception:
-        return value
+    config_name: str,
+) -> MetaGraphOigModelFieldConstructionPlan:
+    if construction_plan_cache is not None:
+        return construction_plan_cache.field_plan(
+            orm_class=orm_class,
+            config_name=config_name,
+        )
+    return build_oig_model_field_construction_plan(
+        orm_class=orm_class,
+        config_name=config_name,
+    )
 
 
 def _value_with_schema_type_descriptors(

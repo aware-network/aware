@@ -1,0 +1,10 @@
+class NetworkStreamFrame {
+    // Relationships
+    network_stream NetworkStream key
+    function_call aware_meta.function.FunctionCall?
+
+    // Attributes
+    ack_seq Int?
+    control NetworkStreamControl = data
+    seq Int key
+}

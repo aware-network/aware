@@ -1,0 +1,57 @@
+from __future__ import annotations
+
+
+MEMORY_SDK_ENDPOINTS = (
+    (
+        "ensure_memory_working",
+        "memory.ensure_memory_working.ensure_memory_working",
+    ),
+    (
+        "describe_memory_working",
+        "memory.describe_memory_working.describe_memory_working",
+    ),
+    (
+        "list_memory_working_items",
+        "memory.list_memory_working_items.list_memory_working_items",
+    ),
+    (
+        "validate_memory_working_item",
+        "memory.validate_memory_working_item.validate_memory_working_item",
+    ),
+    (
+        "resolve_memory_context",
+        "memory.resolve_memory_context.resolve_memory_context",
+    ),
+    (
+        "resolve_actor_memory_context",
+        "memory.resolve_actor_memory_context.resolve_actor_memory_context",
+    ),
+    (
+        "watch_actor_memory_context",
+        "memory.watch_actor_memory_context.watch_actor_memory_context",
+    ),
+    (
+        "resolve_actor_memory_context_frame",
+        "memory.resolve_actor_memory_context_frame.resolve_actor_memory_context_frame",
+    ),
+    (
+        "watch_actor_memory_context_frame",
+        "memory.watch_actor_memory_context_frame.watch_actor_memory_context_frame",
+    ),
+    (
+        "remember_attention_transition",
+        "memory.remember_attention_transition.remember_attention_transition",
+    ),
+    (
+        "remember_content",
+        "memory.remember_content.remember_content",
+    ),
+    (
+        "remember_event",
+        "memory.remember_event.remember_event",
+    ),
+    (
+        "record_resolved_event_meaning",
+        "memory.record_resolved_event_meaning.record_resolved_event_meaning",
+    ),
+)

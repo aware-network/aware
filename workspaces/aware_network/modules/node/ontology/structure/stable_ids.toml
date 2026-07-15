@@ -1,0 +1,160 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_NODE"
+kind = "ns_url"
+value = "aware://node/v1"
+
+[[functions]]
+name = "stable_node_config_id"
+namespace = "NS_NODE"
+template = "aware:node_config:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_node_config_environment_profile_mount_id"
+namespace = "NS_NODE"
+template = "aware:node_config_environment_profile_mount:{node_config_environment_target_id}:{mount_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: node_config_environment_target_id, mount_key"
+
+[[functions.params]]
+name = "node_config_environment_target_id"
+type = "uuid"
+
+[[functions.params]]
+name = "mount_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "mount_key_norm"
+param = "mount_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_node_config_environment_target_id"
+namespace = "NS_NODE"
+template = "aware:node_config_environment_target:{node_config_id}:{environment_handle_norm}"
+doc = "Compiler-generated from class-attribute identity keys: node_config_id, environment_handle"
+
+[[functions.params]]
+name = "node_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "environment_handle"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "environment_handle_norm"
+param = "environment_handle"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_node_config_interface_target_id"
+namespace = "NS_NODE"
+template = "aware:node_config_interface_target:{node_config_id}:{interface_name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: node_config_id, interface_name"
+
+[[functions.params]]
+name = "node_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "interface_name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "interface_name_norm"
+param = "interface_name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_node_config_ontology_target_id"
+namespace = "NS_NODE"
+template = "aware:node_config_ontology_target:{node_config_id}:{package_name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: node_config_id, package_name"
+
+[[functions.params]]
+name = "node_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "package_name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "package_name_norm"
+param = "package_name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_node_config_service_target_id"
+namespace = "NS_NODE"
+template = "aware:node_config_service_target:{node_config_id}:{service_name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: node_config_id, service_name"
+
+[[functions.params]]
+name = "node_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "service_name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "service_name_norm"
+param = "service_name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_node_package_id"
+namespace = "NS_NODE"
+template = "aware:node_package:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_node_package_included_node_package_id"
+namespace = "NS_NODE"
+template = "aware:node_package_included_node_package:{node_package_id}:{included_package_name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: node_package_id, included_package_name"
+
+[[functions.params]]
+name = "node_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "included_package_name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "included_package_name_norm"
+param = "included_package_name"
+normalize = ["casefold", "strip"]

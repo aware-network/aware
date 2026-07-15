@@ -1,0 +1,47 @@
+{
+  "language": "sql",
+  "nodes": [
+    {
+      "node_id": "440e32f4-a8e9-5615-806f-9bf7a622b541",
+      "node_type": "class",
+      "entity_id": "73529503-c1b0-59f1-ae07-fca77cea549f",
+      "relative_path": "node/node_config.sql"
+    },
+    {
+      "node_id": "6f750a5e-b377-5fc1-95c1-b58671658711",
+      "node_type": "class",
+      "entity_id": "272a227e-c6b1-563d-9b65-d7a371291f99",
+      "relative_path": "node/node_config_environment_experience_mount.sql"
+    },
+    {
+      "node_id": "964df40f-16d6-5215-9ef6-bf3c077003ae",
+      "node_type": "class",
+      "entity_id": "d18bb5db-ba24-5643-8bdc-6e47be1f5186",
+      "relative_path": "node/node_config_environment_target.sql"
+    },
+    {
+      "node_id": "c823ff59-ec04-542f-9b6b-d14088c9a63e",
+      "node_type": "class",
+      "entity_id": "d16311f1-2ad6-590e-9789-2dbb1e62c935",
+      "relative_path": "node/node_config_interface_target.sql"
+    },
+    {
+      "node_id": "a35748f3-1868-538d-8164-639506d75bd4",
+      "node_type": "class",
+      "entity_id": "c7a92c3b-b0c7-519a-a274-7b4ae28e9db4",
+      "relative_path": "node/node_config_service_target.sql"
+    },
+    {
+      "node_id": "e46c0f37-7463-51f3-aced-4ace7c53d6dd",
+      "node_type": "class",
+      "entity_id": "8d60085c-5ada-585a-8a7a-c124bbd91a16",
+      "relative_path": "node/node_package.sql"
+    },
+    {
+      "node_id": "2dfd012e-e0f1-5d9d-88fc-98ae196c7b3a",
+      "node_type": "class",
+      "entity_id": "6bc64f07-4304-5639-abbf-3515ffd76352",
+      "relative_path": "node/node_package_included_node_package.sql"
+    }
+  ]
+}

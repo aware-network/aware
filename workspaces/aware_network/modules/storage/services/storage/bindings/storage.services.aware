@@ -1,0 +1,15 @@
+service aware_storage {
+    api storage;
+
+    operation blob_register {
+        endpoint storage.blob.register;
+    }
+
+    operation blob_describe {
+        endpoint storage.blob.describe;
+    }
+
+    operation media_resolve {
+        endpoint storage.media.resolve;
+    }
+}

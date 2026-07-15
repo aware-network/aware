@@ -1,0 +1,13 @@
+aware_attention = 1
+
+[attention]
+package_name = "aware-hub-attention"
+fqn_prefix = "aware_hub_attention"
+title = "Aware Hub Discovery"
+description = "Hub-owned attention topology for public package discovery."
+
+[build]
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+frame_mode = "horizontal"

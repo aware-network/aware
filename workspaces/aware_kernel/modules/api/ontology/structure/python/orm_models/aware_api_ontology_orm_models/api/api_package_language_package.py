@@ -18,11 +18,13 @@ from aware_types import JsonArray
 
 if TYPE_CHECKING:
     from aware_code_ontology_orm_models.package.code_package import CodePackage
+    from aware_meta_ontology_orm_models.graph.instance.object_instance_graph_commit import ObjectInstanceGraphCommit
 
 
 class ApiPackageLanguagePackage(ORMModel):
     # Relationships
     code_package: CodePackage | None = Field(default=None)
+    object_instance_graph_commit: ObjectInstanceGraphCommit | None = Field(default=None)
 
     # Attributes
     exclude_paths: JsonArray = Field(default_factory=JsonArray)
@@ -38,3 +40,6 @@ class ApiPackageLanguagePackage(ORMModel):
     # Foreign Keys
     api_package_id: UUID = Field(description="Foreign key for ApiPackage.language_packages")
     code_package_id: UUID = Field(description="Foreign key for ApiPackageLanguagePackage.code_package")
+    object_instance_graph_commit_id: UUID = Field(
+        description="Foreign key for ApiPackageLanguagePackage.object_instance_graph_commit"
+    )

@@ -1,0 +1,8 @@
+pane node_session_status {
+    kind node_session_status
+
+    view aware_control_network.session.status.v1 default {
+        """Node and Interface session readiness pane."""
+    }
+
+}

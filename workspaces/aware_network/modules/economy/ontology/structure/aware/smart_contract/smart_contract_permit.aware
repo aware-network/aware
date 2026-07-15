@@ -1,0 +1,74 @@
+class SmartContractPermit {
+    // Relationships
+    coin coin.Coin
+    finance_entity finance.FinanceEntity key
+    parents SmartContractPermit[]
+    price_schedule price.PriceSchedule
+    smart_contract_reservations SmartContractReservation[]
+
+    // Attributes
+    cap_amount Decimal
+    expires_at DateTime
+    nonce Int = 0
+    permit_nonce Int key
+    status SmartContractPermitStatus = active
+
+    fn create construct (
+        finance_entity_id UUID key,
+        permit_nonce Int key,
+        cap_amount Decimal,
+        expires_at DateTime,
+        price_schedule_id UUID,
+        coin_id UUID,
+        parent_id UUID? = null
+    ) -> SmartContractPermit {
+        """
+        Creates a SmartContractPermit under a contract.
+
+        Receipt: SmartContractPermit linked to SmartContract + FinanceEntity.
+        """
+    }
+
+    fn note_operation (op_nonce Int) -> SmartContractPermit {
+        """
+        Advances permit operation nonce monotonically after a successful reservation.
+
+        Receipt: SmartContractPermit.nonce updated to `op_nonce`.
+        """
+    }
+
+    fn revoke () -> SmartContractPermit {
+        """
+        Revokes this permit so no new operation reservation may consume its cap.
+
+        Receipt: SmartContractPermit.status is revoked; repeated revocation is idempotent.
+        """
+    }
+
+    fn reserve_operation (
+        payer_wallet_public_id UUID,
+        op_nonce Int,
+        args_hash String,
+        max_cost Decimal,
+        rate_snapshot_id UUID,
+        deadline DateTime,
+        coin_id UUID,
+    ) -> SmartContractReservation {
+        """
+        Creates a reservation + escrow under this permit and links it canonically.
+
+        Receipt: SmartContractReservation(status=pending) linked under this permit with deterministic escrow id.
+        """
+        let created = construct smart_contract_reservations.create(
+            op_nonce = op_nonce,
+            args_hash = args_hash,
+            max_cost = max_cost,
+            rate_snapshot_id = rate_snapshot_id,
+            deadline = deadline,
+            escrow = null,
+        )
+    }
+}
+
+/// Optional for root permits (no parent).
+ann smart_contract.SmartContractPermit::parents override fk nullable

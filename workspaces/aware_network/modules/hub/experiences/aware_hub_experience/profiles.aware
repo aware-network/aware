@@ -1,0 +1,24 @@
+experience aware_hub {
+    profile hub.discovery {
+        title "Aware Hub Discovery"
+        description "Canonical Hub discovery profile for public package and channel-head surfaces."
+        narrative "Discover public Hub packages, channel heads, and deployment artifacts."
+
+        process continuous hub default {
+            title "Hub"
+            narrative "Continuous Hub discovery process for package map inspection."
+            intent hub.discovery
+
+            thread hub.discovery default {
+                title "Hub Discovery"
+                narrative "Primary Hub discovery thread for public package catalog inspection."
+                workspace_view thread.workspace
+                projection aware_hub view home.channel_heads.v1 default
+
+                layout discovery default {
+                    section discovery projection aware_hub view home.channel_heads.v1 binding hub.discovery default
+                }
+            }
+        }
+    }
+}

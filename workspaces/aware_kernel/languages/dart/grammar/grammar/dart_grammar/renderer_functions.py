@@ -32,23 +32,35 @@ from aware_meta_ontology.annotation.code_section_annotation_overlay_enums import
     CodeSectionAnnotationOverlayEntity,
 )
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
-from aware_meta_ontology.attribute.attribute_config_overlay import AttributeConfigOverlay
+from aware_meta_ontology.attribute.attribute_config_overlay import (
+    AttributeConfigOverlay,
+)
 from aware_meta_ontology.attribute.attribute_enums import AttributeCollectionType
 from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
     AttributeTypeDescriptorKind,
 )
 from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.function.function_config import FunctionConfig
-from aware_meta_ontology.function.function_config_attribute_config import FunctionConfigAttributeConfig
-from aware_meta_ontology.function.function_config_enums import FunctionAttributeType, FunctionKind
-from aware_meta.graph.config.render.layout_strategy import ObjectConfigGraphRenderLayoutStrategy
+from aware_meta_ontology.function.function_config_attribute_config import (
+    FunctionConfigAttributeConfig,
+)
+from aware_meta_ontology.function.function_config_enums import (
+    FunctionAttributeType,
+    FunctionKind,
+)
+from aware_meta.graph.config.render.layout_strategy import (
+    ObjectConfigGraphRenderLayoutStrategy,
+)
 
 # Meta Runtime
 from aware_meta.attribute.config.type_descriptor_helpers import resolve_type_info
 
 # Dart Grammar
 from dart_grammar.renderer import DartRenderer
-from dart_grammar.layout_strategy import DartFunctionsLayoutStrategy, DartModelLayoutStrategy
+from dart_grammar.layout_strategy import (
+    DartFunctionsLayoutStrategy,
+    DartModelLayoutStrategy,
+)
 from aware_meta.graph.config.render.renderer_language import build_renderer_empty_code
 
 # Utils
@@ -107,7 +119,9 @@ class DartFunctionsRenderer(DartRenderer):
         inner_layout = self.layout_strategy.get_parent()
         if inner_layout is None:
             raise ValueError("No parent layout strategy found")
-        model_layout = cast(DartModelLayoutStrategy, DartModelLayoutStrategy.from_parent(inner_layout))
+        model_layout = cast(
+            DartModelLayoutStrategy, DartModelLayoutStrategy.from_parent(inner_layout)
+        )
         model_path = model_layout.get_class_file_path(classes[0])
 
         _ = writer.token("// GENERATED CODE - DO NOT MODIFY BY HAND\n")
@@ -165,8 +179,18 @@ class DartFunctionsRenderer(DartRenderer):
         for module in sorted(referenced_enum_imports):
             _ = writer.token(f"import '{module}';\n")
 
-        has_uuid = any(self._attribute_is_base_type(attr, CodePrimitiveBaseType.uuid) for attr in attrs)
-        has_uint8list = any(self._attribute_is_base_type(attr, CodePrimitiveBaseType.bytes) for attr in attrs)
+        has_uuid = any(
+            self._attribute_is_base_type(attr, CodePrimitiveBaseType.uuid)
+            for attr in attrs
+        )
+        has_uint8list = any(
+            self._attribute_is_base_type(attr, CodePrimitiveBaseType.bytes)
+            for attr in attrs
+        )
+        has_decimal = any(
+            self._attribute_is_base_type(attr, CodePrimitiveBaseType.decimal)
+            for attr in attrs
+        )
 
         if has_uuid:
             _ = writer.token("import 'package:uuid/uuid.dart';\n")
@@ -174,7 +198,14 @@ class DartFunctionsRenderer(DartRenderer):
         if has_uint8list:
             _ = writer.token("import 'dart:typed_data';\n")
 
-        _ = writer.token("import 'package:aware_model_helpers/payload_decoders.dart' as payload_decoders;\n")
+        if has_decimal:
+            _ = writer.token(
+                "import 'package:aware_model_helpers/aware_decimal.dart';\n"
+            )
+
+        _ = writer.token(
+            "import 'package:aware_model_helpers/payload_decoders.dart' as payload_decoders;\n"
+        )
 
         # EnvClient imports – mirror aware_materializer wiring
         _ = writer.token("import 'package:aware_api/aware_api.dart';\n\n")
@@ -232,7 +263,9 @@ class DartFunctionsRenderer(DartRenderer):
 
         return None
 
-    def _emit_result_classes_for_object(self, writer: CodeSectionWriter, cls: ClassConfig) -> None:
+    def _emit_result_classes_for_object(
+        self, writer: CodeSectionWriter, cls: ClassConfig
+    ) -> None:
         """Emit result wrapper classes for tuple-output functions."""
         for link in cls.class_config_function_configs:
             func_cfg = link.function_config
@@ -274,7 +307,9 @@ class DartFunctionsRenderer(DartRenderer):
                 _ = writer.token(f" {rendered_name};\n")
 
             _ = writer.token("\n")
-            _ = writer.token(f"  factory {class_name}.fromJson(Map<String, dynamic> json) {{\n")
+            _ = writer.token(
+                f"  factory {class_name}.fromJson(Map<String, dynamic> json) {{\n"
+            )
             _ = writer.token(f"    return {class_name}(\n")
             for link in output_params:
                 attr = link.attribute_config
@@ -291,7 +326,9 @@ class DartFunctionsRenderer(DartRenderer):
 
             _ = writer.token("}\n\n")
 
-    def _resolve_invocation_names(self, attr_config: AttributeConfig) -> tuple[str, str]:
+    def _resolve_invocation_names(
+        self, attr_config: AttributeConfig
+    ) -> tuple[str, str]:
         """
         Resolve (rendered_name, wire_name) for a FunctionConfig attribute.
 
@@ -302,10 +339,14 @@ class DartFunctionsRenderer(DartRenderer):
         rendered_name = to_camel_case(attr_config.name)
         wire_name = attr_config.name
 
-        overlay = self.get_overlay_by_entity_id(CodeSectionAnnotationOverlayEntity.attribute, attr_config.id)
+        overlay = self.get_overlay_by_entity_id(
+            CodeSectionAnnotationOverlayEntity.attribute, attr_config.id
+        )
         if overlay is not None:
             if not isinstance(overlay, AttributeConfigOverlay):
-                raise ValueError(f"Overlay for attribute {attr_config.id} is not an AttributeConfigOverlay")
+                raise ValueError(
+                    f"Overlay for attribute {attr_config.id} is not an AttributeConfigOverlay"
+                )
             if overlay.rendered_name:
                 rendered_name = overlay.rendered_name
             if overlay.wire_name:
@@ -355,7 +396,15 @@ class DartFunctionsRenderer(DartRenderer):
             attr = link.attribute_config
             base_param_name, wire_name = self._resolve_invocation_names(attr)
             param_name = self._reserve_identifier(base_param_name, used_identifiers)
-            bindings.append((attr, param_name, wire_name, self._is_optional_on_runtime(attr)))
+            bindings.append(
+                (
+                    attr,
+                    param_name,
+                    wire_name,
+                    self._is_optional_on_runtime(attr)
+                    or attr.default_value is not None,
+                )
+            )
 
         return bindings, used_identifiers
 
@@ -421,21 +470,27 @@ class DartFunctionsRenderer(DartRenderer):
         client_var = self._reserve_identifier("client", used_identifiers)
         request_var = self._reserve_identifier("request", used_identifiers)
         response_var = self._reserve_identifier("response", used_identifiers)
-        response_payload_var = self._reserve_identifier("responsePayload", used_identifiers)
+        response_payload_var = self._reserve_identifier(
+            "responsePayload", used_identifiers
+        )
 
         # Arguments list
         _ = writer.token(f"    final {args_var} = <FunctionInvocationArgument>[];\n")
-        for _attr, param_name, wire_name, is_optional in input_param_bindings:
+        for attr, param_name, wire_name, is_optional in input_param_bindings:
+            encoded_value = self._render_encode_expression(
+                attr_config=attr,
+                value_expr=param_name,
+            )
             if not is_optional:
                 _ = writer.token(f"    {args_var}.add(FunctionInvocationArgument(\n")
                 _ = writer.token(f"      name: '{wire_name}',\n")
-                _ = writer.token(f"      value: {param_name},\n")
+                _ = writer.token(f"      value: {encoded_value},\n")
                 _ = writer.token("    ));\n")
             else:
                 _ = writer.token(f"    if ({param_name} != null) {{\n")
                 _ = writer.token(f"      {args_var}.add(FunctionInvocationArgument(\n")
                 _ = writer.token(f"        name: '{wire_name}',\n")
-                _ = writer.token(f"        value: {param_name},\n")
+                _ = writer.token(f"        value: {encoded_value},\n")
                 _ = writer.token("      ));\n")
                 _ = writer.token("    }\n")
 
@@ -453,7 +508,9 @@ class DartFunctionsRenderer(DartRenderer):
         _ = writer.token(f"      arguments: {args_var},\n")
         _ = writer.token("    );\n")
 
-        _ = writer.token(f"    final {response_var} = await {client_var}.invokeFunctionByName({request_var});\n")
+        _ = writer.token(
+            f"    final {response_var} = await {client_var}.invokeFunctionByName({request_var});\n"
+        )
         _ = writer.token(f"    if (!{response_var}.isSuccess) {{\n")
         _ = writer.token(
             f"      throw StateError('Function {cls.name}.{raw_name} failed: ' "
@@ -466,7 +523,9 @@ class DartFunctionsRenderer(DartRenderer):
             _ = writer.token("  }\n")
             return
 
-        _ = writer.token(f"    final {response_payload_var} = {response_var}.payload;\n")
+        _ = writer.token(
+            f"    final {response_payload_var} = {response_var}.payload;\n"
+        )
 
         if result_class_name is not None:
             _ = writer.token(f"    if ({response_payload_var} is! Map) {{\n")
@@ -478,7 +537,9 @@ class DartFunctionsRenderer(DartRenderer):
             _ = writer.token("}');\n")
             _ = writer.token("    }\n")
             json_var = self._reserve_identifier("json", used_identifiers)
-            _ = writer.token(f"    final {json_var} = Map<String, dynamic>.from({response_payload_var} as Map);\n")
+            _ = writer.token(
+                f"    final {json_var} = Map<String, dynamic>.from({response_payload_var} as Map);\n"
+            )
             _ = writer.token(f"    return {result_class_name}.fromJson({json_var});\n")
             _ = writer.token("  }\n")
             return
@@ -488,11 +549,17 @@ class DartFunctionsRenderer(DartRenderer):
         _rendered_name, wire_name = self._resolve_invocation_names(output_attr)
         response_value_var = self._reserve_identifier("responseValue", used_identifiers)
 
-        _ = writer.token(f"    dynamic {response_value_var} = {response_payload_var};\n")
-        _ = writer.token(f"    if ({response_payload_var} is Map && {response_payload_var}.containsKey(")
+        _ = writer.token(
+            f"    dynamic {response_value_var} = {response_payload_var};\n"
+        )
+        _ = writer.token(
+            f"    if ({response_payload_var} is Map && {response_payload_var}.containsKey("
+        )
         _ = writer.token(f"'{wire_name}'")
         _ = writer.token(")) {\n")
-        _ = writer.token(f"      {response_value_var} = {response_payload_var}['{wire_name}'];\n")
+        _ = writer.token(
+            f"      {response_value_var} = {response_payload_var}['{wire_name}'];\n"
+        )
         _ = writer.token("    }\n")
 
         decode_expr = self._render_decode_expression(
@@ -546,17 +613,21 @@ class DartFunctionsRenderer(DartRenderer):
         response_var = self._reserve_identifier("response", used_identifiers)
 
         _ = writer.token(f"    final {args_var} = <FunctionInvocationArgument>[];\n")
-        for _attr, param_name, wire_name, is_optional in input_param_bindings:
+        for attr, param_name, wire_name, is_optional in input_param_bindings:
+            encoded_value = self._render_encode_expression(
+                attr_config=attr,
+                value_expr=param_name,
+            )
             if not is_optional:
                 _ = writer.token(f"    {args_var}.add(FunctionInvocationArgument(\n")
                 _ = writer.token(f"      name: '{wire_name}',\n")
-                _ = writer.token(f"      value: {param_name},\n")
+                _ = writer.token(f"      value: {encoded_value},\n")
                 _ = writer.token("    ));\n")
             else:
                 _ = writer.token(f"    if ({param_name} != null) {{\n")
                 _ = writer.token(f"      {args_var}.add(FunctionInvocationArgument(\n")
                 _ = writer.token(f"        name: '{wire_name}',\n")
-                _ = writer.token(f"        value: {param_name},\n")
+                _ = writer.token(f"        value: {encoded_value},\n")
                 _ = writer.token("      ));\n")
                 _ = writer.token("    }\n")
 
@@ -569,11 +640,15 @@ class DartFunctionsRenderer(DartRenderer):
         _ = writer.token("      threadId: context.threadId,\n")
         _ = writer.token("      branchId: context.branchId,\n")
         _ = writer.token("      projectionHash: context.projectionHash,\n")
-        _ = writer.token("      callTarget: FunctionInvocationCallTarget.opgConstructor,\n")
+        _ = writer.token(
+            "      callTarget: FunctionInvocationCallTarget.opgConstructor,\n"
+        )
         _ = writer.token("      objectProjectionGraphId: context.opgId,\n")
         _ = writer.token(f"      arguments: {args_var},\n")
         _ = writer.token("    );\n")
-        _ = writer.token(f"    final {response_var} = await {client_var}.invokeFunctionByName({request_var});\n")
+        _ = writer.token(
+            f"    final {response_var} = await {client_var}.invokeFunctionByName({request_var});\n"
+        )
         _ = writer.token(f"    if (!{response_var}.isSuccess) {{\n")
         _ = writer.token(
             f"      throw StateError('Function {cls.name}.{raw_name} failed: ' + "
@@ -599,8 +674,13 @@ class DartFunctionsRenderer(DartRenderer):
         type_info = resolve_type_info(attr_config)
 
         def _decode_leaf(expr: str, *, optional: bool) -> str:
-            if type_info.kind == AttributeTypeDescriptorKind.primitive and type_info.primitive_config is not None:
-                prim = CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type)
+            if (
+                type_info.kind == AttributeTypeDescriptorKind.primitive
+                and type_info.primitive_config is not None
+            ):
+                prim = CodePrimitiveType.model_validate(
+                    type_info.primitive_config.primitive_type
+                )
                 base = prim.base_type
                 if base == CodePrimitiveBaseType.uuid:
                     return (
@@ -625,6 +705,12 @@ class DartFunctionsRenderer(DartRenderer):
                         f"payload_decoders.decodeDoubleOrNull({expr})"
                         if optional
                         else f"payload_decoders.decodeDouble({expr})"
+                    )
+                if base == CodePrimitiveBaseType.decimal:
+                    return (
+                        f"payload_decoders.decodeAwareDecimalOrNull({expr})"
+                        if optional
+                        else f"payload_decoders.decodeAwareDecimal({expr})"
                     )
                 if base == CodePrimitiveBaseType.boolean:
                     return (
@@ -652,13 +738,19 @@ class DartFunctionsRenderer(DartRenderer):
                     )
                 return expr
 
-            if type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config is not None:
+            if (
+                type_info.kind == AttributeTypeDescriptorKind.enum
+                and type_info.enum_config is not None
+            ):
                 enum_name = type_info.enum_config.name
                 if optional:
                     return f"({expr} == null ? null : {enum_name}.values.byName({expr}.toString()))"
                 return f"{enum_name}.values.byName({expr}.toString())"
 
-            if type_info.kind == AttributeTypeDescriptorKind.class_ and type_info.class_config is not None:
+            if (
+                type_info.kind == AttributeTypeDescriptorKind.class_
+                and type_info.class_config is not None
+            ):
                 class_name = to_pascal_case(type_info.class_config.name)
                 inner = f"{class_name}.fromJson(payload_decoders.decodeMap({expr}))"
                 if optional:
@@ -669,15 +761,47 @@ class DartFunctionsRenderer(DartRenderer):
 
         if type_info.collection_kind == AttributeCollectionType.list:
             element_expr = _decode_leaf("item", optional=False)
-            fn = "payload_decoders.decodeListOrNull" if is_optional else "payload_decoders.decodeList"
+            fn = (
+                "payload_decoders.decodeListOrNull"
+                if is_optional
+                else "payload_decoders.decodeList"
+            )
             return f"{fn}({value_expr}, (item) => {element_expr})"
 
         if type_info.collection_kind == AttributeCollectionType.set:
             element_expr = _decode_leaf("item", optional=False)
-            fn = "payload_decoders.decodeSetOrNull" if is_optional else "payload_decoders.decodeSet"
+            fn = (
+                "payload_decoders.decodeSetOrNull"
+                if is_optional
+                else "payload_decoders.decodeSet"
+            )
             return f"{fn}({value_expr}, (item) => {element_expr})"
 
         return _decode_leaf(value_expr, optional=is_optional)
+
+    def _render_encode_expression(
+        self,
+        *,
+        attr_config: AttributeConfig,
+        value_expr: str,
+    ) -> str:
+        type_info = resolve_type_info(attr_config)
+        if (
+            type_info.kind != AttributeTypeDescriptorKind.primitive
+            or type_info.primitive_config is None
+        ):
+            return value_expr
+        primitive_type = CodePrimitiveType.model_validate(
+            type_info.primitive_config.primitive_type
+        )
+        if primitive_type.base_type != CodePrimitiveBaseType.decimal:
+            return value_expr
+        if type_info.collection_kind in {
+            AttributeCollectionType.list,
+            AttributeCollectionType.set,
+        }:
+            return f"{value_expr}.map((value) => value.toJson()).toList()"
+        return f"{value_expr}.toJson()"
 
     @override
     def create_empty_code(self) -> Code:

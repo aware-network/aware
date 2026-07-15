@@ -14,7 +14,9 @@ from aware_meta.graph.config.render.renderer_language import (
     ObjectConfigGraphRendererPolicy,
     build_renderer_empty_code,
 )
-from aware_meta.graph.config.render.layout_strategy import ObjectConfigGraphRenderLayoutStrategy
+from aware_meta.graph.config.render.layout_strategy import (
+    ObjectConfigGraphRenderLayoutStrategy,
+)
 from aware_meta.graph.config.stable_ids_resolution import load_stable_ids_spec_for_graph
 from aware_meta.graph.config.stable_ids_spec.spec import (
     ParamSpec,
@@ -41,6 +43,7 @@ def _dart_type(p: ParamSpec) -> str:
         "bool": "bool",
         "int": "int",
         "float": "double",
+        "decimal": "AwareDecimal",
         "str_list": "List<String>",
     }[p.type]
     if p.optional:
@@ -48,7 +51,9 @@ def _dart_type(p: ParamSpec) -> str:
     return base
 
 
-def _dart_normalize_expr(var: str, ops: tuple[str, ...], *, nullable: bool = False) -> str:
+def _dart_normalize_expr(
+    var: str, ops: tuple[str, ...], *, nullable: bool = False
+) -> str:
     expr = f"({var} ?? '')" if nullable else var
     for op in ops:
         if op == "strip":
@@ -76,12 +81,15 @@ def render_dart_stable_ids_module(*, spec: StableIdsSpec) -> str:
 
     used_ns: set[str] = set()
     needs_bytes = False
+    needs_decimal = False
     for fn in spec.functions:
         if fn.namespace != "NAMESPACE_URL":
             used_ns.add(fn.namespace)
         for p in fn.params:
             if p.type == "bytes":
                 needs_bytes = True
+            elif p.type == "decimal":
+                needs_decimal = True
 
     lines: list[str] = []
     lines.append("// GENERATED CODE - DO NOT MODIFY BY HAND")
@@ -89,6 +97,8 @@ def render_dart_stable_ids_module(*, spec: StableIdsSpec) -> str:
     lines.append("")
     if needs_bytes:
         lines.append("import 'dart:typed_data';")
+    if needs_decimal:
+        lines.append("import 'package:aware_model_helpers/aware_decimal.dart';")
     lines.append("import 'package:uuid/uuid.dart';")
     lines.append("")
     lines.append("final Uuid _uuid = Uuid();")
@@ -213,7 +223,9 @@ def render_dart_stable_ids_module(*, spec: StableIdsSpec) -> str:
                 expr = _dart_normalize_expr(
                     src,
                     ops,
-                    nullable=src_param is not None and src_param.type == "str" and src_param.optional,
+                    nullable=src_param is not None
+                    and src_param.type == "str"
+                    and src_param.optional,
                 )
                 lines.append(f"  final {dname} = {expr};")
                 dart_let_name_by_py[let_cfg.name] = dname
@@ -229,7 +241,9 @@ def render_dart_stable_ids_module(*, spec: StableIdsSpec) -> str:
                 expr = _dart_normalize_expr(
                     src,
                     ops,
-                    nullable=src_param is not None and src_param.type == "str" and src_param.optional,
+                    nullable=src_param is not None
+                    and src_param.type == "str"
+                    and src_param.optional,
                 )
                 lines.append(f"  final {dname}Raw = {expr};")
                 lines.append(
@@ -252,9 +266,7 @@ def render_dart_stable_ids_module(*, spec: StableIdsSpec) -> str:
                         f"({src} == null || {src}!.isEmpty) ? {default!r} : "
                         f"{let_cfg.prefix!r} + {src}!"
                     )
-                    lines.append(
-                        f"  final {dname} = {expr};"
-                    )
+                    lines.append(f"  final {dname} = {expr};")
                 else:
                     lines.append(
                         f"  final {dname} = {src}.isEmpty ? {default!r} : {let_cfg.prefix!r} + {src};"
@@ -286,8 +298,31 @@ def render_dart_stable_ids_module(*, spec: StableIdsSpec) -> str:
                         f"  final {dname} = ({src} == 0) ? {let_cfg.default!r} : {src}.toString();"
                     )
                 dart_let_name_by_py[let_cfg.name] = dname
+            elif let_cfg.op == "decimal_text":
+                if not let_cfg.name or not let_cfg.param:
+                    raise ValueError(f"{fn.name}: decimal_text let requires name+param")
+                dname = _dart_ident(let_cfg.name)
+                src = dart_name_by_py.get(let_cfg.param) or _dart_ident(let_cfg.param)
+                lines.append(f"  final {dname} = {src}.toJson();")
+                dart_let_name_by_py[let_cfg.name] = dname
+            elif let_cfg.op == "decimal_text_default":
+                if not let_cfg.name or not let_cfg.param or let_cfg.default is None:
+                    raise ValueError(
+                        f"{fn.name}: decimal_text_default let requires "
+                        "name+param+default"
+                    )
+                dname = _dart_ident(let_cfg.name)
+                src = dart_name_by_py.get(let_cfg.param) or _dart_ident(let_cfg.param)
+                lines.append(
+                    f"  final {dname} = {src}?.toJson() ?? {let_cfg.default!r};"
+                )
+                dart_let_name_by_py[let_cfg.name] = dname
             elif let_cfg.op == "sorted_pair":
-                if not let_cfg.names or len(let_cfg.names) != 2 or len(let_cfg.params) != 2:
+                if (
+                    not let_cfg.names
+                    or len(let_cfg.names) != 2
+                    or len(let_cfg.params) != 2
+                ):
                     raise ValueError(
                         f"{fn.name}: sorted_pair let requires names[2] + params[2]"
                     )
@@ -337,9 +372,13 @@ def render_dart_stable_ids_module(*, spec: StableIdsSpec) -> str:
                     lines.append(
                         f"  final {sorted_var} = List<String>.from({items_var})..sort();"
                     )
-                    lines.append(f"  final {dname} = {sorted_var}.join({let_cfg.sep!r});")
+                    lines.append(
+                        f"  final {dname} = {sorted_var}.join({let_cfg.sep!r});"
+                    )
                 else:
-                    lines.append(f"  final {dname} = {items_var}.join({let_cfg.sep!r});")
+                    lines.append(
+                        f"  final {dname} = {items_var}.join({let_cfg.sep!r});"
+                    )
                 dart_let_name_by_py[let_cfg.name] = dname
             else:
                 raise ValueError(f"{fn.name}: unsupported let op {let_cfg.op!r}")
@@ -445,7 +484,9 @@ class DartStableIdsRendererLanguage(ObjectConfigGraphRendererLanguage):
                 self._source_graph = source_graph
         if ownership_mode is not None:
             if ownership_mode not in {"authored", "compiler"}:
-                raise ValueError(f"stable_ids_ownership must be one of: authored, compiler (got {ownership_mode!r})")
+                raise ValueError(
+                    f"stable_ids_ownership must be one of: authored, compiler (got {ownership_mode!r})"
+                )
             self._ownership = ownership_mode
         if resolution_mode is not None:
             if resolution_mode != "class_strict":

@@ -1,0 +1,59 @@
+aware_service = 1
+
+[service]
+package_name = "aware-identity-service"
+fqn_prefix = "aware_identity_service"
+version_number = 1
+title = "Aware Identity Service"
+description = "Canonical Identity service package over the widened Identity API service-protocol rail."
+
+[build]
+sources_dir = "bindings"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+compilation_mode = "service_ontology"
+
+[host]
+service_surface = "service"
+activation_mode = "materialize_and_load_committed"
+materialize_on_start = true
+
+[implementation]
+
+[[implementation.packages]]
+package_name = "aware-identity-service"
+language = "python"
+import_root = "aware_identity_service"
+manifest_path = "pyproject.toml"
+package_root = "."
+entrypoint = "aware_identity_service.service_bindings:build_service_bindings"
+role = "service_bindings"
+
+[[api_provider_sets]]
+key = "kernel.global_services.v1"
+title = "Kernel Global Services"
+membership_key = "kernel-services-host"
+description = "Kernel global service providers."
+
+[[dependencies]]
+package_name = "identity-service-api"
+version_number = 1
+kind = "api_service_protocol"
+
+[[dependencies]]
+package_name = "experience-service-api"
+version_number = 1
+kind = "api_invocation"
+
+[[dependencies]]
+package_name = "reactivity-service-api"
+version_number = 1
+kind = "api_invocation"
+
+[[ontology_packages]]
+package_name = "identity-ontology"
+fqn_prefix = "aware_identity"
+role = "replica"
+requirement_mode = "required"
+description = "Identity service reads Identity ontology truth from the Service-owned replica ORM session."

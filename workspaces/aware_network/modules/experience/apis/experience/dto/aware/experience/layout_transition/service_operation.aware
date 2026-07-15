@@ -1,0 +1,43 @@
+/// Canonical request/response DTOs for Experience-mediated layout transitions.
+///
+/// Product services request layout intent here. Experience resolves target semantics,
+/// activates Attention section/focus/observable state, and Interface applies protected
+/// window mutation through its own API/SDK boundary.
+
+class ExperienceLayoutTransitionServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class ExperienceLayoutTransitionServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+    receipt layout_transition.ExperienceLayoutTransitionReceipt?
+}
+
+class RequestExperienceLayoutTransitionRequest augment layout_transition.ExperienceLayoutTransitionServiceRequest {
+    operation String = "request_experience_layout_transition"
+    namespace String
+    actor_id UUID
+    identity_id UUID?
+    experience_name String = "aware_control_identity"
+    intent_key String = "identity.admission"
+    target layout_transition.ExperienceInterfaceWindowLayoutTarget?
+    role_gate layout_transition.ExperienceLayoutActorRoleGate
+    reason String?
+    idempotency_key String?
+}
+
+class RequestExperienceLayoutTransitionResponse augment layout_transition.ExperienceLayoutTransitionServiceResponse {
+    operation String = "request_experience_layout_transition"
+    receipt layout_transition.ExperienceLayoutTransitionReceipt
+}
+
+ann layout_transition.ExperienceLayoutTransitionServiceRequest::operation discriminate key
+ann layout_transition.RequestExperienceLayoutTransitionRequest::operation discriminate tag "request_experience_layout_transition"
+
+ann layout_transition.ExperienceLayoutTransitionServiceResponse::operation discriminate key
+ann layout_transition.RequestExperienceLayoutTransitionResponse::operation discriminate tag "request_experience_layout_transition"

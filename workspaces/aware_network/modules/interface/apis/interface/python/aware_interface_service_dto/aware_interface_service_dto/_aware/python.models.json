@@ -1,0 +1,1021 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "ecf130b9-c3e0-52d2-8bae-2089748cae78",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceActionRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceActionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a6ebe661-c780-518e-bcdf-bacbae3117be",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceActionResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceActionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c8d2fa29-481b-507d-afb3-f5357f69f84d",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceActivateRuntimeFocusRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceActivateRuntimeFocusRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8ef9c905-c9d2-5416-881d-04d3faa0f3a0",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceActivateRuntimeFocusResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceActivateRuntimeFocusResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "07792b07-a0fc-5b2b-a58e-b226fdf5ef85",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceAdmitEnvironmentActorRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceAdmitEnvironmentActorRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "26175f09-67bc-5495-850a-856536c5f58b",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceAdmitEnvironmentActorResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceAdmitEnvironmentActorResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "0bef8a48-a162-5b9d-925c-0261d8b1c9d2",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceApiEventNotification",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceApiEventNotification",
+      "functions": []
+    },
+    {
+      "class_config_id": "4659a050-554c-597d-9ebc-ce93dcb267c3",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceApiStreamClosedNotification",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceApiStreamClosedNotification",
+      "functions": []
+    },
+    {
+      "class_config_id": "04405f4c-f96a-512c-aeea-dc6f8fde9001",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceApplyAttentionLayoutTopologyTransitionRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceApplyAttentionLayoutTopologyTransitionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "6d4a97bd-faf6-57f7-9efd-bd53a0a3e0f5",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceApplyAttentionLayoutTopologyTransitionResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceApplyAttentionLayoutTopologyTransitionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "4ad90f1c-a978-5d05-a3a3-138aa0f0a302",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceApplyAttentionLayoutTransitionRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceApplyAttentionLayoutTransitionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "27295a8d-ba42-5546-b260-be51ed3433d6",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceApplyAttentionLayoutTransitionResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceApplyAttentionLayoutTransitionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "9db1edd0-0787-5fe2-b9b0-b0048829abd8",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceAttentionLayoutTopologyTransitionSectionIntent",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceAttentionLayoutTopologyTransitionSectionIntent",
+      "functions": []
+    },
+    {
+      "class_config_id": "f238fb7a-3696-5d45-93db-f7a09e35ca2d",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceAttentionLayoutTransitionSectionIntent",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceAttentionLayoutTransitionSectionIntent",
+      "functions": []
+    },
+    {
+      "class_config_id": "9665cbc5-a118-5dc1-bc8f-8e37e612abd5",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceControlPlaneNotification",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceControlPlaneNotification",
+      "functions": []
+    },
+    {
+      "class_config_id": "65d95866-b6b2-54bd-88b1-7167a663ce1e",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceControlPlaneOperation",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceControlPlaneOperation",
+      "functions": []
+    },
+    {
+      "class_config_id": "7c8e9e7f-f1d8-5ab0-919e-1712b2d1d3af",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceControlPlaneRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceControlPlaneRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "ba4018c1-118f-5fa1-a3a7-d2a0911566a2",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceControlPlaneResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceControlPlaneResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "571f5a17-f661-5720-b9ab-09a5db9212f3",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceEnterAppScreenRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceEnterAppScreenRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "0c8cde9c-27f8-5164-a573-f52248bfa5c5",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceEnterAppScreenResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceEnterAppScreenResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "1b243a85-1344-5173-bf86-093fb4f9de12",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceEnterEnvironmentRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceEnterEnvironmentRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "da3ad721-093b-5b97-8d7d-ab065ccd15d4",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceEnterEnvironmentResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceEnterEnvironmentResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "66f91467-ee5f-5233-924d-76c76ef6eb5a",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceExperienceSessionMountRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceExperienceSessionMountRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c9b56d6b-85b3-5acc-bf0e-285ff142c28b",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceExperienceSessionMountResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceExperienceSessionMountResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "323e380d-11ea-57c3-9e44-56f18aafa44b",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceFollowRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceFollowRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "4c96f013-bb19-5528-a9de-b8a9bd258f0f",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceFollowResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceFollowResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "6e06bcf0-8b5b-55c4-9609-5aac0df1c6ca",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceInvokeApiRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceInvokeApiRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "22790c67-528c-5f58-8e67-c9515b40d363",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceInvokeApiResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceInvokeApiResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "0206255f-e6e5-5757-88a0-e2e2728781ff",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceJoinEnvironmentSessionRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceJoinEnvironmentSessionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "77d27025-b11d-51fb-bcd5-7ac8bddb89c4",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceJoinEnvironmentSessionResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceJoinEnvironmentSessionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c6c11291-5734-5ec9-8c5e-b4ff76eb6f1e",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceReportRendererCapabilitiesRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceReportRendererCapabilitiesRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8dd13b93-74d0-5870-a35e-dfcceaf70a8f",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceReportRendererCapabilitiesResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceReportRendererCapabilitiesResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "15ef599a-a970-5e22-9d41-9fc0717f2da5",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceRequestWindowLayoutRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRequestWindowLayoutRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "25881e72-301e-57c3-8302-f2d9d7ea47d0",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceRequestWindowLayoutResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRequestWindowLayoutResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "6c069c3d-9609-5bdd-8784-8593cfce1816",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceResolveExperienceLensRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceResolveExperienceLensRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "fea9dfd9-e210-5493-8692-b284bbc99910",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceResolveExperienceLensResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceResolveExperienceLensResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "44a02a89-79ca-52a4-9c8c-5dee227ed61e",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSelectEnvironmentNavigationTargetRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSelectEnvironmentNavigationTargetRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "924b416f-0ffe-52ba-a376-91a5c10c49b1",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSelectEnvironmentNavigationTargetResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSelectEnvironmentNavigationTargetResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "a396cba9-3b2e-5303-b33c-492962224994",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSelectProfileRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSelectProfileRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c358b4e4-6f0e-52f9-a634-7ed1f57993d4",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSelectProfileResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSelectProfileResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "b8bb1efa-a8e9-5f89-a0f8-78e2eb279019",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSelectRuntimeLayoutRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSelectRuntimeLayoutRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "baf8be11-a052-5a6e-9cc0-0c7d01d78c9a",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSelectRuntimeLayoutResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSelectRuntimeLayoutResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "08002922-788a-5109-abe3-e24fe9ce3837",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSelectStepRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSelectStepRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "753afba4-0cf1-5bf0-a327-c2c7c959dd18",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSelectStepResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSelectStepResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "8d6b03be-33e5-513e-90f3-b50b96887a72",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSessionDescribeRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSessionDescribeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "e3751741-a42c-5720-bcf1-e536e399d659",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSessionDescribeResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSessionDescribeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "6752ae47-59b4-59e7-b04b-dd7028505af3",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSessionExperienceSessionView",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSessionExperienceSessionView",
+      "functions": []
+    },
+    {
+      "class_config_id": "38b67b19-dcfd-5743-824b-a6e19f2e2226",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSessionStartRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSessionStartRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "f89ae31e-54aa-599b-982d-b190ea558130",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSessionStartResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSessionStartResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e884ef79-2fea-5582-aba3-c1e33d5b8e78",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSessionView",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSessionView",
+      "functions": []
+    },
+    {
+      "class_config_id": "187e21b0-e2f1-5fe9-9a6d-d317abeef57d",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceStateNotification",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceStateNotification",
+      "functions": []
+    },
+    {
+      "class_config_id": "c1ff4de4-cee4-59c7-b77b-ec40aa8dcff0",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceStatusRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceStatusRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c8809fbc-bdff-5e1a-94a8-afcb1f8c54e7",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceStatusResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceStatusResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "620e18aa-bbef-5aa4-8643-05216b11be77",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceStopRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceStopRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "f4baf4a7-c41f-590f-8fb7-474a11ddd23a",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceStopResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceStopResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "d6216a2f-0ebf-5490-8d6f-d3391e862150",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceStreamApiRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceStreamApiRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "5d20f998-4a3c-59c0-a2f8-4d3e3b8f3c2e",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceStreamApiResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceStreamApiResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "49e46fd0-3685-5046-8d3d-c952af95c871",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSyncViewStateCursorRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSyncViewStateCursorRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "becf6ad9-1057-5dd6-9e84-8fd6024b8900",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "InterfaceSyncViewStateCursorResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSyncViewStateCursorResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "773235c2-5425-5c8a-925e-534e64653f12",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "NamespaceEnsureRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.NamespaceEnsureRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d346f671-175d-5866-a9ed-c98fced9b308",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "NamespaceEnsureResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.NamespaceEnsureResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ac8f3489-f0f4-5c03-acce-0bc197df3c93",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "NamespaceListRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.NamespaceListRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "3bc5a5c0-341f-52ab-85b2-ac5741098b4b",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "NamespaceListResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.NamespaceListResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "985d58e3-6f29-5b67-ad31-1deb492cd7f0",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "PingRequest",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.PingRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b5fb0c94-7c8d-5901-b04e-a37bd542568b",
+      "module": "aware_interface_service_dto.comms.models.control_plane",
+      "name": "PingResponse",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.PingResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "66cc1890-7596-5b9b-a978-99b4f7b604a4",
+      "module": "aware_interface_service_dto.comms.models.hosted_interface_namespace",
+      "name": "HostedInterfaceNamespace",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.HostedInterfaceNamespace",
+      "functions": []
+    },
+    {
+      "class_config_id": "00f81b02-9d73-5c73-97b2-805e3773737e",
+      "module": "aware_interface_service_dto.comms.models.interface_config_bundle",
+      "name": "InterfaceConfigApiBundle",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceConfigApiBundle",
+      "functions": []
+    },
+    {
+      "class_config_id": "1a1cd148-e313-5484-9304-93d380c2280b",
+      "module": "aware_interface_service_dto.comms.models.interface_config_bundle",
+      "name": "InterfaceConfigBundle",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceConfigBundle",
+      "functions": []
+    },
+    {
+      "class_config_id": "74f7dcd4-8562-5a7c-bbe5-f69f05d02fb0",
+      "module": "aware_interface_service_dto.comms.models.interface_config_bundle",
+      "name": "InterfacePaneApiCapabilityEndpointBundle",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfacePaneApiCapabilityEndpointBundle",
+      "functions": []
+    },
+    {
+      "class_config_id": "1e1e413d-0996-5b9c-9e49-32a22778ebe2",
+      "module": "aware_interface_service_dto.comms.models.interface_config_bundle",
+      "name": "InterfacePaneConfigBundle",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfacePaneConfigBundle",
+      "functions": []
+    },
+    {
+      "class_config_id": "9516462b-d5c6-5330-8aaf-04a873c793e2",
+      "module": "aware_interface_service_dto.comms.models.interface_config_bundle",
+      "name": "InterfacePaneProjectionExperienceViewBundle",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfacePaneProjectionExperienceViewBundle",
+      "functions": []
+    },
+    {
+      "class_config_id": "5ae07f74-d5e8-5085-8d62-cd012eeaab65",
+      "module": "aware_interface_service_dto.comms.models.interface_config_bundle",
+      "name": "InterfacePaneSdkOperationBundle",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfacePaneSdkOperationBundle",
+      "functions": []
+    },
+    {
+      "class_config_id": "25c5b830-f9a3-530b-bf25-7e305c8eefcf",
+      "module": "aware_interface_service_dto.comms.models.interface_config_bundle",
+      "name": "InterfacePaneSectionMountBundle",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfacePaneSectionMountBundle",
+      "functions": []
+    },
+    {
+      "class_config_id": "266eeb74-dde8-5ec6-93d6-269d3bf71b47",
+      "module": "aware_interface_service_dto.comms.models.interface_config_bundle",
+      "name": "InterfacePaneViewInvocationActionBundle",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfacePaneViewInvocationActionBundle",
+      "functions": []
+    },
+    {
+      "class_config_id": "0b22390a-7de0-5e1e-baf2-14c36d9c0915",
+      "module": "aware_interface_service_dto.comms.models.interface_config_bundle",
+      "name": "InterfaceWindowConfigBundle",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWindowConfigBundle",
+      "functions": []
+    },
+    {
+      "class_config_id": "9f6995db-99fe-5ffd-be27-22bba4aaae77",
+      "module": "aware_interface_service_dto.comms.models.interface_config_bundle",
+      "name": "InterfaceWindowConfigLayoutBundle",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWindowConfigLayoutBundle",
+      "functions": []
+    },
+    {
+      "class_config_id": "fd9884e8-384b-5a04-af79-418e65150cb4",
+      "module": "aware_interface_service_dto.comms.models.interface_config_bundle",
+      "name": "InterfaceWindowLayoutSectionBundle",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWindowLayoutSectionBundle",
+      "functions": []
+    },
+    {
+      "class_config_id": "79a51123-591f-523f-a943-00fca17de630",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceAllowedAction",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceAllowedAction",
+      "functions": []
+    },
+    {
+      "class_config_id": "ba0fd219-735e-559d-9f61-6e7af5f41a61",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceAppScreenState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceAppScreenState",
+      "functions": []
+    },
+    {
+      "class_config_id": "7bc692b5-dfdb-537d-a8c2-63367a7e10b6",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceAttentionFocusTargetState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceAttentionFocusTargetState",
+      "functions": []
+    },
+    {
+      "class_config_id": "f34d13f2-65de-5ab8-a36e-eb1cf23439b4",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceBackendState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceBackendState",
+      "functions": []
+    },
+    {
+      "class_config_id": "d6169e4b-c575-5595-9e10-387e2e137eaa",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceControlPlaneOrchestrationStep",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceControlPlaneOrchestrationStep",
+      "functions": []
+    },
+    {
+      "class_config_id": "f46ff895-1925-55b9-b9bc-ca5ad162886f",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceControlPlaneProfileState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceControlPlaneProfileState",
+      "functions": []
+    },
+    {
+      "class_config_id": "cf96d86a-d5d7-55b7-a0e8-a240ca5d3872",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceControlPlaneProfilesState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceControlPlaneProfilesState",
+      "functions": []
+    },
+    {
+      "class_config_id": "bb3aff2b-bb7b-50be-8f7b-3a3d43024d29",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceControlPlaneTraceEntry",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceControlPlaneTraceEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "98e4b50b-2358-5c1b-b7bd-2db376348984",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceControlPlaneTraceGroup",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceControlPlaneTraceGroup",
+      "functions": []
+    },
+    {
+      "class_config_id": "1b12a19c-279b-54f2-85f5-1c9a39dab5ef",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceControlPlaneWorkspaceState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceControlPlaneWorkspaceState",
+      "functions": []
+    },
+    {
+      "class_config_id": "b2edd4ce-9f90-5faf-b433-66d898493b8d",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceCurrentScreen",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceCurrentScreen",
+      "functions": []
+    },
+    {
+      "class_config_id": "9aa24a63-cfff-5ff1-8ad4-ba66498b1421",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceEnvironmentAdmissionRoleBindingState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceEnvironmentAdmissionRoleBindingState",
+      "functions": []
+    },
+    {
+      "class_config_id": "a3629bf9-c1f0-558b-9b27-f685516bf77a",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceEnvironmentAdmissionRoleEligibilityState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceEnvironmentAdmissionRoleEligibilityState",
+      "functions": []
+    },
+    {
+      "class_config_id": "6bf87c43-c14f-5a46-bc5e-c8fd37ebf447",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceEnvironmentAdmissionState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceEnvironmentAdmissionState",
+      "functions": []
+    },
+    {
+      "class_config_id": "418a3c28-fa9c-5297-a4ba-c99dd8ce06e7",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceEnvironmentNavigationState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceEnvironmentNavigationState",
+      "functions": []
+    },
+    {
+      "class_config_id": "839a5b05-d6a4-5b29-ba6a-8e2bffff292b",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceEnvironmentSessionState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceEnvironmentSessionState",
+      "functions": []
+    },
+    {
+      "class_config_id": "ab6a807f-73da-5036-8d24-9a04d30f661e",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceExperienceLensActionState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceExperienceLensActionState",
+      "functions": []
+    },
+    {
+      "class_config_id": "d113bac0-46f4-53bd-a0aa-2d5f0e9829bc",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceExperienceLensState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceExperienceLensState",
+      "functions": []
+    },
+    {
+      "class_config_id": "88701088-ac8d-5ef9-bcd9-fbe9ec965fc0",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceExperienceSessionNarrationEventState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceExperienceSessionNarrationEventState",
+      "functions": []
+    },
+    {
+      "class_config_id": "2fbf97bb-d2e5-5615-86f3-d2f4e76843e6",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceExperienceSessionNarrationState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceExperienceSessionNarrationState",
+      "functions": []
+    },
+    {
+      "class_config_id": "b8f52e3e-7222-5e73-8a06-e80134adb8de",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceGateState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceGateState",
+      "functions": []
+    },
+    {
+      "class_config_id": "d9c2c7b0-396a-51c1-bd84-a08cfbdd1997",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceGateStep",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceGateStep",
+      "functions": []
+    },
+    {
+      "class_config_id": "784dad5e-089b-5a60-a2a6-d30f7b04ce00",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceHostRecoveryCapabilityState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceHostRecoveryCapabilityState",
+      "functions": []
+    },
+    {
+      "class_config_id": "4f7ba0c6-f282-50d4-9503-ee4851b6e4a8",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceHostState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceHostState",
+      "functions": []
+    },
+    {
+      "class_config_id": "54e03111-a90a-5bfd-bf77-44cb2c103687",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceHostViewStateCursorState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceHostViewStateCursorState",
+      "functions": []
+    },
+    {
+      "class_config_id": "8fd458e5-b1a1-5978-ad74-7156f185ec05",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceHostViewStateDigestEntryState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceHostViewStateDigestEntryState",
+      "functions": []
+    },
+    {
+      "class_config_id": "c9bae5f1-3cf1-58cc-aa19-4e20d37241ad",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceHostedRuntimeServiceState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceHostedRuntimeServiceState",
+      "functions": []
+    },
+    {
+      "class_config_id": "704c7913-29e2-50a5-95e5-3ca9431b2509",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceHostedRuntimeState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceHostedRuntimeState",
+      "functions": []
+    },
+    {
+      "class_config_id": "dd689124-5ada-5060-bd29-040f7ab1f720",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceHostedServiceRequirementState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceHostedServiceRequirementState",
+      "functions": []
+    },
+    {
+      "class_config_id": "4c46a27b-f123-5e46-b156-2dec6526e3b5",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceHostedServicesState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceHostedServicesState",
+      "functions": []
+    },
+    {
+      "class_config_id": "459466a1-b21c-5d2f-8ea3-47763c1a2377",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceLaneSyncState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceLaneSyncState",
+      "functions": []
+    },
+    {
+      "class_config_id": "1d9daa74-9513-59fe-aacf-93c3269c1fcb",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceLocalNodeRuntimeState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceLocalNodeRuntimeState",
+      "functions": []
+    },
+    {
+      "class_config_id": "009eb12e-04eb-5857-817c-ecbb95e078d6",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceLocalServiceHostState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceLocalServiceHostState",
+      "functions": []
+    },
+    {
+      "class_config_id": "3927cf7a-9341-53c5-a596-cb9b1804d112",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceMaterializedPaneState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceMaterializedPaneState",
+      "functions": []
+    },
+    {
+      "class_config_id": "db95d100-ee4a-5157-b7eb-9f18bcd4a43f",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceOperationState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceOperationState",
+      "functions": []
+    },
+    {
+      "class_config_id": "56cbe8ac-139b-55d3-9caa-b4e71c1ec379",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceOperationTargetState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceOperationTargetState",
+      "functions": []
+    },
+    {
+      "class_config_id": "2134b28b-15b7-5b44-bc25-cdae5f6bac78",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRendererCacheCapabilityState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRendererCacheCapabilityState",
+      "functions": []
+    },
+    {
+      "class_config_id": "8ac79088-46c6-5689-936e-ea8cfcb096aa",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRendererCapabilitiesState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRendererCapabilitiesState",
+      "functions": []
+    },
+    {
+      "class_config_id": "712c32cd-5858-5cd3-9a9d-2b734636a34c",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRendererPanePackageCapabilityState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRendererPanePackageCapabilityState",
+      "functions": []
+    },
+    {
+      "class_config_id": "79b77e8e-7ee5-5903-909b-1cfbcb1e358b",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRendererViewCapabilityState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRendererViewCapabilityState",
+      "functions": []
+    },
+    {
+      "class_config_id": "e39a7c62-152e-5b53-b022-deb293fff314",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceResolvedPaneDescriptor",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceResolvedPaneDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "8fad126f-57b0-5c2a-ae67-2ab2cd141de0",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceResolvedView",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceResolvedView",
+      "functions": []
+    },
+    {
+      "class_config_id": "e763a45b-c9dd-580a-a778-99ec848dab36",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRuntimeFocusState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRuntimeFocusState",
+      "functions": []
+    },
+    {
+      "class_config_id": "42e0a229-30fd-597b-b338-b256d2f70a1f",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRuntimeLayoutState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRuntimeLayoutState",
+      "functions": []
+    },
+    {
+      "class_config_id": "216d44c4-6e55-5848-9604-2744843532fd",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRuntimePackageApiPackageState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRuntimePackageApiPackageState",
+      "functions": []
+    },
+    {
+      "class_config_id": "4fba0a67-56b5-5430-9168-43b90f75f8a6",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRuntimePackageApiState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRuntimePackageApiState",
+      "functions": []
+    },
+    {
+      "class_config_id": "0f36854b-3615-5db4-8069-1951ecc65289",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRuntimePackageRenderComponentState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRuntimePackageRenderComponentState",
+      "functions": []
+    },
+    {
+      "class_config_id": "eb310d18-b751-5378-a242-9867f5b9fe39",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRuntimePackageState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRuntimePackageState",
+      "functions": []
+    },
+    {
+      "class_config_id": "f293fc5c-404f-5302-a4ce-0c0e962ddca8",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRuntimePaneRenderSpecState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRuntimePaneRenderSpecState",
+      "functions": []
+    },
+    {
+      "class_config_id": "3d9c7eb8-e24e-59cf-a674-4bde9f69599e",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRuntimeSectionRepresentationState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRuntimeSectionRepresentationState",
+      "functions": []
+    },
+    {
+      "class_config_id": "025771b8-8ebb-5b2d-b1c8-2292d0c5abbc",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRuntimeState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRuntimeState",
+      "functions": []
+    },
+    {
+      "class_config_id": "1f88ff0e-e0b5-5933-b1de-eaf5f5f8402e",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRuntimeWindowNavigationContextState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRuntimeWindowNavigationContextState",
+      "functions": []
+    },
+    {
+      "class_config_id": "5a2133c5-01b6-5c4c-bfb3-08f6603cf8e6",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceRuntimeWindowState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceRuntimeWindowState",
+      "functions": []
+    },
+    {
+      "class_config_id": "b492cab2-fa1b-54d3-8715-4ab18c089832",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceSelectedSemanticPackageState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSelectedSemanticPackageState",
+      "functions": []
+    },
+    {
+      "class_config_id": "734a4792-2ddc-5e56-86c2-b1c8b0904a33",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceSelectedWorkspaceState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceSelectedWorkspaceState",
+      "functions": []
+    },
+    {
+      "class_config_id": "1d98548e-52e1-5e76-a465-289cb92da66a",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceTransportState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceTransportState",
+      "functions": []
+    },
+    {
+      "class_config_id": "bd22bb9c-799c-5fdd-947f-d81ed4589658",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceWindowLayoutSectionState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWindowLayoutSectionState",
+      "functions": []
+    },
+    {
+      "class_config_id": "b68f9d08-c215-56c2-b3df-5471201db81b",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceWindowLayoutState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWindowLayoutState",
+      "functions": []
+    },
+    {
+      "class_config_id": "2571d594-4698-5479-a215-a1e1f8187b2e",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceWorkspaceCandidate",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWorkspaceCandidate",
+      "functions": []
+    },
+    {
+      "class_config_id": "35863073-ddb6-5f1d-b841-b46485fd6aa8",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceWorkspaceCommittedSemanticPackageFamilyState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWorkspaceCommittedSemanticPackageFamilyState",
+      "functions": []
+    },
+    {
+      "class_config_id": "c783bd09-b069-58c5-a648-4d8e54d7989a",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceWorkspaceCommittedSemanticPackageState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWorkspaceCommittedSemanticPackageState",
+      "functions": []
+    },
+    {
+      "class_config_id": "b3947ebd-ac78-5927-a3e1-f622623379cb",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceWorkspaceDiscoveryState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWorkspaceDiscoveryState",
+      "functions": []
+    },
+    {
+      "class_config_id": "a30ddc41-b950-5154-bd22-f0e32189c0b8",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceWorkspaceLifecycleState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWorkspaceLifecycleState",
+      "functions": []
+    },
+    {
+      "class_config_id": "02f62f51-5359-5796-b2a8-0d90c1f6185a",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceWorkspaceMaterializationStateRef",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWorkspaceMaterializationStateRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "39cfc423-e1b7-5195-bb85-43cba33489f5",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceWorkspaceSemanticObjectConfigGraphPreviewState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWorkspaceSemanticObjectConfigGraphPreviewState",
+      "functions": []
+    },
+    {
+      "class_config_id": "cd3831ed-72b8-56b2-8c5c-6ff6fba42ddb",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceWorkspaceSemanticPackageState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWorkspaceSemanticPackageState",
+      "functions": []
+    },
+    {
+      "class_config_id": "523f7cdc-496b-5261-b5c4-7567443f0af1",
+      "module": "aware_interface_service_dto.comms.models.interface_host_state",
+      "name": "InterfaceWorkspaceSemanticSourceState",
+      "aware_class_ref": "aware_interface_service_dto.comms.models.InterfaceWorkspaceSemanticSourceState",
+      "functions": []
+    },
+    {
+      "class_config_id": "1111b2eb-198b-5de6-a356-4bf4162dea06",
+      "module": "aware_interface_service_dto.comms.view.mount_status",
+      "name": "InterfaceMountStatusViewStateV1",
+      "aware_class_ref": "aware_interface_service_dto.comms.view.InterfaceMountStatusViewStateV1",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

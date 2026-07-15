@@ -45,31 +45,35 @@ abstract class StorageMediaRef with _$StorageMediaRef {
   factory StorageMediaRef({
     required UuidValue objectId,
     String? uri,
-    required String uriScheme,
+    String? uriScheme,
     String? mediaKind,
     String? mimeType,
     String? sha,
     String? variantKey,
     String? renditionKey,
     String? filename,
-    required Map<String, dynamic> metadata,
+    Map<String, dynamic>? metadata,
   }) {
     return _StorageMediaRef(
       objectId: objectId,
       uri: uri,
-      uriScheme: uriScheme,
+      uriScheme: uriScheme ?? 'storage',
       mediaKind: mediaKind,
       mimeType: mimeType,
       sha: sha,
       variantKey: variantKey,
       renditionKey: renditionKey,
       filename: filename,
-      metadata: metadata,
+      metadata: metadata ?? {},
     );
   }
 
   factory StorageMediaRef.fromJson(Map<String, dynamic> json) =>
-      _$StorageMediaRefFromJson(json);
+      _$StorageMediaRefFromJson({
+        ...json,
+        if (!json.containsKey('uri_scheme')) 'uri_scheme': 'storage',
+        if (!json.containsKey('metadata')) 'metadata': {},
+      });
 }
 
 @freezed
@@ -88,8 +92,8 @@ abstract class StorageBlobMetadata with _$StorageBlobMetadata {
   factory StorageBlobMetadata({
     required UuidValue objectId,
     required String sha,
-    required String mimeType,
-    required int sizeBytes,
+    String? mimeType,
+    int? sizeBytes,
     String? objectKey,
     String? pathLocal,
     UuidValue? bucketId,
@@ -97,8 +101,8 @@ abstract class StorageBlobMetadata with _$StorageBlobMetadata {
     return _StorageBlobMetadata(
       objectId: objectId,
       sha: sha,
-      mimeType: mimeType,
-      sizeBytes: sizeBytes,
+      mimeType: mimeType ?? 'application/octet-stream',
+      sizeBytes: sizeBytes ?? 0,
       objectKey: objectKey,
       pathLocal: pathLocal,
       bucketId: bucketId,
@@ -106,7 +110,12 @@ abstract class StorageBlobMetadata with _$StorageBlobMetadata {
   }
 
   factory StorageBlobMetadata.fromJson(Map<String, dynamic> json) =>
-      _$StorageBlobMetadataFromJson(json);
+      _$StorageBlobMetadataFromJson({
+        ...json,
+        if (!json.containsKey('mime_type'))
+          'mime_type': 'application/octet-stream',
+        if (!json.containsKey('size_bytes')) 'size_bytes': 0,
+      });
 }
 
 @freezed
@@ -133,38 +142,45 @@ abstract class StorageMediaResolution with _$StorageMediaResolution {
     required StorageMediaRef mediaRef,
     required UuidValue objectId,
     required String sha,
-    required String mimeType,
-    required int sizeBytes,
+    String? mimeType,
+    int? sizeBytes,
     required String uri,
-    required String uriScheme,
+    String? uriScheme,
     String? httpUrl,
     String? cacheControl,
     String? etag,
     String? contentDisposition,
     String? filename,
     String? expiresAt,
-    required Map<String, dynamic> metadata,
+    Map<String, dynamic>? metadata,
   }) {
     return _StorageMediaResolution(
       mediaRef: mediaRef,
       objectId: objectId,
       sha: sha,
-      mimeType: mimeType,
-      sizeBytes: sizeBytes,
+      mimeType: mimeType ?? 'application/octet-stream',
+      sizeBytes: sizeBytes ?? 0,
       uri: uri,
-      uriScheme: uriScheme,
+      uriScheme: uriScheme ?? 'storage',
       httpUrl: httpUrl,
       cacheControl: cacheControl,
       etag: etag,
       contentDisposition: contentDisposition,
       filename: filename,
       expiresAt: expiresAt,
-      metadata: metadata,
+      metadata: metadata ?? {},
     );
   }
 
   factory StorageMediaResolution.fromJson(Map<String, dynamic> json) =>
-      _$StorageMediaResolutionFromJson(json);
+      _$StorageMediaResolutionFromJson({
+        ...json,
+        if (!json.containsKey('mime_type'))
+          'mime_type': 'application/octet-stream',
+        if (!json.containsKey('size_bytes')) 'size_bytes': 0,
+        if (!json.containsKey('uri_scheme')) 'uri_scheme': 'storage',
+        if (!json.containsKey('metadata')) 'metadata': {},
+      });
 }
 
 @freezed
@@ -184,28 +200,35 @@ abstract class StorageOperationReceipt with _$StorageOperationReceipt {
 
   factory StorageOperationReceipt({
     required String operation,
-    required String status,
+    String? status,
     UuidValue? objectId,
     String? sha,
     int? sizeBytes,
     String? mimeType,
-    required String backendKind,
-    required String dataPlane,
-    required Map<String, dynamic> metadata,
+    String? backendKind,
+    String? dataPlane,
+    Map<String, dynamic>? metadata,
   }) {
     return _StorageOperationReceipt(
       operation: operation,
-      status: status,
+      status: status ?? 'succeeded',
       objectId: objectId,
       sha: sha,
       sizeBytes: sizeBytes,
       mimeType: mimeType,
-      backendKind: backendKind,
-      dataPlane: dataPlane,
-      metadata: metadata,
+      backendKind: backendKind ?? 'storage-service',
+      dataPlane: dataPlane ?? 'storage',
+      metadata: metadata ?? {},
     );
   }
 
   factory StorageOperationReceipt.fromJson(Map<String, dynamic> json) =>
-      _$StorageOperationReceiptFromJson(json);
+      _$StorageOperationReceiptFromJson({
+        ...json,
+        if (!json.containsKey('status')) 'status': 'succeeded',
+        if (!json.containsKey('backend_kind'))
+          'backend_kind': 'storage-service',
+        if (!json.containsKey('data_plane')) 'data_plane': 'storage',
+        if (!json.containsKey('metadata')) 'metadata': {},
+      });
 }

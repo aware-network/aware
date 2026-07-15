@@ -1,0 +1,18 @@
+class Coin {
+    // Relationships
+    coin_exchange_rates coin.CoinExchangeRate[]
+
+    // Attributes
+    decimals Int = 8
+    name String unique
+    symbol String unique key
+    type CoinType
+
+    fn build construct (symbol String key, name String, type CoinType, decimals Int = 8) -> Coin {
+        """
+        Creates a Coin definition.
+
+        Receipt: Coin(symbol, name, type, decimals).
+        """
+    }
+}

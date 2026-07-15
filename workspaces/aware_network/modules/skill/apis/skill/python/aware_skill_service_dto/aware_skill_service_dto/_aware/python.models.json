@@ -1,0 +1,76 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "9dcdc23c-487c-5e72-bddf-70fad58f6bc0",
+      "module": "aware_skill_service_dto.skill.service_operation",
+      "name": "SkillApiCallReceipt",
+      "aware_class_ref": "aware_skill_service_dto.skill.SkillApiCallReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "800fa8b0-eb7d-5532-8913-b593d824f0ab",
+      "module": "aware_skill_service_dto.skill.service_operation",
+      "name": "SkillApiPackageRef",
+      "aware_class_ref": "aware_skill_service_dto.skill.SkillApiPackageRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "7ddeee24-6648-5854-ae75-0e15ded8a13a",
+      "module": "aware_skill_service_dto.skill.service_operation",
+      "name": "SkillInvokeRequest",
+      "aware_class_ref": "aware_skill_service_dto.skill.SkillInvokeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a65cc26e-91b6-53ec-a7f5-67fdb67c5d9f",
+      "module": "aware_skill_service_dto.skill.service_operation",
+      "name": "SkillInvokeResponse",
+      "aware_class_ref": "aware_skill_service_dto.skill.SkillInvokeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "616b57bb-2f03-5906-940a-06e70a1e4374",
+      "module": "aware_skill_service_dto.skill.service_operation",
+      "name": "SkillInvokeResult",
+      "aware_class_ref": "aware_skill_service_dto.skill.SkillInvokeResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "406fa1b4-c2fb-52b0-9906-8651a19d21fe",
+      "module": "aware_skill_service_dto.skill.service_operation",
+      "name": "SkillPackageRef",
+      "aware_class_ref": "aware_skill_service_dto.skill.SkillPackageRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "63a9fabb-f12a-56e5-815a-7f1ef9d9b250",
+      "module": "aware_skill_service_dto.skill.service_operation",
+      "name": "SkillRunStepReceipt",
+      "aware_class_ref": "aware_skill_service_dto.skill.SkillRunStepReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "f51cde00-8475-53f8-9a7d-4a39296ac812",
+      "module": "aware_skill_service_dto.skill.service_operation",
+      "name": "SkillServiceRequest",
+      "aware_class_ref": "aware_skill_service_dto.skill.SkillServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "2117a2db-03f9-5e02-87c3-eff2f357b637",
+      "module": "aware_skill_service_dto.skill.service_operation",
+      "name": "SkillServiceResponse",
+      "aware_class_ref": "aware_skill_service_dto.skill.SkillServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c9a84139-dd4a-53c7-b44c-7ba7abe9dddc",
+      "module": "aware_skill_service_dto.skill.service_operation",
+      "name": "SkillStepApiCallInput",
+      "aware_class_ref": "aware_skill_service_dto.skill.SkillStepApiCallInput",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

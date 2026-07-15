@@ -17,11 +17,13 @@ from aware_types import JsonArray
 
 if TYPE_CHECKING:
     from aware_code_ontology_dto.package.code_package import CodePackage
+    from aware_meta_ontology_dto.graph.instance.object_instance_graph_commit import ObjectInstanceGraphCommit
 
 
 class ApiPackageLanguagePackage(BaseModel):
     # Relationships
     code_package: CodePackage | None = Field(default=None)
+    object_instance_graph_commit: ObjectInstanceGraphCommit | None = Field(default=None)
 
     # Attributes
     exclude_paths: JsonArray = Field(default_factory=JsonArray)

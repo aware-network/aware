@@ -24,6 +24,76 @@ META_RUNTIME_PACKAGE_PROJECTION_INDEX_SCHEMA = (
     "aware.meta.runtime.package_projection_index.v1"
 )
 META_RUNTIME_PACKAGE_PROJECTION_INDEX_VERSION = 1
+META_RUNTIME_PACKAGE_PROJECTION_LOOKUP_SCHEMA = (
+    "aware.meta.runtime.package_projection_lookup.v1"
+)
+META_RUNTIME_PACKAGE_PROJECTION_LOOKUP_VERSION = 1
+META_RUNTIME_SEMANTIC_OBJECT_PAYLOAD_STORAGE = "compact_baseline_fields"
+META_RUNTIME_SEMANTIC_OBJECT_SOURCE_REF_STORAGE = "catalog"
+
+_SEMANTIC_OBJECT_COMPACT_PAYLOAD_KEYS = frozenset(
+    {
+        "attribute_config_id",
+        "attribute_membership_owner_kind",
+        "attribute_membership_semantic_key",
+        "attribute_membership_signature",
+        "attribute_name",
+        "attribute_signature",
+        "class_config_attribute_config_id",
+        "class_config_function_config_id",
+        "class_config_id",
+        "class_config_relationship_id",
+        "class_fqn",
+        "class_instance_id",
+        "class_signature",
+        "description",
+        "entity_name",
+        "function_attribute_type",
+        "function_config_attribute_config_id",
+        "function_config_id",
+        "function_impl_key",
+        "function_impl_kind",
+        "function_impl_signature",
+        "function_membership_semantic_key",
+        "function_membership_signature",
+        "function_name",
+        "function_semantic_key",
+        "function_signature",
+        "graph_semantic_key",
+        "id",
+        "identity_mode",
+        "is_base",
+        "is_edge",
+        "kind",
+        "name",
+        "node_key",
+        "node_type",
+        "object_id",
+        "object_instance_graph_commit_id",
+        "object_kind",
+        "ontology_subject_kind",
+        "operation_family",
+        "operation_key",
+        "owner_object_id",
+        "owner_semantic_key",
+        "parent_semantic_key",
+        "provider_operation_type",
+        "relationship_key",
+        "relationship_signature",
+        "relationship_type",
+        "runtime_delta_fingerprint",
+        "semantic_fingerprint",
+        "semantic_object_id",
+        "semantic_object_instance_graph_commit_id",
+        "semantic_object_kind",
+        "semantic_subject_type",
+        "source",
+        "source_class_instance_id",
+        "source_object_id",
+        "target_class_instance_id",
+        "value_mode",
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -133,6 +203,24 @@ class MetaRuntimePackageIndexPatch:
     runtime_delta_fingerprint: str | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class _PackageProjectionIndexReadCache:
+    path: Path
+    file_witness: tuple[int, int, int, int]
+    index: MetaRuntimePackageProjectionIndex
+
+
+@dataclass(frozen=True, slots=True)
+class _PackageProjectionLookupReadCache:
+    path: Path
+    file_witness: tuple[int, int, int, int]
+    index: MetaRuntimePackageProjectionIndex
+
+
+_package_projection_index_read_cache: _PackageProjectionIndexReadCache | None = None
+_package_projection_lookup_read_cache: _PackageProjectionLookupReadCache | None = None
+
+
 def meta_runtime_package_projection_index_path(*, aware_root: Path) -> Path:
     return (
         aware_root.expanduser().resolve()
@@ -143,11 +231,108 @@ def meta_runtime_package_projection_index_path(*, aware_root: Path) -> Path:
     )
 
 
+def meta_runtime_package_projection_lookup_path(*, aware_root: Path) -> Path:
+    return (
+        aware_root.expanduser().resolve()
+        / ".aware"
+        / "meta"
+        / "runtime"
+        / "package_projection_lookup.v1.json"
+    )
+
+
 def load_meta_runtime_package_projection_index(
     *,
     aware_root: Path,
 ) -> MetaRuntimePackageProjectionIndex | None:
     return _read_any_package_projection_index(aware_root=aware_root)
+
+
+def load_meta_runtime_package_projection_lookup(
+    *,
+    repo_root: Path,
+    aware_root: Path,
+    package_entries: Iterable[MetaRuntimePackageIndexEntry],
+) -> MetaRuntimePackageProjectionIndex | None:
+    """Read package/projection ownership without hydrating semantic objects."""
+
+    global _package_projection_lookup_read_cache
+
+    entries = _sorted_package_entries(package_entries)
+    catalog_signature = _package_catalog_signature(
+        repo_root=repo_root,
+        package_entries=entries,
+    )
+    path = meta_runtime_package_projection_lookup_path(aware_root=aware_root)
+    file_witness = _package_projection_index_file_witness(path)
+    if file_witness is None:
+        return _load_package_projection_lookup_from_full_index(
+            aware_root=aware_root,
+            catalog_signature=catalog_signature,
+        )
+    full_cache = _package_projection_index_read_cache
+    if (
+        full_cache is not None
+        and full_cache.path == path
+        and full_cache.file_witness == file_witness
+        and full_cache.index.catalog_signature == catalog_signature
+    ):
+        return full_cache.index
+    cached = _package_projection_lookup_read_cache
+    if (
+        cached is not None
+        and cached.path == path
+        and cached.file_witness == file_witness
+        and cached.index.catalog_signature == catalog_signature
+    ):
+        return cached.index
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    if not isinstance(payload, Mapping):
+        return None
+    if (
+        payload.get("schema") != META_RUNTIME_PACKAGE_PROJECTION_LOOKUP_SCHEMA
+        or payload.get("version") != META_RUNTIME_PACKAGE_PROJECTION_LOOKUP_VERSION
+        or _string_value(payload.get("catalog_signature")) != catalog_signature
+    ):
+        return _load_package_projection_lookup_from_full_index(
+            aware_root=aware_root,
+            catalog_signature=catalog_signature,
+        )
+    packages = _package_entries_from_payload(payload.get("packages"))
+    projections = _projection_entries_from_payload(payload.get("projections"))
+    if not packages:
+        return None
+    index = MetaRuntimePackageProjectionIndex(
+        catalog_signature=catalog_signature,
+        packages_by_name=packages,
+        projections_by_name=projections,
+    )
+    _package_projection_lookup_read_cache = _PackageProjectionLookupReadCache(
+        path=path,
+        file_witness=file_witness,
+        index=index,
+    )
+    return index
+
+
+def _load_package_projection_lookup_from_full_index(
+    *,
+    aware_root: Path,
+    catalog_signature: str,
+) -> MetaRuntimePackageProjectionIndex | None:
+    index = _read_any_package_projection_index(aware_root=aware_root)
+    if index is None or index.catalog_signature != catalog_signature:
+        return None
+    lookup = MetaRuntimePackageProjectionIndex(
+        catalog_signature=index.catalog_signature,
+        packages_by_name=index.packages_by_name,
+        projections_by_name=index.projections_by_name,
+    )
+    _write_package_projection_lookup(aware_root=aware_root, index=lookup)
+    return lookup
 
 
 def build_meta_runtime_package_projection_index(
@@ -266,6 +451,13 @@ def record_full_package_materialization_index(
             ),
             projection_upserts=projection_upserts,
             semantic_object_upserts=semantic_object_upserts,
+        ),
+    )
+    index = replace(
+        index,
+        catalog_signature=_package_catalog_signature(
+            repo_root=repo_root,
+            package_entries=entries,
         ),
     )
     _write_package_projection_index(aware_root=aware_root, index=index)
@@ -1242,43 +1434,29 @@ def _read_package_projection_index(
     aware_root: Path,
     catalog_signature: str,
 ) -> MetaRuntimePackageProjectionIndex | None:
-    path = meta_runtime_package_projection_index_path(aware_root=aware_root)
-    if not path.is_file():
+    index = _read_any_package_projection_index(aware_root=aware_root)
+    if index is None or index.catalog_signature != catalog_signature:
         return None
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return None
-    if not isinstance(payload, Mapping):
-        return None
-    if payload.get("schema") != META_RUNTIME_PACKAGE_PROJECTION_INDEX_SCHEMA:
-        return None
-    if payload.get("version") != META_RUNTIME_PACKAGE_PROJECTION_INDEX_VERSION:
-        return None
-    if payload.get("catalog_signature") != catalog_signature:
-        return None
-    packages = _package_entries_from_payload(payload.get("packages"))
-    projections = _projection_entries_from_payload(payload.get("projections"))
-    semantic_objects = _semantic_object_entries_from_payload(
-        payload.get("semantic_objects")
-    )
-    if not packages:
-        return None
-    return MetaRuntimePackageProjectionIndex(
-        catalog_signature=catalog_signature,
-        packages_by_name=packages,
-        projections_by_name=projections,
-        semantic_objects_by_key=semantic_objects,
-    )
+    return index
 
 
 def _read_any_package_projection_index(
     *,
     aware_root: Path,
 ) -> MetaRuntimePackageProjectionIndex | None:
+    global _package_projection_index_read_cache
+
     path = meta_runtime_package_projection_index_path(aware_root=aware_root)
-    if not path.is_file():
+    file_witness = _package_projection_index_file_witness(path)
+    if file_witness is None:
         return None
+    cached = _package_projection_index_read_cache
+    if (
+        cached is not None
+        and cached.path == path
+        and cached.file_witness == file_witness
+    ):
+        return cached.index
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
@@ -1295,16 +1473,26 @@ def _read_any_package_projection_index(
     packages = _package_entries_from_payload(payload.get("packages"))
     if not packages:
         return None
-    return MetaRuntimePackageProjectionIndex(
+    source_ref_sets_by_key = _source_ref_sets_from_payload(
+        payload.get("source_ref_sets")
+    )
+    index = MetaRuntimePackageProjectionIndex(
         catalog_signature=catalog_signature,
         packages_by_name=packages,
         projections_by_name=_projection_entries_from_payload(
             payload.get("projections")
         ),
         semantic_objects_by_key=_semantic_object_entries_from_payload(
-            payload.get("semantic_objects")
+            payload.get("semantic_objects"),
+            source_ref_sets_by_key=source_ref_sets_by_key,
         ),
     )
+    _package_projection_index_read_cache = _PackageProjectionIndexReadCache(
+        path=path,
+        file_witness=file_witness,
+        index=index,
+    )
+    return index
 
 
 def _write_package_projection_index(
@@ -1312,11 +1500,36 @@ def _write_package_projection_index(
     aware_root: Path,
     index: MetaRuntimePackageProjectionIndex,
 ) -> None:
+    global _package_projection_index_read_cache
+
     path = meta_runtime_package_projection_index_path(aware_root=aware_root)
     path.parent.mkdir(parents=True, exist_ok=True)
+    cached = _package_projection_index_read_cache
+    current_file_witness = _package_projection_index_file_witness(path)
+    if (
+        cached is not None
+        and cached.path == path
+        and cached.file_witness == current_file_witness
+        and (cached.index is index or cached.index == index)
+    ):
+        _write_package_projection_lookup(aware_root=aware_root, index=index)
+        return
+    semantic_object_entries = tuple(
+        sorted(
+            index.semantic_objects_by_key.values(),
+            key=lambda item: (item.semantic_key, item.package_name),
+        )
+    )
+    source_ref_set_keys_by_refs = _source_ref_set_keys_by_refs(semantic_object_entries)
     payload = {
         "schema": META_RUNTIME_PACKAGE_PROJECTION_INDEX_SCHEMA,
         "version": META_RUNTIME_PACKAGE_PROJECTION_INDEX_VERSION,
+        "semantic_object_payload_storage": (
+            META_RUNTIME_SEMANTIC_OBJECT_PAYLOAD_STORAGE
+        ),
+        "semantic_object_source_ref_storage": (
+            META_RUNTIME_SEMANTIC_OBJECT_SOURCE_REF_STORAGE
+        ),
         "catalog_signature": index.catalog_signature,
         "packages": [
             _package_entry_payload(entry)
@@ -1329,11 +1542,73 @@ def _write_package_projection_index(
                 key=lambda item: (item.projection_name, item.package_name),
             )
         ],
+        "source_ref_sets": _source_ref_set_payloads(source_ref_set_keys_by_refs),
         "semantic_objects": [
-            _semantic_object_entry_payload(entry)
+            _semantic_object_entry_payload(
+                entry,
+                source_ref_set_keys_by_refs=source_ref_set_keys_by_refs,
+            )
+            for entry in semantic_object_entries
+        ],
+    }
+    tmp_path = path.with_name(f"{path.name}.{uuid4().hex}.tmp")
+    try:
+        tmp_path.write_text(
+            json.dumps(payload, separators=(",", ":"), sort_keys=True),
+            encoding="utf-8",
+        )
+        tmp_path.replace(path)
+        file_witness = _package_projection_index_file_witness(path)
+        if file_witness is not None:
+            _package_projection_index_read_cache = _PackageProjectionIndexReadCache(
+                path=path,
+                file_witness=file_witness,
+                index=index,
+            )
+        _write_package_projection_lookup(aware_root=aware_root, index=index)
+    finally:
+        try:
+            tmp_path.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def _write_package_projection_lookup(
+    *,
+    aware_root: Path,
+    index: MetaRuntimePackageProjectionIndex,
+) -> None:
+    global _package_projection_lookup_read_cache
+
+    path = meta_runtime_package_projection_lookup_path(aware_root=aware_root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lookup = MetaRuntimePackageProjectionIndex(
+        catalog_signature=index.catalog_signature,
+        packages_by_name=index.packages_by_name,
+        projections_by_name=index.projections_by_name,
+    )
+    cached = _package_projection_lookup_read_cache
+    current_file_witness = _package_projection_index_file_witness(path)
+    if (
+        cached is not None
+        and cached.path == path
+        and cached.file_witness == current_file_witness
+        and (cached.index is lookup or cached.index == lookup)
+    ):
+        return
+    payload = {
+        "schema": META_RUNTIME_PACKAGE_PROJECTION_LOOKUP_SCHEMA,
+        "version": META_RUNTIME_PACKAGE_PROJECTION_LOOKUP_VERSION,
+        "catalog_signature": lookup.catalog_signature,
+        "packages": [
+            _package_entry_payload(entry)
+            for entry in _sorted_package_entries(lookup.packages_by_name.values())
+        ],
+        "projections": [
+            _projection_entry_payload(entry)
             for entry in sorted(
-                index.semantic_objects_by_key.values(),
-                key=lambda item: (item.semantic_key, item.package_name),
+                lookup.projections_by_name.values(),
+                key=lambda item: (item.projection_name, item.package_name),
             )
         ],
     }
@@ -1344,11 +1619,30 @@ def _write_package_projection_index(
             encoding="utf-8",
         )
         tmp_path.replace(path)
+        file_witness = _package_projection_index_file_witness(path)
+        if file_witness is not None:
+            _package_projection_lookup_read_cache = _PackageProjectionLookupReadCache(
+                path=path,
+                file_witness=file_witness,
+                index=lookup,
+            )
     finally:
         try:
             tmp_path.unlink()
         except FileNotFoundError:
             pass
+
+
+def _package_projection_index_file_witness(
+    path: Path,
+) -> tuple[int, int, int, int] | None:
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
+        return None
+    if not path.is_file():
+        return None
+    return (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
 
 
 def _projection_names_owned_by_package(
@@ -1459,8 +1753,26 @@ def _projection_entries_from_payload(
     return dict(sorted(entries.items()))
 
 
+def _source_ref_sets_from_payload(
+    value: object,
+) -> dict[str, tuple[str, ...]]:
+    if not isinstance(value, list):
+        return {}
+    entries: dict[str, tuple[str, ...]] = {}
+    for raw_entry in value:
+        if not isinstance(raw_entry, Mapping):
+            continue
+        source_ref_set_key = _string_value(raw_entry.get("source_ref_set_key"))
+        if source_ref_set_key is None:
+            continue
+        entries[source_ref_set_key] = _clean_string_tuple(raw_entry.get("source_refs"))
+    return dict(sorted(entries.items()))
+
+
 def _semantic_object_entries_from_payload(
     value: object,
+    *,
+    source_ref_sets_by_key: Mapping[str, tuple[str, ...]] | None = None,
 ) -> dict[str, MetaRuntimeSemanticObjectIndexEntry]:
     if not isinstance(value, list):
         return {}
@@ -1482,6 +1794,7 @@ def _semantic_object_entries_from_payload(
         ):
             continue
         payload = raw_entry.get("payload")
+        source_ref_set_key = _string_value(raw_entry.get("source_ref_set_key"))
         entries[semantic_key] = MetaRuntimeSemanticObjectIndexEntry(
             semantic_key=semantic_key,
             object_kind=object_kind,
@@ -1495,7 +1808,11 @@ def _semantic_object_entries_from_payload(
             owner_semantic_key=_string_value(raw_entry.get("owner_semantic_key")),
             node_key=_string_value(raw_entry.get("node_key")),
             attribute_name=_string_value(raw_entry.get("attribute_name")),
-            source_refs=_clean_string_tuple(raw_entry.get("source_refs")),
+            source_refs=(
+                (source_ref_sets_by_key or {}).get(source_ref_set_key, ())
+                if source_ref_set_key is not None
+                else _clean_string_tuple(raw_entry.get("source_refs"))
+            ),
             object_config_graph_id=_uuid_value(raw_entry.get("object_config_graph_id")),
             object_config_graph_hash=_string_value(
                 raw_entry.get("object_config_graph_hash")
@@ -1579,8 +1896,11 @@ def _projection_entry_payload(
 
 def _semantic_object_entry_payload(
     entry: MetaRuntimeSemanticObjectIndexEntry,
+    *,
+    source_ref_set_keys_by_refs: Mapping[tuple[str, ...], str] | None = None,
 ) -> dict[str, object]:
-    return {
+    source_ref_set_key = (source_ref_set_keys_by_refs or {}).get(entry.source_refs)
+    payload = {
         "semantic_key": entry.semantic_key,
         "object_kind": entry.object_kind,
         "package_name": entry.package_name,
@@ -1593,7 +1913,6 @@ def _semantic_object_entry_payload(
         "owner_semantic_key": entry.owner_semantic_key,
         "node_key": entry.node_key,
         "attribute_name": entry.attribute_name,
-        "source_refs": list(entry.source_refs),
         "object_config_graph_id": _uuid_text(entry.object_config_graph_id),
         "object_config_graph_hash": entry.object_config_graph_hash,
         "semantic_root_object_instance_graph_commit_id": _uuid_text(
@@ -1612,7 +1931,55 @@ def _semantic_object_entry_payload(
         ),
         "runtime_delta_fingerprint": entry.runtime_delta_fingerprint,
         "evidence_source": entry.evidence_source,
-        "payload": _json_payload_mapping(entry.payload),
+    }
+    if source_ref_set_key is not None:
+        payload["source_ref_set_key"] = source_ref_set_key
+    elif entry.source_refs:
+        payload["source_refs"] = list(entry.source_refs)
+    compact_payload = _compact_semantic_object_payload(entry.payload)
+    if compact_payload:
+        payload["payload"] = compact_payload
+    return payload
+
+
+def _source_ref_set_keys_by_refs(
+    entries: Iterable[MetaRuntimeSemanticObjectIndexEntry],
+) -> dict[tuple[str, ...], str]:
+    return {
+        source_refs: _source_ref_set_key(source_refs)
+        for source_refs in sorted(
+            {entry.source_refs for entry in entries if entry.source_refs}
+        )
+    }
+
+
+def _source_ref_set_key(source_refs: tuple[str, ...]) -> str:
+    payload = json.dumps(list(source_refs), separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _source_ref_set_payloads(
+    source_ref_set_keys_by_refs: Mapping[tuple[str, ...], str],
+) -> list[dict[str, object]]:
+    return [
+        {
+            "source_ref_set_key": source_ref_set_key,
+            "source_refs": list(source_refs),
+        }
+        for source_refs, source_ref_set_key in sorted(
+            source_ref_set_keys_by_refs.items(),
+            key=lambda item: item[1],
+        )
+    ]
+
+
+def _compact_semantic_object_payload(
+    value: Mapping[str, object],
+) -> dict[str, object]:
+    return {
+        key: _json_payload_value(raw_value)
+        for key in sorted(_SEMANTIC_OBJECT_COMPACT_PAYLOAD_KEYS)
+        if (raw_value := value.get(key)) is not None
     }
 
 
@@ -1835,7 +2202,7 @@ def _package_catalog_signature(
 ) -> str:
     root = repo_root.expanduser().resolve()
     hasher = hashlib.sha256()
-    hasher.update(b"aware-meta-runtime-package-catalog-v1\n")
+    hasher.update(b"aware-meta-runtime-package-catalog-v2\n")
     for entry in package_entries:
         try:
             manifest_key = entry.manifest_path.resolve().relative_to(root).as_posix()
@@ -1847,7 +2214,6 @@ def _package_catalog_signature(
             entry.fqn_prefix,
             manifest_key,
             ",".join(entry.dependency_package_names),
-            ",".join(entry.projection_names),
             entry.runtime_handler_provider_import_root or "",
         )
         hasher.update("|".join(parts).encode("utf-8"))
@@ -1939,7 +2305,9 @@ __all__ = [
     "apply_meta_runtime_package_index_patch",
     "build_meta_runtime_package_projection_index",
     "load_meta_runtime_package_projection_index",
+    "load_meta_runtime_package_projection_lookup",
     "meta_runtime_package_projection_index_path",
+    "meta_runtime_package_projection_lookup_path",
     "record_full_package_materialization_index",
     "record_meta_runtime_package_index_patch",
     "stable_meta_runtime_package_branch_id",

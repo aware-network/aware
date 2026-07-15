@@ -1,0 +1,31 @@
+/// InterfaceSession-owned portal to one committed ExperienceSession.
+///
+/// Contract:
+/// - Interface owns only the mount/provenance row.
+/// - Experience owns ExperienceSession and all profile, Environment, lens,
+///   action, and downstream Attention resolution state.
+/// - One InterfaceSession may mount many ExperienceSessions.
+/// - The same ExperienceSession may be mounted by other InterfaceSessions.
+class InterfaceSessionExperienceSession {
+    // Relationships
+    experience_session aware_experience.session.ExperienceSession key
+
+    // Attributes
+    status String = "active"
+    metadata_json JsonObject? = {}
+
+    fn build construct (
+        experience_session_id UUID key,
+        status String = "active",
+        metadata_json JsonObject? = {}
+    ) -> InterfaceSessionExperienceSession {
+        """
+        Construct one InterfaceSession -> ExperienceSession portal row.
+
+        Stable identity is InterfaceSession plus ExperienceSession. The target
+        remains Experience-owned and no active-selection semantics are added.
+        """
+    }
+}
+
+ann interface.InterfaceSessionExperienceSession::experience_session load eager

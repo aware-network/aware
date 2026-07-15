@@ -47,6 +47,7 @@ from aware_meta.manifest.namespace_match import namespace_for_source_path
 from aware_meta.graph.config.cross_ocg import (
     link_cross_ocg_relationships,
 )
+from aware_utils.logging import logger
 
 from .semantic_contract import META_OBJECT_CONFIG_GRAPH_OWNER
 
@@ -246,11 +247,21 @@ def analyze_meta_ocg_semantic_capability(
         "completeness_diagnostic_severity",
         default="warning",
     )
+    external_graphs = _semantic_capability_dependency_graphs(
+        request=request,
+        graph_kind="source",
+    )
+    external_runtime_graphs = _semantic_capability_dependency_graphs(
+        request=request,
+        graph_kind="runtime",
+    )
     analysis = analyze_meta_ocg_sources(
         package_root=request.package_root,
         source_files=request.source_files,
         manifest_path=request.manifest_path,
         code_package_delta=request.code_package_delta,
+        external_graphs=external_graphs,
+        external_runtime_graphs=external_runtime_graphs,
         fail_on_error=False,
         completeness_diagnostics=completeness_diagnostics,
         completeness_diagnostic_severity=completeness_diagnostic_severity,
@@ -304,6 +315,24 @@ def analyze_meta_ocg_semantic_capability(
         payload=analysis,
         code_package_delta=request.code_package_delta,
     )
+
+
+def _semantic_capability_dependency_graphs(
+    *,
+    request: SemanticAnalysisCapabilityRequest,
+    graph_kind: str,
+) -> tuple[ObjectConfigGraph, ...]:
+    graphs: list[ObjectConfigGraph] = []
+    seen: set[UUID] = set()
+    for dependency in request.dependency_graphs:
+        if dependency.graph_kind != graph_kind:
+            continue
+        graph = ObjectConfigGraph.model_validate(dict(dependency.graph))
+        if graph.id in seen:
+            continue
+        seen.add(graph.id)
+        graphs.append(graph)
+    return tuple(graphs)
 
 
 def _resolve_manifest_path(
@@ -512,6 +541,26 @@ def _parse_source_files(
             symbol_table=symbol_table,
         )
         parsed.append((source_relative_path, code))
+    reuse_summary = section_index.reuse_summary()
+    if reuse_summary.total_count:
+        logger.info(
+            "Code section reuse summary: package_root=%s source_count=%d total_count=%d count_by_type=%s samples=%s",
+            package_root,
+            len(parsed),
+            reuse_summary.total_count,
+            {
+                section_type.name: count
+                for section_type, count in reuse_summary.count_by_type
+            },
+            [
+                {
+                    "section_type": sample.section_type.name,
+                    "qualname": sample.qualname,
+                    "identity_hash_prefix": sample.identity_hash_prefix,
+                }
+                for sample in reuse_summary.samples
+            ],
+        )
     return tuple(sorted(parsed, key=lambda item: item[0]))
 
 

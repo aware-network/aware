@@ -1,0 +1,777 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "fe2f61e9-571f-58b7-8b35-689abf9f296a",
+      "module": "aware_service_ontology.service.service",
+      "name": "Service",
+      "aware_class_ref": "aware_service.service.Service",
+      "functions": [
+        {
+          "function_config_id": "4747cdfe-8414-5660-8804-cc064fe62af2",
+          "name": "build_via_service_config",
+          "input_model": "ServiceBuildViaServiceConfigInput",
+          "output_model": "ServiceBuildViaServiceConfigOutput"
+        },
+        {
+          "function_config_id": "070b5270-3f3f-582f-b693-5ea4cf15a849",
+          "name": "create_branch",
+          "input_model": "ServiceCreateBranchInput",
+          "output_model": "ServiceCreateBranchOutput"
+        },
+        {
+          "function_config_id": "5184e115-de9b-5765-8a77-a0199802ca63",
+          "name": "create_commercial_profile",
+          "input_model": "ServiceCreateCommercialProfileInput",
+          "output_model": "ServiceCreateCommercialProfileOutput"
+        },
+        {
+          "function_config_id": "7c1b26ab-894b-5d00-b63d-548714e0e479",
+          "name": "create_contract",
+          "input_model": "ServiceCreateContractInput",
+          "output_model": "ServiceCreateContractOutput"
+        },
+        {
+          "function_config_id": "46b0a7eb-e558-598e-9987-47d9933ab701",
+          "name": "create_operation",
+          "input_model": "ServiceCreateOperationInput",
+          "output_model": "ServiceCreateOperationOutput"
+        },
+        {
+          "function_config_id": "0fe1b234-7c81-5741-9cee-7cf04d4adb4a",
+          "name": "create_plan",
+          "input_model": "ServiceCreatePlanInput",
+          "output_model": "ServiceCreatePlanOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "98dec89d-3657-5f91-bd48-e154e463f1f8",
+      "module": "aware_service_ontology.service.service_api_provider_set",
+      "name": "ServiceApiProviderSet",
+      "aware_class_ref": "aware_service.service.ServiceApiProviderSet",
+      "functions": [
+        {
+          "function_config_id": "2b4314d7-a9f1-5fe2-ab7a-eaf44174d12d",
+          "name": "attach_service_package",
+          "input_model": "ServiceApiProviderSetAttachServicePackageInput",
+          "output_model": "ServiceApiProviderSetAttachServicePackageOutput"
+        },
+        {
+          "function_config_id": "65742d06-6fbd-52c6-b2d7-ef614e54d10b",
+          "name": "build",
+          "input_model": "ServiceApiProviderSetBuildInput",
+          "output_model": "ServiceApiProviderSetBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "40094f3c-5227-57e2-9e2f-eee14ca994c3",
+      "module": "aware_service_ontology.service.service_api_provider_set_service_package",
+      "name": "ServiceApiProviderSetServicePackage",
+      "aware_class_ref": "aware_service.service.ServiceApiProviderSetServicePackage",
+      "functions": [
+        {
+          "function_config_id": "92e3d0ed-8d05-59d6-aefd-79b827a58867",
+          "name": "build_via_service_api_provider_set",
+          "input_model": "ServiceApiProviderSetServicePackageBuildViaServiceApiProviderSetInput",
+          "output_model": "ServiceApiProviderSetServicePackageBuildViaServiceApiProviderSetOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7ddaf950-df4e-5eeb-b34a-660988593764",
+      "module": "aware_service_ontology.service.service_branch",
+      "name": "ServiceBranch",
+      "aware_class_ref": "aware_service.service.ServiceBranch",
+      "functions": [
+        {
+          "function_config_id": "29b2a347-c8b2-5951-8965-0e1c4ab856fd",
+          "name": "build_via_service",
+          "input_model": "ServiceBranchBuildViaServiceInput",
+          "output_model": "ServiceBranchBuildViaServiceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6b88f322-100a-58b4-b6bc-2a3d43175898",
+      "module": "aware_service_ontology.service.service_commercial_profile",
+      "name": "ServiceCommercialProfile",
+      "aware_class_ref": "aware_service.service.ServiceCommercialProfile",
+      "functions": [
+        {
+          "function_config_id": "daf55fb9-6e2e-59a3-95e3-ea84635d061e",
+          "name": "build_via_service",
+          "input_model": "ServiceCommercialProfileBuildViaServiceInput",
+          "output_model": "ServiceCommercialProfileBuildViaServiceOutput"
+        },
+        {
+          "function_config_id": "2929c31e-a678-5f0a-af3a-c33a9dc99156",
+          "name": "set_terms",
+          "input_model": "ServiceCommercialProfileSetTermsInput",
+          "output_model": "ServiceCommercialProfileSetTermsOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "812f2d57-db86-5729-b4c2-f8e153265a78",
+      "module": "aware_service_ontology.service.service_config",
+      "name": "ServiceConfig",
+      "aware_class_ref": "aware_service.service.ServiceConfig",
+      "functions": [
+        {
+          "function_config_id": "3531de3c-0189-5533-8908-fda3200b4320",
+          "name": "build",
+          "input_model": "ServiceConfigBuildInput",
+          "output_model": "ServiceConfigBuildOutput"
+        },
+        {
+          "function_config_id": "97e3bf25-3855-5955-8e08-206f240ef8d6",
+          "name": "create_api",
+          "input_model": "ServiceConfigCreateApiInput",
+          "output_model": "ServiceConfigCreateApiOutput"
+        },
+        {
+          "function_config_id": "aca09342-89de-5bd8-9895-6b736a00ede5",
+          "name": "create_contract_config",
+          "input_model": "ServiceConfigCreateContractConfigInput",
+          "output_model": "ServiceConfigCreateContractConfigOutput"
+        },
+        {
+          "function_config_id": "9297c595-2f36-57b6-ac79-5edeaa94a4aa",
+          "name": "create_experience",
+          "input_model": "ServiceConfigCreateExperienceInput",
+          "output_model": "ServiceConfigCreateExperienceOutput"
+        },
+        {
+          "function_config_id": "e087a51c-3031-5d20-baa3-d8a20c156688",
+          "name": "create_service",
+          "input_model": "ServiceConfigCreateServiceInput",
+          "output_model": "ServiceConfigCreateServiceOutput"
+        },
+        {
+          "function_config_id": "539aa35c-c755-5550-a341-26970f465b3e",
+          "name": "create_service_operation_config",
+          "input_model": "ServiceConfigCreateServiceOperationConfigInput",
+          "output_model": "ServiceConfigCreateServiceOperationConfigOutput"
+        },
+        {
+          "function_config_id": "def550a1-86d3-576e-9e31-6153e7921a8f",
+          "name": "declare_code_package_config",
+          "input_model": "ServiceConfigDeclareCodePackageConfigInput",
+          "output_model": "ServiceConfigDeclareCodePackageConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3bccdcf0-e105-5f63-b94b-3e6ec2b9a83d",
+      "module": "aware_service_ontology.service.service_config_api",
+      "name": "ServiceConfigApi",
+      "aware_class_ref": "aware_service.service.ServiceConfigApi",
+      "functions": [
+        {
+          "function_config_id": "1e8034be-c682-537e-aeeb-acb9216f85bf",
+          "name": "build_via_service_config",
+          "input_model": "ServiceConfigApiBuildViaServiceConfigInput",
+          "output_model": "ServiceConfigApiBuildViaServiceConfigOutput"
+        },
+        {
+          "function_config_id": "f89d1dd8-22f8-52a1-877f-108f0f9d299d",
+          "name": "create_projection",
+          "input_model": "ServiceConfigApiCreateProjectionInput",
+          "output_model": "ServiceConfigApiCreateProjectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "bf49d62b-61e1-5a37-993e-f941076c0717",
+      "module": "aware_service_ontology.service.service_config_api_projection",
+      "name": "ServiceConfigApiProjection",
+      "aware_class_ref": "aware_service.service.ServiceConfigApiProjection",
+      "functions": [
+        {
+          "function_config_id": "cc781428-1d98-50b5-b113-fe55e5906ddc",
+          "name": "build_via_service_config_api",
+          "input_model": "ServiceConfigApiProjectionBuildViaServiceConfigApiInput",
+          "output_model": "ServiceConfigApiProjectionBuildViaServiceConfigApiOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a666126d-24c5-5eba-8636-6c9c2b43914a",
+      "module": "aware_service_ontology.service.service_config_code_package_config",
+      "name": "ServiceConfigCodePackageConfig",
+      "aware_class_ref": "aware_service.service.ServiceConfigCodePackageConfig",
+      "functions": [
+        {
+          "function_config_id": "fe628911-db8d-5b5a-85f5-14e3a9ecbfac",
+          "name": "build_via_service_config",
+          "input_model": "ServiceConfigCodePackageConfigBuildViaServiceConfigInput",
+          "output_model": "ServiceConfigCodePackageConfigBuildViaServiceConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1f86db91-8d59-58c4-ab1f-8c326aa60b88",
+      "module": "aware_service_ontology.service.service_config_experience",
+      "name": "ServiceConfigExperience",
+      "aware_class_ref": "aware_service.service.ServiceConfigExperience",
+      "functions": [
+        {
+          "function_config_id": "5b3eaa6e-0c61-5987-98d1-c9e8e6fa011e",
+          "name": "build_via_service_config",
+          "input_model": "ServiceConfigExperienceBuildViaServiceConfigInput",
+          "output_model": "ServiceConfigExperienceBuildViaServiceConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "25c5ff2c-d5ed-52dc-b10d-4ef9384dda39",
+      "module": "aware_service_ontology.service.service_contract",
+      "name": "ServiceContract",
+      "aware_class_ref": "aware_service.service.ServiceContract",
+      "functions": [
+        {
+          "function_config_id": "668591a3-2361-5f7e-b2c2-4f807fc1860a",
+          "name": "build_via_service",
+          "input_model": "ServiceContractBuildViaServiceInput",
+          "output_model": "ServiceContractBuildViaServiceOutput"
+        },
+        {
+          "function_config_id": "a0c25b88-cd1b-5cef-876b-5979032e6b35",
+          "name": "configure_economy_settlement",
+          "input_model": "ServiceContractConfigureEconomySettlementInput",
+          "output_model": "ServiceContractConfigureEconomySettlementOutput"
+        },
+        {
+          "function_config_id": "b7e16331-b9af-53c6-9cf0-c974938602f3",
+          "name": "set_status",
+          "input_model": "ServiceContractSetStatusInput",
+          "output_model": "ServiceContractSetStatusOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1f9af380-0610-53fb-87e3-755c9426c195",
+      "module": "aware_service_ontology.service.service_contract_config",
+      "name": "ServiceContractConfig",
+      "aware_class_ref": "aware_service.service.ServiceContractConfig",
+      "functions": [
+        {
+          "function_config_id": "969de6ff-a29d-53c5-ab63-dd2f2e97cc31",
+          "name": "build_via_service_config",
+          "input_model": "ServiceContractConfigBuildViaServiceConfigInput",
+          "output_model": "ServiceContractConfigBuildViaServiceConfigOutput"
+        },
+        {
+          "function_config_id": "57c97547-5450-5591-b90a-5a5d80ec9fd2",
+          "name": "grant_actor_role",
+          "input_model": "ServiceContractConfigGrantActorRoleInput",
+          "output_model": "ServiceContractConfigGrantActorRoleOutput"
+        },
+        {
+          "function_config_id": "a8e7dbcc-aa26-5dcc-9149-f490be96b0c4",
+          "name": "grant_operation",
+          "input_model": "ServiceContractConfigGrantOperationInput",
+          "output_model": "ServiceContractConfigGrantOperationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6d829192-3b13-5c96-a587-a19020576706",
+      "module": "aware_service_ontology.service.service_contract_config_actor_role_grant",
+      "name": "ServiceContractConfigActorRoleGrant",
+      "aware_class_ref": "aware_service.service.ServiceContractConfigActorRoleGrant",
+      "functions": [
+        {
+          "function_config_id": "4d39f33f-7fca-5bb3-9636-d3a468c6bdcf",
+          "name": "build_via_service_contract_config",
+          "input_model": "ServiceContractConfigActorRoleGrantBuildViaServiceContractConfigInput",
+          "output_model": "ServiceContractConfigActorRoleGrantBuildViaServiceContractConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "35156ee3-671a-553d-a156-86891d53d242",
+      "module": "aware_service_ontology.service.service_contract_config_operation_grant",
+      "name": "ServiceContractConfigOperationGrant",
+      "aware_class_ref": "aware_service.service.ServiceContractConfigOperationGrant",
+      "functions": [
+        {
+          "function_config_id": "5e94d5b7-5717-5a22-8c73-0d04922f6a42",
+          "name": "build_via_service_contract_config",
+          "input_model": "ServiceContractConfigOperationGrantBuildViaServiceContractConfigInput",
+          "output_model": "ServiceContractConfigOperationGrantBuildViaServiceContractConfigOutput"
+        },
+        {
+          "function_config_id": "2ba90281-1b81-59fa-b676-3d686f7d6fcf",
+          "name": "configure_permit_policy",
+          "input_model": "ServiceContractConfigOperationGrantConfigurePermitPolicyInput",
+          "output_model": "ServiceContractConfigOperationGrantConfigurePermitPolicyOutput"
+        },
+        {
+          "function_config_id": "627d0d27-dcd9-591b-a271-63afaf1dd539",
+          "name": "configure_price_policy",
+          "input_model": "ServiceContractConfigOperationGrantConfigurePricePolicyInput",
+          "output_model": "ServiceContractConfigOperationGrantConfigurePricePolicyOutput"
+        },
+        {
+          "function_config_id": "27f7f83d-4be2-5298-b038-ece69796db52",
+          "name": "configure_quota_policy",
+          "input_model": "ServiceContractConfigOperationGrantConfigureQuotaPolicyInput",
+          "output_model": "ServiceContractConfigOperationGrantConfigureQuotaPolicyOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "809fa55e-058d-525b-a79c-46eba8fd9483",
+      "module": "aware_service_ontology.service.service_contract_economy_settlement",
+      "name": "ServiceContractEconomySettlement",
+      "aware_class_ref": "aware_service.service.ServiceContractEconomySettlement",
+      "functions": [
+        {
+          "function_config_id": "b5c42742-1960-5f8e-a574-e2c3379c10a3",
+          "name": "build_via_service_contract",
+          "input_model": "ServiceContractEconomySettlementBuildViaServiceContractInput",
+          "output_model": "ServiceContractEconomySettlementBuildViaServiceContractOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fd1b12ed-e33d-5091-9b4b-ca311cd5ca31",
+      "module": "aware_service_ontology.service.service_contract_operation_permit_policy",
+      "name": "ServiceContractOperationPermitPolicy",
+      "aware_class_ref": "aware_service.service.ServiceContractOperationPermitPolicy",
+      "functions": [
+        {
+          "function_config_id": "8bb923a5-9eda-54e7-a19d-62bab93fff23",
+          "name": "build_via_service_contract_config_operation_grant",
+          "input_model": "ServiceContractOperationPermitPolicyBuildViaServiceContractConfigOperationGrantInput",
+          "output_model": "ServiceContractOperationPermitPolicyBuildViaServiceContractConfigOperationGrantOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "dfd50e02-8155-5666-aca0-0b6612b275e4",
+      "module": "aware_service_ontology.service.service_contract_operation_price_policy",
+      "name": "ServiceContractOperationPricePolicy",
+      "aware_class_ref": "aware_service.service.ServiceContractOperationPricePolicy",
+      "functions": [
+        {
+          "function_config_id": "1e91b8f0-e2f0-5a9e-90ae-762ff1948cd3",
+          "name": "build_via_service_contract_config_operation_grant",
+          "input_model": "ServiceContractOperationPricePolicyBuildViaServiceContractConfigOperationGrantInput",
+          "output_model": "ServiceContractOperationPricePolicyBuildViaServiceContractConfigOperationGrantOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d772b07a-e154-5f64-b68f-9b3b63df2cd4",
+      "module": "aware_service_ontology.service.service_contract_operation_quota_policy",
+      "name": "ServiceContractOperationQuotaPolicy",
+      "aware_class_ref": "aware_service.service.ServiceContractOperationQuotaPolicy",
+      "functions": [
+        {
+          "function_config_id": "40da6522-46af-59be-bd8d-938e50c5de70",
+          "name": "build_via_service_contract_config_operation_grant",
+          "input_model": "ServiceContractOperationQuotaPolicyBuildViaServiceContractConfigOperationGrantInput",
+          "output_model": "ServiceContractOperationQuotaPolicyBuildViaServiceContractConfigOperationGrantOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e7274877-03b2-5d39-8aa4-4d6e653f9036",
+      "module": "aware_service_ontology.service.service_operation",
+      "name": "ServiceOperation",
+      "aware_class_ref": "aware_service.service.ServiceOperation",
+      "functions": [
+        {
+          "function_config_id": "769e63f8-4ac9-560e-9a12-33b61058aa39",
+          "name": "build_via_service",
+          "input_model": "ServiceOperationBuildViaServiceInput",
+          "output_model": "ServiceOperationBuildViaServiceOutput"
+        },
+        {
+          "function_config_id": "ba2a2540-2829-5c69-88ae-48a8b26424ef",
+          "name": "set_status",
+          "input_model": "ServiceOperationSetStatusInput",
+          "output_model": "ServiceOperationSetStatusOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "da0be204-4f84-5f13-8cef-fc18ed4feffe",
+      "module": "aware_service_ontology.service.service_operation_config",
+      "name": "ServiceOperationConfig",
+      "aware_class_ref": "aware_service.service.ServiceOperationConfig",
+      "functions": [
+        {
+          "function_config_id": "5b8c9ee7-c4e3-5c8d-a1e9-5f33e8ca77e8",
+          "name": "build_via_service_config",
+          "input_model": "ServiceOperationConfigBuildViaServiceConfigInput",
+          "output_model": "ServiceOperationConfigBuildViaServiceConfigOutput"
+        },
+        {
+          "function_config_id": "6c1cdb8a-29b9-5ff8-9891-cc7847ff9486",
+          "name": "create_api_endpoint",
+          "input_model": "ServiceOperationConfigCreateApiEndpointInput",
+          "output_model": "ServiceOperationConfigCreateApiEndpointOutput"
+        },
+        {
+          "function_config_id": "2578e1e3-0034-5c36-b868-3a51800bd2b0",
+          "name": "create_api_view",
+          "input_model": "ServiceOperationConfigCreateApiViewInput",
+          "output_model": "ServiceOperationConfigCreateApiViewOutput"
+        },
+        {
+          "function_config_id": "bab698f1-97ef-5067-8875-bfb7fa30fe9c",
+          "name": "require_role",
+          "input_model": "ServiceOperationConfigRequireRoleInput",
+          "output_model": "ServiceOperationConfigRequireRoleOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "66e03069-264a-5b04-80e7-862c194abdbb",
+      "module": "aware_service_ontology.service.service_operation_config_api_endpoint",
+      "name": "ServiceOperationConfigApiEndpoint",
+      "aware_class_ref": "aware_service.service.ServiceOperationConfigApiEndpoint",
+      "functions": [
+        {
+          "function_config_id": "2d2f220b-901e-5d27-92a3-5426a31a6a30",
+          "name": "build_via_service_operation_config",
+          "input_model": "ServiceOperationConfigApiEndpointBuildViaServiceOperationConfigInput",
+          "output_model": "ServiceOperationConfigApiEndpointBuildViaServiceOperationConfigOutput"
+        },
+        {
+          "function_config_id": "81cd2904-5494-517a-b0df-14be2fb30dc3",
+          "name": "create_function",
+          "input_model": "ServiceOperationConfigApiEndpointCreateFunctionInput",
+          "output_model": "ServiceOperationConfigApiEndpointCreateFunctionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7436a347-a191-515d-8ab0-bd9a85fcf2f4",
+      "module": "aware_service_ontology.service.service_operation_config_api_endpoint_function",
+      "name": "ServiceOperationConfigApiEndpointFunction",
+      "aware_class_ref": "aware_service.service.ServiceOperationConfigApiEndpointFunction",
+      "functions": [
+        {
+          "function_config_id": "ee1808c3-4560-55e1-8560-2aefa2115e24",
+          "name": "build_via_service_operation_config_api_endpoint",
+          "input_model": "ServiceOperationConfigApiEndpointFunctionBuildViaServiceOperationConfigApiEndpointInput",
+          "output_model": "ServiceOperationConfigApiEndpointFunctionBuildViaServiceOperationConfigApiEndpointOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "aa9a79ec-ea9e-51a6-a272-4380a41b86c4",
+      "module": "aware_service_ontology.service.service_operation_config_api_view",
+      "name": "ServiceOperationConfigApiView",
+      "aware_class_ref": "aware_service.service.ServiceOperationConfigApiView",
+      "functions": [
+        {
+          "function_config_id": "271ea5c8-1565-5125-892c-316bc7b00411",
+          "name": "build_via_service_operation_config",
+          "input_model": "ServiceOperationConfigApiViewBuildViaServiceOperationConfigInput",
+          "output_model": "ServiceOperationConfigApiViewBuildViaServiceOperationConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "37a8b576-9ade-5cc3-9a1d-e358b906271c",
+      "module": "aware_service_ontology.service.service_operation_config_role_requirement",
+      "name": "ServiceOperationConfigRoleRequirement",
+      "aware_class_ref": "aware_service.service.ServiceOperationConfigRoleRequirement",
+      "functions": [
+        {
+          "function_config_id": "13683621-682b-5f10-a3e1-a7e2753a69ff",
+          "name": "build_via_service_operation_config",
+          "input_model": "ServiceOperationConfigRoleRequirementBuildViaServiceOperationConfigInput",
+          "output_model": "ServiceOperationConfigRoleRequirementBuildViaServiceOperationConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8f80f12a-16a5-5932-9958-38a697903c2c",
+      "module": "aware_service_ontology.service.service_package",
+      "name": "ServicePackage",
+      "aware_class_ref": "aware_service.service.ServicePackage",
+      "functions": [
+        {
+          "function_config_id": "3f25b4c1-5933-59c5-bce9-ed9a33048ad9",
+          "name": "attach_implementation_package",
+          "input_model": "ServicePackageAttachImplementationPackageInput",
+          "output_model": "ServicePackageAttachImplementationPackageOutput"
+        },
+        {
+          "function_config_id": "30512bb2-6976-53e3-a4e6-baee4b7ffbae",
+          "name": "attach_object_config_graph_package",
+          "input_model": "ServicePackageAttachObjectConfigGraphPackageInput",
+          "output_model": "ServicePackageAttachObjectConfigGraphPackageOutput"
+        },
+        {
+          "function_config_id": "79f14988-d437-5bf4-8e92-de9638514a1d",
+          "name": "attach_ontology_package",
+          "input_model": "ServicePackageAttachOntologyPackageInput",
+          "output_model": "ServicePackageAttachOntologyPackageOutput"
+        },
+        {
+          "function_config_id": "84c203f1-427c-5171-868d-9b754df88fe4",
+          "name": "attach_provided_api_package",
+          "input_model": "ServicePackageAttachProvidedApiPackageInput",
+          "output_model": "ServicePackageAttachProvidedApiPackageOutput"
+        },
+        {
+          "function_config_id": "cea2d5a7-48b5-5629-bde4-7fe5d7686240",
+          "name": "attach_required_api_package",
+          "input_model": "ServicePackageAttachRequiredApiPackageInput",
+          "output_model": "ServicePackageAttachRequiredApiPackageOutput"
+        },
+        {
+          "function_config_id": "269ac7e7-931d-52ee-8c36-513185c3a61f",
+          "name": "build",
+          "input_model": "ServicePackageBuildInput",
+          "output_model": "ServicePackageBuildOutput"
+        },
+        {
+          "function_config_id": "3385b48d-a965-5aea-8fec-41c253f841d1",
+          "name": "sync_manifest_truth",
+          "input_model": "ServicePackageSyncManifestTruthInput",
+          "output_model": "ServicePackageSyncManifestTruthOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e94d9f0a-f0ee-5e02-a830-18a49827fc75",
+      "module": "aware_service_ontology.service.service_package_implementation_package",
+      "name": "ServicePackageImplementationPackage",
+      "aware_class_ref": "aware_service.service.ServicePackageImplementationPackage",
+      "functions": [
+        {
+          "function_config_id": "ee0b6cf8-e6f0-5368-9a42-2509317956fc",
+          "name": "build_via_service_package",
+          "input_model": "ServicePackageImplementationPackageBuildViaServicePackageInput",
+          "output_model": "ServicePackageImplementationPackageBuildViaServicePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "27e0538b-636c-5718-85c8-98a6435cb1cf",
+      "module": "aware_service_ontology.service.service_package_object_config_graph_package",
+      "name": "ServicePackageObjectConfigGraphPackage",
+      "aware_class_ref": "aware_service.service.ServicePackageObjectConfigGraphPackage",
+      "functions": [
+        {
+          "function_config_id": "5c0a5654-2af6-599b-b9cd-63ca59dde337",
+          "name": "build_via_service_package",
+          "input_model": "ServicePackageObjectConfigGraphPackageBuildViaServicePackageInput",
+          "output_model": "ServicePackageObjectConfigGraphPackageBuildViaServicePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4598478b-a14e-5359-bbfa-e737dc1388b4",
+      "module": "aware_service_ontology.service.service_package_ontology_package",
+      "name": "ServicePackageOntologyPackage",
+      "aware_class_ref": "aware_service.service.ServicePackageOntologyPackage",
+      "functions": [
+        {
+          "function_config_id": "daf18ec6-3059-56a7-a42d-fde167f24db8",
+          "name": "build_via_service_package",
+          "input_model": "ServicePackageOntologyPackageBuildViaServicePackageInput",
+          "output_model": "ServicePackageOntologyPackageBuildViaServicePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "370d4ebd-e46e-52dc-ad44-d75ec8e9d7d6",
+      "module": "aware_service_ontology.service.service_package_provided_api_package",
+      "name": "ServicePackageProvidedApiPackage",
+      "aware_class_ref": "aware_service.service.ServicePackageProvidedApiPackage",
+      "functions": [
+        {
+          "function_config_id": "65062b18-8dee-5892-a84a-b44e456e206b",
+          "name": "build_via_service_package",
+          "input_model": "ServicePackageProvidedApiPackageBuildViaServicePackageInput",
+          "output_model": "ServicePackageProvidedApiPackageBuildViaServicePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ac3feff5-f1f3-51cf-9684-2b8a27468371",
+      "module": "aware_service_ontology.service.service_package_required_api_package",
+      "name": "ServicePackageRequiredApiPackage",
+      "aware_class_ref": "aware_service.service.ServicePackageRequiredApiPackage",
+      "functions": [
+        {
+          "function_config_id": "3cde2efa-1994-5c9e-b500-c40a250dde2e",
+          "name": "build_via_service_package",
+          "input_model": "ServicePackageRequiredApiPackageBuildViaServicePackageInput",
+          "output_model": "ServicePackageRequiredApiPackageBuildViaServicePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "05f24a0a-746e-5032-a9ef-18f215ff4766",
+      "module": "aware_service_ontology.service.service_plan",
+      "name": "ServicePlan",
+      "aware_class_ref": "aware_service.service.ServicePlan",
+      "functions": [
+        {
+          "function_config_id": "3058ce7b-2ff5-5c1a-9b23-a38e38675077",
+          "name": "build_via_service",
+          "input_model": "ServicePlanBuildViaServiceInput",
+          "output_model": "ServicePlanBuildViaServiceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4f9a334c-1fc0-522d-9e62-3295cd1d9c54",
+      "module": "aware_service_ontology.service.service_subscription",
+      "name": "ServiceSubscription",
+      "aware_class_ref": "aware_service.service.ServiceSubscription",
+      "functions": [
+        {
+          "function_config_id": "7cc58dc2-df16-513e-b5a3-8bd76bcabbb5",
+          "name": "build",
+          "input_model": "ServiceSubscriptionBuildInput",
+          "output_model": "ServiceSubscriptionBuildOutput"
+        },
+        {
+          "function_config_id": "7c4ef67c-5005-5f66-a064-d42ce60c355f",
+          "name": "create_cycle",
+          "input_model": "ServiceSubscriptionCreateCycleInput",
+          "output_model": "ServiceSubscriptionCreateCycleOutput"
+        },
+        {
+          "function_config_id": "ea4f8708-32c5-5354-b55b-6cdb3131313a",
+          "name": "create_invoice",
+          "input_model": "ServiceSubscriptionCreateInvoiceInput",
+          "output_model": "ServiceSubscriptionCreateInvoiceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c16b6cec-5fa0-59f6-9ed0-e42273a20f2c",
+      "module": "aware_service_ontology.service.service_subscription_cycle",
+      "name": "ServiceSubscriptionCycle",
+      "aware_class_ref": "aware_service.service.ServiceSubscriptionCycle",
+      "functions": [
+        {
+          "function_config_id": "3adc4324-c5fe-5c0b-8f05-d8e28340d317",
+          "name": "build_via_service_subscription",
+          "input_model": "ServiceSubscriptionCycleBuildViaServiceSubscriptionInput",
+          "output_model": "ServiceSubscriptionCycleBuildViaServiceSubscriptionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7277c449-aed1-5873-838a-42a5be49c086",
+      "module": "aware_service_ontology.service.service_subscription_invoice",
+      "name": "ServiceSubscriptionInvoice",
+      "aware_class_ref": "aware_service.service.ServiceSubscriptionInvoice",
+      "functions": [
+        {
+          "function_config_id": "2224c5d6-7a32-53c6-99d9-98b3d8211f18",
+          "name": "build_via_service_subscription",
+          "input_model": "ServiceSubscriptionInvoiceBuildViaServiceSubscriptionInput",
+          "output_model": "ServiceSubscriptionInvoiceBuildViaServiceSubscriptionOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "673b4cf8-b716-58b1-a9f9-8821fb97b258",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceConfigCodePackageConfigCardinality"
+    },
+    {
+      "enum_config_id": "4c39a7d9-fb41-5dfa-9fb1-b2f03ae11874",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceContractKind"
+    },
+    {
+      "enum_config_id": "8f0bcc17-127a-5c76-b9eb-6fbc8a0873c2",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceContractOperationPermitIdempotencyScope"
+    },
+    {
+      "enum_config_id": "9ef209f6-1412-5f7d-9816-ad3faebb2587",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceContractOperationPermitScope"
+    },
+    {
+      "enum_config_id": "21248ed9-e6bf-5bf0-a96c-903554e9d067",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceContractOperationPriceSource"
+    },
+    {
+      "enum_config_id": "25551374-7c6f-58fd-8f11-fccbe0188563",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceContractOperationQuotaOverLimitBehavior"
+    },
+    {
+      "enum_config_id": "f8cabb50-8b4f-5295-aa4e-ea775cfa3d92",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceContractOperationQuotaUnit"
+    },
+    {
+      "enum_config_id": "55576983-df08-556a-ad64-24d0c978f82a",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceContractOperationQuotaWindow"
+    },
+    {
+      "enum_config_id": "569f30d5-023a-547f-9bb5-b80d60c84e17",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceContractStatus"
+    },
+    {
+      "enum_config_id": "f022b804-10d6-5081-9e18-d57f28279a43",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceOperationAdmissionMode"
+    },
+    {
+      "enum_config_id": "373e02c1-3d2d-51c1-a63e-7a77ac83eed8",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceOperationFulfillmentKind"
+    },
+    {
+      "enum_config_id": "e715705b-0c55-591d-acb2-d0ff0a5909a0",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceOperationReceiptPolicy"
+    },
+    {
+      "enum_config_id": "5a70842f-104a-5fef-bd5f-9de83f0c2941",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceOperationSettlementPolicy"
+    },
+    {
+      "enum_config_id": "228f3c52-396e-5c9b-acab-dd8d5245cda5",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceOperationStatus"
+    },
+    {
+      "enum_config_id": "5d894fea-784d-5861-9053-6da65105b271",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServicePlanCycle"
+    },
+    {
+      "enum_config_id": "b4d84d3f-b8aa-5855-8853-8370b2cd22a4",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceSubscriptionCycleStatus"
+    },
+    {
+      "enum_config_id": "831e4fc4-7beb-5d87-a0db-e44d694a3a01",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceSubscriptionInvoiceStatus"
+    },
+    {
+      "enum_config_id": "c4cce372-f4de-5115-90d4-cfed76edac01",
+      "module": "aware_service_ontology.service.service_enums",
+      "name": "ServiceSubscriptionStatus"
+    }
+  ]
+}

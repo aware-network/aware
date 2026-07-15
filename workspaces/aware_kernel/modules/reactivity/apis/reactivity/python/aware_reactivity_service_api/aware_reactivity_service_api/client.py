@@ -7,16 +7,23 @@ from typing import AsyncIterator, cast
 from aware_api import AwareApiEndpointInvoker
 from ._bindings import API_INTERFACE_SPEC, API_INVOCATION_MANIFEST
 from ._bindings import (
+    REACTIVITY__ACTION__CLAIM_EXECUTION_ENDPOINT_REF,
     REACTIVITY__ACTION__PUBLISH_LIFECYCLE_ENDPOINT_REF,
     REACTIVITY__ACTION__RESOLVE_INTENTS_ENDPOINT_REF,
     REACTIVITY__ACTION__SUBSCRIBE_LIFECYCLE_ENDPOINT_REF,
+    REACTIVITY__EVENT__PUBLISH_EVENT_ENDPOINT_REF,
     REACTIVITY__EVENT__SUBSCRIBE_EVENTS_ENDPOINT_REF,
+    REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_ENDPOINT_REF,
     REACTIVITY__POLICY__ENSURE_BUNDLE_ENDPOINT_REF,
     REACTIVITY__POLICY__LIST_BUNDLES_ENDPOINT_REF,
     REACTIVITY__STATUS__GET_STATUS_ENDPOINT_REF,
 )
 from aware_reactivity_ontology.action.action_feedback import ActionFeedback
-from aware_reactivity_service_dto.reactivity.action_execution import ActionExecution
+from aware_reactivity_service_dto.reactivity.action_execution import (
+    ActionExecution,
+    ReactivityActionExecutionClaimRequest,
+    ReactivityActionExecutionClaimResponse,
+)
 from aware_reactivity_service_dto.reactivity.action_intent import (
     ReactivityActionIntent,
     ReactivityActionIntentResolveRequest,
@@ -24,6 +31,10 @@ from aware_reactivity_service_dto.reactivity.action_intent import (
 )
 from aware_reactivity_service_dto.reactivity.action_terminal import ActionTerminal
 from aware_reactivity_service_dto.reactivity.bridge_event import ActorReactivityBridgeEvent
+from aware_reactivity_service_dto.reactivity.event_meaning import (
+    ReactivityEventMeaningProviderResolveRequest,
+    ReactivityEventMeaningProviderResolveResponse,
+)
 from aware_reactivity_service_dto.reactivity.policy_bundle import (
     ReactivityPolicyBundleEnsureRequest,
     ReactivityPolicyBundleEnsureResponse,
@@ -37,6 +48,8 @@ from aware_reactivity_service_dto.reactivity.service_operation import (
     ReactivityActionLifecycleSubscriptionResponse,
     ReactivityEventSubscriptionRequest,
     ReactivityEventSubscriptionResponse,
+    ReactivitySemanticEventPublishRequest,
+    ReactivitySemanticEventPublishResponse,
     ReactivityServiceStatusRequest,
     ReactivityServiceStatusResponse,
 )
@@ -50,6 +63,20 @@ ReactivityEventSubscribeEventsStreamEvent = ActorReactivityBridgeEvent
 class ReactivityActionCapabilityClient:
     def __init__(self, client: AwareApiEndpointInvoker) -> None:
         self._client = client
+
+    async def claim_execution(
+        self, request: ReactivityActionExecutionClaimRequest
+    ) -> ReactivityActionExecutionClaimResponse:
+        """Atomically claim one deterministic ontology-backed ActionExecution
+        before provider fulfillment."""
+        return cast(
+            ReactivityActionExecutionClaimResponse,
+            await self._client.invoke_api_endpoint(
+                manifest=API_INVOCATION_MANIFEST,
+                endpoint_ref=REACTIVITY__ACTION__CLAIM_EXECUTION_ENDPOINT_REF,
+                request_payload=request,
+            ),
+        )
 
     async def publish_lifecycle(
         self, request: ReactivityActionLifecyclePublishRequest
@@ -108,6 +135,20 @@ class ReactivityEventCapabilityClient:
     def __init__(self, client: AwareApiEndpointInvoker) -> None:
         self._client = client
 
+    async def publish_event(
+        self, request: ReactivitySemanticEventPublishRequest
+    ) -> ReactivitySemanticEventPublishResponse:
+        """Publish one provider-neutral committed semantic event occurrence
+        idempotently through the existing Reactivity event stream."""
+        return cast(
+            ReactivitySemanticEventPublishResponse,
+            await self._client.invoke_api_endpoint(
+                manifest=API_INVOCATION_MANIFEST,
+                endpoint_ref=REACTIVITY__EVENT__PUBLISH_EVENT_ENDPOINT_REF,
+                request_payload=request,
+            ),
+        )
+
     async def subscribe_events(
         self, request: ReactivityEventSubscriptionRequest
     ) -> ReactivityEventSubscriptionResponse:
@@ -131,6 +172,25 @@ class ReactivityEventCapabilityClient:
             request_payload=request,
         ):
             yield cast(ReactivityEventSubscribeEventsStreamEvent, event)
+
+
+class ReactivityMeaningCapabilityClient:
+    def __init__(self, client: AwareApiEndpointInvoker) -> None:
+        self._client = client
+
+    async def resolve_provider_intent(
+        self, request: ReactivityEventMeaningProviderResolveRequest
+    ) -> ReactivityEventMeaningProviderResolveResponse:
+        """Resolve exactly one registered provider action for an event meaning
+        request without invoking the provider."""
+        return cast(
+            ReactivityEventMeaningProviderResolveResponse,
+            await self._client.invoke_api_endpoint(
+                manifest=API_INVOCATION_MANIFEST,
+                endpoint_ref=REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_ENDPOINT_REF,
+                request_payload=request,
+            ),
+        )
 
 
 class ReactivityPolicyCapabilityClient:
@@ -181,6 +241,7 @@ class ReactivityApiClient:
         self._client = client
         self.action = ReactivityActionCapabilityClient(client)
         self.event = ReactivityEventCapabilityClient(client)
+        self.meaning = ReactivityMeaningCapabilityClient(client)
         self.policy = ReactivityPolicyCapabilityClient(client)
         self.status = ReactivityStatusCapabilityClient(client)
 
@@ -198,6 +259,7 @@ __all__ = [
     "ReactivityApiClient",
     "ReactivityActionCapabilityClient",
     "ReactivityEventCapabilityClient",
+    "ReactivityMeaningCapabilityClient",
     "ReactivityPolicyCapabilityClient",
     "ReactivityStatusCapabilityClient",
     "ReactivityActionSubscribeLifecycleStreamEvent",

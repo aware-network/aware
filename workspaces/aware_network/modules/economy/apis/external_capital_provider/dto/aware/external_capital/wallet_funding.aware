@@ -1,0 +1,17 @@
+class ExternalCapitalWalletFundingSessionRequest {
+    operation String = "create_wallet_funding_session"
+    transaction_intent_id UUID
+    transaction_intent_commit_id UUID
+}
+
+class ExternalCapitalWalletFundingSessionResponse {
+    operation String = "create_wallet_funding_session"
+    transaction_intent_id UUID
+    transaction_intent_commit_id UUID
+    provider_key String
+    provider_public_reference String
+    idempotency_key String
+    continuation_kind String
+    continuation_url String
+    continuation_expires_at String?
+}

@@ -8,6 +8,7 @@ from typing import Protocol, cast
 from aware_code_ontology.code.code import Code
 from aware_code_ontology.code.code_section_enums import CodeSectionType
 from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBaseType
+from aware_code.decimal_value import DecimalValueError, canonical_decimal_literal
 from aware_code.primitive_codec import CodePrimitiveCodec
 
 from aware_code.language_service.position import Utf16PositionMapper
@@ -95,7 +96,10 @@ def collect_default_value_diagnostics(
                 prim_for_null = plugin.primitive_codec.parse(type_text)
             except Exception:
                 prim_for_null = None
-            if prim_for_null is not None and prim_for_null.base_type == CodePrimitiveBaseType.null:
+            if (
+                prim_for_null is not None
+                and prim_for_null.base_type == CodePrimitiveBaseType.null
+            ):
                 continue
             if not is_optional:
                 _add(
@@ -114,8 +118,22 @@ def collect_default_value_diagnostics(
         if prim is None:
             continue
 
+        if prim.base_type == CodePrimitiveBaseType.decimal:
+            try:
+                canonical_decimal_literal(default_text)
+            except DecimalValueError as exc:
+                _add(
+                    start_byte=seg.byte_start,
+                    end_byte=seg.byte_end,
+                    message=str(exc),
+                    code="aware.default.decimal_invalid",
+                )
+            continue
+
         try:
-            value = cast(DiagnosticDataValue, plugin.primitive_codec.parse_literal(default_text))
+            value = cast(
+                DiagnosticDataValue, plugin.primitive_codec.parse_literal(default_text)
+            )
         except Exception as e:
             _add(
                 start_byte=seg.byte_start,
@@ -148,7 +166,10 @@ def collect_default_value_diagnostics(
             continue
 
         if prim.base_type == CodePrimitiveBaseType.float:
-            if not ((isinstance(value, int) and not isinstance(value, bool)) or isinstance(value, float)):
+            if not (
+                (isinstance(value, int) and not isinstance(value, bool))
+                or isinstance(value, float)
+            ):
                 _add(
                     start_byte=seg.byte_start,
                     end_byte=seg.byte_end,
@@ -258,7 +279,11 @@ def collect_default_value_diagnostics(
                         data={"suggestions": [f'"{stripped}"']},
                     )
                     continue
-                if stripped.startswith("'") and stripped.endswith("'") and len(stripped) >= 2:
+                if (
+                    stripped.startswith("'")
+                    and stripped.endswith("'")
+                    and len(stripped) >= 2
+                ):
                     inner = stripped[1:-1].replace('"', '\\"')
                     _add(
                         start_byte=seg.byte_start,

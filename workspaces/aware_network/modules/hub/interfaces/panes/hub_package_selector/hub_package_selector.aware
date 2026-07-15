@@ -1,0 +1,8 @@
+pane hub_package_selector {
+    kind hub_package_selector
+
+    view aware_hub.home.channel_heads.v1 default {
+        """Hub public channel-head discovery, search, describe, resolve, and download pane."""
+    }
+
+}

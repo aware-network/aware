@@ -1,0 +1,3 @@
+// Interface ↔ NetworkOperationHop (dependency inversion via reference port + bind)
+ann interface.Interface::source_network_operation_hops reference bind "aware_network.network.NetworkOperationHop::source_interface_id"
+ann interface.Interface::target_network_operation_hops reference bind "aware_network.network.NetworkOperationHop::target_interface_id"

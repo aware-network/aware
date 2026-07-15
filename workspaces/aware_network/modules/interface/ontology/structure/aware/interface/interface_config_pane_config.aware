@@ -1,0 +1,46 @@
+class InterfaceConfigPaneConfig {
+    // Relationships
+    pane_config PaneConfig key
+    section_mounts InterfaceConfigPaneConfigSectionConfig[]
+
+    // Attributes
+    narrative_key String?
+
+    fn build construct (
+        pane_config_id UUID key,
+        narrative_key String? = null
+    ) -> InterfaceConfigPaneConfig {
+        """
+        Create one deterministic InterfaceConfig↔PaneConfig composition join.
+
+        Contract:
+        - `PaneConfig` stays standalone semantic pane identity.
+        - `InterfaceConfigPaneConfig` is the explicit composition rail for one interface package/config.
+        - Interface-scoped mount policy belongs under this join, not under the standalone pane semantic rail.
+        """
+    }
+
+    fn add_section_mount (
+        layout_config_section_config_id UUID
+    ) -> InterfaceConfigPaneConfigSectionConfig {
+        """
+        Attach one Interface-scoped section mount for one standalone PaneConfig pane-view adapter.
+        """
+        let attached = construct section_mounts.build(
+            layout_config_section_config_id = layout_config_section_config_id,
+        )
+    }
+
+    fn set_narrative_key (
+        narrative_key String? = null
+    ) -> InterfaceConfigPaneConfig {
+        """
+        Update the Interface-scoped pane narrative key on the join itself.
+
+        InterfaceConfig must call this public method instead of mutating an
+        existing join directly, preserving runtime mutation-boundary ownership.
+        """
+    }
+}
+
+ann interface.InterfaceConfigPaneConfig::pane_config load eager

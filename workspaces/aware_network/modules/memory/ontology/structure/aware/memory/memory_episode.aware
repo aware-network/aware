@@ -1,0 +1,44 @@
+class MemoryEpisode {
+    // Relationships
+    content_chain_content aware_content.chain.ContentChainContent key
+    content_chain_section aware_content.chain.ContentChainSection key
+
+    // Attributes
+    end_time DateTime
+    start_time DateTime
+
+    fn find_similar_multimodal(p_memory_episodic_id UUID, p_query_vector Vector, p_result_count Int, p_min_similarity Float, p_start_time DateTime? = null, p_end_time DateTime? = null) -> {
+        """
+        Finds similar multimodal content parts within a specific episodic memory with optional time constraints.
+        Parameters: p_memory_episodic_id: The UUID of the episodic memory to search in.
+        p_query_vector: The vector to query.
+        p_result_count: The number of results to return.
+        p_min_similarity: The minimum similarity to return.
+        p_start_time: Optional start time for temporal filtering.
+        p_end_time: Optional end time for temporal filtering.
+        Returns: Table containing episode information and similarity scores.
+        Type: episode_id: The UUID of the episode.
+        start_time: When the episode started.
+        end_time: When the episode ended.
+        similarity: The similarity score (adjusted for temporal proximity when time range is provided).
+        """
+    }
+
+    fn find_similar_text(p_memory_episodic_id UUID, p_query_vector Vector, p_result_count Int, p_min_similarity Float, p_start_time DateTime? = null, p_end_time DateTime? = null) -> {
+        """
+        Finds similar text content parts within a specific episodic memory with optional time constraints.
+        Parameters: p_memory_episodic_id: The UUID of the episodic memory to search in.
+        p_query_vector: The vector to query.
+        p_result_count: The number of results to return.
+        p_min_similarity: The minimum similarity to return.
+        p_start_time: Optional start time for temporal filtering.
+        p_end_time: Optional end time for temporal filtering.
+        Returns: Table containing episode information and similarity scores.
+        Type: episode_id: The UUID of the episode.
+        start_time: When the episode started.
+        end_time: When the episode ended.
+        similarity: The similarity score (adjusted for temporal proximity when time range is provided).
+        """
+    }
+
+}

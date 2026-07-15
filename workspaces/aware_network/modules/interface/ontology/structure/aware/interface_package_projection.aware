@@ -1,0 +1,22 @@
+/// InterfacePackage projection
+///
+/// Purpose:
+/// - Expose the Interface-owned semantic package rail for Workspace/package consumers.
+/// - Keep `InterfaceConfig` as the semantic configuration root under the package boundary.
+/// - Avoid collapsing package provenance and Interface semantic internals into one object.
+projection InterfacePackage is_branchable {
+    root interface.InterfacePackage
+
+    interface.InterfacePackage::experience_packages
+    interface.InterfacePackageExperiencePackage::experience_package aware_experience.ExperiencePackage
+    interface.InterfacePackage::pane_packages
+    interface.InterfacePackagePanePackage::pane_package PanePackage
+    interface.InterfacePackage::interface_config InterfaceConfig
+    interface.InterfacePackage::interface_config_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+
+    observable package instance {
+        """
+        Interface package mount and active configuration scope.
+        """
+    }
+}

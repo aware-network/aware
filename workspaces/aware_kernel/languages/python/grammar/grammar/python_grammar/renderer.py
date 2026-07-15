@@ -15,6 +15,7 @@ import re
 import textwrap
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import cast
 from uuid import UUID
 from typing_extensions import override
@@ -28,7 +29,10 @@ from aware_code_ontology.code.code_section_enums import CodeSectionType
 from aware_content_ontology.part.content_part_text_segment import ContentPartTextSegment
 
 # Content Runtime
+from aware_content.builder import get_text
+
 # Code Runtime
+from aware_code.section.builder_index import CodeSectionBuilderIndex
 from aware_code.section.class_.assembler import assemble_class
 from aware_code.section.function.assembler import assemble_function
 from aware_code.section.function.segments import CodeSectionFunctionSegment
@@ -109,6 +113,9 @@ from python_grammar.renderer_token_emit import (
     emit_enum_header,
     emit_enum_value_line,
     emit_function_header,
+)
+from python_grammar.signature_validation import (
+    validate_python_parameter_default_order,
 )
 
 # Utils
@@ -249,7 +256,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         # Per-file cache of relationship imports that should be treated as lazy
         # (resolved via ObjectConfigRelationshipSideLoadingStrategy).
         self._lazy_imports_for_file: dict[str, set[str]] = {}
-        self._current_relationships_by_class_id: dict[UUID, list[ClassConfigRelationship]] = {}
+        self._current_relationships_by_class_id: dict[
+            UUID, list[ClassConfigRelationship]
+        ] = {}
         # Per-file FK attribute ids (derived from canonical relationship role metadata)
         self._fk_attr_ids: set[UUID] = set()
         # Per-file relationship REFERENCE attr ids that are edge-backed via association.
@@ -259,7 +268,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         # (class_config_id, attribute_name) -> tag_value
         self._discriminate_tag_by_class_and_attr: dict[tuple[UUID, str], str] = {}
         # (class_config_id, attribute_name) -> source_position (for deterministic tag ordering)
-        self._discriminate_tag_position_by_class_and_attr: dict[tuple[UUID, str], int] = {}
+        self._discriminate_tag_position_by_class_and_attr: dict[
+            tuple[UUID, str], int
+        ] = {}
         # Discriminator keys (base declarations): (class_config_id, attribute_name)
         self._discriminate_key_by_class_and_attr: set[tuple[UUID, str]] = set()
         # Explicit oneof (XOR) constraints: class_config_id -> [ [attr_name, ...], ... ]
@@ -303,14 +314,20 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         self._layout_order_by_enum_id = {}
         self._type_info_by_attribute_config_id = {}
         self._bound_graph_class_ids = {
-            node.class_config.id for node in graph.object_config_graph_nodes if node.class_config is not None
+            node.class_config.id
+            for node in graph.object_config_graph_nodes
+            if node.class_config is not None
         }
 
         for node in graph.object_config_graph_nodes:
             layouts = node.layouts
             if not layouts:
                 continue
-            aware_layouts = [layout for layout in layouts if not layout.layout_kind or layout.layout_kind == "aware"]
+            aware_layouts = [
+                layout
+                for layout in layouts
+                if not layout.layout_kind or layout.layout_kind == "aware"
+            ]
             if not aware_layouts:
                 continue
             layout = min(
@@ -345,7 +362,8 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         oneof_views = [
             a.code_section_annotation_oneof
             for a in graph.object_config_graph_annotations
-            if a.kind == ObjectConfigGraphAnnotationKind.oneof and a.code_section_annotation_oneof is not None
+            if a.kind == ObjectConfigGraphAnnotationKind.oneof
+            and a.code_section_annotation_oneof is not None
         ]
         if not discrim_views and not oneof_views:
             return
@@ -385,7 +403,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 class_attr_key = (cls.id, v.attribute_name)
                 self._discriminate_tag_by_class_and_attr[class_attr_key] = tag_value
                 if v.source_position is not None:
-                    self._discriminate_tag_position_by_class_and_attr[class_attr_key] = int(v.source_position)
+                    self._discriminate_tag_position_by_class_and_attr[
+                        class_attr_key
+                    ] = int(v.source_position)
                 continue
 
         for v in oneof_views:
@@ -496,7 +516,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         self._type_info_by_attribute_config_id[attribute_config.id] = type_info
         return type_info
 
-    def _is_nullable(self, attribute_config: AttributeConfig, type_info: AttributeTypeInfo) -> bool:
+    def _is_nullable(
+        self, attribute_config: AttributeConfig, type_info: AttributeTypeInfo
+    ) -> bool:
         if type_info.nullable:
             return True
         if attribute_config.default_value is not None:
@@ -523,7 +545,10 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         """
         is_optional = self._is_nullable(attribute_config, type_info)
         is_collection = type_info.is_collection
-        should_exclude = attribute_config.exclude_serialization and self.policy.honor_exclude_serialization
+        should_exclude = (
+            attribute_config.exclude_serialization
+            and self.policy.honor_exclude_serialization
+        )
 
         # SSOT: any time we materialize defaults via Pydantic (default/default_factory/exclude),
         # `Field` must be imported.
@@ -542,9 +567,13 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
 
         # Overlays: when an attribute is renamed or has a wire_name override, we must emit
         # `Field(alias=...)` so serialization stays stable while the Python identifier changes.
-        overlay = self.get_overlay_by_entity_id(CodeSectionAnnotationOverlayEntity.attribute, attribute_config.id)
+        overlay = self.get_overlay_by_entity_id(
+            CodeSectionAnnotationOverlayEntity.attribute, attribute_config.id
+        )
         if overlay is not None and isinstance(overlay, AttributeConfigOverlay):
-            if overlay.wire_name or (overlay.rendered_name and overlay.rendered_name != attribute_config.name):
+            if overlay.wire_name or (
+                overlay.rendered_name and overlay.rendered_name != attribute_config.name
+            ):
                 needs_field = True
 
         return AttributeRenderFlags(
@@ -554,7 +583,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             needs_field=needs_field,
         )
 
-    def _with_field_description(self, default_expr: str | None, *, description: str) -> str:
+    def _with_field_description(
+        self, default_expr: str | None, *, description: str
+    ) -> str:
         """Inject `description=...` into a Field(...) expression, or create Field(description=...) when missing."""
         desc = description.strip()
         if not desc:
@@ -579,7 +610,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             return description
         return _scrub_public_api_client_text(description)
 
-    def _attribute_overlay_names(self, attribute_config: AttributeConfig) -> tuple[str, str | None]:
+    def _attribute_overlay_names(
+        self, attribute_config: AttributeConfig
+    ) -> tuple[str, str | None]:
         """
         Return (rendered_name, wire_name) for an AttributeConfig, honoring overlays.
 
@@ -588,7 +621,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         """
         rendered_name = attribute_config.name
         wire_name: str | None = None
-        overlay = self.get_overlay_by_entity_id(CodeSectionAnnotationOverlayEntity.attribute, attribute_config.id)
+        overlay = self.get_overlay_by_entity_id(
+            CodeSectionAnnotationOverlayEntity.attribute, attribute_config.id
+        )
         if overlay is not None and isinstance(overlay, AttributeConfigOverlay):
             if overlay.rendered_name:
                 rendered_name = overlay.rendered_name
@@ -619,6 +654,42 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             renderer_key=type(self).__name__,
         )
 
+    def render_source_artifact(
+        self,
+        *,
+        meta_objects: tuple[
+            EnumConfig | ClassConfig | FunctionConfig | ClassConfigRelationship,
+            ...,
+        ],
+        relative_path: Path,
+        class_lookup: dict[UUID, ClassConfig] | None = None,
+    ) -> str:
+        """Render one graph-derived file through the normal Python emit path."""
+
+        code = self.create_empty_code()
+        namespace_parts = tuple(
+            part.strip().removesuffix("_")
+            for part in relative_path.parent.parts
+            if part.strip() and part != "."
+        )
+        namespace = ".".join(namespace_parts) if namespace_parts else "default"
+        with CodeSectionWriter(
+            code,
+            CodeSectionBuilderIndex(),
+            indent_size=self.indent,
+        ) as writer:
+            self.emit_file(
+                list(meta_objects),
+                writer,
+                namespace,
+                class_lookup or {},
+            )
+        source = get_text(code.content_part_text)
+        return self.canonicalize_generated_source(
+            relative_path=relative_path,
+            source=source,
+        )
+
     def _collect_file_imports(
         self,
         meta_objects: list[object],
@@ -639,10 +710,14 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         imports = ImportPlan()
         current_module: str | None = None
         if self.layout_strategy:
-            current_class = next((obj for obj in meta_objects if isinstance(obj, ClassConfig)), None)
+            current_class = next(
+                (obj for obj in meta_objects if isinstance(obj, ClassConfig)), None
+            )
             if current_class:
                 current_file = self.layout_strategy.get_class_file_path(current_class)
-                current_module = self.layout_strategy.get_module_import_path(current_file)
+                current_module = self.layout_strategy.get_module_import_path(
+                    current_file
+                )
 
         def add(module: str, symbol: str) -> None:
             imports.add(module, symbol)
@@ -665,10 +740,14 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         needs_literal = False
         functions: list[FunctionConfig] = []
         class_to_class_config_map = class_to_class_config_map or {}
-        tagged_class_ids = {cls_id for cls_id, _attr in self._discriminate_tag_by_class_and_attr}
+        tagged_class_ids = {
+            cls_id for cls_id, _attr in self._discriminate_tag_by_class_and_attr
+        }
         policy = self.policy
         should_emit_functions = (
-            policy.emit_function_facades or policy.emit_function_io_models or policy.emit_function_registry
+            policy.emit_function_facades
+            or policy.emit_function_io_models
+            or policy.emit_function_registry
         )
 
         for obj in meta_objects:
@@ -682,11 +761,15 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 elif obj.parent_class is None:
                     has_unparented_graph_ref_class = True
                 if self.policy.emit_discriminated_union_parsers and any(
-                    base_id == obj.id for base_id, _attr in self._discriminate_key_by_class_and_attr
+                    base_id == obj.id
+                    for base_id, _attr in self._discriminate_key_by_class_and_attr
                 ):
                     needs_class_var = True
                     needs_lru_cache = True
-                if self.policy.emit_discriminator_literal_types and obj.id in tagged_class_ids:
+                if (
+                    self.policy.emit_discriminator_literal_types
+                    and obj.id in tagged_class_ids
+                ):
                     needs_literal = True
                 if obj.id in self._oneof_groups_by_class_config_id:
                     needs_model_validator = True
@@ -715,7 +798,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 needs_any = needs_any or needs.any_
                 needs_uuid = needs_uuid or needs.uuid
                 needs_datetime = needs_datetime or needs.datetime
-                needs_serialize_as_any = needs_serialize_as_any or needs.serialize_as_any
+                needs_serialize_as_any = (
+                    needs_serialize_as_any or needs.serialize_as_any
+                )
                 needs_field_validator = needs_field_validator or needs.field_validator
             if isinstance(obj, ClassConfigRelationship) and (
                 policy.emit_relationship_fields or policy.emit_edge_backed_properties
@@ -734,9 +819,13 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         module_name = override
                 if module_name is None and self.layout_strategy:
                     related_path = self.layout_strategy.get_class_file_path(target_cls)
-                    module_name = self.layout_strategy.get_module_import_path(related_path)
+                    module_name = self.layout_strategy.get_module_import_path(
+                        related_path
+                    )
                 if module_name and module_name != current_module:
-                    self._lazy_imports_for_file.setdefault(module_name, set()).add(target_cls.name)
+                    self._lazy_imports_for_file.setdefault(module_name, set()).add(
+                        target_cls.name
+                    )
 
         # If the file renders any function facade IO models (Input/Output), it must import BaseModel
         # even when a function has zero parameters.
@@ -756,13 +845,21 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         context=f"{func.name}.{attr.name}",
                     )
                 except Exception as exc:
-                    logger.error(f"Failed to resolve descriptor for function attr {func.name}.{attr.name}: {exc}")
+                    logger.error(
+                        f"Failed to resolve descriptor for function attr {func.name}.{attr.name}: {exc}"
+                    )
                     needs_any = True
                     continue
 
-                if type_info.kind == AttributeTypeDescriptorKind.class_ and not type_info.class_config:
+                if (
+                    type_info.kind == AttributeTypeDescriptorKind.class_
+                    and not type_info.class_config
+                ):
                     needs_any = True
-                if type_info.kind == AttributeTypeDescriptorKind.primitive and type_info.primitive_config:
+                if (
+                    type_info.kind == AttributeTypeDescriptorKind.primitive
+                    and type_info.primitive_config
+                ):
                     base = type_info.primitive_config.primitive_type.base_type
                     if base == CodePrimitiveBaseType.uuid:
                         needs_uuid = True
@@ -815,7 +912,13 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
 
     def _discriminator_key_attr_name(self, *, base_class_id: UUID) -> str | None:
         # Deterministic: `_discriminate_key_by_class_and_attr` is a set.
-        attr_names = sorted([a for cls_id, a in self._discriminate_key_by_class_and_attr if cls_id == base_class_id])
+        attr_names = sorted(
+            [
+                a
+                for cls_id, a in self._discriminate_key_by_class_and_attr
+                if cls_id == base_class_id
+            ]
+        )
         return attr_names[0] if attr_names else None
 
     def _discriminator_tagged_descendants(
@@ -847,10 +950,14 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             if not is_descendant:
                 continue
 
-            tag_value = self._discriminate_tag_by_class_and_attr.get((cc.id, discriminator_attr_name))
+            tag_value = self._discriminate_tag_by_class_and_attr.get(
+                (cc.id, discriminator_attr_name)
+            )
             if not tag_value:
                 continue
-            pos = self._discriminate_tag_position_by_class_and_attr.get((cc.id, discriminator_attr_name))
+            pos = self._discriminate_tag_position_by_class_and_attr.get(
+                (cc.id, discriminator_attr_name)
+            )
             if pos is None:
                 sort_key = (1, 0, tag_value)
             else:
@@ -893,11 +1000,16 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             if flags.is_collection:
                 continue
 
-            if type_info.kind != AttributeTypeDescriptorKind.class_ or type_info.class_config is None:
+            if (
+                type_info.kind != AttributeTypeDescriptorKind.class_
+                or type_info.class_config is None
+            ):
                 continue
 
             base_cfg = type_info.class_config
-            discriminator_attr = self._discriminator_key_attr_name(base_class_id=base_cfg.id)
+            discriminator_attr = self._discriminator_key_attr_name(
+                base_class_id=base_cfg.id
+            )
             if discriminator_attr is None:
                 continue
 
@@ -928,12 +1040,24 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         policy = self.policy
         if type_info.kind == AttributeTypeDescriptorKind.class_:
             target_cls = type_info.class_config
-            target_is_inline = target_cls is not None and target_cls.value_mode == ClassValueMode.inline_value
-            if class_config.value_mode != ClassValueMode.inline_value and not target_is_inline:
-                if not (policy.emit_relationship_fields or policy.emit_edge_backed_properties):
+            target_is_inline = (
+                target_cls is not None
+                and target_cls.value_mode == ClassValueMode.inline_value
+            )
+            if (
+                class_config.value_mode != ClassValueMode.inline_value
+                and not target_is_inline
+            ):
+                if not (
+                    policy.emit_relationship_fields
+                    or policy.emit_edge_backed_properties
+                ):
                     return False
                 target_class_id = resolve_type_class_config_id(attr_config)
-                if not policy.emit_external_relationship_fields and target_class_id not in self._bound_graph_class_ids:
+                if (
+                    not policy.emit_external_relationship_fields
+                    and target_class_id not in self._bound_graph_class_ids
+                ):
                     return False
                 if (
                     policy.external_relationship_import_root_suffix
@@ -947,14 +1071,18 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             not attr_config.is_public
             and type_info.kind == AttributeTypeDescriptorKind.primitive
             and type_info.primitive_config is not None
-            and CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type).base_type
+            and CodePrimitiveType.model_validate(
+                type_info.primitive_config.primitive_type
+            ).base_type
             == CodePrimitiveBaseType.uuid
             and not policy.emit_foreign_key_fields
         ):
             return False
         return True
 
-    def _external_relationship_import_override_matches_policy(self, *, target_class_id: UUID | None) -> bool:
+    def _external_relationship_import_override_matches_policy(
+        self, *, target_class_id: UUID | None
+    ) -> bool:
         if target_class_id is None:
             return False
         suffix = self.policy.external_relationship_import_root_suffix
@@ -985,7 +1113,11 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         # Start the class definition (explicit spec)
         is_inline_value = class_config.value_mode == ClassValueMode.inline_value
         with writer.start_section(self._spec_class, qualname=class_config.name) as cls:
-            parent_name = class_config.parent_class.name if class_config.parent_class else base_class_name
+            parent_name = (
+                class_config.parent_class.name
+                if class_config.parent_class
+                else base_class_name
+            )
             emit_class_header(
                 cls,
                 name=class_config.name,
@@ -1000,14 +1132,19 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 # Discriminator routing: base union classes own the tag->type table and parse helpers.
                 discriminator_attr = None
                 if self.policy.emit_discriminated_union_parsers and any(
-                    cls_id == class_config.id for cls_id, _attr in self._discriminate_key_by_class_and_attr
+                    cls_id == class_config.id
+                    for cls_id, _attr in self._discriminate_key_by_class_and_attr
                 ):
-                    discriminator_attr = self._discriminator_key_attr_name(base_class_id=class_config.id)
+                    discriminator_attr = self._discriminator_key_attr_name(
+                        base_class_id=class_config.id
+                    )
 
                 rels = self._current_relationships_by_class_id.get(class_config.id, [])
                 assoc_class_ids_for_class = get_association_class_ids(rels)
 
-                attr_links: list[tuple[tuple[int, int | None], ClassConfigAttributeConfig]] = []
+                attr_links: list[
+                    tuple[tuple[int, int | None], ClassConfigAttributeConfig]
+                ] = []
                 for acc in class_config.class_config_attribute_configs:
                     if acc.attribute_config.is_virtual:
                         continue
@@ -1015,7 +1152,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                     attr_links.append((attr_order_key, acc))
                 attr_links.sort(key=lambda item: item[0])
 
-                primitive_attrs: list[tuple[tuple[int, int | None], AttributeConfig]] = []
+                primitive_attrs: list[
+                    tuple[tuple[int, int | None], AttributeConfig]
+                ] = []
                 rel_attrs: list[tuple[tuple[int, int | None], AttributeConfig]] = []
                 edge_attrs: list[tuple[tuple[int, int | None], AttributeConfig]] = []
                 fk_attrs: list[tuple[tuple[int, int | None], AttributeConfig]] = []
@@ -1028,7 +1167,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             context=f"{class_config.name}.{attr_config.name}",
                         )
                     except Exception as exc:
-                        logger.error(f"Failed to resolve descriptor for {class_config.name}.{attr_config.name}: {exc}")
+                        logger.error(
+                            f"Failed to resolve descriptor for {class_config.name}.{attr_config.name}: {exc}"
+                        )
                         primitive_attrs.append((attr_sort_key, attr_config))
                         continue
 
@@ -1037,7 +1178,8 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         # CLASS-typed attributes are nested payloads, not relationships.
                         if is_inline_value or (
                             type_info.class_config is not None
-                            and type_info.class_config.value_mode == ClassValueMode.inline_value
+                            and type_info.class_config.value_mode
+                            == ClassValueMode.inline_value
                         ):
                             primitive_attrs.append((attr_sort_key, attr_config))
                         else:
@@ -1051,7 +1193,8 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             # even if the association class is not explicitly marked is_edge.
                             if (
                                 type_info.class_config is not None
-                                and type_info.class_config.id in assoc_class_ids_for_class
+                                and type_info.class_config.id
+                                in assoc_class_ids_for_class
                             ):
                                 edge_attrs.append((attr_sort_key, attr_config))
                             else:
@@ -1062,7 +1205,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             not attr_config.is_public
                             and type_info.kind == AttributeTypeDescriptorKind.primitive
                             and type_info.primitive_config is not None
-                            and CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type).base_type
+                            and CodePrimitiveType.model_validate(
+                                type_info.primitive_config.primitive_type
+                            ).base_type
                             == CodePrimitiveBaseType.uuid
                         ):
                             fk_attrs.append((attr_sort_key, attr_config))
@@ -1093,7 +1238,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         assoc = rel.class_config_relationship_association_edge
                         if assoc is None:
                             continue
-                        assoc_class = class_to_class_config_map.get(assoc.class_config_id)
+                        assoc_class = class_to_class_config_map.get(
+                            assoc.class_config_id
+                        )
                         if assoc_class is None:
                             continue
 
@@ -1101,8 +1248,10 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         ref_attr_id: UUID | None = None
                         for ra in rel.class_config_relationship_attributes:
                             if (
-                                ra.role == ClassConfigRelationshipAttributeRole.reference
-                                and ra.direction == ClassConfigRelationshipDirection.forward
+                                ra.role
+                                == ClassConfigRelationshipAttributeRole.reference
+                                and ra.direction
+                                == ClassConfigRelationshipDirection.forward
                             ):
                                 ref_attr_id = ra.attribute_config_id
                                 break
@@ -1124,7 +1273,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 attr_sort_key_by_id: dict[UUID, tuple[int, int | None]] = {}
                 for acc in class_config.class_config_attribute_configs:
                     attr_order_key = (0, acc.position)
-                    _ = attr_sort_key_by_id.setdefault(acc.attribute_config.id, attr_order_key)
+                    _ = attr_sort_key_by_id.setdefault(
+                        acc.attribute_config.id, attr_order_key
+                    )
                 edge_backed_pairs.sort(
                     key=lambda pair: (
                         attr_sort_key_by_id.get(pair[0].id, (9, 10**9)),
@@ -1132,15 +1283,22 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         pair[1].name,
                     )
                 )
-                edge_backed_rel_attrs: list[AttributeConfig] = [rel for rel, _ in edge_backed_pairs]
+                edge_backed_rel_attrs: list[AttributeConfig] = [
+                    rel for rel, _ in edge_backed_pairs
+                ]
                 policy = self.policy
                 has_rel_fields = policy.emit_relationship_fields and any(
-                    attr_config not in edge_backed_rel_attrs for _, attr_config in rel_attrs
+                    attr_config not in edge_backed_rel_attrs
+                    for _, attr_config in rel_attrs
                 )
 
                 # Sort primitive attributes into discriminator key, tag, and other groups.
-                discriminator_key_attrs: list[tuple[tuple[int, int | None], AttributeConfig]] = []
-                discriminator_tag_attrs: list[tuple[tuple[int, int | None], AttributeConfig]] = []
+                discriminator_key_attrs: list[
+                    tuple[tuple[int, int | None], AttributeConfig]
+                ] = []
+                discriminator_tag_attrs: list[
+                    tuple[tuple[int, int | None], AttributeConfig]
+                ] = []
                 other_attrs: list[tuple[tuple[int, int | None], AttributeConfig]] = []
                 if primitive_attrs:
                     for attr_sort_key, attr_config in primitive_attrs:
@@ -1197,7 +1355,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 # Inline-value classes treat CLASS-typed fields as nested payloads, not relationships,
                 # so these fields appear under "# Attributes" (not "# Relationships").
                 if self.policy.emit_discriminated_union_parsers:
-                    rendered_attrs: list[tuple[tuple[int, int | None], AttributeConfig]] = []
+                    rendered_attrs: list[
+                        tuple[tuple[int, int | None], AttributeConfig]
+                    ] = []
                     if has_rel_fields:
                         rendered_attrs.extend(
                             [
@@ -1222,30 +1382,50 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         attr_config = acc.attribute_config
                         if attr_config.is_virtual:
                             continue
-                        rendered_name, _wire_name = self._attribute_overlay_names(attr_config)
+                        rendered_name, _wire_name = self._attribute_overlay_names(
+                            attr_config
+                        )
                         rendered_name_by_canonical[attr_config.name] = rendered_name
 
-                    for idx, group in enumerate(self._oneof_groups_by_class_config_id.get(class_config.id, [])):
-                        rendered_group = [rendered_name_by_canonical.get(name, name) for name in group]
-                        tuple_expr = ", ".join([f"self.{name}" for name in rendered_group])
-                        message = f"Exactly one of {', '.join(rendered_group)} must be set"
+                    for idx, group in enumerate(
+                        self._oneof_groups_by_class_config_id.get(class_config.id, [])
+                    ):
+                        rendered_group = [
+                            rendered_name_by_canonical.get(name, name) for name in group
+                        ]
+                        tuple_expr = ", ".join(
+                            [f"self.{name}" for name in rendered_group]
+                        )
+                        message = (
+                            f"Exactly one of {', '.join(rendered_group)} must be set"
+                        )
 
                         _ = cls.token('@model_validator(mode="after")\n')
                         _ = cls.token(f"def _validate_oneof_{idx}(self):\n")
                         with cls.indent():
-                            _ = cls.token(f"if sum(v is not None for v in ({tuple_expr},)) != 1:\n")
+                            _ = cls.token(
+                                f"if sum(v is not None for v in ({tuple_expr},)) != 1:\n"
+                            )
                             with cls.indent():
-                                _ = cls.token(f"raise ValueError({json.dumps(message)})\n")
+                                _ = cls.token(
+                                    f"raise ValueError({json.dumps(message)})\n"
+                                )
                             _ = cls.token("return self\n")
                         _ = cls.token("\n")
 
                 wrote_sections = bool(
-                    discriminator_key_attrs or discriminator_tag_attrs or other_attrs or has_rel_fields
+                    discriminator_key_attrs
+                    or discriminator_tag_attrs
+                    or other_attrs
+                    or has_rel_fields
                 )
 
                 # Discriminator routing (SSOT): base union classes own the tag -> type table,
                 # so wrapper validators stay identical and consumers can introspect route keyspaces.
-                if self.policy.emit_discriminated_union_parsers and discriminator_attr is not None:
+                if (
+                    self.policy.emit_discriminated_union_parsers
+                    and discriminator_attr is not None
+                ):
                     tagged_descendants = self._discriminator_tagged_descendants(
                         base_class_id=class_config.id,
                         discriminator_attr_name=discriminator_attr,
@@ -1254,20 +1434,30 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                     unknown_class_name = f"Unknown{class_config.name}"
 
                     _ = cls.token("\n")
-                    _ = cls.token(f"_DISCRIMINATOR_KEY: ClassVar[str] = {json.dumps(discriminator_attr)}\n")
+                    _ = cls.token(
+                        f"_DISCRIMINATOR_KEY: ClassVar[str] = {json.dumps(discriminator_attr)}\n"
+                    )
                     _ = cls.token("_TAG_TO_TYPE: ClassVar[dict[str, str]] = {\n")
                     with cls.indent():
                         for tag_value, desc_cfg in tagged_descendants:
                             desc_module: str | None = None
                             try:
-                                desc_path = self.layout_strategy.get_class_file_path(desc_cfg)
-                                desc_module = self.layout_strategy.get_module_import_path(desc_path)
+                                desc_path = self.layout_strategy.get_class_file_path(
+                                    desc_cfg
+                                )
+                                desc_module = (
+                                    self.layout_strategy.get_module_import_path(
+                                        desc_path
+                                    )
+                                )
                             except Exception:
                                 desc_module = None
                             if desc_module is None:
                                 continue
                             fqn = f"{desc_module}.{desc_cfg.name}"
-                            _ = cls.token(f"{json.dumps(tag_value)}: {json.dumps(fqn)},\n")
+                            _ = cls.token(
+                                f"{json.dumps(tag_value)}: {json.dumps(fqn)},\n"
+                            )
                     _ = cls.token("}\n\n")
 
                     _ = cls.token("@staticmethod\n")
@@ -1276,7 +1466,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                     with cls.indent():
                         _ = cls.token("from importlib import import_module\n\n")
                         _ = cls.token("module_name, class_name = fqn.rsplit('.', 1)\n")
-                        _ = cls.token("return getattr(import_module(module_name), class_name)\n\n")
+                        _ = cls.token(
+                            "return getattr(import_module(module_name), class_name)\n\n"
+                        )
 
                     _ = cls.token("@classmethod\n")
                     _ = cls.token("def parse(cls, v, *, strict: bool = False):\n")
@@ -1294,8 +1486,12 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                                 _ = cls.token("return model_cls.model_validate(v)\n")
                             _ = cls.token("if strict:\n")
                             with cls.indent():
-                                _ = cls.token('raise ValueError(f"Unknown {cls.__name__} tag: {tag!r}")\n')
-                            _ = cls.token(f"return {unknown_class_name}.model_validate(v)\n")
+                                _ = cls.token(
+                                    'raise ValueError(f"Unknown {cls.__name__} tag: {tag!r}")\n'
+                                )
+                            _ = cls.token(
+                                f"return {unknown_class_name}.model_validate(v)\n"
+                            )
                         _ = cls.token("return cls.model_validate(v)\n")
 
                 if fk_attrs and policy.emit_foreign_key_fields:
@@ -1358,12 +1554,17 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         # Forward-compat: discriminator base classes get an explicit Unknown* variant so
         # unknown tags don't silently downgrade typing (while still preserving payload).
         if self.policy.emit_discriminated_union_parsers and any(
-            base_id == class_config.id for base_id, _attr in self._discriminate_key_by_class_and_attr
+            base_id == class_config.id
+            for base_id, _attr in self._discriminate_key_by_class_and_attr
         ):
-            discriminator_attr = self._discriminator_key_attr_name(base_class_id=class_config.id)
+            discriminator_attr = self._discriminator_key_attr_name(
+                base_class_id=class_config.id
+            )
             if discriminator_attr is not None:
                 unknown_class_name = f"Unknown{class_config.name}"
-                with writer.start_section(self._spec_class, qualname=unknown_class_name) as cls:
+                with writer.start_section(
+                    self._spec_class, qualname=unknown_class_name
+                ) as cls:
                     emit_class_header(
                         cls,
                         name=unknown_class_name,
@@ -1400,7 +1601,10 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             )
             return
 
-        if type_info.kind != AttributeTypeDescriptorKind.class_ or not type_info.class_config:
+        if (
+            type_info.kind != AttributeTypeDescriptorKind.class_
+            or not type_info.class_config
+        ):
             return
 
         target_class = type_info.class_config
@@ -1421,7 +1625,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 context=f"{class_config.name}.{edge_attr.name}",
             )
         except Exception as exc:  # pragma: no cover - defensive
-            logger.error(f"Failed to resolve descriptor for edge attribute {class_config.name}.{edge_attr.name}: {exc}")
+            logger.error(
+                f"Failed to resolve descriptor for edge attribute {class_config.name}.{edge_attr.name}: {exc}"
+            )
             return
 
         edge_class = edge_type_info.class_config
@@ -1440,13 +1646,18 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 )
             except Exception:
                 continue
-            if edge_side_info.kind == AttributeTypeDescriptorKind.class_ and edge_side_info.class_config:
+            if (
+                edge_side_info.kind == AttributeTypeDescriptorKind.class_
+                and edge_side_info.class_config
+            ):
                 if edge_side_info.class_config.id == target_class.id:
                     # Honor overlays on the association (edge) class endpoint attribute.
                     # Without this, a Python-only rename like `schema -> schema_` would make
                     # the generated sugar property access `edge.schema` (which resolves to
                     # BaseModel.schema) instead of the real field.
-                    target_attr_name, _wire = self._attribute_overlay_names(edge_side_attr)
+                    target_attr_name, _wire = self._attribute_overlay_names(
+                        edge_side_attr
+                    )
                     break
 
         if not target_attr_name:
@@ -1542,15 +1753,27 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             )
 
             base_type = "Any"
-            if type_info.kind == AttributeTypeDescriptorKind.primitive and type_info.primitive_config:
-                prim = CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type)
+            if (
+                type_info.kind == AttributeTypeDescriptorKind.primitive
+                and type_info.primitive_config
+            ):
+                prim = CodePrimitiveType.model_validate(
+                    type_info.primitive_config.primitive_type
+                )
                 base_type = _PRIMITIVE_CODEC.render(prim) or "Any"
-            elif type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config:
+            elif (
+                type_info.kind == AttributeTypeDescriptorKind.enum
+                and type_info.enum_config
+            ):
                 base_type = type_info.enum_config.name
-            elif type_info.kind == AttributeTypeDescriptorKind.class_ and type_info.class_config:
+            elif (
+                type_info.kind == AttributeTypeDescriptorKind.class_
+                and type_info.class_config
+            ):
                 base_type = type_info.class_config.name
                 if self.policy.emit_discriminated_union_parsers and any(
-                    base_id == type_info.class_config.id for base_id, _attr in self._discriminate_key_by_class_and_attr
+                    base_id == type_info.class_config.id
+                    for base_id, _attr in self._discriminate_key_by_class_and_attr
                 ):
                     base_type = f"SerializeAsAny[{base_type}]"
 
@@ -1570,7 +1793,17 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         + f"{attr.default_value!r}"
                     ) from exc
 
-                if type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config:
+                if default_value is None:
+                    if not self._is_nullable(attr, type_info):
+                        raise ValueError(
+                            "Non-nullable function parameter has null default: "
+                            f"{cls_scope.qualname}.{method_name}({attr.name})"
+                        )
+                    default_expr = "None"
+                elif (
+                    type_info.kind == AttributeTypeDescriptorKind.enum
+                    and type_info.enum_config
+                ):
                     if type_info.is_collection and isinstance(default_value, list):
                         rendered_items: list[str] = []
                         for item in cast(list[object], default_value):
@@ -1593,7 +1826,21 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             f"{self._enum_option_rendered_name(type_info.enum_config, default_value)}"
                         )
                 else:
-                    default_expr = _PRIMITIVE_CODEC.to_literal_string(default_value)
+                    if (
+                        type_info.kind == AttributeTypeDescriptorKind.primitive
+                        and type_info.primitive_config is not None
+                    ):
+                        primitive_type = CodePrimitiveType.model_validate(
+                            type_info.primitive_config.primitive_type
+                        )
+                        if type_info.is_collection:
+                            primitive_type = _PRIMITIVE_CODEC.array(primitive_type)
+                        default_expr = _PRIMITIVE_CODEC.to_typed_literal_string(
+                            default_value,
+                            primitive_type,
+                        )
+                    else:
+                        default_expr = _PRIMITIVE_CODEC.to_literal_string(default_value)
             elif not getattr(attr, "is_required", True):
                 default_expr = "None"
 
@@ -1606,22 +1853,16 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             # SSOT: invocation payload keys use canonical AttributeConfig names, not overlays.
             payload_items.append(f"{json.dumps(attr.name)}: {rendered_name}")
 
-        # Python syntax requires non-default params before default params.
-        # Preserve SSOT ordering unless it would produce invalid code.
-        saw_default = False
-        has_non_default_after_default = False
-        for has_default in params_have_default:
-            if has_default:
-                saw_default = True
-            elif saw_default:
-                has_non_default_after_default = True
-                break
-        if has_non_default_after_default:
-            zipped = list(zip(params, payload_items, params_have_default, strict=True))
-            required = [p for p in zipped if not p[2]]
-            optional = [p for p in zipped if p[2]]
-            params = [p for p, _payload, _has_default in required + optional]
-            payload_items = [_payload for _p, _payload, _has_default in required + optional]
+        validate_python_parameter_default_order(
+            context=f"{cls_scope.qualname}.{method_name}",
+            parameters=[
+                (edge.attribute_config.name, has_default)
+                for edge, has_default in zip(
+                    input_edges, params_have_default, strict=True
+                )
+                if edge.attribute_config is not None
+            ],
+        )
 
         return_type = output_class
         single_output_attr: AttributeConfig | None = None
@@ -1636,12 +1877,23 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             )
 
             base_type = "Any"
-            if out_type_info.kind == AttributeTypeDescriptorKind.primitive and out_type_info.primitive_config:
-                prim = CodePrimitiveType.model_validate(out_type_info.primitive_config.primitive_type)
+            if (
+                out_type_info.kind == AttributeTypeDescriptorKind.primitive
+                and out_type_info.primitive_config
+            ):
+                prim = CodePrimitiveType.model_validate(
+                    out_type_info.primitive_config.primitive_type
+                )
                 base_type = _PRIMITIVE_CODEC.render(prim) or "Any"
-            elif out_type_info.kind == AttributeTypeDescriptorKind.enum and out_type_info.enum_config:
+            elif (
+                out_type_info.kind == AttributeTypeDescriptorKind.enum
+                and out_type_info.enum_config
+            ):
                 base_type = out_type_info.enum_config.name
-            elif out_type_info.kind == AttributeTypeDescriptorKind.class_ and out_type_info.class_config:
+            elif (
+                out_type_info.kind == AttributeTypeDescriptorKind.class_
+                and out_type_info.class_config
+            ):
                 base_type = out_type_info.class_config.name
                 if self.policy.emit_discriminated_union_parsers and any(
                     base_id == out_type_info.class_config.id
@@ -1652,7 +1904,10 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             return_type = base_type
             if out_type_info.is_collection:
                 return_type = f"list[{return_type}]"
-            if self._is_nullable(single_output_attr, out_type_info) and not out_type_info.is_collection:
+            if (
+                self._is_nullable(single_output_attr, out_type_info)
+                and not out_type_info.is_collection
+            ):
                 return_type = f"{return_type} | None"
 
         with cls_scope.start_section(
@@ -1672,7 +1927,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             if is_constructor:
                 decorators.append("@classmethod")
                 self_or_cls = "cls"
-            signature_args = ", ".join([self_or_cls, *params]) if params else self_or_cls
+            signature_args = (
+                ", ".join([self_or_cls, *params]) if params else self_or_cls
+            )
             signature = f"({signature_args})"
             emit_function_header(
                 fn_scope,
@@ -1692,13 +1949,17 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                     if len(doc_lines) > 1:
                         body_segments.append(fn_scope.token('"""\n'))
                         for line in doc_lines:
-                            body_segments.append(fn_scope.token(f"{line}\n" if line else "\n"))
+                            body_segments.append(
+                                fn_scope.token(f"{line}\n" if line else "\n")
+                            )
                         body_segments.append(fn_scope.token('"""\n'))
                     else:
                         body_segments.append(fn_scope.token(f'"""{doc_lines[0]}"""\n'))
                     body_segments.append(fn_scope.token("\n"))
 
-                payload_literal = "{" + (", ".join(payload_items) if payload_items else "") + "}"
+                payload_literal = (
+                    "{" + (", ".join(payload_items) if payload_items else "") + "}"
+                )
                 body_segments.append(fn_scope.token(f"payload = {payload_literal}\n"))
 
                 if not output_edges:
@@ -1739,10 +2000,16 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
 
                     # Multi-output functions keep the explicit Output model for field names.
                     if len(output_edges) > 1:
-                        body_segments.append(fn_scope.token(f"if isinstance(result, {output_class}):\n"))
+                        body_segments.append(
+                            fn_scope.token(f"if isinstance(result, {output_class}):\n")
+                        )
                         with fn_scope.indent():
                             body_segments.append(fn_scope.token("return result\n"))
-                        body_segments.append(fn_scope.token(f"return {output_class}.model_validate(result)\n"))
+                        body_segments.append(
+                            fn_scope.token(
+                                f"return {output_class}.model_validate(result)\n"
+                            )
+                        )
                     else:
                         assert single_output_attr is not None
                         out_name = json.dumps(single_output_attr.name)
@@ -1758,24 +2025,39 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             context=f"{cls_scope.qualname}.{method_name}(return)",
                         )
 
-                        if self._is_nullable(single_output_attr, out_type_info) and not out_type_info.is_collection:
+                        if (
+                            self._is_nullable(single_output_attr, out_type_info)
+                            and not out_type_info.is_collection
+                        ):
                             body_segments.append(fn_scope.token("if value is None:\n"))
                             with fn_scope.indent():
                                 body_segments.append(fn_scope.token("return None\n"))
 
-                        if out_type_info.kind == AttributeTypeDescriptorKind.class_ and out_type_info.class_config:
+                        if (
+                            out_type_info.kind == AttributeTypeDescriptorKind.class_
+                            and out_type_info.class_config
+                        ):
                             cls_name = out_type_info.class_config.name
                             is_inline_value_output = (
-                                out_type_info.class_config.value_mode == ClassValueMode.inline_value
+                                out_type_info.class_config.value_mode
+                                == ClassValueMode.inline_value
                             )
                             module_name: str | None = None
                             if self.import_overrides:
-                                override = self.import_overrides.get(str(out_type_info.class_config.id), None)
+                                override = self.import_overrides.get(
+                                    str(out_type_info.class_config.id), None
+                                )
                                 if override:
                                     module_name = override
                             if module_name is None:
-                                related_path = self.layout_strategy.get_class_file_path(out_type_info.class_config)
-                                module_name = self.layout_strategy.get_module_import_path(related_path)
+                                related_path = self.layout_strategy.get_class_file_path(
+                                    out_type_info.class_config
+                                )
+                                module_name = (
+                                    self.layout_strategy.get_module_import_path(
+                                        related_path
+                                    )
+                                )
 
                             # IMPORTANT (canonical):
                             # Do not import cross-module ORM models at module import time;
@@ -1784,22 +2066,41 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             # The honest solution is a *local import* inside the method
                             # body for cross-module output types.
                             if module_name and module_name != self._current_module:
-                                body_segments.append(fn_scope.token(f"from {module_name} import {cls_name}\n"))
-                            body_segments.append(fn_scope.token(f"if isinstance(value, {cls_name}):\n"))
+                                body_segments.append(
+                                    fn_scope.token(
+                                        f"from {module_name} import {cls_name}\n"
+                                    )
+                                )
+                            body_segments.append(
+                                fn_scope.token(f"if isinstance(value, {cls_name}):\n")
+                            )
                             with fn_scope.indent():
                                 body_segments.append(fn_scope.token("return value\n"))
                             if is_inline_value_output:
-                                body_segments.append(fn_scope.token(f"return {cls_name}.model_validate(value)\n"))
+                                body_segments.append(
+                                    fn_scope.token(
+                                        f"return {cls_name}.model_validate(value)\n"
+                                    )
+                                )
                             else:
                                 body_segments.append(
-                                    fn_scope.token(f"return {cls_name}.validate_invocation_value(value)\n")
+                                    fn_scope.token(
+                                        f"return {cls_name}.validate_invocation_value(value)\n"
+                                    )
                                 )
-                        elif out_type_info.kind == AttributeTypeDescriptorKind.enum and out_type_info.enum_config:
+                        elif (
+                            out_type_info.kind == AttributeTypeDescriptorKind.enum
+                            and out_type_info.enum_config
+                        ):
                             enum_name = out_type_info.enum_config.name
-                            body_segments.append(fn_scope.token(f"if isinstance(value, {enum_name}):\n"))
+                            body_segments.append(
+                                fn_scope.token(f"if isinstance(value, {enum_name}):\n")
+                            )
                             with fn_scope.indent():
                                 body_segments.append(fn_scope.token("return value\n"))
-                            body_segments.append(fn_scope.token(f"return {enum_name}(value)\n"))
+                            body_segments.append(
+                                fn_scope.token(f"return {enum_name}(value)\n")
+                            )
                         else:
                             body_segments.append(fn_scope.token("return value\n"))
 
@@ -1828,10 +2129,14 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         ]
 
         if input_class_name is None or output_class_name is None:
-            input_class_name, output_class_name = self._get_function_io_class_names(object_name, function_config.name)
+            input_class_name, output_class_name = self._get_function_io_class_names(
+                object_name, function_config.name
+            )
 
         with writer.start_section(self._spec_class, qualname=input_class_name) as cls:
-            emit_class_header(cls, name=input_class_name, base_name="BaseModel", description=None)
+            emit_class_header(
+                cls, name=input_class_name, base_name="BaseModel", description=None
+            )
             with cls.indent():
                 if not input_attrs:
                     _ = cls.token("pass\n")
@@ -1842,7 +2147,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         _ = writer.token("\n")
 
         with writer.start_section(self._spec_class, qualname=output_class_name) as cls:
-            emit_class_header(cls, name=output_class_name, base_name="BaseModel", description=None)
+            emit_class_header(
+                cls, name=output_class_name, base_name="BaseModel", description=None
+            )
             with cls.indent():
                 if not output_attrs:
                     _ = cls.token("pass\n")
@@ -1870,7 +2177,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 continue
 
             _ = writer.token(f'{class_indent}"{class_name}": {{\n')
-            for function_registry_entry in class_registry_entry.function_registry_entries:
+            for (
+                function_registry_entry
+            ) in class_registry_entry.function_registry_entries:
                 fn_indent = class_indent + "    "
                 fn_name = function_registry_entry.function_config.name
                 in_name = function_registry_entry.input_class_name
@@ -1897,19 +2206,31 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         if writer.indent_level > 0:
             all_indent = all_indent * writer.indent_level
         for class_registry_entry in registry_entries:
-            _ = writer.token(f'{all_indent}"{class_registry_entry.class_config.name}",\n')
-            for function_registry_entry in class_registry_entry.function_registry_entries:
-                _ = writer.token(f'{all_indent}"{function_registry_entry.input_class_name}",\n')
-                _ = writer.token(f'{all_indent}"{function_registry_entry.output_class_name}",\n')
+            _ = writer.token(
+                f'{all_indent}"{class_registry_entry.class_config.name}",\n'
+            )
+            for (
+                function_registry_entry
+            ) in class_registry_entry.function_registry_entries:
+                _ = writer.token(
+                    f'{all_indent}"{function_registry_entry.input_class_name}",\n'
+                )
+                _ = writer.token(
+                    f'{all_indent}"{function_registry_entry.output_class_name}",\n'
+                )
         _ = writer.token(f'{all_indent}"FUNCTIONS",\n')
         _ = writer.token("]\n")
 
-    def _get_function_io_class_names(self, object_name: str, function_name: str) -> tuple[str, str]:
+    def _get_function_io_class_names(
+        self, object_name: str, function_name: str
+    ) -> tuple[str, str]:
         pascal_obj = to_pascal_case(object_name)
         pascal_fn = to_pascal_case(function_name)
         return f"{pascal_obj}{pascal_fn}Input", f"{pascal_obj}{pascal_fn}Output"
 
-    def _render_attribute(self, cls_scope: CodeSectionScope, attribute_config: AttributeConfig):
+    def _render_attribute(
+        self, cls_scope: CodeSectionScope, attribute_config: AttributeConfig
+    ):
         """
         Render an attribute within a class.
 
@@ -1946,15 +2267,27 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             qualname=f"{cls_scope.qualname}.{rendered_name}",
         ) as attr:
             base_type = "Any"
-            if type_info.kind == AttributeTypeDescriptorKind.primitive and type_info.primitive_config:
-                prim = CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type)
+            if (
+                type_info.kind == AttributeTypeDescriptorKind.primitive
+                and type_info.primitive_config
+            ):
+                prim = CodePrimitiveType.model_validate(
+                    type_info.primitive_config.primitive_type
+                )
                 base_type = _PRIMITIVE_CODEC.render(prim) or "Any"
-            elif type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config:
+            elif (
+                type_info.kind == AttributeTypeDescriptorKind.enum
+                and type_info.enum_config
+            ):
                 base_type = type_info.enum_config.name
-            elif type_info.kind == AttributeTypeDescriptorKind.class_ and type_info.class_config:
+            elif (
+                type_info.kind == AttributeTypeDescriptorKind.class_
+                and type_info.class_config
+            ):
                 base_type = type_info.class_config.name
                 if self.policy.emit_discriminated_union_parsers and any(
-                    base_id == type_info.class_config.id for base_id, _attr in self._discriminate_key_by_class_and_attr
+                    base_id == type_info.class_config.id
+                    for base_id, _attr in self._discriminate_key_by_class_and_attr
                 ):
                     base_type = f"SerializeAsAny[{base_type}]"
             else:
@@ -1992,12 +2325,19 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                     (self._current_class_config_id, attribute_config.name)
                 )
                 if discriminator_tag_value is not None:
-                    prim = CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type)
+                    prim = CodePrimitiveType.model_validate(
+                        type_info.primitive_config.primitive_type
+                    )
                     if prim.base_type == CodePrimitiveBaseType.string:
                         is_discriminator_tag = True
                         default_value_override = discriminator_tag_value
-                        if not is_collection and self.policy.emit_discriminator_literal_types:
-                            literal_type = f"Literal[{json.dumps(discriminator_tag_value)}]"
+                        if (
+                            not is_collection
+                            and self.policy.emit_discriminator_literal_types
+                        ):
+                            literal_type = (
+                                f"Literal[{json.dumps(discriminator_tag_value)}]"
+                            )
                             if is_optional:
                                 type_annotation = f"{literal_type} | None"
                             else:
@@ -2007,7 +2347,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             default_value: object | None = None
             if attribute_config.default_value is not None:
                 try:
-                    default_value = cast(object, json.loads(attribute_config.default_value))
+                    default_value = cast(
+                        object, json.loads(attribute_config.default_value)
+                    )
                 except (json.JSONDecodeError, ValueError) as e:
                     # Log the problematic value for debugging
                     logger.error(
@@ -2022,7 +2364,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                     try:
                         # If it's already a JSON string, parse it
                         default_value_str = cast(str, default_value)
-                        if default_value_str.startswith('"') and default_value_str.endswith('"'):
+                        if default_value_str.startswith(
+                            '"'
+                        ) and default_value_str.endswith('"'):
                             default_value = cast(object, json.loads(default_value_str))
                     except (json.JSONDecodeError, ValueError):
                         # If all parsing fails, use the raw value
@@ -2035,7 +2379,10 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
 
             # Override default value when discriminator tags are SSOT (prevents drift between annotation + default).
             if default_value_override is not None:
-                if default_value is not None and default_value != default_value_override:
+                if (
+                    default_value is not None
+                    and default_value != default_value_override
+                ):
                     raise ValueError(
                         f"Discriminator tag default mismatch for {cls_scope.qualname}.{attribute_config.name}: "
                         + f"default={default_value!r} tag={default_value_override!r}"
@@ -2057,7 +2404,11 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         default_section += ", exclude=True"
                     default_expr = f"Field({default_section})"
                 elif is_optional:
-                    default_expr = "Field(default=None, exclude=True)" if should_exclude else "Field(default=None)"
+                    default_expr = (
+                        "Field(default=None, exclude=True)"
+                        if should_exclude
+                        else "Field(default=None)"
+                    )
 
             # If this attribute has a wire_name override (or was renamed), emit Field(alias=...)
             # to preserve stable JSON keys while using a safe Python identifier.
@@ -2068,7 +2419,8 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             if attribute_config.description:
                 default_expr = self._with_field_description(
                     default_expr,
-                    description=self._public_description(attribute_config.description) or attribute_config.description,
+                    description=self._public_description(attribute_config.description)
+                    or attribute_config.description,
                 )
 
             # DTO discriminators: keep human-friendly raw literals for constant tag defaults when safe.
@@ -2106,15 +2458,26 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             should_exclude: Whether to exclude the default value from serialization
         """
         # Check if it's already a complete Field() call
-        if isinstance(default_value, str) and default_value.startswith(("Field(", "field(")):
-            _ = attr.token(default_value, CodeSectionAttributeSegment.DEFAULT_VALUE.value)
+        if isinstance(default_value, str) and default_value.startswith(
+            ("Field(", "field(")
+        ):
+            _ = attr.token(
+                default_value, CodeSectionAttributeSegment.DEFAULT_VALUE.value
+            )
             return
 
         # Use the type system to determine how to handle the default
-        if type_info.kind == AttributeTypeDescriptorKind.primitive and type_info.primitive_config:
-            prim = CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type)
+        if (
+            type_info.kind == AttributeTypeDescriptorKind.primitive
+            and type_info.primitive_config
+        ):
+            prim = CodePrimitiveType.model_validate(
+                type_info.primitive_config.primitive_type
+            )
             default_section = self._get_primitive_field_default(default_value, prim)
-        elif type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config:
+        elif (
+            type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config
+        ):
             # Enum defaults are always literals
             enum_config = type_info.enum_config
             # !! TODO: Improve "default_value" is None instead of assuming "NULL".
@@ -2140,7 +2503,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         if should_exclude:
             default_section += ", exclude=True"
 
-        _ = attr.token(f"Field({default_section})", CodeSectionAttributeSegment.DEFAULT_VALUE.value)
+        _ = attr.token(
+            f"Field({default_section})", CodeSectionAttributeSegment.DEFAULT_VALUE.value
+        )
 
     def _field_default_expr(
         self,
@@ -2151,7 +2516,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
     ) -> str:
         """Return a Pydantic Field(...) expression string for a default value."""
         # Check if it's already a complete Field() call
-        if isinstance(default_value, str) and default_value.startswith(("Field(", "field(")):
+        if isinstance(default_value, str) and default_value.startswith(
+            ("Field(", "field(")
+        ):
             return default_value
 
         # Collection fields (`T[]`) should never use a literal list default, even when `.aware`
@@ -2162,7 +2529,18 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 default_section = "default_factory=list"
             elif isinstance(default_value, list):
                 if default_value:
-                    literal = _PRIMITIVE_CODEC.to_literal_string(cast(object, default_value))
+                    if type_info.primitive_config is not None:
+                        item_type = CodePrimitiveType.model_validate(
+                            type_info.primitive_config.primitive_type
+                        )
+                        literal = _PRIMITIVE_CODEC.to_typed_literal_string(
+                            cast(object, default_value),
+                            _PRIMITIVE_CODEC.array(item_type),
+                        )
+                    else:
+                        literal = _PRIMITIVE_CODEC.to_literal_string(
+                            cast(object, default_value)
+                        )
                     default_section = f"default_factory=lambda: {literal}"
                 else:
                     default_section = "default_factory=list"
@@ -2175,11 +2553,24 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
 
             return f"Field({default_section})"
 
+        if default_value is None:
+            default_section = "default=None"
+            if should_exclude:
+                default_section += ", exclude=True"
+            return f"Field({default_section})"
+
         # Use the type system to determine how to handle the default
-        if type_info.kind == AttributeTypeDescriptorKind.primitive and type_info.primitive_config:
-            prim = CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type)
+        if (
+            type_info.kind == AttributeTypeDescriptorKind.primitive
+            and type_info.primitive_config
+        ):
+            prim = CodePrimitiveType.model_validate(
+                type_info.primitive_config.primitive_type
+            )
             default_section = self._get_primitive_field_default(default_value, prim)
-        elif type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config:
+        elif (
+            type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config
+        ):
             enum_config = type_info.enum_config
             # Enum defaults may come through as None (implicit null) or "NULL".
             # In both cases, emit `None` rather than invalid `<Enum>.None`.
@@ -2205,7 +2596,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
 
         return f"Field({default_section})"
 
-    def _get_primitive_field_default(self, default_value: object, prim: CodePrimitiveType) -> str:
+    def _get_primitive_field_default(
+        self, default_value: object, prim: CodePrimitiveType
+    ) -> str:
         """
         Render Field() default for primitive types using the type system.
 
@@ -2218,7 +2611,10 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         # Handle different base types that require factories
         if base_type == CodePrimitiveBaseType.datetime:
             # DateTime fields typically use factory functions
-            if isinstance(default_value, str) and default_value.strip().lower() == "now()":
+            if (
+                isinstance(default_value, str)
+                and default_value.strip().lower() == "now()"
+            ):
                 # Canonical `.aware` uses `now()` as a dynamic DateTime default. Emit a factory rather
                 # than a string literal.
                 return "default_factory=datetime.utcnow"
@@ -2233,7 +2629,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 return f"default={formatted_value}"
         elif base_type == CodePrimitiveBaseType.uuid:
             # UUID fields typically use factory functions
-            if isinstance(default_value, str) and ("gen_random_uuid" in default_value or "UUID" in default_value):
+            if isinstance(default_value, str) and (
+                "gen_random_uuid" in default_value or "UUID" in default_value
+            ):
                 return "default_factory=lambda: UUID(gen_random_uuid())"
             else:
                 # Literal UUID value
@@ -2268,7 +2666,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
 
             if json_kind == "object":
                 if not isinstance(parsed, dict):
-                    raise ValueError(f"Invalid default for JsonObject: expected object, got {type(parsed).__name__}")
+                    raise ValueError(
+                        f"Invalid default for JsonObject: expected object, got {type(parsed).__name__}"
+                    )
                 if parsed:
                     literal = _PRIMITIVE_CODEC.to_literal_string(cast(object, parsed))
                     return f"default_factory=lambda: JsonObject({literal})"
@@ -2276,7 +2676,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
 
             if json_kind == "array":
                 if not isinstance(parsed, list):
-                    raise ValueError(f"Invalid default for JsonArray: expected array, got {type(parsed).__name__}")
+                    raise ValueError(
+                        f"Invalid default for JsonArray: expected array, got {type(parsed).__name__}"
+                    )
                 if parsed:
                     literal = _PRIMITIVE_CODEC.to_literal_string(cast(object, parsed))
                     return f"default_factory=lambda: JsonArray({literal})"
@@ -2286,18 +2688,26 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 # JsonValue is a typing alias; emit plain Python literals + factories for containers.
                 if isinstance(parsed, dict):
                     if parsed:
-                        literal = _PRIMITIVE_CODEC.to_literal_string(cast(object, parsed))
+                        literal = _PRIMITIVE_CODEC.to_literal_string(
+                            cast(object, parsed)
+                        )
                         return f"default_factory=lambda: {literal}"
                     return "default_factory=dict"
                 if isinstance(parsed, list):
                     if parsed:
-                        literal = _PRIMITIVE_CODEC.to_literal_string(cast(object, parsed))
+                        literal = _PRIMITIVE_CODEC.to_literal_string(
+                            cast(object, parsed)
+                        )
                         return f"default_factory=lambda: {literal}"
                     return "default_factory=list"
                 literal = _PRIMITIVE_CODEC.to_literal_string(parsed)
                 return f"default={literal}"
 
             raise ValueError(f"Invalid json_kind constraint: {json_kind!r}")
+        elif base_type == CodePrimitiveBaseType.decimal:
+            return "default=" + _PRIMITIVE_CODEC.to_typed_literal_string(
+                default_value, prim
+            )
         elif base_type == CodePrimitiveBaseType.null:
             # Null/None values
             return "default=None"
@@ -2336,7 +2746,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                     option_desc = self._public_description(option.description)
 
                     # Apply enum option overlay (for reserved words / wire compatibility)
-                    overlay = self.get_overlay_by_entity_id(CodeSectionAnnotationOverlayEntity.enum_option, option.id)
+                    overlay = self.get_overlay_by_entity_id(
+                        CodeSectionAnnotationOverlayEntity.enum_option, option.id
+                    )
                     if overlay is not None and isinstance(overlay, EnumOptionOverlay):
                         if overlay.rendered_name:
                             label = overlay.rendered_name
@@ -2344,7 +2756,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             value = overlay.wire_name
                     label = _safe_python_enum_option_name(label)
                     previous_value = rendered_option_names.get(label)
-                    if previous_value is not None and previous_value != str(option.value):
+                    if previous_value is not None and previous_value != str(
+                        option.value
+                    ):
                         raise ValueError(
                             "Python enum option names collide after rendering: "
                             f"enum={enum_config.name!r} rendered_name={label!r} "
@@ -2391,10 +2805,7 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 continue
             return _safe_python_enum_option_name(label)
         known_values = ", ".join(
-            sorted(
-                str(option.value)
-                for option in enum_config.enum_options or []
-            )
+            sorted(str(option.value) for option in enum_config.enum_options or [])
         )
         raise ValueError(
             "Enum default does not match a declared option: "
@@ -2424,6 +2835,7 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
         has_uuid = False
         json_types: set[str] = set()
         has_datetime = False
+        has_decimal = False
         has_any = False
         needs_field = False
         needs_serialize_as_any = False
@@ -2432,7 +2844,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
 
         policy = self.policy
         should_emit_functions = (
-            policy.emit_function_facades or policy.emit_function_io_models or policy.emit_function_registry
+            policy.emit_function_facades
+            or policy.emit_function_io_models
+            or policy.emit_function_registry
         )
 
         # Collect attribute configs for both class and functions.
@@ -2459,19 +2873,25 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                     context=f"{class_config.name}.{attr_config.name}",
                 )
             except Exception as exc:
-                logger.error(f"Failed to resolve descriptor for {class_config.name}.{attr_config.name}: {exc}")
+                logger.error(
+                    f"Failed to resolve descriptor for {class_config.name}.{attr_config.name}: {exc}"
+                )
                 has_any = True
                 continue
 
             flags = self._attribute_render_flags(attr_config, type_info)
-            if not self._should_emit_attribute_for_policy(class_config, attr_config, type_info):
+            if not self._should_emit_attribute_for_policy(
+                class_config, attr_config, type_info
+            ):
                 continue
             needs_field = needs_field or flags.needs_field
 
             if type_info.kind == AttributeTypeDescriptorKind.primitive:
                 primitive_config = type_info.primitive_config
                 if primitive_config:
-                    prim = CodePrimitiveType.model_validate(primitive_config.primitive_type)
+                    prim = CodePrimitiveType.model_validate(
+                        primitive_config.primitive_type
+                    )
                     base = prim.base_type
                     if base == CodePrimitiveBaseType.uuid:
                         has_uuid = True
@@ -2479,6 +2899,8 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         json_types.add(_PRIMITIVE_CODEC.render(prim) or "Json")
                     if base == CodePrimitiveBaseType.datetime:
                         has_datetime = True
+                    if base == CodePrimitiveBaseType.decimal:
+                        has_decimal = True
                     if base == CodePrimitiveBaseType.any:
                         has_any = True
                     if base == CodePrimitiveBaseType.vector:
@@ -2494,7 +2916,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             module_name = override
                     if module_name is None:
                         enum_path = self.layout_strategy.get_enum_file_path(enum_config)
-                        module_name = self.layout_strategy.get_module_import_path(enum_path)
+                        module_name = self.layout_strategy.get_module_import_path(
+                            enum_path
+                        )
                     # Avoid self-imports: importing from the module we are currently emitting
                     # produces invalid circular imports like:
                     #   from pkg.mod import MyEnum
@@ -2509,9 +2933,14 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 if (
                     self.policy.emit_discriminated_union_parsers
                     and cls_cfg is not None
-                    and any(base_id == cls_cfg.id for base_id, _attr in self._discriminate_key_by_class_and_attr)
+                    and any(
+                        base_id == cls_cfg.id
+                        for base_id, _attr in self._discriminate_key_by_class_and_attr
+                    )
                 ):
-                    discriminator_attr = self._discriminator_key_attr_name(base_class_id=cls_cfg.id)
+                    discriminator_attr = self._discriminator_key_attr_name(
+                        base_class_id=cls_cfg.id
+                    )
                     is_discriminated_union_base = discriminator_attr is not None
 
                 # Import strategy (Python-only, separate from loading strategy):
@@ -2532,7 +2961,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             module_name = override
                     if module_name is None:
                         related_path = self.layout_strategy.get_class_file_path(cls_cfg)
-                        module_name = self.layout_strategy.get_module_import_path(related_path)
+                        module_name = self.layout_strategy.get_module_import_path(
+                            related_path
+                        )
                     if module_name != current_module:
                         if is_discriminated_union_base:
                             # Discriminated-union parsers reference base type at runtime
@@ -2546,14 +2977,18 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             imports.add(module_name, cls_cfg.name)
                         else:
                             # Defer to TYPE_CHECKING import block emitted at module level.
-                            self._lazy_imports_for_file.setdefault(module_name, set()).add(cls_cfg.name)
+                            self._lazy_imports_for_file.setdefault(
+                                module_name, set()
+                            ).add(cls_cfg.name)
                 elif cls_cfg:
                     related_file = to_snake_case(cls_cfg.name)
                     module_name = f".{related_file}"
                     if is_discriminated_union_base:
                         imports.add(module_name, cls_cfg.name)
                     else:
-                        self._lazy_imports_for_file.setdefault(module_name, set()).add(cls_cfg.name)
+                        self._lazy_imports_for_file.setdefault(module_name, set()).add(
+                            cls_cfg.name
+                        )
                 else:
                     has_any = True
                     if attr_config.is_public:
@@ -2577,7 +3012,10 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 and type_info.class_config is not None
             ):
                 target_id = type_info.class_config.id
-                if any(base_id == target_id for base_id, _attr in self._discriminate_key_by_class_and_attr):
+                if any(
+                    base_id == target_id
+                    for base_id, _attr in self._discriminate_key_by_class_and_attr
+                ):
                     needs_serialize_as_any = True
                     needs_field_validator = True
 
@@ -2606,6 +3044,10 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             imports.add("uuid", "UUID")
         if has_datetime:
             imports.add("datetime", "datetime")
+        if has_decimal:
+            imports.add("decimal", "Decimal")
+            imports.add("typing", "Annotated")
+            imports.add("aware_types", "DecimalWire")
         if has_any:
             imports.add("typing", "Any")
 
@@ -2639,7 +3081,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             base_class_name = policy.base_class_name
 
         current_module: str | None = None
-        current_class = next((obj for obj in meta_objects if isinstance(obj, ClassConfig)), None)
+        current_class = next(
+            (obj for obj in meta_objects if isinstance(obj, ClassConfig)), None
+        )
         if current_class is not None:
             current_file = self.layout_strategy.get_class_file_path(current_class)
             current_module = self.layout_strategy.get_module_import_path(current_file)
@@ -2656,7 +3100,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
             for obj in meta_objects:
                 if not isinstance(obj, ClassConfigRelationship):
                     continue
-                self._current_relationships_by_class_id.setdefault(obj.class_config_id, []).append(obj)
+                self._current_relationships_by_class_id.setdefault(
+                    obj.class_config_id, []
+                ).append(obj)
                 # Track edge-backed view attributes (association present) so imports/rendering can
                 # treat them as @property views instead of stored fields.
                 if obj.class_config_relationship_association_edge is not None:
@@ -2683,7 +3129,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                     semantic_import_roots=semantic_import_roots_from_renderer_inputs(
                         import_root=self.layout_strategy.import_root,
                         import_overrides=self.import_overrides,
-                        external_graph_fqn_prefixes=(graph.fqn_prefix for graph in self.external_graphs),
+                        external_graph_fqn_prefixes=(
+                            graph.fqn_prefix for graph in self.external_graphs
+                        ),
                     ),
                     support_import_roots=policy.support_import_roots,
                 ),
@@ -2716,15 +3164,23 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         items_str = ""
                     elif use_multiline:
                         # Match existing generated style: parenthesized multi-line imports.
-                        items_str = "(\n" + "".join([f"    {it},\n" for it in items]) + ")"
+                        items_str = (
+                            "(\n" + "".join([f"    {it},\n" for it in items]) + ")"
+                        )
                     else:
                         items_str = items[0]
 
-                    with writer.start_section(self._spec_import, qualname=f"import.{module}") as import_section:
+                    with writer.start_section(
+                        self._spec_import, qualname=f"import.{module}"
+                    ) as import_section:
                         _ = import_section.token("from ")
-                        _ = import_section.token(module, CodeSectionImportSegment.MODULE.value)
+                        _ = import_section.token(
+                            module, CodeSectionImportSegment.MODULE.value
+                        )
                         _ = import_section.token(" import ")
-                        _ = import_section.token(items_str, CodeSectionImportSegment.NAMES.value)
+                        _ = import_section.token(
+                            items_str, CodeSectionImportSegment.NAMES.value
+                        )
                         _ = import_section.token("\n")
 
                 _ = writer.token("\n")
@@ -2740,9 +3196,13 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             qualname=f"import_lazy_typecheck.{module}.{name}",
                         ) as import_section:
                             _ = import_section.token("    from ")
-                            _ = import_section.token(module, CodeSectionImportSegment.MODULE.value)
+                            _ = import_section.token(
+                                module, CodeSectionImportSegment.MODULE.value
+                            )
                             _ = import_section.token(" import ")
-                            _ = import_section.token(name, CodeSectionImportSegment.NAMES.value)
+                            _ = import_section.token(
+                                name, CodeSectionImportSegment.NAMES.value
+                            )
                             _ = import_section.token("\n")
                 _ = writer.token("\n")
 
@@ -2788,8 +3248,12 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 top_level.sort(key=_source_appearance_key)
             else:
                 # Legacy deterministic ordering: keep stable grouping by kind then name.
-                enums: list[EnumConfig] = [o for o in top_level if isinstance(o, EnumConfig)]
-                classes: list[ClassConfig] = [o for o in top_level if isinstance(o, ClassConfig)]
+                enums: list[EnumConfig] = [
+                    o for o in top_level if isinstance(o, EnumConfig)
+                ]
+                classes: list[ClassConfig] = [
+                    o for o in top_level if isinstance(o, ClassConfig)
+                ]
                 enums.sort(key=lambda e: (e.name, str(e.id)))
                 classes.sort(key=lambda c: (c.name, str(c.id)))
                 top_level = [*enums, *classes]
@@ -2803,9 +3267,13 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
 
                 class_config = obj
                 is_inline_value = class_config.value_mode == ClassValueMode.inline_value
-                method_specs: list[tuple[FunctionConfig, str, str, bool, str, bool]] = []
+                method_specs: list[tuple[FunctionConfig, str, str, bool, str, bool]] = (
+                    []
+                )
                 if not is_inline_value and (
-                    policy.emit_function_facades or policy.emit_function_io_models or policy.emit_function_registry
+                    policy.emit_function_facades
+                    or policy.emit_function_io_models
+                    or policy.emit_function_registry
                 ):
                     fn_links: list[ClassConfigFunctionConfig] = sorted(
                         class_config.class_config_function_configs,
@@ -2820,7 +3288,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                         fn_cfg = link.function_config
                         is_constructor = link.is_constructor
                         is_public = link.is_public
-                        input_cls, output_cls = self._get_function_io_class_names(class_config.name, fn_cfg.name)
+                        input_cls, output_cls = self._get_function_io_class_names(
+                            class_config.name, fn_cfg.name
+                        )
                         method_specs.append(
                             (
                                 fn_cfg,
@@ -2842,7 +3312,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                 _ = writer.token("\n\n")
 
                 function_registry_entries: list[FunctionRegistryEntry] = []
-                if not is_inline_value and (policy.emit_function_io_models or policy.emit_function_registry):
+                if not is_inline_value and (
+                    policy.emit_function_io_models or policy.emit_function_registry
+                ):
                     for (
                         fn_cfg,
                         input_cls,
@@ -2867,7 +3339,9 @@ class PythonRenderer(ObjectConfigGraphRendererLanguage):
                             )
 
                 if not is_inline_value and policy.emit_function_registry:
-                    registry_entries.append(ClassRegistryEntry(class_config, function_registry_entries))
+                    registry_entries.append(
+                        ClassRegistryEntry(class_config, function_registry_entries)
+                    )
 
             if policy.emit_function_registry and registry_entries:
                 self._render_registry(writer, registry_entries)

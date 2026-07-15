@@ -1,0 +1,50 @@
+sdk identity_sdk {
+    "Canonical Identity SDK operations over the Identity service API."
+
+    api identity
+
+    operation setup_credential_profile {
+        "Create or reuse one credential profile and attach external secret-material reference truth."
+        endpoint identity.setup_credential_profile.setup_credential_profile
+    }
+
+    operation check_credential_readiness {
+        "Check resolver availability for one credential profile before admission."
+        endpoint identity.check_credential_readiness.check_credential_readiness
+    }
+
+    operation signup_via_profile {
+        "Create the canonical remote Identity and Actor admission record from a profile request."
+        endpoint identity.signup_via_profile.signup_via_profile
+        view identity.identity_admission
+    }
+
+    operation resolve_role_assignments {
+        "Resolve actor role bindings after admission."
+        endpoint identity.resolve_role_assignments.resolve_role_assignments
+        view identity.actor_roles
+    }
+
+    operation resolve_actor_commits {
+        "Resolve actor commit history after admission."
+        endpoint identity.resolve_actor_commits.resolve_actor_commits
+        view identity.actor_commits
+    }
+
+    operation ensure_actor_subscription {
+        "Create or reuse an Identity-owned actor subscription for a Reactivity event-condition scope."
+        endpoint identity.ensure_actor_subscription.ensure_actor_subscription
+    }
+
+    operation resolve_actor_subscriptions {
+        "Resolve actor subscriptions after admission."
+        endpoint identity.resolve_actor_subscriptions.resolve_actor_subscriptions
+        view identity.actor_subscriptions
+    }
+
+    operation admit_identity {
+        "Pane-level Identity admission surface backed by signup_via_profile in v0."
+        endpoint identity.signup_via_profile.signup_via_profile
+        view identity.identity_admission
+    }
+}

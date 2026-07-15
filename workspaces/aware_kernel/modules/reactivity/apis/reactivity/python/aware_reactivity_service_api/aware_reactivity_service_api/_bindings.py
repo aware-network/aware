@@ -18,6 +18,23 @@ API_INTERFACE_SPEC: Final[LoadedApiInterface] = load_api_interface_spec_payload(
                     {
                         "endpoints": [
                             {
+                                "description": "Atomically claim one deterministic "
+                                "ontology-backed ActionExecution\n"
+                                "            before provider "
+                                "fulfillment.",
+                                "discriminant": "reactivity.action.claim_execution",
+                                "name": "claim_execution",
+                                "request": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionExecutionClaimRequest",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "response": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionExecutionClaimResponse",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "source_path": "bindings/reactivity.apis.aware",
+                            },
+                            {
                                 "description": "Publish ontology-backed action "
                                 "lifecycle evidence from an action\n"
                                 "            service back to Reactivity "
@@ -102,6 +119,23 @@ API_INTERFACE_SPEC: Final[LoadedApiInterface] = load_api_interface_spec_payload(
                     {
                         "endpoints": [
                             {
+                                "description": "Publish one provider-neutral committed "
+                                "semantic event occurrence\n"
+                                "            idempotently through the "
+                                "existing Reactivity event stream.",
+                                "discriminant": "reactivity.event.publish_event",
+                                "name": "publish_event",
+                                "request": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivitySemanticEventPublishRequest",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "response": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivitySemanticEventPublishResponse",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "source_path": "bindings/reactivity.apis.aware",
+                            },
+                            {
                                 "description": "Subscribe to Reactivity-owned semantic " "bridge events.",
                                 "discriminant": "reactivity.event.subscribe_events",
                                 "name": "subscribe_events",
@@ -128,9 +162,32 @@ API_INTERFACE_SPEC: Final[LoadedApiInterface] = load_api_interface_spec_payload(
                                     "source_path": "bindings/reactivity.apis.aware",
                                     "stream_mode": "server",
                                 },
-                            }
+                            },
                         ],
                         "name": "event",
+                        "source_path": "bindings/reactivity.apis.aware",
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "description": "Resolve exactly one registered "
+                                "provider action for an event meaning\n"
+                                "            request without invoking "
+                                "the provider.",
+                                "discriminant": "reactivity.meaning.resolve_provider_intent",
+                                "name": "resolve_provider_intent",
+                                "request": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivityEventMeaningProviderResolveRequest",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "response": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivityEventMeaningProviderResolveResponse",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "source_path": "bindings/reactivity.apis.aware",
+                            }
+                        ],
+                        "name": "meaning",
                         "source_path": "bindings/reactivity.apis.aware",
                     },
                     {
@@ -205,6 +262,31 @@ API_INVOCATION_MANIFEST: Final[LoadedApiInvocationManifest] = load_api_invocatio
                 "capabilities": [
                     {
                         "endpoints": [
+                            {
+                                "addressing_strategy": "session_bound",
+                                "client_backend": "aware_api.invoker.AwareApiEndpointInvoker",
+                                "client_operation": "invoke_api_endpoint",
+                                "description": "Atomically claim one deterministic "
+                                "ontology-backed ActionExecution\n"
+                                "            before provider "
+                                "fulfillment.",
+                                "discriminant": "reactivity.action.claim_execution",
+                                "endpoint_ref": "reactivity.action.claim_execution",
+                                "fulfillment_bindings": [],
+                                "invocation_kind": "shared_client_endpoint",
+                                "name": "claim_execution",
+                                "request": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionExecutionClaimRequest",
+                                    "python_model_ref": "aware_reactivity_service_dto.reactivity.action_execution.ReactivityActionExecutionClaimRequest",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "response": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivityActionExecutionClaimResponse",
+                                    "python_model_ref": "aware_reactivity_service_dto.reactivity.action_execution.ReactivityActionExecutionClaimResponse",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "source_path": "bindings/reactivity.apis.aware",
+                            },
                             {
                                 "addressing_strategy": "session_bound",
                                 "client_backend": "aware_api.invoker.AwareApiEndpointInvoker",
@@ -321,6 +403,31 @@ API_INVOCATION_MANIFEST: Final[LoadedApiInvocationManifest] = load_api_invocatio
                                 "addressing_strategy": "session_bound",
                                 "client_backend": "aware_api.invoker.AwareApiEndpointInvoker",
                                 "client_operation": "invoke_api_endpoint",
+                                "description": "Publish one provider-neutral committed "
+                                "semantic event occurrence\n"
+                                "            idempotently through the "
+                                "existing Reactivity event stream.",
+                                "discriminant": "reactivity.event.publish_event",
+                                "endpoint_ref": "reactivity.event.publish_event",
+                                "fulfillment_bindings": [],
+                                "invocation_kind": "shared_client_endpoint",
+                                "name": "publish_event",
+                                "request": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivitySemanticEventPublishRequest",
+                                    "python_model_ref": "aware_reactivity_service_dto.reactivity.service_operation.ReactivitySemanticEventPublishRequest",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "response": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivitySemanticEventPublishResponse",
+                                    "python_model_ref": "aware_reactivity_service_dto.reactivity.service_operation.ReactivitySemanticEventPublishResponse",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "source_path": "bindings/reactivity.apis.aware",
+                            },
+                            {
+                                "addressing_strategy": "session_bound",
+                                "client_backend": "aware_api.invoker.AwareApiEndpointInvoker",
+                                "client_operation": "invoke_api_endpoint",
                                 "description": "Subscribe to Reactivity-owned semantic " "bridge events.",
                                 "discriminant": "reactivity.event.subscribe_events",
                                 "endpoint_ref": "reactivity.event.subscribe_events",
@@ -353,9 +460,40 @@ API_INVOCATION_MANIFEST: Final[LoadedApiInvocationManifest] = load_api_invocatio
                                     "source_path": "bindings/reactivity.apis.aware",
                                     "stream_mode": "server",
                                 },
-                            }
+                            },
                         ],
                         "name": "event",
+                        "source_path": "bindings/reactivity.apis.aware",
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "addressing_strategy": "session_bound",
+                                "client_backend": "aware_api.invoker.AwareApiEndpointInvoker",
+                                "client_operation": "invoke_api_endpoint",
+                                "description": "Resolve exactly one registered "
+                                "provider action for an event meaning\n"
+                                "            request without invoking "
+                                "the provider.",
+                                "discriminant": "reactivity.meaning.resolve_provider_intent",
+                                "endpoint_ref": "reactivity.meaning.resolve_provider_intent",
+                                "fulfillment_bindings": [],
+                                "invocation_kind": "shared_client_endpoint",
+                                "name": "resolve_provider_intent",
+                                "request": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivityEventMeaningProviderResolveRequest",
+                                    "python_model_ref": "aware_reactivity_service_dto.reactivity.event_meaning.ReactivityEventMeaningProviderResolveRequest",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "response": {
+                                    "class_ref": "aware_reactivity_service_dto.reactivity.ReactivityEventMeaningProviderResolveResponse",
+                                    "python_model_ref": "aware_reactivity_service_dto.reactivity.event_meaning.ReactivityEventMeaningProviderResolveResponse",
+                                    "source_path": "bindings/reactivity.apis.aware",
+                                },
+                                "source_path": "bindings/reactivity.apis.aware",
+                            }
+                        ],
+                        "name": "meaning",
                         "source_path": "bindings/reactivity.apis.aware",
                     },
                     {
@@ -447,19 +585,25 @@ API_INVOCATION_MANIFEST: Final[LoadedApiInvocationManifest] = load_api_invocatio
     }
 )
 
+REACTIVITY__ACTION__CLAIM_EXECUTION_ENDPOINT_REF: Final[str] = "reactivity.action.claim_execution"
 REACTIVITY__ACTION__PUBLISH_LIFECYCLE_ENDPOINT_REF: Final[str] = "reactivity.action.publish_lifecycle"
 REACTIVITY__ACTION__RESOLVE_INTENTS_ENDPOINT_REF: Final[str] = "reactivity.action.resolve_intents"
 REACTIVITY__ACTION__SUBSCRIBE_LIFECYCLE_ENDPOINT_REF: Final[str] = "reactivity.action.subscribe_lifecycle"
+REACTIVITY__EVENT__PUBLISH_EVENT_ENDPOINT_REF: Final[str] = "reactivity.event.publish_event"
 REACTIVITY__EVENT__SUBSCRIBE_EVENTS_ENDPOINT_REF: Final[str] = "reactivity.event.subscribe_events"
+REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_ENDPOINT_REF: Final[str] = "reactivity.meaning.resolve_provider_intent"
 REACTIVITY__POLICY__ENSURE_BUNDLE_ENDPOINT_REF: Final[str] = "reactivity.policy.ensure_bundle"
 REACTIVITY__POLICY__LIST_BUNDLES_ENDPOINT_REF: Final[str] = "reactivity.policy.list_bundles"
 REACTIVITY__STATUS__GET_STATUS_ENDPOINT_REF: Final[str] = "reactivity.status.get_status"
 
 ENDPOINT_REF_BY_NAME: Final[dict[str, str]] = {
+    "reactivity.action.claim_execution": REACTIVITY__ACTION__CLAIM_EXECUTION_ENDPOINT_REF,
     "reactivity.action.publish_lifecycle": REACTIVITY__ACTION__PUBLISH_LIFECYCLE_ENDPOINT_REF,
     "reactivity.action.resolve_intents": REACTIVITY__ACTION__RESOLVE_INTENTS_ENDPOINT_REF,
     "reactivity.action.subscribe_lifecycle": REACTIVITY__ACTION__SUBSCRIBE_LIFECYCLE_ENDPOINT_REF,
+    "reactivity.event.publish_event": REACTIVITY__EVENT__PUBLISH_EVENT_ENDPOINT_REF,
     "reactivity.event.subscribe_events": REACTIVITY__EVENT__SUBSCRIBE_EVENTS_ENDPOINT_REF,
+    "reactivity.meaning.resolve_provider_intent": REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_ENDPOINT_REF,
     "reactivity.policy.ensure_bundle": REACTIVITY__POLICY__ENSURE_BUNDLE_ENDPOINT_REF,
     "reactivity.policy.list_bundles": REACTIVITY__POLICY__LIST_BUNDLES_ENDPOINT_REF,
     "reactivity.status.get_status": REACTIVITY__STATUS__GET_STATUS_ENDPOINT_REF,
@@ -471,10 +615,13 @@ __all__ = [
     "API_INVOCATION_MANIFEST",
     "API_PACKAGE_NAME",
     "ENDPOINT_REF_BY_NAME",
+    "REACTIVITY__ACTION__CLAIM_EXECUTION_ENDPOINT_REF",
     "REACTIVITY__ACTION__PUBLISH_LIFECYCLE_ENDPOINT_REF",
     "REACTIVITY__ACTION__RESOLVE_INTENTS_ENDPOINT_REF",
     "REACTIVITY__ACTION__SUBSCRIBE_LIFECYCLE_ENDPOINT_REF",
+    "REACTIVITY__EVENT__PUBLISH_EVENT_ENDPOINT_REF",
     "REACTIVITY__EVENT__SUBSCRIBE_EVENTS_ENDPOINT_REF",
+    "REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_ENDPOINT_REF",
     "REACTIVITY__POLICY__ENSURE_BUNDLE_ENDPOINT_REF",
     "REACTIVITY__POLICY__LIST_BUNDLES_ENDPOINT_REF",
     "REACTIVITY__STATUS__GET_STATUS_ENDPOINT_REF",

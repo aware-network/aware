@@ -2,10 +2,13 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol, cast
 from uuid import UUID
 
 from aware_content_service_dto.content.content_service_operation import (
+    CommitContentTextRequest,
+    CommitContentTextResponse,
+    ContentTextCommitPartV1,
     ContentPackageExportDocumentV1,
     MaterializeContentPackageRequest,
     MaterializeContentPackageResponse,
@@ -19,6 +22,11 @@ class ContentSdkError(RuntimeError):
 
 
 class ContentTextCapabilityClient(Protocol):
+    async def commit_content_text(
+        self,
+        request: CommitContentTextRequest,
+    ) -> CommitContentTextResponse: ...
+
     async def resolve_content_text(
         self,
         request: ResolveContentTextRequest,
@@ -79,6 +87,50 @@ class AwareContentSdk:
                 "Content resolve_content_text response is missing resolution."
             )
         return response
+
+    async def commit_content_text(
+        self,
+        *,
+        content_key: str,
+        source_kind: str,
+        source_ref: str,
+        actor_id: UUID | None = None,
+        branch_id: UUID | None = None,
+        title: str | None = None,
+        media_type: str = "text/plain",
+        text: str | None = None,
+        parts: list[ContentTextCommitPartV1] | None = None,
+        digest_algorithm: str = "sha256",
+        digest: str | None = None,
+        size_bytes: int | None = None,
+        provenance: Mapping[str, object] | None = None,
+    ) -> CommitContentTextResponse:
+        response = await self.api_client.content.text.commit_content_text(
+            CommitContentTextRequest(
+                actor_id=actor_id,
+                branch_id=branch_id,
+                content_key=content_key,
+                title=title,
+                source_kind=source_kind,
+                source_ref=source_ref,
+                media_type=media_type,
+                text=text,
+                parts=list(parts or ()),
+                digest_algorithm=digest_algorithm,
+                digest=digest,
+                size_bytes=size_bytes,
+                provenance=cast(Any, dict(provenance or {})),
+            )
+        )
+        _raise_if_failed(response, operation="commit_content_text")
+        if response.commit_result is None:
+            raise ContentSdkError(
+                "Content commit_content_text response is missing commit_result."
+            )
+        return _commit_text_response_with_transport_receipt_evidence(
+            response=response,
+            api_client=self.api_client,
+        )
 
     async def materialize_content_package(
         self,
@@ -145,7 +197,7 @@ def _materialize_response_with_transport_receipt_evidence(
         return response
 
     materialization = response.materialization
-    materialization_update = {
+    materialization_update: dict[str, Any] = {
         "domain_commit_id": materialization.domain_commit_id or domain_commit_id,
         "service_host_receipt_ref": (
             materialization.service_host_receipt_ref or service_host_receipt_ref
@@ -193,6 +245,65 @@ def _materialize_response_with_transport_receipt_evidence(
             if receipt is not None
             else None,
         }
+    )
+
+
+def _commit_text_response_with_transport_receipt_evidence(
+    *,
+    response: CommitContentTextResponse,
+    api_client: object,
+) -> CommitContentTextResponse:
+    receipt_payload = _service_host_transport_receipt_payload(api_client)
+    commit_result = response.commit_result
+    if not receipt_payload or commit_result is None:
+        return response
+    domain_commit_id = _first_uuid(
+        receipt_payload,
+        (
+            "domain_commit_id",
+            "service_operation_commit_id",
+            "api_call_outcome_commit_id",
+        ),
+    )
+    service_host_receipt_ref = _first_text(
+        receipt_payload,
+        (
+            "service_host_receipt_ref",
+            "receipt_ref",
+            "api_dispatch_receipt_ref",
+        ),
+    ) or _service_host_receipt_ref(receipt_payload)
+    updated_result = commit_result.model_copy(
+        update={
+            "domain_commit_id": commit_result.domain_commit_id or domain_commit_id,
+            "service_host_receipt_ref": (
+                commit_result.service_host_receipt_ref or service_host_receipt_ref
+            ),
+            "provenance": _merge_mapping(
+                commit_result.provenance,
+                {"service_host_transport_receipt": dict(receipt_payload)},
+            ),
+        }
+    )
+    receipt = response.receipt
+    updated_receipt = (
+        receipt.model_copy(
+            update={
+                "domain_commit_id": receipt.domain_commit_id
+                or updated_result.domain_commit_id,
+                "service_host_receipt_ref": receipt.service_host_receipt_ref
+                or updated_result.service_host_receipt_ref,
+                "metadata": _merge_mapping(
+                    receipt.metadata,
+                    {"service_host_transport_receipt": dict(receipt_payload)},
+                ),
+            }
+        )
+        if receipt is not None
+        else None
+    )
+    return response.model_copy(
+        update={"commit_result": updated_result, "receipt": updated_receipt}
     )
 
 

@@ -1,0 +1,180 @@
+{
+  "artifact_changes": [
+    {
+      "artifact_kind": "source_code",
+      "bytes_after": 329,
+      "bytes_before": null,
+      "change_kind": "create",
+      "hash_after": "c1c88f4e3765276317248d5fd1396a6787b28cb1893f641f78430964e1ccc8ed",
+      "hash_before": null,
+      "materialization_rel_path": "node/node_config.sql",
+      "ownership_receipt": null,
+      "package_name": "aware-node-ontology-sqlite",
+      "package_rel_path": "node/node_config.sql",
+      "producer_step": "package_build",
+      "repo_rel_path": "sqlite/node/node_config.sql",
+      "stageability": "stage",
+      "stageability_reason": null
+    },
+    {
+      "artifact_kind": "source_code",
+      "bytes_after": 742,
+      "bytes_before": null,
+      "change_kind": "create",
+      "hash_after": "f6c2a614c00643798c6406f86d121310a18a332c7ea29ce63ab417a8f2e705ea",
+      "hash_before": null,
+      "materialization_rel_path": "node/node_config_environment_experience_mount.sql",
+      "ownership_receipt": null,
+      "package_name": "aware-node-ontology-sqlite",
+      "package_rel_path": "node/node_config_environment_experience_mount.sql",
+      "producer_step": "package_build",
+      "repo_rel_path": "sqlite/node/node_config_environment_experience_mount.sql",
+      "stageability": "stage",
+      "stageability_reason": null
+    },
+    {
+      "artifact_kind": "source_code",
+      "bytes_after": 536,
+      "bytes_before": null,
+      "change_kind": "create",
+      "hash_after": "b889625f2327a09f5e6ad73ef2ec1f89edc22576558390db7dd9a1985691feea",
+      "hash_before": null,
+      "materialization_rel_path": "node/node_config_environment_target.sql",
+      "ownership_receipt": null,
+      "package_name": "aware-node-ontology-sqlite",
+      "package_rel_path": "node/node_config_environment_target.sql",
+      "producer_step": "package_build",
+      "repo_rel_path": "sqlite/node/node_config_environment_target.sql",
+      "stageability": "stage",
+      "stageability_reason": null
+    },
+    {
+      "artifact_kind": "source_code",
+      "bytes_after": 524,
+      "bytes_before": null,
+      "change_kind": "create",
+      "hash_after": "90d805c45f760d5f9075a14eccbc3a9edf626f1d033b25ac336e5604dbab6b2a",
+      "hash_before": null,
+      "materialization_rel_path": "node/node_config_interface_target.sql",
+      "ownership_receipt": null,
+      "package_name": "aware-node-ontology-sqlite",
+      "package_rel_path": "node/node_config_interface_target.sql",
+      "producer_step": "package_build",
+      "repo_rel_path": "sqlite/node/node_config_interface_target.sql",
+      "stageability": "stage",
+      "stageability_reason": null
+    },
+    {
+      "artifact_kind": "source_code",
+      "bytes_after": 516,
+      "bytes_before": null,
+      "change_kind": "create",
+      "hash_after": "9d72ae76006c8d22209883ef24024f1a96907bcc2603a0b801b1577a8f386294",
+      "hash_before": null,
+      "materialization_rel_path": "node/node_config_service_target.sql",
+      "ownership_receipt": null,
+      "package_name": "aware-node-ontology-sqlite",
+      "package_rel_path": "node/node_config_service_target.sql",
+      "producer_step": "package_build",
+      "repo_rel_path": "sqlite/node/node_config_service_target.sql",
+      "stageability": "stage",
+      "stageability_reason": null
+    },
+    {
+      "artifact_kind": "source_code",
+      "bytes_after": 780,
+      "bytes_before": null,
+      "change_kind": "create",
+      "hash_after": "3753b8560e924abb93adff493e29f6b484545ee0df45ca635e2b1ffb7f0bfc6a",
+      "hash_before": null,
+      "materialization_rel_path": "node/node_package.sql",
+      "ownership_receipt": null,
+      "package_name": "aware-node-ontology-sqlite",
+      "package_rel_path": "node/node_package.sql",
+      "producer_step": "package_build",
+      "repo_rel_path": "sqlite/node/node_package.sql",
+      "stageability": "stage",
+      "stageability_reason": null
+    },
+    {
+      "artifact_kind": "source_code",
+      "bytes_after": 617,
+      "bytes_before": null,
+      "change_kind": "create",
+      "hash_after": "6c1080796e5585d5ac2a040584e0a1d9b068ea9dde719f256f8be7df6b7ccbf5",
+      "hash_before": null,
+      "materialization_rel_path": "node/node_package_included_node_package.sql",
+      "ownership_receipt": null,
+      "package_name": "aware-node-ontology-sqlite",
+      "package_rel_path": "node/node_package_included_node_package.sql",
+      "producer_step": "package_build",
+      "repo_rel_path": "sqlite/node/node_package_included_node_package.sql",
+      "stageability": "stage",
+      "stageability_reason": null
+    }
+  ],
+  "artifact_family": "ocg_language_materialization",
+  "artifact_role": "lifecycle_receipt",
+  "materialization": {
+    "name": "node-sqlite",
+    "source_kind": "ontology",
+    "source_package_name": "node-ontology"
+  },
+  "output_key": "language_materialization_lifecycle_receipt",
+  "output_kind": "materialization_lifecycle_receipt",
+  "package": {
+    "import_root": null,
+    "name": "aware-node-ontology-sqlite",
+    "output_root": "sqlite",
+    "receipt_package_rel_path": "_aware/ocg.language_materialization.lifecycle.json",
+    "receipt_path": "sqlite/_aware/ocg.language_materialization.lifecycle.json"
+  },
+  "package_outcomes": [
+    {
+      "artifact_change_refs": [
+        "sqlite/node/node_config.sql",
+        "sqlite/node/node_config_environment_experience_mount.sql",
+        "sqlite/node/node_config_environment_target.sql",
+        "sqlite/node/node_config_interface_target.sql",
+        "sqlite/node/node_config_service_target.sql",
+        "sqlite/node/node_package.sql",
+        "sqlite/node/node_package_included_node_package.sql"
+      ],
+      "import_root": null,
+      "output_root": "sqlite",
+      "package_name": "aware-node-ontology-sqlite"
+    }
+  ],
+  "producer_key": "aware_meta.object_config_graph.language_materialization",
+  "provenance": {
+    "input_object_instance_graph_commit_id": null,
+    "object_config_graph_commit_id": null,
+    "object_config_graph_package_id": null,
+    "source_code_package_id": null,
+    "source_object_instance_graph_commit_id": null
+  },
+  "provider_key": "aware_meta",
+  "required_for": [
+    "environment_config",
+    "runtime_index",
+    "workspace_revision"
+  ],
+  "schema": "aware.meta.language_materialization.lifecycle_receipt.v1",
+  "semantic_owner": "aware_meta.object_config_graph",
+  "status": "available",
+  "summary": {
+    "changes_by_kind": {
+      "create": 7
+    },
+    "changes_by_producer_step": {
+      "package_build": 7
+    },
+    "changes_by_stageability": {
+      "stage": 7
+    },
+    "changes_total": 7,
+    "package_count": 1,
+    "warning_count": 0
+  },
+  "target_language_plugin_id": "sql"
+}

@@ -1,0 +1,637 @@
+/// Canonical local control-plane DTOs for the Interface daemon.
+///
+/// This package is local-machine scoped:
+/// - not a remote API rail
+/// - not graph/ORM SSOT
+/// - generated from `.aware` so `services/interface`, textual clients, and
+///   future CLI clients share one request/response vocabulary
+
+class InterfaceControlPlaneOperation {
+    request comms.models.InterfaceControlPlaneRequest?
+    response comms.models.InterfaceControlPlaneResponse?
+    notification comms.models.InterfaceControlPlaneNotification?
+}
+
+ann comms.models.InterfaceControlPlaneOperation oneof request response notification
+
+class InterfaceControlPlaneRequest {
+    operation String
+    request_id UUID?
+    protocol_version Int = 1
+}
+
+class InterfaceControlPlaneResponse {
+    operation String
+    request_id UUID?
+    protocol_version Int = 1
+    success Bool = true
+    error String?
+}
+
+class InterfaceControlPlaneNotification {
+    operation String
+    notification_id UUID?
+    protocol_version Int = 1
+}
+
+class PingRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "ping"
+}
+
+class PingResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "ping"
+    service String = "aware_interface_service"
+    status String = "ok"
+    socket_path String?
+    daemon_instance_id UUID?
+    daemon_started_at String?
+    daemon_source_fingerprint String?
+    repository_root String?
+    state_home String?
+    default_endpoint String?
+    expected_source_fingerprint String?
+    restart_recommended Bool = false
+    restart_reason String?
+    namespaces comms.models.HostedInterfaceNamespace[] = []
+}
+
+class NamespaceEnsureRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "namespace_ensure"
+    namespace String
+    host_label String?
+    endpoint String?
+    auth_token String?
+    environment_config_id UUID?
+    interface_package_id UUID?
+    interface_package_name String?
+}
+
+class NamespaceEnsureResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "namespace_ensure"
+    namespace String
+    host_state comms.models.InterfaceHostState
+}
+
+class NamespaceListRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "namespace_list"
+}
+
+class NamespaceListResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "namespace_list"
+    namespaces comms.models.HostedInterfaceNamespace[] = []
+}
+
+class InterfaceStatusRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_status"
+    namespace String
+}
+
+class InterfaceStatusResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_status"
+    namespace String
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceSessionStartRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_session_start"
+    interface_id UUID
+    identity_session_id UUID
+    name String
+    state String = "active"
+}
+
+class InterfaceSessionStartResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_session_start"
+    interface_session_id UUID?
+    interface_id UUID
+    identity_session_id UUID
+    name String
+    state String
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+}
+
+class InterfaceSessionDescribeRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_session_describe"
+    interface_session_id UUID
+}
+
+class InterfaceSessionExperienceSessionView {
+    interface_session_experience_session_id UUID
+    experience_session_id UUID
+    status String
+    metadata_json JsonObject? = {}
+    domain_commit_id UUID
+}
+
+class InterfaceSessionView {
+    interface_session_id UUID
+    interface_id UUID
+    identity_session_id UUID
+    name String
+    state String
+    domain_commit_id UUID
+    experience_sessions comms.models.InterfaceSessionExperienceSessionView[] = []
+}
+
+class InterfaceSessionDescribeResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_session_describe"
+    status String
+    session comms.models.InterfaceSessionView?
+}
+
+class InterfaceExperienceSessionMountRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_experience_session_mount"
+    interface_session_id UUID
+    experience_session_id UUID
+    status String = "active"
+    metadata_json JsonObject? = {}
+}
+
+class InterfaceExperienceSessionMountResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_experience_session_mount"
+    interface_session_experience_session_id UUID
+    interface_session_id UUID
+    experience_session_id UUID
+    status String
+    metadata_json JsonObject? = {}
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+}
+
+class InterfaceAdmitEnvironmentActorRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_admit_environment_actor"
+    namespace String
+    environment_id UUID?
+    environment_profile_id UUID
+    actor_config_id UUID
+    class_instance_identity_id UUID
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+    requested_role_config_ids UUID[] = []
+    requested_role_config_names String[] = []
+    reason String?
+    evidence JsonObject = {}
+}
+
+class InterfaceAdmitEnvironmentActorResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_admit_environment_actor"
+    namespace String
+    environment_admission comms.models.InterfaceEnvironmentAdmissionState?
+    environment_admission_receipt aware_environment_service_dto.environment.EnvironmentActorAdmissionReceipt?
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceJoinEnvironmentSessionRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_join_environment_session"
+    namespace String
+    environment_session_id UUID
+    environment_profile_id UUID?
+    environment_admission_receipt aware_environment_service_dto.environment.EnvironmentActorAdmissionReceipt?
+    reason String?
+    evidence JsonObject = {}
+}
+
+class InterfaceJoinEnvironmentSessionResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_join_environment_session"
+    namespace String
+    environment_session aware_environment_service_dto.environment.EnvironmentSessionView?
+    environment_session_join_receipt aware_environment_service_dto.environment.EnvironmentSessionJoinReceipt?
+    environment_navigation_context aware_environment_service_dto.environment.EnvironmentNavigationContextView?
+    default_navigation_receipt aware_environment_service_dto.environment.EnvironmentNavigationCommitReceipt?
+    environment_session_state comms.models.InterfaceEnvironmentSessionState?
+    environment_navigation_state comms.models.InterfaceEnvironmentNavigationState?
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceSelectEnvironmentNavigationTargetRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_select_environment_navigation_target"
+    namespace String
+    environment_navigation_context_id UUID?
+    selected_process_id UUID?
+    selected_thread_id UUID?
+    reason String?
+    evidence JsonObject = {}
+}
+
+class InterfaceSelectEnvironmentNavigationTargetResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_select_environment_navigation_target"
+    namespace String
+    environment_navigation_context aware_environment_service_dto.environment.EnvironmentNavigationContextView?
+    environment_navigation_receipt aware_environment_service_dto.environment.EnvironmentNavigationCommitReceipt?
+    environment_navigation_state comms.models.InterfaceEnvironmentNavigationState?
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceEnterEnvironmentRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_enter_environment"
+    namespace String
+    environment_id UUID?
+    environment_profile_id UUID?
+    actor_config_id UUID?
+    class_instance_identity_id UUID?
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+    requested_role_config_ids UUID[] = []
+    requested_role_config_names String[] = []
+    environment_admission_receipt aware_environment_service_dto.environment.EnvironmentActorAdmissionReceipt?
+    environment_session_id UUID?
+    environment_session_config_id UUID?
+    session_key String?
+    title String?
+    description String?
+    purpose String?
+    source_kind String?
+    source_ref String?
+    reason String?
+    evidence JsonObject = {}
+}
+
+class InterfaceEnterEnvironmentResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_enter_environment"
+    namespace String
+    environment_admission comms.models.InterfaceEnvironmentAdmissionState?
+    environment_admission_receipt aware_environment_service_dto.environment.EnvironmentActorAdmissionReceipt?
+    environment_session aware_environment_service_dto.environment.EnvironmentSessionView?
+    environment_session_join_receipt aware_environment_service_dto.environment.EnvironmentSessionJoinReceipt?
+    environment_navigation_context aware_environment_service_dto.environment.EnvironmentNavigationContextView?
+    default_navigation_receipt aware_environment_service_dto.environment.EnvironmentNavigationCommitReceipt?
+    environment_session_state comms.models.InterfaceEnvironmentSessionState?
+    environment_navigation_state comms.models.InterfaceEnvironmentNavigationState?
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceResolveExperienceLensRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_resolve_experience_lens"
+    namespace String
+    environment_session_join_receipt aware_environment_service_dto.environment.EnvironmentSessionJoinReceipt?
+    environment_navigation_context aware_environment_service_dto.environment.EnvironmentNavigationContextView?
+    experience_actor_admission aware_experience_service_dto.experience.actor_admission.ExperienceActorConfigAdmissionReceipt?
+    experience_identity_session_config_id UUID?
+    reason String?
+    evidence JsonObject = {}
+}
+
+class InterfaceResolveExperienceLensResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_resolve_experience_lens"
+    namespace String
+    environment_session comms.models.InterfaceEnvironmentSessionState?
+    environment_navigation comms.models.InterfaceEnvironmentNavigationState?
+    experience_lens comms.models.InterfaceExperienceLensState?
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceEnterAppScreenRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_enter_app_screen"
+    namespace String
+    app_package_id UUID
+    app_package_branch_id UUID
+    app_package_object_instance_graph_commit_id UUID
+    app_config_screen_config_id UUID
+    reason String?
+    evidence JsonObject = {}
+}
+
+class InterfaceEnterAppScreenResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_enter_app_screen"
+    namespace String
+    app_screen comms.models.InterfaceAppScreenState?
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceActionRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_action"
+    namespace String
+    pane_ref String?
+    action_key String
+    action_kind String?
+    operation_ref String?
+    sdk_operation_id String?
+    pane_config_sdk_operation_id String?
+    endpoint_ref String?
+    api_capability_endpoint_id String?
+    pane_config_api_capability_endpoint_id String?
+    payload JsonObject = {}
+}
+
+class InterfaceActionResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_action"
+    namespace String
+    pane_ref String?
+    action_key String
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceSelectStepRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_select_step"
+    namespace String
+    step_id String?
+}
+
+class InterfaceSelectStepResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_select_step"
+    namespace String
+    step_id String?
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceSelectProfileRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_select_profile"
+    namespace String
+    profile_id String
+}
+
+class InterfaceSelectProfileResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_select_profile"
+    namespace String
+    profile_id String
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceSelectRuntimeLayoutRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_select_runtime_layout"
+    namespace String
+    layout_config_id UUID?
+}
+
+class InterfaceSelectRuntimeLayoutResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_select_runtime_layout"
+    namespace String
+    layout_config_id UUID?
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceActivateRuntimeFocusRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_activate_runtime_focus"
+    namespace String
+    representation_id UUID?
+}
+
+class InterfaceActivateRuntimeFocusResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_activate_runtime_focus"
+    namespace String
+    representation_id UUID?
+    layout_config_id UUID?
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceRequestWindowLayoutRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_request_window_layout"
+    namespace String
+    interface_package_id UUID?
+    interface_package_name String?
+    window_key String?
+    layout_config_id UUID?
+    layout_key String?
+    section_key String?
+    observable_id UUID?
+    representation_id UUID?
+    requested_by_service String?
+    requested_by_operation String?
+    reason String?
+    idempotency_key String?
+}
+
+class InterfaceRequestWindowLayoutResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_request_window_layout"
+    namespace String
+    interface_package_id UUID?
+    interface_package_name String?
+    window_key String?
+    layout_config_id UUID?
+    layout_key String?
+    section_key String?
+    observable_id UUID?
+    representation_id UUID?
+    requested_by_service String?
+    requested_by_operation String?
+    reason String?
+    idempotency_key String?
+    host_state comms.models.InterfaceHostState
+}
+
+/// One stable-id row in a complete shared-layout transition intent.
+class InterfaceAttentionLayoutTransitionSectionIntent {
+    layout_config_section_config_id UUID
+    order Int
+    weight_micros Int
+    is_visible Bool = true
+    is_collapsed Bool = false
+}
+
+/// Commit one complete renderer-neutral layout vector through Interface Host.
+///
+/// Pixels, viewport dimensions, and floating geometry are intentionally absent.
+class InterfaceApplyAttentionLayoutTransitionRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_apply_attention_layout_transition"
+    namespace String
+    client_intent_id String
+    expected_previous_layout_transition_id UUID?
+    topology_transition_id UUID?
+    section_states comms.models.InterfaceAttentionLayoutTransitionSectionIntent[] = []
+}
+
+class InterfaceApplyAttentionLayoutTransitionResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_apply_attention_layout_transition"
+    namespace String
+    outcome String
+    conflict_reason String?
+    active_layout_transition_id UUID?
+    active_topology_transition_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+    host_state comms.models.InterfaceHostState
+}
+
+/// One stable admitted config-section anchor in a complete topology intent.
+class InterfaceAttentionLayoutTopologyTransitionSectionIntent {
+    layout_config_section_config_id UUID
+    order Int
+}
+
+/// Commit one complete active-membership/order vector through Attention.
+class InterfaceApplyAttentionLayoutTopologyTransitionRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_apply_attention_layout_topology_transition"
+    namespace String
+    client_intent_id String
+    expected_previous_topology_transition_id UUID?
+    section_states comms.models.InterfaceAttentionLayoutTopologyTransitionSectionIntent[] = []
+}
+
+class InterfaceApplyAttentionLayoutTopologyTransitionResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_apply_attention_layout_topology_transition"
+    namespace String
+    outcome String
+    conflict_reason String?
+    active_topology_transition_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceReportRendererCapabilitiesRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_report_renderer_capabilities"
+    namespace String
+    renderer_capabilities comms.models.InterfaceRendererCapabilitiesState
+}
+
+class InterfaceReportRendererCapabilitiesResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_report_renderer_capabilities"
+    namespace String
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceSyncViewStateCursorRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_sync_view_state_cursor"
+    namespace String
+    renderer_id String?
+    known_cursor String?
+    known_digest String?
+}
+
+class InterfaceSyncViewStateCursorResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_sync_view_state_cursor"
+    namespace String
+    changed Bool = true
+    view_state_cursor comms.models.InterfaceHostViewStateCursorState?
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceFollowRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_follow"
+    namespace String
+    poll_interval_ms Int = 1000
+}
+
+class InterfaceFollowResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_follow"
+    namespace String
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceInvokeApiRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_invoke_api"
+    namespace String
+    endpoint_ref String
+    discriminant String
+    request_payload JsonObject = {}
+}
+
+class InterfaceInvokeApiResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_invoke_api"
+    namespace String
+    endpoint_ref String
+    discriminant String
+    service_status String?
+    response_payload JsonValue?
+}
+
+class InterfaceStreamApiRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_stream_api"
+    namespace String
+    endpoint_ref String
+    discriminant String
+    request_payload JsonObject = {}
+}
+
+class InterfaceStreamApiResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_stream_api"
+    namespace String
+    endpoint_ref String
+    discriminant String
+}
+
+class InterfaceStopRequest augment comms.models.InterfaceControlPlaneRequest {
+    operation String = "interface_stop"
+    namespace String
+}
+
+class InterfaceStopResponse augment comms.models.InterfaceControlPlaneResponse {
+    operation String = "interface_stop"
+    namespace String
+    hosted_namespace comms.models.HostedInterfaceNamespace
+}
+
+class InterfaceStateNotification augment comms.models.InterfaceControlPlaneNotification {
+    operation String = "interface_state"
+    namespace String
+    host_state comms.models.InterfaceHostState
+}
+
+class InterfaceApiEventNotification augment comms.models.InterfaceControlPlaneNotification {
+    operation String = "interface_api_event"
+    namespace String
+    endpoint_ref String
+    discriminant String
+    event_kind String
+    sequence Int
+    item_key String
+    payload JsonValue?
+}
+
+class InterfaceApiStreamClosedNotification augment comms.models.InterfaceControlPlaneNotification {
+    operation String = "interface_api_stream_closed"
+    namespace String
+    endpoint_ref String
+    discriminant String
+    service_status String?
+    response_payload JsonValue?
+    error String?
+}
+
+ann comms.models.InterfaceControlPlaneRequest::operation discriminate key
+ann comms.models.PingRequest::operation discriminate tag "ping"
+ann comms.models.NamespaceEnsureRequest::operation discriminate tag "namespace_ensure"
+ann comms.models.NamespaceListRequest::operation discriminate tag "namespace_list"
+ann comms.models.InterfaceStatusRequest::operation discriminate tag "interface_status"
+ann comms.models.InterfaceAdmitEnvironmentActorRequest::operation discriminate tag "interface_admit_environment_actor"
+ann comms.models.InterfaceJoinEnvironmentSessionRequest::operation discriminate tag "interface_join_environment_session"
+ann comms.models.InterfaceSelectEnvironmentNavigationTargetRequest::operation discriminate tag "interface_select_environment_navigation_target"
+ann comms.models.InterfaceEnterEnvironmentRequest::operation discriminate tag "interface_enter_environment"
+ann comms.models.InterfaceResolveExperienceLensRequest::operation discriminate tag "interface_resolve_experience_lens"
+ann comms.models.InterfaceActionRequest::operation discriminate tag "interface_action"
+ann comms.models.InterfaceSelectStepRequest::operation discriminate tag "interface_select_step"
+ann comms.models.InterfaceSelectProfileRequest::operation discriminate tag "interface_select_profile"
+ann comms.models.InterfaceSelectRuntimeLayoutRequest::operation discriminate tag "interface_select_runtime_layout"
+ann comms.models.InterfaceActivateRuntimeFocusRequest::operation discriminate tag "interface_activate_runtime_focus"
+ann comms.models.InterfaceRequestWindowLayoutRequest::operation discriminate tag "interface_request_window_layout"
+ann comms.models.InterfaceApplyAttentionLayoutTransitionRequest::operation discriminate tag "interface_apply_attention_layout_transition"
+ann comms.models.InterfaceApplyAttentionLayoutTopologyTransitionRequest::operation discriminate tag "interface_apply_attention_layout_topology_transition"
+ann comms.models.InterfaceReportRendererCapabilitiesRequest::operation discriminate tag "interface_report_renderer_capabilities"
+ann comms.models.InterfaceSyncViewStateCursorRequest::operation discriminate tag "interface_sync_view_state_cursor"
+ann comms.models.InterfaceFollowRequest::operation discriminate tag "interface_follow"
+ann comms.models.InterfaceInvokeApiRequest::operation discriminate tag "interface_invoke_api"
+ann comms.models.InterfaceStreamApiRequest::operation discriminate tag "interface_stream_api"
+ann comms.models.InterfaceStopRequest::operation discriminate tag "interface_stop"
+
+ann comms.models.InterfaceControlPlaneResponse::operation discriminate key
+ann comms.models.PingResponse::operation discriminate tag "ping"
+ann comms.models.NamespaceEnsureResponse::operation discriminate tag "namespace_ensure"
+ann comms.models.NamespaceListResponse::operation discriminate tag "namespace_list"
+ann comms.models.InterfaceStatusResponse::operation discriminate tag "interface_status"
+ann comms.models.InterfaceAdmitEnvironmentActorResponse::operation discriminate tag "interface_admit_environment_actor"
+ann comms.models.InterfaceJoinEnvironmentSessionResponse::operation discriminate tag "interface_join_environment_session"
+ann comms.models.InterfaceSelectEnvironmentNavigationTargetResponse::operation discriminate tag "interface_select_environment_navigation_target"
+ann comms.models.InterfaceEnterEnvironmentResponse::operation discriminate tag "interface_enter_environment"
+ann comms.models.InterfaceResolveExperienceLensResponse::operation discriminate tag "interface_resolve_experience_lens"
+ann comms.models.InterfaceActionResponse::operation discriminate tag "interface_action"
+ann comms.models.InterfaceSelectStepResponse::operation discriminate tag "interface_select_step"
+ann comms.models.InterfaceSelectProfileResponse::operation discriminate tag "interface_select_profile"
+ann comms.models.InterfaceSelectRuntimeLayoutResponse::operation discriminate tag "interface_select_runtime_layout"
+ann comms.models.InterfaceActivateRuntimeFocusResponse::operation discriminate tag "interface_activate_runtime_focus"
+ann comms.models.InterfaceRequestWindowLayoutResponse::operation discriminate tag "interface_request_window_layout"
+ann comms.models.InterfaceApplyAttentionLayoutTransitionResponse::operation discriminate tag "interface_apply_attention_layout_transition"
+ann comms.models.InterfaceApplyAttentionLayoutTopologyTransitionResponse::operation discriminate tag "interface_apply_attention_layout_topology_transition"
+ann comms.models.InterfaceReportRendererCapabilitiesResponse::operation discriminate tag "interface_report_renderer_capabilities"
+ann comms.models.InterfaceSyncViewStateCursorResponse::operation discriminate tag "interface_sync_view_state_cursor"
+ann comms.models.InterfaceFollowResponse::operation discriminate tag "interface_follow"
+ann comms.models.InterfaceInvokeApiResponse::operation discriminate tag "interface_invoke_api"
+ann comms.models.InterfaceStreamApiResponse::operation discriminate tag "interface_stream_api"
+ann comms.models.InterfaceStopResponse::operation discriminate tag "interface_stop"
+
+ann comms.models.InterfaceControlPlaneNotification::operation discriminate key
+ann comms.models.InterfaceStateNotification::operation discriminate tag "interface_state"
+ann comms.models.InterfaceApiEventNotification::operation discriminate tag "interface_api_event"
+ann comms.models.InterfaceApiStreamClosedNotification::operation discriminate tag "interface_api_stream_closed"

@@ -1,0 +1,43 @@
+service aware_node {
+    api node;
+
+    operation discover_environment_configs {
+        endpoint node.host.discover_environment_configs;
+        receipt read_model;
+    }
+
+    operation discover_service_api_dependency_routes {
+        endpoint node.host.discover_service_api_dependency_routes;
+        receipt read_model;
+    }
+
+    operation get_boot_environment_descriptor {
+        endpoint node.host.get_boot_environment_descriptor;
+        receipt read_model;
+    }
+
+    operation provision_environment {
+        endpoint node.host.provision_environment;
+        admission identity_required;
+    }
+
+    operation get_environment_status {
+        endpoint node.host.get_environment_status;
+        receipt read_model;
+    }
+
+    operation describe_hosted_service_runtimes {
+        endpoint node.host.describe_hosted_service_runtimes;
+        receipt read_model;
+    }
+
+    operation describe_hosted_runtimes {
+        endpoint node.host.describe_hosted_runtimes;
+        receipt read_model;
+    }
+
+    operation restart_hosted_runtime {
+        endpoint node.host.restart_hosted_runtime;
+        admission identity_required;
+    }
+}

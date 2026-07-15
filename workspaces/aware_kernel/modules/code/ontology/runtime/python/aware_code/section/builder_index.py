@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from uuid import UUID
 
 # Kernel Graph Ontology
@@ -8,6 +9,20 @@ from aware_storage.blob_store import BlobStore
 
 # Code
 from aware_code.node.node import CodeNode
+
+
+@dataclass(frozen=True, slots=True)
+class CodeSectionReuseSample:
+    section_type: CodeSectionType
+    qualname: str
+    identity_hash_prefix: str
+
+
+@dataclass(frozen=True, slots=True)
+class CodeSectionReuseSummary:
+    total_count: int
+    count_by_type: tuple[tuple[CodeSectionType, int], ...]
+    samples: tuple[CodeSectionReuseSample, ...]
 
 
 class CodeSectionBuilderIndex:
@@ -31,8 +46,12 @@ class CodeSectionBuilderIndex:
         self._by_qualname: dict[tuple[UUID, CodeSectionType, str], CodeSection] = {}
         self._by_id: dict[UUID, CodeSection] = {}
         self._code_to_path: dict[UUID, str] = {}  # code_id -> file_path mapping
-        self._code_section_to_node: dict[UUID, CodeNode[object]] = {}  # code_section_id -> code_node mapping
+        self._code_section_to_node: dict[UUID, CodeNode[object]] = (
+            {}
+        )  # code_section_id -> code_node mapping
         self._blob_store: BlobStore | None = None
+        self._reuse_count_by_type: dict[CodeSectionType, int] = {}
+        self._reuse_samples: list[CodeSectionReuseSample] = []
 
     def add(self, code_section: CodeSection):
         """
@@ -47,7 +66,9 @@ class CodeSectionBuilderIndex:
             raise ValueError("Identity collision ...")
 
         self._by_hash[hash_key] = code_section
-        self._by_qualname[(code_section.code_id, code_section.type, code_section.qualname)] = code_section
+        self._by_qualname[
+            (code_section.code_id, code_section.type, code_section.qualname)
+        ] = code_section
         self._by_id[code_section.id] = code_section
 
     def add_reference(
@@ -67,7 +88,9 @@ class CodeSectionBuilderIndex:
         key = (code_section_type, reference)
         existing = self._by_ref.get(key)
         if existing and existing.id != code_section.id:
-            raise ValueError(f"Reference collision: {key} maps to {existing.id} and {code_section.id}")
+            raise ValueError(
+                f"Reference collision: {key} maps to {existing.id} and {code_section.id}"
+            )
         self._by_ref[key] = code_section
 
     def add_section_node(self, code_section_id: UUID, code_node: CodeNode[object]):
@@ -85,7 +108,10 @@ class CodeSectionBuilderIndex:
             # - If generated code repeats identical section text in different scopes, keep the
             #   first node mapping and let later section matching disambiguate by qualname.
             # - If the byte range differs, raise because our identity mapping became ambiguous.
-            if existing.byte_start == code_node.byte_start and existing.byte_end == code_node.byte_end:
+            if (
+                existing.byte_start == code_node.byte_start
+                and existing.byte_end == code_node.byte_end
+            ):
                 return
             existing_text = existing.node_text()
             new_text = code_node.node_text()
@@ -119,8 +145,43 @@ class CodeSectionBuilderIndex:
         self._code_to_path.clear()
         self._code_section_to_node.clear()
         self._blob_store = None
+        self._reuse_count_by_type.clear()
+        self._reuse_samples.clear()
 
-    def get_by_hash(self, code_section_type: CodeSectionType, identity_hash: str) -> CodeSection | None:
+    def record_reuse(
+        self,
+        *,
+        code_section_type: CodeSectionType,
+        qualname: str,
+        identity_hash: str,
+    ) -> None:
+        """Record expected idempotent section reuse without per-item logging."""
+        self._reuse_count_by_type[code_section_type] = (
+            self._reuse_count_by_type.get(code_section_type, 0) + 1
+        )
+        if len(self._reuse_samples) < 5:
+            self._reuse_samples.append(
+                CodeSectionReuseSample(
+                    section_type=code_section_type,
+                    qualname=qualname,
+                    identity_hash_prefix=identity_hash[:8],
+                )
+            )
+
+    def reuse_summary(self) -> CodeSectionReuseSummary:
+        """Return deterministic, bounded reuse diagnostics for batch traces."""
+        count_by_type = tuple(
+            sorted(self._reuse_count_by_type.items(), key=lambda item: item[0].value)
+        )
+        return CodeSectionReuseSummary(
+            total_count=sum(count for _, count in count_by_type),
+            count_by_type=count_by_type,
+            samples=tuple(self._reuse_samples),
+        )
+
+    def get_by_hash(
+        self, code_section_type: CodeSectionType, identity_hash: str
+    ) -> CodeSection | None:
         """
         Get a code section by its type and identity hash.
 
@@ -133,7 +194,9 @@ class CodeSectionBuilderIndex:
         """
         return self._by_hash.get((code_section_type, identity_hash))
 
-    def get_by_ref(self, code_section_type: CodeSectionType, reference: str) -> CodeSection | None:
+    def get_by_ref(
+        self, code_section_type: CodeSectionType, reference: str
+    ) -> CodeSection | None:
         """
         Get a code section by its type and reference string.
 
@@ -158,7 +221,9 @@ class CodeSectionBuilderIndex:
         """
         return self._by_id.get(section_id)
 
-    def get_by_qualname(self, code_id: UUID, code_section_type: CodeSectionType, qualname: str) -> CodeSection | None:
+    def get_by_qualname(
+        self, code_id: UUID, code_section_type: CodeSectionType, qualname: str
+    ) -> CodeSection | None:
         """
         Get a code section by its qualname.
         """
@@ -196,7 +261,11 @@ class CodeSectionBuilderIndex:
         """
         Get all code sections of a specific type.
         """
-        return [section for section in self._by_hash.values() if section.type == code_section_type]
+        return [
+            section
+            for section in self._by_hash.values()
+            if section.type == code_section_type
+        ]
 
     def get_all_sections(self) -> list[CodeSection]:
         """

@@ -1,0 +1,202 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_SKILL"
+kind = "ns_url"
+value = "aware://skill/v1"
+
+[[functions]]
+name = "stable_skill_config_id"
+namespace = "NS_SKILL"
+template = "aware:skill_config:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_skill_config_api_id"
+namespace = "NS_SKILL"
+template = "aware:skill_config_api:{skill_config_id}:{api_id}"
+doc = "Compiler-generated from class-attribute identity keys: skill_config_id, api_id"
+
+[[functions.params]]
+name = "skill_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_skill_config_api_endpoint_id"
+namespace = "NS_SKILL"
+template = "aware:skill_config_api_endpoint:{skill_config_api_id}:{api_endpoint_id}:{capability_name_norm}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: skill_config_api_id, api_endpoint_id, capability_name, name"
+
+[[functions.params]]
+name = "skill_config_api_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_endpoint_id"
+type = "uuid"
+
+[[functions.params]]
+name = "capability_name"
+type = "str"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "capability_name_norm"
+param = "capability_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_skill_config_step_id"
+namespace = "NS_SKILL"
+template = "aware:skill_config_step:{skill_config_id}:{position}"
+doc = "Compiler-generated from class-attribute identity keys: skill_config_id, position"
+
+[[functions.params]]
+name = "skill_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "position"
+type = "int"
+
+[[functions]]
+name = "stable_skill_config_experience_id"
+namespace = "NS_SKILL"
+template = "aware:skill_config_experience:{skill_config_id}:{projection_experience_id}"
+doc = "Compiler-generated from class-attribute identity keys: skill_config_id, projection_experience_id"
+
+[[functions.params]]
+name = "skill_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_skill_config_target_id"
+namespace = "NS_SKILL"
+template = "aware:skill_config_target:{skill_config_experience_id}:{projection_experience_graph_identity_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: skill_config_experience_id, projection_experience_graph_identity_id, name"
+
+[[functions.params]]
+name = "skill_config_experience_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_graph_identity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_skill_config_step_target_id"
+namespace = "NS_SKILL"
+template = "aware:skill_config_step_target:{skill_config_step_id}:{skill_config_target_id}"
+doc = "Compiler-generated from class-attribute identity keys: skill_config_step_id, skill_config_target_id"
+
+[[functions.params]]
+name = "skill_config_step_id"
+type = "uuid"
+
+[[functions.params]]
+name = "skill_config_target_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_skill_run_id"
+namespace = "NS_SKILL"
+template = "aware:skill_run:{skill_config_id}:{run_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: skill_config_id, run_key"
+
+[[functions.params]]
+name = "skill_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "run_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "run_key_norm"
+param = "run_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_skill_run_step_id"
+namespace = "NS_SKILL"
+template = "aware:skill_run_step:{skill_run_id}:{skill_config_step_id}"
+doc = "Compiler-generated from class-attribute identity keys: skill_run_id, skill_config_step_id"
+
+[[functions.params]]
+name = "skill_run_id"
+type = "uuid"
+
+[[functions.params]]
+name = "skill_config_step_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_skill_package_id"
+namespace = "NS_SKILL"
+template = "aware:skill_package:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_skill_package_api_package_id"
+namespace = "NS_SKILL"
+template = "aware:skill_package_api_package:{skill_package_id}:{api_package_id}"
+doc = "Stable id for package-level SkillPackage -> ApiPackage bridge."
+
+[[functions.params]]
+name = "skill_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_package_id"
+type = "uuid"

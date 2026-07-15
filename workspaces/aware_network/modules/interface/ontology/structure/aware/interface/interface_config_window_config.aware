@@ -1,0 +1,19 @@
+class InterfaceConfigWindowConfig {
+    // Relationships
+    window_config WindowConfig key
+
+    fn build construct (
+        window_config_id UUID key
+    ) -> InterfaceConfigWindowConfig {
+        """
+        Create one deterministic InterfaceConfig↔WindowConfig composition join.
+
+        Contract:
+        - `WindowConfig` stays standalone Interface-side window namespace identity.
+        - `InterfaceConfigWindowConfig` is the explicit composition rail for one interface package/config.
+        - Pane placement remains section-scoped through pane/view/section agreements, not through this join.
+        """
+    }
+}
+
+ann interface.InterfaceConfigWindowConfig::window_config load eager

@@ -1,0 +1,26 @@
+experience aware_control_identity {
+    profile os.default {
+        title "Aware Control OS"
+        description "Canonical default experience profile for the Aware Control environment."
+        narrative "Admit identity, observe kernel services, and select target environments."
+
+        process continuous control default {
+            title "Control"
+            narrative "Continuous control process for kernel bootstrap and operator handoff."
+            intent control
+
+            thread control.main default {
+                title "Control Main"
+                narrative "Primary control thread for identity admission and host readiness."
+                workspace_view thread.workspace
+                projection aware_control_identity view identity.admission.v1 default
+                projection aware_control_network view session.status.v1
+                projection aware_control_interface view package.mount.status.v1
+
+                layout personal default {
+                    section identity_admission projection aware_control_identity view identity.admission.v1 binding identity.admission default
+                }
+            }
+        }
+    }
+}

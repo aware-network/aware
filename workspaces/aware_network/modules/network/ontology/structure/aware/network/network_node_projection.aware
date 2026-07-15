@@ -1,0 +1,40 @@
+/// Network Node projection (v0)
+///
+/// Contract:
+/// - Rooted at NetworkNode
+/// - Includes commit-backed environment associations (v0.1).
+/// - Cross-module portals are declared explicitly (portal-or-it-isn't-real).
+
+projection NetworkNode {
+    root network.NetworkNode
+    network.NetworkNode::system_actor aware_identity.Identity
+    network.NetworkNode::services
+    network.NetworkNode::environments
+
+    /// Cross-OPG: `NetworkNodeService.service` portals to the Service projection.
+    network.NetworkNodeService::service aware_service.Service
+
+    /// Cross-OPG: `NetworkNodeService.service_package` portals to the ServicePackage projection.
+    network.NetworkNodeService::service_package aware_service.ServicePackage
+
+    /// Cross-OPG: `NetworkNodeEnvironment.environment` portals to the Environment Environment projection.
+    network.NetworkNodeEnvironment::environment aware_environment.Environment
+
+    observable node.home {
+        """
+        Network node overview.
+        """
+    }
+
+    observable session {
+        """
+        Network node session and host readiness scope.
+        """
+    }
+
+    observable territory {
+        """
+        Network node environment and hosted-service territory scope.
+        """
+    }
+}

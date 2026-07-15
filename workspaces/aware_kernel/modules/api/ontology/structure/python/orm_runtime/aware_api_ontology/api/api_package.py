@@ -188,6 +188,7 @@ class ApiPackage(ORMModel):
         language: CodeLanguage,
         import_root: str,
         manifest_relative_path: str,
+        object_instance_graph_commit_id: UUID,
         package_root: str = ".",
         role: str = "public_package",
         output_key: str = "python.public_package",
@@ -213,6 +214,7 @@ class ApiPackage(ORMModel):
             "language": language,
             "import_root": import_root,
             "manifest_relative_path": manifest_relative_path,
+            "object_instance_graph_commit_id": object_instance_graph_commit_id,
             "package_root": package_root,
             "role": role,
             "output_key": output_key,
@@ -282,6 +284,7 @@ class ApiPackageAttachLanguagePackageInput(BaseModel):
     language: CodeLanguage
     import_root: str
     manifest_relative_path: str
+    object_instance_graph_commit_id: UUID
     package_root: str = Field(default=".")
     role: str = Field(default="public_package")
     output_key: str = Field(default="python.public_package")

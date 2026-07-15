@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from uuid import UUID
 
+import pytest
+
 from aware_code.primitive_codec_base import build_code_primitive_type
 from aware_code.section.builder_index import CodeSectionBuilderIndex
 from aware_code.section.writer import CodeSectionWriter
@@ -41,6 +43,7 @@ from python_grammar.renderer_runtime_handlers_aware import (
 from python_grammar.renderer_runtime_handlers_composed import (
     PythonRendererRuntimeHandlersComposed,
 )
+from python_grammar.signature_validation import PythonSignatureMaterializationError
 from python_grammar_test_support import (
     function_attr_link,
     function_io_owner_key,
@@ -145,6 +148,51 @@ def _class_desc(target: ClassConfig) -> AttributeTypeDescriptor:
         class_config=target,
         class_config_id=target.id,
     )
+
+
+def test_runtime_handlers_aware_rejects_required_parameter_after_default(
+    tmp_path: Path,
+) -> None:
+    home = make_class(name="Home", is_base=True)
+    fn = make_function(
+        name="open",
+        owner_key=function_owner_key(home),
+        is_async=True,
+        kind=FunctionKind.instance,
+    )
+    desc = _primitive_desc(CodePrimitiveBaseType.string)
+    optional_attr = make_attribute(
+        name="optional",
+        owner_key=function_io_owner_key(fn, FunctionAttributeType.input),
+        is_public=True,
+        is_required=False,
+        is_unique=False,
+        is_virtual=False,
+        type_descriptor=desc,
+    )
+    required_attr = make_attribute(
+        name="required",
+        owner_key=function_io_owner_key(fn, FunctionAttributeType.input),
+        is_public=True,
+        is_required=True,
+        is_unique=False,
+        is_virtual=False,
+        type_descriptor=desc,
+    )
+    fn.function_config_attribute_configs = [
+        function_attr_link(fn, optional_attr, type=FunctionAttributeType.input, position=0),
+        function_attr_link(fn, required_attr, type=FunctionAttributeType.input, position=1),
+    ]
+
+    renderer = PythonRendererRuntimeHandlersAware(layout_strategy=_Layout(base_dir=tmp_path))
+    with pytest.raises(
+        PythonSignatureMaterializationError,
+        match=(
+            "python.function.signature.required_after_default: open: "
+            "required parameter 'required' follows defaulted parameter 'optional'"
+        ),
+    ):
+        renderer._render_signature(fn=fn)
 
 
 def test_runtime_handlers_aware_warns_on_unresolved_logic_when_compiler_owned(

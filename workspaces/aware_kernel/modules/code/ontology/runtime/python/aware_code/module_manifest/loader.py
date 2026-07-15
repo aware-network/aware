@@ -281,6 +281,7 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
                 "capability_contract_module",
                 "capability_execution_module",
                 "semantic_contract_module",
+                "semantic_registry_module",
                 "code_package_materialization_contract_module",
                 "capability_policy",
                 "required",
@@ -304,6 +305,11 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
         semantic_contract_module = _expect_opt_str(
             plugin_tbl,
             "semantic_contract_module",
+            ctx=f"plugins[{i}]",
+        )
+        semantic_registry_module = _expect_opt_str(
+            plugin_tbl,
+            "semantic_registry_module",
             ctx=f"plugins[{i}]",
         )
         code_package_materialization_contract_module = _expect_opt_str(
@@ -388,6 +394,11 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
             if semantic_contract_module is not None
             else None
         )
+        semantic_registry_module = (
+            semantic_registry_module.strip()
+            if semantic_registry_module is not None
+            else None
+        )
         code_package_materialization_contract_module = (
             code_package_materialization_contract_module.strip()
             if code_package_materialization_contract_module is not None
@@ -420,6 +431,10 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
             if semantic_contract_module:
                 raise AwareModuleTomlError(
                     f"plugins[{i}].semantic_contract_module is not allowed when kind='db.postgres.extension'"
+                )
+            if semantic_registry_module:
+                raise AwareModuleTomlError(
+                    f"plugins[{i}].semantic_registry_module is not allowed when kind='db.postgres.extension'"
                 )
             if code_package_materialization_contract_module:
                 raise AwareModuleTomlError(
@@ -482,6 +497,15 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
                     f"when kind='{_CODE_MODULE_PLUGIN_KIND}': {semantic_contract_module!r}"
                 )
             if (
+                semantic_registry_module is not None
+                and not _PYTHON_MODULE_RE.fullmatch(semantic_registry_module)
+            ):
+                raise AwareModuleTomlError(
+                    f"plugins[{i}].semantic_registry_module must match "
+                    "^([a-z_][a-z0-9_]*)(\\.[a-z_][a-z0-9_]*)*$ "
+                    f"when kind='{_CODE_MODULE_PLUGIN_KIND}': {semantic_registry_module!r}"
+                )
+            if (
                 code_package_materialization_contract_module is not None
                 and not _PYTHON_MODULE_RE.fullmatch(
                     code_package_materialization_contract_module
@@ -519,6 +543,11 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
                 semantic_contract_module,
                 ctx=f"plugins[{i}].semantic_contract_module",
             )
+        if semantic_registry_module is not None:
+            _validate_rel_path(
+                semantic_registry_module,
+                ctx=f"plugins[{i}].semantic_registry_module",
+            )
         if code_package_materialization_contract_module is not None:
             _validate_rel_path(
                 code_package_materialization_contract_module,
@@ -533,6 +562,7 @@ def load_aware_module_spec(*, toml_path: str | Path) -> AwareModuleSpec:
                 capability_contract_module=capability_contract_module or None,
                 capability_execution_module=capability_execution_module or None,
                 semantic_contract_module=semantic_contract_module or None,
+                semantic_registry_module=semantic_registry_module or None,
                 code_package_materialization_contract_module=(
                     code_package_materialization_contract_module or None
                 ),

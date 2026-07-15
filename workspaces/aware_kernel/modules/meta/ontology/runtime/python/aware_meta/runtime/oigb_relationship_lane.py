@@ -11,14 +11,14 @@ from aware_meta.graph.instance.builder import build_object_instance_graph
 from aware_meta.graph.instance.commit.committer import FSLaneCommitter
 from aware_meta.graph.instance.commit.contract import CommitActionDescriptor
 from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
-from aware_meta.graph.instance.commit.materialization_cache import (
-    CachedLaneMaterializer,
-)
+from aware_meta.graph.instance.commit.hash_contract import compute_oig_lane_hash_state
+from aware_meta.graph.instance.commit.materializer import OIGMaterializer
 from aware_meta.graph.instance.diff import diff_object_instance_graph_changes
 from aware_meta.graph.instance.root import resolve_root_source_object_id
 from aware_meta.runtime.commit.identity_lane import (
     resolve_object_instance_graph_identity_lane_context,
 )
+from aware_meta.runtime.graph_identity import resolve_meta_graph_ocgi_opgi
 from aware_meta.runtime.handler_executor.contracts import MetaGraphRuntimeIndex
 from aware_meta.runtime.oig_model_reifier import reify_oig_session
 from aware_meta.runtime.value_resolvers import default_meta_enum_option_resolver
@@ -70,10 +70,32 @@ def _required_uuid_from_mapping(
     return value
 
 
+def _required_string_from_mapping(
+    mapping: Mapping[str, object] | None,
+    key: str,
+    *,
+    context: str,
+) -> str:
+    if mapping is None:
+        raise RuntimeError(f"Missing or invalid {key} ({context})")
+    raw = mapping.get(key)
+    if isinstance(raw, str) and raw.strip():
+        return raw.strip()
+    raise RuntimeError(f"Missing or invalid {key} ({context})")
+
+
 def _append_unique_by_id(items: list[BaseORMModel], instance: BaseORMModel) -> None:
     instance_id = instance.id
     if all(existing.id != instance_id for existing in items):
         items.append(instance)
+
+
+def _model_list(instance: BaseORMModel, field_name: str) -> list[BaseORMModel]:
+    value = getattr(instance, field_name, None)
+    if value is None:
+        value = []
+        setattr(instance, field_name, value)
+    return cast(list[BaseORMModel], value)
 
 
 def _bind_new(session: Session, instance: BaseORMModel) -> BaseORMModel:
@@ -120,14 +142,25 @@ def _ensure_branch_lane_shadow(
                 ),
             ),
         )
-    elif lane.branch_id != branch_id or lane.lane_hash != lane_hash:
-        raise RuntimeError(
-            "ObjectInstanceGraphBranch relationship lane mismatch: "
-            + f"lane_id={lane_id} branch_id={lane.branch_id} lane_hash={lane.lane_hash!r}"
-        )
-    if lane.head_commit_id != head_commit_id:
+    else:
+        existing_branch_id = getattr(lane, "branch_id", None)
+        existing_lane_hash = getattr(lane, "lane_hash", None)
+        if (
+            existing_branch_id is not None
+            and existing_branch_id != branch_id
+            or existing_lane_hash is not None
+            and existing_lane_hash != lane_hash
+        ):
+            raise RuntimeError(
+                "ObjectInstanceGraphBranch relationship lane mismatch: "
+                + f"lane_id={lane_id} branch_id={existing_branch_id} "
+                + f"lane_hash={existing_lane_hash!r}"
+            )
+        lane.branch_id = branch_id
+        lane.lane_hash = lane_hash
+    if getattr(lane, "head_commit_id", None) != head_commit_id:
         lane.head_commit_id = head_commit_id
-    _append_unique_by_id(cast(list[BaseORMModel], branch.lanes), lane)
+    _append_unique_by_id(_model_list(branch, "lanes"), lane)
 
     oigb_id = stable_object_instance_graph_branch_id(
         object_instance_graph_identity_id=object_instance_graph_identity_id,
@@ -147,24 +180,29 @@ def _ensure_branch_lane_shadow(
                 ),
             ),
         )
-    elif oigb.object_instance_graph_identity_id != object_instance_graph_identity_id:
-        raise RuntimeError(
-            "ObjectInstanceGraphBranch relationship OIGB mismatch: "
-            + f"oigb_id={oigb_id} have={oigb.object_instance_graph_identity_id} "
-            + f"expected={object_instance_graph_identity_id}"
-        )
-    elif oigb.branch_id is not None and oigb.branch_id != branch_id:
-        raise RuntimeError(
-            "ObjectInstanceGraphBranch relationship branch mismatch: "
-            + f"oigb_id={oigb_id} have={oigb.branch_id} expected={branch_id}"
-        )
+    else:
+        existing_oigi_id = getattr(oigb, "object_instance_graph_identity_id", None)
+        existing_branch_id = getattr(oigb, "branch_id", None)
+        if (
+            existing_oigi_id is not None
+            and existing_oigi_id != object_instance_graph_identity_id
+        ):
+            raise RuntimeError(
+                "ObjectInstanceGraphBranch relationship OIGB mismatch: "
+                + f"oigb_id={oigb_id} have={existing_oigi_id} "
+                + f"expected={object_instance_graph_identity_id}"
+            )
+        if existing_branch_id is not None and existing_branch_id != branch_id:
+            raise RuntimeError(
+                "ObjectInstanceGraphBranch relationship branch mismatch: "
+                + f"oigb_id={oigb_id} have={existing_branch_id} "
+                + f"expected={branch_id}"
+            )
+        oigb.object_instance_graph_identity_id = object_instance_graph_identity_id
     oigb.branch_id = branch_id
     oigb.branch = branch
     _append_unique_by_id(
-        cast(
-            list[BaseORMModel],
-            object_instance_graph_identity.object_instance_graph_branches,
-        ),
+        _model_list(object_instance_graph_identity, "object_instance_graph_branches"),
         oigb,
     )
 
@@ -186,23 +224,24 @@ def _ensure_branch_lane_shadow(
                 ),
             ),
         )
-    elif oigl.object_instance_graph_branch_id != oigb_id:
-        raise RuntimeError(
-            "ObjectInstanceGraphLane relationship OIGB mismatch: "
-            + f"oigl_id={oigl_id} have={oigl.object_instance_graph_branch_id} "
-            + f"expected={oigb_id}"
-        )
-    elif oigl.lane_id is not None and oigl.lane_id != lane_id:
-        raise RuntimeError(
-            "ObjectInstanceGraphLane relationship lane mismatch: "
-            + f"oigl_id={oigl_id} have={oigl.lane_id} expected={lane_id}"
-        )
+    else:
+        existing_oigb_id = getattr(oigl, "object_instance_graph_branch_id", None)
+        existing_lane_id = getattr(oigl, "lane_id", None)
+        if existing_oigb_id is not None and existing_oigb_id != oigb_id:
+            raise RuntimeError(
+                "ObjectInstanceGraphLane relationship OIGB mismatch: "
+                + f"oigl_id={oigl_id} have={existing_oigb_id} "
+                + f"expected={oigb_id}"
+            )
+        if existing_lane_id is not None and existing_lane_id != lane_id:
+            raise RuntimeError(
+                "ObjectInstanceGraphLane relationship lane mismatch: "
+                + f"oigl_id={oigl_id} have={existing_lane_id} expected={lane_id}"
+            )
     oigl.object_instance_graph_branch_id = oigb_id
     oigl.lane_id = lane_id
     oigl.lane = lane
-    _append_unique_by_id(
-        cast(list[BaseORMModel], oigb.object_instance_graph_lanes), oigl
-    )
+    _append_unique_by_id(_model_list(oigb, "object_instance_graph_lanes"), oigl)
     return oigb
 
 
@@ -219,8 +258,13 @@ def _ensure_branch_relationship(
             "ObjectInstanceGraphBranch relationship requires source and target ids"
         )
 
-    for existing in source_oigb.object_instance_graph_branch_relationships:
-        if existing.target_object_instance_graph_branch_id == target_oigb_id:
+    relationships = _model_list(
+        source_oigb, "object_instance_graph_branch_relationships"
+    )
+    for existing in relationships:
+        if getattr(existing, "target_object_instance_graph_branch_id", None) == (
+            target_oigb_id
+        ):
             return existing
 
     rel_id = stable_object_instance_graph_branch_relationship_id(
@@ -241,12 +285,35 @@ def _ensure_branch_relationship(
                 ),
             ),
         )
-    _append_unique_by_id(
-        cast(
-            list[BaseORMModel], source_oigb.object_instance_graph_branch_relationships
-        ),
-        relationship,
-    )
+    else:
+        existing_source_oigb_id = getattr(
+            relationship, "object_instance_graph_branch_id", None
+        )
+        existing_target_oigb_id = getattr(
+            relationship, "target_object_instance_graph_branch_id", None
+        )
+        if (
+            existing_source_oigb_id is not None
+            and existing_source_oigb_id != source_oigb_id
+        ):
+            raise RuntimeError(
+                "ObjectInstanceGraphBranchRelationship source mismatch: "
+                + f"relationship_id={rel_id} have={existing_source_oigb_id} "
+                + f"expected={source_oigb_id}"
+            )
+        if (
+            existing_target_oigb_id is not None
+            and existing_target_oigb_id != target_oigb_id
+        ):
+            raise RuntimeError(
+                "ObjectInstanceGraphBranchRelationship target mismatch: "
+                + f"relationship_id={rel_id} have={existing_target_oigb_id} "
+                + f"expected={target_oigb_id}"
+            )
+        relationship.object_instance_graph_branch_id = source_oigb_id
+        relationship.target_object_instance_graph_branch_id = target_oigb_id
+        relationship.target_object_instance_graph_branch = target_oigb
+    _append_unique_by_id(relationships, relationship)
     return relationship
 
 
@@ -258,6 +325,8 @@ async def attach_oigb_relationship(
     source_projection_hash: str,
     target_domain_branch_id: UUID,
     target_projection_hash: str | None = None,
+    source_store: FSCommitStore | None = None,
+    target_store: FSCommitStore | None = None,
 ) -> None:
     """Attach a Branch-to-Branch relationship in the source OIGI lane."""
 
@@ -265,7 +334,8 @@ async def attach_oigb_relationship(
     if ctx is None:
         raise RuntimeError("Missing required projection: ObjectInstanceGraphIdentity")
 
-    store = FSCommitStore()
+    store = source_store or FSCommitStore()
+    target_commit_store = target_store or store
     source_head = await store.head(
         branch_id=source_domain_branch_id,
         projection_hash=source_projection_hash,
@@ -316,6 +386,14 @@ async def attach_oigb_relationship(
             + f"object_instance_graph_id={source_oig_id} projection_hash={ctx.projection_hash}"
         ),
     )
+    head_graph_hash_post = _required_string_from_mapping(
+        identity_head_mapping,
+        "graph_hash_post",
+        context=(
+            "object_instance_graph_identity lane HEAD graph_hash_post: "
+            + f"object_instance_graph_id={source_oig_id} projection_hash={ctx.projection_hash}"
+        ),
+    )
     head_oig_id = _required_uuid_from_mapping(
         identity_head_mapping,
         "object_instance_graph_id",
@@ -327,7 +405,7 @@ async def attach_oigb_relationship(
 
     target_head_commit_id: UUID | None = None
     if target_projection_hash is not None:
-        target_head = await store.head(
+        target_head = await target_commit_store.head(
             branch_id=target_domain_branch_id,
             projection_hash=target_projection_hash,
         )
@@ -341,7 +419,7 @@ async def attach_oigb_relationship(
             ),
         )
 
-    before_oig, _indexes = await CachedLaneMaterializer().get(
+    before_oig, _indexes = await OIGMaterializer(commits=store).get(
         branch_id=source_oig_id,
         ocg=index.ocg,
         opg=ctx.opg,
@@ -349,6 +427,22 @@ async def attach_oigb_relationship(
         oig_id=head_oig_id,
         attribute_configs_by_id=index.attribute_configs_by_id,
         class_configs_by_id=index.class_configs_by_id,
+    )
+    before_oig_for_commit = before_oig.model_copy(deep=True)
+    pre_hash_state = compute_oig_lane_hash_state(
+        graph=before_oig_for_commit,
+        schema_attribute_configs_by_id=index.attribute_configs_by_id,
+        expected_hash=head_graph_hash_post,
+    )
+    if not pre_hash_state.matches(head_graph_hash_post):
+        raise RuntimeError(
+            "ObjectInstanceGraphIdentity materialized pre-state does not match "
+            "lane HEAD for portal branch relationship append: "
+            + f"commit_id={head_commit_id} head_graph_hash_post={head_graph_hash_post} "
+            + f"lane_hash={pre_hash_state.lane_hash} raw_hash={pre_hash_state.raw_hash}"
+        )
+    before_oig_for_commit.hash = pre_hash_state.matched_hash_or_default(
+        head_graph_hash_post,
     )
     session = reify_oig_session(
         index=index,
@@ -403,15 +497,15 @@ async def attach_oigb_relationship(
         root_instance=source_oigi,
         object_config_graph=index.ocg,
         object_projection_graph=ctx.opg,
-        key=before_oig.key,
-        name=before_oig.name,
-        description=before_oig.description or "",
-        oig_id=before_oig.id,
+        key=before_oig_for_commit.key,
+        name=before_oig_for_commit.name,
+        description=before_oig_for_commit.description or "",
+        oig_id=before_oig_for_commit.id,
         instance_registry=session.imap_all_objects(),
         enum_option_resolver=default_meta_enum_option_resolver,
     )
     changes = diff_object_instance_graph_changes(
-        old=before_oig,
+        old=before_oig_for_commit,
         new=after_oig,
         object_instance_graph_identity_id=head_oig_id,
     )
@@ -444,16 +538,31 @@ async def attach_oigb_relationship(
             branch_id=source_domain_branch_id,
         ),
     )
-    _ = await FSLaneCommitter().commit(
+
+    _ocgi, opgi = resolve_meta_graph_ocgi_opgi(
+        index=index,
+        projection_hash=ctx.projection_hash,
+    )
+    if opgi is None:
+        raise RuntimeError(
+            "ObjectProjectionGraphIdentity not found for "
+            "ObjectInstanceGraphIdentity relationship lane"
+        )
+    post_hash_state = compute_oig_lane_hash_state(
+        graph=after_oig,
+        schema_attribute_configs_by_id=index.attribute_configs_by_id,
+    )
+    _ = await FSLaneCommitter(store=store).commit(
         branch_id=source_oig_id,
         projection_hash=ctx.projection_hash,
+        object_projection_graph_identity_id=opgi.id,
         object_instance_graph_identity_id=head_oig_id,
-        object_instance_graph_id=before_oig.id,
-        before_oig=before_oig,
-        root_object_id=resolve_root_source_object_id(before_oig),
+        object_instance_graph_id=before_oig_for_commit.id,
+        before_oig=before_oig_for_commit,
+        root_object_id=resolve_root_source_object_id(before_oig_for_commit),
         changes=changes,
-        graph_hash_pre=before_oig.hash,
-        graph_hash_post=after_oig.hash,
+        graph_hash_pre=head_graph_hash_post,
+        graph_hash_post=post_hash_state.lane_hash,
         author_id=author_id,
         commit_action=commit_action,
     )

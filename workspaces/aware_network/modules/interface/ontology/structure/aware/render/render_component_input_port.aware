@@ -1,0 +1,23 @@
+class RenderComponentInputPort {
+    // Attributes
+    port_key String key
+    value_kind String
+    is_required Bool = true
+    description String?
+
+    fn build construct (
+        port_key String key,
+        value_kind String,
+        is_required Bool = true,
+        description String? = null
+    ) -> RenderComponentInputPort {
+        """
+        Create one explicit component input port.
+
+        Contract:
+        - Ports are component-local names, not view-state paths.
+        - PaneRenderSpec StateBinding supplies the data bound into each port.
+        - Renderers must not infer missing input values from underlying pane state.
+        """
+    }
+}

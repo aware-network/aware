@@ -13,18 +13,36 @@ def from_string_or_raise(codec: DartPrimitiveCodec, type_text: str):
 
 def test_basic_dart_types():
     codec = DartPrimitiveCodec()
-    assert from_string_or_raise(codec, "String").base_type == CodePrimitiveBaseType.string
+    assert (
+        from_string_or_raise(codec, "String").base_type == CodePrimitiveBaseType.string
+    )
     assert from_string_or_raise(codec, "int").base_type == CodePrimitiveBaseType.integer
-    assert from_string_or_raise(codec, "double").base_type == CodePrimitiveBaseType.float
+    assert (
+        from_string_or_raise(codec, "double").base_type == CodePrimitiveBaseType.float
+    )
     assert from_string_or_raise(codec, "num").base_type == CodePrimitiveBaseType.float
-    assert from_string_or_raise(codec, "bool").base_type == CodePrimitiveBaseType.boolean
-    assert from_string_or_raise(codec, "DateTime").base_type == CodePrimitiveBaseType.datetime
+    assert (
+        from_string_or_raise(codec, "AwareDecimal").base_type
+        == CodePrimitiveBaseType.decimal
+    )
+    assert (
+        from_string_or_raise(codec, "bool").base_type == CodePrimitiveBaseType.boolean
+    )
+    assert (
+        from_string_or_raise(codec, "DateTime").base_type
+        == CodePrimitiveBaseType.datetime
+    )
     assert from_string_or_raise(codec, "dynamic").base_type == CodePrimitiveBaseType.any
     assert from_string_or_raise(codec, "Object").base_type == CodePrimitiveBaseType.any
     assert from_string_or_raise(codec, "null").base_type == CodePrimitiveBaseType.null
     assert from_string_or_raise(codec, "void").base_type == CodePrimitiveBaseType.null
-    assert from_string_or_raise(codec, "UuidValue").base_type == CodePrimitiveBaseType.uuid
-    assert from_string_or_raise(codec, "Uint8List").base_type == CodePrimitiveBaseType.bytes
+    assert (
+        from_string_or_raise(codec, "UuidValue").base_type == CodePrimitiveBaseType.uuid
+    )
+    assert (
+        from_string_or_raise(codec, "Uint8List").base_type
+        == CodePrimitiveBaseType.bytes
+    )
 
 
 def test_nullable_suffix_parses_as_union_with_null_and_renders_back():
@@ -32,7 +50,10 @@ def test_nullable_suffix_parses_as_union_with_null_and_renders_back():
     prim = from_string_or_raise(codec, "String?")
     assert prim.base_type == CodePrimitiveBaseType.union
     assert len(prim.union_types) == 2
-    assert {t.base_type for t in prim.union_types} == {CodePrimitiveBaseType.string, CodePrimitiveBaseType.null}
+    assert {t.base_type for t in prim.union_types} == {
+        CodePrimitiveBaseType.string,
+        CodePrimitiveBaseType.null,
+    }
     assert codec.render(prim) == "String?"
 
 
@@ -41,12 +62,18 @@ def test_generic_collection_types():
 
     l = from_string_or_raise(codec, "List<String>")
     assert l.base_type == CodePrimitiveBaseType.array
-    assert l.item_type is not None and l.item_type.base_type == CodePrimitiveBaseType.string
+    assert (
+        l.item_type is not None
+        and l.item_type.base_type == CodePrimitiveBaseType.string
+    )
     assert codec.render(l) == "List<String>"
 
     s = from_string_or_raise(codec, "Set<int>")
     assert s.base_type == CodePrimitiveBaseType.set
-    assert s.item_type is not None and s.item_type.base_type == CodePrimitiveBaseType.integer
+    assert (
+        s.item_type is not None
+        and s.item_type.base_type == CodePrimitiveBaseType.integer
+    )
     assert codec.render(s) == "Set<int>"
 
     m = from_string_or_raise(codec, "Map<String, int>")
@@ -71,7 +98,9 @@ def test_nested_generics_and_nullable_inner():
     # Nullable inner element type should stay encoded canonically as UNION[int, null]
     l = from_string_or_raise(codec, "List<int?>")
     assert l.base_type == CodePrimitiveBaseType.array
-    assert l.item_type is not None and l.item_type.base_type == CodePrimitiveBaseType.union
+    assert (
+        l.item_type is not None and l.item_type.base_type == CodePrimitiveBaseType.union
+    )
     assert codec.render(l) == "List<int?>"
 
     # Deep nesting with optional + nested nullable inner
@@ -84,7 +113,9 @@ def test_unknown_ident_in_generics_returns_none_for_codec_parse():
     """Codec should refuse to fabricate primitives when generic args are unknown identifiers."""
     codec = DartPrimitiveCodec()
     assert codec.parse("List<User>") is None
-    assert codec.parse("Map<String, User>") is not None  # Map defaults to DICT even if value type is unknown
+    assert (
+        codec.parse("Map<String, User>") is not None
+    )  # Map defaults to DICT even if value type is unknown
 
 
 def test_nullable_generic_types_round_trip():
@@ -126,3 +157,8 @@ def test_literal_parsing_and_to_literal_string():
     assert codec.to_literal_string(42) == "42"
     assert codec.to_literal_string("hello") == "'hello'"
     assert codec.to_literal_string([1, 2, 3]) == "[1, 2, 3]"
+    assert codec.render(codec.decimal()) == "AwareDecimal"
+    assert (
+        codec.to_typed_literal_string("1.2300", codec.decimal())
+        == "AwareDecimal.parse('1.23')"
+    )

@@ -30,6 +30,19 @@ class ApiCapabilityEndpoint {
         """
     }
 
+    fn update_config (
+        description String? = null
+    ) -> {
+        """
+        Update mutable endpoint metadata on this existing endpoint.
+
+        Contract:
+        - `name` and `api_capability_id` are immutable endpoint identity.
+        - Request-contract evolution uses a separate explicit semantic operation.
+        - This function mutates only this endpoint instance.
+        """
+    }
+
     fn create_call (
         call_key UUID key,
         description String? = null

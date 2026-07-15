@@ -1,0 +1,140 @@
+service aware_interface {
+    api interface
+
+    operation admit_interface {
+        endpoint interface.admit_interface.admit_interface
+        admission identity_required
+    }
+
+    operation start_interface_session {
+        endpoint interface.start_interface_session.start_interface_session
+        admission identity_required
+    }
+
+    operation describe_interface_session {
+        endpoint interface.describe_interface_session.describe_interface_session
+        admission identity_required
+        receipt read_model
+    }
+
+    operation mount_interface_experience_session {
+        endpoint interface.mount_interface_experience_session.mount_interface_experience_session
+        admission identity_required
+    }
+
+    operation admit_environment_actor {
+        endpoint interface.admit_environment_actor.admit_environment_actor
+        admission identity_required
+    }
+
+    operation join_environment_session {
+        endpoint interface.join_environment_session.join_environment_session
+        admission identity_required
+    }
+
+    operation select_environment_navigation_target {
+        endpoint interface.select_environment_navigation_target.select_environment_navigation_target
+        admission identity_required
+    }
+
+    operation enter_environment {
+        endpoint interface.enter_environment.enter_environment
+        admission identity_required
+    }
+
+    operation resolve_experience_lens {
+        endpoint interface.resolve_experience_lens.resolve_experience_lens
+        admission identity_required
+    }
+
+    operation enter_app_screen {
+        endpoint interface.enter_app_screen.enter_app_screen
+        admission identity_required
+    }
+
+    operation get_interface_state {
+        endpoint interface.get_interface_state.get_interface_state
+        receipt read_model
+        view interface.package_mount_status
+    }
+
+    operation watch_interface_state {
+        endpoint interface.watch_interface_state.watch_interface_state
+        admission identity_required
+    }
+
+    operation perform_interface_action {
+        endpoint interface.perform_interface_action.perform_interface_action
+        admission identity_required
+    }
+
+    operation select_interface_step {
+        endpoint interface.select_interface_step.select_interface_step
+        admission identity_required
+    }
+
+    operation select_interface_profile {
+        endpoint interface.select_interface_profile.select_interface_profile
+        admission identity_required
+    }
+
+    operation select_interface_runtime_layout {
+        endpoint interface.select_interface_runtime_layout.select_interface_runtime_layout
+        admission identity_required
+    }
+
+    operation activate_interface_runtime_focus {
+        endpoint interface.activate_interface_runtime_focus.activate_interface_runtime_focus
+        admission identity_required
+    }
+
+    operation request_interface_window_layout {
+        endpoint interface.request_interface_window_layout.request_interface_window_layout
+        admission identity_required
+    }
+
+    operation apply_attention_layout_transition {
+        endpoint interface.apply_attention_layout_transition.apply_attention_layout_transition
+        admission identity_required
+    }
+
+    operation apply_attention_layout_topology_transition {
+        endpoint interface.apply_attention_layout_topology_transition.apply_attention_layout_topology_transition
+        admission identity_required
+    }
+
+    operation invoke_interface_api {
+        endpoint interface.invoke_interface_api.invoke_interface_api
+        admission identity_required
+    }
+
+    operation stream_interface_api {
+        endpoint interface.stream_interface_api.stream_interface_api
+        admission identity_required
+    }
+
+    operation report_renderer_capabilities {
+        endpoint interface.report_renderer_capabilities.report_renderer_capabilities
+        admission identity_required
+    }
+
+    operation sync_view_state_cursor {
+        endpoint interface.sync_view_state_cursor.sync_view_state_cursor
+        admission identity_required
+    }
+
+    operation ping_interface_host {
+        endpoint interface.ping_interface_host.ping_interface_host
+        receipt read_model
+    }
+
+    operation list_interface_namespaces {
+        endpoint interface.list_interface_namespaces.list_interface_namespaces
+        receipt read_model
+    }
+
+    operation stop_interface_namespace {
+        endpoint interface.stop_interface_namespace.stop_interface_namespace
+        admission identity_required
+    }
+}

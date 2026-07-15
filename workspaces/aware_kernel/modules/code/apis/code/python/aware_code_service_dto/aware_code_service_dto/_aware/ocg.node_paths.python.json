@@ -224,9 +224,21 @@
       "relative_path": "code/features/grammar_anchor_render_delta.py"
     },
     {
+      "node_id": "2fec9aae-6872-5fb5-bbee-2ef30740b32c",
+      "node_type": "class",
+      "entity_id": "83368502-e8e3-5a0c-8dfd-9740436fb119",
+      "relative_path": "code/features/grammar_anchor_render_delta.py"
+    },
+    {
       "node_id": "efbb8c51-d333-553b-962c-fecdac45e2b6",
       "node_type": "class",
       "entity_id": "9255a9e3-f4a5-5d29-b8ce-85197ce616a5",
+      "relative_path": "code/features/grammar_anchor_render_delta.py"
+    },
+    {
+      "node_id": "37d56c3d-7c19-5b52-9cd9-cd15b511acc7",
+      "node_type": "class",
+      "entity_id": "9bceb0dd-5634-55d2-a299-d13e5a08214f",
       "relative_path": "code/features/grammar_anchor_render_delta.py"
     },
     {
@@ -626,6 +638,12 @@
       "relative_path": "code/features/semantic_analysis.py"
     },
     {
+      "node_id": "f586fa7d-ed7a-5f82-9ee9-f6bc5d96030a",
+      "node_type": "class",
+      "entity_id": "53208848-9659-53bc-99dc-a87948a03bf4",
+      "relative_path": "code/features/semantic_analysis.py"
+    },
+    {
       "node_id": "ed6328b8-f563-5cb6-8223-3bec843d58c9",
       "node_type": "class",
       "entity_id": "62cf1897-20c2-5fe9-92ff-748ce57fbdf0",
@@ -920,6 +938,12 @@
       "relative_path": "code/features/semantic_source_meaning.py"
     },
     {
+      "node_id": "797bb4a1-e3d0-50ee-be33-fdb8fac3f648",
+      "node_type": "class",
+      "entity_id": "3bfddd59-86f4-560e-8f1c-0cc07cee2238",
+      "relative_path": "code/features/semantic_source_meaning.py"
+    },
+    {
       "node_id": "a4997e62-f818-52b3-bb65-e30ef636dd0e",
       "node_type": "class",
       "entity_id": "6d61fcc4-1a30-5af8-aff5-fe5752c2856e",
@@ -947,6 +971,12 @@
       "node_id": "2057936d-51b0-50ea-a478-fd0f627b2d3b",
       "node_type": "class",
       "entity_id": "c0d4336f-6bf6-593a-aa3a-c3055bde95b9",
+      "relative_path": "code/features/semantic_source_meaning.py"
+    },
+    {
+      "node_id": "e8c68d0b-2444-5844-a94c-0532e488ac26",
+      "node_type": "class",
+      "entity_id": "e7e6e8ba-7a3a-59e9-8fd2-8c966450d42a",
       "relative_path": "code/features/semantic_source_meaning.py"
     },
     {
@@ -1241,6 +1271,18 @@
       "node_id": "e7830903-cc25-515b-8090-4dd5c14362b5",
       "node_type": "enum",
       "entity_id": "2ac39855-b811-5180-8c60-034ffc2d2f9a",
+      "relative_path": "code/features/grammar_anchor_render_delta.py"
+    },
+    {
+      "node_id": "cbb8ca52-d9ca-5e98-bc15-20f24bda62cf",
+      "node_type": "enum",
+      "entity_id": "9832dd5c-289d-5f12-8309-d1dae655bb98",
+      "relative_path": "code/features/grammar_anchor_render_delta.py"
+    },
+    {
+      "node_id": "e3049f82-f112-55cd-a37e-31284467a1a0",
+      "node_type": "enum",
+      "entity_id": "aba60caa-1432-50a1-98c0-bf28fc6e897d",
       "relative_path": "code/features/grammar_anchor_render_delta.py"
     },
     {

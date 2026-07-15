@@ -1,0 +1,12 @@
+class InterfaceConfigPaneConfigSectionConfig {
+    // Relationships
+    layout_config_section_config aware_attention.layout.LayoutConfigSectionConfig key
+
+    fn build construct (
+        layout_config_section_config_id UUID key
+    ) -> InterfaceConfigPaneConfigSectionConfig {
+        """
+        Create one deterministic Interface-scoped mount binding between this InterfaceConfigPaneConfig pane-view adapter and one layout section.
+        """
+    }
+}

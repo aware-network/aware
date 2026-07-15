@@ -1,0 +1,21 @@
+aware = 1
+
+[package]
+package_name = "network-service-dto"
+fqn_prefix = "aware_network_service_dto"
+kind = "api"
+version_number = 1
+title = "Network Service DTO"
+description = "API-owned DTO package for Network topology, node-operation, hosted-service, route, and deploy payloads."
+
+[build]
+environment_slug = "aware_network_service_dto"
+
+[[dependencies]]
+package_name = "network-ontology"
+
+[[dependencies]]
+package_name = "api-service-dto"
+
+[[dependencies]]
+package_name = "service-service-dto"

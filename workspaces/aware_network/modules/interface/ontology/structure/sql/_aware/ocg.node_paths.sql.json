@@ -1,0 +1,269 @@
+{
+  "language": "sql",
+  "nodes": [
+    {
+      "node_id": "d96aaba8-0168-55ba-a288-c8f99f869bb6",
+      "node_type": "class",
+      "entity_id": "88e28ab6-8a9e-5bff-b433-53888e7213d2",
+      "relative_path": "interface/interface.sql"
+    },
+    {
+      "node_id": "23caf27c-dd37-55ec-814c-cd428ac5c2b3",
+      "node_type": "class",
+      "entity_id": "f8c7376f-fb3c-5b87-8a63-593b1850867e",
+      "relative_path": "interface/interface_config.sql"
+    },
+    {
+      "node_id": "a649cb52-2f24-5b2d-bf9f-86f4f2630dbf",
+      "node_type": "class",
+      "entity_id": "a6a89e74-8865-518c-83fb-122921dcbe43",
+      "relative_path": "interface/interface_config_api.sql"
+    },
+    {
+      "node_id": "da66470b-c021-50e9-ad21-62f0d1ef03fc",
+      "node_type": "class",
+      "entity_id": "2948b9d7-cf5c-5e0e-bfdc-8d9be89f2655",
+      "relative_path": "interface/interface_config_pane_config.sql"
+    },
+    {
+      "node_id": "3a2af80a-b1f5-5511-9b6b-d3c670e6e840",
+      "node_type": "class",
+      "entity_id": "88418d2f-fe44-5537-88cd-89068fc7c97e",
+      "relative_path": "interface/interface_config_pane_config_section_config.sql"
+    },
+    {
+      "node_id": "66925bb9-ff6f-5cd6-8179-16d2a1578254",
+      "node_type": "class",
+      "entity_id": "5401b560-9ccb-5b86-9866-1e2293c4ccc9",
+      "relative_path": "interface/interface_config_window_config.sql"
+    },
+    {
+      "node_id": "a45e1626-f41c-5497-9c98-29904eb9c96a",
+      "node_type": "class",
+      "entity_id": "c2889587-9edb-542d-8b35-ecd774148e4f",
+      "relative_path": "interface/interface_environment.sql"
+    },
+    {
+      "node_id": "8037b403-335b-57e8-98c4-92199ab96dbd",
+      "node_type": "class",
+      "entity_id": "9120b120-a775-52aa-acd5-46ffebe439c5",
+      "relative_path": "interface/interface_identity.sql"
+    },
+    {
+      "node_id": "0bbd2f20-c9e4-543c-bf79-45e31c07676d",
+      "node_type": "class",
+      "entity_id": "f3fd797e-2fe9-5b11-b656-a1fbc40580be",
+      "relative_path": "interface/interface_identity_network_node.sql"
+    },
+    {
+      "node_id": "80c8ba8b-ccb2-537d-86b5-2715bbcef52b",
+      "node_type": "class",
+      "entity_id": "84c3dced-e8e4-5165-a177-d4959ad6f3cf",
+      "relative_path": "interface/interface_package.sql"
+    },
+    {
+      "node_id": "3b28b6c8-4cee-566a-bc4c-cd618a2a6c69",
+      "node_type": "class",
+      "entity_id": "6ce2b404-4d18-5c80-a483-d8edf3c079f8",
+      "relative_path": "interface/interface_package_api_package.sql"
+    },
+    {
+      "node_id": "bc2143a5-8292-5a65-87d2-d2ce89be4403",
+      "node_type": "class",
+      "entity_id": "4e7a55e4-a79f-5e06-89ef-c34c33c0f1e4",
+      "relative_path": "interface/interface_package_experience_package.sql"
+    },
+    {
+      "node_id": "0f10e79e-2307-58c9-b02f-0176aecf58f4",
+      "node_type": "class",
+      "entity_id": "ed5e0595-dc4c-5abf-83b7-9711fb5818df",
+      "relative_path": "interface/interface_package_pane_package.sql"
+    },
+    {
+      "node_id": "22cb5398-d5f4-5ea8-ad40-9d5221c86410",
+      "node_type": "class",
+      "entity_id": "3bcbe0f9-2bbf-5a8e-994b-9734b631ef81",
+      "relative_path": "interface/interface_session.sql"
+    },
+    {
+      "node_id": "c52ce1b2-449b-5994-ba97-0e6ccbbe277f",
+      "node_type": "class",
+      "entity_id": "935b6122-7a4c-597e-b91c-5e65c33426a4",
+      "relative_path": "interface/interface_session_network_binding.sql"
+    },
+    {
+      "node_id": "8b56cb34-099b-531e-9fbf-2572a4bfc458",
+      "node_type": "class",
+      "entity_id": "59ecef7f-2311-581c-9a68-cb5136a93336",
+      "relative_path": "interface/interface_window.sql"
+    },
+    {
+      "node_id": "1c731e93-efec-58e9-a4fe-26f9c568992d",
+      "node_type": "class",
+      "entity_id": "44fd2f86-f09f-5853-b3fc-dce39646e7b5",
+      "relative_path": "interface/interface_window_thread.sql"
+    },
+    {
+      "node_id": "a65eb9f1-2828-5a13-8d31-998f49f82341",
+      "node_type": "class",
+      "entity_id": "47c71f84-8f55-57fa-a7f2-ec2eb0417cbd",
+      "relative_path": "interface/pane_config.sql"
+    },
+    {
+      "node_id": "e72279d0-acee-5a4f-b76e-8d00be4c029f",
+      "node_type": "class",
+      "entity_id": "3a687f4f-ceac-5626-a59f-9c787d1c172c",
+      "relative_path": "interface/pane_config_api_capability_endpoint.sql"
+    },
+    {
+      "node_id": "d8efb001-be2a-5a0f-856a-4b03a74b8784",
+      "node_type": "class",
+      "entity_id": "c4176fb6-7f5d-5719-9771-5989fc41994f",
+      "relative_path": "interface/pane_config.sql"
+    },
+    {
+      "node_id": "850e109e-56ef-518a-805f-c49cf0f42069",
+      "node_type": "class",
+      "entity_id": "6a6c732a-9791-5679-a099-3cdca6945b42",
+      "relative_path": "interface/pane_config_sdk_operation.sql"
+    },
+    {
+      "node_id": "c51e4603-f28b-5703-93db-ea4b09bb66fe",
+      "node_type": "class",
+      "entity_id": "68ecc147-c112-5de0-9fef-b6e988b20d2f",
+      "relative_path": "interface/pane_package.sql"
+    },
+    {
+      "node_id": "78955499-4f72-5827-a01b-933652af1713",
+      "node_type": "class",
+      "entity_id": "9f6edef2-c3d7-5113-87ca-7a7998f0eda6",
+      "relative_path": "interface/pane_package_api_package.sql"
+    },
+    {
+      "node_id": "ca18b5b7-9b74-51c2-9bc4-a6ea80974989",
+      "node_type": "class",
+      "entity_id": "dc873812-9ca2-5102-875e-1827bf8e2850",
+      "relative_path": "interface/pane_package_sdk_package.sql"
+    },
+    {
+      "node_id": "9970cc80-6ad3-5b34-87af-8bd8a8792759",
+      "node_type": "class",
+      "entity_id": "edbea207-75ca-5451-9ab6-b16255adfdd1",
+      "relative_path": "interface/window_config.sql"
+    },
+    {
+      "node_id": "0711eda3-155e-55ee-9b29-a9c1b8e2728a",
+      "node_type": "class",
+      "entity_id": "db4c781a-abea-55fe-961e-4e0f812c7e99",
+      "relative_path": "interface/window_config_layout_config.sql"
+    },
+    {
+      "node_id": "6f3082bb-4479-50ee-86dc-ad8ee2aebfb7",
+      "node_type": "class",
+      "entity_id": "74e5bfe9-1afe-515d-8368-2d847f7825f2",
+      "relative_path": "render/pane_action_binding.sql"
+    },
+    {
+      "node_id": "ff332ac5-8480-5a94-af84-52e0b74d8641",
+      "node_type": "class",
+      "entity_id": "57dd9ca2-b165-52c4-8b0b-0fc13eefb9d4",
+      "relative_path": "render/pane_input_binding.sql"
+    },
+    {
+      "node_id": "ecb69ada-12aa-5466-81d3-3380bd76c610",
+      "node_type": "class",
+      "entity_id": "1c93af1b-b7d3-52b5-bffc-580888da83c4",
+      "relative_path": "render/pane_render_node.sql"
+    },
+    {
+      "node_id": "5d6537d9-ed1f-5b05-aa38-191b04c83429",
+      "node_type": "class",
+      "entity_id": "6720e6cf-889f-5128-9b53-c868f58fd91a",
+      "relative_path": "render/pane_render_spec.sql"
+    },
+    {
+      "node_id": "40119e71-b624-5728-8ba7-dd1da6ca5969",
+      "node_type": "class",
+      "entity_id": "8caa16e7-3025-59de-a775-9a779b955834",
+      "relative_path": "render/pane_renderer_capability_requirement.sql"
+    },
+    {
+      "node_id": "7b8ee47d-39d1-520c-b16d-9cd5af3ed0b9",
+      "node_type": "class",
+      "entity_id": "8ec2d031-b37f-5fbe-b87e-cabec43963f3",
+      "relative_path": "render/pane_state_binding.sql"
+    },
+    {
+      "node_id": "951bf9fa-01e7-5107-9feb-ecf3fcfe98ca",
+      "node_type": "class",
+      "entity_id": "3fea80c2-9d79-5968-9477-7bbb909f4395",
+      "relative_path": "render/pane_style_token_ref.sql"
+    },
+    {
+      "node_id": "f502f04a-437c-5979-a6ae-0f0d1dfc1d51",
+      "node_type": "class",
+      "entity_id": "4b6ee636-b8ac-579b-a25b-cbf8eabc1a1f",
+      "relative_path": "window/window.sql"
+    },
+    {
+      "node_id": "d74cb2df-986c-5cd3-a49e-7e77350013bf",
+      "node_type": "class",
+      "entity_id": "3e43fb2d-b86c-5b72-b8f8-f91ceaa98286",
+      "relative_path": "window/window_layout.sql"
+    },
+    {
+      "node_id": "0cb20f27-6af5-5679-9e49-8a3ad98cdf90",
+      "node_type": "class",
+      "entity_id": "f1657b9e-5c89-5e86-813a-19066fe14ecc",
+      "relative_path": "window/window_layout_section.sql"
+    },
+    {
+      "node_id": "91990538-562e-5965-8fd1-fc253fd06063",
+      "node_type": "enum",
+      "entity_id": "6d3e14f2-cce1-5b1c-8369-c8694f43369a",
+      "relative_path": "interface/interface_enums.sql"
+    },
+    {
+      "node_id": "c7c22990-2fdc-5cb5-9d75-e672fc6e2628",
+      "node_type": "enum",
+      "entity_id": "b7cdf706-6440-58dc-8294-d6fc03d1e8db",
+      "relative_path": "interface/interface_enums.sql"
+    },
+    {
+      "node_id": "74e5867c-08f1-538d-9523-bac88fd0ff71",
+      "node_type": "enum",
+      "entity_id": "1fef3e47-90d1-540f-a60d-4c7c7bda3692",
+      "relative_path": "render/pane_render_enums.sql"
+    },
+    {
+      "node_id": "c7af1d6d-3cb7-5639-a0ab-e5c72151c01b",
+      "node_type": "enum",
+      "entity_id": "25a16b98-40d2-53d2-8dad-7c2d33315b61",
+      "relative_path": "render/pane_render_enums.sql"
+    },
+    {
+      "node_id": "0adb0443-7154-5c3d-9ab3-da8963a862ca",
+      "node_type": "enum",
+      "entity_id": "aad94e64-4345-5ff3-b2d9-cd518469998d",
+      "relative_path": "render/pane_render_enums.sql"
+    },
+    {
+      "node_id": "8993a329-b2a0-5370-9819-eae4317fe4ec",
+      "node_type": "enum",
+      "entity_id": "d0d6efd9-05d2-5ea1-820e-2c1246238d30",
+      "relative_path": "render/pane_render_enums.sql"
+    },
+    {
+      "node_id": "d8f05f94-8534-5108-9978-bff65e4d33f0",
+      "node_type": "enum",
+      "entity_id": "e5686e40-1241-5bb5-af30-e13f304f0798",
+      "relative_path": "render/pane_render_enums.sql"
+    },
+    {
+      "node_id": "73239f9c-bd50-5957-9870-699b031842a9",
+      "node_type": "enum",
+      "entity_id": "4084191f-d0b4-534d-8c55-a995bbb757b8",
+      "relative_path": "window/window_enums.sql"
+    }
+  ]
+}

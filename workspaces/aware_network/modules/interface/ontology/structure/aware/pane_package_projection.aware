@@ -1,0 +1,14 @@
+/// PanePackage projection
+///
+/// Purpose:
+/// - Expose the Pane-owned semantic package rail for Interface/workspace/package consumers.
+/// - Keep `PaneConfig` as the semantic pane root under the package boundary.
+/// - Avoid collapsing pane semantic identity and package provenance into one object.
+projection PanePackage is_branchable {
+    root interface.PanePackage
+
+    interface.PanePackage::experience_packages
+    interface.PanePackageExperiencePackage::experience_package aware_experience.ExperiencePackage
+    interface.PanePackage::pane_config PaneConfig
+    interface.PanePackage::pane_config_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+}

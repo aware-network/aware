@@ -1,0 +1,89 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "05cdd8d8-023f-5f38-a072-5f623a62265e",
+      "node_type": "class",
+      "entity_id": "40c0ffb9-fe1c-5094-9aee-ac511258bd50",
+      "relative_path": "memory/memory_episode.py"
+    },
+    {
+      "node_id": "8af1fb10-40bc-52e5-a8a4-a0e7947b2252",
+      "node_type": "class",
+      "entity_id": "2da4bc56-0460-5dd6-88b6-fb28692a12b5",
+      "relative_path": "memory/memory_episodic.py"
+    },
+    {
+      "node_id": "2a61297d-ba98-5241-933a-bfd09be1edad",
+      "node_type": "class",
+      "entity_id": "6f201434-d0c3-5ccb-b3b7-06b6b525d7a8",
+      "relative_path": "memory/memory_procedural.py"
+    },
+    {
+      "node_id": "9b05bb1d-92e8-5237-9807-12a66031f2c7",
+      "node_type": "class",
+      "entity_id": "cff81031-deb9-5b95-93c9-c684c9a9856d",
+      "relative_path": "memory/memory_procedure.py"
+    },
+    {
+      "node_id": "83e6a040-d0fd-5be7-849b-bb893139c17b",
+      "node_type": "class",
+      "entity_id": "d1ddd582-3461-5cbd-9b31-087be929520f",
+      "relative_path": "memory/memory_procedure_config.py"
+    },
+    {
+      "node_id": "1759b5fe-3856-5d26-b123-59b38567a44f",
+      "node_type": "class",
+      "entity_id": "3df2fa4a-12bf-5ce7-9f68-bb2c71597922",
+      "relative_path": "memory/memory_procedure_episode.py"
+    },
+    {
+      "node_id": "33f4e5c5-d0f4-52d9-a48c-1abadf34ec69",
+      "node_type": "class",
+      "entity_id": "efa76b72-1c14-519d-9b93-889603eed4bb",
+      "relative_path": "memory/memory_semantic.py"
+    },
+    {
+      "node_id": "438dd027-d01d-56c6-b001-fb1484eedce8",
+      "node_type": "class",
+      "entity_id": "49be773d-7588-57ae-a79e-3449ca996340",
+      "relative_path": "memory/memory_working.py"
+    },
+    {
+      "node_id": "4358cc79-d807-58fe-ac40-af4dc31aa543",
+      "node_type": "class",
+      "entity_id": "c42b8975-9d76-5011-b473-90558a3f3a36",
+      "relative_path": "memory/memory_working_content_frame.py"
+    },
+    {
+      "node_id": "229d170f-d5ff-545f-a952-28922265c586",
+      "node_type": "class",
+      "entity_id": "9ab5b299-2f42-5e71-a3a7-61b3f5922938",
+      "relative_path": "memory/memory_working_event_frame.py"
+    },
+    {
+      "node_id": "c9e1fb9f-e0c6-50d3-8ea8-8d763f522462",
+      "node_type": "class",
+      "entity_id": "2edd883f-2452-5e1b-8509-8e0c87243393",
+      "relative_path": "memory/memory_working_event_meaning.py"
+    },
+    {
+      "node_id": "76d01c61-2080-5a3b-a63e-d428a0873b99",
+      "node_type": "class",
+      "entity_id": "31e7c155-5c1e-57c5-a246-d652ff05483c",
+      "relative_path": "memory/memory_working_item.py"
+    },
+    {
+      "node_id": "1d8e619d-7592-54c2-b2ed-40792d76c7c7",
+      "node_type": "class",
+      "entity_id": "a0f5eecb-d1ad-5b99-8eb7-a328ec0a02ca",
+      "relative_path": "memory/memory_working_tool_frame.py"
+    },
+    {
+      "node_id": "e53fef83-5bfa-5035-81af-ba60b6b32205",
+      "node_type": "enum",
+      "entity_id": "b65e1f51-0e7d-58c6-af50-7dc0a442733a",
+      "relative_path": "memory/memory_working_item_enums.py"
+    }
+  ]
+}

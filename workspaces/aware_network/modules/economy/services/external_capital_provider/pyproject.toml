@@ -1,0 +1,28 @@
+[project]
+name = "aware-external-capital-provider-service"
+version = "0.1.0"
+description = "ServiceHost implementation for Economy external-capital provider actions."
+authors = [{ name = "AWARE Team" }]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-economy-providers",
+  "aware-economy-sdk",
+  "aware_external_capital_provider_service_dto",
+  "aware_external_capital_provider_service_protocol",
+  "aware-service-runtime",
+  "aware-service-service",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2", "pytest-asyncio>=0.23.6,<0.24.0"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_external_capital_provider_service"]
+include = ["aware_external_capital_provider_service/py.typed"]
+
+[tool.aware.tests]
+requires_module = "economy"

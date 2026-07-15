@@ -1,0 +1,43 @@
+class RenderComponentConfig {
+    // Relationships
+    contracts RenderComponentContract[]
+
+    // Attributes
+    name String key
+    description String?
+
+    fn build construct (
+        name String key,
+        description String? = null
+    ) -> RenderComponentConfig {
+        """
+        Create one reusable render component contract root.
+
+        Contract:
+        - This is the semantic root for a render component package.
+        - Contracts describe renderer-neutral component ports and requirements.
+        - State and actions still arrive through PaneRenderSpec bindings and canonical API rails.
+        """
+    }
+
+    fn add_contract (
+        component_ref String key,
+        contract_version Int = 1,
+        display_name String? = null,
+        description String? = null,
+        surface_kind String? = null
+    ) -> RenderComponentContract {
+        """
+        Add one reusable render component contract exposed by this config.
+        """
+        let created = construct contracts.build(
+            component_ref = component_ref,
+            contract_version = contract_version,
+            display_name = display_name,
+            description = description,
+            surface_kind = surface_kind,
+        )
+    }
+}
+
+ann render.RenderComponentConfig::contracts load eager

@@ -1,5 +1,6 @@
 """Tests for Aware primitive type detection and functionality."""
 
+from decimal import Decimal
 import pytest
 from pathlib import Path
 
@@ -15,7 +16,9 @@ from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBase
 from aware_grammar.primitive_codec import AwarePrimitiveCodec
 
 
-def from_string_or_raise(primitive_codec: AwarePrimitiveCodec, type_text: str) -> CodePrimitiveType:
+def from_string_or_raise(
+    primitive_codec: AwarePrimitiveCodec, type_text: str
+) -> CodePrimitiveType:
     primitive = primitive_codec.parse(type_text)
     if not primitive:
         raise ValueError(f"Failed to parse primitive type: {type_text}")
@@ -38,16 +41,50 @@ def test_basic_primitive_type_detection():
     """Test that Aware primitive types are correctly detected."""
     # Test basic primitive types
     primitive_codec = AwarePrimitiveCodec()
-    assert from_string_or_raise(primitive_codec, "String").base_type == CodePrimitiveBaseType.string
-    assert from_string_or_raise(primitive_codec, "Int").base_type == CodePrimitiveBaseType.integer
-    assert from_string_or_raise(primitive_codec, "Bool").base_type == CodePrimitiveBaseType.boolean
-    assert from_string_or_raise(primitive_codec, "Float").base_type == CodePrimitiveBaseType.float
-    assert from_string_or_raise(primitive_codec, "Bytes").base_type == CodePrimitiveBaseType.bytes
-    assert from_string_or_raise(primitive_codec, "DateTime").base_type == CodePrimitiveBaseType.datetime
-    assert from_string_or_raise(primitive_codec, "UUID").base_type == CodePrimitiveBaseType.uuid
-    assert from_string_or_raise(primitive_codec, "Json").base_type == CodePrimitiveBaseType.json
-    assert from_string_or_raise(primitive_codec, "Any").base_type == CodePrimitiveBaseType.any
-    assert from_string_or_raise(primitive_codec, "Vector").base_type == CodePrimitiveBaseType.vector
+    assert (
+        from_string_or_raise(primitive_codec, "String").base_type
+        == CodePrimitiveBaseType.string
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "Int").base_type
+        == CodePrimitiveBaseType.integer
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "Bool").base_type
+        == CodePrimitiveBaseType.boolean
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "Decimal").base_type
+        == CodePrimitiveBaseType.decimal
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "Float").base_type
+        == CodePrimitiveBaseType.float
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "Bytes").base_type
+        == CodePrimitiveBaseType.bytes
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "DateTime").base_type
+        == CodePrimitiveBaseType.datetime
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "UUID").base_type
+        == CodePrimitiveBaseType.uuid
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "Json").base_type
+        == CodePrimitiveBaseType.json
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "Any").base_type
+        == CodePrimitiveBaseType.any
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "Vector").base_type
+        == CodePrimitiveBaseType.vector
+    )
 
 
 def test_optional_types():
@@ -66,6 +103,10 @@ def test_optional_types():
 
     # Test conversion back to string
     assert primitive_codec.render(optional_str) == "String?"
+
+    optional_decimal = from_string_or_raise(primitive_codec, "Decimal?")
+    assert optional_decimal.base_type == CodePrimitiveBaseType.union
+    assert primitive_codec.render(optional_decimal) == "Decimal?"
 
 
 def test_array_types():
@@ -91,6 +132,16 @@ def test_array_types():
     assert array_optional.item_type.base_type == CodePrimitiveBaseType.union
     assert primitive_codec.render(array_optional) == "String?[]"
 
+    decimal_array = from_string_or_raise(primitive_codec, "Decimal[]")
+    assert decimal_array.item_type is not None
+    assert decimal_array.item_type.base_type == CodePrimitiveBaseType.decimal
+    assert primitive_codec.render(decimal_array) == "Decimal[]"
+
+
+def test_decimal_literal_rendering_is_exact_and_canonical() -> None:
+    primitive_codec = AwarePrimitiveCodec()
+    assert primitive_codec.to_literal_string(Decimal("1.2300")) == "1.23"
+
 
 def test_dict_types():
     """Test Aware dict types with Dict[K, V] syntax."""
@@ -98,8 +149,14 @@ def test_dict_types():
 
     dict_type = from_string_or_raise(primitive_codec, "Dict[String, Int]")
     assert dict_type.base_type == CodePrimitiveBaseType.dict
-    assert dict_type.key_type is not None and dict_type.key_type.base_type == CodePrimitiveBaseType.string
-    assert dict_type.value_type is not None and dict_type.value_type.base_type == CodePrimitiveBaseType.integer
+    assert (
+        dict_type.key_type is not None
+        and dict_type.key_type.base_type == CodePrimitiveBaseType.string
+    )
+    assert (
+        dict_type.value_type is not None
+        and dict_type.value_type.base_type == CodePrimitiveBaseType.integer
+    )
     assert primitive_codec.render(dict_type) == "Dict[String, Int]"
 
     # Optional dict
@@ -110,7 +167,10 @@ def test_dict_types():
     # Array of dicts
     dict_array = from_string_or_raise(primitive_codec, "Dict[String, Int][]")
     assert dict_array.base_type == CodePrimitiveBaseType.array
-    assert dict_array.item_type is not None and dict_array.item_type.base_type == CodePrimitiveBaseType.dict
+    assert (
+        dict_array.item_type is not None
+        and dict_array.item_type.base_type == CodePrimitiveBaseType.dict
+    )
     assert primitive_codec.render(dict_array) == "Dict[String, Int][]"
 
 
@@ -360,7 +420,9 @@ def test_factory_methods():
     assert string_array.item_type.base_type == CodePrimitiveBaseType.string
 
     # Test union factory method
-    union_type = primitive_codec.union(primitive_codec.string(), primitive_codec.integer())
+    union_type = primitive_codec.union(
+        primitive_codec.string(), primitive_codec.integer()
+    )
     assert union_type.base_type == CodePrimitiveBaseType.union
     assert len(union_type.union_types) == 2
     assert union_type.union_types[0].base_type == CodePrimitiveBaseType.string
@@ -451,7 +513,10 @@ def test_get_inner_type_extraction():
 
     # Edge modifiers should not interfere with inner-type extraction
     assert primitive_codec.get_inner_type("Vector(256)[] @Edge many") == "Vector(256)"
-    assert primitive_codec.get_inner_type("AnalyticMetric[] @Edge many") == "AnalyticMetric"
+    assert (
+        primitive_codec.get_inner_type("AnalyticMetric[] @Edge many")
+        == "AnalyticMetric"
+    )
 
     # Test complex parametric types
     assert primitive_codec.get_inner_type("Vector(1024)[]") == "Vector(1024)"

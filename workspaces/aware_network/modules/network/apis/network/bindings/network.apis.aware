@@ -1,0 +1,101 @@
+api network {
+    view territory_discovery on NetworkNode.territory state aware_network_service_dto.comms.view.NetworkTerritoryDiscoveryViewStateV1 {
+        """
+        Public Network territory discovery view over node, environment, hosted-service, and peer read-model truth.
+        """
+
+        stream snapshot
+        endpoint discover_territory discovery.discover_territory
+        endpoint list_environments environment.list
+        endpoint list_hosted_services hosted_service.list
+        endpoint list_peers peer.list
+    }
+
+    view session_status on NetworkNode.session state aware_network_service_dto.comms.view.NetworkNodeSessionStatusViewStateV1 {
+        """
+        NetworkNode session and host readiness surface for Interface renderers.
+        """
+
+        stream snapshot
+        endpoint discover_territory discovery.discover_territory
+        endpoint list_hosted_services hosted_service.list
+        endpoint list_environments environment.list
+    }
+
+    capability publication {
+        endpoint reconcile_node_publication aware_network_service_dto.comms.models.NetworkReconcileNodePublicationRequest {
+            """
+            Reconcile one complete Node runtime publication through canonical Network Service authority.
+            """
+
+            response aware_network_service_dto.comms.models.NetworkReconcileNodePublicationResponse
+        }
+    }
+
+    capability peer {
+        endpoint upsert aware_network_service_dto.comms.models.NetworkUpsertPeerRequest {
+            """
+            Upsert one canonical NetworkNodePeer edge used for node-to-node routing.
+            """
+
+            response aware_network_service_dto.comms.models.NetworkUpsertPeerResponse
+        }
+
+        endpoint list aware_network_service_dto.comms.models.NetworkListPeersRequest {
+            """
+            List peer edges for one NetworkNode from Network Service topology truth.
+            """
+
+            response aware_network_service_dto.comms.models.NetworkListPeersResponse
+        }
+    }
+
+    capability hosted_service {
+        endpoint list aware_network_service_dto.comms.models.NetworkListHostedServicesRequest {
+            """
+            List hosted Service advertisements for one NetworkNode.
+            """
+
+            response aware_network_service_dto.comms.models.NetworkListHostedServicesResponse
+        }
+    }
+
+    capability environment {
+        endpoint list aware_network_service_dto.comms.models.NetworkListEnvironmentsRequest {
+            """
+            List Environment advertisements known to Network Service topology truth.
+            """
+
+            response aware_network_service_dto.comms.models.NetworkListEnvironmentsResponse
+        }
+    }
+
+    capability route {
+        endpoint resolve_hosted_service_routes aware_network_service_dto.comms.models.NetworkResolveHostedServiceRoutesRequest {
+            """
+            Resolve remote hosted-Service routes for a consumer NetworkNode.
+            """
+
+            response aware_network_service_dto.comms.models.NetworkResolveHostedServiceRoutesResponse
+        }
+    }
+
+    capability discovery {
+        endpoint discover_territory aware_network_service_dto.comms.models.NetworkDiscoverTerritoryRequest {
+            """
+            Resolve the Control territory read model: nodes, environments, hosted services, and peers.
+            """
+
+            response aware_network_service_dto.comms.models.NetworkDiscoverTerritoryResponse
+        }
+
+        endpoint discover_experience_territory aware_network_service_dto.comms.models.NetworkDiscoverExperienceTerritoryRequest {
+            """
+            Resolve an experience-first Network territory read model from environment and hosted-service advertisements.
+            """
+
+            response aware_network_service_dto.comms.models.NetworkDiscoverExperienceTerritoryResponse
+        }
+    }
+
+}

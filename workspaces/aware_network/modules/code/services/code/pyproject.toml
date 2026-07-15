@@ -1,0 +1,37 @@
+[project]
+name = "aware-code-service"
+version = "0.1.0"
+description = "Local service adapter for Code semantic contract, package delta, and package layout DTO operations."
+authors = [{ name = "AWARE Team" }]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-code",
+  "aware-code-experience",
+  "aware-code-ontology-orm-models",
+  "aware-code-sdk",
+  "aware-content-ontology-orm-models",
+  "aware_code_service_api",
+  "aware_code_service_dto",
+  "aware_code_service_protocol",
+  "aware-service-runtime",
+  "aware-service-service",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.4.2",
+  "pytest-asyncio>=0.23.7",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_code_service"]
+include = [
+  "aware_code_service/py.typed",
+]
+
+[tool.aware.tests]
+requires_module = "code"

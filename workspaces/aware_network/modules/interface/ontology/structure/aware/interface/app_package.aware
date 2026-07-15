@@ -1,0 +1,123 @@
+class AppPackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    app_config AppConfig unique
+    app_config_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+    experience_packages AppPackageExperiencePackage[]
+    interface_packages AppPackageInterfacePackage[]
+
+    // Attributes
+    aware_app_version Int = 1
+    dart JsonObject = {}
+    dependencies JsonArray = []
+    description String?
+    manifest_relative_path String?
+    metadata_json JsonObject = {}
+    name String key
+    package_root String = "."
+    title String?
+    version_number Int = 1
+
+    fn build construct(
+        name String key,
+        app_config_id UUID,
+        app_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_app_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        dependencies JsonArray = [],
+        dart JsonObject = {},
+        metadata_json JsonObject = {}
+    ) -> AppPackage {
+        """
+        Create the canonical app package root over an AppConfig.
+
+        Contract:
+        - AppPackage is the installable app package boundary.
+        - AppConfig owns screen composition intent.
+        - Apps depend on ExperiencePackage and InterfacePackage truth; they do not
+          target Environment profile/session/process/thread coordinates directly.
+        - `app_config_object_instance_graph_commit_id`, when present, pins exact
+          AppConfig replay truth for WorkspaceRevision consumers.
+        - `source_code_package_id` is raw-source provenance only.
+        """
+    }
+
+    fn sync_manifest_truth(
+        app_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_app_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        dependencies JsonArray = [],
+        dart JsonObject = {},
+        metadata_json JsonObject = {}
+    ) -> AppPackage {
+        """
+        Sync mutable app manifest truth onto an existing AppPackage root.
+
+        Contract:
+        - Manifest evidence is replay metadata, not dependency authority.
+        - Typed package dependencies remain represented through child portal rows.
+        - Environment admission remains resolved by Experience/Interface services.
+        """
+    }
+
+    fn attach_experience_package(
+        experience_package_id UUID key,
+        experience_package_object_instance_graph_commit_id UUID? = null,
+        role String = "experience",
+        description String? = null
+    ) -> AppPackageExperiencePackage {
+        """
+        Attach one ExperiencePackage dependency to this app.
+
+        Contract:
+        - The app selects Experience entry points and layout bindings through
+          AppConfigScreenConfig.
+        - Environment package/profile/session targets must remain behind
+          Experience resolution, not on AppPackage.
+        """
+        let created = construct experience_packages.build(
+            experience_package_id = experience_package_id,
+            experience_package_object_instance_graph_commit_id = experience_package_object_instance_graph_commit_id,
+            role = role,
+            description = description,
+        )
+    }
+
+    fn attach_interface_package(
+        interface_package_id UUID key,
+        interface_package_object_instance_graph_commit_id UUID? = null,
+        role String = "interface",
+        description String? = null
+    ) -> AppPackageInterfacePackage {
+        """
+        Attach one InterfacePackage dependency to this app.
+
+        Contract:
+        - InterfacePackage supplies reusable shell/pane/render composition truth.
+        - It does not authorize app-owned Environment targets or app-specific
+          pane defaults.
+        """
+        let created = construct interface_packages.build(
+            interface_package_id = interface_package_id,
+            interface_package_object_instance_graph_commit_id = interface_package_object_instance_graph_commit_id,
+            role = role,
+            description = description,
+        )
+    }
+}
+
+ann interface.AppPackage::source_code_package load eager
+ann interface.AppPackage::app_config load eager
+ann interface.AppPackage::app_config_object_instance_graph_commit load eager
+ann interface.AppPackage::experience_packages load eager
+ann interface.AppPackage::interface_packages load eager

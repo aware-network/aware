@@ -1,0 +1,26 @@
+class PanePackageExperiencePackage {
+    // Relationships
+    experience_package aware_experience.environment.ExperiencePackage key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        experience_package_id UUID key,
+        description String? = null
+    ) -> PanePackageExperiencePackage {
+        """
+        Create one package-level Pane bridge to one ExperiencePackage.
+
+        Contract:
+        - Parent `PanePackage` scope is injected by propagation.
+        - Identity is keyed by the attached `ExperiencePackage`.
+        - This is the pane-local import seam for resolving the PaneConfig
+          ProjectionExperienceView key.
+        - Interface packages consume the resolved PanePackage; they do not
+          declare Experience packages to resolve pane views.
+        """
+    }
+}
+
+ann interface.PanePackageExperiencePackage::experience_package load eager

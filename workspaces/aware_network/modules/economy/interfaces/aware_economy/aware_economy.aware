@@ -1,0 +1,10 @@
+interface aware_economy {
+    window main {
+        layout coordination_center default {}
+    }
+
+    pane wallet_capital {
+        mount main.coordination_center.primary
+        narrative economy.wallet_capital
+    }
+}

@@ -1,0 +1,31 @@
+name: aware_network_territory_pane
+description: Network territory pane package for the aware_control interface.
+version: 0.0.1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  aware_pane:
+    path: ../../../../../../interface/libs/pane/dart/aware_pane
+  aware_pane_runtime:
+    path: ../../../../../../interface/libs/pane_runtime/dart/aware_pane_runtime
+  aware_shell:
+    path: ../../../../../../interface/libs/shell/dart/aware_shell
+  aware_widgets:
+    path: ../../../../../../interface/libs/widgets/dart/aware_widgets
+  aware_network_service_api:
+    path: ../../../../../apis/network/dart/aware_network_service_api
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

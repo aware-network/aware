@@ -1,0 +1,156 @@
+/// Service DTOs for Experience-owned Program execution.
+///
+/// Ownership:
+/// - Experience owns ProgramConfig, Program, ProgramTurn, and run/turn receipts.
+/// - Environment supplies topology ids and generic profile topology only.
+/// - Program execution must not be exposed through Environment API/SDK surfaces.
+
+class ExperienceProgramServiceRequest {
+    operation String
+    request_id UUID?
+    actor_id UUID?
+    environment_id UUID
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    request_context JsonObject = {}
+}
+
+class ExperienceProgramServiceResponse {
+    operation String
+    request_id UUID?
+    status String
+    error String?
+    actor_id UUID?
+    environment_id UUID?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    evidence JsonObject = {}
+}
+
+/// Internal Experience-owned pre-resolved invocation plan execution.
+///
+/// Canonical external product boundary is `run_program`.
+class ApplyProgramRefRequest augment program.ExperienceProgramServiceRequest {
+    operation String = "apply_program_ref"
+    program_ref String
+    symbols JsonObject = {}
+    validate_only Bool = false
+    commit Bool = true
+    publish Bool = false
+}
+
+/// Submit one Experience-owned Program turn.
+class SubmitProgramTurnRequest augment program.ExperienceProgramServiceRequest {
+    operation String = "submit_program_turn"
+    target_actor_id UUID
+    program_ref String
+    symbols JsonObject = {}
+    message String
+    turn_index Int = 1
+    mailbox_key String?
+    idempotency_key String?
+    max_attempts Int = 1
+    input_received_unix_ms Int?
+    turn_accepted_unix_ms Int?
+    wait_for_terminal Bool = true
+    wait_timeout_ms Int?
+}
+
+/// Run an Experience-owned Program with Experience-owned turn orchestration.
+class RunProgramRequest augment program.ExperienceProgramServiceRequest {
+    operation String = "run_program"
+    target_actor_id UUID
+    program_ref String
+    symbols JsonObject = {}
+    message String
+    turn_index Int = 1
+    mailbox_key String?
+    idempotency_key String?
+    max_attempts Int = 1
+    input_received_unix_ms Int?
+    turn_accepted_unix_ms Int?
+    wait_for_terminal Bool = true
+    wait_timeout_ms Int?
+}
+
+/// Read one Experience-owned Program turn execution by id.
+class GetTurnExecutionRequest augment program.ExperienceProgramServiceRequest {
+    operation String = "get_turn_execution"
+    turn_id UUID
+    include_feedback Bool = false
+}
+
+class ApplyProgramRefResponse augment program.ExperienceProgramServiceResponse {
+    operation String = "apply_program_ref"
+    program_ref String
+    results JsonArray = []
+    resolved_branch_id UUID?
+    resolved_projection_hash String?
+    lane_resolution_source String?
+}
+
+class SubmitProgramTurnResponse augment program.ExperienceProgramServiceResponse {
+    operation String = "submit_program_turn"
+    turn_id UUID?
+    mailbox_key String?
+    deduped Bool = false
+    terminal_status String?
+    result_summary String?
+    feedback_count Int = 0
+    resolved_branch_id UUID?
+    resolved_projection_hash String?
+    lane_resolution_source String?
+}
+
+class RunProgramResponse augment program.ExperienceProgramServiceResponse {
+    operation String = "run_program"
+    program_ref String
+    program_run_id UUID?
+    turn_id UUID?
+    mailbox_key String?
+    deduped Bool = false
+    terminal_status String?
+    result_summary String?
+    feedback_count Int = 0
+    resolved_branch_id UUID?
+    resolved_projection_hash String?
+    lane_resolution_source String?
+}
+
+class GetTurnExecutionResponse augment program.ExperienceProgramServiceResponse {
+    operation String = "get_turn_execution"
+    turn_id UUID?
+    mailbox_key String?
+    state String?
+    terminal_status String?
+    target_actor_id UUID?
+    attempt_count Int?
+    max_attempts Int?
+    accepted_at_unix_ms Int?
+    started_at_unix_ms Int?
+    terminal_at_unix_ms Int?
+    error_code String?
+    error_message String?
+    result_summary String?
+    feedback_count Int = 0
+    feedback JsonArray = []
+    resolved_branch_id UUID?
+    resolved_projection_hash String?
+    lane_resolution_source String?
+}
+
+ann program.ExperienceProgramServiceRequest::operation discriminate key
+ann program.ApplyProgramRefRequest::operation discriminate tag "apply_program_ref"
+ann program.SubmitProgramTurnRequest::operation discriminate tag "submit_program_turn"
+ann program.RunProgramRequest::operation discriminate tag "run_program"
+ann program.GetTurnExecutionRequest::operation discriminate tag "get_turn_execution"
+
+ann program.ExperienceProgramServiceResponse::operation discriminate key
+ann program.ApplyProgramRefResponse::operation discriminate tag "apply_program_ref"
+ann program.SubmitProgramTurnResponse::operation discriminate tag "submit_program_turn"
+ann program.RunProgramResponse::operation discriminate tag "run_program"
+ann program.GetTurnExecutionResponse::operation discriminate tag "get_turn_execution"

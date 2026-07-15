@@ -1,0 +1,92 @@
+// Ensure deterministic Actor ACT-REACT binding for a specific actor using
+// a target domain branch as scope input.
+//
+// Required symbols:
+// - plan.actor_id
+// - plan.actor_identity_branch_id
+// - plan.object_instance_graph_domain_branch_id
+// - plan.role_config_name
+// - plan.subscription_name
+// - plan.event_config_name
+// - plan.condition_config_name
+//
+// Contract (v1):
+// - ACT rail:
+//   - Role scope OIGI is derived deterministically from target domain branch id.
+//   - Role + ActorRole are committed in the actor identity branch.
+// - REACT rail:
+//   - EventConfigConditionConfig id is derived deterministically from event/condition names.
+//   - EventConfigConditionConfigScope is runtime-owned and auto-ensured from class-instance create.
+//   - Program binds ActorSubscription intent using the deterministic scope id.
+// - Idempotent on rerun (constructor semantics + stable ids).
+
+program EnsureActorActReactBindingFromBranch_v1Config(
+    actor_id UUID = plan.actor_id,
+    actor_identity_branch_id UUID = plan.actor_identity_branch_id,
+    object_instance_graph_domain_branch_id UUID = plan.object_instance_graph_domain_branch_id,
+    role_config_name String = plan.role_config_name,
+    subscription_name String = plan.subscription_name,
+    event_config_name String = plan.event_config_name,
+    condition_config_name String = plan.condition_config_name,
+    object_instance_graph_identity_id UUID = meta.stable_object_instance_graph_identity_id(
+        branch_id=object_instance_graph_domain_branch_id
+    ),
+    role_config_id UUID = identity.stable_role_config_id(name=role_config_name),
+    role_id UUID = identity.stable_role_id(
+        role_config_id=role_config_id,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        object_instance_graph_branch_key=all
+    ),
+    actor_role_id UUID = identity.stable_actor_role_id(
+        actor_id=actor_id,
+        role_id=role_id
+    ),
+    actor_role_branch_id UUID = actor_identity_branch_id,
+    event_config_id UUID = reactivity.stable_event_config_id(name=event_config_name),
+    condition_config_id UUID = reactivity.stable_condition_config_id(name=condition_config_name),
+    event_config_condition_config_id UUID = reactivity.stable_event_config_condition_config_id(
+        event_config_id=event_config_id,
+        condition_config_id=condition_config_id
+    ),
+    event_config_condition_config_scope_id UUID = reactivity.stable_event_config_condition_config_scope_id(
+        event_config_condition_config_id=event_config_condition_config_id,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        scope_key="lane"
+    ),
+    actor_subscription_id UUID = identity.stable_actor_subscription_id(
+        actor_id=actor_id,
+        event_config_condition_config_scope_id=event_config_condition_config_scope_id,
+        name=subscription_name
+    ),
+    actor_subscription_branch_id UUID = actor_identity_branch_id
+) {
+    actor identity_system system
+
+    port role_role_id role {
+        node role role.Role(role=role_id)
+    }
+    port actor_role_actor_role_id actor_role {
+        node actor_role actor.Actor::actor_roles(actor_role=actor_role_id)
+    }
+    port actor_subscription_actor_subscription_id actor_subscription {
+        node actor_subscription actor.Actor::actor_subscriptions(actor_subscription=actor_subscription_id)
+    }
+}
+
+program EnsureActorActReactBindingFromBranch_v1 impl EnsureActorActReactBindingFromBranch_v1Config {
+    bind role_role_id role.main
+    identity_system call role role.Role.create(
+        role_config_id=role_config_id,
+        object_instance_graph_identity_id=object_instance_graph_identity_id
+    )
+
+    bind actor_role_actor_role_id actor_role.main
+    identity_system call actor_role actor.ActorRole.create_via_actor(actor_id=actor_id, role_id=role_id)
+
+    bind actor_subscription_actor_subscription_id actor_subscription.main
+    identity_system call actor_subscription actor.ActorSubscription.create_via_actor(
+        actor_id=actor_id,
+        event_config_condition_config_scope_id=event_config_condition_config_scope_id,
+        name=subscription_name
+    )
+}

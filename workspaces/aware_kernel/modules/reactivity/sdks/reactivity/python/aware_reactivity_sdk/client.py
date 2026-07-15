@@ -12,6 +12,14 @@ from aware_reactivity_service_api.client import (
 from aware_reactivity_service_dto.reactivity.action_intent import (
     ReactivityActionIntentResolveRequest,
 )
+from aware_reactivity_service_dto.reactivity.action_execution import (
+    ReactivityActionExecutionClaimRequest,
+    ReactivityActionExecutionClaimResponse,
+)
+from aware_reactivity_service_dto.reactivity.event_meaning import (
+    ReactivityEventMeaningProviderResolveRequest,
+    ReactivityEventMeaningProviderResolveResponse,
+)
 from aware_reactivity_service_dto.reactivity.action_intent import (
     ReactivityActionIntentResolveResponse,
 )
@@ -32,6 +40,12 @@ from aware_reactivity_service_dto.reactivity.service_operation import (
 )
 from aware_reactivity_service_dto.reactivity.service_operation import (
     ReactivityEventSubscriptionResponse,
+)
+from aware_reactivity_service_dto.reactivity.service_operation import (
+    ReactivitySemanticEventPublishRequest,
+)
+from aware_reactivity_service_dto.reactivity.service_operation import (
+    ReactivitySemanticEventPublishResponse,
 )
 from aware_reactivity_service_dto.reactivity.policy_bundle import (
     ReactivityPolicyBundleEnsureRequest,
@@ -65,6 +79,11 @@ class _ReactivityStatusCapabilityClient(Protocol):
 
 
 class _ReactivityEventCapabilityClient(Protocol):
+    async def publish_event(
+        self,
+        request: ReactivitySemanticEventPublishRequest,
+    ) -> ReactivitySemanticEventPublishResponse: ...
+
     async def subscribe_events(
         self,
         request: ReactivityEventSubscriptionRequest,
@@ -77,6 +96,11 @@ class _ReactivityEventCapabilityClient(Protocol):
 
 
 class _ReactivityActionCapabilityClient(Protocol):
+    async def claim_execution(
+        self,
+        request: ReactivityActionExecutionClaimRequest,
+    ) -> ReactivityActionExecutionClaimResponse: ...
+
     async def resolve_intents(
         self,
         request: ReactivityActionIntentResolveRequest,
@@ -110,12 +134,22 @@ class _ReactivityPolicyCapabilityClient(Protocol):
     ) -> ReactivityPolicyBundleListResponse: ...
 
 
+class _ReactivityMeaningCapabilityClient(Protocol):
+    async def resolve_provider_intent(
+        self,
+        request: ReactivityEventMeaningProviderResolveRequest,
+    ) -> ReactivityEventMeaningProviderResolveResponse: ...
+
+
 class _ReactivityApiNamespaceClient(Protocol):
     @property
     def action(self) -> _ReactivityActionCapabilityClient: ...
 
     @property
     def event(self) -> _ReactivityEventCapabilityClient: ...
+
+    @property
+    def meaning(self) -> _ReactivityMeaningCapabilityClient: ...
 
     @property
     def policy(self) -> _ReactivityPolicyCapabilityClient: ...
@@ -172,6 +206,14 @@ class ReactivitySdkClient:
         _raise_if_rejected(response, operation="subscribe_events")
         return response
 
+    async def publish_semantic_event(
+        self,
+        request: ReactivitySemanticEventPublishRequest,
+    ) -> ReactivitySemanticEventPublishResponse:
+        response = await self.api_client.reactivity.event.publish_event(request)
+        _raise_if_rejected(response, operation="publish_semantic_event")
+        return response
+
     def stream_events(
         self,
         *,
@@ -200,6 +242,27 @@ class ReactivitySdkClient:
     ) -> ReactivityActionIntentResolveResponse:
         response = await self.api_client.reactivity.action.resolve_intents(request)
         _raise_if_rejected(response, operation="resolve_action_intents")
+        return response
+
+    async def claim_action_execution(
+        self,
+        request: ReactivityActionExecutionClaimRequest,
+    ) -> ReactivityActionExecutionClaimResponse:
+        response = await self.api_client.reactivity.action.claim_execution(request)
+        _raise_if_rejected(response, operation="claim_action_execution")
+        return response
+
+    async def resolve_event_meaning_provider_intent(
+        self,
+        request: ReactivityEventMeaningProviderResolveRequest,
+    ) -> ReactivityEventMeaningProviderResolveResponse:
+        response = await self.api_client.reactivity.meaning.resolve_provider_intent(
+            request
+        )
+        _raise_if_rejected(
+            response,
+            operation="resolve_event_meaning_provider_intent",
+        )
         return response
 
     async def publish_action_lifecycle(

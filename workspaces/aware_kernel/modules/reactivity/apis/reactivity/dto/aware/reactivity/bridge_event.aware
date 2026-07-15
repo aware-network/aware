@@ -6,6 +6,10 @@
 
 class ActorReactivityBridgeEvent {
     event_id UUID
+    /// Canonical EventConfig selected for this semantic occurrence.
+    event_config_id UUID
+    /// Source occurrence identity used with EventConfig to derive Event.id.
+    activation_id UUID
     event_type String
     source String
     created_at_unix_ms Int
@@ -15,5 +19,7 @@ class ActorReactivityBridgeEvent {
     event_config_condition_config_id UUID?
     root_object_id UUID?
     object_instance_graph_id UUID?
+    /// Canonical Meta ObjectInstanceGraphCommit for the source domain commit.
+    object_instance_graph_commit_id UUID?
     graph_hash_post String?
 }

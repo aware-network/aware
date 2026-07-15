@@ -49,6 +49,15 @@ def test_meta_materialization_runtime_declares_ontology_package_dependencies() -
     assert descriptors[0].include_package_dependency_closure is False
 
 
+def test_meta_dialect_migrations_declare_append_only_artifact_scope() -> None:
+    descriptors = {
+        descriptor.output_key: descriptor
+        for descriptor in AWARE_META_SEMANTIC_CONTRACT.materialization_artifact_outputs
+    }
+
+    assert descriptors["ocg_migration_dialect"].artifact_scope_policy == ("append_only")
+
+
 def test_meta_object_config_graph_manifest_contract_is_public_facade() -> None:
     from aware_meta.graph.package.manifest_contract import (
         OBJECT_CONFIG_GRAPH_PACKAGE_MANIFEST_KIND,
@@ -72,6 +81,13 @@ def test_meta_object_config_graph_manifest_contract_is_public_facade() -> None:
     assert OBJECT_CONFIG_GRAPH_PACKAGE_PROJECTION_NAME == "ObjectConfigGraphPackage"
     assert contract.code_package_surface_for_package_kind("api") == "api"
     assert contract.code_package_surface_for_package_kind("ontology") == "structure"
+
+
+def test_meta_ocg_materialization_input_declares_lane_identity() -> None:
+    [descriptor] = AWARE_META_SEMANTIC_CONTRACT.materialization_inputs
+
+    assert descriptor.semantic_projection_name == "ObjectConfigGraphPackage"
+    assert descriptor.semantic_root_kind == "object_config_graph"
 
 
 def test_meta_generated_materialization_intent_metadata_is_shared_contract() -> None:
@@ -136,7 +152,9 @@ def test_api_and_ontology_do_not_claim_meta_aware_toml_manifest_kind() -> None:
     assert api_manifest_kinds == {"aware_api_toml"}
     assert ontology_manifest_kinds == {"aware_ontology_toml"}
     assert OBJECT_CONFIG_GRAPH_PACKAGE_MANIFEST_KIND not in api_owned_manifest_kinds
-    assert OBJECT_CONFIG_GRAPH_PACKAGE_MANIFEST_KIND not in ontology_owned_manifest_kinds
+    assert (
+        OBJECT_CONFIG_GRAPH_PACKAGE_MANIFEST_KIND not in ontology_owned_manifest_kinds
+    )
 
 
 def test_meta_materialization_runtime_context_payload_omits_module_ids() -> None:
@@ -151,9 +169,10 @@ def test_meta_materialization_runtime_context_payload_omits_module_ids() -> None
         provider_payload["runtime_ontology_package_names"]
         == META_MATERIALIZATION_RUNTIME_ONTOLOGY_PACKAGE_NAMES
     )
-    assert provider_payload[
-        SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_KEY
-    ] == SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_ISOLATE_TARGET_MANIFESTS
+    assert (
+        provider_payload[SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_KEY]
+        == SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_ISOLATE_TARGET_MANIFESTS
+    )
 
 
 def test_meta_declares_generic_ocg_semantic_source_meaning_binding() -> None:
@@ -227,17 +246,16 @@ def test_meta_declares_generic_ocg_semantic_source_meaning_binding() -> None:
     assert attribute_membership_binding.metadata[
         "change_detection_template_fields"
     ] == ["is_identity_key"]
-    attribute_membership_typed_operation_bindings = cast(
-        Sequence[Mapping[str, object]],
-        attribute_membership_binding.metadata["typed_operation_bindings"],
+    attribute_membership_typed_operation_bindings = (
+        attribute_membership_binding.typed_operation_bindings
     )
     [attribute_membership_typed_operation_binding] = (
         attribute_membership_typed_operation_bindings
     )
-    assert attribute_membership_typed_operation_binding[
-        "semantic_operation_type"
-    ] == "aware_meta.object_config_graph.attribute.membership.update"
-    assert attribute_membership_typed_operation_binding["field_path"] == (
+    assert attribute_membership_typed_operation_binding.semantic_operation_type == (
+        "aware_meta.object_config_graph.attribute.membership.update"
+    )
+    assert attribute_membership_typed_operation_binding.field_path == (
         "is_identity_key"
     )
     assert attribute_identity_binding.grammar_rule_name == "attr_def"
@@ -255,27 +273,28 @@ def test_meta_declares_generic_ocg_semantic_source_meaning_binding() -> None:
     assert attribute_identity_binding.metadata["identity_rename_policy"] == (
         "explicit_fallback_required"
     )
-    attribute_identity_typed_operation_bindings = cast(
-        Sequence[Mapping[str, object]],
-        attribute_identity_binding.metadata["typed_operation_bindings"],
+    attribute_identity_typed_operation_bindings = (
+        attribute_identity_binding.typed_operation_bindings
     )
     [attribute_identity_typed_operation_binding] = (
         attribute_identity_typed_operation_bindings
     )
-    assert attribute_identity_typed_operation_binding["semantic_operation_type"] == (
+    assert attribute_identity_typed_operation_binding.semantic_operation_type == (
         "aware_meta.object_config_graph.attribute.identity.rename"
     )
-    assert attribute_identity_typed_operation_binding["operation_family"] == "rename"
-    assert attribute_identity_typed_operation_binding["field_path"] == "name"
-    assert attribute_identity_typed_operation_binding["metadata"] == {
-        "source": "aware_meta.semantic_contract",
-        "semantic_apply_boundary": "provider_delta_ontology_operation_executor",
-        "fallback_required": True,
-        "fallback_reason": (
-            "meta_attribute_identity_rename_requires_explicit_replacement_policy"
-        ),
-        "preview_only": True,
-    }
+    assert attribute_identity_typed_operation_binding.operation_family == "rename"
+    assert attribute_identity_typed_operation_binding.field_path == "name"
+    assert attribute_identity_typed_operation_binding.contract_source == (
+        "aware_meta.semantic_contract"
+    )
+    assert attribute_identity_typed_operation_binding.semantic_apply_boundary == (
+        "provider_delta_ontology_operation_executor"
+    )
+    assert attribute_identity_typed_operation_binding.fallback_required is True
+    assert attribute_identity_typed_operation_binding.fallback_reason == (
+        "meta_attribute_identity_rename_requires_explicit_replacement_policy"
+    )
+    assert attribute_identity_typed_operation_binding.preview_only is True
     assert function_binding.grammar_rule_name == "fn_def"
     assert function_binding.anchor_field_path == "name"
     assert function_binding.semantic_subject_type == "aware_meta.FunctionConfig"
@@ -302,18 +321,17 @@ def test_meta_declares_generic_ocg_semantic_source_meaning_binding() -> None:
         function_structural_binding.metadata["include_template_values_in_payload"]
         is True
     )
-    function_structural_typed_operation_bindings = cast(
-        Sequence[Mapping[str, object]],
-        function_structural_binding.metadata["typed_operation_bindings"],
+    function_structural_typed_operation_bindings = (
+        function_structural_binding.typed_operation_bindings
     )
     [function_structural_typed_operation_binding] = (
         function_structural_typed_operation_bindings
     )
-    assert function_structural_typed_operation_binding["semantic_operation_type"] == (
+    assert function_structural_typed_operation_binding.semantic_operation_type == (
         "aware_meta.object_config_graph.function.delete"
     )
-    assert function_structural_typed_operation_binding["operation_family"] == "delete"
-    assert function_structural_typed_operation_binding["field_path"] == "definition"
+    assert function_structural_typed_operation_binding.operation_family == "delete"
+    assert function_structural_typed_operation_binding.field_path == "definition"
     assert enum_identity_binding.grammar_rule_name == "enum_def"
     assert enum_identity_binding.anchor_field_path == "name"
     assert enum_identity_binding.semantic_subject_type == "aware_meta.EnumConfig"
@@ -322,30 +340,30 @@ def test_meta_declares_generic_ocg_semantic_source_meaning_binding() -> None:
     assert enum_identity_binding.required is False
     assert enum_identity_binding.metadata is not None
     assert enum_identity_binding.metadata["include_template_values_in_payload"] is True
-    enum_identity_typed_operation_bindings = cast(
-        Sequence[Mapping[str, object]],
-        enum_identity_binding.metadata["typed_operation_bindings"],
+    enum_identity_typed_operation_bindings = (
+        enum_identity_binding.typed_operation_bindings
     )
     assert len(enum_identity_typed_operation_bindings) >= 2
-    assert enum_identity_typed_operation_bindings[0]["semantic_operation_type"] == (
+    assert enum_identity_typed_operation_bindings[0].semantic_operation_type == (
         "aware_meta.object_config_graph.enum.create"
     )
-    assert enum_identity_typed_operation_bindings[0]["operation_family"] == "create"
-    assert enum_identity_typed_operation_bindings[0]["field_path"] == "name"
-    assert enum_identity_typed_operation_bindings[0]["metadata"] == {
-        "source": "aware_meta.semantic_contract",
-        "semantic_apply_boundary": "provider_delta_ontology_operation_executor",
-        "fallback_required": True,
-        "preview_only": True,
-    }
+    assert enum_identity_typed_operation_bindings[0].operation_family == "create"
+    assert enum_identity_typed_operation_bindings[0].field_path == "name"
+    assert enum_identity_typed_operation_bindings[0].contract_source == (
+        "aware_meta.semantic_contract"
+    )
+    assert enum_identity_typed_operation_bindings[0].semantic_apply_boundary == (
+        "provider_delta_ontology_operation_executor"
+    )
+    assert enum_identity_typed_operation_bindings[0].fallback_required is True
+    assert enum_identity_typed_operation_bindings[0].preview_only is True
     enum_delete_typed_operation_binding = next(
         item
         for item in enum_identity_typed_operation_bindings
-        if item["semantic_operation_type"]
-        == "aware_meta.object_config_graph.enum.delete"
+        if item.semantic_operation_type == "aware_meta.object_config_graph.enum.delete"
     )
-    assert enum_delete_typed_operation_binding["operation_family"] == "delete"
-    assert enum_delete_typed_operation_binding["field_path"] == "name"
+    assert enum_delete_typed_operation_binding.operation_family == "delete"
+    assert enum_delete_typed_operation_binding.field_path == "name"
     assert enum_description_binding.grammar_rule_name == "enum_def"
     assert enum_description_binding.anchor_field_path == "description_comment"
     assert enum_description_binding.semantic_subject_type == "aware_meta.EnumConfig"
@@ -356,15 +374,12 @@ def test_meta_declares_generic_ocg_semantic_source_meaning_binding() -> None:
     assert (
         enum_description_binding.metadata["include_template_values_in_payload"] is True
     )
-    enum_typed_operation_bindings = cast(
-        Sequence[Mapping[str, object]],
-        enum_description_binding.metadata["typed_operation_bindings"],
-    )
+    enum_typed_operation_bindings = enum_description_binding.typed_operation_bindings
     [enum_typed_operation_binding] = enum_typed_operation_bindings
-    assert enum_typed_operation_binding["semantic_operation_type"] == (
+    assert enum_typed_operation_binding.semantic_operation_type == (
         "aware_meta.object_config_graph.enum.description.update"
     )
-    assert enum_typed_operation_binding["field_path"] == "description"
+    assert enum_typed_operation_binding.field_path == "description"
     assert enum_option_binding.grammar_rule_name == "enum_value_def"
     assert enum_option_binding.anchor_field_path == "name"
     assert enum_option_binding.semantic_subject_type == "aware_meta.EnumOption"
@@ -375,21 +390,18 @@ def test_meta_declares_generic_ocg_semantic_source_meaning_binding() -> None:
     assert enum_option_binding.required is False
     assert enum_option_binding.metadata is not None
     assert enum_option_binding.metadata["include_template_values_in_payload"] is True
-    enum_option_typed_operation_bindings = cast(
-        Sequence[Mapping[str, object]],
-        enum_option_binding.metadata["typed_operation_bindings"],
-    )
+    enum_option_typed_operation_bindings = enum_option_binding.typed_operation_bindings
     assert len(enum_option_typed_operation_bindings) == 2
-    assert enum_option_typed_operation_bindings[0]["semantic_operation_type"] == (
+    assert enum_option_typed_operation_bindings[0].semantic_operation_type == (
         "aware_meta.object_config_graph.enum_option.create"
     )
-    assert enum_option_typed_operation_bindings[0]["operation_family"] == "create"
-    assert enum_option_typed_operation_bindings[0]["field_path"] == "value"
-    assert enum_option_typed_operation_bindings[1]["semantic_operation_type"] == (
+    assert enum_option_typed_operation_bindings[0].operation_family == "create"
+    assert enum_option_typed_operation_bindings[0].field_path == "value"
+    assert enum_option_typed_operation_bindings[1].semantic_operation_type == (
         "aware_meta.object_config_graph.enum_option.delete"
     )
-    assert enum_option_typed_operation_bindings[1]["operation_family"] == "delete"
-    assert enum_option_typed_operation_bindings[1]["field_path"] == "value"
+    assert enum_option_typed_operation_bindings[1].operation_family == "delete"
+    assert enum_option_typed_operation_bindings[1].field_path == "value"
     assert enum_option_position_binding.grammar_rule_name == "enum_value_def"
     assert enum_option_position_binding.anchor_field_path == "name"
     assert enum_option_position_binding.semantic_subject_type == (
@@ -400,16 +412,15 @@ def test_meta_declares_generic_ocg_semantic_source_meaning_binding() -> None:
     assert enum_option_position_binding.metadata[
         "change_detection_template_fields"
     ] == ["position"]
-    enum_option_position_typed_operation_bindings = cast(
-        Sequence[Mapping[str, object]],
-        enum_option_position_binding.metadata["typed_operation_bindings"],
+    enum_option_position_typed_operation_bindings = (
+        enum_option_position_binding.typed_operation_bindings
     )
     [position_typed_operation_binding] = enum_option_position_typed_operation_bindings
-    assert position_typed_operation_binding["semantic_operation_type"] == (
+    assert position_typed_operation_binding.semantic_operation_type == (
         "aware_meta.object_config_graph.enum_option.position.update"
     )
-    assert position_typed_operation_binding["operation_family"] == "update"
-    assert position_typed_operation_binding["field_path"] == "position"
+    assert position_typed_operation_binding.operation_family == "update"
+    assert position_typed_operation_binding.field_path == "position"
     assert function_signature_binding.grammar_rule_name == "fn_def"
     assert function_signature_binding.anchor_field_path == "sig"
     assert function_signature_binding.semantic_subject_type == (
@@ -425,15 +436,12 @@ def test_meta_declares_generic_ocg_semantic_source_meaning_binding() -> None:
         function_signature_binding.metadata["include_template_values_in_payload"]
         is True
     )
-    typed_operation_bindings = cast(
-        Sequence[Mapping[str, object]],
-        function_signature_binding.metadata["typed_operation_bindings"],
-    )
+    typed_operation_bindings = function_signature_binding.typed_operation_bindings
     [typed_operation_binding] = typed_operation_bindings
-    assert typed_operation_binding["semantic_operation_type"] == (
+    assert typed_operation_binding.semantic_operation_type == (
         "aware_meta.object_config_graph.function.signature.update"
     )
-    assert typed_operation_binding["field_path"] == "signature"
+    assert typed_operation_binding.field_path == "signature"
     assert function_membership_constructor_binding.grammar_rule_name == "fn_def"
     assert function_membership_constructor_binding.anchor_field_path == "verb"
     assert function_membership_constructor_binding.anchor_role == (
@@ -442,31 +450,28 @@ def test_meta_declares_generic_ocg_semantic_source_meaning_binding() -> None:
     assert function_membership_constructor_binding.semantic_subject_type == (
         "aware_meta.FunctionConfig"
     )
-    assert function_membership_constructor_binding.semantic_field == (
-        "is_constructor"
-    )
+    assert function_membership_constructor_binding.semantic_field == ("is_constructor")
     assert function_membership_constructor_binding.value_domain == (
         "aware_function_membership_constructor"
     )
     assert function_membership_constructor_binding.metadata is not None
-    function_membership_typed_operation_bindings = cast(
-        Sequence[Mapping[str, object]],
-        function_membership_constructor_binding.metadata["typed_operation_bindings"],
+    function_membership_typed_operation_bindings = (
+        function_membership_constructor_binding.typed_operation_bindings
     )
     [function_membership_typed_operation_binding] = (
         function_membership_typed_operation_bindings
     )
-    assert function_membership_typed_operation_binding[
-        "semantic_operation_type"
-    ] == "aware_meta.object_config_graph.function.signature.update"
-    assert function_membership_typed_operation_binding["field_path"] == (
-        "is_constructor"
+    assert function_membership_typed_operation_binding.semantic_operation_type == (
+        "aware_meta.object_config_graph.function.signature.update"
     )
-    assert function_membership_typed_operation_binding["metadata"] == {
-        "source": "aware_meta.semantic_contract",
-        "semantic_apply_boundary": "provider_delta_ontology_operation_executor",
-        "preview_only": True,
-    }
+    assert function_membership_typed_operation_binding.field_path == ("is_constructor")
+    assert function_membership_typed_operation_binding.contract_source == (
+        "aware_meta.semantic_contract"
+    )
+    assert function_membership_typed_operation_binding.semantic_apply_boundary == (
+        "provider_delta_ontology_operation_executor"
+    )
+    assert function_membership_typed_operation_binding.preview_only is True
 
 
 def test_meta_signature_source_meaning_contract_resolves_code_delta() -> None:
@@ -519,6 +524,7 @@ def test_meta_signature_source_meaning_contract_resolves_code_delta() -> None:
                         binding.get("condition_keys", ()),
                     )
                 ),
+                typed_operation_bindings=_runtime_typed_operation_bindings(binding),
                 required=binding.get("required") is not False,
                 metadata=cast(Mapping[str, object], binding.get("metadata", {})),
             )
@@ -663,6 +669,7 @@ def test_meta_enum_description_source_meaning_contract_resolves_code_delta() -> 
                         binding.get("condition_keys", ()),
                     )
                 ),
+                typed_operation_bindings=_runtime_typed_operation_bindings(binding),
                 required=binding.get("required") is not False,
                 metadata=cast(Mapping[str, object], binding.get("metadata", {})),
             )
@@ -981,6 +988,7 @@ def _runtime_source_meaning_contract() -> Any:
                         binding.get("condition_keys", ()),
                     )
                 ),
+                typed_operation_bindings=_runtime_typed_operation_bindings(binding),
                 required=binding.get("required") is not False,
                 metadata=cast(Mapping[str, object], binding.get("metadata", {})),
             )
@@ -990,6 +998,72 @@ def _runtime_source_meaning_contract() -> Any:
             Mapping[str, object],
             META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT["metadata"],
         ),
+    )
+
+
+def _runtime_typed_operation_bindings(
+    binding: Mapping[str, object],
+) -> tuple[Any, ...]:
+    from aware_code.semantic_source_meaning import (  # noqa: WPS433
+        CodeSemanticSourceMeaningTypedOperationBinding,
+    )
+
+    operation_bindings = cast(
+        Sequence[Mapping[str, object]],
+        binding.get("typed_operation_bindings", ()),
+    )
+    return tuple(
+        CodeSemanticSourceMeaningTypedOperationBinding(
+            operation_key_template=cast(
+                str | None,
+                operation_binding.get("operation_key_template"),
+            ),
+            event_verbs=cast(
+                Any,
+                tuple(
+                    str(item)
+                    for item in cast(
+                        Sequence[object],
+                        operation_binding.get("event_verbs", ()),
+                    )
+                ),
+            ),
+            operation_family=cast(
+                Any,
+                operation_binding.get("operation_family"),
+            ),
+            semantic_operation_type=str(operation_binding["semantic_operation_type"]),
+            semantic_subject_type=cast(
+                str | None,
+                operation_binding.get("semantic_subject_type"),
+            ),
+            field_path=cast(
+                str | None,
+                operation_binding.get("field_path"),
+            ),
+            requires_baseline_object_identity=(
+                operation_binding.get("requires_baseline_object_identity") is True
+            ),
+            contract_source=cast(
+                str | None,
+                operation_binding.get("contract_source"),
+            ),
+            semantic_apply_boundary=cast(
+                str | None,
+                operation_binding.get("semantic_apply_boundary"),
+            ),
+            preview_only=operation_binding.get("preview_only") is not False,
+            fallback_required=(operation_binding.get("fallback_required") is True),
+            fallback_reason=cast(
+                str | None,
+                operation_binding.get("fallback_reason"),
+            ),
+            generated_materialization_intent=cast(
+                Mapping[str, object] | None,
+                operation_binding.get("generated_materialization_intent"),
+            ),
+        )
+        for operation_binding in operation_bindings
     )
 
 

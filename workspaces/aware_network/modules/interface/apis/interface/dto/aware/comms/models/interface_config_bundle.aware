@@ -1,0 +1,104 @@
+/// Canonical bundle-facing Interface config DTOs.
+///
+/// These types are transport-neutral read/write contracts for authored or
+/// compiled Interface configuration payloads before they are materialized into
+/// canonical Interface ontology truth. They are intentionally scoped to
+/// configuration semantics, not live renderer state.
+
+class InterfaceConfigApiBundle {
+    interface_config_api_id UUID
+    api_id UUID
+    api_ref String
+}
+
+class InterfaceWindowLayoutSectionBundle {
+    layout_config_section_config_id UUID
+    key String
+}
+
+class InterfaceWindowConfigLayoutBundle {
+    window_config_layout_config_id UUID
+    layout_config_id UUID
+    key String
+    is_default Bool = false
+    sections comms.models.InterfaceWindowLayoutSectionBundle[] = []
+}
+
+class InterfaceWindowConfigBundle {
+    interface_config_window_config_id UUID
+    window_config_id UUID
+    key String
+    description String?
+    layout_configs comms.models.InterfaceWindowConfigLayoutBundle[] = []
+}
+
+class InterfacePaneSectionMountBundle {
+    mount_id UUID
+    layout_config_section_config_id UUID
+}
+
+class InterfacePaneViewInvocationActionBundle {
+    projection_experience_view_invocation_action_id UUID
+    action_key String
+    action_kind String
+    target_ref String
+    api_capability_endpoint_id UUID?
+    sdk_operation_id UUID?
+    label String?
+    receipt_policy String?
+    confirmation_policy String?
+    optimistic_policy String?
+}
+
+class InterfacePaneProjectionExperienceViewBundle {
+    binding_id UUID
+    projection_experience_view_id UUID
+    object_projection_graph_observable_id UUID?
+    projection_experience_graph_identity_id UUID?
+    object_projection_graph_identity_id UUID?
+    section_graph_binding_key String?
+    state_model_id UUID?
+    view_ref String
+    projection_view_key String?
+    is_default Bool = false
+    invocation_actions comms.models.InterfacePaneViewInvocationActionBundle[] = []
+    section_mounts comms.models.InterfacePaneSectionMountBundle[] = []
+}
+
+class InterfacePaneApiCapabilityEndpointBundle {
+    binding_id UUID
+    api_capability_endpoint_id UUID
+    endpoint_ref String?
+    discriminant String?
+}
+
+class InterfacePaneSdkOperationBundle {
+    binding_id UUID
+    sdk_operation_id UUID
+    operation_ref String?
+    discriminant String?
+}
+
+class InterfacePaneConfigBundle {
+    pane_config_id UUID
+    pane_package_id UUID?
+    pane_package_name String?
+    name String
+    pane_kind String
+    description String?
+    narrative_key String?
+    projection_experience_views comms.models.InterfacePaneProjectionExperienceViewBundle[] = []
+    api_capability_endpoints comms.models.InterfacePaneApiCapabilityEndpointBundle[] = []
+    sdk_operations comms.models.InterfacePaneSdkOperationBundle[] = []
+}
+
+class InterfaceConfigBundle {
+    interface_package_id UUID
+    interface_package_name String
+    interface_config_id UUID
+    name String
+    description String?
+    apis comms.models.InterfaceConfigApiBundle[] = []
+    window_configs comms.models.InterfaceWindowConfigBundle[] = []
+    pane_configs comms.models.InterfacePaneConfigBundle[] = []
+}

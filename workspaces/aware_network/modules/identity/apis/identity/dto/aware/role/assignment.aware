@@ -1,0 +1,99 @@
+/// Canonical DTOs for identity-owned actor-role assignment.
+///
+/// Ownership:
+/// - Identity API: shared assignment contract over `Role + ActorRole` truth.
+/// - Product services: translate domain-specific assignment intent into this contract.
+///
+/// Non-goals:
+/// - workflow-local owner/session fields
+/// - object-local assignment semantics
+/// - runtime execution logic
+
+class RoleAssignmentRequest {
+    actor_id UUID
+    role_config_id UUID?
+    role_config_name String?
+    class_instance_identity_id UUID
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+    request_id UUID?
+    reason String?
+    source_service String?
+    grant_authority_kind String?
+    grant_authority_id UUID?
+    grant_context_kind String?
+    grant_context_id UUID?
+    grant_context_ref String?
+    grant_evidence JsonObject = {}
+}
+
+class RoleAssignmentBinding {
+    actor_id UUID
+    role_config_id UUID
+    role_id UUID
+    actor_role_id UUID
+    role_class_instance_id UUID
+    class_instance_identity_id UUID
+    role_config_class_config_id UUID
+    object_instance_graph_identity_id UUID
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+    grant_authority_kind String?
+    grant_authority_id UUID?
+    grant_context_kind String?
+    grant_context_id UUID?
+    grant_context_ref String?
+    grant_evidence JsonObject = {}
+}
+
+class RoleAssignmentReceipt {
+    request_id UUID?
+    binding role.RoleAssignmentBinding
+    role_created Bool = false
+    actor_role_created Bool = false
+    role_class_instance_created Bool = false
+    grant_authority_kind String?
+    grant_authority_id UUID?
+    grant_context_kind String?
+    grant_context_id UUID?
+    grant_context_ref String?
+    grant_evidence JsonObject = {}
+    info String?
+}
+
+class RoleAssignmentResolveRequest {
+    actor_id UUID?
+    role_config_id UUID?
+    role_config_name String?
+    class_instance_identity_id UUID
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+    request_id UUID?
+}
+
+class RoleAssignmentResolveResult {
+    request_id UUID?
+    bindings role.RoleAssignmentBinding[] = []
+    info String?
+}
+
+class RoleUnassignmentRequest {
+    actor_id UUID
+    role_config_id UUID?
+    role_config_name String?
+    class_instance_identity_id UUID
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+    request_id UUID?
+    reason String?
+    source_service String?
+}
+
+class RoleUnassignmentReceipt {
+    request_id UUID?
+    binding role.RoleAssignmentBinding
+    actor_role_removed Bool = false
+    role_class_instance_removed Bool = false
+    role_removed Bool = false
+    info String?
+}

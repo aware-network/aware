@@ -1,0 +1,56 @@
+/// Experience session view-frame DTOs over Environment session Attention.
+///
+/// Ownership:
+/// - Experience owns actor-specific session/lens interpretation.
+/// - Environment owns EnvironmentSession/NavigationContext/SessionThread to
+///   AttentionSession resolution.
+/// - Attention owns AttentionSession/AttentionFocusTransition truth.
+/// - This DTO is a consumer read model, not persisted ontology and not a
+///   duplicate Attention frame.
+
+class ExperienceSessionViewFrameLens {
+    status String = "pending"
+    view_ref String?
+    projection_view_key String?
+    section_graph_binding_key String?
+    section_key String?
+    window_key String?
+    layout_key String?
+    layout_config_id UUID?
+    layout_config_section_config_id UUID?
+    layout_section_id UUID?
+    section_focus_scope_id UUID?
+    focus_scope_id UUID?
+    focus_id UUID?
+    observable_id UUID?
+    blockers String[] = []
+    evidence JsonObject = {}
+}
+
+class ExperienceSessionViewFrame {
+    accepted Bool = false
+    status String
+    error String?
+    session_scope session_handoff.ExperienceSessionHandoffScope
+    actor_admission session_handoff.ExperienceSessionHandoffActorAdmissionReceipt?
+    identity_evidence session_handoff.ExperienceSessionIdentityEvidence?
+    environment_attention_resolution aware_environment_service_dto.environment.EnvironmentSessionAttentionResolution?
+    context_receipt session_context.ExperienceSessionContextReceipt?
+    lens session_view_frame.ExperienceSessionViewFrameLens?
+    environment_id UUID?
+    environment_profile_id UUID?
+    environment_session_id UUID?
+    environment_navigation_context_id UUID?
+    environment_session_thread_id UUID?
+    environment_session_attention_session_id UUID?
+    process_id UUID?
+    thread_id UUID?
+    thread_layout_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    attention_session_id UUID?
+    active_attention_focus_transition_id UUID?
+    transition_count Int = 0
+    blockers String[] = []
+    evidence JsonObject = {}
+}

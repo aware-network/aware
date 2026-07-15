@@ -1,0 +1,7 @@
+service aware_skill {
+    api skill;
+
+    operation invoke {
+        endpoint skill.invoke.invoke;
+    }
+}

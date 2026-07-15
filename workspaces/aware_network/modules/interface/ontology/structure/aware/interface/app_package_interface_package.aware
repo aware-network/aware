@@ -1,0 +1,29 @@
+class AppPackageInterfacePackage {
+    // Relationships
+    interface_package InterfacePackage key
+    interface_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    description String?
+    role String = "interface"
+
+    fn build construct(
+        interface_package_id UUID key,
+        interface_package_object_instance_graph_commit_id UUID? = null,
+        role String = "interface",
+        description String? = null
+    ) -> AppPackageInterfacePackage {
+        """
+        Create one app package dependency on an InterfacePackage.
+
+        Contract:
+        - Parent AppPackage scope is injected by propagation.
+        - Identity is keyed by the attached InterfacePackage.
+        - InterfacePackage supplies reusable interface composition; AppConfig
+          screen selection remains Experience layout-binding oriented.
+        """
+    }
+}
+
+ann interface.AppPackageInterfacePackage::interface_package load eager
+ann interface.AppPackageInterfacePackage::interface_package_object_instance_graph_commit load eager

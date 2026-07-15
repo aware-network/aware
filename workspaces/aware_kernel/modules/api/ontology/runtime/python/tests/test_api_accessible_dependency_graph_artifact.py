@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import sys
+from types import SimpleNamespace
+from typing import Any, cast
+from uuid import uuid4
 
 import pytest
 
@@ -23,8 +26,195 @@ from api_runtime_fixture_artifacts import (  # noqa: E402
 from aware_api_runtime.compile import compile_api_workspace  # noqa: E402
 from aware_api_runtime.dependencies.runtime_resolution import (  # noqa: E402
     canonicalize_api_accessible_dependency_graph_artifact_payload,
+    dump_api_accessible_dependency_graph_artifact_payload,
     load_api_accessible_dependency_graphs_from_runtime_artifact,
 )
+from aware_api_runtime.ontology_graph.materialization.resolution import (  # noqa: E402
+    attach_api_accessible_projection_identity_evidence,
+)
+from aware_meta_ontology.graph.config.object_config_graph_identity import (  # noqa: E402
+    ObjectConfigGraphIdentity,
+)
+from aware_meta_ontology.graph.projection.object_projection_graph_identity import (  # noqa: E402
+    ObjectProjectionGraphIdentity,
+)
+from aware_meta_ontology.graph.projection.object_projection_graph_observable import (  # noqa: E402
+    ObjectProjectionGraphObservable,
+)
+from aware_meta.graph.projection.stable_ids import (  # noqa: E402
+    stable_object_projection_graph_observable_id,
+)
+from aware_meta_ontology.stable_ids import (  # noqa: E402
+    stable_object_config_graph_identity_id,
+    stable_object_projection_graph_identity_id,
+)
+from aware_meta.runtime.package_index import (  # noqa: E402
+    MetaRuntimePackageProjectionIndex,
+    MetaRuntimeProjectionIndexEntry,
+)
+
+
+def test_api_accessible_graph_artifact_preserves_projection_observable_evidence() -> (
+    None
+):
+    [source_graph, _api_graph] = home_api_accessible_graphs()
+    [opg] = source_graph.object_projection_graphs
+    ocgi_id = stable_object_config_graph_identity_id(key=source_graph.fqn_prefix)
+    opgi_id = stable_object_projection_graph_identity_id(
+        object_config_graph_identity_id=ocgi_id,
+        object_projection_graph_id=opg.id,
+    )
+    observable = ObjectProjectionGraphObservable(
+        id=stable_object_projection_graph_observable_id(
+            object_projection_graph_identity_id=opgi_id,
+            observable_key="instance",
+        ),
+        object_projection_graph_identity_id=opgi_id,
+        observable_key="instance",
+        key="Identity:instance",
+        kind="instance",
+    )
+    opgi = ObjectProjectionGraphIdentity(
+        id=opgi_id,
+        object_config_graph_identity_id=ocgi_id,
+        object_projection_graph_id=opg.id,
+        projection_name=opg.name,
+        object_projection_graph_observables=[observable],
+    )
+    index_graph = source_graph.model_copy(deep=True)
+    index_graph.object_config_graph_identity = ObjectConfigGraphIdentity(
+        id=ocgi_id,
+        key=source_graph.fqn_prefix,
+        object_projection_graph_identities=[opgi],
+    )
+    index_graph.object_config_graph_identity_id = ocgi_id
+    index = cast(
+        Any,
+        SimpleNamespace(
+            ocg=index_graph,
+            opg_by_hash={opg.projection_hash: opg},
+        ),
+    )
+
+    [enriched_graph] = attach_api_accessible_projection_identity_evidence(
+        index=index,
+        accessible_graphs=(source_graph,),
+    )
+    payload = dump_api_accessible_dependency_graph_artifact_payload(
+        graph=enriched_graph,
+    )
+
+    assert isinstance(payload, dict)
+    identity_payload = payload["object_config_graph_identity"]
+    [projection_identity_payload] = identity_payload[
+        "object_projection_graph_identities"
+    ]
+    assert projection_identity_payload["object_instance_graph_identities"] == []
+    [observable_payload] = projection_identity_payload[
+        "object_projection_graph_observables"
+    ]
+    assert observable_payload["observable_key"] == "instance"
+    assert observable_payload["id"] == str(observable.id)
+
+
+def test_api_accessible_graph_enrichment_uses_committed_package_index_evidence() -> (
+    None
+):
+    [source_graph, _api_graph] = home_api_accessible_graphs()
+    [opg] = source_graph.object_projection_graphs
+    ocgi_id = stable_object_config_graph_identity_id(key=source_graph.fqn_prefix)
+    opgi_id = stable_object_projection_graph_identity_id(
+        object_config_graph_identity_id=ocgi_id,
+        object_projection_graph_id=opg.id,
+    )
+    package_projection_index = MetaRuntimePackageProjectionIndex(
+        catalog_signature="sha256:test",
+        packages_by_name={},
+        projections_by_name={
+            opg.name: MetaRuntimeProjectionIndexEntry(
+                projection_name=opg.name,
+                package_name=source_graph.name,
+                fqn_prefix=source_graph.fqn_prefix,
+                manifest_path=Path("modules/home/ontology/structure/aware.toml"),
+                projection_hash="sha256:source-context-projection",
+                object_config_graph_id=source_graph.id,
+                object_projection_graph_id=opg.id,
+                object_config_graph_identity_id=ocgi_id,
+                object_projection_graph_identity_id=opgi_id,
+                observable_keys=("instance", "history"),
+            )
+        },
+    )
+    index = cast(
+        Any,
+        SimpleNamespace(
+            ocg=source_graph,
+            opg_by_hash={opg.projection_hash: opg},
+        ),
+    )
+
+    [enriched_graph] = attach_api_accessible_projection_identity_evidence(
+        index=index,
+        accessible_graphs=(source_graph,),
+        package_projection_index=package_projection_index,
+    )
+
+    assert enriched_graph.object_config_graph_identity is not None
+    [projection_identity] = (
+        enriched_graph.object_config_graph_identity.object_projection_graph_identities
+    )
+    assert projection_identity.id == opgi_id
+    assert [
+        observable.observable_key
+        for observable in projection_identity.object_projection_graph_observables
+    ] == ["instance", "history"]
+    assert projection_identity.object_instance_graph_identities == []
+
+
+def test_api_accessible_graph_enrichment_rejects_different_projection_identity() -> (
+    None
+):
+    [source_graph, _api_graph] = home_api_accessible_graphs()
+    [opg] = source_graph.object_projection_graphs
+    ocgi_id = stable_object_config_graph_identity_id(key=source_graph.fqn_prefix)
+    package_projection_index = MetaRuntimePackageProjectionIndex(
+        catalog_signature="sha256:test",
+        packages_by_name={},
+        projections_by_name={
+            opg.name: MetaRuntimeProjectionIndexEntry(
+                projection_name=opg.name,
+                package_name=source_graph.name,
+                fqn_prefix=source_graph.fqn_prefix,
+                manifest_path=Path("modules/home/ontology/structure/aware.toml"),
+                projection_hash=opg.projection_hash,
+                object_config_graph_id=source_graph.id,
+                object_projection_graph_id=uuid4(),
+                object_config_graph_identity_id=ocgi_id,
+                object_projection_graph_identity_id=uuid4(),
+                observable_keys=("must_not_leak",),
+            )
+        },
+    )
+    index = cast(
+        Any,
+        SimpleNamespace(
+            ocg=source_graph,
+            opg_by_hash={opg.projection_hash: opg},
+        ),
+    )
+
+    [enriched_graph] = attach_api_accessible_projection_identity_evidence(
+        index=index,
+        accessible_graphs=(source_graph,),
+        package_projection_index=package_projection_index,
+    )
+
+    assert enriched_graph.object_config_graph_identity is not None
+    [projection_identity] = (
+        enriched_graph.object_config_graph_identity.object_projection_graph_identities
+    )
+    assert projection_identity.object_projection_graph_id == opg.id
+    assert projection_identity.object_projection_graph_observables == []
 
 
 def test_compile_api_service_protocol_emits_accessible_dependency_graph_artifact(

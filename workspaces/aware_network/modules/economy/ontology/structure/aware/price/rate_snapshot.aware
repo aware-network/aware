@@ -1,0 +1,48 @@
+class RateSnapshot {
+    // Relationships
+    price_reservations PriceReservation[]
+
+    // Attributes
+    additional_metadata JsonObject? = {}
+    captured_at DateTime
+    cost_basis_amount Decimal?
+    markup_amount Decimal?
+    markup_percentage Decimal?
+    meter_evidence_ref String?
+    quoted_amount Decimal
+    snapshot_key String key
+
+    fn build construct (
+        snapshot_key String key,
+        quoted_amount Decimal,
+        captured_at DateTime,
+        cost_basis_amount Decimal? = null,
+        markup_percentage Decimal? = null,
+        markup_amount Decimal? = null,
+        meter_evidence_ref String? = null,
+        additional_metadata JsonObject? = {}
+    ) -> RateSnapshot {
+        """
+        Creates one immutable snapshot under a PriceSchedule.
+        """
+    }
+
+    fn create_price_reservation (
+        reservation_key String key,
+        reserved_at DateTime,
+        additional_metadata JsonObject? = {},
+        status PriceReservationStatus = reserved
+    ) -> PriceReservation {
+        """
+        Creates one canonical reservation receipt under this RateSnapshot.
+
+        Receipt: PriceReservation(status=reserved) linked to this RateSnapshot.
+        """
+        let created = construct price_reservations.build(
+            reservation_key = reservation_key,
+            reserved_at = reserved_at,
+            additional_metadata = additional_metadata,
+            status = status,
+        )
+    }
+}

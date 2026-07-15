@@ -1,0 +1,20 @@
+aware_experience = 1
+
+[experience]
+package_name = "identity-default"
+fqn_prefix = "identity"
+version_number = 1
+title = "Identity Default Experience"
+description = "Module-owned default identity experience package."
+
+[build]
+environment_handle = "kernel"
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+
+[[dependencies]]
+package_name = "aware-actor"
+kind = "experience_package"
+version_number = 1

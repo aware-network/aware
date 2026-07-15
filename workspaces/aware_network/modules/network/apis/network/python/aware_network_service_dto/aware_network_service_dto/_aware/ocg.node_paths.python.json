@@ -1,0 +1,743 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "3314b323-8106-5ab9-954a-3fc5b54996d6",
+      "node_type": "class",
+      "entity_id": "0513e625-e7ef-56a3-8ea0-b93fc1763d79",
+      "relative_path": "comms/economy/membership_operation.py"
+    },
+    {
+      "node_id": "bee5cec1-04cf-5df5-8c6c-13d816698722",
+      "node_type": "class",
+      "entity_id": "57380181-279c-51cb-9e69-9664d602d672",
+      "relative_path": "comms/economy/membership_operation.py"
+    },
+    {
+      "node_id": "fcee3f8b-c00e-5d9d-bf8c-cadea08dc3ec",
+      "node_type": "class",
+      "entity_id": "863c01d7-08a2-5767-8b06-67d96538ac04",
+      "relative_path": "comms/economy/membership_operation.py"
+    },
+    {
+      "node_id": "75bd6d6c-51a5-5b9e-83e1-8e88070feb3e",
+      "node_type": "class",
+      "entity_id": "9753660a-ea95-5391-b672-5f01947361df",
+      "relative_path": "comms/economy/membership_operation.py"
+    },
+    {
+      "node_id": "53bba8f4-b8dc-549b-be03-86876b013db1",
+      "node_type": "class",
+      "entity_id": "a4fb980b-48ac-5027-ab94-832ac8b606b0",
+      "relative_path": "comms/economy/membership_operation.py"
+    },
+    {
+      "node_id": "4261d96e-8133-5b5c-9fbc-b175f9d68857",
+      "node_type": "class",
+      "entity_id": "b1d9c841-5f43-51dc-92f8-c28117acab5e",
+      "relative_path": "comms/economy/membership_operation.py"
+    },
+    {
+      "node_id": "4b0f9d3d-9f68-5502-8eca-94fd88b88d61",
+      "node_type": "class",
+      "entity_id": "b812b7f5-28bd-53ab-a11d-0bf5878044a4",
+      "relative_path": "comms/economy/membership_operation.py"
+    },
+    {
+      "node_id": "db50e299-4d43-55bc-a4a1-9505000ca8dd",
+      "node_type": "class",
+      "entity_id": "f2d4c74c-3dba-5d56-b8aa-50268c73d4a0",
+      "relative_path": "comms/economy/membership_operation.py"
+    },
+    {
+      "node_id": "f20722f0-dc76-5f03-97c4-fd407d20503e",
+      "node_type": "class",
+      "entity_id": "2ccbaa74-f907-5926-9f83-fe2d4bfea504",
+      "relative_path": "comms/identity/identity_session_operation.py"
+    },
+    {
+      "node_id": "a1a2f6b9-dac0-5796-9105-39d18c3f7431",
+      "node_type": "class",
+      "entity_id": "7d84d60c-65b1-54e2-8ad3-26fbe4da37d8",
+      "relative_path": "comms/identity/identity_session_operation.py"
+    },
+    {
+      "node_id": "07a58bf3-217e-5ffb-90fc-b4f22ad32b4a",
+      "node_type": "class",
+      "entity_id": "8a92ebad-dbde-5f62-9d75-63e1512ba84e",
+      "relative_path": "comms/identity/identity_session_operation.py"
+    },
+    {
+      "node_id": "fa93c29d-cc3c-5457-a3ac-ea1618b896ec",
+      "node_type": "class",
+      "entity_id": "b4295e10-732c-51ae-856f-f81003900127",
+      "relative_path": "comms/identity/identity_session_operation.py"
+    },
+    {
+      "node_id": "f8aa03ed-9be8-534a-8888-d53387aa9a10",
+      "node_type": "class",
+      "entity_id": "be4eb177-872d-55e8-b5d8-d4879a1585ab",
+      "relative_path": "comms/identity/identity_session_operation.py"
+    },
+    {
+      "node_id": "6a71f3f6-1e47-517e-8f4e-a3e1b1c50f6e",
+      "node_type": "class",
+      "entity_id": "c21e2ac5-fb9d-5060-a6c5-7172cfe14d77",
+      "relative_path": "comms/identity/identity_session_operation.py"
+    },
+    {
+      "node_id": "10a2d751-7075-5ffc-8c4b-19f71b3566c6",
+      "node_type": "class",
+      "entity_id": "e5b946ab-fe14-5740-91d8-5cb9cb729703",
+      "relative_path": "comms/identity/identity_session_operation.py"
+    },
+    {
+      "node_id": "78cb02c7-b414-531a-ac7b-e4f25e218156",
+      "node_type": "class",
+      "entity_id": "fcdc259a-495e-564f-b2af-b6f2edfc05c7",
+      "relative_path": "comms/identity/identity_session_operation.py"
+    },
+    {
+      "node_id": "61de4189-35d5-5351-ad2c-97fcf797ee9a",
+      "node_type": "class",
+      "entity_id": "0f8da91b-4495-5b4c-bd67-444ee42c4a51",
+      "relative_path": "comms/models/network.py"
+    },
+    {
+      "node_id": "fb836f24-5908-5509-9d9e-3a458a36fe9b",
+      "node_type": "class",
+      "entity_id": "2e680257-1fe1-5e16-b7ac-c89319303378",
+      "relative_path": "comms/models/network.py"
+    },
+    {
+      "node_id": "fbbdf7b7-5762-5581-b690-01bac15c3874",
+      "node_type": "class",
+      "entity_id": "5fce8bf4-4531-5217-9fd9-2f5ddf3eb095",
+      "relative_path": "comms/models/network.py"
+    },
+    {
+      "node_id": "744e91cc-9b20-5ea2-9a8a-5c698f1b9cc6",
+      "node_type": "class",
+      "entity_id": "6107fdfb-66fc-5617-8ab0-a2d7f0109d7d",
+      "relative_path": "comms/models/network.py"
+    },
+    {
+      "node_id": "0d527525-9a9a-59d1-b007-31f8b8b88e62",
+      "node_type": "class",
+      "entity_id": "01f90630-43a3-5db2-b5c4-bbe79405b72e",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "a9e7dff5-e2b1-5891-b94f-90f9580bc3a9",
+      "node_type": "class",
+      "entity_id": "0e72ac52-f95b-5954-9f80-89d30378ac23",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "bcac3f34-1938-5c1b-a1e0-d4e1ef86d569",
+      "node_type": "class",
+      "entity_id": "20550961-7ce4-5e6d-ac0b-2751864bc5e8",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "f827ac09-ff01-5394-8b33-5e8c520a4b36",
+      "node_type": "class",
+      "entity_id": "20c8d915-6654-5847-ad6b-c4461b63007c",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "554f87a7-bc6b-5d6c-bea5-87a6524a4d57",
+      "node_type": "class",
+      "entity_id": "375f2421-0c0c-516e-b3d9-6347202fbd17",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "3b79c88f-75ae-5519-aa5e-34d8488821c5",
+      "node_type": "class",
+      "entity_id": "4dd894b4-24fd-5786-87a0-d55ec896c33f",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "117ea997-4d08-5157-b74f-e94c10cb0be4",
+      "node_type": "class",
+      "entity_id": "5bd8a610-897f-5d83-aab8-e64d6a66633a",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "a24cdd5f-a538-5088-9df6-5af8372f5d4a",
+      "node_type": "class",
+      "entity_id": "6040a4bc-bfaf-5513-9a06-fc7d3932b86d",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "9de91ec2-ff25-5d88-b1f5-533a7d46bd6a",
+      "node_type": "class",
+      "entity_id": "6a4827a1-643b-5da7-acb4-ed3859afac4f",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "312d3d2e-ccd6-5d4e-9f5a-b240f47bd130",
+      "node_type": "class",
+      "entity_id": "6e788a80-b54a-5042-b50d-b0e9269f0f4b",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "ea5e42d4-912e-599b-b9c6-c21ac38855a1",
+      "node_type": "class",
+      "entity_id": "7550b958-917c-52af-80c5-5bc941a6157f",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "574fbfcb-5b7f-5471-882e-1c08e29006d6",
+      "node_type": "class",
+      "entity_id": "7f09dc01-8e9b-5a15-a46d-edf5bf7d97e7",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "e44d726c-67f3-5e62-8e81-35a0bed727bd",
+      "node_type": "class",
+      "entity_id": "810ecf5a-1f1f-5451-a82a-6b2649ad58c7",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "e87d3ff6-a5dc-542e-86cd-b3dedb213c8f",
+      "node_type": "class",
+      "entity_id": "817b41fd-88fa-5e17-b39a-151f5966d346",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "c3805806-bf65-520b-98bb-b6b3d5fd78a4",
+      "node_type": "class",
+      "entity_id": "8f0f5bc5-3fe8-55bb-a79a-a7c8bfca7325",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "8fa27efa-2ef8-5a54-a230-12c2b2118ca6",
+      "node_type": "class",
+      "entity_id": "99b2dd45-0e10-5fb9-ab69-5af4a48a2689",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "17afba58-2337-5f3a-9272-6d7583508a2a",
+      "node_type": "class",
+      "entity_id": "9af9c4c5-951e-5e07-a6a6-be972da36c65",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "14ed7332-90d1-56c7-a655-dd3c26fa0d96",
+      "node_type": "class",
+      "entity_id": "aae2f6d7-4087-53a9-be0b-a0d0e22d1621",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "fd831d23-7030-5f42-9408-c76761c0395c",
+      "node_type": "class",
+      "entity_id": "ab00f78b-9b4c-551f-b109-122ed288bfac",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "1c747775-25ab-5693-8640-58c083d55b8b",
+      "node_type": "class",
+      "entity_id": "aea4682e-bcb8-53e1-9fa9-2e5854be31dd",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "2a3e6145-2200-5742-b6be-4073c80431ed",
+      "node_type": "class",
+      "entity_id": "b0218abd-285e-59d9-85d7-211aefc4ea16",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "179a9a27-b6c3-5f4e-8248-8267f6a0bd5b",
+      "node_type": "class",
+      "entity_id": "bae71df4-6eb4-5c47-93dc-a8ccf24fc59e",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "ff01123d-e9d8-5e44-8a1d-1064abc21d00",
+      "node_type": "class",
+      "entity_id": "bcc1cc82-9927-56ec-9136-30a795e18a3f",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "4f339217-00ba-568a-93fb-69840d7936f0",
+      "node_type": "class",
+      "entity_id": "c1257d0a-161b-52c6-ab7b-3f57db93ddf9",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "83917d45-bdc1-5d06-803f-f6868e9c94c5",
+      "node_type": "class",
+      "entity_id": "ce26737c-bec6-5e92-b241-0d67ec2a6a3f",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "262f81fc-e28d-5e79-8c61-a6609ed1af2a",
+      "node_type": "class",
+      "entity_id": "e19c3e7d-c378-5bf5-86fa-d278c958a1df",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "ec313398-64af-5a97-882d-d46bb23dda0f",
+      "node_type": "class",
+      "entity_id": "e7312074-f730-51c0-8ac2-a09868d0e588",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "ebd2a7df-c016-5cc5-ad06-5a56166f224f",
+      "node_type": "class",
+      "entity_id": "e8583ace-4147-592d-a2c4-f2a6d7a2864d",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "086dff82-f496-50de-9dd6-38669a6aa819",
+      "node_type": "class",
+      "entity_id": "f26b88d8-f225-56a2-a212-f8a141ef800b",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "8ea2ad72-6a55-55c0-b3b0-89e85e71a9fe",
+      "node_type": "class",
+      "entity_id": "f2ef69f9-6cd8-5b99-8ac3-423c7995bfca",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "1089f121-ed78-51b1-9e88-c3ef383c3fe8",
+      "node_type": "class",
+      "entity_id": "fc8c9d49-6966-5499-9cfd-9677f49bc37a",
+      "relative_path": "comms/models/network_node.py"
+    },
+    {
+      "node_id": "b4d4b64f-d92f-5d9b-b751-9a507500568c",
+      "node_type": "class",
+      "entity_id": "02516ed3-0683-510f-9f54-02700dd583c7",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "89776037-f5f0-5769-8b11-bcd6627c6262",
+      "node_type": "class",
+      "entity_id": "21188ee8-0d42-5ab5-8334-520a55f3a21d",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "c7995029-4988-5348-9550-d61c8f7e81bb",
+      "node_type": "class",
+      "entity_id": "21330186-00e1-5192-b170-4fd9a5ea4dca",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "29eea181-35ac-5092-a574-0c757e77dbf2",
+      "node_type": "class",
+      "entity_id": "251a88a3-9469-54d5-b879-0c0991cad525",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "92de19d2-6a0a-528c-80e7-9d6b24adef72",
+      "node_type": "class",
+      "entity_id": "36a24132-3648-5168-9ab5-a682534d4f14",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "cd2af005-c4ec-5482-b0dd-a3eff27ae5bc",
+      "node_type": "class",
+      "entity_id": "375ff48c-1980-518b-acc7-1e006fd42041",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "2b45806f-ae9d-5ca8-ae76-0e45c55d9a1c",
+      "node_type": "class",
+      "entity_id": "3c3f2401-3e1e-5534-8b9e-03cde17780c7",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "74e5f10f-9d5e-5517-8251-9f0526322db0",
+      "node_type": "class",
+      "entity_id": "3d86be9e-a6b7-56fd-bb8d-916ac33f06b5",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "78d41dd0-11ff-5c74-a12d-8e0b30658a27",
+      "node_type": "class",
+      "entity_id": "4bb0c4e8-bf3f-5114-a613-b7998dab4a8d",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "a6df0c51-c5ed-5102-9e60-adcc504414b0",
+      "node_type": "class",
+      "entity_id": "52c212db-d07b-5e5b-929a-0c8bd2c9562e",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "1eba74e3-2390-5472-a7be-8191695cc71f",
+      "node_type": "class",
+      "entity_id": "53a415b4-d723-533b-9296-4eea16d050f7",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "2313b57e-f42b-591e-b4d3-ae92601602ca",
+      "node_type": "class",
+      "entity_id": "5932cfb7-74bc-5156-8d76-6aec23cd8be4",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "7219c542-127e-5e17-ae52-9b4ae981e531",
+      "node_type": "class",
+      "entity_id": "5bc5e800-b5da-54f0-9f9b-6a1e0c3bc2c0",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "ea6796de-2597-5684-a2a6-f5a90c0ee5cf",
+      "node_type": "class",
+      "entity_id": "674fc331-d343-541d-9da9-73d479c56f97",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "cba29622-1313-5725-8cb1-6886798e37d8",
+      "node_type": "class",
+      "entity_id": "6fb6c966-13d3-521c-b23f-827afd17f584",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "ff46bd5e-c61b-533e-9179-e9bad08c30c7",
+      "node_type": "class",
+      "entity_id": "70457b65-6e75-5b4d-852a-31bebac47c82",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "7833ce86-085e-5d28-ae19-d82eeb8c2161",
+      "node_type": "class",
+      "entity_id": "73e9a40c-d8c1-5476-b679-be1c49cc8431",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "b17cdd4c-1dbf-57f0-8f25-7c516195d344",
+      "node_type": "class",
+      "entity_id": "7be7df6d-bdd6-5512-96eb-b59aabb9382b",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "b1e2bcc5-382f-5e80-afaf-c7691f7f1a79",
+      "node_type": "class",
+      "entity_id": "7de0793d-7918-54ac-9ed4-8b36066462b9",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "27ad39fc-0ac0-585a-a80a-e5f07b1258b6",
+      "node_type": "class",
+      "entity_id": "86bb05c8-15b6-5a72-a69a-d0f980f8a155",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "09562de8-a05b-53dc-8fff-1af88a069ae8",
+      "node_type": "class",
+      "entity_id": "8c318f44-d276-5cf0-96f0-f456489983b9",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "72f060f7-633a-5f95-9e08-54635d67eb93",
+      "node_type": "class",
+      "entity_id": "8d37c30b-b964-5819-a168-999c9443c0b3",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "cd6efedb-baa8-5546-b932-d3e8d197f2a8",
+      "node_type": "class",
+      "entity_id": "9eb1eec5-f184-51fa-b6a6-f2e2ce6d16db",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "8c507c93-ad6b-5928-a4dc-5d66844ebb52",
+      "node_type": "class",
+      "entity_id": "9fbd6ce1-c8f0-5894-832f-d2321e40a56c",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "6574d487-6dea-5884-8ef6-70a9a80067e6",
+      "node_type": "class",
+      "entity_id": "a0428df6-abde-5915-8be2-6749b856c888",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "1d7f0fc7-835f-5045-aef8-febdff511961",
+      "node_type": "class",
+      "entity_id": "a250dcdf-d04d-518d-b89c-33b794c22ac2",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "388c2234-e67c-519b-ab7d-08c50a5d5c04",
+      "node_type": "class",
+      "entity_id": "a69beae1-ffab-55a2-8067-f72742a945db",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "3f07aa29-a31c-5444-ae83-0b43fe67d4c6",
+      "node_type": "class",
+      "entity_id": "adf5cd56-ab86-5fce-bd31-f9d7abb71e41",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "e5e8f3be-5320-5186-aadb-0ca11061be02",
+      "node_type": "class",
+      "entity_id": "cf830d1d-e068-59ce-bd4b-def2b6df408f",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "c2d5787d-cce3-5dfe-998e-71f41cf3b7b2",
+      "node_type": "class",
+      "entity_id": "ec99afac-fb3e-503a-8427-25bd991f1da6",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "0b39d69c-df0f-5d85-a5a9-1299f71b5f41",
+      "node_type": "class",
+      "entity_id": "ef192117-0a94-51ba-94a1-18ea688ea4c3",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "7411526a-d361-5737-8ec0-2738ff25b55c",
+      "node_type": "class",
+      "entity_id": "efa06c75-1afe-5636-b03d-3ea3ea048a7d",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "26747c36-c834-5c6f-be89-426466e5de1e",
+      "node_type": "class",
+      "entity_id": "f6310513-3a23-5e86-abbb-33ccd3e11b9b",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "72489012-77f6-59d4-b869-dc328bbda867",
+      "node_type": "class",
+      "entity_id": "f71a01b8-dfd2-548e-a38f-39157ead9306",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "561088cb-0f58-557f-8a6e-4afd95a23563",
+      "node_type": "class",
+      "entity_id": "f7b22879-90aa-5ffa-966e-9ecfd3dee530",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "f1e315b3-989b-5a03-a773-bd85f0e100cf",
+      "node_type": "class",
+      "entity_id": "fa74465d-cedf-58f1-b785-888d729b87a2",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "de03896a-91fa-5efe-b837-bec2edcb11cf",
+      "node_type": "class",
+      "entity_id": "fff0b3be-b006-5c1a-be78-1bf25c975a43",
+      "relative_path": "comms/models/network_service.py"
+    },
+    {
+      "node_id": "7d1eb885-9bcb-5f06-a3e2-77e59fb8118e",
+      "node_type": "class",
+      "entity_id": "09fbfe93-4a2d-5759-981f-490960481e22",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "c5e2def7-e0d7-55c7-87cb-e9517440a489",
+      "node_type": "class",
+      "entity_id": "156f8e5c-8d76-58f8-b8db-f495a9c8c585",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "9bbaec76-592e-56ec-8654-369b351393f8",
+      "node_type": "class",
+      "entity_id": "1e5e5105-563e-51f3-9209-c0dd45dc5d46",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "c0b4d2f4-23b9-5a44-aa0c-082e4b171c10",
+      "node_type": "class",
+      "entity_id": "2ed0b15d-44e9-5fb7-98e2-d78fcce52c33",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "1774d3e9-fc2f-5017-a073-726438a8fb0b",
+      "node_type": "class",
+      "entity_id": "30a586e3-90ff-573d-8252-3ed5eb6f7526",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "02bf3c8a-6a5c-52de-9fcb-451acf68c0bd",
+      "node_type": "class",
+      "entity_id": "312fb019-c4d5-5602-a1c6-5f335f05dbaf",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "84155cb0-8561-54c5-a1c6-cdd3dfd0e1ed",
+      "node_type": "class",
+      "entity_id": "3f448ff3-abce-53ea-aebb-224a7778ed87",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "37492dc7-a9fd-5ffd-973b-44664a2fcaed",
+      "node_type": "class",
+      "entity_id": "49b0234e-f897-5664-8b2e-cab811d13c20",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "4f82f1ae-03e8-5dc7-8e62-5a335edccad7",
+      "node_type": "class",
+      "entity_id": "56cbd21f-4e59-5ed5-8a2a-f8601141cc67",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "fab70077-31ff-55cb-b732-06e1d742c710",
+      "node_type": "class",
+      "entity_id": "5e2ba683-ae73-501f-a509-73331f064258",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "75c4ce27-73b8-5753-9c25-fe85a1272ca4",
+      "node_type": "class",
+      "entity_id": "60175167-ad53-5cf9-bdfe-c3cf81155e61",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "d819a0c1-936b-54c0-b1f3-ce98ea9f8c94",
+      "node_type": "class",
+      "entity_id": "6ce5eb82-be84-5f69-8730-61c592910297",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "147d85e0-5bda-53d0-97bb-e0cc70da218d",
+      "node_type": "class",
+      "entity_id": "6e6a2e0e-fe1c-52c8-acad-552bf9cd728c",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "08ba3610-cce4-500b-b920-1562f6d9d01b",
+      "node_type": "class",
+      "entity_id": "751a8290-e86c-5ed6-83b5-2eca2a2c377c",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "4c50c6eb-af3b-546b-916d-9bebbf03e9cd",
+      "node_type": "class",
+      "entity_id": "80130e56-8f83-509e-8300-67e388ba89d1",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "4ce94896-b366-58b2-bbea-16fa526adab6",
+      "node_type": "class",
+      "entity_id": "8abdbaf4-a52e-5499-8030-4e3b50eb24b0",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "b2752b81-f1b3-5a4e-835d-4a5155557ad5",
+      "node_type": "class",
+      "entity_id": "b2e1f790-47aa-54d6-8be7-b888aade59c0",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "10e6731f-98b1-5cff-af05-95f4ce0b1339",
+      "node_type": "class",
+      "entity_id": "ce74353b-15cb-591a-9fde-448f5fe575c0",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "cc841b1e-37bd-5edd-952c-14dffe355676",
+      "node_type": "class",
+      "entity_id": "da3f810e-bcea-50b3-9a12-f4c68844d53d",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "74b37505-3b72-57fe-a5dc-e59b4104c991",
+      "node_type": "class",
+      "entity_id": "e28d87a9-428c-5d49-a28b-f2ad47f21cec",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "2f86c12a-f556-55b4-8642-f114499c529e",
+      "node_type": "class",
+      "entity_id": "ec51e95a-e468-5c99-bee1-bdb6f1562567",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "b78708c6-cab3-5fa9-8759-a5980f2ec6a2",
+      "node_type": "class",
+      "entity_id": "f04eada9-4c53-5689-a154-2db8b2d7de03",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "54cbc834-00a8-58cf-af4b-ede0e88ba6b7",
+      "node_type": "class",
+      "entity_id": "f54729e4-812c-52ff-be33-886cb574a34e",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "18a5f993-c26c-5253-bea0-ddbf77d07e04",
+      "node_type": "class",
+      "entity_id": "d0883392-48f5-59df-8c0f-f6f962b56734",
+      "relative_path": "comms/view/session_status.py"
+    },
+    {
+      "node_id": "94543ed4-ac6e-55f3-9f78-0c51a15344b8",
+      "node_type": "class",
+      "entity_id": "1a197654-473b-5df5-b960-83def7416170",
+      "relative_path": "comms/view/territory_discovery.py"
+    },
+    {
+      "node_id": "5aece14b-53f3-5730-aaae-b144db778a94",
+      "node_type": "class",
+      "entity_id": "314c56a7-a97a-5aeb-85f3-f6202298fc88",
+      "relative_path": "comms/view/territory_discovery.py"
+    },
+    {
+      "node_id": "a29fb417-117a-5c2d-a02d-ad6a481673a5",
+      "node_type": "class",
+      "entity_id": "54154fe5-d0f3-50fd-aa04-2e5115324872",
+      "relative_path": "comms/view/territory_discovery.py"
+    },
+    {
+      "node_id": "3b8682d4-9d0a-5a4a-a3b5-e093693a119a",
+      "node_type": "class",
+      "entity_id": "71a13507-bfb0-5a62-bfc0-a5d1434bd466",
+      "relative_path": "comms/view/territory_discovery.py"
+    },
+    {
+      "node_id": "39200b8e-1577-5c53-afd8-a74cdf3fd77e",
+      "node_type": "class",
+      "entity_id": "93517332-19eb-5ea7-adef-839b28e2481a",
+      "relative_path": "comms/view/territory_discovery.py"
+    },
+    {
+      "node_id": "a935df63-ac16-57c1-8e64-377c2b7c3cc0",
+      "node_type": "class",
+      "entity_id": "a69dbe22-d16c-5b3b-94d8-98ee6fa3d90c",
+      "relative_path": "comms/view/territory_discovery.py"
+    },
+    {
+      "node_id": "a6048a1b-5483-5c03-8a69-347914e0afcc",
+      "node_type": "enum",
+      "entity_id": "2b41c7d5-1f4e-55f7-a276-5d716db0aefe",
+      "relative_path": "comms/models/node_deploy_operation.py"
+    },
+    {
+      "node_id": "4d5f5ba4-64bf-50b9-8e19-99bf48da9147",
+      "node_type": "enum",
+      "entity_id": "0b5768a7-332f-535f-9ade-9844ca8a0946",
+      "relative_path": "network/network_enums.py"
+    },
+    {
+      "node_id": "aa9bfd59-0da7-5722-b3f2-fc21a4becdfe",
+      "node_type": "enum",
+      "entity_id": "9b260560-a04d-5d2c-b087-a53f2e31b2c2",
+      "relative_path": "network/network_enums.py"
+    },
+    {
+      "node_id": "63afe3c6-a1bb-521c-8b4d-ef4b2d383d86",
+      "node_type": "enum",
+      "entity_id": "a6a81cb0-24cc-5325-9b33-7b7ee34c3424",
+      "relative_path": "network/network_enums.py"
+    },
+    {
+      "node_id": "d445b6b3-87c9-58ff-a653-26ff3c006fca",
+      "node_type": "enum",
+      "entity_id": "add131ea-e55c-553c-b0f3-916dbc3b3020",
+      "relative_path": "network/network_enums.py"
+    }
+  ]
+}

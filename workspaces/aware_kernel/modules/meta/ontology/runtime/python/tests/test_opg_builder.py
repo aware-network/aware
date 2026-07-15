@@ -34,12 +34,19 @@ from aware_grammar.code_language_plugin import AWARE_CODE_PLUGIN
 
 # Meta Runtime
 from aware_meta.graph.config.builder import build_object_config_graph_from_code
+import aware_meta.graph.config.handlers as handlers_module
 from aware_meta.graph.config.relationship_analysis import (
     stable_reified_association_target_relationship_id,
 )
 from aware_meta.fqn_resolver import NamespacePath
-from aware_meta.graph.projection.builder import build_object_projection_graph
-from aware_meta.graph.config.handlers import build_object_projection_graphs
+from aware_meta.graph.projection.builder import (
+    build_object_projection_graph,
+    build_object_projection_graph_context,
+)
+from aware_meta.graph.config.handlers import (
+    build_object_projection_graphs,
+    finalize_object_projection_graph_portals,
+)
 from aware_grammar.transformers.aware_to_runtime_transformer import (
     AwareToRuntimeTransformer,
 )
@@ -59,8 +66,7 @@ def _build_code(tmp_path: Path, name: str, content: str):
 
 def _ns(*, fqn_prefix: str, namespace: str, code_ids: list[UUID]):
     return {
-        cid: NamespacePath(package=fqn_prefix, namespace=namespace)
-        for cid in code_ids
+        cid: NamespacePath(package=fqn_prefix, namespace=namespace) for cid in code_ids
     }, []
 
 
@@ -126,6 +132,79 @@ projection Posts {
     root test.Post
 }
 """.strip()
+
+
+def test_multi_projection_build_shares_immutable_context_and_preserves_output(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
+
+    code = _build_code(tmp_path, "shared-context.aware", PORTAL_CODE)
+    namespace_by_code_id, _domains = _ns(
+        fqn_prefix="pkg",
+        namespace="test",
+        code_ids=[code.id],
+    )
+    runtime = AwareToRuntimeTransformer(
+        namespace_by_code_id=namespace_by_code_id
+    ).transform(
+        build_object_config_graph_from_code(
+            name="shared-context",
+            description="shared-context",
+            fqn_prefix="pkg",
+            file_codes=[("shared-context.aware", code)],
+            namespace_by_code_id=namespace_by_code_id,
+        ).graph
+    )
+
+    context = build_object_projection_graph_context(ocg=runtime)
+    users_declaration = next(
+        declaration
+        for declaration in runtime.object_projection_graph_declarations
+        if declaration.projection_name == "Users"
+    )
+    users_bindings = [
+        binding
+        for binding in users_declaration.object_projection_graph_bindings
+        if not (binding.target_projection_name or "").strip()
+    ]
+    standalone = build_object_projection_graph(
+        name="Users",
+        description=users_declaration.description,
+        ocg=runtime,
+        projection_bindings=users_bindings,
+    )
+    shared = build_object_projection_graph(
+        name="Users",
+        description=users_declaration.description,
+        ocg=runtime,
+        projection_bindings=users_bindings,
+        build_context=context,
+    )
+    assert shared.model_dump(mode="json") == standalone.model_dump(mode="json")
+
+    context_build_count = 0
+    original_context_builder = handlers_module.build_object_projection_graph_context
+
+    def _counted_context_builder(**kwargs):
+        nonlocal context_build_count
+        context_build_count += 1
+        return original_context_builder(**kwargs)
+
+    monkeypatch.setattr(
+        handlers_module,
+        "build_object_projection_graph_context",
+        _counted_context_builder,
+    )
+    opgs = handlers_module.build_object_projection_graphs(
+        runtime,
+        provision_portals=False,
+    )
+
+    assert [opg.name for opg in opgs] == ["Posts", "Users"]
+    assert context_build_count == 1
+
 
 OPTIONAL_EDGE_CODE = """
 class Lane {
@@ -207,9 +286,7 @@ def test_opg_built_and_attached_to_ocg(tmp_path: Path) -> None:
     CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
 
     code = _build_code(tmp_path, "opg.aware", CANONICAL_CODE)
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code.id])
 
     res = build_object_config_graph_from_code(
         name="opg",
@@ -218,7 +295,9 @@ def test_opg_built_and_attached_to_ocg(tmp_path: Path) -> None:
         file_codes=[("opg.aware", code)],
         namespace_by_code_id=ns,
     )
-    graph = _runtime_graph_with_opgs(res.graph, namespace_by_code_id=ns)
+    graph = _runtime_graph_with_opgs(
+        res.graph.model_copy(deep=True), namespace_by_code_id=ns
+    )
 
     assert (
         graph.object_projection_graphs
@@ -244,6 +323,22 @@ def test_opg_built_and_attached_to_ocg(tmp_path: Path) -> None:
         if c.function_constructor is not None
     }
     assert names == {"build", "build_with_actor"}
+
+    repeated_graph = _runtime_graph_with_opgs(
+        res.graph.model_copy(deep=True), namespace_by_code_id=ns
+    )
+    repeated_opg = next(
+        graph for graph in repeated_graph.object_projection_graphs if graph.name == "P"
+    )
+    constructor_ids = {
+        (constructor.root_node_id, constructor.function_constructor_id): constructor.id
+        for constructor in constructors
+    }
+    repeated_constructor_ids = {
+        (constructor.root_node_id, constructor.function_constructor_id): constructor.id
+        for constructor in repeated_opg.object_projection_graph_constructors
+    }
+    assert repeated_constructor_ids == constructor_ids
 
     # Edge multiplicity should be MANY due to User.posts being a collection
     assert (
@@ -351,9 +446,7 @@ projection Wallet {
 }
 """.strip(),
     )
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code.id])
 
     graph = _runtime_graph_with_opgs(
         build_object_config_graph_from_code(
@@ -386,9 +479,7 @@ projection P {
 }
 """.strip()
     code = _build_code(tmp_path, "bad.aware", bad)
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code.id])
 
     built = build_object_config_graph_from_code(
         name="bad",
@@ -463,9 +554,7 @@ def test_opg_hash_deterministic_across_annotation_order(tmp_path: Path) -> None:
     CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
 
     code_a = _build_code(tmp_path, "a.aware", CANONICAL_CODE)
-    ns_a, domains_a = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code_a.id]
-    )
+    ns_a, domains_a = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code_a.id])
     graph_a = _runtime_graph_with_opgs(
         build_object_config_graph_from_code(
             name="a",
@@ -490,9 +579,7 @@ projection P {
 }
 """.strip()
     code_b = _build_code(tmp_path, "b.aware", flipped)
-    ns_b, domains_b = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code_b.id]
-    )
+    ns_b, domains_b = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code_b.id])
     graph_b = _runtime_graph_with_opgs(
         build_object_config_graph_from_code(
             name="b",
@@ -516,9 +603,7 @@ def test_opg_builder_resolves_association_to_reified_edge(tmp_path: Path) -> Non
     CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
 
     code = _build_code(tmp_path, "assoc.aware", ASSOCIATION_OPG_CODE)
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code.id])
     res = build_object_config_graph_from_code(
         name="assoc",
         description="assoc",
@@ -1084,10 +1169,7 @@ def test_opg_build_dedupes_identical_class_ids_across_graph_variants(
         for node in built.graph.object_config_graph_nodes
         if node.class_config is not None and node.class_config.name == "StorageBucket"
     )
-    assert (
-        opg.object_projection_graph_nodes[0].class_config_id
-        == storage_class.id
-    )
+    assert opg.object_projection_graph_nodes[0].class_config_id == storage_class.id
 
 
 def test_opg_handlers_dedup_identical_class_ids_across_graph_variants(
@@ -1126,9 +1208,7 @@ def test_opg_portal_relationships_are_provisioned_and_do_not_affect_membership(
     CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
 
     code = _build_code(tmp_path, "portal.aware", PORTAL_CODE)
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code.id])
     graph = _runtime_graph_with_opgs(
         build_object_config_graph_from_code(
             name="portal",
@@ -1194,6 +1274,71 @@ def test_opg_portal_relationships_are_provisioned_and_do_not_affect_membership(
         for n in opg_posts.object_projection_graph_nodes
         if n.class_config_id == post_cc_id
     )
+
+
+def test_opg_portal_finalization_matches_full_build_and_is_idempotent(
+    tmp_path: Path,
+) -> None:
+    CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
+
+    code = _build_code(tmp_path, "portal-finalize.aware", PORTAL_CODE)
+    namespace_by_code_id, _domains = _ns(
+        fqn_prefix="pkg",
+        namespace="test",
+        code_ids=[code.id],
+    )
+    runtime = AwareToRuntimeTransformer(
+        namespace_by_code_id=namespace_by_code_id
+    ).transform(
+        build_object_config_graph_from_code(
+            name="portal-finalize",
+            description="portal-finalize",
+            fqn_prefix="pkg",
+            file_codes=[("portal-finalize.aware", code)],
+            namespace_by_code_id=namespace_by_code_id,
+        ).graph
+    )
+
+    def _summary(opgs):
+        return [
+            (
+                opg.id,
+                opg.projection_hash,
+                tuple(node.id for node in opg.object_projection_graph_nodes),
+                tuple(edge.id for edge in opg.object_projection_graph_edges),
+                tuple(
+                    constructor.id
+                    for constructor in opg.object_projection_graph_constructors
+                ),
+                tuple(
+                    (
+                        relationship.id,
+                        relationship.target_object_projection_graph_id,
+                        relationship.class_config_relationship_id,
+                    )
+                    for relationship in opg.object_projection_graph_relationships
+                ),
+            )
+            for opg in opgs
+        ]
+
+    full_build = build_object_projection_graphs(runtime)
+    membership_build = build_object_projection_graphs(
+        runtime,
+        provision_portals=False,
+    )
+    finalized = finalize_object_projection_graph_portals(
+        ocg=runtime,
+        opgs=membership_build,
+    )
+
+    assert _summary(finalized) == _summary(full_build)
+    first_finalized_summary = _summary(finalized)
+    finalize_object_projection_graph_portals(
+        ocg=runtime,
+        opgs=finalized,
+    )
+    assert _summary(finalized) == first_finalized_summary
 
 
 def test_opg_portal_allows_external_target_projection(tmp_path: Path) -> None:
@@ -1680,9 +1825,7 @@ projection EventConfig {
 }
 """.strip(),
     )
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code.id])
     graph = _runtime_graph_with_opgs(
         build_object_config_graph_from_code(
             name="class_style_portal",
@@ -1711,9 +1854,7 @@ def test_opg_hash_changes_when_portal_relationship_added(tmp_path: Path) -> None
     CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
 
     code_a = _build_code(tmp_path, "a.aware", PORTAL_CODE)
-    ns_a, domains_a = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code_a.id]
-    )
+    ns_a, domains_a = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code_a.id])
     graph_a = _runtime_graph_with_opgs(
         build_object_config_graph_from_code(
             name="a",
@@ -1735,9 +1876,7 @@ projection Users { root test.User }
 projection Posts { root test.Post }
 """.strip()
     code_b = _build_code(tmp_path, "b.aware", no_portal)
-    ns_b, domains_b = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code_b.id]
-    )
+    ns_b, domains_b = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code_b.id])
     graph_b = _runtime_graph_with_opgs(
         build_object_config_graph_from_code(
             name="b",
@@ -1767,9 +1906,7 @@ projection Users {
 }
 """.strip()
     code = _build_code(tmp_path, "bad.aware", bad)
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code.id])
 
     try:
         built = build_object_config_graph_from_code(
@@ -1794,9 +1931,7 @@ def test_opg_portal_hash_stable_across_target_projection_rename(tmp_path: Path) 
     CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
 
     code_a = _build_code(tmp_path, "a.aware", PORTAL_CODE)
-    ns_a, domains_a = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code_a.id]
-    )
+    ns_a, domains_a = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code_a.id])
     graph_a = _runtime_graph_with_opgs(
         build_object_config_graph_from_code(
             name="a",
@@ -1821,9 +1956,7 @@ projection Users {
 projection Posts2 { root test.Post }
 """.strip()
     code_b = _build_code(tmp_path, "b.aware", portal_renamed)
-    ns_b, domains_b = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code_b.id]
-    )
+    ns_b, domains_b = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code_b.id])
     graph_b = _runtime_graph_with_opgs(
         build_object_config_graph_from_code(
             name="b",
@@ -1846,9 +1979,7 @@ def test_opg_optional_relationship_marks_edge_optional(tmp_path: Path) -> None:
     CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
 
     code = _build_code(tmp_path, "optional.aware", OPTIONAL_EDGE_CODE)
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="test", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="test", code_ids=[code.id])
 
     graph = _runtime_graph_with_opgs(
         build_object_config_graph_from_code(

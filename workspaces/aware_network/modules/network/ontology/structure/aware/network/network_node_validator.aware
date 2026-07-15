@@ -1,0 +1,6 @@
+class NetworkNodeValidator {
+    // Attributes
+    public_key String key
+    reliability Float = 1.0
+    stake Float = 0
+}

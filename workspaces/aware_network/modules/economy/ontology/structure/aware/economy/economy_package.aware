@@ -1,0 +1,26 @@
+class EconomyPackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+
+    // Attributes
+    name String key
+
+    fn build construct(
+        name String key,
+        source_code_package_id UUID? = null
+    ) -> EconomyPackage {
+        """
+        Create the canonical Economy-owned semantic package root.
+
+        Contract:
+        - Identity is keyed by Economy package `name`.
+        - `EconomyPackage` is the package/public root for authored Economy truth.
+        - `source_code_package_id` is the explicit raw-source provenance link for this semantic leaf
+          package.
+        - Concrete price/contract materialization remains Economy-owned and will resolve under this
+          package rail, not under Service.
+        """
+    }
+}
+
+ann economy.EconomyPackage::source_code_package load eager

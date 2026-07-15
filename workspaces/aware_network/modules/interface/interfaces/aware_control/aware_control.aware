@@ -1,0 +1,20 @@
+interface aware_control {
+    window main {
+        layout coordination_center default {}
+    }
+
+    pane identity_admission {
+        mount main.coordination_center.orchestration
+        narrative control.identity_admission
+    }
+
+    pane hub_package_selector {
+        mount main.coordination_center.primary
+        narrative control.hub_package
+    }
+
+    pane network_territory {
+        mount main.coordination_center.inspector
+        narrative control.network_territory
+    }
+}

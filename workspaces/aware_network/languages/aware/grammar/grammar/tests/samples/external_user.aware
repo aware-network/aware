@@ -1,4 +1,0 @@
-// External dependency graph sample (separate package in tests).
-class ExternalUser {
-  id String
-}

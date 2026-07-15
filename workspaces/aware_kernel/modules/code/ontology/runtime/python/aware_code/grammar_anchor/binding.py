@@ -21,6 +21,7 @@ from aware_code.source_index import (
     CodeGrammarGraphSelector,
     CodeGrammarSource,
     CodeGrammarSourceIndex,
+    CodeGrammarTemplateValueBinding,
 )
 from aware_grammar.semantic_profile import validate_aware_grammar_rule
 from aware_types import JsonObject
@@ -347,6 +348,16 @@ def _query_from_binding(
         anchor_role=binding.anchor_role,
         value_domain=binding.value_domain,
         direction=_enum_text(binding.direction),
+        semantic_key_template=binding.semantic_key_template,
+        template_value_bindings=tuple(
+            CodeGrammarTemplateValueBinding(
+                value_key=item.value_key,
+                field_path=item.field_path,
+                grammar_rule_name=item.grammar_rule_name,
+                required=item.required,
+            )
+            for item in binding.template_value_bindings
+        ),
     )
 
 

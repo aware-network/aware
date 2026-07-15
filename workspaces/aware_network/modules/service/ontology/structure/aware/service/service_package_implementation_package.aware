@@ -1,0 +1,40 @@
+class ServicePackageImplementationPackage {
+    // Relationships
+    code_package aware_code.package.CodePackage key
+
+    // Attributes
+    entrypoint String?
+    exclude_paths JsonArray = []
+    import_root String
+    include_paths JsonArray = []
+    language aware_code.code.CodeLanguage
+    manifest_relative_path String
+    package_name String
+    package_root String = "."
+    role String = "service_bindings"
+
+    fn build construct (
+        code_package_id UUID key,
+        package_name String,
+        language aware_code.code.CodeLanguage,
+        import_root String,
+        manifest_relative_path String,
+        package_root String = ".",
+        entrypoint String? = null,
+        role String = "service_bindings",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = []
+    ) -> ServicePackageImplementationPackage {
+        """
+        Create one ServicePackage-owned implementation package declaration.
+
+        Contract:
+        - Parent `ServicePackage` scope is injected by propagation.
+        - Identity is keyed by the attached implementation `CodePackage`.
+        - The payload is the canonical runtime import/install contract for ServiceHost activation.
+        - Consumers must not infer implementation import roots from service names or workspace layout.
+        """
+    }
+}
+
+ann service.ServicePackageImplementationPackage::code_package load eager

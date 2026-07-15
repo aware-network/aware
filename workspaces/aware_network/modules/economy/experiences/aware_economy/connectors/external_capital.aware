@@ -1,0 +1,26 @@
+connector external_capital {
+    """Economy-owned target contract for wallet-funding provider service actuators."""
+
+    kind economy_external_capital_provider
+    label "External capital";
+
+    provider stripe_wallet_funding {
+        kind stripe_wallet_funding_provider_service
+        ref aware_economy.providers.stripe.wallet_funding
+        label "Stripe wallet funding";
+    }
+
+    actuator create_wallet_funding_session {
+        kind wallet_funding_session
+        label "Create wallet funding session";
+        target_ref aware_economy.providers.stripe.wallet_funding;
+
+        invocation create_wallet_funding_session api external_capital.wallet_funding_session.create_wallet_funding_session {
+            label "Create wallet funding session";
+            receipt show_receipt;
+
+            request_field transaction_intent_id from commit.branch_id;
+            request_field transaction_intent_commit_id from commit.commit_id;
+        }
+    }
+}

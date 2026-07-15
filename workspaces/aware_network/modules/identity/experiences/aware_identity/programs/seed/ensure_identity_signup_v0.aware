@@ -1,0 +1,28 @@
+// Ensure deterministic identity signup in the identity lane.
+//
+// Required symbols:
+// - plan.identity_public_key
+// - plan.identity_type_value
+//
+// Idempotency:
+// - Constructor calls are lane-head guarded by the seed executor.
+
+program EnsureIdentitySignup_v0Config(
+    identity_public_key String = plan.identity_public_key,
+    identity_type_value String = plan.identity_type_value,
+    identity_id UUID = identity.stable_identity_id(
+        public_key=identity_public_key,
+        type=identity_type_value
+    )
+) {
+    actor identity_system system
+
+    port identity_identity_id identity {
+        node identity identity.Identity(identity=identity_id)
+    }
+}
+
+program EnsureIdentitySignup_v0 impl EnsureIdentitySignup_v0Config {
+    bind identity_identity_id identity.main
+    identity_system call identity identity.Identity.signup(public_key=identity_public_key, type=identity_type_value)
+}

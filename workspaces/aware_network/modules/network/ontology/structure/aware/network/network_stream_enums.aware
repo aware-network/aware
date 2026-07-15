@@ -1,0 +1,5 @@
+enum NetworkStreamControl {
+    close
+    data
+    heartbeat
+}

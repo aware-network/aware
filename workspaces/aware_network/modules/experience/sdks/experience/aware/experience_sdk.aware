@@ -1,0 +1,80 @@
+sdk experience_sdk {
+    "Canonical Experience SDK operations over the Experience service API."
+
+    api experience;
+
+    operation start_experience_session {
+        "Start or resolve one commit-backed ExperienceSession on the child Identity Session spine."
+        endpoint experience.start_experience_session.start_experience_session;
+    }
+
+    operation mount_experience_session_profile {
+        "Mount one applied profile into an ExperienceSession as an independent committed projection root."
+        endpoint experience.mount_experience_session_profile.mount_experience_session_profile;
+    }
+
+    operation resolve_thread_layout_intent {
+        "Resolve a semantic Experience intent into Thread/Layout targets and evidence."
+        endpoint experience.resolve_experience_thread_layout_intent.resolve_experience_thread_layout_intent;
+    }
+
+    operation request_layout_transition {
+        "Request one Experience layout transition through the Experience authority."
+        endpoint experience.request_experience_layout_transition.request_experience_layout_transition;
+    }
+
+    operation get_section_graph_binding_catalog {
+        "Read the canonical section-graph-binding catalog for one Experience."
+        endpoint experience.get_experience_section_graph_binding_catalog.get_experience_section_graph_binding_catalog;
+    }
+
+    operation get_layout_graph_binding_catalog {
+        "Read the canonical layout-graph-binding catalog for one Experience."
+        endpoint experience.get_experience_layout_graph_binding_catalog.get_experience_layout_graph_binding_catalog;
+    }
+
+    operation get_section_graph_binding_state {
+        "Read current Attention-backed state for one Experience section graph binding."
+        endpoint experience.get_experience_section_graph_binding_state.get_experience_section_graph_binding_state;
+    }
+
+    operation get_layout_graph_binding_state {
+        "Read current Attention-backed state for one Experience layout graph binding."
+        endpoint experience.get_experience_layout_graph_binding_state.get_experience_layout_graph_binding_state;
+    }
+
+    operation activate_section_graph_binding {
+        "Activate one Experience section graph binding through the Experience coordination boundary."
+        endpoint experience.activate_experience_section_graph_binding.activate_experience_section_graph_binding;
+    }
+
+    operation activate_layout_graph_binding {
+        "Activate one Experience layout graph binding through its grouped section graph bindings."
+        endpoint experience.activate_experience_layout_graph_binding.activate_experience_layout_graph_binding;
+    }
+
+    operation ensure_session_handoff {
+        "Admit a consumer actor to an Experience session and ensure one Experience session feature."
+        endpoint experience.session_handoff.ensure_experience_session_handoff;
+    }
+
+    operation get_session_handoff_status {
+        "Read Experience session actor admission and session feature lease health."
+        endpoint experience.session_handoff.get_experience_session_handoff_status;
+    }
+
+    operation resolve_session_context {
+        "Resolve actor-specific Experience session context over Environment session Attention state."
+        endpoint experience.session_context.resolve_experience_session_context;
+    }
+
+    operation resolve_session_view_frame {
+        "Resolve a consumer read frame over Experience session context and shared Environment Attention state."
+        endpoint experience.session_view_frame.resolve_experience_session_view_frame;
+    }
+
+    operation watch_section_graph_bindings {
+        "Read and stream Experience section-graph-binding state snapshots."
+        endpoint experience.watch_experience_section_graph_bindings.watch_experience_section_graph_bindings;
+    }
+}

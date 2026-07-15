@@ -22,9 +22,10 @@ Not implemented (v0):
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import dataclass
-from collections.abc import Iterable, Mapping, MutableMapping
-from typing import TypeVar, cast
+from collections.abc import Iterable, Iterator, Mapping, MutableMapping
+from typing import TypeAlias, TypeVar, cast
 from uuid import UUID
 
 from aware_code.types import Json, JsonValue
@@ -75,11 +76,24 @@ from aware_meta.attribute.instance.value.validator import (
 )
 from aware_meta.class_.instance.handlers import link_attribute
 from aware_meta.graph.instance.diff import ObjectInstanceGraphDelta
+from aware_meta.graph.instance.commit.body_codec import (
+    OigCommitBodyAttributeChangeDraft,
+    OigCommitBodyAttributeValueChangeDraft,
+    OigCommitBodyAttributeValueLinkChangeDraft,
+    OigCommitBodyChangeRefDraft,
+    OigCommitBodyClassInstanceChangeDraft,
+    OigCommitBodyDraft,
+    OigCommitBodyFieldDeltaDraft,
+    OigCommitBodyRelationshipChangeDraft,
+    OigCommitBodyRootChangeDraft,
+)
+from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
 from aware_meta.graph.instance.member_kind import ObjectInstanceGraphMemberKind as K
 
 # ORM
 from aware_orm.models.orm_model import ORMModel
 from aware_orm.session.autobind import disable_autobind
+from aware_orm.session.change_collector import disable_change_tracking_hooks
 
 
 class OigDeltaApplyError(ValueError):
@@ -160,7 +174,7 @@ def _apply_class_instance_delta(
                 object_instance_graph_id=graph.id,
                 class_config_id=class_config_id,
                 source_object_id=source_object_id,
-                attributes=[],
+                class_instance_attributes=[],
             )
         graph.class_instances.append(ci)
         existing = ci
@@ -392,7 +406,12 @@ def _apply_value_link_delta(
 
     # For CREATE/UPDATE we need to resolve the link slot key and child descriptor.
     slot = _parse_value_link_slot(delta.path_key)
-    child_desc = _resolve_child_descriptor(parent.type_descriptor, slot)
+    parent_descriptor = parent.type_descriptor
+    if parent_descriptor is None:
+        raise OigDeltaApplyError(
+            f"AttributeValue {parent.id} is missing its type descriptor"
+        )
+    child_desc = _resolve_child_descriptor(parent_descriptor, slot)
 
     if delta.operation == ChangeType.create:
         if existing is not None:
@@ -598,12 +617,15 @@ def _sort_class_instance_attributes(
             str(attribute_config_id),
         )
 
-    class_instance.class_instance_attributes.sort(
-        key=lambda edge: order_by_attribute_id.get(
-            _edge_attribute_config_id(edge),
-            (1_000_000, "", _edge_fallback_id(edge)),
-        )
-    )
+    def attribute_sort_key(edge: object) -> tuple[int, str, str]:
+        attribute_config_id = _edge_attribute_config_id(edge)
+        if attribute_config_id is not None:
+            configured = order_by_attribute_id.get(attribute_config_id)
+            if configured is not None:
+                return configured
+        return (1_000_000, "", _edge_fallback_id(edge))
+
+    class_instance.class_instance_attributes.sort(key=attribute_sort_key)
 
 
 def _as_uuid(value: object) -> UUID:
@@ -827,12 +849,31 @@ class OigChangeApplyError(ValueError):
     pass
 
 
+_RootChange: TypeAlias = ObjectInstanceGraphChange | OigCommitBodyRootChangeDraft
+_ClassInstanceChange: TypeAlias = (
+    ClassInstanceChange | OigCommitBodyClassInstanceChangeDraft
+)
+_AttributeChange: TypeAlias = AttributeChange | OigCommitBodyAttributeChangeDraft
+_AttributeValueChange: TypeAlias = (
+    AttributeValueChange | OigCommitBodyAttributeValueChangeDraft
+)
+_AttributeValueLinkChange: TypeAlias = (
+    AttributeValueLinkChange | OigCommitBodyAttributeValueLinkChangeDraft
+)
+_RelationshipChange: TypeAlias = (
+    ClassInstanceRelationshipChange | OigCommitBodyRelationshipChangeDraft
+)
+_ChangeRef: TypeAlias = Change | OigCommitBodyChangeRefDraft
+_FieldDelta: TypeAlias = ChangeDelta | OigCommitBodyFieldDeltaDraft
+
+
 def apply_object_instance_graph_changes(
     *,
     graph: ObjectInstanceGraph,
     changes: Iterable[ObjectInstanceGraphChange],
     attribute_configs_by_id: Mapping[UUID, AttributeConfig] | None = None,
     class_configs_by_id: Mapping[UUID, ClassConfig] | None = None,
+    trace_phase_prefix: str | None = None,
 ) -> ObjectInstanceGraph:
     """
     Apply canonical ObjectInstanceGraphChange trees to `graph` in-place.
@@ -840,12 +881,62 @@ def apply_object_instance_graph_changes(
     Commit payload SSOT:
     Commit → ObjectInstanceGraphChange tree → Change(type) → ChangeDelta[] (delta-only)
     """
-    attr_cfgs = attribute_configs_by_id or {}
-    class_instances_by_id: dict[UUID, ClassInstance] = {
-        ci.id: ci for ci in graph.class_instances
-    }
+    with disable_change_tracking_hooks():
+        return _apply_object_instance_graph_changes(
+            graph=graph,
+            changes=changes,
+            attribute_configs_by_id=attribute_configs_by_id,
+            class_configs_by_id=class_configs_by_id,
+            trace_phase_prefix=trace_phase_prefix,
+        )
 
-    for change_tree in changes:
+
+def apply_object_instance_graph_body_draft(
+    *,
+    graph: ObjectInstanceGraph,
+    body_draft: OigCommitBodyDraft,
+    attribute_configs_by_id: Mapping[UUID, AttributeConfig] | None = None,
+    class_configs_by_id: Mapping[UUID, ClassConfig] | None = None,
+    trace_phase_prefix: str | None = None,
+) -> ObjectInstanceGraph:
+    """Apply record-native commit evidence through the canonical replay rail."""
+
+    if not body_draft.roots:
+        raise OigChangeApplyError("Body-draft replay requires at least one root change")
+    with disable_change_tracking_hooks():
+        return _apply_object_instance_graph_changes(
+            graph=graph,
+            changes=body_draft.roots,
+            attribute_configs_by_id=attribute_configs_by_id,
+            class_configs_by_id=class_configs_by_id,
+            trace_phase_prefix=trace_phase_prefix,
+        )
+
+
+def _apply_object_instance_graph_changes(
+    *,
+    graph: ObjectInstanceGraph,
+    changes: Iterable[_RootChange],
+    attribute_configs_by_id: Mapping[UUID, AttributeConfig] | None,
+    class_configs_by_id: Mapping[UUID, ClassConfig] | None,
+    trace_phase_prefix: str | None,
+) -> ObjectInstanceGraph:
+    change_tuple = tuple(changes)
+    trace_metadata = _canonical_apply_trace_metadata(
+        graph=graph,
+        changes=change_tuple,
+    )
+    attr_cfgs = attribute_configs_by_id or {}
+    with _canonical_apply_trace_span(
+        trace_phase_prefix=trace_phase_prefix,
+        phase_suffix="build_class_instance_index",
+        metadata=trace_metadata,
+    ):
+        class_instances_by_id: dict[UUID, ClassInstance] = {
+            ci.id: ci for ci in graph.class_instances
+        }
+
+    for change_tree in change_tuple:
         if change_tree.type == ObjectInstanceGraphChangeType.object_instance:
             for ci_change in change_tree.class_instance_changes:
                 _apply_class_instance_change(
@@ -854,6 +945,8 @@ def apply_object_instance_graph_changes(
                     attribute_configs_by_id=attr_cfgs,
                     class_configs_by_id=class_configs_by_id,
                     class_instances_by_id=class_instances_by_id,
+                    trace_phase_prefix=trace_phase_prefix,
+                    trace_metadata=trace_metadata,
                 )
             continue
 
@@ -861,10 +954,15 @@ def apply_object_instance_graph_changes(
             change_tree.type
             == ObjectInstanceGraphChangeType.object_instance_relationship
         ):
-            _apply_relationship_changes_bulk(
-                graph=graph,
-                changes=change_tree.class_instance_relationship_changes,
-            )
+            with _canonical_apply_trace_span(
+                trace_phase_prefix=trace_phase_prefix,
+                phase_suffix="relationship.apply",
+                metadata=trace_metadata,
+            ):
+                _apply_relationship_changes_bulk(
+                    graph=graph,
+                    changes=change_tree.class_instance_relationship_changes,
+                )
             continue
 
         raise OigChangeApplyError(
@@ -872,27 +970,117 @@ def apply_object_instance_graph_changes(
         )
 
     # Deterministic ordering for stable downstream operations (hash/diff).
-    graph.class_instances.sort(key=lambda ci: (str(ci.class_config_id), str(ci.id)))
-    graph.class_instance_relationships.sort(
-        key=lambda r: (
-            str(r.class_config_relationship_id),
-            str(r.source_class_instance_id),
-            str(r.target_class_instance_id),
+    with _canonical_apply_trace_span(
+        trace_phase_prefix=trace_phase_prefix,
+        phase_suffix="sort_graph_members",
+        metadata=trace_metadata,
+    ):
+        graph.class_instances.sort(key=lambda ci: (str(ci.class_config_id), str(ci.id)))
+        graph.class_instance_relationships.sort(
+            key=lambda r: (
+                str(r.class_config_relationship_id),
+                str(r.source_class_instance_id),
+                str(r.target_class_instance_id),
+            )
         )
-    )
     return graph
+
+
+@contextmanager
+def _canonical_apply_trace_span(
+    *,
+    trace_phase_prefix: str | None,
+    phase_suffix: str,
+    metadata: Mapping[str, object],
+) -> Iterator[None]:
+    if trace_phase_prefix is None:
+        yield
+        return
+    with commit_perf_span(
+        phase=f"{trace_phase_prefix}.{phase_suffix}",
+        category="meta.graph.instance.canonical_apply",
+        metadata=metadata,
+    ):
+        yield
+
+
+def _canonical_apply_trace_metadata(
+    *,
+    graph: ObjectInstanceGraph,
+    changes: tuple[_RootChange, ...],
+) -> dict[str, object]:
+    class_instance_changes = tuple(
+        item for root in changes for item in root.class_instance_changes
+    )
+    return {
+        "attribute_change_count": sum(
+            len(item.attribute_changes) for item in class_instance_changes
+        ),
+        "class_instance_change_count": len(class_instance_changes),
+        "class_instance_count_pre": len(graph.class_instances),
+        "relationship_change_count": sum(
+            len(root.class_instance_relationship_changes) for root in changes
+        ),
+        "root_change_count": len(changes),
+    }
 
 
 def _apply_class_instance_change(
     *,
     graph: ObjectInstanceGraph,
-    change: ClassInstanceChange,
+    change: _ClassInstanceChange,
     attribute_configs_by_id: Mapping[UUID, AttributeConfig],
     class_configs_by_id: Mapping[UUID, ClassConfig] | None,
+    trace_phase_prefix: str | None,
+    trace_metadata: Mapping[str, object],
     class_instances_by_id: MutableMapping[UUID, ClassInstance] | None = None,
 ) -> None:
-    op = change.change.type
+    with _canonical_apply_trace_span(
+        trace_phase_prefix=trace_phase_prefix,
+        phase_suffix="class_instance.membership",
+        metadata=trace_metadata,
+    ):
+        existing = _apply_class_instance_membership_change(
+            graph=graph,
+            change=change,
+            class_instances_by_id=class_instances_by_id,
+        )
+    if existing is None:
+        return
 
+    with _canonical_apply_trace_span(
+        trace_phase_prefix=trace_phase_prefix,
+        phase_suffix="class_instance.attributes",
+        metadata=trace_metadata,
+    ):
+        for attr_change in change.attribute_changes:
+            _apply_attribute_change(
+                class_instance=existing,
+                change=attr_change,
+                attribute_configs_by_id=attribute_configs_by_id,
+                class_configs_by_id=class_configs_by_id,
+                trace_phase_prefix=trace_phase_prefix,
+                trace_metadata=trace_metadata,
+            )
+
+    with _canonical_apply_trace_span(
+        trace_phase_prefix=trace_phase_prefix,
+        phase_suffix="class_instance.sort_attributes",
+        metadata=trace_metadata,
+    ):
+        _sort_class_instance_attributes(
+            class_instance=existing,
+            class_configs_by_id=class_configs_by_id,
+        )
+
+
+def _apply_class_instance_membership_change(
+    *,
+    graph: ObjectInstanceGraph,
+    change: _ClassInstanceChange,
+    class_instances_by_id: MutableMapping[UUID, ClassInstance] | None,
+) -> ClassInstance | None:
+    op = change.change.type
     ci_id = change.class_instance_id
     existing = (
         class_instances_by_id.get(ci_id)
@@ -911,7 +1099,7 @@ def _apply_class_instance_change(
                 object_instance_graph_id=graph.id,
                 class_config_id=class_config_id,
                 source_object_id=source_object_id,
-                attributes=[],
+                class_instance_attributes=[],
             )
         graph.class_instances.append(existing)
         if class_instances_by_id is not None:
@@ -922,7 +1110,7 @@ def _apply_class_instance_change(
             raise OigChangeApplyError(
                 f"UPDATE ClassInstance {ci_id} missing from base graph"
             )
-        for cd in change.change.change_deltas:
+        for cd in _field_deltas(change.change):
             _apply_scalar_set_to_class_instance(ci=existing, delta=cd)
 
     elif op == ChangeType.delete:
@@ -933,27 +1121,15 @@ def _apply_class_instance_change(
         graph.class_instances = [ci for ci in graph.class_instances if ci.id != ci_id]
         if class_instances_by_id is not None:
             _ = class_instances_by_id.pop(ci_id, None)
-        return
+        return None
 
     else:
         raise OigChangeApplyError(f"Unsupported ClassInstance change type: {op}")
-
-    for attr_change in change.attribute_changes:
-        _apply_attribute_change(
-            class_instance=existing,
-            change=attr_change,
-            attribute_configs_by_id=attribute_configs_by_id,
-            class_configs_by_id=class_configs_by_id,
-        )
-
-    _sort_class_instance_attributes(
-        class_instance=existing,
-        class_configs_by_id=class_configs_by_id,
-    )
+    return existing
 
 
 def _apply_scalar_set_to_class_instance(
-    *, ci: ClassInstance, delta: ChangeDelta
+    *, ci: ClassInstance, delta: _FieldDelta
 ) -> None:
     if delta.kind != ChangeDeltaKind.scalar_set:
         raise OigChangeApplyError(
@@ -973,9 +1149,35 @@ def _apply_scalar_set_to_class_instance(
 def _apply_attribute_change(
     *,
     class_instance: ClassInstance,
-    change: AttributeChange,
+    change: _AttributeChange,
     attribute_configs_by_id: Mapping[UUID, AttributeConfig],
     class_configs_by_id: Mapping[UUID, ClassConfig] | None,
+    trace_phase_prefix: str | None,
+    trace_metadata: Mapping[str, object],
+) -> None:
+    with _canonical_apply_trace_span(
+        trace_phase_prefix=trace_phase_prefix,
+        phase_suffix="attribute.apply",
+        metadata=trace_metadata,
+    ):
+        _apply_attribute_change_impl(
+            class_instance=class_instance,
+            change=change,
+            attribute_configs_by_id=attribute_configs_by_id,
+            class_configs_by_id=class_configs_by_id,
+            trace_phase_prefix=trace_phase_prefix,
+            trace_metadata=trace_metadata,
+        )
+
+
+def _apply_attribute_change_impl(
+    *,
+    class_instance: ClassInstance,
+    change: _AttributeChange,
+    attribute_configs_by_id: Mapping[UUID, AttributeConfig],
+    class_configs_by_id: Mapping[UUID, ClassConfig] | None,
+    trace_phase_prefix: str | None,
+    trace_metadata: Mapping[str, object],
 ) -> None:
     op = change.change.type
     attr_id = change.attribute_id
@@ -1006,38 +1208,60 @@ def _apply_attribute_change(
                 + str(change.value_root_change.change.type)
             )
 
-        node = _create_value_node_from_change(
-            change=change.value_root_change, type_descriptor=cfg.type_descriptor
-        )
-        _apply_value_node_children_from_change(
-            node=node,
-            change=change.value_root_change,
-            attribute_configs_by_id=attribute_configs_by_id,
-        )
-        _reattach_value_tree_type_descriptors(
-            node=node,
-            expected_descriptor=cfg.type_descriptor,
-        )
-        canonicalize_attribute_value_tree(node)
-        validate_attribute_value_tree_with_context(
-            node, class_configs_by_id=class_configs_by_id
-        )
-        with disable_autobind():
-            existing = Attribute(
-                id=attr_id,
-                owner_key=class_instance.source_object_id,
-                attribute_config_id=attr_cfg_id,
-                value_root=node,
-                value_root_id=node.id,
+        with _canonical_apply_trace_span(
+            trace_phase_prefix=trace_phase_prefix,
+            phase_suffix="attribute_value.construct",
+            metadata=trace_metadata,
+        ):
+            node = _create_value_node_from_change(
+                change=change.value_root_change,
+                type_descriptor=cfg.type_descriptor,
             )
-        _ = link_attribute(class_instance, existing)
+            _apply_value_node_children_from_change(
+                node=node,
+                change=change.value_root_change,
+                attribute_configs_by_id=attribute_configs_by_id,
+            )
+            _reattach_value_tree_type_descriptors(
+                node=node,
+                expected_descriptor=cfg.type_descriptor,
+            )
+        with _canonical_apply_trace_span(
+            trace_phase_prefix=trace_phase_prefix,
+            phase_suffix="attribute_value.canonicalize",
+            metadata=trace_metadata,
+        ):
+            canonicalize_attribute_value_tree(node)
+        with _canonical_apply_trace_span(
+            trace_phase_prefix=trace_phase_prefix,
+            phase_suffix="attribute_value.validate",
+            metadata=trace_metadata,
+        ):
+            validate_attribute_value_tree_with_context(
+                node,
+                class_configs_by_id=class_configs_by_id,
+            )
+        with _canonical_apply_trace_span(
+            trace_phase_prefix=trace_phase_prefix,
+            phase_suffix="attribute.link",
+            metadata=trace_metadata,
+        ):
+            with disable_autobind():
+                existing = Attribute(
+                    id=attr_id,
+                    owner_key=class_instance.source_object_id,
+                    attribute_config_id=attr_cfg_id,
+                    value_root=node,
+                    value_root_id=node.id,
+                )
+            _ = link_attribute(class_instance, existing)
 
     elif op == ChangeType.update:
         if existing is None:
             raise OigChangeApplyError(
                 f"UPDATE Attribute {attr_id} missing from base graph"
             )
-        for cd in change.change.change_deltas:
+        for cd in _field_deltas(change.change):
             if cd.kind != ChangeDeltaKind.scalar_set:
                 raise OigChangeApplyError(
                     f"Unsupported ChangeDeltaKind for Attribute: {cd.kind}"
@@ -1074,15 +1298,19 @@ def _apply_attribute_change(
                 change=change.value_root_change,
                 attribute_configs_by_id=attribute_configs_by_id,
                 class_configs_by_id=class_configs_by_id,
+                trace_phase_prefix=trace_phase_prefix,
+                trace_metadata=trace_metadata,
             )
 
 
 def _apply_attribute_value_change_under_attribute(
     *,
     attribute: Attribute,
-    change: AttributeValueChange,
+    change: _AttributeValueChange,
     attribute_configs_by_id: Mapping[UUID, AttributeConfig],
     class_configs_by_id: Mapping[UUID, ClassConfig] | None,
+    trace_phase_prefix: str | None,
+    trace_metadata: Mapping[str, object],
 ) -> None:
     op = change.change.type
 
@@ -1106,11 +1334,16 @@ def _apply_attribute_value_change_under_attribute(
             raise OigChangeApplyError(
                 f"value_root id mismatch: have={node.id} change={change.attribute_value_id}"
             )
-        _reattach_value_tree_type_descriptors(
-            node=node,
-            expected_descriptor=cfg.type_descriptor,
-        )
-        _apply_value_node_update_from_change(node=node, change=change)
+        with _canonical_apply_trace_span(
+            trace_phase_prefix=trace_phase_prefix,
+            phase_suffix="attribute_value.apply_scalar_changes",
+            metadata=trace_metadata,
+        ):
+            _reattach_value_tree_type_descriptors(
+                node=node,
+                expected_descriptor=cfg.type_descriptor,
+            )
+            _apply_value_node_update_from_change(node=node, change=change)
 
     elif op == ChangeType.delete:
         raise OigChangeApplyError(
@@ -1120,24 +1353,42 @@ def _apply_attribute_value_change_under_attribute(
     else:
         raise OigChangeApplyError(f"Unsupported AttributeValue change type: {op}")
 
-    _apply_value_node_children_from_change(
-        node=node, change=change, attribute_configs_by_id=attribute_configs_by_id
-    )
-    _reattach_value_tree_type_descriptors(
-        node=node,
-        expected_descriptor=cfg.type_descriptor,
-    )
-    canonicalize_attribute_value_tree(node)
-    validate_attribute_value_tree_with_context(
-        node, class_configs_by_id=class_configs_by_id
-    )
+    with _canonical_apply_trace_span(
+        trace_phase_prefix=trace_phase_prefix,
+        phase_suffix="attribute_value.apply_child_changes",
+        metadata=trace_metadata,
+    ):
+        _apply_value_node_children_from_change(
+            node=node,
+            change=change,
+            attribute_configs_by_id=attribute_configs_by_id,
+        )
+        _reattach_value_tree_type_descriptors(
+            node=node,
+            expected_descriptor=cfg.type_descriptor,
+        )
+    with _canonical_apply_trace_span(
+        trace_phase_prefix=trace_phase_prefix,
+        phase_suffix="attribute_value.canonicalize",
+        metadata=trace_metadata,
+    ):
+        canonicalize_attribute_value_tree(node)
+    with _canonical_apply_trace_span(
+        trace_phase_prefix=trace_phase_prefix,
+        phase_suffix="attribute_value.validate",
+        metadata=trace_metadata,
+    ):
+        validate_attribute_value_tree_with_context(
+            node,
+            class_configs_by_id=class_configs_by_id,
+        )
     attribute.value_root_id = node.id
 
 
 def _apply_value_node_children_from_change(
     *,
     node: AttributeValue,
-    change: AttributeValueChange,
+    change: _AttributeValueChange,
     attribute_configs_by_id: Mapping[UUID, AttributeConfig],
 ) -> None:
     for link_change in change.attribute_value_link_changes:
@@ -1151,7 +1402,7 @@ def _apply_value_node_children_from_change(
 def _apply_value_link_change(
     *,
     parent: AttributeValue,
-    change: AttributeValueLinkChange,
+    change: _AttributeValueLinkChange,
     attribute_configs_by_id: Mapping[UUID, AttributeConfig],
 ) -> None:
     op = change.change.type
@@ -1173,7 +1424,12 @@ def _apply_value_link_change(
     if op == ChangeType.create:
         role, pos, ident = _link_slot_from_change(change.change)
         slot = _ValueLinkSlot(role=role, position=pos, identity_key=ident)
-        child_desc = _resolve_child_descriptor(parent.type_descriptor, slot)
+        parent_descriptor = parent.type_descriptor
+        if parent_descriptor is None:
+            raise OigChangeApplyError(
+                f"AttributeValue {parent.id} is missing its type descriptor"
+            )
+        child_desc = _resolve_child_descriptor(parent_descriptor, slot)
         if existing is not None:
             raise OigChangeApplyError(
                 f"CREATE AttributeValueLink {change.attribute_value_link_id} already exists"
@@ -1235,13 +1491,13 @@ def _apply_value_link_change(
 
 
 def _apply_value_node_update_from_change(
-    *, node: AttributeValue, change: AttributeValueChange
+    *, node: AttributeValue, change: _AttributeValueChange
 ) -> None:
     op = change.change.type
     if op not in (ChangeType.update, ChangeType.create):
         raise OigChangeApplyError(f"Cannot apply field updates for op={op}")
 
-    for cd in change.change.change_deltas:
+    for cd in _field_deltas(change.change):
         if cd.kind != ChangeDeltaKind.scalar_set:
             raise OigChangeApplyError(
                 f"Unsupported ChangeDeltaKind for AttributeValue: {cd.kind}"
@@ -1262,7 +1518,7 @@ def _apply_value_node_update_from_change(
 
 
 def _create_value_node_from_change(
-    *, change: AttributeValueChange, type_descriptor: AttributeTypeDescriptor
+    *, change: _AttributeValueChange, type_descriptor: AttributeTypeDescriptor
 ) -> AttributeValue:
     if change.change.type != ChangeType.create:
         raise OigChangeApplyError(
@@ -1295,7 +1551,7 @@ def _relationship_key(rel: ClassInstanceRelationship) -> tuple[UUID, UUID, UUID]
 def _apply_relationship_changes_bulk(
     *,
     graph: ObjectInstanceGraph,
-    changes: Iterable[ClassInstanceRelationshipChange],
+    changes: Iterable[_RelationshipChange],
 ) -> None:
     """Apply relationship changes with key-indexed state to avoid repeated full-list scans."""
     rels_by_key: dict[tuple[UUID, UUID, UUID], list[ClassInstanceRelationship]] = {}
@@ -1340,12 +1596,22 @@ def _apply_relationship_changes_bulk(
     ]
 
 
-def _delta_value(delta: ChangeDelta) -> JsonValue:
+def _field_deltas(change: _ChangeRef) -> tuple[_FieldDelta, ...] | list[ChangeDelta]:
+    if isinstance(change, OigCommitBodyChangeRefDraft):
+        return change.fields
+    return change.change_deltas
+
+
+def _delta_value(delta: _FieldDelta) -> JsonValue:
+    if isinstance(delta, OigCommitBodyFieldDeltaDraft):
+        if isinstance(delta.payload, Mapping):
+            return cast(JsonValue, delta.payload.get("value"))
+        raise OigChangeApplyError("Body-draft field delta payload must be an object")
     return delta.payload.get("value")
 
 
-def _scalar_uuid(change: Change, name: str) -> UUID | None:
-    for d in change.change_deltas:
+def _scalar_uuid(change: _ChangeRef, name: str) -> UUID | None:
+    for d in _field_deltas(change):
         if d.kind == ChangeDeltaKind.scalar_set and d.property == name:
             raw = _delta_value(d)
             if raw is None:
@@ -1354,18 +1620,20 @@ def _scalar_uuid(change: Change, name: str) -> UUID | None:
     return None
 
 
-def _require_scalar_uuid(change: Change, name: str) -> UUID:
+def _require_scalar_uuid(change: _ChangeRef, name: str) -> UUID:
     value = _scalar_uuid(change, name)
     if value is None:
         raise OigChangeApplyError(f"Missing required SCALAR_SET delta: {name}")
     return value
 
 
-def _link_slot_from_change(change: Change) -> tuple[Role, int | None, str | None]:
+def _link_slot_from_change(
+    change: _ChangeRef,
+) -> tuple[Role, int | None, str | None]:
     role_raw = None
     pos: int | None = None
     ident: str | None = None
-    for d in change.change_deltas:
+    for d in _field_deltas(change):
         if d.kind != ChangeDeltaKind.scalar_set:
             continue
         if d.property == "role":

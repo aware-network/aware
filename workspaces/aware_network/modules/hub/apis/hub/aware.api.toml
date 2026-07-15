@@ -1,0 +1,41 @@
+aware_api = 1
+
+[api]
+package_name = "hub-service-api"
+fqn_prefix = "aware_hub_service_api"
+version_number = 1
+title = "Hub Service API"
+description = "Public generated API client and service protocol boundary for Hub-owned deployment artifact and CodePackage authority resolution."
+
+[build]
+sources_dir = "bindings"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+compilation_mode = "api_ontology"
+
+[targets.python]
+root_dir = "python"
+
+[targets.python.public_package]
+package_dir = "aware_hub_service_api"
+
+[targets.python.service_protocol]
+package_dir = "aware_hub_service_protocol"
+
+[targets.dart]
+root_dir = "dart"
+
+[targets.dart.public_package]
+package_dir = "aware_hub_service_api"
+
+[[dependencies]]
+package_name = "hub-service-dto"
+
+[[dependencies]]
+package_name = "code-service-dto"
+
+[[semantic_package_exports]]
+kind = "api_dto"
+package_name = "hub-service-dto"
+manifest_path = "dto/aware.toml"

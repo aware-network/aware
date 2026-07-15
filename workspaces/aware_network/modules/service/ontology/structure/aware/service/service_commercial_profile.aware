@@ -1,0 +1,33 @@
+class ServiceCommercialProfile {
+    // Relationships
+    default_smart_contract_config aware_economy.smart_contract.SmartContractConfig?
+    producer_finance_entity aware_economy.finance.FinanceEntity
+
+    // Attributes
+    metadata_json JsonObject? = {}
+
+    fn build construct (
+        producer_finance_entity_id UUID,
+        default_smart_contract_config_id UUID? = null,
+        metadata_json JsonObject? = {}
+    ) -> ServiceCommercialProfile {
+        """
+        Creates or ensures the live producer-side commercial profile under one Service.
+
+        Contract:
+        - Lives on the Service containment rail as current commercial truth.
+        - Future ServiceContract receipts may snapshot its producer-side terms without depending
+          on live profile mutation for settlement correctness.
+        """
+    }
+
+    fn set_terms (
+        producer_finance_entity_id UUID,
+        default_smart_contract_config_id UUID? = null,
+        metadata_json JsonObject? = {}
+    ) -> ServiceCommercialProfile {
+        """
+        Updates the live producer-side commercial profile for future contracts.
+        """
+    }
+}

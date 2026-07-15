@@ -1,0 +1,30 @@
+class ServiceConfigApi {
+    // Relationships
+    api aware_api.api.Api key
+    api_projections ServiceConfigApiProjection[]
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        api_id UUID key,
+        description String? = null
+    ) -> ServiceConfigApi {
+        """
+        Create one config-level bridge between a ServiceConfig and one shared Api.
+        """
+    }
+
+    fn create_projection (
+        api_graph_projection_id UUID,
+        description String? = null
+    ) -> ServiceConfigApiProjection {
+        """
+        Creates one config-level API projection bridge under this ServiceConfigApi.
+        """
+        let created = construct api_projections.build(
+            api_graph_projection_id = api_graph_projection_id,
+            description = description,
+        )
+    }
+}

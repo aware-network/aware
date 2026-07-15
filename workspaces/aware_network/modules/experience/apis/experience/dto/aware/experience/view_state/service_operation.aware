@@ -1,0 +1,42 @@
+/// Canonical request/response DTOs for Experience view-state subscriptions.
+///
+/// These DTOs describe an Experience-owned subscription facade. Service-owned
+/// provider endpoints remain typed fulfillment rails behind this facade.
+
+class ExperienceViewStateServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class ExperienceViewStateServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+    snapshot view_state.ExperienceViewStateSnapshot?
+}
+
+class WatchExperienceViewStateRequest augment view_state.ExperienceViewStateServiceRequest {
+    operation String = "watch_experience_view_state"
+    experience_name String
+    session_view_frame_request session_view_frame.ResolveExperienceSessionViewFrameRequest
+    projection_experience_view_instance_id UUID?
+    provider_context JsonObject = {}
+    known_cursor String?
+    known_digest String?
+    poll_interval_ms Int = 1000
+}
+
+class WatchExperienceViewStateResponse augment view_state.ExperienceViewStateServiceResponse {
+    operation String = "watch_experience_view_state"
+    experience_name String
+    snapshot view_state.ExperienceViewStateSnapshot
+    changed Bool = true
+}
+
+ann view_state.ExperienceViewStateServiceRequest::operation discriminate key
+ann view_state.WatchExperienceViewStateRequest::operation discriminate tag "watch_experience_view_state"
+
+ann view_state.ExperienceViewStateServiceResponse::operation discriminate key
+ann view_state.WatchExperienceViewStateResponse::operation discriminate tag "watch_experience_view_state"

@@ -12,12 +12,14 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from functools import lru_cache
+from time import perf_counter
 from typing import ClassVar, TYPE_CHECKING, Any, Self, cast, get_args, get_origin
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, PrivateAttr, TypeAdapter, ValidationError
 
 from aware_orm._support import logger
+from aware_orm.models.constructor_profile import current_orm_constructor_profile
 
 
 if TYPE_CHECKING:
@@ -51,7 +53,9 @@ class BaseORMModel(BaseModel):
     id: UUID = Field(default_factory=uuid4)
 
     # ==================== Private Attributes ====================
-    _branch_id: UUID = PrivateAttr(default_factory=lambda: UUID("00000000-0000-0000-0000-000000000000"))
+    _branch_id: UUID = PrivateAttr(
+        default_factory=lambda: UUID("00000000-0000-0000-0000-000000000000")
+    )
     _bound_session: Session | None = PrivateAttr(default=None)
     _is_new: bool = PrivateAttr(True)
     _graph_invocation_target_id: UUID | None = PrivateAttr(default=None)
@@ -62,15 +66,39 @@ class BaseORMModel(BaseModel):
 
     def __init__(self, **data):
         """Initialize with session binding if available."""
-        super().__init__(**data)
+        constructor_profile = current_orm_constructor_profile()
+        model_profile = (
+            None
+            if constructor_profile is None
+            else constructor_profile.model_profile(type(self).__name__)
+        )
+        validation_started_at = perf_counter() if model_profile is not None else 0.0
+        try:
+            super().__init__(**data)
+        finally:
+            if model_profile is not None:
+                model_profile.model_validation_s += (
+                    perf_counter() - validation_started_at
+                )
+                model_profile.model_validation_count += 1
 
+        hook_guard_started_at = perf_counter() if model_profile is not None else 0.0
+        hooks_disabled = False
         cc_mod = _change_collector_module()
         try:
             is_hooks_enabled = getattr(cc_mod, "is_change_tracking_hooks_enabled", None)
             if callable(is_hooks_enabled) and not bool(is_hooks_enabled()):
-                return
+                hooks_disabled = True
         except Exception:
             pass
+        finally:
+            if model_profile is not None:
+                model_profile.post_init_hook_guard_s += (
+                    perf_counter() - hook_guard_started_at
+                )
+                model_profile.post_init_hook_guard_count += 1
+        if hooks_disabled:
+            return
 
         # Ensure list-valued fields are wrapped with change-tracked lists so
         # handler mutations (append/remove/…) can be observed without requiring
@@ -90,7 +118,9 @@ class BaseORMModel(BaseModel):
 
         try:
             session_ctx_mod = _current_session_ctx_module()
-            current_session_context = getattr(session_ctx_mod, "current_session_context", None)
+            current_session_context = getattr(
+                session_ctx_mod, "current_session_context", None
+            )
             if not callable(current_session_context):
                 return
             ctx = current_session_context()
@@ -117,7 +147,9 @@ class BaseORMModel(BaseModel):
         try:
             return cls.model_validate(value)
         except ValidationError as exc:
-            patched = cls._patch_invocation_value_for_deferred_refs(value=value, exc=exc)
+            patched = cls._patch_invocation_value_for_deferred_refs(
+                value=value, exc=exc
+            )
             if patched is None:
                 raise
             patched = cls._coerce_invocation_payload_types(patched)
@@ -136,8 +168,12 @@ class BaseORMModel(BaseModel):
             return
 
         try:
-            is_tracked_list_wrapping_enabled = getattr(cc_mod, "is_tracked_list_wrapping_enabled", None)
-            if callable(is_tracked_list_wrapping_enabled) and not bool(is_tracked_list_wrapping_enabled()):
+            is_tracked_list_wrapping_enabled = getattr(
+                cc_mod, "is_tracked_list_wrapping_enabled", None
+            )
+            if callable(is_tracked_list_wrapping_enabled) and not bool(
+                is_tracked_list_wrapping_enabled()
+            ):
                 return
         except Exception:
             pass
@@ -159,7 +195,9 @@ class BaseORMModel(BaseModel):
 
         try:
             session_ctx_mod = _current_session_ctx_module()
-            current_session_context = getattr(session_ctx_mod, "current_session_context", None)
+            current_session_context = getattr(
+                session_ctx_mod, "current_session_context", None
+            )
             if not callable(current_session_context):
                 return
             ctx = current_session_context()
@@ -189,7 +227,11 @@ class BaseORMModel(BaseModel):
             if error.get("type") != "missing":
                 return None
             location = error.get("loc")
-            if not isinstance(location, tuple) or not location or not isinstance(location[0], str):
+            if (
+                not isinstance(location, tuple)
+                or not location
+                or not isinstance(location[0], str)
+            ):
                 return None
 
             top_field_name = location[0]
@@ -215,7 +257,9 @@ class BaseORMModel(BaseModel):
         return patched
 
     @classmethod
-    def _coerce_invocation_payload_types(cls, payload: dict[str, Any]) -> dict[str, Any]:
+    def _coerce_invocation_payload_types(
+        cls, payload: dict[str, Any]
+    ) -> dict[str, Any]:
         coerced = dict(payload)
         for field_name, field_info in cls.model_fields.items():
             if field_name not in coerced:
@@ -252,11 +296,15 @@ class BaseORMModel(BaseModel):
                 item_type = cls._resolve_nested_orm_model_type(args[0])
                 if item_type is not None:
                     return [
-                        item
-                        if isinstance(item, item_type)
-                        else item_type.validate_invocation_value(item)
-                        if isinstance(item, Mapping)
-                        else item
+                        (
+                            item
+                            if isinstance(item, item_type)
+                            else (
+                                item_type.validate_invocation_value(item)
+                                if isinstance(item, Mapping)
+                                else item
+                            )
+                        )
                         for item in value
                     ]
         return value
@@ -305,9 +353,13 @@ class BaseORMModel(BaseModel):
                     try:
                         # __aware_register__ expects cc_id
                         attr.__aware_register__(class_config.id)  # type: ignore[attr-defined]
-                        logger.debug(f"Registered @api method {cls.__name__}.{attr_name} for CC {class_config.id}")
+                        logger.debug(
+                            f"Registered @api method {cls.__name__}.{attr_name} for CC {class_config.id}"
+                        )
                     except Exception as e:
-                        logger.debug(f"Skipping registration for {cls.__name__}.{attr_name}: {e}")
+                        logger.debug(
+                            f"Skipping registration for {cls.__name__}.{attr_name}: {e}"
+                        )
         except Exception as e:
             logger.debug(f"API registration skipped for {cls.__name__}: {e}")
 
@@ -507,7 +559,9 @@ class BaseORMModel(BaseModel):
             return False
         return real in self.model_fields_set
 
-    def try_field_value(self, name: str, *, include_unset: bool = False) -> tuple[bool, object]:
+    def try_field_value(
+        self, name: str, *, include_unset: bool = False
+    ) -> tuple[bool, object]:
         """
         Return (found, value) for a declared field.
 
@@ -531,7 +585,9 @@ class BaseORMModel(BaseModel):
             return False, None
         return True, getattr(self, resolved)
 
-    def try_virtual_value(self, attribute_config: AttributeConfig) -> tuple[bool, object]:
+    def try_virtual_value(
+        self, attribute_config: AttributeConfig
+    ) -> tuple[bool, object]:
         """
         Return (found, value) for a virtual AttributeConfig.
 
@@ -545,7 +601,9 @@ class BaseORMModel(BaseModel):
             return False, None
         return True, virtuals[attribute_config.name]
 
-    def try_attribute_value(self, attribute_config: AttributeConfig) -> tuple[bool, object]:
+    def try_attribute_value(
+        self, attribute_config: AttributeConfig
+    ) -> tuple[bool, object]:
         """
         Return (found, value) for an AttributeConfig (virtual or concrete).
 
@@ -612,7 +670,11 @@ class BaseORMModel(BaseModel):
         current_change_collector = getattr(cc_mod, "current_change_collector", None)
         snapshot_list = getattr(cc_mod, "snapshot_list", None)
         wrap_tracked_list = getattr(cc_mod, "wrap_tracked_list", None)
-        if not callable(current_change_collector) or not callable(snapshot_list) or not callable(wrap_tracked_list):
+        if (
+            not callable(current_change_collector)
+            or not callable(snapshot_list)
+            or not callable(wrap_tracked_list)
+        ):
             return super().__setattr__(name, value)
 
         collector = current_change_collector()
@@ -624,11 +686,17 @@ class BaseORMModel(BaseModel):
                     pass
                 else:
                     before = snapshot_list(old_value)
-                    collector.record_list_mutation(obj=self, field_name=name, before=before)
+                    collector.record_list_mutation(
+                        obj=self, field_name=name, before=before
+                    )
                     after = snapshot_list(value) if isinstance(value, list) else []
-                    collector.record_list_set(obj=self, field_name=name, before=before, after=after)
+                    collector.record_list_set(
+                        obj=self, field_name=name, before=before, after=after
+                    )
             else:
-                collector.record_scalar_set(obj=self, field_name=name, old_value=old_value)
+                collector.record_scalar_set(
+                    obj=self, field_name=name, old_value=old_value
+                )
 
         value = wrap_tracked_list(owner=self, field_name=name, value=value)
         return super().__setattr__(name, value)

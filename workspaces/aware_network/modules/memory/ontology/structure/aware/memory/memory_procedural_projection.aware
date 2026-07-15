@@ -1,0 +1,12 @@
+// MemoryProcedural projection
+//
+// Contract:
+// - Memory owns procedural-memory lanes and references Identity relationally.
+
+projection MemoryProcedural {
+    root memory.MemoryProcedural
+    memory.MemoryProcedural::identity Identity
+    memory.MemoryProcedural::procedures
+    memory.MemoryProcedure::content aware_content.Content
+    memory.MemoryProcedure::procedure_config
+}

@@ -1,0 +1,84 @@
+/// Request/response DTOs for the Experience session handoff service boundary.
+///
+/// The handoff admits the caller actor into an Experience session and ensures
+/// one requested Experience-owned session feature. Consumers provide evidence;
+/// Experience owns the resulting admission and feature lease semantics.
+
+class ExperienceSessionHandoffServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class ExperienceSessionHandoffServiceResponse {
+    operation String
+    request_id UUID?
+    accepted Bool = false
+    status String
+    error String?
+    receipt session_handoff.ExperienceSessionHandoffReceipt?
+    evidence JsonObject = {}
+}
+
+class EnsureExperienceSessionHandoffRequest augment session_handoff.ExperienceSessionHandoffServiceRequest {
+    operation String = "ensure_experience_session_handoff"
+    session_scope session_handoff.ExperienceSessionHandoffScope
+    actor_context session_handoff.ExperienceSessionHandoffActorContext?
+    /// Environment actor admission evidence produced by Environment SDK/service.
+    ///
+    /// Contract:
+    /// - Required for runtime Experience session admission.
+    /// - Must match session actor/environment scope.
+    /// - Experience never admits a runtime actor from actor context alone.
+    /// - Admission is not navigation: it carries no process/thread/branch/projection scope.
+    environment_admission aware_environment_service_dto.environment.EnvironmentActorAdmissionReceipt?
+    /// Environment session join evidence produced by Environment SDK/service.
+    ///
+    /// Contract:
+    /// - Required before Experience starts a child Identity Session.
+    /// - Must carry EnvironmentSession Identity evidence.
+    /// - Must match actor/environment scope and the Environment admission.
+    environment_session_join aware_environment_service_dto.environment.EnvironmentSessionJoinReceipt?
+    /// Experience-specific ActorConfig admission evidence.
+    ///
+    /// Contract:
+    /// - Required before Experience records child-session actor-role evidence.
+    /// - Environment membership is parent context, not Experience authorization.
+    experience_actor_admission actor_admission.ExperienceActorConfigAdmissionReceipt?
+    /// Identity SessionConfig used for the child Experience Identity Session.
+    ///
+    /// Contract:
+    /// - Explicit caller/service-resolved input; no key-based inference.
+    /// - Parent is the EnvironmentSession Identity Session from
+    ///   `environment_session_join.identity_evidence.identity_session`.
+    experience_identity_session_config_id UUID?
+    feature session_handoff.ExperienceSessionHandoffFeatureSpec
+    idempotency_key String?
+    evidence JsonObject = {}
+}
+
+class EnsureExperienceSessionHandoffResponse augment session_handoff.ExperienceSessionHandoffServiceResponse {
+    operation String = "ensure_experience_session_handoff"
+    receipt session_handoff.ExperienceSessionHandoffReceipt
+}
+
+class GetExperienceSessionHandoffStatusRequest augment session_handoff.ExperienceSessionHandoffServiceRequest {
+    operation String = "get_experience_session_handoff_status"
+    session_scope session_handoff.ExperienceSessionHandoffScope
+    feature_key String?
+    lease_key String?
+    include_health Bool = true
+    evidence JsonObject = {}
+}
+
+class GetExperienceSessionHandoffStatusResponse augment session_handoff.ExperienceSessionHandoffServiceResponse {
+    operation String = "get_experience_session_handoff_status"
+    receipt session_handoff.ExperienceSessionHandoffStatusReceipt
+}
+
+ann session_handoff.ExperienceSessionHandoffServiceRequest::operation discriminate key
+ann session_handoff.EnsureExperienceSessionHandoffRequest::operation discriminate tag "ensure_experience_session_handoff"
+ann session_handoff.GetExperienceSessionHandoffStatusRequest::operation discriminate tag "get_experience_session_handoff_status"
+
+ann session_handoff.ExperienceSessionHandoffServiceResponse::operation discriminate key
+ann session_handoff.EnsureExperienceSessionHandoffResponse::operation discriminate tag "ensure_experience_session_handoff"
+ann session_handoff.GetExperienceSessionHandoffStatusResponse::operation discriminate tag "get_experience_session_handoff_status"

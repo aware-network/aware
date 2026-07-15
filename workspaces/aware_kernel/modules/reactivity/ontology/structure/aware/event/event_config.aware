@@ -2,6 +2,7 @@ class EventConfig {
     // Relationships
     event_config_action_configs EventConfigActionConfig[]
     event_config_condition_configs EventConfigConditionConfig[]
+    event_config_meaning_resolver_configs EventConfigMeaningResolverConfig[]
 
     // Attributes
     allowed_roles String[]
@@ -81,6 +82,27 @@ class EventConfig {
             is_enabled = is_enabled,
             is_required = is_required,
             continue_on_fail = continue_on_fail,
+        )
+    }
+
+    fn add_meaning_resolver_config(
+        action_config_id UUID,
+        resolver_key String key = "default",
+        priority Int = 0,
+        is_enabled Bool = true
+    ) -> EventConfigMeaningResolverConfig {
+        """
+        Register one provider-owned ActionConfig as an event-meaning resolver.
+
+        The ActionConfig remains the 1:1 API endpoint anchor. This relation
+        declares resolver role and selection policy without invoking the
+        provider or storing its result in Reactivity.
+        """
+        let created = construct event_config_meaning_resolver_configs.create(
+            action_config_id = action_config_id,
+            resolver_key = resolver_key,
+            priority = priority,
+            is_enabled = is_enabled,
         )
     }
 

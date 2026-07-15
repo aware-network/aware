@@ -1,0 +1,38 @@
+version = 1
+id = "graph_os_home_story_compile"
+description = "Home Story runtime compile proof staged as a public repo on top of the Graph-OS Linux CLI bundle."
+bundle_profile_path = "workspaces/aware_network/modules/interface/sdks/aware/python/aware_sdk/configs/bundles/graph_os_linux_cli_public.toml"
+source_workspace_root = "workspaces/aware_home"
+public_repo_slug = "home-workspace"
+publication_recipe_path = "publications/home-workspace/recipes/github-repo.json"
+publication_release_track_id = "compile-first"
+exclude_generated = true
+
+generated_globs = [
+  ".aware/**",
+  "_aware/**",
+  "**/.aware/**",
+  "**/dart/**",
+]
+
+verification_commands = [
+  "aware-cli compile --repo-root . --materialization-mode runtime --lock-mode off module home",
+  "aware-cli compile --repo-root . --materialization-mode runtime --lock-mode off --genesis --genesis-confirm environment home-story",
+]
+
+expected_outputs = [
+  ".aware/reports/latest_compile_success.json",
+  "_aware/environment/runtime/environment.manifest.json",
+  "modules/home/structure/ontology/sql/home/home.sql",
+  "modules/home/structure/ontology/sql/home/door.sql",
+  "modules/home/structure/ontology/sqlite/home/home.sql",
+  "modules/home/structure/ontology/sqlite/home/door.sql",
+]
+
+publication_refs = [
+  "publications/home-workspace/README.md",
+  "publications/home-workspace/narrative/canonical.md",
+  "publications/shared-digital-reality/narrative/canonical.md",
+  "publications/object-config-graph/README.md",
+  "publications/aware-run-index/README.md",
+]

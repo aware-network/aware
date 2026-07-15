@@ -10,6 +10,7 @@
     "aware_reactivity_service_dto.reactivity.bridge_event",
     "aware_reactivity_service_dto.reactivity.event_action_binding",
     "aware_reactivity_service_dto.reactivity.event_condition_binding_resolution",
+    "aware_reactivity_service_dto.reactivity.event_meaning",
     "aware_reactivity_service_dto.reactivity.policy_bundle",
     "aware_reactivity_service_dto.reactivity.service_operation"
   ],

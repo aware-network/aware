@@ -2,7 +2,10 @@ from __future__ import annotations
 
 # Standard
 from enum import Enum
-from typing import Literal
+from typing import (
+    Literal,
+    TYPE_CHECKING,
+)
 from uuid import UUID
 
 # Third-party
@@ -19,6 +22,11 @@ from aware_code_service_dto.code.service import (
 
 # Types
 from aware_types import JsonObject
+
+if TYPE_CHECKING:
+    from aware_code_service_dto.code.features.semantic_source_meaning import (
+        CodeSemanticSourceMeaningTemplateValueBinding,
+    )
 
 
 class CodeGrammarAnchorBindingDirection(Enum):
@@ -79,6 +87,12 @@ class CodeGrammarAnchorBinding(BaseModel):
     anchor_field_path: str
     anchor_role: str = Field(default="graph_attribute_value")
     graph_selector: CodeGraphFieldSelector
+    semantic_key_template: str | None = Field(
+        default=None, description="Optional semantic identity rendered from grammar context values."
+    )
+    template_value_bindings: list[CodeSemanticSourceMeaningTemplateValueBinding] = Field(
+        default_factory=list, description="Grammar fields used to render `semantic_key_template` for exact matching."
+    )
     value_domain: str = Field(default="text")
     direction: CodeGrammarAnchorBindingDirection = Field(default=CodeGrammarAnchorBindingDirection.bidirectional)
     renderer_key: str | None = Field(default=None)

@@ -31,11 +31,18 @@ from aware_meta.materialization.tool_runner import (
     prepare_language_materialization_tool_command,
     resolve_language_materialization_tool_spec,
 )
+from aware_meta.materialization_diagnostics import (
+    MaterializationDiagnosticError,
+    enrich_materialization_error,
+    materialization_failure_details,
+)
 
 
 _PYTHON_API_BACKEND = "python_api"
 _CLI_BACKEND = "cli"
 _FORMATTER_ROLE = "formatter"
+_TOOL_OUTPUT_RECEIPT_LIMIT = 4000
+_TOOL_OUTPUT_MESSAGE_LIMIT = 500
 
 
 @dataclass(frozen=True, slots=True)
@@ -68,6 +75,8 @@ class LanguageMaterializationPostStepReceipt:
     renderer_profile: str | None = None
     renderer_kind: str | None = None
     source: str = "default"
+    on_fail: str = "fail"
+    continued: bool = False
     target_count: int = 0
     changed_path_count: int = 0
     produced_path_count: int = 0
@@ -75,9 +84,10 @@ class LanguageMaterializationPostStepReceipt:
     warning_count: int = 0
     state_env: Mapping[str, str] = field(default_factory=dict)
     executable_overrides: Mapping[str, str] = field(default_factory=dict)
+    materialization_diagnostic: Mapping[str, object] | None = None
 
     def as_payload(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "schema": ("aware.meta.language_materialization.post_step_receipt.v1"),
             "tool_id": self.tool_id,
             "target_language_plugin_id": self.target_language_plugin_id.value,
@@ -90,6 +100,8 @@ class LanguageMaterializationPostStepReceipt:
             "renderer_profile": self.renderer_profile,
             "renderer_kind": self.renderer_kind,
             "source": self.source,
+            "on_fail": self.on_fail,
+            "continued": self.continued,
             "target_count": self.target_count,
             "changed_path_count": self.changed_path_count,
             "produced_path_count": self.produced_path_count,
@@ -98,6 +110,11 @@ class LanguageMaterializationPostStepReceipt:
             "state_env": dict(self.state_env),
             "executable_overrides": dict(self.executable_overrides),
         }
+        if self.materialization_diagnostic is not None:
+            payload["materialization_diagnostic"] = dict(
+                self.materialization_diagnostic
+            )
+        return payload
 
 
 @dataclass(frozen=True, slots=True)
@@ -196,7 +213,16 @@ def execute_language_materialization_post_steps(
             if step.on_fail != "warn":
                 raise
             duration_s = round(perf_counter() - started_at, 6)
-            warning = f"Materialization post-step {spec.tool_id!r} failed: {exc}"
+            diagnostic = _warning_materialization_diagnostic(
+                exc=exc,
+                request=request,
+                spec=spec,
+                target_count=len(targets),
+            )
+            warning = (
+                f"Materialization post-step {spec.tool_id!r} failed and continued "
+                f"under on_fail='warn' [{diagnostic.get('code')}]: {exc}"
+            )
             warnings.append(warning)
             receipts.append(
                 _receipt(
@@ -204,11 +230,13 @@ def execute_language_materialization_post_steps(
                     spec=spec,
                     step=step,
                     status="failed",
+                    continued=True,
                     target_count=len(targets),
                     duration_s=duration_s,
                     warning_count=1,
                     state_env=state_env,
                     executable_overrides=executable_overrides,
+                    materialization_diagnostic=diagnostic,
                 ).as_payload()
             )
 
@@ -323,21 +351,49 @@ def _validate_cli_tooling_state(
     *,
     spec: CodeLanguageToolSpec,
     state_env: Mapping[str, str],
+    cwd: Path,
+    target_count: int,
 ) -> None:
-    missing_env = tuple(
-        requirement.env_var
+    missing_requirements = tuple(
+        requirement
         for requirement in spec.state_requirements
         if requirement.required
         and requirement.env_var
-        and requirement.env_var not in state_env
+        and not str(state_env.get(requirement.env_var) or "").strip()
     )
-    if not missing_env:
+    if not missing_requirements:
         return
-    raise RuntimeError(
-        "language_tooling_state_required: "
-        f"language={spec.language.value!r} "
-        f"tool_id={spec.tool_id!r} "
-        f"missing_env={','.join(missing_env)!r}"
+    missing_env = tuple(
+        requirement.env_var
+        for requirement in missing_requirements
+        if requirement.env_var is not None
+    )
+    raise MaterializationDiagnosticError(
+        code="materialization.tooling.required_state_missing",
+        message=(
+            f"Materialization post-step {spec.tool_id!r} is missing required "
+            f"Workspace tooling state bindings: {', '.join(missing_env)}."
+        ),
+        classification="compiler_error",
+        phase="post_step_tool_state_validation",
+        remediation=(
+            "Repair or escalate the Workspace-to-Meta tooling context so it "
+            "supplies the declared workspace-local state bindings, then "
+            "rematerialize after the compiler integration changes. Do not work "
+            "around this contract by exporting user-global tool state. Generated "
+            "outputs were already applied before validation failed."
+        ),
+        outputs_applied=True,
+        target_language=spec.language.value,
+        output_path=cwd.as_posix(),
+        context={
+            "tool_id": spec.tool_id,
+            "missing_state_keys": tuple(
+                requirement.key for requirement in missing_requirements
+            ),
+            "missing_env_names": missing_env,
+            "target_count": target_count,
+        },
     )
 
 
@@ -358,7 +414,12 @@ def _execute_tool(
             changed_paths=_execute_python_api_tool(spec=spec, targets=targets)
         )
     if spec.backend == _CLI_BACKEND:
-        _validate_cli_tooling_state(spec=spec, state_env=state_env)
+        _validate_cli_tooling_state(
+            spec=spec,
+            state_env=state_env,
+            cwd=cwd,
+            target_count=len(targets),
+        )
         return _execute_cli_tool(
             spec=spec,
             targets=targets,
@@ -473,21 +534,133 @@ def _execute_cli_tool(
             executable_overrides=executable_overrides,
         )
     )
-    completed = subprocess.run(
-        prepared.command,
-        cwd=str(prepared.cwd) if prepared.cwd is not None else None,
-        env={**os.environ, **dict(prepared.env)},
-        stdin=subprocess.DEVNULL,
-        text=True,
-        capture_output=True,
-        timeout=prepared.timeout_s,
-        check=False,
-    )
+    try:
+        completed = subprocess.run(
+            prepared.command,
+            cwd=str(prepared.cwd) if prepared.cwd is not None else None,
+            env={**os.environ, **dict(prepared.env)},
+            stdin=subprocess.DEVNULL,
+            text=True,
+            capture_output=True,
+            timeout=prepared.timeout_s,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        output_stream, tool_output = _selected_tool_output(
+            stderr=exc.stderr,
+            stdout=exc.stdout,
+        )
+        receipt_excerpt, output_truncated = _bounded_tool_output(
+            tool_output,
+            limit=_TOOL_OUTPUT_RECEIPT_LIMIT,
+        )
+        message_excerpt, _ = _bounded_tool_output(
+            tool_output,
+            limit=_TOOL_OUTPUT_MESSAGE_LIMIT,
+        )
+        message_suffix = f": {message_excerpt}" if message_excerpt else "."
+        raise MaterializationDiagnosticError(
+            code="materialization.tooling.timeout",
+            message=(
+                f"Materialization post-step {spec.tool_id!r} timed out after "
+                f"{exc.timeout} seconds{message_suffix}"
+            ),
+            classification="unclassified_failure",
+            phase="post_step_tool_execution",
+            remediation=(
+                "Inspect the bounded partial tool output and materialization "
+                "context to determine whether workload, network, an external "
+                "dependency, or the compiler/toolchain caused the timeout. Rerun "
+                "only after the relevant state or an explicitly reviewed timeout "
+                "contract changes; do not retry automatically or blindly increase "
+                "the timeout. Generated outputs were already applied and may have "
+                "been partially mutated by the timed-out post-step."
+            ),
+            outputs_applied=True,
+            target_language=spec.language.value,
+            output_path=cwd.as_posix(),
+            context={
+                "tool_id": spec.tool_id,
+                "tool_role": spec.role,
+                "executable": prepared.command[0],
+                "timeout_s": exc.timeout,
+                "network_required": spec.network,
+                "target_count": len(targets),
+                "output_stream": output_stream,
+                "output_excerpt": receipt_excerpt,
+                "output_truncated": output_truncated,
+                "cause_exception_type": type(exc).__name__,
+            },
+        ) from exc
+    except FileNotFoundError as exc:
+        executable = prepared.command[0]
+        raise MaterializationDiagnosticError(
+            code="materialization.tooling.executable_unavailable",
+            message=(
+                f"Materialization post-step {spec.tool_id!r} could not launch "
+                f"executable {executable!r}."
+            ),
+            classification="external_dependency",
+            phase="post_step_tool_execution",
+            remediation=(
+                "Restore the declared executable or configure a valid tooling "
+                "executable override, then rematerialize after the external "
+                "dependency state changes. Generated outputs were already applied "
+                "before this post-step failed."
+            ),
+            outputs_applied=True,
+            target_language=spec.language.value,
+            output_path=cwd.as_posix(),
+            context={
+                "tool_id": spec.tool_id,
+                "executable": executable,
+                "target_count": len(targets),
+                "cause_exception_type": type(exc).__name__,
+            },
+        ) from exc
     if completed.returncode != 0:
-        stderr = (completed.stderr or completed.stdout or "").strip()
-        raise RuntimeError(
-            f"Post-step {spec.tool_id!r} failed with exit code "
-            + f"{completed.returncode}: {stderr}"
+        output_stream, tool_output = _selected_tool_output(
+            stderr=completed.stderr,
+            stdout=completed.stdout,
+        )
+        receipt_excerpt, output_truncated = _bounded_tool_output(
+            tool_output,
+            limit=_TOOL_OUTPUT_RECEIPT_LIMIT,
+        )
+        message_excerpt, _ = _bounded_tool_output(
+            tool_output,
+            limit=_TOOL_OUTPUT_MESSAGE_LIMIT,
+        )
+        message_suffix = f": {message_excerpt}" if message_excerpt else "."
+        raise MaterializationDiagnosticError(
+            code="materialization.tooling.nonzero_exit",
+            message=(
+                f"Materialization post-step {spec.tool_id!r} exited with code "
+                f"{completed.returncode}{message_suffix}"
+            ),
+            classification="unclassified_failure",
+            phase="post_step_tool_execution",
+            remediation=(
+                "Inspect the bounded tool output and materialization context to "
+                "determine whether authored input, an external dependency, or the "
+                "compiler/toolchain caused the failure. Rerun only after the "
+                "relevant state changes. Generated outputs were already applied "
+                "and may have been partially mutated by the failed post-step."
+            ),
+            outputs_applied=True,
+            target_language=spec.language.value,
+            output_path=cwd.as_posix(),
+            context={
+                "tool_id": spec.tool_id,
+                "tool_role": spec.role,
+                "executable": prepared.command[0],
+                "exit_code": completed.returncode,
+                "network_required": spec.network,
+                "target_count": len(targets),
+                "output_stream": output_stream,
+                "output_excerpt": receipt_excerpt,
+                "output_truncated": output_truncated,
+            },
         )
     after_effect_paths = _tool_effect_snapshot(
         spec=spec,
@@ -512,6 +685,32 @@ def _execute_cli_tool(
     )
 
 
+def _bounded_tool_output(value: str, *, limit: int) -> tuple[str, bool]:
+    if len(value) <= limit:
+        return value, False
+    return value[: limit - 3] + "...", True
+
+
+def _selected_tool_output(*, stderr: object, stdout: object) -> tuple[str, str]:
+    stderr_text = _tool_output_text(stderr).strip()
+    stdout_text = _tool_output_text(stdout).strip()
+    if stderr_text:
+        return "stderr", stderr_text
+    if stdout_text:
+        return "stdout", stdout_text
+    return "none", ""
+
+
+def _tool_output_text(value: object) -> str:
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    if isinstance(value, str):
+        return value
+    if value is None:
+        return ""
+    return str(value)
+
+
 def _prepare_cli_tool_state(*, spec: CodeLanguageToolSpec, cwd: Path) -> None:
     if spec.tool_id != "dart.build_runner":
         return
@@ -530,6 +729,7 @@ def _receipt(
     spec: CodeLanguageToolSpec,
     step: LanguageMaterializationPostStepPlanItem,
     status: str,
+    continued: bool = False,
     target_count: int,
     changed_path_count: int = 0,
     produced_path_count: int = 0,
@@ -537,6 +737,7 @@ def _receipt(
     warning_count: int = 0,
     state_env: Mapping[str, str] | None = None,
     executable_overrides: Mapping[str, str] | None = None,
+    materialization_diagnostic: Mapping[str, object] | None = None,
 ) -> LanguageMaterializationPostStepReceipt:
     return LanguageMaterializationPostStepReceipt(
         tool_id=spec.tool_id,
@@ -550,6 +751,8 @@ def _receipt(
         renderer_profile=request.renderer_profile,
         renderer_kind=request.renderer_kind,
         source=step.source,
+        on_fail=step.on_fail,
+        continued=continued,
         target_count=target_count,
         changed_path_count=changed_path_count,
         produced_path_count=produced_path_count,
@@ -557,7 +760,38 @@ def _receipt(
         warning_count=warning_count,
         state_env=dict(state_env or {}),
         executable_overrides=dict(executable_overrides or {}),
+        materialization_diagnostic=materialization_diagnostic,
     )
+
+
+def _warning_materialization_diagnostic(
+    *,
+    exc: Exception,
+    request: LanguageMaterializationPostStepExecutionRequest,
+    spec: CodeLanguageToolSpec,
+    target_count: int,
+) -> dict[str, object]:
+    diagnostic_error = (
+        exc
+        if isinstance(exc, MaterializationDiagnosticError)
+        else enrich_materialization_error(
+            exc,
+            phase="post_step_tool_execution",
+            target_language=spec.language.value,
+            output_path=request.output_root.as_posix(),
+        )
+    )
+    details = materialization_failure_details(diagnostic_error)
+    value = details.get("materialization_diagnostic")
+    diagnostic = dict(value) if isinstance(value, Mapping) else {}
+    diagnostic["outputs_applied"] = True
+    context = diagnostic.get("context")
+    normalized_context = dict(context) if isinstance(context, Mapping) else {}
+    normalized_context.setdefault("tool_id", spec.tool_id)
+    normalized_context.setdefault("tool_role", spec.role)
+    normalized_context.setdefault("target_count", target_count)
+    diagnostic["context"] = normalized_context
+    return diagnostic
 
 
 def _apply_formatter_return_value(*, target: Path, result: object) -> None:

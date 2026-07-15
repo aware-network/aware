@@ -1,0 +1,23 @@
+-- coverage:ignore-file
+-- GENERATED CODE - DO NOT MODIFY BY HAND
+
+CREATE TABLE pane_state_binding (
+  -- PRIMARY KEY
+  branch_id UUID NOT NULL,
+  projection_hash TEXT NOT NULL,
+  id UUID NOT NULL,
+  binding_key TEXT NOT NULL,
+  -- RELATIONSHIPS
+  pane_render_node_id UUID NOT NULL,
+  state_model_id UUID,
+  state_attribute_config_id UUID,
+  -- ATTRIBUTES
+  target_property pane_state_binding_target_property NOT NULL,
+  json_path TEXT NOT NULL,
+  transform pane_state_binding_transform NOT NULL,
+  fallback_value TEXT,
+  component_input_port_key TEXT,
+  -- CONSTRAINTS
+  PRIMARY KEY (branch_id, projection_hash, id, binding_key),
+  FOREIGN KEY (branch_id, projection_hash, pane_render_node_id) REFERENCES pane_render_node(branch_id, projection_hash, id)
+);

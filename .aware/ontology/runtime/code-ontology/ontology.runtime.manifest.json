@@ -7,16 +7,16 @@
     "package_kind": "ontology",
     "sql_roots": [
       {
-        "path": "../../../../workspaces/aware_network/modules/code/ontology/structure/sql/schema",
+        "path": "../../../../workspaces/aware_kernel/modules/code/ontology/structure/sql/schema",
         "path_mode": "manifest_relative"
       }
     ]
   },
-  "domain_commit_id": "a3cc3c1f-7244-5a98-a0b6-aad5ea5346e0",
-  "object_instance_graph_commit_id": "52cbe1a9-f7e1-5bc1-a755-659da4f48aa6",
+  "domain_commit_id": "4190d031-c384-5868-9090-a944203b697d",
+  "object_instance_graph_commit_id": "21fc36c8-1ecd-590a-82b9-edc3bb9a29d0",
   "package_name": "code-ontology",
   "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
   "source_kind": "workspace_revision",
-  "workspace_relative_package_root": "workspaces/aware_network/modules/code/ontology",
-  "workspace_revision_code_package_id": "f8fd75c2-be40-590e-b87f-701670d2157c"
+  "workspace_relative_package_root": "workspaces/aware_kernel/modules/code/ontology",
+  "workspace_revision_code_package_id": "3082d981-e20e-53c3-8214-c9162ac3a238"
 }

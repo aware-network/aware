@@ -1,0 +1,15 @@
+enum SmartContractMemberType {
+    payer
+    receiver
+}
+
+enum SmartContractStatus {
+    active
+    completed
+    paused
+}
+
+enum SmartContractType {
+    ownership
+    utility
+}

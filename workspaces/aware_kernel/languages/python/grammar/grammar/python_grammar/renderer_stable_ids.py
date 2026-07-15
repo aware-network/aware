@@ -104,6 +104,7 @@ def _python_type(p: ParamSpec) -> str:
         "bool": "bool",
         "int": "int",
         "float": "float",
+        "decimal": "Decimal",
         "str_list": "list[str]",
     }[p.type]
     if p.optional:
@@ -242,12 +243,23 @@ def render_python_stable_ids_module(
         if fn.namespace != "NAMESPACE_URL":
             used_ns.add(fn.namespace)
 
+    needs_decimal = any(
+        param.type == "decimal"
+        for function in spec.functions
+        for param in function.params
+    )
+
     lines: list[str] = []
     lines.append("# GENERATED CODE - DO NOT MODIFY BY HAND")
     lines.append("# Canonical stable-id derivations (UUIDv5).")
     lines.append("from __future__ import annotations")
     lines.append("")
+    if needs_decimal:
+        lines.append("from decimal import Decimal")
     lines.append("from uuid import NAMESPACE_URL, UUID, uuid5")
+    if needs_decimal:
+        lines.append("")
+        lines.append("from aware_types import canonical_decimal_text")
     lines.append("")
 
     for ns_name in sorted(used_ns):
@@ -296,7 +308,9 @@ def render_python_stable_ids_module(
                 lines.append(f"    {p.name} = {expr}")
             if p.non_empty:
                 lines.append(f"    if not ({p.name} or '').strip():")
-                lines.append(f"        raise ValueError({fn.name!r} + ' requires non-empty {p.name}')")
+                lines.append(
+                    f"        raise ValueError({fn.name!r} + ' requires non-empty {p.name}')"
+                )
 
         for let_cfg in fn.lets:
             if let_cfg.op == "hex":
@@ -310,16 +324,24 @@ def render_python_stable_ids_module(
             elif let_cfg.op == "normalize":
                 if not let_cfg.name or not let_cfg.param:
                     raise ValueError(f"{fn.name}: normalize let requires name+param")
-                expr = _python_normalize_expr(let_cfg.param, let_cfg.normalize or ("casefold", "strip"))
+                expr = _python_normalize_expr(
+                    let_cfg.param, let_cfg.normalize or ("casefold", "strip")
+                )
                 lines.append(f"    {let_cfg.name} = {expr}")
             elif let_cfg.op == "normalize_default":
                 if not let_cfg.name or not let_cfg.param or let_cfg.default is None:
-                    raise ValueError(f"{fn.name}: normalize_default let requires name+param+default")
-                expr = _python_normalize_expr(let_cfg.param, let_cfg.normalize or ("casefold", "strip"))
+                    raise ValueError(
+                        f"{fn.name}: normalize_default let requires name+param+default"
+                    )
+                expr = _python_normalize_expr(
+                    let_cfg.param, let_cfg.normalize or ("casefold", "strip")
+                )
                 lines.append(f"    {let_cfg.name} = {expr} or {let_cfg.default!r}")
             elif let_cfg.op == "prefix_if_set":
                 if not let_cfg.name or not let_cfg.param or let_cfg.prefix is None:
-                    raise ValueError(f"{fn.name}: prefix_if_set let requires name+param+prefix")
+                    raise ValueError(
+                        f"{fn.name}: prefix_if_set let requires name+param+prefix"
+                    )
                 default = let_cfg.default or ""
                 prefixed_expr = let_cfg.prefix + "{" + let_cfg.param + "}"
                 lines.append(
@@ -328,27 +350,60 @@ def render_python_stable_ids_module(
                 )
             elif let_cfg.op == "uuid_str_default":
                 if not let_cfg.name or not let_cfg.param or let_cfg.default is None:
-                    raise ValueError(f"{fn.name}: uuid_str_default let requires name+param+default")
+                    raise ValueError(
+                        f"{fn.name}: uuid_str_default let requires name+param+default"
+                    )
                 lines.append(
                     f"    {let_cfg.name} = str({let_cfg.param}) if {let_cfg.param} is not None else {let_cfg.default!r}"
                 )
             elif let_cfg.op == "int_str_default":
                 if not let_cfg.name or not let_cfg.param or let_cfg.default is None:
-                    raise ValueError(f"{fn.name}: int_str_default let requires name+param+default")
+                    raise ValueError(
+                        f"{fn.name}: int_str_default let requires name+param+default"
+                    )
                 # Match the common `x or ''` stable-id pattern: treat `0` as empty.
-                lines.append(f"    {let_cfg.name} = str({let_cfg.param}) if {let_cfg.param} else {let_cfg.default!r}")
+                lines.append(
+                    f"    {let_cfg.name} = str({let_cfg.param}) if {let_cfg.param} else {let_cfg.default!r}"
+                )
+            elif let_cfg.op == "decimal_text":
+                if not let_cfg.name or not let_cfg.param:
+                    raise ValueError(f"{fn.name}: decimal_text let requires name+param")
+                lines.append(
+                    f"    {let_cfg.name} = canonical_decimal_text({let_cfg.param})"
+                )
+            elif let_cfg.op == "decimal_text_default":
+                if not let_cfg.name or not let_cfg.param or let_cfg.default is None:
+                    raise ValueError(
+                        f"{fn.name}: decimal_text_default let requires "
+                        "name+param+default"
+                    )
+                lines.append(
+                    f"    {let_cfg.name} = canonical_decimal_text("
+                    f"{let_cfg.param} if {let_cfg.param} is not None "
+                    f"else {let_cfg.default!r})"
+                )
             elif let_cfg.op == "sorted_pair":
-                if not let_cfg.names or len(let_cfg.names) != 2 or len(let_cfg.params) != 2:
-                    raise ValueError(f"{fn.name}: sorted_pair let requires names[2] + params[2]")
+                if (
+                    not let_cfg.names
+                    or len(let_cfg.names) != 2
+                    or len(let_cfg.params) != 2
+                ):
+                    raise ValueError(
+                        f"{fn.name}: sorted_pair let requires names[2] + params[2]"
+                    )
                 a, b = let_cfg.names
                 p1, p2 = let_cfg.params
                 lines.append(f"    {a}, {b} = sorted(({p1}, {p2}), key=str)")
             elif let_cfg.op == "list_join":
                 if not let_cfg.name or not let_cfg.param or let_cfg.sep is None:
-                    raise ValueError(f"{fn.name}: list_join let requires name+param+sep")
+                    raise ValueError(
+                        f"{fn.name}: list_join let requires name+param+sep"
+                    )
                 items_var = f"_{let_cfg.name}_items"
                 norm_expr = _python_normalize_expr("x", let_cfg.normalize)
-                lines.append(f"    {items_var} = [{norm_expr} for x in ({let_cfg.param} or [])]")
+                lines.append(
+                    f"    {items_var} = [{norm_expr} for x in ({let_cfg.param} or [])]"
+                )
                 lines.append(f"    {items_var} = [x for x in {items_var} if x]")
                 if let_cfg.unique:
                     lines.append(f"    {items_var} = sorted(set({items_var}))")
@@ -363,8 +418,12 @@ def render_python_stable_ids_module(
         lines.append("")
 
     bindings = constructor_bindings or {}
-    lines.append(f"{_CONSTRUCTOR_BINDINGS_EXPORT}: dict[str, tuple[str, tuple[str, ...]]] = {{")
-    for class_config_id, (helper_name, identity_names) in sorted(bindings.items(), key=lambda kv: kv[0]):
+    lines.append(
+        f"{_CONSTRUCTOR_BINDINGS_EXPORT}: dict[str, tuple[str, tuple[str, ...]]] = {{"
+    )
+    for class_config_id, (helper_name, identity_names) in sorted(
+        bindings.items(), key=lambda kv: kv[0]
+    ):
         lines.append(
             f"    {class_config_id!r}: ({helper_name!r}, {tuple(identity_names)!r}),"
         )
@@ -400,6 +459,7 @@ class PythonStableIdsRendererLanguage(ObjectConfigGraphRendererLanguage):
         self._ownership: str = "authored"
         self._resolution_policy: str = "class_strict"
         self._source_graph: ObjectConfigGraph | None = None
+
     @property
     @override
     def language(self) -> CodeLanguage:
@@ -453,7 +513,8 @@ class PythonStableIdsRendererLanguage(ObjectConfigGraphRendererLanguage):
         if ownership_mode is not None:
             if ownership_mode not in {"authored", "compiler"}:
                 raise ValueError(
-                    "stable_ids_ownership must be one of: authored, compiler " + f"(got {ownership_mode!r})"
+                    "stable_ids_ownership must be one of: authored, compiler "
+                    + f"(got {ownership_mode!r})"
                 )
             self._ownership = ownership_mode
         if resolution_mode is not None:

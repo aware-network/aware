@@ -1,0 +1,58 @@
+class PaneActionBinding {
+    // Relationships
+    projection_experience_view_invocation_action aware_experience.projection.ProjectionExperienceViewInvocationAction?
+    input_bindings PaneInputBinding[]
+
+    // Attributes
+    binding_key String key
+    event PaneActionEvent
+    action_key String
+    label String?
+    confirmation_policy String?
+    optimistic_policy String?
+    receipt_policy String?
+    component_action_port_key String?
+
+    fn create construct (
+        binding_key String key,
+        event PaneActionEvent,
+        action_key String,
+        projection_experience_view_invocation_action_id UUID? = null,
+        component_action_port_key String? = null,
+        label String? = null,
+        confirmation_policy String? = null,
+        optimistic_policy String? = null,
+        receipt_policy String? = null
+    ) -> PaneActionBinding {
+        """
+        Create one declarative action affordance binding.
+
+        Contract:
+        - `action_key` is the renderer-facing key for one Experience view invocation action.
+        - `projection_experience_view_invocation_action` is canonical dispatch truth.
+        - `component_action_port_key` names the component-emitted action port when this
+          binding is attached to a component node.
+        - Renderers may display this as a button, command, menu item, shortcut, or agent command.
+        """
+    }
+
+    fn bind_input (
+        payload_path String,
+        source_node_key String? = null,
+        source_json_path String? = null,
+        literal_value String? = null
+    ) -> PaneInputBinding {
+        """
+        Map local control values or canonical state into an action payload field.
+        """
+        let binding = construct input_bindings.create(
+            payload_path = payload_path,
+            source_node_key = source_node_key,
+            source_json_path = source_json_path,
+            literal_value = literal_value,
+        )
+    }
+}
+
+ann render.PaneActionBinding::projection_experience_view_invocation_action load eager
+ann render.PaneActionBinding::input_bindings load eager

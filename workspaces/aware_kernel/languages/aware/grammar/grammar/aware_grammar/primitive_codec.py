@@ -1,5 +1,6 @@
 """Aware implementation of the primitive types."""
 
+from decimal import Decimal
 import re
 from typing import ClassVar, cast
 from typing import final
@@ -10,6 +11,7 @@ from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBase
 from aware_grammar.type_parser import AwareTypeParser
 
 from aware_code.primitive_codec_base import CodePrimitiveCodecBase
+from aware_code.decimal_value import canonical_decimal_text
 from aware_code.types.json import JsonObject, JsonValue
 from typing_extensions import override
 
@@ -20,6 +22,7 @@ AWARE_TO_BASE_MAPPING: dict[str, CodePrimitiveBaseType] = {
     "Bool": CodePrimitiveBaseType.boolean,
     "Bytes": CodePrimitiveBaseType.bytes,
     "DateTime": CodePrimitiveBaseType.datetime,
+    "Decimal": CodePrimitiveBaseType.decimal,
     "Float": CodePrimitiveBaseType.float,
     "Int": CodePrimitiveBaseType.integer,
     "Json": CodePrimitiveBaseType.json,
@@ -47,6 +50,7 @@ BASE_TO_AWARE_MAPPING: dict[CodePrimitiveBaseType, str] = {
     CodePrimitiveBaseType.any: "Any",
     CodePrimitiveBaseType.boolean: "Bool",
     CodePrimitiveBaseType.datetime: "DateTime",
+    CodePrimitiveBaseType.decimal: "Decimal",
     CodePrimitiveBaseType.bytes: "Bytes",
     CodePrimitiveBaseType.float: "Float",
     CodePrimitiveBaseType.integer: "Int",
@@ -126,7 +130,9 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
             return None
         t = type_text.strip()
         # Strip simple quotes
-        if (t.startswith('"') and t.endswith('"')) or (t.startswith("'") and t.endswith("'")):
+        if (t.startswith('"') and t.endswith('"')) or (
+            t.startswith("'") and t.endswith("'")
+        ):
             t = t[1:-1]
         # Remove parametric suffix like Vector(1536) using the raw-token SSOT
         call = self._parser.get_parametric_call(t)
@@ -136,10 +142,15 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
         # Exact match ignoring case
         for k, base in AWARE_TO_BASE_MAPPING.items():
             if k.lower() == t.lower():
-                if base == CodePrimitiveBaseType.json and k in _JSON_KIND_BY_AWARE_TOKEN:
+                if (
+                    base == CodePrimitiveBaseType.json
+                    and k in _JSON_KIND_BY_AWARE_TOKEN
+                ):
                     return self._primitive(
                         base_type=base,
-                        constraints=JsonObject({_JSON_KIND_CONSTRAINT_KEY: _JSON_KIND_BY_AWARE_TOKEN[k]}),
+                        constraints=JsonObject(
+                            {_JSON_KIND_CONSTRAINT_KEY: _JSON_KIND_BY_AWARE_TOKEN[k]}
+                        ),
                     )
                 return self._primitive(base_type=base)
         return None
@@ -158,7 +169,9 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
         raw = (type_text or "").strip()
         if not raw:
             return None
-        raw = self._parser.strip_edge_annotation(self._parser.strip_trailing_field_modifiers(raw))
+        raw = self._parser.strip_edge_annotation(
+            self._parser.strip_trailing_field_modifiers(raw)
+        )
         self._assert_not_optional_list(raw)
 
         # Handle optional types (marked with ?)
@@ -167,7 +180,9 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
             base_instance = self.parse(opt_inner)
             if not base_instance:
                 return None
-            return self.union(base_instance, self._primitive(base_type=CodePrimitiveBaseType.null))
+            return self.union(
+                base_instance, self._primitive(base_type=CodePrimitiveBaseType.null)
+            )
 
         # Handle array types (marked with [])
         arr_inner = self._parser.get_array_suffix_inner(raw)
@@ -175,7 +190,9 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
             item_type = self.parse(arr_inner)
             if not item_type:
                 return None
-            return self._primitive(base_type=CodePrimitiveBaseType.array, item_type=item_type)
+            return self._primitive(
+                base_type=CodePrimitiveBaseType.array, item_type=item_type
+            )
 
         # Handle dictionary types (Dict[K, V])
         kv = self._parser.get_dict_kv(raw)
@@ -210,7 +227,11 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
                 parameter_values: list[object] = [*parameters]
                 return self._primitive(
                     base_type=base_type,
-                    constraints=JsonObject({"parameters": parameter_values}) if parameters else None,
+                    constraints=(
+                        JsonObject({"parameters": parameter_values})
+                        if parameters
+                        else None
+                    ),
                 )
             return None
 
@@ -242,9 +263,15 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
         # Handle union types (e.g., optional types)
         if prim.base_type == CodePrimitiveBaseType.union and prim.union_types:
             # Check if this is an optional type (union with null)
-            if len(prim.union_types) == 2 and any(t.base_type == CodePrimitiveBaseType.null for t in prim.union_types):
+            if len(prim.union_types) == 2 and any(
+                t.base_type == CodePrimitiveBaseType.null for t in prim.union_types
+            ):
                 # Find the non-null type
-                non_null_type = next(t for t in prim.union_types if t.base_type != CodePrimitiveBaseType.null)
+                non_null_type = next(
+                    t
+                    for t in prim.union_types
+                    if t.base_type != CodePrimitiveBaseType.null
+                )
                 return f"{self.render(non_null_type)}?"
 
             # For other union types, just join with "|" (not in current grammar but future-proof)
@@ -269,7 +296,10 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
             base_name = BASE_TO_AWARE_MAPPING[prim.base_type]
 
             # For Vector types, check for dimension constraint
-            if prim.base_type == CodePrimitiveBaseType.vector and "dimension" in prim.constraints:
+            if (
+                prim.base_type == CodePrimitiveBaseType.vector
+                and "dimension" in prim.constraints
+            ):
                 dimension = prim.constraints["dimension"]
                 return f"{base_name}({dimension})"
 
@@ -296,13 +326,17 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
             Bar[]  -> array
         Remove those decorations to expose the semantic type name.
         """
-        raw = self._parser.strip_edge_annotation(self._parser.strip_trailing_field_modifiers(type_text)).strip()
+        raw = self._parser.strip_edge_annotation(
+            self._parser.strip_trailing_field_modifiers(type_text)
+        ).strip()
         self._assert_not_optional_list(raw)
         return self._parser.enum_ident(raw)
 
     def is_primitive_type(self, type_str: str) -> bool:
         """Check if a string represents an Aware primitive type."""
-        raw = self._parser.strip_edge_annotation(self._parser.strip_trailing_field_modifiers(type_str)).strip()
+        raw = self._parser.strip_edge_annotation(
+            self._parser.strip_trailing_field_modifiers(type_str)
+        ).strip()
         self._assert_not_optional_list(raw)
         clean_type = self._parser.enum_ident(raw)
         if clean_type == "Dict":
@@ -311,13 +345,17 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
 
     def is_vector_type(self, type_str: str) -> bool:
         """Check if a string represents a Vector type (with or without parameters)."""
-        raw = self._parser.strip_edge_annotation(self._parser.strip_trailing_field_modifiers(type_str)).strip()
+        raw = self._parser.strip_edge_annotation(
+            self._parser.strip_trailing_field_modifiers(type_str)
+        ).strip()
         self._assert_not_optional_list(raw)
         return self._parser.enum_ident(raw) == "Vector"
 
     def get_vector_dimension(self, type_str: str) -> int | None:
         """Extract the dimension from a Vector type string like 'Vector(1536)'."""
-        raw = self._parser.strip_edge_annotation(self._parser.strip_trailing_field_modifiers(type_str))
+        raw = self._parser.strip_edge_annotation(
+            self._parser.strip_trailing_field_modifiers(type_str)
+        )
         self._assert_not_optional_list(raw)
         # Strip outer decorations
         opt_inner = self._parser.get_optional_suffix_inner(raw)
@@ -358,7 +396,9 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
         """
         if not type_text:
             return False
-        raw = self._parser.strip_edge_annotation(self._parser.strip_trailing_field_modifiers(type_text)).strip()
+        raw = self._parser.strip_edge_annotation(
+            self._parser.strip_trailing_field_modifiers(type_text)
+        ).strip()
         self._assert_not_optional_list(raw)
         opt_inner = self._parser.get_optional_suffix_inner(raw)
         if opt_inner is not None:
@@ -391,7 +431,9 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
             return type_text
 
         original = type_text
-        raw = self._parser.strip_edge_annotation(self._parser.strip_trailing_field_modifiers(type_text)).strip()
+        raw = self._parser.strip_edge_annotation(
+            self._parser.strip_trailing_field_modifiers(type_text)
+        ).strip()
         self._assert_not_optional_list(raw)
 
         arr_inner = self._parser.get_array_suffix_inner(raw)
@@ -467,7 +509,9 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
             pass
 
         # Strip surrounding quotes for simple strings like 'hello' or "hello"
-        if (lit.startswith("'") and lit.endswith("'")) or (lit.startswith('"') and lit.endswith('"')):
+        if (lit.startswith("'") and lit.endswith("'")) or (
+            lit.startswith('"') and lit.endswith('"')
+        ):
             return lit[1:-1]
 
         # As a last resort, return the raw text
@@ -500,6 +544,8 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
             # Use double quotes for strings in Aware language
             escaped = value.replace('"', '\\"')
             return f'"{escaped}"'
+        elif isinstance(value, Decimal):
+            return canonical_decimal_text(value)
         elif isinstance(value, (int, float)):
             return str(value)
         elif isinstance(value, (list, tuple, dict)):
@@ -516,7 +562,12 @@ class AwarePrimitiveCodec(CodePrimitiveCodecBase):
                     serializable = cast(list[object], value)
                 else:
                     serializable = cast(dict[str, object], value)
-                return json.dumps(serializable, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+                return json.dumps(
+                    serializable,
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                    sort_keys=True,
+                )
             except (TypeError, ValueError):
                 str_val = str(cast(object, value))
                 escaped = str_val.replace('"', '\\"')

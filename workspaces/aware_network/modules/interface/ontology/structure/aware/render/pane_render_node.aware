@@ -1,0 +1,118 @@
+class PaneRenderNode {
+    // Relationships
+    state_bindings PaneStateBinding[]
+    action_bindings PaneActionBinding[]
+    style_tokens PaneStyleTokenRef[]
+    component_contract RenderComponentContract?
+
+    // Attributes
+    node_key String key
+    parent_node_key String?
+    node_kind PaneRenderNodeKind
+    semantic_role PaneRenderSemanticRole?
+    slot_key String?
+    order Int = 0
+    label String?
+    text String?
+    placeholder String?
+    component_ref String?
+    fallback_node_kind PaneRenderNodeKind?
+    fallback_text String?
+
+    fn create construct (
+        node_key String key,
+        node_kind PaneRenderNodeKind,
+        semantic_role PaneRenderSemanticRole? = null,
+        parent_node_key String? = null,
+        slot_key String? = null,
+        order Int = 0,
+        label String? = null,
+        text String? = null,
+        placeholder String? = null,
+        component_ref String? = null,
+        component_contract_id UUID? = null,
+        fallback_node_kind PaneRenderNodeKind? = null,
+        fallback_text String? = null
+    ) -> PaneRenderNode {
+        """
+        Create one semantic render node inside its owning PaneRenderSpec.
+
+        Contract:
+        - `node_kind` is renderer-neutral intent, not a Flutter/HTML class.
+        - `parent_node_key` keeps the materialized tree relational and commit-friendly.
+        - Exact state and action truth is attached through bindings, not local scripts.
+        - Component nodes use `component_ref` to select a RenderComponentContract.
+          They still receive state/actions only through explicit bindings.
+        """
+    }
+
+    fn bind_state (
+        binding_key String,
+        target_property PaneStateBindingTargetProperty,
+        json_path String,
+        state_model_id UUID? = null,
+        state_attribute_config_id UUID? = null,
+        component_input_port_key String? = null,
+        transform PaneStateBindingTransform = raw,
+        fallback_value String? = null
+    ) -> PaneStateBinding {
+        """
+        Bind one canonical view-state value to one render-node property.
+        """
+        let binding = construct state_bindings.create(
+            binding_key = binding_key,
+            target_property = target_property,
+            json_path = json_path,
+            state_model_id = state_model_id,
+            state_attribute_config_id = state_attribute_config_id,
+            component_input_port_key = component_input_port_key,
+            transform = transform,
+            fallback_value = fallback_value,
+        )
+    }
+
+    fn bind_action (
+        binding_key String,
+        event PaneActionEvent,
+        action_key String,
+        projection_experience_view_invocation_action_id UUID? = null,
+        component_action_port_key String? = null,
+        label String? = null,
+        confirmation_policy String? = null,
+        optimistic_policy String? = null,
+        receipt_policy String? = null
+    ) -> PaneActionBinding {
+        """
+        Bind a node event to one Experience view invocation action.
+        """
+        let binding = construct action_bindings.create(
+            binding_key = binding_key,
+            event = event,
+            action_key = action_key,
+            projection_experience_view_invocation_action_id = projection_experience_view_invocation_action_id,
+            component_action_port_key = component_action_port_key,
+            label = label,
+            confirmation_policy = confirmation_policy,
+            optimistic_policy = optimistic_policy,
+            receipt_policy = receipt_policy,
+        )
+    }
+
+    fn add_style_token (
+        token_key String,
+        token_value String? = null
+    ) -> PaneStyleTokenRef {
+        """
+        Attach one semantic style token to this node.
+        """
+        let token = construct style_tokens.create(
+            token_key = token_key,
+            token_value = token_value,
+        )
+    }
+}
+
+ann render.PaneRenderNode::state_bindings load eager
+ann render.PaneRenderNode::action_bindings load eager
+ann render.PaneRenderNode::style_tokens load eager
+ann render.PaneRenderNode::component_contract load eager

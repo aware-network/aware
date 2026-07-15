@@ -1,0 +1,27 @@
+aware = 1
+
+[package]
+package_name = "network-ontology"
+fqn_prefix = "aware_network"
+kind = "ontology"
+version_number = 1
+title = "Network"
+description = "SSOT canonical (.aware) sources for network"
+
+[build]
+environment_slug = "aware_network"
+
+[[dependencies]]
+package_name = "identity-ontology"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "environment-ontology"
+
+[[dependencies]]
+package_name = "service-ontology"

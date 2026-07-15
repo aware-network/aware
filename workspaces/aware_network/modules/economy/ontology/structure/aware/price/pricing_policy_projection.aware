@@ -1,0 +1,13 @@
+/// Pricing-policy projection.
+///
+/// Extracted as part of the Economy price primitive cleanup so policy receipts stay Economy-owned primitives
+/// and are referenced from `PriceSchedule` through explicit portal edges.
+projection PricingPolicy {
+    root price.PricingPolicy
+
+    observable home {
+        """
+        Pricing policy overview.
+        """
+    }
+}

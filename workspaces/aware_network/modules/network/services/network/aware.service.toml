@@ -1,0 +1,49 @@
+aware_service = 1
+
+[service]
+package_name = "aware-network-service"
+fqn_prefix = "aware_network_service"
+version_number = 1
+title = "Aware Network Service"
+description = "Canonical Network service package for topology, hosted-service advertisement, and route resolution authority."
+
+[build]
+sources_dir = "bindings"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+compilation_mode = "service_ontology"
+
+[host]
+service_surface = "service"
+activation_mode = "materialize_and_load_committed"
+materialize_on_start = true
+
+[implementation]
+
+[[implementation.packages]]
+package_name = "aware-network-service"
+language = "python"
+import_root = "aware_network_service"
+manifest_path = "pyproject.toml"
+package_root = "."
+entrypoint = "aware_network_service.service_bindings:build_service_bindings"
+role = "service_bindings"
+
+[[api_provider_sets]]
+key = "kernel.global_services.v1"
+title = "Kernel Global Services"
+membership_key = "kernel-services-host"
+description = "Kernel global service providers."
+
+[[dependencies]]
+package_name = "network-service-api"
+version_number = 1
+kind = "api_service_protocol"
+
+[[ontology_packages]]
+package_name = "network-ontology"
+fqn_prefix = "aware_network"
+role = "replica"
+requirement_mode = "required"
+description = "Network service verifies committed node, Environment, and hosted-Service publication coverage from its Service-owned ontology replica."

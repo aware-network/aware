@@ -1,0 +1,12 @@
+enum ProviderLifecycleEventKind {
+    chargeback
+    dispute
+    dispute_release
+    refund
+}
+
+enum ProviderLifecycleStatus {
+    applied
+    held
+    released
+}

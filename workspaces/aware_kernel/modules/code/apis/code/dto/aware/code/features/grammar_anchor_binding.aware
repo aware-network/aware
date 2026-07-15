@@ -48,6 +48,10 @@ class CodeGrammarAnchorBinding : inline_value {
     anchor_field_path String
     anchor_role String = "graph_attribute_value"
     graph_selector code.CodeGraphFieldSelector
+    /// Optional semantic identity rendered from grammar context values.
+    semantic_key_template String?
+    /// Grammar fields used to render `semantic_key_template` for exact matching.
+    template_value_bindings code.CodeSemanticSourceMeaningTemplateValueBinding[] = []
     value_domain String = "text"
     direction code.CodeGrammarAnchorBindingDirection = bidirectional
     renderer_key String?

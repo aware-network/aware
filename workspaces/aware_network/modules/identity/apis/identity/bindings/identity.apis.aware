@@ -1,0 +1,275 @@
+api identity {
+    view identity_admission on Identity.identity state aware_identity_service_dto.identity.IdentityAdmissionViewStateV1 {
+        """
+        Identity admission and actor readiness surface for the active Interface session.
+        """
+
+        stream snapshot
+        endpoint admit_identity signup_via_profile.signup_via_profile
+    }
+
+    view actor_roles on Identity.actor state aware_identity_service_dto.actor.ActorRolesViewStateV1 {
+        """
+        Actor role assignments -- what can I do in the network.
+        """
+
+        stream snapshot
+        endpoint resolve_role_assignments resolve_role_assignments.resolve_role_assignments
+    }
+
+    view actor_commits on Identity.actor state aware_identity_service_dto.actor.ActorCommitsViewStateV1 {
+        """
+        Actor commit history -- what have I changed in the network.
+        """
+
+        stream snapshot
+        endpoint resolve_actor_commits resolve_actor_commits.resolve_actor_commits
+    }
+
+    view actor_subscriptions on Identity.actor state aware_identity_service_dto.actor.ActorSubscriptionsViewStateV1 {
+        """
+        Actor subscriptions -- when do I react / when am I called.
+        """
+
+        stream snapshot
+        endpoint resolve_actor_subscriptions resolve_actor_subscriptions.resolve_actor_subscriptions
+    }
+
+    capability setup_credential_profile {
+        endpoint setup_credential_profile aware_identity_service_dto.credential.CredentialProfileSetupRequest {
+            """
+            Create or reuse one Identity-owned credential profile and attach one external
+            secret-material reference without carrying raw secret values.
+            """
+
+            response aware_identity_service_dto.credential.CredentialProfileSetupReceipt
+        }
+    }
+
+    capability check_credential_readiness {
+        endpoint check_credential_readiness aware_identity_service_dto.credential.CredentialReadinessCheckRequest {
+            """
+            Check resolver availability for one Identity credential profile and record a
+            readiness receipt without carrying raw secret values.
+            """
+
+            response aware_identity_service_dto.credential.CredentialReadinessCheckReceipt
+        }
+    }
+
+    capability signup_via_profile {
+        endpoint signup_via_profile aware_identity_service_dto.identity.IdentitySignupViaProfileRequest {
+            """
+            Create the first canonical remote Identity + Actor admission record for an
+            Interface consumer using a public key and profile payload.
+            """
+
+            response aware_identity_service_dto.identity.IdentityAdmissionReceipt
+        }
+    }
+
+    capability assign_role {
+        endpoint assign_role aware_identity_service_dto.role.RoleAssignmentRequest {
+            """
+            Create or reuse one canonical actor-role binding over the class-instance-aware
+            Identity role rail.
+            """
+
+            response aware_identity_service_dto.role.RoleAssignmentReceipt
+        }
+    }
+
+    capability unassign_role {
+        endpoint unassign_role aware_identity_service_dto.role.RoleUnassignmentRequest {
+            """
+            Remove one canonical actor-role binding over the class-instance-aware Identity
+            role rail when the requested class-instance scope is unambiguous.
+            """
+
+            response aware_identity_service_dto.role.RoleUnassignmentReceipt
+        }
+    }
+
+    capability resolve_role_assignments {
+        endpoint resolve_role_assignments aware_identity_service_dto.role.RoleAssignmentResolveRequest {
+            """
+            Resolve canonical actor-role bindings for one actor and one graph scope on the
+            public Identity service API boundary.
+            """
+
+            response aware_identity_service_dto.role.RoleAssignmentResolveResult
+        }
+    }
+
+    capability ensure_session_config {
+        endpoint ensure_session_config aware_identity_service_dto.session.SessionConfigEnsureRequest {
+            """
+            Create or reuse one Identity-owned generic session participation policy.
+            """
+
+            response aware_identity_service_dto.session.SessionConfigEnsureReceipt
+        }
+    }
+
+    capability bind_session_config_actor_config {
+        endpoint bind_session_config_actor_config aware_identity_service_dto.session.SessionConfigActorConfigBindRequest {
+            """
+            Bind one ActorConfig as eligible session participation policy without
+            admitting an actor or granting roles.
+            """
+
+            response aware_identity_service_dto.session.SessionConfigActorConfigBindReceipt
+        }
+    }
+
+    capability register_session_provider {
+        endpoint register_session_provider aware_identity_service_dto.session.SessionProviderRegisterRequest {
+            """
+            Register one provider-neutral session capability descriptor.
+            """
+
+            response aware_identity_service_dto.session.SessionProviderRegisterReceipt
+        }
+    }
+
+    capability bind_session_provider_config {
+        endpoint bind_session_provider_config aware_identity_service_dto.session.SessionProviderConfigBindRequest {
+            """
+            Bind one provider capability to an Identity SessionConfig without creating a
+            concrete provider session.
+            """
+
+            response aware_identity_service_dto.session.SessionProviderConfigBindReceipt
+        }
+    }
+
+    capability start_session {
+        endpoint start_session aware_identity_service_dto.session.SessionStartRequest {
+            """
+            Start one concrete Identity Session under a SessionConfig.
+            """
+
+            response aware_identity_service_dto.session.SessionStartReceipt
+        }
+    }
+
+    capability describe_session {
+        endpoint describe_session aware_identity_service_dto.session.SessionDescribeRequest {
+            """
+            Read one Identity Session summary by stable id without resolving
+            domain-specific provider state.
+            """
+
+            response aware_identity_service_dto.session.SessionDescribeResult
+        }
+    }
+
+    capability join_session {
+        endpoint join_session aware_identity_service_dto.session.SessionJoinRequest {
+            """
+            Join one Actor to an Identity Session under an explicit SessionConfigActorConfig.
+            """
+
+            response aware_identity_service_dto.session.SessionJoinReceipt
+        }
+    }
+
+    capability record_session_member_actor_role {
+        endpoint record_session_member_actor_role aware_identity_service_dto.session.SessionMemberActorRoleRecordRequest {
+            """
+            Record an existing ActorRole as evidence for one SessionMember without
+            granting, revoking, scoping, or expiring permission.
+            """
+
+            response aware_identity_service_dto.session.SessionMemberActorRoleRecordReceipt
+        }
+    }
+
+    capability attach_session_provider_session {
+        endpoint attach_session_provider_session aware_identity_service_dto.session.SessionProviderSessionAttachRequest {
+            """
+            Attach one concrete provider session/capability to a shared Identity Session.
+            """
+
+            response aware_identity_service_dto.session.SessionProviderSessionAttachReceipt
+        }
+    }
+
+    capability list_child_sessions {
+        endpoint list_child_sessions aware_identity_service_dto.session.ChildSessionsListRequest {
+            """
+            List direct child Identity Sessions for one parent Identity Session.
+            """
+
+            response aware_identity_service_dto.session.ChildSessionsListResult
+        }
+    }
+
+    capability list_actor_sessions {
+        endpoint list_actor_sessions aware_identity_service_dto.session.ActorSessionsListRequest {
+            """
+            List Identity Sessions visible through membership for one Actor.
+            """
+
+            response aware_identity_service_dto.session.ActorSessionsListResult
+        }
+    }
+
+    capability list_session_members {
+        endpoint list_session_members aware_identity_service_dto.session.SessionMembersListRequest {
+            """
+            List members and ActorRole evidence for one Identity Session.
+            """
+
+            response aware_identity_service_dto.session.SessionMembersListResult
+        }
+    }
+
+    capability ensure_actor_subscription {
+        endpoint ensure_actor_subscription aware_identity_service_dto.actor.ActorSubscriptionEnsureRequest {
+            """
+            Create or reuse one canonical actor-subscription binding for an actor and a
+            Reactivity-owned event-condition scope. ActorRole remains detached at this
+            boundary; later ACL eligibility can compose role checks without making
+            operation capability equal event willingness.
+            """
+
+            response aware_identity_service_dto.actor.ActorSubscriptionEnsureReceipt
+        }
+    }
+
+    capability resolve_actor_subscriptions {
+        endpoint resolve_actor_subscriptions aware_identity_service_dto.actor.ActorSubscriptionResolveRequest {
+            """
+            Resolve actor-subscription bridge configs from Identity-owned subscription
+            lanes so Reactivity and downstream services can discover who is subscribed
+            to a scoped event policy.
+            """
+
+            response aware_identity_service_dto.actor.ActorSubscriptionResolveResult
+        }
+    }
+
+    capability ensure_actor_commit {
+        endpoint ensure_actor_commit aware_identity_service_dto.actor.ActorCommitEnsureRequest {
+            """
+            Create or reuse one Identity-owned ActorCommit personal-history record from
+            an Environment lane commit fanout receipt.
+            """
+
+            response aware_identity_service_dto.actor.ActorCommitEnsureReceipt
+        }
+    }
+
+    capability resolve_actor_commits {
+        endpoint resolve_actor_commits aware_identity_service_dto.actor.ActorCommitResolveRequest {
+            """
+            Resolve ActorCommit personal-history records for one actor through the
+            generated Identity service API boundary.
+            """
+
+            response aware_identity_service_dto.actor.ActorCommitResolveResult
+        }
+    }
+
+}

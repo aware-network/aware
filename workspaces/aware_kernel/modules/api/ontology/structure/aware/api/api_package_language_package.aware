@@ -1,6 +1,7 @@
 class ApiPackageLanguagePackage {
     // Relationships
     code_package aware_code.package.CodePackage key
+    object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit
 
     // Attributes
     exclude_paths JsonArray = []
@@ -19,6 +20,7 @@ class ApiPackageLanguagePackage {
         language aware_code.code.CodeLanguage,
         import_root String,
         manifest_relative_path String,
+        object_instance_graph_commit_id UUID,
         package_root String = ".",
         role String = "public_package",
         output_key String = "python.public_package",
@@ -32,6 +34,8 @@ class ApiPackageLanguagePackage {
         - Parent `ApiPackage` scope is injected by propagation.
         - Identity is keyed by the attached generated CodePackage.
         - The payload is the canonical import/install contract for API consumers.
+        - `object_instance_graph_commit_id` is the exact WorkspaceRevision/Hub
+          replay pin for the generated CodePackage.
         - Consumers must not infer API generated packages from local layout or
           `aware.api.toml` target JSON alone.
         """
@@ -39,3 +43,4 @@ class ApiPackageLanguagePackage {
 }
 
 ann api.ApiPackageLanguagePackage::code_package load eager
+ann api.ApiPackageLanguagePackage::object_instance_graph_commit load eager

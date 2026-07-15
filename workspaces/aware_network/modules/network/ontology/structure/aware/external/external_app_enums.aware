@@ -1,0 +1,6 @@
+enum ExternalAppStatus {
+    active
+    error
+    inactive
+    revoked
+}

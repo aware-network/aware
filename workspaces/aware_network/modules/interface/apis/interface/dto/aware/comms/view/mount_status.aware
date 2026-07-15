@@ -1,0 +1,12 @@
+/// API-owned view-state contract for Interface package mount readiness.
+/// Public API view key: interface.package_mount_status
+
+class InterfaceMountStatusViewStateV1 : inline_value {
+    mounted Bool = false
+    ready Bool = false
+    status String = "unknown"
+    summary String?
+    error String?
+    active_layout_key String?
+    active_section_key String?
+}

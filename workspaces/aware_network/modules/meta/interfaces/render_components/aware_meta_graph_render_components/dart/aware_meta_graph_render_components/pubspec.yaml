@@ -1,0 +1,24 @@
+name: aware_meta_graph_render_components
+description: Render component package for reusable Aware Meta graph surfaces.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  aware_shell:
+    path: ../../../../../../interface/libs/shell/dart/aware_shell
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  aware_pane_runtime:
+    path: ../../../../../../interface/libs/pane_runtime/dart/aware_pane_runtime
+  flutter_lints: any
+
+flutter:
+  uses-material-design: true

@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Iterator, Mapping
 from collections import defaultdict
 from contextlib import contextmanager
+from contextvars import ContextVar
 from time import perf_counter
 from typing import cast
 from uuid import UUID
@@ -20,6 +21,11 @@ from aware_meta.graph.config.namespace.builder import (
     build_namespace_bundle_from_ocg_topology,
 )
 from aware_meta.graph.config.namespace.bundle import ObjectConfigGraphNamespaceBundle
+from aware_meta.graph.config.relationship_analysis import (
+    MissingRelationshipEndpointDiagnostic,
+    capture_missing_relationship_endpoint_diagnostics,
+    find_missing_relationship_endpoints,
+)
 from aware_meta.graph.config.runtime_derivation.clone import (
     clone_runtime_graph_for_stage_mutation,
     clone_source_graph_for_runtime_handoff,
@@ -58,6 +64,13 @@ from aware_meta_ontology.graph.projection.object_projection_graph_declaration im
 from aware_meta_ontology.graph.projection.object_projection_graph_node import (
     ObjectProjectionGraphNode,
 )
+from aware_utils.logging import logger
+
+
+_DEFER_FINAL_RELATIONSHIP_ENDPOINT_DIAGNOSTICS: ContextVar[bool] = ContextVar(
+    "defer_final_relationship_endpoint_diagnostics",
+    default=False,
+)
 
 
 def derive_runtime_object_config_graph(
@@ -66,7 +79,7 @@ def derive_runtime_object_config_graph(
     external_runtime_graphs: tuple[ObjectConfigGraph, ...] = (),
     include_projection_graphs: bool = True,
 ) -> RuntimeObjectConfigGraphDerivationResult:
-    return RuntimeObjectConfigGraphDerivationService().derive(
+    result = RuntimeObjectConfigGraphDerivationService().derive(
         RuntimeObjectConfigGraphDerivationRequest(
             source_graph=source_graph,
             target_language=CodeLanguage.aware,
@@ -75,6 +88,12 @@ def derive_runtime_object_config_graph(
             source_is_runtime=False,
         )
     )
+    if not _DEFER_FINAL_RELATIONSHIP_ENDPOINT_DIAGNOSTICS.get():
+        _emit_final_relationship_endpoint_diagnostics(
+            runtime_graphs=(result.runtime_graph,),
+            external_runtime_graphs=result.runtime_external_graphs,
+        )
+    return result
 
 
 def derive_runtime_object_config_graphs(
@@ -85,35 +104,43 @@ def derive_runtime_object_config_graphs(
 ) -> tuple[ObjectConfigGraph, ...]:
     source_graph_tuple = tuple(source_graphs)
     external_runtime_graph_tuple = tuple(external_runtime_graphs)
-    bootstrap_runtime_graphs_by_source_id: dict[UUID, ObjectConfigGraph] = {}
-    for graph in source_graph_tuple:
-        bootstrap_runtime_graphs_by_source_id[graph.id] = (
-            derive_runtime_object_config_graph(
+    defer_token = _DEFER_FINAL_RELATIONSHIP_ENDPOINT_DIAGNOSTICS.set(True)
+    try:
+        bootstrap_runtime_graphs_by_source_id: dict[UUID, ObjectConfigGraph] = {}
+        for graph in source_graph_tuple:
+            bootstrap_runtime_graphs_by_source_id[graph.id] = (
+                derive_runtime_object_config_graph(
+                    graph,
+                    external_runtime_graphs=external_runtime_graph_tuple,
+                    include_projection_graphs=False,
+                ).runtime_graph
+            )
+
+        runtime_graphs_by_source_id: dict[UUID, ObjectConfigGraph] = {}
+        for graph in source_graph_tuple:
+            runtime_graphs_by_source_id[graph.id] = derive_runtime_object_config_graph(
                 graph,
-                external_runtime_graphs=external_runtime_graph_tuple,
+                external_runtime_graphs=(
+                    *external_runtime_graph_tuple,
+                    *(
+                        runtime_graph
+                        for source_id, runtime_graph in (
+                            bootstrap_runtime_graphs_by_source_id.items()
+                        )
+                        if source_id != graph.id
+                    ),
+                ),
                 include_projection_graphs=False,
             ).runtime_graph
-        )
-
-    runtime_graphs_by_source_id: dict[UUID, ObjectConfigGraph] = {}
-    for graph in source_graph_tuple:
-        runtime_graphs_by_source_id[graph.id] = derive_runtime_object_config_graph(
-            graph,
-            external_runtime_graphs=(
-                *external_runtime_graph_tuple,
-                *(
-                    runtime_graph
-                    for source_id, runtime_graph in (
-                        bootstrap_runtime_graphs_by_source_id.items()
-                    )
-                    if source_id != graph.id
-                ),
-            ),
-            include_projection_graphs=False,
-        ).runtime_graph
+    finally:
+        _DEFER_FINAL_RELATIONSHIP_ENDPOINT_DIAGNOSTICS.reset(defer_token)
 
     runtime_graphs = tuple(
         runtime_graphs_by_source_id[graph.id] for graph in source_graph_tuple
+    )
+    _emit_final_relationship_endpoint_diagnostics(
+        runtime_graphs=runtime_graphs,
+        external_runtime_graphs=external_runtime_graph_tuple,
     )
     if not include_projection_graphs:
         return runtime_graphs
@@ -423,16 +450,101 @@ def _language_to_runtime(
         raise ValueError(
             f"No language_to_runtime_transformer registered for {graph.language}."
         )
-    with _runtime_derivation_progress_step(
-        progress_request,
-        "derive_runtime_graph.language_to_runtime.transform",
-        detail_payload={
-            "source_language": graph.language.value,
-            "external_graph_count": len(external_runtime_graphs),
-            "namespace_entry_count": len(namespace_by_code_id),
-        },
-    ):
-        return transformer.transform(graph, code_primitive_type=None)
+    with capture_missing_relationship_endpoint_diagnostics() as diagnostics:
+        with _runtime_derivation_progress_step(
+            progress_request,
+            "derive_runtime_graph.language_to_runtime.transform",
+            detail_payload={
+                "source_language": graph.language.value,
+                "external_graph_count": len(external_runtime_graphs),
+                "namespace_entry_count": len(namespace_by_code_id),
+            },
+        ):
+            runtime_graph = transformer.transform(graph, code_primitive_type=None)
+    timer.metric(
+        "relationship_analysis_partial_missing_endpoint_count",
+        len(diagnostics),
+    )
+    if diagnostics:
+        diagnostic_detail = {
+            "graph_id": str(graph.id),
+            "graph_fqn_prefix": graph.fqn_prefix,
+            "missing_endpoint_count": len(diagnostics),
+            "samples": _relationship_endpoint_diagnostic_samples(diagnostics),
+        }
+        timer.metric(
+            "relationship_analysis_partial_missing_endpoint_samples",
+            diagnostic_detail["samples"],
+        )
+        _emit_runtime_derivation_progress(
+            request=progress_request,
+            subphase_name="derive_runtime_graph.relationship_analysis_partial_view",
+            status="succeeded",
+            detail_payload=diagnostic_detail,
+        )
+    return runtime_graph
+
+
+def _emit_final_relationship_endpoint_diagnostics(
+    *,
+    runtime_graphs: tuple[ObjectConfigGraph, ...],
+    external_runtime_graphs: tuple[ObjectConfigGraph, ...] = (),
+) -> None:
+    """Emit one actionable warning per graph after closure is complete."""
+
+    closure = (*external_runtime_graphs, *runtime_graphs)
+    available_classes_by_id: dict[UUID, ClassConfig] = {}
+    for candidate_graph in closure:
+        for node in candidate_graph.object_config_graph_nodes:
+            if (
+                node.type == ObjectConfigGraphNodeType.class_
+                and node.class_config is not None
+            ):
+                _ = available_classes_by_id.setdefault(
+                    node.class_config.id,
+                    node.class_config,
+                )
+    for graph in runtime_graphs:
+        diagnostics = find_missing_relationship_endpoints(
+            graph,
+            available_classes_by_id=available_classes_by_id,
+        )
+        if not diagnostics:
+            continue
+        message = (
+            "Runtime relationship endpoints unresolved after closure "
+            + "graph=%s graph_id=%s count=%d samples=%s"
+        )
+        logger.warning(
+            message,
+            graph.fqn_prefix,
+            graph.id,
+            len(diagnostics),
+            _relationship_endpoint_diagnostic_samples(diagnostics),
+        )
+
+
+def _relationship_endpoint_diagnostic_samples(
+    diagnostics: Iterable[MissingRelationshipEndpointDiagnostic],
+    *,
+    limit: int = 5,
+) -> tuple[dict[str, object], ...]:
+    samples: list[dict[str, object]] = []
+    for diagnostic in diagnostics:
+        samples.append(
+            {
+                "relationship_id": str(diagnostic.relationship_id),
+                "source_class_config_id": str(diagnostic.source_class_config_id),
+                "source_class_name": diagnostic.source_class_name,
+                "source_missing": diagnostic.source_missing,
+                "target_class_config_id": str(diagnostic.target_class_config_id),
+                "target_class_name": diagnostic.target_class_name,
+                "target_missing": diagnostic.target_missing,
+            }
+        )
+        if len(samples) >= limit:
+            break
+    return tuple(samples)
 
 
 def _external_runtime_graphs_by_id_for_language_transform(

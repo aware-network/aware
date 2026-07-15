@@ -1,0 +1,94 @@
+{
+  "description": null,
+  "interface_config_id": "f6039e1d-a726-5e27-ba57-2b39852e3988",
+  "interface_package_id": "e5390fb8-d6a3-5686-a4ef-610138e7dd63",
+  "interface_package_name": "aware-economy-interface",
+  "name": "aware_economy",
+  "pane_configs": [
+    {
+      "description": null,
+      "name": "wallet_capital",
+      "narrative_key": "economy.wallet_capital",
+      "pane_config_id": "b7685a53-0e35-57df-9165-cb1c886dc654",
+      "pane_kind": "wallet_capital",
+      "pane_package_id": "b4b12a8f-f5a3-55b3-be9c-08ab0ef1e8c0",
+      "pane_package_name": "aware-economy-wallet-capital-pane",
+      "projection_experience_views": [
+        {
+          "binding_id": "b7685a53-0e35-57df-9165-cb1c886dc654",
+          "invocation_actions": [
+            {
+              "action_key": "fund_wallet",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "f2aa7949-993c-5963-9b73-4692a009f3f4",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "5a165c17-c689-573c-a8db-15c12e84b59f",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "economy.wallet_funding_prepare.prepare_wallet_funding"
+            },
+            {
+              "action_key": "refresh_wallet_capital",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "9fc27d4e-2398-5c0a-9a1e-474e037e64ca",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "c33d9408-3872-5637-acbd-f003f7f5134e",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "economy.wallet_capital_view_state_resolve.resolve_wallet_capital_view_state"
+            }
+          ],
+          "is_default": true,
+          "object_projection_graph_identity_id": "ecb983a0-8bf0-5c16-b4d8-829762c1e7e7",
+          "object_projection_graph_observable_id": "b7c7da15-7e4c-5412-9b7f-5e0508f8b856",
+          "projection_experience_graph_identity_id": null,
+          "projection_experience_view_id": "fe3a9912-36e0-56f7-bcd5-4e350ad42e7c",
+          "projection_view_key": "home.wallet_capital.v1",
+          "section_graph_binding_key": null,
+          "section_mounts": [
+            {
+              "layout_config_section_config_id": "d4ccc335-7e0e-5b5b-8dc4-3945a4e85ce8",
+              "mount_id": "31aec928-50fb-5791-9246-833c845bb1d8"
+            }
+          ],
+          "state_model_id": "922ddf12-2bbc-5dd7-b2d4-a0da9348b857",
+          "view_ref": "aware_economy.home.wallet_capital.v1"
+        }
+      ]
+    }
+  ],
+  "window_configs": [
+    {
+      "description": null,
+      "interface_config_window_config_id": "7d2c642c-6434-5db3-9807-5364a1914175",
+      "key": "main",
+      "layout_configs": [
+        {
+          "is_default": true,
+          "key": "coordination_center",
+          "layout_config_id": "b21adb2d-5b6e-5b6d-a773-73214ea1676e",
+          "sections": [
+            {
+              "key": "orchestration",
+              "layout_config_section_config_id": "3398ae1f-d33d-5165-8268-2e515c9dfd35"
+            },
+            {
+              "key": "primary",
+              "layout_config_section_config_id": "d4ccc335-7e0e-5b5b-8dc4-3945a4e85ce8"
+            },
+            {
+              "key": "inspector",
+              "layout_config_section_config_id": "9ecb6c41-d5bf-518b-8686-11a5bedd089a"
+            }
+          ],
+          "window_config_layout_config_id": "7e897763-bf96-54f5-8262-d47fcbc38714"
+        }
+      ],
+      "window_config_id": "bbe369bd-1d6c-5f2e-9ce8-1f4529faac74"
+    }
+  ]
+}

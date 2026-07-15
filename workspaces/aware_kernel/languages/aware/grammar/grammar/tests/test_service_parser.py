@@ -161,6 +161,31 @@ service workspace {
     )
 
 
+def test_tree_sitter_parses_service_operation_committed_price_reference() -> None:
+    source = """\
+service inference {
+    api inference
+
+    operation submit {
+        endpoint inference.submit.submit
+        settlement reserve_and_finalize
+        price inference.submit
+    }
+}
+"""
+    source_bytes = source.encode("utf-8")
+    tree = Parser(language=AWARE_LANGUAGE).parse(source_bytes)
+
+    assert not tree.root_node.has_error
+    price_defs = _find_nodes(tree.root_node, "service_operation_price_def")
+    assert len(price_defs) == 1
+    assert price_defs[0].child_by_field_name("body") is None
+    assert (
+        _text(source_bytes, price_defs[0].child_by_field_name("price"))
+        == "inference.submit"
+    )
+
+
 def test_tree_sitter_parses_service_code_package_config_declaration() -> None:
     source = """\
 service aware_experience {

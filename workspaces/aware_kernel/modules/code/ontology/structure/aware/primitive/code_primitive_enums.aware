@@ -4,6 +4,7 @@ enum CodePrimitiveBaseType {
     boolean
     bytes
     datetime
+    decimal
     float
     integer
     string

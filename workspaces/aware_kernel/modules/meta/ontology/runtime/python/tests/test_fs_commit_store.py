@@ -11,12 +11,20 @@ import pytest
 
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_history_ontology.commit.commit import Commit
+from aware_history_ontology.commit.commit_parent import CommitParent
 from aware_history_ontology.commit.commit_enums import CommitStatus
+from aware_history_ontology.stable_ids import stable_commit_parent_id
 from aware_meta.class_.instance.builder import build_class_instance
 from aware_meta.graph.instance.builder import (
     build_object_instance_graph_from_class_instances,
 )
+from aware_meta.graph.instance.commit.body_codec import build_oig_commit_body
+from aware_meta.graph.instance.commit.contract import (
+    LaneHeadCommitReceipt,
+    ObjectInstanceGraphCommitBodyRecord,
+)
 from aware_meta.graph.instance.commit import (
+    fs_commit_store as fs_commit_store_module,
     fs_snapshot_store as fs_snapshot_store_module,
 )
 from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
@@ -48,6 +56,9 @@ from aware_meta.graph.instance.commit.state_witness import (
     replace_existing_commit_state_witness_cursor_segments,
     replace_existing_commit_state_witness_cursor_summary_chunks,
     replace_existing_commit_state_witness_ref_segments,
+)
+from aware_meta.graph.instance.commit.stored_commit_records import (
+    object_instance_graph_commit_envelope_from_commit,
 )
 from aware_meta.test_support import (
     make_attribute_config,
@@ -184,6 +195,13 @@ async def test_snapshot_store_writes_validated_state_row_sidecar(
         expected_object_instance_graph_id=graph.id,
         expected_graph_hash=str(graph.hash),
     )
+    evidence = await store.get_snapshot_state_index_evidence(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        commit_id=commit_id,
+        expected_object_instance_graph_id=graph.id,
+        expected_graph_hash=str(graph.hash),
+    )
     sidecar_graph = await store.get_snapshot_state_graph(
         branch_id=branch_id,
         projection_hash=projection_hash,
@@ -201,6 +219,16 @@ async def test_snapshot_store_writes_validated_state_row_sidecar(
     )
 
     assert rows is not None
+    assert evidence is not None
+    assert evidence.payload == rows
+    assert evidence.graph_hash == graph.hash
+    assert evidence.state_index.compute_hash() == graph.hash
+    source_object_id = graph.class_instances[0].source_object_id
+    selected = evidence.select_class_instances_by_source_object_id(
+        source_object_ids=frozenset({source_object_id}),
+    )
+    assert selected is not None
+    assert selected[source_object_id].id == graph.class_instances[0].id
     assert rows["schema"] == "aware.oig.snapshot_state_rows.v2"
     assert rows["payload_hash_algorithm"] == "sha256"
     assert rows["payload_sha256"]
@@ -1430,6 +1458,17 @@ async def test_snapshot_store_reads_cursor_hash_overlay_without_witness_ref(
     assert "commit_state_witness_schema" not in payload
     assert payload["graph_hash"] == post_cursor_summary.cursor_hash
 
+    metadata = store.snapshot_state_class_segment_index_metadata(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        commit_id=commit_id,
+        expected_object_instance_graph_id=post_graph.id,
+        expected_graph_hash=post_cursor_summary.cursor_hash,
+    )
+    assert metadata is not None
+    assert metadata.graph_hash == post_cursor_summary.cursor_hash
+    assert metadata.witness_cursor_summary == post_cursor_summary
+
     trace = CommitPerfTraceRecorder(default_category="test")
     with active_commit_perf_trace(trace):
         selection = (
@@ -1710,6 +1749,102 @@ async def test_commit_store_batch_ref_resolution_can_disable_head_fallback(
 
 
 @pytest.mark.asyncio
+async def test_commit_store_append_records_writes_single_final_head(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    head_write_paths: list[Path] = []
+    original_durable_write = fs_commit_store_module._atomic_write
+
+    def _record_head_write(path: Path, data: str) -> None:
+        if path.name == "HEAD.json":
+            head_write_paths.append(path)
+        original_durable_write(path, data)
+
+    monkeypatch.setattr(
+        fs_commit_store_module,
+        "_atomic_write",
+        _record_head_write,
+    )
+
+    store = FSCommitStore(root_dir=tmp_path)
+    branch_id = uuid4()
+    projection_hash = "CodePackage"
+    object_instance_graph_identity_id = uuid4()
+    object_instance_graph_id = uuid4()
+    first = _make_commit(
+        projection_hash=projection_hash,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        object_instance_graph_id=object_instance_graph_id,
+        graph_hash_post="sha256:test:batch:first",
+    )
+    second = _make_commit(
+        projection_hash=projection_hash,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        object_instance_graph_id=object_instance_graph_id,
+        parent_commit_id=first.commit.id,
+        graph_hash_pre=first.graph_hash_post,
+        graph_hash_post="sha256:test:batch:second",
+    )
+    watcher_receipts: list[LaneHeadCommitReceipt] = []
+
+    def _watcher(receipt: LaneHeadCommitReceipt) -> None:
+        watcher_receipts.append(receipt)
+
+    FSCommitStore.register_lane_head_watcher(_watcher)
+    try:
+        perf = await store.append_records(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            records=(
+                _record_from_commit(
+                    branch_id=branch_id,
+                    projection_hash=projection_hash,
+                    commit=first,
+                ),
+                _record_from_commit(
+                    branch_id=branch_id,
+                    projection_hash=projection_hash,
+                    commit=second,
+                ),
+            ),
+        )
+    finally:
+        FSCommitStore.unregister_lane_head_watcher(_watcher)
+
+    head = await store.head(branch_id=branch_id, projection_hash=projection_hash)
+    assert head is not None
+    assert head["commit_id"] == str(second.commit.id)
+    assert head["graph_hash_post"] == second.graph_hash_post
+    assert await store.get_commit(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        commit_id=first.commit.id,
+    )
+    assert await store.get_commit(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        commit_id=second.commit.id,
+    )
+    assert perf["append_record_count"] == 2
+    assert perf["batch_append_record_count"] == 2
+    assert perf["durable_head_write_count"] == 1
+    assert perf["batch_final_head_write_count"] == 1
+    assert perf["durable_body_write_count"] == 2
+    assert perf["durable_envelope_write_count"] == 2
+    assert perf["durable_write_count"] == 5
+    assert perf["grouped_durable_transaction_write_count"] == 5
+    assert perf["independent_durable_write_count"] == 0
+    assert perf["grouped_durable_transaction_count"] == 1
+    assert perf["grouped_durable_transaction_syncfs_count"] in (0, 1)
+    if perf["grouped_durable_transaction_syncfs_count"] == 0:
+        assert perf["grouped_durable_transaction_file_fsync_count"] == 5
+    assert len(head_write_paths) == 1
+    assert len(watcher_receipts) == 1
+    assert watcher_receipts[0].commit_id == second.commit.id
+
+
+@pytest.mark.asyncio
 async def test_commit_store_reports_ambiguous_oig_commit_ref_matches(tmp_path) -> None:
     store = FSCommitStore(root_dir=tmp_path)
     projection_hash = "ServicePackage"
@@ -1976,10 +2111,24 @@ def _make_commit(
     commit_id: UUID | None = None,
     object_instance_graph_identity_id: UUID | None = None,
     object_instance_graph_id: UUID | None = None,
+    parent_commit_id: UUID | None = None,
+    graph_hash_pre: str | None = None,
     graph_hash_post: str | None = None,
 ) -> ObjectInstanceGraphCommit:
     commit_id = commit_id or uuid4()
     object_instance_graph_identity_id = object_instance_graph_identity_id or uuid4()
+    commit_parents = []
+    if parent_commit_id is not None:
+        commit_parents.append(
+            CommitParent.model_construct(
+                id=stable_commit_parent_id(
+                    commit_id=commit_id,
+                    parent_commit_id=parent_commit_id,
+                ),
+                commit_id=commit_id,
+                parent_commit_id=parent_commit_id,
+            )
+        )
     return ObjectInstanceGraphCommit.model_construct(
         id=stable_object_instance_graph_commit_id(
             object_instance_graph_identity_id=object_instance_graph_identity_id,
@@ -1992,7 +2141,7 @@ def _make_commit(
             created_at=datetime.now(UTC),
             status=CommitStatus.local,
             lane_id=uuid4(),
-            commit_parents=[],
+            commit_parents=commit_parents,
         ),
         object_instance_graph_key="service-package",
         object_instance_graph_name="service-package",
@@ -2000,11 +2149,27 @@ def _make_commit(
         root_class_config_id=uuid4(),
         root_source_object_id=uuid4(),
         graph_hash_post=graph_hash_post or f"sha256:{uuid4().hex}",
-        graph_hash_pre="",
+        graph_hash_pre=graph_hash_pre or "",
         projection_hash=projection_hash,
         source_language=CodeLanguage.python,
         object_instance_graph_identity_id=object_instance_graph_identity_id,
         object_instance_graph_id=object_instance_graph_id or uuid4(),
         commit_id=commit_id,
         object_instance_graph_changes=[],
+    )
+
+
+def _record_from_commit(
+    *,
+    branch_id: UUID,
+    projection_hash: str,
+    commit: ObjectInstanceGraphCommit,
+) -> ObjectInstanceGraphCommitBodyRecord:
+    return ObjectInstanceGraphCommitBodyRecord(
+        envelope=object_instance_graph_commit_envelope_from_commit(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit=commit,
+        ),
+        body=build_oig_commit_body(commit),
     )

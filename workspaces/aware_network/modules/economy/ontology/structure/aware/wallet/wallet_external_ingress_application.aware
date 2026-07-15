@@ -1,0 +1,12 @@
+class WalletExternalIngressApplication {
+    // Relationships
+    coin coin.Coin
+    transaction transaction.Transaction key
+
+    // Attributes
+    amount Decimal
+    applied_at DateTime = now()
+    new_balance Decimal
+    previous_balance Decimal
+
+}

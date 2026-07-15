@@ -1,0 +1,63 @@
+class SmartContractReservation {
+    // Relationships
+    escrow escrow.Escrow?
+    rate_snapshot price.RateSnapshot
+    smart_contract_settlements SmartContractSettlement[]
+
+    // Attributes
+    args_hash String
+    deadline DateTime
+    final_cost Decimal?
+    max_cost Decimal
+    op_nonce Int key
+    reservation_signature String?
+    status ReservationStatus = pending
+
+    fn create construct (
+        op_nonce Int key,
+        args_hash String,
+        max_cost Decimal,
+        rate_snapshot_id UUID,
+        deadline DateTime,
+        reservation_signature String? = null,
+        escrow escrow.Escrow? = null,
+        status ReservationStatus = pending
+    ) -> SmartContractReservation {
+        """
+        Creates a reservation under a permit.
+
+        Receipt: SmartContractReservation(status=pending) linked to permit (+ optional escrow).
+        """
+    }
+
+    fn set_status (status ReservationStatus, final_cost Decimal? = null) -> SmartContractReservation {
+        """
+        Updates reservation lifecycle status (and optional final cost on settlement paths).
+
+        Receipt: SmartContractReservation status/final_cost transition.
+        """
+    }
+
+    fn prepare_settlement (
+        payer_finance_entity_id UUID,
+        payer_wallet_public_id UUID,
+        receiver_finance_entity_id UUID,
+        receiver_wallet_public_id UUID,
+        coin_id UUID,
+        final_cost Decimal,
+    ) -> SmartContractSettlement {
+        """
+        Creates or reuses the deterministic settlement receipt under this reservation.
+
+        Receipt: SmartContractSettlement(status=prepared) linked under this reservation.
+        """
+        let created = construct smart_contract_settlements.create(
+            payer_finance_entity_id = payer_finance_entity_id,
+            payer_wallet_public_id = payer_wallet_public_id,
+            receiver_finance_entity_id = receiver_finance_entity_id,
+            receiver_wallet_public_id = receiver_wallet_public_id,
+            coin_id = coin_id,
+            final_cost = final_cost,
+        )
+    }
+}

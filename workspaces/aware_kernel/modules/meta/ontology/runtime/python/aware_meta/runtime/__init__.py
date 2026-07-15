@@ -142,6 +142,12 @@ from aware_meta.runtime.graph_runtime import (
     MetaGraphInvokeFunctionInput,
     MetaGraphRuntime,
 )
+from aware_meta.runtime.commit_groups import (
+    META_INVOCATION_COMMIT_GROUP_CONTRACT_VERSION,
+    META_INVOCATION_COMMIT_GROUP_DURABILITY_POLICY,
+    MetaInvocationCommitGroupEntry,
+    MetaInvocationCommitGroupEvidence,
+)
 
 __all__ = [
     "build_meta_graph_function_target_index",
@@ -258,6 +264,10 @@ __all__ = [
     "MetaGraphRuntime",
     "MetaGraphRuntimeContext",
     "MetaGraphRuntimeIndexSnapshot",
+    "META_INVOCATION_COMMIT_GROUP_CONTRACT_VERSION",
+    "META_INVOCATION_COMMIT_GROUP_DURABILITY_POLICY",
+    "MetaInvocationCommitGroupEntry",
+    "MetaInvocationCommitGroupEvidence",
     "MetaApiActivationReadModel",
     "MetaRuntimeReadModel",
     "MetaRuntimeReadModelProvider",

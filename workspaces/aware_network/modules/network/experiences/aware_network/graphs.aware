@@ -1,0 +1,3 @@
+graph network_territory_default on aware_network {
+    root now
+}

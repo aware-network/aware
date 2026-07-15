@@ -25,6 +25,7 @@ from aware_meta.runtime.invocation_engine import (
     MetaGraphCommitReceipt,
     MetaGraphInvokeFunctionInput,
 )
+from aware_meta.runtime import portal_invocation as portal_invocation_mod
 from aware_meta.runtime.portal_context import (
     MetaCurrentHandlerPortalClient,
     MetaPortalPendingConstructorRequest,
@@ -166,9 +167,9 @@ def test_meta_portal_client_resolves_model_field() -> None:
 
 
 @pytest.mark.asyncio
-async def test_meta_portal_client_invokes_pending_constructor_with_meta_backend() -> (
-    None
-):
+async def test_meta_portal_client_invokes_pending_constructor_with_meta_backend(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     source_class_config_id = uuid4()
     target_class_config_id = uuid4()
     portal = _portal(
@@ -185,6 +186,17 @@ async def test_meta_portal_client_invokes_pending_constructor_with_meta_backend(
     index = _index_for_portal_constructor(
         portal=portal,
         function_id=function_id,
+    )
+
+    attach_calls: list[dict[str, object]] = []
+
+    async def attach_oigb_relationship(**kwargs: object) -> None:
+        attach_calls.append(dict(kwargs))
+
+    monkeypatch.setattr(
+        portal_invocation_mod,
+        "attach_oigb_relationship",
+        attach_oigb_relationship,
     )
 
     async def invoke_function(
@@ -248,6 +260,16 @@ async def test_meta_portal_client_invokes_pending_constructor_with_meta_backend(
         object_projection_graph_identity_id=target_opgi_id,
         target_object_id=target_object_id,
     )
+    assert attach_calls == [
+        {
+            "index": index,
+            "author_id": client.ctx.requester_id,
+            "source_domain_branch_id": client.ctx.branch_id,
+            "source_projection_hash": client.ctx.projection_hash,
+            "target_domain_branch_id": invoke_request.domain_branch_id,
+            "target_projection_hash": portal.target_projection_hash,
+        }
+    ]
 
 
 def test_current_meta_portal_source_frame_maps_meta_handler_context() -> None:

@@ -1,0 +1,114 @@
+service aware_experience {
+    api experience;
+
+    package experience {
+        manifest aware_experience_toml;
+        surface experience;
+        cardinality many;
+    }
+
+    operation start_experience_session {
+        endpoint experience.start_experience_session.start_experience_session;
+        admission identity_required;
+    }
+
+    operation mount_experience_session_profile {
+        endpoint experience.mount_experience_session_profile.mount_experience_session_profile;
+        admission identity_required;
+    }
+
+    operation admit_experience_actor_config {
+        endpoint experience.actor_admission.admit_experience_actor_config;
+        admission identity_required;
+    }
+
+    operation resolve_experience_thread_layout_intent {
+        endpoint experience.resolve_experience_thread_layout_intent.resolve_experience_thread_layout_intent;
+        admission identity_required;
+    }
+
+    operation request_experience_layout_transition {
+        endpoint experience.request_experience_layout_transition.request_experience_layout_transition;
+        admission identity_required;
+    }
+
+    operation get_experience_section_graph_binding_catalog {
+        endpoint experience.get_experience_section_graph_binding_catalog.get_experience_section_graph_binding_catalog;
+        admission identity_required;
+    }
+
+    operation get_experience_layout_graph_binding_catalog {
+        endpoint experience.get_experience_layout_graph_binding_catalog.get_experience_layout_graph_binding_catalog;
+        admission identity_required;
+    }
+
+    operation get_experience_section_graph_binding_state {
+        endpoint experience.get_experience_section_graph_binding_state.get_experience_section_graph_binding_state;
+        admission identity_required;
+    }
+
+    operation get_experience_layout_graph_binding_state {
+        endpoint experience.get_experience_layout_graph_binding_state.get_experience_layout_graph_binding_state;
+        admission identity_required;
+    }
+
+    operation activate_experience_section_graph_binding {
+        endpoint experience.activate_experience_section_graph_binding.activate_experience_section_graph_binding;
+        admission identity_required;
+    }
+
+    operation activate_experience_layout_graph_binding {
+        endpoint experience.activate_experience_layout_graph_binding.activate_experience_layout_graph_binding;
+        admission identity_required;
+    }
+
+    operation apply_experience_view_event_transition {
+        endpoint experience.apply_experience_view_event_transition.apply_experience_view_event_transition;
+        admission identity_required;
+    }
+
+    operation record_experience_view_invocation_action {
+        endpoint experience.record_experience_view_invocation_action.record_experience_view_invocation_action;
+        admission identity_required;
+    }
+
+    operation invoke_experience_view_invocation_action {
+        endpoint experience.invoke_experience_view_invocation_action.invoke_experience_view_invocation_action;
+        admission identity_required;
+    }
+
+    operation resolve_experience_package_projection_ownership {
+        endpoint experience.package_materialization.resolve_experience_package_projection_ownership;
+        admission identity_required;
+    }
+
+    operation resolve_experience_invocation_action_role_policy {
+        endpoint experience.resolve_experience_invocation_action_role_policy.resolve_experience_invocation_action_role_policy;
+        admission identity_required;
+    }
+
+    operation ensure_experience_session_handoff {
+        endpoint experience.session_handoff.ensure_experience_session_handoff;
+        admission identity_required;
+    }
+
+    operation get_experience_session_handoff_status {
+        endpoint experience.session_handoff.get_experience_session_handoff_status;
+        admission identity_required;
+    }
+
+    operation resolve_experience_session_context {
+        endpoint experience.session_context.resolve_experience_session_context;
+        admission identity_required;
+    }
+
+    operation resolve_experience_session_view_frame {
+        endpoint experience.session_view_frame.resolve_experience_session_view_frame;
+        admission identity_required;
+    }
+
+    operation watch_experience_section_graph_bindings {
+        endpoint experience.watch_experience_section_graph_bindings.watch_experience_section_graph_bindings;
+        admission identity_required;
+    }
+}

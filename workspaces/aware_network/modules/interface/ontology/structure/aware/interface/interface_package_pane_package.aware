@@ -1,0 +1,24 @@
+class InterfacePackagePanePackage {
+    // Relationships
+    pane_package PanePackage key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        pane_package_id UUID key,
+        description String? = null
+    ) -> InterfacePackagePanePackage {
+        """
+        Create one package-level Interface bridge to one PanePackage.
+
+        Contract:
+        - Parent `InterfacePackage` scope is injected by propagation.
+        - Identity is keyed by the attached `PanePackage`.
+        - This is the package/import seam for authored Interface pane composition.
+        - It does not replace config-level PaneConfig composition inside InterfaceConfig.
+        """
+    }
+}
+
+ann interface.InterfacePackagePanePackage::pane_package load eager

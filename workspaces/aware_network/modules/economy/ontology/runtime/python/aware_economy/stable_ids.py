@@ -1,0 +1,51 @@
+from __future__ import annotations
+
+"""Runtime re-export of compiler-owned Economy stable-id formulas."""
+
+from aware_economy_ontology.stable_ids import (
+    NS_ECONOMY,
+    stable_coin_id,
+    stable_escrow_id,
+    stable_finance_entity_id,
+    stable_smart_contract_config_id,
+    stable_smart_contract_id,
+    stable_smart_contract_member_id,
+    stable_smart_contract_permit_id,
+    stable_smart_contract_reservation_id,
+    stable_price_id,
+    stable_price_schedule_id,
+    stable_pricing_policy_id,
+    stable_provider_lifecycle_receipt_id,
+    stable_rate_snapshot_id,
+    stable_transaction_external_id,
+    stable_transaction_id,
+    stable_transaction_intent_id,
+    stable_wallet_balance_id,
+    stable_wallet_id,
+    stable_wallet_private_id,
+    stable_wallet_public_id,
+)
+
+__all__ = [
+    "NS_ECONOMY",
+    "stable_coin_id",
+    "stable_escrow_id",
+    "stable_finance_entity_id",
+    "stable_price_id",
+    "stable_price_schedule_id",
+    "stable_pricing_policy_id",
+    "stable_provider_lifecycle_receipt_id",
+    "stable_rate_snapshot_id",
+    "stable_smart_contract_config_id",
+    "stable_smart_contract_id",
+    "stable_smart_contract_member_id",
+    "stable_smart_contract_permit_id",
+    "stable_smart_contract_reservation_id",
+    "stable_transaction_external_id",
+    "stable_transaction_id",
+    "stable_transaction_intent_id",
+    "stable_wallet_balance_id",
+    "stable_wallet_id",
+    "stable_wallet_private_id",
+    "stable_wallet_public_id",
+]

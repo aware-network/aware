@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from uuid import uuid4
 
 import pytest
+
+from aware_code.decimal_value import DecimalValueError
+from aware_code.primitive_codec_base import build_code_primitive_type
+from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBaseType
+from aware_meta_ontology.primitive.primitive_config import PrimitiveConfig
 
 from aware_meta_ontology.attribute.attribute_enums import AttributeCollectionType
 from aware_meta_ontology.attribute.attribute_type_descriptor import (
@@ -20,6 +26,10 @@ from aware_meta.attribute.instance.value import (
     AttributeValueBuildError,
     UnionSelection,
     build_attribute_value_tree,
+)
+from aware_meta.attribute.instance.value.validator import (
+    AttributeValueTreeValidationError,
+    validate_attribute_value_tree,
 )
 
 
@@ -47,10 +57,51 @@ def _dlink(
     )
 
 
+def _primitive_desc(base_type: CodePrimitiveBaseType) -> AttributeTypeDescriptor:
+    primitive_type = build_code_primitive_type(base_type=base_type)
+    primitive_config = PrimitiveConfig(
+        primitive_type=primitive_type,
+        primitive_type_id=primitive_type.id,
+    )
+    return AttributeTypeDescriptor(
+        kind=Kind.primitive,
+        primitive_config=primitive_config,
+        primitive_config_id=primitive_config.id,
+    )
+
+
 def test_primitive_leaf_valid() -> None:
     desc = _desc(Kind.primitive)
     root = build_attribute_value_tree(type_descriptor=desc, value="hello")
     assert root.primitive_value == {"value": "hello"}
+
+
+def test_decimal_primitive_leaf_is_canonical_and_stable() -> None:
+    desc = _primitive_desc(CodePrimitiveBaseType.decimal)
+
+    left = build_attribute_value_tree(
+        type_descriptor=desc,
+        value=Decimal("1.2300"),
+    )
+    right = build_attribute_value_tree(type_descriptor=desc, value="1.23")
+
+    assert left.primitive_value == {"value": "1.23"}
+    assert right.primitive_value == left.primitive_value
+
+
+def test_decimal_primitive_leaf_rejects_float_and_noncanonical_payload() -> None:
+    desc = _primitive_desc(CodePrimitiveBaseType.decimal)
+
+    with pytest.raises(DecimalValueError):
+        build_attribute_value_tree(type_descriptor=desc, value=1.23)
+
+    root = build_attribute_value_tree(type_descriptor=desc, value="1.23")
+    root.primitive_value = {"value": "1.230"}
+    with pytest.raises(
+        AttributeValueTreeValidationError,
+        match="Decimal primitive must contain canonical decimal text",
+    ):
+        validate_attribute_value_tree(root)
 
 
 def test_enum_leaf_requires_enum_option_id() -> None:

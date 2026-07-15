@@ -320,6 +320,41 @@ def test_leaf_external_graphs_skip_context_without_manifest_dependencies(
     )
 
 
+def test_leaf_external_graphs_use_runtime_context_index_without_scan(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workspace_root = tmp_path / "workspace"
+    manifest_path = _write_provider_delta_workspace_manifest(
+        workspace_root=workspace_root,
+        dependency_package_names=("dep-ontology",),
+    )
+    dep_graph = _runtime_test_graph(fqn_prefix="dep_demo", graph_hash="dep-hash")
+
+    def _fail_if_context_scanned(
+        context: Mapping[str, object],
+    ) -> tuple[ObjectConfigGraph, ...]:
+        raise AssertionError("external graph context should not be scanned")
+
+    monkeypatch.setattr(
+        workspace_provider,
+        "_external_object_config_graphs_from_context",
+        _fail_if_context_scanned,
+    )
+
+    assert workspace_provider._leaf_external_object_config_graphs_from_context(  # noqa: SLF001
+        context={
+            "runtime_object_config_graphs_by_package_name": {
+                "dep-ontology": dep_graph,
+            },
+        },
+        aware_toml_path=manifest_path,
+        workspace_root=workspace_root,
+    ) == (
+        dep_graph,
+    )
+
+
 def _write_provider_delta_workspace_manifest(
     *,
     workspace_root: Path,

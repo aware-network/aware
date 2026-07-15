@@ -1,0 +1,40 @@
+/// Service DTOs for Experience semantic Thread-Layout intent resolution.
+///
+/// This boundary returns config-level targets and evidence only. Runtime
+/// activation remains an Environment SDK/API responsibility.
+
+class ExperienceThreadLayoutResolutionServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class ExperienceThreadLayoutResolutionServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+    resolution thread_layout_resolution.ExperienceThreadLayoutIntentResolution?
+}
+
+class ResolveExperienceThreadLayoutIntentRequest augment thread_layout_resolution.ExperienceThreadLayoutResolutionServiceRequest {
+    operation String = "resolve_experience_thread_layout_intent"
+    intent_key String
+    experience_name String?
+    profile_key String?
+    environment_id UUID?
+    environment_handle String?
+    environment_selector String?
+    request_context JsonObject = {}
+}
+
+class ResolveExperienceThreadLayoutIntentResponse augment thread_layout_resolution.ExperienceThreadLayoutResolutionServiceResponse {
+    operation String = "resolve_experience_thread_layout_intent"
+    resolution thread_layout_resolution.ExperienceThreadLayoutIntentResolution
+}
+
+ann thread_layout_resolution.ExperienceThreadLayoutResolutionServiceRequest::operation discriminate key
+ann thread_layout_resolution.ResolveExperienceThreadLayoutIntentRequest::operation discriminate tag "resolve_experience_thread_layout_intent"
+
+ann thread_layout_resolution.ExperienceThreadLayoutResolutionServiceResponse::operation discriminate key
+ann thread_layout_resolution.ResolveExperienceThreadLayoutIntentResponse::operation discriminate tag "resolve_experience_thread_layout_intent"

@@ -1,0 +1,19 @@
+/// Price projection.
+///
+/// Extracted from `economy_projection.aware` as part of the Economy kernel migration.
+/// Keep new price reachability here and continue moving the remaining economy projections into standalone files
+/// one by one until the aggregate projection file can be removed.
+projection Price {
+    root price.Price
+    price.Price::coin Coin
+    price.Price::price_schedules
+    price.PriceSchedule::pricing_policy PricingPolicy
+    price.PriceSchedule::rate_snapshots
+    price.RateSnapshot::price_reservations
+
+    observable home {
+        """
+        Price overview.
+        """
+    }
+}

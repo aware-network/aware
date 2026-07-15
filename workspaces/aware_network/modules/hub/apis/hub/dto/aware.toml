@@ -1,0 +1,15 @@
+aware = 1
+
+[package]
+package_name = "hub-service-dto"
+fqn_prefix = "aware_hub_service_dto"
+kind = "api"
+version_number = 1
+title = "Hub Service DTO"
+description = "API-owned DTO package for Hub public map, deployment artifact, and generic artifact authority payloads."
+
+[build]
+environment_slug = "aware_hub_service_dto"
+
+[[dependencies]]
+package_name = "hub-ontology"

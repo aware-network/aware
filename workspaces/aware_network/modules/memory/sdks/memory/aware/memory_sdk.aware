@@ -1,0 +1,65 @@
+sdk memory_sdk {
+    "Canonical Memory SDK operations over the Memory service API."
+
+    api memory;
+
+    operation ensure_memory_working {
+        "Resolve or create one actor-scoped MemoryWorking lane."
+        endpoint memory.ensure_memory_working.ensure_memory_working;
+    }
+
+    operation describe_memory_working {
+        "Read one MemoryWorking lane by id or actor/key coordinates."
+        endpoint memory.describe_memory_working.describe_memory_working;
+    }
+
+    operation list_memory_working_items {
+        "List ordered MemoryWorkingItem pins for one working-memory lane."
+        endpoint memory.list_memory_working_items.list_memory_working_items;
+    }
+
+    operation validate_memory_working_item {
+        "Validate one retained MemoryWorkingItem and return source evidence."
+        endpoint memory.validate_memory_working_item.validate_memory_working_item;
+    }
+
+    operation resolve_memory_context {
+        "Resolve one actor working-memory lane into evidence-labeled context."
+        endpoint memory.resolve_memory_context.resolve_memory_context;
+    }
+
+    operation resolve_actor_memory_context {
+        "Validate actor/session context through Identity, then resolve usable Memory evidence."
+        endpoint memory.resolve_actor_memory_context.resolve_actor_memory_context;
+    }
+
+    operation watch_actor_memory_context {
+        "Read actor-scoped Memory context snapshots."
+        endpoint memory.watch_actor_memory_context.watch_actor_memory_context;
+    }
+
+    operation resolve_actor_memory_context_frame {
+        "Resolve actor-scoped Memory context into a compact consumer frame."
+        endpoint memory.resolve_actor_memory_context_frame.resolve_actor_memory_context_frame;
+    }
+
+    operation watch_actor_memory_context_frame {
+        "Read actor-scoped Memory consumer frames."
+        endpoint memory.watch_actor_memory_context_frame.watch_actor_memory_context_frame;
+    }
+
+    operation remember_attention_transition {
+        "Validate and retain one AttentionFocusTransition pointer in working memory."
+        endpoint memory.remember_attention_transition.remember_attention_transition;
+    }
+
+    operation remember_content {
+        "Retain one Content pointer in working memory."
+        endpoint memory.remember_content.remember_content;
+    }
+
+    operation remember_event {
+        "Retain one Reactivity Event pointer in working memory."
+        endpoint memory.remember_event.remember_event;
+    }
+}

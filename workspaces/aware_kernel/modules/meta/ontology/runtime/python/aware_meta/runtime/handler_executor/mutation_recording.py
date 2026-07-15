@@ -127,6 +127,7 @@ def build_meta_graph_mutation_set_from_session_delta(
             execution_plan=execution_plan,
             before_oig=session_delta.before_oig,
             changes=session_delta.changes,
+            body_draft=session_delta.body_draft,
             graph_hash_pre=session_delta.graph_hash_pre,
             graph_hash_post=session_delta.graph_hash_post,
             root_object_id=session_delta.root_object_id,
@@ -140,6 +141,7 @@ def build_meta_graph_mutation_set_from_session_delta(
             materialization_cache_prime_snapshot=(
                 session_delta.materialization_cache_prime_snapshot
             ),
+            validated_replay_artifact=session_delta.validated_replay_artifact,
         ),
     )
 
@@ -159,13 +161,11 @@ def build_meta_graph_mutation_set(
     execution_plan = request.execution_plan
     if mutation_set.execution_plan is not execution_plan:
         raise MetaGraphMutationRecordingError(
-            "Meta mutation source returned mutations for a different "
-            "execution plan."
+            "Meta mutation source returned mutations for a different " "execution plan."
         )
     if mutation_set.before_oig is not pre_state.before_oig:
         raise MetaGraphMutationRecordingError(
-            "Meta mutation source returned mutations for a different "
-            "pre-state OIG."
+            "Meta mutation source returned mutations for a different " "pre-state OIG."
         )
     if (
         mutation_set.graph_hash_pre is not None

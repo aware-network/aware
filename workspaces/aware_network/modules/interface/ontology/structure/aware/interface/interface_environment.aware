@@ -1,0 +1,16 @@
+/// Interface-owned Environment access contract.
+///
+/// Contract:
+/// - This is the canonical commit-backed fact that an Interface can resolve against an Environment.
+/// - Window/thread targeting must route through this association instead of letting windows grant
+///   Environment access directly.
+class InterfaceEnvironment {
+    // Relationships
+    environment aware_environment.environment.Environment key
+
+    fn create construct (environment_id UUID key) -> InterfaceEnvironment {
+        """
+        Creates a deterministic Interface -> Environment access association.
+        """
+    }
+}

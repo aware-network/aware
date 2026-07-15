@@ -1,0 +1,900 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "bd434068-b848-5898-b8cf-ed309b4589c0",
+      "module": "aware_interface_ontology_orm_models.interface.app_config",
+      "name": "AppConfig",
+      "aware_class_ref": "aware_interface.interface.AppConfig",
+      "functions": [
+        {
+          "function_config_id": "dfc2af3b-5031-5e29-9692-4538b5d6c88a",
+          "name": "attach_screen_config",
+          "input_model": "AppConfigAttachScreenConfigInput",
+          "output_model": "AppConfigAttachScreenConfigOutput"
+        },
+        {
+          "function_config_id": "8436ac95-a976-50de-91cc-e1aae08568ec",
+          "name": "build",
+          "input_model": "AppConfigBuildInput",
+          "output_model": "AppConfigBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "886f47ba-457d-5619-81b4-4b9c96d69551",
+      "module": "aware_interface_ontology_orm_models.interface.app_config_screen_config",
+      "name": "AppConfigScreenConfig",
+      "aware_class_ref": "aware_interface.interface.AppConfigScreenConfig",
+      "functions": [
+        {
+          "function_config_id": "fc532ea5-78cd-5cb4-a07a-beb276a76b00",
+          "name": "build_via_app_config",
+          "input_model": "AppConfigScreenConfigBuildViaAppConfigInput",
+          "output_model": "AppConfigScreenConfigBuildViaAppConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "20715012-ed7f-596a-b488-d4784ff064b1",
+      "module": "aware_interface_ontology_orm_models.interface.app_package",
+      "name": "AppPackage",
+      "aware_class_ref": "aware_interface.interface.AppPackage",
+      "functions": [
+        {
+          "function_config_id": "8273d49e-7963-52e9-beef-c084f82e3f10",
+          "name": "attach_experience_package",
+          "input_model": "AppPackageAttachExperiencePackageInput",
+          "output_model": "AppPackageAttachExperiencePackageOutput"
+        },
+        {
+          "function_config_id": "53ae8f91-b9ba-5f14-9c9f-8c237eb289da",
+          "name": "attach_interface_package",
+          "input_model": "AppPackageAttachInterfacePackageInput",
+          "output_model": "AppPackageAttachInterfacePackageOutput"
+        },
+        {
+          "function_config_id": "9d1d6541-6520-5d54-818a-5ec20a611acf",
+          "name": "build",
+          "input_model": "AppPackageBuildInput",
+          "output_model": "AppPackageBuildOutput"
+        },
+        {
+          "function_config_id": "16f41fc9-c8b5-5a49-b8c2-8fc814665778",
+          "name": "sync_manifest_truth",
+          "input_model": "AppPackageSyncManifestTruthInput",
+          "output_model": "AppPackageSyncManifestTruthOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "61ad5916-6124-5a34-a5f6-4d30279bb8c3",
+      "module": "aware_interface_ontology_orm_models.interface.app_package_experience_package",
+      "name": "AppPackageExperiencePackage",
+      "aware_class_ref": "aware_interface.interface.AppPackageExperiencePackage",
+      "functions": [
+        {
+          "function_config_id": "4b7dea7c-435e-5b1f-bb82-c16ccd5dd395",
+          "name": "build_via_app_package",
+          "input_model": "AppPackageExperiencePackageBuildViaAppPackageInput",
+          "output_model": "AppPackageExperiencePackageBuildViaAppPackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "eb6a128c-7405-5986-a142-4f1840a21b57",
+      "module": "aware_interface_ontology_orm_models.interface.app_package_interface_package",
+      "name": "AppPackageInterfacePackage",
+      "aware_class_ref": "aware_interface.interface.AppPackageInterfacePackage",
+      "functions": [
+        {
+          "function_config_id": "8cb260d8-ed00-5d03-8f7c-41d81d9bd911",
+          "name": "build_via_app_package",
+          "input_model": "AppPackageInterfacePackageBuildViaAppPackageInput",
+          "output_model": "AppPackageInterfacePackageBuildViaAppPackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "949e3a3a-90b4-58d9-bdb0-391df69d4e2d",
+      "module": "aware_interface_ontology_orm_models.interface.interface",
+      "name": "Interface",
+      "aware_class_ref": "aware_interface.interface.Interface",
+      "functions": [
+        {
+          "function_config_id": "2fe69416-34fe-5b35-acca-cfc70aecd964",
+          "name": "attach_environment",
+          "input_model": "InterfaceAttachEnvironmentInput",
+          "output_model": "InterfaceAttachEnvironmentOutput"
+        },
+        {
+          "function_config_id": "5a780158-888b-545c-a956-50e30fb49450",
+          "name": "attach_window",
+          "input_model": "InterfaceAttachWindowInput",
+          "output_model": "InterfaceAttachWindowOutput"
+        },
+        {
+          "function_config_id": "89da7316-aa3f-53a4-83d1-98674f0eb1c1",
+          "name": "build_via_interface_config",
+          "input_model": "InterfaceBuildViaInterfaceConfigInput",
+          "output_model": "InterfaceBuildViaInterfaceConfigOutput"
+        },
+        {
+          "function_config_id": "2b1713ee-7e1a-5d89-8c6b-d84563af17fa",
+          "name": "set_active_window_navigation_context",
+          "input_model": "InterfaceSetActiveWindowNavigationContextInput",
+          "output_model": "InterfaceSetActiveWindowNavigationContextOutput"
+        },
+        {
+          "function_config_id": "c0596adc-6539-5d00-8bbf-5b5822d4577d",
+          "name": "start_session",
+          "input_model": "InterfaceStartSessionInput",
+          "output_model": "InterfaceStartSessionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "54afba52-5cac-54c1-b639-303f70baa672",
+      "module": "aware_interface_ontology_orm_models.interface.interface_config",
+      "name": "InterfaceConfig",
+      "aware_class_ref": "aware_interface.interface.InterfaceConfig",
+      "functions": [
+        {
+          "function_config_id": "6fe7684b-7b07-566c-a873-8d6b56f2b254",
+          "name": "attach_pane_config",
+          "input_model": "InterfaceConfigAttachPaneConfigInput",
+          "output_model": "InterfaceConfigAttachPaneConfigOutput"
+        },
+        {
+          "function_config_id": "87ad77f5-b7cc-5f46-b192-060933b62652",
+          "name": "attach_window_config",
+          "input_model": "InterfaceConfigAttachWindowConfigInput",
+          "output_model": "InterfaceConfigAttachWindowConfigOutput"
+        },
+        {
+          "function_config_id": "53d7a7d0-b1c0-540e-9816-f0c93e77873a",
+          "name": "build",
+          "input_model": "InterfaceConfigBuildInput",
+          "output_model": "InterfaceConfigBuildOutput"
+        },
+        {
+          "function_config_id": "a439f587-1787-5e76-a86d-773da11707eb",
+          "name": "create_interface",
+          "input_model": "InterfaceConfigCreateInterfaceInput",
+          "output_model": "InterfaceConfigCreateInterfaceOutput"
+        },
+        {
+          "function_config_id": "b0466693-f2e3-571d-a265-32ffc8b04a8c",
+          "name": "create_pane_config",
+          "input_model": "InterfaceConfigCreatePaneConfigInput",
+          "output_model": "InterfaceConfigCreatePaneConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4161ddac-e0e3-5292-bd7f-18299a47fd00",
+      "module": "aware_interface_ontology_orm_models.interface.interface_config_pane_config",
+      "name": "InterfaceConfigPaneConfig",
+      "aware_class_ref": "aware_interface.interface.InterfaceConfigPaneConfig",
+      "functions": [
+        {
+          "function_config_id": "32b1b7fc-1a30-5e9d-b857-a82f849e961c",
+          "name": "add_section_mount",
+          "input_model": "InterfaceConfigPaneConfigAddSectionMountInput",
+          "output_model": "InterfaceConfigPaneConfigAddSectionMountOutput"
+        },
+        {
+          "function_config_id": "45b291bb-7f00-59af-a11d-fc5699575cce",
+          "name": "build_via_interface_config",
+          "input_model": "InterfaceConfigPaneConfigBuildViaInterfaceConfigInput",
+          "output_model": "InterfaceConfigPaneConfigBuildViaInterfaceConfigOutput"
+        },
+        {
+          "function_config_id": "744553ad-f0a7-51d8-b27c-f6909ed3340c",
+          "name": "set_narrative_key",
+          "input_model": "InterfaceConfigPaneConfigSetNarrativeKeyInput",
+          "output_model": "InterfaceConfigPaneConfigSetNarrativeKeyOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5dad0929-125d-5238-9906-35ab07a4d110",
+      "module": "aware_interface_ontology_orm_models.interface.interface_config_pane_config_section_config",
+      "name": "InterfaceConfigPaneConfigSectionConfig",
+      "aware_class_ref": "aware_interface.interface.InterfaceConfigPaneConfigSectionConfig",
+      "functions": [
+        {
+          "function_config_id": "8bb538aa-d7f6-5b75-9038-171b771f3405",
+          "name": "build_via_interface_config_pane_config",
+          "input_model": "InterfaceConfigPaneConfigSectionConfigBuildViaInterfaceConfigPaneConfigInput",
+          "output_model": "InterfaceConfigPaneConfigSectionConfigBuildViaInterfaceConfigPaneConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9eecc52d-4c79-5462-957d-24ef8107ddf3",
+      "module": "aware_interface_ontology_orm_models.interface.interface_config_window_config",
+      "name": "InterfaceConfigWindowConfig",
+      "aware_class_ref": "aware_interface.interface.InterfaceConfigWindowConfig",
+      "functions": [
+        {
+          "function_config_id": "e860377f-a51c-5f6d-bda1-38a9f44709b5",
+          "name": "build_via_interface_config",
+          "input_model": "InterfaceConfigWindowConfigBuildViaInterfaceConfigInput",
+          "output_model": "InterfaceConfigWindowConfigBuildViaInterfaceConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7ae9ab4e-d4fc-5086-bf0e-b2eb1a61ba1d",
+      "module": "aware_interface_ontology_orm_models.interface.interface_environment",
+      "name": "InterfaceEnvironment",
+      "aware_class_ref": "aware_interface.interface.InterfaceEnvironment",
+      "functions": [
+        {
+          "function_config_id": "b0022bec-3372-565f-9a75-cee219f4a7e4",
+          "name": "create_via_interface",
+          "input_model": "InterfaceEnvironmentCreateViaInterfaceInput",
+          "output_model": "InterfaceEnvironmentCreateViaInterfaceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "049e1fa4-f9f0-5175-91bf-d4c567275adf",
+      "module": "aware_interface_ontology_orm_models.interface.interface_identity",
+      "name": "InterfaceIdentity",
+      "aware_class_ref": "aware_interface.interface.InterfaceIdentity",
+      "functions": []
+    },
+    {
+      "class_config_id": "f61b047c-2529-545c-82b7-5b7a9543aec0",
+      "module": "aware_interface_ontology_orm_models.interface.interface_identity_network_node",
+      "name": "InterfaceIdentityNetworkNode",
+      "aware_class_ref": "aware_interface.interface.InterfaceIdentityNetworkNode",
+      "functions": []
+    },
+    {
+      "class_config_id": "5337b1b9-323c-5bbe-8d67-d85e9125b704",
+      "module": "aware_interface_ontology_orm_models.interface.interface_package",
+      "name": "InterfacePackage",
+      "aware_class_ref": "aware_interface.interface.InterfacePackage",
+      "functions": [
+        {
+          "function_config_id": "c96f8572-d814-5f29-a47a-b45630bc5d69",
+          "name": "attach_experience_package",
+          "input_model": "InterfacePackageAttachExperiencePackageInput",
+          "output_model": "InterfacePackageAttachExperiencePackageOutput"
+        },
+        {
+          "function_config_id": "50397edd-6e66-539e-8876-bfdaaa9001f9",
+          "name": "attach_pane_package",
+          "input_model": "InterfacePackageAttachPanePackageInput",
+          "output_model": "InterfacePackageAttachPanePackageOutput"
+        },
+        {
+          "function_config_id": "c6a81cfb-c3c1-5145-b7b0-3ee61c38d027",
+          "name": "attach_render_component_package",
+          "input_model": "InterfacePackageAttachRenderComponentPackageInput",
+          "output_model": "InterfacePackageAttachRenderComponentPackageOutput"
+        },
+        {
+          "function_config_id": "2a385a20-e126-564f-93b2-d9805f9e289f",
+          "name": "build",
+          "input_model": "InterfacePackageBuildInput",
+          "output_model": "InterfacePackageBuildOutput"
+        },
+        {
+          "function_config_id": "162e1012-dd6b-58f9-81a4-e853d06fa1bc",
+          "name": "sync_manifest_truth",
+          "input_model": "InterfacePackageSyncManifestTruthInput",
+          "output_model": "InterfacePackageSyncManifestTruthOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "cec168d6-facd-5fd4-97a2-92f5fb55360a",
+      "module": "aware_interface_ontology_orm_models.interface.interface_package_experience_package",
+      "name": "InterfacePackageExperiencePackage",
+      "aware_class_ref": "aware_interface.interface.InterfacePackageExperiencePackage",
+      "functions": [
+        {
+          "function_config_id": "cbd2b691-8503-53a4-a5de-f96dd3572b32",
+          "name": "build_via_interface_package",
+          "input_model": "InterfacePackageExperiencePackageBuildViaInterfacePackageInput",
+          "output_model": "InterfacePackageExperiencePackageBuildViaInterfacePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5fb488c5-ad21-5a5a-a7b4-699cc1c200de",
+      "module": "aware_interface_ontology_orm_models.interface.interface_package_pane_package",
+      "name": "InterfacePackagePanePackage",
+      "aware_class_ref": "aware_interface.interface.InterfacePackagePanePackage",
+      "functions": [
+        {
+          "function_config_id": "0b484abe-9df5-5ed3-b91c-29ad01f82756",
+          "name": "build_via_interface_package",
+          "input_model": "InterfacePackagePanePackageBuildViaInterfacePackageInput",
+          "output_model": "InterfacePackagePanePackageBuildViaInterfacePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "180f921d-3941-5d32-b0e4-f2cccaec3d16",
+      "module": "aware_interface_ontology_orm_models.interface.interface_package_render_component_package",
+      "name": "InterfacePackageRenderComponentPackage",
+      "aware_class_ref": "aware_interface.interface.InterfacePackageRenderComponentPackage",
+      "functions": [
+        {
+          "function_config_id": "c21f5c97-c488-55ad-9c90-b339efaf9f3f",
+          "name": "build_via_interface_package",
+          "input_model": "InterfacePackageRenderComponentPackageBuildViaInterfacePackageInput",
+          "output_model": "InterfacePackageRenderComponentPackageBuildViaInterfacePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7ce7495a-fbb9-5237-8956-b4356893807f",
+      "module": "aware_interface_ontology_orm_models.interface.interface_session",
+      "name": "InterfaceSession",
+      "aware_class_ref": "aware_interface.interface.InterfaceSession",
+      "functions": [
+        {
+          "function_config_id": "1e50c293-3587-5229-b005-598c77ce8646",
+          "name": "build_via_interface",
+          "input_model": "InterfaceSessionBuildViaInterfaceInput",
+          "output_model": "InterfaceSessionBuildViaInterfaceOutput"
+        },
+        {
+          "function_config_id": "527258bf-e15a-5c8a-beb5-4e17edfe1fc8",
+          "name": "mount_experience_session",
+          "input_model": "InterfaceSessionMountExperienceSessionInput",
+          "output_model": "InterfaceSessionMountExperienceSessionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7e7a3bab-5e84-5156-9390-a6ab4e17f9d2",
+      "module": "aware_interface_ontology_orm_models.interface.interface_session_experience_session",
+      "name": "InterfaceSessionExperienceSession",
+      "aware_class_ref": "aware_interface.interface.InterfaceSessionExperienceSession",
+      "functions": [
+        {
+          "function_config_id": "d671ac06-5eac-5e0e-b0f7-ab4eaaceb180",
+          "name": "build_via_interface_session",
+          "input_model": "InterfaceSessionExperienceSessionBuildViaInterfaceSessionInput",
+          "output_model": "InterfaceSessionExperienceSessionBuildViaInterfaceSessionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a70c88cd-2094-5368-a372-2e8fadfa3358",
+      "module": "aware_interface_ontology_orm_models.interface.interface_window",
+      "name": "InterfaceWindow",
+      "aware_class_ref": "aware_interface.interface.InterfaceWindow",
+      "functions": [
+        {
+          "function_config_id": "c3175b36-fffd-5a9a-ab61-331fc713c990",
+          "name": "attach_navigation_context",
+          "input_model": "InterfaceWindowAttachNavigationContextInput",
+          "output_model": "InterfaceWindowAttachNavigationContextOutput"
+        },
+        {
+          "function_config_id": "67793202-f0de-5279-b96f-1431ac684f11",
+          "name": "create_via_interface",
+          "input_model": "InterfaceWindowCreateViaInterfaceInput",
+          "output_model": "InterfaceWindowCreateViaInterfaceOutput"
+        },
+        {
+          "function_config_id": "1c5c6d90-9e25-52be-a6be-e5b04123b0a5",
+          "name": "set_active_navigation_context",
+          "input_model": "InterfaceWindowSetActiveNavigationContextInput",
+          "output_model": "InterfaceWindowSetActiveNavigationContextOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4b640535-8b2d-53a8-b69f-4a65a1a0a00f",
+      "module": "aware_interface_ontology_orm_models.interface.interface_window_navigation_context",
+      "name": "InterfaceWindowNavigationContext",
+      "aware_class_ref": "aware_interface.interface.InterfaceWindowNavigationContext",
+      "functions": [
+        {
+          "function_config_id": "b34011d2-fbea-51b5-acda-9f7f54eafbe4",
+          "name": "create_via_interface_window",
+          "input_model": "InterfaceWindowNavigationContextCreateViaInterfaceWindowInput",
+          "output_model": "InterfaceWindowNavigationContextCreateViaInterfaceWindowOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "954b4ef3-b9f8-5559-9ae5-d5c1fb72b046",
+      "module": "aware_interface_ontology_orm_models.interface.pane_config",
+      "name": "PaneConfig",
+      "aware_class_ref": "aware_interface.interface.PaneConfig",
+      "functions": [
+        {
+          "function_config_id": "abcbb116-6f98-5d37-8730-5e88c920cda2",
+          "name": "build",
+          "input_model": "PaneConfigBuildInput",
+          "output_model": "PaneConfigBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "efeb1c58-fee3-5de5-a652-c1a4a64f6bd8",
+      "module": "aware_interface_ontology_orm_models.interface.pane_package",
+      "name": "PanePackage",
+      "aware_class_ref": "aware_interface.interface.PanePackage",
+      "functions": [
+        {
+          "function_config_id": "256eaa3b-69a1-5fe4-bea1-e426b40ddd41",
+          "name": "attach_experience_package",
+          "input_model": "PanePackageAttachExperiencePackageInput",
+          "output_model": "PanePackageAttachExperiencePackageOutput"
+        },
+        {
+          "function_config_id": "e19b4d14-132b-59b0-911b-f53f3e85059b",
+          "name": "attach_render_component_package",
+          "input_model": "PanePackageAttachRenderComponentPackageInput",
+          "output_model": "PanePackageAttachRenderComponentPackageOutput"
+        },
+        {
+          "function_config_id": "251dd6bb-5e36-5e26-8abf-5a051dfdecab",
+          "name": "build",
+          "input_model": "PanePackageBuildInput",
+          "output_model": "PanePackageBuildOutput"
+        },
+        {
+          "function_config_id": "447ee66d-374a-5255-8643-4c2882a5b4a1",
+          "name": "sync_manifest_truth",
+          "input_model": "PanePackageSyncManifestTruthInput",
+          "output_model": "PanePackageSyncManifestTruthOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b6f9b318-08f2-56a3-9d33-b3985bf86a3b",
+      "module": "aware_interface_ontology_orm_models.interface.pane_package_experience_package",
+      "name": "PanePackageExperiencePackage",
+      "aware_class_ref": "aware_interface.interface.PanePackageExperiencePackage",
+      "functions": [
+        {
+          "function_config_id": "907b9e45-468f-5387-ac9a-c1277d851f74",
+          "name": "build_via_pane_package",
+          "input_model": "PanePackageExperiencePackageBuildViaPanePackageInput",
+          "output_model": "PanePackageExperiencePackageBuildViaPanePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d6e91aeb-8b86-56bf-8863-0a8639f2b7f5",
+      "module": "aware_interface_ontology_orm_models.interface.pane_package_render_component_package",
+      "name": "PanePackageRenderComponentPackage",
+      "aware_class_ref": "aware_interface.interface.PanePackageRenderComponentPackage",
+      "functions": [
+        {
+          "function_config_id": "5d9ae79e-7826-5a4c-9b75-b4ae36595a5a",
+          "name": "build_via_pane_package",
+          "input_model": "PanePackageRenderComponentPackageBuildViaPanePackageInput",
+          "output_model": "PanePackageRenderComponentPackageBuildViaPanePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "aebfb798-5e4b-53a5-a54f-c5d9c68042aa",
+      "module": "aware_interface_ontology_orm_models.interface.render_component_package",
+      "name": "RenderComponentPackage",
+      "aware_class_ref": "aware_interface.interface.RenderComponentPackage",
+      "functions": [
+        {
+          "function_config_id": "88bfc4d9-ac50-5edc-8b6a-3a77eea4358e",
+          "name": "build",
+          "input_model": "RenderComponentPackageBuildInput",
+          "output_model": "RenderComponentPackageBuildOutput"
+        },
+        {
+          "function_config_id": "72677a34-f46e-5e5a-91eb-6ba5290bfdeb",
+          "name": "sync_manifest_truth",
+          "input_model": "RenderComponentPackageSyncManifestTruthInput",
+          "output_model": "RenderComponentPackageSyncManifestTruthOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f1b126f2-259d-50bf-84b0-480f9187f13b",
+      "module": "aware_interface_ontology_orm_models.interface.window_config",
+      "name": "WindowConfig",
+      "aware_class_ref": "aware_interface.interface.WindowConfig",
+      "functions": [
+        {
+          "function_config_id": "a8b6c6ca-a071-51d8-aae3-35c8bcb1d983",
+          "name": "attach_layout_config",
+          "input_model": "WindowConfigAttachLayoutConfigInput",
+          "output_model": "WindowConfigAttachLayoutConfigOutput"
+        },
+        {
+          "function_config_id": "caaec488-eeb5-5bf4-8782-c93a1256bc2d",
+          "name": "build",
+          "input_model": "WindowConfigBuildInput",
+          "output_model": "WindowConfigBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3417ec25-2c24-59cb-bce3-d4a274d98773",
+      "module": "aware_interface_ontology_orm_models.interface.window_config_layout_config",
+      "name": "WindowConfigLayoutConfig",
+      "aware_class_ref": "aware_interface.interface.WindowConfigLayoutConfig",
+      "functions": [
+        {
+          "function_config_id": "5e8d0509-4cda-5721-b279-020a5fd704b6",
+          "name": "build_via_window_config",
+          "input_model": "WindowConfigLayoutConfigBuildViaWindowConfigInput",
+          "output_model": "WindowConfigLayoutConfigBuildViaWindowConfigOutput"
+        },
+        {
+          "function_config_id": "258978de-e068-5054-ba61-e2b609c108d2",
+          "name": "set_attachment_config",
+          "input_model": "WindowConfigLayoutConfigSetAttachmentConfigInput",
+          "output_model": "WindowConfigLayoutConfigSetAttachmentConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d7308895-3a4f-52ab-accf-7232f36754db",
+      "module": "aware_interface_ontology_orm_models.render.pane_action_binding",
+      "name": "PaneActionBinding",
+      "aware_class_ref": "aware_interface.render.PaneActionBinding",
+      "functions": [
+        {
+          "function_config_id": "ea3d9c5a-8e38-5f77-96fa-b54d6be19323",
+          "name": "bind_input",
+          "input_model": "PaneActionBindingBindInputInput",
+          "output_model": "PaneActionBindingBindInputOutput"
+        },
+        {
+          "function_config_id": "19c72cb8-9e3d-5c24-98bc-7e8b84b97539",
+          "name": "create_via_pane_render_node",
+          "input_model": "PaneActionBindingCreateViaPaneRenderNodeInput",
+          "output_model": "PaneActionBindingCreateViaPaneRenderNodeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c2d210a7-f0af-58ed-8505-a120f92a72e1",
+      "module": "aware_interface_ontology_orm_models.render.pane_input_binding",
+      "name": "PaneInputBinding",
+      "aware_class_ref": "aware_interface.render.PaneInputBinding",
+      "functions": [
+        {
+          "function_config_id": "9bbad62a-b4ac-5f3f-8af4-81d89590607d",
+          "name": "create_via_pane_action_binding",
+          "input_model": "PaneInputBindingCreateViaPaneActionBindingInput",
+          "output_model": "PaneInputBindingCreateViaPaneActionBindingOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "55f63ce9-eb32-5b62-a285-b4828fb7cf3f",
+      "module": "aware_interface_ontology_orm_models.render.pane_render_node",
+      "name": "PaneRenderNode",
+      "aware_class_ref": "aware_interface.render.PaneRenderNode",
+      "functions": [
+        {
+          "function_config_id": "52d49bf0-0d2c-57c2-9307-d4411d56eaa2",
+          "name": "add_style_token",
+          "input_model": "PaneRenderNodeAddStyleTokenInput",
+          "output_model": "PaneRenderNodeAddStyleTokenOutput"
+        },
+        {
+          "function_config_id": "6d0259a3-b9df-5691-8b49-83bc7de3f4ed",
+          "name": "bind_action",
+          "input_model": "PaneRenderNodeBindActionInput",
+          "output_model": "PaneRenderNodeBindActionOutput"
+        },
+        {
+          "function_config_id": "1dc1ed3c-2901-55d1-b356-aa0cd004d51a",
+          "name": "bind_state",
+          "input_model": "PaneRenderNodeBindStateInput",
+          "output_model": "PaneRenderNodeBindStateOutput"
+        },
+        {
+          "function_config_id": "35fdf1d7-8c9a-5e14-bade-101a5f1822b6",
+          "name": "create_via_pane_render_spec",
+          "input_model": "PaneRenderNodeCreateViaPaneRenderSpecInput",
+          "output_model": "PaneRenderNodeCreateViaPaneRenderSpecOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "645e6ffd-c455-5943-a084-9113e0ad3281",
+      "module": "aware_interface_ontology_orm_models.render.pane_render_spec",
+      "name": "PaneRenderSpec",
+      "aware_class_ref": "aware_interface.render.PaneRenderSpec",
+      "functions": [
+        {
+          "function_config_id": "83171b52-2f5b-5300-8a09-55a61ee3bc44",
+          "name": "add_node",
+          "input_model": "PaneRenderSpecAddNodeInput",
+          "output_model": "PaneRenderSpecAddNodeOutput"
+        },
+        {
+          "function_config_id": "0e44612c-4721-5dd0-af58-d26deb8ae020",
+          "name": "create",
+          "input_model": "PaneRenderSpecCreateInput",
+          "output_model": "PaneRenderSpecCreateOutput"
+        },
+        {
+          "function_config_id": "635e93b8-6f80-593c-b81a-93ccd61b72c4",
+          "name": "require_renderer_capability",
+          "input_model": "PaneRenderSpecRequireRendererCapabilityInput",
+          "output_model": "PaneRenderSpecRequireRendererCapabilityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d74fc5a3-b3c3-5852-a241-73c38c661172",
+      "module": "aware_interface_ontology_orm_models.render.pane_renderer_capability_requirement",
+      "name": "PaneRendererCapabilityRequirement",
+      "aware_class_ref": "aware_interface.render.PaneRendererCapabilityRequirement",
+      "functions": [
+        {
+          "function_config_id": "3ec376db-3d44-57e1-8a84-24576abdcb6c",
+          "name": "create_via_pane_render_spec",
+          "input_model": "PaneRendererCapabilityRequirementCreateViaPaneRenderSpecInput",
+          "output_model": "PaneRendererCapabilityRequirementCreateViaPaneRenderSpecOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "569e3f31-bc7a-5c5f-8869-5b33374ad092",
+      "module": "aware_interface_ontology_orm_models.render.pane_state_binding",
+      "name": "PaneStateBinding",
+      "aware_class_ref": "aware_interface.render.PaneStateBinding",
+      "functions": [
+        {
+          "function_config_id": "daa7d347-2e5c-5378-9f08-3b9b415a3b9f",
+          "name": "create_via_pane_render_node",
+          "input_model": "PaneStateBindingCreateViaPaneRenderNodeInput",
+          "output_model": "PaneStateBindingCreateViaPaneRenderNodeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ddcc6a6a-1cd1-5206-a37b-394f1d150020",
+      "module": "aware_interface_ontology_orm_models.render.pane_style_token_ref",
+      "name": "PaneStyleTokenRef",
+      "aware_class_ref": "aware_interface.render.PaneStyleTokenRef",
+      "functions": [
+        {
+          "function_config_id": "4f1ecb3c-b579-5cdd-afcc-46683563aa74",
+          "name": "create_via_pane_render_node",
+          "input_model": "PaneStyleTokenRefCreateViaPaneRenderNodeInput",
+          "output_model": "PaneStyleTokenRefCreateViaPaneRenderNodeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5f25f95e-6420-5a1c-b9ce-ae0db3d28777",
+      "module": "aware_interface_ontology_orm_models.render.render_component_action_port",
+      "name": "RenderComponentActionPort",
+      "aware_class_ref": "aware_interface.render.RenderComponentActionPort",
+      "functions": [
+        {
+          "function_config_id": "7be0ed21-93d5-507d-b5ca-f624e51e7ecd",
+          "name": "build_via_render_component_contract",
+          "input_model": "RenderComponentActionPortBuildViaRenderComponentContractInput",
+          "output_model": "RenderComponentActionPortBuildViaRenderComponentContractOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e6ca4a78-3e8e-5b8c-8732-ca1f36d9728e",
+      "module": "aware_interface_ontology_orm_models.render.render_component_capability",
+      "name": "RenderComponentCapability",
+      "aware_class_ref": "aware_interface.render.RenderComponentCapability",
+      "functions": [
+        {
+          "function_config_id": "c97d3610-18c6-5a29-9e32-f63067c2dae2",
+          "name": "build_via_render_component_contract",
+          "input_model": "RenderComponentCapabilityBuildViaRenderComponentContractInput",
+          "output_model": "RenderComponentCapabilityBuildViaRenderComponentContractOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "99fba59a-366a-53c2-abf8-3455899acd8c",
+      "module": "aware_interface_ontology_orm_models.render.render_component_config",
+      "name": "RenderComponentConfig",
+      "aware_class_ref": "aware_interface.render.RenderComponentConfig",
+      "functions": [
+        {
+          "function_config_id": "542de25b-efdd-528b-a30f-db1113914126",
+          "name": "add_contract",
+          "input_model": "RenderComponentConfigAddContractInput",
+          "output_model": "RenderComponentConfigAddContractOutput"
+        },
+        {
+          "function_config_id": "25eac09e-8a31-5b39-8ff7-44c61d110ae7",
+          "name": "build",
+          "input_model": "RenderComponentConfigBuildInput",
+          "output_model": "RenderComponentConfigBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2d1f290b-d657-5d7b-aa24-05ef5660521a",
+      "module": "aware_interface_ontology_orm_models.render.render_component_contract",
+      "name": "RenderComponentContract",
+      "aware_class_ref": "aware_interface.render.RenderComponentContract",
+      "functions": [
+        {
+          "function_config_id": "427c6daa-f43d-556e-9d5b-5e1a147617ba",
+          "name": "add_action_port",
+          "input_model": "RenderComponentContractAddActionPortInput",
+          "output_model": "RenderComponentContractAddActionPortOutput"
+        },
+        {
+          "function_config_id": "b59d5202-49bf-5dbf-8ec5-e685a1eadb0c",
+          "name": "add_fallback_policy",
+          "input_model": "RenderComponentContractAddFallbackPolicyInput",
+          "output_model": "RenderComponentContractAddFallbackPolicyOutput"
+        },
+        {
+          "function_config_id": "74e1304a-cc4e-5f37-806e-c895000afe14",
+          "name": "add_input_port",
+          "input_model": "RenderComponentContractAddInputPortInput",
+          "output_model": "RenderComponentContractAddInputPortOutput"
+        },
+        {
+          "function_config_id": "71829f86-fcb8-5fdb-9973-66ae6ead3700",
+          "name": "build_via_render_component_config",
+          "input_model": "RenderComponentContractBuildViaRenderComponentConfigInput",
+          "output_model": "RenderComponentContractBuildViaRenderComponentConfigOutput"
+        },
+        {
+          "function_config_id": "e6d8b06c-6e29-58da-8783-efa081bd20a4",
+          "name": "require_capability",
+          "input_model": "RenderComponentContractRequireCapabilityInput",
+          "output_model": "RenderComponentContractRequireCapabilityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0fc639ed-8f86-538d-aec8-ee029970ab0f",
+      "module": "aware_interface_ontology_orm_models.render.render_component_fallback_policy",
+      "name": "RenderComponentFallbackPolicy",
+      "aware_class_ref": "aware_interface.render.RenderComponentFallbackPolicy",
+      "functions": [
+        {
+          "function_config_id": "9acf5d4a-f659-5519-833e-b44a8252579f",
+          "name": "build_via_render_component_contract",
+          "input_model": "RenderComponentFallbackPolicyBuildViaRenderComponentContractInput",
+          "output_model": "RenderComponentFallbackPolicyBuildViaRenderComponentContractOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "cbbb0090-3dc4-51a3-a324-cb817b25af51",
+      "module": "aware_interface_ontology_orm_models.render.render_component_input_port",
+      "name": "RenderComponentInputPort",
+      "aware_class_ref": "aware_interface.render.RenderComponentInputPort",
+      "functions": [
+        {
+          "function_config_id": "3cbf2b04-3fb8-51a9-a816-018bbb041c34",
+          "name": "build_via_render_component_contract",
+          "input_model": "RenderComponentInputPortBuildViaRenderComponentContractInput",
+          "output_model": "RenderComponentInputPortBuildViaRenderComponentContractOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "cca073a7-a010-549b-b3ba-e441c484b9f7",
+      "module": "aware_interface_ontology_orm_models.window.window",
+      "name": "Window",
+      "aware_class_ref": "aware_interface.window.Window",
+      "functions": [
+        {
+          "function_config_id": "61d2aa76-7e73-58b8-8942-085665b65dc2",
+          "name": "add_layout",
+          "input_model": "WindowAddLayoutInput",
+          "output_model": "WindowAddLayoutOutput"
+        },
+        {
+          "function_config_id": "22362b9c-c68e-5707-b11e-0e75fe8b3726",
+          "name": "build",
+          "input_model": "WindowBuildInput",
+          "output_model": "WindowBuildOutput"
+        },
+        {
+          "function_config_id": "f7bb0fa7-d0ae-5db0-a0aa-88e31601a38c",
+          "name": "set_active_layout",
+          "input_model": "WindowSetActiveLayoutInput",
+          "output_model": "WindowSetActiveLayoutOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e8675cef-df1a-5a18-85f0-9fb7b9ebc25f",
+      "module": "aware_interface_ontology_orm_models.window.window_layout",
+      "name": "WindowLayout",
+      "aware_class_ref": "aware_interface.window.WindowLayout",
+      "functions": [
+        {
+          "function_config_id": "a491c46b-7699-5eef-ab84-de8441ed6e4a",
+          "name": "add_layout_section",
+          "input_model": "WindowLayoutAddLayoutSectionInput",
+          "output_model": "WindowLayoutAddLayoutSectionOutput"
+        },
+        {
+          "function_config_id": "2f389931-2fad-5a0d-b752-e31de5f74f6f",
+          "name": "build_via_window",
+          "input_model": "WindowLayoutBuildViaWindowInput",
+          "output_model": "WindowLayoutBuildViaWindowOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a22242cf-0cec-5478-93d7-e715c3ca3dff",
+      "module": "aware_interface_ontology_orm_models.window.window_layout_section",
+      "name": "WindowLayoutSection",
+      "aware_class_ref": "aware_interface.window.WindowLayoutSection",
+      "functions": [
+        {
+          "function_config_id": "027abde6-ae52-526d-b1ec-b1e945b52b24",
+          "name": "build_via_window_layout",
+          "input_model": "WindowLayoutSectionBuildViaWindowLayoutInput",
+          "output_model": "WindowLayoutSectionBuildViaWindowLayoutOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "6f6c1068-6b1d-5193-b08d-8ca45318650b",
+      "module": "aware_interface_ontology_orm_models.interface.interface_enums",
+      "name": "InterfaceOs"
+    },
+    {
+      "enum_config_id": "a4150197-c9b6-5486-8f6b-498368b6f5c8",
+      "module": "aware_interface_ontology_orm_models.interface.interface_enums",
+      "name": "InterfaceSessionState"
+    },
+    {
+      "enum_config_id": "846bdda1-d58a-534e-aedf-b88943aeff78",
+      "module": "aware_interface_ontology_orm_models.render.pane_render_enums",
+      "name": "PaneActionEvent"
+    },
+    {
+      "enum_config_id": "584b59a3-728e-57d9-a67b-b75749d2d64e",
+      "module": "aware_interface_ontology_orm_models.render.pane_render_enums",
+      "name": "PaneRenderCapabilityKind"
+    },
+    {
+      "enum_config_id": "16db335d-564f-5055-8d9c-54f79f0321d9",
+      "module": "aware_interface_ontology_orm_models.render.pane_render_enums",
+      "name": "PaneRenderNodeKind"
+    },
+    {
+      "enum_config_id": "c9eb3b10-3c25-5ddf-97d9-f83301fbcac5",
+      "module": "aware_interface_ontology_orm_models.render.pane_render_enums",
+      "name": "PaneRenderSemanticRole"
+    },
+    {
+      "enum_config_id": "0b985c80-d519-5fe2-8628-9c58a1bebf6e",
+      "module": "aware_interface_ontology_orm_models.render.pane_render_enums",
+      "name": "PaneStateBindingTargetProperty"
+    },
+    {
+      "enum_config_id": "ae5da15a-2525-593b-89ef-b7fa68e58162",
+      "module": "aware_interface_ontology_orm_models.render.pane_render_enums",
+      "name": "PaneStateBindingTransform"
+    },
+    {
+      "enum_config_id": "5751568b-0ac0-5091-98a4-13f6405f5071",
+      "module": "aware_interface_ontology_orm_models.window.window_enums",
+      "name": "WindowActiveLayoutMode"
+    }
+  ]
+}

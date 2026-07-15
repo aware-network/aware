@@ -1,0 +1,86 @@
+/// Commit-producing Experience session command DTOs.
+///
+/// Session authority and profile participation are separate projection roots.
+/// These transport contracts deliberately carry no global profile, lens, or
+/// ProjectionExperience activation semantics.
+
+class ExperienceSessionOperationRequest {
+    operation String
+    request_id UUID?
+}
+
+class ExperienceSessionOperationResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    error String?
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+}
+
+class StartExperienceSessionRequest augment session_commit.ExperienceSessionOperationRequest {
+    operation String = "start_experience_session"
+    environment_experience_id UUID
+    environment_id UUID
+    identity_session_id UUID
+    environment_session_id UUID
+    state String = "active"
+}
+
+class StartExperienceSessionResponse augment session_commit.ExperienceSessionOperationResponse {
+    operation String = "start_experience_session"
+    experience_session_id UUID
+    environment_experience_id UUID
+    environment_id UUID
+    identity_session_id UUID
+    environment_session_id UUID
+    state String
+}
+
+class DescribeExperienceSessionRequest augment session_commit.ExperienceSessionOperationRequest {
+    operation String = "describe_experience_session"
+    experience_session_id UUID
+}
+
+class ExperienceSessionView {
+    experience_session_id UUID
+    environment_experience_id UUID
+    identity_session_id UUID
+    environment_session_id UUID
+    state String
+    domain_commit_id UUID
+}
+
+class DescribeExperienceSessionResponse augment session_commit.ExperienceSessionOperationResponse {
+    operation String = "describe_experience_session"
+    status String
+    session session_commit.ExperienceSessionView?
+}
+
+class MountExperienceSessionProfileRequest augment session_commit.ExperienceSessionOperationRequest {
+    operation String = "mount_experience_session_profile"
+    experience_session_id UUID
+    profile_id UUID
+    status String = "active"
+    metadata_json JsonObject? = {}
+}
+
+class MountExperienceSessionProfileResponse augment session_commit.ExperienceSessionOperationResponse {
+    operation String = "mount_experience_session_profile"
+    experience_session_profile_id UUID
+    experience_session_id UUID
+    profile_id UUID
+    status String
+    metadata_json JsonObject? = {}
+}
+
+ann session_commit.ExperienceSessionOperationRequest::operation discriminate key
+ann session_commit.StartExperienceSessionRequest::operation discriminate tag "start_experience_session"
+ann session_commit.DescribeExperienceSessionRequest::operation discriminate tag "describe_experience_session"
+ann session_commit.MountExperienceSessionProfileRequest::operation discriminate tag "mount_experience_session_profile"
+
+ann session_commit.ExperienceSessionOperationResponse::operation discriminate key
+ann session_commit.StartExperienceSessionResponse::operation discriminate tag "start_experience_session"
+ann session_commit.DescribeExperienceSessionResponse::operation discriminate tag "describe_experience_session"
+ann session_commit.MountExperienceSessionProfileResponse::operation discriminate tag "mount_experience_session_profile"

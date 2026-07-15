@@ -1,0 +1,8 @@
+/// EconomyPackage projection
+///
+/// Purpose:
+/// - Expose the Economy-owned semantic package rail for Workspace/package consumers.
+/// - Keep authored Economy package truth separate from downstream Service consumption.
+projection EconomyPackage is_branchable {
+    root economy.EconomyPackage
+}

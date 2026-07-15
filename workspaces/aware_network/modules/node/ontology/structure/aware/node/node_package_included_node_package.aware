@@ -1,0 +1,26 @@
+class NodePackageIncludedNodePackage {
+    // Relationships
+    included_node_package NodePackage
+
+    // Attributes
+    description String?
+    include_key String?
+    included_package_name String key
+
+    fn build construct(
+        included_package_name String key,
+        include_key String? = null,
+        description String? = null
+    ) -> NodePackageIncludedNodePackage {
+        """
+        Create one package-level Node composition include bridge.
+
+        Contract:
+        - Parent `NodePackage` scope is injected by propagation.
+        - Identity is keyed by authored semantic package name, not a raw UUID.
+        - `included_node_package` stores the canonical relational target derived from that name.
+        - The bridge does not flatten included targets into the authoring package; deployment
+          derives effective composition from committed package closure.
+        """
+    }
+}

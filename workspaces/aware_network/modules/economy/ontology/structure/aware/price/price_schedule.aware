@@ -1,0 +1,59 @@
+class PriceSchedule {
+    // Relationships
+    pricing_policy PricingPolicy key
+    rate_snapshots RateSnapshot[]
+
+    // Attributes
+    additional_metadata JsonObject? = {}
+    effective_from DateTime
+    effective_until DateTime?
+    fixed_amount Decimal?
+    markup_percentage Decimal?
+    name String key
+    version Int key = 1
+
+    fn build construct (
+        pricing_policy_id UUID key,
+        name String key,
+        effective_from DateTime,
+        version Int key = 1,
+        effective_until DateTime? = null,
+        fixed_amount Decimal? = null,
+        markup_percentage Decimal? = null,
+        additional_metadata JsonObject? = {}
+    ) -> PriceSchedule {
+        """
+        Creates one schedule under a Price.
+
+        Receipt: PriceSchedule linked to Price + PricingPolicy with a validity window.
+        """
+    }
+
+    fn capture_rate_snapshot (
+        snapshot_key String key,
+        quoted_amount Decimal,
+        captured_at DateTime,
+        cost_basis_amount Decimal? = null,
+        markup_percentage Decimal? = null,
+        markup_amount Decimal? = null,
+        meter_evidence_ref String? = null,
+        additional_metadata JsonObject? = {}
+    ) -> RateSnapshot {
+        """
+        Captures one immutable pricing snapshot under this schedule.
+
+        Receipt: RateSnapshot linked to this PriceSchedule.
+        """
+        let created = construct rate_snapshots.build(
+            snapshot_key = snapshot_key,
+            quoted_amount = quoted_amount,
+            captured_at = captured_at,
+            cost_basis_amount = cost_basis_amount,
+            markup_percentage = markup_percentage,
+            markup_amount = markup_amount,
+            meter_evidence_ref = meter_evidence_ref,
+            additional_metadata = additional_metadata,
+        )
+    }
+
+}

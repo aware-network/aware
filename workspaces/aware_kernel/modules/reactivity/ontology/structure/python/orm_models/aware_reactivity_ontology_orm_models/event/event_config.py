@@ -22,12 +22,18 @@ from aware_types import JsonObject
 if TYPE_CHECKING:
     from aware_reactivity_ontology_orm_models.event.event_config_action_config import EventConfigActionConfig
     from aware_reactivity_ontology_orm_models.event.event_config_condition_config import EventConfigConditionConfig
+    from aware_reactivity_ontology_orm_models.event.event_config_meaning_resolver_config import (
+        EventConfigMeaningResolverConfig,
+    )
 
 
 class EventConfig(ORMModel):
     # Relationships
     event_config_action_configs: list[EventConfigActionConfig] = Field(default_factory=list, exclude=True)
     event_config_condition_configs: list[EventConfigConditionConfig] = Field(default_factory=list, exclude=True)
+    event_config_meaning_resolver_configs: list[EventConfigMeaningResolverConfig] = Field(
+        default_factory=list, exclude=True
+    )
 
     # Attributes
     allowed_roles: list[str] = Field(default_factory=list)

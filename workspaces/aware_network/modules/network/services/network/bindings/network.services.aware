@@ -1,0 +1,53 @@
+service aware_network {
+    api network
+
+    operation reconcile_node_publication {
+        endpoint network.publication.reconcile_node_publication
+        admission identity_required
+    }
+
+    operation upsert_peer {
+        endpoint network.peer.upsert
+        admission identity_required
+    }
+
+    operation list_peers {
+        endpoint network.peer.list
+        receipt read_model
+        admission identity_required
+    }
+
+    operation list_hosted_services {
+        endpoint network.hosted_service.list
+        receipt read_model
+        admission identity_required
+        view network.session_status
+    }
+
+    operation list_environments {
+        endpoint network.environment.list
+        receipt read_model
+        admission identity_required
+        view network.session_status
+    }
+
+    operation resolve_hosted_service_routes {
+        endpoint network.route.resolve_hosted_service_routes
+        receipt read_model
+        admission identity_required
+    }
+
+    operation discover_territory {
+        endpoint network.discovery.discover_territory
+        receipt read_model
+        admission identity_required
+        view network.territory_discovery
+        view network.session_status
+    }
+
+    operation discover_experience_territory {
+        endpoint network.discovery.discover_experience_territory
+        receipt read_model
+        admission identity_required
+    }
+}

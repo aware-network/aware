@@ -1,0 +1,34 @@
+[project]
+name = "aware-storage-service"
+version = "0.1.0"
+description = "Aware Storage service package over generated Storage Service API."
+authors = [{ name = "AWARE Team" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aware-comms",
+  "aware-storage",
+  "aware-storage-ontology",
+  "aware_storage_service_api",
+  "aware_storage_service_dto",
+  "aware_storage_service_protocol",
+  "aware-utils",
+  "fastapi",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.4.2",
+  "pytest-asyncio>=0.23.7",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_storage_service"]
+include = ["README.md", "aware_storage_service/py.typed"]
+
+[tool.aware.tests]
+requires_module = "storage"

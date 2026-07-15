@@ -1,0 +1,23 @@
+node aware_network_ontology_authority {
+    ontology storage-ontology;
+    ontology content-ontology;
+    ontology code-ontology;
+    ontology history-ontology;
+    ontology meta-ontology;
+    ontology ontology-ontology;
+    ontology api-ontology;
+    ontology sdk-ontology;
+    ontology reactivity-ontology;
+    ontology environment-ontology;
+    ontology attention-ontology;
+    ontology identity-ontology;
+    ontology economy-ontology;
+    ontology experience-ontology;
+    ontology service-ontology;
+    ontology network-ontology;
+    ontology interface-ontology;
+    ontology node-ontology;
+    ontology hub-ontology;
+    ontology skill-ontology;
+    service aware_ontology
+}

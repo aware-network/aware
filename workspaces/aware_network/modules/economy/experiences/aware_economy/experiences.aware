@@ -1,0 +1,11 @@
+experience aware_economy on aware_economy.wallet.Wallet {
+    observable home {
+        view wallet_capital.v1 default api_view economy.wallet_capital {
+            """Wallet-first capital surface for balances, funding intents, provider evidence, and activity."""
+        }
+    }
+
+    node wallet wallet.Wallet(public_key String) {
+        id now
+    }
+}

@@ -1,0 +1,27 @@
+aware = 1
+
+[package]
+package_name = "node-ontology"
+fqn_prefix = "aware_node"
+kind = "ontology"
+version_number = 1
+title = "Node"
+description = "SSOT canonical (.aware) sources for hosted node composition"
+
+[build]
+environment_slug = "aware_node"
+
+[[dependencies]]
+package_name = "service-ontology"
+
+[[dependencies]]
+package_name = "interface-ontology"
+
+[[dependencies]]
+package_name = "ontology-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "environment-ontology"

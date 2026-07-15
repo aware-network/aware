@@ -567,6 +567,7 @@ def _descriptor_applies_to_request(
     if request.renderer_profile == "ontology_dto" and getattr(
         descriptor, "output_key", None
     ) not in {
+        _PYTHON_OCG_BINDING_SNAPSHOT_OUTPUT_KEY,
         _PYTHON_BOOTSTRAP_OUTPUT_KEY,
         _PYTHON_OCG_NODE_PATHS_OUTPUT_KEY,
     }:

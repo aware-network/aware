@@ -1,0 +1,305 @@
+api experience {
+    capability describe_experience_session {
+        endpoint describe_experience_session aware_experience_service_dto.experience.session_commit.DescribeExperienceSessionRequest {
+            """
+            Describe one committed ExperienceSession through the Experience-owned projection read model.
+            """
+
+            response aware_experience_service_dto.experience.session_commit.DescribeExperienceSessionResponse
+        }
+    }
+
+    capability start_experience_session {
+        endpoint start_experience_session aware_experience_service_dto.experience.session_commit.StartExperienceSessionRequest {
+            """
+            Commit one ExperienceSession rooted on a child Identity Session with explicit EnvironmentSession provenance.
+            """
+
+            response aware_experience_service_dto.experience.session_commit.StartExperienceSessionResponse
+        }
+    }
+
+    capability mount_experience_session_profile {
+        endpoint mount_experience_session_profile aware_experience_service_dto.experience.session_commit.MountExperienceSessionProfileRequest {
+            """
+            Commit one session-local Experience profile mount without selecting global active state.
+            """
+
+            response aware_experience_service_dto.experience.session_commit.MountExperienceSessionProfileResponse
+        }
+    }
+
+    capability actor_admission {
+        endpoint admit_experience_actor_config aware_experience_service_dto.experience.actor_admission.AdmitExperienceActorConfigRequest {
+            """
+            Admit one actor under an Experience ActorConfig and return Identity-backed role assignment evidence.
+            """
+
+            response aware_experience_service_dto.experience.actor_admission.AdmitExperienceActorConfigResponse
+        }
+    }
+
+    capability resolve_experience_thread_layout_intent {
+        endpoint resolve_experience_thread_layout_intent aware_experience_service_dto.experience.thread_layout_resolution.ResolveExperienceThreadLayoutIntentRequest {
+            """
+            Resolve a semantic Experience intent into config-level Thread-Layout targets and evidence.
+            """
+
+            response aware_experience_service_dto.experience.thread_layout_resolution.ResolveExperienceThreadLayoutIntentResponse
+        }
+    }
+
+    capability request_experience_layout_transition {
+        endpoint request_experience_layout_transition aware_experience_service_dto.experience.layout_transition.RequestExperienceLayoutTransitionRequest {
+            """
+            Request one Experience layout transition through Experience -> Attention.
+            """
+
+            response aware_experience_service_dto.experience.layout_transition.RequestExperienceLayoutTransitionResponse
+        }
+    }
+
+    capability environment_profile {
+        endpoint upsert_experience_environment_profile aware_experience_service_dto.experience.environment_profile.UpsertExperienceEnvironmentProfileRequest {
+            """
+            Resolve and upsert one Experience-owned EnvironmentExperience profile contract.
+            """
+
+            response aware_experience_service_dto.experience.environment_profile.UpsertExperienceEnvironmentProfileResponse
+        }
+
+        endpoint provision_experience_environment_profile aware_experience_service_dto.experience.environment_profile.ProvisionExperienceEnvironmentProfileRequest {
+            """
+            Provision one Experience-owned EnvironmentExperience profile topology seed.
+            """
+
+            response aware_experience_service_dto.experience.environment_profile.ProvisionExperienceEnvironmentProfileResponse
+        }
+
+        endpoint apply_experience_environment_profile_programs aware_experience_service_dto.experience.environment_profile.ApplyExperienceEnvironmentProfileProgramsRequest {
+            """
+            Execute Experience-owned EnvironmentExperience profile program apply declarations.
+            """
+
+            response aware_experience_service_dto.experience.environment_profile.ApplyExperienceEnvironmentProfileProgramsResponse
+        }
+    }
+
+    capability program {
+        endpoint apply_program_ref aware_experience_service_dto.experience.program.ApplyProgramRefRequest {
+            """
+            Apply one pre-resolved Experience program reference.
+            """
+
+            response aware_experience_service_dto.experience.program.ApplyProgramRefResponse
+        }
+
+        endpoint submit_program_turn aware_experience_service_dto.experience.program.SubmitProgramTurnRequest {
+            """
+            Submit one Experience-owned Program turn.
+            """
+
+            response aware_experience_service_dto.experience.program.SubmitProgramTurnResponse
+        }
+
+        endpoint run_program aware_experience_service_dto.experience.program.RunProgramRequest {
+            """
+            Run one Experience-owned Program through the Experience API boundary.
+            """
+
+            response aware_experience_service_dto.experience.program.RunProgramResponse
+        }
+
+        endpoint get_turn_execution aware_experience_service_dto.experience.program.GetTurnExecutionRequest {
+            """
+            Read one Experience-owned Program turn execution.
+            """
+
+            response aware_experience_service_dto.experience.program.GetTurnExecutionResponse
+        }
+    }
+
+    capability package_materialization {
+        endpoint resolve_experience_package_projection_ownership aware_experience_service_dto.experience.package_materialization.ResolveExperiencePackageProjectionOwnershipRequest {
+            """
+            Resolve Experience package projection ownership and consumer requirements without exposing runtime internals.
+            """
+
+            response aware_experience_service_dto.experience.package_materialization.ResolveExperiencePackageProjectionOwnershipResponse
+        }
+    }
+
+    capability get_experience_section_graph_binding_catalog {
+        endpoint get_experience_section_graph_binding_catalog aware_experience_service_dto.experience.section_graph_binding.GetExperienceSectionGraphBindingCatalogRequest {
+            """
+            Read the canonical section-graph-binding catalog for one Experience.
+            """
+
+            response aware_experience_service_dto.experience.section_graph_binding.GetExperienceSectionGraphBindingCatalogResponse
+        }
+    }
+
+    capability get_experience_layout_graph_binding_catalog {
+        endpoint get_experience_layout_graph_binding_catalog aware_experience_service_dto.experience.section_graph_binding.GetExperienceLayoutGraphBindingCatalogRequest {
+            """
+            Read the canonical Experience layout-graph-binding catalog for one Experience.
+            """
+
+            response aware_experience_service_dto.experience.section_graph_binding.GetExperienceLayoutGraphBindingCatalogResponse
+        }
+    }
+
+    capability get_experience_section_graph_binding_state {
+        endpoint get_experience_section_graph_binding_state aware_experience_service_dto.experience.section_graph_binding.GetExperienceSectionGraphBindingStateRequest {
+            """
+            Read the current Attention-backed state for one Experience section graph binding.
+            """
+
+            response aware_experience_service_dto.experience.section_graph_binding.GetExperienceSectionGraphBindingStateResponse
+        }
+    }
+
+    capability get_experience_layout_graph_binding_state {
+        endpoint get_experience_layout_graph_binding_state aware_experience_service_dto.experience.section_graph_binding.GetExperienceLayoutGraphBindingStateRequest {
+            """
+            Read current Attention-backed state for one Experience layout graph binding.
+            """
+
+            response aware_experience_service_dto.experience.section_graph_binding.GetExperienceLayoutGraphBindingStateResponse
+        }
+    }
+
+    capability activate_experience_section_graph_binding {
+        endpoint activate_experience_section_graph_binding aware_experience_service_dto.experience.section_graph_binding.ActivateExperienceSectionGraphBindingRequest {
+            """
+            Activate one Experience section graph binding through the canonical Experience coordination seam.
+            """
+
+            response aware_experience_service_dto.experience.section_graph_binding.ActivateExperienceSectionGraphBindingResponse
+        }
+    }
+
+    capability activate_experience_layout_graph_binding {
+        endpoint activate_experience_layout_graph_binding aware_experience_service_dto.experience.section_graph_binding.ActivateExperienceLayoutGraphBindingRequest {
+            """
+            Activate one Experience layout graph binding through its grouped section graph bindings.
+            """
+
+            response aware_experience_service_dto.experience.section_graph_binding.ActivateExperienceLayoutGraphBindingResponse
+        }
+    }
+
+    capability apply_experience_view_event_transition {
+        endpoint apply_experience_view_event_transition aware_experience_service_dto.experience.section_graph_binding.ApplyExperienceViewEventTransitionRequest {
+            """
+            Apply an Experience-owned View -> Event -> View transition through a target section-graph binding.
+            """
+
+            response aware_experience_service_dto.experience.section_graph_binding.ApplyExperienceViewEventTransitionResponse
+        }
+    }
+
+    capability record_experience_view_invocation_action {
+        endpoint record_experience_view_invocation_action aware_experience_service_dto.experience.section_graph_binding.RecordExperienceViewInvocationActionRequest {
+            """
+            Record one concrete invocation action through a resolved Experience view instance.
+            """
+
+            response aware_experience_service_dto.experience.section_graph_binding.RecordExperienceViewInvocationActionResponse
+        }
+    }
+
+    capability invoke_experience_view_invocation_action {
+        endpoint invoke_experience_view_invocation_action aware_experience_service_dto.experience.section_graph_binding.InvokeExperienceViewInvocationActionRequest {
+            """
+            Invoke one API-backed view action through Experience and record its Service/API receipt provenance.
+            """
+
+            response aware_experience_service_dto.experience.section_graph_binding.InvokeExperienceViewInvocationActionResponse
+        }
+    }
+
+    capability resolve_experience_invocation_action_role_policy {
+        endpoint resolve_experience_invocation_action_role_policy aware_experience_service_dto.experience.section_graph_binding.ResolveExperienceInvocationActionRolePolicyRequest {
+            """
+            Resolve declared Experience role policy for one invocation action config without authorizing a concrete actor.
+            """
+
+            response aware_experience_service_dto.experience.section_graph_binding.ResolveExperienceInvocationActionRolePolicyResponse
+        }
+    }
+
+    capability session_handoff {
+        endpoint ensure_experience_session_handoff aware_experience_service_dto.experience.session_handoff.EnsureExperienceSessionHandoffRequest {
+            """
+            Admit an actor to an Experience session and ensure one Experience session feature.
+            """
+
+            response aware_experience_service_dto.experience.session_handoff.EnsureExperienceSessionHandoffResponse
+        }
+
+        endpoint get_experience_session_handoff_status aware_experience_service_dto.experience.session_handoff.GetExperienceSessionHandoffStatusRequest {
+            """
+            Read Experience session actor admission and session feature lease health.
+            """
+
+            response aware_experience_service_dto.experience.session_handoff.GetExperienceSessionHandoffStatusResponse
+        }
+    }
+
+    capability session_context {
+        endpoint resolve_experience_session_context aware_experience_service_dto.experience.session_context.ResolveExperienceSessionContextRequest {
+            """
+            Resolve actor-specific Experience session context over Environment session Attention resolution.
+            """
+
+            response aware_experience_service_dto.experience.session_context.ResolveExperienceSessionContextResponse
+        }
+    }
+
+    capability session_view_frame {
+        endpoint resolve_experience_session_view_frame aware_experience_service_dto.experience.session_view_frame.ResolveExperienceSessionViewFrameRequest {
+            """
+            Resolve a consumer read frame over actor-specific Experience context and shared Environment Attention.
+            """
+
+            response aware_experience_service_dto.experience.session_view_frame.ResolveExperienceSessionViewFrameResponse
+        }
+    }
+
+    capability watch_experience_section_graph_bindings {
+        endpoint watch_experience_section_graph_bindings aware_experience_service_dto.experience.section_graph_binding.WatchExperienceSectionGraphBindingsRequest {
+            """
+            Read and stream Experience section-graph-binding state snapshots.
+            """
+
+            response aware_experience_service_dto.experience.section_graph_binding.WatchExperienceSectionGraphBindingsResponse
+
+            stream server {
+                """
+                Canonical streamed Experience section-graph-binding snapshots.
+                """
+
+                event snapshot aware_experience_service_dto.experience.section_graph_binding.ExperienceSectionGraphBindingStateEvent;
+            }
+        }
+    }
+
+    capability watch_experience_view_state {
+        endpoint watch_experience_view_state aware_experience_service_dto.experience.view_state.WatchExperienceViewStateRequest {
+            """
+            Read and stream Experience-owned view-state snapshots for one mounted view subscription.
+            """
+
+            response aware_experience_service_dto.experience.view_state.WatchExperienceViewStateResponse
+
+            stream server {
+                """
+                Canonical streamed Experience view-state snapshots.
+                """
+
+                event snapshot aware_experience_service_dto.experience.view_state.ExperienceViewStateEvent;
+            }
+        }
+    }
+}

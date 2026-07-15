@@ -1,0 +1,42 @@
+/// Commit-backed InterfaceSession projection.
+///
+/// Contract:
+/// - InterfaceSession is the durable per-actor/client attachment into one
+///   canonical Identity Session.
+/// - Identity owns participation, membership, roles, lifecycle, and provider
+///   sessions.
+/// - Network connection state and bearer tokens are ephemeral transport state
+///   and are not projected here.
+/// - Experience session mounts are Interface-owned portal rows; Experience
+///   keeps authority over ExperienceSession internals.
+projection InterfaceSession {
+    root interface.InterfaceSession
+
+    interface.InterfaceSession::identity_session aware_identity.Session
+    interface.InterfaceSession::experience_sessions InterfaceSessionExperienceSession
+
+    observable session {
+        """
+        Durable Interface client attachment with canonical Identity Session
+        provenance.
+        """
+    }
+}
+
+/// InterfaceSessionExperienceSession projection.
+///
+/// Contract:
+/// - Root is one Interface-owned mount/provenance row.
+/// - ExperienceSession is an external Experience projection portal.
+/// - No Experience profile, lens, Environment, or Attention state is inlined.
+projection InterfaceSessionExperienceSession {
+    root interface.InterfaceSessionExperienceSession
+
+    interface.InterfaceSessionExperienceSession::experience_session aware_experience.ExperienceSession
+
+    observable experience_session {
+        """
+        InterfaceSession to committed ExperienceSession portal row.
+        """
+    }
+}

@@ -151,6 +151,50 @@ class _CursorSelectedSegmentRead:
     chunk_summaries_by_segment_key: Mapping[str, CommitStateWitnessCursorChunkSummary]
 
 
+@dataclass(frozen=True, slots=True)
+class ObjectInstanceGraphSnapshotStateIndexEvidence:
+    payload: JsonObject
+    state_index: CommitStateIndex
+    graph_hash: str
+
+    def select_class_instances_by_source_object_id(
+        self,
+        *,
+        source_object_ids: frozenset[UUID],
+    ) -> dict[UUID, ClassInstance] | None:
+        class_instance_payloads = self.payload.get("class_instances")
+        object_instance_graph_id = _json_optional_uuid(
+            self.payload,
+            "object_instance_graph_id",
+        )
+        if not isinstance(class_instance_payloads, list):
+            return None
+        selected: dict[UUID, ClassInstance] = {}
+        try:
+            for item in class_instance_payloads:
+                if not isinstance(item, Mapping):
+                    return None
+                source_object_id = _json_optional_uuid(item, "source_object_id")
+                if source_object_id not in source_object_ids:
+                    continue
+                class_instance = _trusted_class_instance_from_snapshot_state_payload(
+                    item
+                )
+                if (
+                    class_instance.source_object_id != source_object_id
+                    or class_instance.object_instance_graph_id
+                    != object_instance_graph_id
+                    or source_object_id in selected
+                ):
+                    return None
+                selected[source_object_id] = class_instance
+        except Exception:
+            return None
+        if selected.keys() != source_object_ids:
+            return None
+        return selected
+
+
 def _snapshot_trace_metadata(
     *,
     branch_id: UUID,
@@ -2010,7 +2054,12 @@ class FSSnapshotStore:
             )
         except Exception:
             return None
-        if witness_ref.witness_hash != _json_optional_string(payload, "witness_hash"):
+        declared_witness_hash = _json_optional_string(payload, "witness_hash")
+        graph_hash_source = payload.get("graph_hash_source") or "state_hash"
+        if declared_witness_hash is None:
+            if graph_hash_source != "witness_cursor_hash":
+                return None
+        elif witness_ref.witness_hash != declared_witness_hash:
             return None
         if witness_ref.row_count != _json_optional_int(payload, "row_count"):
             return None
@@ -2493,6 +2542,7 @@ class FSSnapshotStore:
         *,
         summary: CommitStateWitnessCursorSummary,
         witness_ref: CommitStateWitnessRef,
+        allow_missing_legacy_witness_hash: bool = False,
     ) -> None:
         if (
             _commit_state_witness_cursor_summary_from_payload(
@@ -2503,7 +2553,12 @@ class FSSnapshotStore:
             raise ValueError("Invalid state witness cursor summary")
         if summary.state_hash != witness_ref.state_hash:
             raise ValueError("State witness cursor summary state_hash mismatch")
-        if summary.legacy_witness_hash != witness_ref.witness_hash:
+        if summary.legacy_witness_hash is None:
+            if not allow_missing_legacy_witness_hash:
+                raise ValueError(
+                    "State witness cursor summary legacy_witness_hash missing"
+                )
+        elif summary.legacy_witness_hash != witness_ref.witness_hash:
             raise ValueError(
                 "State witness cursor summary legacy_witness_hash mismatch"
             )
@@ -2530,6 +2585,11 @@ class FSSnapshotStore:
             self._validate_state_witness_cursor_summary_for_ref(
                 summary=summary,
                 witness_ref=witness_ref,
+                allow_missing_legacy_witness_hash=(
+                    (payload.get("graph_hash_source") or "state_hash")
+                    == "witness_cursor_hash"
+                    and _json_optional_string(payload, "witness_hash") is None
+                ),
             )
         except ValueError:
             return None
@@ -3196,7 +3256,7 @@ class FSSnapshotStore:
             oig=oig,
         )
 
-    async def get_snapshot_state_rows(
+    async def _get_snapshot_state_rows_and_index(
         self,
         *,
         branch_id: UUID,
@@ -3204,7 +3264,7 @@ class FSSnapshotStore:
         commit_id: UUID,
         expected_object_instance_graph_id: UUID | None = None,
         expected_graph_hash: str | None = None,
-    ) -> JsonObject | None:
+    ) -> tuple[JsonObject, CommitStateIndex] | None:
         snapshot_path = (
             self._lane_dir(branch_id, projection_hash)
             / "snapshots"
@@ -3308,7 +3368,50 @@ class FSSnapshotStore:
                 return None
             if compute_commit_state_rows_hash(state_rows) != payload.get("state_hash"):
                 return None
-        return payload
+        return payload, CommitStateIndex(rows=state_rows)
+
+    async def get_snapshot_state_rows(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        commit_id: UUID,
+        expected_object_instance_graph_id: UUID | None = None,
+        expected_graph_hash: str | None = None,
+    ) -> JsonObject | None:
+        read = await self._get_snapshot_state_rows_and_index(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=commit_id,
+            expected_object_instance_graph_id=expected_object_instance_graph_id,
+            expected_graph_hash=expected_graph_hash,
+        )
+        return read[0] if read is not None else None
+
+    async def get_snapshot_state_index_evidence(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        commit_id: UUID,
+        expected_object_instance_graph_id: UUID | None = None,
+        expected_graph_hash: str | None = None,
+    ) -> ObjectInstanceGraphSnapshotStateIndexEvidence | None:
+        read = await self._get_snapshot_state_rows_and_index(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=commit_id,
+            expected_object_instance_graph_id=expected_object_instance_graph_id,
+            expected_graph_hash=expected_graph_hash,
+        )
+        if read is None:
+            return None
+        payload, state_index = read
+        return ObjectInstanceGraphSnapshotStateIndexEvidence(
+            payload=payload,
+            state_index=state_index,
+            graph_hash=str(payload["graph_hash"]),
+        )
 
     async def get_snapshot_state_rows_by_file_witness(
         self,
@@ -5697,16 +5800,23 @@ class FSSnapshotStore:
             category=_OIG_SNAPSHOT_STORE_TRACE_CATEGORY,
             metadata=trace_metadata,
         ):
-            payload = await self.get_snapshot_state_rows(
+            state_read = await self._get_snapshot_state_rows_and_index(
                 branch_id=branch_id,
                 projection_hash=projection_hash,
                 commit_id=commit_id,
                 expected_object_instance_graph_id=expected_object_instance_graph_id,
                 expected_graph_hash=expected_graph_hash,
             )
-        if payload is None:
+        if state_read is None:
             return None
+        payload, state_index = state_read
         try:
+            with commit_perf_span(
+                phase="oig_snapshot_store.state_graph.reuse_validated_state_index",
+                category=_OIG_SNAPSHOT_STORE_TRACE_CATEGORY,
+                metadata=trace_metadata,
+            ):
+                state_hash = _json_required_string(payload, "state_hash")
             with commit_perf_span(
                 phase="oig_snapshot_store.state_graph.hydrate_graph",
                 category=_OIG_SNAPSHOT_STORE_TRACE_CATEGORY,
@@ -5812,6 +5922,8 @@ class FSSnapshotStore:
                     if index_path.exists()
                     else fallback_indexes
                 )
+                indexes["commit_state_hash"] = state_hash
+                indexes["commit_state_index"] = state_index
             return snapshot, indexes
         except Exception as exc:
             logger.warning(

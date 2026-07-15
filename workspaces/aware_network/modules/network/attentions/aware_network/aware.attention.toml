@@ -1,0 +1,13 @@
+aware_attention = 1
+
+[attention]
+package_name = "aware-network-attention"
+fqn_prefix = "aware_network_attention"
+title = "Aware Network Territory"
+description = "Network-owned attention topology for territory discovery."
+
+[build]
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+frame_mode = "horizontal"

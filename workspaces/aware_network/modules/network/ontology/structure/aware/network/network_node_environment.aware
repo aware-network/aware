@@ -1,0 +1,26 @@
+class NetworkNodeEnvironment {
+    // Relationships
+    environment aware_environment.environment.Environment key
+
+    // Attributes
+    is_active Bool = true
+    priority Int = 0
+    role NetworkEnvironmentRole = replica
+
+    fn create construct (
+        environment_id UUID key,
+        role NetworkEnvironmentRole = replica,
+        is_active Bool = true,
+        priority Int = 0
+    ) -> NetworkNodeEnvironment {
+        """
+        Create a Node↔Environment association (v0).
+
+        Contract:
+        - Deterministic id by (network_node_id, environment_id) where `network_node_id` is parent-propagated.
+        - Requires invocation branch_id to match network_node_id (assoc lives in the node lane).
+        - Environment config, key/title, and experience profiles are resolved through
+          the `environment` portal; Network must not copy them as second truth.
+        """
+    }
+}

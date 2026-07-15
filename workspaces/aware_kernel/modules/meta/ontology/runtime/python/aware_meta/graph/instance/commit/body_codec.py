@@ -38,6 +38,7 @@ from aware_meta_ontology.stable_ids import stable_object_instance_graph_commit_i
 OIG_COMMIT_BODY_CONTRACT = "aware.oig_commit_body.v1"
 OIG_COMMIT_BODY_MEDIA_TYPE = "application/vnd.aware.oig-commit-body+json"
 OIG_COMMIT_BODY_VERSION = 1
+OIG_CHANGE_SET_CONTRACT = "aware.oig_change_set.v1"
 type OigCommitBodyJsonValue = (
     str
     | int
@@ -310,6 +311,25 @@ def canonical_oig_commit_body_bytes(payload: Mapping[str, object]) -> bytes:
     ).encode("utf-8")
 
 
+def canonical_oig_change_set_bytes(
+    changes: Sequence[ObjectInstanceGraphChange],
+) -> bytes:
+    """Encode the exact canonical commit-body roots without commit envelope fields."""
+
+    payload = {
+        "c": OIG_CHANGE_SET_CONTRACT,
+        "v": 1,
+        "r": [_object_instance_graph_change_payload(change) for change in changes],
+    }
+    normalized = _canonical_json_value(payload)
+    return json.dumps(
+        normalized,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+
+
 def decode_oig_commit_body(body_bytes: bytes) -> ObjectInstanceGraphCommitBodyV1:
     try:
         payload = json.loads(body_bytes.decode("utf-8"))
@@ -344,8 +364,50 @@ def object_instance_graph_changes_from_body(
     )
 
 
+def object_instance_graph_changes_from_body_draft(
+    *,
+    draft: OigCommitBodyDraft,
+    object_instance_graph_identity_id: UUID,
+    object_instance_graph_id: UUID,
+) -> tuple[ObjectInstanceGraphChange, ...]:
+    """Rehydrate compatibility change models from validated typed draft records."""
+
+    if not draft.roots:
+        raise OigCommitBodyCodecError("oig_commit_body_draft_roots_must_not_be_empty")
+    return tuple(
+        _object_instance_graph_change_from_payload(
+            payload=_root_change_draft_payload(root),
+            object_instance_graph_identity_id=object_instance_graph_identity_id,
+            object_instance_graph_id=object_instance_graph_id,
+        )
+        for root in draft.roots
+    )
+
+
 def oig_commit_body_sha256(payload: Mapping[str, object]) -> str:
     return hashlib.sha256(canonical_oig_commit_body_bytes(payload)).hexdigest()
+
+
+def oig_change_set_sha256(
+    changes: Sequence[ObjectInstanceGraphChange],
+) -> str:
+    return hashlib.sha256(canonical_oig_change_set_bytes(changes)).hexdigest()
+
+
+def oig_body_draft_change_set_sha256(draft: OigCommitBodyDraft) -> str:
+    payload = {
+        "c": OIG_CHANGE_SET_CONTRACT,
+        "v": 1,
+        "r": [_root_change_draft_payload(root) for root in draft.roots],
+    }
+    normalized = _canonical_json_value(payload)
+    canonical_bytes = json.dumps(
+        normalized,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical_bytes).hexdigest()
 
 
 def oig_commit_body_change_ref_draft_from_change(
@@ -359,6 +421,32 @@ def oig_commit_body_change_ref_draft_from_change(
         type=change.type,
         created_at=change.created_at,
         fields=tuple(_field_delta_draft_from_change_delta(delta) for delta in fields),
+    )
+
+
+def oig_commit_body_draft_from_changes(
+    changes: Sequence[ObjectInstanceGraphChange],
+) -> OigCommitBodyDraft:
+    return OigCommitBodyDraft(
+        roots=tuple(
+            OigCommitBodyRootChangeDraft(
+                id=_required_uuid(change.id, "object_instance_graph_change.id"),
+                type=change.type,
+                change=oig_commit_body_change_ref_draft_from_change(
+                    change.change,
+                    fields=change.change.change_deltas,
+                ),
+                class_instance_changes=tuple(
+                    oig_commit_body_class_instance_change_draft_from_change(item)
+                    for item in change.class_instance_changes
+                ),
+                class_instance_relationship_changes=tuple(
+                    oig_commit_body_relationship_change_draft_from_change(item)
+                    for item in change.class_instance_relationship_changes
+                ),
+            )
+            for change in changes
+        )
     )
 
 
@@ -1244,6 +1332,7 @@ __all__ = [
     "OIG_COMMIT_BODY_CONTRACT",
     "OIG_COMMIT_BODY_MEDIA_TYPE",
     "OIG_COMMIT_BODY_VERSION",
+    "OIG_CHANGE_SET_CONTRACT",
     "OigCommitBodyAttributeChangeDraft",
     "OigCommitBodyAttributeValueChangeDraft",
     "OigCommitBodyAttributeValueLinkChangeDraft",
@@ -1263,13 +1352,18 @@ __all__ = [
     "build_oig_commit_body_payload_from_draft",
     "build_oig_commit_body_payload_from_changes",
     "canonical_oig_commit_body_bytes",
+    "canonical_oig_change_set_bytes",
     "decode_oig_commit_body",
     "object_instance_graph_changes_from_body",
+    "object_instance_graph_changes_from_body_draft",
     "oig_commit_body_attribute_change_draft_from_change",
     "oig_commit_body_attribute_value_change_draft_from_change",
     "oig_commit_body_attribute_value_link_change_draft_from_change",
     "oig_commit_body_change_ref_draft_from_change",
     "oig_commit_body_class_instance_change_draft_from_change",
+    "oig_commit_body_draft_from_changes",
     "oig_commit_body_relationship_change_draft_from_change",
     "oig_commit_body_sha256",
+    "oig_change_set_sha256",
+    "oig_body_draft_change_set_sha256",
 ]

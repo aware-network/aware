@@ -2,6 +2,9 @@
 Builder for constructing ObjectProjectionGraph from ObjectConfigGraph and ObjectProjectionGraphBinding.
 """
 
+from collections.abc import Mapping
+from dataclasses import dataclass
+from types import MappingProxyType
 from uuid import UUID
 
 # Code Ontology
@@ -57,7 +60,22 @@ from aware_utils.string_transform import singularize, to_snake_case
 _PLACEHOLDER_OPG_ID = UUID("00000000-0000-0000-0000-000000000000")
 
 
-def _expand_graph_dependency_closure(graphs: list[ObjectConfigGraph]) -> list[ObjectConfigGraph]:
+@dataclass(frozen=True, slots=True)
+class ObjectProjectionGraphBuildContext:
+    root_graph_id: UUID
+    graphs: tuple[ObjectConfigGraph, ...]
+    class_fqn_to_id: Mapping[str, UUID]
+    class_by_id: Mapping[UUID, ClassConfig]
+    attr_name_by_id: Mapping[UUID, tuple[UUID, str]]
+    attr_by_id: Mapping[UUID, AttributeConfig]
+    detached_relationships: tuple[ClassConfigRelationship, ...]
+    reified_source_by_canonical_id: Mapping[UUID, ClassConfigRelationship]
+    rel_by_source_and_attr: Mapping[tuple[UUID, str], ClassConfigRelationship]
+
+
+def _expand_graph_dependency_closure(
+    graphs: list[ObjectConfigGraph],
+) -> list[ObjectConfigGraph]:
     ordered: list[ObjectConfigGraph] = []
     seen: set[UUID] = set()
     stack: list[ObjectConfigGraph] = list(graphs)
@@ -89,6 +107,199 @@ def _class_fqn(*, fqn_prefix: str, namespace: str, class_name: str) -> str:
     return f"{fqn_prefix}.{namespace}.{class_name}"
 
 
+def build_object_projection_graph_context(
+    *,
+    ocg: ObjectConfigGraph,
+    external_graphs: list[ObjectConfigGraph] | None = None,
+    cross_relationships_by_target_ocg: (
+        dict[UUID, list[ClassConfigRelationship]] | None
+    ) = None,
+) -> ObjectProjectionGraphBuildContext:
+    graphs = tuple(_expand_graph_dependency_closure([ocg, *(external_graphs or [])]))
+    class_fqn_to_id: dict[str, UUID] = {}
+    class_id_to_fqn: dict[UUID, str] = {}
+    class_by_id: dict[UUID, ClassConfig] = {}
+    for graph in graphs:
+        namespace_by_node_id = build_node_namespace_by_node_id(graph)
+        for node in graph.object_config_graph_nodes:
+            if (
+                node.type != ObjectConfigGraphNodeType.class_
+                or node.class_config is None
+            ):
+                continue
+            class_by_id.setdefault(node.class_config.id, node.class_config)
+            namespace = namespace_by_node_id.get(node.id)
+            explicit_fqn = (getattr(node.class_config, "class_fqn", None) or "").strip()
+            fqn = explicit_fqn or (
+                namespace.fqn(node.class_config.name) if namespace is not None else ""
+            )
+            if not fqn:
+                continue
+            previous_id = class_fqn_to_id.get(fqn)
+            if previous_id is not None and previous_id != node.class_config.id:
+                raise ValueError(
+                    f"OPG build: duplicate class FQN {fqn!r} maps to "
+                    f"{previous_id} and {node.class_config.id}"
+                )
+            class_fqn_to_id[fqn] = node.class_config.id
+            previous_fqn = class_id_to_fqn.get(node.class_config.id)
+            if previous_fqn is not None and previous_fqn != fqn:
+                raise ValueError(
+                    f"OPG build: class_config_id={node.class_config.id} maps "
+                    f"to multiple FQNs: {previous_fqn!r} and {fqn!r}"
+                )
+            class_id_to_fqn[node.class_config.id] = fqn
+
+    attr_name_by_id: dict[UUID, tuple[UUID, str]] = {}
+    attr_by_id: dict[UUID, AttributeConfig] = {}
+    for class_config in class_by_id.values():
+        for link in class_config.class_config_attribute_configs:
+            if link.attribute_config is None:
+                continue
+            current = (class_config.id, link.attribute_config.name)
+            previous = attr_name_by_id.get(link.attribute_config.id)
+            if previous is not None and previous != current:
+                raise ValueError(
+                    "OPG build: duplicate attribute_config_id="
+                    f"{link.attribute_config.id} across graphs"
+                )
+            attr_name_by_id[link.attribute_config.id] = current
+            attr_by_id.setdefault(link.attribute_config.id, link.attribute_config)
+
+    detached_relationships_by_id: dict[UUID, ClassConfigRelationship] = {}
+    if cross_relationships_by_target_ocg:
+        for relationships in cross_relationships_by_target_ocg.values():
+            for relationship in relationships or []:
+                if relationship is None or relationship.id is None:
+                    continue
+                detached_relationships_by_id.setdefault(
+                    relationship.id,
+                    relationship,
+                )
+    for graph in graphs:
+        for graph_relationship in graph.object_config_graph_relationships:
+            for relationship in graph_relationship.class_config_relationships:
+                if relationship is None or relationship.id is None:
+                    continue
+                detached_relationships_by_id.setdefault(
+                    relationship.id,
+                    relationship,
+                )
+    detached_relationships = tuple(
+        detached_relationships_by_id[key]
+        for key in sorted(detached_relationships_by_id, key=str)
+    )
+
+    reified_source_by_canonical_id: dict[UUID, ClassConfigRelationship] = {}
+
+    def _track_reified_source(relationship: ClassConfigRelationship) -> None:
+        if relationship.reified_from_relationship_id is None:
+            return
+        if (
+            relationship.reified_role
+            != ClassConfigRelationshipReifiedRole.source_to_association
+        ):
+            return
+        previous = reified_source_by_canonical_id.get(
+            relationship.reified_from_relationship_id
+        )
+        if previous is not None and previous.id != relationship.id:
+            raise ValueError(
+                "OPG build: multiple reified source relationships for canonical "
+                f"relationship_id={relationship.reified_from_relationship_id}: "
+                f"{previous.id} vs {relationship.id}"
+            )
+        reified_source_by_canonical_id[relationship.reified_from_relationship_id] = (
+            relationship
+        )
+
+    for graph in graphs:
+        for node in graph.object_config_graph_nodes:
+            if (
+                node.type == ObjectConfigGraphNodeType.relationship
+                and node.class_config_relationship is not None
+            ):
+                _track_reified_source(node.class_config_relationship)
+        for graph_relationship in graph.object_config_graph_relationships:
+            for relationship in graph_relationship.class_config_relationships:
+                if relationship is not None and relationship.id is not None:
+                    _track_reified_source(relationship)
+    for relationship in detached_relationships:
+        _track_reified_source(relationship)
+
+    def _reference_attr_name(relationship: ClassConfigRelationship) -> str:
+        reference_attribute_id = next(
+            (
+                attribute.attribute_config_id
+                for attribute in relationship.class_config_relationship_attributes
+                if attribute.direction == ClassConfigRelationshipDirection.forward
+                and attribute.role == ClassConfigRelationshipAttributeRole.reference
+            ),
+            None,
+        )
+        if reference_attribute_id is None:
+            raise ValueError(
+                f"OPG build: relationship {relationship.id} missing "
+                "FORWARD+REFERENCE attribute binding"
+            )
+        owner_and_name = attr_name_by_id.get(reference_attribute_id)
+        if owner_and_name is None:
+            raise ValueError(
+                f"OPG build: relationship {relationship.id} reference "
+                f"attribute_config_id={reference_attribute_id} not found on any class"
+            )
+        owner_class_id, attribute_name = owner_and_name
+        if owner_class_id != relationship.class_config_id:
+            raise ValueError(
+                f"OPG build: relationship {relationship.id} reference "
+                f"attribute_config_id={reference_attribute_id} is not owned by "
+                f"the relationship source class_id={relationship.class_config_id}"
+            )
+        return attribute_name
+
+    rel_by_source_and_attr: dict[tuple[UUID, str], ClassConfigRelationship] = {}
+
+    def _index_relationship(relationship: ClassConfigRelationship) -> None:
+        if relationship.class_config_id not in class_by_id:
+            raise ValueError(
+                f"OPG build: relationship {relationship.id} source "
+                f"class_config_id={relationship.class_config_id} not found"
+            )
+        key = (relationship.class_config_id, _reference_attr_name(relationship))
+        previous = rel_by_source_and_attr.get(key)
+        if previous is not None and previous.id != relationship.id:
+            raise ValueError(
+                f"OPG build: ambiguous relationship key {key} -> "
+                f"{previous.id} and {relationship.id}"
+            )
+        rel_by_source_and_attr[key] = relationship
+
+    for graph in graphs:
+        for node in graph.object_config_graph_nodes:
+            if (
+                node.type == ObjectConfigGraphNodeType.relationship
+                and node.class_config_relationship is not None
+            ):
+                _index_relationship(node.class_config_relationship)
+    for relationship in detached_relationships:
+        _index_relationship(relationship)
+    for class_config in class_by_id.values():
+        for relationship in class_config.class_config_relationships or []:
+            _index_relationship(relationship)
+
+    return ObjectProjectionGraphBuildContext(
+        root_graph_id=ocg.id,
+        graphs=graphs,
+        class_fqn_to_id=MappingProxyType(class_fqn_to_id),
+        class_by_id=MappingProxyType(class_by_id),
+        attr_name_by_id=MappingProxyType(attr_name_by_id),
+        attr_by_id=MappingProxyType(attr_by_id),
+        detached_relationships=detached_relationships,
+        reified_source_by_canonical_id=MappingProxyType(reified_source_by_canonical_id),
+        rel_by_source_and_attr=MappingProxyType(rel_by_source_and_attr),
+    )
+
+
 def build_object_projection_graph(
     name: str,
     description: str | None,
@@ -96,7 +307,10 @@ def build_object_projection_graph(
     projection_bindings: list[ObjectProjectionGraphBinding],
     *,
     external_graphs: list[ObjectConfigGraph] | None = None,
-    cross_relationships_by_target_ocg: dict[UUID, list[ClassConfigRelationship]] | None = None,
+    cross_relationships_by_target_ocg: (
+        dict[UUID, list[ClassConfigRelationship]] | None
+    ) = None,
+    build_context: ObjectProjectionGraphBuildContext | None = None,
 ) -> ObjectProjectionGraph:
     # We compute projection_hash first, then derive stable ids. Use a constant placeholder id
     # while building nodes/edges so the build is deterministic end-to-end.
@@ -107,181 +321,84 @@ def build_object_projection_graph(
     nodes_by_class_id: dict[UUID, ObjectProjectionGraphNode] = {}
     object_projection_graph_edges: list[ObjectProjectionGraphEdge] = []
 
-    class_fqn_to_id: dict[str, UUID] = {}
-    class_id_to_fqn: dict[UUID, str] = {}
-    graphs: list[ObjectConfigGraph] = _expand_graph_dependency_closure([ocg, *(external_graphs or [])])
-    for g in graphs:
-        ns_by_node_id = build_node_namespace_by_node_id(g)
-        for node in g.object_config_graph_nodes:
-            if node.type != ObjectConfigGraphNodeType.class_ or node.class_config is None:
-                continue
-            ns = ns_by_node_id.get(node.id)
-            explicit_fqn = (getattr(node.class_config, "class_fqn", None) or "").strip()
-            fqn = explicit_fqn or (ns.fqn(node.class_config.name) if ns is not None else "")
-            if not fqn:
-                continue
-            prev = class_fqn_to_id.get(fqn)
-            if prev is not None and prev != node.class_config.id:
-                raise ValueError(f"OPG build: duplicate class FQN {fqn!r} maps to {prev} and {node.class_config.id}")
-            class_fqn_to_id[fqn] = node.class_config.id
-            prev_fqn = class_id_to_fqn.get(node.class_config.id)
-            if prev_fqn is not None and prev_fqn != fqn:
-                raise ValueError(
-                    f"OPG build: class_config_id={node.class_config.id} maps "
-                    f"to multiple FQNs: {prev_fqn!r} and {fqn!r}"
-                )
-            class_id_to_fqn[node.class_config.id] = fqn
+    if build_context is None:
+        build_context = build_object_projection_graph_context(
+            ocg=ocg,
+            external_graphs=external_graphs,
+            cross_relationships_by_target_ocg=cross_relationships_by_target_ocg,
+        )
+    elif build_context.root_graph_id != ocg.id:
+        raise ValueError(
+            "OPG build context root does not match requested graph "
+            f"(context={build_context.root_graph_id} graph={ocg.id})"
+        )
 
-    # Class lookup (for relationship -> attribute name binding). Includes externals so projections can target deps.
-    class_by_id: dict[UUID, ClassConfig] = {}
-    for g in graphs:
-        for node in g.object_config_graph_nodes:
-            if node.type == ObjectConfigGraphNodeType.class_ and node.class_config is not None:
-                class_by_id.setdefault(node.class_config.id, node.class_config)
-
-    # AttributeConfig.id -> (owner_class_id, attr_name)
-    attr_name_by_id: dict[UUID, tuple[UUID, str]] = {}
-    attr_by_id: dict[UUID, AttributeConfig] = {}
-    for c in class_by_id.values():
-        for link in c.class_config_attribute_configs:
-            if link.attribute_config is None:
-                continue
-            prev = attr_name_by_id.get(link.attribute_config.id)
-            cur = (c.id, link.attribute_config.name)
-            if prev is not None and prev != cur:
-                raise ValueError(f"OPG build: duplicate attribute_config_id={link.attribute_config.id} across graphs")
-            attr_name_by_id[link.attribute_config.id] = cur
-            attr_by_id.setdefault(link.attribute_config.id, link.attribute_config)
-
-    detached_relationships_by_id: dict[UUID, ClassConfigRelationship] = {}
-    if cross_relationships_by_target_ocg:
-        for rels in cross_relationships_by_target_ocg.values():
-            for rel in rels or []:
-                if rel is None or rel.id is None:
-                    continue
-                detached_relationships_by_id.setdefault(rel.id, rel)
-
-    # External dependency graphs may already carry cross-OCG relationship materializations via
-    # `ObjectConfigGraph.object_config_graph_relationships[].class_config_relationships`.
-    #
-    # Canonical contract:
-    # - Cross-OCG relationships are not embedded as RELATIONSHIP nodes in the source OCG.
-    # - When a graph is persisted as a dependency artifact (`.aware/environment.json`), its cross-OCG
-    #   relationships must remain available to downstream builds for projection traversal.
-    for g in graphs:
-        for ocg_rel in g.object_config_graph_relationships:
-            for rel in ocg_rel.class_config_relationships:
-                if rel is None or rel.id is None:
-                    continue
-                detached_relationships_by_id.setdefault(rel.id, rel)
-
-    detached_relationships = [detached_relationships_by_id[k] for k in sorted(detached_relationships_by_id, key=str)]
-
-    reified_source_by_canonical_id: dict[UUID, ClassConfigRelationship] = {}
-
-    def _track_reified_source(rel: ClassConfigRelationship) -> None:
-        if rel.reified_from_relationship_id is None:
-            return
-        if rel.reified_role != ClassConfigRelationshipReifiedRole.source_to_association:
-            return
-        prev = reified_source_by_canonical_id.get(rel.reified_from_relationship_id)
-        if prev is not None and prev.id != rel.id:
-            raise ValueError(
-                "OPG build: multiple reified source relationships for canonical "
-                f"relationship_id={rel.reified_from_relationship_id}: {prev.id} vs {rel.id}"
-            )
-        reified_source_by_canonical_id[rel.reified_from_relationship_id] = rel
-
-    for g in graphs:
-        for node in g.object_config_graph_nodes:
-            if node.type == ObjectConfigGraphNodeType.relationship and node.class_config_relationship is not None:
-                _track_reified_source(node.class_config_relationship)
-        for ocg_rel in g.object_config_graph_relationships:
-            for rel in ocg_rel.class_config_relationships:
-                if rel is None or rel.id is None:
-                    continue
-                _track_reified_source(rel)
-    for rel in detached_relationships:
-        _track_reified_source(rel)
+    class_fqn_to_id = build_context.class_fqn_to_id
+    class_by_id = build_context.class_by_id
+    attr_name_by_id = build_context.attr_name_by_id
+    attr_by_id = build_context.attr_by_id
+    detached_relationships = build_context.detached_relationships
+    reified_source_by_canonical_id = build_context.reified_source_by_canonical_id
+    rel_by_source_and_attr = build_context.rel_by_source_and_attr
 
     def _reference_attr_name(rel: ClassConfigRelationship) -> str:
-        """Return the canonical declaring attribute name for a relationship (FORWARD+REFERENCE)."""
-        ref_attr_id: UUID | None = None
-        for ra in rel.class_config_relationship_attributes:
-            if (
-                ra.direction == ClassConfigRelationshipDirection.forward
-                and ra.role == ClassConfigRelationshipAttributeRole.reference
-            ):
-                ref_attr_id = ra.attribute_config_id
-                break
+        ref_attr_id = next(
+            (
+                attribute.attribute_config_id
+                for attribute in rel.class_config_relationship_attributes
+                if attribute.direction == ClassConfigRelationshipDirection.forward
+                and attribute.role == ClassConfigRelationshipAttributeRole.reference
+            ),
+            None,
+        )
         if ref_attr_id is None:
-            raise ValueError(f"OPG build: relationship {rel.id} missing FORWARD+REFERENCE attribute binding")
+            raise ValueError(
+                f"OPG build: relationship {rel.id} missing "
+                "FORWARD+REFERENCE attribute binding"
+            )
         owner_and_name = attr_name_by_id.get(ref_attr_id)
         if owner_and_name is None:
             raise ValueError(
-                f"OPG build: relationship {rel.id} reference attribute_config_id={ref_attr_id} not found on any class"
+                f"OPG build: relationship {rel.id} reference "
+                f"attribute_config_id={ref_attr_id} not found on any class"
             )
         owner_class_id, attr_name = owner_and_name
         if owner_class_id != rel.class_config_id:
             raise ValueError(
-                f"OPG build: relationship {rel.id} reference attribute_config_id={ref_attr_id} "
-                f"is not owned by the relationship source class_id={rel.class_config_id}"
+                f"OPG build: relationship {rel.id} reference "
+                f"attribute_config_id={ref_attr_id} is not owned by the "
+                f"relationship source class_id={rel.class_config_id}"
             )
         return attr_name
 
     def _reference_attr_required(rel: ClassConfigRelationship) -> bool:
-        """Return whether the canonical declaring attribute for a relationship is required."""
-        ref_attr_id: UUID | None = None
-        for ra in rel.class_config_relationship_attributes:
-            if (
-                ra.direction == ClassConfigRelationshipDirection.forward
-                and ra.role == ClassConfigRelationshipAttributeRole.reference
-            ):
-                ref_attr_id = ra.attribute_config_id
-                break
+        ref_attr_id = next(
+            (
+                attribute.attribute_config_id
+                for attribute in rel.class_config_relationship_attributes
+                if attribute.direction == ClassConfigRelationshipDirection.forward
+                and attribute.role == ClassConfigRelationshipAttributeRole.reference
+            ),
+            None,
+        )
         if ref_attr_id is None:
             if (
-                rel.reified_role == ClassConfigRelationshipReifiedRole.association_to_target
+                rel.reified_role
+                == ClassConfigRelationshipReifiedRole.association_to_target
                 and rel.relationship_key
             ):
                 return bool(rel.forward_required)
-            raise ValueError(f"OPG build: relationship {rel.id} missing FORWARD+REFERENCE attribute binding")
+            raise ValueError(
+                f"OPG build: relationship {rel.id} missing "
+                "FORWARD+REFERENCE attribute binding"
+            )
         attr = attr_by_id.get(ref_attr_id)
         if attr is None:
             raise ValueError(
-                f"OPG build: relationship {rel.id} reference attribute_config_id={ref_attr_id} not found on any class"
+                f"OPG build: relationship {rel.id} reference "
+                f"attribute_config_id={ref_attr_id} not found on any class"
             )
         return bool(attr.is_required)
-
-    # Relationship lookup: (source_class_id, declaring_attribute_name) -> relationship
-    rel_by_source_and_attr: dict[tuple[UUID, str], ClassConfigRelationship] = {}
-
-    def _index_relationship(rel: ClassConfigRelationship) -> None:
-        if rel.class_config_id not in class_by_id:
-            raise ValueError(
-                f"OPG build: relationship {rel.id} source class_config_id={rel.class_config_id} not found"
-            )
-        attr_name = _reference_attr_name(rel)
-        key = (rel.class_config_id, attr_name)
-        prev = rel_by_source_and_attr.get(key)
-        if prev is not None and prev.id != rel.id:
-            raise ValueError(f"OPG build: ambiguous relationship key {key} -> {prev.id} and {rel.id}")
-        rel_by_source_and_attr[key] = rel
-
-    for g in graphs:
-        for node in g.object_config_graph_nodes:
-            if node.type != ObjectConfigGraphNodeType.relationship or node.class_config_relationship is None:
-                continue
-            _index_relationship(node.class_config_relationship)
-
-    # Canonical: detached cross-OCG relationships are not embedded as relationship nodes, but
-    # projections still reference them deterministically via class_config_relationship_id.
-    for rel in detached_relationships:
-        _index_relationship(rel)
-
-    for class_config in class_by_id.values():
-        for rel in class_config.class_config_relationships or []:
-            _index_relationship(rel)
 
     projection_only_relationships: dict[UUID, ClassConfigRelationship] = {}
 
@@ -309,15 +426,19 @@ def build_object_projection_graph(
         projection-only Edge->target relationship id from the owning canonical relation.
         """
 
-        for rel in list(rel_by_source_and_attr.values()) + detached_relationships:
+        for rel in [*rel_by_source_and_attr.values(), *detached_relationships]:
             assoc_edge = rel.class_config_relationship_association_edge
-            assoc_class_id = assoc_edge.class_config_id if assoc_edge is not None else None
+            assoc_class_id = (
+                assoc_edge.class_config_id if assoc_edge is not None else None
+            )
             if assoc_class_id != source_class_id:
                 continue
             if _association_edge_endpoint_name(rel) != attribute_name:
                 continue
 
-            rel_id = stable_reified_association_target_relationship_id(relationship_id=rel.id)
+            rel_id = stable_reified_association_target_relationship_id(
+                relationship_id=rel.id
+            )
             existing = projection_only_relationships.get(rel_id)
             if existing is not None:
                 return existing
@@ -338,7 +459,9 @@ def build_object_projection_graph(
                 identity_rail=ClassConfigRelationshipIdentityRail.reference,
                 forward_required=True,
                 forward_loading_strategy=(
-                    assoc_edge.reverse_loading_strategy if assoc_edge is not None else None
+                    assoc_edge.reverse_loading_strategy
+                    if assoc_edge is not None
+                    else None
                 ),
                 reverse_loading_strategy=None,
                 class_config_id=source_class_id,
@@ -370,7 +493,9 @@ def build_object_projection_graph(
                 is_root=is_root,
                 required_for_validity=is_root,
                 selection=(
-                    ObjectProjectionGraphNodeSelection.one if is_root else ObjectProjectionGraphNodeSelection.all
+                    ObjectProjectionGraphNodeSelection.one
+                    if is_root
+                    else ObjectProjectionGraphNodeSelection.all
                 ),
             )
         else:
@@ -387,7 +512,10 @@ def build_object_projection_graph(
         attribute_name = code_section_project.attribute_name
 
         # Canonical OPG v0: only forward traversal is supported (no reverse/member synthesis).
-        if code_section_project.side is not None and code_section_project.side.strip().lower() not in {"", "forward"}:
+        if (
+            code_section_project.side is not None
+            and code_section_project.side.strip().lower() not in {"", "forward"}
+        ):
             raise ValueError(
                 f"OPG build: unsupported project side={code_section_project.side!r} for "
                 f"{namespace}.{class_name}::{attribute_name or ''}. Canonical OPG currently supports forward only."
@@ -423,7 +551,9 @@ def build_object_projection_graph(
                 attribute_name=attribute_name,
             )
         if rel is None:
-            raise ValueError(f"Relationship not found for projection edge: {fqn}::{attribute_name}")
+            raise ValueError(
+                f"Relationship not found for projection edge: {fqn}::{attribute_name}"
+            )
         include_required = _reference_attr_required(rel)
         traversal_rel = _resolve_traversal_relationship(rel)
 
@@ -465,7 +595,9 @@ def build_object_projection_graph(
         )
 
     # Deterministic ordering for hashing and downstream serialization.
-    nodes_list = sorted(list(nodes_by_class_id.values()), key=lambda n: str(n.class_config_id))
+    nodes_list = sorted(
+        list(nodes_by_class_id.values()), key=lambda n: str(n.class_config_id)
+    )
     edges_list = sorted(
         object_projection_graph_edges,
         key=lambda e: (
@@ -486,7 +618,9 @@ def build_object_projection_graph(
         ],
     )
 
-    stable_opg_id = stable_object_projection_graph_id(object_config_graph_id=ocg.id, name=name)
+    stable_opg_id = stable_object_projection_graph_id(
+        object_config_graph_id=ocg.id, name=name
+    )
 
     # Assign stable ids + fk links for nodes/edges now that opg id is known.
     for n in nodes_list:
@@ -510,8 +644,12 @@ def build_object_projection_graph(
             multiplicity=e.multiplicity.value,
             traversal_direction=e.traversal_direction.value,
             depth_limit=e.depth_limit,
-            attribute_role=(e.attribute_role.value if e.attribute_role is not None else None),
-            loading_override=(e.loading_override.value if e.loading_override is not None else None),
+            attribute_role=(
+                e.attribute_role.value if e.attribute_role is not None else None
+            ),
+            loading_override=(
+                e.loading_override.value if e.loading_override is not None else None
+            ),
         )
 
     opg = ObjectProjectionGraph(

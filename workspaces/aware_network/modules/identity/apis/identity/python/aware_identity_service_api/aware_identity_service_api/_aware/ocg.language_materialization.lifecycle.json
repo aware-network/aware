@@ -1,0 +1,171 @@
+{
+  "artifact_changes": [
+    {
+      "artifact_kind": "manifest",
+      "bytes_after": 3075,
+      "bytes_before": 2832,
+      "change_kind": "update",
+      "hash_after": "22cfc41d81901c0d1eb7855758fa7b60184b9e0ed7af964100a4fec324d06421",
+      "hash_before": "ce170f0a05d6eb1f613f564cd7a8fb05538035bafb3d02eb9c8f5e7b843ede34",
+      "materialization_rel_path": null,
+      "ownership_receipt": {
+        "artifact_family": "ocg_language_materialization",
+        "artifact_key": "python:python.ocg_node_paths:identity-service-api:.aware/materializations/ocg.node_paths.python.json",
+        "artifact_role": "dependency_import_resolution",
+        "digest": "22cfc41d81901c0d1eb7855758fa7b60184b9e0ed7af964100a4fec324d06421",
+        "digest_algorithm": "sha256",
+        "input_object_instance_graph_commit_id": null,
+        "language_graph_ref": "sha256:8bf5db302f3436e0f62427d00d1778103e4c3b8896a541965f2a8489ad51cc00",
+        "object_config_graph_commit_id": null,
+        "object_config_graph_package_id": null,
+        "output_key": "python.ocg_node_paths",
+        "output_kind": "manifest",
+        "package_name": "identity-service-api",
+        "package_output_key": null,
+        "path": ".aware/materializations/ocg.node_paths.python.json",
+        "producer_key": "aware_meta.object_config_graph.language_materialization",
+        "producer_kind": "semantic_materializer",
+        "producer_provider_key": "aware_meta",
+        "producer_step": "plugin_declared_output_producer",
+        "provider_payload": {
+          "path_templates": [
+            ".aware/materializations/ocg.node_paths.python.json",
+            "{import_root}/_aware/ocg.node_paths.python.json"
+          ]
+        },
+        "required_for": [
+          "dependency_import_resolution",
+          "environment_config",
+          "runtime_index",
+          "workspace_revision"
+        ],
+        "runtime_contract_version": "aware.meta.language_materialization.v1",
+        "runtime_graph_ref": "sha256:8bf5db302f3436e0f62427d00d1778103e4c3b8896a541965f2a8489ad51cc00",
+        "semantic_owner": "aware_meta.object_config_graph",
+        "size_bytes": 3075,
+        "source_code_package_id": null,
+        "source_graph_ref": "sha256:8bf5db302f3436e0f62427d00d1778103e4c3b8896a541965f2a8489ad51cc00",
+        "source_object_instance_graph_commit_id": null,
+        "status": "available",
+        "target_language_plugin_id": "python"
+      },
+      "package_name": null,
+      "package_rel_path": null,
+      "producer_step": "manifest_write",
+      "repo_rel_path": ".aware/materializations/ocg.node_paths.python.json",
+      "stageability": "skip",
+      "stageability_reason": "internal compiler/runtime artifact outside canonical staging output"
+    },
+    {
+      "artifact_kind": "manifest",
+      "bytes_after": 4375,
+      "bytes_before": 4697,
+      "change_kind": "update",
+      "hash_after": "12a8078101e3e99ce6e04254af6c04e2c71223c0cc60d7883540301771455a17",
+      "hash_before": "118ced196a7d3b75d6b08786e95042586983db3a566c0b95126b6e11ead578d8",
+      "materialization_rel_path": null,
+      "ownership_receipt": {
+        "artifact_family": "ocg_language_materialization",
+        "artifact_key": "python:python.models_manifest:identity-service-api:.aware/materializations/python.models.json",
+        "artifact_role": "runtime_model_index",
+        "digest": "12a8078101e3e99ce6e04254af6c04e2c71223c0cc60d7883540301771455a17",
+        "digest_algorithm": "sha256",
+        "input_object_instance_graph_commit_id": null,
+        "language_graph_ref": "sha256:8bf5db302f3436e0f62427d00d1778103e4c3b8896a541965f2a8489ad51cc00",
+        "object_config_graph_commit_id": null,
+        "object_config_graph_package_id": null,
+        "output_key": "python.models_manifest",
+        "output_kind": "manifest",
+        "package_name": "identity-service-api",
+        "package_output_key": null,
+        "path": ".aware/materializations/python.models.json",
+        "producer_key": "aware_meta.object_config_graph.language_materialization",
+        "producer_kind": "semantic_materializer",
+        "producer_provider_key": "aware_meta",
+        "producer_step": "plugin_declared_output_producer",
+        "provider_payload": {
+          "path_templates": [
+            ".aware/materializations/python.models.json",
+            "{import_root}/_aware/python.models.json"
+          ]
+        },
+        "required_for": [
+          "environment_config",
+          "runtime_index",
+          "workspace_revision"
+        ],
+        "runtime_contract_version": "aware.meta.language_materialization.v1",
+        "runtime_graph_ref": "sha256:8bf5db302f3436e0f62427d00d1778103e4c3b8896a541965f2a8489ad51cc00",
+        "semantic_owner": "aware_meta.object_config_graph",
+        "size_bytes": 4375,
+        "source_code_package_id": null,
+        "source_graph_ref": "sha256:8bf5db302f3436e0f62427d00d1778103e4c3b8896a541965f2a8489ad51cc00",
+        "source_object_instance_graph_commit_id": null,
+        "status": "available",
+        "target_language_plugin_id": "python"
+      },
+      "package_name": null,
+      "package_rel_path": null,
+      "producer_step": "manifest_write",
+      "repo_rel_path": ".aware/materializations/python.models.json",
+      "stageability": "skip",
+      "stageability_reason": "internal compiler/runtime artifact outside canonical staging output"
+    }
+  ],
+  "artifact_family": "ocg_language_materialization",
+  "artifact_role": "lifecycle_receipt",
+  "materialization": {
+    "name": "api-public-package-python",
+    "source_kind": "api",
+    "source_package_name": "identity-service-api"
+  },
+  "output_key": "language_materialization_lifecycle_receipt",
+  "output_kind": "materialization_lifecycle_receipt",
+  "package": {
+    "import_root": "aware_identity_service_api",
+    "name": "aware_identity_service_api",
+    "output_root": "apis/identity/python/aware_identity_service_api",
+    "receipt_package_rel_path": "aware_identity_service_api/_aware/ocg.language_materialization.lifecycle.json",
+    "receipt_path": "apis/identity/python/aware_identity_service_api/aware_identity_service_api/_aware/ocg.language_materialization.lifecycle.json"
+  },
+  "package_outcomes": [
+    {
+      "artifact_change_refs": [],
+      "import_root": "aware_identity_service_api",
+      "output_root": "apis/identity/python/aware_identity_service_api",
+      "package_name": "aware_identity_service_api"
+    }
+  ],
+  "producer_key": "aware_meta.object_config_graph.language_materialization",
+  "provenance": {
+    "input_object_instance_graph_commit_id": null,
+    "object_config_graph_commit_id": null,
+    "object_config_graph_package_id": null,
+    "source_code_package_id": null,
+    "source_object_instance_graph_commit_id": null
+  },
+  "provider_key": "aware_meta",
+  "required_for": [
+    "environment_config",
+    "runtime_index",
+    "workspace_revision"
+  ],
+  "schema": "aware.meta.language_materialization.lifecycle_receipt.v1",
+  "semantic_owner": "aware_meta.object_config_graph",
+  "status": "available",
+  "summary": {
+    "changes_by_kind": {
+      "update": 2
+    },
+    "changes_by_producer_step": {
+      "manifest_write": 2
+    },
+    "changes_by_stageability": {
+      "skip": 2
+    },
+    "changes_total": 2,
+    "package_count": 1,
+    "warning_count": 0
+  },
+  "target_language_plugin_id": "python"
+}

@@ -2,6 +2,20 @@
   "language": "python",
   "classes": [
     {
+      "class_config_id": "bdd9f1b5-1f2e-565a-af1c-fc45d69147cf",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "CommitContentTextRequest",
+      "aware_class_ref": "aware_content_service_dto.content.CommitContentTextRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "566670f2-407b-5b3f-8219-73f9ff035af5",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "CommitContentTextResponse",
+      "aware_class_ref": "aware_content_service_dto.content.CommitContentTextResponse",
+      "functions": []
+    },
+    {
       "class_config_id": "600d37df-32f6-5dcb-9b11-533472a83bec",
       "module": "aware_content_service_dto.content.content_service_operation",
       "name": "ContentOperationReceipt",
@@ -55,6 +69,20 @@
       "module": "aware_content_service_dto.content.content_service_operation",
       "name": "ContentServiceResponse",
       "aware_class_ref": "aware_content_service_dto.content.ContentServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e6fd957e-c7ff-57fd-ad5b-c35df31f3f8b",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentTextCommitPartV1",
+      "aware_class_ref": "aware_content_service_dto.content.ContentTextCommitPartV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "3fb63903-2a7f-58b1-bb91-d3894d68949e",
+      "module": "aware_content_service_dto.content.content_service_operation",
+      "name": "ContentTextCommitResultV1",
+      "aware_class_ref": "aware_content_service_dto.content.ContentTextCommitResultV1",
       "functions": []
     },
     {

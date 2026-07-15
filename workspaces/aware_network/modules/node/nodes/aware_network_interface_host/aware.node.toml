@@ -1,0 +1,21 @@
+aware_node = 1
+
+[node]
+package_name = "aware-network-interface-node"
+fqn_prefix = "aware_network_interface_node"
+title = "Aware Network Interface Node"
+description = "WorkspaceRevision-backed Aware Control Interface host."
+
+[build]
+sources_dir = "nodes"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+compilation_mode = "node_ontology"
+
+[[dependencies]]
+package_name = "aware-control-interface"
+kind = "interface_package"
+
+[[dependencies]]
+package_name = "aware-interface-service"
+kind = "service_package"

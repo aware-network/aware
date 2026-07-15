@@ -1,0 +1,51 @@
+// Program port contracts for the module-owned Identity default Experience.
+//
+// These declarations make the package's program ports explicit Experience
+// truth. They intentionally carry only the projection/node identity contracts
+// required by policy and seed programs; UI views can be added separately.
+
+experience identity on aware_identity.identity.Identity {
+    node identity.Identity {
+        id identity
+    }
+}
+
+experience organization on aware_identity.organization.Organization {
+    node organization.Organization {
+        id organization
+    }
+}
+
+experience role_config on aware_identity.role.RoleConfig {
+    node role.RoleConfig {
+        id role_config
+    }
+
+    node role.RoleConfig::role_config_class_configs {
+        id role_config_class_config
+    }
+}
+
+experience role on aware_identity.role.Role {
+    node role.Role {
+        id role
+    }
+}
+
+experience actor_role on aware_identity.identity.Identity {
+    node actor.Actor::actor_roles {
+        id actor_role
+    }
+}
+
+experience actor_subscription on aware_identity.identity.Identity {
+    node actor.Actor::actor_subscriptions {
+        id actor_subscription
+    }
+}
+
+experience event_config_condition_config_scope on aware_reactivity.event.EventConfigConditionConfigScope {
+    node event.EventConfigConditionConfigScope {
+        id event_config_condition_config_scope
+    }
+}

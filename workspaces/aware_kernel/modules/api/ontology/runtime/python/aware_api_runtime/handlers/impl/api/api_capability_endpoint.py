@@ -35,6 +35,22 @@ from aware_meta.runtime.handler_context import (
 # --- AWARE: USER_IMPORTS END
 
 
+async def update_config(api_capability_endpoint: ApiCapabilityEndpoint, description: str | None = None) -> None:
+    """
+    Update mutable endpoint metadata on this existing endpoint.
+
+    Contract:
+    - `name` and `api_capability_id` are immutable endpoint identity.
+    - Request-contract evolution uses a separate explicit semantic operation.
+    - This function mutates only this endpoint instance.
+    """
+
+    # --- AWARE: LOGIC START update_config
+    api_capability_endpoint.description = description
+    return None
+    # --- AWARE: LOGIC END update_config
+
+
 async def create_call(
     api_capability_endpoint: ApiCapabilityEndpoint, call_key: UUID, description: str | None = None
 ) -> ApiCall:

@@ -1,0 +1,8 @@
+layout configuration_map default {
+    section main {
+        title "Actor Home"
+        order 0
+        flex 1.0
+        visible true
+    }
+}

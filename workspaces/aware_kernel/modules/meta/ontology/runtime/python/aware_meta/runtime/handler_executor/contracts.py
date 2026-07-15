@@ -8,6 +8,7 @@ from uuid import UUID
 
 from aware_code.types import JsonArray, JsonObject, JsonValue
 from aware_meta.graph.projection.portal_index import ObjectProjectionGraphPortalIndex
+from aware_meta.graph.instance.commit.body_codec import OigCommitBodyDraft
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
 from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.class_.class_config_function_config import (
@@ -33,8 +34,10 @@ from aware_meta_ontology.graph.instance.object_instance_graph_change import (
 from aware_meta_ontology.graph.projection.object_projection_graph import (
     ObjectProjectionGraph,
 )
+from aware_orm.runtime.class_resolver import ORMClassResolutionIndex
 
 if TYPE_CHECKING:
+    from aware_meta.graph.instance.diff_orm import OrmChangeTranslationIndexCache
     from aware_meta.runtime.invocation_engine import (
         MetaGraphInvokeFunctionCallable,
         MetaGraphInvokeFunctionInput,
@@ -80,6 +83,33 @@ class MetaGraphRuntimeIndex(MetaGraphCommitIndex, Protocol):
 
     @property
     def portal_index(self) -> ObjectProjectionGraphPortalIndex: ...
+
+
+class MetaGraphOigModelFieldConstructionPlan(Protocol):
+    @property
+    def field_name(self) -> str: ...
+
+    @property
+    def is_model_field(self) -> bool: ...
+
+    def coerce(self, value: object) -> object: ...
+
+
+class MetaGraphOigModelConstructionPlanCache(Protocol):
+    @property
+    def index(self) -> MetaGraphRuntimeIndex: ...
+
+    @property
+    def class_resolution_index(self) -> ORMClassResolutionIndex: ...
+
+    def require_index(self, index: MetaGraphRuntimeIndex) -> None: ...
+
+    def field_plan(
+        self,
+        *,
+        orm_class: type[object],
+        config_name: str,
+    ) -> MetaGraphOigModelFieldConstructionPlan: ...
 
 
 class MetaGraphImplementationKind(Enum):
@@ -162,6 +192,10 @@ class MetaGraphExecutionPlan:
     function_input_edges_by_attribute_config_id: (
         Mapping[UUID, Mapping[UUID, FunctionConfigAttributeConfig]] | None
     ) = None
+    orm_change_translation_index_cache: OrmChangeTranslationIndexCache | None = None
+    oig_model_construction_plan_cache: MetaGraphOigModelConstructionPlanCache | None = (
+        None
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -170,6 +204,7 @@ class MetaGraphHandlerExecutionRequest:
     staged_call: MetaGraphStagedFunctionCall
     execution_plan: MetaGraphExecutionPlan
     invoke_function: MetaGraphInvokeFunctionCallable | None = None
+    pre_state_override: MetaGraphPreState | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -199,10 +234,23 @@ class MetaGraphMaterializationCachePrimeSnapshot:
 
 
 @dataclass(frozen=True, slots=True)
+class MetaGraphValidatedReplayArtifact:
+    execution_plan: MetaGraphExecutionPlan
+    before_oig: ObjectInstanceGraph
+    changes: tuple[ObjectInstanceGraphChange, ...]
+    graph_hash_pre: str
+    post_oig: ObjectInstanceGraph
+    graph_hash_post: str
+    change_set_sha256: str
+    body_draft: OigCommitBodyDraft | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class MetaGraphExecutionSessionDelta:
     execution_plan: MetaGraphExecutionPlan
     before_oig: ObjectInstanceGraph
     changes: tuple[ObjectInstanceGraphChange, ...] = ()
+    body_draft: OigCommitBodyDraft | None = None
     graph_hash_pre: str | None = None
     graph_hash_post: str | None = None
     root_object_id: UUID | None = None
@@ -212,6 +260,7 @@ class MetaGraphExecutionSessionDelta:
     materialization_cache_prime_snapshot: (
         MetaGraphMaterializationCachePrimeSnapshot | None
     ) = None
+    validated_replay_artifact: MetaGraphValidatedReplayArtifact | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -230,6 +279,7 @@ class MetaGraphMutationSet:
     execution_plan: MetaGraphExecutionPlan
     before_oig: ObjectInstanceGraph
     changes: tuple[ObjectInstanceGraphChange, ...] = ()
+    body_draft: OigCommitBodyDraft | None = None
     graph_hash_pre: str | None = None
     graph_hash_post: str | None = None
     root_object_id: UUID | None = None
@@ -239,6 +289,7 @@ class MetaGraphMutationSet:
     materialization_cache_prime_snapshot: (
         MetaGraphMaterializationCachePrimeSnapshot | None
     ) = None
+    validated_replay_artifact: MetaGraphValidatedReplayArtifact | None = None
 
 
 class MetaGraphMutationBoundaryStatus(Enum):
@@ -263,6 +314,7 @@ class MetaGraphAppendReadyChanges:
     changes: tuple[ObjectInstanceGraphChange, ...]
     graph_hash_pre: str
     graph_hash_post: str
+    body_draft: OigCommitBodyDraft | None = None
     root_object_id: UUID | None = None
     root_class_instance_identity_id: UUID | None = None
     materialization_cache_prime_snapshot: (
@@ -282,6 +334,7 @@ class MetaGraphHandlerExecutionResult:
     root_class_instance_identity_id: UUID | None = None
     before_oig: ObjectInstanceGraph | None = None
     changes: tuple[ObjectInstanceGraphChange, ...] = ()
+    body_draft: OigCommitBodyDraft | None = None
     append_ready_changes: MetaGraphAppendReadyChanges | None = None
     materialization_cache_prime_snapshot: (
         MetaGraphMaterializationCachePrimeSnapshot | None
@@ -378,10 +431,13 @@ __all__ = [
     "MetaGraphMutationBoundaryValidator",
     "MetaGraphMutationRecorder",
     "MetaGraphMutationSet",
+    "MetaGraphOigModelConstructionPlanCache",
+    "MetaGraphOigModelFieldConstructionPlan",
     "MetaGraphPreState",
     "MetaGraphPreStateIndex",
     "MetaGraphPreStateMaterializer",
     "MetaGraphResolvedFunctionTarget",
     "MetaGraphRuntimeIndex",
     "MetaGraphStagedFunctionCall",
+    "MetaGraphValidatedReplayArtifact",
 ]

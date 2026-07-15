@@ -7,6 +7,14 @@ api content {
 
             response aware_content_service_dto.content.ResolveContentTextResponse
         }
+
+        endpoint commit_content_text aware_content_service_dto.content.CommitContentTextRequest {
+            """
+            Commit provider-neutral text as Content truth and return exact commit evidence.
+            """
+
+            response aware_content_service_dto.content.CommitContentTextResponse
+        }
     }
 
     capability package {

@@ -1,0 +1,33 @@
+class ServiceContractConfigActorRoleGrant {
+    // Relationships
+    role_config aware_identity.role.RoleConfig key
+
+    // Attributes
+    access_scope String = "service"
+    class_instance_identity_required Bool = false
+    description String?
+    grant_policy_json JsonObject? = {}
+    role_assignment_binding_required Bool = true
+    scope_kind String key = "service"
+    scope_ref String key = "default"
+
+    fn build construct (
+        role_config_id UUID key,
+        scope_kind String key = "service",
+        scope_ref String key = "default",
+        access_scope String = "service",
+        class_instance_identity_required Bool = false,
+        role_assignment_binding_required Bool = true,
+        grant_policy_json JsonObject? = {},
+        description String? = null
+    ) -> ServiceContractConfigActorRoleGrant {
+        """
+        Creates one reusable ActorRole grant declaration under a ServiceContractConfig.
+
+        Contract:
+        - Parent ServiceContractConfig scope is propagated by constructor lowering.
+        - Role policy remains owned by Identity RoleConfig.
+        - Concrete ServiceContract activation can materialize/resolve ActorRole evidence through Identity.
+        """
+    }
+}

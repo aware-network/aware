@@ -1,0 +1,17 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "9ea15673-ad9c-5616-97eb-4a87d0589c2c",
+      "node_type": "class",
+      "entity_id": "61bf052e-5851-5263-9b15-187ec1a82f06",
+      "relative_path": "external_capital/wallet_funding.py"
+    },
+    {
+      "node_id": "134b2844-2855-55f6-8644-3ee0219c106b",
+      "node_type": "class",
+      "entity_id": "7495d2e0-33f2-5a1a-a65d-6797aca9a349",
+      "relative_path": "external_capital/wallet_funding.py"
+    }
+  ]
+}

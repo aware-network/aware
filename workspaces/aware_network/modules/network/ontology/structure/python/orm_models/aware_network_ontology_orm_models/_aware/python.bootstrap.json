@@ -1,0 +1,44 @@
+{
+  "dependency_import_roots": [
+    "aware_code_ontology_orm_models",
+    "aware_environment_ontology_orm_models",
+    "aware_identity_ontology_orm_models",
+    "aware_meta_ontology_orm_models",
+    "aware_service_ontology_orm_models"
+  ],
+  "modules": [
+    "aware_network_ontology_orm_models.external.external_app",
+    "aware_network_ontology_orm_models.external.external_app_enums",
+    "aware_network_ontology_orm_models.network.network_directory",
+    "aware_network_ontology_orm_models.network.network_directory_response",
+    "aware_network_ontology_orm_models.network.network_enums",
+    "aware_network_ontology_orm_models.network.network_node",
+    "aware_network_ontology_orm_models.network.network_node_config",
+    "aware_network_ontology_orm_models.network.network_node_environment",
+    "aware_network_ontology_orm_models.network.network_node_environment_list_response",
+    "aware_network_ontology_orm_models.network.network_node_member",
+    "aware_network_ontology_orm_models.network.network_node_package",
+    "aware_network_ontology_orm_models.network.network_node_peer",
+    "aware_network_ontology_orm_models.network.network_node_peer_fanout_rule",
+    "aware_network_ontology_orm_models.network.network_node_peer_list_response",
+    "aware_network_ontology_orm_models.network.network_node_service",
+    "aware_network_ontology_orm_models.network.network_node_validator",
+    "aware_network_ontology_orm_models.network.network_operation",
+    "aware_network_ontology_orm_models.network.network_operation_hop",
+    "aware_network_ontology_orm_models.network.network_request",
+    "aware_network_ontology_orm_models.network.network_response",
+    "aware_network_ontology_orm_models.network.network_stream",
+    "aware_network_ontology_orm_models.network.network_stream_enums",
+    "aware_network_ontology_orm_models.network.network_stream_frame",
+    "aware_network_ontology_orm_models.stable_ids"
+  ],
+  "package_prefix": "aware_network_ontology_orm_models",
+  "pydantic_model_dependency_import_roots": [
+    "aware_code_ontology_orm_models",
+    "aware_environment_ontology_orm_models",
+    "aware_identity_ontology_orm_models",
+    "aware_meta_ontology_orm_models",
+    "aware_service_ontology_orm_models"
+  ],
+  "version": "v1"
+}

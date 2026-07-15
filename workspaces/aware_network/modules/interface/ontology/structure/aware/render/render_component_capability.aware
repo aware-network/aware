@@ -1,0 +1,23 @@
+class RenderComponentCapability {
+    // Attributes
+    capability_kind String key
+    capability_key String key
+    is_required Bool = true
+    description String?
+
+    fn build construct (
+        capability_kind String key,
+        capability_key String key,
+        is_required Bool = true,
+        description String? = null
+    ) -> RenderComponentCapability {
+        """
+        Create one renderer capability requirement or preference.
+
+        Contract:
+        - Capability kind/key are renderer-neutral labels.
+        - Required capabilities must be satisfied or fall back according to policy.
+        - Preferred capabilities may enhance native rendering without changing pane semantics.
+        """
+    }
+}

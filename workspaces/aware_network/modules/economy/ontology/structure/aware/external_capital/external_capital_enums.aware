@@ -1,0 +1,13 @@
+enum ExternalCapitalConversionMode {
+    direct_denomination
+}
+
+enum ExternalCapitalProviderStatus {
+    active
+    inactive
+}
+
+enum ExternalCapitalRouteStatus {
+    active
+    inactive
+}

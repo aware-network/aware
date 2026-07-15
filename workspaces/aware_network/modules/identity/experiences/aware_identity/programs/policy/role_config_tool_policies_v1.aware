@@ -1,0 +1,54 @@
+// Install deterministic RoleConfig function-policy edges (tool ACL rail).
+//
+// Required symbols:
+// - plan.role_config_name
+// - plan.class_name
+// - plan.function_name
+//
+// Optional symbols:
+// - plan.role_config_description
+//
+// Contract:
+// - Policy objects are commit-backed in `role_config` projection.
+// - Function policy is resolved via runtime capability descriptors.
+// - Idempotent on rerun (constructor/upsert semantics).
+
+program RoleConfigToolPolicies_v1Config(
+    role_config_name String = plan.role_config_name,
+    role_config_description String = plan.role_config_description,
+    class_name String = plan.class_name,
+    function_name String = plan.function_name,
+    role_config_id UUID = identity.stable_role_config_id(name=role_config_name),
+    class_config_id UUID = meta.resolve_class_config_id(class_name=class_name),
+    role_config_class_config_id UUID = identity.stable_role_config_class_config_id(
+        role_config_id=role_config_id,
+        class_config_id=class_config_id
+    ),
+    function_config_id UUID = meta.resolve_function_config_id(
+        class_name=class_name,
+        function_name=function_name
+    )
+) {
+    actor identity_system system
+
+    port role_config_role_config_id role_config {
+        node main role.RoleConfig(role_config=role_config_id)
+        node role_config_class_config role.RoleConfig::role_config_class_configs(role_config_class_config=role_config_class_config_id)
+    }
+}
+
+program RoleConfigToolPolicies_v1 impl RoleConfigToolPolicies_v1Config {
+    bind role_config_role_config_id role_config.main
+    identity_system call program.port.role_config_role_config_id.projection_node.main role.RoleConfig.create(
+        name=role_config_name,
+        description=role_config_description
+    )
+    identity_system call program.port.role_config_role_config_id.projection_node.main role.RoleConfig.upsert_class_config_policy(
+        class_config_id=class_config_id,
+        access_level=admin
+    )
+    identity_system call role_config_class_config role.RoleConfigClassConfig.upsert_function_config_policy(
+        function_config_id=function_config_id,
+        access_level=admin
+    )
+}

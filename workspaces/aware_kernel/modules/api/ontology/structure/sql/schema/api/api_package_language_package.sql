@@ -9,6 +9,7 @@ CREATE TABLE api_package_language_package (
   -- RELATIONSHIPS
   api_package_id UUID NOT NULL,
   code_package_id UUID NOT NULL,
+  object_instance_graph_commit_id UUID NOT NULL,
   -- ATTRIBUTES
   exclude_paths JSONB NOT NULL,
   import_root TEXT NOT NULL,

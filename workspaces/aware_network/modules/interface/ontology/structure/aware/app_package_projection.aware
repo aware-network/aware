@@ -1,0 +1,32 @@
+/// AppPackage projection
+///
+/// Purpose:
+/// - Expose the installable app package rail without coupling apps to
+///   Environment profile/session/process/thread targets.
+/// - Keep screens as AppConfig-owned entries into Experience layout graph
+///   binding truth.
+/// - Keep InterfacePackage and ExperiencePackage dependencies explicit through
+///   portal-backed child objects.
+projection AppPackage is_branchable {
+    root interface.AppPackage
+
+    interface.AppPackage::app_config AppConfig
+    interface.AppPackage::app_config_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    interface.AppConfig::screen_configs
+    interface.AppConfigScreenConfig::projection_experience aware_experience.ProjectionExperience
+    interface.AppConfigScreenConfig::projection_experience_layout_graph_binding aware_experience.ProjectionExperienceLayoutGraphBinding
+
+    interface.AppPackage::experience_packages
+    interface.AppPackageExperiencePackage::experience_package aware_experience.ExperiencePackage
+    interface.AppPackageExperiencePackage::experience_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+
+    interface.AppPackage::interface_packages
+    interface.AppPackageInterfacePackage::interface_package InterfacePackage
+    interface.AppPackageInterfacePackage::interface_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+
+    observable package instance {
+        """
+        App package install scope with app config screens over Experience layout bindings.
+        """
+    }
+}

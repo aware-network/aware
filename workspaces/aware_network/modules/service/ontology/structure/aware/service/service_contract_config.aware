@@ -1,0 +1,86 @@
+class ServiceContractConfig {
+    // Relationships
+    actor_role_grants ServiceContractConfigActorRoleGrant[]
+    operation_grants ServiceContractConfigOperationGrant[]
+    projection_experience aware_experience.projection.ProjectionExperience?
+
+    // Attributes
+    default_kind ServiceContractKind = subscription
+    description String?
+    metadata_json JsonObject? = {}
+    name String key
+
+    fn build construct (
+        name String key,
+        default_kind ServiceContractKind = subscription,
+        projection_experience_id UUID? = null,
+        description String? = null,
+        metadata_json JsonObject? = {}
+    ) -> ServiceContractConfig {
+        """
+        Creates one ServiceConfig-owned reusable contract definition.
+
+        Contract:
+        - Parent ServiceConfig scope is propagated by constructor lowering.
+        - Stable identity is `(service_config_id, name)`.
+        - This config declares reusable operation and ActorRole grants.
+        - Concrete ServiceContract receipts point here when activated for a producer/consumer.
+        """
+    }
+
+    fn grant_operation (
+        service_operation_config_id UUID key,
+        access_scope String = "operation",
+        quota_policy_json JsonObject? = {},
+        permit_policy_json JsonObject? = {},
+        price_policy_json JsonObject? = {},
+        description String? = null
+    ) -> ServiceContractConfigOperationGrant {
+        """
+        Grants access to one ServiceOperationConfig for contracts created from this config.
+
+        Contract:
+        - ServiceContractConfig grants reusable executable operation access.
+        - Economy primitives fund, reserve, and settle concrete ServiceContract use.
+        - Service runtime must resolve the concrete ServiceContract to this config before execution.
+        """
+        let created = construct operation_grants.build(
+            service_operation_config_id = service_operation_config_id,
+            access_scope = access_scope,
+            quota_policy_json = quota_policy_json,
+            permit_policy_json = permit_policy_json,
+            price_policy_json = price_policy_json,
+            description = description,
+        )
+    }
+
+    fn grant_actor_role (
+        role_config_id UUID key,
+        scope_kind String key = "service",
+        scope_ref String key = "default",
+        access_scope String = "service",
+        class_instance_identity_required Bool = false,
+        role_assignment_binding_required Bool = true,
+        grant_policy_json JsonObject? = {},
+        description String? = null
+    ) -> ServiceContractConfigActorRoleGrant {
+        """
+        Declares the ActorRole grant/evidence contracts created from this config activate.
+
+        Contract:
+        - Role policy remains owned by Identity RoleConfig.
+        - This config is activation/evidence input; Identity owns concrete ActorRole assignment truth.
+        - Runtime uses resolved ActorRole evidence, not this declaration alone, for execution.
+        """
+        let created = construct actor_role_grants.build(
+            role_config_id = role_config_id,
+            scope_kind = scope_kind,
+            scope_ref = scope_ref,
+            access_scope = access_scope,
+            class_instance_identity_required = class_instance_identity_required,
+            role_assignment_binding_required = role_assignment_binding_required,
+            grant_policy_json = grant_policy_json,
+            description = description,
+        )
+    }
+}

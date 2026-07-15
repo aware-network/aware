@@ -1,0 +1,27 @@
+aware_experience = 1
+
+[experience]
+package_name = "aware-hub-experience"
+fqn_prefix = "aware_hub_experience"
+version_number = 1
+title = "Aware Hub"
+description = "Root product-owned Hub discovery experience package for public map surfaces."
+
+[build]
+environment_handle = "kernel"
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+
+[[dependencies]]
+package_name = "aware-hub-attention"
+kind = "attention_package"
+
+[targets.dart]
+root_dir = "languages/dart"
+package_dir = "aware_hub"
+
+[targets.python]
+root_dir = "languages/python"
+package_dir = "aware_hub_experience"

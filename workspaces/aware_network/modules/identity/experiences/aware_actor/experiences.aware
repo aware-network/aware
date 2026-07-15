@@ -1,0 +1,39 @@
+// Actor narrative experiences.
+//
+// Three sibling sub-experiences anchored on the canonical Identity projection
+// (Actor lives inside it). Splitting per surface mirrors aware-control's
+// pattern so each can be mounted independently in the Actor Thread profile.
+
+experience aware_actor_roles on aware_identity.identity.Identity {
+    observable actor {
+        view roles.v1 default api_view identity.actor_roles {
+            """Actor role assignments -- what can I do in the network."""
+        }
+    }
+
+    node actor identity.Identity(identity UUID) {
+        id now
+    }
+
+    surface actor.home {
+        section main
+        view actor.roles.v1
+        graph now
+    }
+}
+
+experience aware_actor_commits on aware_identity.identity.Identity {
+    observable actor {
+        view commits.v1 default api_view identity.actor_commits {
+            """Actor commit history -- what have I changed in the network."""
+        }
+    }
+}
+
+experience aware_actor_subscriptions on aware_identity.identity.Identity {
+    observable actor {
+        view subscriptions.v1 default api_view identity.actor_subscriptions {
+            """Actor subscriptions -- when do I react / when am I called."""
+        }
+    }
+}

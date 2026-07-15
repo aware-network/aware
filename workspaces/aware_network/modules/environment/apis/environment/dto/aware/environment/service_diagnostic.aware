@@ -1,0 +1,43 @@
+/// SSOT: `environment-service-dto` generated from `apis/environment/dto`.
+
+enum ServiceDiagnosticCategory {
+    runtime_invariant
+    internal_failure
+}
+
+enum ServiceDiagnosticSeverity {
+    info
+    warning
+    error
+    critical
+}
+
+enum ServiceDiagnosticResolutionStatus {
+    unresolved
+    partial
+    resolved
+}
+
+class ServiceDiagnosticEntry {
+    key String
+    value JsonValue
+}
+
+class ServiceDiagnosticSection {
+    title String
+    entries ServiceDiagnosticEntry[] = []
+}
+
+class ServiceDiagnostic {
+    code String
+    category ServiceDiagnosticCategory
+    severity ServiceDiagnosticSeverity
+    summary String
+    detail String?
+    hint String?
+    semantic_refs ServiceDiagnosticSection
+    invocation_context ServiceDiagnosticSection
+    provenance ServiceDiagnosticSection
+    resolution_status ServiceDiagnosticResolutionStatus = unresolved
+    debug ServiceDiagnosticSection?
+}

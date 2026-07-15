@@ -1,0 +1,9 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_node_service_dto.node.host",
+    "aware_node_service_dto.node.runtime_artifact_descriptor"
+  ],
+  "package_prefix": "aware_node_service_dto",
+  "version": "v1"
+}

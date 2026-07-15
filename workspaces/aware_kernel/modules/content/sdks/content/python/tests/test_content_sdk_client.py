@@ -7,9 +7,11 @@ import pytest
 
 from aware_content_sdk import AwareContentSdk, ContentSdkError
 from aware_content_service_dto.content.content_service_operation import (
+    CommitContentTextResponse,
     ContentPackageExportDocumentV1,
     ContentPackageMaterializationResultV1,
     ContentTextResolutionV1,
+    ContentTextCommitResultV1,
     MaterializeContentPackageResponse,
     ResolveContentTextResponse,
 )
@@ -30,6 +32,21 @@ class _TextClient:
                 text="hello aware",
                 digest="1" * 64,
                 size_bytes=11,
+            ),
+        )
+
+    async def commit_content_text(self, request):
+        self.request = request
+        encoded = (request.text or "").encode("utf-8")
+        return CommitContentTextResponse(
+            success=True,
+            commit_result=ContentTextCommitResultV1(
+                content_id=uuid4(),
+                content_key=request.content_key,
+                source_kind=request.source_kind,
+                source_ref=request.source_ref,
+                digest="3" * 64,
+                size_bytes=len(encoded),
             ),
         )
 
@@ -89,6 +106,42 @@ async def test_content_sdk_raises_on_failed_response() -> None:
 
     with pytest.raises(ContentSdkError, match="missing content"):
         await sdk.resolve_content_text(content_id=uuid4())
+
+
+@pytest.mark.asyncio
+async def test_content_sdk_commits_text_with_transport_receipt() -> None:
+    text = _TextClient()
+    service_operation_commit_id = uuid4()
+    network_request_id = uuid4()
+    api_client = SimpleNamespace(
+        content=SimpleNamespace(text=text),
+        _client=SimpleNamespace(
+            last_invocation_diagnostics=SimpleNamespace(
+                transport_receipt={
+                    "network_request_id": str(network_request_id),
+                    "service_operation_commit_id": str(service_operation_commit_id),
+                }
+            )
+        ),
+    )
+    sdk = AwareContentSdk(api_client=api_client)
+
+    response = await sdk.commit_content_text(
+        content_key="inference/result/demo",
+        source_kind="inference_result",
+        source_ref="inference:demo",
+        text="committed answer",
+        actor_id=uuid4(),
+        branch_id=uuid4(),
+    )
+
+    assert response.commit_result is not None
+    assert response.commit_result.content_key == "inference/result/demo"
+    assert response.commit_result.domain_commit_id == service_operation_commit_id
+    assert response.commit_result.service_host_receipt_ref == (
+        f"service-host:{network_request_id}"
+    )
+    assert text.request.text == "committed answer"
 
 
 @pytest.mark.asyncio

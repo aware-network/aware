@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import cast
 from uuid import UUID
 
@@ -8,6 +8,7 @@ from aware_code.package.artifact_delta_plan import artifact_identity_key
 from aware_code.package.artifact_delta_plan import (
     code_package_artifact_ref_signature_hash,
 )
+from aware_code.package.artifact_delta_plan import CodePackageArtifactCurrentStateIndex
 from aware_code.package.snapshot_contract import (
     CODE_PACKAGE_ARTIFACT_STATE_INDEX_SCHEMA,
 )
@@ -54,7 +55,33 @@ def code_package_artifact_state_index_from_refs(
     return payload
 
 
-_CODE_PACKAGE_ARTIFACT_STATE_ROW_KEYS = frozenset(
+def code_package_artifact_state_index_from_current_state(
+    *,
+    code_package_id: UUID,
+    current_state: CodePackageArtifactCurrentStateIndex,
+) -> dict[str, object]:
+    if current_state.code_package_id not in {None, str(code_package_id)}:
+        raise RuntimeError(
+            "CodePackage artifact state targets a different package: "
+            f"expected={code_package_id} actual={current_state.code_package_id}"
+        )
+    artifacts = [row.to_payload() for row in current_state.artifacts]
+    if len({str(row["identity_key"]) for row in artifacts}) != len(artifacts):
+        raise RuntimeError("CodePackage artifact state contains duplicate identities")
+    payload: dict[str, object] = {
+        "schema": CODE_PACKAGE_ARTIFACT_STATE_INDEX_SCHEMA,
+        "code_package_id": str(code_package_id),
+        "artifact_count": len(artifacts),
+        "artifacts": artifacts,
+    }
+    payload["signature_hash"] = artifact_state_index_signature_hash(
+        code_package_id=code_package_id,
+        artifacts=artifacts,
+    )
+    return payload
+
+
+_CODE_PACKAGE_ARTIFACT_STATE_ROW_LEGACY_KEYS = frozenset(
     {
         "output_key",
         "artifact_key",
@@ -69,6 +96,9 @@ _CODE_PACKAGE_ARTIFACT_STATE_ROW_KEYS = frozenset(
         "artifact_role",
         "producer_key",
     }
+)
+_CODE_PACKAGE_ARTIFACT_STATE_ROW_KEYS = frozenset(
+    (*_CODE_PACKAGE_ARTIFACT_STATE_ROW_LEGACY_KEYS, "artifact_ref")
 )
 
 
@@ -146,6 +176,15 @@ def code_package_artifact_state_index_from_refs_delta(
                 )
                 continue
 
+            if "artifact_ref" not in previous_row:
+                artifacts.append(
+                    artifact_state_row_from_ref(
+                        code_package_id=code_package_id,
+                        artifact_ref=artifact_ref,
+                    )
+                )
+                continue
+
             artifacts.append(previous_row)
 
     if not changed_relative_paths.issubset(current_relative_paths):
@@ -172,7 +211,7 @@ def code_package_artifact_state_index_from_refs_delta(
 def artifact_state_index_signature_hash(
     *,
     code_package_id: UUID,
-    artifacts: list[Mapping[str, object]],
+    artifacts: Sequence[Mapping[str, object]],
 ) -> str:
     return stable_json_hash(
         {
@@ -201,7 +240,10 @@ def validated_code_package_artifact_state_row(
         row = {
             str(key): value for key, value in raw_row.items() if isinstance(key, str)
         }
-    if set(row) != _CODE_PACKAGE_ARTIFACT_STATE_ROW_KEYS:
+    if set(row) not in {
+        _CODE_PACKAGE_ARTIFACT_STATE_ROW_LEGACY_KEYS,
+        _CODE_PACKAGE_ARTIFACT_STATE_ROW_KEYS,
+    }:
         return None
     output_key = row.get("output_key")
     artifact_key = row.get("artifact_key")
@@ -254,4 +296,5 @@ def artifact_state_row_from_ref(
         "artifact_family": optional_text(artifact_ref.artifact_family),
         "artifact_role": optional_text(artifact_ref.artifact_role),
         "producer_key": optional_text(artifact_ref.producer_key),
+        "artifact_ref": artifact_ref.model_dump(mode="json", exclude_none=True),
     }

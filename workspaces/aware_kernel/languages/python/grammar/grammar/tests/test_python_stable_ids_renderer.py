@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from uuid import UUID
 
@@ -14,6 +15,7 @@ from aware_meta.graph.config.render.layout_strategy import (
 )
 from aware_meta.graph.config.stable_ids_spec.spec import (
     FunctionSpec,
+    LetSpec,
     NamespaceSpec,
     ParamSpec,
     StableIdsSpec,
@@ -209,3 +211,42 @@ def test_constructor_stable_id_bindings_preserve_helper_signature() -> None:
         f"{str(child.id)!r}: "
         "('stable_child_entity_id', ('parent_entity_id', 'type'))"
     ) in out
+
+
+def test_python_stable_ids_renderer_canonicalizes_decimal_identity() -> None:
+    spec = StableIdsSpec(
+        version=1,
+        namespaces=(
+            NamespaceSpec(
+                name="NS_TEST",
+                kind="ns_url",
+                value="aware://test/v1",
+            ),
+        ),
+        functions=(
+            FunctionSpec(
+                name="stable_exact_value_id",
+                namespace="NS_TEST",
+                template="aware:exact_value:{amount_text}",
+                params=(ParamSpec(name="amount", type="decimal", optional=True),),
+                lets=(
+                    LetSpec(
+                        op="decimal_text_default",
+                        name="amount_text",
+                        param="amount",
+                        default="1.23",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    out = render_python_stable_ids_module(spec=spec)
+    namespace: dict[str, object] = {}
+    exec(compile(out, "stable_ids.py", "exec"), namespace)
+    stable_id = namespace["stable_exact_value_id"]
+    assert callable(stable_id)
+
+    assert stable_id(amount=Decimal("1")) == stable_id(amount=Decimal("1.00"))
+    assert stable_id(amount=None) == stable_id(amount=Decimal("1.2300"))
+    assert "from aware_types import canonical_decimal_text" in out

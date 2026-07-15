@@ -1,0 +1,24 @@
+name: aware_interface_mount_status_pane
+description: Interface mount status pane package for the aware_control interface.
+version: 0.0.1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  aware_pane:
+    path: ../../../../../libs/pane/dart/aware_pane
+  aware_pane_runtime:
+    path: ../../../../../libs/pane_runtime/dart/aware_pane_runtime
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

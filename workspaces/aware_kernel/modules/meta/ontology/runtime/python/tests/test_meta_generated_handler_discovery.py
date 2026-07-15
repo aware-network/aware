@@ -13,6 +13,7 @@ import pytest
 
 from aware_code.types import JsonArray, JsonObject
 from aware_meta.runtime import factory as runtime_factory
+from aware_meta.runtime import generated_impl_delegation as impl_delegation_module
 from aware_meta.runtime import (
     generated_handler_discovery as generated_handler_discovery_module,
 )
@@ -39,6 +40,7 @@ from aware_meta.runtime.handler_executor import (
     MetaGraphGeneratedLanguageHandlerRegistry,
     MetaGraphImplementationKind,
     MetaGraphLanguageHandlerExecution,
+    MetaGraphLanguageHandlerExecutionError,
 )
 from aware_meta.runtime.handler_executor.execution_context import (
     MetaGraphHandlerContext,
@@ -244,9 +246,9 @@ def test_meta_impl_delegation_prefers_package_namespace_deduped_impl() -> None:
     assert impl.__name__ == "create_thread"
 
 
-def test_meta_impl_delegation_resolves_relationship_top_level_language_handler() -> (
-    None
-):
+def test_meta_impl_delegation_resolves_relationship_top_level_language_handler(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     key = MetaGraphGeneratedLanguageHandlerKey(
         owner_key="aware_meta.class.ClassConfig",
         function_name="create_relationship",
@@ -415,6 +417,8 @@ def test_meta_impl_delegation_resolves_relationship_top_level_language_handler()
                 object_projection_graph=opg,
                 target_object_id=source_class_config.id,
                 staged_call=staged_call,
+                oig_model_construction_plan_cache=None,
+                orm_change_translation_index_cache=None,
             ),
             request=SimpleNamespace(
                 target_object_id=source_class_config.id,
@@ -431,6 +435,15 @@ def test_meta_impl_delegation_resolves_relationship_top_level_language_handler()
     implementation = MetaGraphGeneratedLanguageHandlerImplementation(
         handler=handler,
         invocation_handler_resolver=invocation_resolver,
+    )
+
+    def _unexpected_cold_reify(**_kwargs: object) -> None:
+        raise AssertionError("exact scoped handler must reuse prebound models")
+
+    monkeypatch.setattr(
+        impl_delegation_module,
+        "reify_oig_root_model",
+        _unexpected_cold_reify,
     )
 
     async def _invoke() -> MetaGraphLanguageHandlerExecution:
@@ -462,6 +475,52 @@ def test_meta_impl_delegation_resolves_relationship_top_level_language_handler()
     assert value["id"] == str(expected_relationship_id)
     assert value["relationship_key"] == relationship_key
     assert value["target_class_config_id"] == str(target_class_config_id)
+
+    missing_context = MetaGraphHandlerExecutionContext(
+        session=Session(branch_id=lane_scope.domain_branch_id, skip_db=True),
+        ctx=MetaGraphHandlerContext(requester_id=uuid4()),
+        function_call=staged_call.function_call,
+        index=cast(Any, runtime_index),
+        request=request,
+    )
+    with (
+        scoped_meta_graph_handler_execution_context(missing_context),
+        pytest.raises(
+            MetaGraphLanguageHandlerExecutionError,
+            match="missing exact prebound root model",
+        ),
+    ):
+        impl_delegation_module._root_model_from_pre_state(  # noqa: SLF001
+            request=request,
+            pre_state=pre_state,
+        )
+
+    wrong_target_session = Session(
+        branch_id=lane_scope.domain_branch_id,
+        skip_db=True,
+    )
+    wrong_target_root = source_class_config.model_copy(deep=True)
+    wrong_target_root.mark_persisted()
+    wrong_target_root.bind_graph_invocation_target_id(uuid4())
+    wrong_target_session.imap_add(wrong_target_root)
+    wrong_target_context = MetaGraphHandlerExecutionContext(
+        session=wrong_target_session,
+        ctx=MetaGraphHandlerContext(requester_id=uuid4()),
+        function_call=staged_call.function_call,
+        index=cast(Any, runtime_index),
+        request=request,
+    )
+    with (
+        scoped_meta_graph_handler_execution_context(wrong_target_context),
+        pytest.raises(
+            MetaGraphLanguageHandlerExecutionError,
+            match="prebound root graph target mismatch",
+        ),
+    ):
+        impl_delegation_module._root_model_from_pre_state(  # noqa: SLF001
+            request=request,
+            pre_state=pre_state,
+        )
 
 
 def test_meta_impl_delegation_resolves_constructor_top_level_language_handler() -> None:
@@ -763,12 +822,24 @@ def test_meta_impl_delegation_resolves_function_config_create_with_strict_invoca
         relationships_by_id={},
         portal_index=None,
     )
+    function_call = FunctionCall.model_construct(id=uuid4())
+    staged_call = SimpleNamespace(
+        function_call=function_call,
+        resolved_target=SimpleNamespace(
+            operation_label="ClassConfig.create_function_config"
+        ),
+    )
     request = cast(
         Any,
         SimpleNamespace(
+            staged_call=staged_call,
             execution_plan=SimpleNamespace(
                 implementation=descriptor,
                 index=runtime_index,
+            ),
+            request=SimpleNamespace(
+                call_target=SimpleNamespace(value="opg_instance"),
+                domain_projection_hash="sha256:test:class-config",
             ),
         ),
     )
@@ -778,7 +849,7 @@ def test_meta_impl_delegation_resolves_function_config_create_with_strict_invoca
     execution_context = MetaGraphHandlerExecutionContext(
         session=session,
         ctx=MetaGraphHandlerContext(requester_id=uuid4()),
-        function_call=FunctionCall.model_construct(id=uuid4()),
+        function_call=function_call,
         index=cast(Any, runtime_index),
     )
     invocation_resolver = meta_graph_strict_invocation_handler_resolver(None)

@@ -1,0 +1,295 @@
+/// Public DTOs for Identity-owned shared sessions.
+///
+/// Contract:
+/// - Identity owns generic SessionConfig, Session, SessionMember, and
+///   SessionMemberActorRole truth.
+/// - Providers attach domain sessions/capabilities through provider-neutral
+///   SessionProvider contracts.
+/// - DTOs expose session participation and provider attachments without
+///   importing Environment, Experience, Conversation, Workflow, Workspace, or
+///   Attention domains.
+
+class SessionConfigEnsureRequest {
+    key String
+    title String?
+    description String?
+    purpose String?
+    status String = "active"
+    metadata_json JsonObject = {}
+    request_id UUID?
+}
+
+class SessionConfigSummary {
+    session_config_id UUID
+    key String
+    title String?
+    description String?
+    purpose String?
+    status String = "active"
+    metadata_json JsonObject = {}
+}
+
+class SessionConfigEnsureReceipt {
+    request_id UUID?
+    session_config session.SessionConfigSummary
+    info String?
+}
+
+class SessionConfigActorConfigBindRequest {
+    session_config_id UUID
+    actor_config_id UUID
+    status String = "active"
+    purpose String?
+    metadata_json JsonObject = {}
+    request_id UUID?
+}
+
+class SessionConfigActorConfigSummary {
+    session_config_actor_config_id UUID
+    session_config_id UUID
+    actor_config_id UUID
+    status String = "active"
+    purpose String?
+    metadata_json JsonObject = {}
+}
+
+class SessionConfigActorConfigBindReceipt {
+    request_id UUID?
+    binding session.SessionConfigActorConfigSummary
+    info String?
+}
+
+class SessionProviderRegisterRequest {
+    provider_key String
+    provider_kind String = "provider"
+    title String?
+    status String = "active"
+    contract_ref String?
+    metadata_json JsonObject = {}
+    request_id UUID?
+}
+
+class SessionProviderSummary {
+    session_provider_id UUID
+    provider_key String
+    provider_kind String = "provider"
+    title String?
+    status String = "active"
+    contract_ref String?
+    metadata_json JsonObject = {}
+}
+
+class SessionProviderRegisterReceipt {
+    request_id UUID?
+    provider session.SessionProviderSummary
+    info String?
+}
+
+class SessionProviderConfigBindRequest {
+    session_provider_id UUID
+    config_key String
+    session_config_id UUID
+    title String?
+    status String = "active"
+    provider_contract_ref String?
+    selection_policy String = "contract_required"
+    metadata_json JsonObject = {}
+    request_id UUID?
+}
+
+class SessionProviderSessionConfigSummary {
+    session_provider_session_config_id UUID
+    session_provider_id UUID
+    config_key String
+    session_config_id UUID
+    title String?
+    status String = "active"
+    provider_contract_ref String?
+    selection_policy String = "contract_required"
+    metadata_json JsonObject = {}
+}
+
+class SessionProviderConfigBindReceipt {
+    request_id UUID?
+    binding session.SessionProviderSessionConfigSummary
+    info String?
+}
+
+class SessionStartRequest {
+    session_config_id UUID
+    key String
+    parent_session_id UUID?
+    title String?
+    description String?
+    purpose String?
+    status String = "active"
+    created_by_actor_id UUID?
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject = {}
+    request_id UUID?
+}
+
+class SessionSummary {
+    session_id UUID
+    session_config_id UUID
+    parent_session_id UUID?
+    key String
+    title String?
+    description String?
+    purpose String?
+    status String = "active"
+    created_by_actor_id UUID?
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject = {}
+    provider_sessions session.SessionProviderSessionSummary[] = []
+    member_count Int = 0
+}
+
+class SessionStartReceipt {
+    request_id UUID?
+    session session.SessionSummary
+    info String?
+}
+
+class SessionDescribeRequest {
+    session_id UUID
+    request_id UUID?
+}
+
+class SessionDescribeResult {
+    request_id UUID?
+    session session.SessionSummary?
+    info String?
+}
+
+class SessionJoinRequest {
+    session_id UUID
+    actor_id UUID
+    session_actor_config_id UUID
+    status String = "active"
+    joined_at_unix_ms Int?
+    left_at_unix_ms Int?
+    metadata_json JsonObject = {}
+    request_id UUID?
+}
+
+class SessionMemberSummary {
+    session_member_id UUID
+    session_id UUID
+    actor_id UUID
+    session_actor_config_id UUID
+    status String = "active"
+    joined_at_unix_ms Int?
+    left_at_unix_ms Int?
+    metadata_json JsonObject = {}
+    actor_roles session.SessionMemberActorRoleSummary[] = []
+}
+
+class SessionJoinReceipt {
+    request_id UUID?
+    member session.SessionMemberSummary
+    info String?
+}
+
+class SessionMemberActorRoleRecordRequest {
+    session_id UUID
+    session_member_id UUID
+    actor_role_id UUID
+    source_kind String = "identity_session"
+    status String = "active"
+    evidence_json JsonObject = {}
+    request_id UUID?
+}
+
+class SessionMemberActorRoleSummary {
+    session_member_actor_role_id UUID
+    session_member_id UUID
+    actor_role_id UUID
+    source_kind String = "identity_session"
+    status String = "active"
+    evidence_json JsonObject = {}
+}
+
+class SessionMemberActorRoleRecordReceipt {
+    request_id UUID?
+    actor_role session.SessionMemberActorRoleSummary
+    info String?
+}
+
+class SessionProviderSessionAttachRequest {
+    session_id UUID
+    provider_session_config_id UUID
+    provider_session_key String
+    provider_session_ref String?
+    provider_object_instance_graph_identity_id UUID?
+    provider_class_instance_identity_id UUID?
+    provider_object_instance_graph_branch_id UUID?
+    status String = "active"
+    metadata_json JsonObject = {}
+    request_id UUID?
+}
+
+class SessionProviderSessionSummary {
+    session_provider_session_id UUID
+    session_id UUID
+    provider_session_config_id UUID
+    provider_session_key String
+    provider_session_ref String?
+    provider_object_instance_graph_identity_id UUID?
+    provider_class_instance_identity_id UUID?
+    provider_object_instance_graph_branch_id UUID?
+    status String = "active"
+    metadata_json JsonObject = {}
+}
+
+class SessionProviderSessionAttachReceipt {
+    request_id UUID?
+    provider_session session.SessionProviderSessionSummary
+    info String?
+}
+
+class ActorSessionsListRequest {
+    actor_id UUID
+    parent_session_id UUID?
+    status String?
+    include_inactive Bool = false
+    request_id UUID?
+}
+
+class ActorSessionsListResult {
+    request_id UUID?
+    actor_id UUID
+    sessions session.SessionSummary[] = []
+    info String?
+}
+
+class ChildSessionsListRequest {
+    parent_session_id UUID
+    session_config_id UUID?
+    status String?
+    include_inactive Bool = false
+    request_id UUID?
+}
+
+class ChildSessionsListResult {
+    request_id UUID?
+    parent_session_id UUID
+    sessions session.SessionSummary[] = []
+    info String?
+}
+
+class SessionMembersListRequest {
+    session_id UUID
+    status String?
+    include_inactive Bool = false
+    request_id UUID?
+}
+
+class SessionMembersListResult {
+    request_id UUID?
+    session_id UUID
+    members session.SessionMemberSummary[] = []
+    info String?
+}

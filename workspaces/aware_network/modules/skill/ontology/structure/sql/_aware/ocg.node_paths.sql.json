@@ -1,0 +1,77 @@
+{
+  "language": "sql",
+  "nodes": [
+    {
+      "node_id": "0647bea7-e304-50f4-8f7f-eb89fb176632",
+      "node_type": "class",
+      "entity_id": "9a5a55d0-2615-5e8d-9462-6ddf566321cf",
+      "relative_path": "skill/skill_config.sql"
+    },
+    {
+      "node_id": "d97a0ca2-b20a-540a-ad70-63b08745dd32",
+      "node_type": "class",
+      "entity_id": "c2c4d01c-c3a8-5216-81d8-949929e203bc",
+      "relative_path": "skill/skill_config_api.sql"
+    },
+    {
+      "node_id": "1075712f-538b-513e-bbf4-fbd49683d5df",
+      "node_type": "class",
+      "entity_id": "61e87382-d288-5f67-b57a-7e36e7a8c2c8",
+      "relative_path": "skill/skill_config_api_endpoint.sql"
+    },
+    {
+      "node_id": "f68cae43-5593-534b-9bce-9d26ff188025",
+      "node_type": "class",
+      "entity_id": "97f18c7f-a61a-5368-8d89-0f3e8746f316",
+      "relative_path": "skill/skill_config_experience.sql"
+    },
+    {
+      "node_id": "de130320-5190-51be-8f6f-70e732a74b06",
+      "node_type": "class",
+      "entity_id": "f70c7975-103b-59aa-9529-7d685031aede",
+      "relative_path": "skill/skill_config_step.sql"
+    },
+    {
+      "node_id": "41298f49-e27b-509a-88cf-9e032550df6c",
+      "node_type": "class",
+      "entity_id": "815ca4e0-bc85-5e56-bc7e-3c41bd5109ed",
+      "relative_path": "skill/skill_config_step_target.sql"
+    },
+    {
+      "node_id": "25a57477-568f-5fc6-8227-89bc1dc057de",
+      "node_type": "class",
+      "entity_id": "6e7ee3c9-8a53-54aa-9f64-6e2ac66c15e4",
+      "relative_path": "skill/skill_config_target.sql"
+    },
+    {
+      "node_id": "971125d4-a48d-57ea-934f-a2bf655ee2cb",
+      "node_type": "class",
+      "entity_id": "17065b18-85b2-5118-a12d-c49c3ca46264",
+      "relative_path": "skill/skill_package.sql"
+    },
+    {
+      "node_id": "ff959b97-6f89-58b4-be6a-76bd46ea504d",
+      "node_type": "class",
+      "entity_id": "136c03d4-3181-5036-a48c-e0e5b9a00c75",
+      "relative_path": "skill/skill_package_api_package.sql"
+    },
+    {
+      "node_id": "eb5e20f6-1786-5dff-ac86-63ccd32ebc52",
+      "node_type": "class",
+      "entity_id": "6833cc2e-aa05-5a36-9484-38892e7fb59b",
+      "relative_path": "skill/skill_run.sql"
+    },
+    {
+      "node_id": "f327d972-c1c8-5523-b61d-1c46d329031a",
+      "node_type": "class",
+      "entity_id": "76850c4e-9975-5dba-ac06-4bfefb1cf9c9",
+      "relative_path": "skill/skill_run_step.sql"
+    },
+    {
+      "node_id": "eeea473a-d0b2-5127-bf72-51df0b66de4e",
+      "node_type": "enum",
+      "entity_id": "c34d709b-679b-5723-a083-1688aad80236",
+      "relative_path": "skill/skill_run_enums.sql"
+    }
+  ]
+}

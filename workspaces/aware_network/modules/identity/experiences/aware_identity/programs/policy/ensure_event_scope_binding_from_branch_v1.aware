@@ -1,0 +1,51 @@
+// Ensure deterministic EventConfigConditionConfigScope binding for one domain branch.
+//
+// Required symbols:
+// - plan.event_config_name
+// - plan.condition_config_name
+// - plan.object_instance_graph_domain_branch_id
+//
+// Contract (v1):
+// - Event-first scope rail: no ActorSubscription side effects.
+// - Scope id is deterministic from (event-condition binding + OIGI + OIGB).
+// - Idempotent on rerun (constructor semantics + stable ids).
+
+program EnsureEventScopeBindingFromBranch_v1Config(
+    event_config_name String = plan.event_config_name,
+    condition_config_name String = plan.condition_config_name,
+    object_instance_graph_domain_branch_id UUID = plan.object_instance_graph_domain_branch_id,
+    event_config_id UUID = reactivity.stable_event_config_id(name=event_config_name),
+    condition_config_id UUID = reactivity.stable_condition_config_id(name=condition_config_name),
+    event_config_condition_config_id UUID = reactivity.stable_event_config_condition_config_id(
+        event_config_id=event_config_id,
+        condition_config_id=condition_config_id
+    ),
+    object_instance_graph_identity_id UUID = meta.stable_object_instance_graph_identity_id(
+        branch_id=object_instance_graph_domain_branch_id
+    ),
+    object_instance_graph_branch_id UUID = meta.stable_object_instance_graph_branch_id(
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        branch_id=object_instance_graph_domain_branch_id
+    ),
+    event_config_condition_config_scope_id UUID = reactivity.stable_event_config_condition_config_scope_id(
+        event_config_condition_config_id=event_config_condition_config_id,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        scope_key="lane"
+    ),
+    event_config_condition_config_scope_branch_id UUID = event_config_condition_config_scope_id
+) {
+    actor identity_system system
+
+    port event_config_condition_config_scope_event_config_id event_config_condition_config_scope {
+        node event_scope event.EventConfigConditionConfigScope(event_config_condition_config_scope=event_config_condition_config_scope_id)
+    }
+}
+
+program EnsureEventScopeBindingFromBranch_v1 impl EnsureEventScopeBindingFromBranch_v1Config {
+    bind event_config_condition_config_scope_event_config_id event_config_condition_config_scope.main
+    identity_system call event_scope event.EventConfigConditionConfigScope.create_via_event_config_condition_config(
+        event_config_condition_config_id=event_config_condition_config_id,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        object_instance_graph_branch_id=object_instance_graph_branch_id
+    )
+}

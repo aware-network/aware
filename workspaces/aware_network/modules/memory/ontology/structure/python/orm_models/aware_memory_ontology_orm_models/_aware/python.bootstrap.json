@@ -1,0 +1,35 @@
+{
+  "dependency_import_roots": [
+    "aware_attention_ontology_orm_models",
+    "aware_content_ontology_orm_models",
+    "aware_identity_ontology_orm_models",
+    "aware_meta_ontology_orm_models",
+    "aware_reactivity_ontology_orm_models"
+  ],
+  "modules": [
+    "aware_memory_ontology_orm_models.memory.memory_episode",
+    "aware_memory_ontology_orm_models.memory.memory_episodic",
+    "aware_memory_ontology_orm_models.memory.memory_procedural",
+    "aware_memory_ontology_orm_models.memory.memory_procedure",
+    "aware_memory_ontology_orm_models.memory.memory_procedure_config",
+    "aware_memory_ontology_orm_models.memory.memory_procedure_episode",
+    "aware_memory_ontology_orm_models.memory.memory_semantic",
+    "aware_memory_ontology_orm_models.memory.memory_working",
+    "aware_memory_ontology_orm_models.memory.memory_working_content_frame",
+    "aware_memory_ontology_orm_models.memory.memory_working_event_frame",
+    "aware_memory_ontology_orm_models.memory.memory_working_event_meaning",
+    "aware_memory_ontology_orm_models.memory.memory_working_item",
+    "aware_memory_ontology_orm_models.memory.memory_working_item_enums",
+    "aware_memory_ontology_orm_models.memory.memory_working_tool_frame",
+    "aware_memory_ontology_orm_models.stable_ids"
+  ],
+  "package_prefix": "aware_memory_ontology_orm_models",
+  "pydantic_model_dependency_import_roots": [
+    "aware_attention_ontology_orm_models",
+    "aware_content_ontology_orm_models",
+    "aware_identity_ontology_orm_models",
+    "aware_meta_ontology_orm_models",
+    "aware_reactivity_ontology_orm_models"
+  ],
+  "version": "v1"
+}

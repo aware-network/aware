@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 from uuid import uuid4
@@ -15,9 +16,11 @@ from aware_api_runtime.dependencies.runtime_resolution import (
     _RuntimeDependencyPackage,
     _build_aware_toml_package_index,
     _compute_runtime_dependency_source_digest,
+    _emit_api_runtime_semantics_manifest,
     _iter_authored_aware_toml_paths,
     _load_existing_dependency_object_config_graph,
     _resolve_api_dependency_packages,
+    _runtime_dependency_python_root,
     _runtime_dependency_ocg_outputs_are_fresh_for_inputs,
     _runtime_dependency_outputs_are_fresh_for_inputs,
     load_api_accessible_dependency_graphs,
@@ -174,6 +177,101 @@ def test_api_runtime_resolution_rejects_environment_composition_requests(
             kernel_repo_root=tmp_path,
             core_module_ids=("api",),
         )
+
+
+def test_api_runtime_semantics_uses_source_owned_dto_code_package_root(
+    tmp_path: Path,
+) -> None:
+    package_root = tmp_path / "modules" / "economy" / "apis" / "provider"
+    bindings_root = package_root / "bindings"
+    bindings_root.mkdir(parents=True)
+    (bindings_root / "provider.apis.aware").write_text(
+        "api provider {}\n",
+        encoding="utf-8",
+    )
+    dto_manifest = package_root / "dto" / "aware.toml"
+    _write_aware_package_toml(
+        dto_manifest,
+        package_name="provider-service-dto",
+        fqn_prefix="aware_provider_service_dto",
+        kind="api",
+    )
+    api_toml_path = package_root / "aware.api.toml"
+    api_toml_path.write_text(
+        "\n".join(
+            [
+                "aware_api = 1",
+                "",
+                "[api]",
+                'package_name = "provider-service-api"',
+                'fqn_prefix = "aware_provider_service_api"',
+                "",
+                "[build]",
+                'sources_dir = "bindings"',
+                "",
+                "[targets.python]",
+                'root_dir = "python"',
+                "",
+                "[[dependencies]]",
+                'package_name = "provider-service-dto"',
+                "",
+                "[[semantic_package_exports]]",
+                'kind = "api_dto"',
+                'package_name = "provider-service-dto"',
+                'manifest_path = "dto/aware.toml"',
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    snapshot = APIWorkspace.from_toml(
+        toml_path=api_toml_path,
+        repo_root=tmp_path,
+    ).build_snapshot()
+    dependency_packages = _resolve_api_dependency_packages(snapshot=snapshot)
+    dto_package = next(
+        package
+        for package in dependency_packages
+        if package.package_name == "provider-service-dto"
+    )
+    expected_root = (package_root / "python" / "aware_provider_service_dto").resolve()
+
+    assert (
+        _runtime_dependency_python_root(
+            package=dto_package,
+            snapshot=snapshot,
+        )
+        == expected_root
+    )
+    manifest_path = _emit_api_runtime_semantics_manifest(
+        snapshot=snapshot,
+        runtime_package_dir=(
+            tmp_path / ".aware" / "api" / "runtime" / "provider-service-api"
+        ),
+        accessible_dependency_graphs_path=(
+            tmp_path
+            / ".aware"
+            / "api"
+            / "runtime"
+            / "provider-service-api"
+            / API_ACCESSIBLE_DEPENDENCY_GRAPHS_FILENAME
+        ),
+        dependency_packages=dependency_packages,
+        registered_class_config_count=0,
+    )
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    dto_payload = next(
+        item
+        for item in payload["dependency_packages"]
+        if item["package_name"] == "provider-service-dto"
+    )
+    assert (
+        dto_payload["python_root_relpath"]
+        == expected_root.relative_to(tmp_path).as_posix()
+    )
+    assert dto_payload["python_root_relpath"] != (
+        "modules/economy/apis/provider/dto/python"
+    )
 
 
 def test_api_graph_target_package_is_accessible_dependency(
@@ -408,6 +506,49 @@ def test_existing_dependency_ocg_loads_runtime_snapshot_artifact(
     assert loaded.name == "home-ontology"
     assert loaded.fqn_prefix == "aware_home"
     assert loaded.hash == "sha256:home"
+
+
+def test_api_dto_dependency_prefers_complete_runtime_snapshot_artifact(
+    tmp_path: Path,
+) -> None:
+    package_root = tmp_path / "modules" / "agent" / "apis" / "inference" / "dto"
+    aware_toml_path = package_root / "aware.toml"
+    _write_aware_package_toml(
+        aware_toml_path,
+        package_name="inference-service-dto",
+        fqn_prefix="aware_inference_service_dto",
+        kind="api",
+    )
+    package = _RuntimeDependencyPackage(
+        package_name="inference-service-dto",
+        aware_toml_path=aware_toml_path.resolve(),
+        package_root=package_root.resolve(),
+        spec=load_aware_toml_spec(toml_path=aware_toml_path),
+    )
+    runtime_root = package.runtime_manifest_path.parent
+    runtime_root.mkdir(parents=True, exist_ok=True)
+    package.runtime_manifest_path.write_text(
+        '{"ocg": {"snapshot": "ocg.snapshot.msgpack"}}\n',
+        encoding="utf-8",
+    )
+    graph = ObjectConfigGraph(
+        name="inference-service-dto",
+        fqn_prefix="aware_inference_service_dto",
+        hash="sha256:inference-dto",
+        language=CodeLanguage.aware,
+    )
+    (runtime_root / "ocg.snapshot.msgpack").write_bytes(
+        msgpack.packb(
+            graph.model_dump(mode="json", exclude_none=True),
+            use_bin_type=True,
+        )
+    )
+
+    loaded = _load_existing_dependency_object_config_graph(package=package)
+
+    assert loaded is not None
+    assert loaded.name == "inference-service-dto"
+    assert loaded.hash == "sha256:inference-dto"
 
 
 def test_runtime_dependency_package_resolution_ignores_generated_aware_toml(

@@ -1,0 +1,21 @@
+aware_node = 1
+
+[node]
+package_name = "aware-network-environment-node"
+fqn_prefix = "aware_network_environment_node"
+title = "Aware Network Environment Node"
+description = "WorkspaceRevision-backed Aware Control Environment authority host routed through Ontology Service."
+
+[build]
+sources_dir = "nodes"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+compilation_mode = "node_ontology"
+
+[[dependencies]]
+package_name = "aware-control"
+kind = "environment_package"
+
+[[dependencies]]
+package_name = "aware-environment-service"
+kind = "service_package"

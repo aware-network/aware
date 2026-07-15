@@ -19,6 +19,7 @@ from aware_meta.materialization.executor import (
     MaterializationExecutionError,
     MaterializationExecutor,
 )
+from aware_meta.materialization_diagnostics import MaterializationDiagnosticError
 from aware_meta.materialization.receipts import (
     MaterializationRunReceipt,
     MaterializationStepReceipt,
@@ -234,6 +235,62 @@ async def test_materialization_executor_fails_without_commit_evidence() -> None:
         exc_info.value.run_receipt.steps[-1].error or ""
     )
     assert "missing commit/head evidence" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_materialization_executor_preserves_structured_failure_details() -> None:
+    plan = MaterializationPlan(
+        module_id="meta",
+        pipeline_id="meta.semantic.render",
+        lane=_lane(),
+        steps=(
+            MaterializationStep(
+                step_id="render:repository",
+                step_kind="semantic.render",
+                payload={},
+                commit_requested=False,
+            ),
+        ),
+    )
+
+    async def _runner(
+        *,
+        plan: MaterializationPlan,
+        step: MaterializationStep,
+    ) -> MaterializationStepResult:
+        _ = (plan, step)
+        raise MaterializationDiagnosticError(
+            code="python.function.signature.required_after_default",
+            message="required parameter follows defaulted parameter",
+            classification="author_action_required",
+            phase="semantic_render_preflight",
+            remediation="Move the required parameter before the defaulted parameter.",
+            outputs_applied=False,
+            target_language="python",
+            symbol="Repository.create_revision",
+            source_paths=("repository/repository.aware",),
+            output_path="handlers/impl/repository/repository.py",
+        )
+
+    with pytest.raises(MaterializationExecutionError) as exc_info:
+        await MaterializationExecutor().run(plan=plan, runner=_runner)
+
+    failed_step = exc_info.value.run_receipt.steps[-1]
+    diagnostic = failed_step.details["materialization_diagnostic"]
+    assert diagnostic == {
+        "schema": "aware.materialization.diagnostic.v1",
+        "code": "python.function.signature.required_after_default",
+        "classification": "author_action_required",
+        "message": "required parameter follows defaulted parameter",
+        "phase": "semantic_render_preflight",
+        "remediation": "Move the required parameter before the defaulted parameter.",
+        "outputs_applied": False,
+        "exception_type": "MaterializationDiagnosticError",
+        "target_language": "python",
+        "symbol": "Repository.create_revision",
+        "source_paths": ("repository/repository.aware",),
+        "output_path": "handlers/impl/repository/repository.py",
+    }
 
 
 def test_validate_materialization_plan_requires_projection_hash() -> None:

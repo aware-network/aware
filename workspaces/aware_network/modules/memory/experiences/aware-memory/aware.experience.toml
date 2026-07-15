@@ -1,0 +1,15 @@
+aware_experience = 1
+
+[experience]
+package_name = "aware-memory"
+fqn_prefix = "aware_memory"
+version_number = 1
+title = "Aware Memory"
+description = "Provider-owned Memory action catalog for Experience event-action bindings."
+
+[build]
+environment_handle = "kernel"
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true

@@ -1,0 +1,13 @@
+aware_attention = 1
+
+[attention]
+package_name = "aware_meta_graph_attention"
+fqn_prefix = "aware_meta_graph_attention"
+title = "Aware Meta Graph Attention"
+description = "Attention-owned layout topology for the General Meta graph canvas."
+
+[build]
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+frame_mode = "vertical"

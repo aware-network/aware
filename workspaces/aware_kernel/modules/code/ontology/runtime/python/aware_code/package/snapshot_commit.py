@@ -5,7 +5,6 @@ from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 import hashlib
 import json
-import os
 from pathlib import Path
 import shutil
 import time
@@ -18,6 +17,16 @@ from aware_code.package.snapshot_artifacts import (
 )
 from aware_code.package.snapshot_artifacts import (
     code_package_artifact_state_index_from_refs_delta as _code_package_artifact_state_index_from_refs_delta,
+)
+from aware_code.package.snapshot_artifacts import (
+    code_package_artifact_state_index_from_current_state as _code_package_artifact_state_index_from_current_state,
+)
+from aware_code.package.artifact_delta_plan import CodePackageArtifactCurrentStateIndex
+from aware_code.package.snapshot_artifact_payloads import (
+    code_package_artifact_payload_bundle_satisfies_refs_at_commit as _code_package_artifact_payload_bundle_satisfies_refs_at_commit,
+)
+from aware_code.package.snapshot_artifact_payloads import (
+    write_code_package_artifact_payload_bundle as _write_code_package_artifact_payload_bundle,
 )
 from aware_code.package.snapshot_contract import (
     CODE_PACKAGE_ARTIFACT_STATE_INDEX_SCHEMA,
@@ -314,14 +323,41 @@ _CODE_PACKAGE_DIRECT_RELATIONSHIP_CONTEXT_CACHE: dict[
 _CODE_PACKAGE_DIRECT_RELATIONSHIP_CONTEXT_CACHE_MAX = 16
 _CODE_PACKAGE_STATE_ROW_MAP_MIN_ROW_COUNT = 25_000
 _CODE_PACKAGE_STATE_ROW_MAP_MIN_SOURCE_OBJECT_COUNT = 500
-_CODE_PACKAGE_STATE_CLASS_SEGMENTS_ENV = "AWARE_CODE_PACKAGE_WRITE_STATE_CLASS_SEGMENTS"
 _CODE_PACKAGE_PARTIAL_SOURCE_REUSE_MIN_SOURCE_OBJECT_COUNT = 500
 
 
-def _code_package_state_class_segments_enabled(*, node_count: int) -> bool:
-    return (
-        os.getenv(_CODE_PACKAGE_STATE_CLASS_SEGMENTS_ENV) == "1"
-        and node_count >= _CODE_PACKAGE_STATE_ROW_MAP_MIN_SOURCE_OBJECT_COUNT
+def _code_package_state_class_segments_required(*, node_count: int) -> bool:
+    return node_count >= _CODE_PACKAGE_STATE_ROW_MAP_MIN_SOURCE_OBJECT_COUNT
+
+
+def _code_package_head_requires_witness_migration(
+    *,
+    head: Mapping[str, object] | None,
+    snapshot_index_payload: Mapping[str, object] | None,
+) -> bool:
+    if _head_uuid(head, "commit_id") is None:
+        return False
+    if _head_string(head, "graph_hash_source") in {
+        "witness_hash",
+        "witness_cursor_hash",
+    }:
+        return False
+    if snapshot_index_payload is None:
+        return False
+    state_snapshot = (
+        snapshot_index_payload.get("state_snapshot")
+        if isinstance(snapshot_index_payload, Mapping)
+        else None
+    )
+    if (
+        isinstance(state_snapshot, Mapping)
+        and state_snapshot.get("state_snapshot_kind") == "class_segment_index"
+        and state_snapshot.get("state_snapshot_graph_hash")
+        == _head_string(head, "graph_hash_post")
+    ):
+        return False
+    return _code_package_state_class_segments_required(
+        node_count=_payload_int(snapshot_index_payload, "object_count") or 0,
     )
 
 
@@ -422,6 +458,9 @@ async def commit_code_package_text_snapshot(
     unparsed_texts_by_relative_path: Mapping[str, str] | None = None,
     path_roles_by_relative_path: Mapping[str, CodePackagePathRole] | None = None,
     code_package_artifact_refs: tuple[CodePackageArtifactRef, ...] = (),
+    code_package_artifact_current_state: (
+        CodePackageArtifactCurrentStateIndex | None
+    ) = None,
     changed_relative_paths: Iterable[str] | None = None,
 ) -> CodePackageTextSnapshotCommitResult:
     wall_started = time.perf_counter()
@@ -465,6 +504,14 @@ async def commit_code_package_text_snapshot(
         source_text_count=len(source_texts_by_relative_path),
         unparsed_text_count=len(unparsed_texts_by_relative_path or {}),
         artifact_count=len(code_package_artifact_refs),
+    )
+    provided_artifact_state_index = (
+        _code_package_artifact_state_index_from_current_state(
+            code_package_id=code_package_id,
+            current_state=code_package_artifact_current_state,
+        )
+        if code_package_artifact_current_state is not None
+        else None
     )
     with commit_perf_span(
         phase="code_package.snapshot_commit.head_snapshot_index",
@@ -535,6 +582,7 @@ async def commit_code_package_text_snapshot(
         snapshot_fingerprint = _code_package_text_snapshot_fingerprint(
             source_snapshot_fingerprint=source_snapshot_fingerprint,
             code_package_artifact_refs=code_package_artifact_refs,
+            artifact_state_index=provided_artifact_state_index,
         )
     with commit_perf_span(
         phase=(
@@ -576,10 +624,40 @@ async def commit_code_package_text_snapshot(
             snapshot_fingerprint=snapshot_fingerprint,
             snapshot_index_payload=previous_snapshot_index_payload,
         )
-    if fast_noop is not None:
-        _record_wall_phase("fast_noop_return")
+    witness_migration_required = _code_package_head_requires_witness_migration(
+        head=cast(Mapping[str, object] | None, head),
+        snapshot_index_payload=previous_snapshot_index_payload,
+    )
+    payload_bundle_complete: bool | None = None
+    if fast_noop is not None and not witness_migration_required:
+        payload_bundle_complete = (
+            _code_package_artifact_payload_bundle_satisfies_refs_at_commit(
+                store=store,
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                code_package_id=code_package_id,
+                commit_id=fast_noop.commit_id,
+                code_package_artifact_refs=code_package_artifact_refs,
+            )
+        )
+        if payload_bundle_complete:
+            _record_wall_phase("fast_noop_return")
+            return fast_noop
+        _write_code_package_artifact_payload_bundle(
+            store=store,
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            code_package=fast_noop.code_package,
+            commit_id=fast_noop.commit_id,
+            code_package_artifact_refs=code_package_artifact_refs,
+        )
+        _record_wall_phase("fast_noop_payload_backfill")
         return fast_noop
-    _record_wall_phase("fast_noop_lookup")
+    _record_wall_phase(
+        "fast_noop_lookup",
+        witness_migration_required=witness_migration_required,
+        payload_bundle_complete=payload_bundle_complete,
+    )
     if (
         previous_snapshot_index_payload is not None
         and not _code_package_snapshot_index_payload_has_reuse_sections(
@@ -699,12 +777,14 @@ async def commit_code_package_text_snapshot(
             "changed_path_count": len(changed_relative_path_set),
         },
     ):
-        artifact_state_index = _code_package_artifact_state_index_from_refs_delta(
-            code_package_id=code_package_id,
-            code_package_artifact_refs=code_package_artifact_refs,
-            previous_snapshot_index_payload=previous_snapshot_index_payload,
-            changed_relative_paths=changed_relative_path_set,
-        )
+        artifact_state_index = provided_artifact_state_index
+        if artifact_state_index is None:
+            artifact_state_index = _code_package_artifact_state_index_from_refs_delta(
+                code_package_id=code_package_id,
+                code_package_artifact_refs=code_package_artifact_refs,
+                previous_snapshot_index_payload=previous_snapshot_index_payload,
+                changed_relative_paths=changed_relative_path_set,
+            )
     if artifact_state_index is None:
         artifact_state_index = _code_package_artifact_state_index_from_refs(
             code_package_id=code_package_id,
@@ -1041,10 +1121,10 @@ async def commit_code_package_text_snapshot(
             materialize_class_instances=False,
             source_object_path_index=current_source_object_path_index,
         )
-    if _head_uuid(head, "commit_id") is None:
-        desired_state = _code_package_seed_witness_desired_state_if_enabled(
-            desired_state,
-        )
+    if _head_uuid(head, "commit_id") is None or _head_string(
+        head, "graph_hash_source"
+    ) in {"witness_hash", "witness_cursor_hash"}:
+        desired_state = _code_package_witness_desired_state_for_product(desired_state)
     _record_wall_phase(
         "desired_state",
         graph_hash_source=desired_state.graph_hash_source,
@@ -1118,6 +1198,14 @@ async def commit_code_package_text_snapshot(
             source_object_state_index=desired_state.source_object_state_index,
             source_text_hash_index=source_text_hash_index,
         )
+        _write_code_package_artifact_payload_bundle(
+            store=store,
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            code_package=code_package,
+            commit_id=record.commit_id,
+            code_package_artifact_refs=code_package_artifact_refs,
+        )
         _record_wall_phase(
             "seed_append_snapshot",
             object_count=object_count,
@@ -1165,6 +1253,14 @@ async def commit_code_package_text_snapshot(
             source_object_state_index=desired_state.source_object_state_index,
             source_text_hash_index=source_text_hash_index,
         )
+        _write_code_package_artifact_payload_bundle(
+            store=store,
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            code_package=code_package,
+            commit_id=head_commit_id,
+            code_package_artifact_refs=code_package_artifact_refs,
+        )
         _record_wall_phase(
             "same_hash_snapshot_refresh",
             object_count=object_count,
@@ -1196,45 +1292,34 @@ async def commit_code_package_text_snapshot(
                 previous_snapshot_state_maps=desired_state.previous_snapshot_state_maps,
             )
         )
-    pre_state_evidence: ObjectInstanceGraphCommitPreStateEvidence | None = None
-    if sidecar_change_result is not None:
-        changes = sidecar_change_result.changes
-        pre_state_index = sidecar_change_result.pre_state_index
-        pre_state_evidence = sidecar_change_result.pre_state_evidence
-        graph_hash_pre = _code_package_pre_state_evidence_graph_hash(
-            pre_state_evidence,
-        )
-        root_metadata_for_commit = desired_state.root_metadata
-    else:
-        if desired_state.class_instance_payloads:
-            if full_source_object_ids is not None and len(objects_by_id) < object_count:
-                _ensure_full_plan_index()
-                code_package, objects_by_id = (
-                    await _build_code_package_text_snapshot_objects(
-                        code_package_id=code_package_id,
-                        code_package_config_id=code_package_config_id,
-                        package_name=package_name,
-                        language=language,
-                        surface=surface,
-                        manifest_kind=manifest_kind,
-                        manifest_relative_path=manifest_relative_path,
-                        package_root=package_root,
-                        sources_root=sources_root,
-                        fqn_prefix=fqn_prefix,
-                        source_texts_by_relative_path=source_texts_by_relative_path,
-                        source_plans_by_relative_path=(
-                            source_plans_by_relative_path or {}
-                        ),
-                        unparsed_texts_by_relative_path=(
-                            unparsed_texts_by_relative_path or {}
-                        ),
-                        path_roles_by_relative_path=(path_roles_by_relative_path or {}),
-                        code_package_artifact_refs=code_package_artifact_refs,
-                        plans_by_relative_path=plans_by_relative_path,
-                    )
+    if sidecar_change_result is None and desired_state.class_instance_payloads:
+        if full_source_object_ids is not None and len(objects_by_id) < object_count:
+            _ensure_full_plan_index()
+            code_package, objects_by_id = (
+                await _build_code_package_text_snapshot_objects(
+                    code_package_id=code_package_id,
+                    code_package_config_id=code_package_config_id,
+                    package_name=package_name,
+                    language=language,
+                    surface=surface,
+                    manifest_kind=manifest_kind,
+                    manifest_relative_path=manifest_relative_path,
+                    package_root=package_root,
+                    sources_root=sources_root,
+                    fqn_prefix=fqn_prefix,
+                    source_texts_by_relative_path=source_texts_by_relative_path,
+                    source_plans_by_relative_path=(source_plans_by_relative_path or {}),
+                    unparsed_texts_by_relative_path=(
+                        unparsed_texts_by_relative_path or {}
+                    ),
+                    path_roles_by_relative_path=(path_roles_by_relative_path or {}),
+                    code_package_artifact_refs=code_package_artifact_refs,
+                    plans_by_relative_path=plans_by_relative_path,
                 )
-                full_source_object_ids = None
-            desired_state = _build_code_package_direct_desired_state(
+            )
+            full_source_object_ids = None
+        desired_state = _code_package_witness_desired_state_for_product(
+            _build_code_package_direct_desired_state(
                 index=index,
                 opg=opg,
                 branch_id=branch_id,
@@ -1246,12 +1331,37 @@ async def commit_code_package_text_snapshot(
                 objects_by_id=objects_by_id,
                 source_object_path_index=current_source_object_path_index,
             )
-            desired_state_index = desired_state.state_index
-            graph_hash_post = desired_state.graph_hash
-            object_count = _code_package_source_object_count_from_index(
-                desired_state.source_object_state_index,
-                fallback=len(objects_by_id),
+        )
+        desired_state_index = desired_state.state_index
+        graph_hash_post = desired_state.graph_hash
+        object_count = _code_package_source_object_count_from_index(
+            desired_state.source_object_state_index,
+            fallback=len(objects_by_id),
+        )
+        sidecar_change_result = (
+            await _build_code_package_text_snapshot_changes_from_snapshot_state(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                head=head,
+                previous_snapshot_index_payload=previous_snapshot_index_payload,
+                domain_oig_id=domain_oig_id,
+                root_object_id=code_package.id,
+                desired_state=desired_state,
+                desired_state_index=desired_state_index,
+                oigi_id=oigi_id,
             )
+        )
+
+    pre_state_evidence: ObjectInstanceGraphCommitPreStateEvidence | None = None
+    if sidecar_change_result is not None:
+        changes = sidecar_change_result.changes
+        pre_state_index = sidecar_change_result.pre_state_index
+        pre_state_evidence = sidecar_change_result.pre_state_evidence
+        graph_hash_pre = _code_package_pre_state_evidence_graph_hash(
+            pre_state_evidence,
+        )
+        root_metadata_for_commit = desired_state.root_metadata
+    else:
         desired_oig = _build_code_package_oig_from_desired_state(
             index=index,
             opg=opg,
@@ -1354,6 +1464,14 @@ async def commit_code_package_text_snapshot(
             state_snapshot_metadata=state_snapshot_metadata,
             source_object_state_index=desired_state.source_object_state_index,
             source_text_hash_index=source_text_hash_index,
+        )
+        _write_code_package_artifact_payload_bundle(
+            store=store,
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            code_package=code_package,
+            commit_id=head_commit_id,
+            code_package_artifact_refs=code_package_artifact_refs,
         )
         _record_wall_phase(
             "no_change_snapshot_refresh",
@@ -1476,6 +1594,14 @@ async def commit_code_package_text_snapshot(
         state_snapshot_metadata=state_snapshot_metadata,
         source_object_state_index=desired_state.source_object_state_index,
         source_text_hash_index=source_text_hash_index,
+    )
+    _write_code_package_artifact_payload_bundle(
+        store=store,
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        code_package=code_package,
+        commit_id=appended_commit_id,
+        code_package_artifact_refs=code_package_artifact_refs,
     )
     _record_wall_phase("write_snapshot_index", change_count=len(changes))
     return CodePackageTextSnapshotCommitResult(
@@ -2115,14 +2241,11 @@ def _build_code_package_direct_desired_state(
                     "CodePackage direct snapshot class config not found: "
                     f"class_config_id={class_config_id}"
                 )
-            source = (
-                _code_package_config_overlay(
-                    code_package=code_package,
-                    code_package_config_id=code_package_config_id,
-                    surface=surface,
-                )
-                if source_object_id == code_package.id
-                else source_object
+            source = _code_package_snapshot_introspection_source(
+                source=source_object,
+                code_package=code_package,
+                code_package_config_id=code_package_config_id,
+                surface=surface,
             )
             if not materialize_class_instances:
                 direct_class_state = _try_build_code_package_direct_class_state(
@@ -2268,10 +2391,12 @@ def _build_code_package_direct_desired_state(
     )
 
 
-def _code_package_seed_witness_desired_state_if_enabled(
+def _code_package_witness_desired_state_for_product(
     desired_state: _CodePackageDesiredState,
 ) -> _CodePackageDesiredState:
-    if not _code_package_state_class_segments_enabled(
+    if desired_state.graph_hash_source in {"witness_hash", "witness_cursor_hash"}:
+        return desired_state
+    if not _code_package_state_class_segments_required(
         node_count=desired_state.state_index.node_count,
     ):
         return desired_state
@@ -2315,9 +2440,12 @@ async def _try_build_code_package_reused_witness_segment_desired_state(
     head_graph_hash_source = _head_string(head, "graph_hash_source") or "state_hash"
     fatal_miss = head_graph_hash_source in {"witness_hash", "witness_cursor_hash"}
     if current_source_states_by_id is None and changed_path_source_state is None:
+        # No reusable source-state view means this is a full reconstruction,
+        # not a failed partial witness reuse. The caller will build the direct
+        # state and reapply the product witness representation.
         return _code_package_witness_segment_reuse_miss(
             "missing_current_source_states",
-            fatal=fatal_miss,
+            fatal=False,
         )
     if head_commit_id is None or not head_graph_hash_post:
         return _code_package_witness_segment_reuse_miss(
@@ -2405,14 +2533,25 @@ async def _try_build_code_package_reused_witness_segment_desired_state(
                     expected_graph_hash=head_graph_hash_post,
                 )
             )
-        if (
-            segment_metadata is None
-            or segment_metadata.witness_hash != head_graph_hash_post
-        ):
+        if segment_metadata is None:
             return _code_package_witness_segment_reuse_miss(
                 "missing_segment_metadata",
                 fatal=fatal_miss,
-                metadata_found=segment_metadata is not None,
+                metadata_found=False,
+            )
+        segment_graph_hash_source = str(
+            segment_metadata.payload.get("graph_hash_source") or "state_hash"
+        )
+        segment_graph_hash = (
+            segment_metadata.state_hash
+            if segment_graph_hash_source == "state_hash"
+            else segment_metadata.witness_hash
+        )
+        if segment_graph_hash != head_graph_hash_post:
+            return _code_package_witness_segment_reuse_miss(
+                "missing_segment_metadata",
+                fatal=fatal_miss,
+                metadata_found=True,
             )
     with commit_perf_span(
         phase="code_package.witness_desired_state.changed_source_scan",
@@ -2510,14 +2649,11 @@ async def _try_build_code_package_reused_witness_segment_desired_state(
                     "missing_class_config",
                     fatal=fatal_miss,
                 )
-            source = (
-                _code_package_config_overlay(
-                    code_package=code_package,
-                    code_package_config_id=code_package_config_id,
-                    surface=surface,
-                )
-                if source_object_id == code_package.id
-                else source_object
+            source = _code_package_snapshot_introspection_source(
+                source=source_object,
+                code_package=code_package,
+                code_package_config_id=code_package_config_id,
+                surface=surface,
             )
             try:
                 class_instance, rows, snapshot_payload = (
@@ -2779,6 +2915,18 @@ async def _try_build_code_package_reused_witness_segment_desired_state(
             else ""
         )
     )
+    pre_state_graph_hash_source = cast(
+        ObjectInstanceGraphCommitGraphHashSource,
+        (
+            "witness_cursor_hash"
+            if previous_cursor_summary is not None
+            else (
+                str(segment_metadata.payload.get("graph_hash_source") or "state_hash")
+                if segment_metadata is not None
+                else "state_hash"
+            )
+        ),
+    )
     return _CodePackageDesiredState(
         object_instance_graph_id=domain_oig_id,
         graph_hash=graph_hash,
@@ -2824,10 +2972,12 @@ async def _try_build_code_package_reused_witness_segment_desired_state(
             changes=changes,
             pre_state_index=None,
             pre_state_evidence=ObjectInstanceGraphCommitPreStateEvidence(
-                graph_hash_source=(
-                    "witness_cursor_hash"
-                    if previous_cursor_summary is not None
-                    else "witness_hash"
+                graph_hash_source=pre_state_graph_hash_source,
+                state_hash=(
+                    segment_metadata.state_hash
+                    if segment_metadata is not None
+                    and pre_state_graph_hash_source == "state_hash"
+                    else None
                 ),
                 witness_hash=(
                     segment_metadata.witness_hash
@@ -3781,14 +3931,11 @@ async def _try_build_code_package_reused_direct_desired_state(
                     "CodePackage direct snapshot class config not found: "
                     f"class_config_id={source_state.class_config_id}"
                 )
-            source = (
-                _code_package_config_overlay(
-                    code_package=code_package,
-                    code_package_config_id=code_package_config_id,
-                    surface=surface,
-                )
-                if source_object_id == code_package.id
-                else source_object
+            source = _code_package_snapshot_introspection_source(
+                source=source_object,
+                code_package=code_package,
+                code_package_config_id=code_package_config_id,
+                surface=surface,
             )
             if source_object_id != code_package.id:
                 direct_class_state = _try_build_code_package_direct_class_state(
@@ -4018,7 +4165,14 @@ def _build_code_package_generic_desired_oig(
         description="CodePackage text snapshot",
         oig_id=domain_oig_id,
         instance_registry=tuple(
-            obj for obj_id, obj in objects_by_id.items() if obj_id != code_package.id
+            _code_package_snapshot_introspection_source(
+                source=obj,
+                code_package=code_package,
+                code_package_config_id=code_package_config_id,
+                surface=surface,
+            )
+            for obj_id, obj in objects_by_id.items()
+            if obj_id != code_package.id
         ),
         enum_option_resolver=default_meta_enum_option_resolver,
     )
@@ -4298,6 +4452,27 @@ def _code_package_config_overlay(
     )
 
 
+def _code_package_snapshot_introspection_source(
+    *,
+    source: BaseORMModel,
+    code_package: CodePackage,
+    code_package_config_id: UUID,
+    surface: str,
+) -> ModelIntrospection:
+    if source.id == code_package.id:
+        return _code_package_config_overlay(
+            code_package=code_package,
+            code_package_config_id=code_package_config_id,
+            surface=surface,
+        )
+    if isinstance(source, CodePackageCode):
+        return _ModelIntrospectionOverlay(
+            source=source,
+            values_by_name={"code_id": source.code.id},
+        )
+    return source
+
+
 def _build_code_package_text_snapshot_changes(
     *,
     before_oig,
@@ -4382,6 +4557,9 @@ async def _ensure_code_package_text_snapshot_state_snapshot_from_state_inner(
     desired_state: _CodePackageDesiredState,
 ) -> dict[str, object]:
     snapshot_store = FSSnapshotStore()
+    write_state_class_segment_index = _code_package_state_class_segments_required(
+        node_count=desired_state.state_index.node_count,
+    )
     if desired_state.graph_hash_source in {"witness_hash", "witness_cursor_hash"} and (
         desired_state.post_witness_ref is not None
         or desired_state.post_witness_cursor_summary is not None
@@ -4441,10 +4619,18 @@ async def _ensure_code_package_text_snapshot_state_snapshot_from_state_inner(
         expected_object_instance_graph_id=desired_state.object_instance_graph_id,
         expected_graph_hash=desired_state.graph_hash,
     )
-    if state_payload is None:
-        write_state_class_segment_index = _code_package_state_class_segments_enabled(
-            node_count=desired_state.state_index.node_count,
+    if write_state_class_segment_index and (
+        snapshot_store.snapshot_state_class_segment_index_metadata(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=commit_id,
+            expected_object_instance_graph_id=desired_state.object_instance_graph_id,
+            expected_graph_hash=desired_state.graph_hash,
         )
+        is None
+    ):
+        state_payload = None
+    if state_payload is None:
         if desired_state.class_instance_payloads:
             state_payload = await snapshot_store.put_state_snapshot_rows_from_payloads(
                 branch_id=branch_id,
@@ -4729,12 +4915,74 @@ async def _build_code_package_text_snapshot_changes_from_snapshot_state(
     return _CodePackageSnapshotChangeResult(
         changes=changes,
         pre_state_index=pre_state_index,
-        pre_state_evidence=ObjectInstanceGraphCommitPreStateEvidence(
+        pre_state_evidence=_code_package_snapshot_state_pre_state_evidence(
+            state_payload=state_payload,
             state_hash=raw_state_hash,
             row_count=len(state_rows),
-            source_contract="aware.oig.snapshot_state_rows.v2",
-            source_ref=f"{head_commit_id}.json",
+            head_commit_id=head_commit_id,
         ),
+    )
+
+
+def _code_package_snapshot_state_pre_state_evidence(
+    *,
+    state_payload: Mapping[str, object],
+    state_hash: str,
+    row_count: int,
+    head_commit_id: UUID,
+) -> ObjectInstanceGraphCommitPreStateEvidence:
+    raw_graph_hash_source = state_payload.get("graph_hash_source")
+    graph_hash_source = cast(
+        ObjectInstanceGraphCommitGraphHashSource,
+        (
+            raw_graph_hash_source
+            if raw_graph_hash_source
+            in {"state_hash", "witness_hash", "witness_cursor_hash"}
+            else "state_hash"
+        ),
+    )
+    raw_witness_cursor = state_payload.get("state_witness_cursor")
+    witness_cursor = (
+        commit_state_witness_cursor_summary_from_payload(
+            {
+                str(key): value
+                for key, value in raw_witness_cursor.items()
+                if isinstance(key, str)
+            }
+        )
+        if isinstance(raw_witness_cursor, Mapping)
+        else _code_package_text_snapshot_state_snapshot_witness_cursor(state_payload)
+    )
+    raw_witness_hash = state_payload.get("witness_hash")
+    witness_hash = (
+        raw_witness_hash
+        if isinstance(raw_witness_hash, str) and raw_witness_hash
+        else None
+    )
+    if graph_hash_source == "witness_cursor_hash" and witness_cursor is None:
+        raise RuntimeError(
+            "CodePackage segmented pre-state is missing its witness cursor"
+        )
+    if graph_hash_source == "witness_hash" and witness_hash is None:
+        raise RuntimeError(
+            "CodePackage segmented pre-state is missing its witness hash"
+        )
+    raw_schema = state_payload.get("schema")
+    source_contract = (
+        raw_schema
+        if isinstance(raw_schema, str) and raw_schema
+        else "aware.oig.snapshot_state_rows.v2"
+    )
+    return ObjectInstanceGraphCommitPreStateEvidence(
+        graph_hash_source=graph_hash_source,
+        state_hash=state_hash if graph_hash_source == "state_hash" else None,
+        witness_hash=witness_hash,
+        witness_cursor_hash=(
+            witness_cursor.cursor_hash if witness_cursor is not None else None
+        ),
+        row_count=row_count,
+        source_contract=source_contract,
+        source_ref=f"{head_commit_id}.segments.jsonl",
     )
 
 
@@ -7260,6 +7508,7 @@ async def _get_code_package_text_snapshot_state_selection(
     include_state_row_maps: bool = False,
 ) -> ObjectInstanceGraphSnapshotStateSelection | None:
     snapshot_store = FSSnapshotStore()
+    class_instance_ids = tuple(class_instance_ids)
     witness = _code_package_text_snapshot_state_snapshot_witness(
         previous_snapshot_index_payload,
     )
@@ -7280,13 +7529,28 @@ async def _get_code_package_text_snapshot_state_selection(
         )
         if selection is not None:
             return selection
-    return await snapshot_store.get_snapshot_state_selection(
+    selection = await snapshot_store.get_snapshot_state_selection(
         branch_id=branch_id,
         projection_hash=projection_hash,
         commit_id=commit_id,
         class_instance_ids=class_instance_ids,
         expected_object_instance_graph_id=expected_object_instance_graph_id,
         expected_graph_hash=expected_graph_hash,
+        include_state_row_maps=include_state_row_maps,
+    )
+    if selection is not None:
+        return selection
+    from aware_code.package.snapshot_replay import (
+        load_code_package_text_snapshot_state_selection_at_commit,
+    )
+
+    return await load_code_package_text_snapshot_state_selection_at_commit(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        commit_id=commit_id,
+        class_instance_ids=class_instance_ids,
+        object_instance_graph_id=expected_object_instance_graph_id,
+        graph_hash_post=expected_graph_hash,
         include_state_row_maps=include_state_row_maps,
     )
 
@@ -7444,12 +7708,20 @@ def _code_package_text_snapshot_fingerprint(
     *,
     source_snapshot_fingerprint: str,
     code_package_artifact_refs: tuple[CodePackageArtifactRef, ...],
+    artifact_state_index: Mapping[str, object] | None = None,
 ) -> str:
     payload = {
         "v": _CODE_PACKAGE_TEXT_SNAPSHOT_INDEX_VERSION,
         "fingerprint_kind": "code_package_text_snapshot",
         "source_snapshot_fingerprint": source_snapshot_fingerprint,
-        "artifacts": _artifact_ref_payload(code_package_artifact_refs),
+        "artifacts": (
+            {
+                "artifact_count": artifact_state_index.get("artifact_count"),
+                "signature_hash": artifact_state_index.get("signature_hash"),
+            }
+            if artifact_state_index is not None
+            else _artifact_ref_payload(code_package_artifact_refs)
+        ),
     }
     encoded = json.dumps(payload, separators=(",", ":"), sort_keys=True)
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
@@ -7488,10 +7760,15 @@ async def load_code_package_text_snapshot_artifact_state_index(
     projection_hash: str,
     code_package_id: UUID,
 ) -> dict[str, object] | None:
-    payload = await _load_current_code_package_text_snapshot_index_payload(
-        branch_id=branch_id,
-        projection_hash=projection_hash,
-        code_package_id=code_package_id,
+    _head, payload = (
+        await _load_current_code_package_text_snapshot_index_payload_with_head(
+            store=FSCommitStore(),
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            code_package_id=code_package_id,
+            include_sections=True,
+            include_source_object_index=False,
+        )
     )
     if payload is None:
         return None
@@ -7540,6 +7817,32 @@ async def load_code_package_text_snapshot_commit_index(
         "snapshot_fingerprint": payload.get("snapshot_fingerprint"),
         "source_snapshot_fingerprint": payload.get("source_snapshot_fingerprint"),
     }
+
+
+async def has_code_package_text_snapshot_state_at_head(
+    *,
+    branch_id: UUID,
+    projection_hash: str,
+    code_package_id: UUID,
+    head_commit_id: UUID,
+    object_instance_graph_commit_id: UUID,
+    required_relative_paths: Iterable[str] = (),
+) -> bool:
+    """Return whether an exact CodePackage head has deployable snapshot state."""
+
+    from aware_code.package.snapshot_health import (  # noqa: WPS433
+        load_code_package_selected_snapshot_health_evidence,
+    )
+
+    evidence = await load_code_package_selected_snapshot_health_evidence(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        code_package_id=code_package_id,
+        expected_head_commit_id=head_commit_id,
+        expected_object_instance_graph_commit_id=object_instance_graph_commit_id,
+        required_relative_paths=required_relative_paths,
+    )
+    return evidence is not None
 
 
 def _code_package_snapshot_index_payload_has_reuse_sections(
@@ -7645,12 +7948,14 @@ def _code_package_text_snapshot_state_snapshot_index_hit(
         expected_graph_hash = payload.get("graph_hash_post")
         if not isinstance(expected_graph_hash, str) or not expected_graph_hash:
             return False
-        if _code_package_text_snapshot_cursor_metadata_hit(
+        if metadata.get(
+            "state_snapshot_graph_hash_source"
+        ) == "witness_cursor_hash" and not _code_package_text_snapshot_cursor_metadata_hit(
             payload=payload,
             metadata=metadata,
             expected_graph_hash=expected_graph_hash,
         ):
-            return True
+            return False
         return (
             FSSnapshotStore().snapshot_state_class_segment_index_metadata(
                 branch_id=branch_id,
@@ -7662,7 +7967,12 @@ def _code_package_text_snapshot_state_snapshot_index_hit(
         )
     if not isinstance(metadata.get("state_snapshot_payload_sha256"), str):
         return False
-    if not isinstance(metadata.get("state_snapshot_state_hash"), str):
+    expected_graph_hash = payload.get("graph_hash_post")
+    if (
+        not isinstance(expected_graph_hash, str)
+        or not expected_graph_hash
+        or metadata.get("state_snapshot_state_hash") != expected_graph_hash
+    ):
         return False
     file_size = _payload_int(metadata, "state_snapshot_file_size")
     file_mtime_ns = _payload_int(metadata, "state_snapshot_file_mtime_ns")

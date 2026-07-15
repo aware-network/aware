@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import msgpack
 
+from python_grammar.code_language_plugin import PYTHON_CODE_PLUGIN
 from python_grammar.materialization_outputs import (
     _dump_ocg_binding_snapshot_msgpack,
     _strip_volatile_ocg_binding_fields,
@@ -94,3 +95,17 @@ def test_ocg_binding_snapshot_clean_payload_uses_original_subtrees() -> None:
 
     nodes = clean["object_config_graph_nodes"]
     assert _strip_volatile_ocg_binding_fields(nodes) is nodes
+
+
+def test_embedded_graph_bindings_are_workspace_revision_artifacts() -> None:
+    descriptors_by_key = {
+        descriptor.output_key: descriptor for descriptor in PYTHON_CODE_PLUGIN.materialization_artifact_outputs
+    }
+
+    for output_key in (
+        "python.orm_graph_binding",
+        "python.ocg_binding_snapshot",
+    ):
+        descriptor = descriptors_by_key[output_key]
+        assert descriptor.output_kind == "embedded_artifact"
+        assert "workspace_revision" in descriptor.required_for

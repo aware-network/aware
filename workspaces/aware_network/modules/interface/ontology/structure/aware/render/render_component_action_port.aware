@@ -1,0 +1,23 @@
+class RenderComponentActionPort {
+    // Attributes
+    port_key String key
+    event PaneActionEvent = activate
+    is_required Bool = true
+    description String?
+
+    fn build construct (
+        port_key String key,
+        event PaneActionEvent = activate,
+        is_required Bool = true,
+        description String? = null
+    ) -> RenderComponentActionPort {
+        """
+        Create one explicit component action port.
+
+        Contract:
+        - Ports describe user/agent events emitted by the component.
+        - PaneRenderSpec ActionBinding maps the port to a canonical API capability endpoint.
+        - Components do not call services directly.
+        """
+    }
+}

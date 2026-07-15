@@ -1,6 +1,13 @@
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Mapping
+from collections.abc import (
+    AsyncIterator,
+    Awaitable,
+    Callable,
+    Iterable,
+    Mapping,
+    Sequence,
+)
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -153,6 +160,29 @@ class ObjectInstanceGraphCommitBodyRecord:
     @property
     def parent_commit_ids(self) -> tuple[UUID, ...]:
         return self.envelope.parent_commit_ids
+
+
+@dataclass(frozen=True, slots=True)
+class LaneCommitBatchRequest:
+    object_projection_graph_identity_id: UUID | None
+    object_instance_graph_identity_id: UUID
+    object_instance_graph_id: UUID
+    before_oig: ObjectInstanceGraph
+    root_object_id: UUID | None
+    changes: tuple[ObjectInstanceGraphChange, ...]
+    graph_hash_pre: str
+    graph_hash_post: str
+    author_id: UUID
+    commit_id: UUID | None = None
+    source_language: CodeLanguage | None = None
+    status: CommitStatus | None = None
+    commit_action: CommitActionDescriptor | None = None
+    schema_attribute_configs_by_id: Mapping[UUID, AttributeConfig] | None = None
+    root_metadata: ObjectInstanceGraphCommitRootMetadata | None = None
+    pre_state_index: CommitStateIndex | None = None
+    pre_state_evidence: ObjectInstanceGraphCommitPreStateEvidence | None = None
+    body_draft: OigCommitBodyDraft | None = None
+    write_health_index: bool = True
 
 
 @dataclass(frozen=True, slots=True)
@@ -357,6 +387,17 @@ class LaneCommitBackend(LaneCommitStore, Protocol):
         object_projection_graph_identity_id: UUID | None = None,
     ) -> dict[str, int]: ...
 
+    async def append_records(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        records: Sequence[ObjectInstanceGraphCommitBodyRecord],
+        root_object_ids: Sequence[UUID | None] | None = None,
+        commit_actions: Sequence[CommitActionDescriptor | None] | None = None,
+        object_projection_graph_identity_id: UUID | None = None,
+    ) -> dict[str, int]: ...
+
     async def domain_commit_id_for_object_instance_graph_commit_id(
         self,
         *,
@@ -446,6 +487,22 @@ class LaneCommitter(Protocol):
         schema_attribute_configs_by_id: Mapping[UUID, AttributeConfig] | None = None,
     ) -> ObjectInstanceGraphCommit | None: ...
 
+    async def commit_many(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        requests: Sequence[LaneCommitBatchRequest],
+    ) -> tuple[ObjectInstanceGraphCommit, ...]: ...
+
+    async def commit_record_many(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        requests: Sequence[LaneCommitBatchRequest],
+    ) -> tuple[ObjectInstanceGraphCommitBodyRecord, ...]: ...
+
     async def commit_shallow(
         self,
         *,
@@ -480,6 +537,7 @@ class LaneCommitter(Protocol):
         root_metadata: ObjectInstanceGraphCommitRootMetadata,
         root_object_id: UUID | None = None,
         changes: list[ObjectInstanceGraphChange],
+        body_draft: OigCommitBodyDraft | None = None,
         graph_hash_pre: str,
         graph_hash_post: str,
         author_id: UUID,
@@ -501,6 +559,7 @@ class LaneCommitter(Protocol):
         root_metadata: ObjectInstanceGraphCommitRootMetadata,
         root_object_id: UUID | None = None,
         changes: list[ObjectInstanceGraphChange],
+        body_draft: OigCommitBodyDraft | None = None,
         graph_hash_pre: str,
         graph_hash_post: str,
         author_id: UUID,
@@ -517,6 +576,7 @@ __all__ = [
     "CommitStateIndex",
     "CommitStateRow",
     "JsonObject",
+    "LaneCommitBatchRequest",
     "LaneCommitBackend",
     "LaneCommitStore",
     "LaneCommitter",

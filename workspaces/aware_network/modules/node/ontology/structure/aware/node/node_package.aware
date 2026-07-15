@@ -1,0 +1,105 @@
+class NodePackage {
+    // Relationships
+    included_node_packages NodePackageIncludedNodePackage[]
+    source_code_package aware_code.package.CodePackage?
+    node_config NodeConfig unique
+
+    // Attributes
+    aware_node_version Int = 1
+    compilation_mode String = "raw_xor"
+    dependencies JsonArray = []
+    description String?
+    exclude_paths JsonArray = []
+    force_fresh_scan Bool = true
+    fqn_prefix String?
+    include_paths JsonArray = []
+    manifest_relative_path String?
+    name String key
+    package_root String = "."
+    sources_root String = "nodes"
+    title String?
+    version_number Int = 1
+
+    fn build construct(
+        name String key,
+        node_config_id UUID,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_node_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = "nodes",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        compilation_mode String = "raw_xor",
+        dependencies JsonArray = []
+    ) -> NodePackage {
+        """
+        Create the canonical Node-owned package root over an existing `NodeConfig`.
+
+        Contract:
+        - Identity is keyed by Node package `name`.
+        - `NodePackage` is the package/public root over an existing canonical `NodeConfig`.
+        - `node_config_id` must point at the canonical NodeConfig stable id for this package root.
+        - `source_code_package_id` is the explicit raw-source provenance link for this semantic
+          leaf package.
+        - Manifest/build/dependency attributes mirror `aware.node.toml` so committed package truth
+          can drive Workspace and Node runtime resolution without reopening authoring TOML.
+        - Workspace will later mount `NodePackage`, not raw `NodeConfig`.
+        """
+    }
+
+    fn sync_manifest_truth(
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_node_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = "nodes",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        compilation_mode String = "raw_xor",
+        dependencies JsonArray = []
+    ) -> NodePackage {
+        """
+        Sync mutable manifest/build/dependency truth onto an existing NodePackage root.
+
+        This keeps `build` create-only for empty package lanes while allowing committed package
+        truth to follow the latest parsed `aware.node.toml` snapshot.
+        """
+    }
+
+    fn attach_included_node_package(
+        included_package_name String key,
+        include_key String? = null,
+        description String? = null
+    ) -> NodePackageIncludedNodePackage {
+        """
+        Attach one package-level Node composition include.
+
+        Contract:
+        - Parent `NodePackage` scope is injected by propagation.
+        - Identity is keyed by the included package's semantic package name.
+        - The bridge resolves and stores the canonical included `NodePackage` relationship.
+        - Includes select composition participants only; ServicePackage API bridge truth still
+          drives route requirements.
+        """
+        let created = construct included_node_packages.build(
+            included_package_name = included_package_name,
+            include_key = include_key,
+            description = description,
+        )
+    }
+}
+
+ann node.NodePackage::included_node_packages load eager
+ann node.NodePackage::source_code_package load eager
+ann node.NodePackage::node_config load eager

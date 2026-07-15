@@ -5,6 +5,8 @@ from types import SimpleNamespace
 from typing import cast
 from uuid import UUID, uuid4
 
+import pytest
+
 from aware_code.semantic_materialization import (
     SEMANTIC_LANGUAGE_MATERIALIZATION_TARGETS_CONTEXT_KEY,
 )
@@ -135,6 +137,13 @@ def test_meta_workspace_materialized_language_package_surface_includes_code_pack
     )
     assert row["package_name"] == "aware-demo-ontology"
     assert row["package_root"] == "modules/demo/structure/ontology/python"
+    assert row["code_package_surface"] == "structure"
+    assert row["code_package_config_key"] == "python.structure"
+    assert row["code_package_config_id"] == generated_ref["code_package_config_id"]
+    assert row["manifest_kind"] == "pyproject_toml"
+    assert row["manifest_relative_path"] == (
+        "modules/demo/structure/ontology/python/pyproject.toml"
+    )
 
     bundles = workspace_provider._bundle_packages_from_leaf_result(  # noqa: SLF001
         leaf_result=leaf_result,
@@ -182,6 +191,80 @@ def test_meta_workspace_materialized_language_package_surface_includes_code_pack
     assert receipt["materialized_language_packages"] == materialized_packages
 
 
+def test_meta_workspace_materialized_language_package_uses_generated_ref_truth(
+    tmp_path: Path,
+) -> None:
+    leaf_result = _leaf_result(tmp_path)
+    language_materialization = (
+        leaf_result.object_config_graph_package.language_materializations[0]
+    )
+    materialized_package = language_materialization.materialized_packages[0]
+    generated_ref = _generated_code_package_ref(
+        leaf_result=leaf_result,
+        code_package_id=materialized_package.code_package_id,
+        package_name=materialized_package.package_name,
+        package_root=materialized_package.package_root,
+    )
+    language_materialization.materialized_packages = ()
+
+    materialized_packages = workspace_provider._materialized_language_packages_from_leaf_result(  # noqa: SLF001
+        leaf_result=leaf_result,
+        generated_code_package_refs=(generated_ref,),
+    )
+
+    assert len(materialized_packages) == 1
+    row = materialized_packages[0]
+    assert row["code_package_id"] == generated_ref["code_package_id"]
+    assert row["code_package_surface"] == "structure"
+    assert row["code_package_config_key"] == "python.structure"
+    assert row["code_package_config_id"] == generated_ref["code_package_config_id"]
+    assert row["manifest_kind"] == "pyproject_toml"
+    assert row["manifest_relative_path"] == generated_ref["manifest_relative_path"]
+    assert row["package_root"] == generated_ref["package_root"]
+    assert row["status"] == "materialized"
+
+
+def test_meta_workspace_ownership_receipt_uses_generated_code_package_truth(
+    tmp_path: Path,
+) -> None:
+    package_root = tmp_path / "modules/demo/structure/ontology/python"
+    artifact_path = package_root / "aware_demo_ontology/_aware/binding.msgpack"
+    generated_ref = {
+        "code_package_id": str(uuid4()),
+        "code_package_config_key": "meta.generated.python.structure",
+        "code_package_config_id": str(uuid4()),
+        "code_package_surface": "structure",
+        "manifest_kind": "pyproject_toml",
+        "manifest_relative_path": (
+            "modules/demo/structure/ontology/python/pyproject.toml"
+        ),
+        "package_root": "modules/demo/structure/ontology/python",
+        "sources_root": "modules/demo/structure/ontology/python/aware_demo_ontology",
+        "package_name": "aware-demo-ontology",
+    }
+
+    receipts = workspace_provider._language_ownership_receipts_with_generated_code_package_truth(  # noqa: SLF001
+        ownership_receipts=({"path": artifact_path.as_posix()},),
+        generated_code_package_refs=(generated_ref,),
+        workspace_root=tmp_path,
+    )
+
+    assert receipts == (
+        {
+            "path": artifact_path.as_posix(),
+            "code_package_id": generated_ref["code_package_id"],
+            "code_package_config_key": generated_ref["code_package_config_key"],
+            "code_package_config_id": generated_ref["code_package_config_id"],
+            "code_package_surface": "structure",
+            "manifest_kind": "pyproject_toml",
+            "manifest_relative_path": generated_ref["manifest_relative_path"],
+            "package_root": generated_ref["package_root"],
+            "sources_root": generated_ref["sources_root"],
+            "code_package_name": "aware-demo-ontology",
+        },
+    )
+
+
 def test_meta_language_materialization_realization_aliases_declared_code_package_id() -> (
     None
 ):
@@ -197,6 +280,8 @@ def test_meta_language_materialization_realization_aliases_declared_code_package
                 "object_config_graph_package_id": str(object_config_graph_package_id),
                 "declared_code_package_id": str(declared_code_package_id),
                 "code_package_id": str(actual_code_package_id),
+                "code_package_commit_id": str(uuid4()),
+                "code_package_head_commit_id": str(uuid4()),
                 "code_package_object_instance_graph_commit_id": str(
                     generated_code_package_oig_commit_id
                 ),
@@ -215,6 +300,296 @@ def test_meta_language_materialization_realization_aliases_declared_code_package
         )  # noqa: SLF001
         == 1
     )
+
+
+def test_meta_language_materialization_realization_receipt_rehydrates_complete_refs(
+    tmp_path: Path,
+) -> None:
+    leaf_result = _leaf_result(tmp_path)
+    package = leaf_result.object_config_graph_package
+    materialized_package = package.language_materializations[0].materialized_packages[0]
+    generated_ref = _generated_code_package_ref(
+        leaf_result=leaf_result,
+        code_package_id=materialized_package.code_package_id,
+        package_name=materialized_package.package_name,
+        package_root=materialized_package.package_root,
+    )
+    receipt = (
+        meta_service._materialization_index_receipt_with_realization(  # noqa: SLF001
+            receipt={
+                "cache_key": {
+                    "source_manifest_hash": "source",
+                    "dependency_signature": "deps",
+                }
+            },
+            object_config_graph_package_id=package.id,
+            object_config_graph_package_head_commit_id=(
+                leaf_result.object_config_graph_package_head_commit_id
+            ),
+            object_config_graph_package_object_instance_graph_commit_id=(
+                leaf_result.object_config_graph_package_object_instance_graph_commit_id
+            ),
+            realization_count=1,
+            generated_code_package_refs=(generated_ref,),
+        )
+    )
+
+    realizations, status = (
+        meta_service._language_materialization_package_realizations_from_reuse_receipt(  # noqa: SLF001
+            receipt=receipt,
+            object_config_graph_package_id=package.id,
+            object_config_graph_package_head_commit_id=(
+                leaf_result.object_config_graph_package_head_commit_id
+            ),
+            object_config_graph_package_object_instance_graph_commit_id=(
+                leaf_result.object_config_graph_package_object_instance_graph_commit_id
+            ),
+        )
+    )
+
+    assert status == "complete"
+    assert tuple(realizations) == (materialized_package.code_package_id,)
+    assert realizations[materialized_package.code_package_id] == generated_ref
+
+
+def test_meta_language_materialization_realization_receipt_rejects_stale_or_incomplete_evidence(
+    tmp_path: Path,
+) -> None:
+    leaf_result = _leaf_result(tmp_path)
+    package = leaf_result.object_config_graph_package
+    materialized_package = package.language_materializations[0].materialized_packages[0]
+    generated_ref = _generated_code_package_ref(
+        leaf_result=leaf_result,
+        code_package_id=materialized_package.code_package_id,
+        package_name=materialized_package.package_name,
+        package_root=materialized_package.package_root,
+    )
+    receipt = (
+        meta_service._materialization_index_receipt_with_realization(  # noqa: SLF001
+            receipt={},
+            object_config_graph_package_id=package.id,
+            object_config_graph_package_head_commit_id=(
+                leaf_result.object_config_graph_package_head_commit_id
+            ),
+            object_config_graph_package_object_instance_graph_commit_id=(
+                leaf_result.object_config_graph_package_object_instance_graph_commit_id
+            ),
+            realization_count=1,
+            generated_code_package_refs=(generated_ref,),
+        )
+    )
+
+    realizations, status = (
+        meta_service._language_materialization_package_realizations_from_reuse_receipt(  # noqa: SLF001
+            receipt=receipt,
+            object_config_graph_package_id=package.id,
+            object_config_graph_package_head_commit_id=uuid4(),
+            object_config_graph_package_object_instance_graph_commit_id=(
+                leaf_result.object_config_graph_package_object_instance_graph_commit_id
+            ),
+        )
+    )
+
+    assert realizations == {}
+    assert status == "object_config_graph_package_head_commit_id_mismatch"
+
+    incomplete_ref = dict(generated_ref)
+    incomplete_ref.pop("code_package_head_commit_id")
+    incomplete_receipt = (
+        meta_service._materialization_index_receipt_with_realization(  # noqa: SLF001
+            receipt={},
+            object_config_graph_package_id=package.id,
+            object_config_graph_package_head_commit_id=(
+                leaf_result.object_config_graph_package_head_commit_id
+            ),
+            object_config_graph_package_object_instance_graph_commit_id=(
+                leaf_result.object_config_graph_package_object_instance_graph_commit_id
+            ),
+            realization_count=1,
+            generated_code_package_refs=(incomplete_ref,),
+        )
+    )
+    realizations, status = (
+        meta_service._language_materialization_package_realizations_from_reuse_receipt(  # noqa: SLF001
+            receipt=incomplete_receipt,
+            object_config_graph_package_id=package.id,
+            object_config_graph_package_head_commit_id=(
+                leaf_result.object_config_graph_package_head_commit_id
+            ),
+            object_config_graph_package_object_instance_graph_commit_id=(
+                leaf_result.object_config_graph_package_object_instance_graph_commit_id
+            ),
+        )
+    )
+
+    assert realizations == {}
+    assert status == "realization_count_mismatch"
+
+
+def test_meta_language_materialization_realization_persists_reuse_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    leaf_result = _leaf_result(tmp_path)
+    result = meta_service.ObjectConfigGraphPackageLeafMaterializationResult(
+        aware_toml_path=leaf_result.aware_toml_path,
+        package_branch_id=leaf_result.package_branch_id,
+        code_package=leaf_result.code_package,
+        source_manifest_kind="aware_toml",
+        object_config_graph_package=leaf_result.object_config_graph_package,
+        object_config_graph=leaf_result.object_config_graph,
+        owned_file_paths=(),
+        code_package_commit_id=None,
+        code_package_head_commit_id=leaf_result.code_package_head_commit_id,
+        code_package_object_instance_graph_commit_id=(
+            leaf_result.code_package_object_instance_graph_commit_id
+        ),
+        object_config_graph_commit_id=None,
+        object_config_graph_head_commit_id=(
+            leaf_result.object_config_graph_head_commit_id
+        ),
+        object_config_graph_object_instance_graph_commit_id=(
+            leaf_result.object_config_graph_object_instance_graph_commit_id
+        ),
+        object_config_graph_package_commit_id=None,
+        object_config_graph_package_head_commit_id=(
+            leaf_result.object_config_graph_package_head_commit_id
+        ),
+        object_config_graph_package_object_instance_graph_commit_id=(
+            leaf_result.object_config_graph_package_object_instance_graph_commit_id
+        ),
+        phase_timings_s={},
+        code_package_build_runtime_telemetry={},
+        code_package_build_invoke_perf_ms={},
+        code_package_upsert_runtime_telemetry={},
+        code_package_upsert_invoke_perf_ms={},
+        semantic_commit_strategy="fingerprint_reuse",
+        semantic_commit_fallback_reset=False,
+        semantic_commit_phase_timings_s={},
+        materialization_index_receipt={
+            "cache_key": {
+                "source_manifest_hash": "source-hash",
+                "dependency_signature": "dependency-signature",
+            }
+        },
+    )
+    observed: dict[str, object] = {}
+
+    def _record_reuse_cache(**kwargs: object) -> None:
+        observed["reuse_cache"] = kwargs
+
+    def _record_projection_index(**kwargs: object) -> None:
+        observed["projection_index"] = kwargs
+
+    monkeypatch.setattr(
+        meta_service,
+        "_write_object_config_graph_package_reuse_cache",
+        _record_reuse_cache,
+    )
+    monkeypatch.setattr(
+        meta_service,
+        "_record_runtime_package_projection_index",
+        _record_projection_index,
+    )
+
+    persisted = (
+        meta_service._persist_language_materialization_reuse_evidence(  # noqa: SLF001
+            result=result,
+            workspace_root=tmp_path,
+        )
+    )
+
+    reuse_cache = cast(dict[str, object], observed["reuse_cache"])
+    projection_index = cast(dict[str, object], observed["projection_index"])
+    assert reuse_cache["result"] is result
+    assert reuse_cache["source_manifest_hash"] == "source-hash"
+    assert reuse_cache["dependency_signature"] == "dependency-signature"
+    assert projection_index["result"] is result
+    assert projection_index["workspace_root"] == tmp_path
+    assert (
+        persisted.phase_timings_s[
+            "persist_language_materialization_reuse_evidence.write_reuse_cache"
+        ]
+        >= 0.0
+    )
+    assert (
+        persisted.phase_timings_s[
+            "persist_language_materialization_reuse_evidence.record_projection_index"
+        ]
+        >= 0.0
+    )
+
+
+def test_meta_workspace_language_reuse_evidence_covers_context_owned_targets(
+    tmp_path: Path,
+) -> None:
+    leaf_result = _leaf_result(tmp_path)
+    package = leaf_result.object_config_graph_package
+    materialized_package = package.language_materializations[0].materialized_packages[0]
+    ontology_ref = _generated_code_package_ref(
+        leaf_result=leaf_result,
+        code_package_id=materialized_package.code_package_id,
+        package_name="aware-demo-ontology",
+        package_root=materialized_package.package_root,
+    )
+    runtime_ref = {
+        **ontology_ref,
+        "declared_code_package_id": str(uuid4()),
+        "code_package_id": str(uuid4()),
+        "code_package_commit_id": str(uuid4()),
+        "code_package_head_commit_id": str(uuid4()),
+        "code_package_object_instance_graph_commit_id": str(uuid4()),
+        "declared_package_name": "aware-demo",
+        "package_name": "aware-demo",
+        "materialization_source": "runtime_handlers",
+        "renderer_profile": None,
+        "renderer_kind": "runtime_handlers_meta",
+    }
+    leaf_result.materialization_index_receipt = (
+        meta_service._materialization_index_receipt_with_realization(  # noqa: SLF001
+            receipt={},
+            object_config_graph_package_id=package.id,
+            object_config_graph_package_head_commit_id=(
+                leaf_result.object_config_graph_package_head_commit_id
+            ),
+            object_config_graph_package_object_instance_graph_commit_id=(
+                leaf_result.object_config_graph_package_object_instance_graph_commit_id
+            ),
+            realization_count=2,
+            generated_code_package_refs=(ontology_ref, runtime_ref),
+        )
+    )
+    request = _request(
+        tmp_path,
+        targets=(
+            _target(
+                materialization_source="ontology",
+                import_root="aware_demo_ontology",
+                output_root="modules/demo/structure/ontology/python",
+                renderer_profile="orm_runtime",
+            ),
+            _target(
+                materialization_source="runtime_handlers",
+                import_root="aware_demo",
+                output_root="modules/demo/runtime/aware_demo",
+                renderer_kind="runtime_handlers_meta",
+                source_is_runtime=True,
+                code_package_surface="runtime",
+            ),
+        ),
+    )
+
+    evidence = workspace_provider.object_config_graph_package_language_reuse_evidence(
+        request=request,
+        leaf_result=leaf_result,
+    )
+
+    assert evidence == {
+        "status": "complete",
+        "reason": "workspace_language_targets_realized",
+        "target_count": 2,
+        "package_count": 2,
+    }
 
 
 def test_meta_workspace_materialize_compile_parity_reports_missing_roles(
@@ -436,6 +811,7 @@ def _generated_code_package_ref(
         "object_config_graph_package_id": str(
             leaf_result.object_config_graph_package.id
         ),
+        "declared_package_name": package_name,
         "object_config_graph_object_instance_graph_commit_id": str(
             leaf_result.object_config_graph_object_instance_graph_commit_id
         ),
@@ -447,6 +823,9 @@ def _generated_code_package_ref(
         "package_name": package_name,
         "package_root": package_root,
         "sources_root": "aware_demo_ontology",
+        "code_package_surface": "structure",
+        "code_package_config_key": "python.structure",
+        "code_package_config_id": str(uuid4()),
         "manifest_kind": "pyproject_toml",
         "manifest_relative_path": f"{package_root}/pyproject.toml",
         "path_count": 4,

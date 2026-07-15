@@ -1,0 +1,17 @@
+experience aware_network on aware_network.network.NetworkNode {
+    observable territory {
+        view discovery.v1 default api_view network.territory_discovery {
+            """Public Network node/environment/service territory surface for Control ingress."""
+        }
+    }
+
+    node network_node network.NetworkNode(public_key String) {
+        id now
+    }
+
+    surface network.territory {
+        section inspector;
+        view territory.discovery.v1;
+        graph now;
+    }
+}

@@ -1,0 +1,15 @@
+enum HubAuthorityVisibility {
+    public
+    private
+}
+
+enum HubArtifactStatus {
+    published
+    superseded
+    rejected
+}
+
+enum HubPublicationReceiptStatus {
+    accepted
+    rejected
+}

@@ -1,0 +1,25 @@
+// Interface projection (v0)
+//
+// Contract:
+// - Interface is a representation of a physical or virtual device that can interact with the system.
+
+projection Interface {
+    root interface.Interface
+
+    interface.Interface::system_actor aware_identity.Identity
+    interface.Interface::interface_sessions InterfaceSession
+    interface.Interface::environments
+    interface.InterfaceEnvironment::environment aware_environment.Environment
+    interface.Interface::interface_windows
+    interface.InterfaceWindow::window Window
+    interface.InterfaceWindow::window_navigation_contexts
+    interface.InterfaceWindow::active_navigation_context
+    interface.InterfaceWindowNavigationContext::interface_environment
+    interface.InterfaceWindowNavigationContext::environment_navigation_context aware_environment.EnvironmentNavigationContext
+
+    observable entry.control-plane construct {
+        """
+        Interface-owned local bootstrap and setup control-plane surface.
+        """
+    }
+}

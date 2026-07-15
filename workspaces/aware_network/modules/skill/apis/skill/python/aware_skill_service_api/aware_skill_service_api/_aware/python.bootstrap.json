@@ -1,0 +1,11 @@
+{
+  "dependency_import_roots": [
+    "aware_skill_service_dto"
+  ],
+  "modules": [
+    "aware_skill_service_api._bindings",
+    "aware_skill_service_api.client"
+  ],
+  "package_prefix": "aware_skill_service_api",
+  "version": "v1"
+}

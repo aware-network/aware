@@ -1,0 +1,34 @@
+class ServiceContractEconomySettlement {
+    // Relationships
+    coin aware_economy.coin.Coin
+    payer_wallet aware_economy.wallet.Wallet
+    payer_wallet_public aware_economy.wallet.WalletPublic
+    permit aware_economy.smart_contract.SmartContractPermit
+    receiver_wallet aware_economy.wallet.Wallet
+    receiver_wallet_public aware_economy.wallet.WalletPublic
+
+    // Attributes
+    deadline DateTime
+    permit_nonce Int
+
+    fn build construct (
+        permit_id UUID,
+        permit_nonce Int,
+        payer_wallet_id UUID,
+        payer_wallet_public_id UUID,
+        receiver_wallet_id UUID,
+        receiver_wallet_public_id UUID,
+        coin_id UUID,
+        deadline DateTime
+    ) -> ServiceContractEconomySettlement {
+        """
+        Creates the typed Economy settlement coordinate state for one ServiceContract.
+
+        Contract:
+        - Parent ServiceContract scope is propagated by constructor lowering.
+        - Stable identity is one Economy settlement coordinate object per ServiceContract.
+        - The object names Economy permit/wallet/coin coordinates; it does not mutate money.
+        - Economy owns per-reservation operation nonce allocation.
+        """
+    }
+}

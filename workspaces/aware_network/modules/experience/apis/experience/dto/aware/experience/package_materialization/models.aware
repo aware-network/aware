@@ -1,0 +1,54 @@
+/// Canonical DTOs for Experience package projection ownership/materialization receipts.
+///
+/// Ownership:
+/// - Experience API owns this transport boundary.
+/// - Experience runtime owns source parsing and projection ownership semantics.
+/// - Consumers must use this receipt instead of importing Experience materialization
+///   internals or reconstructing projection references from local source files.
+
+class ExperiencePackageProjectionNodeContract {
+    name String
+    node_ref String
+    identity_keys String[] = []
+}
+
+class ExperiencePackageProjectionConsumerRef {
+    /// Consumer kind examples: profile_projection, profile_layout_section,
+    /// profile_view_event_transition, program_port.
+    kind String
+    ref String
+    source_path String?
+    required Bool = true
+    program_ref String?
+    program_name String?
+    port_key String?
+    profile_key String?
+    thread_key String?
+    layout_key String?
+    section_key String?
+}
+
+class ExperiencePackageProjectionOwnershipEntry {
+    experience_name String
+    target_projection String
+    source_path String
+    status String = "declared"
+    branch_id UUID?
+    committed_projection_experience_id UUID?
+    runtime_opgi_id UUID?
+    nodes ExperiencePackageProjectionNodeContract[] = []
+    consumers ExperiencePackageProjectionConsumerRef[] = []
+    evidence JsonObject = {}
+}
+
+class ExperiencePackageProjectionOwnershipCatalog {
+    package_name String?
+    fqn_prefix String?
+    experience_name String?
+    workspace_root String?
+    experience_toml_path String?
+    status String
+    entries ExperiencePackageProjectionOwnershipEntry[] = []
+    missing_required_projection_refs String[] = []
+    evidence JsonObject = {}
+}

@@ -18,5 +18,5 @@
   "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
   "source_kind": "workspace_revision",
   "workspace_relative_package_root": "workspaces/aware_network/modules/experience/ontology",
-  "workspace_revision_code_package_id": "2598c27c-54d0-50b1-829e-76806324cf87"
+  "workspace_revision_code_package_id": "1bfb8051-4d6c-5d8f-b327-42cb85941b7e"
 }

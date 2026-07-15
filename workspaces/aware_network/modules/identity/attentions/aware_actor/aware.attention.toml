@@ -1,0 +1,13 @@
+aware_attention = 1
+
+[attention]
+package_name = "aware-actor-attention"
+fqn_prefix = "aware_actor_attention"
+title = "Aware Actor"
+description = "Identity-owned attention topology for the Actor Home experience."
+
+[build]
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+frame_mode = "horizontal"

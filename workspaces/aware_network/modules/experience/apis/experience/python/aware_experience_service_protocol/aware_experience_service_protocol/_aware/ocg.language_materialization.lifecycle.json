@@ -1,0 +1,341 @@
+{
+  "artifact_changes": [
+    {
+      "artifact_kind": "manifest",
+      "bytes_after": 3068,
+      "bytes_before": 3083,
+      "change_kind": "update",
+      "hash_after": "3b92dc52ee0ace879e81b352d613afef3f217582ff560940d7ff23110ab5cc59",
+      "hash_before": "05a84790e59411e9c2c365e6e2cee69df02dac25a5d400921e16e6d7b97f0cff",
+      "materialization_rel_path": null,
+      "ownership_receipt": {
+        "artifact_family": "ocg_language_materialization",
+        "artifact_key": "python:python.ocg_node_paths:experience-service-api:.aware/materializations/ocg.node_paths.python.json",
+        "artifact_role": "dependency_import_resolution",
+        "digest": "3b92dc52ee0ace879e81b352d613afef3f217582ff560940d7ff23110ab5cc59",
+        "digest_algorithm": "sha256",
+        "input_object_instance_graph_commit_id": null,
+        "language_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "object_config_graph_commit_id": null,
+        "object_config_graph_package_id": null,
+        "output_key": "python.ocg_node_paths",
+        "output_kind": "manifest",
+        "package_name": "experience-service-api",
+        "package_output_key": null,
+        "path": ".aware/materializations/ocg.node_paths.python.json",
+        "producer_key": "aware_meta.object_config_graph.language_materialization",
+        "producer_kind": "semantic_materializer",
+        "producer_provider_key": "aware_meta",
+        "producer_step": "plugin_declared_output_producer",
+        "provider_payload": {
+          "path_templates": [
+            ".aware/materializations/ocg.node_paths.python.json",
+            "{import_root}/_aware/ocg.node_paths.python.json"
+          ]
+        },
+        "required_for": [
+          "dependency_import_resolution",
+          "environment_config",
+          "runtime_index",
+          "workspace_revision"
+        ],
+        "runtime_contract_version": "aware.meta.language_materialization.v1",
+        "runtime_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "semantic_owner": "aware_meta.object_config_graph",
+        "size_bytes": 3068,
+        "source_code_package_id": null,
+        "source_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "source_object_instance_graph_commit_id": null,
+        "status": "available",
+        "target_language_plugin_id": "python"
+      },
+      "package_name": null,
+      "package_rel_path": null,
+      "producer_step": "manifest_write",
+      "repo_rel_path": ".aware/materializations/ocg.node_paths.python.json",
+      "stageability": "skip",
+      "stageability_reason": "internal compiler/runtime artifact outside canonical staging output"
+    },
+    {
+      "artifact_kind": "manifest",
+      "bytes_after": 5090,
+      "bytes_before": 4754,
+      "change_kind": "update",
+      "hash_after": "50dde10599aac5b2c064988a8496cb2b029f7b8ff8fea5b8cb048f7c823578e5",
+      "hash_before": "903ac5abaaac3e31f88f643137c59a5888702792f5dafe87a077b5c6104e20e0",
+      "materialization_rel_path": null,
+      "ownership_receipt": {
+        "artifact_family": "ocg_language_materialization",
+        "artifact_key": "python:python.models_manifest:experience-service-api:.aware/materializations/python.models.json",
+        "artifact_role": "runtime_model_index",
+        "digest": "50dde10599aac5b2c064988a8496cb2b029f7b8ff8fea5b8cb048f7c823578e5",
+        "digest_algorithm": "sha256",
+        "input_object_instance_graph_commit_id": null,
+        "language_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "object_config_graph_commit_id": null,
+        "object_config_graph_package_id": null,
+        "output_key": "python.models_manifest",
+        "output_kind": "manifest",
+        "package_name": "experience-service-api",
+        "package_output_key": null,
+        "path": ".aware/materializations/python.models.json",
+        "producer_key": "aware_meta.object_config_graph.language_materialization",
+        "producer_kind": "semantic_materializer",
+        "producer_provider_key": "aware_meta",
+        "producer_step": "plugin_declared_output_producer",
+        "provider_payload": {
+          "path_templates": [
+            ".aware/materializations/python.models.json",
+            "{import_root}/_aware/python.models.json"
+          ]
+        },
+        "required_for": [
+          "environment_config",
+          "runtime_index",
+          "workspace_revision"
+        ],
+        "runtime_contract_version": "aware.meta.language_materialization.v1",
+        "runtime_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "semantic_owner": "aware_meta.object_config_graph",
+        "size_bytes": 5090,
+        "source_code_package_id": null,
+        "source_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "source_object_instance_graph_commit_id": null,
+        "status": "available",
+        "target_language_plugin_id": "python"
+      },
+      "package_name": null,
+      "package_rel_path": null,
+      "producer_step": "manifest_write",
+      "repo_rel_path": ".aware/materializations/python.models.json",
+      "stageability": "skip",
+      "stageability_reason": "internal compiler/runtime artifact outside canonical staging output"
+    },
+    {
+      "artifact_kind": "embedded_artifact",
+      "bytes_after": 77602,
+      "bytes_before": 60473,
+      "change_kind": "update",
+      "hash_after": "606b616a69e9924f2bb13c44ab6f0e3ac01544f1e4db16c7ef16cb259e82235e",
+      "hash_before": "e412518b0f6fcb2aa37f2138a7600528877a2d83e049786f3087795ca9f8a515",
+      "materialization_rel_path": null,
+      "ownership_receipt": {
+        "artifact_family": "ocg_language_materialization",
+        "artifact_key": "python:python.ocg_binding_snapshot:aware_experience_service_protocol:apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/ocg.binding.snapshot.msgpack",
+        "artifact_role": "runtime_binding_snapshot",
+        "digest": "606b616a69e9924f2bb13c44ab6f0e3ac01544f1e4db16c7ef16cb259e82235e",
+        "digest_algorithm": "sha256",
+        "input_object_instance_graph_commit_id": null,
+        "language_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "object_config_graph_commit_id": null,
+        "object_config_graph_package_id": null,
+        "output_key": "python.ocg_binding_snapshot",
+        "output_kind": "embedded_artifact",
+        "package_name": "aware_experience_service_protocol",
+        "package_output_key": null,
+        "path": "apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/ocg.binding.snapshot.msgpack",
+        "producer_key": "aware_meta.object_config_graph.language_materialization",
+        "producer_kind": "semantic_materializer",
+        "producer_provider_key": "aware_meta",
+        "producer_step": "plugin_declared_output_producer",
+        "provider_payload": {
+          "path_templates": [
+            "{import_root}/_aware/ocg.binding.snapshot.msgpack"
+          ]
+        },
+        "required_for": [
+          "environment_config",
+          "runtime_index"
+        ],
+        "runtime_contract_version": "aware.meta.language_materialization.v1",
+        "runtime_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "semantic_owner": "aware_meta.object_config_graph",
+        "size_bytes": 77602,
+        "source_code_package_id": null,
+        "source_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "source_object_instance_graph_commit_id": null,
+        "status": "available",
+        "target_language_plugin_id": "python"
+      },
+      "package_name": "aware_experience_service_protocol",
+      "package_rel_path": "aware_experience_service_protocol/_aware/ocg.binding.snapshot.msgpack",
+      "producer_step": "artifact_embed",
+      "repo_rel_path": "apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/ocg.binding.snapshot.msgpack",
+      "stageability": "stage",
+      "stageability_reason": null
+    },
+    {
+      "artifact_kind": "manifest",
+      "bytes_after": 3068,
+      "bytes_before": 2832,
+      "change_kind": "update",
+      "hash_after": "3b92dc52ee0ace879e81b352d613afef3f217582ff560940d7ff23110ab5cc59",
+      "hash_before": "ce170f0a05d6eb1f613f564cd7a8fb05538035bafb3d02eb9c8f5e7b843ede34",
+      "materialization_rel_path": null,
+      "ownership_receipt": {
+        "artifact_family": "ocg_language_materialization",
+        "artifact_key": "python:python.ocg_node_paths:aware_experience_service_protocol:apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/ocg.node_paths.python.json",
+        "artifact_role": "dependency_import_resolution",
+        "digest": "3b92dc52ee0ace879e81b352d613afef3f217582ff560940d7ff23110ab5cc59",
+        "digest_algorithm": "sha256",
+        "input_object_instance_graph_commit_id": null,
+        "language_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "object_config_graph_commit_id": null,
+        "object_config_graph_package_id": null,
+        "output_key": "python.ocg_node_paths",
+        "output_kind": "manifest",
+        "package_name": "aware_experience_service_protocol",
+        "package_output_key": null,
+        "path": "apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/ocg.node_paths.python.json",
+        "producer_key": "aware_meta.object_config_graph.language_materialization",
+        "producer_kind": "semantic_materializer",
+        "producer_provider_key": "aware_meta",
+        "producer_step": "plugin_declared_output_producer",
+        "provider_payload": {
+          "path_templates": [
+            ".aware/materializations/ocg.node_paths.python.json",
+            "{import_root}/_aware/ocg.node_paths.python.json"
+          ]
+        },
+        "required_for": [
+          "dependency_import_resolution",
+          "environment_config",
+          "runtime_index",
+          "workspace_revision"
+        ],
+        "runtime_contract_version": "aware.meta.language_materialization.v1",
+        "runtime_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "semantic_owner": "aware_meta.object_config_graph",
+        "size_bytes": 3068,
+        "source_code_package_id": null,
+        "source_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "source_object_instance_graph_commit_id": null,
+        "status": "available",
+        "target_language_plugin_id": "python"
+      },
+      "package_name": "aware_experience_service_protocol",
+      "package_rel_path": "aware_experience_service_protocol/_aware/ocg.node_paths.python.json",
+      "producer_step": "artifact_embed",
+      "repo_rel_path": "apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/ocg.node_paths.python.json",
+      "stageability": "stage",
+      "stageability_reason": null
+    },
+    {
+      "artifact_kind": "manifest",
+      "bytes_after": 5090,
+      "bytes_before": 4697,
+      "change_kind": "update",
+      "hash_after": "50dde10599aac5b2c064988a8496cb2b029f7b8ff8fea5b8cb048f7c823578e5",
+      "hash_before": "118ced196a7d3b75d6b08786e95042586983db3a566c0b95126b6e11ead578d8",
+      "materialization_rel_path": null,
+      "ownership_receipt": {
+        "artifact_family": "ocg_language_materialization",
+        "artifact_key": "python:python.models_manifest:aware_experience_service_protocol:apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/python.models.json",
+        "artifact_role": "runtime_model_index",
+        "digest": "50dde10599aac5b2c064988a8496cb2b029f7b8ff8fea5b8cb048f7c823578e5",
+        "digest_algorithm": "sha256",
+        "input_object_instance_graph_commit_id": null,
+        "language_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "object_config_graph_commit_id": null,
+        "object_config_graph_package_id": null,
+        "output_key": "python.models_manifest",
+        "output_kind": "manifest",
+        "package_name": "aware_experience_service_protocol",
+        "package_output_key": null,
+        "path": "apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/python.models.json",
+        "producer_key": "aware_meta.object_config_graph.language_materialization",
+        "producer_kind": "semantic_materializer",
+        "producer_provider_key": "aware_meta",
+        "producer_step": "plugin_declared_output_producer",
+        "provider_payload": {
+          "path_templates": [
+            ".aware/materializations/python.models.json",
+            "{import_root}/_aware/python.models.json"
+          ]
+        },
+        "required_for": [
+          "environment_config",
+          "runtime_index",
+          "workspace_revision"
+        ],
+        "runtime_contract_version": "aware.meta.language_materialization.v1",
+        "runtime_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "semantic_owner": "aware_meta.object_config_graph",
+        "size_bytes": 5090,
+        "source_code_package_id": null,
+        "source_graph_ref": "sha256:f80fb2cb93d6eb9f7315f8c6a095a744e43636d01d529d0a3799a2c5353787ca",
+        "source_object_instance_graph_commit_id": null,
+        "status": "available",
+        "target_language_plugin_id": "python"
+      },
+      "package_name": "aware_experience_service_protocol",
+      "package_rel_path": "aware_experience_service_protocol/_aware/python.models.json",
+      "producer_step": "artifact_embed",
+      "repo_rel_path": "apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/python.models.json",
+      "stageability": "stage",
+      "stageability_reason": null
+    }
+  ],
+  "artifact_family": "ocg_language_materialization",
+  "artifact_role": "lifecycle_receipt",
+  "materialization": {
+    "name": "api-service-protocol-python",
+    "source_kind": "api",
+    "source_package_name": "experience-service-api"
+  },
+  "output_key": "language_materialization_lifecycle_receipt",
+  "output_kind": "materialization_lifecycle_receipt",
+  "package": {
+    "import_root": "aware_experience_service_protocol",
+    "name": "aware_experience_service_protocol",
+    "output_root": "apis/experience/python/aware_experience_service_protocol",
+    "receipt_package_rel_path": "aware_experience_service_protocol/_aware/ocg.language_materialization.lifecycle.json",
+    "receipt_path": "apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/ocg.language_materialization.lifecycle.json"
+  },
+  "package_outcomes": [
+    {
+      "artifact_change_refs": [
+        "apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/ocg.binding.snapshot.msgpack",
+        "apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/ocg.node_paths.python.json",
+        "apis/experience/python/aware_experience_service_protocol/aware_experience_service_protocol/_aware/python.models.json"
+      ],
+      "import_root": "aware_experience_service_protocol",
+      "output_root": "apis/experience/python/aware_experience_service_protocol",
+      "package_name": "aware_experience_service_protocol"
+    }
+  ],
+  "producer_key": "aware_meta.object_config_graph.language_materialization",
+  "provenance": {
+    "input_object_instance_graph_commit_id": null,
+    "object_config_graph_commit_id": null,
+    "object_config_graph_package_id": null,
+    "source_code_package_id": null,
+    "source_object_instance_graph_commit_id": null
+  },
+  "provider_key": "aware_meta",
+  "required_for": [
+    "environment_config",
+    "runtime_index",
+    "workspace_revision"
+  ],
+  "schema": "aware.meta.language_materialization.lifecycle_receipt.v1",
+  "semantic_owner": "aware_meta.object_config_graph",
+  "status": "available",
+  "summary": {
+    "changes_by_kind": {
+      "update": 5
+    },
+    "changes_by_producer_step": {
+      "artifact_embed": 3,
+      "manifest_write": 2
+    },
+    "changes_by_stageability": {
+      "skip": 2,
+      "stage": 3
+    },
+    "changes_total": 5,
+    "package_count": 1,
+    "warning_count": 0
+  },
+  "target_language_plugin_id": "python"
+}

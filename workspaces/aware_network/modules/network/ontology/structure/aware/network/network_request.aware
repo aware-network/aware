@@ -1,0 +1,7 @@
+class NetworkRequest {
+    // Relationships
+    requester aware_identity.actor.Actor key
+
+    // Attributes
+    status NetworkRequestStatus = pending
+}

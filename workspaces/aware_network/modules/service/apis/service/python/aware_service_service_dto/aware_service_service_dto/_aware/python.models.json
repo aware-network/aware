@@ -1,0 +1,278 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "b54a3b50-f710-5eb0-8285-a6d61533ca33",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ActivateServiceHostLifecyclesHostControlRequest",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ActivateServiceHostLifecyclesHostControlRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "61a70d16-8fce-56f2-899f-f5cc9f81d04e",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ActivateServiceHostLifecyclesHostControlResponse",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ActivateServiceHostLifecyclesHostControlResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "023b774d-3617-5176-81ea-97ade579d55b",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ConfigureServiceApiDependencyRoutesHostControlRequest",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ConfigureServiceApiDependencyRoutesHostControlRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "fb8e384e-df4a-5f51-ab5e-c9e1ac22ca80",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ConfigureServiceApiDependencyRoutesHostControlResponse",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ConfigureServiceApiDependencyRoutesHostControlResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7521e8e7-f366-5cf1-9103-e349babb4ff4",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceApiDispatchEnvelope",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceApiDispatchEnvelope",
+      "functions": []
+    },
+    {
+      "class_config_id": "40cebfcd-4d64-5bce-b5fd-ddff3112202a",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceApiDispatchFulfillmentBinding",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceApiDispatchFulfillmentBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "ea7f9cf2-f562-5a9f-af7b-be5b80c55c27",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceApiDispatchReceipt",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceApiDispatchReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "195ace65-f95d-5542-a8b3-6b34c566783c",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceApiDispatchRequest",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceApiDispatchRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c2bf289a-c050-50ed-a3b7-bb7fd1064100",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceContractAccessContextRefV1",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceContractAccessContextRefV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "8d675bc2-24f6-5872-9cb5-0a4649d3bb7f",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceHostControlRequest",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceHostControlRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "cf2482ee-6108-5622-a22a-7b13378f6323",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceHostControlResponse",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceHostControlResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "f351f1d5-eab8-5da1-9c37-8ae8bb66ee6d",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceOperation",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceOperation",
+      "functions": []
+    },
+    {
+      "class_config_id": "ceb81f2f-bf87-56eb-a60a-159807f32ed2",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceOperationAuthorizationRefV1",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceOperationAuthorizationRefV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "9de7923b-b454-5a40-9a72-9987b7212f58",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceOperationContext",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceOperationContext",
+      "functions": []
+    },
+    {
+      "class_config_id": "f747c334-2c0e-5b8b-b631-3b0e6212f988",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceOperationEconomicReceiptRefsV1",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceOperationEconomicReceiptRefsV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "80220383-a544-57d5-b80b-0ed7ce1a699a",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceOperationInvocationAuthorizationV1",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceOperationInvocationAuthorizationV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "a708377f-32a0-5e5f-b04f-53eca91b0131",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceOperationMeteringEvidenceV1",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceOperationMeteringEvidenceV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "bbf9653c-76b2-5908-b570-641a2900d6e6",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceOperationPermitIntentV1",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceOperationPermitIntentV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "30c8bba3-1918-5b59-939b-b6c4f8e8b71d",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceOperationRequest",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceOperationRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a50454a8-b6b3-52c6-8f4a-412e883e0410",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "ServiceOperationResponse",
+      "aware_class_ref": "aware_service_service_dto.comms.models.ServiceOperationResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "fc8d5cd4-9913-5d0c-aab4-bca65fa8e26d",
+      "module": "aware_service_service_dto.continuity",
+      "name": "ServiceContinuityBlocker",
+      "aware_class_ref": "aware_service_service_dto.continuity.ServiceContinuityBlocker",
+      "functions": []
+    },
+    {
+      "class_config_id": "277c4a2f-e98e-5c9d-ae51-cee265d16dc6",
+      "module": "aware_service_service_dto.continuity",
+      "name": "ServiceContinuityNextAction",
+      "aware_class_ref": "aware_service_service_dto.continuity.ServiceContinuityNextAction",
+      "functions": []
+    },
+    {
+      "class_config_id": "626c5440-aebe-5f46-8298-ca83cc498b89",
+      "module": "aware_service_service_dto.continuity",
+      "name": "ServiceContinuityObservation",
+      "aware_class_ref": "aware_service_service_dto.continuity.ServiceContinuityObservation",
+      "functions": []
+    },
+    {
+      "class_config_id": "0fae8664-b9d5-5e16-b7f4-aa2822312bd4",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostBackendContext",
+      "aware_class_ref": "aware_service_service_dto.host.ServiceHostBackendContext",
+      "functions": []
+    },
+    {
+      "class_config_id": "fc36f2b1-dfaf-5ad6-9eab-4eac82b490c1",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostCapability",
+      "aware_class_ref": "aware_service_service_dto.host.ServiceHostCapability",
+      "functions": []
+    },
+    {
+      "class_config_id": "a38e5011-4962-545c-a1a4-c4cabe30f2b7",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostContractRequest",
+      "aware_class_ref": "aware_service_service_dto.host.ServiceHostContractRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "f0a460bd-739d-56f6-9746-d06d7ba28fa3",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostContractResponse",
+      "aware_class_ref": "aware_service_service_dto.host.ServiceHostContractResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "56065de7-f01c-5f7e-8fe4-cf8625ff4a8b",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostDbRequirement",
+      "aware_class_ref": "aware_service_service_dto.host.ServiceHostDbRequirement",
+      "functions": []
+    },
+    {
+      "class_config_id": "0de85a04-023c-5832-b0dc-8255693f9f46",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostDbRequirementPlan",
+      "aware_class_ref": "aware_service_service_dto.host.ServiceHostDbRequirementPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "d68dd778-93c4-5ea5-83ee-02a0153bba77",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostProjectionRuntimeRequirement",
+      "aware_class_ref": "aware_service_service_dto.host.ServiceHostProjectionRuntimeRequirement",
+      "functions": []
+    },
+    {
+      "class_config_id": "ee3e3261-fd10-5425-8c20-dfa0780930e0",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostProjectionRuntimeRequirementPlan",
+      "aware_class_ref": "aware_service_service_dto.host.ServiceHostProjectionRuntimeRequirementPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "4fb9ef20-6842-584f-93bd-6bee3f032952",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostRuntimeRequirementReceipt",
+      "aware_class_ref": "aware_service_service_dto.host.ServiceHostRuntimeRequirementReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "d6326ca7-0388-570f-83a6-65b6885c1c04",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostTargetContext",
+      "aware_class_ref": "aware_service_service_dto.host.ServiceHostTargetContext",
+      "functions": []
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "f52dc031-32f1-5c55-b902-25e3dde61dcd",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "RequestStatus"
+    },
+    {
+      "enum_config_id": "7692309b-d8e7-5e41-a51e-4674d512b5f4",
+      "module": "aware_service_service_dto.comms.models.service",
+      "name": "StreamLifecycle"
+    },
+    {
+      "enum_config_id": "eedc19c8-4449-581f-9492-557abee49d19",
+      "module": "aware_service_service_dto.continuity",
+      "name": "ServiceContinuityFreshness"
+    },
+    {
+      "enum_config_id": "18e2e292-fcc5-583f-a554-0ae802049948",
+      "module": "aware_service_service_dto.continuity",
+      "name": "ServiceContinuityStatus"
+    },
+    {
+      "enum_config_id": "d755a549-6981-5018-b325-ca3d27b0f08b",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostContractCapabilityKey"
+    },
+    {
+      "enum_config_id": "9c6746b9-b6fe-51f6-9b1f-e419368da4ce",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostContractStatus"
+    },
+    {
+      "enum_config_id": "fc51b2ec-9aca-5b2a-a9c7-611172869a62",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostDbRequirementKind"
+    },
+    {
+      "enum_config_id": "ccbde894-b618-548b-959b-4206d404f5e7",
+      "module": "aware_service_service_dto.host",
+      "name": "ServiceHostProjectionRuntimeRequirementKind"
+    }
+  ]
+}

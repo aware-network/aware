@@ -1,0 +1,114 @@
+class Wallet {
+    // Relationships
+    wallet_balances WalletBalance[]
+    external_ingress_applications WalletExternalIngressApplication[]
+    wallet_private WalletPrivate? unique
+    wallet_public WalletPublic? unique
+    transactions transaction.Transaction[] many
+
+    // Attributes
+    private_key_encrypted String key
+    public_key String key
+
+    fn build construct (address String, public_key String key, private_key_encrypted String key) -> Wallet {
+        """
+        Creates a wallet + custody/key records in a single commit (wallet lane bootstrap).
+
+        Receipt: Wallet + WalletPublic + WalletPrivate linked together.
+
+        Fail-closed:
+        - private_key_encrypted must be an opaque custody handle or encrypted key reference.
+        - production-visible `dev:` private-key material is rejected.
+        """
+    }
+
+    fn initiate_transaction (target_wallet_public_id UUID, coin_id UUID, coin_amount Decimal, nonce Int, description String? = null, idempotency_key String? = null) -> transaction.Transaction {
+        """
+        Creates and signs a transaction from this wallet.
+
+        Receipt: Transaction + Wallet.transactions link (commit-backed).
+        """
+    }
+
+    fn set_coin_balance (coin_id UUID, balance Decimal) -> WalletBalance {
+        """
+        Sets absolute balance for a coin in this wallet.
+
+        Receipt: WalletBalance(updated/created) linked under Wallet.wallet_balances.
+        """
+        let updated = construct wallet_balances.create(
+            coin_id = coin_id,
+            balance = balance,
+        )
+    }
+
+    fn apply_coin_delta (coin_id UUID, delta Decimal) -> WalletBalance {
+        """
+        Applies a signed delta to this wallet coin balance.
+
+        Receipt: WalletBalance(updated/created) linked under Wallet.wallet_balances.
+
+        Fail-closed:
+        - Rejects zero delta.
+        - Rejects negative resulting balance.
+        """
+    }
+
+    fn apply_external_ingress (transaction_id UUID, coin_id UUID, amount Decimal) -> WalletExternalIngressApplication {
+        """
+        Applies one verified external-ingress Transaction to this wallet exactly once.
+
+        Receipt: contained WalletExternalIngressApplication plus updated WalletBalance.
+        """
+    }
+
+    fn reconcile_coin_balance (coin_id UUID, expected_balance Decimal, new_balance Decimal) -> WalletBalance {
+        """
+        Applies an idempotent absolute balance transition for a coin.
+
+        Receipt: WalletBalance(updated/created) linked under Wallet.wallet_balances.
+
+        Fail-closed:
+        - Rejects negative `new_balance`.
+        - Allows no-op when current balance is already `new_balance`.
+        - Otherwise requires current balance to match `expected_balance`.
+        """
+    }
+
+    fn reserve_coin_hold (coin_id UUID, amount Decimal) -> WalletBalance {
+        """
+        Moves available wallet capital into held capital for a reservation.
+
+        Receipt: WalletBalance(held_balance increased, available_balance reduced).
+
+        Fail-closed:
+        - Rejects non-positive amount.
+        - Rejects amount greater than current available balance.
+        """
+    }
+
+    fn release_coin_hold (coin_id UUID, amount Decimal) -> WalletBalance {
+        """
+        Releases held wallet capital back to available balance.
+
+        Receipt: WalletBalance(held_balance reduced, total balance unchanged).
+
+        Fail-closed:
+        - Rejects non-positive amount.
+        - Rejects amount greater than current held balance.
+        """
+    }
+
+    fn settle_coin_hold (coin_id UUID, reserved_amount Decimal, final_cost Decimal) -> WalletBalance {
+        """
+        Consumes a reservation hold and debits the settled final cost from total balance.
+
+        Receipt: WalletBalance(held_balance reduced by reserved_amount, balance reduced by final_cost).
+
+        Fail-closed:
+        - Rejects non-positive reserved_amount.
+        - Rejects final_cost greater than reserved_amount.
+        - Rejects reserved_amount greater than current held balance.
+        """
+    }
+}

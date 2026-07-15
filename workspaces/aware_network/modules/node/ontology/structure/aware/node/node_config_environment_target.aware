@@ -1,0 +1,51 @@
+class NodeConfigEnvironmentTarget {
+    // Relationships
+    environment_config aware_environment.environment.EnvironmentConfig?
+    profile_mounts NodeConfigEnvironmentProfileMount[]
+
+    // Attributes
+    environment_handle String key
+
+    fn build construct(
+        environment_handle String key
+    ) -> NodeConfigEnvironmentTarget {
+        """
+        Create one Node-owned environment target by canonical environment selection.
+
+        Contract:
+        - Parent `NodeConfig` scope is injected by propagation.
+        - Identity is keyed by `(node_config_id, environment_handle)`.
+        - `environment_handle` resolves the target `EnvironmentConfig` portal.
+        - Environment profile package mounts are explicit optional pointers.
+        """
+    }
+
+    fn add_profile_mount(
+        profile_key String,
+        package_name String,
+        mount_key String,
+        mode String = "mounted",
+        position Int? = null
+    ) -> NodeConfigEnvironmentProfileMount {
+        """
+        Attach one EnvironmentProfilePackage install mount under this Environment target.
+
+        Contract:
+        - Mounts select EnvironmentProfilePackage install specs, not Experience profiles.
+        - `package_name/profile_key` remain stable authored refs; Node does not store
+          raw package ids.
+        - Experience lenses activate later through Experience/session rails after
+          Environment has applied its OS profile.
+        """
+        let created = construct profile_mounts.build(
+            profile_key = profile_key,
+            package_name = package_name,
+            mount_key = mount_key,
+            mode = mode,
+            position = position,
+        )
+    }
+}
+
+ann node.NodeConfigEnvironmentTarget::environment_config load eager
+ann node.NodeConfigEnvironmentTarget::profile_mounts load eager

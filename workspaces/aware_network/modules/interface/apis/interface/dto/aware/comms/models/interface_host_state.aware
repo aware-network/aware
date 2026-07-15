@@ -1,0 +1,908 @@
+/// Transport-facing state snapshots exposed by the local Interface daemon.
+///
+/// These DTOs are not SSOT graph entities. They are local control-plane read
+/// models that summarize the live host service state for renderer and CLI clients.
+
+class InterfaceTransportState {
+    available Bool
+    registered Bool
+    authenticated Bool
+    actor_id UUID?
+    interface_id UUID?
+    interface_system_actor_id UUID?
+    interface_system_identity_id UUID?
+    interface_session_id UUID?
+    session_label String?
+    capabilities String[] = []
+    protocol_version Int?
+    last_seen_at String?
+    interface_identity_network_node_id UUID?
+    interface_session_network_binding_id UUID?
+}
+
+class InterfaceRendererPanePackageCapabilityState {
+    pane_package_id UUID?
+    pane_package_name String?
+    pane_kind String
+}
+
+class InterfaceRendererViewCapabilityState {
+    view_ref String?
+    projection_view_key String?
+    pane_kind String?
+    has_decoder Bool = false
+}
+
+class InterfaceRendererCacheCapabilityState {
+    store_kind String = "memory"
+    supports_namespace_replace Bool = true
+    supports_persistent_storage Bool = false
+    supports_cursor_lookup Bool = false
+}
+
+class InterfaceRendererCapabilitiesState {
+    renderer_id String
+    renderer_kind String = "flutter"
+    renderer_version String?
+    interface_package_id UUID?
+    interface_package_name String?
+    experience_keys String[] = []
+    pane_packages comms.models.InterfaceRendererPanePackageCapabilityState[] = []
+    view_capabilities comms.models.InterfaceRendererViewCapabilityState[] = []
+    cache comms.models.InterfaceRendererCacheCapabilityState?
+    reported_at String?
+}
+
+class InterfaceHostViewStateDigestEntryState {
+    pane_state_key String
+    digest String
+    view_ref String?
+    projection_view_key String?
+    projection_hash String?
+    head_commit_id String?
+    graph_hash_post String?
+}
+
+class InterfaceHostViewStateCursorState {
+    cursor String
+    digest String
+    materialized_entry_count Int = 0
+    entry_digests comms.models.InterfaceHostViewStateDigestEntryState[] = []
+    computed_at String?
+}
+
+class InterfaceLaneSyncState {
+    enabled Bool
+    watching Bool
+    window_key String?
+    lane_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    last_commit_id UUID?
+    last_graph_hash_post String?
+    updates_received Int = 0
+    advanced_count Int = 0
+    last_synced_at String?
+    error String?
+}
+
+class InterfaceEnvironmentAdmissionRoleEligibilityState {
+    environment_profile_actor_config_id UUID
+    actor_config_role_config_id UUID
+    role_config_id UUID
+    role_config_name String?
+}
+
+class InterfaceEnvironmentAdmissionRoleBindingState {
+    environment_profile_actor_config_id UUID
+    actor_config_role_config_id UUID
+    role_config_id UUID
+    role_config_name String?
+    actor_id UUID
+    role_id UUID
+    actor_role_id UUID
+    role_class_instance_id UUID
+    class_instance_identity_id UUID
+    role_config_class_config_id UUID
+    object_instance_graph_identity_id UUID
+    object_instance_graph_branch_key String
+    object_instance_graph_branch_id UUID?
+}
+
+class InterfaceEnvironmentAdmissionState {
+    status String = "inactive"
+    source_kind String = "environment_sdk_actor_admission"
+    accepted Bool = false
+    actor_id UUID?
+    environment_id UUID?
+    environment_profile_id UUID?
+    environment_profile_actor_config_id UUID?
+    actor_config_id UUID?
+    class_instance_identity_id UUID?
+    object_instance_graph_branch_key String?
+    object_instance_graph_branch_id UUID?
+    requested_role_config_ids UUID[] = []
+    requested_role_config_names String[] = []
+    eligible_role_count Int = 0
+    binding_count Int = 0
+    eligible_roles comms.models.InterfaceEnvironmentAdmissionRoleEligibilityState[] = []
+    bindings comms.models.InterfaceEnvironmentAdmissionRoleBindingState[] = []
+    blockers String[] = []
+    error String?
+    reason String?
+    updated_at String?
+    evidence JsonObject = {}
+}
+
+class InterfaceEnvironmentNavigationState {
+    status String = "inactive"
+    source_kind String = "environment_attention_navigation"
+    accepted Bool = false
+    actor_id UUID?
+    environment_id UUID?
+    environment_session_id UUID?
+    environment_navigation_context_id UUID?
+    key String?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    root_object_id UUID?
+    commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    blockers String[] = []
+    error String?
+    reason String?
+    updated_at String?
+    evidence JsonObject = {}
+}
+
+class InterfaceEnvironmentSessionState {
+    status String = "inactive"
+    source_kind String = "environment_session_join"
+    accepted Bool = false
+    actor_id UUID?
+    environment_id UUID?
+    environment_profile_id UUID?
+    environment_session_id UUID?
+    environment_session_key String?
+    identity_session_id UUID?
+    identity_member_id UUID?
+    identity_actor_role_count Int = 0
+    blockers String[] = []
+    error String?
+    reason String?
+    updated_at String?
+    evidence JsonObject = {}
+}
+
+class InterfaceExperienceLensActionState {
+    action_key String
+    action_kind String?
+    target_ref String?
+    label String?
+    view_invocation_action_config_id UUID
+    experience_invocation_action_config_id UUID?
+    api_capability_endpoint_id UUID?
+    sdk_operation_id UUID?
+}
+
+class InterfaceExperienceLensState {
+    status String = "inactive"
+    source_kind String = "experience_section_graph_binding"
+    accepted Bool = false
+    actor_id UUID?
+    environment_id UUID?
+    environment_session_id UUID?
+    environment_navigation_context_id UUID?
+    experience_name String?
+    view_ref String?
+    section_key String?
+    observable_id UUID?
+    section_graph_binding_key String?
+    projection_experience_view_instance_id UUID?
+    projection_experience_graph_identity_id UUID?
+    object_projection_graph_identity_id UUID?
+    focus_scope_id UUID?
+    focus_id UUID?
+    action_count Int = 0
+    actions comms.models.InterfaceExperienceLensActionState[] = []
+    blockers String[] = []
+    error String?
+    reason String?
+    updated_at String?
+    evidence JsonObject = {}
+}
+
+class InterfaceAppScreenState {
+    status String = "inactive"
+    accepted Bool = false
+    app_package_id UUID?
+    app_package_branch_id UUID?
+    app_package_object_instance_graph_commit_id UUID?
+    app_config_id UUID?
+    app_config_object_instance_graph_commit_id UUID?
+    app_config_screen_config_id UUID?
+    screen_key String?
+    projection_experience_id UUID?
+    projection_experience_branch_id UUID?
+    projection_experience_head_commit_id UUID?
+    projection_experience_layout_graph_binding_id UUID?
+    experience_name String?
+    layout_binding_key String?
+    blockers String[] = []
+    error String?
+    reason String?
+    updated_at String?
+    evidence JsonObject = {}
+}
+
+class InterfaceExperienceSessionNarrationEventState {
+    commit_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    narration_lines String[] = []
+    operation_label String?
+    graph_hash_post String?
+    object_instance_graph_identity_id UUID?
+    object_instance_graph_branch_id UUID?
+    object_instance_graph_commit_id UUID?
+    projection_experience_graph_identity_id UUID?
+    object_projection_graph_identity_id UUID?
+    semantics JsonObject = {}
+    evidence JsonObject = {}
+}
+
+class InterfaceExperienceSessionNarrationState {
+    status String = "inactive"
+    feature_key String?
+    experience_name String?
+    view_ref String?
+    actor_id UUID?
+    feature_lease_id String?
+    event_count Int = 0
+    last_commit_id UUID?
+    events comms.models.InterfaceExperienceSessionNarrationEventState[] = []
+    error String?
+    evidence JsonObject = {}
+}
+
+class InterfaceBackendState {
+    available Bool
+    manifest_path String?
+    registry_path String?
+    database_path String?
+    database_exists Bool
+    environment_id UUID?
+    opg_count Int
+    projection_bundle_available Bool
+    projection_plan_count Int
+    table_count Int
+    reason String?
+}
+
+class InterfaceLocalServiceHostState {
+    managed Bool = false
+    supported Bool = false
+    socket_path String?
+    available Bool = false
+    ready Bool = false
+    status String = "absent"
+    host_id String?
+    host_version String?
+    protocol_version String?
+    capabilities String[] = []
+    error String?
+    probe_duration_ms Int?
+    last_checked_at String?
+}
+
+class InterfaceLocalNodeRuntimeState {
+    managed Bool = false
+    available Bool = false
+    ready Bool = false
+    phase String = "idle"
+    active_target_id String?
+    target_key String?
+    display_name String?
+    backend_kind String?
+    is_active Bool = false
+    is_healthy Bool = false
+    node_base_url String?
+    node_websocket_path String?
+    summary String?
+    error String?
+    updated_at String?
+    recent_log_lines String[] = []
+    target_statuses comms.models.InterfaceOperationTargetState[] = []
+}
+
+class InterfaceHostedRuntimeServiceState {
+    service_name String
+    endpoint_refs String[] = []
+    stream_endpoint_refs String[] = []
+}
+
+class InterfaceHostedServiceRequirementState {
+    service_name String
+    service_label String?
+    is_required Bool = true
+    status String = "missing"
+    source_kind String = "host_requirement"
+    summary String?
+    error String?
+    matched_runtime_host_id String?
+    endpoint_refs String[] = []
+    stream_endpoint_refs String[] = []
+}
+
+class InterfaceHostedRuntimeState {
+    host_id String
+    host_version String?
+    protocol_version String?
+    readiness_status String = "unknown"
+    is_ready Bool = false
+    is_alive Bool = false
+    supports_stream_events Bool = false
+    summary String?
+    error String?
+    updated_at String?
+    probe_duration_ms Int?
+    services comms.models.InterfaceHostedRuntimeServiceState[] = []
+}
+
+class InterfaceHostedServicesState {
+    available Bool = false
+    source_kind String = "node_control_plane"
+    updated_at String?
+    error String?
+    refresh_duration_ms Int?
+    runtime_count Int = 0
+    service_count Int = 0
+    required_service_count Int?
+    satisfied_service_count Int?
+    service_requirements comms.models.InterfaceHostedServiceRequirementState[] = []
+    runtimes comms.models.InterfaceHostedRuntimeState[] = []
+}
+
+class InterfaceCurrentScreen {
+    screen_kind String
+    screen_key String
+    source_kind String
+    title String?
+    message String?
+    window_id UUID?
+    section_id UUID?
+    focus_scope_id UUID?
+    focus_id UUID?
+    branch_id UUID?
+    projection_view_id String?
+    pane_key String?
+}
+
+class InterfaceAllowedAction {
+    action_key String
+    label String
+    enabled Bool = true
+    reason String?
+    payload_schema_hint String?
+}
+
+class InterfaceHostRecoveryCapabilityState {
+    key String
+    label String
+    enabled Bool = false
+    reason String?
+    action_key String?
+}
+
+class InterfaceWorkspaceCandidate {
+    selector_key String
+    label String
+    workspace_root String
+    registry_source String
+    compatibility_mode Bool = false
+    workspace_toml_path String?
+    summary String?
+    environment_count Int = 0
+    api_count Int = 0
+    service_count Int = 0
+    experience_count Int = 0
+    interface_count Int = 0
+    lifecycle comms.models.InterfaceWorkspaceLifecycleState?
+}
+
+class InterfaceWorkspaceDiscoveryState {
+    selection_required Bool = false
+    selected_selector_key String?
+    candidates comms.models.InterfaceWorkspaceCandidate[] = []
+    error String?
+}
+
+class InterfaceSelectedWorkspaceState {
+    selector_key String
+    label String
+    workspace_root String
+    registry_source String
+    compatibility_mode Bool = false
+    workspace_toml_path String?
+    summary String?
+    environment_count Int = 0
+    api_count Int = 0
+    service_count Int = 0
+    experience_count Int = 0
+    interface_count Int = 0
+    lifecycle comms.models.InterfaceWorkspaceLifecycleState?
+    semantic_source comms.models.InterfaceWorkspaceSemanticSourceState?
+}
+
+class InterfaceWorkspaceLifecycleState {
+    status String = "unknown"
+    summary String?
+    error String?
+    joined Bool = false
+    attached_namespace_count Int = 0
+    joinable Bool = false
+    startable Bool = false
+    recoverable Bool = false
+    leaveable Bool = false
+    stoppable Bool = false
+    safety_reason String?
+}
+
+class InterfaceWorkspaceSemanticPackageState {
+    package_kind String
+    package_name String
+    manifest_path String
+    workspace_relative_path String?
+    title String?
+    fqn_prefix String?
+    object_config_graph_id String?
+    object_config_graph_package_id String?
+    semantic_branch_id String?
+}
+
+class InterfaceWorkspaceCommittedSemanticPackageState {
+    selector_key String
+    family_key String
+    family_title String
+    package_kind String
+    label String
+    module_name String
+    package_name String
+    aware_toml_path String
+    manifest_relative_path String
+    package_root String
+    sources_root String?
+    fqn_prefix String
+    object_config_graph_id String
+    object_config_graph_package_id String
+}
+
+class InterfaceWorkspaceCommittedSemanticPackageFamilyState {
+    family_key String
+    title String
+    members comms.models.InterfaceWorkspaceCommittedSemanticPackageState[] = []
+}
+
+class InterfaceWorkspaceMaterializationStateRef {
+    source_kind String
+    status String?
+    invocation_id String?
+    receipt_path String?
+    latest_path String?
+    workspace_materialization_id String?
+    workspace_materialization_commit_id String?
+    workspace_materialization_head_commit_id String?
+}
+
+class InterfaceWorkspaceSemanticObjectConfigGraphPreviewState {
+    package_kind String
+    package_name String
+    manifest_path String
+    object_config_graph_id String
+    materialization comms.models.InterfaceWorkspaceMaterializationStateRef?
+    materialize_invocation_id String
+    materialize_receipt_path String
+    lane_branch_id String
+    object_config_graph JsonObject
+}
+
+class InterfaceWorkspaceSemanticSourceState {
+    source_mode String = "bundle_backed"
+    summary String?
+    error String?
+    materialization comms.models.InterfaceWorkspaceMaterializationStateRef?
+    materialize_invocation_id String?
+    materialize_receipt_path String?
+    semantic_packages comms.models.InterfaceWorkspaceSemanticPackageState[] = []
+    committed_semantic_packages comms.models.InterfaceWorkspaceCommittedSemanticPackageState[] = []
+    committed_semantic_package_families comms.models.InterfaceWorkspaceCommittedSemanticPackageFamilyState[] = []
+    preview_graph comms.models.InterfaceWorkspaceSemanticObjectConfigGraphPreviewState?
+}
+
+class InterfaceSelectedSemanticPackageState {
+    package comms.models.InterfaceWorkspaceCommittedSemanticPackageState
+    preview_status String = "none"
+    summary String?
+    error String?
+    preview_graph comms.models.InterfaceWorkspaceSemanticObjectConfigGraphPreviewState?
+}
+
+class InterfaceOperationTargetState {
+    target_id String
+    display_name String
+    kind String?
+    endpoint String?
+    phase String = "idle"
+    is_active Bool = false
+    is_healthy Bool = false
+    summary String?
+    error String?
+    detail_lines String[] = []
+}
+
+class InterfaceOperationState {
+    operation_key String
+    title String?
+    status String
+    phase String?
+    current_target_id String?
+    current_target_title String?
+    summary String?
+    error String?
+    running Bool = false
+    retryable Bool = false
+    updated_at String?
+    recent_activity String[] = []
+    target_statuses comms.models.InterfaceOperationTargetState[] = []
+}
+
+class InterfaceControlPlaneTraceEntry {
+    step_id String?
+    source_key String
+    source_label String
+    message String
+    step_label String?
+}
+
+class InterfaceControlPlaneTraceGroup {
+    step_id String
+    step_title String
+    status String
+    current Bool = false
+    selected Bool = false
+    entries comms.models.InterfaceControlPlaneTraceEntry[] = []
+}
+
+class InterfaceControlPlaneOrchestrationStep {
+    step_id String
+    title String
+    kind String?
+    status String
+    phase String?
+    summary String?
+    current Bool = false
+    selected Bool = false
+    trace_preview comms.models.InterfaceControlPlaneTraceEntry[] = []
+}
+
+class InterfaceControlPlaneWorkspaceState {
+    selected_step_id String?
+    current_step_id String?
+    orchestration_steps comms.models.InterfaceControlPlaneOrchestrationStep[] = []
+    grouped_trace_preview comms.models.InterfaceControlPlaneTraceGroup[] = []
+}
+
+class InterfaceControlPlaneProfileState {
+    profile_id String
+    title String
+    kind String
+    summary String?
+    selected Bool = false
+    gate_keys String[] = []
+    current_gate_key String?
+}
+
+class InterfaceControlPlaneProfilesState {
+    active_profile_id String
+    profiles comms.models.InterfaceControlPlaneProfileState[] = []
+}
+
+class InterfaceGateStep {
+    key String
+    status String
+    title String?
+    description String?
+}
+
+class InterfaceGateState {
+    destination_key String?
+    active_step_key String?
+    blocked Bool = false
+    steps InterfaceGateStep[] = []
+    reason String?
+}
+
+class InterfaceResolvedView {
+    experience_key String
+    interface_package_id UUID?
+    interface_package_name String?
+    projection_view_id String?
+    host_payload JsonObject = {}
+}
+
+class InterfaceRuntimeLayoutState {
+    layout_config_id UUID?
+    layout_key String
+    label String
+    is_default Bool = false
+    is_active Bool = false
+}
+
+class InterfaceAttentionFocusTargetState {
+    kind String = "constructor"
+    focus_id UUID?
+    focus_scope_id UUID?
+    projection_experience_graph_identity_id UUID?
+    object_projection_graph_identity_id UUID
+    object_instance_graph_branch_id UUID?
+    projection_hash String?
+    target_type String?
+    target_id UUID?
+    description String?
+}
+
+class InterfaceRuntimeFocusState {
+    layout_config_id UUID?
+    layout_key String?
+    section_key String?
+    layout_config_section_config_id UUID?
+    layout_section_id UUID?
+    section_focus_scope_id UUID?
+    focus_scope_id UUID?
+    focus_id UUID?
+    observable_id UUID?
+    focus_target comms.models.InterfaceAttentionFocusTargetState?
+}
+
+class InterfaceRuntimeSectionRepresentationState {
+    representation_id UUID
+    window_key String
+    layout_config_id UUID?
+    layout_key String
+    section_key String
+    layout_config_section_config_id UUID?
+    pane_name String
+    pane_kind String
+    label String
+    observable_id UUID
+    projection_experience_graph_identity_id UUID?
+    object_projection_graph_identity_id UUID?
+    section_graph_binding_key String?
+    view_ref String
+    projection_view_key String?
+    is_active Bool = false
+}
+
+class InterfaceResolvedPaneDescriptor {
+    window_key String
+    layout_key String
+    section_key String
+    layout_config_section_config_id UUID?
+    layout_section_id UUID?
+    section_focus_scope_id UUID?
+    focus_scope_id UUID?
+    focus_id UUID?
+    branch_id UUID?
+    focus_target comms.models.InterfaceAttentionFocusTargetState?
+    pane_kind String
+    pane_config_id UUID?
+    pane_package_id UUID?
+    pane_package_name String?
+    object_projection_graph_observable_id UUID?
+    projection_experience_graph_identity_id UUID?
+    object_projection_graph_identity_id UUID?
+    section_graph_binding_key String?
+    projection_experience_view_id UUID?
+    projection_view_id String?
+    view_ref String?
+    projection_view_key String?
+    state_model_id UUID?
+    title String?
+    summary String?
+    narrative_key String?
+    state_source_kind String
+    state_projection_hash String?
+    action_keys String[] = []
+}
+
+class InterfaceMaterializedPaneState {
+    pane_state_key String
+    window_key String
+    layout_key String
+    section_key String
+    pane_kind String
+    pane_config_id UUID?
+    pane_package_id UUID?
+    focus_scope_id UUID?
+    branch_id UUID?
+    projection_experience_view_id UUID?
+    projection_view_id String?
+    state_model_id UUID?
+    projection_hash String?
+    status String = "unknown"
+    head_commit_id String?
+    graph_hash_post String?
+    materialized_at String?
+    state JsonObject = {}
+    provenance JsonObject = {}
+    error String?
+}
+
+class InterfaceRuntimePaneRenderSpecState {
+    source_kind String = "committed_oig"
+    branch_id UUID?
+    projection_hash String?
+    last_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    pane_render_spec_id UUID
+    pane_config_id UUID
+    render_spec_content_hash_sha256 String?
+    payload JsonObject = {}
+}
+
+class InterfaceRuntimePackageApiPackageState {
+    api_package_id UUID?
+    api_package_name String
+}
+
+class InterfaceRuntimePackageApiState {
+    interface_name String?
+    interface_config_id UUID?
+    interface_config_api_id UUID?
+    api_id UUID?
+    api_ref String
+}
+
+class InterfaceRuntimePackageRenderComponentState {
+    component_ref String
+    display_name String?
+}
+
+class InterfaceRuntimePackageState {
+    source_kind String = "interface_api"
+    interface_package_id UUID?
+    interface_package_name String
+    experience_keys String[] = []
+    layouts comms.models.InterfaceRuntimeLayoutState[] = []
+    section_representations comms.models.InterfaceRuntimeSectionRepresentationState[] = []
+    api_packages comms.models.InterfaceRuntimePackageApiPackageState[] = []
+    apis comms.models.InterfaceRuntimePackageApiState[] = []
+    dynamic_pane_render_specs comms.models.InterfaceRuntimePaneRenderSpecState[] = []
+    render_components comms.models.InterfaceRuntimePackageRenderComponentState[] = []
+    warnings String[] = []
+}
+
+class InterfaceWindowLayoutSectionState {
+    section_key String
+    layout_config_section_config_id UUID?
+    layout_section_id UUID?
+    attention_session_section_id UUID?
+    title String?
+    description String?
+    order Int = 0
+    flex Float = 1.0
+    weight_micros Int?
+    is_visible Bool = true
+    is_collapsed Bool = false
+    projection_view_id String?
+    pane_key String?
+}
+
+class InterfaceWindowLayoutState {
+    source_kind String
+    window_key String
+    layout_key String
+    layout_config_id UUID?
+    attention_session_id UUID?
+    attention_session_layout_id UUID?
+    active_layout_transition_id UUID?
+    active_topology_transition_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+    title String?
+    description String?
+    frame_mode String = "vertical"
+    version_hash String?
+    resolved_at String?
+    stale Bool = false
+    /// Stable admitted catalog; rows remain present when topology makes them inactive.
+    admitted_sections comms.models.InterfaceWindowLayoutSectionState[] = []
+    /// Active ordered membership rendered by the current topology.
+    sections comms.models.InterfaceWindowLayoutSectionState[] = []
+}
+
+class InterfaceRuntimeWindowNavigationContextState {
+    source_kind String
+    environment_navigation_context_id UUID?
+    thread_id UUID?
+    interface_window_navigation_context_id UUID?
+    interface_environment_id UUID?
+    environment_id UUID?
+    process_id UUID?
+    evidence JsonObject = {}
+}
+
+class InterfaceRuntimeWindowState {
+    source_kind String
+    window_key String
+    active Bool = false
+    interface_id UUID?
+    interface_window_id UUID?
+    window_id UUID?
+    title String?
+    active_navigation_context comms.models.InterfaceRuntimeWindowNavigationContextState?
+    active_layout_id UUID?
+    active_layout_config_id UUID?
+    active_layout_key String?
+    active_layout_source_kind String?
+    interface_projection_hash String?
+    window_projection_hash String?
+    interface_head_commit_id String?
+    window_head_commit_id String?
+    evidence JsonObject = {}
+}
+
+class InterfaceRuntimeState {
+    backend comms.models.InterfaceBackendState
+    gate_state comms.models.InterfaceGateState?
+    resolved_view comms.models.InterfaceResolvedView?
+    window_layout comms.models.InterfaceWindowLayoutState?
+    active_window comms.models.InterfaceRuntimeWindowState?
+    windows comms.models.InterfaceRuntimeWindowState[] = []
+    active_layout_config_id UUID?
+    layout_states comms.models.InterfaceRuntimeLayoutState[] = []
+    active_focus comms.models.InterfaceRuntimeFocusState?
+    interface_package_runtime comms.models.InterfaceRuntimePackageState?
+    section_representations comms.models.InterfaceRuntimeSectionRepresentationState[] = []
+    resolved_panes comms.models.InterfaceResolvedPaneDescriptor[] = []
+    view_state_cursor comms.models.InterfaceHostViewStateCursorState?
+    materialized_pane_states comms.models.InterfaceMaterializedPaneState[] = []
+    dynamic_pane_render_specs comms.models.InterfaceRuntimePaneRenderSpecState[] = []
+    warnings String[] = []
+}
+
+class InterfaceHostState {
+    host_label String
+    namespace String
+    endpoint String?
+    environment_id UUID?
+    environment_config_id UUID?
+    started Bool
+    transport comms.models.InterfaceTransportState
+    renderer_capabilities comms.models.InterfaceRendererCapabilitiesState?
+    local_service_host comms.models.InterfaceLocalServiceHostState?
+    local_node_runtime comms.models.InterfaceLocalNodeRuntimeState?
+    hosted_services comms.models.InterfaceHostedServicesState?
+    lane_sync comms.models.InterfaceLaneSyncState?
+    environment_admission comms.models.InterfaceEnvironmentAdmissionState?
+    environment_session comms.models.InterfaceEnvironmentSessionState?
+    environment_navigation comms.models.InterfaceEnvironmentNavigationState?
+    environment_admission_receipt aware_environment_service_dto.environment.EnvironmentActorAdmissionReceipt?
+    environment_session_join_receipt aware_environment_service_dto.environment.EnvironmentSessionJoinReceipt?
+    experience_lens comms.models.InterfaceExperienceLensState?
+    app_screen comms.models.InterfaceAppScreenState?
+    experience_session_narration comms.models.InterfaceExperienceSessionNarrationState?
+    runtime comms.models.InterfaceRuntimeState?
+    control_plane_profiles comms.models.InterfaceControlPlaneProfilesState?
+    control_plane_workspace comms.models.InterfaceControlPlaneWorkspaceState?
+    workspace_discovery comms.models.InterfaceWorkspaceDiscoveryState?
+    selected_workspace comms.models.InterfaceSelectedWorkspaceState?
+    selected_semantic_package comms.models.InterfaceSelectedSemanticPackageState?
+    current_screen comms.models.InterfaceCurrentScreen?
+    current_operation comms.models.InterfaceOperationState?
+    allowed_actions comms.models.InterfaceAllowedAction[] = []
+    recovery_capabilities comms.models.InterfaceHostRecoveryCapabilityState[] = []
+    warnings String[] = []
+}

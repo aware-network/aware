@@ -1,0 +1,50 @@
+aware_ontology = 1
+
+[ontology]
+package_name = "interface-ontology"
+fqn_prefix = "aware_interface"
+version_number = 1
+title = "Interface"
+description = "SSOT canonical (.aware) sources for interface"
+source_manifest = "structure/aware.toml"
+package_root = "."
+sources_root = "structure/aware"
+stable_ids_ownership = "compiler"
+stable_ids_parity_policy = "error"
+stable_ids_resolution_policy = "class_strict"
+
+[layout]
+profile = "ontology_structure_v1"
+
+[runtime]
+manifest = "runtime/python/pyproject.toml"
+project_name = "aware-interface"
+import_root = "aware_interface"
+
+[semantic_contract]
+provider_key = "aware_interface"
+role = "aware_interface.provider"
+module = "aware_interface.semantic_contract"
+owns_manifest_kinds = ["aware_interface_toml", "aware_pane_toml"]
+capabilities = ["diagnostics", "semantic_tokens", "materialize"]
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "identity-ontology"
+
+[[dependencies]]
+package_name = "environment-ontology"
+
+[[dependencies]]
+package_name = "network-ontology"
+
+[[dependencies]]
+package_name = "attention-ontology"
+
+[[dependencies]]
+package_name = "experience-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"

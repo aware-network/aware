@@ -1,0 +1,12 @@
+class EconomyAnalyticExecution {
+    // Relationships
+    analytic_metrics EconomyAnalyticMetric[] @EconomyAnalyticExecutionMetric many
+
+    // Attributes
+    cost_base_amount Decimal
+    cost_final_amount Decimal
+    end_time DateTime
+    key String key = "default"
+    start_time DateTime
+    success Bool
+}

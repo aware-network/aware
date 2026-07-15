@@ -1,0 +1,49 @@
+class SmartContractSettlement {
+    // Relationships
+    coin coin.Coin
+    payer_finance_entity finance.FinanceEntity
+    payer_wallet_public wallet.WalletPublic
+    receiver_finance_entity finance.FinanceEntity
+    receiver_wallet_public wallet.WalletPublic
+    transactions transaction.Transaction[] many
+
+    // Attributes
+    final_cost Decimal
+    status SmartContractSettlementStatus = prepared
+
+    fn create construct (
+        payer_finance_entity_id UUID,
+        payer_wallet_public_id UUID,
+        receiver_finance_entity_id UUID,
+        receiver_wallet_public_id UUID,
+        coin_id UUID,
+        final_cost Decimal,
+        status SmartContractSettlementStatus = prepared,
+    ) -> SmartContractSettlement {
+        """
+        Creates a settlement receipt under a smart-contract reservation.
+
+        Receipt: SmartContractSettlement(status=prepared).
+        """
+    }
+
+    fn set_status (status SmartContractSettlementStatus) -> SmartContractSettlement {
+        """
+        Updates smart-contract settlement lifecycle status.
+
+        Receipt: SmartContractSettlement status transition.
+        """
+    }
+
+    fn create_transaction (
+        nonce Int,
+        description String? = null,
+        idempotency_key String? = null,
+    ) -> transaction.Transaction {
+        """
+        Creates or reuses the canonical capital-transfer receipt for this settlement.
+
+        Receipt: Transaction(status=created) referenced by this settlement.
+        """
+    }
+}

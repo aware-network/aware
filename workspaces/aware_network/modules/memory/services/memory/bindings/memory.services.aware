@@ -1,0 +1,70 @@
+service aware_memory {
+    api memory {
+        projection aware_memory.MemoryWorking;
+    }
+
+    operation ensure_memory_working {
+        endpoint memory.ensure_memory_working.ensure_memory_working;
+        admission identity_required;
+    }
+
+    operation describe_memory_working {
+        endpoint memory.describe_memory_working.describe_memory_working;
+        admission identity_required;
+    }
+
+    operation list_memory_working_items {
+        endpoint memory.list_memory_working_items.list_memory_working_items;
+        admission identity_required;
+    }
+
+    operation validate_memory_working_item {
+        endpoint memory.validate_memory_working_item.validate_memory_working_item;
+        admission identity_required;
+    }
+
+    operation resolve_memory_context {
+        endpoint memory.resolve_memory_context.resolve_memory_context;
+        admission identity_required;
+    }
+
+    operation resolve_actor_memory_context {
+        endpoint memory.resolve_actor_memory_context.resolve_actor_memory_context;
+        admission identity_required;
+    }
+
+    operation watch_actor_memory_context {
+        endpoint memory.watch_actor_memory_context.watch_actor_memory_context;
+        admission identity_required;
+    }
+
+    operation resolve_actor_memory_context_frame {
+        endpoint memory.resolve_actor_memory_context_frame.resolve_actor_memory_context_frame;
+        admission identity_required;
+    }
+
+    operation watch_actor_memory_context_frame {
+        endpoint memory.watch_actor_memory_context_frame.watch_actor_memory_context_frame;
+        admission identity_required;
+    }
+
+    operation remember_attention_transition {
+        endpoint memory.remember_attention_transition.remember_attention_transition;
+        admission identity_required;
+    }
+
+    operation remember_content {
+        endpoint memory.remember_content.remember_content;
+        admission identity_required;
+    }
+
+    operation remember_event {
+        endpoint memory.remember_event.remember_event;
+        admission identity_required;
+    }
+
+    operation record_resolved_event_meaning {
+        endpoint memory.record_resolved_event_meaning.record_resolved_event_meaning;
+        admission identity_required;
+    }
+}

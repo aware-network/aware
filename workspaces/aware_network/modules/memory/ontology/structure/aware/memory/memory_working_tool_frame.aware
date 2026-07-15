@@ -1,0 +1,25 @@
+/// Tool payload for a MemoryWorkingItem.
+///
+/// Contract:
+/// - Must be linked to a `MemoryWorkingItem` whose `kind=tool`.
+/// - Captures canonical action evidence and lane attribution.
+class MemoryWorkingToolFrame {
+    // Relationships
+    object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch?
+
+    // Attributes
+    tool_call_id UUID key
+    tool_response_id UUID?
+    projection_hash String?
+
+    fn build construct(
+        tool_call_id UUID key,
+        tool_response_id UUID? = null,
+        object_instance_graph_branch_id UUID? = null,
+        projection_hash String? = null
+    ) -> MemoryWorkingToolFrame {
+        """
+        Builds deterministic tool frame payload for a memory item.
+        """
+    }
+}

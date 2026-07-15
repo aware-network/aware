@@ -1,0 +1,8 @@
+class CoinExchangeRate {
+    // Relationships
+    quote_coin Coin key
+
+    // Attributes
+    data_source String key
+    rate Decimal
+}

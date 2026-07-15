@@ -680,6 +680,15 @@ class _AwareFormatter:
 
     def _emit_service_operation_price_def(self, node: Node) -> None:
         body_node = node.child_by_field_name("body")
+        price_node = node.child_by_field_name("price")
+        if body_node is None:
+            price_ref = (
+                _node_text(source_bytes=self._source_bytes, node=price_node).strip()
+                if price_node is not None
+                else ""
+            )
+            self._w.line(f"price {price_ref}".rstrip())
+            return
         self._w.line("price {")
         with self._w.indent():
             members: list[Node] = []

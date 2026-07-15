@@ -32,7 +32,10 @@ from aware_meta.graph.config.lane.telemetry import (
     maybe_record_orm_session_metrics,
     maybe_timed,
 )
-from aware_meta.graph.instance.apply import apply_object_instance_graph_changes
+from aware_meta.graph.instance.apply import (
+    apply_object_instance_graph_body_draft,
+    apply_object_instance_graph_changes,
+)
 from aware_meta.graph.instance.builder import (
     build_object_instance_graph,
     build_rooted_object_instance_graph_base,
@@ -45,7 +48,10 @@ from aware_meta.graph.instance.commit.builder import (
 from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 from aware_meta.graph.instance.commit.state_index import build_commit_state_index
 from aware_meta.graph.instance.commit.validator import OigCommitValidationError
-from aware_meta.graph.instance.diff import build_object_instance_graph_seed_changes
+from aware_meta.graph.instance.diff import (
+    build_object_instance_graph_create_body_draft,
+    build_object_instance_graph_seed_changes,
+)
 from aware_meta.graph.instance.hash import compute_hash
 from aware_meta.graph.instance.index import build_index
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
@@ -115,6 +121,57 @@ def _object_instance_graph_identity_id_from_seed_changes(
             + ",".join(sorted(str(item) for item in identity_ids))
         )
     return next(iter(identity_ids))
+
+
+def _body_draft_operation_count(body_draft: object) -> int:
+    def value_count(value_change: object | None) -> int:
+        if value_change is None:
+            return 0
+        total = 1 + len(getattr(getattr(value_change, "change", None), "fields", ()))
+        for link_change in getattr(value_change, "attribute_value_link_changes", ()):
+            total += 1 + len(
+                getattr(getattr(link_change, "change", None), "fields", ())
+            )
+            total += value_count(
+                getattr(link_change, "child_attribute_value_change", None)
+            )
+        return total
+
+    total = 0
+    for root in getattr(body_draft, "roots", ()):
+        total += 1 + len(getattr(getattr(root, "change", None), "fields", ()))
+        for class_change in getattr(root, "class_instance_changes", ()):
+            total += 1 + len(
+                getattr(getattr(class_change, "change", None), "fields", ())
+            )
+            for attribute_change in getattr(class_change, "attribute_changes", ()):
+                total += 1 + len(
+                    getattr(getattr(attribute_change, "change", None), "fields", ())
+                )
+                total += value_count(
+                    getattr(attribute_change, "value_root_change", None)
+                )
+        for relationship_change in getattr(
+            root, "class_instance_relationship_changes", ()
+        ):
+            total += 1 + len(
+                getattr(getattr(relationship_change, "change", None), "fields", ())
+            )
+    return total
+
+
+def _require_built_graph_hash(
+    *,
+    graph: ObjectInstanceGraph,
+    graph_role: str,
+) -> str:
+    graph_hash = str(graph.hash or "").strip()
+    if not graph_hash:
+        raise OcgSeedError(
+            "OCG seed requires the canonical graph builder to assign "
+            + f"graph_hash_{graph_role}"
+        )
+    return graph_hash
 
 
 def _build_ocg_seed_plan_and_commit(
@@ -232,22 +289,41 @@ def _build_ocg_seed_plan_and_commit(
         )
     )
 
-    with maybe_timed(timings, "ocg_seed.compute_hash_pre"):
-        graph_hash_pre = compute_hash(before_oig, index=build_index(before_oig))
-    with maybe_timed(timings, "ocg_seed.compute_hash_post"):
-        graph_hash_post = compute_hash(after_oig, index=build_index(after_oig))
-    with maybe_timed(timings, "ocg_seed.build_seed_changes"):
-        changes = build_object_instance_graph_seed_changes(
-            before=before_oig,
-            new=after_oig,
-            object_instance_graph_identity_id=object_instance_graph_identity_id,
+    with maybe_timed(timings, "ocg_seed.use_built_hash_pre"):
+        graph_hash_pre = _require_built_graph_hash(
+            graph=before_oig,
+            graph_role="pre",
+        )
+    with maybe_timed(timings, "ocg_seed.use_built_hash_post"):
+        graph_hash_post = _require_built_graph_hash(
+            graph=after_oig,
+            graph_role="post",
+        )
+    with maybe_timed(timings, "ocg_seed.build_record_native_body_draft"):
+        body_draft = build_object_instance_graph_create_body_draft(
+            class_instances=after_oig.class_instances,
+            relationships=after_oig.class_instance_relationships,
+            update_class_instance_ids=(
+                class_instance.id for class_instance in before_oig.class_instances
+            ),
             created_at=SEED_CREATED_AT,
         )
-    if not changes:
-        raise OcgSeedError("OCG seed commit missing change payload")
+    changes = []
+    if build_commit:
+        with maybe_timed(timings, "ocg_seed.build_compat_seed_changes"):
+            changes = build_object_instance_graph_seed_changes(
+                before=before_oig,
+                new=after_oig,
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                created_at=SEED_CREATED_AT,
+            )
+        if not changes:
+            raise OcgSeedError("OCG seed commit missing change payload")
     maybe_metric(timings, "ocg_seed_change_count", len(changes))
-    nested_change_operation_count = count_object_instance_graph_change_operations(
-        changes
+    nested_change_operation_count = (
+        count_object_instance_graph_change_operations(changes)
+        if changes
+        else _body_draft_operation_count(body_draft)
     )
     maybe_metric(
         timings,
@@ -294,12 +370,20 @@ def _build_ocg_seed_plan_and_commit(
                     timings=timings,
                     metric_prefix="ocg_seed_commit_apply_hash_validation",
                 )
-            _ = apply_object_instance_graph_changes(
-                graph=candidate_graph,
-                changes=changes,
-                attribute_configs_by_id=schema_attribute_configs_by_id,
-                class_configs_by_id=schema_class_configs_by_id,
-            )
+            if changes:
+                _ = apply_object_instance_graph_changes(
+                    graph=candidate_graph,
+                    changes=changes,
+                    attribute_configs_by_id=schema_attribute_configs_by_id,
+                    class_configs_by_id=schema_class_configs_by_id,
+                )
+            else:
+                _ = apply_object_instance_graph_body_draft(
+                    graph=candidate_graph,
+                    body_draft=body_draft,
+                    attribute_configs_by_id=schema_attribute_configs_by_id,
+                    class_configs_by_id=schema_class_configs_by_id,
+                )
             candidate_hash = compute_hash(
                 candidate_graph, index=build_index(candidate_graph)
             )
@@ -351,6 +435,8 @@ def _build_ocg_seed_plan_and_commit(
         before_oig=before_oig,
         after_oig=after_oig,
         objects_by_id=objects_by_id,
+        body_draft=body_draft,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
     )
     return plan, commit
 
@@ -559,6 +645,8 @@ async def ensure_ocg_seeded_lane(
             before_oig=plan.before_oig,
             after_oig=plan.after_oig,
             objects_by_id=dict(plan.objects_by_id),
+            body_draft=plan.body_draft,
+            object_instance_graph_identity_id=(plan.object_instance_graph_identity_id),
         )
 
     if not allow_append:
@@ -578,7 +666,8 @@ async def ensure_ocg_seeded_lane(
                 branch_id=branch_id,
                 projection_hash=plan.projection_hash,
                 object_instance_graph_identity_id=(
-                    _object_instance_graph_identity_id_from_seed_changes(
+                    plan.object_instance_graph_identity_id
+                    or _object_instance_graph_identity_id_from_seed_changes(
                         changes=plan.changes,
                     )
                 ),
@@ -589,6 +678,7 @@ async def ensure_ocg_seeded_lane(
                 ),
                 root_object_id=ocg.id,
                 changes=list(plan.changes),
+                body_draft=plan.body_draft,
                 graph_hash_pre=plan.graph_hash_pre,
                 graph_hash_post=plan.graph_hash_post,
                 author_id=author_id,
@@ -639,4 +729,6 @@ async def ensure_ocg_seeded_lane(
         before_oig=plan.before_oig,
         after_oig=plan.after_oig,
         objects_by_id=plan.objects_by_id,
+        body_draft=plan.body_draft,
+        object_instance_graph_identity_id=(plan.object_instance_graph_identity_id),
     )

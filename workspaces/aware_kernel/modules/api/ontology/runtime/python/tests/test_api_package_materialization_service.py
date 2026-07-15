@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from hashlib import sha256
 import json
+import msgpack
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Callable, cast
@@ -29,6 +30,9 @@ from aware_code.semantic_materialization import (
 )
 from aware_code.semantic_function_call_execution import (
     SEMANTIC_FUNCTION_CALL_EXECUTION_CONFIG_KEY,
+)
+from aware_code.semantic_graph_execution import (
+    SEMANTIC_GRAPH_EXECUTION_BACKEND_BY_PROVIDER_CONTEXT_KEY,
 )
 from aware_code.semantic_capability import SemanticAnalysisCapabilityRequest
 from aware_code_ontology.code.code_plan import (
@@ -74,6 +78,9 @@ from _api_runtime_test_paths import (
     REPO_ROOT,
 )
 from aware_api_runtime.handlers._generated import meta_handlers as api_meta_handlers
+from aware_api_runtime.handlers.impl.api.api_capability_endpoint import (
+    update_config as update_api_capability_endpoint_config,
+)
 import aware_api_runtime.workspace_provider.provider as api_workspace_provider
 import aware_api_runtime.workspace_provider.deltas.artifact_patch as api_artifact_patch
 from aware_api_runtime.workspace_provider.deltas.transport import (
@@ -95,6 +102,7 @@ from aware_api_runtime.workspace_provider.deltas.typed_operations import (
     api_delta_typed_operation_plan,
 )
 from aware_api_runtime.workspace_provider.deltas.execution import (
+    api_delta_execute_typed_operation_plan,
     api_delta_typed_operation_execution_block,
     api_delta_typed_operation_execution_preflight,
 )
@@ -116,9 +124,11 @@ from aware_api_runtime.semantic_functions.execution import (
 from aware_api_runtime.source.semantic_analysis import analyze_api_semantic_capability
 from aware_api_runtime.semantic_function_refs import (
     API_CAPABILITY_CREATE_ENDPOINT_FUNCTION_REF,
+    API_CAPABILITY_ENDPOINT_UPDATE_FUNCTION_REF,
     API_CREATE_CAPABILITY_FUNCTION_REF,
     API_CREATE_FUNCTION_REF,
 )
+
 _API_META_HANDLERS_ANY: Any = api_meta_handlers
 _API_META_HANDLER_MODULE = cast(
     MetaGraphGeneratedLanguageHandlerModule,
@@ -238,11 +248,13 @@ class _RecordingApiExecutionBackend:
         *,
         object_ids: tuple[str, ...] = (),
         commit_ids: tuple[str, ...] = (),
+        object_instance_graph_commit_ids: tuple[str, ...] = (),
         branch_id: str | None = None,
     ) -> None:
         self.invocations: list[ApiSemanticFunctionCallInvocation] = []
         self.object_ids = object_ids
         self.commit_ids = commit_ids
+        self.object_instance_graph_commit_ids = object_instance_graph_commit_ids
         self.branch_id = branch_id
 
     async def invoke(
@@ -259,12 +271,22 @@ class _RecordingApiExecutionBackend:
         commit_id = (
             self.commit_ids[ordinal - 1] if ordinal <= len(self.commit_ids) else None
         )
+        object_instance_graph_commit_id = (
+            self.object_instance_graph_commit_ids[ordinal - 1]
+            if ordinal <= len(self.object_instance_graph_commit_ids)
+            else None
+        )
+        evidence: dict[str, object] = {"ordinal": ordinal}
+        if object_instance_graph_commit_id is not None:
+            evidence["response"] = {
+                "object_instance_graph_commit_id": object_instance_graph_commit_id,
+            }
         return ApiSemanticFunctionCallInvocationResult(
             object_id=object_id,
             commit_id=commit_id,
             head_commit_id=commit_id,
             branch_id=self.branch_id if commit_id is not None else None,
-            evidence={"ordinal": ordinal},
+            evidence=evidence,
         )
 
 
@@ -488,6 +510,98 @@ def _api_provider_delta_request(
     return SemanticProviderDeltaRequest.model_validate(request_kwargs)
 
 
+def _demo_api_baseline_semantic_object_index(
+    *,
+    include_capability: bool = False,
+    include_endpoint: bool = False,
+    endpoint_description: str | None = None,
+) -> dict[str, dict[str, object]]:
+    index: dict[str, dict[str, object]] = {
+        "api:demo": {
+            "object_id": "api-object-id",
+            "object_kind": "api",
+            "payload": {
+                "name": "demo",
+                "description": None,
+                "capability_count": 1 if include_capability else 0,
+                "graph_count": 0,
+            },
+        },
+    }
+    if include_capability:
+        index["api:demo/capability:read_demo"] = {
+            "object_id": "capability-object-id",
+            "object_kind": "api_capability",
+            "payload": {
+                "api_name": "demo",
+                "name": "read_demo",
+                "description": None,
+                "endpoint_count": 1 if include_endpoint else 0,
+            },
+        }
+    if include_endpoint:
+        index["api:demo/capability:read_demo/endpoint:read_demo"] = {
+            "object_id": "endpoint-object-id",
+            "object_kind": "api_capability_endpoint",
+            "payload": {
+                "api_name": "demo",
+                "capability_name": "read_demo",
+                "name": "read_demo",
+                "description": endpoint_description,
+                "request_class_ref": "aware_demo_api.ReadDemoRequest",
+            },
+        }
+    return index
+
+
+def _demo_api_baseline_ref() -> dict[str, object]:
+    return {
+        "source_object_instance_graph_commit_id": "source-oig-commit-id",
+        "semantic_branch_id": "semantic-branch-id",
+        "semantic_projection_name": "Api",
+        "semantic_package_id": "api-package-id",
+        "semantic_package_commit_id": "api-package-commit-id",
+        "semantic_object_instance_graph_commit_id": "semantic-oig-commit-id",
+        "semantic_root_kind": "api",
+        "semantic_root_id": "api-object-id",
+        "semantic_root_object_instance_graph_commit_id": "semantic-root-commit-id",
+    }
+
+
+def _demo_api_previous_materialization_evidence(
+    *,
+    include_capability: bool = False,
+    include_endpoint: bool = False,
+    endpoint_description: str | None = None,
+) -> dict[str, object]:
+    baseline_index = _demo_api_baseline_semantic_object_index(
+        include_capability=include_capability,
+        include_endpoint=include_endpoint,
+        endpoint_description=endpoint_description,
+    )
+    return {
+        "available": True,
+        "current_semantic_object_ids": {
+            semantic_key: str(entry["object_id"])
+            for semantic_key, entry in baseline_index.items()
+        },
+        "baseline_semantic_object_index": baseline_index,
+    }
+
+
+def _api_provider_delta_request_with_previous_evidence(
+    *,
+    request: SemanticProviderDeltaRequest,
+    previous_materialization_evidence: dict[str, object],
+) -> SemanticProviderDeltaRequest:
+    return SemanticProviderDeltaRequest.model_validate(
+        {
+            **request.model_dump(mode="json"),
+            "previous_materialization_evidence": previous_materialization_evidence,
+        }
+    )
+
+
 @pytest.mark.asyncio
 async def test_api_workspace_provider_reports_full_rebuild_fallback_contract(
     tmp_path: Path,
@@ -496,6 +610,7 @@ async def test_api_workspace_provider_reports_full_rebuild_fallback_contract(
     source_code_package_id = uuid4()
     package_commit_id = uuid4()
     package_head_commit_id = uuid4()
+    package_object_instance_graph_commit_id = uuid4()
     api_object_instance_graph_commit_id = uuid4()
     source_object_instance_graph_commit_id = uuid4()
     runtime_package_dir = tmp_path / ".aware" / "api" / "runtime" / "demo-api"
@@ -517,6 +632,9 @@ async def test_api_workspace_provider_reports_full_rebuild_fallback_contract(
             ),
             package_commit_id=package_commit_id,
             package_head_commit_id=package_head_commit_id,
+            package_object_instance_graph_commit_id=(
+                package_object_instance_graph_commit_id
+            ),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
             direct_dependency_materialization_details=(),
@@ -604,6 +722,11 @@ async def test_api_workspace_provider_reports_full_rebuild_fallback_contract(
     assert "not implemented delta materialization" in result.fallback_reason
     assert result.commit_id == package_commit_id
     assert result.head_commit_id == package_head_commit_id
+    assert result.bundle_packages[0].semantic_head_commit_id == package_head_commit_id
+    assert (
+        result.bundle_packages[0].semantic_object_instance_graph_commit_id
+        == package_object_instance_graph_commit_id
+    )
     assert result.details["semantic_function_call_execution"] == {
         "enabled": False,
         "continue_on_failure": False,
@@ -647,6 +770,7 @@ async def test_api_workspace_provider_compile_plan_input_emits_product_runtime_r
 ) -> None:
     package_commit_id = uuid4()
     package_head_commit_id = uuid4()
+    package_object_instance_graph_commit_id = uuid4()
     compile_plan_path = (
         tmp_path
         / ".aware"
@@ -705,6 +829,9 @@ async def test_api_workspace_provider_compile_plan_input_emits_product_runtime_r
             api_object_instance_graph_commit_id=uuid4(),
             package_commit_id=package_commit_id,
             package_head_commit_id=package_head_commit_id,
+            package_object_instance_graph_commit_id=(
+                package_object_instance_graph_commit_id
+            ),
         )
 
     def _fake_compile_api_product_runtime_from_compile_plan(**kwargs: object):
@@ -811,6 +938,11 @@ async def test_api_workspace_provider_compile_plan_input_emits_product_runtime_r
     assert result.mode == "full_rebuild"
     assert result.commit_id == package_commit_id
     assert result.head_commit_id == package_head_commit_id
+    assert result.bundle_packages[0].semantic_head_commit_id == package_head_commit_id
+    assert (
+        result.bundle_packages[0].semantic_object_instance_graph_commit_id
+        == package_object_instance_graph_commit_id
+    )
     assert result.details["artifact_ownership_receipts"][0]["package_name"] == (
         "aware-actor-view-api"
     )
@@ -937,6 +1069,7 @@ def test_api_workspace_provider_compile_parity_receipt_is_complete(
             ),
             api_object_instance_graph_commit_id=api_object_instance_graph_commit_id,
             package_head_commit_id=package_head_commit_id,
+            package_object_instance_graph_commit_id=uuid4(),
             runtime_compile_plan_hash="compile-plan-hash",
             source_files=("apis/demo.aware",),
         ),
@@ -1061,6 +1194,7 @@ def test_api_workspace_provider_compile_parity_requires_dart_evidence_when_decla
             source_object_instance_graph_commit_id=uuid4(),
             api_object_instance_graph_commit_id=uuid4(),
             package_head_commit_id=uuid4(),
+            package_object_instance_graph_commit_id=uuid4(),
             runtime_compile_plan_hash="compile-plan-hash",
             source_files=("apis/bindings/home_devices.apis.aware",),
         ),
@@ -1147,6 +1281,7 @@ async def test_api_workspace_provider_reuses_product_runtime_receipts_without_co
             ),
             package_commit_id=uuid4(),
             package_head_commit_id=uuid4(),
+            package_object_instance_graph_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
             direct_dependency_materialization_details=(),
@@ -1737,7 +1872,6 @@ def test_api_provider_delta_transport_uses_code_package_delta_as_authority(
         hint_package_relative_path="apis/misleading.aware",
         delta_relative_path="apis/demo.aware",
     )
-
     delta = code_package_delta_from_provider_delta_request(request=request)
 
     assert api_delta_unsupported_reason(request=request) is None
@@ -1874,12 +2008,9 @@ def test_api_provider_delta_dirty_diff_compares_against_baseline_index(
                 "semantic-root-commit-id"
             ),
         },
-        previous_materialization_evidence={
-            "available": True,
-            "current_semantic_object_ids": {
-                "api:demo": "api-object-id",
-            },
-        },
+        previous_materialization_evidence=(
+            _demo_api_previous_materialization_evidence()
+        ),
     )
     current_analysis = analyze_provider_delta_current_semantics(
         request=request,
@@ -1897,7 +2028,7 @@ def test_api_provider_delta_dirty_diff_compares_against_baseline_index(
     assert dirty_diff["baseline_index_compare_status"] == "baseline_index_compared"
     assert dirty_diff["dirty_entry_count"] == 3
     assert dirty_diff["dirty_operation_counts"] == {
-        "api_update": 1,
+        "api_noop": 1,
         "api_capability_create": 1,
         "api_capability_endpoint_create": 1,
     }
@@ -1905,7 +2036,105 @@ def test_api_provider_delta_dirty_diff_compares_against_baseline_index(
     assert entries[0]["semantic_key"] == "api:demo"
     assert entries[0]["baseline_object_matched"] is True
     assert entries[0]["baseline_object_id"] == "api-object-id"
+    assert entries[0]["operation_family"] == "noop"
+    assert entries[0]["changed_fields"] == ()
+    assert entries[0]["identity_fields"] == ("name",)
+    assert entries[0]["metadata_fields"] == ("description",)
+    assert entries[0]["comparable_metadata_fields"] == ()
+    assert entries[0]["non_comparable_metadata_fields"] == ("description",)
+    assert entries[0]["topology_fields"] == ("capability_count", "graph_count")
+    assert entries[0]["before_topology_payload"] == {
+        "capability_count": 0,
+        "graph_count": 0,
+    }
+    assert entries[0]["after_topology_payload"] == {
+        "capability_count": 1,
+        "graph_count": 0,
+    }
+    assert entries[0]["changed_topology_fields"] == ("capability_count",)
     assert entries[1]["baseline_compare_status"] == "baseline_object_missing"
+
+
+def test_api_provider_delta_endpoint_create_keeps_existing_hierarchy_noop(
+    tmp_path: Path,
+) -> None:
+    api_toml_path = _write_simple_api_delta_fixture(tmp_path)
+    base_request = _api_provider_delta_request(api_toml_path=api_toml_path)
+    request = SimpleNamespace(
+        code_package_delta=base_request.code_package_delta,
+        baseline_ref=_demo_api_baseline_ref(),
+        previous_materialization_evidence=(
+            _demo_api_previous_materialization_evidence(include_capability=True)
+        ),
+        semantic_function_call_execution_context={
+            SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY: (
+                encode_semantic_function_call_context_by_provider(
+                    {
+                        "aware_api": SemanticFunctionCallContext(
+                            resolved_argument_ref_object_ids={
+                                "aware_demo_api.ReadDemoRequest": (
+                                    "request-class-config-id"
+                                ),
+                            },
+                        ),
+                    }
+                )
+            ),
+        },
+    )
+    current_analysis = analyze_provider_delta_current_semantics(
+        request=request,
+        manifest_path=api_toml_path,
+    )
+
+    dirty_diff = api_delta_semantic_dirty_diff_from_analysis(
+        analysis=current_analysis.analysis,
+        request=request,
+        current_delta_fingerprint="sha256:current",
+        baseline_hydration_preflight=(
+            api_delta_baseline_hydration_preflight(request=request)
+        ),
+    )
+
+    assert dirty_diff["dirty_operation_counts"] == {
+        "api_noop": 1,
+        "api_capability_noop": 1,
+        "api_capability_endpoint_create": 1,
+    }
+    entries = {
+        entry["ontology_subject_kind"]: entry
+        for entry in dirty_diff["semantic_dirty_entries"]
+    }
+    assert entries["api"]["changed_topology_fields"] == ()
+    assert entries["api_capability"]["operation_family"] == "noop"
+    assert entries["api_capability"]["changed_fields"] == ()
+    assert entries["api_capability"]["before_topology_payload"] == {
+        "endpoint_count": 0,
+    }
+    assert entries["api_capability"]["after_topology_payload"] == {
+        "endpoint_count": 1,
+    }
+    assert entries["api_capability"]["changed_topology_fields"] == ("endpoint_count",)
+    assert entries["api_capability_endpoint"]["operation_family"] == "create"
+
+
+def test_api_semantic_object_index_retains_api_metadata_and_topology() -> None:
+    index = api_workspace_provider._api_semantic_object_index_detail(
+        api=SimpleNamespace(
+            id="api-object-id",
+            name="demo",
+            description="Demo API description.",
+            api_capabilities=(),
+            api_graphs=(),
+        )
+    )
+
+    assert index["api:demo"]["payload"] == {
+        "name": "demo",
+        "description": "Demo API description.",
+        "capability_count": 0,
+        "graph_count": 0,
+    }
 
 
 def test_api_provider_delta_typed_operations_project_semantic_events(
@@ -1928,12 +2157,9 @@ def test_api_provider_delta_typed_operations_project_semantic_events(
                 "semantic-root-commit-id"
             ),
         },
-        previous_materialization_evidence={
-            "available": True,
-            "current_semantic_object_ids": {
-                "api:demo": "api-object-id",
-            },
-        },
+        previous_materialization_evidence=(
+            _demo_api_previous_materialization_evidence()
+        ),
     )
     current_analysis = analyze_provider_delta_current_semantics(
         request=request,
@@ -1960,16 +2186,12 @@ def test_api_provider_delta_typed_operations_project_semantic_events(
     )
 
     assert typed_plan["status"] == "typed_operation_plan_ready"
-    assert typed_plan["typed_operation_count"] == 3
-    assert typed_plan["operation_family_counts"] == {"create": 2, "update": 1}
+    assert typed_plan["typed_operation_count"] == 2
+    assert typed_plan["operation_family_counts"] == {"create": 2}
+    assert typed_plan["noop_entry_count"] == 1
     operations = typed_plan["typed_operations"]
-    assert operations[0]["provider_operation_type"] == "aware_api.api.update"
-    assert operations[0]["baseline"]["object_id"] == "api-object-id"
-    assert operations[0]["semantic_event_projection"]["event_key"] == (
-        "aware_api.provider_delta.api.update"
-    )
-    assert operations[1]["api_operation"]["operation"] == "ensure_api_capability"
-    assert operations[2]["api_operation"]["operation"] == (
+    assert operations[0]["api_operation"]["operation"] == "ensure_api_capability"
+    assert operations[1]["api_operation"]["operation"] == (
         "ensure_api_capability_endpoint"
     )
 
@@ -1994,12 +2216,9 @@ def test_api_provider_delta_execution_preflight_allows_update_apply_upsert(
                 "semantic-root-commit-id"
             ),
         },
-        previous_materialization_evidence={
-            "available": True,
-            "current_semantic_object_ids": {
-                "api:demo": "api-object-id",
-            },
-        },
+        previous_materialization_evidence=(
+            _demo_api_previous_materialization_evidence()
+        ),
     )
     current_analysis = analyze_provider_delta_current_semantics(
         request=request,
@@ -2034,13 +2253,367 @@ def test_api_provider_delta_execution_preflight_allows_update_apply_upsert(
     assert preflight["status"] == "typed_operation_execution_ready"
     assert preflight["reason"] == ("api_provider_delta_typed_operation_execution_ready")
     assert preflight["payload_complete"] is True
-    assert preflight["typed_operation_count"] == 3
+    assert preflight["typed_operation_count"] == 2
     assert preflight["create_operation_count"] == 2
-    assert preflight["update_operation_count"] == 1
+    assert preflight["update_operation_count"] == 0
     assert preflight["typed_operation_executor_declared"] is True
     assert preflight["update_upsert_executor_support_ready"] is True
-    assert preflight["operation_family_counts"] == {"create": 2, "update": 1}
+    assert preflight["operation_family_counts"] == {"create": 2}
     assert block is None
+
+
+@pytest.mark.asyncio
+async def test_api_typed_operation_execution_uses_existing_ancestor_ids() -> None:
+    backend = _RecordingApiExecutionBackend(
+        object_ids=("endpoint-object-id",),
+        commit_ids=("api-endpoint-commit-id",),
+        branch_id="semantic-branch-id",
+    )
+    typed_plan = {
+        "status": "typed_operation_plan_ready",
+        "typed_operation_count": 1,
+        "typed_operations": (
+            {
+                "operation_key": (
+                    "api_provider_delta:create:api_capability_endpoint:"
+                    "api:demo/capability:read_demo/endpoint:read_demo"
+                ),
+                "semantic_key": "api:demo/capability:read_demo/endpoint:read_demo",
+                "operation_family": "create",
+                "ontology_subject_kind": "api_capability_endpoint",
+                "provider_operation_type": ("aware_api.api_capability_endpoint.create"),
+                "current": {"payload": {"name": "read_demo"}},
+                "api_operation": {
+                    "operation": "ensure_api_capability_endpoint",
+                    "operation_family": "upsert",
+                    "arguments": {
+                        "capability_semantic_key": ("api:demo/capability:read_demo"),
+                        "name": "read_demo",
+                        "request_class_ref": "aware_demo_api.ReadDemoRequest",
+                    },
+                },
+            },
+        ),
+    }
+    preflight = api_delta_typed_operation_execution_preflight(
+        provider_delta_typed_operation_plan=typed_plan,
+    )
+
+    result = await api_delta_execute_typed_operation_plan(
+        provider_delta_typed_operation_plan=typed_plan,
+        provider_delta_typed_operation_execution_preflight=preflight,
+        context={
+            API_SEMANTIC_FUNCTION_CALL_EXECUTION_BACKEND_CONTEXT_KEY: backend,
+            SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY: (
+                encode_semantic_function_call_context_by_provider(
+                    {
+                        "aware_api": SemanticFunctionCallContext(
+                            current_semantic_object_ids={
+                                "api:demo": "api-object-id",
+                                "api:demo/capability:read_demo": (
+                                    "capability-object-id"
+                                ),
+                            },
+                            resolved_argument_ref_object_ids={
+                                "aware_demo_api.ReadDemoRequest": (
+                                    "request-class-config-id"
+                                ),
+                            },
+                        ),
+                    }
+                )
+            ),
+        },
+    )
+
+    assert preflight["status"] == "typed_operation_execution_ready"
+    assert result["status"] == "executed"
+    assert result["status_counts"] == {"invoked": 1}
+    assert result["resolved_existing_count"] == 0
+    assert result["invoked_count"] == 1
+    assert [step["status"] for step in result["steps"]] == ["invoked"]
+    assert len(backend.invocations) == 1
+    assert backend.invocations[0].function_ref == (
+        API_CAPABILITY_CREATE_ENDPOINT_FUNCTION_REF
+    )
+    assert backend.invocations[0].receiver_object_id == "capability-object-id"
+    assert result["result_object_ids_by_semantic_key"] == {
+        "api:demo/capability:read_demo/endpoint:read_demo": "endpoint-object-id",
+    }
+
+
+@pytest.mark.asyncio
+async def test_api_typed_operation_execution_updates_endpoint_description() -> None:
+    backend = _RecordingApiExecutionBackend()
+    typed_plan = {
+        "status": "typed_operation_plan_ready",
+        "typed_operation_count": 1,
+        "typed_operations": (
+            {
+                "operation_key": (
+                    "api_provider_delta:update:api_capability_endpoint:"
+                    "api:demo/capability:read_demo/endpoint:read_demo"
+                ),
+                "semantic_key": "api:demo/capability:read_demo/endpoint:read_demo",
+                "operation_family": "update",
+                "ontology_subject_kind": "api_capability_endpoint",
+                "provider_operation_type": ("aware_api.api_capability_endpoint.update"),
+                "baseline": {
+                    "object_id": "endpoint-object-id",
+                    "payload": {"description": "Original endpoint description."},
+                    "changed_fields": ("description",),
+                },
+                "current": {
+                    "payload": {
+                        "name": "read_demo",
+                        "description": "Updated endpoint description.",
+                    }
+                },
+                "api_operation": {
+                    "operation": "ensure_api_capability_endpoint",
+                    "operation_family": "upsert",
+                    "arguments": {
+                        "capability_semantic_key": ("api:demo/capability:read_demo"),
+                        "name": "read_demo",
+                        "description": "Updated endpoint description.",
+                        "request_class_ref": "aware_demo_api.ReadDemoRequest",
+                    },
+                },
+            },
+        ),
+    }
+    preflight = api_delta_typed_operation_execution_preflight(
+        provider_delta_typed_operation_plan=typed_plan,
+    )
+
+    result = await api_delta_execute_typed_operation_plan(
+        provider_delta_typed_operation_plan=typed_plan,
+        provider_delta_typed_operation_execution_preflight=preflight,
+        context={
+            API_SEMANTIC_FUNCTION_CALL_EXECUTION_BACKEND_CONTEXT_KEY: backend,
+            SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY: (
+                encode_semantic_function_call_context_by_provider(
+                    {
+                        "aware_api": SemanticFunctionCallContext(
+                            current_semantic_object_ids={
+                                "api:demo": "api-object-id",
+                                "api:demo/capability:read_demo": (
+                                    "capability-object-id"
+                                ),
+                                "api:demo/capability:read_demo/endpoint:read_demo": (
+                                    "endpoint-object-id"
+                                ),
+                            },
+                            resolved_argument_ref_object_ids={
+                                "aware_demo_api.ReadDemoRequest": (
+                                    "request-class-config-id"
+                                ),
+                            },
+                        ),
+                    }
+                )
+            ),
+        },
+    )
+
+    assert preflight["status"] == "typed_operation_execution_ready"
+    assert result["status"] == "executed"
+    assert result["status_counts"] == {"invoked": 1}
+    assert [step["status"] for step in result["steps"]] == ["invoked"]
+    assert len(backend.invocations) == 1
+    assert backend.invocations[0].function_ref == (
+        API_CAPABILITY_ENDPOINT_UPDATE_FUNCTION_REF
+    )
+    assert backend.invocations[0].receiver_object_id == "endpoint-object-id"
+    assert backend.invocations[0].arguments == {
+        "description": "Updated endpoint description."
+    }
+
+
+@pytest.mark.asyncio
+async def test_api_capability_endpoint_update_config_mutates_description_only() -> None:
+    endpoint = SimpleNamespace(
+        name="read_demo",
+        api_capability_id="capability-object-id",
+        description="Original endpoint description.",
+    )
+
+    await update_api_capability_endpoint_config(
+        endpoint,
+        description="Updated endpoint description.",
+    )
+
+    assert endpoint.name == "read_demo"
+    assert endpoint.api_capability_id == "capability-object-id"
+    assert endpoint.description == "Updated endpoint description."
+
+
+@pytest.mark.parametrize(
+    ("changed_fields", "expected_reason"),
+    (
+        (
+            ("name",),
+            "api_provider_delta_endpoint_identity_update_requires_replacement",
+        ),
+        (
+            ("request_class_ref",),
+            "api_provider_delta_endpoint_request_contract_update_requires_explicit_executor",
+        ),
+    ),
+)
+@pytest.mark.asyncio
+async def test_api_typed_operation_execution_blocks_unsupported_endpoint_updates(
+    changed_fields: tuple[str, ...],
+    expected_reason: str,
+) -> None:
+    backend = _RecordingApiExecutionBackend()
+    operation = {
+        "operation_key": (
+            "api_provider_delta:update:api_capability_endpoint:"
+            "api:demo/capability:read_demo/endpoint:read_demo"
+        ),
+        "semantic_key": "api:demo/capability:read_demo/endpoint:read_demo",
+        "operation_family": "update",
+        "ontology_subject_kind": "api_capability_endpoint",
+        "provider_operation_type": "aware_api.api_capability_endpoint.update",
+        "baseline": {
+            "object_id": "endpoint-object-id",
+            "payload": {},
+            "changed_fields": changed_fields,
+        },
+        "current": {"payload": {"name": "read_demo"}},
+        "api_operation": {
+            "operation": "ensure_api_capability_endpoint",
+            "operation_family": "update",
+            "arguments": {
+                "capability_semantic_key": "api:demo/capability:read_demo",
+                "name": "read_demo",
+                "description": None,
+                "request_class_ref": "aware_demo_api.ReadDemoRequest",
+            },
+        },
+    }
+    typed_plan = {
+        "status": "typed_operation_plan_ready",
+        "typed_operation_count": 1,
+        "typed_operations": (operation,),
+    }
+    preflight = api_delta_typed_operation_execution_preflight(
+        provider_delta_typed_operation_plan=typed_plan,
+    )
+
+    result = await api_delta_execute_typed_operation_plan(
+        provider_delta_typed_operation_plan=typed_plan,
+        provider_delta_typed_operation_execution_preflight=preflight,
+        context={
+            API_SEMANTIC_FUNCTION_CALL_EXECUTION_BACKEND_CONTEXT_KEY: backend,
+            SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY: (
+                encode_semantic_function_call_context_by_provider(
+                    {
+                        "aware_api": SemanticFunctionCallContext(
+                            current_semantic_object_ids={
+                                "api:demo/capability:read_demo/endpoint:read_demo": (
+                                    "endpoint-object-id"
+                                ),
+                            },
+                        ),
+                    }
+                )
+            ),
+        },
+    )
+
+    assert result["status"] == "blocked"
+    assert result["steps"][0]["reason"] == expected_reason
+    assert backend.invocations == []
+
+
+@pytest.mark.parametrize(
+    ("operation", "current_ids", "expected_reason"),
+    (
+        (
+            {
+                "operation_key": "api_provider_delta:update:api:api:demo",
+                "semantic_key": "api:demo",
+                "operation_family": "update",
+                "ontology_subject_kind": "api",
+                "provider_operation_type": "aware_api.api.update",
+                "baseline": {"object_id": "api-object-id", "changed_fields": ()},
+                "current": {"payload": {"name": "demo"}},
+                "api_operation": {
+                    "operation": "ensure_api",
+                    "operation_family": "update",
+                    "arguments": {"name": "demo"},
+                },
+            },
+            {"api:demo": "api-object-id"},
+            "api_provider_delta_existing_api_update_requires_api_update_executor",
+        ),
+        (
+            {
+                "operation_key": (
+                    "api_provider_delta:update:api_capability:"
+                    "api:demo/capability:read_demo"
+                ),
+                "semantic_key": "api:demo/capability:read_demo",
+                "operation_family": "update",
+                "ontology_subject_kind": "api_capability",
+                "provider_operation_type": "aware_api.api_capability.update",
+                "baseline": {
+                    "object_id": "capability-object-id",
+                    "changed_fields": (),
+                },
+                "current": {"payload": {"name": "read_demo"}},
+                "api_operation": {
+                    "operation": "ensure_api_capability",
+                    "operation_family": "update",
+                    "arguments": {
+                        "api_semantic_key": "api:demo",
+                        "name": "read_demo",
+                    },
+                },
+            },
+            {"api:demo/capability:read_demo": "capability-object-id"},
+            "api_provider_delta_existing_api_capability_update_requires_update_executor",
+        ),
+    ),
+)
+@pytest.mark.asyncio
+async def test_api_typed_operation_execution_blocks_unsupported_parent_updates(
+    operation: dict[str, object],
+    current_ids: dict[str, str],
+    expected_reason: str,
+) -> None:
+    backend = _RecordingApiExecutionBackend()
+    typed_plan = {
+        "status": "typed_operation_plan_ready",
+        "typed_operation_count": 1,
+        "typed_operations": (operation,),
+    }
+    preflight = api_delta_typed_operation_execution_preflight(
+        provider_delta_typed_operation_plan=typed_plan,
+    )
+
+    result = await api_delta_execute_typed_operation_plan(
+        provider_delta_typed_operation_plan=typed_plan,
+        provider_delta_typed_operation_execution_preflight=preflight,
+        context={
+            API_SEMANTIC_FUNCTION_CALL_EXECUTION_BACKEND_CONTEXT_KEY: backend,
+            SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY: (
+                encode_semantic_function_call_context_by_provider(
+                    {
+                        "aware_api": SemanticFunctionCallContext(
+                            current_semantic_object_ids=current_ids,
+                        ),
+                    }
+                )
+            ),
+        },
+    )
+
+    assert result["status"] == "blocked"
+    assert result["steps"][0]["reason"] == expected_reason
+    assert backend.invocations == []
 
 
 def test_api_provider_delta_artifact_patch_blocks_without_execution(
@@ -3570,6 +4143,12 @@ def test_api_product_runtime_delta_plan_accepts_emitted_runtime_artifact_evidenc
 ) -> None:
     api_toml_path = _write_simple_api_delta_fixture(tmp_path)
     request = _api_provider_delta_request(api_toml_path=api_toml_path)
+    request = _api_provider_delta_request_with_previous_evidence(
+        request=request,
+        previous_materialization_evidence=(
+            _demo_api_previous_materialization_evidence()
+        ),
+    )
     current_analysis = analyze_provider_delta_current_semantics(
         request=request,
         manifest_path=api_toml_path,
@@ -3658,11 +4237,10 @@ def test_api_product_runtime_delta_plan_accepts_emitted_runtime_artifact_evidenc
         "api_runtime_artifact_fragment_plan_ready"
     )
     assert plan["runtime_artifact_fragment_ready"] is True
-    assert fragment_plan["fragment_operation_count"] == 3
+    assert fragment_plan["fragment_operation_count"] == 2
     assert fragment_plan["blocked_fragment_operation_count"] == 0
     assert fragment_plan["operation_family_counts"] == {
         "create": 2,
-        "update": 1,
     }
     assert plan["runtime_artifact_delta_strategy"] == (
         "delta_fragment_guided_current_analysis_emit"
@@ -3685,7 +4263,6 @@ def test_api_product_runtime_delta_plan_accepts_emitted_runtime_artifact_evidenc
         for item in candidate_plan["candidates"]
         if item["target"] == "service_protocol"
     } >= {
-        "api:demo",
         "api:demo/capability:read_demo",
         "api:demo/capability:read_demo/endpoint:read_demo",
     }
@@ -3716,6 +4293,12 @@ def test_api_runtime_artifact_fragment_plan_survives_full_source_blocker(
 ) -> None:
     api_toml_path = _write_simple_api_delta_fixture(tmp_path)
     request = _api_provider_delta_request(api_toml_path=api_toml_path)
+    request = _api_provider_delta_request_with_previous_evidence(
+        request=request,
+        previous_materialization_evidence=(
+            _demo_api_previous_materialization_evidence()
+        ),
+    )
     current_analysis = analyze_provider_delta_current_semantics(
         request=request,
         manifest_path=api_toml_path,
@@ -3781,7 +4364,7 @@ def test_api_runtime_artifact_fragment_plan_survives_full_source_blocker(
         "api_runtime_artifact_fragment_plan_ready"
     )
     assert plan["runtime_artifact_fragment_ready"] is True
-    assert plan["runtime_artifact_fragment_operation_count"] == 3
+    assert plan["runtime_artifact_fragment_operation_count"] == 2
     assert plan["generated_path_candidate_plan_status"] == (
         "generated_path_candidate_plan_ready"
     )
@@ -3807,12 +4390,9 @@ def test_api_delta_materialization_event_report_projects_language_delta_targets(
                 "semantic-root-commit-id"
             ),
         },
-        previous_materialization_evidence={
-            "available": True,
-            "current_semantic_object_ids": {
-                "api:demo": "api-object-id",
-            },
-        },
+        previous_materialization_evidence=(
+            _demo_api_previous_materialization_evidence()
+        ),
     )
     current_analysis = analyze_provider_delta_current_semantics(
         request=request,
@@ -3894,8 +4474,8 @@ def test_api_delta_materialization_event_report_projects_language_delta_targets(
     )
 
     assert report["status"] == "api_materialization_event_report_ready"
-    assert report["materialization_event_count"] == 3
-    assert report["semantic_world_change_event_count"] == 3
+    assert report["materialization_event_count"] == 2
+    assert report["semantic_world_change_event_count"] == 2
     assert report["semantic_world_change_events"] == report["materialization_events"]
     assert report["readable_semantic_event_chain"] == (
         report["readable_materialization_event_chain"]
@@ -3907,16 +4487,16 @@ def test_api_delta_materialization_event_report_projects_language_delta_targets(
         "api_runtime_artifact_fragment_plan_ready"
     )
     assert report["runtime_artifact_fragment_ready"] is True
-    assert report["runtime_artifact_fragment_operation_count"] == 3
+    assert report["runtime_artifact_fragment_operation_count"] == 2
     assert report["language_delta_driver_ready"] is True
     assert report["event_dispatch_wired"] is False
     assert report["artifact_target_counts"] == {
-        "api_client": 3,
-        "service_protocol": 3,
+        "api_client": 2,
+        "service_protocol": 2,
     }
     events = report["materialization_events"]
-    assert events[0]["event_key"] == "aware_api.materialization.api.update"
-    endpoint_event = events[2]
+    assert events[0]["event_key"] == ("aware_api.materialization.api_capability.create")
+    endpoint_event = events[1]
     assert endpoint_event["semantic_key"] == (
         "api:demo/capability:read_demo/endpoint:read_demo"
     )
@@ -4173,7 +4753,6 @@ async def test_api_provider_delta_executes_typed_update_apply_upsert(
     base_request = _api_provider_delta_request(api_toml_path=api_toml_path)
     backend = _RecordingApiExecutionBackend(
         object_ids=(
-            "api-object-id",
             "capability-object-id",
             "endpoint-object-id",
             "source-code-package-id",
@@ -4181,12 +4760,18 @@ async def test_api_provider_delta_executes_typed_update_apply_upsert(
             "api-package-id",
         ),
         commit_ids=(
-            "api-root-update-commit-id",
             "api-capability-create-commit-id",
             "api-endpoint-create-commit-id",
             "source-code-package-build-commit-id",
             "source-code-package-upsert-commit-id",
             "api-package-commit-id",
+        ),
+        object_instance_graph_commit_ids=(
+            "api-capability-oig-commit-id",
+            "api-endpoint-oig-commit-id",
+            "source-code-package-build-oig-commit-id",
+            "source-code-package-upsert-commit-id",
+            "api-package-oig-commit-id",
         ),
         branch_id="semantic-branch-id",
     )
@@ -4230,12 +4815,9 @@ async def test_api_provider_delta_executes_typed_update_apply_upsert(
                 "semantic-root-commit-id"
             ),
         },
-        previous_materialization_evidence={
-            "available": True,
-            "current_semantic_object_ids": {
-                "api:demo": "api-object-id",
-            },
-        },
+        previous_materialization_evidence=(
+            _demo_api_previous_materialization_evidence()
+        ),
         execute_provider_delta_materialization=True,
         semantic_function_call_execution_context={
             SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY: (
@@ -4271,19 +4853,23 @@ async def test_api_provider_delta_executes_typed_update_apply_upsert(
         "api_provider_delta_typed_operation_execution_invoked"
     )
     assert operation_execution["did_execute"] is True
-    assert typed_execution["status_counts"] == {"invoked": 3}
+    assert typed_execution["status_counts"] == {"invoked": 2}
+    assert typed_execution["resolved_existing_count"] == 0
+    assert typed_execution["invoked_count"] == 2
     assert typed_execution["current_semantic_object_id_count"] == 1
     assert typed_execution["resolved_argument_ref_object_id_count"] == 1
-    assert len(backend.invocations) == 6
-    assert [invocation.function_ref for invocation in backend.invocations[:3]] == [
-        API_CREATE_FUNCTION_REF,
+    assert [step["status"] for step in typed_execution["steps"]] == [
+        "invoked",
+        "invoked",
+    ]
+    assert len(backend.invocations) == 5
+    assert [invocation.function_ref for invocation in backend.invocations[:2]] == [
         API_CREATE_CAPABILITY_FUNCTION_REF,
         API_CAPABILITY_CREATE_ENDPOINT_FUNCTION_REF,
     ]
-    assert backend.invocations[0].call_target == "constructor"
-    assert backend.invocations[1].receiver_object_id == "api-object-id"
-    assert backend.invocations[2].receiver_object_id == "capability-object-id"
-    assert backend.invocations[2].arguments["request_class_config_id"] == (
+    assert backend.invocations[0].receiver_object_id == "api-object-id"
+    assert backend.invocations[1].receiver_object_id == "capability-object-id"
+    assert backend.invocations[1].arguments["request_class_config_id"] == (
         "request-class-config-id"
     )
     package_source_execution = details[
@@ -4320,10 +4906,10 @@ async def test_api_provider_delta_executes_typed_update_apply_upsert(
     assert delta_patch["head_refs"]["semantic_head_commit_id"] == (
         "api-package-commit-id"
     )
-    assert backend.invocations[4].call_target == "instance"
-    assert backend.invocations[4].receiver_object_id == "source-code-package-id"
-    assert "CodePackage.apply_delta" in backend.invocations[4].function_ref
-    source_delta = backend.invocations[4].arguments["delta"]
+    assert backend.invocations[3].call_target == "instance"
+    assert backend.invocations[3].receiver_object_id == "source-code-package-id"
+    assert "CodePackage.apply_delta" in backend.invocations[3].function_ref
+    source_delta = backend.invocations[3].arguments["delta"]
     assert source_delta["paths"] == [
         {
             "relative_path": "apis/demo.aware",
@@ -4414,6 +5000,12 @@ async def test_api_provider_delta_uses_code_package_delta_over_path_hints(
         hint_package_relative_path="apis/misleading.aware",
         delta_relative_path="apis/demo.aware",
     )
+    request = _api_provider_delta_request_with_previous_evidence(
+        request=request,
+        previous_materialization_evidence=(
+            _demo_api_previous_materialization_evidence()
+        ),
+    )
 
     result = await api_workspace_provider.materialize_delta(request=request)
 
@@ -4460,13 +5052,13 @@ async def test_api_provider_delta_uses_code_package_delta_over_path_hints(
         aggregate_evidence["workspace_envelope_retains_provider_report_payload"] is True
     )
     assert result["details"]["provider_delta_typed_operation_plan"]["status"] == (
-        "typed_operation_plan_blocked"
+        "typed_operation_plan_ready"
     )
     assert (
         result["details"]["provider_delta_typed_operation_plan"][
             "blocked_operation_count"
         ]
-        == 3
+        == 0
     )
 
 
@@ -4632,14 +5224,110 @@ async def test_api_provider_delta_adapter_contract_invokes_real_adapter(
 
 
 @pytest.mark.asyncio
-async def test_api_provider_delta_executes_operation_plan_when_flagged(
+async def test_api_provider_delta_blocks_typed_execution_without_api_backend_input(
+    tmp_path: Path,
+) -> None:
+    api_toml_path = _write_simple_api_delta_fixture(tmp_path)
+    base_request = _api_provider_delta_request(api_toml_path=api_toml_path)
+    previous_evidence = _demo_api_previous_materialization_evidence(
+        include_capability=True,
+        include_endpoint=True,
+        endpoint_description="Previous endpoint description.",
+    )
+    durable_execution_inputs = SemanticProviderDeltaDurableExecutionInputs(
+        provider_key="aware_api",
+        semantic_owner="aware_api.provider",
+        semantic_branch_id="semantic-branch-id",
+        semantic_projection_hash="api-projection-hash",
+        semantic_projection_name="Api",
+        author_id="author-id",
+        provider_inputs={},
+    ).model_dump(mode="python")
+    execution_request = SimpleNamespace(
+        package=base_request.package,
+        semantic_contract=base_request.semantic_contract,
+        current_delta_fingerprint=base_request.current_delta_fingerprint,
+        code_package_delta=base_request.code_package_delta,
+        delta_cause_hints=base_request.delta_cause_hints,
+        previous_materialization_evidence=previous_evidence,
+        execute_provider_delta_materialization=True,
+        semantic_function_call_execution_context={
+            SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY: (
+                encode_semantic_function_call_context_by_provider(
+                    {
+                        "aware_api": SemanticFunctionCallContext(
+                            resolved_argument_ref_object_ids={
+                                "aware_demo_api.ReadDemoRequest": (
+                                    "request-class-config-id"
+                                ),
+                            },
+                        ),
+                    }
+                )
+            ),
+            SEMANTIC_PROVIDER_DELTA_DURABLE_EXECUTION_INPUTS_KEY: (
+                durable_execution_inputs
+            ),
+        },
+    )
+
+    result = await api_workspace_provider.materialize_delta(request=execution_request)
+
+    details = result["details"]
+    operation_execution = details["provider_delta_operation_execution"]
+    operation_plan = details["delta_operation_plan"]
+    durable_preflight = details["provider_delta_durable_execution_inputs_preflight"]
+    typed_execution_preflight = details[
+        "provider_delta_typed_operation_execution_preflight"
+    ]
+    function_execution = operation_execution["semantic_function_call_execution"]
+    assert result["status"] == "succeeded"
+    assert details["mode"] == "api_provider_delta_operation_execution_requested"
+    assert details["production_execution_wired"] is False
+    assert durable_preflight["status"] == "durable_execution_inputs_ready"
+    assert durable_preflight["common_inputs_available"] is True
+    assert durable_preflight["api_execution_backend_provider_input_available"] is False
+    assert durable_preflight["api_execution_backend_provider_input_source"] is None
+    assert durable_preflight["provider_input_keys"] == ()
+    assert typed_execution_preflight["status"] == "typed_operation_execution_blocked"
+    assert typed_execution_preflight["reason"] == (
+        "api_provider_delta_typed_operation_execution_requires_api_execution_backend_provider_input"
+    )
+    assert typed_execution_preflight["durable_execution_inputs_checked"] is True
+    assert typed_execution_preflight["durable_execution_inputs_ready"] is True
+    assert (
+        typed_execution_preflight["api_execution_backend_provider_input_available"]
+        is False
+    )
+    assert operation_plan["provider_delta_typed_operation_execution_status"] == (
+        "typed_operation_execution_blocked"
+    )
+    assert operation_execution["status"] == "typed_operation_execution_blocked"
+    assert operation_execution["reason"] == (
+        "api_provider_delta_typed_operation_execution_requires_api_execution_backend_provider_input"
+    )
+    assert operation_execution["did_execute"] is False
+    assert operation_execution["would_execute"] is False
+    assert operation_execution["execution_wired"] is False
+    assert function_execution["enabled"] is False
+    assert function_execution["operation_execution_status"] == (
+        "typed_operation_execution_blocked"
+    )
+    assert (
+        details["provider_delta_package_source_operation_execution"]["status"]
+        == "operation_not_ready"
+    )
+    assert result["commit_ref_contract"]["status"] == "missing_durable_refs"
+
+
+@pytest.mark.asyncio
+async def test_api_provider_delta_executes_with_generic_semantic_graph_backend_input(
     tmp_path: Path,
 ) -> None:
     api_toml_path = _write_simple_api_delta_fixture(tmp_path)
     base_request = _api_provider_delta_request(api_toml_path=api_toml_path)
     backend = _RecordingApiExecutionBackend(
         object_ids=(
-            "api-object-id",
             "capability-object-id",
             "endpoint-object-id",
             "source-code-package-id",
@@ -4647,12 +5335,116 @@ async def test_api_provider_delta_executes_operation_plan_when_flagged(
             "api-package-id",
         ),
         commit_ids=(
-            "api-root-commit-id",
             "api-capability-commit-id",
             "api-endpoint-commit-id",
             "source-code-package-build-commit-id",
             "source-code-package-upsert-commit-id",
             "api-package-commit-id",
+        ),
+        object_instance_graph_commit_ids=(
+            "api-capability-oig-commit-id",
+            "api-endpoint-oig-commit-id",
+            "source-code-package-build-oig-commit-id",
+            "source-code-package-upsert-commit-id",
+            "api-package-oig-commit-id",
+        ),
+        branch_id="semantic-branch-id",
+    )
+    durable_execution_inputs = SemanticProviderDeltaDurableExecutionInputs(
+        provider_key="aware_api",
+        semantic_owner="aware_api.provider",
+        semantic_branch_id="semantic-branch-id",
+        semantic_projection_hash="api-projection-hash",
+        semantic_projection_name="Api",
+        author_id="author-id",
+        provider_inputs={
+            SEMANTIC_GRAPH_EXECUTION_BACKEND_BY_PROVIDER_CONTEXT_KEY: {
+                "aware_api": backend,
+            },
+        },
+    ).model_dump(mode="python")
+    execution_request = SimpleNamespace(
+        package=base_request.package,
+        semantic_contract=base_request.semantic_contract,
+        current_delta_fingerprint=base_request.current_delta_fingerprint,
+        code_package_delta=base_request.code_package_delta,
+        delta_cause_hints=base_request.delta_cause_hints,
+        baseline_ref=_demo_api_baseline_ref(),
+        previous_materialization_evidence=(
+            _demo_api_previous_materialization_evidence()
+        ),
+        execute_provider_delta_materialization=True,
+        semantic_function_call_execution_context={
+            SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY: (
+                encode_semantic_function_call_context_by_provider(
+                    {
+                        "aware_api": SemanticFunctionCallContext(
+                            resolved_argument_ref_object_ids={
+                                "aware_demo_api.ReadDemoRequest": (
+                                    "request-class-config-id"
+                                ),
+                            },
+                        ),
+                    }
+                )
+            ),
+            SEMANTIC_PROVIDER_DELTA_DURABLE_EXECUTION_INPUTS_KEY: (
+                durable_execution_inputs
+            ),
+        },
+    )
+
+    result = await api_workspace_provider.materialize_delta(request=execution_request)
+
+    details = result["details"]
+    operation_execution = details["provider_delta_operation_execution"]
+    durable_preflight = details["provider_delta_durable_execution_inputs_preflight"]
+    assert result["status"] == "succeeded"
+    assert durable_preflight["status"] == "durable_execution_inputs_ready"
+    assert durable_preflight["api_execution_backend_provider_input_available"] is True
+    assert durable_preflight["api_execution_backend_provider_input_source"] == (
+        f"{SEMANTIC_GRAPH_EXECUTION_BACKEND_BY_PROVIDER_CONTEXT_KEY}.aware_api"
+    )
+    assert durable_preflight["provider_input_keys"] == (
+        SEMANTIC_GRAPH_EXECUTION_BACKEND_BY_PROVIDER_CONTEXT_KEY,
+    )
+    assert operation_execution["status"] == "executed"
+    assert operation_execution["did_execute"] is True
+    assert (
+        details["provider_delta_package_source_operation_execution"]["status"]
+        == "executed"
+    )
+    assert result["commit_ref_contract"]["status"] == "ready"
+    assert len(backend.invocations) == 5
+
+
+@pytest.mark.asyncio
+async def test_api_provider_delta_executes_operation_plan_when_flagged(
+    tmp_path: Path,
+) -> None:
+    api_toml_path = _write_simple_api_delta_fixture(tmp_path)
+    base_request = _api_provider_delta_request(api_toml_path=api_toml_path)
+    backend = _RecordingApiExecutionBackend(
+        object_ids=(
+            "capability-object-id",
+            "endpoint-object-id",
+            "source-code-package-id",
+            "source-code-package-id",
+            "api-package-id",
+        ),
+        commit_ids=(
+            "api-capability-commit-id",
+            "api-endpoint-commit-id",
+            "source-code-package-build-commit-id",
+            "source-code-package-upsert-commit-id",
+            "api-package-commit-id",
+        ),
+        object_instance_graph_commit_ids=(
+            "api-capability-oig-commit-id",
+            "api-endpoint-oig-commit-id",
+            "source-code-package-build-oig-commit-id",
+            "source-code-package-upsert-commit-id",
+            "api-package-oig-commit-id",
         ),
         branch_id="semantic-branch-id",
     )
@@ -4673,8 +5465,9 @@ async def test_api_provider_delta_executes_operation_plan_when_flagged(
         current_delta_fingerprint=base_request.current_delta_fingerprint,
         code_package_delta=base_request.code_package_delta,
         delta_cause_hints=base_request.delta_cause_hints,
+        baseline_ref=_demo_api_baseline_ref(),
         previous_materialization_evidence=(
-            base_request.previous_materialization_evidence
+            _demo_api_previous_materialization_evidence()
         ),
         execute_provider_delta_materialization=True,
         semantic_function_call_execution_context={
@@ -4711,12 +5504,15 @@ async def test_api_provider_delta_executes_operation_plan_when_flagged(
     assert durable_preflight["shared_execution_inputs_contract_available"] is True
     assert durable_preflight["common_inputs_available"] is True
     assert durable_preflight["api_execution_backend_provider_input_available"] is True
+    assert durable_preflight["api_execution_backend_provider_input_source"] == (
+        API_SEMANTIC_FUNCTION_CALL_EXECUTION_BACKEND_CONTEXT_KEY
+    )
     assert durable_preflight["provider_input_keys"] == (
         API_SEMANTIC_FUNCTION_CALL_EXECUTION_BACKEND_CONTEXT_KEY,
     )
     assert operation_execution["status"] == "executed"
     assert operation_execution["reason"] == (
-        "api_provider_delta_operation_execution_invoked"
+        "api_provider_delta_typed_operation_execution_invoked"
     )
     assert operation_execution["flag_requested"] is True
     assert operation_execution["execution_wired"] is True
@@ -4731,20 +5527,17 @@ async def test_api_provider_delta_executes_operation_plan_when_flagged(
     assert operation_execution["durable_execution_inputs_status"] == (
         "durable_execution_inputs_ready"
     )
-    assert operation_execution["semantic_function_call_resolution_count"] == 3
-    assert operation_execution["semantic_function_call_resolution_status_counts"] == {
-        "create_child": 2,
-        "create_root": 1,
-    }
+    assert operation_execution["semantic_function_call_resolution_count"] == 0
+    assert operation_execution["semantic_function_call_resolution_status_counts"] == {}
     assert operation_execution["semantic_function_call_resolution_context"] == {
-        "current_semantic_object_id_count": 0,
+        "current_semantic_object_id_count": 1,
         "resolved_argument_ref_object_id_count": 1,
-        "schema": "semantic_function_call_context",
+        "schema": "typed_operation_execution_context",
     }
     function_execution = operation_execution["semantic_function_call_execution"]
     assert function_execution["status"] == "executed"
-    assert function_execution["status_counts"] == {"invoked": 3}
-    assert function_execution["step_count"] == 3
+    assert function_execution["status_counts"] == {"invoked": 2}
+    assert function_execution["step_count"] == 2
     package_source_execution = details[
         "provider_delta_package_source_operation_execution"
     ]
@@ -4754,38 +5547,36 @@ async def test_api_provider_delta_executes_operation_plan_when_flagged(
     )
     assert package_source_execution["did_execute"] is True
     assert package_source_execution["step_count"] == 3
-    assert len(backend.invocations) == 6
-    assert [invocation.function_ref for invocation in backend.invocations[:3]] == [
-        API_CREATE_FUNCTION_REF,
+    assert len(backend.invocations) == 5
+    assert [invocation.function_ref for invocation in backend.invocations[:2]] == [
         API_CREATE_CAPABILITY_FUNCTION_REF,
         API_CAPABILITY_CREATE_ENDPOINT_FUNCTION_REF,
     ]
-    assert backend.invocations[0].call_target == "constructor"
-    assert backend.invocations[1].receiver_object_id == "api-object-id"
-    assert backend.invocations[2].receiver_object_id == "capability-object-id"
-    assert backend.invocations[2].arguments["request_class_config_id"] == (
+    assert backend.invocations[0].receiver_object_id == "api-object-id"
+    assert backend.invocations[1].receiver_object_id == "capability-object-id"
+    assert backend.invocations[1].arguments["request_class_config_id"] == (
         "request-class-config-id"
     )
-    assert backend.invocations[3].call_target == "constructor"
-    assert "CodePackage.build" in backend.invocations[3].function_ref
-    assert backend.invocations[4].call_target == "instance"
-    assert backend.invocations[4].receiver_object_id == "source-code-package-id"
-    assert "CodePackage.apply_delta" in backend.invocations[4].function_ref
+    assert backend.invocations[2].call_target == "constructor"
+    assert "CodePackage.build" in backend.invocations[2].function_ref
+    assert backend.invocations[3].call_target == "instance"
+    assert backend.invocations[3].receiver_object_id == "source-code-package-id"
+    assert "CodePackage.apply_delta" in backend.invocations[3].function_ref
     assert package_source_execution["source_update_strategy"] == ("code_package_delta")
     assert package_source_execution["source_delta_path_count"] == 1
     assert package_source_execution["source_delta_kind_counts"] == {"update": 1}
     assert [
         path["relative_path"]
-        for path in backend.invocations[4].arguments["delta"]["paths"]
+        for path in backend.invocations[3].arguments["delta"]["paths"]
     ] == ["apis/demo.aware"]
-    assert backend.invocations[5].call_target == "constructor"
-    assert "ApiPackage.build" in backend.invocations[5].function_ref
-    assert backend.invocations[5].arguments["api_id"] == "api-object-id"
+    assert backend.invocations[4].call_target == "constructor"
+    assert "ApiPackage.build" in backend.invocations[4].function_ref
+    assert backend.invocations[4].arguments["api_id"] == "api-object-id"
     assert (
-        backend.invocations[5].arguments["api_object_instance_graph_commit_id"]
-        == "api-root-commit-id"
+        backend.invocations[4].arguments["api_object_instance_graph_commit_id"]
+        == "semantic-root-commit-id"
     )
-    assert backend.invocations[5].arguments["source_code_package_id"] == (
+    assert backend.invocations[4].arguments["source_code_package_id"] == (
         "source-code-package-id"
     )
     assert result["commit_ref_contract"]["status"] == "ready"
@@ -4807,7 +5598,7 @@ async def test_api_provider_delta_executes_operation_plan_when_flagged(
         "api-package-commit-id"
     )
     assert result["bundle_package"]["semantic_object_instance_graph_commit_id"] == (
-        "api-package-commit-id"
+        "api-package-oig-commit-id"
     )
     assert result["bundle_package"]["semantic_package_id"] == "api-package-id"
     assert result["bundle_package"]["source_code_package_id"] == (
@@ -4819,7 +5610,7 @@ async def test_api_provider_delta_executes_operation_plan_when_flagged(
     assert result["bundle_package"]["semantic_root_id"] == "api-object-id"
     assert (
         result["bundle_package"]["semantic_root_object_instance_graph_commit_id"]
-        == "api-root-commit-id"
+        == "semantic-root-commit-id"
     )
     assert details["operation_commit_ref_status"] == "partial_refs"
     assert details["operation_commit_ref_available_required_fields"] == [
@@ -5105,6 +5896,7 @@ async def test_api_workspace_provider_passes_context_graphs_to_materialization(
             api_object_instance_graph_commit_id=uuid4(),
             package_commit_id=uuid4(),
             package_head_commit_id=uuid4(),
+            package_object_instance_graph_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
             direct_dependency_materialization_details=(),
@@ -5207,6 +5999,28 @@ async def test_api_dto_export_provider_passes_context_graphs_to_materialization(
         observed["resolver_accessible_graphs"] = kwargs["accessible_graphs"]
         return tuple(cast(tuple[object, ...], kwargs["accessible_graphs"]))
 
+    async def _fake_materialize_api_dto_language_code_package(
+        **kwargs: object,
+    ) -> object:
+        observed["language_code_package"] = kwargs
+        return SimpleNamespace(
+            to_payload=lambda: {
+                "code_package_id": generated_code_package_id,
+                "source_code_package_id": generated_code_package_id,
+                "branch_id": uuid4(),
+                "projection_hash": "code-package-projection",
+                "domain_commit_id": uuid4(),
+                "object_instance_graph_commit_id": uuid4(),
+                "package_name": "aware_network_service_dto",
+                "language": "python",
+                "manifest_relative_path": "dto/python/pyproject.toml",
+                "package_root": "dto/python",
+                "sources_root": "dto/python/aware_network_service_dto",
+                "role": "package",
+                "output_key": "python.dto_package",
+            }
+        )
+
     monkeypatch.setattr(
         api_workspace_provider,
         "_api_dto_declaring_api_toml_path",
@@ -5236,6 +6050,11 @@ async def test_api_dto_export_provider_passes_context_graphs_to_materialization(
         api_products_mod,
         "materialize_api_dto_packages",
         _fake_materialize_api_dto_packages,
+    )
+    monkeypatch.setattr(
+        api_workspace_provider,
+        "materialize_api_dto_language_code_package",
+        _fake_materialize_api_dto_language_code_package,
     )
     monkeypatch.setattr(
         api_workspace_provider,
@@ -5277,6 +6096,35 @@ async def test_api_dto_export_provider_passes_context_graphs_to_materialization(
 
     assert observed["resolver_accessible_graphs"] == (context_graph,)
     assert observed["accessible_graphs"] == (context_graph,)
+    runtime_root = dto_manifest_path.parent / ".aware/api/runtime/network-service-dto"
+    runtime_manifest = json.loads(
+        (runtime_root / "api.manifest.json").read_text(encoding="utf-8")
+    )
+    assert runtime_manifest["schema"] == "aware.api.dto_runtime_graph.v1"
+    assert runtime_manifest["ocg"]["snapshot"] == "ocg.snapshot.msgpack"
+    snapshot_payload = msgpack.unpackb(
+        (runtime_root / "ocg.snapshot.msgpack").read_bytes(),
+        raw=False,
+    )
+    assert snapshot_payload["id"] == str(dto_graph.id)
+    assert observed["language_code_package"] == {
+        "index": request.index,
+        "actor_id": request.actor_id,
+        "workspace_root": tmp_path,
+        "package_name": "dto",
+        "import_root": "aware_network_service_dto",
+        "package_root": dto_package_root,
+    }
+    dto_bundle = result.bundle_packages[0]
+    assert dto_bundle.semantic_root_kind == "api_dto"
+    assert dto_bundle.semantic_branch_id is None
+    assert dto_bundle.semantic_projection_name is None
+    assert dto_bundle.semantic_head_commit_id is None
+    assert dto_bundle.semantic_object_instance_graph_commit_id is None
+    runtime_ref = dto_bundle.runtime_code_package_refs[0]
+    assert runtime_ref["projection_hash"] == "code-package-projection"
+    assert runtime_ref["source_object_instance_graph_commit_id"] is not None
+    assert len(cast(tuple[object, ...], runtime_ref["runtime_artifact_refs"])) == 2
     deltas = result.details["generated_code_package_deltas"]
     assert isinstance(deltas, list)
     assert len(deltas) == 1
@@ -5351,6 +6199,7 @@ async def test_api_provider_delta_commit_ref_probe_passes_context_graphs(
             source_object_instance_graph_commit_id=uuid4(),
             api_object_instance_graph_commit_id=uuid4(),
             package_head_commit_id=uuid4(),
+            package_object_instance_graph_commit_id=uuid4(),
             phase_timings_s={},
         )
 
@@ -5444,6 +6293,7 @@ async def test_api_workspace_provider_reports_semantic_function_call_plan_previe
             package_commit_id=uuid4(),
             api_object_instance_graph_commit_id=uuid4(),
             package_head_commit_id=uuid4(),
+            package_object_instance_graph_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
             direct_dependency_materialization_details=(),
@@ -5583,6 +6433,7 @@ async def test_api_workspace_provider_resolves_function_call_plans_from_context(
             package_commit_id=uuid4(),
             api_object_instance_graph_commit_id=uuid4(),
             package_head_commit_id=uuid4(),
+            package_object_instance_graph_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
             direct_dependency_materialization_details=(),
@@ -5718,6 +6569,7 @@ async def test_api_workspace_provider_executes_function_call_plans_when_enabled(
             package_commit_id=uuid4(),
             api_object_instance_graph_commit_id=uuid4(),
             package_head_commit_id=uuid4(),
+            package_object_instance_graph_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
             direct_dependency_materialization_details=(),
@@ -5988,6 +6840,7 @@ async def test_api_semantic_analysis_preview_flows_into_workspace_provider(
             package_commit_id=uuid4(),
             api_object_instance_graph_commit_id=uuid4(),
             package_head_commit_id=uuid4(),
+            package_object_instance_graph_commit_id=uuid4(),
             generated_dto_graph_count=0,
             generated_dto_class_config_count=0,
             direct_dependency_materialization_details=(),
@@ -6698,6 +7551,110 @@ def test_api_language_code_package_targets_reject_nonempty_dart_package_without_
         )
 
 
+def test_api_runtime_artifact_refs_include_only_byte_addressed_files() -> None:
+    language_ref = {
+        "source_code_package_id": str(uuid4()),
+        "package_name": "aware_home_story_api",
+    }
+    refs = api_workspace_provider._with_api_runtime_artifact_refs(
+        language_code_package_refs=(language_ref,),
+        artifact_ownership_receipts=(
+            {
+                "status": "available",
+                "output_kind": "file",
+                "manifest_path": "api/client.py",
+                "digest": "file-digest",
+                "artifact_role": "runtime_file",
+            },
+            {
+                "status": "available",
+                "output_kind": "package_output",
+                "manifest_path": "api",
+                "digest": "directory-digest",
+                "artifact_role": "package",
+            },
+        ),
+    )
+
+    assert refs[0]["runtime_artifact_refs"] == (
+        {
+            "manifest_path": "api/client.py",
+            "digest": "file-digest",
+            "digest_algorithm": "sha256",
+            "artifact_role": "runtime_file",
+        },
+    )
+
+
+@pytest.mark.asyncio
+async def test_api_language_code_packages_include_generated_dto_package(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workspace_root = tmp_path / "api_package_targets_with_dto"
+    workspace_root.mkdir(parents=True, exist_ok=True)
+    api_toml_path = _write_api_package_fixture(
+        workspace_root=workspace_root,
+        include_dart_package=False,
+    )
+    dto_package_root = workspace_root / "apis" / "home" / "python" / "dto"
+    dto_import_root = "aware_home_story_dto"
+    _write(
+        dto_package_root / "pyproject.toml",
+        "[project]\nname = 'aware-home-story-dto'\n",
+    )
+    _write(dto_package_root / dto_import_root / "__init__.py", "\n")
+
+    import aware_api_runtime.compile_materialization.service as package_service
+    from aware_api_runtime.workspace import APIWorkspace  # noqa: WPS433
+
+    observed_targets: tuple[object, ...] = ()
+
+    async def _fake_materialize_targets(**kwargs: object) -> tuple[object, ...]:
+        nonlocal observed_targets
+        observed_targets = cast(tuple[object, ...], kwargs["targets"])
+        return ()
+
+    monkeypatch.setattr(
+        package_service,
+        "_materialize_api_language_code_package_targets",
+        _fake_materialize_targets,
+    )
+    snapshot = APIWorkspace.from_toml(
+        toml_path=api_toml_path,
+        repo_root=workspace_root,
+    ).build_snapshot()
+
+    await package_service._materialize_api_language_code_packages(
+        index=cast(Any, object()),
+        actor_id=None,
+        code_package_projection_hash="code-package-projection",
+        workspace_root=workspace_root,
+        snapshot=snapshot,
+        product_runtime_compile_result=SimpleNamespace(
+            api_dto_package_materializations=(
+                SimpleNamespace(
+                    import_root=dto_import_root,
+                    package_root=dto_package_root,
+                ),
+            ),
+        ),
+    )
+
+    targets_by_output_key = {
+        cast(Any, target).output_key: cast(Any, target) for target in observed_targets
+    }
+    assert set(targets_by_output_key) == {
+        "python.dto_package",
+        "python.public_package",
+        "python.service_protocol_package",
+    }
+    dto_target = targets_by_output_key["python.dto_package"]
+    assert dto_target.package_name == "aware-home-story-dto"
+    assert dto_target.import_root == dto_import_root
+    assert dto_target.package_root == dto_package_root
+
+
 @pytest.mark.asyncio
 async def test_materialize_api_package_from_manifest_commits_canonical_package_root(
     tmp_path: Path,
@@ -6993,6 +7950,16 @@ async def test_materialize_api_package_from_manifest_commits_canonical_package_r
         ]
         assert {item.code_package_id for item in language_packages} == set(
             result.language_code_package_ids
+        )
+        language_refs_by_code_package_id = {
+            item["code_package_id"]: item for item in result.language_code_package_refs
+        }
+        assert all(
+            item.object_instance_graph_commit_id
+            == language_refs_by_code_package_id[item.code_package_id][
+                "object_instance_graph_commit_id"
+            ]
+            for item in language_packages
         )
 
         code_package_session = await _hydrate_projection_session(

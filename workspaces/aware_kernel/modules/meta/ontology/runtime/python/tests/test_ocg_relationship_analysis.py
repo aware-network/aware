@@ -31,6 +31,7 @@ from aware_meta.graph.config.relationship_analysis import analyze_relationships
 from aware_meta.graph.config.relationship_analysis import (
     ClassConfigRelationshipIdentityRail,
     build_object_config_graph_analysis_bundle,
+    capture_missing_relationship_endpoint_diagnostics,
     compute_fk_materialization_plan,
     fk_db_requiredness_from_relationship_semantics,
     fk_runtime_requiredness_from_relationship_semantics,
@@ -167,8 +168,7 @@ def _build_code(tmp_path: Path, name: str, content: str):
 
 def _ns(*, fqn_prefix: str, namespace: str, code_ids: list[UUID]):
     return {
-        cid: NamespacePath(package=fqn_prefix, namespace=namespace)
-        for cid in code_ids
+        cid: NamespacePath(package=fqn_prefix, namespace=namespace) for cid in code_ids
     }, []
 
 
@@ -193,9 +193,7 @@ def test_relationship_type_derivation_is_purely_grammar_driven(tmp_path: Path) -
         DEFAULT_CODE.strip(),
     )
 
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="default", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="default", code_ids=[code.id])
     res = build_object_config_graph_from_code(
         name="rels",
         description="rels",
@@ -278,9 +276,7 @@ def test_containment_one_to_one_is_child_fk_owned(tmp_path: Path) -> None:
         "containment_one_to_one.aware",
         CONTAINMENT_ONE_TO_ONE_CODE.strip(),
     )
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="default", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="default", code_ids=[code.id])
     res = build_object_config_graph_from_code(
         name="containment_one_to_one",
         description="containment_one_to_one",
@@ -312,9 +308,7 @@ def test_containment_many_to_one_fails_closed(tmp_path: Path) -> None:
         "containment_many_to_one_forbidden.aware",
         CONTAINMENT_MANY_TO_ONE_FORBIDDEN_CODE.strip(),
     )
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="default", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="default", code_ids=[code.id])
     res = build_object_config_graph_from_code(
         name="containment_many_to_one_forbidden",
         description="containment_many_to_one_forbidden",
@@ -339,9 +333,7 @@ def test_association_edge_construct_many_to_one_targets_edge_not_authored_target
         "association_edge_containment_many_to_one.aware",
         ASSOCIATION_EDGE_CONTAINMENT_MANY_TO_ONE_CODE.strip(),
     )
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="default", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="default", code_ids=[code.id])
     res = build_object_config_graph_from_code(
         name="association_edge_containment_many_to_one",
         description="association_edge_containment_many_to_one",
@@ -379,9 +371,7 @@ def test_standalone_construct_target_does_not_flip_many_to_one_to_containment(
         "standalone_edge_construct_reference.aware",
         STANDALONE_EDGE_CONSTRUCT_REFERENCE_CODE.strip(),
     )
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="default", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="default", code_ids=[code.id])
     res = build_object_config_graph_from_code(
         name="standalone_edge_construct_reference",
         description="standalone_edge_construct_reference",
@@ -422,9 +412,7 @@ def test_fk_requiredness_runtime_vs_db_and_overrides(tmp_path: Path) -> None:
     code = _build_code(
         tmp_path, "rels_override.aware", DEFAULT_CODE_WITH_OVERRIDES.strip()
     )
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="default", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="default", code_ids=[code.id])
     res = build_object_config_graph_from_code(
         name="rels_override",
         description="rels_override",
@@ -494,9 +482,7 @@ def test_fk_requiredness_reverse_lazy_remains_required_by_truth(tmp_path: Path) 
         "rels_reverse_lazy.aware",
         DEFAULT_CODE.strip(),
     )
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="default", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="default", code_ids=[code.id])
     res = build_object_config_graph_from_code(
         name="rels_reverse_lazy",
         description="rels_reverse_lazy",
@@ -530,9 +516,7 @@ def test_fk_overrides_resolve_without_code_provenance(tmp_path: Path) -> None:
     code = _build_code(
         tmp_path, "rels_override_roundtrip.aware", DEFAULT_CODE_WITH_OVERRIDES.strip()
     )
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="default", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="default", code_ids=[code.id])
     res = build_object_config_graph_from_code(
         name="rels_override_roundtrip",
         description="rels_override_roundtrip",
@@ -586,9 +570,7 @@ class User {
 class Organization { id String }
 """.strip()
     code = _build_code(tmp_path, "dedupe.aware", src)
-    ns, domains = _ns(
-        fqn_prefix="pkg", namespace="default", code_ids=[code.id]
-    )
+    ns, domains = _ns(fqn_prefix="pkg", namespace="default", code_ids=[code.id])
     res = build_object_config_graph_from_code(
         name="dedupe",
         description="dedupe",
@@ -622,6 +604,7 @@ class Organization { id String }
 
 def test_relationship_analysis_hydrates_cross_ocg_targets_via_external_graphs_by_id(
     tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """
     Regression:
@@ -687,6 +670,15 @@ class ObjectInstanceGraphBranch {
     meta_graph_loaded = meta_graph.model_validate_json(
         meta_graph.model_dump_json(exclude_none=True, by_alias=True)
     )
+
+    with capture_missing_relationship_endpoint_diagnostics() as diagnostics:
+        assert analyze_relationships(meta_graph_loaded) == []
+    assert [diagnostic.relationship_id for diagnostic in diagnostics] == [
+        cross_rels[0].id
+    ]
+    assert diagnostics[0].source_missing is False
+    assert diagnostics[0].target_missing is True
+    assert "Source or target class missing for relationship" not in caplog.text
 
     bundle = build_object_config_graph_analysis_bundle(
         meta_graph_loaded,

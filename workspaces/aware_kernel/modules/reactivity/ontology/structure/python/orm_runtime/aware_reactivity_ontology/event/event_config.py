@@ -30,12 +30,16 @@ from aware_types import JsonObject
 if TYPE_CHECKING:
     from aware_reactivity_ontology.event.event_config_action_config import EventConfigActionConfig
     from aware_reactivity_ontology.event.event_config_condition_config import EventConfigConditionConfig
+    from aware_reactivity_ontology.event.event_config_meaning_resolver_config import EventConfigMeaningResolverConfig
 
 
 class EventConfig(ORMModel):
     # Relationships
     event_config_action_configs: list[EventConfigActionConfig] = Field(default_factory=list, exclude=True)
     event_config_condition_configs: list[EventConfigConditionConfig] = Field(default_factory=list, exclude=True)
+    event_config_meaning_resolver_configs: list[EventConfigMeaningResolverConfig] = Field(
+        default_factory=list, exclude=True
+    )
 
     # Attributes
     allowed_roles: list[str] = Field(default_factory=list)
@@ -149,6 +153,33 @@ class EventConfig(ORMModel):
             return value
         return EventConfigActionConfig.validate_invocation_value(value)
 
+    async def add_meaning_resolver_config(
+        self, action_config_id: UUID, resolver_key: str = "default", priority: int = 0, is_enabled: bool = True
+    ) -> EventConfigMeaningResolverConfig:
+        """
+        Register one provider-owned ActionConfig as an event-meaning resolver.
+
+        The ActionConfig remains the 1:1 API endpoint anchor. This relation
+        declares resolver role and selection policy without invoking the
+        provider or storing its result in Reactivity.
+        """
+
+        payload = {
+            "action_config_id": action_config_id,
+            "resolver_key": resolver_key,
+            "priority": priority,
+            "is_enabled": is_enabled,
+        }
+        result = await invoke_instance(orm_model=self, function_name="add_meaning_resolver_config", payload=payload)
+        value = result.get("value") if isinstance(result, dict) and "value" in result else result
+        from aware_reactivity_ontology.event.event_config_meaning_resolver_config import (
+            EventConfigMeaningResolverConfig,
+        )
+
+        if isinstance(value, EventConfigMeaningResolverConfig):
+            return value
+        return EventConfigMeaningResolverConfig.validate_invocation_value(value)
+
     async def update_sources(self, p_event_config_id: UUID, p_valid_sources: list[str]) -> None:
         """
         Updates the valid sources for an event config, ensuring uniqueness and order.
@@ -210,6 +241,17 @@ class EventConfigAddActionConfigOutput(BaseModel):
     value: EventConfigActionConfig
 
 
+class EventConfigAddMeaningResolverConfigInput(BaseModel):
+    action_config_id: UUID
+    resolver_key: str = Field(default="default")
+    priority: int = Field(default=0)
+    is_enabled: bool = Field(default=True)
+
+
+class EventConfigAddMeaningResolverConfigOutput(BaseModel):
+    value: EventConfigMeaningResolverConfig
+
+
 class EventConfigUpdateSourcesInput(BaseModel):
     p_event_config_id: UUID
     p_valid_sources: list[str] = Field(default_factory=list)
@@ -248,6 +290,15 @@ FUNCTIONS = {
             "input": EventConfigAddActionConfigInput,
             "output": EventConfigAddActionConfigOutput,
         },
+        "add_meaning_resolver_config": {
+            "canonical": {
+                "name": "add_meaning_resolver_config",
+                "description": "Register one provider-owned ActionConfig as an event-meaning resolver.\n\nThe ActionConfig remains the 1:1 API endpoint anchor. This relation\ndeclares resolver role and selection policy without invoking the\nprovider or storing its result in Reactivity.",
+                "is_constructor": False,
+            },
+            "input": EventConfigAddMeaningResolverConfigInput,
+            "output": EventConfigAddMeaningResolverConfigOutput,
+        },
         "update_sources": {
             "canonical": {
                 "name": "update_sources",
@@ -268,6 +319,8 @@ __all__ = [
     "EventConfigAddConditionConfigOutput",
     "EventConfigAddActionConfigInput",
     "EventConfigAddActionConfigOutput",
+    "EventConfigAddMeaningResolverConfigInput",
+    "EventConfigAddMeaningResolverConfigOutput",
     "EventConfigUpdateSourcesInput",
     "EventConfigUpdateSourcesOutput",
     "FUNCTIONS",

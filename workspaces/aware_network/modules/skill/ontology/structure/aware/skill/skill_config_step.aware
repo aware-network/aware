@@ -1,0 +1,44 @@
+class SkillConfigStep {
+    // Relationships
+    skill_config_api_endpoint SkillConfigApiEndpoint
+    targets SkillConfigStepTarget[]
+
+    // Attributes
+    instruction String
+    position Int key
+
+    fn build construct (
+        position Int key,
+        skill_config_api_endpoint_id UUID,
+        instruction String
+    ) -> SkillConfigStep {
+        """
+        Create one ordered step in a Skill orchestration plan.
+
+        Contract:
+        - A step binds to Skill-owned `SkillConfigApiEndpoint` requirement truth.
+        - API-owned endpoint invocation details remain downstream runtime/service concerns.
+        """
+    }
+
+    fn add_target (
+        skill_config_target_id UUID key,
+        description String? = null
+    ) -> SkillConfigStepTarget {
+        """
+        Bind one Experience-owned authored Skill target to this step.
+
+        Contract:
+        - A step may bind zero, one, or many SkillConfigTarget rows.
+        - Each target resolves through Experience-owned graph identity truth.
+        - The step API endpoint requirement remains on `SkillConfigApiEndpoint`.
+        """
+        let created = construct targets.build(
+            skill_config_target_id = skill_config_target_id,
+            description = description,
+        )
+    }
+}
+
+ann skill.SkillConfigStep::skill_config_api_endpoint load eager
+ann skill.SkillConfigStep::targets load eager

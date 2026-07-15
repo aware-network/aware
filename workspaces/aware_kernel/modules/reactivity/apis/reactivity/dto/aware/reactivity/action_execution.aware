@@ -34,3 +34,25 @@ class ActionExecution {
     executor_ref String?
     result_info String?
 }
+
+/// Claim one canonical execution attempt before crossing a provider boundary.
+class ReactivityActionExecutionClaimRequest {
+    request_id UUID?
+    claimant_id String
+    intent ReactivityActionIntent
+    execution_key String = "primary"
+    execution_context JsonObject = {}
+}
+
+/// Graph-backed claim result. Only `claimed` grants provider invocation.
+class ReactivityActionExecutionClaimResponse {
+    request_id UUID?
+    accepted Bool = false
+    claim_status ActionExecutionClaimStatus?
+    action_execution ActionExecution?
+    event_commit_id UUID?
+    action_intent_commit_id UUID?
+    action_execution_commit_id UUID?
+    info String?
+    error String?
+}

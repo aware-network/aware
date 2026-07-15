@@ -1,0 +1,247 @@
+class ServicePackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    implementation_packages ServicePackageImplementationPackage[]
+    ontology_packages ServicePackageOntologyPackage[]
+    object_config_graph_packages ServicePackageObjectConfigGraphPackage[]
+    provided_api_packages ServicePackageProvidedApiPackage[]
+    required_api_packages ServicePackageRequiredApiPackage[]
+    service_config ServiceConfig unique
+    service_config_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    activation_mode String = "materialize_and_load_committed"
+    aware_service_version Int = 1
+    compilation_mode String = "raw_xor"
+    dependencies JsonArray = []
+    description String?
+    exclude_paths JsonArray = []
+    force_fresh_scan Bool = true
+    fqn_prefix String?
+    include_paths JsonArray = []
+    manifest_relative_path String?
+    materialize_on_start Bool = true
+    name String key
+    package_root String = "."
+    service_surface String = "service"
+    sources_root String = "services"
+    title String?
+    version_number Int = 1
+
+    fn build construct(
+        name String key,
+        service_config_id UUID,
+        service_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_service_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = "services",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        compilation_mode String = "raw_xor",
+        service_surface String = "service",
+        activation_mode String = "materialize_and_load_committed",
+        materialize_on_start Bool = true,
+        dependencies JsonArray = []
+    ) -> ServicePackage {
+        """
+        Create the canonical Service-owned package root over an existing `ServiceConfig`.
+
+        Contract:
+        - Identity is keyed by Service package `name`.
+        - `ServicePackage` is the package/public root over an existing canonical `ServiceConfig`.
+        - `service_config_id` must point at the canonical ServiceConfig stable id for this package root.
+        - `service_config_object_instance_graph_commit_id` pins the historical ObjectInstanceGraphCommit
+          for the semantic ServiceConfig root so package consumers can replay exact service truth without
+          resolving branch head.
+        - `source_code_package_id` is the explicit raw-source provenance link for this semantic leaf package.
+        - Manifest/build/host/dependency attributes mirror `aware.service.toml` so committed package truth can
+          drive Workspace and Service runtime resolution without reopening authoring TOML.
+        - Workspace will later mount `ServicePackage`, not raw `ServiceConfig`.
+        """
+    }
+
+    fn sync_manifest_truth(
+        service_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_service_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = "services",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        compilation_mode String = "raw_xor",
+        service_surface String = "service",
+        activation_mode String = "materialize_and_load_committed",
+        materialize_on_start Bool = true,
+        dependencies JsonArray = []
+    ) -> ServicePackage {
+        """
+        Sync mutable manifest/build/host/dependency truth onto an existing ServicePackage root.
+
+        This keeps `build` create-only for empty package lanes while allowing committed package truth to
+        follow the latest parsed `aware.service.toml` snapshot and pinned semantic ServiceConfig commit.
+        """
+    }
+
+    fn attach_provided_api_package (
+        api_package_id UUID key,
+        service_protocol_package_id UUID,
+        service_protocol_plan_hash_sha256 String,
+        api_package_object_instance_graph_commit_id UUID,
+        description String? = null
+    ) -> ServicePackageProvidedApiPackage {
+        """
+        Attach one API package this ServicePackage provides.
+
+        Contract:
+        - This is the package-level provider rail for Node/service dependency resolution.
+        - It declares which API packages this ServicePackage can fulfill through ServiceHost.
+        - Provider truth must stay compatible with config-level `ServiceConfig -> ServiceConfigApi`
+          fulfillment; it does not describe outgoing invocation.
+        """
+        let created = construct provided_api_packages.build(
+            api_package_id = api_package_id,
+            service_protocol_package_id = service_protocol_package_id,
+            service_protocol_plan_hash_sha256 = service_protocol_plan_hash_sha256,
+            api_package_object_instance_graph_commit_id = api_package_object_instance_graph_commit_id,
+            description = description,
+        )
+    }
+
+    fn attach_object_config_graph_package (
+        object_config_graph_package_id UUID key,
+        manifest_relative_path String,
+        role String = "local_state",
+        package_kind String = "state",
+        object_config_graph_package_object_instance_graph_commit_id UUID? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null
+    ) -> ServicePackageObjectConfigGraphPackage {
+        """
+        Attach one Service-owned ObjectConfigGraphPackage to this ServicePackage.
+
+        Contract:
+        - This is service ownership truth, not a service dependency.
+        - The child package is declared by `aware.service.toml` and materialized through the
+          canonical ObjectConfigGraphPackage rail.
+        - ServiceHost and WorkspaceRevision consumers can use the optional OIG commit pin to replay
+          exact service-local DB/schema truth without reopening local manifests.
+        """
+        let created = construct object_config_graph_packages.build(
+            object_config_graph_package_id = object_config_graph_package_id,
+            manifest_relative_path = manifest_relative_path,
+            role = role,
+            package_kind = package_kind,
+            object_config_graph_package_object_instance_graph_commit_id = object_config_graph_package_object_instance_graph_commit_id,
+            expected_hash_sha256 = expected_hash_sha256,
+            description = description,
+        )
+    }
+
+    fn attach_ontology_package (
+        ontology_package_id UUID key,
+        package_name String,
+        fqn_prefix String,
+        role String = "replica",
+        requirement_mode String = "required",
+        ontology_package_object_instance_graph_commit_id UUID? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null
+    ) -> ServicePackageOntologyPackage {
+        """
+        Attach one ontology package this ServicePackage requires as a replica.
+
+        Contract:
+        - This is package-level ontology replica requirement truth.
+        - It declares which OntologyPackage must be available to ServiceHost as a
+          read-only Service-owned ontology replica before required handler dispatch.
+        - Required ontology truth must not imply this ServicePackage owns or mutates
+          the ontology package. Ontology remains the write/DB authority.
+        """
+        let created = construct ontology_packages.build(
+            ontology_package_id = ontology_package_id,
+            package_name = package_name,
+            fqn_prefix = fqn_prefix,
+            role = role,
+            requirement_mode = requirement_mode,
+            ontology_package_object_instance_graph_commit_id = ontology_package_object_instance_graph_commit_id,
+            expected_hash_sha256 = expected_hash_sha256,
+            description = description,
+        )
+    }
+
+    fn attach_implementation_package (
+        code_package_id UUID key,
+        package_name String,
+        language aware_code.code.CodeLanguage,
+        import_root String,
+        manifest_relative_path String,
+        package_root String = ".",
+        entrypoint String? = null,
+        role String = "service_bindings",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = []
+    ) -> ServicePackageImplementationPackage {
+        """
+        Attach one concrete implementation package owned by this ServicePackage.
+
+        Contract:
+        - The ServicePackage owns explicit language implementation packages as semantic package truth.
+        - ServiceHost must resolve importable implementation code from this bridge, never from
+          `fqn_prefix` guesses or workspace layout heuristics.
+        - `code_package_id` points at the canonical CodePackage for the implementation package.
+        - `package_root` and `manifest_relative_path` are workspace-revision relative contract payload.
+        """
+        let created = construct implementation_packages.build(
+            code_package_id = code_package_id,
+            package_name = package_name,
+            language = language,
+            import_root = import_root,
+            manifest_relative_path = manifest_relative_path,
+            package_root = package_root,
+            entrypoint = entrypoint,
+            role = role,
+            include_paths = include_paths,
+            exclude_paths = exclude_paths,
+        )
+    }
+
+    fn attach_required_api_package (
+        api_package_id UUID key,
+        description String? = null
+    ) -> ServicePackageRequiredApiPackage {
+        """
+        Attach one API package this ServicePackage requires for outgoing invocation.
+
+        Contract:
+        - This is the package-level consumer rail for generated SDK/API clients.
+        - It declares which API packages this ServicePackage may invoke through Node service routing.
+        - Required API truth must not imply this ServicePackage hosts or fulfills the API.
+        """
+        let created = construct required_api_packages.build(
+            api_package_id = api_package_id,
+            description = description,
+        )
+    }
+}
+
+ann service.ServicePackage::source_code_package load eager
+ann service.ServicePackage::implementation_packages load eager
+ann service.ServicePackage::ontology_packages load eager
+ann service.ServicePackage::object_config_graph_packages load eager
+ann service.ServicePackage::provided_api_packages load eager
+ann service.ServicePackage::required_api_packages load eager
+ann service.ServicePackage::service_config load eager
+ann service.ServicePackage::service_config_object_instance_graph_commit load eager

@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from uuid import UUID
 
+from aware_meta.graph.instance.commit.body_codec import OigCommitBodyDraft
 from aware_meta_ontology.graph.instance.object_instance_graph import (
     ObjectInstanceGraph,
 )
@@ -26,6 +27,8 @@ class OCGSeedPlan:
     before_oig: ObjectInstanceGraph
     after_oig: ObjectInstanceGraph
     objects_by_id: dict[UUID, BaseORMModel]
+    body_draft: OigCommitBodyDraft | None = None
+    object_instance_graph_identity_id: UUID | None = None
 
 
 @dataclass(frozen=True, slots=True)

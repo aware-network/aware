@@ -78,6 +78,7 @@ class SemanticGraphFunctionInvocationResult:
     object_id: str
     commit_id: str | None = None
     head_commit_id: str | None = None
+    object_instance_graph_commit_id: str | None = None
     branch_id: str | None = None
     projection_hash: str | None = None
     adapter_kind: SemanticGraphExecutionAdapterKind | None = None
@@ -92,6 +93,10 @@ class SemanticGraphFunctionInvocationResult:
             payload["commit_id"] = self.commit_id
         if self.head_commit_id is not None:
             payload["head_commit_id"] = self.head_commit_id
+        if self.object_instance_graph_commit_id is not None:
+            payload["object_instance_graph_commit_id"] = (
+                self.object_instance_graph_commit_id
+            )
         if self.branch_id is not None:
             payload["branch_id"] = self.branch_id
         if self.projection_hash is not None:

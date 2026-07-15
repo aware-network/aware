@@ -7,6 +7,7 @@ bound `ClassConfig` metadata for relationship discovery and FK propagation.
 
 from __future__ import annotations
 
+from time import perf_counter
 from typing import TYPE_CHECKING, Any, ClassVar, Optional
 from uuid import UUID, uuid4
 
@@ -15,6 +16,10 @@ from pydantic import BaseModel, model_validator
 from aware_orm._support import logger
 
 from aware_orm.models.base_model import BaseORMModel
+from aware_orm.models.constructor_profile import (
+    ORMConstructorModelProfile,
+    current_orm_constructor_profile,
+)
 
 
 def _token(value: Any) -> str:
@@ -95,6 +100,29 @@ class RelationshipMixin(BaseORMModel):
         First-pass FK resolution happens during model validation. For complex object graphs,
         use propagate_ids() before saving to ensure all relationships are properly connected.
         """
+        constructor_profile = current_orm_constructor_profile()
+        model_profile = (
+            None
+            if constructor_profile is None
+            else constructor_profile.model_profile(cls.__name__)
+        )
+        validator_started_at = perf_counter() if model_profile is not None else 0.0
+        try:
+            return cls._set_foreign_keys_profiled(data, model_profile=model_profile)
+        finally:
+            if model_profile is not None:
+                model_profile.relationship_pre_validator_s += (
+                    perf_counter() - validator_started_at
+                )
+                model_profile.relationship_pre_validator_count += 1
+
+    @classmethod
+    def _set_foreign_keys_profiled(
+        cls,
+        data: Any,
+        *,
+        model_profile: ORMConstructorModelProfile | None,
+    ) -> Any:
         if isinstance(data, cls):
             return data
         if data is not None and not isinstance(data, dict):
@@ -114,6 +142,7 @@ class RelationshipMixin(BaseORMModel):
             # Return empty dict with defaults applied
             data = {}
 
+        hook_guard_started_at = perf_counter() if model_profile is not None else 0.0
         try:
             from aware_orm.session.change_collector import (
                 is_change_tracking_hooks_enabled,
@@ -121,22 +150,46 @@ class RelationshipMixin(BaseORMModel):
 
             if not bool(is_change_tracking_hooks_enabled()):
                 if data.get("id") is None:
+                    uuid_started_at = (
+                        perf_counter() if model_profile is not None else 0.0
+                    )
                     data["id"] = uuid4()
+                    if model_profile is not None:
+                        model_profile.uuid_default_s += perf_counter() - uuid_started_at
+                        model_profile.uuid_default_count += 1
                 return data
         except Exception:
             pass
+        finally:
+            if model_profile is not None:
+                model_profile.relationship_hook_guard_s += (
+                    perf_counter() - hook_guard_started_at
+                )
+                model_profile.relationship_hook_guard_count += 1
 
         # Ensure we have an ID available for reverse propagation when callers omit it.
         # This mirrors the default_factory on BaseORMModel.id.
         obj_id = data.get("id")
         if obj_id is None:
+            uuid_started_at = perf_counter() if model_profile is not None else 0.0
             data["id"] = uuid4()
             obj_id = data["id"]
+            if model_profile is not None:
+                model_profile.uuid_default_s += perf_counter() - uuid_started_at
+                model_profile.uuid_default_count += 1
 
         class_config = cls.get_class_config()
         if class_config is not None:
             logger.debug(f"Processing ClassConfig relationships for {cls.__name__}")
+            relationship_started_at = (
+                perf_counter() if model_profile is not None else 0.0
+            )
             cls._process_class_config_relationships(data, obj_id)
+            if model_profile is not None:
+                model_profile.relationship_processing_s += (
+                    perf_counter() - relationship_started_at
+                )
+                model_profile.relationship_processing_count += 1
 
         return data
 

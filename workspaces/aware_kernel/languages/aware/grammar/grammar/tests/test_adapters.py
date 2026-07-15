@@ -1560,6 +1560,36 @@ def test_annotation_adapter_preserves_discriminator_cases_with_keyword_variants(
     ]
 
 
+def test_annotation_adapter_preserves_api_sdk_discriminator_cases_without_syntax_errors():
+    """Reserved API/SDK tokens remain valid discriminator variants in ANN args."""
+    from tree_sitter import Parser
+
+    sample_code = (
+        "ann invocation.ExperienceInvocationActionConfig oneof identity "
+        "api_capability_endpoint sdk_operation discriminator target_kind "
+        "api api_capability_endpoint sdk sdk_operation"
+    )
+
+    parser = Parser(language=AWARE_LANGUAGE)
+    tree = parser.parse(sample_code.encode())
+    assert not tree.root_node.has_error
+
+    adapter = AwareAnnotationAdapter()
+    nodes = list(adapter.match_nodes(tree.root_node, sample_code.encode()))
+    assert len(nodes) == 1
+    assert adapter.get_args(nodes[0]) == [
+        "identity",
+        "api_capability_endpoint",
+        "sdk_operation",
+        "discriminator",
+        "target_kind",
+        "api",
+        "api_capability_endpoint",
+        "sdk",
+        "sdk_operation",
+    ]
+
+
 def test_projection_adapter_extracts_projection_blocks() -> None:
     """Ensure `projection { ... }` parses as first-class projection sections."""
     from tree_sitter import Parser

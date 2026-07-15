@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from typing import Iterable, Mapping
 from uuid import UUID
 
+from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBaseType
+from aware_code_ontology.primitive.code_primitive_type import CodePrimitiveType
+
 # Meta Ontology
 from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.class_.class_config_enums import ClassValueMode
@@ -17,6 +20,8 @@ from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
 )
 from aware_meta_ontology.attribute.attribute_value import AttributeValue
 from aware_meta_ontology.attribute.attribute_value_link import AttributeValueLink
+
+from aware_code.decimal_value import is_canonical_decimal_text
 
 
 class AttributeValueTreeValidationError(ValueError):
@@ -197,8 +202,17 @@ def _validate_node(
             raise AttributeValueTreeValidationError(
                 f"{path.render()}: primitive leaf must not set enum/class payload"
             )
+        if _primitive_base_type(expected) == CodePrimitiveBaseType.decimal:
+            primitive_value = node.primitive_value
+            if (
+                not isinstance(primitive_value, dict)
+                or set(primitive_value) != {"value"}
+                or not is_canonical_decimal_text(primitive_value.get("value"))
+            ):
+                raise AttributeValueTreeValidationError(
+                    f"{path.render()}: Decimal primitive must contain canonical decimal text"
+                )
         return
-
     if kind == Kind.enum:
         _require_no_children(node, path)
         if node.enum_option_id is None:
@@ -284,6 +298,17 @@ def _validate_node(
     raise AttributeValueTreeValidationError(
         f"{path.render()}: unsupported descriptor kind: {kind}"
     )
+
+
+def _primitive_base_type(
+    type_descriptor: AttributeTypeDescriptor,
+) -> CodePrimitiveBaseType | None:
+    if type_descriptor.primitive_config is None:
+        return None
+    primitive_type = CodePrimitiveType.model_validate(
+        type_descriptor.primitive_config.primitive_type
+    )
+    return primitive_type.base_type
 
 
 def _require_no_children(node: AttributeValue, path: _Path) -> None:

@@ -52,6 +52,7 @@ class AwareModulePlugin:
     capability_contract_module: str | None = None
     capability_execution_module: str | None = None
     semantic_contract_module: str | None = None
+    semantic_registry_module: str | None = None
     code_package_materialization_contract_module: str | None = None
     packages: tuple[AwareModulePackageContract, ...] = ()
     capability_policy: tuple[AwareModulePluginCapabilityPolicy, ...] = ()

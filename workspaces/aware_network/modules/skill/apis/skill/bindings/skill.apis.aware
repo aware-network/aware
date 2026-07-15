@@ -1,0 +1,11 @@
+api skill {
+    capability invoke {
+        endpoint invoke aware_skill_service_dto.skill.SkillInvokeRequest {
+            """
+            Invoke one committed SkillPackage through the canonical Skill Service boundary.
+            """
+
+            response aware_skill_service_dto.skill.SkillInvokeResponse
+        }
+    }
+}

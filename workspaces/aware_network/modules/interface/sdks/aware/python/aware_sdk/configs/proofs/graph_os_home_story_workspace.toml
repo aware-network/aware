@@ -1,0 +1,36 @@
+version = 1
+id = "graph_os_home_story_workspace"
+description = "Home Story workspace-root proof staged as a public repo over aware.workspace.toml; current verification stays at compile plus structured workspace status evidence while public workspace commit remains the next gate."
+bundle_profile_path = "workspaces/aware_network/modules/interface/sdks/aware/python/aware_sdk/configs/bundles/graph_os_linux_cli_public.toml"
+source_workspace_root = "workspaces/aware_home"
+public_repo_slug = "home-workspace"
+publication_recipe_path = "publications/home-workspace/recipes/github-repo.json"
+publication_release_track_id = "workspace-first"
+exclude_generated = true
+
+generated_globs = [
+  ".aware/**",
+  "_aware/**",
+  "**/.aware/**",
+  "**/__pycache__/**",
+  "**/.dart_tool/**",
+]
+
+verification_commands = [
+  "aware-cli compile --repo-root . --materialization-mode runtime --lock-mode off module home",
+  "aware-cli compile --repo-root . --materialization-mode runtime --lock-mode off --genesis --genesis-confirm environment home-story",
+  "aware-cli workspace status --repo-root . --json",
+]
+
+expected_outputs = [
+  ".aware/reports/latest_compile_success.json",
+  "_aware/environment/runtime/environment.manifest.json",
+]
+
+publication_refs = [
+  "publications/home-workspace/README.md",
+  "publications/home-workspace/narrative/canonical.md",
+  "publications/shared-digital-reality/narrative/canonical.md",
+  "publications/object-config-graph/README.md",
+  "publications/aware-run-index/README.md",
+]

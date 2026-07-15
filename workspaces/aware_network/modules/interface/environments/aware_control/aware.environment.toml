@@ -1,0 +1,27 @@
+aware = 1
+
+[environment]
+handle = "aware-control"
+title = "Aware Control"
+canonical_language = "aware"
+
+# Additive requirements: these ontology packages must exist for the control
+# environment package. This is not a closed-world list of every ontology the
+# environment may mount later.
+modules = [
+    "identity",
+    "attention",
+    "environment",
+    "experience",
+    "economy",
+    "service",
+    "interface",
+    "hub",
+    "network",
+]
+
+[build]
+sources_dir = "aware"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true

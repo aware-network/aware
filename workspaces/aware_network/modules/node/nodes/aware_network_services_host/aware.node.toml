@@ -1,0 +1,77 @@
+aware_node = 1
+
+[node]
+package_name = "aware-network-services-node"
+fqn_prefix = "aware_network_services_node"
+title = "Aware Network Services Node"
+description = "WorkspaceRevision-backed shared Aware Network product service host."
+
+[build]
+sources_dir = "nodes"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+compilation_mode = "node_ontology"
+
+[[dependencies]]
+package_name = "identity-default"
+kind = "experience_package"
+
+[[dependencies]]
+package_name = "aware-storage-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-content-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-code-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-file-system-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-reactivity-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-attention-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-identity-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-memory-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-economy-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-external-capital-provider-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-experience-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-service-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-network-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-skill-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "aware-hub-service"
+kind = "service_package"

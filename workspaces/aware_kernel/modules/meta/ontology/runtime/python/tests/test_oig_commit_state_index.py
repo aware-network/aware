@@ -33,9 +33,17 @@ from aware_meta.graph.instance.builder import (
 from aware_meta.graph.instance.commit.state_index import (
     CommitStateRow,
     CommitStateIndex,
+    apply_commit_state_index_body_draft,
     apply_commit_state_index_changes,
     apply_commit_state_index_row_changes,
     build_commit_state_index,
+)
+from aware_meta.graph.instance.commit.body_codec import (
+    OigCommitBodyDraft,
+    OigCommitBodyRootChangeDraft,
+    oig_commit_body_change_ref_draft_from_change,
+    oig_commit_body_class_instance_change_draft_from_change,
+    oig_commit_body_relationship_change_draft_from_change,
 )
 from aware_meta.graph.instance.diff import diff_object_instance_graph_changes
 from aware_meta.graph.instance.hash import compute_hash
@@ -289,6 +297,88 @@ def test_commit_state_index_row_changes_apply_without_post_class_instances() -> 
             f"{class_instance_id}->{replacement_target_id}",
         ),
     )
+
+    body_draft = OigCommitBodyDraft(
+        roots=tuple(
+            OigCommitBodyRootChangeDraft(
+                id=change.id,
+                type=change.type,
+                change=oig_commit_body_change_ref_draft_from_change(change.change),
+                class_instance_changes=tuple(
+                    oig_commit_body_class_instance_change_draft_from_change(item)
+                    for item in change.class_instance_changes
+                ),
+                class_instance_relationship_changes=tuple(
+                    oig_commit_body_relationship_change_draft_from_change(item)
+                    for item in change.class_instance_relationship_changes
+                ),
+            )
+            for change in changes
+        )
+    )
+    assert (
+        apply_commit_state_index_body_draft(
+            pre_state_index=pre_index,
+            body_draft=body_draft,
+            post_class_state_rows_by_id={class_instance_id: post_rows},
+        ).rows
+        == post_index.rows
+    )
+
+
+def test_commit_state_index_row_changes_preserve_last_relationship_effect() -> None:
+    graph_id = uuid4()
+    oigi_id = uuid4()
+    relationship_id = uuid4()
+    source_id = uuid4()
+    target_id = uuid4()
+    relationship_row = CommitStateRow(
+        "EDGE",
+        str(relationship_id),
+        f"{source_id}->{target_id}",
+    )
+    create = _relationship_oig_change(
+        graph_id=graph_id,
+        oigi_id=oigi_id,
+        relationship_id=relationship_id,
+        source_class_instance_id=source_id,
+        target_class_instance_id=target_id,
+        change_type=ChangeType.create,
+    )
+    delete = _relationship_oig_change(
+        graph_id=graph_id,
+        oigi_id=oigi_id,
+        relationship_id=relationship_id,
+        source_class_instance_id=source_id,
+        target_class_instance_id=target_id,
+        change_type=ChangeType.delete,
+    )
+
+    assert (
+        relationship_row
+        not in apply_commit_state_index_row_changes(
+            pre_state_index=CommitStateIndex(rows=(relationship_row,)),
+            changes=(create, delete),
+            post_class_state_rows_by_id={},
+        ).rows
+    )
+    assert (
+        relationship_row
+        in apply_commit_state_index_row_changes(
+            pre_state_index=CommitStateIndex(rows=()),
+            changes=(delete, create),
+            post_class_state_rows_by_id={},
+        ).rows
+    )
+
+
+def test_commit_state_index_body_draft_rejects_empty_roots() -> None:
+    with pytest.raises(ValueError, match="at least one root"):
+        apply_commit_state_index_body_draft(
+            pre_state_index=CommitStateIndex(rows=()),
+            body_draft=OigCommitBodyDraft(roots=()),
+            post_class_state_rows_by_id={},
+        )
 
 
 def test_commit_state_index_row_changes_reject_mismatched_post_rows() -> None:

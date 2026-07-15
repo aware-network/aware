@@ -258,31 +258,29 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
             "event_type": "semantic_change",
             "condition_keys": ["aware_meta.object_config_graph.attribute.type.changed"],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.attribute.type:"
+                        "{class_name}.{attribute_name}:update"
+                    ),
+                    "event_verbs": ["update"],
+                    "operation_family": "update",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_TYPE_UPDATE_OPERATION
+                    ),
+                    "semantic_subject_type": "ClassConfigAttributeConfig",
+                    "field_path": "type",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": ("ontology_semantic_operation"),
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_attribute_type",
                 "coverage": "partial",
                 "excluded_template_values": ["relationship_key"],
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.attribute.type:"
-                            "{class_name}.{attribute_name}:update"
-                        ),
-                        "event_verbs": ["update"],
-                        "operation_family": "update",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_TYPE_UPDATE_OPERATION
-                        ),
-                        "semantic_subject_type": "ClassConfigAttributeConfig",
-                        "field_path": "type",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": ("ontology_semantic_operation"),
-                            "preview_only": True,
-                        },
-                    },
-                ],
                 "action_bindings": [
                     {
                         "action_key_template": (
@@ -343,31 +341,29 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.attribute.default_value.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.attribute.default_value:"
+                        "{class_name}.{attribute_name}:update"
+                    ),
+                    "event_verbs": ["update"],
+                    "operation_family": "update",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_DEFAULT_VALUE_UPDATE_OPERATION
+                    ),
+                    "semantic_subject_type": "ClassConfigAttributeConfig",
+                    "field_path": "default_value",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": ("ontology_semantic_operation"),
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_attribute_default_value",
                 "coverage": "partial",
                 "excluded_template_values": ["relationship_key"],
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.attribute.default_value:"
-                            "{class_name}.{attribute_name}:update"
-                        ),
-                        "event_verbs": ["update"],
-                        "operation_family": "update",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_DEFAULT_VALUE_UPDATE_OPERATION
-                        ),
-                        "semantic_subject_type": "ClassConfigAttributeConfig",
-                        "field_path": "default_value",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": ("ontology_semantic_operation"),
-                            "preview_only": True,
-                        },
-                    },
-                ],
             },
         },
         {
@@ -398,37 +394,33 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 )
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.attribute."
+                        "membership.identity_key:"
+                        "{class_name}.{attribute_name}:update"
+                    ),
+                    "event_verbs": ["update"],
+                    "operation_family": "update",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_MEMBERSHIP_UPDATE_OPERATION
+                    ),
+                    "semantic_subject_type": ("aware_meta.ClassConfigAttributeConfig"),
+                    "field_path": "is_identity_key",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_attribute_membership_identity_key",
                 "coverage": "partial",
                 "change_detection_template_fields": ["is_identity_key"],
                 "excluded_template_values": ["relationship_key"],
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.attribute."
-                            "membership.identity_key:"
-                            "{class_name}.{attribute_name}:update"
-                        ),
-                        "event_verbs": ["update"],
-                        "operation_family": "update",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_MEMBERSHIP_UPDATE_OPERATION
-                        ),
-                        "semantic_subject_type": (
-                            "aware_meta.ClassConfigAttributeConfig"
-                        ),
-                        "field_path": "is_identity_key",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                        },
-                    },
-                ],
             },
         },
         {
@@ -453,40 +445,38 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.attribute.identity.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.attribute.identity:"
+                        "{class_name}.{attribute_name}:rename"
+                    ),
+                    "event_verbs": ["rename"],
+                    "operation_family": "rename",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_IDENTITY_RENAME_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.AttributeConfig",
+                    "field_path": "name",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "fallback_required": True,
+                    "fallback_reason": (
+                        "meta_attribute_identity_rename_requires_"
+                        "explicit_replacement_policy"
+                    ),
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_attribute_identity",
                 "coverage": "fallback",
                 "include_template_values_in_payload": True,
                 "excluded_template_values": ["relationship_key"],
                 "identity_rename_policy": "explicit_fallback_required",
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.attribute.identity:"
-                            "{class_name}.{attribute_name}:rename"
-                        ),
-                        "event_verbs": ["rename"],
-                        "operation_family": "rename",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_IDENTITY_RENAME_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.AttributeConfig",
-                        "field_path": "name",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "fallback_required": True,
-                            "fallback_reason": (
-                                "meta_attribute_identity_rename_requires_"
-                                "explicit_replacement_policy"
-                            ),
-                            "preview_only": True,
-                        },
-                    },
-                ],
             },
         },
         {
@@ -509,89 +499,81 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.attribute.structural.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.attribute:"
+                        "{class_name}.{attribute_name}:create"
+                    ),
+                    "event_verbs": ["upsert"],
+                    "operation_family": "create",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_CREATE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.AttributeConfig",
+                    "field_path": "definition",
+                    "requires_baseline_object_identity": False,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                    "generated_materialization_intent": {
+                        "intent_kind": (
+                            "meta_attribute_create_generated_materialization_intent"
+                        ),
+                        "contract_version": (
+                            META_ATTRIBUTE_CREATE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
+                        ),
+                        "generated_materialization_provider_key": ("aware_meta"),
+                        **generated_materialization_intent_target_metadata(
+                            policy_key=(
+                                "aware_meta.generated_materialization.attribute.create"
+                            ),
+                            materialization_target="attribute_field",
+                        ),
+                    },
+                },
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.attribute:"
+                        "{class_name}.{attribute_name}:delete"
+                    ),
+                    "event_verbs": ["delete"],
+                    "operation_family": "delete",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_DELETE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.AttributeConfig",
+                    "field_path": "definition",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                    "generated_materialization_intent": {
+                        "intent_kind": (
+                            "meta_attribute_delete_generated_materialization_intent"
+                        ),
+                        "contract_version": (
+                            META_ATTRIBUTE_DELETE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
+                        ),
+                        "generated_materialization_provider_key": ("aware_meta"),
+                        **generated_materialization_intent_target_metadata(
+                            policy_key=(
+                                "aware_meta.generated_materialization.attribute.delete"
+                            ),
+                            materialization_target="attribute_field",
+                        ),
+                    },
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_attribute_structural",
                 "coverage": "partial",
                 "include_template_values_in_payload": True,
                 "excluded_template_values": ["relationship_key"],
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.attribute:"
-                            "{class_name}.{attribute_name}:create"
-                        ),
-                        "event_verbs": ["upsert"],
-                        "operation_family": "create",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_CREATE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.AttributeConfig",
-                        "field_path": "definition",
-                        "requires_baseline_object_identity": False,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                            "generated_materialization_intent": {
-                                "intent_kind": (
-                                    "meta_attribute_create_generated_materialization_intent"
-                                ),
-                                "contract_version": (
-                                    META_ATTRIBUTE_CREATE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
-                                ),
-                                "generated_materialization_provider_key": (
-                                    "aware_meta"
-                                ),
-                                **generated_materialization_intent_target_metadata(
-                                    policy_key=(
-                                        "aware_meta.generated_materialization.attribute.create"
-                                    ),
-                                    materialization_target="attribute_field",
-                                ),
-                            },
-                        },
-                    },
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.attribute:"
-                            "{class_name}.{attribute_name}:delete"
-                        ),
-                        "event_verbs": ["delete"],
-                        "operation_family": "delete",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ATTRIBUTE_DELETE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.AttributeConfig",
-                        "field_path": "definition",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                            "generated_materialization_intent": {
-                                "intent_kind": (
-                                    "meta_attribute_delete_generated_materialization_intent"
-                                ),
-                                "contract_version": (
-                                    META_ATTRIBUTE_DELETE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
-                                ),
-                                "generated_materialization_provider_key": (
-                                    "aware_meta"
-                                ),
-                                **generated_materialization_intent_target_metadata(
-                                    policy_key=(
-                                        "aware_meta.generated_materialization.attribute.delete"
-                                    ),
-                                    materialization_target="attribute_field",
-                                ),
-                            },
-                        },
-                    },
-                ],
             },
         },
         {
@@ -612,31 +594,29 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
             "event_type": "semantic_change",
             "condition_keys": ["aware_meta.object_config_graph.function.created"],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.function:"
+                        "{class_name}.{function_name}:create"
+                    ),
+                    "event_verbs": ["upsert"],
+                    "operation_family": "create",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_FUNCTION_CREATE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.FunctionConfig",
+                    "field_path": "name",
+                    "requires_baseline_object_identity": False,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": ("ontology_semantic_operation"),
+                    "preview_only": False,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_function_create",
                 "coverage": "partial",
                 "include_template_values_in_payload": True,
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.function:"
-                            "{class_name}.{function_name}:create"
-                        ),
-                        "event_verbs": ["upsert"],
-                        "operation_family": "create",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_FUNCTION_CREATE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.FunctionConfig",
-                        "field_path": "name",
-                        "requires_baseline_object_identity": False,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": ("ontology_semantic_operation"),
-                            "preview_only": False,
-                        },
-                    },
-                ],
                 "action_bindings": [
                     {
                         "action_key_template": (
@@ -705,50 +685,46 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.function.structural.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.function:"
+                        "{class_name}.{function_name}:delete"
+                    ),
+                    "event_verbs": ["delete"],
+                    "operation_family": "delete",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_FUNCTION_DELETE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.FunctionConfig",
+                    "field_path": "definition",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                    "generated_materialization_intent": {
+                        "intent_kind": (
+                            "meta_function_delete_generated_materialization_intent"
+                        ),
+                        "contract_version": (
+                            META_FUNCTION_DELETE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
+                        ),
+                        "generated_materialization_provider_key": ("aware_meta"),
+                        **generated_materialization_intent_target_metadata(
+                            policy_key=(
+                                "aware_meta.generated_materialization.function.delete"
+                            ),
+                            materialization_target="function",
+                        ),
+                    },
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_function_structural",
                 "coverage": "partial",
                 "include_template_values_in_payload": True,
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.function:"
-                            "{class_name}.{function_name}:delete"
-                        ),
-                        "event_verbs": ["delete"],
-                        "operation_family": "delete",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_FUNCTION_DELETE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.FunctionConfig",
-                        "field_path": "definition",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                            "generated_materialization_intent": {
-                                "intent_kind": (
-                                    "meta_function_delete_generated_materialization_intent"
-                                ),
-                                "contract_version": (
-                                    META_FUNCTION_DELETE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
-                                ),
-                                "generated_materialization_provider_key": (
-                                    "aware_meta"
-                                ),
-                                **generated_materialization_intent_target_metadata(
-                                    policy_key=(
-                                        "aware_meta.generated_materialization.function.delete"
-                                    ),
-                                    materialization_target="function",
-                                ),
-                            },
-                        },
-                    },
-                ],
             },
         },
         {
@@ -771,95 +747,87 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
             "event_type": "semantic_change",
             "condition_keys": ["aware_meta.object_config_graph.class.identity.changed"],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.class.identity:"
+                        "{class_name}:create"
+                    ),
+                    "event_verbs": ["upsert"],
+                    "operation_family": "create",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_CLASS_CREATE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.ClassConfig",
+                    "field_path": "name",
+                    "requires_baseline_object_identity": False,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": ("ontology_semantic_operation"),
+                    "preview_only": True,
+                },
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.class.identity:"
+                        "{class_name}:rename"
+                    ),
+                    "event_verbs": ["rename"],
+                    "operation_family": "rename",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_CLASS_IDENTITY_RENAME_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.ClassConfig",
+                    "field_path": "name",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "fallback_required": True,
+                    "fallback_reason": (
+                        "meta_class_identity_rename_requires_explicit_policy"
+                    ),
+                    "preview_only": True,
+                },
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.class.identity:"
+                        "{class_name}:delete"
+                    ),
+                    "event_verbs": ["delete"],
+                    "operation_family": "delete",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_CLASS_DELETE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.ClassConfig",
+                    "field_path": "name",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                    "generated_materialization_intent": {
+                        "intent_kind": (
+                            "meta_class_delete_generated_materialization_intent"
+                        ),
+                        "contract_version": (
+                            META_CLASS_DELETE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
+                        ),
+                        "generated_materialization_provider_key": ("aware_meta"),
+                        **generated_materialization_intent_target_metadata(
+                            policy_key=(
+                                "aware_meta.generated_materialization.class.delete"
+                            ),
+                            materialization_target="class",
+                        ),
+                    },
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_class_identity",
                 "coverage": "fallback",
                 "include_template_values_in_payload": True,
                 "identity_rename_policy": "explicit_fallback_required",
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.class.identity:"
-                            "{class_name}:create"
-                        ),
-                        "event_verbs": ["upsert"],
-                        "operation_family": "create",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_CLASS_CREATE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.ClassConfig",
-                        "field_path": "name",
-                        "requires_baseline_object_identity": False,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": ("ontology_semantic_operation"),
-                            "preview_only": True,
-                        },
-                    },
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.class.identity:"
-                            "{class_name}:rename"
-                        ),
-                        "event_verbs": ["rename"],
-                        "operation_family": "rename",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_CLASS_IDENTITY_RENAME_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.ClassConfig",
-                        "field_path": "name",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "fallback_required": True,
-                            "fallback_reason": (
-                                "meta_class_identity_rename_requires_explicit_policy"
-                            ),
-                            "preview_only": True,
-                        },
-                    },
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.class.identity:"
-                            "{class_name}:delete"
-                        ),
-                        "event_verbs": ["delete"],
-                        "operation_family": "delete",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_CLASS_DELETE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.ClassConfig",
-                        "field_path": "name",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                            "generated_materialization_intent": {
-                                "intent_kind": (
-                                    "meta_class_delete_generated_materialization_intent"
-                                ),
-                                "contract_version": (
-                                    META_CLASS_DELETE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
-                                ),
-                                "generated_materialization_provider_key": (
-                                    "aware_meta"
-                                ),
-                                **generated_materialization_intent_target_metadata(
-                                    policy_key=(
-                                        "aware_meta.generated_materialization.class.delete"
-                                    ),
-                                    materialization_target="class",
-                                ),
-                            },
-                        },
-                    },
-                ],
                 "generated_materialization_intent": {
                     "intent_kind": "meta_class_create_generated_materialization_intent",
                     "contract_version": (
@@ -893,33 +861,31 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.class.description.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.class.description:"
+                        "{class_name}:update"
+                    ),
+                    "event_verbs": ["update", "upsert"],
+                    "operation_family": "update",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_CLASS_DESCRIPTION_UPDATE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.ClassConfig",
+                    "field_path": "description",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_class_description",
                 "coverage": "partial",
                 "include_template_values_in_payload": True,
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.class.description:"
-                            "{class_name}:update"
-                        ),
-                        "event_verbs": ["update", "upsert"],
-                        "operation_family": "update",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_CLASS_DESCRIPTION_UPDATE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.ClassConfig",
-                        "field_path": "description",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                        },
-                    },
-                ],
                 "generated_materialization_intent": {
                     "intent_kind": (
                         "meta_class_description_generated_materialization_intent"
@@ -953,33 +919,31 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.function_impl.body.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.function_impl.body:"
+                        "{class_name}.{function_name}:update"
+                    ),
+                    "event_verbs": ["update", "upsert"],
+                    "operation_family": "update",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_FUNCTION_IMPL_BODY_UPDATE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.FunctionImpl",
+                    "field_path": "body_text",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_function_impl_body",
                 "coverage": "partial",
                 "include_template_values_in_payload": True,
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.function_impl.body:"
-                            "{class_name}.{function_name}:update"
-                        ),
-                        "event_verbs": ["update", "upsert"],
-                        "operation_family": "update",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_FUNCTION_IMPL_BODY_UPDATE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.FunctionImpl",
-                        "field_path": "body_text",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                        },
-                    },
-                ],
             },
         },
         {
@@ -1002,82 +966,76 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
             "event_type": "semantic_change",
             "condition_keys": ["aware_meta.object_config_graph.enum.identity.changed"],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.enum.identity:"
+                        "{enum_name}:create"
+                    ),
+                    "event_verbs": ["upsert"],
+                    "operation_family": "create",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ENUM_CREATE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.EnumConfig",
+                    "field_path": "name",
+                    "requires_baseline_object_identity": False,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "fallback_required": True,
+                    "preview_only": True,
+                },
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.enum.identity:"
+                        "{enum_name}:rename"
+                    ),
+                    "event_verbs": ["rename"],
+                    "operation_family": "rename",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ENUM_IDENTITY_RENAME_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.EnumConfig",
+                    "field_path": "name",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "fallback_required": True,
+                    "fallback_reason": (
+                        "meta_enum_identity_rename_requires_explicit_policy"
+                    ),
+                    "preview_only": True,
+                },
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.enum.identity:"
+                        "{enum_name}:delete"
+                    ),
+                    "event_verbs": ["delete"],
+                    "operation_family": "delete",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ENUM_DELETE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.EnumConfig",
+                    "field_path": "name",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "fallback_required": True,
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_enum_identity",
                 "coverage": "fallback",
                 "include_template_values_in_payload": True,
                 "identity_rename_policy": "explicit_fallback_required",
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.enum.identity:"
-                            "{enum_name}:create"
-                        ),
-                        "event_verbs": ["upsert"],
-                        "operation_family": "create",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ENUM_CREATE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.EnumConfig",
-                        "field_path": "name",
-                        "requires_baseline_object_identity": False,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "fallback_required": True,
-                            "preview_only": True,
-                        },
-                    },
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.enum.identity:"
-                            "{enum_name}:rename"
-                        ),
-                        "event_verbs": ["rename"],
-                        "operation_family": "rename",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ENUM_IDENTITY_RENAME_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.EnumConfig",
-                        "field_path": "name",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "fallback_required": True,
-                            "fallback_reason": (
-                                "meta_enum_identity_rename_requires_explicit_policy"
-                            ),
-                            "preview_only": True,
-                        },
-                    },
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.enum.identity:"
-                            "{enum_name}:delete"
-                        ),
-                        "event_verbs": ["delete"],
-                        "operation_family": "delete",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ENUM_DELETE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.EnumConfig",
-                        "field_path": "name",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "fallback_required": True,
-                            "preview_only": True,
-                        },
-                    },
-                ],
             },
         },
         {
@@ -1100,33 +1058,31 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.enum.description.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.enum.description:"
+                        "{enum_name}:update"
+                    ),
+                    "event_verbs": ["update", "upsert"],
+                    "operation_family": "update",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ENUM_DESCRIPTION_UPDATE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.EnumConfig",
+                    "field_path": "description",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_enum_description",
                 "coverage": "partial",
                 "include_template_values_in_payload": True,
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.enum.description:"
-                            "{enum_name}:update"
-                        ),
-                        "event_verbs": ["update", "upsert"],
-                        "operation_family": "update",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ENUM_DESCRIPTION_UPDATE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.EnumConfig",
-                        "field_path": "description",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                        },
-                    },
-                ],
             },
         },
         {
@@ -1153,55 +1109,51 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.enum_option.value.created"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.enum_option.value:"
+                        "{enum_name}.{enum_option_value}:create"
+                    ),
+                    "event_verbs": ["upsert"],
+                    "operation_family": "create",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ENUM_OPTION_CREATE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.EnumOption",
+                    "field_path": "value",
+                    "requires_baseline_object_identity": False,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                },
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.enum_option.value:"
+                        "{enum_name}.{enum_option_value}:delete"
+                    ),
+                    "event_verbs": ["delete"],
+                    "operation_family": "delete",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ENUM_OPTION_DELETE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.EnumOption",
+                    "field_path": "value",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "fallback_required": True,
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_enum_option_value",
                 "coverage": "partial",
                 "include_template_values_in_payload": True,
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.enum_option.value:"
-                            "{enum_name}.{enum_option_value}:create"
-                        ),
-                        "event_verbs": ["upsert"],
-                        "operation_family": "create",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ENUM_OPTION_CREATE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.EnumOption",
-                        "field_path": "value",
-                        "requires_baseline_object_identity": False,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                        },
-                    },
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.enum_option.value:"
-                            "{enum_name}.{enum_option_value}:delete"
-                        ),
-                        "event_verbs": ["delete"],
-                        "operation_family": "delete",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ENUM_OPTION_DELETE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.EnumOption",
-                        "field_path": "value",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "fallback_required": True,
-                            "preview_only": True,
-                        },
-                    },
-                ],
             },
         },
         {
@@ -1228,35 +1180,33 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.enum_option.position.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.enum_option.position:"
+                        "{enum_name}.{enum_option_value}:update"
+                    ),
+                    "event_verbs": ["update"],
+                    "operation_family": "update",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_ENUM_OPTION_POSITION_UPDATE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.EnumOption",
+                    "field_path": "position",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "fallback_required": True,
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_enum_option_position",
                 "coverage": "partial",
                 "include_template_values_in_payload": True,
                 "change_detection_template_fields": ["position"],
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.enum_option.position:"
-                            "{enum_name}.{enum_option_value}:update"
-                        ),
-                        "event_verbs": ["update"],
-                        "operation_family": "update",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_ENUM_OPTION_POSITION_UPDATE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.EnumOption",
-                        "field_path": "position",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "fallback_required": True,
-                            "preview_only": True,
-                        },
-                    },
-                ],
             },
         },
         {
@@ -1281,6 +1231,76 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.relationship.structural.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.relationship:"
+                        "{class_name}.{relationship_key}:create"
+                    ),
+                    "event_verbs": ["upsert"],
+                    "operation_family": "create",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_RELATIONSHIP_CREATE_OPERATION
+                    ),
+                    "semantic_subject_type": ("aware_meta.ClassConfigRelationship"),
+                    "field_path": "definition",
+                    "requires_baseline_object_identity": False,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                    "generated_materialization_intent": {
+                        "intent_kind": (
+                            "meta_relationship_create_generated_materialization_intent"
+                        ),
+                        "contract_version": (
+                            META_RELATIONSHIP_CREATE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
+                        ),
+                        "generated_materialization_provider_key": ("aware_meta"),
+                        **generated_materialization_intent_target_metadata(
+                            policy_key=(
+                                "aware_meta.generated_materialization.relationship.create"
+                            ),
+                            materialization_target="relationship_field",
+                        ),
+                    },
+                },
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.relationship:"
+                        "{class_name}.{relationship_key}:delete"
+                    ),
+                    "event_verbs": ["delete"],
+                    "operation_family": "delete",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_RELATIONSHIP_DELETE_OPERATION
+                    ),
+                    "semantic_subject_type": ("aware_meta.ClassConfigRelationship"),
+                    "field_path": "definition",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                    "generated_materialization_intent": {
+                        "intent_kind": (
+                            "meta_relationship_delete_generated_materialization_intent"
+                        ),
+                        "contract_version": (
+                            META_RELATIONSHIP_DELETE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
+                        ),
+                        "generated_materialization_provider_key": ("aware_meta"),
+                        **generated_materialization_intent_target_metadata(
+                            policy_key=(
+                                "aware_meta.generated_materialization.relationship.delete"
+                            ),
+                            materialization_target="relationship_field",
+                        ),
+                    },
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_relationship_structural",
                 "coverage": "partial",
@@ -1289,84 +1309,6 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                     "relationship_key",
                     "target_class_name",
                     "relationship_type",
-                ],
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.relationship:"
-                            "{class_name}.{relationship_key}:create"
-                        ),
-                        "event_verbs": ["upsert"],
-                        "operation_family": "create",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_RELATIONSHIP_CREATE_OPERATION
-                        ),
-                        "semantic_subject_type": ("aware_meta.ClassConfigRelationship"),
-                        "field_path": "definition",
-                        "requires_baseline_object_identity": False,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                            "generated_materialization_intent": {
-                                "intent_kind": (
-                                    "meta_relationship_create_generated_materialization_intent"
-                                ),
-                                "contract_version": (
-                                    META_RELATIONSHIP_CREATE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
-                                ),
-                                "generated_materialization_provider_key": (
-                                    "aware_meta"
-                                ),
-                                **generated_materialization_intent_target_metadata(
-                                    policy_key=(
-                                        "aware_meta.generated_materialization.relationship.create"
-                                    ),
-                                    materialization_target="relationship_field",
-                                ),
-                            },
-                        },
-                    },
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.relationship:"
-                            "{class_name}.{relationship_key}:delete"
-                        ),
-                        "event_verbs": ["delete"],
-                        "operation_family": "delete",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_RELATIONSHIP_DELETE_OPERATION
-                        ),
-                        "semantic_subject_type": ("aware_meta.ClassConfigRelationship"),
-                        "field_path": "definition",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                            "generated_materialization_intent": {
-                                "intent_kind": (
-                                    "meta_relationship_delete_generated_materialization_intent"
-                                ),
-                                "contract_version": (
-                                    META_RELATIONSHIP_DELETE_GENERATED_MATERIALIZATION_INTENT_CONTRACT_VERSION
-                                ),
-                                "generated_materialization_provider_key": (
-                                    "aware_meta"
-                                ),
-                                **generated_materialization_intent_target_metadata(
-                                    policy_key=(
-                                        "aware_meta.generated_materialization.relationship.delete"
-                                    ),
-                                    materialization_target="relationship_field",
-                                ),
-                            },
-                        },
-                    },
                 ],
             },
         },
@@ -1392,33 +1334,31 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.relationship.load_policy.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.relationship."
+                        "load_policy:{class_name}.{relationship_key}:update"
+                    ),
+                    "event_verbs": ["update", "upsert"],
+                    "operation_family": "update",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_RELATIONSHIP_LOAD_POLICY_UPDATE_OPERATION
+                    ),
+                    "semantic_subject_type": ("aware_meta.ClassConfigRelationship"),
+                    "field_path": "load_policy_args",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_relationship_load_policy",
                 "coverage": "partial",
                 "include_template_values_in_payload": True,
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.relationship."
-                            "load_policy:{class_name}.{relationship_key}:update"
-                        ),
-                        "event_verbs": ["update", "upsert"],
-                        "operation_family": "update",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_RELATIONSHIP_LOAD_POLICY_UPDATE_OPERATION
-                        ),
-                        "semantic_subject_type": ("aware_meta.ClassConfigRelationship"),
-                        "field_path": "load_policy_args",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                        },
-                    },
-                ],
             },
         },
         {
@@ -1441,33 +1381,31 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.function.signature.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.function.signature:"
+                        "{class_name}.{function_name}:update"
+                    ),
+                    "event_verbs": ["update", "upsert"],
+                    "operation_family": "update",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_FUNCTION_SIGNATURE_UPDATE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.FunctionConfig",
+                    "field_path": "signature",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_function_signature",
                 "coverage": "partial",
                 "include_template_values_in_payload": True,
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.function.signature:"
-                            "{class_name}.{function_name}:update"
-                        ),
-                        "event_verbs": ["update", "upsert"],
-                        "operation_family": "update",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_FUNCTION_SIGNATURE_UPDATE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.FunctionConfig",
-                        "field_path": "signature",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                        },
-                    },
-                ],
             },
         },
         {
@@ -1492,33 +1430,31 @@ META_OBJECT_CONFIG_GRAPH_SOURCE_MEANING_CONTRACT: dict[str, object] = {
                 "aware_meta.object_config_graph.function.membership.changed"
             ],
             "required": False,
+            "typed_operation_bindings": [
+                {
+                    "operation_key_template": (
+                        "aware_meta.object_config_graph.function.membership."
+                        "constructor:{class_name}.{function_name}:update"
+                    ),
+                    "event_verbs": ["update", "upsert"],
+                    "operation_family": "update",
+                    "semantic_operation_type": (
+                        META_OBJECT_CONFIG_GRAPH_FUNCTION_SIGNATURE_UPDATE_OPERATION
+                    ),
+                    "semantic_subject_type": "aware_meta.FunctionConfig",
+                    "field_path": "is_constructor",
+                    "requires_baseline_object_identity": True,
+                    "contract_source": "aware_meta.semantic_contract",
+                    "semantic_apply_boundary": (
+                        "provider_delta_ontology_operation_executor"
+                    ),
+                    "preview_only": True,
+                },
+            ],
             "metadata": {
                 "meaning": "object_config_graph_function_membership_constructor",
                 "coverage": "partial",
                 "include_template_values_in_payload": True,
-                "typed_operation_bindings": [
-                    {
-                        "operation_key_template": (
-                            "aware_meta.object_config_graph.function.membership."
-                            "constructor:{class_name}.{function_name}:update"
-                        ),
-                        "event_verbs": ["update", "upsert"],
-                        "operation_family": "update",
-                        "semantic_operation_type": (
-                            META_OBJECT_CONFIG_GRAPH_FUNCTION_SIGNATURE_UPDATE_OPERATION
-                        ),
-                        "semantic_subject_type": "aware_meta.FunctionConfig",
-                        "field_path": "is_constructor",
-                        "requires_baseline_object_identity": True,
-                        "metadata": {
-                            "source": "aware_meta.semantic_contract",
-                            "semantic_apply_boundary": (
-                                "provider_delta_ontology_operation_executor"
-                            ),
-                            "preview_only": True,
-                        },
-                    },
-                ],
             },
         },
     ],
@@ -1566,11 +1502,8 @@ def _source_meaning_semantic_operation_types(
 ) -> tuple[str, ...]:
     operation_types: list[str] = []
     for binding in _source_meaning_bindings(contract):
-        metadata = binding.get("metadata")
-        if not isinstance(metadata, Mapping):
-            continue
         for operation_binding in _mapping_sequence(
-            metadata.get("typed_operation_bindings")
+            binding.get("typed_operation_bindings")
         ):
             operation_type = _optional_text(
                 operation_binding.get("semantic_operation_type")
@@ -2366,6 +2299,7 @@ META_MATERIALIZATION_ARTIFACT_OUTPUTS = (
         output_kind="generated_file",
         artifact_path_pattern="{output_root}/**/*",
         runtime_contract_version="aware.meta.language_materialization.v1",
+        artifact_scope_policy="replace_missing",
         required_for=(
             "workspace_revision",
             "dependency_import_resolution",
@@ -2461,6 +2395,7 @@ META_MATERIALIZATION_ARTIFACT_OUTPUTS = (
         artifact_family=META_OCG_MIGRATION_ARTIFACT_FAMILY,
         producer_provider_key=META_OCG_MIGRATION_ARTIFACT_PRODUCER_PROVIDER_KEY,
         artifact_role="dialect_migration",
+        artifact_scope_policy="append_only",
         output_kind="dialect_migration",
         artifact_path_pattern="{materialization_root}/ocg_migration/**/*.json",
         media_type=META_OCG_MIGRATION_ARTIFACT_MEDIA_TYPE,
@@ -2536,6 +2471,8 @@ META_MATERIALIZATION_INPUTS = (
         artifact_role="manifest",
         package_family="meta",
         semantic_kind="object_config_graph_package",
+        semantic_projection_name="ObjectConfigGraphPackage",
+        semantic_root_kind="object_config_graph",
         runtime_contract_version="aware.meta.object_config_graph_package_manifest.v1",
         callable_module="aware_meta.materialization.workspace_provider",
         callable_name="materialize",

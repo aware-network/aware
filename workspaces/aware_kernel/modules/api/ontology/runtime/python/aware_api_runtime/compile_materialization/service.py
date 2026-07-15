@@ -70,11 +70,16 @@ from aware_meta.materialization import (
 )
 from aware_meta.runtime import MetaGraphRuntimeIndex
 from aware_meta.runtime.graph_context import find_meta_graph_projection_hash_by_name
+from aware_meta.runtime.package_index import load_meta_runtime_package_projection_index
 from aware_meta.runtime.oig_model_reifier import reify_oig_root_model, reify_oig_session
 from aware_orm.models.orm_model import ORMModel
 from aware_orm.session.session import Session
 from ..ontology_graph.materialization.service import (
     materialize_api_graph_ontology,
+)
+from ..ontology_graph.materialization.resolution import (
+    api_accessible_projection_observable_ref_resolves,
+    attach_api_accessible_projection_identity_evidence,
 )
 from ..snapshots.commit import (
     ApiPackageLanguagePackageSnapshotRef,
@@ -253,6 +258,7 @@ class ApiLanguageCodePackageMaterialization:
     branch_id: UUID
     domain_commit_id: UUID
     object_instance_graph_commit_id: UUID
+    projection_hash: str
     role: str
     output_key: str
     include_paths: tuple[str, ...]
@@ -265,6 +271,7 @@ class ApiLanguageCodePackageMaterialization:
             "branch_id": self.branch_id,
             "domain_commit_id": self.domain_commit_id,
             "object_instance_graph_commit_id": self.object_instance_graph_commit_id,
+            "projection_hash": self.projection_hash,
             "package_name": self.code_package.package_name,
             "language": self.code_package.language.value,
             "manifest_relative_path": self.code_package.manifest_relative_path,
@@ -297,6 +304,8 @@ class ApiPackageMaterializationResult:
     api_object_instance_graph_commit_id: UUID | None
     package_commit_id: UUID | None
     package_head_commit_id: UUID | None
+    package_object_instance_graph_commit_id: UUID | None
+    package_projection_hash: str | None = None
     generated_dto_graph_count: int = 0
     generated_dto_class_config_count: int = 0
     language_code_package_ids: tuple[UUID, ...] = ()
@@ -326,6 +335,8 @@ class ApiCompilePlanPackageMaterializationResult:
     api_object_instance_graph_commit_id: UUID | None
     package_commit_id: UUID | None
     package_head_commit_id: UUID | None
+    package_object_instance_graph_commit_id: UUID | None
+    package_projection_hash: str | None = None
 
 
 def _round_duration_s(duration_s: float) -> float:
@@ -905,16 +916,36 @@ def _dependency_graphs_cover_current_endpoint_refs(
     )
     required_refs = _current_api_contract_class_refs(snapshot=snapshot)
     missing_refs = tuple(ref for ref in required_refs if ref not in class_config_ids)
-    if not missing_refs:
-        return True
-    logger.info(
-        "API dependency graph context missing current API contract class refs; "
-        "falling back to source graph resolution: api_package=%s source=%s missing=%s",
-        snapshot.spec.api.package_name,
-        source,
-        missing_refs,
+    if missing_refs:
+        logger.info(
+            "API dependency graph context missing current API contract class refs; "
+            "falling back to source graph resolution: api_package=%s source=%s missing=%s",
+            snapshot.spec.api.package_name,
+            source,
+            missing_refs,
+        )
+        return False
+
+    required_observable_refs = _current_api_view_observable_refs(snapshot=snapshot)
+    missing_observable_refs = tuple(
+        observable_ref
+        for observable_ref in required_observable_refs
+        if not api_accessible_projection_observable_ref_resolves(
+            accessible_graphs=accessible_graphs,
+            observable_ref=observable_ref,
+        )
     )
-    return False
+    if missing_observable_refs:
+        logger.info(
+            "API dependency graph context missing current API view observable "
+            "evidence; falling back to source graph resolution: "
+            "api_package=%s source=%s missing=%s",
+            snapshot.spec.api.package_name,
+            source,
+            missing_observable_refs,
+        )
+        return False
+    return True
 
 
 def _current_api_contract_class_refs(
@@ -942,6 +973,24 @@ def _current_api_contract_class_refs(
                     )
         refs.extend(view.state_model_ref.strip() for view in api.views)
     return tuple(dict.fromkeys(ref for ref in refs if ref))
+
+
+def _current_api_view_observable_refs(
+    *, snapshot: APIWorkspaceSnapshot
+) -> tuple[str, ...]:
+    analysis = analyze_api_sources(
+        package_root=snapshot.package_root,
+        source_files=snapshot.source_files,
+        binding_truth_by_ref={},
+    )
+    return tuple(
+        dict.fromkeys(
+            view.observable_ref.strip()
+            for api in analysis.api_ownership
+            for view in api.views
+            if view.observable_ref.strip()
+        )
+    )
 
 
 def _complete_dependency_context_graphs_from_runtime_artifact(
@@ -2368,6 +2417,13 @@ async def _materialize_api_package_from_manifest_impl(
                         direct_dependency_materialization_details
                     ),
                 )
+    resolved_accessible_graphs = attach_api_accessible_projection_identity_evidence(
+        index=index,
+        accessible_graphs=resolved_accessible_graphs,
+        package_projection_index=load_meta_runtime_package_projection_index(
+            aware_root=workspace_root,
+        ),
+    )
     with _record_phase(phase_timings_s, "hydrate_api_from_head"):
         api = await _hydrate_lane_root_from_head(
             index=index,
@@ -2560,6 +2616,7 @@ async def _materialize_api_package_from_manifest_impl(
             code_package_projection_hash=code_package_projection_hash,
             workspace_root=spec.workspace_root,
             snapshot=snapshot,
+            product_runtime_compile_result=product_runtime_compile_result,
         )
     language_code_packages = tuple(
         ref.code_package for ref in language_code_package_refs
@@ -2794,7 +2851,11 @@ async def _materialize_api_package_from_manifest_impl(
         package_commit_id=(
             api_package_snapshot.commit_id if api_package_snapshot is not None else None
         ),
-        package_head_commit_id=api_package_object_instance_graph_commit_id,
+        package_head_commit_id=api_package_domain_commit_id,
+        package_object_instance_graph_commit_id=(
+            api_package_object_instance_graph_commit_id
+        ),
+        package_projection_hash=api_package_projection_hash,
         generated_dto_graph_count=0,
         generated_dto_class_config_count=0,
         language_code_package_ids=tuple(
@@ -3254,7 +3315,11 @@ async def _materialize_api_package_from_compile_plan_input_impl(
         package_commit_id=(
             api_package_snapshot.commit_id if api_package_snapshot is not None else None
         ),
-        package_head_commit_id=api_package_object_instance_graph_commit_id,
+        package_head_commit_id=api_package_domain_commit_id,
+        package_object_instance_graph_commit_id=(
+            api_package_object_instance_graph_commit_id
+        ),
+        package_projection_hash=api_package_projection_hash,
     )
 
 
@@ -3773,12 +3838,117 @@ async def _materialize_api_language_code_packages(
     code_package_projection_hash: str,
     workspace_root: Path,
     snapshot: APIWorkspaceSnapshot,
+    product_runtime_compile_result: object | None = None,
+) -> tuple[ApiLanguageCodePackageMaterialization, ...]:
+    targets = list(
+        _api_language_code_package_targets(
+            snapshot=snapshot,
+            workspace_root=workspace_root,
+        )
+    )
+    for dto_materialization in tuple(
+        getattr(
+            product_runtime_compile_result,
+            "api_dto_package_materializations",
+            (),
+        )
+        or ()
+    ):
+        targets.append(
+            _api_dto_language_code_package_target(
+                import_root=str(getattr(dto_materialization, "import_root")),
+                package_root=Path(
+                    getattr(dto_materialization, "package_root")
+                ).resolve(),
+            )
+        )
+    return await _materialize_api_language_code_package_targets(
+        index=index,
+        actor_id=actor_id,
+        code_package_projection_hash=code_package_projection_hash,
+        workspace_root=workspace_root,
+        targets=tuple(targets),
+    )
+
+
+async def materialize_api_dto_language_code_package(
+    *,
+    index: MetaGraphRuntimeIndex,
+    actor_id: UUID | None,
+    workspace_root: Path,
+    package_name: str,
+    import_root: str,
+    package_root: Path,
+) -> ApiLanguageCodePackageMaterialization:
+    resolved_package_root = package_root.resolve()
+    target = _api_dto_language_code_package_target(
+        import_root=import_root,
+        package_root=resolved_package_root,
+    )
+    if package_name.strip() != target.package_name:
+        raise RuntimeError(
+            "API DTO generated package name does not match pyproject package name: "
+            f"expected={package_name!r} actual={target.package_name!r}"
+        )
+    code_package_projection_hash = find_meta_graph_projection_hash_by_name(
+        index=index,
+        projection_name="CodePackage",
+    )
+    refs = await _materialize_api_language_code_package_targets(
+        index=index,
+        actor_id=actor_id,
+        code_package_projection_hash=code_package_projection_hash,
+        workspace_root=workspace_root,
+        targets=(target,),
+    )
+    return refs[0]
+
+
+def _api_dto_language_code_package_target(
+    *,
+    import_root: str,
+    package_root: Path,
+) -> ApiLanguageCodePackageTarget:
+    resolved_package_root = package_root.resolve()
+    manifest_path = (resolved_package_root / "pyproject.toml").resolve()
+    sources_root = (resolved_package_root / import_root).resolve()
+    return ApiLanguageCodePackageTarget(
+        language=CodeLanguage.python,
+        package_name=_read_pyproject_package_name(manifest_path),
+        import_root=import_root,
+        package_root=resolved_package_root,
+        manifest_path=manifest_path,
+        sources_root=sources_root,
+        manifest_kind="pyproject_toml",
+        role="package",
+        output_key="python.dto_package",
+        include_paths=(
+            "pyproject.toml",
+            "README.md",
+            f"{import_root}/**/*",
+            "tests/**/*.py",
+        ),
+        exclude_paths=(
+            "**/__pycache__/**",
+            "**/*.pyc",
+            ".pytest_cache/**",
+            ".venv/**",
+            "build/**",
+            "dist/**",
+        ),
+    )
+
+
+async def _materialize_api_language_code_package_targets(
+    *,
+    index: MetaGraphRuntimeIndex,
+    actor_id: UUID | None,
+    code_package_projection_hash: str,
+    workspace_root: Path,
+    targets: tuple[ApiLanguageCodePackageTarget, ...],
 ) -> tuple[ApiLanguageCodePackageMaterialization, ...]:
     refs: list[ApiLanguageCodePackageMaterialization] = []
-    for target in _api_language_code_package_targets(
-        snapshot=snapshot,
-        workspace_root=workspace_root,
-    ):
+    for target in targets:
         code_package_config_id = _api_language_code_package_config_id(target=target)
         expected_code_package_id = stable_code_package_id(
             code_package_config_id=code_package_config_id,
@@ -3855,6 +4025,7 @@ async def _materialize_api_language_code_packages(
                 object_instance_graph_commit_id=(
                     snapshot_commit.object_instance_graph_commit_id
                 ),
+                projection_hash=code_package_projection_hash,
                 role=target.role,
                 output_key=target.output_key,
                 include_paths=target.include_paths,
@@ -4229,6 +4400,9 @@ def _api_package_language_package_snapshots(
         refs.append(
             ApiPackageLanguagePackageSnapshotRef(
                 code_package_id=code_package.id,
+                object_instance_graph_commit_id=(
+                    language_ref.object_instance_graph_commit_id
+                ),
                 package_name=code_package.package_name,
                 language=code_package.language,
                 import_root=code_package.fqn_prefix or code_package.package_name,
@@ -4774,6 +4948,7 @@ __all__ = [
     "load_api_compile_plan_payloads",
     "materialize_api_package_from_compile_plan_input",
     "materialize_api_package_from_manifest",
+    "materialize_api_dto_language_code_package",
     "materialize_api_compile_plan_ontology",
     "resolve_api_package_materialization_spec",
 ]

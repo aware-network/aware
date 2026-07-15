@@ -1,0 +1,99 @@
+experience aware_control_identity on aware_identity.identity.Identity {
+    observable identity {
+        view admission.v1 default api_view identity.identity_admission {
+            """Identity admission and actor readiness surface for the active Interface session."""
+        }
+    }
+
+    node identity.Identity {
+        id default
+    }
+
+    surface identity.admission {
+        section identity_admission;
+        view identity.admission.v1;
+        graph default;
+    }
+}
+
+experience aware_control_interface on aware_interface.interface.InterfacePackage {
+    observable package {
+        view mount.status.v1 default api_view interface.package_mount_status {
+            """Interface package mount status surface for the active host session."""
+        }
+    }
+}
+
+experience aware_control_network on aware_network.network.NetworkNode {
+    observable session {
+        view status.v1 default api_view network.session_status {
+            """Local or remote node/session readiness surface for Interface renderers."""
+        }
+    }
+}
+
+// Program port contracts for `aware_control:EnsureBootInterfaceGraph`.
+//
+// These projection contracts are intentionally minimal. They exist so the boot
+// program can declare typed ports against committed Experience truth instead of
+// relying on module-local implicit projection names.
+
+experience interface on aware_interface.interface.Interface {
+    node interface.Interface {
+        id interface
+    }
+}
+
+experience window on aware_interface.window.Window {
+    node window.Window {
+        id window
+    }
+}
+
+experience layout on aware_attention.layout.Layout {
+    node layout.Layout {
+        id default
+    }
+}
+
+experience layout_section on aware_attention.layout.LayoutSection {
+    node layout.LayoutSection {
+        id default
+    }
+}
+
+experience section on aware_attention.section.Section {
+    node section.Section {
+        id default
+    }
+}
+
+experience focus_scope on aware_attention.focus.FocusScope {
+    node focus.FocusScope {
+        id default
+    }
+}
+
+experience focus on aware_attention.focus.Focus {
+    node focus.Focus {
+        id default
+    }
+}
+
+experience object_projection_graph_identity on aware_meta.graph.projection.ObjectProjectionGraphIdentity {
+    node graph.projection.ObjectProjectionGraphIdentity {
+        id default
+    }
+}
+
+experience environment on aware_environment.environment.Environment {
+    node environment.Environment {
+        id default
+    }
+}
+
+experience thread on aware_environment.thread.Thread {
+    node thread.Thread {
+        id default
+    }
+}

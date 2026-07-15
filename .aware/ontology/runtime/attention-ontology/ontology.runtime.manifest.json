@@ -12,11 +12,11 @@
       }
     ]
   },
-  "domain_commit_id": "31e587bd-2b59-524f-bf47-ce37b4abf7d4",
-  "object_instance_graph_commit_id": "3aba052a-34e2-5fd1-b6fd-505e94921066",
+  "domain_commit_id": "98b10c1f-8031-56b1-82bb-55d72155a9c4",
+  "object_instance_graph_commit_id": "a58961c7-fbab-506a-8a7c-dc497e18acfd",
   "package_name": "attention-ontology",
   "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
   "source_kind": "workspace_revision",
   "workspace_relative_package_root": "workspaces/aware_network/modules/attention/ontology",
-  "workspace_revision_code_package_id": "785eceec-a8f1-5370-8809-eb0dcba6fb85"
+  "workspace_revision_code_package_id": "6b34735c-4634-5b98-9ebd-6cd5e870f61a"
 }

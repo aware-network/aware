@@ -79,12 +79,8 @@ class PythonCodeLanguagePlugin(CodeLanguagePlugin[Node]):
         type_descriptor_adapter: PythonTypeDescriptorAdapter,
         quality_gates: tuple[CodeLanguageQualityGate, ...] = (),
         tooling: tuple[CodeLanguageToolSpec, ...] = (),
-        materialization_artifact_outputs: tuple[
-            CodeLanguageMaterializationOutputDescriptor, ...
-        ] = (),
-        operational_workspace_builder: (
-            CodeLanguageOperationalWorkspaceBuilder | None
-        ) = None,
+        materialization_artifact_outputs: tuple[CodeLanguageMaterializationOutputDescriptor, ...] = (),
+        operational_workspace_builder: CodeLanguageOperationalWorkspaceBuilder | None = None,
     ):
         super().__init__(
             language=language,
@@ -200,22 +196,16 @@ class PythonCodeLanguagePlugin(CodeLanguagePlugin[Node]):
 
                 # Check if any structural file (from all batches) imports this enum
                 for structural_file in self._structural_files_cache:
-                    structural_imports = self._file_imports_cache.get(
-                        structural_file, set[str]()
-                    )
+                    structural_imports = self._file_imports_cache.get(structural_file, set[str]())
 
                     # Check if any import matches the enum file
-                    if self._enum_file_matches_imports(
-                        relative_path, structural_imports
-                    ):
+                    if self._enum_file_matches_imports(relative_path, structural_imports):
                         self._structural_enums_cache.add(relative_path)
                         break
 
         self._cache_dirty = False
 
-    def _enum_file_matches_imports(
-        self, enum_file_path: str, imports: set[str]
-    ) -> bool:
+    def _enum_file_matches_imports(self, enum_file_path: str, imports: set[str]) -> bool:
         """
         Check if an enum file path matches any of the imports using precise matching.
 
@@ -264,9 +254,7 @@ class PythonCodeLanguagePlugin(CodeLanguagePlugin[Node]):
         self._update_enum_cache(all_files)
 
     @override
-    def is_structural(
-        self, relative_path: str, file_content: str | None = None
-    ) -> bool:
+    def is_structural(self, relative_path: str, file_content: str | None = None) -> bool:
         """
         Determine if a Python file should be considered structural.
 
@@ -366,7 +354,7 @@ _PYTHON_MATERIALIZATION_ARTIFACT_OUTPUTS = (
         artifact_role="runtime_binding_snapshot",
         path_templates=("{import_root}/_aware/orm.graph.binding.msgpack",),
         producer_step="artifact_embed",
-        required_for=("runtime_index", "environment_config"),
+        required_for=("workspace_revision", "runtime_index", "environment_config"),
         materialization_sources=("ontology", "api", "ontology_orm_models"),
     ),
     CodeLanguageMaterializationOutputDescriptor(
@@ -376,7 +364,7 @@ _PYTHON_MATERIALIZATION_ARTIFACT_OUTPUTS = (
         artifact_role="runtime_class_config_snapshot",
         path_templates=("{import_root}/_aware/ocg.binding.snapshot.msgpack",),
         producer_step="artifact_embed",
-        required_for=("runtime_index", "environment_config"),
+        required_for=("workspace_revision", "runtime_index", "environment_config"),
         materialization_sources=("api", "ontology_dto"),
     ),
     CodeLanguageMaterializationOutputDescriptor(
@@ -442,9 +430,7 @@ _PYTHON_MATERIALIZATION_ARTIFACT_OUTPUTS = (
 PYTHON_CODE_PLUGIN = PythonCodeLanguagePlugin(
     language=CodeLanguage.python,
     primitive_codec=_PYTHON_PRIMITIVE_CODEC,
-    tree_sitter_adapter=CodeTreeSitterAdapter(
-        language=PYTHON_LANGUAGE, allowed_empty_files=["__init__.py"]
-    ),
+    tree_sitter_adapter=CodeTreeSitterAdapter(language=PYTHON_LANGUAGE, allowed_empty_files=["__init__.py"]),
     node_adapters={
         CodeSectionType.attribute: PythonAttributeAdapter(),
         CodeSectionType.class_: PythonClassAdapter(),

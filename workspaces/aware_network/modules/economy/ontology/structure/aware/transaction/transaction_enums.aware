@@ -1,0 +1,15 @@
+enum TransactionKind {
+    external_ingress
+    transfer
+}
+
+enum TransactionStatus {
+    confirmed
+    created
+    failed
+    failed_incoming
+    outgoing_applied
+    sent
+    signed
+    validated
+}

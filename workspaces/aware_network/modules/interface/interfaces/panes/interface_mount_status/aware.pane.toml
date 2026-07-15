@@ -1,0 +1,24 @@
+aware_pane = 1
+
+[pane]
+package_name = "aware-interface-mount-status-pane"
+fqn_prefix = "aware_interface_mount_status_pane"
+pane_name = "interface_mount_status"
+description = "Interface mount status pane package for the aware_control interface."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+
+[[dependencies]]
+package_name = "aware-control"
+kind = "experience_package"
+
+[dart]
+package_path = "dart/aware_interface_mount_status_pane"
+package_name = "aware_interface_mount_status_pane"
+
+[dart.flutter]
+library = "package:aware_interface_mount_status_pane/aware_interface_mount_status_pane.dart"
+symbol = "registerPanePackage"

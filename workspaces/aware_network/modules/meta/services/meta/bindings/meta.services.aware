@@ -1,0 +1,35 @@
+service aware_meta {
+    api meta
+
+    operation ensure_object_config_graph_package {
+        endpoint meta.package.ensure_object_config_graph_package
+        admission identity_required
+    }
+
+    operation invoke_function {
+        endpoint meta.graph.invoke_function
+        admission identity_required
+    }
+
+    operation get_lane_head {
+        endpoint meta.graph.get_lane_head
+        receipt read_model
+    }
+
+    operation get_object_instance_graph_commit {
+        endpoint meta.graph.get_object_instance_graph_commit
+        receipt read_model
+    }
+
+    operation resolve_graph_view {
+        endpoint meta.graph.resolve_graph_view
+        admission public_read
+        receipt read_model
+        view meta.graph_canvas
+    }
+
+    operation subscribe {
+        endpoint meta.commit.subscribe
+        admission identity_required
+    }
+}

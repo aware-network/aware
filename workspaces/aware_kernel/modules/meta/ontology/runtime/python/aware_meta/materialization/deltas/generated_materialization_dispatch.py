@@ -75,15 +75,67 @@ def explicit_language_generated_materialization_feature_result(
             diagnostics=(f"target_language_plugin_missing:{target_language}",),
         )
     plugin = MetaLanguagePluginRegistry.get(code_language)
+    target_hints = _generated_materialization_target_hints(operation=operation)
+    selected_hint, selection_reason = _generated_materialization_dispatch_hint(
+        target_hints=target_hints,
+        target_language=target_language,
+        feature_key=feature_key,
+        registered_renderer_keys=frozenset(plugin.generated_delta_renderers),
+    )
+    if selection_reason is not None:
+        return MetaProviderDeltaGeneratedMaterializationFeatureResult.from_blocked(
+            feature_key=feature_key,
+            operation=operation,
+            reason=selection_reason,
+            event_refs=event_refs,
+            diagnostics=(selection_reason,),
+        )
 
     render_result = plugin.render_generated_materialization_delta(
         MetaLanguageGeneratedMaterializationDeltaRenderRequest(
             operation=operation,
             context=MetaLanguageGeneratedMaterializationDeltaContext.from_provider_context(
                 context,
-                target_hints=_generated_materialization_target_hints(
-                    operation=operation,
+                renderer_profile=(
+                    selected_hint.renderer_profile
+                    if selected_hint is not None
+                    else None
                 ),
+                renderer_kind=(
+                    selected_hint.renderer_kind if selected_hint is not None else None
+                ),
+                materialization_source=(
+                    selected_hint.materialization_source
+                    if selected_hint is not None
+                    else None
+                ),
+                product_intent=(
+                    selected_hint.product_intent if selected_hint is not None else None
+                ),
+                artifact_family=(
+                    selected_hint.artifact_family if selected_hint is not None else None
+                ),
+                artifact_role=(
+                    selected_hint.artifact_role if selected_hint is not None else None
+                ),
+                target_hints=target_hints,
+            ),
+            renderer_profile=(
+                selected_hint.renderer_profile if selected_hint is not None else None
+            ),
+            renderer_kind=(
+                selected_hint.renderer_kind if selected_hint is not None else None
+            ),
+            materialization_source=(
+                selected_hint.materialization_source
+                if selected_hint is not None
+                else None
+            ),
+            capability_key=(
+                _registered_renderer_capability_key(
+                    plugin=plugin,
+                    selected_hint=selected_hint,
+                )
             ),
         )
     )
@@ -171,7 +223,7 @@ def _generated_materialization_target_hints(
     operation: MetaProviderDeltaTypedOperation,
 ) -> tuple[MetaLanguageGeneratedMaterializationTargetHint, ...]:
     hints: list[MetaLanguageGeneratedMaterializationTargetHint] = []
-    seen: set[tuple[str | None, str | None, str | None, str | None]] = set()
+    seen: set[tuple[str | None, str | None, str | None, str | None, str | None]] = set()
     for payload in _generated_materialization_payloads(operation=operation):
         generated = mapping_value(payload.get("generated_materialization"))
         if not generated:
@@ -190,6 +242,7 @@ def _generated_materialization_target_hints(
             key = (
                 hint.descriptor_key,
                 hint.capability_key,
+                hint.renderer_kind,
                 hint.owner_key,
                 hint.relative_path,
             )
@@ -197,6 +250,76 @@ def _generated_materialization_target_hints(
                 hints.append(hint)
                 seen.add(key)
     return tuple(hints)
+
+
+def _generated_materialization_dispatch_hint(
+    *,
+    target_hints: tuple[MetaLanguageGeneratedMaterializationTargetHint, ...],
+    target_language: str,
+    feature_key: str,
+    registered_renderer_keys: frozenset[str],
+) -> tuple[MetaLanguageGeneratedMaterializationTargetHint | None, str | None]:
+    candidates = tuple(
+        hint
+        for hint in target_hints
+        if _target_hint_matches_language(
+            hint=hint,
+            target_language=target_language,
+        )
+    )
+    feature_candidates = tuple(
+        hint
+        for hint in candidates
+        if feature_key in {hint.descriptor_key, hint.capability_key}
+    )
+    if feature_candidates:
+        candidates = feature_candidates
+    if not candidates:
+        return None, None
+    signatures = {
+        (
+            (
+                hint.capability_key
+                if hint.capability_key in registered_renderer_keys
+                else None
+            ),
+            hint.renderer_profile,
+            hint.renderer_kind,
+            hint.materialization_source,
+            hint.product_intent,
+            hint.artifact_family,
+            hint.artifact_role,
+        )
+        for hint in candidates
+    }
+    if len(signatures) != 1:
+        return None, "meta_generated_materialization_target_hint_ambiguous"
+    return candidates[0], None
+
+
+def _registered_renderer_capability_key(
+    *,
+    plugin: MetaLanguagePlugin,
+    selected_hint: MetaLanguageGeneratedMaterializationTargetHint | None,
+) -> str | None:
+    if selected_hint is None:
+        return None
+    for candidate in (
+        selected_hint.capability_key,
+        selected_hint.descriptor_key,
+    ):
+        if candidate is not None and candidate in plugin.generated_delta_renderers:
+            return candidate
+    return None
+
+
+def _target_hint_matches_language(
+    *,
+    hint: MetaLanguageGeneratedMaterializationTargetHint,
+    target_language: str,
+) -> bool:
+    hint_language = hint.target_language_plugin_id or hint.target_language
+    return hint_language is None or hint_language == target_language
 
 
 def _generated_materialization_payloads(
@@ -241,6 +364,7 @@ def _target_hint_from_payload(
             target.get("target_language_plugin_id")
         ),
         renderer_profile=optional_text(target.get("renderer_profile")),
+        renderer_kind=optional_text(target.get("renderer_kind")),
         materialization_source=optional_text(target.get("materialization_source")),
         product_intent=optional_text(target.get("product_intent")),
         semantic_key=(

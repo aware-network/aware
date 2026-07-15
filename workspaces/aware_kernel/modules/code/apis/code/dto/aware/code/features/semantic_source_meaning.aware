@@ -1,3 +1,35 @@
+/// Typed grammar context value used to render semantic keys and payload evidence.
+///
+/// When `grammar_rule_name` is absent, `field_path` resolves from the binding's
+/// anchor rule node. When present, Code resolves the nearest ancestor with that
+/// rule name before reading the field.
+class CodeSemanticSourceMeaningTemplateValueBinding : inline_value {
+    value_key String
+    field_path String
+    grammar_rule_name String?
+    required Bool = true
+}
+
+/// Typed operation policy emitted when one source-meaning event matches.
+///
+/// Code interprets the routing fields and preserves provider-owned generated
+/// materialization intent as opaque evidence for the owning semantic package.
+class CodeSemanticSourceMeaningTypedOperationBinding : inline_value {
+    operation_key_template String?
+    event_verbs String[] = []
+    operation_family String?
+    semantic_operation_type String
+    semantic_subject_type String?
+    field_path String?
+    requires_baseline_object_identity Bool = false
+    contract_source String?
+    semantic_apply_boundary String?
+    preview_only Bool = true
+    fallback_required Bool = false
+    fallback_reason String?
+    generated_materialization_intent JsonObject?
+}
+
 /// Declarative source-to-semantic meaning binding over a grammar anchor.
 class CodeSemanticSourceMeaningBinding : inline_value {
     binding_key String
@@ -14,6 +46,8 @@ class CodeSemanticSourceMeaningBinding : inline_value {
     event_key_template String?
     event_type String = "semantic_change"
     condition_keys String[] = []
+    template_value_bindings code.CodeSemanticSourceMeaningTemplateValueBinding[] = []
+    typed_operation_bindings code.CodeSemanticSourceMeaningTypedOperationBinding[] = []
     required Bool = true
     metadata JsonObject?
 }

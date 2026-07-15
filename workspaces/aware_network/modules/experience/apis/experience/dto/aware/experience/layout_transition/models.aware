@@ -1,0 +1,40 @@
+/// Canonical DTOs for Experience-owned layout transitions.
+///
+/// Ownership:
+/// - Attention owns layout, section, focus, and observable truth consumed by Interface.
+/// - Experience API owns which product layout target should be requested for one experience moment.
+/// - Interface owns the protected namespace/window/session mutation.
+
+class ExperienceInterfaceWindowLayoutTarget {
+    interface_package_id UUID?
+    interface_package_name String?
+    window_key String = "main"
+    layout_config_id UUID?
+    layout_key String
+    section_key String?
+    observable_id UUID?
+    representation_id UUID?
+}
+
+class ExperienceLayoutActorRoleGate {
+    access_scope String = "personal"
+    actor_id UUID
+    role_config_id UUID?
+    role_config_name String?
+    class_instance_identity_id UUID
+    role_assignment_binding_id UUID?
+}
+
+class ExperienceLayoutTransitionReceipt {
+    namespace String
+    actor_id UUID
+    identity_id UUID?
+    experience_name String
+    intent_key String
+    target layout_transition.ExperienceInterfaceWindowLayoutTarget
+    role_gate layout_transition.ExperienceLayoutActorRoleGate
+    section_graph_binding_key String?
+    attention_state section_graph_binding.ExperienceSectionGraphBindingState?
+    interface_idempotency_key String?
+    info String?
+}

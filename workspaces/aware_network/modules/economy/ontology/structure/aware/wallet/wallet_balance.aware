@@ -1,0 +1,24 @@
+class WalletBalance {
+    // Relationships
+    coin coin.Coin key
+
+    // Attributes
+    balance Decimal = 0
+    held_balance Decimal = 0
+
+    fn create construct (coin_id UUID key, balance Decimal = 0, held_balance Decimal = 0) -> WalletBalance {
+        """
+        Creates a deterministic wallet/coin balance record.
+
+        Receipt: WalletBalance(id=stable(wallet_id, coin_id), balance>=0, held_balance>=0, held_balance<=balance).
+        """
+    }
+
+    fn set_balance (balance Decimal, held_balance Decimal? = null) -> WalletBalance {
+        """
+        Sets absolute total and optional held balance on this WalletBalance.
+
+        Receipt: WalletBalance(balance>=0, held_balance>=0, held_balance<=balance).
+        """
+    }
+}

@@ -1,0 +1,87 @@
+/// Canonical DTOs for Identity-owned actor commit personal history.
+///
+/// Contract:
+/// - `ensure_actor_commit` is the service-facing reaction for Environment lane commit fanout.
+/// - `resolve_actor_commits` reads the actor-owned personal-history projection.
+/// - Meta remains the durable commit authority; API records expose only stable provenance fields.
+
+class ActorCommitRecord {
+    actor_commit_id UUID
+    actor_id UUID
+    domain_branch_id UUID
+    domain_projection_hash String
+    domain_commit_id UUID
+    object_instance_graph_commit_id UUID
+    object_instance_graph_identity_id UUID?
+    environment_id UUID?
+    process_id UUID?
+    thread_id UUID?
+    receipt_actor_id UUID?
+    created_at_unix_ms Int?
+    operation_label String?
+    call_target String?
+    function_id UUID?
+    object_id UUID?
+    class_instance_identity_id UUID?
+    graph_hash_post String?
+    object_instance_graph_id UUID?
+    root_object_id UUID?
+    head_version Int?
+    source String = "environment_lane_commit_receipt"
+}
+
+class ActorCommitEnsureRequest {
+    request_id UUID?
+    actor_id UUID
+    domain_branch_id UUID
+    domain_projection_hash String
+    domain_commit_id UUID
+    object_instance_graph_commit_id UUID
+    environment_id UUID?
+    process_id UUID?
+    thread_id UUID?
+    receipt_actor_id UUID?
+    created_at_unix_ms Int?
+    operation_label String?
+    call_target String?
+    function_id UUID?
+    object_id UUID?
+    class_instance_identity_id UUID?
+    graph_hash_post String?
+    object_instance_graph_id UUID?
+    root_object_id UUID?
+    head_version Int?
+    source String = "environment_lane_commit_receipt"
+}
+
+class ActorCommitEnsureReceipt {
+    request_id UUID?
+    actor_commit actor.ActorCommitRecord
+    actor_commit_created Bool = false
+    info String?
+}
+
+class ActorCommitResolveRequest {
+    request_id UUID?
+    actor_id UUID
+    domain_branch_id UUID?
+    domain_projection_hash String?
+    domain_commit_id UUID?
+    environment_id UUID?
+    process_id UUID?
+    thread_id UUID?
+    receipt_actor_id UUID?
+    function_id UUID?
+    object_id UUID?
+    class_instance_identity_id UUID?
+    object_instance_graph_id UUID?
+    root_object_id UUID?
+    source String?
+    limit Int = 100
+}
+
+class ActorCommitResolveResult {
+    request_id UUID?
+    actor_commits actor.ActorCommitRecord[] = []
+    info String?
+}

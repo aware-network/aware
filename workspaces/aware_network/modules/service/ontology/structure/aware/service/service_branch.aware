@@ -1,0 +1,18 @@
+class ServiceBranch {
+    // Relationships
+    service_config_api_projection ServiceConfigApiProjection key
+    object_instance_graph_branch aware_meta.graph.instance.ObjectInstanceGraphBranch key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        service_config_api_projection_id UUID key,
+        object_instance_graph_branch_id UUID key,
+        description String? = null
+    ) -> ServiceBranch {
+        """
+        Create one concrete service-instance branch binding for one subscribed API projection lane.
+        """
+    }
+}

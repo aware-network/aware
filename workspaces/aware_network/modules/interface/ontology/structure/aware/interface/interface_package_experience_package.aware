@@ -1,0 +1,24 @@
+class InterfacePackageExperiencePackage {
+    // Relationships
+    experience_package aware_experience.environment.ExperiencePackage key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        experience_package_id UUID key,
+        description String? = null
+    ) -> InterfacePackageExperiencePackage {
+        """
+        Create one package-level Interface bridge to one ExperiencePackage.
+
+        Contract:
+        - Parent `InterfacePackage` scope is injected by propagation.
+        - Identity is keyed by the attached `ExperiencePackage`.
+        - This is the package/import seam for authored Interface observable/view ownership.
+        - It does not replace pane-level `ProjectionExperienceView` binding inside `InterfaceConfig`.
+        """
+    }
+}
+
+ann interface.InterfacePackageExperiencePackage::experience_package load eager

@@ -1,0 +1,7 @@
+environment aware_economy_external_capital {
+    experience aware_economy
+
+    event WalletFundingIntentPrepared {
+        action ExternalCapitalCreateWalletFundingSession
+    }
+}

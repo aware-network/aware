@@ -1,0 +1,108 @@
+class NetworkNode {
+    // Relationships
+    config NetworkNodeConfig?
+    environments NetworkNodeEnvironment[]
+    members NetworkNodeMember[]
+    services NetworkNodeService[]
+    /// Node-owned system Actor used for bootstrap and topology-publication provenance.
+    ///
+    /// Contract:
+    /// - Node bootstrap/self-registration is never actorless.
+    /// - The Node system Actor is stable before human/operator or commercial
+    ///   contract admission exists.
+    /// - Future contract-gated registration still uses this Node Actor as the
+    ///   provenance subject; commercial terms add a gate, not an actorless path.
+    system_actor aware_identity.actor.Actor?
+
+    // Attributes
+    base_url String?
+    hostname String
+    last_seen_at DateTime = now()
+    port Int
+    public_key String unique key
+    status NetworkNodeStatus = inactive
+
+    fn register construct (
+        public_key String key,
+        hostname String,
+        port Int,
+        base_url String? = null,
+        node_id UUID? = null,
+        system_actor_id UUID? = null,
+        status NetworkNodeStatus = active
+    ) -> NetworkNode {
+        """
+        Registers (or updates) a NetworkNode by its public key.
+
+        Contract:
+        - `public_key` is the canonical identity key for NetworkNode.
+        - `node_id` may be supplied by a running Node runtime when that runtime
+          already owns a canonical local node identity. In that case the
+          committed NetworkNode id must match the runtime node id used for
+          peer and route resolution.
+        - `system_actor_id` links the registered NetworkNode to the Node-owned
+          system Actor that emitted the self-registration.
+        - Idempotent: repeated calls yield the same NetworkNode.id for the same anchor.
+        """
+    }
+
+    fn upsert_environment (
+        environment_id UUID,
+        role NetworkEnvironmentRole = replica,
+        is_active Bool = true,
+        priority Int = 0
+    ) -> NetworkNode {
+        """
+        Upsert an environment association for this node (v0).
+
+        Contract:
+        - Idempotent by (node.id, environment_id).
+        - Environment is referenced via portal (no embedded Environment objects in-lane).
+        """
+        let created = construct environments.create(
+            environment_id = environment_id,
+            role = role,
+            is_active = is_active,
+            priority = priority,
+        )
+    }
+
+    fn attach_service (
+        service_package_id UUID key,
+        service_id UUID,
+        host_id String,
+        protocol_version String,
+        service_name String,
+        endpoint_refs String[] = [],
+        stream_endpoint_refs String[] = [],
+        host_version String? = null,
+        supports_stream_events Bool = false
+    ) -> NetworkNodeService {
+        """
+        Attach one Node-owned hosted-Service advertisement binding (v0).
+
+        Contract:
+        - Idempotent by (node.id, service_package_id).
+        - This is live network discovery truth for one hosted Service, not desired deploy-state
+          truth from `NodeConfig`.
+        - The target `Service` is referenced via a real portal so later consumers can resolve the
+          semantic service contract. The target `ServicePackage` is referenced via a real portal
+          so remote Service API dependency resolution joins against Service-owned package truth.
+        """
+        let created = construct services.build(
+            service_package_id = service_package_id,
+            service_id = service_id,
+            endpoint_refs = endpoint_refs,
+            stream_endpoint_refs = stream_endpoint_refs,
+            host_id = host_id,
+            host_version = host_version,
+            protocol_version = protocol_version,
+            service_name = service_name,
+            supports_stream_events = supports_stream_events,
+        )
+    }
+}
+
+ann network.NetworkNode::environments load eager
+ann network.NetworkNode::services load eager
+ann network.NetworkNode::system_actor load eager

@@ -1,0 +1,508 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_INTERFACE"
+kind = "ns_url"
+value = "aware://interface/v1"
+
+[[functions]]
+name = "stable_interface_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface:{interface_config_id}:{os_norm}:{version_norm}"
+doc = "Compiler-generated from class-attribute identity keys: interface_config_id, os, version"
+
+[[functions.params]]
+name = "interface_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "os"
+type = "str"
+
+[[functions.params]]
+name = "version"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "os_norm"
+param = "os"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "version_norm"
+param = "version"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_interface_config_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_config:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_interface_config_pane_config_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_config_pane_config:{interface_config_id}:{pane_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: interface_config_id, pane_config_id"
+
+[[functions.params]]
+name = "interface_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "pane_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_interface_config_pane_config_section_config_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_config_pane_config_section_config:{interface_config_pane_config_id}:{layout_config_section_config_id}"
+doc = "Compiler-generated from propagated parent identity and class-attribute identity keys: interface_config_pane_config_id, layout_config_section_config_id"
+
+[[functions.params]]
+name = "interface_config_pane_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_config_section_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_interface_config_window_config_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_config_window_config:{interface_config_id}:{window_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: interface_config_id, window_config_id"
+
+[[functions.params]]
+name = "interface_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "window_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_interface_environment_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_environment:{interface_id}:{environment_id}"
+doc = "Compiler-generated from class-attribute identity keys: interface_id, environment_id"
+
+[[functions.params]]
+name = "interface_id"
+type = "uuid"
+
+[[functions.params]]
+name = "environment_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_interface_identity_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_identity:{identity_id}"
+doc = "Compiler-generated from class-attribute identity keys: identity_id"
+
+[[functions.params]]
+name = "identity_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_interface_identity_network_node_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_identity_network_node:{network_node_id}"
+doc = "Compiler-generated from class-attribute identity keys: network_node_id"
+
+[[functions.params]]
+name = "network_node_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_interface_package_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_package:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_interface_package_experience_package_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_package_experience_package:{interface_package_id}:{experience_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: interface_package_id, experience_package_id"
+
+[[functions.params]]
+name = "interface_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "experience_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_interface_package_pane_package_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_package_pane_package:{interface_package_id}:{pane_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: interface_package_id, pane_package_id"
+
+[[functions.params]]
+name = "interface_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "pane_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_interface_session_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_session:{interface_id}:{identity_session_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: interface_id, identity_session_id, name"
+
+[[functions.params]]
+name = "interface_id"
+type = "uuid"
+
+[[functions.params]]
+name = "identity_session_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_interface_window_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_window:{interface_id}:{window_id}"
+doc = "Compiler-generated from class-attribute identity keys: interface_id, window_id"
+
+[[functions.params]]
+name = "interface_id"
+type = "uuid"
+
+[[functions.params]]
+name = "window_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_interface_window_navigation_context_id"
+namespace = "NS_INTERFACE"
+template = "aware:interface_window_navigation_context:{interface_window_id}:{interface_environment_id}:{environment_navigation_context_id}"
+doc = "Compiler-generated from class-attribute identity keys: interface_window_id, interface_environment_id, environment_navigation_context_id"
+
+[[functions.params]]
+name = "interface_window_id"
+type = "uuid"
+
+[[functions.params]]
+name = "interface_environment_id"
+type = "uuid"
+
+[[functions.params]]
+name = "environment_navigation_context_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_pane_action_binding_id"
+namespace = "NS_INTERFACE"
+template = "aware:pane_action_binding:{pane_render_node_id}:{binding_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: pane_render_node_id, binding_key"
+
+[[functions.params]]
+name = "pane_render_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "binding_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "binding_key_norm"
+param = "binding_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_pane_config_id"
+namespace = "NS_INTERFACE"
+template = "aware:pane_config:{projection_experience_view_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: projection_experience_view_id, name"
+
+[[functions.params]]
+name = "projection_experience_view_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_pane_input_binding_id"
+namespace = "NS_INTERFACE"
+template = "aware:pane_input_binding:{pane_action_binding_id}:{payload_path_norm}"
+doc = "Compiler-generated from class-attribute identity keys: pane_action_binding_id, payload_path"
+
+[[functions.params]]
+name = "pane_action_binding_id"
+type = "uuid"
+
+[[functions.params]]
+name = "payload_path"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "payload_path_norm"
+param = "payload_path"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_pane_package_id"
+namespace = "NS_INTERFACE"
+template = "aware:pane_package:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_pane_package_experience_package_id"
+namespace = "NS_INTERFACE"
+template = "aware:pane_package_experience_package:{pane_package_id}:{experience_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: pane_package_id, experience_package_id"
+
+[[functions.params]]
+name = "pane_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "experience_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_pane_renderer_capability_requirement_id"
+namespace = "NS_INTERFACE"
+template = "aware:pane_renderer_capability_requirement:{pane_render_spec_id}:{capability_kind_norm}:{capability_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: pane_render_spec_id, capability_kind, capability_key"
+
+[[functions.params]]
+name = "pane_render_spec_id"
+type = "uuid"
+
+[[functions.params]]
+name = "capability_kind"
+type = "str"
+
+[[functions.params]]
+name = "capability_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "capability_kind_norm"
+param = "capability_kind"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "capability_key_norm"
+param = "capability_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_pane_render_node_id"
+namespace = "NS_INTERFACE"
+template = "aware:pane_render_node:{pane_render_spec_id}:{node_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: pane_render_spec_id, node_key"
+
+[[functions.params]]
+name = "pane_render_spec_id"
+type = "uuid"
+
+[[functions.params]]
+name = "node_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "node_key_norm"
+param = "node_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_pane_render_spec_id"
+namespace = "NS_INTERFACE"
+template = "aware:pane_render_spec:{pane_config_id}:{name_norm}:{spec_version_norm}"
+doc = "Compiler-generated from class-attribute identity keys: pane_config_id, name, spec_version"
+
+[[functions.params]]
+name = "pane_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.params]]
+name = "spec_version"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "spec_version_norm"
+param = "spec_version"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_pane_state_binding_id"
+namespace = "NS_INTERFACE"
+template = "aware:pane_state_binding:{pane_render_node_id}:{binding_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: pane_render_node_id, binding_key"
+
+[[functions.params]]
+name = "pane_render_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "binding_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "binding_key_norm"
+param = "binding_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_pane_style_token_ref_id"
+namespace = "NS_INTERFACE"
+template = "aware:pane_style_token_ref:{pane_render_node_id}:{token_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: pane_render_node_id, token_key"
+
+[[functions.params]]
+name = "pane_render_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "token_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "token_key_norm"
+param = "token_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_window_id"
+namespace = "NS_INTERFACE"
+template = "aware:window:{window_id}"
+doc = "Compiler-generated from class-attribute identity keys: window_id"
+
+[[functions.params]]
+name = "window_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_window_config_id"
+namespace = "NS_INTERFACE"
+template = "aware:window_config:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_window_config_layout_config_id"
+namespace = "NS_INTERFACE"
+template = "aware:window_config_layout_config:{window_config_id}:{layout_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: window_config_id, layout_config_id"
+
+[[functions.params]]
+name = "window_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_window_layout_id"
+namespace = "NS_INTERFACE"
+template = "aware:window_layout:{window_id}:{layout_id}"
+doc = "Compiler-generated from class-attribute identity keys: window_id, layout_id"
+
+[[functions.params]]
+name = "window_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_window_layout_section_id"
+namespace = "NS_INTERFACE"
+template = "aware:window_layout_section:{window_layout_id}:{layout_section_id}"
+doc = "Compiler-generated from class-attribute identity keys: window_layout_id, layout_section_id"
+
+[[functions.params]]
+name = "window_layout_id"
+type = "uuid"
+
+[[functions.params]]
+name = "layout_section_id"
+type = "uuid"

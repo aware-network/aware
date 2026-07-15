@@ -1,0 +1,30 @@
+class NodeConfigServiceCodePackage {
+    // Relationships
+    service_config_code_package_config aware_service.service.ServiceConfigCodePackageConfig?
+    code_package aware_code.package.CodePackage?
+
+    // Attributes
+    slot_key String key
+    package_name String key
+    language aware_code.code.CodeLanguage key = aware
+    description String?
+
+    fn build construct(
+        slot_key String key,
+        package_name String key,
+        language aware_code.code.CodeLanguage key = aware,
+        service_config_code_package_config_id UUID? = null,
+        code_package_id UUID? = null,
+        description String? = null
+    ) -> NodeConfigServiceCodePackage {
+        """
+        Create one Node-owned service CodePackage activation.
+
+        Contract:
+        - Parent `NodeConfigServiceTarget` scope is injected by propagation.
+        - Identity is keyed by `(node_config_service_target_id, slot_key, package_name, language)`.
+        - This object is deployment intent. ServiceConfigCodePackageConfig remains capability
+          truth; CodePackage remains concrete package truth.
+        """
+    }
+}

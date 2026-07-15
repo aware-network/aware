@@ -1,0 +1,116 @@
+class NodeConfig {
+    // Relationships
+    environment_targets NodeConfigEnvironmentTarget[]
+    ontology_targets NodeConfigOntologyTarget[]
+    service_targets NodeConfigServiceTarget[]
+    interface_targets NodeConfigInterfaceTarget[]
+
+    // Attributes
+    name String key
+    description String?
+
+    fn build construct(
+        name String key,
+        description String? = null
+    ) -> NodeConfig {
+        """
+        Create the canonical Node-owned desired hosted-composition root.
+
+        Contract:
+        - Identity is keyed by semantic Node package/config `name`.
+        - `NodeConfig` remains desired-state truth only; it does not point at live `NetworkNode`
+          runtime state.
+        - Hosted composition is attached through contained target objects keyed by stable semantic
+          names rather than raw relationship-id primitives.
+        """
+    }
+
+    fn attach_environment_target(
+        environment_handle String key
+    ) -> NodeConfigEnvironmentTarget {
+        """
+        Attach one canonical Environment target by stable environment handle.
+
+        Contract:
+        - Parent `NodeConfig` scope is injected by propagation.
+        - Target identity is resolved from `environment_handle`.
+        - Environment profile package mounts are installed separately by explicit
+          Node environment profile declarations.
+        """
+        let created = construct environment_targets.build(
+            environment_handle = environment_handle,
+        )
+    }
+
+    fn attach_environment_profile_mount(
+        environment_handle String key,
+        profile_key String,
+        package_name String,
+        mount_key String,
+        mode String = "mounted",
+        position Int? = null
+    ) -> NodeConfigEnvironmentTarget {
+        """
+        Attach an Environment target and one explicit EnvironmentProfilePackage install mount.
+
+        Contract:
+        - Allows explicit EnvironmentProfilePackage install pointers in Node config.
+        - Existing target is reused by `environment_handle`.
+        - Mounts select OS profile install specs only; Experience lenses activate later.
+        """
+    }
+
+    fn attach_service_config(
+        service_name String key
+    ) -> NodeConfigServiceTarget {
+        """
+        Attach one canonical `ServiceConfig` target by stable service name.
+
+        Contract:
+        - Parent `NodeConfig` scope is injected by propagation.
+        - Target identity is resolved from `service_name`.
+        - Node keeps desired hosted composition local while Service keeps runtime semantics.
+        """
+        let created = construct service_targets.build(
+            service_name = service_name,
+        )
+    }
+
+    fn attach_ontology_package(
+        package_name String key
+    ) -> NodeConfigOntologyTarget {
+        """
+        Attach one canonical `OntologyPackage` target by stable package name.
+
+        Contract:
+        - Parent `NodeConfig` scope is injected by propagation.
+        - Target identity is resolved from `package_name`.
+        - Node keeps desired hosted composition local while Ontology keeps
+          semantic package/runtime meaning.
+        """
+        let created = construct ontology_targets.build(
+            package_name = package_name,
+        )
+    }
+
+    fn attach_interface_config(
+        interface_name String key
+    ) -> NodeConfigInterfaceTarget {
+        """
+        Attach one canonical `InterfaceConfig` target by stable interface name.
+
+        Contract:
+        - Parent `NodeConfig` scope is injected by propagation.
+        - Target identity is resolved from `interface_name`.
+        - Node keeps desired hosted composition local while Interface keeps runtime semantics.
+        """
+        let created = construct interface_targets.build(
+            interface_name = interface_name,
+        )
+    }
+}
+
+ann node.NodeConfig::environment_targets load eager
+ann node.NodeConfig::ontology_targets load eager
+ann node.NodeConfig::service_targets load eager
+ann node.NodeConfig::interface_targets load eager

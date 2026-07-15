@@ -1,0 +1,260 @@
+class HubAuthority {
+    // Relationships
+    artifacts HubArtifact[]
+    channels HubChannel[]
+    code_package_publications HubCodePackagePublication[]
+    receipts HubPublicationReceipt[]
+
+    // Attributes
+    authority_key String unique key
+    base_url String?
+    description String?
+    title String?
+    visibility HubAuthorityVisibility = public
+
+    fn ensure_authority construct(
+        authority_key String key = "default",
+        title String? = "Aware Hub",
+        base_url String? = null,
+        description String? = null,
+        visibility HubAuthorityVisibility = public
+    ) -> HubAuthority {
+        """
+        Ensure one committed Hub authority root.
+
+        Contract:
+        - Hub authority truth is commit-backed.
+        - Identity is stable by `authority_key`.
+        - This root owns channel heads, generic artifact locks, CodePackage publications,
+          and publication receipts.
+        """
+    }
+
+    fn ensure_channel(
+        channel_key String key = "stable",
+        title String? = null,
+        description String? = null,
+        visibility HubAuthorityVisibility = public
+    ) -> HubChannel {
+        """
+        Ensure one Hub-owned publication channel under this authority.
+        """
+        let created = construct channels.build(
+            channel_key = channel_key,
+            title = title,
+            description = description,
+            visibility = visibility,
+        )
+    }
+
+    fn ensure_artifact(
+        artifact_family String key,
+        artifact_key String key,
+        title String? = null,
+        description String? = null,
+        media_type String? = null
+    ) -> HubArtifact {
+        """
+        Ensure one Hub-owned artifact identity under this authority.
+        """
+        let created = construct artifacts.build(
+            artifact_family = artifact_family,
+            artifact_key = artifact_key,
+            title = title,
+            description = description,
+            media_type = media_type,
+        )
+    }
+
+    fn publish_artifact(
+        artifact_family String key,
+        artifact_key String key,
+        revision_id String key,
+        payload_url String,
+        payload_sha256 String,
+        channel_key String = "stable",
+        selector_key String? = null,
+        target_ref String? = null,
+        media_type String? = null,
+        size_bytes Int? = null,
+        producer_kind String = "unknown",
+        producer_key String = "default",
+        provenance_key String? = null,
+        producer_revision_id String? = null,
+        source_revision_id String? = null,
+        source_revision_kind String? = null,
+        materialization_ref String? = null,
+        build_ref String? = null,
+        publisher_execution_id String? = null,
+        idempotency_key String? = null,
+        published_at_utc String? = null,
+        metadata JsonObject = {}
+    ) -> HubArtifactRevision {
+        """
+        Publish one generic immutable artifact revision into Hub authority truth.
+
+        Contract:
+        - Generic artifacts store payload locks and producer provenance only.
+        - WorkspaceRevision fields, when present, stay producer provenance and do not
+          become Hub revision semantics.
+        - Channel head movement is Hub-owned committed truth.
+        """
+        let artifact = construct artifacts.build(
+            artifact_family = artifact_family,
+            artifact_key = artifact_key,
+            title = artifact_key,
+            description = null,
+            media_type = media_type,
+        )
+    }
+
+    fn record_code_package_publication(
+        package_name String key,
+        language aware_code.code.CodeLanguage key,
+        surface String key,
+        revision_id String key,
+        artifact_url String,
+        artifact_sha256 String,
+        channel_key String = "stable",
+        code_package_id UUID? = null,
+        artifact_revision_id UUID? = null,
+        producer_provenance_id UUID? = null,
+        descriptor_digest String? = null,
+        artifact_size_bytes Int? = null,
+        media_type String? = null,
+        download_handle String? = null,
+        manifest_kind String? = null,
+        manifest_relative_path String? = null,
+        package_root String? = null,
+        sources_root String? = null,
+        fqn_prefix String? = null,
+        version String? = null,
+        published_at_utc String? = null,
+        metadata JsonObject = {}
+    ) -> HubCodePackagePublication {
+        """
+        Record one authority-owned CodePackage publication row.
+        """
+        let publication = construct code_package_publications.publish(
+            package_name = package_name,
+            language = language,
+            surface = surface,
+            channel_key = channel_key,
+            revision_id = revision_id,
+            artifact_url = artifact_url,
+            artifact_sha256 = artifact_sha256,
+            code_package_id = code_package_id,
+            artifact_revision_id = artifact_revision_id,
+            producer_provenance_id = producer_provenance_id,
+            descriptor_digest = descriptor_digest,
+            artifact_size_bytes = artifact_size_bytes,
+            media_type = media_type,
+            download_handle = download_handle,
+            manifest_kind = manifest_kind,
+            manifest_relative_path = manifest_relative_path,
+            package_root = package_root,
+            sources_root = sources_root,
+            fqn_prefix = fqn_prefix,
+            version = version,
+            published_at_utc = published_at_utc,
+            metadata = metadata,
+        )
+    }
+
+    fn publish_code_package(
+        package_name String key,
+        language aware_code.code.CodeLanguage key,
+        surface String key,
+        revision_id String key,
+        artifact_url String,
+        artifact_sha256 String,
+        channel_key String = "stable",
+        code_package_id UUID? = null,
+        descriptor_digest String? = null,
+        artifact_size_bytes Int? = null,
+        media_type String? = null,
+        download_handle String? = null,
+        manifest_kind String? = null,
+        manifest_relative_path String? = null,
+        package_root String? = null,
+        sources_root String? = null,
+        fqn_prefix String? = null,
+        version String? = null,
+        producer_kind String = "workspace",
+        producer_key String = "default",
+        provenance_key String? = null,
+        producer_revision_id String? = null,
+        source_revision_id String? = null,
+        source_revision_kind String? = null,
+        materialization_ref String? = null,
+        build_ref String? = null,
+        publisher_execution_id String? = null,
+        idempotency_key String? = null,
+        published_at_utc String? = null,
+        metadata JsonObject = {}
+    ) -> HubCodePackagePublication {
+        """
+        Publish one CodePackage artifact lock into Hub authority truth.
+
+        Contract:
+        - This is the king Hub model for package distribution.
+        - CodePackage remains Code-owned semantic package truth.
+        - Hub owns channel heads, artifact locks, provenance, and publication receipts.
+        """
+        let publication = construct code_package_publications.publish(
+            package_name = package_name,
+            language = language,
+            surface = surface,
+            channel_key = channel_key,
+            revision_id = revision_id,
+            artifact_url = artifact_url,
+            artifact_sha256 = artifact_sha256,
+            code_package_id = code_package_id,
+            artifact_revision_id = null,
+            producer_provenance_id = null,
+            descriptor_digest = descriptor_digest,
+            artifact_size_bytes = artifact_size_bytes,
+            media_type = media_type,
+            download_handle = download_handle,
+            manifest_kind = manifest_kind,
+            manifest_relative_path = manifest_relative_path,
+            package_root = package_root,
+            sources_root = sources_root,
+            fqn_prefix = fqn_prefix,
+            version = version,
+            published_at_utc = published_at_utc,
+            metadata = metadata,
+        )
+    }
+
+    fn record_receipt(
+        receipt_key String key,
+        operation String,
+        status HubPublicationReceiptStatus = accepted,
+        publisher_execution_id String? = null,
+        idempotency_key String? = null,
+        artifact_revision_id UUID? = null,
+        code_package_publication_id UUID? = null,
+        authority_source_url String? = null,
+        message String? = null,
+        recorded_at_utc String? = null,
+        detail JsonObject = {}
+    ) -> HubPublicationReceipt {
+        """
+        Record one Hub-owned authority receipt.
+        """
+        let created = construct receipts.build(
+            receipt_key = receipt_key,
+            operation = operation,
+            status = status,
+            publisher_execution_id = publisher_execution_id,
+            idempotency_key = idempotency_key,
+            artifact_revision_id = artifact_revision_id,
+            code_package_publication_id = code_package_publication_id,
+            authority_source_url = authority_source_url,
+            message = message,
+            recorded_at_utc = recorded_at_utc,
+            detail = detail,
+        )
+    }
+}

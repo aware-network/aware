@@ -15,17 +15,20 @@ from aware_history_ontology.commit.commit import Commit
 from aware_history_ontology.commit.commit_enums import CommitStatus
 from aware_meta.graph.instance.commit.body_codec import (
     OIG_COMMIT_BODY_CONTRACT,
+    OIG_CHANGE_SET_CONTRACT,
     OigCommitBodyDraft,
     OigCommitBodyRootChangeDraft,
     OigCommitBodyCodecError,
     build_oig_commit_body,
     build_oig_commit_body_from_draft,
+    canonical_oig_change_set_bytes,
     decode_oig_commit_body,
     object_instance_graph_changes_from_body,
     oig_commit_body_change_ref_draft_from_change,
     oig_commit_body_class_instance_change_draft_from_change,
     oig_commit_body_relationship_change_draft_from_change,
     oig_commit_body_sha256,
+    oig_change_set_sha256,
 )
 from aware_meta_ontology.attribute.attribute_change import AttributeChange
 from aware_meta_ontology.attribute.attribute_value_change import AttributeValueChange
@@ -103,6 +106,27 @@ def test_oig_commit_body_codec_emits_canonical_inline_payload() -> None:
         == "source_object_id"
     )
     assert changes[0].class_instance_changes[0].change.change_deltas[0].id != delta_id
+
+
+def test_oig_change_set_digest_matches_canonical_commit_body_roots() -> None:
+    commit, _ = _make_commit_with_changes()
+    changes = tuple(commit.object_instance_graph_changes)
+    copied_changes = tuple(change.model_copy(deep=True) for change in changes)
+
+    payload = json.loads(canonical_oig_change_set_bytes(changes).decode("utf-8"))
+    body = build_oig_commit_body(commit)
+
+    assert payload == {
+        "c": OIG_CHANGE_SET_CONTRACT,
+        "v": 1,
+        "r": body.payload["r"],
+    }
+    assert oig_change_set_sha256(copied_changes) == oig_change_set_sha256(changes)
+
+    copied_changes[0].class_instance_changes[0].change.change_deltas[0].payload = {
+        "value": str(uuid4())
+    }
+    assert oig_change_set_sha256(copied_changes) != oig_change_set_sha256(changes)
 
 
 def test_oig_commit_body_codec_rejects_legacy_commit_payload() -> None:

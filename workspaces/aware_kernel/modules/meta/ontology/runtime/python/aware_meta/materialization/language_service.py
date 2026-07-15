@@ -27,7 +27,6 @@ from aware_meta.graph.config.render.generated_ocg_node_manifest import (
 from aware_meta.graph.config.render.layout_strategy import (
     ObjectConfigGraphRenderLayoutStrategy,
 )
-from aware_meta.graph.config.model_bootstrap import get_node_function_config
 from aware_meta.graph.config.render.renderer_language import (
     ObjectConfigGraphRendererPolicy,
 )
@@ -64,6 +63,10 @@ from aware_meta.materialization.dart_package_dependencies import (
     infer_dart_workspace_repo_root,
     resolve_dart_generated_package_dependencies,
     resolve_dart_workspace_path_dependencies,
+)
+from aware_meta.materialization.external_import_overrides import (
+    external_language_import_root,
+    language_external_import_overrides,
 )
 from aware_meta.materialization.post_step_executor import (
     LanguageMaterializationPostStepExecutionRequest,
@@ -190,6 +193,7 @@ class LanguageMaterializationOwnershipReceipt:
     producer_kind: str | None = "semantic_materializer"
     producer_step: str | None = None
     package_name: str | None = None
+    code_package_surface: str | None = None
     package_output_key: str | None = None
     required_for: tuple[str, ...] = ()
     path: Path | None = None
@@ -224,6 +228,7 @@ class LanguageMaterializationOwnershipReceipt:
             "status": self.status,
             "producer_step": self.producer_step,
             "package_name": self.package_name,
+            "code_package_surface": self.code_package_surface,
             "package_output_key": self.package_output_key,
             "required_for": sorted(self.required_for),
             "path": self.path.as_posix() if self.path is not None else None,
@@ -1123,6 +1128,7 @@ class LanguagePluginMaterializationRequest:
     object_config_graph_commit_id: UUID | None = None
     source_code_package_id: UUID | None = None
     package_name: str | None = None
+    code_package_surface: str | None = None
     renderer_profile: str | None = None
     renderer_kind: str | None = None
     materialization_source: str | None = None
@@ -1182,10 +1188,13 @@ class LanguagePluginMaterializationResult:
     object_config_graph_commit_id: UUID | None = None
     source_code_package_id: UUID | None = None
     package_name: str | None = None
+    code_package_surface: str | None = None
     renderer_profile: str | None = None
     renderer_kind: str | None = None
     materialization_source: str | None = None
     import_root: str | None = None
+    profile_inputs: Mapping[str, object] = field(default_factory=dict)
+    import_overrides: Mapping[str, str] = field(default_factory=dict)
     output_root: Path | None = None
     source_graph_hash: str | None = None
     runtime_graph_hash: str | None = None
@@ -1638,10 +1647,13 @@ class LanguagePluginMaterializationService:
             object_config_graph_commit_id=request.object_config_graph_commit_id,
             source_code_package_id=request.source_code_package_id,
             package_name=request.package_name,
+            code_package_surface=request.code_package_surface,
             renderer_profile=request.renderer_profile,
             renderer_kind=request.renderer_kind,
             materialization_source=request.materialization_source,
             import_root=request.import_root,
+            profile_inputs=request.profile_inputs,
+            import_overrides=request.import_overrides,
             output_root=(
                 request.output_root.resolve()
                 if request.output_root is not None
@@ -2174,7 +2186,7 @@ def _request_with_language_external_import_overrides(
     request: LanguagePluginMaterializationRequest,
     language_external_graphs: tuple[ObjectConfigGraph, ...],
 ) -> LanguagePluginMaterializationRequest:
-    derived_overrides = _language_external_import_overrides(
+    derived_overrides = language_external_import_overrides(
         target_language_plugin_id=request.target_language_plugin_id,
         materialization_source=request.materialization_source,
         language_external_graphs=language_external_graphs,
@@ -2233,94 +2245,6 @@ def _request_with_runtime_handler_local_import_overrides(
     if merged_overrides == explicit_overrides:
         return request
     return replace(request, import_overrides=merged_overrides)
-
-
-def _language_external_import_overrides(
-    *,
-    target_language_plugin_id: CodeLanguage,
-    materialization_source: str | None,
-    language_external_graphs: tuple[ObjectConfigGraph, ...],
-) -> dict[str, str]:
-    if not language_external_graphs:
-        return {}
-
-    overrides: dict[str, str] = {}
-    for graph in _sort_graphs(language_external_graphs):
-        import_root = _external_language_import_root(
-            graph=graph,
-            target_language_plugin_id=target_language_plugin_id,
-            materialization_source=materialization_source,
-        )
-        if not import_root:
-            continue
-        layout_strategy = MetaLanguagePluginRegistry.create_layout_strategy(
-            target_language_plugin_id,
-            Path("."),
-            import_root=import_root,
-        )
-        layout_strategy.bind_graph(graph)
-        for node in graph.object_config_graph_nodes:
-            if node.class_config is not None:
-                path = layout_strategy.get_class_file_path(node.class_config)
-                path = _language_external_class_import_override_path(
-                    target_language_plugin_id=target_language_plugin_id,
-                    materialization_source=materialization_source,
-                    path=path,
-                )
-                overrides[str(node.class_config.id)] = (
-                    layout_strategy.get_module_import_path(path)
-                )
-            if node.enum_config is not None:
-                path = layout_strategy.get_enum_file_path(node.enum_config)
-                overrides[str(node.enum_config.id)] = (
-                    layout_strategy.get_module_import_path(path)
-                )
-            function_config = get_node_function_config(node)
-            if function_config is not None:
-                path = layout_strategy.get_function_file_path(function_config)
-                overrides[str(function_config.id)] = (
-                    layout_strategy.get_module_import_path(path)
-                )
-    return dict(sorted(overrides.items()))
-
-
-def _language_external_class_import_override_path(
-    *,
-    target_language_plugin_id: CodeLanguage,
-    materialization_source: str | None,
-    path: Path,
-) -> Path:
-    if (
-        target_language_plugin_id == CodeLanguage.dart
-        and (materialization_source or "").strip().lower() == "ontology_dto"
-        and path.suffix == ".dart"
-        and not path.stem.endswith("_model")
-    ):
-        return path.with_name(f"{path.stem}_model{path.suffix}")
-    return path
-
-
-def _external_language_import_root(
-    *,
-    graph: ObjectConfigGraph,
-    target_language_plugin_id: CodeLanguage,
-    materialization_source: str | None,
-) -> str | None:
-    if target_language_plugin_id not in {CodeLanguage.python, CodeLanguage.dart}:
-        return None
-    root = (graph.fqn_prefix or graph.name or "").strip().replace("-", "_")
-    if not root:
-        return None
-    source = (materialization_source or "").strip().lower()
-    if source == "ontology_dto":
-        return f"{root}_ontology_dto"
-    if source == "ontology_orm_models":
-        return f"{root}_ontology_orm_models"
-    if source == "ontology":
-        return f"{root}_ontology"
-    if source == "runtime_handlers":
-        return f"{root}_ontology"
-    return root
 
 
 @contextmanager
@@ -2592,7 +2516,7 @@ def _language_package_dependency_import_roots(
     roots: list[str] = []
     seen: set[str] = set()
     for graph in _sort_graphs(request.package_dependency_graphs):
-        root = _external_language_import_root(
+        root = external_language_import_root(
             graph=graph,
             target_language_plugin_id=request.target_language_plugin_id,
             materialization_source=request.materialization_source,
@@ -2960,12 +2884,13 @@ def _renderer_internal_phase_timings(renderer: object) -> dict[str, float]:
         timings: dict[str, float] = {}
         for raw_name, raw_duration_s in raw_timings.items():
             name = str(raw_name).strip()
-            if not name or isinstance(raw_duration_s, bool):
+            if (
+                not name
+                or not isinstance(raw_duration_s, int | float)
+                or isinstance(raw_duration_s, bool)
+            ):
                 continue
-            try:
-                duration_s = round(max(float(raw_duration_s), 0.0), 6)
-            except (TypeError, ValueError):
-                continue
+            duration_s = round(max(float(raw_duration_s), 0.0), 6)
             timings.setdefault(name, duration_s)
     return dict(sorted(timings.items()))
 
@@ -3775,6 +3700,7 @@ def _ownership_receipt(
         producer_step=producer_step
         or (generated_file.producer_step if generated_file is not None else None),
         package_name=package_name or request.package_name,
+        code_package_surface=request.code_package_surface,
         package_output_key=package_output_key,
         required_for=required_for,
         path=receipt_path,
@@ -4281,7 +4207,7 @@ def _emit_language_materialization_subphase_progress(
     callback = request.progress_callback
     if callback is None:
         return
-    detail = {"subphase_name": subphase_name}
+    detail: dict[str, object] = {"subphase_name": subphase_name}
     detail.update(dict(detail_payload or {}))
     payload: dict[str, object] = {
         "phase_name": "meta.language_target.subphase",

@@ -1,0 +1,27 @@
+/// Environment service operation base (DTO-only).
+///
+/// SSOT: `environment-service-dto` generated from `apis/environment/dto`.
+///
+/// This is the Environment plugin rail payload root. Service-specific variants
+/// (Inference now; LSP/Terminal later) should `augment` this type.
+///
+/// NOTE:
+/// This is defined in its own module to avoid import cycles between the
+/// environment DTO module and service-specific DTO modules.
+
+class EnvironmentServiceOperation {
+    service String
+    operation String?
+}
+
+class EnvironmentServiceOperationRequest augment environment.EnvironmentOperationRequest {
+    operation String = "service_operation"
+    service_operation EnvironmentServiceOperation
+}
+
+class EnvironmentServiceOperationResponse augment environment.EnvironmentOperationResponse {
+    operation String = "service_operation"
+    service_operation EnvironmentServiceOperation
+}
+
+ann environment.EnvironmentServiceOperation::service discriminate key

@@ -1,0 +1,13 @@
+/// Canonical DTOs for the first public Identity admission boundary.
+///
+/// Ownership:
+/// - Identity API: actor-admission request/receipt shape.
+/// - Identity API package: public API client and service-protocol binding over these DTOs.
+/// - Interface: consumer of the generated public client, not owner of the contract.
+
+class IdentitySignupViaProfileRequest {
+    public_key String
+    create_profile_request profile.CreateProfileRequest
+    request_id UUID?
+    source String?
+}

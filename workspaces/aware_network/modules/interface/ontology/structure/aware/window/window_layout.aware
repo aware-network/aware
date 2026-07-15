@@ -1,0 +1,25 @@
+/// Window attachment/state for a canonical shareable Layout.
+class WindowLayout {
+    // Relationships
+    layout aware_attention.layout.Layout key
+    layout_sections WindowLayoutSection[]
+
+    fn build construct (layout_id UUID key) -> WindowLayout {
+        """
+        Builds a deterministic WindowLayout attachment for (window, layout).
+        """
+    }
+
+    fn add_layout_section (
+        layout_section_id UUID,
+        projection_experience_view_id UUID
+    ) -> WindowLayoutSection {
+        """
+        Attach one section binding under this WindowLayout.
+        """
+        let attached = construct layout_sections.build(
+            layout_section_id = layout_section_id,
+            projection_experience_view_id = projection_experience_view_id,
+        )
+    }
+}

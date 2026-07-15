@@ -1,0 +1,10 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_service_service_dto.comms.models.service",
+    "aware_service_service_dto.continuity",
+    "aware_service_service_dto.host"
+  ],
+  "package_prefix": "aware_service_service_dto",
+  "version": "v1"
+}

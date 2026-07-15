@@ -1,0 +1,64 @@
+connector memory {
+    """Memory-owned target contract for remember_event action fulfillment."""
+
+    kind memory_service_provider
+    label "Aware Memory";
+
+    provider aware_memory_service {
+        kind aware_service
+        ref aware_memory.service
+        label "Aware Memory";
+    }
+
+    actuator remember_event {
+        kind memory_remember_event
+        label "Remember event";
+        target_ref aware_memory.service;
+
+        invocation remember_event api memory.remember_event.remember_event {
+            label "Remember event";
+            receipt show_receipt;
+
+            request_field event_id from event.id;
+            request_field event_config_id from event.config_id;
+            request_field event_activation_id from event.activation_id;
+            request_field event_type from event.event_type;
+            request_field event_source from event.source;
+            request_field event_status from event.status;
+            request_field commit_branch_id from commit.branch_id;
+            request_field commit_projection_hash from commit.projection_hash;
+            request_field commit_id from commit.commit_id;
+            request_field object_instance_graph_id from commit.object_instance_graph_id;
+            request_field object_instance_graph_commit_id from commit.object_instance_graph_commit_id;
+            request_field actor_subscription_id from subscription.id;
+            request_field action_intent_id from intent.id;
+            request_field intent_key from intent.intent_key;
+            request_field action_config_id from intent.action_config_id;
+            request_field action_execution_id from execution.id;
+            request_field action_execution_key from execution.key;
+            request_field api_call_key from api_call.key;
+            request_field action_binding_id from binding.action_binding_id;
+            request_field action_experience_id from binding.action_experience_id;
+            request_field environment_profile_id from binding.environment_profile_id;
+            request_field environment_event_id from binding.environment_event_id;
+            request_field invocation_config_id from binding.invocation_config_id;
+            request_field endpoint_id from binding.endpoint_id;
+            request_field actor_id from actor.id;
+        }
+    }
+
+    actuator record_resolved_event_meaning {
+        kind memory_record_resolved_event_meaning
+        label "Record resolved event meaning";
+        target_ref aware_memory.service;
+
+        invocation record_resolved_event_meaning api memory.record_resolved_event_meaning.record_resolved_event_meaning {
+            label "Record resolved event meaning";
+            receipt show_receipt;
+
+            // Meaning and resolver receipt fields are supplied only by the
+            // declared Program continuation. Actor remains dispatch context.
+            request_field actor_id from actor.id;
+        }
+    }
+}

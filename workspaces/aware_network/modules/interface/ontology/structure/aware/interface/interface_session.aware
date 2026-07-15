@@ -1,0 +1,68 @@
+/// Per-actor/client Interface attachment to one canonical Identity Session.
+///
+/// Contract:
+/// - Identity Session owns participation, membership, ActorRole evidence,
+///   lifecycle, and provider-session attachments.
+/// - InterfaceSession owns only renderer/device attachment state.
+/// - Many InterfaceSessions may attach to the same Identity Session.
+/// - The Identity Session must be supplied explicitly; it is never inferred
+///   from InterfaceIdentity, actor, name, or transport bindings.
+class InterfaceSession {
+    // Relationships
+    identity_session aware_identity.session.Session key
+    /// Interface-owned portals to committed ExperienceSession authorities.
+    ///
+    /// Contract:
+    /// - One InterfaceSession may mount many ExperienceSessions.
+    /// - Experience owns every ExperienceSession and its downstream state.
+    /// - This collection does not select one globally active ExperienceSession.
+    experience_sessions InterfaceSessionExperienceSession[]
+
+    // Attributes
+    name String key
+    state InterfaceSessionState
+
+    fn build construct (
+        identity_session_id UUID key,
+        name String key,
+        state InterfaceSessionState = active
+    ) -> InterfaceSession {
+        """
+        Construct one commit-backed client attachment under Interface and
+        Interface parent scope.
+
+        Contract:
+        - Stable identity is Interface + Identity Session + normalized name.
+        - Interface identifies the concrete shared door/client attachment.
+        - Identity Session owns all participating actors; this durable session
+          is not parented by one InterfaceIdentity.
+        - This constructor does not register a transport connection or mint a
+          bearer token.
+        - Identity owns membership, roles, lifecycle, and provider sessions.
+        """
+    }
+
+    fn mount_experience_session (
+        experience_session_id UUID key,
+        status String = "active",
+        metadata_json JsonObject? = {}
+    ) -> InterfaceSessionExperienceSession {
+        """
+        Mount one committed ExperienceSession through this InterfaceSession.
+
+        Contract:
+        - Stable identity is InterfaceSession plus ExperienceSession.
+        - ExperienceSession is an Experience-owned projection portal target.
+        - Mounting records provenance only; it does not activate a profile,
+          lens, Environment, AttentionSession, or ExperienceSession globally.
+        """
+        let mounted = construct experience_sessions.build(
+            experience_session_id = experience_session_id,
+            status = status,
+            metadata_json = metadata_json,
+        )
+    }
+}
+
+ann interface.InterfaceSession::identity_session load eager
+ann interface.InterfaceSession::experience_sessions load eager

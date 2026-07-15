@@ -1,0 +1,130 @@
+/// Event payload for a MemoryWorkingItem.
+///
+/// Contract:
+/// - Must be linked to a `MemoryWorkingItem` whose `kind=event`.
+/// - Event provenance is canonical reactivity evidence.
+class MemoryWorkingEventFrame {
+    // Relationships
+    event aware_reactivity.event.Event key
+    resolved_meaning MemoryWorkingEventMeaning? unique
+
+    // Action dispatch provenance
+    event_config_id UUID?
+    event_activation_id UUID?
+    event_type String?
+    event_source String?
+    event_status String?
+    commit_branch_id UUID?
+    commit_projection_hash String?
+    commit_id UUID?
+    object_instance_graph_id UUID?
+    object_instance_graph_commit_id UUID?
+    action_intent_id UUID?
+    intent_key String?
+    action_config_id UUID?
+    action_execution_id UUID?
+    action_execution_key String?
+    api_call_key UUID?
+    action_binding_id UUID?
+    action_experience_id UUID?
+    environment_profile_id UUID?
+    environment_event_id UUID?
+    invocation_config_id UUID?
+    endpoint_id UUID?
+    actor_subscription_id UUID?
+
+    fn build construct(
+        event_id UUID key,
+        event_config_id UUID? = null,
+        event_activation_id UUID? = null,
+        event_type String? = null,
+        event_source String? = null,
+        event_status String? = null,
+        commit_branch_id UUID? = null,
+        commit_projection_hash String? = null,
+        commit_id UUID? = null,
+        object_instance_graph_id UUID? = null,
+        object_instance_graph_commit_id UUID? = null,
+        action_intent_id UUID? = null,
+        intent_key String? = null,
+        action_config_id UUID? = null,
+        action_execution_id UUID? = null,
+        action_execution_key String? = null,
+        api_call_key UUID? = null,
+        action_binding_id UUID? = null,
+        action_experience_id UUID? = null,
+        environment_profile_id UUID? = null,
+        environment_event_id UUID? = null,
+        invocation_config_id UUID? = null,
+        endpoint_id UUID? = null,
+        actor_subscription_id UUID? = null
+    ) -> MemoryWorkingEventFrame {
+        """
+        Builds deterministic event frame payload for a memory item.
+
+        Event provenance may be supplied by the Experience action-dispatch
+        request composer. Memory stores it with the event frame so later
+        context reads can distinguish action-dispatch-backed event memory from
+        direct/unverified event writes.
+        """
+    }
+
+    fn record_resolved_meaning(
+        resolver_api_call_outcome_id UUID key,
+        meaning_text String,
+        resolver_status String,
+        resolver_endpoint_ref String,
+        resolver_discriminant String,
+        resolver_program_impl_instruction_intent_id UUID,
+        resolver_action_config_id UUID,
+        resolver_api_capability_endpoint_id UUID,
+        resolver_api_call_id UUID,
+        resolver_api_call_key UUID,
+        resolver_request_model_id UUID,
+        resolver_response_model_id UUID,
+        resolver_response_class_config_id UUID,
+        resolver_service_operation_id UUID,
+        resolver_service_operation_config_id UUID,
+        resolver_service_operation_commit_id UUID,
+        resolver_service_operation_head_commit_id UUID,
+        resolver_service_operation_branch_id UUID,
+        resolver_service_operation_projection_hash String,
+        resolver_api_call_outcome_commit_id UUID,
+        resolver_api_call_outcome_head_commit_id UUID,
+        resolver_api_call_outcome_branch_id UUID,
+        resolver_api_call_outcome_projection_hash String,
+        provider_reference String? = null,
+        resolved_at DateTime? = null
+    ) -> MemoryWorkingEventMeaning {
+        """
+        Persist exactly one resolved meaning under this remembered event.
+        """
+        let created = construct resolved_meaning.build(
+            resolver_api_call_outcome_id = resolver_api_call_outcome_id,
+            meaning_text = meaning_text,
+            resolver_status = resolver_status,
+            resolver_endpoint_ref = resolver_endpoint_ref,
+            resolver_discriminant = resolver_discriminant,
+            resolver_program_impl_instruction_intent_id = resolver_program_impl_instruction_intent_id,
+            resolver_action_config_id = resolver_action_config_id,
+            resolver_api_capability_endpoint_id = resolver_api_capability_endpoint_id,
+            resolver_api_call_id = resolver_api_call_id,
+            resolver_api_call_key = resolver_api_call_key,
+            resolver_request_model_id = resolver_request_model_id,
+            resolver_response_model_id = resolver_response_model_id,
+            resolver_response_class_config_id = resolver_response_class_config_id,
+            resolver_service_operation_id = resolver_service_operation_id,
+            resolver_service_operation_config_id = resolver_service_operation_config_id,
+            resolver_service_operation_commit_id = resolver_service_operation_commit_id,
+            resolver_service_operation_head_commit_id = resolver_service_operation_head_commit_id,
+            resolver_service_operation_branch_id = resolver_service_operation_branch_id,
+            resolver_service_operation_projection_hash = resolver_service_operation_projection_hash,
+            resolver_api_call_outcome_commit_id = resolver_api_call_outcome_commit_id,
+            resolver_api_call_outcome_head_commit_id = resolver_api_call_outcome_head_commit_id,
+            resolver_api_call_outcome_branch_id = resolver_api_call_outcome_branch_id,
+            resolver_api_call_outcome_projection_hash = resolver_api_call_outcome_projection_hash,
+            provider_reference = provider_reference,
+            resolved_at = resolved_at,
+        )
+    }
+}

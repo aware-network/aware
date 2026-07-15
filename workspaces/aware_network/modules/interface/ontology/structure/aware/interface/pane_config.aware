@@ -1,0 +1,35 @@
+class PaneConfig {
+    // Relationships
+    projection_experience_view aware_experience.projection.ProjectionExperienceView key
+
+    // Attributes
+    name String key
+    pane_kind String
+    view_ref String?
+    description String?
+
+    fn build construct (
+        name String key,
+        projection_experience_view_id UUID key,
+        pane_kind String,
+        view_ref String? = null,
+        description String? = null
+    ) -> PaneConfig {
+        """
+        Create one deterministic standalone pane-view adapter root.
+
+        Contract:
+        - PaneConfig is the Interface-owned render adapter for exactly one
+          Experience projection view.
+        - pane_kind is the stable cross-language implementation identity.
+        - projection_experience_view is the stable pane-view identity key.
+        - view_ref is authoring/debug metadata and must not become a second
+          runtime identity rail.
+        - A pane package must resolve its Experience view dependency without
+          relying on a consuming InterfacePackage.
+        - API/SDK invocation targets live on Experience projection-view invocation actions.
+        - InterfaceConfig composes PaneConfig through `InterfaceConfigPaneConfig`; it does not
+          permanently own pane identity.
+        """
+    }
+}

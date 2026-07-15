@@ -4,14 +4,20 @@ from uuid import UUID
 from aware_code_ontology.code.code_enums import CodeLanguage
 
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
-from aware_meta_ontology.attribute.attribute_type_descriptor import AttributeTypeDescriptor
+from aware_meta_ontology.attribute.attribute_type_descriptor import (
+    AttributeTypeDescriptor,
+)
 from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
     AttributeTypeDescriptorKind as Kind,
     AttributeTypeDescriptorRole as Role,
 )
-from aware_meta_ontology.attribute.attribute_type_descriptor_link import AttributeTypeDescriptorLink
+from aware_meta_ontology.attribute.attribute_type_descriptor_link import (
+    AttributeTypeDescriptorLink,
+)
 from aware_meta_ontology.class_.class_config import ClassConfig
-from aware_meta_ontology.class_.class_config_attribute_config import ClassConfigAttributeConfig
+from aware_meta_ontology.class_.class_config_attribute_config import (
+    ClassConfigAttributeConfig,
+)
 
 from aware_code.builder import build_code_from_file
 from aware_code.language.registry import CodeLanguagePluginRegistry
@@ -47,7 +53,9 @@ def _build_code(tmp_path: Path, name: str, content: str):
 
 
 def _ns(*, fqn_prefix: str, namespace: str, code_ids: list[UUID]):
-    return {cid: NamespacePath(package=fqn_prefix, namespace=namespace) for cid in code_ids}, []
+    return {
+        cid: NamespacePath(package=fqn_prefix, namespace=namespace) for cid in code_ids
+    }, []
 
 
 def _descriptor_link(
@@ -94,17 +102,32 @@ class Foo {
         namespace_by_code_id=ns,
     ).graph
 
-    sql_overlay = next((ov for ov in graph.object_config_graph_overlays if ov.language == CodeLanguage.sql), None)
+    sql_overlay = next(
+        (
+            ov
+            for ov in graph.object_config_graph_overlays
+            if ov.language == CodeLanguage.sql
+        ),
+        None,
+    )
     assert sql_overlay is not None
 
     enum_from = next(
-        (n.enum_config for n in graph.object_config_graph_nodes if n.enum_config and n.enum_config.name == "From"),
+        (
+            n.enum_config
+            for n in graph.object_config_graph_nodes
+            if n.enum_config and n.enum_config.name == "From"
+        ),
         None,
     )
     assert enum_from is not None
 
     foo_cls = next(
-        (n.class_config for n in graph.object_config_graph_nodes if n.class_config and n.class_config.name == "Foo"),
+        (
+            n.class_config
+            for n in graph.object_config_graph_nodes
+            if n.class_config and n.class_config.name == "Foo"
+        ),
         None,
     )
     assert foo_cls is not None
@@ -152,7 +175,11 @@ class Foo {
     ).graph
 
     foo_cls = next(
-        (n.class_config for n in graph.object_config_graph_nodes if n.class_config and n.class_config.name == "Foo"),
+        (
+            n.class_config
+            for n in graph.object_config_graph_nodes
+            if n.class_config and n.class_config.name == "Foo"
+        ),
         None,
     )
     assert foo_cls is not None
@@ -168,9 +195,61 @@ class Foo {
     assert "tags TEXT NOT NULL UNIQUE" not in ddl
 
 
-def test_sql_renderer_handles_cyclic_mapping_descriptor_as_json_column(tmp_path: Path) -> None:
+def test_sql_dialects_preserve_decimal_storage_semantics(tmp_path: Path) -> None:
+    CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
+    MetaLanguagePluginRegistry.register(SQL_META_PLUGIN)
+
+    code = _build_code(
+        tmp_path,
+        "decimal_storage.aware",
+        """
+class LedgerEntry {
+    id UUID
+    amount Decimal
+}
+""".strip(),
+    )
+    ns, _domains = _ns(
+        fqn_prefix="pkg",
+        namespace="default",
+        code_ids=[code.id],
+    )
+    graph = build_object_config_graph_from_code(
+        name="decimal_storage",
+        description="decimal_storage",
+        fqn_prefix="pkg",
+        file_codes=[("decimal_storage.aware", code)],
+        namespace_by_code_id=ns,
+    ).graph
+    ledger_entry = next(
+        node.class_config
+        for node in graph.object_config_graph_nodes
+        if node.class_config is not None and node.class_config.name == "LedgerEntry"
+    )
+
+    postgres = SQLRenderer(layout_strategy=SQLLayoutStrategyNamespace(tmp_path))
+    postgres_ddl = postgres._emit_table(
+        ledger_entry,
+        class_lookup={ledger_entry.id: ledger_entry},
+    )
+    assert "amount NUMERIC NOT NULL" in postgres_ddl
+
+    sqlite = SqliteSQLRenderer(layout_strategy=SQLLayoutStrategyNamespace(tmp_path))
+    sqlite_ddl = sqlite._emit_table(
+        ledger_entry,
+        class_lookup={ledger_entry.id: ledger_entry},
+    )
+    assert "amount TEXT NOT NULL" in sqlite_ddl
+    assert "amount REAL" not in sqlite_ddl
+
+
+def test_sql_renderer_handles_cyclic_mapping_descriptor_as_json_column(
+    tmp_path: Path,
+) -> None:
     descriptor = AttributeTypeDescriptor(kind=Kind.mapping, child_links=[])
-    descriptor.child_links.append(_descriptor_link(parent=descriptor, child=descriptor, role=Role.value_))
+    descriptor.child_links.append(
+        _descriptor_link(parent=descriptor, child=descriptor, role=Role.value_)
+    )
     attr = AttributeConfig(
         owner_key="pkg.dom.default.Foo",
         name="payload",
@@ -178,7 +257,9 @@ def test_sql_renderer_handles_cyclic_mapping_descriptor_as_json_column(tmp_path:
         type_descriptor_id=descriptor.id,
         is_required=True,
     )
-    cls = ClassConfig(class_fqn="pkg.dom.default.Foo", name="Foo", class_config_attribute_configs=[])
+    cls = ClassConfig(
+        class_fqn="pkg.dom.default.Foo", name="Foo", class_config_attribute_configs=[]
+    )
     cls.class_config_attribute_configs.append(
         ClassConfigAttributeConfig(
             class_config_id=cls.id,
@@ -275,7 +356,9 @@ class Foo {
     assert [opg.projection_hash for opg in sql_graph.object_projection_graphs] == [
         "foo-projection"
     ]
-    assert sql_graph.object_projection_graphs[0] is not graph.object_projection_graphs[0]
+    assert (
+        sql_graph.object_projection_graphs[0] is not graph.object_projection_graphs[0]
+    )
     step_names = {step.name for step in steps}
     assert "runtime_to_language.primary.transform" in step_names
     assert "runtime_to_language.primary.cache_store" in step_names

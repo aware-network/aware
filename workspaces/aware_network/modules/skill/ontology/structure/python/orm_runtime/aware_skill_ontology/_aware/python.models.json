@@ -1,0 +1,220 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "95935813-0208-5ee7-bc56-f5d556dd21b5",
+      "module": "aware_skill_ontology.skill.skill_config",
+      "name": "SkillConfig",
+      "aware_class_ref": "aware_skill.skill.SkillConfig",
+      "functions": [
+        {
+          "function_config_id": "12caa43f-c492-5b70-8c70-58722b2ad4e4",
+          "name": "add_api",
+          "input_model": "SkillConfigAddApiInput",
+          "output_model": "SkillConfigAddApiOutput"
+        },
+        {
+          "function_config_id": "1f70e823-f66d-54cf-920b-1775ea8cdd44",
+          "name": "add_experience",
+          "input_model": "SkillConfigAddExperienceInput",
+          "output_model": "SkillConfigAddExperienceOutput"
+        },
+        {
+          "function_config_id": "ca453db3-4c2d-5a12-bd97-33ec209c3ecc",
+          "name": "add_step",
+          "input_model": "SkillConfigAddStepInput",
+          "output_model": "SkillConfigAddStepOutput"
+        },
+        {
+          "function_config_id": "9de9440a-cc4a-5423-a341-a30c355b4487",
+          "name": "build",
+          "input_model": "SkillConfigBuildInput",
+          "output_model": "SkillConfigBuildOutput"
+        },
+        {
+          "function_config_id": "065eddf9-756f-55ef-b2be-6b446e2da8f9",
+          "name": "create_run",
+          "input_model": "SkillConfigCreateRunInput",
+          "output_model": "SkillConfigCreateRunOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "bbf1a8cb-8640-5f8e-8934-10f230e958c8",
+      "module": "aware_skill_ontology.skill.skill_config_api",
+      "name": "SkillConfigApi",
+      "aware_class_ref": "aware_skill.skill.SkillConfigApi",
+      "functions": [
+        {
+          "function_config_id": "3c1a4b81-28a9-5d61-b31d-ef520a5cbae7",
+          "name": "add_api_endpoint",
+          "input_model": "SkillConfigApiAddApiEndpointInput",
+          "output_model": "SkillConfigApiAddApiEndpointOutput"
+        },
+        {
+          "function_config_id": "cc25c61b-5b21-5dba-b403-ce9d63b33d93",
+          "name": "build_via_skill_config",
+          "input_model": "SkillConfigApiBuildViaSkillConfigInput",
+          "output_model": "SkillConfigApiBuildViaSkillConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7361f5c5-fc8c-5946-9e33-71494d4674ce",
+      "module": "aware_skill_ontology.skill.skill_config_api_endpoint",
+      "name": "SkillConfigApiEndpoint",
+      "aware_class_ref": "aware_skill.skill.SkillConfigApiEndpoint",
+      "functions": [
+        {
+          "function_config_id": "dc03f899-6180-5cfd-a32f-394d4891e5d6",
+          "name": "build_via_skill_config_api",
+          "input_model": "SkillConfigApiEndpointBuildViaSkillConfigApiInput",
+          "output_model": "SkillConfigApiEndpointBuildViaSkillConfigApiOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "db72dc68-7f8f-5a8f-8fa3-74e206b26970",
+      "module": "aware_skill_ontology.skill.skill_config_experience",
+      "name": "SkillConfigExperience",
+      "aware_class_ref": "aware_skill.skill.SkillConfigExperience",
+      "functions": [
+        {
+          "function_config_id": "2c599ebc-e9df-5216-9185-ceed76f5fccb",
+          "name": "add_target",
+          "input_model": "SkillConfigExperienceAddTargetInput",
+          "output_model": "SkillConfigExperienceAddTargetOutput"
+        },
+        {
+          "function_config_id": "5f8f9622-8173-537e-88ff-c413e98d353f",
+          "name": "build_via_skill_config",
+          "input_model": "SkillConfigExperienceBuildViaSkillConfigInput",
+          "output_model": "SkillConfigExperienceBuildViaSkillConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d1ed9190-6206-5d4f-80e1-7468be80a387",
+      "module": "aware_skill_ontology.skill.skill_config_step",
+      "name": "SkillConfigStep",
+      "aware_class_ref": "aware_skill.skill.SkillConfigStep",
+      "functions": [
+        {
+          "function_config_id": "74ce01b2-2486-54d8-adc7-4c84cd11d1b9",
+          "name": "add_target",
+          "input_model": "SkillConfigStepAddTargetInput",
+          "output_model": "SkillConfigStepAddTargetOutput"
+        },
+        {
+          "function_config_id": "917fc13c-0d5a-512d-8b03-4f2c366b8fa8",
+          "name": "build_via_skill_config",
+          "input_model": "SkillConfigStepBuildViaSkillConfigInput",
+          "output_model": "SkillConfigStepBuildViaSkillConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f03532c4-be48-59eb-953a-ed21e24cdc2d",
+      "module": "aware_skill_ontology.skill.skill_config_step_target",
+      "name": "SkillConfigStepTarget",
+      "aware_class_ref": "aware_skill.skill.SkillConfigStepTarget",
+      "functions": [
+        {
+          "function_config_id": "41351bc3-e642-5e23-b157-d0445de6da24",
+          "name": "build_via_skill_config_step",
+          "input_model": "SkillConfigStepTargetBuildViaSkillConfigStepInput",
+          "output_model": "SkillConfigStepTargetBuildViaSkillConfigStepOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b8204a9f-8692-51a9-af3c-b673bc655998",
+      "module": "aware_skill_ontology.skill.skill_config_target",
+      "name": "SkillConfigTarget",
+      "aware_class_ref": "aware_skill.skill.SkillConfigTarget",
+      "functions": [
+        {
+          "function_config_id": "c7a69658-24b4-5127-a3e1-f5639932d39f",
+          "name": "build_via_skill_config_experience",
+          "input_model": "SkillConfigTargetBuildViaSkillConfigExperienceInput",
+          "output_model": "SkillConfigTargetBuildViaSkillConfigExperienceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0ceb1e1a-eff9-55b9-b175-41c8cad42906",
+      "module": "aware_skill_ontology.skill.skill_package",
+      "name": "SkillPackage",
+      "aware_class_ref": "aware_skill.skill.SkillPackage",
+      "functions": [
+        {
+          "function_config_id": "c99837ec-f41b-5443-8d69-f92a7be8a737",
+          "name": "attach_api_package",
+          "input_model": "SkillPackageAttachApiPackageInput",
+          "output_model": "SkillPackageAttachApiPackageOutput"
+        },
+        {
+          "function_config_id": "5b6d1df8-e808-55c3-b415-1dcc6b25bf5b",
+          "name": "build",
+          "input_model": "SkillPackageBuildInput",
+          "output_model": "SkillPackageBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c83a0ae1-310c-5b35-8b5c-b751720ba009",
+      "module": "aware_skill_ontology.skill.skill_package_api_package",
+      "name": "SkillPackageApiPackage",
+      "aware_class_ref": "aware_skill.skill.SkillPackageApiPackage",
+      "functions": [
+        {
+          "function_config_id": "87d9b0c3-c001-5c8f-b33e-9a42d26eb8e4",
+          "name": "build_via_skill_package",
+          "input_model": "SkillPackageApiPackageBuildViaSkillPackageInput",
+          "output_model": "SkillPackageApiPackageBuildViaSkillPackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e5d5510f-1325-58e4-ac09-1711196453aa",
+      "module": "aware_skill_ontology.skill.skill_run",
+      "name": "SkillRun",
+      "aware_class_ref": "aware_skill.skill.SkillRun",
+      "functions": [
+        {
+          "function_config_id": "722cb18a-2ddc-51fd-8e05-969e13b3628d",
+          "name": "build_via_skill_config",
+          "input_model": "SkillRunBuildViaSkillConfigInput",
+          "output_model": "SkillRunBuildViaSkillConfigOutput"
+        },
+        {
+          "function_config_id": "e815ad81-5616-5f25-b53a-955866936d76",
+          "name": "create_step",
+          "input_model": "SkillRunCreateStepInput",
+          "output_model": "SkillRunCreateStepOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "271532d9-225d-5454-9cb4-f69c32dcd453",
+      "module": "aware_skill_ontology.skill.skill_run_step",
+      "name": "SkillRunStep",
+      "aware_class_ref": "aware_skill.skill.SkillRunStep",
+      "functions": [
+        {
+          "function_config_id": "c895b503-e020-573f-9942-c59aa71b3b86",
+          "name": "build_via_skill_run",
+          "input_model": "SkillRunStepBuildViaSkillRunInput",
+          "output_model": "SkillRunStepBuildViaSkillRunOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "75549eb6-063f-5827-ac85-8285cec70503",
+      "module": "aware_skill_ontology.skill.skill_run_enums",
+      "name": "SkillRunStatus"
+    }
+  ]
+}

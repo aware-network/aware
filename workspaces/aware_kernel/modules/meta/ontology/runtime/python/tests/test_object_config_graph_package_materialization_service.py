@@ -139,6 +139,18 @@ def test_build_code_package_source_manifest_root_uses_declared_source_config() -
     )
     assert code_package.surface == "structure"
     assert related_models
+    package_code = code_package.code_package_codes[0]
+    package_code_source = next(
+        model for model in related_models if model.id == package_code.id
+    )
+    assert package_code_source.try_field_value("code_id") == (
+        True,
+        package_code.code.id,
+    )
+    assert package_code_source.try_attribute_value(SimpleNamespace(name="code_id")) == (
+        True,
+        package_code.code.id,
+    )
 
 
 def test_clone_object_config_graph_public_fields_normalizes_reloaded_enums() -> None:
@@ -1425,6 +1437,183 @@ def test_index_receipt_uses_runtime_sidecar_projection_hashes(
         result=result,
         package_materialization_receipt=package_receipt,
         projection_hashes_by_id=sidecar_hashes_by_id,
+    )
+    assert materialization_service._materialization_index_projection_hashes_cover_package_receipt_identity_plane(  # noqa: SLF001
+        package_materialization_receipt=package_receipt,
+        projection_hashes_by_id=projection_hashes_by_id,
+    )
+
+    receipt = materialization_service.build_object_config_graph_package_materialization_index_receipt(
+        result=result,
+        source_manifest_hash="sha256:source",
+        dependency_signature="sha256:deps",
+        cache_status="rebuilt",
+        code_package_projection_hash="sha256:code",
+        object_config_graph_projection_hash="sha256:ocg",
+        object_config_graph_package_projection_hash="sha256:package",
+        projection_hashes_by_id=projection_hashes_by_id,
+        package_materialization_receipt=package_receipt,
+    )
+
+    cache_key = receipt["cache_key"]
+    assert isinstance(cache_key, dict)
+    assert cache_key["projection_hashes_complete"] is True
+    assert cache_key["projection_hashes"] == [projection_hash]
+
+
+def test_index_receipt_uses_runtime_package_index_projection_hashes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    graph_id = uuid4()
+    package_id = uuid4()
+    code_package_id = uuid4()
+    ocgi_id = uuid4()
+    opgi_id = uuid4()
+    projection_name = "NetworkPortal"
+    projection_hash = "sha256:package-index-projection"
+    stale_projection_hash = "sha256:stale-package-index-projection"
+    opg_id = stable_object_projection_graph_id(
+        object_config_graph_id=graph_id,
+        name=projection_name,
+    )
+    opgi = ObjectProjectionGraphIdentity(
+        id=opgi_id,
+        projection_name=projection_name,
+        label=projection_name,
+        is_branchable=False,
+        object_config_graph_identity_id=ocgi_id,
+        object_projection_graph_id=opg_id,
+    )
+    ocgi = ObjectConfigGraphIdentity(
+        id=ocgi_id,
+        key="aware_network",
+        label="ocg:aware_network",
+        object_projection_graph_identities=[opgi],
+    )
+    object_config_graph = materialization_service.ObjectConfigGraph(
+        id=graph_id,
+        name="network",
+        hash="sha256:network-runtime",
+        fqn_prefix="aware_network",
+        language=materialization_service.CodeLanguage.aware,
+        object_config_graph_identity=ocgi,
+        object_config_graph_identity_id=ocgi_id,
+        object_projection_graphs=[],
+    )
+    code_package = materialization_service.CodePackage(
+        id=code_package_id,
+        code_package_config_id=uuid4(),
+        package_name="network-ontology",
+        language=materialization_service.CodeLanguage.aware,
+        surface="structure",
+        manifest_kind="aware_toml",
+        manifest_relative_path="modules/network/ontology/structure/aware.toml",
+        package_root="modules/network/ontology/structure",
+        sources_root="modules/network/ontology/structure/aware",
+        fqn_prefix="aware_network",
+    )
+    result = materialization_service.ObjectConfigGraphPackageLeafMaterializationResult(
+        aware_toml_path=Path("modules/network/ontology/structure/aware.toml"),
+        package_branch_id=uuid4(),
+        code_package=code_package,
+        source_manifest_kind="aware_toml",
+        object_config_graph_package=(
+            materialization_service.ObjectConfigGraphPackage(
+                id=package_id,
+                package_name="network-ontology",
+                fqn_prefix="aware_network",
+                source_code_package=code_package,
+                source_code_package_id=code_package.id,
+                object_config_graph=object_config_graph,
+                object_config_graph_id=object_config_graph.id,
+                object_config_graph_object_instance_graph_commit_id=uuid4(),
+            )
+        ),
+        object_config_graph=object_config_graph,
+        owned_file_paths=("modules/network/ontology/structure/aware/node.aware",),
+        code_package_commit_id=None,
+        code_package_head_commit_id=uuid4(),
+        code_package_object_instance_graph_commit_id=uuid4(),
+        object_config_graph_commit_id=uuid4(),
+        object_config_graph_head_commit_id=uuid4(),
+        object_config_graph_object_instance_graph_commit_id=uuid4(),
+        object_config_graph_package_commit_id=uuid4(),
+        object_config_graph_package_head_commit_id=uuid4(),
+        object_config_graph_package_object_instance_graph_commit_id=uuid4(),
+        phase_timings_s={},
+        code_package_build_runtime_telemetry={},
+        code_package_build_invoke_perf_ms={},
+        code_package_upsert_runtime_telemetry={},
+        code_package_upsert_invoke_perf_ms={},
+        semantic_commit_strategy="seed",
+        semantic_commit_fallback_reset=False,
+        semantic_commit_phase_timings_s={},
+    )
+    package_receipt = MetaObjectConfigGraphPackageMaterializationReceipt(
+        object_config_graph_id=graph_id,
+        object_config_graph_hash="sha256:network-runtime",
+        layout_hash=None,
+        object_config_graph_identity=ObjectConfigGraphIdentityMaterializationRecord(
+            object_config_graph_identity_id=ocgi_id,
+            key="aware_network",
+            label="ocg:aware_network",
+        ),
+        projection_identities=(
+            ProjectionIdentityMaterializationRecord(
+                projection_name=projection_name,
+                object_projection_graph_id=opg_id,
+                object_projection_graph_identity_id=opgi_id,
+                projection_hash=None,
+                is_branchable=False,
+            ),
+        ),
+        observables=(),
+    )
+
+    def fake_load_meta_runtime_package_projection_index(
+        *,
+        aware_root: Path,
+    ) -> SimpleNamespace:
+        assert aware_root == tmp_path
+        return SimpleNamespace(
+            projections_by_name={
+                projection_name: SimpleNamespace(
+                    package_name="network-ontology",
+                    fqn_prefix="aware_network",
+                    object_config_graph_id=graph_id,
+                    object_config_graph_hash="sha256:network-runtime",
+                    projection_hash=projection_hash,
+                    object_projection_graph_id=opg_id,
+                    projection_name=projection_name,
+                ),
+                "StaleProjection": SimpleNamespace(
+                    package_name="network-ontology",
+                    fqn_prefix="aware_network",
+                    object_config_graph_id=graph_id,
+                    object_config_graph_hash="sha256:stale-network-runtime",
+                    projection_hash=stale_projection_hash,
+                    object_projection_graph_id=uuid4(),
+                    projection_name="StaleProjection",
+                ),
+            },
+        )
+
+    monkeypatch.setattr(
+        materialization_service,
+        "load_meta_runtime_package_projection_index",
+        fake_load_meta_runtime_package_projection_index,
+    )
+
+    index_hashes_by_id = materialization_service._materialization_index_runtime_package_index_projection_hashes_by_id(  # noqa: SLF001
+        workspace_root=tmp_path,
+        result=result,
+    )
+    assert index_hashes_by_id == {opg_id: projection_hash}
+    projection_hashes_by_id = materialization_service._materialization_index_projection_hashes_by_id(  # noqa: SLF001
+        result=result,
+        package_materialization_receipt=package_receipt,
+        projection_hashes_by_id=index_hashes_by_id,
     )
     assert materialization_service._materialization_index_projection_hashes_cover_package_receipt_identity_plane(  # noqa: SLF001
         package_materialization_receipt=package_receipt,
@@ -4340,6 +4529,7 @@ async def test_materialize_object_config_graph_package_leaf_from_manifest_enrich
 @pytest.mark.asyncio
 async def test_materialize_object_config_graph_package_leaf_from_manifest_is_idempotent_without_explicit_ids(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     repo_root = REPO_ROOT
     workspace_root = tmp_path / "workspace_meta_leaf_manifest_rerun"
@@ -4462,6 +4652,30 @@ async def test_materialize_object_config_graph_package_leaf_from_manifest_is_ide
             )
         }
         assert heads_after_reset_check == heads_before_reset_check
+
+        def fail_reuse_cache_rewrite(**_: object) -> None:
+            raise AssertionError(
+                "fingerprint reuse with a cached materialization-index receipt "
+                "should not rewrite the package reuse cache"
+            )
+
+        def fail_runtime_projection_index_rewrite(**_: object) -> None:
+            raise AssertionError(
+                "fingerprint reuse with a cached materialization-index receipt "
+                "should not rewrite the runtime package projection index"
+            )
+
+        monkeypatch.setattr(
+            materialization_service,
+            "_write_object_config_graph_package_reuse_cache",
+            fail_reuse_cache_rewrite,
+        )
+        monkeypatch.setattr(
+            materialization_service,
+            "_record_runtime_package_projection_index",
+            fail_runtime_projection_index_rewrite,
+        )
+
         rerun = await materialize_object_config_graph_package_leaf_from_manifest(
             runtime=runtime,
             index=index,
@@ -4491,6 +4705,23 @@ async def test_materialize_object_config_graph_package_leaf_from_manifest_is_ide
         assert (
             rerun.phase_timings_s["reuse_existing_object_config_graph_package_cache"]
             >= 0.0
+        )
+        assert "write_object_config_graph_package_reuse_cache" not in (
+            rerun.phase_timings_s
+        )
+        assert (
+            rerun.phase_timings_s[
+                "write_object_config_graph_package_reuse_cache."
+                "skipped_fingerprint_reuse"
+            ]
+            == 0.0
+        )
+        assert "record_runtime_package_projection_index" not in rerun.phase_timings_s
+        assert (
+            rerun.phase_timings_s[
+                "record_runtime_package_projection_index.skipped_fingerprint_reuse"
+            ]
+            == 0.0
         )
         assert any(
             key.startswith("reset_invalid_package_branch_if_needed.")

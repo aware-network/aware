@@ -1,0 +1,27 @@
+class NetworkNodePeerFanoutRule {
+    // Relationships
+    lane_branch aware_meta.graph.instance.ObjectInstanceGraphBranch key
+
+    // NOTE: v0 keeps Network canonical + self-contained.
+    // Fanout targets are referenced by stable lane primitives (OIGB id + lane hash).
+    lane_projection_hash String key
+
+    // Attributes
+    enabled Bool = true
+    mode NetworkFanoutMode = notify_pull
+
+    fn create construct (
+        lane_branch_id UUID key,
+        lane_projection_hash String key,
+        enabled Bool = true,
+        mode NetworkFanoutMode = notify_pull
+    ) -> NetworkNodePeerFanoutRule {
+        """
+        Create a peer fan-out rule (v0).
+
+        Contract:
+        - Deterministic id by (network_node_peer_id, lane key) where `network_node_peer_id` is parent-propagated.
+        - Requires invocation branch_id to match network_node_peer_id (rule lives in the peer lane).
+        """
+    }
+}

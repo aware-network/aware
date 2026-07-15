@@ -10,15 +10,23 @@ import shutil
 from time import perf_counter
 import tomllib
 from types import SimpleNamespace
-from typing import Any, Protocol, TypeGuard
+from typing import Any, Protocol, TypeGuard, cast
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from aware_code.package.snapshot_commit import commit_code_package_text_snapshot
 from aware_code.semantic_contract_config import source_code_package_config_ref
+from aware_code.semantic_currentness import (
+    SemanticMaterializationCurrentnessReplayContextRequirement,
+    SemanticMaterializationCurrentnessReplayRequest,
+    SemanticMaterializationCurrentnessReplayResult,
+    semantic_materialization_bundle_matches_live_head,
+    semantic_materialization_declared_source_tree_input_is_complete,
+)
 from aware_code.semantic_materialization import (
     SEMANTIC_MATERIALIZATION_LIFECYCLE_PROFILE_CONTEXT_KEY,
     SEMANTIC_PROVIDER_DELTA_DURABLE_EXECUTION_INPUTS_KEY,
     SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_CONTEXT_KEY,
+    SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_SCHEMA,
     SemanticPackageMaterializationBundle,
     SemanticPackageMaterializationRequest,
     SemanticPackageMaterializationResult,
@@ -175,6 +183,12 @@ class _OntologyPackageCommitResult:
     commit_perf_ms: Mapping[str, int]
 
 
+@dataclass(frozen=True, slots=True)
+class _DependencyGraphResolutionResult:
+    graphs: tuple[ObjectConfigGraph, ...]
+    evidence: Mapping[str, object]
+
+
 class _MetaRuntimeBindProtocol(Protocol):
     def bind(
         self,
@@ -294,12 +308,19 @@ async def materialize(
     request_context = _request_context_with_execution_context_entries(request=request)
 
     dependency_started_at = perf_counter()
-    external_graphs = _external_object_config_graphs_for_request(
+    dependency_graph_resolution = _external_object_config_graph_resolution_for_request(
         request=request,
         source=source,
         context=request_context,
     )
+    external_graphs = dependency_graph_resolution.graphs
     phase_timings_s["resolve_dependency_graphs_s"] = _duration_s(dependency_started_at)
+    for metric_name, metric_value in _dependency_graph_resolution_metrics(
+        dependency_graph_resolution.evidence
+    ).items():
+        phase_timings_s[f"resolve_dependency_graphs.metric.{metric_name}"] = (
+            metric_value
+        )
 
     leaf_started_at = perf_counter()
     materialize_leaf = (
@@ -328,13 +349,17 @@ async def materialize(
     render_profile = _render_profile_from_request(request=request)
     language_started_at = perf_counter()
     if _should_materialize_language_outputs(render_profile=render_profile):
-        if _should_skip_language_outputs_for_reused_leaf(leaf_result=leaf_result):
+        if _should_skip_language_outputs_for_reused_leaf(
+            request=request,
+            leaf_result=leaf_result,
+        ):
             language_bridge_details = (
                 _skipped_reused_leaf_language_materialization_details(
                     render_profile=render_profile,
                     semantic_commit_strategy=leaf_result.semantic_commit_strategy,
                     artifact_evidence=(
                         _reused_leaf_language_artifact_evidence(
+                            request=request,
                             leaf_result=leaf_result,
                         )
                     ),
@@ -543,6 +568,7 @@ async def materialize(
         ),
         "semantic_commit_strategy": leaf_result.semantic_commit_strategy,
         "semantic_commit_fallback_reset": (leaf_result.semantic_commit_fallback_reset),
+        "dependency_graph_resolution": dict(dependency_graph_resolution.evidence),
         "meta_leaf_phase_timings_s": dict(
             sorted(_object_payload(getattr(leaf_result, "phase_timings_s", {})).items())
         ),
@@ -588,6 +614,8 @@ async def materialize(
     semantic_package_detail = _semantic_package_detail_from_leaf_result(
         source=source,
         leaf_result=leaf_result,
+        ontology_config_commit_id=ontology_config_commit.config_commit_id,
+        ontology_package_commit_id=ontology_commit.package_commit_id,
         workspace_root=request.workspace_root,
         receipt_context=_workspace_semantic_package_receipt_context(
             context=request.context,
@@ -660,6 +688,83 @@ async def materialize(
         commit_id=ontology_commit.package_commit_id,
         head_commit_id=ontology_commit.package_head_commit_id,
         semantic_object_config_graphs=(leaf_result.object_config_graph,),
+    )
+
+
+async def resolve_currentness_replay(
+    request: SemanticMaterializationCurrentnessReplayRequest,
+) -> SemanticMaterializationCurrentnessReplayResult:
+    if (
+        request.provider_key != "aware_ontology"
+        or request.workspace_manifest_kind != "ontology"
+        or request.semantic_package_family != "ontology"
+        or request.semantic_package_kind != "ontology_package"
+    ):
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="not_supported",
+            reason="ontology_package_currentness_shape_unsupported",
+        )
+    if not semantic_materialization_declared_source_tree_input_is_complete(
+        request=request
+    ):
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="must_execute",
+            reason="ontology_package_current_input_incomplete",
+        )
+    if not request.bundles:
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="must_execute",
+            reason="ontology_package_previous_bundle_missing",
+        )
+    artifact_ownership_receipts = request.replay_output_details.get(
+        "artifact_ownership_receipts"
+    )
+    if any(bundle.runtime_code_package_refs for bundle in request.bundles) and not (
+        isinstance(artifact_ownership_receipts, (list, tuple))
+        and any(isinstance(item, Mapping) for item in artifact_ownership_receipts)
+    ):
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="must_execute",
+            reason="ontology_replay_output_receipts_missing",
+        )
+    for bundle in request.bundles:
+        if bundle.semantic_root_object_instance_graph_commit_id is None:
+            return SemanticMaterializationCurrentnessReplayResult(
+                status="must_execute",
+                reason="ontology_package_root_commit_missing",
+            )
+        for runtime_ref in bundle.runtime_code_package_refs:
+            payload = (
+                runtime_ref.to_payload()
+                if hasattr(runtime_ref, "to_payload")
+                else runtime_ref
+            )
+            if not isinstance(payload, Mapping) or (
+                _uuid_or_none(payload.get("source_code_package_id")) is None
+                or _uuid_or_none(payload.get("source_object_instance_graph_commit_id"))
+                is None
+            ):
+                return SemanticMaterializationCurrentnessReplayResult(
+                    status="must_execute",
+                    reason="ontology_runtime_code_package_witness_incomplete",
+                )
+        if not await semantic_materialization_bundle_matches_live_head(
+            bundle=bundle,
+            read_head=request.read_head,
+        ):
+            return SemanticMaterializationCurrentnessReplayResult(
+                status="must_execute",
+                reason="ontology_package_live_head_mismatch",
+            )
+    return SemanticMaterializationCurrentnessReplayResult(
+        status="reused",
+        reason="ontology_package_live_heads_current",
+        replay_kind="previous_ontology_package_bundles",
+        context_requirement=(
+            SemanticMaterializationCurrentnessReplayContextRequirement(
+                semantic_graphs="required",
+            )
+        ),
     )
 
 
@@ -897,7 +1002,11 @@ def _should_materialize_language_outputs(*, render_profile: str) -> bool:
     return render_profile == "compile_parity"
 
 
-def _should_skip_language_outputs_for_reused_leaf(*, leaf_result: object) -> bool:
+def _should_skip_language_outputs_for_reused_leaf(
+    *,
+    request: SemanticPackageMaterializationRequest,
+    leaf_result: object,
+) -> bool:
     strategy = str(getattr(leaf_result, "semantic_commit_strategy", "") or "").strip()
     if strategy not in {"fingerprint_reuse", "unchanged"}:
         return False
@@ -906,18 +1015,30 @@ def _should_skip_language_outputs_for_reused_leaf(*, leaf_result: object) -> boo
         is not None
         and getattr(leaf_result, "object_config_graph_head_commit_id", None) is not None
         and getattr(leaf_result, "code_package_head_commit_id", None) is not None
-        and _reused_leaf_language_artifact_evidence(leaf_result=leaf_result)["status"]
+        and _reused_leaf_language_artifact_evidence(
+            request=request,
+            leaf_result=leaf_result,
+        )["status"]
         == "complete"
     )
 
 
 def _reused_leaf_language_artifact_evidence(
     *,
+    request: SemanticPackageMaterializationRequest | None = None,
     leaf_result: object,
 ) -> dict[str, object]:
     package = getattr(leaf_result, "object_config_graph_package", None)
     materializations = tuple(getattr(package, "language_materializations", ()) or ())
     if not materializations:
+        if request is not None:
+            return meta_workspace_provider.object_config_graph_package_language_reuse_evidence(
+                request=request,
+                leaf_result=cast(
+                    ObjectConfigGraphPackageLeafMaterializationResult,
+                    leaf_result,
+                ),
+            )
         return {
             "status": "incomplete",
             "reason": "language_materializations_missing",
@@ -2496,9 +2617,22 @@ def _external_object_config_graphs_for_request(
     source: _OntologyPackageSource,
     context: Mapping[str, object] | None = None,
 ) -> tuple[ObjectConfigGraph, ...]:
+    return _external_object_config_graph_resolution_for_request(
+        request=request,
+        source=source,
+        context=context,
+    ).graphs
+
+
+def _external_object_config_graph_resolution_for_request(
+    *,
+    request: SemanticPackageMaterializationRequest,
+    source: _OntologyPackageSource,
+    context: Mapping[str, object] | None = None,
+) -> _DependencyGraphResolutionResult:
     if context is None:
         context = _request_context_with_execution_context_entries(request=request)
-    return _target_dependency_object_config_graphs(
+    return _target_dependency_object_config_graph_resolution(
         request=request,
         source=source,
         context=context,
@@ -2629,29 +2763,100 @@ def _target_dependency_object_config_graphs(
     source: _OntologyPackageSource,
     context: Mapping[str, object],
 ) -> tuple[ObjectConfigGraph, ...]:
+    return _target_dependency_object_config_graph_resolution(
+        request=request,
+        source=source,
+        context=context,
+    ).graphs
+
+
+def _target_dependency_object_config_graph_resolution(
+    *,
+    request: SemanticPackageMaterializationRequest,
+    source: _OntologyPackageSource,
+    context: Mapping[str, object],
+) -> _DependencyGraphResolutionResult:
+    catalog_dependency_package_names = _dependency_package_names_from_semantic_catalog(
+        context=context,
+        source_package_name=source.package_name,
+    )
+    evidence: dict[str, object] = {
+        "schema": "aware_ontology.dependency_graph_resolution.v1",
+        "source_package_name": source.package_name,
+        "source_fqn_prefix": source.fqn_prefix,
+        "catalog_dependency_status": (
+            "available"
+            if catalog_dependency_package_names is not None
+            else "unavailable"
+        ),
+        "manifest_closure_used": False,
+        "context_lookup_used": False,
+        "context_lookup_hit": False,
+        "runtime_context_rebuild_used": False,
+        "fallback_reason": None,
+    }
+    if catalog_dependency_package_names is not None:
+        evidence["dependency_package_names"] = catalog_dependency_package_names
+        context_dependency_graphs = (
+            _complete_dependency_graphs_from_context_by_package_name(
+                context=context,
+                package_names=catalog_dependency_package_names,
+            )
+        )
+        evidence["context_lookup_used"] = True
+        if context_dependency_graphs is not None:
+            evidence.update(
+                _dependency_graph_resolution_context_hit_evidence(
+                    dependency_package_names=catalog_dependency_package_names,
+                    context_dependency_graphs=context_dependency_graphs,
+                )
+            )
+            return _DependencyGraphResolutionResult(
+                graphs=context_dependency_graphs,
+                evidence=evidence,
+            )
+        evidence["fallback_reason"] = "catalog_context_graph_coverage_incomplete"
+
     package_manifest_paths = (
         resolve_meta_runtime_package_manifest_closure_for_package_names(
             repo_root=request.workspace_root,
             package_names=(source.package_name,),
             semantic_ontology_package_catalog=(
-                _semantic_ontology_package_catalog_from_context(request.context)
+                _semantic_ontology_package_catalog_from_context(context)
             ),
         )
     )
+    evidence["manifest_closure_used"] = True
+    evidence["manifest_path_count"] = len(package_manifest_paths)
     if not package_manifest_paths:
-        return ()
+        evidence["dependency_package_names"] = ()
+        evidence["graph_count"] = 0
+        return _DependencyGraphResolutionResult(graphs=(), evidence=evidence)
     dependency_package_names = _dependency_package_names_for_manifest_paths(
         package_manifest_paths=package_manifest_paths,
         source_package_name=source.package_name,
     )
-    context_dependency_graphs = (
-        _complete_dependency_graphs_from_context_by_package_name(
-            context=context,
-            package_names=dependency_package_names,
+    evidence["dependency_package_names"] = dependency_package_names
+    if not evidence["context_lookup_used"]:
+        context_dependency_graphs = (
+            _complete_dependency_graphs_from_context_by_package_name(
+                context=context,
+                package_names=dependency_package_names,
+            )
         )
-    )
-    if context_dependency_graphs is not None:
-        return context_dependency_graphs
+        evidence["context_lookup_used"] = True
+        if context_dependency_graphs is not None:
+            evidence.update(
+                _dependency_graph_resolution_context_hit_evidence(
+                    dependency_package_names=dependency_package_names,
+                    context_dependency_graphs=context_dependency_graphs,
+                )
+            )
+            return _DependencyGraphResolutionResult(
+                graphs=context_dependency_graphs,
+                evidence=evidence,
+            )
+        evidence["fallback_reason"] = "manifest_context_graph_coverage_incomplete"
     dependency_context = build_meta_graph_runtime_context_for_aware_package_manifests(
         package_manifest_paths=package_manifest_paths,
         workspace_root=request.workspace_root,
@@ -2659,7 +2864,7 @@ def _target_dependency_object_config_graphs(
             "Aware Ontology Package Dependency Context: " f"{source.package_name}"
         ),
     )
-    return tuple(
+    graphs = tuple(
         graph
         for graph in (
             *dependency_context.runtime_graphs,
@@ -2667,6 +2872,47 @@ def _target_dependency_object_config_graphs(
         )
         if graph.fqn_prefix != source.fqn_prefix
     )
+    evidence["runtime_context_rebuild_used"] = True
+    evidence["graph_count"] = len(graphs)
+    return _DependencyGraphResolutionResult(graphs=graphs, evidence=evidence)
+
+
+def _dependency_graph_resolution_context_hit_evidence(
+    *,
+    dependency_package_names: tuple[str, ...],
+    context_dependency_graphs: tuple[ObjectConfigGraph, ...],
+) -> dict[str, object]:
+    return {
+        "context_lookup_hit": True,
+        "graph_count": len(context_dependency_graphs),
+        "runtime_graph_hit_count": len(dependency_package_names),
+        "source_graph_hit_count": max(
+            len(context_dependency_graphs) - len(dependency_package_names),
+            0,
+        ),
+    }
+
+
+def _dependency_graph_resolution_metrics(
+    evidence: Mapping[str, object],
+) -> dict[str, float]:
+    return {
+        "catalog_dependency_hit": (
+            1.0 if evidence.get("catalog_dependency_status") == "available" else 0.0
+        ),
+        "context_lookup_used": 1.0 if evidence.get("context_lookup_used") else 0.0,
+        "context_lookup_hit": 1.0 if evidence.get("context_lookup_hit") else 0.0,
+        "manifest_closure_used": (
+            1.0 if evidence.get("manifest_closure_used") else 0.0
+        ),
+        "runtime_context_rebuild_used": (
+            1.0 if evidence.get("runtime_context_rebuild_used") else 0.0
+        ),
+        "graph_count": float(evidence.get("graph_count") or 0),
+        "dependency_package_count": float(
+            len(_string_tuple(evidence.get("dependency_package_names")))
+        ),
+    }
 
 
 def _dependency_package_names_for_manifest_paths(
@@ -2691,6 +2937,71 @@ def _dependency_package_names_for_manifest_paths(
         seen.add(package_name)
         names.append(package_name)
     return tuple(names)
+
+
+def _dependency_package_names_from_semantic_catalog(
+    *,
+    context: Mapping[str, object],
+    source_package_name: str,
+) -> tuple[str, ...] | None:
+    catalog = _semantic_ontology_package_catalog_from_context(context)
+    if catalog is None:
+        return None
+    raw_entries = catalog.get("entries")
+    if not isinstance(raw_entries, (list, tuple)):
+        return None
+    entries_by_package_name: dict[str, Mapping[str, object]] = {}
+    for raw_entry in raw_entries:
+        if not isinstance(raw_entry, Mapping):
+            continue
+        package_name = _non_empty_string(raw_entry.get("package_name"))
+        if package_name is None:
+            continue
+        entries_by_package_name.setdefault(package_name, raw_entry)
+    if source_package_name not in entries_by_package_name:
+        return None
+
+    ordered_package_names: list[str] = []
+    visited: set[str] = set()
+    visiting: set[str] = set()
+
+    def visit(package_name: str) -> bool:
+        if package_name in visited:
+            return True
+        if package_name in visiting:
+            return False
+        entry = entries_by_package_name.get(package_name)
+        if entry is None:
+            return False
+        visiting.add(package_name)
+        for dependency_package_name in _string_tuple(
+            entry.get("dependency_package_names")
+        ):
+            if not visit(dependency_package_name):
+                return False
+        visiting.remove(package_name)
+        visited.add(package_name)
+        if package_name != source_package_name:
+            ordered_package_names.append(package_name)
+        return True
+
+    if not visit(source_package_name):
+        return None
+    return tuple(ordered_package_names)
+
+
+def _string_tuple(value: object) -> tuple[str, ...]:
+    if isinstance(value, str):
+        text = value.strip()
+        return (text,) if text else ()
+    if not isinstance(value, (list, tuple)):
+        return ()
+    values: list[str] = []
+    for item in value:
+        text = str(item or "").strip()
+        if text:
+            values.append(text)
+    return tuple(values)
 
 
 def _complete_dependency_graphs_from_context_by_package_name(
@@ -2781,7 +3092,11 @@ def _semantic_ontology_package_catalog_from_context(
     context: Mapping[str, object],
 ) -> Mapping[str, object] | None:
     raw_catalog = context.get(SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_CONTEXT_KEY)
-    return raw_catalog if isinstance(raw_catalog, Mapping) else None
+    if not isinstance(raw_catalog, Mapping):
+        return None
+    if raw_catalog.get("schema") != SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_SCHEMA:
+        return None
+    return raw_catalog
 
 
 def _external_object_config_graphs_from_context(
@@ -3122,6 +3437,17 @@ def _uuidish_string(value: object) -> str | None:
     return None
 
 
+def _uuid_or_none(value: object) -> UUID | None:
+    if isinstance(value, UUID):
+        return value
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        return UUID(value.strip())
+    except ValueError:
+        return None
+
+
 def _workspace_relative_path(*, path: Path, workspace_root: Path) -> str:
     try:
         return path.resolve().relative_to(workspace_root.resolve()).as_posix()
@@ -3152,6 +3478,8 @@ def _semantic_package_detail_from_leaf_result(
     *,
     source: _OntologyPackageSource,
     leaf_result: ObjectConfigGraphPackageLeafMaterializationResult,
+    ontology_config_commit_id: UUID,
+    ontology_package_commit_id: UUID,
     workspace_root: Path,
     receipt_context: Mapping[str, object],
     materialized_language_packages: tuple[Mapping[str, object], ...] = (),
@@ -3196,6 +3524,8 @@ def _semantic_package_detail_from_leaf_result(
         "package_name": object_config_graph_package.package_name,
         "fqn_prefix": object_config_graph_package.fqn_prefix,
         "semantic_branch_id": str(leaf_result.package_branch_id),
+        "ontology_config_commit_id": str(ontology_config_commit_id),
+        "ontology_package_commit_id": str(ontology_package_commit_id),
         "semantic_head_commit_id": _uuid_string(
             leaf_result.object_config_graph_package_head_commit_id,
         ),

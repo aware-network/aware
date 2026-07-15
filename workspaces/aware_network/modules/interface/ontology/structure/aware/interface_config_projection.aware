@@ -1,0 +1,15 @@
+// InterfaceConfig projection (config-level pane/layout mount contract)
+//
+// Contract:
+// - Roots reusable interface configuration truth.
+// - Bridges pane semantics to Experience views and Attention section slots.
+projection InterfaceConfig {
+    root interface.InterfaceConfig
+    interface.InterfaceConfig::interface_config_window_configs
+    interface.InterfaceConfigWindowConfig::window_config WindowConfig
+    interface.InterfaceConfig::interfaces Interface
+    interface.InterfaceConfig::interface_config_pane_configs
+    interface.InterfaceConfigPaneConfig::pane_config PaneConfig
+    interface.InterfaceConfigPaneConfig::section_mounts
+    interface.InterfaceConfigPaneConfigSectionConfig::layout_config_section_config LayoutConfig
+}

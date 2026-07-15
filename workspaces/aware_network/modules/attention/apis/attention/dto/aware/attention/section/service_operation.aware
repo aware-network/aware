@@ -1,0 +1,128 @@
+/// Canonical request/response DTOs for the Attention section service boundary.
+///
+/// These are transport-level service payloads. They do not replace SSOT graph state.
+///
+/// SSOT: `attention-service-dto` generated from `workspaces/aware_network/modules/attention/apis/attention/dto`.
+
+class AttentionSectionServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class AttentionSectionServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+    snapshot AttentionSectionSnapshot?
+}
+
+/// Read the current Attention-owned section focus-scope state for one section key.
+class GetAttentionSectionStateRequest augment AttentionSectionServiceRequest {
+    operation String = "get_attention_section_state"
+    section_key String
+    default_observable_id UUID?
+    default_rationale String?
+}
+
+class GetAttentionSectionStateResponse augment AttentionSectionServiceResponse {
+    operation String = "get_attention_section_state"
+    snapshot AttentionSectionSnapshot
+}
+
+class AttentionSectionActivationScope {
+    window_key String?
+    layout_key String?
+    layout_section_id UUID?
+    section_focus_scope_id UUID?
+    focus_scope_id UUID?
+    branch_id UUID?
+    state_projection_hash String?
+    focus_target AttentionSectionFocusTarget?
+}
+
+/// Activate one observable for one section-scoped focus scope.
+class ActivateAttentionSectionObservableRequest augment AttentionSectionServiceRequest {
+    operation String = "activate_attention_section_observable"
+    section_key String
+    observable_id UUID
+    activation_scope AttentionSectionActivationScope?
+    rationale String?
+    section_title String?
+    section_description String?
+    focus_scope_title String?
+    focus_scope_description String?
+}
+
+class ActivateAttentionSectionObservableResponse augment AttentionSectionServiceResponse {
+    operation String = "activate_attention_section_observable"
+    snapshot AttentionSectionSnapshot
+}
+
+/// List committed OIG commit pointers observed by one Attention focus scope.
+class GetAttentionFocusScopeCommitsRequest augment AttentionSectionServiceRequest {
+    operation String = "get_attention_focus_scope_commits"
+    focus_scope_id UUID
+    focus_id UUID?
+    object_instance_graph_commit_id UUID?
+    limit Int?
+}
+
+class GetAttentionFocusScopeCommitsResponse augment AttentionSectionServiceResponse {
+    operation String = "get_attention_focus_scope_commits"
+    focus_scope_id UUID
+    exists Bool = false
+    commits AttentionFocusScopeCommitPin[] = []
+}
+
+/// Read Attention-owned section state for one Attention-selected runtime layout.
+class GetAttentionRuntimeMountRequest augment AttentionSectionServiceRequest {
+    operation String = "get_attention_runtime_mount"
+    window_key String?
+    environment_target AttentionEnvironmentRuntimeTarget?
+    attention_session_id UUID?
+    preferred_layout_config_id UUID?
+    preferred_layout_key String?
+    preferred_section_key String?
+    preferred_observable_id UUID?
+    layouts AttentionRuntimeMountLayoutRequest[] = []
+}
+
+class GetAttentionRuntimeMountResponse augment AttentionSectionServiceResponse {
+    operation String = "get_attention_runtime_mount"
+    runtime_mount AttentionRuntimeMountSnapshot
+}
+
+/// Subscribe to streamed Attention-owned runtime mount updates for one mounted window/layout set.
+class WatchAttentionRuntimeMountRequest augment AttentionSectionServiceRequest {
+    operation String = "watch_attention_runtime_mount"
+    window_key String?
+    environment_target AttentionEnvironmentRuntimeTarget?
+    attention_session_id UUID?
+    preferred_layout_config_id UUID?
+    preferred_layout_key String?
+    preferred_section_key String?
+    preferred_observable_id UUID?
+    poll_interval_ms Int = 1000
+    layouts AttentionRuntimeMountLayoutRequest[] = []
+}
+
+class WatchAttentionRuntimeMountResponse augment AttentionSectionServiceResponse {
+    operation String = "watch_attention_runtime_mount"
+    runtime_mount AttentionRuntimeMountSnapshot
+}
+
+ann attention.section.AttentionSectionServiceRequest::operation discriminate key
+ann attention.section.GetAttentionSectionStateRequest::operation discriminate tag "get_attention_section_state"
+ann attention.section.ActivateAttentionSectionObservableRequest::operation discriminate tag "activate_attention_section_observable"
+ann attention.section.GetAttentionFocusScopeCommitsRequest::operation discriminate tag "get_attention_focus_scope_commits"
+ann attention.section.GetAttentionRuntimeMountRequest::operation discriminate tag "get_attention_runtime_mount"
+ann attention.section.WatchAttentionRuntimeMountRequest::operation discriminate tag "watch_attention_runtime_mount"
+
+ann attention.section.AttentionSectionServiceResponse::operation discriminate key
+ann attention.section.GetAttentionSectionStateResponse::operation discriminate tag "get_attention_section_state"
+ann attention.section.ActivateAttentionSectionObservableResponse::operation discriminate tag "activate_attention_section_observable"
+ann attention.section.GetAttentionFocusScopeCommitsResponse::operation discriminate tag "get_attention_focus_scope_commits"
+ann attention.section.GetAttentionRuntimeMountResponse::operation discriminate tag "get_attention_runtime_mount"
+ann attention.section.WatchAttentionRuntimeMountResponse::operation discriminate tag "watch_attention_runtime_mount"

@@ -1,0 +1,71 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aware-sdk"
+version = "0.8.0"
+description = "Canonical actor-facing Aware client and renderer over Interface SDK"
+readme = { text = "Canonical actor-facing Aware client and renderer over Interface SDK.", content-type = "text/markdown" }
+requires-python = ">=3.12"
+license = "MIT"
+authors = [
+  { name = "Aware OSS Team" }
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Build Tools",
+]
+keywords = ["aware", "sdk", "client", "interface", "renderer", "agent"]
+dependencies = [
+  "aware-interface-sdk",
+]
+
+[project.optional-dependencies]
+diagnostics = [
+  "aware-identity-sdk",
+  "aware_identity_service_api",
+  "aware_hub_service_api",
+]
+local = [
+  "aware-interface-sdk[local]",
+  "aware-deploy",
+]
+release = [
+  "aware-release>=0.1.2",
+]
+workspace = [
+  "aware-workspace-sdk",
+]
+test = [
+  "aware-identity-sdk",
+  "aware_identity_service_api",
+  "aware_hub_service_api",
+  "aware-release>=0.1.2",
+  "pytest>=8.4.2",
+  "pytest-asyncio>=0.23.7",
+  "pytest-mock>=3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/aware-network/aware-sdk"
+Documentation = "https://github.com/aware-network/aware-sdk/blob/main/README.md"
+Changelog = "https://github.com/aware-network/aware-sdk/blob/main/CHANGELOG.md"
+Source = "https://github.com/aware-network/aware-sdk"
+Issues = "https://github.com/aware-network/aware-sdk/issues"
+
+[project.scripts]
+aware = "aware_sdk.cli:main"
+aware-sdk = "aware_sdk.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_sdk"]
+include = [
+  "aware_sdk/configs/**",
+]

@@ -395,6 +395,18 @@ async def test_lane_shallow_append_uses_state_index_without_before_oig(
     assert evidence_perf.get("build_commit_record_ms", -1) >= 0
     assert evidence_perf.get("validate_commit_record_ms", -1) >= 0
     assert evidence_perf.get("append_record_ms", -1) >= 0
+    assert evidence_perf["append_append_record_count"] == 1
+    assert evidence_perf["append_durable_body_write_count"] == 1
+    assert evidence_perf["append_durable_envelope_write_count"] == 1
+    assert evidence_perf["append_durable_meta_skip_count"] == 1
+    assert evidence_perf["append_durable_head_write_count"] == 1
+    assert evidence_perf["append_durable_write_count"] == 3
+    assert evidence_perf["append_grouped_durable_transaction_write_count"] == 3
+    assert evidence_perf["append_independent_durable_write_count"] == 0
+    assert evidence_perf["append_grouped_durable_transaction_count"] == 1
+    assert evidence_perf["append_grouped_durable_transaction_syncfs_count"] in (0, 1)
+    if evidence_perf["append_grouped_durable_transaction_syncfs_count"] == 0:
+        assert evidence_perf["append_grouped_durable_transaction_file_fsync_count"] == 3
     assert evidence_perf["append_write_health_index_deferred_count"] == 1
     assert (
         await evidence_store.get_commit_health_metadata(
@@ -419,13 +431,20 @@ async def test_lane_shallow_append_uses_state_index_without_before_oig(
         "oig_commit_store.append_record.validation",
         "oig_commit_store.append_record.put_commit_record",
         "oig_commit_store.put_commit_record.write_or_validate_body",
+        "oig_commit_store.put_commit_record.durable_body_written",
         "oig_commit_store.put_commit_record.write_or_validate_envelope",
+        "oig_commit_store.put_commit_record.durable_envelope_written",
         "oig_commit_store.put_commit_record.write_or_validate_meta",
+        "oig_commit_store.put_commit_record.durable_meta_skipped",
         "oig_commit_store.put_commit_record.write_ref_index",
         "oig_commit_store.put_commit_record.write_envelope_index",
         "oig_commit_store.put_commit_record.write_identity_sidecar_index",
         "oig_commit_store.put_commit_record.defer_health_index",
         "oig_commit_store.append_record.write_head",
+        "oig_commit_store.append_record.durable_head_written",
+        "oig_commit_store.append_record.grouped_durable_transaction_write",
+        "oig_commit_store.append_record.grouped_durable_transaction_committed",
+        "oig_commit_store.append_record.grouped_durable_transaction",
         "oig_commit_store.append_record.dispatch_watchers",
         "oig_commit_store.append_record.lock_hold",
         "oig_commit_store.append_record.total",

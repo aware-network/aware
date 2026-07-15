@@ -1,0 +1,25 @@
+class RenderComponentFallbackPolicy {
+    // Attributes
+    policy_key String key
+    fallback_kind String
+    fallback_component_ref String?
+    fallback_node_kind PaneRenderNodeKind?
+    description String?
+
+    fn build construct (
+        policy_key String key,
+        fallback_kind String,
+        fallback_component_ref String? = null,
+        fallback_node_kind PaneRenderNodeKind? = null,
+        description String? = null
+    ) -> RenderComponentFallbackPolicy {
+        """
+        Create one deterministic component fallback policy.
+
+        Contract:
+        - Fallback policy is declared by the component package, not improvised by a pane renderer.
+        - `fallback_component_ref` supports a less capable component replacement.
+        - `fallback_node_kind` supports lowering to primitive PaneRenderSpec nodes.
+        """
+    }
+}

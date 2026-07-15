@@ -58,6 +58,7 @@ from aware_meta.graph.instance.builder import (
     OigBuildError,
     build_rooted_object_instance_graph_base,
     build_object_instance_graph,
+    clear_object_instance_graph_builder_index_cache,
 )
 from aware_meta.graph.instance.member import ObjectInstanceGraphMember
 from aware_meta.graph.instance.member_kind import ObjectInstanceGraphMemberKind
@@ -308,6 +309,42 @@ def test_build_oig_from_opg_hydrated_reference() -> None:
     )
 
 
+def test_build_oig_registry_supersedes_embedded_hydrated_target() -> None:
+    ocg, opg, _a_cc, b_cc, *_ = _make_ocg_and_opg(
+        edge_include=ObjectProjectionGraphEdgeInclude.required
+    )
+
+    from aware_orm.models.base_model import BaseORMModel
+
+    class B(BaseORMModel):
+        name: str
+
+    class A(BaseORMModel):
+        name: str
+        b: B | None = None
+
+    b_id = uuid4()
+    embedded_b = B(id=b_id, name="embedded")
+    canonical_b = B(id=b_id, name="canonical")
+    a = A(id=uuid4(), name="a", b=embedded_b)
+
+    graph = build_object_instance_graph(
+        root_instance=a,
+        object_config_graph=ocg,
+        object_projection_graph=opg,
+        name="g",
+        description="d",
+        instance_registry=[canonical_b],
+    )
+
+    b_instance = next(
+        instance
+        for instance in graph.class_instances
+        if instance.class_config_id == b_cc.id
+    )
+    assert b_instance.attributes[0].value_root.primitive_value == {"value": "canonical"}
+
+
 def test_build_oig_emits_build_profile_metrics() -> None:
     ocg, opg, a_cc, _b_cc, _rel, _a_name_cfg, _a_b_cfg = _make_ocg_and_opg(
         edge_include=ObjectProjectionGraphEdgeInclude.required
@@ -359,6 +396,101 @@ def test_build_oig_emits_build_profile_metrics() -> None:
         timings.metrics["test_oig_class_instance_relationship_attributes_skipped"] == 2
     )
     assert timings.metrics["test_oig_class_instance_default_values_used"] == 0
+
+
+def test_build_oig_static_index_cache_hits_for_same_ocg_opg() -> None:
+    clear_object_instance_graph_builder_index_cache()
+    ocg, opg, _a_cc, _b_cc, _rel, _a_name_cfg, _a_b_cfg = _make_ocg_and_opg(
+        edge_include=ObjectProjectionGraphEdgeInclude.required
+    )
+
+    from aware_orm.models.base_model import BaseORMModel
+
+    class B(BaseORMModel):
+        name: str
+
+    class A(BaseORMModel):
+        name: str
+        b: B | None = None
+
+    first_b = B(id=uuid4(), name="first-b")
+    first_a = A(id=uuid4(), name="first-a", b=first_b)
+    first_timings = _FakeTimings()
+    build_object_instance_graph(
+        root_instance=first_a,
+        object_config_graph=ocg,
+        object_projection_graph=opg,
+        name="first",
+        description="d",
+        timings=first_timings,
+        timing_key_prefix="cache_oig",
+    )
+
+    second_b = B(id=uuid4(), name="second-b")
+    second_a = A(id=uuid4(), name="second-a", b=second_b)
+    second_timings = _FakeTimings()
+    build_object_instance_graph(
+        root_instance=second_a,
+        object_config_graph=ocg,
+        object_projection_graph=opg,
+        name="second",
+        description="d",
+        timings=second_timings,
+        timing_key_prefix="cache_oig",
+    )
+
+    assert first_timings.metrics["cache_oig_static_index_cache_miss"] == 1
+    assert first_timings.metrics["cache_oig_static_index_cache_hit"] == 0
+    assert second_timings.metrics["cache_oig_static_index_cache_miss"] == 0
+    assert second_timings.metrics["cache_oig_static_index_cache_hit"] == 1
+
+
+def test_build_oig_static_index_cache_skips_missing_hash_key() -> None:
+    clear_object_instance_graph_builder_index_cache()
+    ocg, opg, _a_cc, _b_cc, _rel, _a_name_cfg, _a_b_cfg = _make_ocg_and_opg(
+        edge_include=ObjectProjectionGraphEdgeInclude.required
+    )
+    ocg.hash = ""
+
+    from aware_orm.models.base_model import BaseORMModel
+
+    class B(BaseORMModel):
+        name: str
+
+    class A(BaseORMModel):
+        name: str
+        b: B | None = None
+
+    first_b = B(id=uuid4(), name="first-b")
+    first_a = A(id=uuid4(), name="first-a", b=first_b)
+    first_timings = _FakeTimings()
+    build_object_instance_graph(
+        root_instance=first_a,
+        object_config_graph=ocg,
+        object_projection_graph=opg,
+        name="first",
+        description="d",
+        timings=first_timings,
+        timing_key_prefix="uncached_oig",
+    )
+
+    second_b = B(id=uuid4(), name="second-b")
+    second_a = A(id=uuid4(), name="second-a", b=second_b)
+    second_timings = _FakeTimings()
+    build_object_instance_graph(
+        root_instance=second_a,
+        object_config_graph=ocg,
+        object_projection_graph=opg,
+        name="second",
+        description="d",
+        timings=second_timings,
+        timing_key_prefix="uncached_oig",
+    )
+
+    assert first_timings.metrics["uncached_oig_static_index_cache_miss"] == 1
+    assert first_timings.metrics["uncached_oig_static_index_cache_hit"] == 0
+    assert second_timings.metrics["uncached_oig_static_index_cache_miss"] == 1
+    assert second_timings.metrics["uncached_oig_static_index_cache_hit"] == 0
 
 
 def test_build_oig_includes_portal_foreign_key_attribute() -> None:

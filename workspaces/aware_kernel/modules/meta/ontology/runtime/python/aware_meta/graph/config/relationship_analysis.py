@@ -11,8 +11,10 @@ Important:
 
 from __future__ import annotations
 
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Iterator, Mapping
 from uuid import UUID
 
 # Meta Ontology
@@ -40,7 +42,9 @@ from aware_meta_ontology.class_.class_config_relationship_enums import (
     ClassConfigRelationshipType,
 )
 from aware_meta_ontology.function.function_config import FunctionConfig
-from aware_meta_ontology.function.function_config_invocation_enums import FunctionInvocationKind
+from aware_meta_ontology.function.function_config_invocation_enums import (
+    FunctionInvocationKind,
+)
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
 from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
     AttributeTypeDescriptorKind,
@@ -51,10 +55,6 @@ from aware_meta_ontology.annotation.code_section_annotation_override_enums impor
 
 # Meta Runtime
 from aware_meta.fqn_resolver import NamespacePath
-from aware_meta.graph.config.model_bootstrap import (
-    get_object_config_graph_node_class_config_id,
-)
-
 from aware_meta.graph.config.stable_ids import ocg_stable_uuid
 from aware_meta.class_.config.relationship_side_loading_config import (
     ClassConfigRelationshipSideLoadingConfig,
@@ -64,6 +64,41 @@ from aware_meta.class_.config.relationship_side_loading_config import (
 # Aware Utils
 from aware_utils.logging import logger
 from aware_utils.string_transform import to_snake_case
+
+
+@dataclass(frozen=True, slots=True)
+class MissingRelationshipEndpointDiagnostic:
+    """One relationship omitted because its analysis view lacks an endpoint."""
+
+    relationship_id: UUID
+    source_class_config_id: UUID
+    target_class_config_id: UUID
+    source_class_name: str | None
+    target_class_name: str | None
+    source_missing: bool
+    target_missing: bool
+
+
+_MISSING_RELATIONSHIP_ENDPOINT_DIAGNOSTICS: ContextVar[
+    list[MissingRelationshipEndpointDiagnostic] | None
+] = ContextVar(
+    "missing_relationship_endpoint_diagnostics",
+    default=None,
+)
+
+
+@contextmanager
+def capture_missing_relationship_endpoint_diagnostics() -> (
+    Iterator[list[MissingRelationshipEndpointDiagnostic]]
+):
+    """Capture expected partial-view misses instead of logging each UUID."""
+
+    diagnostics: list[MissingRelationshipEndpointDiagnostic] = []
+    token = _MISSING_RELATIONSHIP_ENDPOINT_DIAGNOSTICS.set(diagnostics)
+    try:
+        yield diagnostics
+    finally:
+        _MISSING_RELATIONSHIP_ENDPOINT_DIAGNOSTICS.reset(token)
 
 
 @dataclass(frozen=True, slots=True)
@@ -218,10 +253,14 @@ def build_object_config_graph_analysis_bundle(
             assoc_id = a.association_class.id
             association_class_id_by_relationship_id[rel_id] = assoc_id
             association_class_id_by_relationship_id[
-                stable_reified_association_source_relationship_id(relationship_id=rel_id)
+                stable_reified_association_source_relationship_id(
+                    relationship_id=rel_id
+                )
             ] = assoc_id
             association_class_id_by_relationship_id[
-                stable_reified_association_target_relationship_id(relationship_id=rel_id)
+                stable_reified_association_target_relationship_id(
+                    relationship_id=rel_id
+                )
             ] = assoc_id
             continue
 
@@ -323,7 +362,11 @@ def fk_override_key_for_analysis(
     analysis: ObjectConfigGraphRelationshipAnalysis,
 ) -> FkOverrideKey:
     ns = analysis.source_namespace
-    edge_name = analysis.association_class.name if analysis.association_class is not None else None
+    edge_name = (
+        analysis.association_class.name
+        if analysis.association_class is not None
+        else None
+    )
     return FkOverrideKey(
         fqn_prefix=(ns.package if ns is not None else None),
         namespace=(ns.namespace if ns is not None else None),
@@ -392,9 +435,15 @@ def fk_runtime_requiredness_from_relationship_semantics(
         return False
 
     if analysis.fk_owner_side == ClassConfigRelationshipDirection.forward:
-        strategy = analysis.relationship.forward_loading_strategy or ClassConfigRelationshipSideLoadingStrategy.lazy
+        strategy = (
+            analysis.relationship.forward_loading_strategy
+            or ClassConfigRelationshipSideLoadingStrategy.lazy
+        )
     else:
-        strategy = analysis.relationship.reverse_loading_strategy or ClassConfigRelationshipSideLoadingStrategy.lazy
+        strategy = (
+            analysis.relationship.reverse_loading_strategy
+            or ClassConfigRelationshipSideLoadingStrategy.lazy
+        )
 
     if strategy == ClassConfigRelationshipSideLoadingStrategy.eager:
         return False
@@ -436,7 +485,11 @@ def compute_fk_materialization_plan(
     - Applies SSOT requiredness rules + deterministic override resolution.
     - Validates no naming collision via `validate_unique(cls, base) -> str`.
     """
-    if analysis.fk_owner_class is None or analysis.fk_column_name is None or analysis.fk_owner_side is None:
+    if (
+        analysis.fk_owner_class is None
+        or analysis.fk_column_name is None
+        or analysis.fk_owner_side is None
+    ):
         return None
     if analysis.fk_target_class is None:
         # Non-join FK plans always have a target class (join-table FKs handled elsewhere).
@@ -493,7 +546,10 @@ def _collect_construct_target_class_ids_by_relationship_id(
 
     def _register_graph_functions(source_graph: ObjectConfigGraph) -> None:
         for node in source_graph.object_config_graph_nodes:
-            if node.type != ObjectConfigGraphNodeType.class_ or node.class_config is None:
+            if (
+                node.type != ObjectConfigGraphNodeType.class_
+                or node.class_config is None
+            ):
                 continue
             cls = node.class_config
             class_by_id[cls.id] = node.class_config
@@ -508,7 +564,10 @@ def _collect_construct_target_class_ids_by_relationship_id(
 
     _register_graph_functions(graph)
     for node in graph.object_config_graph_nodes:
-        if node.type != ObjectConfigGraphNodeType.relationship or node.class_config_relationship is None:
+        if (
+            node.type != ObjectConfigGraphNodeType.relationship
+            or node.class_config_relationship is None
+        ):
             continue
         relevant_relationship_ids.add(node.class_config_relationship.id)
 
@@ -526,10 +585,16 @@ def _collect_construct_target_class_ids_by_relationship_id(
     relationship_target_class_ids: dict[UUID, set[UUID]] = {}
     for fn in function_configs:
         for invocation in fn.invocations:
-            if invocation.kind.value.strip().lower() != FunctionInvocationKind.construct.value:
+            if (
+                invocation.kind.value.strip().lower()
+                != FunctionInvocationKind.construct.value
+            ):
                 continue
             relationship_id = invocation.class_config_relationship_id
-            if relationship_id is None and invocation.class_config_relationship is not None:
+            if (
+                relationship_id is None
+                and invocation.class_config_relationship is not None
+            ):
                 relationship_id = invocation.class_config_relationship.id
             if relationship_id is None:
                 continue
@@ -537,29 +602,38 @@ def _collect_construct_target_class_ids_by_relationship_id(
                 continue
             target_function = invocation.target_function_config
             if target_function is None:
-                target_function = function_by_id.get(invocation.target_function_config_id)
+                target_function = function_by_id.get(
+                    invocation.target_function_config_id
+                )
             if target_function is None:
                 source_function_ref = f"{fn.name}"
                 function_owner_class_id = function_owner_class_id_by_id.get(fn.id)
                 if function_owner_class_id:
                     class_owner = class_by_id.get(function_owner_class_id)
                     if class_owner:
-                        source_function_ref = f"{class_owner.name}.{source_function_ref}"
+                        source_function_ref = (
+                            f"{class_owner.name}.{source_function_ref}"
+                        )
                 raise ValueError(
                     "Source function: "
                     f"{source_function_ref} construct propagation target function is missing from graph "
                     + f"(relationship_id={relationship_id}, invocation_id={invocation.id})"
                 )
-            target_owner_class_id = function_owner_class_id_by_id.get(target_function.id)
+            target_owner_class_id = function_owner_class_id_by_id.get(
+                target_function.id
+            )
             if target_owner_class_id is None:
                 raise ValueError(
                     "construct propagation target function is not owned by a class "
                     + f"(relationship_id={relationship_id}, function_id={target_function.id}, "
                     + f"function_name={target_function.name!r})"
                 )
-            relationship_target_class_ids.setdefault(relationship_id, set()).add(target_owner_class_id)
+            relationship_target_class_ids.setdefault(relationship_id, set()).add(
+                target_owner_class_id
+            )
     return {
-        relationship_id: frozenset(class_ids) for relationship_id, class_ids in relationship_target_class_ids.items()
+        relationship_id: frozenset(class_ids)
+        for relationship_id, class_ids in relationship_target_class_ids.items()
     }
 
 
@@ -583,7 +657,10 @@ def analyze_relationships(
     namespace_by_class_config_id: dict[UUID, NamespacePath] = {}
 
     for node in graph.object_config_graph_nodes:
-        if node.type == ObjectConfigGraphNodeType.class_ and node.class_config is not None:
+        if (
+            node.type == ObjectConfigGraphNodeType.class_
+            and node.class_config is not None
+        ):
             cls = node.class_config
             class_by_id[cls.id] = cls
             namespace = _namespace_from_class_fqn(
@@ -612,18 +689,25 @@ def analyze_relationships(
             cls = n.class_config
             _ = class_by_id.setdefault(cls.id, cls)
             for link in cls.class_config_attribute_configs:
-                _ = attr_by_id.setdefault(link.attribute_config.id, link.attribute_config)
+                _ = attr_by_id.setdefault(
+                    link.attribute_config.id, link.attribute_config
+                )
 
-    construct_target_class_ids_by_relationship_id = _collect_construct_target_class_ids_by_relationship_id(
-        graph,
-        external_graphs_by_id=external_graphs_by_id,
+    construct_target_class_ids_by_relationship_id = (
+        _collect_construct_target_class_ids_by_relationship_id(
+            graph,
+            external_graphs_by_id=external_graphs_by_id,
+        )
     )
 
     analyses: list[ObjectConfigGraphRelationshipAnalysis] = []
     seen_relationship_ids: set[UUID] = set()
     # Local relationship nodes
     for node in graph.object_config_graph_nodes:
-        if node.type != ObjectConfigGraphNodeType.relationship or node.class_config_relationship is None:
+        if (
+            node.type != ObjectConfigGraphNodeType.relationship
+            or node.class_config_relationship is None
+        ):
             continue
         analysis = _analyze_relationship(
             node.class_config_relationship,
@@ -665,6 +749,72 @@ def analyze_relationships(
     return analyses
 
 
+def find_missing_relationship_endpoints(
+    graph: ObjectConfigGraph,
+    *,
+    external_graphs: Iterable[ObjectConfigGraph] = (),
+    available_classes_by_id: Mapping[UUID, ClassConfig] | None = None,
+) -> tuple[MissingRelationshipEndpointDiagnostic, ...]:
+    """Find endpoint misses against a completed runtime graph closure.
+
+    Unlike ``analyze_relationships``, this performs no lowering and emits no
+    logs. Runtime derivation uses it only after every graph in the closure has
+    been produced, so expected bootstrap misses never reach the operator trace.
+    """
+
+    class_by_id: Mapping[UUID, ClassConfig]
+    if available_classes_by_id is not None:
+        class_by_id = available_classes_by_id
+    else:
+        built_class_by_id: dict[UUID, ClassConfig] = {}
+        for candidate_graph in (graph, *tuple(external_graphs)):
+            for node in candidate_graph.object_config_graph_nodes:
+                if (
+                    node.type == ObjectConfigGraphNodeType.class_
+                    and node.class_config is not None
+                ):
+                    _ = built_class_by_id.setdefault(
+                        node.class_config.id,
+                        node.class_config,
+                    )
+        class_by_id = built_class_by_id
+
+    diagnostics: list[MissingRelationshipEndpointDiagnostic] = []
+    seen_relationship_ids: set[UUID] = set()
+    for node in graph.object_config_graph_nodes:
+        relationship = node.class_config_relationship
+        if (
+            node.type != ObjectConfigGraphNodeType.relationship
+            or relationship is None
+            or relationship.id in seen_relationship_ids
+        ):
+            continue
+        seen_relationship_ids.add(relationship.id)
+        diagnostic = _missing_relationship_endpoint_diagnostic(
+            relationship,
+            class_by_id,
+        )
+        if diagnostic is not None:
+            diagnostics.append(diagnostic)
+    for graph_relationship in graph.object_config_graph_relationships:
+        for relationship in graph_relationship.class_config_relationships:
+            if relationship.id in seen_relationship_ids:
+                continue
+            seen_relationship_ids.add(relationship.id)
+            diagnostic = _missing_relationship_endpoint_diagnostic(
+                relationship,
+                class_by_id,
+            )
+            if diagnostic is not None:
+                diagnostics.append(diagnostic)
+    return tuple(
+        sorted(
+            diagnostics,
+            key=lambda diagnostic: str(diagnostic.relationship_id),
+        )
+    )
+
+
 def _relationship_target_graph(
     ocg_rel: ObjectConfigGraphRelationship,
     *,
@@ -694,6 +844,25 @@ def stable_reified_association_target_relationship_id(*, relationship_id: UUID) 
     return ocg_stable_uuid(f"runtime_rel:assoc_target:{relationship_id}")
 
 
+def _missing_relationship_endpoint_diagnostic(
+    relationship: ClassConfigRelationship,
+    class_by_id: Mapping[UUID, ClassConfig],
+) -> MissingRelationshipEndpointDiagnostic | None:
+    source_class = class_by_id.get(relationship.class_config_id)
+    target_class = class_by_id.get(relationship.target_class_config_id)
+    if source_class is not None and target_class is not None:
+        return None
+    return MissingRelationshipEndpointDiagnostic(
+        relationship_id=relationship.id,
+        source_class_config_id=relationship.class_config_id,
+        target_class_config_id=relationship.target_class_config_id,
+        source_class_name=source_class.name if source_class is not None else None,
+        target_class_name=target_class.name if target_class is not None else None,
+        source_missing=source_class is None,
+        target_missing=target_class is None,
+    )
+
+
 def _analyze_relationship(
     relationship: ClassConfigRelationship,
     class_by_id: dict[UUID, ClassConfig],
@@ -706,12 +875,25 @@ def _analyze_relationship(
     source_class = class_by_id.get(relationship.class_config_id)
     target_class = class_by_id.get(relationship.target_class_config_id)
     if source_class is None or target_class is None:
-        logger.warning(f"Source or target class missing for relationship {relationship.id}")
+        diagnostic = _missing_relationship_endpoint_diagnostic(
+            relationship,
+            class_by_id,
+        )
+        diagnostics = _MISSING_RELATIONSHIP_ENDPOINT_DIAGNOSTICS.get()
+        if diagnostics is None:
+            logger.warning(
+                "Source or target class missing for relationship %s",
+                relationship.id,
+            )
+        elif diagnostic is not None:
+            diagnostics.append(diagnostic)
         return None
 
     association_class = None
     if relationship.class_config_relationship_association_edge is not None:
-        assoc_id = relationship.class_config_relationship_association_edge.class_config_id
+        assoc_id = (
+            relationship.class_config_relationship_association_edge.class_config_id
+        )
         association_class = class_by_id.get(assoc_id)
 
     forward_ref = _pick_relationship_attr(
@@ -720,7 +902,9 @@ def _analyze_relationship(
         role=ClassConfigRelationshipAttributeRole.reference,
     )
     if forward_ref is None:
-        logger.warning(f"No FORWARD+REFERENCE attribute for relationship {relationship.id}")
+        logger.warning(
+            f"No FORWARD+REFERENCE attribute for relationship {relationship.id}"
+        )
         return None
 
     forward_reference_attr = attr_by_id.get(forward_ref.attribute_config_id)
@@ -736,10 +920,14 @@ def _analyze_relationship(
         direction=ClassConfigRelationshipDirection.reverse,
         role=ClassConfigRelationshipAttributeRole.reference,
     )
-    reverse_reference_attr = attr_by_id.get(reverse_ref.attribute_config_id) if reverse_ref else None
+    reverse_reference_attr = (
+        attr_by_id.get(reverse_ref.attribute_config_id) if reverse_ref else None
+    )
 
     forward_is_list = _attr_is_list(forward_reference_attr)
-    reverse_is_list = _attr_is_list(reverse_reference_attr) if reverse_reference_attr else False
+    reverse_is_list = (
+        _attr_is_list(reverse_reference_attr) if reverse_reference_attr else False
+    )
 
     # SSOT: if a relationship has an association (join-table / edge-container) class,
     # it requires a join table regardless of MANY_TO_MANY vs ONE_TO_MANY.
@@ -750,10 +938,16 @@ def _analyze_relationship(
     construct_target_class: ClassConfig | None = None
     construct_target_is_association = False
     construct_target_is_standalone = False
-    construct_target_class_ids = set(construct_target_class_ids_by_relationship_id.get(relationship.id, ()))
+    construct_target_class_ids = set(
+        construct_target_class_ids_by_relationship_id.get(relationship.id, ())
+    )
     if len(construct_target_class_ids) > 1:
         target_names = ", ".join(
-            sorted(class_by_id[class_id].name for class_id in construct_target_class_ids if class_id in class_by_id)
+            sorted(
+                class_by_id[class_id].name
+                for class_id in construct_target_class_ids
+                if class_id in class_by_id
+            )
         )
         raise ValueError(
             "construct propagation is ambiguous: relationship constructs multiple target classes "
@@ -771,7 +965,11 @@ def _analyze_relationship(
                 else str(construct_target_class_id)
             )
             allowed_names = ", ".join(
-                sorted(class_by_id[class_id].name for class_id in allowed_target_class_ids if class_id in class_by_id)
+                sorted(
+                    class_by_id[class_id].name
+                    for class_id in allowed_target_class_ids
+                    if class_id in class_by_id
+                )
             )
             raise ValueError(
                 "construct propagation target does not match authored relationship target rail "
@@ -784,13 +982,17 @@ def _analyze_relationship(
                 + f"(relationship_id={relationship.id}, class_id={construct_target_class_id})"
             )
         construct_target_is_association = (
-            association_class is not None and construct_target_class_id == association_class.id
+            association_class is not None
+            and construct_target_class_id == association_class.id
         )
         construct_target_is_standalone = (
-            _class_identity_mode(cls=construct_target_class) is ClassIdentityMode.standalone
+            _class_identity_mode(cls=construct_target_class)
+            is ClassIdentityMode.standalone
         )
 
-    has_construct_propagation = construct_target_class is not None and not construct_target_is_standalone
+    has_construct_propagation = (
+        construct_target_class is not None and not construct_target_is_standalone
+    )
     relationship.identity_rail = (
         ClassConfigRelationshipIdentityRail.containment
         if has_construct_propagation
@@ -892,12 +1094,16 @@ def compute_relationship_side_loading_overrides(
     if config is None:
         return ClassConfigRelationshipSideLoadingOverrides()
 
-    namespace = analysis.source_namespace.namespace if analysis.source_namespace else None
+    namespace = (
+        analysis.source_namespace.namespace if analysis.source_namespace else None
+    )
     forward_override = None
     reverse_override = None
 
     if analysis.association_class is not None:
-        overrides = config.resolve_for_edge(namespace=namespace, edge_name=analysis.association_class.name)
+        overrides = config.resolve_for_edge(
+            namespace=namespace, edge_name=analysis.association_class.name
+        )
         if overrides.forward is not None:
             forward_override = overrides.forward
         if overrides.reverse is not None:
@@ -914,7 +1120,9 @@ def compute_relationship_side_loading_overrides(
     if overrides.reverse is not None:
         reverse_override = overrides.reverse
 
-    return ClassConfigRelationshipSideLoadingOverrides(forward=forward_override, reverse=reverse_override)
+    return ClassConfigRelationshipSideLoadingOverrides(
+        forward=forward_override, reverse=reverse_override
+    )
 
 
 def _pick_relationship_attr(
@@ -924,7 +1132,9 @@ def _pick_relationship_attr(
     role: ClassConfigRelationshipAttributeRole,
 ) -> ClassConfigRelationshipAttribute | None:
     matches = [
-        a for a in relationship.class_config_relationship_attributes if a.direction == direction and a.role == role
+        a
+        for a in relationship.class_config_relationship_attributes
+        if a.direction == direction and a.role == role
     ]
     if not matches:
         return None
@@ -973,13 +1183,16 @@ __all__ = [
     "FkOverrideKey",
     "FkOverrideSpec",
     "FkMaterializationPlan",
+    "MissingRelationshipEndpointDiagnostic",
     "ObjectConfigGraphRelationshipAnalysis",
     "analyze_relationships",
+    "capture_missing_relationship_endpoint_diagnostics",
     "compute_fk_materialization_plan",
     "compute_relationship_side_loading_overrides",
     "fk_override_key_for_analysis",
     "fk_db_requiredness_from_relationship_semantics",
     "fk_runtime_requiredness_from_relationship_semantics",
+    "find_missing_relationship_endpoints",
     "index_fk_override_annotations",
     "index_relationship_name_override_annotations",
     "resolve_fk_override",

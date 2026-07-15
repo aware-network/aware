@@ -1,0 +1,17 @@
+/// Snapshot of one namespace hosted behind the local Interface daemon.
+///
+/// Transport-only contract:
+/// - graph/ORM agnostic
+/// - local-machine scoped
+/// - safe for renderer and CLI clients
+class HostedInterfaceNamespace {
+    namespace String
+    host_label String
+    started Bool
+    actor_id UUID?
+    interface_id UUID?
+    interface_session_id UUID?
+    environment_id UUID?
+    environment_config_id UUID?
+    warnings String[] = []
+}

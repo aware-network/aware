@@ -1,0 +1,71 @@
+{
+  "language": "sql",
+  "nodes": [
+    {
+      "node_id": "59ff4f06-9b11-578c-8835-349e666acfa1",
+      "node_type": "class",
+      "entity_id": "6df54371-3b5e-5792-ae00-79df47bd9e39",
+      "relative_path": "hub/hub_artifact.sql"
+    },
+    {
+      "node_id": "40063b2b-128c-52e4-a1a9-00a2083d61a2",
+      "node_type": "class",
+      "entity_id": "738a0720-3567-5d0b-acb0-dafb218e84c5",
+      "relative_path": "hub/hub_artifact.sql"
+    },
+    {
+      "node_id": "e05ba439-303e-567b-bb38-8ac52f36e967",
+      "node_type": "class",
+      "entity_id": "64ca1c15-9c1b-5089-a02e-adf055b54138",
+      "relative_path": "hub/hub_authority.sql"
+    },
+    {
+      "node_id": "542aacaf-0f87-5c07-a48e-0b8850c2d8e5",
+      "node_type": "class",
+      "entity_id": "8fd5791e-8948-5b69-9761-f10a964ea582",
+      "relative_path": "hub/hub_channel.sql"
+    },
+    {
+      "node_id": "a959ebb3-7d98-5d6b-8bcf-7859a0987044",
+      "node_type": "class",
+      "entity_id": "e357d2e4-dad1-57f4-8cb9-608fb4d5afa6",
+      "relative_path": "hub/hub_channel.sql"
+    },
+    {
+      "node_id": "94f1f835-9be3-55b5-ba38-fe882f299faf",
+      "node_type": "class",
+      "entity_id": "6a390b08-34d3-5309-ab0d-5d034ecc525c",
+      "relative_path": "hub/hub_code_package_publication.sql"
+    },
+    {
+      "node_id": "a5d141ac-e82f-579a-8993-1836463a67db",
+      "node_type": "class",
+      "entity_id": "2657f53f-5e43-5dfe-88d0-93b82098b3ac",
+      "relative_path": "hub/hub_producer_provenance.sql"
+    },
+    {
+      "node_id": "192659a0-8615-5062-8e51-b2050a324d13",
+      "node_type": "class",
+      "entity_id": "13c8a0eb-f4bd-5ee9-be46-d32f37d69cae",
+      "relative_path": "hub/hub_publication_receipt.sql"
+    },
+    {
+      "node_id": "6ae8eb31-7625-5fee-a2e5-c857c6d85dba",
+      "node_type": "enum",
+      "entity_id": "005cadf6-de4d-5c5b-bcb0-cf4ab42d3a43",
+      "relative_path": "hub/hub_enums.sql"
+    },
+    {
+      "node_id": "a979603a-614d-5de2-9008-35e79cc254ad",
+      "node_type": "enum",
+      "entity_id": "327e5fd9-44cb-5cb8-90d8-afcd32796633",
+      "relative_path": "hub/hub_enums.sql"
+    },
+    {
+      "node_id": "769e4140-75f3-55b6-a898-78804173cb0c",
+      "node_type": "enum",
+      "entity_id": "f0463e0a-70c8-5456-904f-64493ba99f5f",
+      "relative_path": "hub/hub_enums.sql"
+    }
+  ]
+}

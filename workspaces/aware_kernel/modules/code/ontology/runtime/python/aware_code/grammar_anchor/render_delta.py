@@ -13,6 +13,7 @@ from aware_code_sdk.dto import (
     CodeGrammarAnchorTextTargetEvidence,
 )
 from aware_code_sdk.dto import (
+    CodeGrammarAnchorRenderAction,
     CodeGrammarAnchorRenderEntry,
     CodeGrammarAnchorRenderReplacement,
     CodeGrammarAnchorRenderSource,
@@ -47,6 +48,10 @@ from aware_types import JsonObject, JsonValue
 from aware_code.grammar_anchor.binding import (
     resolve_code_grammar_anchor_text_evidence_from_source_index,
 )
+from aware_code.grammar_anchor.value_codec import (
+    CodeGrammarValueCodecError,
+    encode_code_grammar_anchor_semantic_value,
+)
 
 
 _SOURCE_INDEX_CACHE = CodeGrammarSourceIndexCache(max_entries=32)
@@ -69,6 +74,7 @@ class _ResolvedReplacement:
     evidence: CodeGrammarAnchorTextEvidence | None
     text_target: CodeGrammarAnchorTextTargetEvidence | None
     span_target: CodeGrammarAnchorRenderSpanTarget | None
+    replacement_text: str
 
 
 def resolve_code_grammar_anchor_render_delta(
@@ -273,13 +279,22 @@ def _resolve_replacement(
     ):
         return None, [f"{prefix}.before_text_hash mismatch."]
 
+    replacement_text, render_diagnostics = _grammar_anchor_replacement_text(
+        replacement=replacement,
+        binding=binding,
+        prefix=prefix,
+    )
+    if render_diagnostics:
+        return None, render_diagnostics
+    assert replacement_text is not None
+
     text_target = CodeGrammarAnchorTextTargetEvidence(
         binding_key=binding.binding_key,
         graph_selector=binding.graph_selector,
         text_evidence=evidence,
-        replacement_text=replacement.replacement_text,
+        replacement_text=replacement_text,
         before_hash=evidence.text_hash,
-        after_hash=_sha256_text(replacement.replacement_text),
+        after_hash=_sha256_text(replacement_text),
         metadata=JsonObject(
             {
                 "source": "aware_code.grammar_anchor.render_delta",
@@ -298,6 +313,7 @@ def _resolve_replacement(
             evidence=evidence,
             text_target=text_target,
             span_target=None,
+            replacement_text=replacement_text,
         ),
         diagnostics,
     )
@@ -327,6 +343,13 @@ def _resolve_span_replacement(
     )
     if diagnostics:
         return None, diagnostics
+    replacement_text, render_diagnostics = _text_span_replacement_text(
+        replacement=replacement,
+        prefix=prefix,
+    )
+    if render_diagnostics:
+        return None, render_diagnostics
+    assert replacement_text is not None
     return (
         _ResolvedReplacement(
             replacement=replacement,
@@ -336,6 +359,7 @@ def _resolve_span_replacement(
             evidence=None,
             text_target=None,
             span_target=span_target,
+            replacement_text=replacement_text,
         ),
         [],
     )
@@ -428,6 +452,56 @@ def _validate_span_target(
     return diagnostics
 
 
+def _grammar_anchor_replacement_text(
+    *,
+    replacement: CodeGrammarAnchorRenderReplacement,
+    binding: CodeGrammarAnchorBinding,
+    prefix: str,
+) -> tuple[str | None, list[str]]:
+    if replacement.replacement_text is not None:
+        return None, [
+            f"{prefix}.replacement_text is not accepted for grammar_anchor targets."
+        ]
+    if replacement.action == CodeGrammarAnchorRenderAction.delete:
+        if replacement.semantic_value is not None:
+            return None, [
+                f"{prefix}.semantic_value must be omitted for delete actions."
+            ]
+        return "", []
+    if replacement.action != CodeGrammarAnchorRenderAction.replace:
+        return None, [f"{prefix}.action is unsupported."]
+    if replacement.semantic_value is None:
+        return None, [f"{prefix}.semantic_value is required for replace actions."]
+    try:
+        return (
+            encode_code_grammar_anchor_semantic_value(
+                value_domain=binding.value_domain,
+                semantic_value=replacement.semantic_value,
+            ),
+            [],
+        )
+    except CodeGrammarValueCodecError as exc:
+        return None, [f"{prefix}.semantic_value is not renderable: {exc}"]
+
+
+def _text_span_replacement_text(
+    *,
+    replacement: CodeGrammarAnchorRenderReplacement,
+    prefix: str,
+) -> tuple[str | None, list[str]]:
+    if replacement.semantic_value is not None:
+        return None, [f"{prefix}.semantic_value is not accepted for text_span targets."]
+    if replacement.action == CodeGrammarAnchorRenderAction.delete:
+        if replacement.replacement_text is not None:
+            return None, [
+                f"{prefix}.replacement_text must be omitted for delete actions."
+            ]
+        return "", []
+    if replacement.replacement_text is None:
+        return None, [f"{prefix}.replacement_text is required for text_span targets."]
+    return replacement.replacement_text, []
+
+
 def _validate_non_overlapping_replacements(
     replacements: Iterable[_ResolvedReplacement],
 ) -> list[str]:
@@ -444,10 +518,9 @@ def _validate_non_overlapping_replacements(
         )
         previous: _ResolvedReplacement | None = None
         for current in ordered:
-            if (
-                previous is not None
-                and _replacement_byte_start(current) < _replacement_byte_end(previous)
-            ):
+            if previous is not None and _replacement_byte_start(
+                current
+            ) < _replacement_byte_end(previous):
                 diagnostics.append(
                     f"source {source_key!r} has overlapping grammar-anchor replacements."
                 )
@@ -544,7 +617,7 @@ def _package_delta_from_replacements(
                         "source_index": source_index.evidence_payload(),
                     },
                 ),
-            )
+            ),
         ),
         render_entries,
     )
@@ -566,7 +639,7 @@ def _apply_source_replacements(
         byte_end = _replacement_byte_end(replacement)
         updated = (
             updated[:byte_start]
-            + replacement.replacement.replacement_text.encode("utf-8")
+            + replacement.replacement_text.encode("utf-8")
             + updated[byte_end:]
         )
     return updated.decode("utf-8")

@@ -1,0 +1,174 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "c39eb56c-d4d4-587b-b0f6-bed2540456bb",
+      "module": "aware_hub_service_dto.hub.artifact_authority",
+      "name": "HubArtifactAuthorityRequest",
+      "aware_class_ref": "aware_hub_service_dto.hub.HubArtifactAuthorityRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c450e63f-8999-56cf-b457-c7d00ef00d30",
+      "module": "aware_hub_service_dto.hub.artifact_authority",
+      "name": "HubArtifactAuthorityResponse",
+      "aware_class_ref": "aware_hub_service_dto.hub.HubArtifactAuthorityResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "d9837cbf-452c-5ffe-b654-b52f8bcad0a9",
+      "module": "aware_hub_service_dto.hub.artifact_authority",
+      "name": "HubArtifactPayloadLock",
+      "aware_class_ref": "aware_hub_service_dto.hub.HubArtifactPayloadLock",
+      "functions": []
+    },
+    {
+      "class_config_id": "b3f98388-be77-5e7e-b30b-6f117f964c55",
+      "module": "aware_hub_service_dto.hub.artifact_authority",
+      "name": "HubArtifactProducerProvenance",
+      "aware_class_ref": "aware_hub_service_dto.hub.HubArtifactProducerProvenance",
+      "functions": []
+    },
+    {
+      "class_config_id": "65f8beb6-4dde-50ae-aee9-d578edfecdf9",
+      "module": "aware_hub_service_dto.hub.artifact_authority",
+      "name": "PublishHubArtifactRequest",
+      "aware_class_ref": "aware_hub_service_dto.hub.PublishHubArtifactRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "5eeab571-a289-5382-a425-6e08029088ad",
+      "module": "aware_hub_service_dto.hub.artifact_authority",
+      "name": "PublishHubArtifactResponse",
+      "aware_class_ref": "aware_hub_service_dto.hub.PublishHubArtifactResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "9dfe2987-fd4e-5ea9-8558-aa2d4382b45a",
+      "module": "aware_hub_service_dto.hub.artifact_authority",
+      "name": "ResolveHubArtifactRequest",
+      "aware_class_ref": "aware_hub_service_dto.hub.ResolveHubArtifactRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "485980b7-fc3f-579b-a4c8-a535757f15a9",
+      "module": "aware_hub_service_dto.hub.artifact_authority",
+      "name": "ResolveHubArtifactResponse",
+      "aware_class_ref": "aware_hub_service_dto.hub.ResolveHubArtifactResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7a17fd04-6a38-54a6-9c86-9bb0ccb7ba5f",
+      "module": "aware_hub_service_dto.hub.deployment_artifact_authority",
+      "name": "DeploymentArtifactAuthorityRequest",
+      "aware_class_ref": "aware_hub_service_dto.hub.DeploymentArtifactAuthorityRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "34713e8c-680e-532e-a560-3f22c5e5563c",
+      "module": "aware_hub_service_dto.hub.deployment_artifact_authority",
+      "name": "DeploymentArtifactAuthorityResponse",
+      "aware_class_ref": "aware_hub_service_dto.hub.DeploymentArtifactAuthorityResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e09978b3-92d9-57d3-8709-634b5d074afc",
+      "module": "aware_hub_service_dto.hub.deployment_artifact_authority",
+      "name": "DeploymentArtifactLock",
+      "aware_class_ref": "aware_hub_service_dto.hub.DeploymentArtifactLock",
+      "functions": []
+    },
+    {
+      "class_config_id": "19de59ea-637d-52ae-aac0-75798f8a421a",
+      "module": "aware_hub_service_dto.hub.deployment_artifact_authority",
+      "name": "DeploymentArtifactProducerProvenance",
+      "aware_class_ref": "aware_hub_service_dto.hub.DeploymentArtifactProducerProvenance",
+      "functions": []
+    },
+    {
+      "class_config_id": "25218ea9-bf04-5fda-bef3-aa4b791fb580",
+      "module": "aware_hub_service_dto.hub.deployment_artifact_authority",
+      "name": "DeploymentArtifactTarget",
+      "aware_class_ref": "aware_hub_service_dto.hub.DeploymentArtifactTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "1c009296-6af0-5382-a2da-f5d8a98e229c",
+      "module": "aware_hub_service_dto.hub.deployment_artifact_authority",
+      "name": "ResolveDeploymentArtifactRequest",
+      "aware_class_ref": "aware_hub_service_dto.hub.ResolveDeploymentArtifactRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d195ad51-fc1a-5b7f-b74b-ceaea37437fe",
+      "module": "aware_hub_service_dto.hub.deployment_artifact_authority",
+      "name": "ResolveDeploymentArtifactResponse",
+      "aware_class_ref": "aware_hub_service_dto.hub.ResolveDeploymentArtifactResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "97a65efc-a804-5b71-b7dd-d295c5bffcbe",
+      "module": "aware_hub_service_dto.hub.public_map_discovery",
+      "name": "DiscoverPublicMapRequest",
+      "aware_class_ref": "aware_hub_service_dto.hub.DiscoverPublicMapRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "6cf53cc5-a578-5b9e-a664-f4106e71ce2e",
+      "module": "aware_hub_service_dto.hub.public_map_discovery",
+      "name": "DiscoverPublicMapResponse",
+      "aware_class_ref": "aware_hub_service_dto.hub.DiscoverPublicMapResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "b6a131b3-3076-585e-b81d-c0b3aad43d2c",
+      "module": "aware_hub_service_dto.hub.public_map_discovery",
+      "name": "HubPublicMapEntry",
+      "aware_class_ref": "aware_hub_service_dto.hub.HubPublicMapEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "7aabdc0c-fa97-5cd0-97c0-94eeed0f968a",
+      "module": "aware_hub_service_dto.hub.public_map_discovery",
+      "name": "PublicMapDiscoveryRequest",
+      "aware_class_ref": "aware_hub_service_dto.hub.PublicMapDiscoveryRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "61bd2e4d-58bb-5bc6-8359-3eb886ee6abb",
+      "module": "aware_hub_service_dto.hub.public_map_discovery",
+      "name": "PublicMapDiscoveryResponse",
+      "aware_class_ref": "aware_hub_service_dto.hub.PublicMapDiscoveryResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "324e62c5-eca8-53e4-a9e9-2961c1557c91",
+      "module": "aware_hub_service_dto.hub.view.channel_heads",
+      "name": "HubPublicDiscoveryArtifactLockV1",
+      "aware_class_ref": "aware_hub_service_dto.hub.view.HubPublicDiscoveryArtifactLockV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "5065eb03-0ae5-5f7a-94a3-834b4d661ad0",
+      "module": "aware_hub_service_dto.hub.view.channel_heads",
+      "name": "HubPublicDiscoveryDescriptorV1",
+      "aware_class_ref": "aware_hub_service_dto.hub.view.HubPublicDiscoveryDescriptorV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "271e5fb5-9d81-5392-943a-4cfa562f79b1",
+      "module": "aware_hub_service_dto.hub.view.channel_heads",
+      "name": "HubPublicDiscoveryEntryV1",
+      "aware_class_ref": "aware_hub_service_dto.hub.view.HubPublicDiscoveryEntryV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "ca8d79b2-ef3f-5ea8-bf43-16f2cad7e93c",
+      "module": "aware_hub_service_dto.hub.view.channel_heads",
+      "name": "HubPublicDiscoveryViewStateV1",
+      "aware_class_ref": "aware_hub_service_dto.hub.view.HubPublicDiscoveryViewStateV1",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

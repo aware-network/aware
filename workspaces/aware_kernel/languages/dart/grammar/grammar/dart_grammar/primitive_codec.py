@@ -9,6 +9,7 @@ from aware_code_ontology.primitive.code_primitive_type import CodePrimitiveType
 from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBaseType
 
 from aware_code.primitive_codec_base import CodePrimitiveCodecBase
+from aware_types import canonical_decimal_text
 
 from dart_grammar.type_parser import DartTypeParser
 
@@ -19,6 +20,7 @@ DART_TYPE_MAPPING: dict[CodePrimitiveBaseType, str] = {
     CodePrimitiveBaseType.boolean: "bool",
     CodePrimitiveBaseType.bytes: "Uint8List",
     CodePrimitiveBaseType.datetime: "DateTime",
+    CodePrimitiveBaseType.decimal: "AwareDecimal",
     CodePrimitiveBaseType.integer: "int",
     CodePrimitiveBaseType.float: "double",
     CodePrimitiveBaseType.json: "Map<String, dynamic>",
@@ -58,6 +60,8 @@ class DartPrimitiveCodec(CodePrimitiveCodecBase):
             return self._primitive(base_type=CodePrimitiveBaseType.integer)
         if t in ["double", "num"]:
             return self._primitive(base_type=CodePrimitiveBaseType.float)
+        if t in ["AwareDecimal"]:
+            return self._primitive(base_type=CodePrimitiveBaseType.decimal)
         if t in ["bool"]:
             return self._primitive(base_type=CodePrimitiveBaseType.boolean)
         if t in ["DateTime"]:
@@ -72,13 +76,15 @@ class DartPrimitiveCodec(CodePrimitiveCodecBase):
             return self._primitive(base_type=CodePrimitiveBaseType.null)
         if t in ["List"]:
             return self._primitive(
-                base_type=CodePrimitiveBaseType.array, item_type=self._primitive(base_type=CodePrimitiveBaseType.any)
+                base_type=CodePrimitiveBaseType.array,
+                item_type=self._primitive(base_type=CodePrimitiveBaseType.any),
             )
         if t in ["Map"]:
             return self._primitive(base_type=CodePrimitiveBaseType.dict)
         if t in ["Set"]:
             return self._primitive(
-                base_type=CodePrimitiveBaseType.set, item_type=self._primitive(base_type=CodePrimitiveBaseType.any)
+                base_type=CodePrimitiveBaseType.set,
+                item_type=self._primitive(base_type=CodePrimitiveBaseType.any),
             )
         return None
 
@@ -105,7 +111,9 @@ class DartPrimitiveCodec(CodePrimitiveCodecBase):
             base_type = self.parse(opt_inner)
             if base_type is None:
                 return None
-            return self.union(base_type, self._primitive(base_type=CodePrimitiveBaseType.null))
+            return self.union(
+                base_type, self._primitive(base_type=CodePrimitiveBaseType.null)
+            )
 
         # Generic types: List<T>, Set<T>, Map<K, V>
         list_inner = self._parser.get_list_inner(type_text)
@@ -113,12 +121,18 @@ class DartPrimitiveCodec(CodePrimitiveCodecBase):
             inner_type = self.parse(list_inner)
             if inner_type is None:
                 return None
-            return self._primitive(base_type=CodePrimitiveBaseType.array, item_type=inner_type)
+            return self._primitive(
+                base_type=CodePrimitiveBaseType.array, item_type=inner_type
+            )
 
         set_inner = self._parser.get_set_inner(type_text)
         if set_inner is not None:
-            inner_type = self.parse(set_inner) or self._primitive(base_type=CodePrimitiveBaseType.any)
-            return self._primitive(base_type=CodePrimitiveBaseType.set, item_type=inner_type)
+            inner_type = self.parse(set_inner) or self._primitive(
+                base_type=CodePrimitiveBaseType.any
+            )
+            return self._primitive(
+                base_type=CodePrimitiveBaseType.set, item_type=inner_type
+            )
 
         kv = self._parser.get_dict_kv(type_text)
         if kv is not None:
@@ -126,7 +140,11 @@ class DartPrimitiveCodec(CodePrimitiveCodecBase):
             key_type = self.parse(key_s)
             value_type = self.parse(val_s)
             if key_type and value_type:
-                return self._primitive(base_type=CodePrimitiveBaseType.dict, key_type=key_type, value_type=value_type)
+                return self._primitive(
+                    base_type=CodePrimitiveBaseType.dict,
+                    key_type=key_type,
+                    value_type=value_type,
+                )
             return self._primitive(base_type=CodePrimitiveBaseType.dict)
 
         # String types
@@ -138,6 +156,8 @@ class DartPrimitiveCodec(CodePrimitiveCodecBase):
             return self._primitive(base_type=CodePrimitiveBaseType.integer)
         if type_text in ["double", "num"]:
             return self._primitive(base_type=CodePrimitiveBaseType.float)
+        if type_text in ["AwareDecimal"]:
+            return self._primitive(base_type=CodePrimitiveBaseType.decimal)
 
         # Boolean
         if type_text in ["bool"]:
@@ -168,13 +188,15 @@ class DartPrimitiveCodec(CodePrimitiveCodecBase):
         # Collections without generics
         if type_text in ["List"]:
             return self._primitive(
-                base_type=CodePrimitiveBaseType.array, item_type=self._primitive(base_type=CodePrimitiveBaseType.any)
+                base_type=CodePrimitiveBaseType.array,
+                item_type=self._primitive(base_type=CodePrimitiveBaseType.any),
             )
         if type_text in ["Map"]:
             return self._primitive(base_type=CodePrimitiveBaseType.dict)
         if type_text in ["Set"]:
             return self._primitive(
-                base_type=CodePrimitiveBaseType.set, item_type=self._primitive(base_type=CodePrimitiveBaseType.any)
+                base_type=CodePrimitiveBaseType.set,
+                item_type=self._primitive(base_type=CodePrimitiveBaseType.any),
             )
 
         # Unknown identifier (likely a class) -> return None so higher layers treat as CLASS
@@ -187,8 +209,14 @@ class DartPrimitiveCodec(CodePrimitiveCodecBase):
 
         # Optional (nullable) encoded canonically as UNION[T, null] -> render as `T?`
         if prim.base_type == CodePrimitiveBaseType.union and prim.union_types:
-            if len(prim.union_types) == 2 and any(t.base_type == CodePrimitiveBaseType.null for t in prim.union_types):
-                non_null = next(t for t in prim.union_types if t.base_type != CodePrimitiveBaseType.null)
+            if len(prim.union_types) == 2 and any(
+                t.base_type == CodePrimitiveBaseType.null for t in prim.union_types
+            ):
+                non_null = next(
+                    t
+                    for t in prim.union_types
+                    if t.base_type != CodePrimitiveBaseType.null
+                )
                 inner = self.render(non_null) or "dynamic"
                 # Avoid invalid double-nullable like `Object??` when inner is already nullable.
                 if inner.endswith("?"):
@@ -373,7 +401,9 @@ class DartPrimitiveCodec(CodePrimitiveCodecBase):
             return False
 
         # Handle string literals (single or double quotes)
-        if (lit.startswith("'") and lit.endswith("'")) or (lit.startswith('"') and lit.endswith('"')):
+        if (lit.startswith("'") and lit.endswith("'")) or (
+            lit.startswith('"') and lit.endswith('"')
+        ):
             content = lit[1:-1]
             content = content.replace(r"\'", "'")
             content = content.replace(r"\"", '"')
@@ -454,3 +484,35 @@ class DartPrimitiveCodec(CodePrimitiveCodecBase):
             return f"{{{', '.join(elements)}}}"
         else:
             return f"'{str(value)}'"
+
+    def to_typed_literal_string(
+        self,
+        value: object,
+        primitive_type: CodePrimitiveType,
+    ) -> str:
+        if primitive_type.base_type == CodePrimitiveBaseType.decimal:
+            return f"AwareDecimal.parse('{canonical_decimal_text(value)}')"
+        if (
+            primitive_type.base_type == CodePrimitiveBaseType.array
+            and primitive_type.item_type is not None
+            and isinstance(value, list)
+        ):
+            return (
+                "["
+                + ", ".join(
+                    self.to_typed_literal_string(item, primitive_type.item_type)
+                    for item in value
+                )
+                + "]"
+            )
+        if primitive_type.base_type == CodePrimitiveBaseType.union:
+            if value is None:
+                return "null"
+            non_null = [
+                member
+                for member in primitive_type.union_types or []
+                if member.base_type != CodePrimitiveBaseType.null
+            ]
+            if len(non_null) == 1:
+                return self.to_typed_literal_string(value, non_null[0])
+        return self.to_literal_string(value)

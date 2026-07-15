@@ -9,7 +9,11 @@ from typing import Final, Protocol, TypeAlias, cast
 from pydantic import BaseModel
 
 from aware_reactivity_ontology.action.action_feedback import ActionFeedback
-from aware_reactivity_service_dto.reactivity.action_execution import ActionExecution
+from aware_reactivity_service_dto.reactivity.action_execution import (
+    ActionExecution,
+    ReactivityActionExecutionClaimRequest,
+    ReactivityActionExecutionClaimResponse,
+)
 from aware_reactivity_service_dto.reactivity.action_intent import (
     ReactivityActionIntent,
     ReactivityActionIntentResolveRequest,
@@ -17,6 +21,10 @@ from aware_reactivity_service_dto.reactivity.action_intent import (
 )
 from aware_reactivity_service_dto.reactivity.action_terminal import ActionTerminal
 from aware_reactivity_service_dto.reactivity.bridge_event import ActorReactivityBridgeEvent
+from aware_reactivity_service_dto.reactivity.event_meaning import (
+    ReactivityEventMeaningProviderResolveRequest,
+    ReactivityEventMeaningProviderResolveResponse,
+)
 from aware_reactivity_service_dto.reactivity.policy_bundle import (
     ReactivityPolicyBundleEnsureRequest,
     ReactivityPolicyBundleEnsureResponse,
@@ -30,6 +38,8 @@ from aware_reactivity_service_dto.reactivity.service_operation import (
     ReactivityActionLifecycleSubscriptionResponse,
     ReactivityEventSubscriptionRequest,
     ReactivityEventSubscriptionResponse,
+    ReactivitySemanticEventPublishRequest,
+    ReactivitySemanticEventPublishResponse,
     ReactivityServiceStatusRequest,
     ReactivityServiceStatusResponse,
 )
@@ -102,6 +112,33 @@ class ServiceProtocolEndpointBinding:
     stream_invoke: ServiceProtocolStreamInvoker | None
     fulfillment_bindings: tuple[ServiceProtocolFulfillmentBinding, ...]
     invoke: ServiceProtocolInvoker
+
+
+async def invoke_reactivity__action__claim_execution(
+    handler: object, request: BaseModel, execution: ServiceProtocolExecution | None = None
+) -> ReactivityActionExecutionClaimResponse:
+    typed_handler = cast(AwareReactivityServiceProtocol, handler)
+    typed_request = ReactivityActionExecutionClaimRequest.model_validate(request)
+    return await typed_handler.reactivity.action.claim_execution(typed_request)
+
+
+REACTIVITY__ACTION__CLAIM_EXECUTION_ENDPOINT_REF: Final[str] = "reactivity.action.claim_execution"
+REACTIVITY__ACTION__CLAIM_EXECUTION_PROTOCOL_BINDING: Final[ServiceProtocolEndpointBinding] = (
+    ServiceProtocolEndpointBinding(
+        endpoint_ref=REACTIVITY__ACTION__CLAIM_EXECUTION_ENDPOINT_REF,
+        api_name="reactivity",
+        capability_name="action",
+        endpoint_name="claim_execution",
+        request_type_ref="aware_reactivity_service_dto.reactivity.ReactivityActionExecutionClaimRequest",
+        response_type_ref="aware_reactivity_service_dto.reactivity.ReactivityActionExecutionClaimResponse",
+        stream_event_type_refs=(),
+        execution_protocol_ref=None,
+        build_execution=None,
+        stream_invoke=None,
+        fulfillment_bindings=(),
+        invoke=invoke_reactivity__action__claim_execution,
+    )
+)
 
 
 async def invoke_reactivity__action__publish_lifecycle(
@@ -202,6 +239,33 @@ REACTIVITY__ACTION__SUBSCRIBE_LIFECYCLE_PROTOCOL_BINDING: Final[ServiceProtocolE
     )
 )
 
+
+async def invoke_reactivity__event__publish_event(
+    handler: object, request: BaseModel, execution: ServiceProtocolExecution | None = None
+) -> ReactivitySemanticEventPublishResponse:
+    typed_handler = cast(AwareReactivityServiceProtocol, handler)
+    typed_request = ReactivitySemanticEventPublishRequest.model_validate(request)
+    return await typed_handler.reactivity.event.publish_event(typed_request)
+
+
+REACTIVITY__EVENT__PUBLISH_EVENT_ENDPOINT_REF: Final[str] = "reactivity.event.publish_event"
+REACTIVITY__EVENT__PUBLISH_EVENT_PROTOCOL_BINDING: Final[ServiceProtocolEndpointBinding] = (
+    ServiceProtocolEndpointBinding(
+        endpoint_ref=REACTIVITY__EVENT__PUBLISH_EVENT_ENDPOINT_REF,
+        api_name="reactivity",
+        capability_name="event",
+        endpoint_name="publish_event",
+        request_type_ref="aware_reactivity_service_dto.reactivity.ReactivitySemanticEventPublishRequest",
+        response_type_ref="aware_reactivity_service_dto.reactivity.ReactivitySemanticEventPublishResponse",
+        stream_event_type_refs=(),
+        execution_protocol_ref=None,
+        build_execution=None,
+        stream_invoke=None,
+        fulfillment_bindings=(),
+        invoke=invoke_reactivity__event__publish_event,
+    )
+)
+
 ReactivityEventSubscribeEventsStreamEvent: TypeAlias = ActorReactivityBridgeEvent
 
 
@@ -237,6 +301,33 @@ REACTIVITY__EVENT__SUBSCRIBE_EVENTS_PROTOCOL_BINDING: Final[ServiceProtocolEndpo
         stream_invoke=stream_invoke_reactivity__event__subscribe_events,
         fulfillment_bindings=(),
         invoke=invoke_reactivity__event__subscribe_events,
+    )
+)
+
+
+async def invoke_reactivity__meaning__resolve_provider_intent(
+    handler: object, request: BaseModel, execution: ServiceProtocolExecution | None = None
+) -> ReactivityEventMeaningProviderResolveResponse:
+    typed_handler = cast(AwareReactivityServiceProtocol, handler)
+    typed_request = ReactivityEventMeaningProviderResolveRequest.model_validate(request)
+    return await typed_handler.reactivity.meaning.resolve_provider_intent(typed_request)
+
+
+REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_ENDPOINT_REF: Final[str] = "reactivity.meaning.resolve_provider_intent"
+REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_PROTOCOL_BINDING: Final[ServiceProtocolEndpointBinding] = (
+    ServiceProtocolEndpointBinding(
+        endpoint_ref=REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_ENDPOINT_REF,
+        api_name="reactivity",
+        capability_name="meaning",
+        endpoint_name="resolve_provider_intent",
+        request_type_ref="aware_reactivity_service_dto.reactivity.ReactivityEventMeaningProviderResolveRequest",
+        response_type_ref="aware_reactivity_service_dto.reactivity.ReactivityEventMeaningProviderResolveResponse",
+        stream_event_type_refs=(),
+        execution_protocol_ref=None,
+        build_execution=None,
+        stream_invoke=None,
+        fulfillment_bindings=(),
+        invoke=invoke_reactivity__meaning__resolve_provider_intent,
     )
 )
 
@@ -320,10 +411,13 @@ REACTIVITY__STATUS__GET_STATUS_PROTOCOL_BINDING: Final[ServiceProtocolEndpointBi
 )
 
 ENDPOINT_BINDINGS: Final[dict[str, ServiceProtocolEndpointBinding]] = {
+    REACTIVITY__ACTION__CLAIM_EXECUTION_ENDPOINT_REF: REACTIVITY__ACTION__CLAIM_EXECUTION_PROTOCOL_BINDING,
     REACTIVITY__ACTION__PUBLISH_LIFECYCLE_ENDPOINT_REF: REACTIVITY__ACTION__PUBLISH_LIFECYCLE_PROTOCOL_BINDING,
     REACTIVITY__ACTION__RESOLVE_INTENTS_ENDPOINT_REF: REACTIVITY__ACTION__RESOLVE_INTENTS_PROTOCOL_BINDING,
     REACTIVITY__ACTION__SUBSCRIBE_LIFECYCLE_ENDPOINT_REF: REACTIVITY__ACTION__SUBSCRIBE_LIFECYCLE_PROTOCOL_BINDING,
+    REACTIVITY__EVENT__PUBLISH_EVENT_ENDPOINT_REF: REACTIVITY__EVENT__PUBLISH_EVENT_PROTOCOL_BINDING,
     REACTIVITY__EVENT__SUBSCRIBE_EVENTS_ENDPOINT_REF: REACTIVITY__EVENT__SUBSCRIBE_EVENTS_PROTOCOL_BINDING,
+    REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_ENDPOINT_REF: REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_PROTOCOL_BINDING,
     REACTIVITY__POLICY__ENSURE_BUNDLE_ENDPOINT_REF: REACTIVITY__POLICY__ENSURE_BUNDLE_PROTOCOL_BINDING,
     REACTIVITY__POLICY__LIST_BUNDLES_ENDPOINT_REF: REACTIVITY__POLICY__LIST_BUNDLES_PROTOCOL_BINDING,
     REACTIVITY__STATUS__GET_STATUS_ENDPOINT_REF: REACTIVITY__STATUS__GET_STATUS_PROTOCOL_BINDING,
@@ -331,6 +425,10 @@ ENDPOINT_BINDINGS: Final[dict[str, ServiceProtocolEndpointBinding]] = {
 
 
 class ReactivityActionCapabilityServiceProtocol(Protocol):
+
+    async def claim_execution(
+        self, request: ReactivityActionExecutionClaimRequest
+    ) -> ReactivityActionExecutionClaimResponse: ...
 
     async def publish_lifecycle(
         self, request: ReactivityActionLifecyclePublishRequest
@@ -351,6 +449,10 @@ class ReactivityActionCapabilityServiceProtocol(Protocol):
 
 class ReactivityEventCapabilityServiceProtocol(Protocol):
 
+    async def publish_event(
+        self, request: ReactivitySemanticEventPublishRequest
+    ) -> ReactivitySemanticEventPublishResponse: ...
+
     async def subscribe_events(
         self, request: ReactivityEventSubscriptionRequest
     ) -> ReactivityEventSubscriptionResponse: ...
@@ -358,6 +460,13 @@ class ReactivityEventCapabilityServiceProtocol(Protocol):
     def stream_subscribe_events(
         self, request: ReactivityEventSubscriptionRequest
     ) -> AsyncIterator[ReactivityEventSubscribeEventsStreamEvent]: ...
+
+
+class ReactivityMeaningCapabilityServiceProtocol(Protocol):
+
+    async def resolve_provider_intent(
+        self, request: ReactivityEventMeaningProviderResolveRequest
+    ) -> ReactivityEventMeaningProviderResolveResponse: ...
 
 
 class ReactivityPolicyCapabilityServiceProtocol(Protocol):
@@ -377,6 +486,7 @@ class ReactivityStatusCapabilityServiceProtocol(Protocol):
 class ReactivityApiServiceProtocol(Protocol):
     action: ReactivityActionCapabilityServiceProtocol
     event: ReactivityEventCapabilityServiceProtocol
+    meaning: ReactivityMeaningCapabilityServiceProtocol
     policy: ReactivityPolicyCapabilityServiceProtocol
     status: ReactivityStatusCapabilityServiceProtocol
 
@@ -388,15 +498,15 @@ class AwareReactivityServiceProtocol(Protocol):
 SERVICE_PROTOCOL_RENDER_SECTION_MANIFEST_JSON: Final[str] = (
     "{"
     '  "contract_version": "aware.api.service-protocol-section-text-manifest.v1",'
-    '  "described_sections_text_digest": "sha256:6596edc821ada4a62df489749c3faac469060ab066856d8acedd01906b332e7a",'
+    '  "described_sections_text_digest": "sha256:9f69c1d95197df5a707a6ad8be67a9b8ad0f476cb2a26d5e50646d93f97dc0bc",'
     '  "manifest_digests_cover_manifest_section": false,'
     '  "manifest_kind": "api_service_protocol_section_text_manifest",'
     '  "renderer_key": "PythonApiServiceProtocolRendererLanguage",'
-    '  "section_count": 31,'
+    '  "section_count": 41,'
     '  "sections": ['
     "    {"
-    '      "line_count": 22,'
-    '      "rendered_text_digest": "sha256:6ee201b0ed2e9def8c506e432c26b8da13d2a5cfe1f8225f053eff717d25b145",'
+    '      "line_count": 23,'
+    '      "rendered_text_digest": "sha256:b10894c44c291f0b3b2164f43581646cafc35c1c95ad710c268d5786c592e0c1",'
     '      "section_key": "api.service_protocol.module_prelude",'
     '      "section_kind": "service_protocol_module_prelude",'
     '      "section_order": 0'
@@ -411,205 +521,275 @@ SERVICE_PROTOCOL_RENDER_SECTION_MANIFEST_JSON: Final[str] = (
     "    {"
     '      "line_count": 0,'
     '      "rendered_text_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",'
-    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.action.publish_lifecycle",'
+    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.action.claim_execution",'
     '      "section_kind": "service_protocol_endpoint_execution",'
     '      "section_order": 2'
     "    },"
     "    {"
     '      "line_count": 0,'
     '      "rendered_text_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",'
-    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.action.resolve_intents",'
+    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.action.publish_lifecycle",'
     '      "section_kind": "service_protocol_endpoint_execution",'
     '      "section_order": 3'
     "    },"
     "    {"
     '      "line_count": 0,'
     '      "rendered_text_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",'
-    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.action.subscribe_lifecycle",'
+    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.action.resolve_intents",'
     '      "section_kind": "service_protocol_endpoint_execution",'
     '      "section_order": 4'
     "    },"
     "    {"
     '      "line_count": 0,'
     '      "rendered_text_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",'
-    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.event.subscribe_events",'
+    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.action.subscribe_lifecycle",'
     '      "section_kind": "service_protocol_endpoint_execution",'
     '      "section_order": 5'
     "    },"
     "    {"
     '      "line_count": 0,'
     '      "rendered_text_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",'
-    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.policy.ensure_bundle",'
+    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.event.publish_event",'
     '      "section_kind": "service_protocol_endpoint_execution",'
     '      "section_order": 6'
     "    },"
     "    {"
     '      "line_count": 0,'
     '      "rendered_text_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",'
-    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.policy.list_bundles",'
+    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.event.subscribe_events",'
     '      "section_kind": "service_protocol_endpoint_execution",'
     '      "section_order": 7'
     "    },"
     "    {"
     '      "line_count": 0,'
     '      "rendered_text_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",'
-    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.status.get_status",'
+    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.meaning.resolve_provider_intent",'
     '      "section_kind": "service_protocol_endpoint_execution",'
     '      "section_order": 8'
+    "    },"
+    "    {"
+    '      "line_count": 0,'
+    '      "rendered_text_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",'
+    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.policy.ensure_bundle",'
+    '      "section_kind": "service_protocol_endpoint_execution",'
+    '      "section_order": 9'
+    "    },"
+    "    {"
+    '      "line_count": 0,'
+    '      "rendered_text_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",'
+    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.policy.list_bundles",'
+    '      "section_kind": "service_protocol_endpoint_execution",'
+    '      "section_order": 10'
+    "    },"
+    "    {"
+    '      "line_count": 0,'
+    '      "rendered_text_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",'
+    '      "section_key": "api.service_protocol.endpoint_execution:reactivity.status.get_status",'
+    '      "section_kind": "service_protocol_endpoint_execution",'
+    '      "section_order": 11'
+    "    },"
+    "    {"
+    '      "line_count": 5,'
+    '      "rendered_text_digest": "sha256:048d7e217531e9abaa15e92d8ad860d526fe22f1512b4a7c38ae04d2f79ba81e",'
+    '      "section_key": "api.service_protocol.endpoint_invoker:reactivity.action.claim_execution",'
+    '      "section_kind": "service_protocol_endpoint_invoker",'
+    '      "section_order": 12'
+    "    },"
+    "    {"
+    '      "line_count": 18,'
+    '      "rendered_text_digest": "sha256:906e24d8745da102c6c25b9f5656a910d3a1088faec0377e473129ae5b2bc9b0",'
+    '      "section_key": "api.service_protocol.endpoint_binding:reactivity.action.claim_execution",'
+    '      "section_kind": "service_protocol_endpoint_binding",'
+    '      "section_order": 13'
     "    },"
     "    {"
     '      "line_count": 5,'
     '      "rendered_text_digest": "sha256:2ca9dede0a13d7f3167b3f71e9a2a1445b27a5131a98ad454cb18be45602f4dc",'
     '      "section_key": "api.service_protocol.endpoint_invoker:reactivity.action.publish_lifecycle",'
     '      "section_kind": "service_protocol_endpoint_invoker",'
-    '      "section_order": 9'
+    '      "section_order": 14'
     "    },"
     "    {"
     '      "line_count": 18,'
     '      "rendered_text_digest": "sha256:483c1082e62e5315760af4159805a6afff6dc860dfaa75575636fd01a147f2e2",'
     '      "section_key": "api.service_protocol.endpoint_binding:reactivity.action.publish_lifecycle",'
     '      "section_kind": "service_protocol_endpoint_binding",'
-    '      "section_order": 10'
+    '      "section_order": 15'
     "    },"
     "    {"
     '      "line_count": 5,'
     '      "rendered_text_digest": "sha256:b54bddf465a692104288c9056d0516f5edf5dd16fdc057b02711893d6ddfe1d6",'
     '      "section_key": "api.service_protocol.endpoint_invoker:reactivity.action.resolve_intents",'
     '      "section_kind": "service_protocol_endpoint_invoker",'
-    '      "section_order": 11'
+    '      "section_order": 16'
     "    },"
     "    {"
     '      "line_count": 18,'
     '      "rendered_text_digest": "sha256:fe287a3b50169f2a4d276114c6d88ab4e649433e479470ba9ee42a5fda235b17",'
     '      "section_key": "api.service_protocol.endpoint_binding:reactivity.action.resolve_intents",'
     '      "section_kind": "service_protocol_endpoint_binding",'
-    '      "section_order": 12'
+    '      "section_order": 17'
     "    },"
     "    {"
     '      "line_count": 12,'
     '      "rendered_text_digest": "sha256:a14ff2c7fe55d251763559b7ae4108e593d5fd8ea723f494f32559c979c73eb7",'
     '      "section_key": "api.service_protocol.endpoint_invoker:reactivity.action.subscribe_lifecycle",'
     '      "section_kind": "service_protocol_endpoint_invoker",'
-    '      "section_order": 13'
+    '      "section_order": 18'
     "    },"
     "    {"
     '      "line_count": 22,'
     '      "rendered_text_digest": "sha256:a7b6c1bd07139e530334b7399669b57611c8888c9b2c6fbeebca4918e3e02db2",'
     '      "section_key": "api.service_protocol.endpoint_binding:reactivity.action.subscribe_lifecycle",'
     '      "section_kind": "service_protocol_endpoint_binding",'
-    '      "section_order": 14'
+    '      "section_order": 19'
+    "    },"
+    "    {"
+    '      "line_count": 5,'
+    '      "rendered_text_digest": "sha256:9b2b4c13f74c3cf8964eadb065117fd531a6cc69d6d86db7629d082bdb3c68f1",'
+    '      "section_key": "api.service_protocol.endpoint_invoker:reactivity.event.publish_event",'
+    '      "section_kind": "service_protocol_endpoint_invoker",'
+    '      "section_order": 20'
+    "    },"
+    "    {"
+    '      "line_count": 18,'
+    '      "rendered_text_digest": "sha256:53bdf99bf920212c776afee9a97262af03337317c40765becc077ded678ae419",'
+    '      "section_key": "api.service_protocol.endpoint_binding:reactivity.event.publish_event",'
+    '      "section_kind": "service_protocol_endpoint_binding",'
+    '      "section_order": 21'
     "    },"
     "    {"
     '      "line_count": 12,'
     '      "rendered_text_digest": "sha256:1455d62f636a994b496891833988900a62c689909cdfe1c2be160b18f5900489",'
     '      "section_key": "api.service_protocol.endpoint_invoker:reactivity.event.subscribe_events",'
     '      "section_kind": "service_protocol_endpoint_invoker",'
-    '      "section_order": 15'
+    '      "section_order": 22'
     "    },"
     "    {"
     '      "line_count": 19,'
     '      "rendered_text_digest": "sha256:8e83507f8145ca0752ccce450d19e84b8d0b9fd392cb5febe5599fab45f64d55",'
     '      "section_key": "api.service_protocol.endpoint_binding:reactivity.event.subscribe_events",'
     '      "section_kind": "service_protocol_endpoint_binding",'
-    '      "section_order": 16'
+    '      "section_order": 23'
+    "    },"
+    "    {"
+    '      "line_count": 5,'
+    '      "rendered_text_digest": "sha256:197d876753e348bdbe9fc16b18ee094764dc0eec666e7cf6bf9b529bde53a3dd",'
+    '      "section_key": "api.service_protocol.endpoint_invoker:reactivity.meaning.resolve_provider_intent",'
+    '      "section_kind": "service_protocol_endpoint_invoker",'
+    '      "section_order": 24'
+    "    },"
+    "    {"
+    '      "line_count": 18,'
+    '      "rendered_text_digest": "sha256:45ee199b8881bfcd24afd81d3e9aabb5a642a56718eef4b05a79a0e91c7a1fc7",'
+    '      "section_key": "api.service_protocol.endpoint_binding:reactivity.meaning.resolve_provider_intent",'
+    '      "section_kind": "service_protocol_endpoint_binding",'
+    '      "section_order": 25'
     "    },"
     "    {"
     '      "line_count": 5,'
     '      "rendered_text_digest": "sha256:c4c5326b40a777509b8a9eb29d9f6cf5346c2e90a1f6c0cafb226345eafd2360",'
     '      "section_key": "api.service_protocol.endpoint_invoker:reactivity.policy.ensure_bundle",'
     '      "section_kind": "service_protocol_endpoint_invoker",'
-    '      "section_order": 17'
+    '      "section_order": 26'
     "    },"
     "    {"
     '      "line_count": 18,'
     '      "rendered_text_digest": "sha256:3af41b84953c7633461e7811f2cb8b88d040770a9fa72ab7aab13027cdb83608",'
     '      "section_key": "api.service_protocol.endpoint_binding:reactivity.policy.ensure_bundle",'
     '      "section_kind": "service_protocol_endpoint_binding",'
-    '      "section_order": 18'
+    '      "section_order": 27'
     "    },"
     "    {"
     '      "line_count": 5,'
     '      "rendered_text_digest": "sha256:0f97cee823a479e8e89473f9178ae1268fd88be4f9cedaa1534d615ab5e5bc9f",'
     '      "section_key": "api.service_protocol.endpoint_invoker:reactivity.policy.list_bundles",'
     '      "section_kind": "service_protocol_endpoint_invoker",'
-    '      "section_order": 19'
+    '      "section_order": 28'
     "    },"
     "    {"
     '      "line_count": 18,'
     '      "rendered_text_digest": "sha256:8eae7ccb03aea1a7d75d0a3369a02300f1a0727612e59a81a3e39f965e21d86b",'
     '      "section_key": "api.service_protocol.endpoint_binding:reactivity.policy.list_bundles",'
     '      "section_kind": "service_protocol_endpoint_binding",'
-    '      "section_order": 20'
+    '      "section_order": 29'
     "    },"
     "    {"
     '      "line_count": 5,'
     '      "rendered_text_digest": "sha256:e2d7d746578286da3490a3a9eee802f836292a7928f0dcd0d3c45a6f0bfad865",'
     '      "section_key": "api.service_protocol.endpoint_invoker:reactivity.status.get_status",'
     '      "section_kind": "service_protocol_endpoint_invoker",'
-    '      "section_order": 21'
+    '      "section_order": 30'
     "    },"
     "    {"
     '      "line_count": 18,'
     '      "rendered_text_digest": "sha256:d1af87840ca315c7e878291be9984515707a73407966cfa41e328424d56e9348",'
     '      "section_key": "api.service_protocol.endpoint_binding:reactivity.status.get_status",'
     '      "section_kind": "service_protocol_endpoint_binding",'
-    '      "section_order": 22'
+    '      "section_order": 31'
     "    },"
     "    {"
-    '      "line_count": 10,'
-    '      "rendered_text_digest": "sha256:c9352d14e968325883ca03a735d9625ea1216bf51062a6815d975e89412bfbcf",'
+    '      "line_count": 13,'
+    '      "rendered_text_digest": "sha256:a89b2f738c8837a720c3c3056dc6502e0c7e380d505431c63c40eadcc1216593",'
     '      "section_key": "api.service_protocol.endpoint_bindings_index",'
     '      "section_kind": "service_protocol_endpoint_binding_index",'
-    '      "section_order": 23'
+    '      "section_order": 32'
     "    },"
     "    {"
-    '      "line_count": 10,'
-    '      "rendered_text_digest": "sha256:acf1d58c3c48f947e8cfdd1956c328b1048699d017b0c03a79c3c34a2fe05ce3",'
+    '      "line_count": 12,'
+    '      "rendered_text_digest": "sha256:57f6f4c2c0bfcbbdd72233fa5050730abd090920a10085668371b4dc31625079",'
     '      "section_key": "api.service_protocol.capability_protocol:reactivity.action",'
     '      "section_kind": "service_protocol_capability_protocol",'
-    '      "section_order": 24'
+    '      "section_order": 33'
     "    },"
     "    {"
-    '      "line_count": 6,'
-    '      "rendered_text_digest": "sha256:848738d1e6ce4101fd2e4349978215f42c7cd0d867ba9c195725d21857c55d97",'
+    '      "line_count": 8,'
+    '      "rendered_text_digest": "sha256:ec1012e571f3f04974110c6b920034f5d4555b883c5b0639d2521c012213018b",'
     '      "section_key": "api.service_protocol.capability_protocol:reactivity.event",'
     '      "section_kind": "service_protocol_capability_protocol",'
-    '      "section_order": 25'
+    '      "section_order": 34'
+    "    },"
+    "    {"
+    '      "line_count": 4,'
+    '      "rendered_text_digest": "sha256:dfa343c31099d89904e3c29a4efe3e797df6269d962a4009d959f9bbec88c22c",'
+    '      "section_key": "api.service_protocol.capability_protocol:reactivity.meaning",'
+    '      "section_kind": "service_protocol_capability_protocol",'
+    '      "section_order": 35'
     "    },"
     "    {"
     '      "line_count": 6,'
     '      "rendered_text_digest": "sha256:411dbe8bd298be6d665a296009cf9ccb27edbe64df64db247efe20ad9552e35c",'
     '      "section_key": "api.service_protocol.capability_protocol:reactivity.policy",'
     '      "section_kind": "service_protocol_capability_protocol",'
-    '      "section_order": 26'
+    '      "section_order": 36'
     "    },"
     "    {"
     '      "line_count": 4,'
     '      "rendered_text_digest": "sha256:5c888ada4852b1c738a2393ffcc6d7f67c7f33e07337c98d29cabddbff1eea1f",'
     '      "section_key": "api.service_protocol.capability_protocol:reactivity.status",'
     '      "section_kind": "service_protocol_capability_protocol",'
-    '      "section_order": 27'
+    '      "section_order": 37'
     "    },"
     "    {"
-    '      "line_count": 6,'
-    '      "rendered_text_digest": "sha256:db74d9744b7cf9617996233af3180e37f189b5d0c84935413e3e8bc00e34ad64",'
+    '      "line_count": 7,'
+    '      "rendered_text_digest": "sha256:67b24ee4a47a30d910fd85948e49e53626f0d41ed996bc426c97e7b1d98dbbbc",'
     '      "section_key": "api.service_protocol.api_protocol:reactivity",'
     '      "section_kind": "service_protocol_api_protocol",'
-    '      "section_order": 28'
+    '      "section_order": 38'
     "    },"
     "    {"
     '      "line_count": 3,'
     '      "rendered_text_digest": "sha256:ed4a5d7189f5858513449b569a3436799b76e4dad944963640c3b11058dafe2c",'
     '      "section_key": "api.service_protocol.root_protocol",'
     '      "section_kind": "service_protocol_root_protocol",'
-    '      "section_order": 29'
+    '      "section_order": 39'
     "    },"
     "    {"
-    '      "line_count": 45,'
-    '      "rendered_text_digest": "sha256:33c2371840ef2e61a210dde3ee5b29f4a0fe419beef7a50a0745a5548d3cb6b2",'
+    '      "line_count": 55,'
+    '      "rendered_text_digest": "sha256:c5e6c15a21d40bf4f666cca67f7a8d20e08d6bba8e7aebaede36f313760e4def",'
     '      "section_key": "api.service_protocol.__all__",'
     '      "section_kind": "service_protocol_module_exports",'
-    '      "section_order": 30'
+    '      "section_order": 40'
     "    }"
     "  ],"
     '  "target_relpath": "protocols.py",'
@@ -633,10 +813,14 @@ __all__ = [
     "ReactivityApiServiceProtocol",
     "ReactivityActionCapabilityServiceProtocol",
     "ReactivityEventCapabilityServiceProtocol",
+    "ReactivityMeaningCapabilityServiceProtocol",
     "ReactivityPolicyCapabilityServiceProtocol",
     "ReactivityStatusCapabilityServiceProtocol",
     "ReactivityActionSubscribeLifecycleStreamEvent",
     "ReactivityEventSubscribeEventsStreamEvent",
+    "REACTIVITY__ACTION__CLAIM_EXECUTION_ENDPOINT_REF",
+    "REACTIVITY__ACTION__CLAIM_EXECUTION_PROTOCOL_BINDING",
+    "invoke_reactivity__action__claim_execution",
     "REACTIVITY__ACTION__PUBLISH_LIFECYCLE_ENDPOINT_REF",
     "REACTIVITY__ACTION__PUBLISH_LIFECYCLE_PROTOCOL_BINDING",
     "invoke_reactivity__action__publish_lifecycle",
@@ -647,10 +831,16 @@ __all__ = [
     "REACTIVITY__ACTION__SUBSCRIBE_LIFECYCLE_PROTOCOL_BINDING",
     "invoke_reactivity__action__subscribe_lifecycle",
     "stream_invoke_reactivity__action__subscribe_lifecycle",
+    "REACTIVITY__EVENT__PUBLISH_EVENT_ENDPOINT_REF",
+    "REACTIVITY__EVENT__PUBLISH_EVENT_PROTOCOL_BINDING",
+    "invoke_reactivity__event__publish_event",
     "REACTIVITY__EVENT__SUBSCRIBE_EVENTS_ENDPOINT_REF",
     "REACTIVITY__EVENT__SUBSCRIBE_EVENTS_PROTOCOL_BINDING",
     "invoke_reactivity__event__subscribe_events",
     "stream_invoke_reactivity__event__subscribe_events",
+    "REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_ENDPOINT_REF",
+    "REACTIVITY__MEANING__RESOLVE_PROVIDER_INTENT_PROTOCOL_BINDING",
+    "invoke_reactivity__meaning__resolve_provider_intent",
     "REACTIVITY__POLICY__ENSURE_BUNDLE_ENDPOINT_REF",
     "REACTIVITY__POLICY__ENSURE_BUNDLE_PROTOCOL_BINDING",
     "invoke_reactivity__policy__ensure_bundle",

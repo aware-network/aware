@@ -1,0 +1,46 @@
+/// Experience session context DTOs over Environment session Attention resolution.
+///
+/// Ownership:
+/// - Experience owns actor-specific session/lens admission context.
+/// - Environment owns EnvironmentSession/NavigationContext/SessionThread to
+///   AttentionSession resolution.
+/// - Attention owns AttentionSession/AttentionFocusTransition truth.
+/// - This DTO is a read receipt, not a persisted Experience frame.
+
+class ExperienceSessionAttentionResolutionRequest {
+    environment_navigation_context_id UUID?
+    environment_session_thread_id UUID?
+    environment_session_attention_session_id UUID?
+    expected_attention_session_id UUID?
+    attention_focus_transition_id UUID?
+    expected_attention_session_section_id UUID?
+    expected_focus_scope_id UUID?
+    expected_object_instance_graph_commit_id UUID?
+    expected_projection_hash String?
+    include_attention_session Bool = true
+    include_transition_list Bool = false
+    transition_limit Int?
+    metadata JsonObject = {}
+}
+
+class ExperienceSessionLensContext {
+    status String = "pending"
+    view_ref String?
+    projection_view_key String?
+    section_graph_binding_key String?
+    blockers String[] = []
+    evidence JsonObject = {}
+}
+
+class ExperienceSessionContextReceipt {
+    accepted Bool = false
+    status String
+    error String?
+    session_scope session_handoff.ExperienceSessionHandoffScope
+    actor_admission session_handoff.ExperienceSessionHandoffActorAdmissionReceipt?
+    identity_evidence session_handoff.ExperienceSessionIdentityEvidence?
+    environment_attention_resolution aware_environment_service_dto.environment.EnvironmentSessionAttentionResolution?
+    lens session_context.ExperienceSessionLensContext?
+    blockers String[] = []
+    evidence JsonObject = {}
+}

@@ -34,6 +34,20 @@ final Map<String, Object?> apiInterfaceSpecPayload = _decodeJsonObject(r'''
         {
           "endpoints": [
             {
+              "description": "Commit provider-neutral text as Content truth and return exact commit evidence.",
+              "discriminant": "content.text.commit_content_text",
+              "name": "commit_content_text",
+              "request": {
+                "class_ref": "aware_content_service_dto.content.CommitContentTextRequest",
+                "source_path": "bindings/content.apis.aware"
+              },
+              "response": {
+                "class_ref": "aware_content_service_dto.content.CommitContentTextResponse",
+                "source_path": "bindings/content.apis.aware"
+              },
+              "source_path": "bindings/content.apis.aware"
+            },
+            {
               "description": "Resolve one Content object into deterministic text parts and a flattened text payload.",
               "discriminant": "content.text.resolve_content_text",
               "name": "resolve_content_text",
@@ -99,6 +113,26 @@ final Map<String, Object?> apiInvocationManifestPayload = _decodeJsonObject(r'''
               "addressing_strategy": "session_bound",
               "client_backend": "aware_api.invoker.AwareApiEndpointInvoker",
               "client_operation": "invoke_api_endpoint",
+              "description": "Commit provider-neutral text as Content truth and return exact commit evidence.",
+              "discriminant": "content.text.commit_content_text",
+              "endpoint_ref": "content.text.commit_content_text",
+              "fulfillment_bindings": [],
+              "invocation_kind": "shared_client_endpoint",
+              "name": "commit_content_text",
+              "request": {
+                "class_ref": "aware_content_service_dto.content.CommitContentTextRequest",
+                "source_path": "bindings/content.apis.aware"
+              },
+              "response": {
+                "class_ref": "aware_content_service_dto.content.CommitContentTextResponse",
+                "source_path": "bindings/content.apis.aware"
+              },
+              "source_path": "bindings/content.apis.aware"
+            },
+            {
+              "addressing_strategy": "session_bound",
+              "client_backend": "aware_api.invoker.AwareApiEndpointInvoker",
+              "client_operation": "invoke_api_endpoint",
               "description": "Resolve one Content object into deterministic text parts and a flattened text payload.",
               "discriminant": "content.text.resolve_content_text",
               "endpoint_ref": "content.text.resolve_content_text",
@@ -134,6 +168,10 @@ const String contentPackageMaterializeContentPackageEndpointRef =
     "content.package.materialize_content_package";
 const String contentPackageMaterializeContentPackageDiscriminant =
     "content.package.materialize_content_package";
+const String contentTextCommitContentTextEndpointRef =
+    "content.text.commit_content_text";
+const String contentTextCommitContentTextDiscriminant =
+    "content.text.commit_content_text";
 const String contentTextResolveContentTextEndpointRef =
     "content.text.resolve_content_text";
 const String contentTextResolveContentTextDiscriminant =

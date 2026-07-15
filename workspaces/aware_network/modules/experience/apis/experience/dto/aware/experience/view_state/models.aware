@@ -1,0 +1,51 @@
+/// Canonical DTOs for Experience-owned view-state subscription snapshots.
+///
+/// ApiView owns the readable lower view contract. Experience composes the
+/// mounted view and Attention context above that API contract. Provider services
+/// may own read-model execution, but they do not redefine the view contract or
+/// this subscription envelope.
+
+class ExperienceViewStateProviderProvenance {
+    provider_kind String
+    provider_ref String?
+    service_name String?
+    api_view_ref String?
+    api_view_id UUID?
+    endpoint_ref String?
+    discriminant String?
+    service_operation_config_id UUID?
+    service_operation_config_api_view_id UUID?
+    api_capability_endpoint_id UUID?
+    service_operation_branch_id UUID?
+    service_operation_projection_hash String?
+    api_call_outcome_branch_id UUID?
+    api_call_outcome_projection_hash String?
+    evidence JsonObject = {}
+}
+
+class ExperienceViewStateSnapshot {
+    experience_name String
+    view_ref String
+    projection_view_key String?
+    projection_experience_view_id UUID?
+    projection_experience_view_instance_id UUID?
+    session_view_frame session_view_frame.ExperienceSessionViewFrame?
+    session_view_frame_digest String?
+    state_model_id UUID?
+    state_model_ref String?
+    provider view_state.ExperienceViewStateProviderProvenance?
+    status String = "unknown"
+    state JsonObject = {}
+    cursor String?
+    digest String?
+    change_reason String = "initial"
+    sequence Int = 0
+    observed_at String?
+    provenance JsonObject = {}
+    error String?
+}
+
+class ExperienceViewStateEvent {
+    kind String = "snapshot"
+    snapshot view_state.ExperienceViewStateSnapshot
+}

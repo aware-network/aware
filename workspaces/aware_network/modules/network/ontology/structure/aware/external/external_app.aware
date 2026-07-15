@@ -1,0 +1,68 @@
+class ExternalApp {
+    // Attributes
+    error_count Int? = 0
+    last_error String?
+    last_error_at DateTime?
+    last_sync_at DateTime?
+    next_sync_at DateTime?
+    oauth_access_token String?
+    oauth_expires_at DateTime?
+    oauth_refresh_token String?
+    oauth_scope String[]
+    provider String key
+    provider_email String?
+    provider_metadata JsonObject? = {}
+    provider_user_id String?
+    rate_limit_remaining Int?
+    rate_limit_reset_at DateTime?
+    status ExternalAppStatus = inactive
+    webhook_expires_at DateTime?
+    webhook_id String?
+    webhook_secret String?
+
+    fn update_error(p_external_app_id UUID, p_error String, p_status ExternalAppStatus? = error) -> {
+        """
+        Updates error information for an external app.
+        Parameters: p_external_app_id: The UUID of the external app
+        p_error: Error message
+        p_status: Optional new status (defaults to ERROR)
+        Returns: void
+        """
+    }
+
+    fn update_oauth(p_external_app_id UUID, p_access_token String, p_refresh_token String, p_expires_at DateTime, p_scope String[]) -> {
+        """
+        Updates OAuth credentials for an external app.
+        Parameters: p_external_app_id: The UUID of the external app
+        p_access_token: New OAuth access token
+        p_refresh_token: New OAuth refresh token
+        p_expires_at: Token expiration timestamp
+        p_scope: Array of OAuth scopes
+        Returns: void
+        """
+    }
+
+    fn update_sync_status(p_external_app_id UUID, p_last_sync_at DateTime, p_next_sync_at DateTime, p_rate_limit_remaining Int? = null, p_rate_limit_reset_at DateTime? = null) -> {
+        """
+        Updates sync status and rate limiting information for an external app.
+        Parameters: p_external_app_id: The UUID of the external app
+        p_last_sync_at: Timestamp of last successful sync
+        p_next_sync_at: Scheduled time for next sync
+        p_rate_limit_remaining: Optional remaining API calls
+        p_rate_limit_reset_at: Optional timestamp when rate limit resets
+        Returns: void
+        """
+    }
+
+    fn update_webhook(p_external_app_id UUID, p_webhook_id String, p_webhook_secret String, p_webhook_expires_at DateTime) -> {
+        """
+        Updates webhook settings for an external app.
+        Parameters: p_external_app_id: The UUID of the external app
+        p_webhook_id: Provider''s webhook/notification channel ID
+        p_webhook_secret: Secret for webhook verification
+        p_webhook_expires_at: Webhook expiration timestamp
+        Returns: void
+        """
+    }
+
+}

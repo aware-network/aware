@@ -1,7 +1,0 @@
-enum CodeSectionAnnotationOverlayEntity {
-    class
-    enum
-    enum_option
-    attribute
-    function
-}

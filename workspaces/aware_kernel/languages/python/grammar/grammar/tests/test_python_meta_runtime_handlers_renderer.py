@@ -100,6 +100,7 @@ from python_grammar_test_support import (
     make_attribute,
     make_class,
     make_class_node,
+    make_enum,
     make_function,
     make_relationship,
     make_relationship_attribute,
@@ -171,6 +172,14 @@ def _class_desc(target: ClassConfig) -> AttributeTypeDescriptor:
         kind=AttributeTypeDescriptorKind.class_,
         class_config=target,
         class_config_id=target.id,
+    )
+
+
+def _enum_desc(target: EnumConfig) -> AttributeTypeDescriptor:
+    return AttributeTypeDescriptor(
+        kind=AttributeTypeDescriptorKind.enum,
+        enum_config=target,
+        enum_config_id=target.id,
     )
 
 
@@ -381,6 +390,12 @@ def test_python_meta_runtime_handlers_renderer_emits_meta_provider(
     assert "aware_runtime.stable_ids" not in out
     assert "aware_runtime" not in out
     assert "coerce_meta_handler_call_kwargs" in out
+    assert "OrmChangeTranslationError" in out
+    assert "except OrmChangeTranslationError:" in out
+    assert "change_evidence = _changes_from_current_collector(" in out
+    assert "if change_evidence is None:" in out
+    assert "post_oig = _post_oig_with_root_model(" in out
+    assert "changes, constructed_class_instance_ids = change_evidence" in out
     assert (
         "call_kwargs = coerce_meta_handler_call_kwargs(_impl, dict(bound_input))" in out
     )
@@ -395,6 +410,183 @@ def test_python_meta_runtime_handlers_renderer_emits_meta_provider(
         Path("handlers") / "_generated" / "meta_handlers.py",
     ]
     assert renderer.renders_only_extra_output_paths() is True
+
+
+def test_python_meta_runtime_handlers_renderer_imports_authored_bootstrap_enum_default(
+    tmp_path: Path,
+) -> None:
+    home = make_class(name="Home", is_base=True)
+    status_enum = make_enum(name="HomeStatus")
+    build = make_function(
+        name="build",
+        owner_key=function_owner_key(home),
+        is_async=True,
+        kind=FunctionKind.class_,
+    )
+    key_input = make_attribute(
+        name="key",
+        owner_key=function_io_owner_key(build, FunctionAttributeType.input),
+        is_public=True,
+        is_required=True,
+        is_unique=True,
+        is_virtual=False,
+        type_descriptor=_primitive_desc(CodePrimitiveBaseType.string),
+    )
+    status_input = make_attribute(
+        name="status",
+        owner_key=function_io_owner_key(build, FunctionAttributeType.input),
+        default_value='"active"',
+        is_public=True,
+        is_required=False,
+        is_unique=False,
+        is_virtual=False,
+        type_descriptor=_enum_desc(status_enum),
+    )
+    build.function_config_attribute_configs = [
+        function_attr_link(
+            build,
+            key_input,
+            type=FunctionAttributeType.input,
+            position=0,
+            is_identity_key=True,
+        ),
+        function_attr_link(
+            build,
+            status_input,
+            type=FunctionAttributeType.input,
+            position=1,
+            is_identity_key=False,
+        ),
+    ]
+    home.class_config_function_configs = [
+        ClassConfigFunctionConfig(
+            class_config_id=home.id,
+            function_config_id=build.id,
+            function_config=build,
+            is_public=True,
+            is_constructor=True,
+            position=0,
+        )
+    ]
+    ocg = ObjectConfigGraph(
+        name="test",
+        description="test",
+        hash="sha256:test",
+        fqn_prefix="aware_test",
+        language=CodeLanguage.aware,
+        object_config_graph_nodes=[
+            make_class_node(UUID(int=0), home),
+        ],
+        object_projection_graphs=[],
+    )
+    renderer = PythonMetaRuntimeHandlersRenderer(
+        layout_strategy=_Layout(base_dir=tmp_path),
+    )
+    renderer.set_policy(
+        {PYTHON_STABLE_IDS_IMPORT_ROOT_POLICY_KEY: "aware_test_ontology"}
+    )
+    renderer.import_overrides = {
+        str(status_enum.id): "aware_test_ontology.environment.home_status_enums",
+    }
+    renderer.bind_object_config_graph(ocg)
+    code = renderer.create_empty_code()
+    writer = CodeSectionWriter(
+        code=code,
+        index=CodeSectionBuilderIndex(),
+        indent_size=renderer.indent,
+    )
+    renderer.emit_file([], writer)
+    out = writer.code.content_part_text.inline_text or ""
+
+    compile(out, "meta_handlers.py", "exec")
+    assert (
+        "from aware_test_ontology.environment.home_status_enums import HomeStatus"
+        in out
+    )
+    assert "status = HomeStatus.active" in out
+
+
+def test_python_meta_runtime_handlers_renderer_renders_nullable_decimal_null_as_none(
+    tmp_path: Path,
+) -> None:
+    account = make_class(name="Account", is_base=True)
+    build = make_function(
+        name="build",
+        owner_key=function_owner_key(account),
+        is_async=True,
+        kind=FunctionKind.class_,
+    )
+    amount = make_attribute(
+        name="amount",
+        owner_key=function_io_owner_key(build, FunctionAttributeType.input),
+        default_value="null",
+        is_public=True,
+        is_required=False,
+        is_unique=False,
+        is_virtual=False,
+        type_descriptor=_primitive_desc(CodePrimitiveBaseType.decimal),
+    )
+    build.function_config_attribute_configs = [
+        function_attr_link(
+            build,
+            amount,
+            type=FunctionAttributeType.input,
+            position=0,
+            is_identity_key=False,
+        ),
+    ]
+    account.class_config_function_configs = [
+        ClassConfigFunctionConfig(
+            class_config_id=account.id,
+            function_config_id=build.id,
+            function_config=build,
+            is_public=True,
+            is_constructor=True,
+            position=0,
+        ),
+    ]
+    ocg = ObjectConfigGraph(
+        name="test",
+        description="test",
+        hash="sha256:test",
+        fqn_prefix="aware_test",
+        language=CodeLanguage.aware,
+        object_config_graph_nodes=[
+            make_class_node(
+                UUID("00000000-0000-0000-0000-000000000000"),
+                account,
+            ),
+        ],
+        object_projection_graphs=[],
+    )
+
+    renderer = PythonMetaRuntimeHandlersRenderer(
+        layout_strategy=_Layout(base_dir=tmp_path),
+    )
+    renderer.set_policy(
+        {
+            PYTHON_STABLE_IDS_IMPORT_ROOT_POLICY_KEY: "aware_test_ontology",
+            "function_impl_ownership": "compiler",
+            "function_impl_parity_policy": "error",
+        }
+    )
+    renderer.bind_object_config_graph(ocg)
+    code = renderer.create_empty_code()
+    writer = CodeSectionWriter(
+        code=code,
+        index=CodeSectionBuilderIndex(),
+        indent_size=renderer.indent,
+    )
+    renderer.emit_file([], writer)
+    source = writer.code.content_part_text.inline_text or ""
+
+    compile(source, "meta_handlers.py", "exec")
+    assert "from decimal import Decimal" in source
+    assert "from aware_types import DecimalWire" in source
+    assert (
+        "async def _impl(amount: Annotated[Decimal, DecimalWire()] | None = None)"
+        " -> None:" in source
+    )
 
 
 def test_python_meta_runtime_handlers_renderer_uses_compiler_owned_function_impl(

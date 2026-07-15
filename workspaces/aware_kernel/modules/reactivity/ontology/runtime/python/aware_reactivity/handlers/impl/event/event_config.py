@@ -17,6 +17,7 @@ from aware_reactivity_ontology.event.event_enums import (
 from aware_reactivity_ontology.event.event_config import EventConfig
 from aware_reactivity_ontology.event.event_config_action_config import EventConfigActionConfig
 from aware_reactivity_ontology.event.event_config_condition_config import EventConfigConditionConfig
+from aware_reactivity_ontology.event.event_config_meaning_resolver_config import EventConfigMeaningResolverConfig
 
 # fmt: on
 # --- AWARE: MANAGED_IMPORTS END
@@ -26,6 +27,9 @@ from aware_reactivity.stable_ids import (
     stable_event_config_action_config_id,
     stable_event_config_condition_config_id,
     stable_event_config_id,
+)
+from aware_reactivity_ontology.stable_ids import (
+    stable_event_config_meaning_resolver_config_id,
 )
 
 # --- AWARE: USER_IMPORTS END
@@ -152,6 +156,47 @@ async def add_action_config(
     event_config.event_config_action_configs.append(created)
     return created
     # --- AWARE: LOGIC END add_action_config
+
+
+async def add_meaning_resolver_config(
+    event_config: EventConfig,
+    action_config_id: UUID,
+    resolver_key: str = "default",
+    priority: int = 0,
+    is_enabled: bool = True,
+) -> EventConfigMeaningResolverConfig:
+    """
+    Register one provider-owned ActionConfig as an event-meaning resolver.
+
+    The ActionConfig remains the 1:1 API endpoint anchor. This relation
+    declares resolver role and selection policy without invoking the
+    provider or storing its result in Reactivity.
+    """
+
+    # --- AWARE: LOGIC START add_meaning_resolver_config
+    event_config_id = event_config.id
+    if event_config_id is None:
+        raise RuntimeError("EventConfig.add_meaning_resolver_config requires EventConfig.id")
+    normalized_resolver_key = resolver_key.casefold().strip() or "default"
+    expected_id = stable_event_config_meaning_resolver_config_id(
+        event_config_id=event_config_id,
+        action_config_id=action_config_id,
+        resolver_key=normalized_resolver_key,
+    )
+    for existing in event_config.event_config_meaning_resolver_configs:
+        if existing.id == expected_id:
+            return existing
+
+    created = await EventConfigMeaningResolverConfig.create_via_event_config(
+        event_config_id=event_config_id,
+        action_config_id=action_config_id,
+        resolver_key=normalized_resolver_key,
+        priority=priority,
+        is_enabled=is_enabled,
+    )
+    event_config.event_config_meaning_resolver_configs.append(created)
+    return created
+    # --- AWARE: LOGIC END add_meaning_resolver_config
 
 
 async def update_sources(event_config: EventConfig, p_event_config_id: UUID, p_valid_sources: list[str]) -> None:

@@ -22,7 +22,7 @@ class ContentTextPartV1(BaseModel):
     """
     Content service operation DTOs.
     Contract:
-    - Content API is a read/render and package materialization boundary over
+    - Content API is a read/render, text commit, and package materialization boundary over
     Content ontology truth.
     - DTOs carry Content ids and Experience-safe reference ids, not Social,
     provider, or workspace-specific payloads.
@@ -57,6 +57,35 @@ class ContentTextResolutionV1(BaseModel):
     digest: str | None = Field(default=None)
     size_bytes: int = Field(default=0)
     source_kind: str = Field(default="inline_text")
+    provenance: JsonObject = Field(default_factory=JsonObject)
+
+
+class ContentTextCommitPartV1(BaseModel):
+    # Attributes
+    position: int = Field(default=0)
+    part_key: str | None = Field(default=None)
+    media_type: str = Field(default="text/plain")
+    text: str
+    digest_algorithm: str = Field(default="sha256")
+    digest: str | None = Field(default=None)
+    size_bytes: int | None = Field(default=None)
+    provenance: JsonObject = Field(default_factory=JsonObject)
+
+
+class ContentTextCommitResultV1(BaseModel):
+    # Attributes
+    content_id: UUID
+    content_key: str
+    title: str | None = Field(default=None)
+    source_kind: str
+    source_ref: str
+    media_type: str = Field(default="text/plain")
+    digest_algorithm: str = Field(default="sha256")
+    digest: str
+    size_bytes: int
+    domain_commit_id: UUID | None = Field(default=None)
+    object_instance_graph_commit_id: UUID | None = Field(default=None)
+    service_host_receipt_ref: str | None = Field(default=None)
     provenance: JsonObject = Field(default_factory=JsonObject)
 
 
@@ -205,6 +234,7 @@ class ContentServiceRequest(BaseModel):
     _DISCRIMINATOR_KEY: ClassVar[str] = "operation"
     _TAG_TO_TYPE: ClassVar[dict[str, str]] = {
         "resolve_content_text": "aware_content_service_dto.content.content_service_operation.ResolveContentTextRequest",
+        "commit_content_text": "aware_content_service_dto.content.content_service_operation.CommitContentTextRequest",
         "materialize_content_package": "aware_content_service_dto.content.content_service_operation.MaterializeContentPackageRequest",
     }
 
@@ -251,6 +281,7 @@ class ContentServiceResponse(BaseModel):
     _DISCRIMINATOR_KEY: ClassVar[str] = "operation"
     _TAG_TO_TYPE: ClassVar[dict[str, str]] = {
         "resolve_content_text": "aware_content_service_dto.content.content_service_operation.ResolveContentTextResponse",
+        "commit_content_text": "aware_content_service_dto.content.content_service_operation.CommitContentTextResponse",
         "materialize_content_package": "aware_content_service_dto.content.content_service_operation.MaterializeContentPackageResponse",
     }
 
@@ -303,6 +334,32 @@ class ResolveContentTextResponse(ContentServiceResponse):
 
     # Attributes
     resolution: ContentTextResolutionV1 | None = Field(default=None)
+
+
+class CommitContentTextRequest(ContentServiceRequest):
+    # Discriminator Tag
+    operation: Literal["commit_content_text"] = "commit_content_text"
+
+    # Attributes
+    content_key: str
+    title: str | None = Field(default=None)
+    source_kind: str
+    source_ref: str
+    media_type: str = Field(default="text/plain")
+    text: str | None = Field(default=None)
+    parts: list[ContentTextCommitPartV1] = Field(default_factory=list)
+    digest_algorithm: str = Field(default="sha256")
+    digest: str | None = Field(default=None)
+    size_bytes: int | None = Field(default=None)
+    provenance: JsonObject = Field(default_factory=JsonObject)
+
+
+class CommitContentTextResponse(ContentServiceResponse):
+    # Discriminator Tag
+    operation: Literal["commit_content_text"] = "commit_content_text"
+
+    # Attributes
+    commit_result: ContentTextCommitResultV1 | None = Field(default=None)
 
 
 class MaterializeContentPackageRequest(ContentServiceRequest):

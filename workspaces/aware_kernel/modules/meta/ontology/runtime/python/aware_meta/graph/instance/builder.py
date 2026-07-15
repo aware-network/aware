@@ -292,6 +292,8 @@ class _OigBuildProfile:
     build_registry_s: float = 0.0
     queue_walk_s: float = 0.0
     finalize_graph_s: float = 0.0
+    static_index_cache_hit: int = 0
+    static_index_cache_miss: int = 0
     queue_pops: int = 0
     edges_visited: int = 0
     targets_resolved: int = 0
@@ -333,6 +335,8 @@ def _record_oig_build_profile(
             pass
 
     metrics = {
+        "static_index_cache_hit": profile.static_index_cache_hit,
+        "static_index_cache_miss": profile.static_index_cache_miss,
         "queue_pops": profile.queue_pops,
         "edges_visited": profile.edges_visited,
         "targets_resolved": profile.targets_resolved,
@@ -415,30 +419,22 @@ def build_object_instance_graph(
         category="meta.runtime.handler_execution",
         metadata=trace_metadata,
     ):
-        ocg = _build_ocg_index(object_config_graph)
+        static_indexes = _build_static_index_bundle(
+            object_config_graph=object_config_graph,
+            object_projection_graph=object_projection_graph,
+            trace_metadata=trace_metadata,
+            build_profile=build_profile,
+        )
+        ocg = static_indexes.ocg
         resolver = relationship_resolver or InMemoryRelationshipResolver(
             attribute_configs_by_id=ocg.attribute_configs_by_id
         )
-
-        opg = _build_opg_index(object_projection_graph)
-        relationship_attr_ids_by_cc_id = (
-            build_relationship_attribute_config_ids_by_class_config_id(
-                class_configs_by_id=ocg.class_configs_by_id,
-                relationships_by_id=ocg.relationships_by_id,
-            )
-        )
+        opg = static_indexes.opg
+        relationship_attr_ids_by_cc_id = static_indexes.relationship_attr_ids_by_cc_id
         include_relationship_attr_ids_by_cc_id = (
-            build_include_relationship_attribute_config_ids_by_class_config_id(
-                object_projection_graph=object_projection_graph,
-                class_configs_by_id=ocg.class_configs_by_id,
-                relationships_by_id=ocg.relationships_by_id,
-            )
+            static_indexes.include_relationship_attr_ids_by_cc_id
         )
-
-        edges_by_source_cc_id = _index_edges_by_source(
-            edges=object_projection_graph.object_projection_graph_edges,
-            relationships_by_id=ocg.relationships_by_id,
-        )
+        edges_by_source_cc_id = static_indexes.edges_by_source_cc_id
     if build_profile is not None:
         build_profile.build_indexes_s += time.perf_counter() - indexes_started_at
 
@@ -901,7 +897,7 @@ def _build_ocg_index(object_config_graph: ObjectConfigGraph) -> _OcgIndex:
 class _OpgIndex:
     root_node: ObjectProjectionGraphNode
     nodes_by_class_config_id: Mapping[UUID, ObjectProjectionGraphNode]
-    edges: list[ObjectProjectionGraphEdge]
+    edges: tuple[ObjectProjectionGraphEdge, ...]
 
 
 def _build_opg_index(object_projection_graph: ObjectProjectionGraph) -> _OpgIndex:
@@ -918,15 +914,141 @@ def _build_opg_index(object_projection_graph: ObjectProjectionGraph) -> _OpgInde
     return _OpgIndex(
         root_node=root,
         nodes_by_class_config_id=nodes_by_cc,
-        edges=list(object_projection_graph.object_projection_graph_edges),
+        edges=tuple(object_projection_graph.object_projection_graph_edges),
     )
+
+
+@dataclass(frozen=True)
+class _OigStaticIndexBundle:
+    ocg: _OcgIndex
+    opg: _OpgIndex
+    relationship_attr_ids_by_cc_id: Mapping[UUID, frozenset[UUID]]
+    include_relationship_attr_ids_by_cc_id: Mapping[UUID, frozenset[UUID]]
+    edges_by_source_cc_id: Mapping[UUID, tuple[ObjectProjectionGraphEdge, ...]]
+
+
+_OIG_STATIC_INDEX_CACHE_MAX_SIZE = 128
+_OIG_STATIC_INDEX_CACHE: dict[tuple[UUID, str, UUID, str], _OigStaticIndexBundle] = {}
+
+
+def clear_object_instance_graph_builder_index_cache() -> None:
+    _OIG_STATIC_INDEX_CACHE.clear()
+
+
+def _static_index_cache_key(
+    *,
+    object_config_graph: ObjectConfigGraph,
+    object_projection_graph: ObjectProjectionGraph,
+) -> tuple[UUID, str, UUID, str] | None:
+    object_config_graph_id = getattr(object_config_graph, "id", None)
+    object_projection_graph_id = getattr(object_projection_graph, "id", None)
+    object_config_graph_hash = str(getattr(object_config_graph, "hash", "") or "")
+    object_projection_graph_hash = str(
+        getattr(object_projection_graph, "projection_hash", "") or ""
+    )
+    if (
+        object_config_graph_id is None
+        or object_projection_graph_id is None
+        or not object_config_graph_hash.strip()
+        or not object_projection_graph_hash.strip()
+    ):
+        return None
+    return (
+        object_config_graph_id,
+        object_config_graph_hash,
+        object_projection_graph_id,
+        object_projection_graph_hash,
+    )
+
+
+def _freeze_uuid_set_mapping(
+    value: Mapping[UUID, Iterable[UUID]],
+) -> dict[UUID, frozenset[UUID]]:
+    return {key: frozenset(items) for key, items in value.items()}
+
+
+def _cache_static_index_bundle(
+    key: tuple[UUID, str, UUID, str],
+    bundle: _OigStaticIndexBundle,
+) -> None:
+    if key not in _OIG_STATIC_INDEX_CACHE and (
+        len(_OIG_STATIC_INDEX_CACHE) >= _OIG_STATIC_INDEX_CACHE_MAX_SIZE
+    ):
+        oldest_key = next(iter(_OIG_STATIC_INDEX_CACHE), None)
+        if oldest_key is not None:
+            _OIG_STATIC_INDEX_CACHE.pop(oldest_key, None)
+    _OIG_STATIC_INDEX_CACHE[key] = bundle
+
+
+def _build_static_index_bundle(
+    *,
+    object_config_graph: ObjectConfigGraph,
+    object_projection_graph: ObjectProjectionGraph,
+    trace_metadata: Mapping[str, object],
+    build_profile: _OigBuildProfile | None,
+) -> _OigStaticIndexBundle:
+    cache_key = _static_index_cache_key(
+        object_config_graph=object_config_graph,
+        object_projection_graph=object_projection_graph,
+    )
+    if cache_key is not None:
+        cached = _OIG_STATIC_INDEX_CACHE.get(cache_key)
+        if cached is not None:
+            if build_profile is not None:
+                build_profile.static_index_cache_hit += 1
+            with commit_perf_span(
+                phase="handler_execution.oig_builder.static_index_cache_hit",
+                category="meta.runtime.handler_execution",
+                metadata=trace_metadata,
+            ):
+                return cached
+
+    if build_profile is not None:
+        build_profile.static_index_cache_miss += 1
+    with commit_perf_span(
+        phase="handler_execution.oig_builder.static_index_cache_miss",
+        category="meta.runtime.handler_execution",
+        metadata=trace_metadata,
+    ):
+        ocg = _build_ocg_index(object_config_graph)
+        opg = _build_opg_index(object_projection_graph)
+        relationship_attr_ids_by_cc_id = _freeze_uuid_set_mapping(
+            build_relationship_attribute_config_ids_by_class_config_id(
+                class_configs_by_id=ocg.class_configs_by_id,
+                relationships_by_id=ocg.relationships_by_id,
+            )
+        )
+        include_relationship_attr_ids_by_cc_id = _freeze_uuid_set_mapping(
+            build_include_relationship_attribute_config_ids_by_class_config_id(
+                object_projection_graph=object_projection_graph,
+                class_configs_by_id=ocg.class_configs_by_id,
+                relationships_by_id=ocg.relationships_by_id,
+            )
+        )
+        edges_by_source_cc_id = _index_edges_by_source(
+            edges=object_projection_graph.object_projection_graph_edges,
+            relationships_by_id=ocg.relationships_by_id,
+        )
+        bundle = _OigStaticIndexBundle(
+            ocg=ocg,
+            opg=opg,
+            relationship_attr_ids_by_cc_id=relationship_attr_ids_by_cc_id,
+            include_relationship_attr_ids_by_cc_id=(
+                include_relationship_attr_ids_by_cc_id
+            ),
+            edges_by_source_cc_id=edges_by_source_cc_id,
+        )
+
+    if cache_key is not None:
+        _cache_static_index_bundle(cache_key, bundle)
+    return bundle
 
 
 def _index_edges_by_source(
     *,
-    edges: list[ObjectProjectionGraphEdge],
+    edges: Iterable[ObjectProjectionGraphEdge],
     relationships_by_id: Mapping[UUID, ClassConfigRelationship],
-) -> dict[UUID, list[ObjectProjectionGraphEdge]]:
+) -> dict[UUID, tuple[ObjectProjectionGraphEdge, ...]]:
     edges_by_src: dict[UUID, list[ObjectProjectionGraphEdge]] = {}
     for edge in edges:
         rel = (
@@ -939,7 +1061,10 @@ def _index_edges_by_source(
             )
         src_cc_id, _ = _relationship_endpoints(rel, edge.traversal_direction)
         edges_by_src.setdefault(src_cc_id, []).append(edge)
-    return edges_by_src
+    return {
+        source_class_config_id: tuple(source_edges)
+        for source_class_config_id, source_edges in edges_by_src.items()
+    }
 
 
 def _relationship_endpoints(
@@ -1551,7 +1676,10 @@ def _resolve_targets_forward(
             )
         targets = _coerce_targets(value)
         if targets:
-            return targets
+            # An explicit registry entry is the canonical introspection source for
+            # its object id. This lets callers supply projection-only values without
+            # mutating the typed object embedded in a hydrated relationship.
+            return [registry.by_id.get(target.id, target) for target in targets]
 
         # Only attempt FK-based fallback when the reference field is not explicitly set.
         # This avoids overriding explicitly-empty relationship state and prevents
@@ -1849,4 +1977,5 @@ __all__ = [
     "build_object_instance_graph",
     "build_empty",
     "build_relationship_attribute_config_ids_by_class_config_id",
+    "clear_object_instance_graph_builder_index_cache",
 ]

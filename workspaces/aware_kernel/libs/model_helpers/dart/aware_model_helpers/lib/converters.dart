@@ -5,6 +5,8 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 
+export 'aware_decimal.dart';
+
 /// JSON type converter utilities for serialization and deserialization
 
 /// UUID Type converter for Freezed models

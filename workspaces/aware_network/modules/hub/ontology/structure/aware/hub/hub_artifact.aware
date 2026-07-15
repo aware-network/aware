@@ -1,0 +1,95 @@
+class HubArtifact {
+    // Relationships
+    revisions HubArtifactRevision[]
+
+    // Attributes
+    artifact_family String key
+    artifact_key String key
+    description String?
+    media_type String?
+    title String?
+
+    fn build construct(
+        artifact_family String key,
+        artifact_key String key,
+        title String? = null,
+        description String? = null,
+        media_type String? = null
+    ) -> HubArtifact {
+        """
+        Create one Hub-owned artifact identity.
+
+        Contract:
+        - `artifact_family` is open so Hub can carry CodePackage, deployment,
+          and future artifact families without importing producer APIs.
+        - Revisions carry immutable payload locks.
+        """
+    }
+
+    fn publish_revision(
+        revision_id String key,
+        payload_url String,
+        payload_sha256 String,
+        selector_key String? = null,
+        target_ref String? = null,
+        media_type String? = null,
+        size_bytes Int? = null,
+        producer_provenance_id UUID? = null,
+        published_at_utc String? = null,
+        metadata JsonObject = {}
+    ) -> HubArtifactRevision {
+        """
+        Publish one immutable revision under this artifact.
+        """
+        let created = construct revisions.build(
+            revision_id = revision_id,
+            payload_url = payload_url,
+            payload_sha256 = payload_sha256,
+            selector_key = selector_key,
+            target_ref = target_ref,
+            media_type = media_type,
+            size_bytes = size_bytes,
+            producer_provenance_id = producer_provenance_id,
+            published_at_utc = published_at_utc,
+            metadata = metadata,
+        )
+    }
+}
+
+class HubArtifactRevision {
+    // Relationships
+    producer_provenance HubProducerProvenance? unique
+
+    // Attributes
+    metadata JsonObject = {}
+    media_type String?
+    payload_sha256 String
+    payload_url String
+    published_at_utc String?
+    revision_id String key
+    selector_key String?
+    size_bytes Int?
+    status HubArtifactStatus = published
+    target_ref String?
+
+    fn build construct(
+        revision_id String key,
+        payload_url String,
+        payload_sha256 String,
+        selector_key String? = null,
+        target_ref String? = null,
+        media_type String? = null,
+        size_bytes Int? = null,
+        producer_provenance_id UUID? = null,
+        published_at_utc String? = null,
+        metadata JsonObject = {}
+    ) -> HubArtifactRevision {
+        """
+        Create one immutable artifact payload lock.
+        """
+    }
+
+}
+
+ann hub.HubArtifact::revisions load eager
+ann hub.HubArtifactRevision::producer_provenance load eager

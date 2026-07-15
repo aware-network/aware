@@ -53,6 +53,20 @@ class ApiCapabilityEndpoint(ORMModel):
     # Foreign Keys
     api_capability_id: UUID = Field(description="Foreign key for ApiCapability.api_capability_endpoints")
 
+    async def update_config(self, description: str | None = None) -> None:
+        """
+        Update mutable endpoint metadata on this existing endpoint.
+
+        Contract:
+        - `name` and `api_capability_id` are immutable endpoint identity.
+        - Request-contract evolution uses a separate explicit semantic operation.
+        - This function mutates only this endpoint instance.
+        """
+
+        payload = {"description": description}
+        await invoke_instance(orm_model=self, function_name="update_config", payload=payload)
+        return None
+
     async def create_call(self, call_key: UUID, description: str | None = None) -> ApiCall:
         """Create one stage-one API call receipt anchored on this endpoint."""
 
@@ -154,6 +168,14 @@ class ApiCapabilityEndpoint(ORMModel):
         return ApiCapabilityEndpoint.validate_invocation_value(value)
 
 
+class ApiCapabilityEndpointUpdateConfigInput(BaseModel):
+    description: str | None = Field(default=None)
+
+
+class ApiCapabilityEndpointUpdateConfigOutput(BaseModel):
+    pass
+
+
 class ApiCapabilityEndpointCreateCallInput(BaseModel):
     call_key: UUID
     description: str | None = Field(default=None)
@@ -213,6 +235,15 @@ class ApiCapabilityEndpointCreateViaApiCapabilityOutput(BaseModel):
 
 FUNCTIONS = {
     "ApiCapabilityEndpoint": {
+        "update_config": {
+            "canonical": {
+                "name": "update_config",
+                "description": "Update mutable endpoint metadata on this existing endpoint.\n\nContract:\n- `name` and `api_capability_id` are immutable endpoint identity.\n- Request-contract evolution uses a separate explicit semantic operation.\n- This function mutates only this endpoint instance.",
+                "is_constructor": False,
+            },
+            "input": ApiCapabilityEndpointUpdateConfigInput,
+            "output": ApiCapabilityEndpointUpdateConfigOutput,
+        },
         "create_call": {
             "canonical": {
                 "name": "create_call",
@@ -272,6 +303,8 @@ FUNCTIONS = {
 
 __all__ = [
     "ApiCapabilityEndpoint",
+    "ApiCapabilityEndpointUpdateConfigInput",
+    "ApiCapabilityEndpointUpdateConfigOutput",
     "ApiCapabilityEndpointCreateCallInput",
     "ApiCapabilityEndpointCreateCallOutput",
     "ApiCapabilityEndpointCreateFunctionInput",

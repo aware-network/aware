@@ -1,0 +1,67 @@
+api node {
+    capability host {
+        endpoint discover_environment_configs aware_node_service_dto.comms.models.DiscoverEnvironmentConfigsRequest {
+            """
+            Discover Node-managed EnvironmentConfig descriptors available for live provisioning.
+            """
+
+            response aware_node_service_dto.comms.models.DiscoverEnvironmentConfigsResponse
+        }
+
+        endpoint discover_service_api_dependency_routes aware_node_service_dto.comms.models.DiscoverApiRoutesRequest {
+            """
+            Discover Node-bound service API dependency routes for live service-to-service calls.
+            """
+
+            response aware_node_service_dto.comms.models.DiscoverApiRoutesResponse
+        }
+
+        endpoint get_boot_environment_descriptor aware_node_service_dto.comms.models.GetBootEnvironmentDescriptorRequest {
+            """
+            Read the Node-managed BOOT environment descriptor without client-side kernel heuristics.
+            """
+
+            response aware_node_service_dto.comms.models.GetBootEnvironmentDescriptorResponse
+        }
+
+        endpoint provision_environment aware_node_service_dto.comms.models.ProvisionEnvironmentRequest {
+            """
+            Provision or resume one Environment through live Node host authority.
+            """
+
+            response aware_node_service_dto.comms.models.ProvisionEnvironmentResponse
+        }
+
+        endpoint get_environment_status aware_node_service_dto.comms.models.GetEnvironmentStatusRequest {
+            """
+            Read live Node-owned status for one Environment provisioned on this node.
+            """
+
+            response aware_node_service_dto.comms.models.GetEnvironmentStatusResponse
+        }
+
+        endpoint describe_hosted_service_runtimes aware_node_service_dto.comms.models.DescribeHostedServiceRuntimesRequest {
+            """
+            Read live Node-owned hosted-service runtime status from the supervising Node.
+            """
+
+            response aware_node_service_dto.comms.models.DescribeHostedServiceRuntimesResponse
+        }
+
+        endpoint describe_hosted_runtimes aware_node_service_dto.comms.models.DescribeHostedRuntimesRequest {
+            """
+            Read generic Node-owned hosted runtime lifecycle status from the supervising Node.
+            """
+
+            response aware_node_service_dto.comms.models.DescribeHostedRuntimesResponse
+        }
+
+        endpoint restart_hosted_runtime aware_node_service_dto.comms.models.RestartHostedRuntimeRequest {
+            """
+            Request a generic Node-owned hosted runtime restart through the supervising Node.
+            """
+
+            response aware_node_service_dto.comms.models.RestartHostedRuntimeResponse
+        }
+    }
+}

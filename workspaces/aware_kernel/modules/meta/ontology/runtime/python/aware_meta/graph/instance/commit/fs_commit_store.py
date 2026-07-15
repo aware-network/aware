@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Iterable, Mapping
+from collections.abc import AsyncIterator, Iterable, Mapping, Sequence
 import hashlib
 import inspect
 from pathlib import Path
@@ -49,6 +49,8 @@ from aware_meta.graph.instance.commit.fs_backend import (
     _resolve_aware_root,
     _resolve_oig_root,
     _try_read_json_object,
+    current_durable_write_transaction,
+    grouped_durable_write_transaction,
 )
 from aware_meta.graph.instance.commit.fs_runtime_state import (
     _SESSION_JSON_FILE_CACHE,
@@ -99,6 +101,118 @@ def _record_fs_commit_store_elapsed(
         category="meta.oig.commit_store",
         metadata=metadata,
     )
+
+
+def _record_fs_commit_store_count(
+    *,
+    phase: str,
+    metadata: Mapping[str, object],
+) -> None:
+    now = time.perf_counter()
+    record_commit_perf_elapsed(
+        phase=f"oig_commit_store.{phase}",
+        started=now,
+        ended=now,
+        category="meta.oig.commit_store",
+        metadata=metadata,
+    )
+
+
+def _increment_perf_count(
+    perf_profile: dict[str, int] | None,
+    key: str,
+    *,
+    value: int = 1,
+) -> None:
+    if perf_profile is None:
+        return
+    perf_profile[key] = perf_profile.get(key, 0) + value
+
+
+def _add_perf_counts(
+    perf_profile: dict[str, int],
+    values: Mapping[str, object],
+) -> None:
+    for key, value in values.items():
+        try:
+            count = int(value)
+        except Exception:
+            continue
+        perf_profile[key] = perf_profile.get(key, 0) + max(count, 0)
+
+
+def _int_mapping_value(values: Mapping[str, object], key: str) -> int:
+    try:
+        return max(int(values.get(key, 0)), 0)
+    except Exception:
+        return 0
+
+
+def _record_grouped_durable_transaction_metrics(
+    *,
+    perf_profile: dict[str, int],
+    phase_prefix: str,
+    write_count: int,
+    transaction_stats: Mapping[str, object],
+    owned_transaction: bool,
+    metadata: Mapping[str, object],
+) -> None:
+    if write_count <= 0:
+        return
+    perf_profile["grouped_durable_transaction_write_count"] = (
+        perf_profile.get("grouped_durable_transaction_write_count", 0) + write_count
+    )
+    perf_profile["independent_durable_write_count"] = max(
+        perf_profile.get("durable_write_count", 0)
+        - perf_profile.get("grouped_durable_transaction_write_count", 0),
+        0,
+    )
+    for _index in range(write_count):
+        _record_fs_commit_store_count(
+            phase=f"{phase_prefix}.grouped_durable_transaction_write",
+            metadata=metadata,
+        )
+    if not owned_transaction:
+        perf_profile["joined_grouped_durable_transaction_count"] = (
+            perf_profile.get("joined_grouped_durable_transaction_count", 0) + 1
+        )
+        _record_fs_commit_store_count(
+            phase=f"{phase_prefix}.grouped_durable_transaction_joined",
+            metadata=metadata,
+        )
+        return
+
+    perf_profile["grouped_durable_transaction_count"] = (
+        perf_profile.get("grouped_durable_transaction_count", 0) + 1
+    )
+    perf_profile["grouped_durable_transaction_syncfs_count"] = perf_profile.get(
+        "grouped_durable_transaction_syncfs_count", 0
+    ) + _int_mapping_value(transaction_stats, "syncfs_count")
+    perf_profile["grouped_durable_transaction_file_fsync_count"] = perf_profile.get(
+        "grouped_durable_transaction_file_fsync_count", 0
+    ) + _int_mapping_value(transaction_stats, "file_fsync_count")
+    perf_profile["grouped_durable_transaction_directory_fsync_count"] = (
+        perf_profile.get("grouped_durable_transaction_directory_fsync_count", 0)
+        + _int_mapping_value(transaction_stats, "directory_fsync_count")
+    )
+    _record_fs_commit_store_count(
+        phase=f"{phase_prefix}.grouped_durable_transaction_committed",
+        metadata={
+            **metadata,
+            "transaction_status": str(transaction_stats.get("status", "unknown")),
+            "transaction_write_count": write_count,
+        },
+    )
+    for _index in range(_int_mapping_value(transaction_stats, "syncfs_count")):
+        _record_fs_commit_store_count(
+            phase=f"{phase_prefix}.grouped_durable_transaction_syncfs",
+            metadata=metadata,
+        )
+    for _index in range(_int_mapping_value(transaction_stats, "file_fsync_count")):
+        _record_fs_commit_store_count(
+            phase=f"{phase_prefix}.grouped_durable_transaction_file_fsync",
+            metadata=metadata,
+        )
 
 
 def _write_rebuildable_commit_index_json(path: Path, payload: JsonObject) -> None:
@@ -697,6 +811,7 @@ class FSCommitStore:
         body: ObjectInstanceGraphCommitBodyV1,
         commit_action: CommitActionDescriptor | None = None,
         write_health_index: bool = True,
+        perf_profile: dict[str, int] | None = None,
     ) -> bool:
         if envelope.commit_id != body.commit_id:
             raise ValueError(
@@ -766,23 +881,34 @@ class FSCommitStore:
 
         wrote_commit = False
         body_write_started = time.monotonic()
+        body_write_result = "validated"
         if body_path.exists():
             existing_body = body_path.read_bytes()
             if existing_body != body.canonical_bytes:
                 raise ValueError(
                     f"Existing OIG commit body differs: {envelope.commit_id}"
                 )
+            _increment_perf_count(perf_profile, "durable_body_validate_count")
+            _increment_perf_count(perf_profile, "durable_validate_count")
         else:
             _atomic_write(body_path, body.canonical_bytes.decode("utf-8"))
             _SESSION_JSON_FILE_CACHE.invalidate_path(body_path)
             wrote_commit = True
+            body_write_result = "written"
+            _increment_perf_count(perf_profile, "durable_body_write_count")
+            _increment_perf_count(perf_profile, "durable_write_count")
         _record_fs_commit_store_elapsed(
             phase="put_commit_record.write_or_validate_body",
             started=body_write_started,
+            metadata={**trace_metadata, "write_result": body_write_result},
+        )
+        _record_fs_commit_store_count(
+            phase=f"put_commit_record.durable_body_{body_write_result}",
             metadata=trace_metadata,
         )
 
         envelope_write_started = time.monotonic()
+        envelope_write_result = "validated"
         if commit_path.exists():
             existing_envelope_payload = _read_json_object(
                 commit_path,
@@ -792,19 +918,31 @@ class FSCommitStore:
                 raise ValueError(
                     f"Existing OIG commit envelope differs: {envelope.commit_id}"
                 )
+            _increment_perf_count(perf_profile, "durable_envelope_validate_count")
+            _increment_perf_count(perf_profile, "durable_validate_count")
         else:
             _atomic_write(commit_path, _dump_json(envelope_payload))
             _SESSION_JSON_FILE_CACHE.invalidate_path(commit_path)
             wrote_commit = True
+            envelope_write_result = "written"
+            _increment_perf_count(perf_profile, "durable_envelope_write_count")
+            _increment_perf_count(perf_profile, "durable_write_count")
         _record_fs_commit_store_elapsed(
             phase="put_commit_record.write_or_validate_envelope",
             started=envelope_write_started,
+            metadata={**trace_metadata, "write_result": envelope_write_result},
+        )
+        _record_fs_commit_store_count(
+            phase=f"put_commit_record.durable_envelope_{envelope_write_result}",
             metadata=trace_metadata,
         )
 
         meta_write_started = time.monotonic()
         meta_payload = _commit_meta_payload(commit_action)
+        meta_write_result = "skipped"
+        meta_count_phase_prefix = "durable_meta"
         if meta_payload is not None:
+            meta_count_phase_prefix = "commit_action_meta"
             meta_path = commits_dir / f"{envelope.commit_id}.meta.json"
             if meta_path.exists():
                 existing_meta_payload = _read_json_object(
@@ -815,12 +953,30 @@ class FSCommitStore:
                     raise ValueError(
                         f"Existing commit metadata differs: {envelope.commit_id}"
                     )
+                meta_write_result = "validated"
+                _increment_perf_count(
+                    perf_profile,
+                    "rebuildable_meta_validate_count",
+                )
+                _increment_perf_count(perf_profile, "rebuildable_validate_count")
             else:
-                _atomic_write(meta_path, _dump_json(meta_payload))
-                _SESSION_JSON_FILE_CACHE.invalidate_path(meta_path)
+                _write_rebuildable_commit_index_json(meta_path, meta_payload)
+                meta_write_result = "written_rebuildable"
+                _increment_perf_count(perf_profile, "rebuildable_meta_write_count")
+                _increment_perf_count(perf_profile, "rebuildable_write_count")
+        else:
+            _increment_perf_count(perf_profile, "durable_meta_skip_count")
         _record_fs_commit_store_elapsed(
             phase="put_commit_record.write_or_validate_meta",
             started=meta_write_started,
+            metadata={
+                **trace_metadata,
+                "has_commit_action": commit_action is not None,
+                "write_result": meta_write_result,
+            },
+        )
+        _record_fs_commit_store_count(
+            phase=f"put_commit_record.{meta_count_phase_prefix}_{meta_write_result}",
             metadata={
                 **trace_metadata,
                 "has_commit_action": commit_action is not None,
@@ -2080,6 +2236,385 @@ class FSCommitStore:
             object_projection_graph_identity_id=object_projection_graph_identity_id,
         )
 
+    async def append_records(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        records: Sequence[ObjectInstanceGraphCommitBodyRecord],
+        root_object_ids: Sequence[UUID | None] | None = None,
+        commit_actions: Sequence[CommitActionDescriptor | None] | None = None,
+        object_projection_graph_identity_id: UUID | None = None,
+        write_health_index: bool = True,
+    ) -> dict[str, int]:
+        append_total_started = time.monotonic()
+        record_tuple = tuple(records)
+        if not record_tuple:
+            raise ValueError("Lane batch append requires at least one record")
+        root_object_id_tuple = (
+            tuple(None for _ in record_tuple)
+            if root_object_ids is None
+            else tuple(root_object_ids)
+        )
+        commit_action_tuple = (
+            tuple(None for _ in record_tuple)
+            if commit_actions is None
+            else tuple(commit_actions)
+        )
+        if len(root_object_id_tuple) != len(record_tuple):
+            raise ValueError(
+                "Lane batch append root_object_ids length mismatch: "
+                + f"records={len(record_tuple)} root_object_ids={len(root_object_id_tuple)}"
+            )
+        if len(commit_action_tuple) != len(record_tuple):
+            raise ValueError(
+                "Lane batch append commit_actions length mismatch: "
+                + f"records={len(record_tuple)} commit_actions={len(commit_action_tuple)}"
+            )
+
+        first_envelope = record_tuple[0].envelope
+        last_envelope = record_tuple[-1].envelope
+        expected_object_instance_graph_id = first_envelope.object_instance_graph_id
+        expected_object_instance_graph_identity_id = (
+            first_envelope.object_instance_graph_identity_id
+        )
+        trace_metadata: dict[str, object] = {
+            "branch_id": str(branch_id),
+            "projection_hash": projection_hash,
+            "record_count": len(record_tuple),
+            "first_commit_id": str(first_envelope.commit_id),
+            "last_commit_id": str(last_envelope.commit_id),
+            "object_instance_graph_id": str(expected_object_instance_graph_id),
+            "object_instance_graph_identity_id": str(
+                expected_object_instance_graph_identity_id
+            ),
+        }
+
+        seen_commit_ids: set[UUID] = set()
+        seen_oig_commit_ids: set[UUID] = set()
+        for index, record in enumerate(record_tuple):
+            envelope = record.envelope
+            if not envelope.graph_hash_post:
+                raise ValueError(
+                    "Lane batch append requires envelope.graph_hash_post "
+                    + f"(commit_id={envelope.commit_id})"
+                )
+            if envelope.projection_hash and envelope.projection_hash != projection_hash:
+                raise ValueError(
+                    "Lane batch append projection_hash mismatch: "
+                    + f"lane={projection_hash} envelope={envelope.projection_hash}"
+                )
+            root_object_id = root_object_id_tuple[index]
+            if (
+                root_object_id is not None
+                and root_object_id != envelope.root_source_object_id
+            ):
+                raise ValueError(
+                    "Lane batch append root_object_id mismatch: "
+                    + f"explicit={root_object_id} "
+                    + f"envelope.root_source_object_id={envelope.root_source_object_id}"
+                )
+            if envelope.object_instance_graph_id != expected_object_instance_graph_id:
+                raise ValueError(
+                    "Lane batch OIG id mismatch: "
+                    + f"expected={expected_object_instance_graph_id} "
+                    + f"got={envelope.object_instance_graph_id}"
+                )
+            if (
+                envelope.object_instance_graph_identity_id
+                != expected_object_instance_graph_identity_id
+            ):
+                raise ValueError(
+                    "Lane batch OIGI id mismatch: "
+                    + f"expected={expected_object_instance_graph_identity_id} "
+                    + f"got={envelope.object_instance_graph_identity_id}"
+                )
+            if envelope.commit_id in seen_commit_ids:
+                raise ValueError(
+                    f"Lane batch duplicate commit_id: {envelope.commit_id}"
+                )
+            if envelope.object_instance_graph_commit_id in seen_oig_commit_ids:
+                raise ValueError(
+                    "Lane batch duplicate object_instance_graph_commit_id: "
+                    + f"{envelope.object_instance_graph_commit_id}"
+                )
+            seen_commit_ids.add(envelope.commit_id)
+            seen_oig_commit_ids.add(envelope.object_instance_graph_commit_id)
+
+        lock_path = self._lane_dir(branch_id, projection_hash) / "locks" / "append.lock"
+        lock_wait_started = time.monotonic()
+        lock_acquired = 0.0
+        lock_released = 0.0
+        perf: dict[str, int] = {}
+
+        async with _lane_append_lock(lock_path=lock_path):
+            lock_acquired = time.monotonic()
+            perf["lock_wait_ms"] = self._elapsed_ms(
+                started=lock_wait_started, ended=lock_acquired
+            )
+            record_commit_perf_elapsed(
+                phase="oig_commit_store.append_records.lock_wait",
+                started=lock_wait_started,
+                ended=lock_acquired,
+                category="meta.oig.commit_store",
+                metadata=trace_metadata,
+            )
+            lane_dir = self._lane_dir(branch_id, projection_hash)
+
+            head_read_started = time.monotonic()
+            head = await self.head(branch_id=branch_id, projection_hash=projection_hash)
+            perf["head_read_ms"] = self._elapsed_ms(started=head_read_started)
+            _record_fs_commit_store_elapsed(
+                phase="append_records.head_read",
+                started=head_read_started,
+                metadata=trace_metadata,
+            )
+
+            head_commit_id = (
+                _json_optional_uuid(head, "commit_id") if head is not None else None
+            )
+            previous_hash = (
+                _json_optional_string(head, "graph_hash_post")
+                if head is not None
+                else None
+            )
+            previous_oig_id = (
+                _json_optional_string(head, "object_instance_graph_id")
+                if head is not None
+                else None
+            )
+            if previous_oig_id is not None and previous_oig_id != str(
+                expected_object_instance_graph_id
+            ):
+                raise ValueError(
+                    f"Lane OIG id mismatch: branch_id={branch_id} "
+                    + f"projection_hash={projection_hash} head_object_instance_graph_id={previous_oig_id} "
+                    + f"commit_object_instance_graph_id={expected_object_instance_graph_id}"
+                )
+
+            validation_started = time.monotonic()
+            expected_parent_id = head_commit_id
+            expected_graph_hash_pre = previous_hash
+            perf["append_record_count"] = len(record_tuple)
+            perf["batch_append_record_count"] = len(record_tuple)
+            for record in record_tuple:
+                envelope = record.envelope
+                parent_ids = envelope.parent_commit_ids
+                if len(parent_ids) > 1:
+                    raise ValueError(
+                        f"Non-linear commit {envelope.commit_id} has {len(parent_ids)} parents"
+                    )
+                parent_id = parent_ids[0] if parent_ids else None
+                if expected_parent_id is None and parent_id is not None:
+                    raise ValueError(
+                        f"First batch commit {envelope.object_instance_graph_commit_id} "
+                        "must not have a parent"
+                    )
+                if expected_parent_id is not None and parent_id != expected_parent_id:
+                    raise ValueError(
+                        f"Lane batch parent mismatch: parent={parent_id} "
+                        + f"expected={expected_parent_id}"
+                    )
+                if (
+                    expected_graph_hash_pre
+                    and envelope.graph_hash_pre
+                    and expected_graph_hash_pre != envelope.graph_hash_pre
+                ):
+                    raise ValueError(
+                        f"HEAD mismatch: expected graph_hash_pre={expected_graph_hash_pre}, "
+                        + f"got {envelope.graph_hash_pre} for commit "
+                        + f"{envelope.object_instance_graph_commit_id}"
+                    )
+                expected_parent_id = envelope.commit_id
+                expected_graph_hash_pre = envelope.graph_hash_post
+            perf["validation_ms"] = self._elapsed_ms(started=validation_started)
+            _record_fs_commit_store_elapsed(
+                phase="append_records.validation",
+                started=validation_started,
+                metadata=trace_metadata,
+            )
+
+            durable_transaction_parent = current_durable_write_transaction()
+            owned_durable_transaction = durable_transaction_parent is None
+            durable_transaction_start_count = (
+                0
+                if durable_transaction_parent is None
+                else durable_transaction_parent.write_count
+            )
+            durable_transaction_started = time.monotonic()
+            with grouped_durable_write_transaction() as durable_transaction:
+                write_commit_started = time.monotonic()
+                for index, record in enumerate(record_tuple):
+                    envelope = record.envelope
+                    put_commit_started = time.monotonic()
+                    put_commit_perf: dict[str, int] = {}
+                    wrote_commit = await self.put_commit_record(
+                        branch_id=branch_id,
+                        projection_hash=projection_hash,
+                        envelope=envelope,
+                        body=record.body,
+                        commit_action=commit_action_tuple[index],
+                        write_health_index=write_health_index,
+                        perf_profile=put_commit_perf,
+                    )
+                    _add_perf_counts(perf, put_commit_perf)
+                    if wrote_commit:
+                        perf["put_commit_record_write_count"] = (
+                            perf.get("put_commit_record_write_count", 0) + 1
+                        )
+                    else:
+                        perf["put_commit_record_validate_count"] = (
+                            perf.get("put_commit_record_validate_count", 0) + 1
+                        )
+                    _record_fs_commit_store_elapsed(
+                        phase="append_records.put_commit_record",
+                        started=put_commit_started,
+                        metadata={
+                            **trace_metadata,
+                            "record_index": index,
+                            "commit_id": str(envelope.commit_id),
+                            "write_health_index": write_health_index,
+                        },
+                    )
+                perf["write_commit_file_ms"] = self._elapsed_ms(
+                    started=write_commit_started
+                )
+                if not write_health_index:
+                    perf["write_health_index_deferred_count"] = len(record_tuple)
+                perf["write_commit_ref_index_ms"] = perf["write_commit_file_ms"]
+                perf["write_meta_file_ms"] = (
+                    0
+                    if all(action is None for action in commit_action_tuple)
+                    else perf["write_commit_file_ms"]
+                )
+
+                resolved_root_object_id = (
+                    last_envelope.root_source_object_id
+                    if root_object_id_tuple[-1] is None
+                    else root_object_id_tuple[-1]
+                )
+                head_payload: JsonObject = {
+                    "commit_id": str(last_envelope.commit_id),
+                    "graph_hash_post": last_envelope.graph_hash_post,
+                    "graph_hash_source": last_envelope.graph_hash_source,
+                    "object_instance_graph_id": str(
+                        last_envelope.object_instance_graph_id
+                    ),
+                    "root_object_id": str(resolved_root_object_id),
+                    "object_instance_graph_commit_id": str(
+                        last_envelope.object_instance_graph_commit_id
+                    ),
+                    "v": HEAD_VERSION,
+                }
+                write_head_started = time.monotonic()
+                head_path = lane_dir / "HEAD.json"
+                _atomic_write(head_path, _dump_json(head_payload))
+                _SESSION_JSON_FILE_CACHE.invalidate_path(head_path)
+                perf["durable_head_write_count"] = 1
+                perf["batch_final_head_write_count"] = 1
+                perf["durable_write_count"] = perf.get("durable_write_count", 0) + 1
+                perf["write_head_ms"] = self._elapsed_ms(started=write_head_started)
+                _record_fs_commit_store_elapsed(
+                    phase="append_records.write_head",
+                    started=write_head_started,
+                    metadata={**trace_metadata, "write_result": "written"},
+                )
+                _record_fs_commit_store_count(
+                    phase="append_records.durable_head_written",
+                    metadata=trace_metadata,
+                )
+            durable_transaction_stats = durable_transaction.stats_snapshot()
+            grouped_write_count = (
+                _int_mapping_value(durable_transaction_stats, "write_count")
+                if owned_durable_transaction
+                else durable_transaction.write_count - durable_transaction_start_count
+            )
+            _record_grouped_durable_transaction_metrics(
+                perf_profile=perf,
+                phase_prefix="append_records",
+                write_count=grouped_write_count,
+                transaction_stats=durable_transaction_stats,
+                owned_transaction=owned_durable_transaction,
+                metadata=trace_metadata,
+            )
+            perf["grouped_durable_transaction_ms"] = self._elapsed_ms(
+                started=durable_transaction_started
+            )
+            _record_fs_commit_store_elapsed(
+                phase="append_records.grouped_durable_transaction",
+                started=durable_transaction_started,
+                metadata={
+                    **trace_metadata,
+                    "owned_transaction": owned_durable_transaction,
+                    "transaction_write_count": grouped_write_count,
+                    "transaction_status": str(
+                        durable_transaction_stats.get("status", "unknown")
+                    ),
+                },
+            )
+
+            receipt = LaneHeadCommitReceipt(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                commit_id=last_envelope.commit_id,
+                object_instance_graph_commit_id=(
+                    last_envelope.object_instance_graph_commit_id
+                ),
+                created_at_unix_ms=int(last_envelope.created_at.timestamp() * 1000),
+                graph_hash_post=last_envelope.graph_hash_post,
+                object_instance_graph_id=last_envelope.object_instance_graph_id,
+                object_instance_graph_identity_id=(
+                    last_envelope.object_instance_graph_identity_id
+                ),
+                object_instance_graph_branch_id=stable_object_instance_graph_branch_id(
+                    object_instance_graph_identity_id=(
+                        last_envelope.object_instance_graph_identity_id
+                    ),
+                    branch_id=branch_id,
+                ),
+                object_projection_graph_id=None,
+                object_projection_graph_identity_id=(
+                    object_projection_graph_identity_id
+                ),
+                root_object_id=resolved_root_object_id,
+                author_id=last_envelope.author_id,
+                commit_action=commit_action_tuple[-1],
+                class_instance_identity_id=(
+                    None
+                    if commit_action_tuple[-1] is None
+                    else commit_action_tuple[-1].class_instance_identity_id
+                ),
+            )
+            watcher_dispatch_started = time.monotonic()
+            await self._dispatch_lane_head_watchers(receipt)
+            perf["dispatch_watcher_ms"] = self._elapsed_ms(
+                started=watcher_dispatch_started
+            )
+            _record_fs_commit_store_elapsed(
+                phase="append_records.dispatch_watchers",
+                started=watcher_dispatch_started,
+                metadata=trace_metadata,
+            )
+            lock_released = time.monotonic()
+
+        perf["lock_hold_ms"] = self._elapsed_ms(
+            started=lock_acquired, ended=lock_released
+        )
+        record_commit_perf_elapsed(
+            phase="oig_commit_store.append_records.lock_hold",
+            started=lock_acquired,
+            ended=lock_released,
+            category="meta.oig.commit_store",
+            metadata=trace_metadata,
+        )
+        perf["total_ms"] = self._elapsed_ms(started=append_total_started)
+        _record_fs_commit_store_elapsed(
+            phase="append_records.total",
+            started=append_total_started,
+            metadata=trace_metadata,
+        )
+        return perf
+
     async def append_record(
         self,
         *,
@@ -2175,6 +2710,7 @@ class FSCommitStore:
 
             validation_started = time.monotonic()
             parent_ids = envelope.parent_commit_ids
+            perf["append_record_count"] = 1
             if len(parent_ids) > 1:
                 raise ValueError(
                     f"Non-linear commit {envelope.commit_id} has {len(parent_ids)} parents"
@@ -2205,58 +2741,105 @@ class FSCommitStore:
                 metadata=trace_metadata,
             )
 
-            write_commit_started = time.monotonic()
-            _ = await self.put_commit_record(
-                branch_id=branch_id,
-                projection_hash=projection_hash,
-                envelope=envelope,
-                body=record.body,
-                commit_action=commit_action,
-                write_health_index=write_health_index,
+            durable_transaction_parent = current_durable_write_transaction()
+            owned_durable_transaction = durable_transaction_parent is None
+            durable_transaction_start_count = (
+                0
+                if durable_transaction_parent is None
+                else durable_transaction_parent.write_count
             )
-            perf["write_commit_file_ms"] = self._elapsed_ms(
-                started=write_commit_started
+            durable_transaction_started = time.monotonic()
+            with grouped_durable_write_transaction() as durable_transaction:
+                write_commit_started = time.monotonic()
+                put_commit_perf: dict[str, int] = {}
+                _ = await self.put_commit_record(
+                    branch_id=branch_id,
+                    projection_hash=projection_hash,
+                    envelope=envelope,
+                    body=record.body,
+                    commit_action=commit_action,
+                    write_health_index=write_health_index,
+                    perf_profile=put_commit_perf,
+                )
+                perf.update(put_commit_perf)
+                perf["write_commit_file_ms"] = self._elapsed_ms(
+                    started=write_commit_started
+                )
+                if not write_health_index:
+                    perf["write_health_index_deferred_count"] = 1
+                _record_fs_commit_store_elapsed(
+                    phase="append_record.put_commit_record",
+                    started=write_commit_started,
+                    metadata={
+                        **trace_metadata,
+                        "write_health_index": write_health_index,
+                    },
+                )
+                perf["write_commit_ref_index_ms"] = perf["write_commit_file_ms"]
+                perf["write_meta_file_ms"] = (
+                    0 if commit_action is None else perf["write_commit_file_ms"]
+                )
+
+                resolved_root_object_id = (
+                    envelope.root_source_object_id
+                    if root_object_id is None
+                    else root_object_id
+                )
+                head_payload: JsonObject = {
+                    "commit_id": str(envelope.commit_id),
+                    "graph_hash_post": envelope.graph_hash_post,
+                    "graph_hash_source": envelope.graph_hash_source,
+                    "object_instance_graph_id": str(envelope.object_instance_graph_id),
+                    "root_object_id": str(resolved_root_object_id),
+                    "object_instance_graph_commit_id": str(
+                        envelope.object_instance_graph_commit_id
+                    ),
+                    "v": HEAD_VERSION,
+                }
+                write_head_started = time.monotonic()
+                head_path = lane_dir / "HEAD.json"
+                _atomic_write(head_path, _dump_json(head_payload))
+                _SESSION_JSON_FILE_CACHE.invalidate_path(head_path)
+                perf["durable_head_write_count"] = 1
+                perf["durable_write_count"] = perf.get("durable_write_count", 0) + 1
+                perf["write_head_ms"] = self._elapsed_ms(started=write_head_started)
+                _record_fs_commit_store_elapsed(
+                    phase="append_record.write_head",
+                    started=write_head_started,
+                    metadata={**trace_metadata, "write_result": "written"},
+                )
+                _record_fs_commit_store_count(
+                    phase="append_record.durable_head_written",
+                    metadata=trace_metadata,
+                )
+            durable_transaction_stats = durable_transaction.stats_snapshot()
+            grouped_write_count = (
+                _int_mapping_value(durable_transaction_stats, "write_count")
+                if owned_durable_transaction
+                else durable_transaction.write_count - durable_transaction_start_count
             )
-            if not write_health_index:
-                perf["write_health_index_deferred_count"] = 1
+            _record_grouped_durable_transaction_metrics(
+                perf_profile=perf,
+                phase_prefix="append_record",
+                write_count=grouped_write_count,
+                transaction_stats=durable_transaction_stats,
+                owned_transaction=owned_durable_transaction,
+                metadata=trace_metadata,
+            )
+            perf["grouped_durable_transaction_ms"] = self._elapsed_ms(
+                started=durable_transaction_started
+            )
             _record_fs_commit_store_elapsed(
-                phase="append_record.put_commit_record",
-                started=write_commit_started,
+                phase="append_record.grouped_durable_transaction",
+                started=durable_transaction_started,
                 metadata={
                     **trace_metadata,
-                    "write_health_index": write_health_index,
+                    "owned_transaction": owned_durable_transaction,
+                    "transaction_write_count": grouped_write_count,
+                    "transaction_status": str(
+                        durable_transaction_stats.get("status", "unknown")
+                    ),
                 },
-            )
-            perf["write_commit_ref_index_ms"] = perf["write_commit_file_ms"]
-            perf["write_meta_file_ms"] = (
-                0 if commit_action is None else perf["write_commit_file_ms"]
-            )
-
-            resolved_root_object_id = (
-                envelope.root_source_object_id
-                if root_object_id is None
-                else root_object_id
-            )
-            head_payload: JsonObject = {
-                "commit_id": str(envelope.commit_id),
-                "graph_hash_post": envelope.graph_hash_post,
-                "graph_hash_source": envelope.graph_hash_source,
-                "object_instance_graph_id": str(envelope.object_instance_graph_id),
-                "root_object_id": str(resolved_root_object_id),
-                "object_instance_graph_commit_id": str(
-                    envelope.object_instance_graph_commit_id
-                ),
-                "v": HEAD_VERSION,
-            }
-            write_head_started = time.monotonic()
-            head_path = lane_dir / "HEAD.json"
-            _atomic_write(head_path, _dump_json(head_payload))
-            _SESSION_JSON_FILE_CACHE.invalidate_path(head_path)
-            perf["write_head_ms"] = self._elapsed_ms(started=write_head_started)
-            _record_fs_commit_store_elapsed(
-                phase="append_record.write_head",
-                started=write_head_started,
-                metadata=trace_metadata,
             )
 
             receipt = LaneHeadCommitReceipt(

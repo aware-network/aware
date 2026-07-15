@@ -1,0 +1,11 @@
+api external_capital {
+    capability wallet_funding_session {
+        endpoint create_wallet_funding_session aware_external_capital_provider_service_dto.external_capital.ExternalCapitalWalletFundingSessionRequest {
+            """
+            Create an external-provider continuation for a committed Aware wallet-funding intent.
+            """
+
+            response aware_external_capital_provider_service_dto.external_capital.ExternalCapitalWalletFundingSessionResponse
+        }
+    }
+}

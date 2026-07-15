@@ -1,0 +1,416 @@
+pane wallet_capital {
+    kind wallet_capital
+
+    view aware_economy.home.wallet_capital.v1 default {
+        """Wallet-first Economy capital state and actions for funding, balances, pending funding, and activity."""
+    }
+
+    render default {
+        view aware_economy.home.wallet_capital.v1;
+        version "0.1.0";
+        root root;
+
+        require node_kind scroll;
+        require node_kind column;
+        require node_kind row;
+        require node_kind repeat;
+        require node_kind field;
+        require node_kind list_item;
+        require node_kind metric;
+        require node_kind section_header;
+        require node_kind status;
+        require node_kind button;
+        require node_kind receipt;
+        require action_binding view_action;
+
+        node root scroll pane {
+            style density = "compact";
+        }
+
+        node root.header row section {
+            style layout = "summary_bar";
+        }
+
+        node root.header.title text heading {
+            text "Wallet capital";
+            style emphasis = "primary";
+            style overflow = "truncate";
+        }
+
+        node root.header.operation field metadata {
+            label "Operation";
+            style display = "chip";
+            bind text from state.operation attr operation transform text fallback "refresh_wallet_capital";
+        }
+
+        node root.header.status status status {
+            bind text from state.status attr status transform text fallback "waiting";
+            bind tone from state.status_tone attr status_tone transform text fallback "neutral";
+        }
+
+        node root.info receipt receipt {
+            style tone = "provenance";
+            bind text from state.info attr info transform text;
+            bind visible from state.info attr info transform not_empty;
+        }
+
+        node root.identity row section {
+            style layout = "metadata_bar";
+        }
+
+        node root.identity.wallet field metadata {
+            label "Wallet";
+            style display = "identifier";
+            style overflow = "truncate";
+            bind text from state.wallet_public_id attr wallet_public_id transform text fallback "No wallet resolved";
+        }
+
+        node root.identity.finance_entity field metadata {
+            label "Finance entity";
+            style display = "identifier";
+            style overflow = "truncate";
+            bind text from state.finance_entity_id attr finance_entity_id transform text fallback "No finance entity";
+        }
+
+        node root.identity.coin field metadata {
+            label "Coin";
+            style display = "chip";
+            bind text from state.coin_id attr coin_id transform text fallback "default";
+        }
+
+        node root.identity.view_ref field metadata {
+            label "View";
+            style display = "chip";
+            bind text from state.view_ref attr view_ref transform text fallback "economy.wallet_capital";
+        }
+
+        node root.actions row section;
+
+        node root.actions.refresh button action {
+            label "Refresh";
+            action activate view refresh_wallet_capital {
+                receipt show_receipt;
+            }
+        }
+
+        node root.actions.fund button action {
+            label "Fund wallet";
+            bind enabled from state.can_fund_wallet attr can_fund_wallet transform raw;
+            action activate view fund_wallet {
+                receipt show_receipt;
+            }
+        }
+
+        node root.actions.funding_status status status {
+            bind text from state.funding_status attr funding_status transform text fallback "unavailable";
+            bind visible from state.funding_status attr funding_status transform not_empty;
+        }
+
+        node root.actions.funding_blocker receipt receipt {
+            style tone = "warning";
+            bind text from state.funding_disabled_reason attr funding_disabled_reason transform text;
+            bind visible from state.funding_disabled_reason attr funding_disabled_reason transform not_empty;
+        }
+
+        node root.metrics row section {
+            style layout = "metadata_bar";
+        }
+
+        node root.metrics.balances metric metric {
+            label "balances";
+            bind text from state.balances attr balances transform count fallback "0";
+        }
+
+        node root.metrics.providers metric metric {
+            label "providers";
+            bind text from state.funding_providers attr funding_providers transform count fallback "0";
+        }
+
+        node root.metrics.pending metric metric {
+            label "pending funding";
+            bind text from state.pending_funding_intents attr pending_funding_intents transform count fallback "0";
+        }
+
+        node root.metrics.activity metric metric {
+            label "activity";
+            bind text from state.activity attr activity transform count fallback "0";
+        }
+
+        node root.metrics.escrows metric metric {
+            label "escrows";
+            bind text from state.escrow_count attr escrow_count transform text fallback "0";
+        }
+
+        node root.balances_header section_header heading {
+            text "Balances";
+            bind visible from state.balances attr balances transform not_empty;
+        }
+
+        node root.balances repeat section {
+            bind items from state.balances attr balances transform raw;
+        }
+
+        node root.balances.row list_item section {
+            bind text from item.coin_id attr balances transform text fallback "coin";
+        }
+
+        node root.balances.row.title text role heading {
+            bind text from item.coin_id attr balances transform text fallback "coin";
+        }
+
+        node root.balances.row.status status status {
+            bind text from item.status attr balances transform text fallback "unknown";
+        }
+
+        node root.balances.row.amounts row section {
+            style layout = "metadata_bar";
+        }
+
+        node root.balances.row.amounts.available field metadata {
+            label "Available";
+            style display = "scalar";
+            bind text from item.available_balance attr balances transform text fallback "0";
+        }
+
+        node root.balances.row.amounts.held field metadata {
+            label "Held";
+            style display = "scalar";
+            bind text from item.held_balance attr balances transform text fallback "0";
+        }
+
+        node root.balances.row.amounts.total field metadata {
+            label "Total";
+            style display = "scalar";
+            bind text from item.balance attr balances transform text fallback "0";
+        }
+
+        node root.funding_providers_header section_header heading {
+            text "Funding providers";
+            bind visible from state.funding_providers attr funding_providers transform not_empty;
+        }
+
+        node root.funding_providers repeat section {
+            bind items from state.funding_providers attr funding_providers transform raw;
+        }
+
+        node root.funding_providers.row list_item section {
+            bind text from item.label attr funding_providers transform text fallback "provider";
+        }
+
+        node root.funding_providers.row.title text role heading {
+            bind text from item.label attr funding_providers transform text fallback "provider";
+        }
+
+        node root.funding_providers.row.status status status {
+            bind text from item.status attr funding_providers transform text fallback "available";
+        }
+
+        node root.funding_providers.row.identity row section {
+            style layout = "metadata_bar";
+        }
+
+        node root.funding_providers.row.identity.key field metadata {
+            label "Provider";
+            style display = "identifier";
+            bind text from item.provider_key attr funding_providers transform text;
+        }
+
+        node root.funding_providers.row.identity.coin field metadata {
+            label "Default coin";
+            style display = "chip";
+            bind text from item.default_coin_id attr funding_providers transform text fallback "default";
+        }
+
+        node root.funding_providers.row.identity.min field metadata {
+            label "Min external";
+            style display = "scalar";
+            bind text from item.min_external_amount_minor attr funding_providers transform text fallback "0";
+        }
+
+        node root.funding_providers.row.identity.max field metadata {
+            label "Max external";
+            style display = "scalar";
+            bind text from item.max_external_amount_minor attr funding_providers transform text fallback "open";
+        }
+
+        node root.funding_providers.row.identity.unit field metadata {
+            label "External currency";
+            style display = "chip";
+            bind text from item.external_currency attr funding_providers transform text;
+        }
+
+        node root.funding_providers.row.capabilities row section {
+            style layout = "metadata_bar";
+        }
+
+        node root.funding_providers.row.capabilities.coins metric metric {
+            label "coins";
+            bind text from item.supported_coin_ids attr funding_providers transform count fallback "0";
+        }
+
+        node root.funding_providers.row.capabilities.conversion field metadata {
+            label "Conversion";
+            bind text from item.conversion_mode attr funding_providers transform text;
+        }
+
+        node root.funding_providers.row.disabled receipt receipt {
+            style tone = "warning";
+            bind text from item.disabled_reason attr funding_providers transform text;
+            bind visible from item.disabled_reason attr funding_providers transform not_empty;
+        }
+
+        node root.pending_header section_header heading {
+            text "Pending funding";
+            bind visible from state.pending_funding_intents attr pending_funding_intents transform not_empty;
+        }
+
+        node root.pending repeat section {
+            bind items from state.pending_funding_intents attr pending_funding_intents transform raw;
+        }
+
+        node root.pending.row list_item section {
+            bind text from item.funding_intent_ref attr pending_funding_intents transform text fallback "funding intent";
+        }
+
+        node root.pending.row.title text role heading {
+            bind text from item.funding_intent_ref attr pending_funding_intents transform text fallback "funding intent";
+        }
+
+        node root.pending.row.status status status {
+            bind text from item.status attr pending_funding_intents transform text fallback "pending";
+        }
+
+        node root.pending.row.fields row section {
+            style layout = "metadata_bar";
+        }
+
+        node root.pending.row.fields.provider field metadata {
+            label "Provider";
+            style display = "identifier";
+            bind text from item.provider_key attr pending_funding_intents transform text fallback "provider";
+        }
+
+        node root.pending.row.fields.amount field metadata {
+            label "Amount";
+            style display = "scalar";
+            bind text from item.amount attr pending_funding_intents transform text fallback "0";
+        }
+
+        node root.pending.row.fields.coin field metadata {
+            label "Coin";
+            style display = "chip";
+            bind text from item.coin_id attr pending_funding_intents transform text fallback "coin";
+        }
+
+        node root.pending.row.fields.external_quote field metadata {
+            label "External quote";
+            style display = "scalar";
+            bind text from item.external_amount_minor attr pending_funding_intents transform text fallback "0";
+        }
+
+        node root.pending.row.quote_source receipt receipt {
+            style tone = "provenance";
+            bind text from item.quote_source attr pending_funding_intents transform text;
+            bind visible from item.quote_source attr pending_funding_intents transform not_empty;
+        }
+
+        node root.blockers_header section_header heading {
+            text "Blockers";
+            bind visible from state.blockers attr blockers transform not_empty;
+        }
+
+        node root.blockers repeat section {
+            bind items from state.blockers attr blockers transform raw;
+        }
+
+        node root.blockers.row receipt receipt {
+            style tone = "warning";
+            bind text from item attr blockers transform text fallback "blocker";
+        }
+
+        node root.activity_header section_header heading {
+            text "Activity";
+            bind visible from state.activity attr activity transform not_empty;
+        }
+
+        node root.activity_empty text paragraph {
+            bind text from state.empty_message attr empty_message transform text fallback "No wallet capital activity yet.";
+            bind visible from state.activity attr activity transform is_empty;
+        }
+
+        node root.activity repeat section {
+            bind items from state.activity attr activity transform raw;
+        }
+
+        node root.activity.row list_item section {
+            bind text from item.description attr activity transform text fallback "activity";
+        }
+
+        node root.activity.row.title text role heading {
+            bind text from item.description attr activity transform text fallback "activity";
+        }
+
+        node root.activity.row.status status status {
+            bind text from item.status attr activity transform text fallback "recorded";
+        }
+
+        node root.activity.row.fields row section {
+            style layout = "metadata_bar";
+        }
+
+        node root.activity.row.fields.kind field metadata {
+            label "Kind";
+            style display = "chip";
+            bind text from item.activity_kind attr activity transform text fallback "activity";
+        }
+
+        node root.activity.row.fields.amount field metadata {
+            label "Amount";
+            style display = "scalar";
+            bind text from item.amount attr activity transform text fallback "0";
+        }
+
+        node root.activity.row.fields.coin field metadata {
+            label "Coin";
+            style display = "chip";
+            bind text from item.coin_id attr activity transform text fallback "coin";
+        }
+
+        node root.activity.row.fields.provider field metadata {
+            label "Provider";
+            style display = "identifier";
+            bind text from item.provider_key attr activity transform text fallback "internal";
+        }
+
+        node root.activity.row.fields.occurred field metadata {
+            label "When";
+            style display = "scalar";
+            bind text from item.occurred_at attr activity transform text fallback "pending";
+        }
+
+        node root.activity.row.refs row section {
+            style layout = "metadata_bar";
+        }
+
+        node root.activity.row.refs.transaction field metadata {
+            label "Transaction";
+            style display = "identifier";
+            style overflow = "truncate";
+            bind text from item.transaction_id attr activity transform text fallback "none";
+        }
+
+        node root.activity.row.refs.escrow field metadata {
+            label "Escrow";
+            style display = "identifier";
+            style overflow = "truncate";
+            bind text from item.escrow_id attr activity transform text fallback "none";
+        }
+
+        node root.activity.row.refs.receipt field metadata {
+            label "Provider receipt";
+            style display = "identifier";
+            style overflow = "truncate";
+            bind text from item.provider_lifecycle_receipt_id attr activity transform text fallback "none";
+        }
+    }
+}

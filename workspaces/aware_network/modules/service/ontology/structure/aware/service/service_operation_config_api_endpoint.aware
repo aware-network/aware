@@ -1,0 +1,34 @@
+class ServiceOperationConfigApiEndpoint {
+    // Relationships
+    api_capability_endpoint aware_api.api.ApiCapabilityEndpoint key
+    endpoint_functions ServiceOperationConfigApiEndpointFunction[]
+
+    service_config_api ServiceConfigApi key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        service_config_api_id UUID key,
+        api_capability_endpoint_id UUID key,
+        description String? = null
+    ) -> ServiceOperationConfigApiEndpoint {
+        """
+        Create one config-level binding from one public API endpoint facade to a ServiceOperationConfig.
+        """
+    }
+
+    fn create_function (
+        api_capability_endpoint_function_id UUID,
+        description String? = null
+    ) -> ServiceOperationConfigApiEndpointFunction {
+        """
+        Create one Service-owned bind to one API-owned endpoint function behind this endpoint facade.
+        """
+        let created = construct endpoint_functions.build(
+            api_capability_endpoint_function_id = api_capability_endpoint_function_id,
+            description = description,
+        )
+    }
+
+}

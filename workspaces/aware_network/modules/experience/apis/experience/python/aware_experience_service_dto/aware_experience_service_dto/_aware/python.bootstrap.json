@@ -1,0 +1,33 @@
+{
+  "dependency_import_roots": [
+    "aware_environment_service_dto",
+    "aware_identity_service_dto"
+  ],
+  "modules": [
+    "aware_experience_service_dto.comms.models.experience",
+    "aware_experience_service_dto.experience.actor_admission.models",
+    "aware_experience_service_dto.experience.actor_admission.service_operation",
+    "aware_experience_service_dto.experience.environment_profile.models",
+    "aware_experience_service_dto.experience.environment_profile.service_operation",
+    "aware_experience_service_dto.experience.layout_transition.models",
+    "aware_experience_service_dto.experience.layout_transition.service_operation",
+    "aware_experience_service_dto.experience.package_materialization.models",
+    "aware_experience_service_dto.experience.package_materialization.service_operation",
+    "aware_experience_service_dto.experience.program.service_operation",
+    "aware_experience_service_dto.experience.section_graph_binding.models",
+    "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+    "aware_experience_service_dto.experience.session_commit.service_operation",
+    "aware_experience_service_dto.experience.session_context.models",
+    "aware_experience_service_dto.experience.session_context.service_operation",
+    "aware_experience_service_dto.experience.session_handoff.models",
+    "aware_experience_service_dto.experience.session_handoff.service_operation",
+    "aware_experience_service_dto.experience.session_view_frame.models",
+    "aware_experience_service_dto.experience.session_view_frame.service_operation",
+    "aware_experience_service_dto.experience.thread_layout_resolution.models",
+    "aware_experience_service_dto.experience.thread_layout_resolution.service_operation",
+    "aware_experience_service_dto.experience.view_state.models",
+    "aware_experience_service_dto.experience.view_state.service_operation"
+  ],
+  "package_prefix": "aware_experience_service_dto",
+  "version": "v1"
+}

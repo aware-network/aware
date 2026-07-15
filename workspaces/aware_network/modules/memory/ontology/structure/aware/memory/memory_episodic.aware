@@ -1,0 +1,39 @@
+class MemoryEpisodic {
+    // Relationships
+    actor aware_identity.actor.Actor key
+    content_chain aware_content.chain.ContentChain
+    episodes MemoryEpisode[]
+
+    // Attributes
+    key String key = "default"
+
+    fn build construct(actor_id UUID key, key String key = "default") -> MemoryEpisodic {
+        """
+        Create one deterministic MemoryEpisodic lane for an Identity Actor.
+
+        Policy:
+        - Memory owns the lane object and references Identity Actor relationally.
+        - Identity is deterministic from actor plus `key`.
+        - ContentChain must be created via ContentChain.build (no direct instantiation).
+        """
+    }
+
+    fn create_root (p_chain_config_memory_episodic_id UUID) -> UUID {
+        """
+        Creates a new root memory episodic with its own content chain and main thread.
+        This is used to create the initial memory episodic for an actor lane.
+        Parameters: p_chain_config_memory_episodic_id: The UUID of the memory episodic chain config to use
+        Returns: The UUID of the newly created memory episodic
+        """
+    }
+
+    fn create_thread (p_parent_memory_episodic_id UUID) -> UUID {
+        """
+        Creates a new memory episodic by creating a thread from a parent memory episodic.
+        The new thread diverges from the parent thread at the oldest_content point.
+        This is used to create memory threads at different actor-owned layers.
+        Parameters: p_parent_memory_episodic_id: The UUID of the parent memory episodic to create thread from
+        Returns: The UUID of the newly created memory episodic
+        """
+    }
+}

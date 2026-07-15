@@ -34,9 +34,15 @@ class ClassInstanceBuildError(ValueError):
 
 @dataclass(slots=True)
 class ClassInstanceBuildProfile:
+    construct_shell_s: float = 0.0
     plan_attributes_s: float = 0.0
     materialize_attributes_s: float = 0.0
+    source_attribute_values_s: float = 0.0
+    build_attributes_s: float = 0.0
+    link_attributes_s: float = 0.0
     attr_links_total: int = 0
+    source_attribute_lookups: int = 0
+    source_attribute_values_found: int = 0
     duplicate_attribute_links_skipped: int = 0
     relationship_attribute_ids_total: int = 0
     required_fk_attribute_ids_total: int = 0
@@ -113,6 +119,7 @@ def build_class_instance(
             f"(e.g., BaseORMModel or MappingModelSource)."
         )
 
+    construct_started_at = time.perf_counter() if build_profile is not None else 0.0
     with disable_change_tracking_hooks():
         # Canonical ClassInstances are pure in-memory artifacts; avoid implicit
         # session binding side effects.
@@ -140,6 +147,8 @@ def build_class_instance(
                     class_instance_changes=[],
                     class_instance_attributes=[],
                 )
+    if build_profile is not None:
+        build_profile.construct_shell_s += time.perf_counter() - construct_started_at
 
     # Deterministic attribute order: by ClassConfigAttributeConfig.position then name.
     plan_started_at = time.perf_counter() if build_profile is not None else 0.0
@@ -182,7 +191,14 @@ def build_class_instance(
                     build_profile.relationship_attributes_skipped += 1
                 continue
 
+            source_value_started_at = (
+                time.perf_counter() if build_profile is not None else 0.0
+            )
             found, raw_value = source.try_attribute_value(attr_cfg)
+            if build_profile is not None:
+                build_profile.source_attribute_lookups += 1
+                if found:
+                    build_profile.source_attribute_values_found += 1
 
             if not found:
                 if attr_cfg.default_value is not None:
@@ -191,15 +207,29 @@ def build_class_instance(
                         build_profile.default_values_used += 1
                 elif attr_cfg.is_required or attr_cfg.id in required_fk_attribute_ids:
                     raise ClassInstanceBuildError(
-                        f"Missing required attribute '{attr_cfg.name}'"
+                        f"Missing required attribute '{attr_cfg.name}': "
+                        f"class_config={class_config.class_fqn or class_config.name} "
+                        f"class_config_id={class_config.id} "
+                        f"attribute_config_id={attr_cfg.id} "
+                        f"source_type={type(source).__name__} source_id={source.id}"
                     )
                 else:
                     # Optional and no default → omit the Attribute instance.
                     if build_profile is not None:
                         build_profile.optional_attributes_omitted += 1
+                        build_profile.source_attribute_values_s += (
+                            time.perf_counter() - source_value_started_at
+                        )
                     continue
+            if build_profile is not None:
+                build_profile.source_attribute_values_s += (
+                    time.perf_counter() - source_value_started_at
+                )
 
             union = union_selections.get(attr_cfg.name) if union_selections else None
+            build_attribute_started_at = (
+                time.perf_counter() if build_profile is not None else 0.0
+            )
             attribute = build_attribute(
                 owner_key=source.id,
                 attribute_config=attr_cfg,
@@ -209,8 +239,18 @@ def build_class_instance(
                 class_instance_resolver=class_instance_resolver,
                 union=union,
             )
+            if build_profile is not None:
+                build_profile.build_attributes_s += (
+                    time.perf_counter() - build_attribute_started_at
+                )
+            link_attribute_started_at = (
+                time.perf_counter() if build_profile is not None else 0.0
+            )
             _ = link_attribute(class_instance, attribute)
             if build_profile is not None:
+                build_profile.link_attributes_s += (
+                    time.perf_counter() - link_attribute_started_at
+                )
                 build_profile.attributes_built += 1
 
     if build_profile is not None:

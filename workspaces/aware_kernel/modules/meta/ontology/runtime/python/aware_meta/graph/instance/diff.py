@@ -15,9 +15,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+import time
 from typing import Final, Literal, TypeAlias, cast
 from collections.abc import Iterable, Mapping
-from uuid import UUID
+from uuid import UUID, uuid4
 
 # Kernel Graph Ontology
 from aware_code.types import Json, JsonValue
@@ -66,6 +67,20 @@ from aware_meta.graph.support.protocols.diff.protocol import (
 from aware_meta.graph.instance.commit.state_index import (
     CommitStateRow,
     build_commit_state_index,
+)
+from aware_meta.graph.instance.commit.body_codec import (
+    OigCommitBodyAttributeChangeDraft,
+    OigCommitBodyAttributeValueChangeDraft,
+    OigCommitBodyAttributeValueLinkChangeDraft,
+    OigCommitBodyChangeRefDraft,
+    OigCommitBodyClassInstanceChangeDraft,
+    OigCommitBodyDraft,
+    OigCommitBodyFieldDeltaDraft,
+    OigCommitBodyJsonValue,
+    OigCommitBodyRelationshipChangeDraft,
+    OigCommitBodyRootChangeDraft,
+    oig_commit_body_relationship_change_draft_from_change,
+    oig_commit_body_class_instance_change_draft_from_change,
 )
 from aware_orm.session.autobind import disable_autobind
 from typing_extensions import override
@@ -117,6 +132,49 @@ class ObjectInstanceGraphDelta:
     path_key: str
     field_deltas: list[FieldDelta]
     child_deltas: dict[ObjectInstanceGraphMemberKind, list["ObjectInstanceGraphDelta"]]
+
+
+@dataclass(slots=True)
+class ClassInstanceChangeBuildProfile:
+    index_inputs_s: float = 0.0
+    classify_candidates_s: float = 0.0
+    create_changes_s: float = 0.0
+    update_attribute_membership_s: float = 0.0
+    update_graph_diff_s: float = 0.0
+    delete_changes_s: float = 0.0
+    create_field_plan_s: float = 0.0
+    create_change_shell_s: float = 0.0
+    create_change_deltas_s: float = 0.0
+    create_change_delta_payload_value_s: float = 0.0
+    create_change_delta_json_wrapper_s: float = 0.0
+    create_change_delta_model_s: float = 0.0
+    create_class_instance_wrapper_s: float = 0.0
+    create_attribute_index_s: float = 0.0
+    create_attribute_sort_s: float = 0.0
+    create_attribute_wrapper_s: float = 0.0
+    create_attribute_value_wrapper_s: float = 0.0
+    create_attribute_value_link_sort_s: float = 0.0
+    create_attribute_value_link_wrapper_s: float = 0.0
+    old_class_instance_count: int = 0
+    new_class_instance_count: int = 0
+    candidate_count: int = 0
+    create_candidate_count: int = 0
+    update_candidate_count: int = 0
+    delete_candidate_count: int = 0
+    update_attribute_membership_count: int = 0
+    update_graph_diff_count: int = 0
+    emitted_change_count: int = 0
+    create_change_shell_count: int = 0
+    create_change_delta_count: int = 0
+    create_change_delta_payload_value_count: int = 0
+    create_change_delta_json_wrapper_count: int = 0
+    create_change_delta_model_count: int = 0
+    create_class_instance_wrapper_count: int = 0
+    create_attribute_input_count: int = 0
+    create_attribute_unique_count: int = 0
+    create_attribute_wrapper_count: int = 0
+    create_attribute_value_wrapper_count: int = 0
+    create_attribute_value_link_wrapper_count: int = 0
 
 
 class _OigDiffProtocol(GraphDiffProtocol):
@@ -534,6 +592,249 @@ def build_object_instance_graph_identity_snapshot_changes(
     return out
 
 
+def build_object_instance_graph_dirty_class_instance_changes(
+    *,
+    old: ObjectInstanceGraph,
+    new: ObjectInstanceGraph,
+    object_instance_graph_identity_id: UUID,
+    dirty_class_instance_ids: Iterable[UUID],
+    created_at: datetime | None = None,
+) -> list[ObjectInstanceGraphChange]:
+    """Build canonical changes for known dirty ClassInstance ids.
+
+    Callers must provide a complete dirty set for the mutation scope. This helper
+    avoids state-row construction over the whole snapshot; it only diffs dirty
+    class-instance subtrees and relationship keys adjacent to those ids.
+    """
+    if old.id != new.id:
+        raise ValueError(
+            "build_object_instance_graph_dirty_class_instance_changes requires "
+            f"same graph id; old={old.id} new={new.id}"
+        )
+
+    dirty_ids = frozenset(dirty_class_instance_ids)
+    if not dirty_ids:
+        raise ValueError(
+            "build_object_instance_graph_dirty_class_instance_changes requires "
+            "at least one dirty class_instance_id"
+        )
+
+    effective_created_at = created_at or datetime.now(timezone.utc)
+    old_class_instances_by_id = _class_instances_by_id(old)
+    new_class_instances_by_id = _class_instances_by_id(new)
+    uncovered_created_ids = (
+        set(new_class_instances_by_id) - set(old_class_instances_by_id) - dirty_ids
+    )
+    uncovered_deleted_ids = (
+        set(old_class_instances_by_id) - set(new_class_instances_by_id) - dirty_ids
+    )
+    if uncovered_created_ids or uncovered_deleted_ids:
+        raise ValueError(
+            "Dirty class-instance ids do not cover snapshot membership changes. "
+            "uncovered_created_ids="
+            f"{_sorted_uuid_text(uncovered_created_ids)} "
+            "uncovered_deleted_ids="
+            f"{_sorted_uuid_text(uncovered_deleted_ids)}"
+        )
+
+    class_instance_changes: list[ClassInstanceChange] = []
+    for class_instance_id in sorted(dirty_ids, key=str):
+        old_class_instance = old_class_instances_by_id.get(class_instance_id)
+        new_class_instance = new_class_instances_by_id.get(class_instance_id)
+        if old_class_instance is None:
+            if new_class_instance is None:
+                continue
+            class_instance_changes.append(
+                _class_instance_seed_change(
+                    class_instance=new_class_instance,
+                    operation=CREATE_CHANGE_TYPE,
+                    created_at=effective_created_at,
+                )
+            )
+            continue
+        if new_class_instance is None:
+            class_instance_changes.append(
+                _class_instance_delete_change(
+                    class_instance=old_class_instance,
+                    created_at=effective_created_at,
+                )
+            )
+            continue
+
+        class_instance_changes.extend(
+            _diff_single_class_instance_changes(
+                old=old,
+                new=new,
+                old_class_instance=old_class_instance,
+                new_class_instance=new_class_instance,
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                created_at=effective_created_at,
+            )
+        )
+
+    old_relationships_by_key = _relationships_by_key(old)
+    new_relationships_by_key = _relationships_by_key(new)
+    relationship_changes: list[ClassInstanceRelationshipChange] = []
+    for relationship_key in sorted(
+        set(old_relationships_by_key) - set(new_relationships_by_key),
+        key=lambda item: tuple(str(value) for value in item),
+    ):
+        if not _relationship_key_touches_dirty_id(
+            relationship_key,
+            dirty_class_instance_ids=dirty_ids,
+        ):
+            continue
+        relationship_changes.append(
+            _relationship_delete_change(
+                relationship=old_relationships_by_key[relationship_key],
+                created_at=effective_created_at,
+            )
+        )
+    for relationship_key in sorted(
+        set(new_relationships_by_key) - set(old_relationships_by_key),
+        key=lambda item: tuple(str(value) for value in item),
+    ):
+        if not _relationship_key_touches_dirty_id(
+            relationship_key,
+            dirty_class_instance_ids=dirty_ids,
+        ):
+            continue
+        relationship_changes.append(
+            _relationship_create_change(
+                relationship=new_relationships_by_key[relationship_key],
+                created_at=effective_created_at,
+            )
+        )
+
+    out: list[ObjectInstanceGraphChange] = []
+    if class_instance_changes:
+        root_change = _build_change(
+            key="root:object_instance:update",
+            change_type=UPDATE_CHANGE_TYPE,
+            field_deltas=[],
+            created_at=effective_created_at,
+        )
+        out.append(
+            ObjectInstanceGraphChange(
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                object_instance_graph_id=old.id,
+                type=ObjectInstanceGraphChangeType.object_instance,
+                change=root_change,
+                change_id=root_change.id,
+                class_instance_changes=class_instance_changes,
+                class_instance_relationship_changes=[],
+            )
+        )
+    if relationship_changes:
+        root_change = _build_change(
+            key="root:object_instance_relationship:update",
+            change_type=UPDATE_CHANGE_TYPE,
+            field_deltas=[],
+            created_at=effective_created_at,
+        )
+        out.append(
+            ObjectInstanceGraphChange(
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                object_instance_graph_id=old.id,
+                type=ObjectInstanceGraphChangeType.object_instance_relationship,
+                change=root_change,
+                change_id=root_change.id,
+                class_instance_changes=[],
+                class_instance_relationship_changes=relationship_changes,
+            )
+        )
+    return out
+
+
+def build_object_instance_graph_class_instance_update_changes(
+    *,
+    graph: ObjectInstanceGraph,
+    old_class_instances: Iterable[ClassInstance],
+    new_class_instances: Iterable[ClassInstance],
+    object_instance_graph_identity_id: UUID,
+    created_at: datetime | None = None,
+) -> list[ObjectInstanceGraphChange]:
+    """Build canonical update changes for existing ClassInstance pairs only.
+
+    This is intentionally narrower than the dirty class-instance snapshot diff:
+    it never emits ClassInstance creates/deletes or relationship changes. Callers
+    can use it only when another contract has already proven the mutation scope
+    is scalar data on existing class instances.
+    """
+    old_by_id = _class_instances_by_id_from_iterable(old_class_instances)
+    new_by_id = _class_instances_by_id_from_iterable(new_class_instances)
+    if not old_by_id:
+        raise ValueError(
+            "build_object_instance_graph_class_instance_update_changes requires "
+            "at least one old ClassInstance"
+        )
+    if set(old_by_id) != set(new_by_id):
+        raise ValueError("ClassInstance update changes require identical old/new ids")
+
+    effective_created_at = created_at or datetime.now(timezone.utc)
+    class_instance_changes = _build_class_instance_changes_from_maps(
+        graph=graph,
+        old_by_id=old_by_id,
+        new_by_id=new_by_id,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        created_at=effective_created_at,
+    )
+
+    if not class_instance_changes:
+        return []
+
+    root_change = _build_change(
+        key="root:object_instance:update",
+        change_type=UPDATE_CHANGE_TYPE,
+        field_deltas=[],
+        created_at=effective_created_at,
+    )
+    return [
+        ObjectInstanceGraphChange(
+            object_instance_graph_identity_id=object_instance_graph_identity_id,
+            object_instance_graph_id=graph.id,
+            type=ObjectInstanceGraphChangeType.object_instance,
+            change=root_change,
+            change_id=root_change.id,
+            class_instance_changes=class_instance_changes,
+            class_instance_relationship_changes=[],
+        )
+    ]
+
+
+def build_class_instance_changes_from_iterables(
+    *,
+    graph: ObjectInstanceGraph,
+    old_class_instances: Iterable[ClassInstance],
+    new_class_instances: Iterable[ClassInstance],
+    object_instance_graph_identity_id: UUID,
+    created_at: datetime | None = None,
+    build_profile: ClassInstanceChangeBuildProfile | None = None,
+) -> list[ClassInstanceChange]:
+    """Build canonical ClassInstance member changes from sparse snapshots.
+
+    The iterables define the complete changed-member scope. This helper emits
+    creates, updates, and deletes only; callers that need relationship changes
+    must use a graph-level diff helper.
+    """
+    index_started_at = time.perf_counter() if build_profile is not None else 0.0
+    old_by_id = _class_instances_by_id_from_iterable(old_class_instances)
+    new_by_id = _class_instances_by_id_from_iterable(new_class_instances)
+    if build_profile is not None:
+        build_profile.index_inputs_s += time.perf_counter() - index_started_at
+        build_profile.old_class_instance_count += len(old_by_id)
+        build_profile.new_class_instance_count += len(new_by_id)
+    effective_created_at = created_at or datetime.now(timezone.utc)
+    return _build_class_instance_changes_from_maps(
+        graph=graph,
+        old_by_id=old_by_id,
+        new_by_id=new_by_id,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        created_at=effective_created_at,
+        build_profile=build_profile,
+    )
+
+
 def build_object_instance_graph_identity_snapshot_changes_from_state_rows(
     *,
     old_graph_id: UUID,
@@ -688,36 +989,74 @@ def _build_change(
     change_type: ChangeType,
     field_deltas: list[FieldDelta],
     created_at: datetime,
+    create_profile: ClassInstanceChangeBuildProfile | None = None,
 ) -> Change:
+    shell_started_at = time.perf_counter() if create_profile is not None else 0.0
     change = Change(
         key=key,
         type=change_type,
         change_deltas=[],
         created_at=created_at,
     )
+    if create_profile is not None:
+        create_profile.create_change_shell_s += time.perf_counter() - shell_started_at
+        create_profile.create_change_shell_count += 1
     if not field_deltas:
         return change
 
+    delta_started_at = time.perf_counter() if create_profile is not None else 0.0
     deltas: list[ChangeDelta] = []
     for position, fd in enumerate(field_deltas):
-        deltas.append(
-            ChangeDelta(
-                change_id=change.id,
-                position=position,
-                property=fd.property,
-                kind=ChangeDeltaKind.scalar_set,
-                payload=Json({"value": _field_delta_payload_value(fd.value)}),
-            )
+        payload_value_started_at = (
+            time.perf_counter() if create_profile is not None else 0.0
         )
+        payload_value = _field_delta_payload_value(fd.value)
+        if create_profile is not None:
+            create_profile.create_change_delta_payload_value_s += (
+                time.perf_counter() - payload_value_started_at
+            )
+            create_profile.create_change_delta_payload_value_count += 1
+        json_wrapper_started_at = (
+            time.perf_counter() if create_profile is not None else 0.0
+        )
+        payload = Json({"value": payload_value})
+        if create_profile is not None:
+            create_profile.create_change_delta_json_wrapper_s += (
+                time.perf_counter() - json_wrapper_started_at
+            )
+            create_profile.create_change_delta_json_wrapper_count += 1
+        model_started_at = time.perf_counter() if create_profile is not None else 0.0
+        delta = ChangeDelta(
+            change_id=change.id,
+            position=position,
+            property=fd.property,
+            kind=ChangeDeltaKind.scalar_set,
+            payload=payload,
+        )
+        if create_profile is not None:
+            create_profile.create_change_delta_model_s += (
+                time.perf_counter() - model_started_at
+            )
+            create_profile.create_change_delta_model_count += 1
+        deltas.append(delta)
     change.change_deltas = deltas
+    if create_profile is not None:
+        create_profile.create_change_deltas_s += time.perf_counter() - delta_started_at
+        create_profile.create_change_delta_count += len(deltas)
     return change
 
 
 def _class_instances_by_id(
     graph: ObjectInstanceGraph,
 ) -> dict[UUID, ClassInstance]:
+    return _class_instances_by_id_from_iterable(graph.class_instances)
+
+
+def _class_instances_by_id_from_iterable(
+    class_instances: Iterable[ClassInstance],
+) -> dict[UUID, ClassInstance]:
     out: dict[UUID, ClassInstance] = {}
-    for class_instance in graph.class_instances:
+    for class_instance in class_instances:
         class_instance_id = class_instance.id
         if class_instance_id is None:
             raise ValueError(
@@ -730,6 +1069,76 @@ def _class_instances_by_id(
                 f"{class_instance_id}"
             )
         out[class_instance_id] = class_instance
+    return out
+
+
+def _build_class_instance_changes_from_maps(
+    *,
+    graph: ObjectInstanceGraph,
+    old_by_id: Mapping[UUID, ClassInstance],
+    new_by_id: Mapping[UUID, ClassInstance],
+    object_instance_graph_identity_id: UUID,
+    created_at: datetime,
+    build_profile: ClassInstanceChangeBuildProfile | None = None,
+) -> list[ClassInstanceChange]:
+    out: list[ClassInstanceChange] = []
+    classify_started_at = time.perf_counter() if build_profile is not None else 0.0
+    candidate_ids = sorted(set(old_by_id) | set(new_by_id), key=str)
+    if build_profile is not None:
+        build_profile.classify_candidates_s += time.perf_counter() - classify_started_at
+        build_profile.candidate_count += len(candidate_ids)
+    for class_instance_id in candidate_ids:
+        old_class_instance = old_by_id.get(class_instance_id)
+        new_class_instance = new_by_id.get(class_instance_id)
+        if old_class_instance is None:
+            if new_class_instance is None:
+                continue
+            create_started_at = (
+                time.perf_counter() if build_profile is not None else 0.0
+            )
+            create_change = _class_instance_seed_change(
+                class_instance=new_class_instance,
+                operation=CREATE_CHANGE_TYPE,
+                created_at=created_at,
+                build_profile=build_profile,
+            )
+            out.append(create_change)
+            if build_profile is not None:
+                build_profile.create_changes_s += (
+                    time.perf_counter() - create_started_at
+                )
+                build_profile.create_candidate_count += 1
+                build_profile.emitted_change_count += 1
+            continue
+        if new_class_instance is None:
+            delete_started_at = (
+                time.perf_counter() if build_profile is not None else 0.0
+            )
+            delete_change = _class_instance_delete_change(
+                class_instance=old_class_instance,
+                created_at=created_at,
+            )
+            out.append(delete_change)
+            if build_profile is not None:
+                build_profile.delete_changes_s += (
+                    time.perf_counter() - delete_started_at
+                )
+                build_profile.delete_candidate_count += 1
+                build_profile.emitted_change_count += 1
+            continue
+        if build_profile is not None:
+            build_profile.update_candidate_count += 1
+        out.extend(
+            _diff_single_class_instance_changes(
+                old=graph,
+                new=graph,
+                old_class_instance=old_class_instance,
+                new_class_instance=new_class_instance,
+                object_instance_graph_identity_id=object_instance_graph_identity_id,
+                created_at=created_at,
+                build_profile=build_profile,
+            )
+        )
     return out
 
 
@@ -822,17 +1231,21 @@ def _single_class_instance_graph(
     class_instance: ClassInstance,
 ) -> ObjectInstanceGraph:
     with disable_autobind():
-        return ObjectInstanceGraph(
+        return ObjectInstanceGraph.model_construct(
             id=graph.id,
-            key=graph.key,
-            name=graph.name,
-            description=graph.description,
-            object_projection_graph_id=graph.object_projection_graph_id,
+            key=getattr(graph, "key", None),
+            name=getattr(graph, "name", None),
+            description=getattr(graph, "description", None),
+            object_projection_graph_id=getattr(
+                graph,
+                "object_projection_graph_id",
+                None,
+            ),
             root_class_instance_id=class_instance.id,
             root_class_instance=class_instance,
             class_instances=[class_instance],
             class_instance_relationships=[],
-            hash=graph.hash,
+            hash=getattr(graph, "hash", None),
         )
 
 
@@ -844,7 +1257,25 @@ def _diff_single_class_instance_changes(
     new_class_instance: ClassInstance,
     object_instance_graph_identity_id: UUID,
     created_at: datetime,
+    build_profile: ClassInstanceChangeBuildProfile | None = None,
 ) -> list[ClassInstanceChange]:
+    membership_started_at = time.perf_counter() if build_profile is not None else 0.0
+    fast_changes = _diff_single_class_instance_attribute_membership_changes(
+        old_class_instance=old_class_instance,
+        new_class_instance=new_class_instance,
+        created_at=created_at,
+    )
+    if build_profile is not None:
+        build_profile.update_attribute_membership_s += (
+            time.perf_counter() - membership_started_at
+        )
+    if fast_changes is not None:
+        if build_profile is not None:
+            build_profile.update_attribute_membership_count += 1
+            build_profile.emitted_change_count += len(fast_changes)
+        return fast_changes
+
+    graph_diff_started_at = time.perf_counter() if build_profile is not None else 0.0
     old_graph = _single_class_instance_graph(
         graph=old,
         class_instance=old_class_instance,
@@ -862,6 +1293,91 @@ def _diff_single_class_instance_changes(
     out: list[ClassInstanceChange] = []
     for root in roots:
         out.extend(root.class_instance_changes)
+    if build_profile is not None:
+        build_profile.update_graph_diff_s += time.perf_counter() - graph_diff_started_at
+        build_profile.update_graph_diff_count += 1
+        build_profile.emitted_change_count += len(out)
+    return out
+
+
+def _diff_single_class_instance_attribute_membership_changes(
+    *,
+    old_class_instance: ClassInstance,
+    new_class_instance: ClassInstance,
+    created_at: datetime,
+) -> list[ClassInstanceChange] | None:
+    if (
+        old_class_instance.class_config_id != new_class_instance.class_config_id
+        or old_class_instance.source_object_id != new_class_instance.source_object_id
+    ):
+        return None
+
+    old_attributes_by_id = _attributes_by_id_for_class_instance(old_class_instance)
+    new_attributes_by_id = _attributes_by_id_for_class_instance(new_class_instance)
+    created_attribute_ids = set(new_attributes_by_id) - set(old_attributes_by_id)
+    deleted_attribute_ids = set(old_attributes_by_id) - set(new_attributes_by_id)
+    potentially_updated_attribute_ids = set(old_attributes_by_id) & set(
+        new_attributes_by_id
+    )
+    if not created_attribute_ids and not deleted_attribute_ids:
+        return None
+    for attribute_id in potentially_updated_attribute_ids:
+        if old_attributes_by_id[attribute_id] != new_attributes_by_id[attribute_id]:
+            return None
+
+    change = _build_change(
+        key=(
+            f"class_instance:{new_class_instance.class_config_id}:"
+            f"{new_class_instance.id}:update"
+        ),
+        change_type=UPDATE_CHANGE_TYPE,
+        field_deltas=[],
+        created_at=created_at,
+    )
+    class_instance_change = ClassInstanceChange(
+        class_instance_id=new_class_instance.id,
+        change=change,
+        change_id=change.id,
+        attribute_changes=[],
+    )
+    for attribute_id in sorted(created_attribute_ids, key=str):
+        class_instance_change.attribute_changes.append(
+            _attribute_create_change(
+                attribute=new_attributes_by_id[attribute_id],
+                parent=class_instance_change,
+                created_at=created_at,
+            )
+        )
+    for attribute_id in sorted(deleted_attribute_ids, key=str):
+        class_instance_change.attribute_changes.append(
+            _attribute_delete_change(
+                attribute=old_attributes_by_id[attribute_id],
+                parent=class_instance_change,
+                created_at=created_at,
+            )
+        )
+    return [class_instance_change]
+
+
+def _attributes_by_id_for_class_instance(
+    class_instance: ClassInstance,
+) -> dict[UUID, Attribute]:
+    out: dict[UUID, Attribute] = {}
+    for attribute in class_instance.attributes:
+        attribute_id = attribute.id
+        if attribute_id is None:
+            raise ValueError(
+                "ClassInstance contains Attribute without id: "
+                f"class_instance_id={class_instance.id}"
+            )
+        previous = out.get(attribute_id)
+        if previous is not None and previous != attribute:
+            raise ValueError(
+                "ClassInstance contains duplicate Attribute id with "
+                f"conflicting payload: class_instance_id={class_instance.id} "
+                f"attribute_id={attribute_id}"
+            )
+        out[attribute_id] = attribute
     return out
 
 
@@ -887,6 +1403,21 @@ def _relationships_by_key(
             )
         out[key] = relationship
     return out
+
+
+def _relationship_key_touches_dirty_id(
+    relationship_key: tuple[UUID, UUID, UUID],
+    *,
+    dirty_class_instance_ids: frozenset[UUID],
+) -> bool:
+    _relationship_id, source_id, target_id = relationship_key
+    return (
+        source_id in dirty_class_instance_ids or target_id in dirty_class_instance_ids
+    )
+
+
+def _sorted_uuid_text(values: Iterable[UUID]) -> str:
+    return ",".join(str(value) for value in sorted(values, key=str)) or "none"
 
 
 def _field_delta_from_graph_change(field_change: FieldChange) -> FieldDelta:
@@ -938,7 +1469,9 @@ def _class_instance_seed_change(
     class_instance: ClassInstance,
     operation: ChangeType,
     created_at: datetime,
+    build_profile: ClassInstanceChangeBuildProfile | None = None,
 ) -> ClassInstanceChange:
+    field_plan_started_at = time.perf_counter() if build_profile is not None else 0.0
     field_deltas = [
         FieldDelta(
             property="class_config_id",
@@ -951,6 +1484,8 @@ def _class_instance_seed_change(
             value=class_instance.source_object_id,
         ),
     ]
+    if build_profile is not None:
+        build_profile.create_field_plan_s += time.perf_counter() - field_plan_started_at
     change = _build_change(
         key=(
             f"class_instance:{class_instance.class_config_id}:"
@@ -959,12 +1494,23 @@ def _class_instance_seed_change(
         change_type=operation,
         field_deltas=field_deltas,
         created_at=created_at,
+        create_profile=build_profile,
     )
+    wrapper_started_at = time.perf_counter() if build_profile is not None else 0.0
     class_instance_change = ClassInstanceChange(
         class_instance_id=class_instance.id,
         change=change,
         change_id=change.id,
         attribute_changes=[],
+    )
+    if build_profile is not None:
+        build_profile.create_class_instance_wrapper_s += (
+            time.perf_counter() - wrapper_started_at
+        )
+        build_profile.create_class_instance_wrapper_count += 1
+        build_profile.create_attribute_input_count += len(class_instance.attributes)
+    attribute_index_started_at = (
+        time.perf_counter() if build_profile is not None else 0.0
     )
     attributes_by_id: dict[UUID, Attribute] = {}
     for attribute in class_instance.attributes:
@@ -981,85 +1527,274 @@ def _class_instance_seed_change(
                 )
             continue
         attributes_by_id[attribute.id] = attribute
-    for attribute in sorted(
+    if build_profile is not None:
+        build_profile.create_attribute_index_s += (
+            time.perf_counter() - attribute_index_started_at
+        )
+        build_profile.create_attribute_unique_count += len(attributes_by_id)
+    attribute_sort_started_at = (
+        time.perf_counter() if build_profile is not None else 0.0
+    )
+    sorted_attributes = sorted(
         attributes_by_id.values(),
         key=lambda item: (str(item.attribute_config_id), str(item.id)),
-    ):
+    )
+    if build_profile is not None:
+        build_profile.create_attribute_sort_s += (
+            time.perf_counter() - attribute_sort_started_at
+        )
+    for attribute in sorted_attributes:
         class_instance_change.attribute_changes.append(
             _attribute_create_change(
                 attribute=attribute,
                 parent=class_instance_change,
                 created_at=created_at,
+                build_profile=build_profile,
             )
         )
     return class_instance_change
 
 
-def _class_instance_delete_change(
+def build_object_instance_graph_create_body_draft(
     *,
-    class_instance: ClassInstance,
-    created_at: datetime,
-) -> ClassInstanceChange:
-    change = _build_change(
-        key=(
-            f"class_instance:{class_instance.class_config_id}:"
-            f"{class_instance.id}:delete"
-        ),
-        change_type=DELETE_CHANGE_TYPE,
-        field_deltas=[],
-        created_at=created_at,
-    )
-    return ClassInstanceChange(
-        class_instance_id=class_instance.id,
-        change=change,
-        change_id=change.id,
-        attribute_changes=[],
-    )
+    class_instances: Iterable[ClassInstance],
+    relationships: Iterable[ClassInstanceRelationship] = (),
+    class_instance_changes: Iterable[ClassInstanceChange] = (),
+    relationship_changes: Iterable[ClassInstanceRelationshipChange] = (),
+    class_instance_create_drafts: Iterable[OigCommitBodyClassInstanceChangeDraft] = (),
+    update_class_instance_ids: Iterable[UUID] = (),
+    created_at: datetime | None = None,
+) -> OigCommitBodyDraft:
+    """Build canonical record-native evidence for an all-create graph delta."""
 
-
-def _attribute_create_change(
-    *,
-    attribute: Attribute,
-    parent: ClassInstanceChange,
-    created_at: datetime,
-) -> AttributeChange:
-    change = _build_change(
-        key=f"attribute:attr:{attribute.attribute_config_id}:create",
-        change_type=CREATE_CHANGE_TYPE,
-        field_deltas=[
-            FieldDelta(
-                property="attribute_config_id",
-                op=DeltaOp.SET,
-                value=attribute.attribute_config_id,
-            )
-        ],
-        created_at=created_at,
-    )
-    value_root_change = (
-        None
-        if attribute.value_root is None
-        else _attribute_value_create_change(
-            value=attribute.value_root,
-            created_at=created_at,
+    effective_created_at = created_at or datetime.now(timezone.utc)
+    class_instance_tuple = tuple(
+        sorted(
+            class_instances, key=lambda item: (str(item.class_config_id), str(item.id))
         )
     )
-    return AttributeChange(
-        attribute_id=attribute.id,
-        class_instance_change_id=parent.id,
+    relationship_tuple = tuple(
+        sorted(
+            relationships,
+            key=lambda item: (
+                str(item.class_config_relationship_id),
+                str(item.source_class_instance_id),
+                str(item.target_class_instance_id),
+            ),
+        )
+    )
+    relationship_change_tuple = tuple(relationship_changes)
+    class_instance_change_tuple = tuple(class_instance_changes)
+    class_instance_create_draft_tuple = tuple(class_instance_create_drafts)
+    update_class_instance_id_set = frozenset(update_class_instance_ids)
+    roots: list[OigCommitBodyRootChangeDraft] = []
+    if (
+        class_instance_tuple
+        or class_instance_change_tuple
+        or class_instance_create_draft_tuple
+    ):
+        root_change = _draft_change_ref(
+            key="root:object_instance:update",
+            change_type=UPDATE_CHANGE_TYPE,
+            field_deltas=(),
+            created_at=effective_created_at,
+        )
+        roots.append(
+            OigCommitBodyRootChangeDraft(
+                id=uuid4(),
+                type=ObjectInstanceGraphChangeType.object_instance,
+                change=root_change,
+                class_instance_changes=tuple(
+                    [
+                        _class_instance_create_body_draft(
+                            class_instance=item,
+                            operation=(
+                                UPDATE_CHANGE_TYPE
+                                if item.id in update_class_instance_id_set
+                                else CREATE_CHANGE_TYPE
+                            ),
+                            created_at=effective_created_at,
+                        )
+                        for item in class_instance_tuple
+                    ]
+                    + sorted(
+                        class_instance_create_draft_tuple,
+                        key=lambda item: str(item.class_instance_id),
+                    )
+                    + [
+                        oig_commit_body_class_instance_change_draft_from_change(item)
+                        for item in sorted(
+                            class_instance_change_tuple,
+                            key=lambda item: str(item.class_instance_id),
+                        )
+                    ]
+                ),
+            )
+        )
+    if relationship_tuple or relationship_change_tuple:
+        root_change = _draft_change_ref(
+            key="root:object_instance_relationship:update",
+            change_type=UPDATE_CHANGE_TYPE,
+            field_deltas=(),
+            created_at=effective_created_at,
+        )
+        roots.append(
+            OigCommitBodyRootChangeDraft(
+                id=uuid4(),
+                type=ObjectInstanceGraphChangeType.object_instance_relationship,
+                change=root_change,
+                class_instance_relationship_changes=tuple(
+                    [
+                        _relationship_create_body_draft(
+                            relationship=item,
+                            created_at=effective_created_at,
+                        )
+                        for item in relationship_tuple
+                    ]
+                    + [
+                        oig_commit_body_relationship_change_draft_from_change(item)
+                        for item in sorted(
+                            relationship_change_tuple,
+                            key=lambda item: (
+                                str(item.class_config_relationship_id),
+                                str(item.source_class_instance_id),
+                                str(item.target_class_instance_id),
+                            ),
+                        )
+                    ]
+                ),
+            )
+        )
+    if not roots:
+        raise ValueError("Create body draft requires class instances or relationships")
+    return OigCommitBodyDraft(roots=tuple(roots))
+
+
+def build_class_instance_create_body_draft_from_attributes(
+    *,
+    class_instance_id: UUID,
+    class_config_id: UUID,
+    source_object_id: UUID,
+    attribute_changes: Iterable[OigCommitBodyAttributeChangeDraft],
+    created_at: datetime,
+) -> OigCommitBodyClassInstanceChangeDraft:
+    """Assemble a canonical class create from already validated attribute drafts."""
+
+    return OigCommitBodyClassInstanceChangeDraft(
+        id=uuid4(),
+        class_instance_id=class_instance_id,
+        change=_draft_change_ref(
+            key=f"class_instance:{class_config_id}:{class_instance_id}:create",
+            change_type=CREATE_CHANGE_TYPE,
+            field_deltas=(
+                FieldDelta(
+                    property="class_config_id",
+                    op=DeltaOp.SET,
+                    value=class_config_id,
+                ),
+                FieldDelta(
+                    property="source_object_id",
+                    op=DeltaOp.SET,
+                    value=source_object_id,
+                ),
+            ),
+            created_at=created_at,
+        ),
+        attribute_changes=tuple(attribute_changes),
+    )
+
+
+def _class_instance_create_body_draft(
+    *,
+    class_instance: ClassInstance,
+    operation: ChangeType = CREATE_CHANGE_TYPE,
+    created_at: datetime,
+) -> OigCommitBodyClassInstanceChangeDraft:
+    change = _draft_change_ref(
+        key=(
+            f"class_instance:{class_instance.class_config_id}:"
+            f"{class_instance.id}:{operation.value}"
+        ),
+        change_type=operation,
+        field_deltas=(
+            FieldDelta(
+                property="class_config_id",
+                op=DeltaOp.SET,
+                value=class_instance.class_config_id,
+            ),
+            FieldDelta(
+                property="source_object_id",
+                op=DeltaOp.SET,
+                value=class_instance.source_object_id,
+            ),
+        ),
+        created_at=created_at,
+    )
+    attributes_by_id: dict[UUID, Attribute] = {}
+    for attribute in class_instance.attributes:
+        existing = attributes_by_id.get(attribute.id)
+        if existing is not None:
+            if (
+                existing.attribute_config_id != attribute.attribute_config_id
+                or existing.value_root_id != attribute.value_root_id
+            ):
+                raise ValueError(
+                    "Conflicting duplicate Attribute in ClassInstance draft: "
+                    f"class_instance_id={class_instance.id} "
+                    f"attribute_id={attribute.id}"
+                )
+            continue
+        attributes_by_id[attribute.id] = attribute
+    return OigCommitBodyClassInstanceChangeDraft(
+        id=uuid4(),
+        class_instance_id=class_instance.id,
         change=change,
-        change_id=change.id,
-        value_root_change=value_root_change,
-        value_root_change_id=(
-            None if value_root_change is None else value_root_change.id
+        attribute_changes=tuple(
+            _attribute_create_body_draft(attribute=item, created_at=created_at)
+            for item in sorted(
+                attributes_by_id.values(),
+                key=lambda item: (str(item.attribute_config_id), str(item.id)),
+            )
         ),
     )
 
 
-def _attribute_value_create_change(
+def _attribute_create_body_draft(
+    *,
+    attribute: Attribute,
+    created_at: datetime,
+) -> OigCommitBodyAttributeChangeDraft:
+    return OigCommitBodyAttributeChangeDraft(
+        id=uuid4(),
+        attribute_id=attribute.id,
+        change=_draft_change_ref(
+            key=f"attribute:attr:{attribute.attribute_config_id}:create",
+            change_type=CREATE_CHANGE_TYPE,
+            field_deltas=(
+                FieldDelta(
+                    property="attribute_config_id",
+                    op=DeltaOp.SET,
+                    value=attribute.attribute_config_id,
+                ),
+            ),
+            created_at=created_at,
+        ),
+        value_root_change=(
+            _attribute_value_create_body_draft(
+                value=attribute.value_root,
+                created_at=created_at,
+            )
+            if attribute.value_root is not None
+            else None
+        ),
+    )
+
+
+def _attribute_value_create_body_draft(
     *,
     value: AttributeValue,
     created_at: datetime,
-) -> AttributeValueChange:
+) -> OigCommitBodyAttributeValueChangeDraft:
     field_deltas: list[FieldDelta] = []
     primitive_value = _attribute_value_primitive_payload(value)
     if primitive_value is not None:
@@ -1102,20 +1837,291 @@ def _attribute_value_create_change(
                 value=value.class_instance_id,
             )
         )
+    return OigCommitBodyAttributeValueChangeDraft(
+        id=uuid4(),
+        attribute_value_id=value.id,
+        change=_draft_change_ref(
+            key="attribute_value:value:create",
+            change_type=CREATE_CHANGE_TYPE,
+            field_deltas=field_deltas,
+            created_at=created_at,
+        ),
+        attribute_value_link_changes=tuple(
+            _attribute_value_link_create_body_draft(
+                link=item,
+                created_at=created_at,
+            )
+            for item in sorted(
+                value.child_links,
+                key=lambda item: (
+                    item.role.value,
+                    item.position if item.position is not None else -1,
+                    item.identity_key or "",
+                    str(item.id),
+                ),
+            )
+        ),
+    )
+
+
+def _attribute_value_link_create_body_draft(
+    *,
+    link: AttributeValueLink,
+    created_at: datetime,
+) -> OigCommitBodyAttributeValueLinkChangeDraft:
+    field_deltas = [FieldDelta(property="role", op=DeltaOp.SET, value=link.role.value)]
+    if link.position is not None:
+        field_deltas.append(
+            FieldDelta(property="position", op=DeltaOp.SET, value=link.position)
+        )
+    if link.identity_key is not None:
+        field_deltas.append(
+            FieldDelta(
+                property="identity_key",
+                op=DeltaOp.SET,
+                value=link.identity_key,
+            )
+        )
+    return OigCommitBodyAttributeValueLinkChangeDraft(
+        id=uuid4(),
+        attribute_value_link_id=link.id,
+        change=_draft_change_ref(
+            key=f"attribute_value_link:{_attribute_value_link_path_key(link)}:create",
+            change_type=CREATE_CHANGE_TYPE,
+            field_deltas=field_deltas,
+            created_at=created_at,
+        ),
+        child_attribute_value_change=(
+            _attribute_value_create_body_draft(
+                value=link.child,
+                created_at=created_at,
+            )
+            if link.child is not None
+            else None
+        ),
+    )
+
+
+def _relationship_create_body_draft(
+    *,
+    relationship: ClassInstanceRelationship,
+    created_at: datetime,
+) -> OigCommitBodyRelationshipChangeDraft:
+    return OigCommitBodyRelationshipChangeDraft(
+        id=uuid4(),
+        class_config_relationship_id=relationship.class_config_relationship_id,
+        source_class_instance_id=relationship.source_class_instance_id,
+        target_class_instance_id=relationship.target_class_instance_id,
+        change=_draft_change_ref(
+            key=(
+                "relationship:"
+                f"{relationship.source_class_instance_id}->"
+                f"{relationship.target_class_instance_id}:"
+                f"{relationship.class_config_relationship_id}:create"
+            ),
+            change_type=CREATE_CHANGE_TYPE,
+            field_deltas=(),
+            created_at=created_at,
+        ),
+    )
+
+
+def _draft_change_ref(
+    *,
+    key: str,
+    change_type: ChangeType,
+    field_deltas: Iterable[FieldDelta],
+    created_at: datetime,
+) -> OigCommitBodyChangeRefDraft:
+    return OigCommitBodyChangeRefDraft(
+        id=uuid4(),
+        key=key,
+        type=change_type,
+        created_at=created_at,
+        fields=tuple(
+            OigCommitBodyFieldDeltaDraft(
+                position=position,
+                property=field_delta.property,
+                kind=ChangeDeltaKind.scalar_set,
+                payload=cast(
+                    OigCommitBodyJsonValue,
+                    {"value": _field_delta_payload_value(field_delta.value)},
+                ),
+            )
+            for position, field_delta in enumerate(field_deltas)
+        ),
+    )
+
+
+def _class_instance_delete_change(
+    *,
+    class_instance: ClassInstance,
+    created_at: datetime,
+) -> ClassInstanceChange:
+    change = _build_change(
+        key=(
+            f"class_instance:{class_instance.class_config_id}:"
+            f"{class_instance.id}:delete"
+        ),
+        change_type=DELETE_CHANGE_TYPE,
+        field_deltas=[],
+        created_at=created_at,
+    )
+    return ClassInstanceChange(
+        class_instance_id=class_instance.id,
+        change=change,
+        change_id=change.id,
+        attribute_changes=[],
+    )
+
+
+def _attribute_create_change(
+    *,
+    attribute: Attribute,
+    parent: ClassInstanceChange,
+    created_at: datetime,
+    build_profile: ClassInstanceChangeBuildProfile | None = None,
+) -> AttributeChange:
+    field_plan_started_at = time.perf_counter() if build_profile is not None else 0.0
+    field_deltas = [
+        FieldDelta(
+            property="attribute_config_id",
+            op=DeltaOp.SET,
+            value=attribute.attribute_config_id,
+        )
+    ]
+    if build_profile is not None:
+        build_profile.create_field_plan_s += time.perf_counter() - field_plan_started_at
+    change = _build_change(
+        key=f"attribute:attr:{attribute.attribute_config_id}:create",
+        change_type=CREATE_CHANGE_TYPE,
+        field_deltas=field_deltas,
+        created_at=created_at,
+        create_profile=build_profile,
+    )
+    value_root_change = (
+        None
+        if attribute.value_root is None
+        else _attribute_value_create_change(
+            value=attribute.value_root,
+            created_at=created_at,
+            build_profile=build_profile,
+        )
+    )
+    wrapper_started_at = time.perf_counter() if build_profile is not None else 0.0
+    attribute_change = AttributeChange(
+        attribute_id=attribute.id,
+        class_instance_change_id=parent.id,
+        change=change,
+        change_id=change.id,
+        value_root_change=value_root_change,
+        value_root_change_id=(
+            None if value_root_change is None else value_root_change.id
+        ),
+    )
+    if build_profile is not None:
+        build_profile.create_attribute_wrapper_s += (
+            time.perf_counter() - wrapper_started_at
+        )
+        build_profile.create_attribute_wrapper_count += 1
+    return attribute_change
+
+
+def _attribute_delete_change(
+    *,
+    attribute: Attribute,
+    parent: ClassInstanceChange,
+    created_at: datetime,
+) -> AttributeChange:
+    change = _build_change(
+        key=f"attribute:attr:{attribute.attribute_config_id}:delete",
+        change_type=DELETE_CHANGE_TYPE,
+        field_deltas=[],
+        created_at=created_at,
+    )
+    return AttributeChange(
+        attribute_id=attribute.id,
+        class_instance_change_id=parent.id,
+        change=change,
+        change_id=change.id,
+        value_root_change=None,
+        value_root_change_id=None,
+    )
+
+
+def _attribute_value_create_change(
+    *,
+    value: AttributeValue,
+    created_at: datetime,
+    build_profile: ClassInstanceChangeBuildProfile | None = None,
+) -> AttributeValueChange:
+    field_plan_started_at = time.perf_counter() if build_profile is not None else 0.0
+    field_deltas: list[FieldDelta] = []
+    primitive_value = _attribute_value_primitive_payload(value)
+    if primitive_value is not None:
+        field_deltas.append(
+            FieldDelta(
+                property="primitive_value",
+                op=DeltaOp.SET,
+                value=primitive_value,
+            )
+        )
+    if value.enum_option_id is not None:
+        field_deltas.append(
+            FieldDelta(
+                property="enum_option_id",
+                op=DeltaOp.SET,
+                value=value.enum_option_id,
+            )
+        )
+    if value.inline_value_instance_id is not None:
+        field_deltas.append(
+            FieldDelta(
+                property="inline_value_instance_id",
+                op=DeltaOp.SET,
+                value=value.inline_value_instance_id,
+            )
+        )
+    elif value.inline_value_instance is not None:
+        field_deltas.append(
+            FieldDelta(
+                property="inline_value_instance_id",
+                op=DeltaOp.SET,
+                value=value.inline_value_instance.id,
+            )
+        )
+    elif value.class_instance_id is not None:
+        field_deltas.append(
+            FieldDelta(
+                property="class_instance_id",
+                op=DeltaOp.SET,
+                value=value.class_instance_id,
+            )
+        )
+    if build_profile is not None:
+        build_profile.create_field_plan_s += time.perf_counter() - field_plan_started_at
 
     change = _build_change(
         key="attribute_value:value:create",
         change_type=CREATE_CHANGE_TYPE,
         field_deltas=field_deltas,
         created_at=created_at,
+        create_profile=build_profile,
     )
+    wrapper_started_at = time.perf_counter() if build_profile is not None else 0.0
     value_change = AttributeValueChange(
         attribute_value_id=value.id,
         change=change,
         change_id=change.id,
         attribute_value_link_changes=[],
     )
-    for link in sorted(
+    if build_profile is not None:
+        build_profile.create_attribute_value_wrapper_s += (
+            time.perf_counter() - wrapper_started_at
+        )
+        build_profile.create_attribute_value_wrapper_count += 1
+    link_sort_started_at = time.perf_counter() if build_profile is not None else 0.0
+    sorted_links = sorted(
         value.child_links,
         key=lambda item: (
             item.role.value,
@@ -1123,12 +2129,18 @@ def _attribute_value_create_change(
             item.identity_key or "",
             str(item.id),
         ),
-    ):
+    )
+    if build_profile is not None:
+        build_profile.create_attribute_value_link_sort_s += (
+            time.perf_counter() - link_sort_started_at
+        )
+    for link in sorted_links:
         value_change.attribute_value_link_changes.append(
             _attribute_value_link_create_change(
                 link=link,
                 parent=value_change,
                 created_at=created_at,
+                build_profile=build_profile,
             )
         )
     return value_change
@@ -1139,7 +2151,9 @@ def _attribute_value_link_create_change(
     link: AttributeValueLink,
     parent: AttributeValueChange,
     created_at: datetime,
+    build_profile: ClassInstanceChangeBuildProfile | None = None,
 ) -> AttributeValueLinkChange:
+    field_plan_started_at = time.perf_counter() if build_profile is not None else 0.0
     field_deltas = [
         FieldDelta(
             property="role",
@@ -1163,11 +2177,14 @@ def _attribute_value_link_create_change(
                 value=link.identity_key,
             )
         )
+    if build_profile is not None:
+        build_profile.create_field_plan_s += time.perf_counter() - field_plan_started_at
     change = _build_change(
         key=f"attribute_value_link:{_attribute_value_link_path_key(link)}:create",
         change_type=CREATE_CHANGE_TYPE,
         field_deltas=field_deltas,
         created_at=created_at,
+        create_profile=build_profile,
     )
     child_change = (
         None
@@ -1175,9 +2192,11 @@ def _attribute_value_link_create_change(
         else _attribute_value_create_change(
             value=link.child,
             created_at=created_at,
+            build_profile=build_profile,
         )
     )
-    return AttributeValueLinkChange(
+    wrapper_started_at = time.perf_counter() if build_profile is not None else 0.0
+    link_change = AttributeValueLinkChange(
         attribute_value_change_id=parent.id,
         attribute_value_link_id=link.id,
         change=change,
@@ -1187,6 +2206,12 @@ def _attribute_value_link_create_change(
             None if child_change is None else child_change.id
         ),
     )
+    if build_profile is not None:
+        build_profile.create_attribute_value_link_wrapper_s += (
+            time.perf_counter() - wrapper_started_at
+        )
+        build_profile.create_attribute_value_link_wrapper_count += 1
+    return link_change
 
 
 def _relationship_create_change(
@@ -1569,6 +2594,11 @@ __all__ = [
     "DeltaOp",
     "FieldDelta",
     "ObjectInstanceGraphDelta",
+    "build_class_instance_changes_from_iterables",
+    "build_class_instance_create_body_draft_from_attributes",
+    "build_object_instance_graph_create_body_draft",
+    "build_object_instance_graph_class_instance_update_changes",
+    "build_object_instance_graph_dirty_class_instance_changes",
     "build_object_instance_graph_identity_snapshot_changes",
     "build_object_instance_graph_identity_snapshot_changes_from_state_rows",
     "build_object_instance_graph_seed_changes",

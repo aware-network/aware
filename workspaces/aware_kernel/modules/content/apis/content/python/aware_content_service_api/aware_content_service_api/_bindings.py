@@ -40,6 +40,22 @@ API_INTERFACE_SPEC: Final[LoadedApiInterface] = load_api_interface_spec_payload(
                     {
                         "endpoints": [
                             {
+                                "description": "Commit provider-neutral text as "
+                                "Content truth and return exact commit "
+                                "evidence.",
+                                "discriminant": "content.text.commit_content_text",
+                                "name": "commit_content_text",
+                                "request": {
+                                    "class_ref": "aware_content_service_dto.content.CommitContentTextRequest",
+                                    "source_path": "bindings/content.apis.aware",
+                                },
+                                "response": {
+                                    "class_ref": "aware_content_service_dto.content.CommitContentTextResponse",
+                                    "source_path": "bindings/content.apis.aware",
+                                },
+                                "source_path": "bindings/content.apis.aware",
+                            },
+                            {
                                 "description": "Resolve one Content object into "
                                 "deterministic text parts and a "
                                 "flattened text payload.",
@@ -54,7 +70,7 @@ API_INTERFACE_SPEC: Final[LoadedApiInterface] = load_api_interface_spec_payload(
                                     "source_path": "bindings/content.apis.aware",
                                 },
                                 "source_path": "bindings/content.apis.aware",
-                            }
+                            },
                         ],
                         "name": "text",
                         "source_path": "bindings/content.apis.aware",
@@ -111,6 +127,30 @@ API_INVOCATION_MANIFEST: Final[LoadedApiInvocationManifest] = load_api_invocatio
                                 "addressing_strategy": "session_bound",
                                 "client_backend": "aware_api.invoker.AwareApiEndpointInvoker",
                                 "client_operation": "invoke_api_endpoint",
+                                "description": "Commit provider-neutral text as "
+                                "Content truth and return exact commit "
+                                "evidence.",
+                                "discriminant": "content.text.commit_content_text",
+                                "endpoint_ref": "content.text.commit_content_text",
+                                "fulfillment_bindings": [],
+                                "invocation_kind": "shared_client_endpoint",
+                                "name": "commit_content_text",
+                                "request": {
+                                    "class_ref": "aware_content_service_dto.content.CommitContentTextRequest",
+                                    "python_model_ref": "aware_content_service_dto.content.content_service_operation.CommitContentTextRequest",
+                                    "source_path": "bindings/content.apis.aware",
+                                },
+                                "response": {
+                                    "class_ref": "aware_content_service_dto.content.CommitContentTextResponse",
+                                    "python_model_ref": "aware_content_service_dto.content.content_service_operation.CommitContentTextResponse",
+                                    "source_path": "bindings/content.apis.aware",
+                                },
+                                "source_path": "bindings/content.apis.aware",
+                            },
+                            {
+                                "addressing_strategy": "session_bound",
+                                "client_backend": "aware_api.invoker.AwareApiEndpointInvoker",
+                                "client_operation": "invoke_api_endpoint",
                                 "description": "Resolve one Content object into "
                                 "deterministic text parts and a "
                                 "flattened text payload.",
@@ -130,7 +170,7 @@ API_INVOCATION_MANIFEST: Final[LoadedApiInvocationManifest] = load_api_invocatio
                                     "source_path": "bindings/content.apis.aware",
                                 },
                                 "source_path": "bindings/content.apis.aware",
-                            }
+                            },
                         ],
                         "name": "text",
                         "source_path": "bindings/content.apis.aware",
@@ -147,10 +187,12 @@ API_INVOCATION_MANIFEST: Final[LoadedApiInvocationManifest] = load_api_invocatio
 )
 
 CONTENT__PACKAGE__MATERIALIZE_CONTENT_PACKAGE_ENDPOINT_REF: Final[str] = "content.package.materialize_content_package"
+CONTENT__TEXT__COMMIT_CONTENT_TEXT_ENDPOINT_REF: Final[str] = "content.text.commit_content_text"
 CONTENT__TEXT__RESOLVE_CONTENT_TEXT_ENDPOINT_REF: Final[str] = "content.text.resolve_content_text"
 
 ENDPOINT_REF_BY_NAME: Final[dict[str, str]] = {
     "content.package.materialize_content_package": CONTENT__PACKAGE__MATERIALIZE_CONTENT_PACKAGE_ENDPOINT_REF,
+    "content.text.commit_content_text": CONTENT__TEXT__COMMIT_CONTENT_TEXT_ENDPOINT_REF,
     "content.text.resolve_content_text": CONTENT__TEXT__RESOLVE_CONTENT_TEXT_ENDPOINT_REF,
 }
 
@@ -161,5 +203,6 @@ __all__ = [
     "API_PACKAGE_NAME",
     "ENDPOINT_REF_BY_NAME",
     "CONTENT__PACKAGE__MATERIALIZE_CONTENT_PACKAGE_ENDPOINT_REF",
+    "CONTENT__TEXT__COMMIT_CONTENT_TEXT_ENDPOINT_REF",
     "CONTENT__TEXT__RESOLVE_CONTENT_TEXT_ENDPOINT_REF",
 ]

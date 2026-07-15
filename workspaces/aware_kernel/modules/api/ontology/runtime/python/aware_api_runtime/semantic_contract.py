@@ -3,16 +3,13 @@ from __future__ import annotations
 from aware_api_runtime.semantic_scope import API_SEMANTIC_SCOPE_KEY
 from aware_code.module_semantic_contract import (
     ModuleSemanticArtifactLeafOwnershipDescriptor,
-    ModuleSemanticManifestResolutionDescriptor,
     ModuleSemanticMaterializationArtifactOutputDescriptor,
     ModuleSemanticMaterializationInputDescriptor,
     ModuleSemanticMaterializationRuntimeContextDescriptor,
     ModuleSemanticMaterializationRuntimeDescriptor,
     ModuleSemanticMaterializationToolingDescriptor,
-    ModuleSemanticRuntimeProjectionPackageDescriptor,
     ModuleCapabilityExecutionPolicyDescriptor,
     ModuleSemanticContract,
-    ModuleSemanticPackageRoleDescriptor,
     ModuleSemanticSyntaxLaneDescriptor,
     ModuleSemanticWorkflowDescriptor,
     ModuleSemanticWorkflowInstructionDescriptor,
@@ -24,7 +21,16 @@ from aware_code.semantic_materialization import (
     SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_ENTRYPOINT,
     SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_METADATA_KEY,
     SEMANTIC_PROVIDER_DELTA_EXECUTION_CONTEXT_RESOLVERS_KEY,
+    SEMANTIC_PROVIDER_DELTA_FUNCTIONAL_MATERIALIZATION_KEY,
     SEMANTIC_PROVIDER_DELTA_OPERATION_EXECUTION_PROJECTION_NAME_KEY,
+    SEMANTIC_PROVIDER_DELTA_PREVIOUS_EVIDENCE_RESOLVER_KEY,
+    SEMANTIC_PROVIDER_DELTA_PRODUCT_READINESS_CONTRACT_VERSION,
+    SEMANTIC_PROVIDER_DELTA_PRODUCT_READINESS_KEY,
+)
+from aware_code.semantic_currentness import (
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_ENTRYPOINT,
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_METADATA_KEY,
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_CONTRACT_VERSION,
 )
 from aware_code.semantic_package.schemas import (
     CapabilityBundleDescriptor,
@@ -38,9 +44,14 @@ from aware_api_runtime.semantic_function_refs import (
     API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CONTRACT_VERSION,
     API_SEMANTIC_OPERATION_TYPES,
 )
+from aware_api_runtime.semantic_registry import (
+    API_MANIFEST_RESOLUTION,
+    API_PACKAGE_ROLES,
+    API_PROVIDER_OWNER,
+    API_RUNTIME_PROJECTION_PACKAGES,
+)
 
 
-API_PROVIDER_OWNER = "aware_api.provider"
 API_API_OWNER = "aware_api.api"
 API_CAPABILITY_OWNER = "aware_api.capability"
 API_GRAPH_OWNER = "aware_api.graph"
@@ -71,6 +82,118 @@ API_SEMANTIC_ANALYSIS_CAPABILITY_PARTICIPATION = tuple(
     for semantic_owner in API_SEMANTIC_ANALYSIS_OWNER_SEQUENCE
 )
 
+API_PROVIDER_DELTA_READY_OPERATIONS: tuple[dict[str, object], ...] = tuple(
+    {
+        "case_key": case_key,
+        "provider_operation_type": provider_operation_type,
+        "ontology_subject_kind": ontology_subject_kind,
+        "operation_family": operation_family,
+        "mutable_fields": mutable_fields,
+        "source_projection_policy": "public_graph_only_ready",
+        "workspace_delta_first_mode": "public_graph_only_ready",
+        "workspace_delta_first_ready": True,
+    }
+    for (
+        case_key,
+        provider_operation_type,
+        ontology_subject_kind,
+        operation_family,
+        mutable_fields,
+    ) in (
+        (
+            "aware_api.api.create",
+            "aware_api.api.create",
+            "api",
+            "create",
+            (),
+        ),
+        (
+            "aware_api.api_capability.create",
+            "aware_api.api_capability.create",
+            "api_capability",
+            "create",
+            (),
+        ),
+        (
+            "aware_api.api_capability_endpoint.create",
+            "aware_api.api_capability_endpoint.create",
+            "api_capability_endpoint",
+            "create",
+            (),
+        ),
+        (
+            "aware_api.api_capability_endpoint.description.update",
+            "aware_api.api_capability_endpoint.update",
+            "api_capability_endpoint",
+            "update",
+            ("description",),
+        ),
+    )
+)
+API_PROVIDER_DELTA_BLOCKED_OPERATIONS: tuple[dict[str, object], ...] = (
+    {
+        "case_key": "aware_api.api.update",
+        "provider_operation_type": "aware_api.api.update",
+        "ontology_subject_kind": "api",
+        "operation_family": "update",
+        "workspace_delta_first_ready": False,
+        "blocked_reason": "api_update_executor_not_ready",
+    },
+    {
+        "case_key": "aware_api.api_capability.update",
+        "provider_operation_type": "aware_api.api_capability.update",
+        "ontology_subject_kind": "api_capability",
+        "operation_family": "update",
+        "workspace_delta_first_ready": False,
+        "blocked_reason": "api_capability_update_executor_not_ready",
+    },
+    {
+        "case_key": "aware_api.api_capability_endpoint.identity_or_request_contract.update",
+        "provider_operation_type": "aware_api.api_capability_endpoint.update",
+        "ontology_subject_kind": "api_capability_endpoint",
+        "operation_family": "update",
+        "blocked_fields": ("name", "request_class_config_id"),
+        "workspace_delta_first_ready": False,
+        "blocked_reason": "api_endpoint_non_description_update_executor_not_ready",
+    },
+    {
+        "case_key": "aware_api.api_semantic_object.delete",
+        "provider_operation_type": "aware_api.api_semantic_object.delete",
+        "ontology_subject_kind": "api_semantic_object",
+        "operation_family": "delete",
+        "source_projection_policy": "explicit_fallback_required",
+        "workspace_delta_first_mode": "explicit_fallback_required",
+        "workspace_delta_first_ready": False,
+        "blocked_reason": "api_provider_delta_delete_executor_not_ready",
+    },
+)
+API_PROVIDER_DELTA_PRODUCT_READINESS: dict[str, object] = {
+    "readiness_kind": "aware_api.api_provider_delta_product_readiness",
+    "contract_version": SEMANTIC_PROVIDER_DELTA_PRODUCT_READINESS_CONTRACT_VERSION,
+    "provider_contract_version": "aware.api.provider-delta.typed-operation.v1",
+    "provider_key": "aware_api",
+    "status": "ready",
+    "reason": "api_provider_delta_create_and_endpoint_description_update_ready",
+    "default_policy": "ready_operations_only",
+    "fallback_policy": "explicit_fallback_required",
+    "operation_count": (
+        len(API_PROVIDER_DELTA_READY_OPERATIONS)
+        + len(API_PROVIDER_DELTA_BLOCKED_OPERATIONS)
+    ),
+    "ready_operation_count": len(API_PROVIDER_DELTA_READY_OPERATIONS),
+    "render_all_required_operation_count": 0,
+    "blocked_operation_count": len(API_PROVIDER_DELTA_BLOCKED_OPERATIONS),
+    "workspace_delta_first_default_policy": ("public_lifecycle_ready_operations_only"),
+    "workspace_delta_first_ready_operation_count": len(
+        API_PROVIDER_DELTA_READY_OPERATIONS
+    ),
+    "workspace_delta_first_mode_counts": {"public_graph_only_ready": 4},
+    "workspace_delta_first_ready_operations": API_PROVIDER_DELTA_READY_OPERATIONS,
+    "ready_operations": API_PROVIDER_DELTA_READY_OPERATIONS,
+    "render_all_required_operations": (),
+    "blocked_operations": API_PROVIDER_DELTA_BLOCKED_OPERATIONS,
+}
+
 API_MATERIALIZATION_DELTA_ADAPTER_METADATA: dict[str, object] = {
     "callable_module": "aware_api_runtime.workspace_provider",
     "callable_name": SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_ENTRYPOINT,
@@ -80,7 +203,26 @@ API_MATERIALIZATION_DELTA_ADAPTER_METADATA: dict[str, object] = {
     "result_contract_version": (
         "aware.workspace.semantic-materialization.provider-delta-result.v1"
     ),
+    SEMANTIC_PROVIDER_DELTA_FUNCTIONAL_MATERIALIZATION_KEY: True,
+    SEMANTIC_PROVIDER_DELTA_PRODUCT_READINESS_KEY: (
+        API_PROVIDER_DELTA_PRODUCT_READINESS
+    ),
     SEMANTIC_PROVIDER_DELTA_OPERATION_EXECUTION_PROJECTION_NAME_KEY: "Api",
+    SEMANTIC_PROVIDER_DELTA_PREVIOUS_EVIDENCE_RESOLVER_KEY: {
+        "callable_module": "aware_api_runtime.workspace_provider",
+        "callable_name": (
+            "resolve_api_provider_delta_previous_materialization_evidence"
+        ),
+        "request_type": "SemanticProviderDeltaPreviousEvidenceResolverRequest",
+        "result_type": "SemanticProviderDeltaPreviousEvidenceResolverResult",
+        "required": False,
+        "provider_payload": {
+            "contract": (
+                "API provider-delta previous full-rebuild receipt evidence " "resolver"
+            ),
+            "source": "aware_api.semantic_contract",
+        },
+    },
     SEMANTIC_PROVIDER_DELTA_EXECUTION_CONTEXT_RESOLVERS_KEY: (
         {
             "context_key": SEMANTIC_FUNCTION_CALL_CONTEXT_KEY,
@@ -99,6 +241,15 @@ API_MATERIALIZATION_CAPABILITY_METADATA: dict[str, object] = {
     SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_METADATA_KEY: (
         API_MATERIALIZATION_DELTA_ADAPTER_METADATA
     ),
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_METADATA_KEY: {
+        "callable_module": "aware_api_runtime.workspace_provider",
+        "callable_name": (
+            SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_ENTRYPOINT
+        ),
+        "contract_version": (
+            SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_CONTRACT_VERSION
+        ),
+    },
 }
 
 API_MATERIALIZATION_CAPABILITY_PARTICIPATION = tuple(
@@ -399,51 +550,6 @@ API_SYNTAX_LANES = (
     ),
 )
 
-API_PACKAGE_ROLES = (
-    ModuleSemanticPackageRoleDescriptor(
-        role="aware_api.provider",
-        contract="aware.semantic_provider",
-        package_kind="runtime",
-        capabilities=(
-            SEMANTIC_ANALYSIS_CAPABILITY,
-            "diagnostics",
-            "semantic_tokens",
-            API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY,
-            SEMANTIC_MATERIALIZATION_CAPABILITY,
-        ),
-        owns_manifest_kinds=("aware_api_toml",),
-    ),
-)
-
-API_MANIFEST_RESOLUTION = (
-    ModuleSemanticManifestResolutionDescriptor(
-        semantic_owner=API_PROVIDER_OWNER,
-        manifest_kind="aware_api_toml",
-        filename="aware.api.toml",
-        contract="aware.api",
-        loader_module="aware_api_runtime.manifest.loader",
-        loader_name="load_aware_api_toml_spec",
-        workspace_manifest_kind="api",
-        package_role=API_PROVIDER_OWNER,
-        semantic_package_family="api",
-        semantic_package_kind="api_package",
-        semantic_projection_name="ApiPackage",
-        semantic_root_kind="api",
-        code_package_surface="api",
-        workspace_materialization_order=100,
-        workspace_materialization_branch="semantic",
-        workspace_materialization_commit=True,
-        workspace_materialization_primary=True,
-        copy_code_package_metadata_keys=("fqn_prefix", "package_kind"),
-        semantic_package_metadata={
-            "dependency_attribute_name": "dependencies",
-            "metadata_resolver_module": "aware_api_runtime.semantic_package",
-            "metadata_resolver_name": "api_semantic_package_metadata",
-        },
-        priority=100,
-    ),
-)
-
 API_ARTIFACT_LEAF_OWNERSHIP = (
     ModuleSemanticArtifactLeafOwnershipDescriptor(
         semantic_owner=API_PROVIDER_OWNER,
@@ -464,6 +570,7 @@ API_MATERIALIZATION_ARTIFACT_OUTPUTS = (
         artifact_role="runtime_file",
         output_kind="file",
         runtime_contract_version="aware.api.product_runtime.v1",
+        artifact_scope_policy="replace_missing",
         required_for=("workspace_revision", "api_service_protocol"),
         media_type="application/octet-stream",
         provider_payload={
@@ -513,6 +620,7 @@ API_MATERIALIZATION_RUNTIME_ONTOLOGY_PACKAGE_NAMES = ("api-ontology",)
 
 API_MATERIALIZATION_REQUIRED_PROJECTIONS = (
     "Api",
+    "ApiCall",
     "ApiPackage",
     "CodePackage",
     "CodePackageConfig",
@@ -526,16 +634,7 @@ API_MATERIALIZATION_RUNTIME = (
         ),
         lane_projection_name="ApiPackage",
         required_projection_names=API_MATERIALIZATION_REQUIRED_PROJECTIONS,
-        runtime_projection_packages=(
-            ModuleSemanticRuntimeProjectionPackageDescriptor(
-                package_name="api-ontology",
-                projection_names=("Api", "ApiPackage"),
-            ),
-            ModuleSemanticRuntimeProjectionPackageDescriptor(
-                package_name="code-ontology",
-                projection_names=("CodePackage", "CodePackageConfig"),
-            ),
-        ),
+        runtime_projection_packages=API_RUNTIME_PROJECTION_PACKAGES,
         environment_handle="workspace-semantic-materialization",
         include_package_dependency_closure=True,
         priority=100,
@@ -688,6 +787,9 @@ __all__ = [
     "API_MATERIALIZATION_RUNTIME_ONTOLOGY_PACKAGE_NAMES",
     "API_MATERIALIZATION_TOOLING",
     "API_PROJECTION_OWNER",
+    "API_PROVIDER_DELTA_BLOCKED_OPERATIONS",
+    "API_PROVIDER_DELTA_PRODUCT_READINESS",
+    "API_PROVIDER_DELTA_READY_OPERATIONS",
     "API_PROVIDER_OWNER",
     "API_PACKAGE_ROLES",
     "API_SEMANTIC_SCOPE_KEYS",

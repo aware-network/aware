@@ -1,0 +1,48 @@
+[project]
+name = "aware-interface-service"
+version = "0.1.0"
+description = "AWARE Interface host service"
+authors = [
+  { name = "AWARE Team", email = "info@aware-network.org" },
+]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-comms",
+  "aware_environment_service_dto",
+  "aware-environment-sdk",
+  "aware_attention_service_api",
+  "aware_environment_service_api",
+  "aware-experience-sdk",
+  "aware_experience_service_api",
+  "aware-identity-sdk",
+  "aware_identity_service_api",
+  "aware-interface",
+  "aware-interface-sdk",
+  "aware_interface_service_api",
+  "aware_interface_service_dto",
+  "aware_interface_service_protocol",
+  "aware-orm",
+  "aware-service-runtime",
+  "aware-service-service",
+  "aware_service_service_dto",
+  "aware-node-sdk",
+  "aware-network-sdk",
+  "aware-sdk-runtime",
+  "aware-utils",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2"]
+
+[project.scripts]
+aware-interface-service-host = "aware_interface_service.local_host:main"
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_interface_service"]
+
+[tool.aware.tests]
+requires_module = "interface"

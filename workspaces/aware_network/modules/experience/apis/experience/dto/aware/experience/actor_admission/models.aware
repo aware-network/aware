@@ -1,0 +1,46 @@
+/// Canonical DTOs for Experience ActorConfig admission.
+///
+/// Ownership:
+/// - Experience owns ActorConfig admission and role eligibility provenance.
+/// - Identity owns concrete RoleAssignmentBinding truth.
+/// - This DTO returns an Experience admission binding that carries Identity
+///   binding ids without making Experience DTOs depend on Identity DTOs.
+
+class ExperienceActorConfigRoleEligibility {
+    actor_config_role_config_id UUID
+    role_config_id UUID
+    role_config_name String?
+}
+
+class ExperienceActorConfigRoleAdmissionBinding {
+    actor_config_role_config_id UUID
+    role_config_id UUID
+    role_config_name String?
+    actor_id UUID
+    role_id UUID
+    actor_role_id UUID
+    role_class_instance_id UUID
+    class_instance_identity_id UUID
+    role_config_class_config_id UUID
+    object_instance_graph_identity_id UUID
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+}
+
+class ExperienceActorConfigAdmissionReceipt {
+    accepted Bool = false
+    status String
+    reason String?
+    experience_name String
+    actor_id UUID?
+    actor_config_id UUID?
+    class_instance_identity_id UUID?
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+    requested_role_config_ids UUID[] = []
+    requested_role_config_names String[] = []
+    eligible_roles actor_admission.ExperienceActorConfigRoleEligibility[] = []
+    bindings actor_admission.ExperienceActorConfigRoleAdmissionBinding[] = []
+    blockers String[] = []
+    evidence JsonObject = {}
+}

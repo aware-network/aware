@@ -1,0 +1,16 @@
+aware_pane = 1
+
+[pane]
+package_name = "aware-identity-admission-pane"
+fqn_prefix = "aware_identity_admission_pane"
+pane_name = "identity_admission"
+description = "Identity admission pane package for the aware_control interface."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+
+[[dependencies]]
+package_name = "aware-control"
+kind = "experience_package"

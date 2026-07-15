@@ -1,0 +1,7 @@
+class EconomyAnalyticMetric {
+    // Attributes
+    cost_per_unit Decimal?
+    description String?
+    name String key
+    unit String
+}

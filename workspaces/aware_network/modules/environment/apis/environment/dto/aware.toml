@@ -1,0 +1,24 @@
+aware = 1
+
+[package]
+package_name = "environment-service-dto"
+fqn_prefix = "aware_environment_service_dto"
+kind = "api"
+version_number = 1
+title = "Environment Service DTO"
+description = "API-owned DTO package for Environment service endpoint payloads and shared Environment operation envelopes."
+
+[build]
+environment_slug = "aware_environment_service_dto"
+
+[[dependencies]]
+package_name = "environment-ontology"
+
+[[dependencies]]
+package_name = "meta-service-dto"
+
+[[dependencies]]
+package_name = "identity-service-dto"
+
+[[dependencies]]
+package_name = "attention-service-dto"

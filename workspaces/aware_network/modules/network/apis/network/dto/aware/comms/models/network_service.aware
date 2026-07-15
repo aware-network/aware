@@ -1,0 +1,373 @@
+/// Public Network Service DTOs for topology, hosted-service discovery, and route resolution.
+///
+/// These are graph/ORM agnostic API contracts. The Network Service implementation may
+/// back them with local cache during bootstrap, but durable truth belongs to committed
+/// Network ontology objects (`NetworkNode`, `NetworkNodePeer`, `NetworkNodeService`).
+
+class NetworkNodeRouteDescriptor {
+    node_id UUID
+    public_key String?
+    hostname String
+    port Int
+    base_url String?
+    status String = "active"
+    last_seen_at String?
+}
+
+class NetworkPeerFanoutRuleDescriptor {
+    id UUID?
+    lane_branch_id UUID
+    lane_projection_hash String
+    enabled Bool = true
+    mode String = "notify_pull"
+}
+
+class NetworkPeerDescriptor {
+    edge_id UUID?
+    source_node_id UUID
+    target_node_id UUID
+    peer_node_id UUID
+    peer_base_url String
+    direction String = "outgoing"
+    status String = "accepted"
+    trust_score Float = 0.0
+    fanout_rules NetworkPeerFanoutRuleDescriptor[] = []
+    connected_at String?
+    last_ping_at String?
+}
+
+class NetworkHostedServiceDescriptor {
+    service_package_id UUID?
+    service_id UUID
+    service_name String
+    service_package_names String[] = []
+    endpoint_refs String[] = []
+    stream_endpoint_refs String[] = []
+    host_id String
+    host_version String?
+    protocol_version String
+    supports_stream_events Bool = false
+}
+
+class NetworkEnvironmentDescriptor {
+    node_id UUID?
+    environment_id UUID
+    environment_key String?
+    environment_title String?
+    role String = "replica"
+    is_active Bool = true
+    priority Int = 0
+    status String = "active"
+    experience_names String[] = []
+    environment_config_id UUID?
+    environment_config_key String?
+}
+
+class NetworkResolvedHostedServiceRoute {
+    provider_node_id UUID
+    provider_node_base_url String
+    route_connection_id UUID?
+    hosted_service NetworkHostedServiceDescriptor
+}
+
+class NetworkTerritoryNodeDescriptor {
+    node NetworkNodeRouteDescriptor
+    environments NetworkEnvironmentDescriptor[] = []
+    hosted_services NetworkHostedServiceDescriptor[] = []
+    peers NetworkPeerDescriptor[] = []
+}
+
+class NetworkExperienceServiceCandidate {
+    hosted_service NetworkHostedServiceDescriptor
+    provider_node_id UUID
+    provider_node_base_url String?
+    route_connection_id UUID?
+    route_status String = "reachable"
+    matched_service_package_names String[] = []
+    matched_endpoint_refs String[] = []
+    missing_service_package_names String[] = []
+    missing_endpoint_refs String[] = []
+}
+
+class NetworkExperienceTerritoryEntry {
+    experience_name String
+    node NetworkNodeRouteDescriptor
+    environment NetworkEnvironmentDescriptor
+    service_candidates NetworkExperienceServiceCandidate[] = []
+    route_status String = "unavailable"
+    missing_service_package_names String[] = []
+    missing_endpoint_refs String[] = []
+}
+
+/// Non-authoritative Node runtime observation submitted for Network
+/// reconciliation.
+class NetworkNodePublicationNode {
+    node_id UUID
+    public_key String
+    hostname String
+    port Int
+    base_url String?
+    status String = "active"
+}
+
+/// One Environment association requested by a Node publication intent.
+class NetworkNodePublicationEnvironment {
+    environment_id UUID
+    environment_key String?
+    environment_title String?
+    role String = "replica"
+    is_active Bool = true
+    priority Int = 0
+    status String = "active"
+    experience_names String[] = []
+    environment_config_id UUID?
+    environment_config_key String?
+}
+
+/// One complete hosted-Service observation in a Node publication intent.
+class NetworkNodePublicationHostedService {
+    service_package_id UUID
+    service_id UUID
+    service_name String
+    service_package_names String[] = []
+    endpoint_refs String[] = []
+    stream_endpoint_refs String[] = []
+    host_id String
+    host_version String?
+    protocol_version String
+    supports_stream_events Bool = false
+}
+
+/// Desired runtime publication submitted by a Node through Network SDK.
+///
+/// This value is evidence, not Network discovery truth. Network Service owns
+/// validation, committed-state comparison, mutation, and coverage verification.
+class NetworkNodePublicationIntent {
+    publication_digest String
+    node NetworkNodePublicationNode
+    environment NetworkNodePublicationEnvironment
+    hosted_services NetworkNodePublicationHostedService[] = []
+    source_workspace_revision_id UUID?
+    source_node_config_id UUID?
+}
+
+/// One commit produced while Network Service reconciles publication intent.
+class NetworkNodePublicationCommitReceipt {
+    operation String
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    root_object_id UUID?
+}
+
+/// Committed coverage observed after Network Service reconciliation.
+class NetworkNodePublicationCoverage {
+    node_registered Bool = false
+    environment_published Bool = false
+    hosted_service_package_ids UUID[] = []
+    missing_hosted_service_package_ids UUID[] = []
+    unexpected_hosted_service_package_ids UUID[] = []
+}
+
+class NetworkReconcileNodePublicationRequest {
+    actor_id UUID?
+    request_id UUID?
+    intent NetworkNodePublicationIntent
+}
+
+class NetworkReconcileNodePublicationResponse {
+    request_id UUID?
+    success Bool = true
+    status String = "converged"
+    error String?
+    publication_digest String?
+    node NetworkNodeRouteDescriptor?
+    environment NetworkEnvironmentDescriptor?
+    hosted_services NetworkHostedServiceDescriptor[] = []
+    coverage NetworkNodePublicationCoverage?
+    commit_receipts NetworkNodePublicationCommitReceipt[] = []
+}
+
+class NetworkRegisterNodeRequest {
+    actor_id UUID?
+    request_id UUID?
+    node_id UUID?
+    public_key String
+    hostname String
+    port Int
+    base_url String?
+    status String = "active"
+}
+
+class NetworkRegisterNodeResponse {
+    request_id UUID?
+    success Bool = true
+    error String?
+    node NetworkNodeRouteDescriptor?
+}
+
+class NetworkUpsertPeerRequest {
+    actor_id UUID?
+    request_id UUID?
+    source_node_id UUID
+    target_node_id UUID
+    target_base_url String
+    status String = "accepted"
+    trust_score Float = 0.0
+}
+
+class NetworkUpsertPeerResponse {
+    request_id UUID?
+    success Bool = true
+    error String?
+    peer NetworkPeerDescriptor?
+}
+
+class NetworkListPeersRequest {
+    actor_id UUID?
+    request_id UUID?
+    node_id UUID
+    include_incoming Bool = true
+    include_outgoing Bool = true
+    accepted_only Bool = true
+    limit_results Int? = 200
+}
+
+class NetworkListPeersResponse {
+    request_id UUID?
+    success Bool = true
+    error String?
+    peers NetworkPeerDescriptor[] = []
+}
+
+class NetworkPublishHostedServiceRequest {
+    actor_id UUID?
+    request_id UUID?
+    node_id UUID
+    service_package_id UUID?
+    service_id UUID
+    service_name String
+    service_package_names String[] = []
+    endpoint_refs String[] = []
+    stream_endpoint_refs String[] = []
+    host_id String
+    host_version String?
+    protocol_version String
+    supports_stream_events Bool = false
+}
+
+class NetworkPublishHostedServiceResponse {
+    request_id UUID?
+    success Bool = true
+    error String?
+    hosted_service NetworkHostedServiceDescriptor?
+}
+
+class NetworkListHostedServicesRequest {
+    actor_id UUID?
+    request_id UUID?
+    node_id UUID
+}
+
+class NetworkListHostedServicesResponse {
+    request_id UUID?
+    success Bool = true
+    error String?
+    hosted_services NetworkHostedServiceDescriptor[] = []
+}
+
+class NetworkPublishEnvironmentRequest {
+    actor_id UUID?
+    request_id UUID?
+    node_id UUID
+    environment_id UUID
+    environment_key String?
+    environment_title String?
+    role String = "replica"
+    is_active Bool = true
+    priority Int = 0
+    status String = "active"
+    experience_names String[] = []
+    environment_config_id UUID?
+    environment_config_key String?
+}
+
+class NetworkPublishEnvironmentResponse {
+    request_id UUID?
+    success Bool = true
+    error String?
+    environment NetworkEnvironmentDescriptor?
+}
+
+class NetworkListEnvironmentsRequest {
+    actor_id UUID?
+    request_id UUID?
+    node_id UUID?
+    active_only Bool = true
+}
+
+class NetworkListEnvironmentsResponse {
+    request_id UUID?
+    success Bool = true
+    error String?
+    environments NetworkEnvironmentDescriptor[] = []
+}
+
+class NetworkResolveHostedServiceRoutesRequest {
+    actor_id UUID?
+    request_id UUID?
+    consumer_node_id UUID
+    service_name String?
+    endpoint_ref String?
+    accepted_peers_only Bool = true
+}
+
+class NetworkResolveHostedServiceRoutesResponse {
+    request_id UUID?
+    success Bool = true
+    error String?
+    routes NetworkResolvedHostedServiceRoute[] = []
+}
+
+class NetworkDiscoverTerritoryRequest {
+    actor_id UUID?
+    request_id UUID?
+    node_id UUID?
+    include_peers Bool = true
+    include_hosted_services Bool = true
+    include_environments Bool = true
+    active_environments_only Bool = true
+    accepted_peers_only Bool = true
+    limit_nodes Int? = 200
+}
+
+class NetworkDiscoverTerritoryResponse {
+    request_id UUID?
+    success Bool = true
+    error String?
+    nodes NetworkTerritoryNodeDescriptor[] = []
+    summary String?
+}
+
+class NetworkDiscoverExperienceTerritoryRequest {
+    actor_id UUID?
+    request_id UUID?
+    experience_name String
+    required_service_package_names String[] = []
+    required_endpoint_refs String[] = []
+    consumer_node_id UUID?
+    active_environments_only Bool = true
+    accepted_peers_only Bool = true
+    include_route_hints Bool = true
+    require_access_evidence Bool = false
+    access_evidence_refs String[] = []
+    limit_entries Int? = 200
+}
+
+class NetworkDiscoverExperienceTerritoryResponse {
+    request_id UUID?
+    success Bool = true
+    error String?
+    experience_name String?
+    entries NetworkExperienceTerritoryEntry[] = []
+    summary String?
+}

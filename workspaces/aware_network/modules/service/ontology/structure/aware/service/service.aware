@@ -1,0 +1,124 @@
+class Service {
+    // Relationships
+    branches ServiceBranch[]
+    commercial_profile ServiceCommercialProfile? unique
+    contracts ServiceContract[]
+    plans ServicePlan[]
+    service_operations ServiceOperation[]
+
+    // Attributes
+    description String?
+    name String key
+
+    fn build construct (
+        name String key,
+        description String? = null
+    ) -> Service {
+        """
+        Creates one Service instance under a ServiceConfig.
+        """
+    }
+
+    fn create_operation (
+        service_operation_config_id UUID key,
+        operation_key String key,
+        api_call_id UUID? = null,
+        api_endpoint_id UUID? = null,
+        status ServiceOperationStatus = queued,
+        result_info String? = null,
+        execution_context JsonObject? = null
+    ) -> ServiceOperation {
+        """
+        Creates one canonical service execution receipt under this concrete Service.
+        """
+        let created = construct service_operations.build(
+            service_operation_config_id = service_operation_config_id,
+            operation_key = operation_key,
+            api_call_id = api_call_id,
+            api_endpoint_id = api_endpoint_id,
+            status = status,
+            result_info = result_info,
+            execution_context = execution_context,
+        )
+    }
+
+    fn create_commercial_profile (
+        producer_finance_entity_id UUID,
+        default_smart_contract_config_id UUID? = null,
+        metadata_json JsonObject? = {}
+    ) -> ServiceCommercialProfile {
+        """
+        Creates or ensures the canonical producer-side commercial profile for this Service.
+        """
+        let created = construct commercial_profile.build(
+            producer_finance_entity_id = producer_finance_entity_id,
+            default_smart_contract_config_id = default_smart_contract_config_id,
+            metadata_json = metadata_json,
+        )
+    }
+
+    fn create_contract (
+        service_contract_config_id UUID key,
+        commercial_profile_id UUID,
+        producer_finance_entity_id UUID,
+        consumer_finance_entity_id UUID,
+        smart_contract_id UUID key,
+        kind ServiceContractKind,
+        effective_from DateTime,
+        status ServiceContractStatus = pending,
+        effective_until DateTime? = null,
+        metadata_json JsonObject? = {}
+    ) -> ServiceContract {
+        """
+        Creates one Service-owned commercial agreement receipt under this Service.
+        """
+        let created = construct contracts.build(
+            service_contract_config_id = service_contract_config_id,
+            commercial_profile_id = commercial_profile_id,
+            producer_finance_entity_id = producer_finance_entity_id,
+            consumer_finance_entity_id = consumer_finance_entity_id,
+            smart_contract_id = smart_contract_id,
+            kind = kind,
+            effective_from = effective_from,
+            status = status,
+            effective_until = effective_until,
+            metadata_json = metadata_json,
+        )
+    }
+
+    fn create_plan (
+        cycle ServicePlanCycle,
+        price_amount Decimal,
+        coin_id UUID,
+        smart_contract_config_id UUID,
+        external_price_handle String? = null,
+        policy_json JsonObject = {}
+    ) -> ServicePlan {
+        """
+        Appends one provider-owned pricing plan under this concrete Service.
+        """
+        let created = construct plans.build(
+            cycle = cycle,
+            price_amount = price_amount,
+            coin_id = coin_id,
+            smart_contract_config_id = smart_contract_config_id,
+            external_price_handle = external_price_handle,
+            policy_json = policy_json,
+        )
+    }
+
+    fn create_branch (
+        service_config_api_projection_id UUID,
+        object_instance_graph_branch_id UUID,
+        description String? = null
+    ) -> ServiceBranch {
+        """
+        Creates one concrete subscribed branch binding under this Service.
+        """
+        let created = construct branches.build(
+            service_config_api_projection_id = service_config_api_projection_id,
+            object_instance_graph_branch_id = object_instance_graph_branch_id,
+            description = description,
+        )
+    }
+}

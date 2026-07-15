@@ -4,7 +4,9 @@ from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBase
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
 from aware_meta_ontology.class_.class_config import ClassConfig
 from aware_meta_ontology.enum.enum_config import EnumConfig
-from aware_meta_ontology.attribute.attribute_type_descriptor_enums import AttributeTypeDescriptorKind
+from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
+    AttributeTypeDescriptorKind,
+)
 
 from aware_meta.attribute.config.type_descriptor_helpers import resolve_type_info
 
@@ -46,7 +48,10 @@ class PostgresDialect:
 
     def type_for_attribute(self, attr: AttributeConfig) -> str:
         info = resolve_type_info(attr)
-        if info.kind == AttributeTypeDescriptorKind.primitive and info.primitive_config is not None:
+        if (
+            info.kind == AttributeTypeDescriptorKind.primitive
+            and info.primitive_config is not None
+        ):
             prim = info.primitive_config.primitive_type
             # Map CodePrimitiveBaseType -> Postgres DDL tokens
             bt = prim.base_type
@@ -57,6 +62,8 @@ class PostgresDialect:
             if bt == CodePrimitiveBaseType.integer:
                 return "INTEGER"
             if bt == CodePrimitiveBaseType.float:
+                return "NUMERIC"
+            if bt == CodePrimitiveBaseType.decimal:
                 return "NUMERIC"
             if bt == CodePrimitiveBaseType.boolean:
                 return "BOOLEAN"

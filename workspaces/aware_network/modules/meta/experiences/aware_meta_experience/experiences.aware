@@ -1,0 +1,11 @@
+experience aware_meta on aware_meta.graph.config.ObjectConfigGraphIdentity {
+    observable graph {
+        view canvas.v1 default api_view meta.graph_canvas {
+            """General Meta graph canvas over OCG, OPG, OIG, branch, and commit coordinates."""
+        }
+    }
+
+    node graph.config.ObjectConfigGraphIdentity {
+        id default
+    }
+}

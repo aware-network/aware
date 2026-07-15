@@ -1,0 +1,9 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_economy_service_dto.economy.service",
+    "aware_economy_service_dto.economy.view"
+  ],
+  "package_prefix": "aware_economy_service_dto",
+  "version": "v1"
+}

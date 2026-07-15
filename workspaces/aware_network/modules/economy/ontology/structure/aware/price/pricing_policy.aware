@@ -1,0 +1,20 @@
+class PricingPolicy {
+    // Attributes
+    description String?
+    fail_closed Bool = true
+    name String key
+    policy_json JsonObject = {}
+    version Int key = 1
+
+    fn build construct (
+        name String key,
+        version Int key = 1,
+        description String? = null,
+        policy_json JsonObject = {},
+        fail_closed Bool = true
+    ) -> PricingPolicy {
+        """
+        Creates one Economy-owned pricing policy receipt.
+        """
+    }
+}

@@ -6,6 +6,8 @@ import sys
 from pathlib import Path
 from uuid import uuid4
 
+import pytest
+
 from aware_code_ontology.code.code_enums import CodeLanguage
 import aware_meta.graph.config.runtime_derivation.service as derivation_service
 from aware_meta.graph.config.runtime_derivation import (
@@ -591,6 +593,78 @@ def test_runtime_derivation_preserves_existing_external_runtime_class_relationsh
     assert [item.id for item in source_class.class_config_relationships] == [
         relationship.id
     ]
+
+
+def test_final_relationship_diagnostics_emit_only_after_unresolved_closure(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    source_graph = _projection_stub_graph(
+        name="source_runtime",
+        fqn_prefix="aware_source",
+    )
+    target_graph = _projection_stub_graph(
+        name="target_runtime",
+        fqn_prefix="aware_target",
+    )
+    source_class = ClassConfig(
+        id=uuid4(),
+        class_fqn="aware_source.Source",
+        name="Source",
+    )
+    target_class = ClassConfig(
+        id=uuid4(),
+        class_fqn="aware_target.Target",
+        name="Target",
+    )
+    source_graph.object_config_graph_nodes.append(
+        ObjectConfigGraphNode(
+            id=uuid4(),
+            type=ObjectConfigGraphNodeType.class_,
+            node_key=source_class.class_fqn,
+            object_config_graph_id=source_graph.id,
+            class_config=source_class,
+        )
+    )
+    target_graph.object_config_graph_nodes.append(
+        ObjectConfigGraphNode(
+            id=uuid4(),
+            type=ObjectConfigGraphNodeType.class_,
+            node_key=target_class.class_fqn,
+            object_config_graph_id=target_graph.id,
+            class_config=target_class,
+        )
+    )
+    relationship = ClassConfigRelationship(
+        id=uuid4(),
+        relationship_key="target",
+        relationship_type=ClassConfigRelationshipType.many_to_one,
+        forward_required=True,
+        class_config_id=source_class.id,
+        target_class_config_id=target_class.id,
+    )
+    source_graph.object_config_graph_relationships = [
+        ObjectConfigGraphRelationship(
+            object_config_graph_id=source_graph.id,
+            target_object_config_graph_id=target_graph.id,
+            class_config_relationships=[relationship],
+        )
+    ]
+
+    derivation_service._emit_final_relationship_endpoint_diagnostics(  # noqa: SLF001
+        runtime_graphs=(source_graph, target_graph),
+    )
+    assert caplog.text == ""
+
+    target_graph.object_config_graph_nodes = []
+    derivation_service._emit_final_relationship_endpoint_diagnostics(  # noqa: SLF001
+        runtime_graphs=(source_graph, target_graph),
+    )
+    assert (
+        caplog.text.count("Runtime relationship endpoints unresolved after closure")
+        == 1
+    )
+    assert str(relationship.id) in caplog.text
+    assert "Source or target class missing for relationship" not in caplog.text
 
 
 def test_runtime_derivation_lowers_lazy_single_reference_attributes_to_nullable() -> (

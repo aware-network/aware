@@ -1,0 +1,9 @@
+class TransactionExternalMethod {
+    // Relationships
+    finance_entity finance.FinanceEntity key
+
+    // Attributes
+    external_customer_id String?
+    external_payment_method_id String?
+    provider String key
+}

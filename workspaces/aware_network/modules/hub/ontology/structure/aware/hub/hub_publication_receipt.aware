@@ -1,0 +1,37 @@
+class HubPublicationReceipt {
+    // Relationships
+    artifact_revision HubArtifactRevision?
+    code_package_publication HubCodePackagePublication?
+
+    // Attributes
+    authority_source_url String?
+    detail JsonObject = {}
+    idempotency_key String?
+    message String?
+    operation String
+    publisher_execution_id String?
+    receipt_key String key
+    recorded_at_utc String?
+    status HubPublicationReceiptStatus = accepted
+
+    fn build construct(
+        receipt_key String key,
+        operation String,
+        status HubPublicationReceiptStatus = accepted,
+        publisher_execution_id String? = null,
+        idempotency_key String? = null,
+        artifact_revision_id UUID? = null,
+        code_package_publication_id UUID? = null,
+        authority_source_url String? = null,
+        message String? = null,
+        recorded_at_utc String? = null,
+        detail JsonObject = {}
+    ) -> HubPublicationReceipt {
+        """
+        Create one Hub authority receipt.
+        """
+    }
+}
+
+ann hub.HubPublicationReceipt::artifact_revision load eager
+ann hub.HubPublicationReceipt::code_package_publication load eager

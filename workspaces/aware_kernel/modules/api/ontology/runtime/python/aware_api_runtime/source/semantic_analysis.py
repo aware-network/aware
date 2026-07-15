@@ -294,7 +294,9 @@ def _build_change_preview(
             }
         )
     )
-    semantic_deltas = _semantic_deltas_for_apis(api_ownership=affected_apis)
+    semantic_deltas = semantic_deltas_for_api_ownership(
+        api_ownership=affected_apis,
+    )
     semantic_events = _semantic_events_for_deltas(semantic_deltas=semantic_deltas)
     return APISemanticChangePreview(
         changed_source_files=changed_source_files,
@@ -317,7 +319,7 @@ def _build_change_preview(
     )
 
 
-def _semantic_deltas_for_apis(
+def semantic_deltas_for_api_ownership(
     *,
     api_ownership: tuple[APIOwnership, ...],
 ) -> tuple[SemanticCapabilityDelta, ...]:
@@ -649,4 +651,5 @@ __all__ = [
     "analyze_api_code_package_delta",
     "analyze_api_semantic_capability",
     "analyze_api_sources",
+    "semantic_deltas_for_api_ownership",
 ]

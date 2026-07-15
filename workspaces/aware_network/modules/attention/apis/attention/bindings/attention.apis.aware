@@ -1,0 +1,157 @@
+api attention {
+    capability get_section_state {
+        endpoint get_section_state aware_attention_service_dto.attention.section.GetAttentionSectionStateRequest {
+            """
+            Read the current section-scoped focus-scope and observable state for one Attention section,
+            optionally seeding a missing observable from an Interface-supplied default candidate.
+            """
+
+            response aware_attention_service_dto.attention.section.GetAttentionSectionStateResponse
+        }
+    }
+
+    capability activate_section_observable {
+        endpoint activate_section_observable aware_attention_service_dto.attention.section.ActivateAttentionSectionObservableRequest {
+            """
+            Activate one ontology-backed observable for one section-scoped Attention focus scope.
+            """
+
+            response aware_attention_service_dto.attention.section.ActivateAttentionSectionObservableResponse
+        }
+    }
+
+    capability get_focus_scope_commits {
+        endpoint get_focus_scope_commits aware_attention_service_dto.attention.section.GetAttentionFocusScopeCommitsRequest {
+            """
+            List committed OIG commit pointers observed by one Attention focus scope.
+            """
+
+            response aware_attention_service_dto.attention.section.GetAttentionFocusScopeCommitsResponse
+        }
+    }
+
+    capability describe_attention_session {
+        endpoint describe_attention_session aware_attention_service_dto.attention.session.DescribeAttentionSessionRequest {
+            """
+            Read one AttentionSession and its active layout/section/transition pins.
+            """
+
+            response aware_attention_service_dto.attention.session.DescribeAttentionSessionResponse
+        }
+    }
+
+    capability start_attention_session {
+        endpoint start_attention_session aware_attention_service_dto.attention.session.StartAttentionSessionRequest {
+            """
+            Construct one commit-backed AttentionSession over a verified Identity Session.
+            """
+
+            response aware_attention_service_dto.attention.session.StartAttentionSessionResponse
+        }
+    }
+
+    capability mount_attention_session_layout {
+        endpoint mount_attention_session_layout aware_attention_service_dto.attention.session.MountAttentionSessionLayoutRequest {
+            """
+            Mount one Attention Layout on an existing committed AttentionSession lane.
+            """
+
+            response aware_attention_service_dto.attention.session.MountAttentionSessionLayoutResponse
+        }
+    }
+
+    capability mount_attention_session_section {
+        endpoint mount_attention_session_section aware_attention_service_dto.attention.session.MountAttentionSessionSectionRequest {
+            """
+            Mount one Attention Section anchor on an existing committed session layout.
+            """
+
+            response aware_attention_service_dto.attention.session.MountAttentionSessionSectionResponse
+        }
+    }
+
+    capability apply_session_layout_transition {
+        endpoint apply_session_layout_transition aware_attention_service_dto.attention.session.ApplyAttentionSessionLayoutTransitionRequest {
+            """
+            Atomically commit one complete typed shared-layout vector on an AttentionSession lane.
+            """
+
+            response aware_attention_service_dto.attention.session.ApplyAttentionSessionLayoutTransitionResponse
+        }
+    }
+
+    capability apply_session_layout_topology_transition {
+        endpoint apply_session_layout_topology_transition aware_attention_service_dto.attention.session.ApplyAttentionSessionLayoutTopologyTransitionRequest {
+            """
+            Atomically commit one complete active-membership/order vector on an AttentionSession lane.
+            """
+
+            response aware_attention_service_dto.attention.session.ApplyAttentionSessionLayoutTopologyTransitionResponse
+        }
+    }
+
+    capability describe_attention_transition {
+        endpoint describe_attention_transition aware_attention_service_dto.attention.session.DescribeAttentionTransitionRequest {
+            """
+            Read one AttentionFocusTransition pin plus its parent session chain.
+            """
+
+            response aware_attention_service_dto.attention.session.DescribeAttentionTransitionResponse
+        }
+    }
+
+    capability list_attention_transitions {
+        endpoint list_attention_transitions aware_attention_service_dto.attention.session.ListAttentionTransitionsRequest {
+            """
+            List AttentionFocusTransition pins by session, section, focus-scope, or kind.
+            """
+
+            response aware_attention_service_dto.attention.session.ListAttentionTransitionsResponse
+        }
+    }
+
+    capability validate_attention_transition {
+        endpoint validate_attention_transition aware_attention_service_dto.attention.session.ValidateAttentionTransitionRequest {
+            """
+            Validate that one AttentionFocusTransition matches expected Attention session coordinates.
+            """
+
+            response aware_attention_service_dto.attention.session.ValidateAttentionTransitionResponse
+        }
+    }
+
+    capability get_runtime_mount {
+        endpoint get_runtime_mount aware_attention_service_dto.attention.section.GetAttentionRuntimeMountRequest {
+            """
+            Read one typed batch snapshot of Attention-owned section state for the currently mounted
+            bundle-backed runtime layout, optionally seeding section defaults supplied by Interface.
+            """
+
+            response aware_attention_service_dto.attention.section.GetAttentionRuntimeMountResponse
+        }
+    }
+
+    capability watch_runtime_mount {
+        endpoint watch_runtime_mount aware_attention_service_dto.attention.section.WatchAttentionRuntimeMountRequest {
+            """
+            Subscribe to streamed Attention runtime-mount snapshots for the currently mounted
+            bundle-backed layout candidates.
+            """
+
+            response aware_attention_service_dto.attention.section.WatchAttentionRuntimeMountResponse
+
+            stream server {
+                """
+                Canonical streamed runtime-mount snapshots emitted by the Attention service boundary.
+                """
+
+                event snapshot aware_attention_service_dto.attention.section.AttentionRuntimeMountSnapshotEvent;
+            }
+        }
+    }
+
+    graph aware_attention {
+        projection aware_attention.FocusScope;
+        projection aware_attention.AttentionSession;
+    }
+}

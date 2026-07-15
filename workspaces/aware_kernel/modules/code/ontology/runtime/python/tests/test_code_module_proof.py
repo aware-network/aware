@@ -347,6 +347,8 @@ def test_code_package_artifact_delta_plan_is_code_owned() -> None:
         CodePackageArtifactCurrentStateRow,
         CodePackageArtifactDeltaPlan,
         code_package_artifact_delta_plan_from_refs,
+        code_package_artifact_refs_after_delta_plan,
+        code_package_artifact_state_after_delta_plan,
     )
 
     code_package_id = uuid4()
@@ -433,6 +435,315 @@ def test_code_package_artifact_delta_plan_is_code_owned() -> None:
     assert CodePackageArtifactDeltaPlan.from_payload(scoped_plan.to_payload()) == (
         scoped_plan
     )
+    partial_next_state = code_package_artifact_state_after_delta_plan(
+        code_package_id=code_package_id,
+        desired_artifact_refs=(kept_ref,),
+        current_artifact_state=current_state,
+        artifact_delta_plan=partial_plan,
+    )
+    assert len(partial_next_state.artifacts) == 2
+    assert (
+        partial_next_state.rows_by_identity_key[
+            kept_operation.identity_key
+        ].artifact_ref
+        == kept_ref
+    )
+    assert (
+        partial_next_state.rows_by_identity_key[
+            stale_operation.identity_key
+        ].artifact_ref
+        is None
+    )
+    scoped_next_state = code_package_artifact_state_after_delta_plan(
+        code_package_id=code_package_id,
+        desired_artifact_refs=(kept_ref,),
+        current_artifact_state=current_state,
+        artifact_delta_plan=scoped_plan,
+    )
+    assert tuple(scoped_next_state.rows_by_identity_key) == (
+        kept_operation.identity_key,
+    )
+
+    legacy_current_state = CodePackageArtifactCurrentStateIndex(
+        status="legacy",
+        code_package_id=str(code_package_id),
+        artifacts=(
+            CodePackageArtifactCurrentStateRow(
+                output_key=kept_operation.output_key,
+                artifact_key=kept_operation.artifact_key,
+                identity_key=kept_operation.identity_key,
+                signature_hash=kept_operation.signature_hash,
+            ),
+        ),
+    )
+    assert code_package_artifact_refs_after_delta_plan(
+        desired_artifact_refs=(kept_ref,),
+        current_artifact_state=legacy_current_state,
+        artifact_delta_plan=partial_plan,
+    ) == (kept_ref,)
+    with pytest.raises(RuntimeError, match="missing lossless artifact_ref payload"):
+        code_package_artifact_refs_after_delta_plan(
+            desired_artifact_refs=(),
+            current_artifact_state=legacy_current_state,
+            artifact_delta_plan=code_package_artifact_delta_plan_from_refs(
+                code_package_artifact_refs=(),
+                current_artifact_state=legacy_current_state,
+            ),
+        )
+
+
+@pytest.mark.asyncio
+async def test_code_package_artifact_real_head_lifecycle_parity(
+    tmp_path: Path,
+) -> None:
+    from aware_code.package import snapshot_commit
+    from aware_code.package.artifact_delta_plan import (
+        CodePackageArtifactAuthoritativeScope,
+        CodePackageArtifactCurrentStateIndex,
+        code_package_artifact_delta_plan_from_refs,
+        code_package_artifact_refs_after_delta_plan,
+    )
+    from aware_code_ontology.code.code_enums import CodeLanguage
+    from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+
+    code_package_config_id = _source_code_package_config_id(
+        manifest_kind="pyproject_toml",
+        surface="runtime",
+    )
+    package_name = "aware_artifact_lifecycle"
+    code_package_id = stable_code_package_id(
+        code_package_config_id=code_package_config_id,
+        package_name=package_name,
+        language=CodeLanguage.python,
+    )
+
+    def artifact_ref(
+        *,
+        output_key: str,
+        artifact_key: str,
+        digest: str,
+        producer_key: str,
+        artifact_role: str,
+    ) -> CodePackageArtifactRef:
+        return CodePackageArtifactRef(
+            code_package_id=code_package_id,
+            output_key=output_key,
+            artifact_key=artifact_key,
+            artifact_family="python",
+            artifact_role=artifact_role,
+            producer_key=producer_key,
+            relative_path=artifact_key,
+            digest=digest,
+        )
+
+    unchanged = artifact_ref(
+        output_key="python.orm_runtime",
+        artifact_key="aware_artifact_lifecycle/unchanged.py",
+        digest="sha256:unchanged",
+        producer_key="aware_python.orm_runtime",
+        artifact_role="runtime_file",
+    )
+    refresh_before = artifact_ref(
+        output_key="python.orm_runtime",
+        artifact_key="aware_artifact_lifecycle/refreshed.py",
+        digest="sha256:before",
+        producer_key="aware_python.orm_runtime",
+        artifact_role="runtime_file",
+    )
+    stale = artifact_ref(
+        output_key="python.orm_runtime",
+        artifact_key="aware_artifact_lifecycle/stale.py",
+        digest="sha256:stale",
+        producer_key="aware_python.orm_runtime",
+        artifact_role="runtime_file",
+    )
+    unrelated = artifact_ref(
+        output_key="python.ontology_dto",
+        artifact_key="aware_artifact_lifecycle/dto.py",
+        digest="sha256:dto",
+        producer_key="aware_python.ontology_dto",
+        artifact_role="dto_file",
+    )
+    migration_one = artifact_ref(
+        output_key="ocg_migration_dialect",
+        artifact_key="migrations/0001.sql",
+        digest="sha256:migration-one",
+        producer_key="aware_meta.ocg_migration_artifacts.v0",
+        artifact_role="dialect_migration",
+    )
+    refresh_after = refresh_before.model_copy(update={"digest": "sha256:after"})
+    created = artifact_ref(
+        output_key="python.orm_runtime",
+        artifact_key="aware_artifact_lifecycle/created.py",
+        digest="sha256:created",
+        producer_key="aware_python.orm_runtime",
+        artifact_role="runtime_file",
+    )
+    migration_two = artifact_ref(
+        output_key="ocg_migration_dialect",
+        artifact_key="migrations/0002.sql",
+        digest="sha256:migration-two",
+        producer_key="aware_meta.ocg_migration_artifacts.v0",
+        artifact_role="dialect_migration",
+    )
+    seed_refs = (
+        unchanged,
+        refresh_before,
+        stale,
+        unrelated,
+        migration_one,
+    )
+    desired_refs = (unchanged, refresh_after, created, migration_two)
+    scopes = (
+        CodePackageArtifactAuthoritativeScope(
+            code_package_id=str(code_package_id),
+            output_key="python.orm_runtime",
+            producer_key="aware_python.orm_runtime",
+        ),
+        CodePackageArtifactAuthoritativeScope(
+            code_package_id=str(code_package_id),
+            output_key="ocg_migration_dialect",
+            producer_key="aware_meta.ocg_migration_artifacts.v0",
+            missing_artifact_policy="retain",
+        ),
+    )
+
+    with IsolatedAwareRoot(
+        tmp_path / "aware_root",
+        persistence_backend="fs",
+    ) as aware_root:
+        runtime = _build_code_meta_runtime(repo_root=REPO_ROOT, aware_root=aware_root)
+        assert runtime.context is not None
+        idx = runtime.context.index
+        projection_hash = _single_projection_hash_by_name(idx, "CodePackage")
+        branch_id = uuid4()
+        common_kwargs = {
+            "index": idx,
+            "actor_id": None,
+            "branch_id": branch_id,
+            "projection_hash": projection_hash,
+            "code_package_config_id": code_package_config_id,
+            "package_name": package_name,
+            "language": CodeLanguage.python,
+            "surface": "runtime",
+            "manifest_kind": "pyproject_toml",
+            "manifest_relative_path": "modules/demo/runtime/pyproject.toml",
+            "package_root": "modules/demo/runtime/aware_artifact_lifecycle",
+            "sources_root": "modules/demo/runtime/aware_artifact_lifecycle",
+            "fqn_prefix": "aware_artifact_lifecycle",
+            "source_texts_by_relative_path": {},
+            "unparsed_texts_by_relative_path": {
+                "aware_artifact_lifecycle/__init__.py": "",
+            },
+        }
+        first = await snapshot_commit.commit_code_package_text_snapshot(
+            **common_kwargs,
+            code_package_artifact_refs=seed_refs,
+        )
+        first_state_payload = (
+            await snapshot_commit.load_code_package_text_snapshot_artifact_state_index(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                code_package_id=code_package_id,
+            )
+        )
+        first_state = CodePackageArtifactCurrentStateIndex.from_payload(
+            first_state_payload
+        )
+        assert first_state is not None
+        plan = code_package_artifact_delta_plan_from_refs(
+            code_package_artifact_refs=desired_refs,
+            current_artifact_state=first_state,
+            authoritative_scopes=scopes,
+        )
+        assert plan.operation_counts.to_payload() == {
+            "create": 2,
+            "refresh": 1,
+            "upsert": 0,
+            "noop_existing": 1,
+            "delete": 1,
+        }
+        next_refs = code_package_artifact_refs_after_delta_plan(
+            desired_artifact_refs=desired_refs,
+            current_artifact_state=first_state,
+            artifact_delta_plan=plan,
+        )
+        second = await snapshot_commit.commit_code_package_text_snapshot(
+            **common_kwargs,
+            code_package_artifact_refs=next_refs,
+        )
+        second_state_payload = (
+            await snapshot_commit.load_code_package_text_snapshot_artifact_state_index(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                code_package_id=code_package_id,
+            )
+        )
+        second_state = CodePackageArtifactCurrentStateIndex.from_payload(
+            second_state_payload
+        )
+        assert second_state is not None
+        second_refs = {
+            (row.output_key, row.artifact_key): row.artifact_ref
+            for row in second_state.artifacts
+        }
+        expected_refs = (
+            unchanged,
+            refresh_after,
+            created,
+            unrelated,
+            migration_one,
+            migration_two,
+        )
+        assert set(second_refs) == {
+            (ref.output_key, ref.artifact_key) for ref in expected_refs
+        }
+        assert (
+            second_refs[(refresh_after.output_key, refresh_after.artifact_key)]
+            == refresh_after
+        )
+        assert second_refs[(unrelated.output_key, unrelated.artifact_key)] == unrelated
+        assert (
+            second_refs[(migration_one.output_key, migration_one.artifact_key)]
+            == migration_one
+        )
+        repeated_plan = code_package_artifact_delta_plan_from_refs(
+            code_package_artifact_refs=desired_refs,
+            current_artifact_state=second_state,
+            authoritative_scopes=scopes,
+        )
+        repeated_refs = code_package_artifact_refs_after_delta_plan(
+            desired_artifact_refs=desired_refs,
+            current_artifact_state=second_state,
+            artifact_delta_plan=repeated_plan,
+        )
+        third = await snapshot_commit.commit_code_package_text_snapshot(
+            **common_kwargs,
+            code_package_artifact_refs=repeated_refs,
+        )
+        head = await FSCommitStore().head(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+        )
+
+    assert (
+        first.object_instance_graph_commit_id != second.object_instance_graph_commit_id
+    )
+    assert (
+        second.object_instance_graph_commit_id == third.object_instance_graph_commit_id
+    )
+    assert second.head_commit_id == third.head_commit_id
+    assert head is not None
+    assert head["object_instance_graph_commit_id"] == str(
+        second.object_instance_graph_commit_id
+    )
+    assert repeated_plan.operation_counts.to_payload() == {
+        "create": 0,
+        "refresh": 0,
+        "upsert": 0,
+        "noop_existing": 4,
+        "delete": 0,
+    }
 
 
 @pytest.mark.asyncio

@@ -91,6 +91,7 @@ class ApiPackage {
         language aware_code.code.CodeLanguage,
         import_root String,
         manifest_relative_path String,
+        object_instance_graph_commit_id UUID,
         package_root String = ".",
         role String = "public_package",
         output_key String = "python.public_package",
@@ -118,6 +119,7 @@ class ApiPackage {
             package_root = package_root,
             role = role,
             output_key = output_key,
+            object_instance_graph_commit_id = object_instance_graph_commit_id,
             include_paths = include_paths,
             exclude_paths = exclude_paths,
         )

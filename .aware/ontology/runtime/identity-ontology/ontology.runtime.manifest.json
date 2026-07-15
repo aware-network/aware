@@ -12,11 +12,11 @@
       }
     ]
   },
-  "domain_commit_id": "8101e2ad-8a0a-5d90-a453-d26640023855",
-  "object_instance_graph_commit_id": "69af2e80-ee63-5d70-a98f-72fb0fc1e139",
+  "domain_commit_id": "89e44616-d205-5a12-8127-67e941168550",
+  "object_instance_graph_commit_id": "8590c02a-94a2-54e5-8499-5d424982a5a1",
   "package_name": "identity-ontology",
   "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
   "source_kind": "workspace_revision",
   "workspace_relative_package_root": "workspaces/aware_network/modules/identity/ontology",
-  "workspace_revision_code_package_id": "230bf778-2000-5135-9c12-6588acb9d923"
+  "workspace_revision_code_package_id": "a12dfde2-0027-5eb4-aea2-a686caa6d84c"
 }

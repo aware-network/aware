@@ -1,0 +1,28 @@
+class SkillConfigApiEndpoint {
+    // Relationships
+    api_endpoint aware_api.api.ApiCapabilityEndpoint key
+
+    // Attributes
+    capability_name String key
+    description String?
+    name String key
+
+    fn build construct (
+        api_endpoint_id UUID key,
+        capability_name String key,
+        name String key,
+        description String? = null
+    ) -> SkillConfigApiEndpoint {
+        """
+        Create one Skill-owned API endpoint requirement.
+
+        Contract:
+        - This object is Skill-owned endpoint requirement truth.
+        - `capability_name` and `name` preserve Skill-owned selection identity.
+        - It targets API-owned `ApiCapabilityEndpoint` invocation truth.
+        - Projection routes the target through API's `Api` projection.
+        """
+    }
+}
+
+ann skill.SkillConfigApiEndpoint::api_endpoint load eager

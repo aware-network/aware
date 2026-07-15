@@ -1,0 +1,24 @@
+experience aware_meta {
+    profile graph.default {
+        title "Aware Meta Graph"
+        description "Canonical General Meta graph canvas profile."
+        narrative "Inspect Object Config Graph, Object Projection Graph, Object Instance Graph, branch, and commit coordinates."
+
+        process continuous meta default {
+            title "Meta"
+            narrative "Continuous Meta graph inspection process."
+            intent workspace
+
+            thread meta.graph default {
+                title "Meta Graph"
+                narrative "Primary General Meta graph canvas thread."
+                workspace_view thread.workspace
+                projection aware_meta view graph.canvas.v1 default
+
+                layout graph_canvas default {
+                    section graph projection aware_meta view graph.canvas.v1 binding meta.graph.canvas default
+                }
+            }
+        }
+    }
+}

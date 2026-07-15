@@ -1,7 +1,0 @@
-enum StorageBackend {
-    azure
-    gcs
-    local
-    memory
-    s3
-}

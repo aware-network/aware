@@ -1,0 +1,307 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "afab1c1f-5f10-565e-9074-9dfcc883442f",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "AttentionTransitionValidationEvidence",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.AttentionTransitionValidationEvidence",
+      "functions": []
+    },
+    {
+      "class_config_id": "e8c71cfd-6020-52b4-a75d-73435506d3c3",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryActorContextEvent",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryActorContextEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "c90ef1fe-046d-5f08-a6a2-dbb08fe2a748",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryActorContextEvidence",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryActorContextEvidence",
+      "functions": []
+    },
+    {
+      "class_config_id": "61e9c18f-a38c-5d28-a06d-1c0bda5d5ee9",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryActorContextFrame",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryActorContextFrame",
+      "functions": []
+    },
+    {
+      "class_config_id": "4518f392-7253-5768-90bb-0c86eb162ba6",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryActorContextFrameEvent",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryActorContextFrameEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "1ef5fbf8-83dd-5f6b-9296-94085ad9265b",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryActorContextFrameItem",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryActorContextFrameItem",
+      "functions": []
+    },
+    {
+      "class_config_id": "1d6dc301-3b7c-5673-b822-6fd65d961ce3",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryActorContextSnapshot",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryActorContextSnapshot",
+      "functions": []
+    },
+    {
+      "class_config_id": "43a1a551-0adf-54b8-b01a-53e2c807f23a",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryEventActionProvenanceEvidence",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryEventActionProvenanceEvidence",
+      "functions": []
+    },
+    {
+      "class_config_id": "3e3c1712-6a55-5e68-a8ae-d87c29a2c292",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryResolvedEventMeaningEvidence",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryResolvedEventMeaningEvidence",
+      "functions": []
+    },
+    {
+      "class_config_id": "21cdc868-7121-598a-9a84-9d1429939ef9",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryResolvedEventMeaningPin",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryResolvedEventMeaningPin",
+      "functions": []
+    },
+    {
+      "class_config_id": "f9529e1e-3fc9-5580-b8b6-2b1f1a052128",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryWorkingCommitReceipt",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryWorkingCommitReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "8a579288-6887-57f0-8ccc-ec91b3d2689f",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryWorkingFact",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryWorkingFact",
+      "functions": []
+    },
+    {
+      "class_config_id": "ba56b14d-7127-5308-81ea-63c4cfaec185",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryWorkingItemEvidence",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryWorkingItemEvidence",
+      "functions": []
+    },
+    {
+      "class_config_id": "19f0b561-4aa6-50b7-ac53-c72a7cf2cd06",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryWorkingItemPin",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryWorkingItemPin",
+      "functions": []
+    },
+    {
+      "class_config_id": "152947f0-ff73-5840-b2db-2de0acdd6963",
+      "module": "aware_memory_service_dto.memory.working.models",
+      "name": "MemoryWorkingPin",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryWorkingPin",
+      "functions": []
+    },
+    {
+      "class_config_id": "202af164-6bcd-5303-8c76-363cfc360319",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "DescribeMemoryWorkingRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.DescribeMemoryWorkingRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c364a913-2c33-5bd5-80b9-e60754d329f4",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "DescribeMemoryWorkingResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.DescribeMemoryWorkingResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "3beb8c7d-49b2-56ac-a6f0-927b9df7e045",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "EnsureMemoryWorkingRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.EnsureMemoryWorkingRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8657f9b3-2fab-52eb-8ad7-f123c4cff304",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "EnsureMemoryWorkingResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.EnsureMemoryWorkingResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "9c71f070-bd11-54f9-a2ec-7de31254839f",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "ListMemoryWorkingItemsRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.ListMemoryWorkingItemsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "33671f02-d20c-57ed-80a3-f7a700227726",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "ListMemoryWorkingItemsResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.ListMemoryWorkingItemsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "96822740-9553-579a-96f0-0124f0da5b3e",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "MemoryWorkingServiceRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryWorkingServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "68a09b1f-14d6-5bcb-a0f3-66ec979758d4",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "MemoryWorkingServiceResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.MemoryWorkingServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "68f99877-77b5-5a3f-8eba-88544662f064",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "RecordResolvedEventMeaningRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.RecordResolvedEventMeaningRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "eb8e27cf-fd20-5a17-93f5-d93927652406",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "RecordResolvedEventMeaningResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.RecordResolvedEventMeaningResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "18463bd7-9ae4-54f9-a840-8c5c43fc8807",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "RememberAttentionTransitionRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.RememberAttentionTransitionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "71a4a735-90f4-5f10-846f-14aaf147eb16",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "RememberAttentionTransitionResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.RememberAttentionTransitionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7fb37df3-2f05-5a9c-b4f2-9ce1c4418ffd",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "RememberContentRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.RememberContentRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "2233b31d-ad3f-5300-9d18-d10983b71b72",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "RememberContentResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.RememberContentResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "37d9a4f2-1d53-515c-ae45-f23b5810efb0",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "RememberEventRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.RememberEventRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c42a50c3-b762-5d51-a281-5fe384f3dda8",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "RememberEventResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.RememberEventResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "552b8845-0234-54a0-b2f0-ed44903b1280",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "ResolveActorMemoryContextFrameRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.ResolveActorMemoryContextFrameRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b4075c27-78e3-5221-b301-cba16a56aac8",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "ResolveActorMemoryContextFrameResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.ResolveActorMemoryContextFrameResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "af63ccac-3290-52eb-9d16-33cadb7aab30",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "ResolveActorMemoryContextRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.ResolveActorMemoryContextRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "4c9ff547-2c5d-58c1-b619-dd559dd8ec25",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "ResolveActorMemoryContextResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.ResolveActorMemoryContextResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "07520573-5132-59e9-bcc5-4c4d605b520c",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "ResolveMemoryContextRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.ResolveMemoryContextRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "67a8bb36-4c2c-5d8c-8146-66b27683c830",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "ResolveMemoryContextResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.ResolveMemoryContextResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "b71c41ed-145d-5540-8ff7-81aa3b88584f",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "ValidateMemoryWorkingItemRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.ValidateMemoryWorkingItemRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "7297e0e6-7903-5a94-8add-0f969b1e3b89",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "ValidateMemoryWorkingItemResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.ValidateMemoryWorkingItemResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c0985720-fb36-5b2b-aafd-8db022337c3b",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "WatchActorMemoryContextFrameRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.WatchActorMemoryContextFrameRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b03530a7-bc5d-5a73-9c1a-8dd0dd3d9498",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "WatchActorMemoryContextFrameResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.WatchActorMemoryContextFrameResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "825d8f1f-c4d1-50b9-9424-6a8f9358260c",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "WatchActorMemoryContextRequest",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.WatchActorMemoryContextRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "513efacb-6892-56ae-b654-107b4fb5ebd3",
+      "module": "aware_memory_service_dto.memory.working.service_operation",
+      "name": "WatchActorMemoryContextResponse",
+      "aware_class_ref": "aware_memory_service_dto.memory.working.WatchActorMemoryContextResponse",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

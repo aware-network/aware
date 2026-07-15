@@ -1,0 +1,27 @@
+aware_experience = 1
+
+[experience]
+package_name = "aware-network-experience"
+fqn_prefix = "aware_network_experience"
+version_number = 1
+title = "Aware Network"
+description = "Network territory discovery experience package for Control ingress surfaces."
+
+[build]
+environment_handle = "kernel"
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+
+[[dependencies]]
+package_name = "aware-network-attention"
+kind = "attention_package"
+
+[targets.dart]
+root_dir = "languages/dart"
+package_dir = "aware_network_experience"
+
+[targets.python]
+root_dir = "languages/python"
+package_dir = "aware_network_experience"

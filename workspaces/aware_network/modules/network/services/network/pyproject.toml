@@ -1,0 +1,28 @@
+[project]
+name = "aware-network-service"
+version = "0.1.0"
+description = "Canonical Network service package for topology and route authority."
+authors = [{ name = "AWARE Team" }]
+requires-python = ">=3.12"
+dependencies = [
+  "aware_environment_service_dto",
+  "aware-network-ontology",
+  "aware-service-runtime",
+  "aware-service-service",
+  "aware_network_service_api",
+  "aware_network_service_dto",
+  "aware_network_service_protocol",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_network_service"]
+include = [
+  "aware_network_service/py.typed",
+]

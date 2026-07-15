@@ -1,0 +1,20 @@
+aware_render_component = 1
+
+[render_component]
+package_name = "aware-content-render-components"
+fqn_prefix = "aware_content_render_components"
+title = "Aware Content Render Components"
+description = "Reusable content rendering components for Interface PaneRenderSpec."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+
+[dart]
+package_path = "dart/aware_content_render_components"
+package_name = "aware_content_render_components"
+
+[dart.flutter]
+library = "package:aware_content_render_components/aware_content_render_components.dart"
+symbol = "registerRenderComponents"

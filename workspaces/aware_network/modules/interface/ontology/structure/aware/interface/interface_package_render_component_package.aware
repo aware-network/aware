@@ -1,0 +1,25 @@
+class InterfacePackageRenderComponentPackage {
+    // Relationships
+    render_component_package RenderComponentPackage key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        render_component_package_id UUID key,
+        description String? = null
+    ) -> InterfacePackageRenderComponentPackage {
+        """
+        Create one package-level Interface bridge to one RenderComponentPackage.
+
+        Contract:
+        - Parent `InterfacePackage` scope is injected by propagation.
+        - Identity is keyed by the attached `RenderComponentPackage`.
+        - This is the package/import seam for renderer component registries available to an
+          Interface package.
+        - It does not replace pane-level render specs or view/action/state bindings.
+        """
+    }
+}
+
+ann interface.InterfacePackageRenderComponentPackage::render_component_package load eager

@@ -7,7 +7,7 @@ import 'package:aware_api/aware_api.dart';
 
 import 'bindings.dart';
 import 'content/content_service_operation.dart'
-    as contentContentServiceOperation_4;
+    as contentContentServiceOperation_6;
 
 class ContentPackageCapabilityClient {
   ContentPackageCapabilityClient(AwareApiClient client) : _client = client;
@@ -15,19 +15,19 @@ class ContentPackageCapabilityClient {
   final AwareApiClient _client;
 
   /// Materialize a provider export document into Content-owned ContentPackage truth.
-  Future<contentContentServiceOperation_4.MaterializeContentPackageResponse>
+  Future<contentContentServiceOperation_6.MaterializeContentPackageResponse>
   materializeContentPackage(
-    contentContentServiceOperation_4.MaterializeContentPackageRequest request, {
+    contentContentServiceOperation_6.MaterializeContentPackageRequest request, {
     Duration timeout = const Duration(seconds: 30),
   }) async {
     return _client.invokeApiEndpoint<
-      contentContentServiceOperation_4.MaterializeContentPackageResponse
+      contentContentServiceOperation_6.MaterializeContentPackageResponse
     >(
       endpointRef: contentPackageMaterializeContentPackageEndpointRef,
       discriminant: contentPackageMaterializeContentPackageDiscriminant,
       requestPayload: request.toJson(),
       decodeResponse: (payload) =>
-          contentContentServiceOperation_4
+          contentContentServiceOperation_6
               .MaterializeContentPackageResponse.fromJson(
             _requireJsonMap(
               payload,
@@ -44,20 +44,43 @@ class ContentTextCapabilityClient {
 
   final AwareApiClient _client;
 
-  /// Resolve one Content object into deterministic text parts and a flattened text payload.
-  Future<contentContentServiceOperation_4.ResolveContentTextResponse>
-  resolveContentText(
-    contentContentServiceOperation_4.ResolveContentTextRequest request, {
+  /// Commit provider-neutral text as Content truth and return exact commit evidence.
+  Future<contentContentServiceOperation_6.CommitContentTextResponse>
+  commitContentText(
+    contentContentServiceOperation_6.CommitContentTextRequest request, {
     Duration timeout = const Duration(seconds: 30),
   }) async {
     return _client.invokeApiEndpoint<
-      contentContentServiceOperation_4.ResolveContentTextResponse
+      contentContentServiceOperation_6.CommitContentTextResponse
+    >(
+      endpointRef: contentTextCommitContentTextEndpointRef,
+      discriminant: contentTextCommitContentTextDiscriminant,
+      requestPayload: request.toJson(),
+      decodeResponse: (payload) =>
+          contentContentServiceOperation_6.CommitContentTextResponse.fromJson(
+            _requireJsonMap(
+              payload,
+              endpointRef: contentTextCommitContentTextEndpointRef,
+            ),
+          ),
+      timeout: timeout,
+    );
+  }
+
+  /// Resolve one Content object into deterministic text parts and a flattened text payload.
+  Future<contentContentServiceOperation_6.ResolveContentTextResponse>
+  resolveContentText(
+    contentContentServiceOperation_6.ResolveContentTextRequest request, {
+    Duration timeout = const Duration(seconds: 30),
+  }) async {
+    return _client.invokeApiEndpoint<
+      contentContentServiceOperation_6.ResolveContentTextResponse
     >(
       endpointRef: contentTextResolveContentTextEndpointRef,
       discriminant: contentTextResolveContentTextDiscriminant,
       requestPayload: request.toJson(),
       decodeResponse: (payload) =>
-          contentContentServiceOperation_4.ResolveContentTextResponse.fromJson(
+          contentContentServiceOperation_6.ResolveContentTextResponse.fromJson(
             _requireJsonMap(
               payload,
               endpointRef: contentTextResolveContentTextEndpointRef,

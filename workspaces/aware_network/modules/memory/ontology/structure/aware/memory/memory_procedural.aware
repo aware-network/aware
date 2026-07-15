@@ -1,0 +1,18 @@
+class MemoryProcedural {
+    // Relationships
+    identity aware_identity.identity.Identity key
+    procedures MemoryProcedure[]
+
+    // Attributes
+    key String key = "default"
+
+    fn build construct(identity_id UUID key, key String key = "default") -> MemoryProcedural {
+        """
+        Create one deterministic procedural-memory lane for an owning Identity.
+
+        Policy:
+        - Memory owns the lane object and references Identity relationally.
+        - Shared procedural memory is deterministic from Identity plus `key`.
+        """
+    }
+}

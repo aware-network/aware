@@ -1,0 +1,205 @@
+/// Canonical DTOs for Experience-owned EnvironmentExperience profile provisioning.
+///
+/// Ownership:
+/// - Experience API owns this transport boundary.
+/// - Experience runtime owns profile resolution/materialization semantics.
+/// - Environment may expose compatibility endpoints, but the target rail calls
+///   this Experience API/SDK facade instead of importing Experience internals.
+
+class ExperienceEnvironmentProfileProgramSpec {
+    /// Canonical registry ref (`<experience_fqn_prefix>:<program_name>`).
+    program_ref String
+}
+
+class ExperienceEnvironmentProfileProgramApplySpec {
+    /// Stable key for one profile-owned apply declaration.
+    key String
+    /// Must reference a program installed in `profile.programs`.
+    program_ref String
+    /// Execution phase bucket interpreted by Experience/runtime orchestration.
+    phase String = "bootstrap"
+    position Int? = null
+    message String?
+    /// Free-form symbols later forwarded into the program invocation boundary.
+    symbols JsonObject = {}
+}
+
+class ExperienceEnvironmentProfileProgramApplyReceipt {
+    key String
+    phase String = "bootstrap"
+    program_ref String
+    position Int? = null
+    status String
+    error String?
+    program_run_id UUID?
+    turn_id UUID?
+    deduped Bool = false
+    resolved_branch_id UUID?
+    resolved_projection_hash String?
+    lane_resolution_source String?
+}
+
+class ExperienceEnvironmentProfileRoleSpec {
+    /// Canonical RoleConfig key published by the selected experience profile.
+    name String
+    description String?
+    /// Capability refs use `<Class>` or `<Class>.<function>` suffixes.
+    capabilities String[] = []
+}
+
+class ExperienceEnvironmentProfileActorSpec {
+    /// Canonical ActorConfig key published by the selected experience profile.
+    key String
+    title String?
+    description String?
+    type String?
+    /// Must reference `profile.roles[].name`.
+    role_names String[] = []
+}
+
+class ExperienceEnvironmentProfileEventActionSpec {
+    /// Experience ActionExperience ref or stable action key.
+    action_experience_ref String?
+    /// Reactivity ActionConfig ref. Used by the policy-provisioning follow-up.
+    action_config_ref String?
+    /// Optional program ref for action-backed program dispatch.
+    program_ref String?
+}
+
+class ExperienceEnvironmentProfileEventSpec {
+    /// Reactivity EventConfig ref for this profile event vocabulary entry.
+    event_config_ref String
+    /// Optional ConditionConfig refs that should emit this event.
+    condition_config_refs String[] = []
+    /// Environment-scoped event -> action coupling declared by Experience.
+    actions ExperienceEnvironmentProfileEventActionSpec[] = []
+}
+
+class ExperienceEnvironmentProfileProjectionIdentitySpec {
+    /// Canonical OPG identity key (`{ocg_fqn_prefix}:{projection_name}`).
+    projection_identity_key String
+    view_key String?
+    narrative String?
+    intent String?
+    position Int? = null
+    is_default Bool = false
+}
+
+class ExperienceEnvironmentProfileLayoutConfigSpec {
+    /// Canonical Attention LayoutConfig key.
+    layout_key String
+    /// Optional stable association key under the ThreadConfig.
+    key String?
+    position Int? = null
+    narrative String?
+    intent String?
+}
+
+class ExperienceEnvironmentProfileThreadSpec {
+    /// Reusable ThreadConfig key under the target ProcessConfig.
+    key String
+    title String?
+    description String?
+    workspace_view_key String?
+    position Int? = null
+    narrative String?
+    intent String?
+    state_prompt_template String?
+    projection_identities ExperienceEnvironmentProfileProjectionIdentitySpec[] = []
+    layout_configs ExperienceEnvironmentProfileLayoutConfigSpec[] = []
+}
+
+class ExperienceEnvironmentProfileProcessSpec {
+    /// Reusable ProcessConfig key under the profile.
+    key String
+    type String
+    title String?
+    description String?
+    shape String?
+    position Int? = null
+    narrative String?
+    intent String?
+    thread_configs ExperienceEnvironmentProfileThreadSpec[] = []
+}
+
+class ExperienceEnvironmentProfileTopologyLayoutSeedSpec {
+    /// Must reference a layout candidate declared in the selected ThreadConfig.
+    layout_key String
+    key String?
+    position Int? = null
+    activate_on_seed Bool = false
+    narrative String?
+    intent String?
+}
+
+class ExperienceEnvironmentProfileTopologyThreadSeedSpec {
+    /// Must reference a ThreadConfig key under the selected ProcessConfig.
+    thread_config_key String
+    /// Runtime Thread.key for this concrete seed instance.
+    thread_key String
+    key String?
+    title String?
+    description String?
+    position Int? = null
+    is_main Bool = false
+    narrative String?
+    intent String?
+    layout_seeds ExperienceEnvironmentProfileTopologyLayoutSeedSpec[] = []
+}
+
+class ExperienceEnvironmentProfileTopologyProcessSeedSpec {
+    /// Must reference a ProcessConfig key under the selected profile.
+    process_config_key String
+    /// Runtime Process.key for this concrete seed instance.
+    process_key String
+    key String?
+    title String?
+    description String?
+    position Int? = null
+    narrative String?
+    intent String?
+    thread_seeds ExperienceEnvironmentProfileTopologyThreadSeedSpec[] = []
+}
+
+class ExperienceEnvironmentProfileTopologySeedSpec {
+    key String
+    title String?
+    description String?
+    narrative String?
+    process_seeds ExperienceEnvironmentProfileTopologyProcessSeedSpec[] = []
+}
+
+class ExperienceEnvironmentProfileRuntimeMountReceipt {
+    environment_id UUID
+    environment_experience_profile_id UUID
+    environment_experience_profile_mount_id UUID?
+    mount_key String?
+    topology_seed_key String
+    process_config_id UUID?
+    process_key String
+    process_id UUID
+    thread_config_id UUID?
+    thread_key String
+    thread_id UUID
+    thread_layout_config_id UUID?
+    layout_key String?
+    layout_config_id UUID?
+    layout_id UUID?
+    thread_layout_id UUID?
+    activate_on_seed Bool = false
+    status String = "succeeded"
+}
+
+class ExperienceEnvironmentProfileSpec {
+    key String?
+    title String?
+    description String?
+    narrative String?
+    roles ExperienceEnvironmentProfileRoleSpec[] = []
+    actors ExperienceEnvironmentProfileActorSpec[] = []
+    /// Profile-scoped Reactivity event/action vocabulary owned by Experience.
+    events ExperienceEnvironmentProfileEventSpec[] = []
+    programs ExperienceEnvironmentProfileProgramSpec[] = []
+    program_applies ExperienceEnvironmentProfileProgramApplySpec[] = []
+    process_configs ExperienceEnvironmentProfileProcessSpec[] = []
+}

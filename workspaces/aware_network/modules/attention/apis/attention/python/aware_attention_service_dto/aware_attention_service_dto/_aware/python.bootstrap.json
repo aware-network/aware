@@ -1,0 +1,11 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_attention_service_dto.attention.section.models",
+    "aware_attention_service_dto.attention.section.service_operation",
+    "aware_attention_service_dto.attention.session.models",
+    "aware_attention_service_dto.attention.session.service_operation"
+  ],
+  "package_prefix": "aware_attention_service_dto",
+  "version": "v1"
+}

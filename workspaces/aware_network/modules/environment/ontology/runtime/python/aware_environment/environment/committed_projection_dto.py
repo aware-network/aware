@@ -5,11 +5,10 @@ from pathlib import Path
 from typing import Any, Protocol, cast
 
 from aware_meta_service_dto.graph.instance.function_call import (
-    MetaGraphGetObjectInstanceGraphCommitResponse,
+    MetaGraphGetObjectInstanceGraphCommitRequest,
 )
-from aware_ontology_service_dto.graph.instance.function_call import (
-    OntologyGraphGetObjectInstanceGraphCommitRequest,
-    OntologyGraphGetObjectInstanceGraphCommitResponse,
+from aware_meta_service_dto.graph.instance.function_call import (
+    MetaGraphGetObjectInstanceGraphCommitResponse,
 )
 from aware_environment_service_dto.environment.environment import (
     MaterializeCommittedProjectionDtoRequest,
@@ -23,14 +22,14 @@ _DTO_REQUIRED_ARTIFACT_ROLES = (
     "dependency_import_resolution",
     "package_bootstrap",
 )
-OntologyApiClientProvider = Callable[[], object | None]
+MetaApiClientProvider = Callable[[], object | None]
 
 
-class _OntologyGraphCommitClient(Protocol):
+class _MetaGraphCommitClient(Protocol):
     async def get_object_instance_graph_commit(
         self,
-        request: OntologyGraphGetObjectInstanceGraphCommitRequest,
-    ) -> OntologyGraphGetObjectInstanceGraphCommitResponse: ...
+        request: MetaGraphGetObjectInstanceGraphCommitRequest,
+    ) -> MetaGraphGetObjectInstanceGraphCommitResponse: ...
 
 
 async def materialize_committed_projection_dto(
@@ -38,7 +37,7 @@ async def materialize_committed_projection_dto(
     request: MaterializeCommittedProjectionDtoRequest,
     workspace_revision_materialized_root: str | Path | None,
     runtime_artifact_refs: Sequence[object],
-    ontology_api_client_provider: OntologyApiClientProvider | None,
+    meta_api_client_provider: MetaApiClientProvider | None,
 ) -> MaterializeCommittedProjectionDtoResponse:
     if request.branch_id is None:
         return _response(
@@ -97,20 +96,20 @@ async def materialize_committed_projection_dto(
             artifact_bundle=artifact_bundle,
         )
 
-    ontology_graph = _ontology_graph_commit_client(ontology_api_client_provider)
-    if ontology_graph is None:
+    meta_graph = _meta_graph_commit_client(meta_api_client_provider)
+    if meta_graph is None:
         return _response(
             request=request,
             status="refused",
-            error="ontology_service_api_route_required",
-            refusal_code="ontology_service_api_route_required",
-            evidence_reason="ontology_service_api_route_required",
+            error="meta_service_api_route_required",
+            refusal_code="meta_service_api_route_required",
+            evidence_reason="meta_service_api_route_required",
             artifact_bundle=artifact_bundle,
         )
 
     try:
-        commit_response = await ontology_graph.get_object_instance_graph_commit(
-            OntologyGraphGetObjectInstanceGraphCommitRequest(
+        commit_response = await meta_graph.get_object_instance_graph_commit(
+            MetaGraphGetObjectInstanceGraphCommitRequest(
                 actor_id=request.actor_id,
                 domain_branch_id=request.branch_id,
                 domain_projection_hash=request.projection_hash,
@@ -121,18 +120,18 @@ async def materialize_committed_projection_dto(
         return _response(
             request=request,
             status="refused",
-            error="ontology_commit_unavailable",
-            refusal_code="ontology_commit_unavailable",
-            evidence_reason=f"ontology_commit_request_failed:{type(exc).__name__}",
+            error="meta_commit_unavailable",
+            refusal_code="meta_commit_unavailable",
+            evidence_reason=f"meta_commit_request_failed:{type(exc).__name__}",
             artifact_bundle=artifact_bundle,
         )
     if commit_response.status != "succeeded":
         return _response(
             request=request,
             status="refused",
-            error="ontology_commit_unavailable",
-            refusal_code="ontology_commit_unavailable",
-            evidence_reason=f"ontology_commit_status:{commit_response.status}",
+            error="meta_commit_unavailable",
+            refusal_code="meta_commit_unavailable",
+            evidence_reason=f"meta_commit_status:{commit_response.status}",
             artifact_bundle=artifact_bundle,
             commit_response=commit_response,
         )

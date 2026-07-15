@@ -1,0 +1,131 @@
+service aware_identity {
+    api identity
+
+    operation check_credential_readiness {
+        endpoint identity.check_credential_readiness.check_credential_readiness
+        admission identity_required
+    }
+
+    operation setup_credential_profile {
+        endpoint identity.setup_credential_profile.setup_credential_profile
+        admission identity_required
+    }
+
+    operation assign_role {
+        endpoint identity.assign_role.assign_role
+        admission identity_required
+    }
+
+    operation unassign_role {
+        endpoint identity.unassign_role.unassign_role
+        admission identity_required
+    }
+
+    operation resolve_role_assignments {
+        endpoint identity.resolve_role_assignments.resolve_role_assignments
+        admission identity_required
+        view identity.actor_roles
+        role identity.actor_reader {
+            access operation
+            scope operation resolve_role_assignments
+            class_instance_identity_required true
+            role_assignment_binding_required true
+        }
+    }
+
+    operation ensure_session_config {
+        endpoint identity.ensure_session_config.ensure_session_config
+        admission identity_required
+    }
+
+    operation bind_session_config_actor_config {
+        endpoint identity.bind_session_config_actor_config.bind_session_config_actor_config
+        admission identity_required
+    }
+
+    operation register_session_provider {
+        endpoint identity.register_session_provider.register_session_provider
+        admission identity_required
+    }
+
+    operation bind_session_provider_config {
+        endpoint identity.bind_session_provider_config.bind_session_provider_config
+        admission identity_required
+    }
+
+    operation start_session {
+        endpoint identity.start_session.start_session
+        admission identity_required
+    }
+
+    operation describe_session {
+        endpoint identity.describe_session.describe_session
+        admission identity_required
+    }
+
+    operation join_session {
+        endpoint identity.join_session.join_session
+        admission identity_required
+    }
+
+    operation record_session_member_actor_role {
+        endpoint identity.record_session_member_actor_role.record_session_member_actor_role
+        admission identity_required
+    }
+
+    operation attach_session_provider_session {
+        endpoint identity.attach_session_provider_session.attach_session_provider_session
+        admission identity_required
+    }
+
+    operation list_actor_sessions {
+        endpoint identity.list_actor_sessions.list_actor_sessions
+        admission identity_required
+    }
+
+    operation list_session_members {
+        endpoint identity.list_session_members.list_session_members
+        admission identity_required
+    }
+
+    operation ensure_actor_subscription {
+        endpoint identity.ensure_actor_subscription.ensure_actor_subscription
+        admission identity_required
+    }
+
+    operation resolve_actor_subscriptions {
+        endpoint identity.resolve_actor_subscriptions.resolve_actor_subscriptions
+        admission identity_required
+        view identity.actor_subscriptions
+    }
+
+    operation ensure_actor_commit {
+        endpoint identity.ensure_actor_commit.ensure_actor_commit
+        admission identity_required
+    }
+
+    operation resolve_actor_commits {
+        endpoint identity.resolve_actor_commits.resolve_actor_commits
+        admission identity_required
+        view identity.actor_commits
+    }
+
+    operation signup_via_profile {
+        endpoint identity.signup_via_profile.signup_via_profile
+        admission identity_required
+        view identity.identity_admission
+    }
+
+    contract actor_continuity {
+        kind subscription
+        grant operation resolve_role_assignments {
+            access operation
+        }
+        grant actor_role identity.actor_reader {
+            access service
+            scope service default
+            class_instance_identity_required false
+            role_assignment_binding_required true
+        }
+    }
+}

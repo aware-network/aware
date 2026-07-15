@@ -1,0 +1,26 @@
+class NodeConfigOntologyTarget {
+    // Relationships
+    ontology_package aware_ontology.ontology.OntologyPackage?
+
+    // Attributes
+    package_name String key
+
+    fn build construct(
+        package_name String key
+    ) -> NodeConfigOntologyTarget {
+        """
+        Create one Node-owned ontology target by canonical ontology package name.
+
+        Contract:
+        - Parent `NodeConfig` scope is injected by propagation.
+        - Identity is keyed by `(node_config_id, package_name)`.
+        - The target `OntologyPackage` portal is resolved from `package_name`
+          without storing raw graph/package refs as Node source truth.
+        - Ontology targets select semantic package authority; runtime service
+          exposure is a later host concern and must not be encoded as a raw
+          Service target workaround.
+        """
+    }
+}
+
+ann node.NodeConfigOntologyTarget::ontology_package load eager

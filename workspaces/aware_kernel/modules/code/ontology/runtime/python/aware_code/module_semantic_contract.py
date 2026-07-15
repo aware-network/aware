@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping, Protocol
+from typing import Literal, Mapping, Protocol
 from uuid import UUID
 
 from aware_code.semantic_package.schemas import (
@@ -11,7 +11,13 @@ from aware_code.semantic_package.schemas import (
     CapabilityProfileDescriptor,
 )
 
+AWARE_MODULE_SEMANTIC_REGISTRY_DESCRIPTOR_EXPORT_NAME = (
+    "AWARE_MODULE_SEMANTIC_REGISTRY_DESCRIPTOR"
+)
+
 AWARE_MODULE_SEMANTIC_CONTRACT_EXPORT_NAME = "AWARE_MODULE_SEMANTIC_CONTRACT"
+
+ArtifactScopePolicy = Literal["partial", "replace_missing", "append_only"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -309,6 +315,8 @@ class ModuleSemanticMaterializationInputDescriptor:
     artifact_role: str | None = None
     package_family: str | None = None
     semantic_kind: str | None = None
+    semantic_projection_name: str | None = None
+    semantic_root_kind: str | None = None
     runtime_contract_version: str | None = None
     callable_module: str | None = None
     callable_name: str | None = None
@@ -322,9 +330,9 @@ class ModuleSemanticMaterializationArtifactOutputDescriptor:
     """Module-owned declaration for artifacts emitted by semantic materialization.
 
     This is a producer declaration contract, not a Workspace data model. Semantic
-    providers declare stable output identities here; Workspace may later record
-    matching materialization receipts as generic revision artifact refs without
-    importing provider-specific modules.
+    providers declare stable output identities and lifecycle scope here; Workspace
+    coordinates package-owned CodePackageArtifact state without importing
+    provider-specific modules.
     """
 
     semantic_owner: str
@@ -341,7 +349,7 @@ class ModuleSemanticMaterializationArtifactOutputDescriptor:
     media_type: str | None = None
     runtime_contract_version: str | None = None
     required_for: tuple[str, ...] = ()
-    authoritative_artifact_scope: bool = False
+    artifact_scope_policy: ArtifactScopePolicy = "partial"
     required: bool = True
     priority: int = 100
     provider_payload: Mapping[str, object] | None = None
@@ -481,6 +489,41 @@ class ModuleSemanticLanguageMaterializationProfileDescriptor:
     required: bool = False
     priority: int = 100
     provider_payload: Mapping[str, object] | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ModuleSemanticRegistryDescriptor:
+    """Read-only package discovery projection of a module semantic contract."""
+
+    provider_key: str
+    package_roles: tuple[ModuleSemanticPackageRoleDescriptor, ...] = ()
+    manifest_resolution: tuple[
+        ModuleSemanticManifestResolutionDescriptor,
+        ...,
+    ] = ()
+    package_layout: tuple[ModuleSemanticPackageLayoutDescriptor, ...] = ()
+    runtime_projection_packages: tuple[
+        ModuleSemanticRuntimeProjectionPackageDescriptor,
+        ...,
+    ] = ()
+
+    def package_layout_for(
+        self,
+        *,
+        semantic_owner: str,
+        manifest_kind: str,
+    ) -> tuple[ModuleSemanticPackageLayoutDescriptor, ...]:
+        return tuple(
+            sorted(
+                (
+                    descriptor
+                    for descriptor in self.package_layout
+                    if descriptor.semantic_owner == semantic_owner
+                    and manifest_kind in descriptor.manifest_kinds
+                ),
+                key=lambda item: (item.priority, item.callable_module),
+            )
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -1223,6 +1266,7 @@ def _normalized_optional_text(value: str | None) -> str | None:
 
 __all__ = [
     "AWARE_MODULE_SEMANTIC_CONTRACT_EXPORT_NAME",
+    "AWARE_MODULE_SEMANTIC_REGISTRY_DESCRIPTOR_EXPORT_NAME",
     "ModuleCapabilityExecutionPolicyDescriptor",
     "ModuleSemanticArtifactLeafOwnershipDescriptor",
     "ModuleSemanticContract",
@@ -1239,6 +1283,7 @@ __all__ = [
     "ModuleSemanticMaterializationRuntimeContextDescriptor",
     "ModuleSemanticPackageLayoutDescriptor",
     "ModuleSemanticPackageRoleDescriptor",
+    "ModuleSemanticRegistryDescriptor",
     "ModuleSemanticRuntimeProjectionPackageDescriptor",
     "ModuleSemanticSyntaxLaneDescriptor",
     "ModuleSemanticWorkflowDescriptor",

@@ -1,0 +1,3 @@
+event IdentityAdmitted name "identity.admitted" renderer "identity.admitted" title "Identity Admitted" description "Identity admission completed." {
+    bind Identity Identity.Identity create
+}

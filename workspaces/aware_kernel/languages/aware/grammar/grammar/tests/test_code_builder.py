@@ -22,7 +22,13 @@ from aware_content.builder import get_segment_text
 from aware_grammar.code_language_plugin import AWARE_CODE_PLUGIN
 
 
-SAMPLES = ["user_post", "nested_attributes", "augment", "association_relationship", "many_to_many"]
+SAMPLES = [
+    "user_post",
+    "nested_attributes",
+    "augment",
+    "association_relationship",
+    "many_to_many",
+]
 
 
 @pytest.fixture(scope="session")
@@ -40,7 +46,9 @@ def sample_files() -> dict[str, str]:
 
 
 @pytest.fixture(scope="session")
-def sample_file_codes(sample_files: dict[str, str]) -> dict[str, tuple[Code, CodeSectionBuilderIndex]]:
+def sample_file_codes(
+    sample_files: dict[str, str]
+) -> dict[str, tuple[Code, CodeSectionBuilderIndex]]:
     """Fixture that returns the file codes for the sample file."""
     CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
     sample_file_codes: dict[str, tuple[Code, CodeSectionBuilderIndex]] = {}
@@ -56,7 +64,9 @@ def sample_file_codes(sample_files: dict[str, str]) -> dict[str, tuple[Code, Cod
     return sample_file_codes
 
 
-def test_code_builder_from_file(sample_file_codes: dict[str, tuple[Code, CodeSectionBuilderIndex]]):
+def test_code_builder_from_file(
+    sample_file_codes: dict[str, tuple[Code, CodeSectionBuilderIndex]]
+):
     """Test the integrated code building process with all adapters."""
     code, _sections_index = sample_file_codes["user_post"]
 
@@ -69,7 +79,9 @@ def test_code_builder_from_file(sample_file_codes: dict[str, tuple[Code, CodeSec
 
     # Check class sections (classes + edges)
     assert CodeSectionType.class_ in sections_by_type, "Should have class sections"
-    assert len(sections_by_type[CodeSectionType.class_]) == 6, "Should have 6 class sections (4 classes + 2 edges)"
+    assert (
+        len(sections_by_type[CodeSectionType.class_]) == 6
+    ), "Should have 6 class sections (4 classes + 2 edges)"
 
     # Check function sections (both standalone and methods)
     assert CodeSectionType.function in sections_by_type, "Should have function sections"
@@ -77,7 +89,9 @@ def test_code_builder_from_file(sample_file_codes: dict[str, tuple[Code, CodeSec
     # Check attribute sections (as part of classes, not standalone)
     # Get a class section and check if it has attribute children
     class_section = sections_by_type[CodeSectionType.class_][0]
-    assert class_section.code_section_class is not None, "Should have a code_section_class"
+    assert (
+        class_section.code_section_class is not None
+    ), "Should have a code_section_class"
     assert (
         len(class_section.code_section_class.code_section_attributes) > 0
     ), "Should have attribute sections as part of classes"
@@ -101,7 +115,9 @@ enum Foo {
         symbol_table=CodeSymbolTable(),
     )
 
-    value_sections = [s for s in code.code_sections if s.type is CodeSectionType.enum_value]
+    value_sections = [
+        s for s in code.code_sections if s.type is CodeSectionType.enum_value
+    ]
     assert {s.qualname for s in value_sections} == {"Foo.a", "Foo.b"}
 
     sec_a = sections_index.get_by_ref(CodeSectionType.enum_value, "Foo.a")
@@ -141,7 +157,9 @@ projection Wallet {
 
     _ = code  # keep symmetry with other builder tests
 
-    proj_sec = sections_index.get_by_ref(CodeSectionType.projection, "projection:Wallet")
+    proj_sec = sections_index.get_by_ref(
+        CodeSectionType.projection, "projection:Wallet"
+    )
     assert proj_sec is not None
     assert proj_sec.code_section_projection is not None
 
@@ -154,7 +172,9 @@ projection Wallet {
     assert comment.code_section_projection_id == proj_sec.code_section_projection.id
 
 
-def test_code_builder_binding_sections_capture_maps_and_docstring_descriptions() -> None:
+def test_code_builder_binding_sections_capture_maps_and_docstring_descriptions() -> (
+    None
+):
     CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
 
     sections_index = CodeSectionBuilderIndex()
@@ -177,7 +197,9 @@ binding aware_home_api aware_home {
 
     _ = code
 
-    binding_sec = sections_index.get_by_ref(CodeSectionType.binding, "binding:aware_home_api->aware_home")
+    binding_sec = sections_index.get_by_ref(
+        CodeSectionType.binding, "binding:aware_home_api->aware_home"
+    )
     assert binding_sec is not None
     assert binding_sec.code_section_binding is not None
     assert binding_sec.code_section_binding.source_graph_ref == "aware_home_api"
@@ -188,9 +210,15 @@ binding aware_home_api aware_home {
     assert binding_map.name == "door_by_label"
     assert binding_map.source_ref == "door.DoorDevice"
     assert binding_map.target_ref == "home.Door.label"
-    assert binding_map.description == "Resolve external door payload onto canonical Door.label."
+    assert (
+        binding_map.description
+        == "Resolve external door payload onto canonical Door.label."
+    )
     assert binding_map.template_segment is not None
-    assert binding_map.template_text == "device_id::{device_id}_provider::{provider}_label::{door_label}"
+    assert (
+        binding_map.template_text
+        == "device_id::{device_id}_provider::{provider}_label::{door_label}"
+    )
 
 
 def test_code_builder_ref_lookup_and_class_method_linkage(
@@ -220,11 +248,20 @@ def test_code_builder_ref_lookup_and_class_method_linkage(
     assert len(edges) > 0, "Expected User to have method edges"
 
     build_user_edge = next(
-        (e for e in edges if e.code_section_function.code_section.qualname == method_ref),
+        (
+            e
+            for e in edges
+            if e.code_section_function.code_section.qualname == method_ref
+        ),
         None,
     )
-    assert build_user_edge is not None, f"Expected to find class->method edge for {method_ref}"
-    assert build_user_edge.code_section_function_id == build_user_edge.code_section_function.id
+    assert (
+        build_user_edge is not None
+    ), f"Expected to find class->method edge for {method_ref}"
+    assert (
+        build_user_edge.code_section_function_id
+        == build_user_edge.code_section_function.id
+    )
 
     # --- Parameter ref lookup for method parameter (email) ---
     param_ref = "User.buildUser.email"
@@ -261,7 +298,10 @@ def test_code_builder_builds_output_attributes_for_tuple_returns(
     # Return clause segment must exist (provenance)
     assert fn.return_type_segment is not None
     blob_store = sections_index.get_blob_store()
-    assert get_segment_text(fn.return_type_segment, blob_store=blob_store) == "(user User, post Post, comment Comment)"
+    assert (
+        get_segment_text(fn.return_type_segment, blob_store=blob_store)
+        == "(user User, post Post, comment Comment)"
+    )
 
     edges = fn.code_section_function_attributes
     assert edges, "Expected function to have attribute edges (inputs and outputs)"
@@ -274,8 +314,16 @@ def test_code_builder_builds_output_attributes_for_tuple_returns(
 
     assert len(output_edges) == 3
     output_edges = sorted(output_edges, key=lambda e: e.position)
-    assert [e.code_section_attribute.name for e in output_edges] == ["user", "post", "comment"]
-    assert [e.code_section_attribute.type_text for e in output_edges] == ["User", "Post", "Comment"]
+    assert [e.code_section_attribute.name for e in output_edges] == [
+        "user",
+        "post",
+        "comment",
+    ]
+    assert [e.code_section_attribute.type_text for e in output_edges] == [
+        "User",
+        "Post",
+        "Comment",
+    ]
 
 
 def test_code_builder_builds_output_attribute_for_single_returns(
@@ -325,7 +373,9 @@ def test_code_builder_attribute_relationship_hints_edge_spec_and_many_to_many(
 ):
     # Edge spec name should be extracted from `@EdgeSpec`
     _code, sections_index = sample_file_codes["association_relationship"]
-    classes_attr = sections_index.get_by_ref(CodeSectionType.attribute, "ObjectConfigSample.classes")
+    classes_attr = sections_index.get_by_ref(
+        CodeSectionType.attribute, "ObjectConfigSample.classes"
+    )
     assert classes_attr is not None
     assert classes_attr.code_section_attribute is not None
     assert classes_attr.code_section_attribute.edge_spec_name == "ObjectClassEdge"
@@ -333,7 +383,9 @@ def test_code_builder_attribute_relationship_hints_edge_spec_and_many_to_many(
 
     # many-to-many should be extracted from `many` modifier
     _code, sections_index = sample_file_codes["many_to_many"]
-    users_attr = sections_index.get_by_ref(CodeSectionType.attribute, "Membership.users")
+    users_attr = sections_index.get_by_ref(
+        CodeSectionType.attribute, "Membership.users"
+    )
     assert users_attr is not None
     assert users_attr.code_section_attribute is not None
     assert users_attr.code_section_attribute.edge_spec_name == "UserGroupEdge"
@@ -376,9 +428,19 @@ def test_builder_index_add_section_node_is_idempotent_on_reuse(
     )
     assert rebuilt.id == user_section.id
     assert rebuilt.identity_hash == user_section.identity_hash
+    reuse_summary = sections_index.reuse_summary()
+    assert reuse_summary.total_count == 1
+    assert reuse_summary.count_by_type == ((CodeSectionType.class_, 1),)
+    assert len(reuse_summary.samples) == 1
+    assert reuse_summary.samples[0].qualname == "User"
+    assert (
+        reuse_summary.samples[0].identity_hash_prefix == user_section.identity_hash[:8]
+    )
 
 
-def test_code_builder_import_sections_have_canonical_text_fields(tmp_path: Path) -> None:
+def test_code_builder_import_sections_have_canonical_text_fields(
+    tmp_path: Path,
+) -> None:
     CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
 
     source = """
@@ -407,7 +469,10 @@ import core.* as CoreUtils;
     assert len(imp1.code_section_import_names) == 1
     assert imp1.code_section_import_names[0].name_text == "module.submodule"
     assert imp1.code_section_import_names[0].alias_text is None
-    assert imp1.code_section_import_names[0].name_segment_id == imp1.code_section_import_names[0].name_segment.id
+    assert (
+        imp1.code_section_import_names[0].name_segment_id
+        == imp1.code_section_import_names[0].name_segment.id
+    )
     assert imp1.code_section_import_names[0].alias_segment_id is None
 
     imp2 = imports[1].code_section_import
@@ -417,9 +482,15 @@ import core.* as CoreUtils;
     assert len(imp2.code_section_import_names) == 1
     assert imp2.code_section_import_names[0].name_text == "package.utils"
     assert imp2.code_section_import_names[0].alias_text == "helpers"
-    assert imp2.code_section_import_names[0].name_segment_id == imp2.code_section_import_names[0].name_segment.id
+    assert (
+        imp2.code_section_import_names[0].name_segment_id
+        == imp2.code_section_import_names[0].name_segment.id
+    )
     assert imp2.code_section_import_names[0].alias_segment is not None
-    assert imp2.code_section_import_names[0].alias_segment_id == imp2.code_section_import_names[0].alias_segment.id
+    assert (
+        imp2.code_section_import_names[0].alias_segment_id
+        == imp2.code_section_import_names[0].alias_segment.id
+    )
 
     imp3 = imports[2].code_section_import
     assert imp3 is not None
@@ -429,9 +500,15 @@ import core.* as CoreUtils;
     assert len(imp3.code_section_import_names) == 1
     assert imp3.code_section_import_names[0].name_text == "*"
     assert imp3.code_section_import_names[0].alias_text == "CoreUtils"
-    assert imp3.code_section_import_names[0].name_segment_id == imp3.code_section_import_names[0].name_segment.id
+    assert (
+        imp3.code_section_import_names[0].name_segment_id
+        == imp3.code_section_import_names[0].name_segment.id
+    )
     assert imp3.code_section_import_names[0].alias_segment is not None
-    assert imp3.code_section_import_names[0].alias_segment_id == imp3.code_section_import_names[0].alias_segment.id
+    assert (
+        imp3.code_section_import_names[0].alias_segment_id
+        == imp3.code_section_import_names[0].alias_segment.id
+    )
 
 
 def test_code_builder_links_docstring_comment_to_method(
@@ -442,12 +519,16 @@ def test_code_builder_links_docstring_comment_to_method(
     """
     _code, sections_index = sample_file_codes["user_post"]
 
-    method_section = sections_index.get_by_ref(CodeSectionType.function, "User.buildUser")
+    method_section = sections_index.get_by_ref(
+        CodeSectionType.function, "User.buildUser"
+    )
     assert method_section is not None
     assert method_section.code_section_function is not None
 
     comments = method_section.code_section_function.code_section_comments
-    assert len(comments) > 0, "Expected at least one doc comment linked to User.buildUser"
+    assert (
+        len(comments) > 0
+    ), "Expected at least one doc comment linked to User.buildUser"
 
     # Validate the content includes the expected substring from the sample file
     blob_store = sections_index.get_blob_store()
@@ -475,13 +556,19 @@ def test_code_builder_propagates_nested_sections_to_code_sections(
 
     # Unique ids invariant (avoid silently appending duplicates in multi-pass orchestration)
     ids = [sec.id for sec in code.code_sections]
-    assert len(ids) == len(set(ids)), "code.code_sections should not contain duplicate CodeSection ids"
+    assert len(ids) == len(
+        set(ids)
+    ), "code.code_sections should not contain duplicate CodeSection ids"
 
     # Helper: resolve by ref from index and assert the base section is present in code.code_sections
     def _assert_present(section_type: CodeSectionType, ref: str) -> None:
         sec = sections_index.get_by_ref(section_type, ref)
-        assert sec is not None, f"Expected section_index ref lookup for {section_type.value} {ref}"
-        assert sec in code.code_sections, f"Expected {section_type.value} {ref} to be present in code.code_sections"
+        assert (
+            sec is not None
+        ), f"Expected section_index ref lookup for {section_type.value} {ref}"
+        assert (
+            sec in code.code_sections
+        ), f"Expected {section_type.value} {ref} to be present in code.code_sections"
 
     # Nested method + param
     _assert_present(CodeSectionType.function, "User.buildUser")
@@ -511,27 +598,41 @@ def test_code_builder_ssot_fields_and_description_backfill(
     assert user_sec is not None and user_sec.code_section_class is not None
     user_cls = user_sec.code_section_class
     assert user_cls.name == get_segment_text(user_cls.name_segment)
-    assert user_cls.description is not None and "Represents a user" in user_cls.description
+    assert (
+        user_cls.description is not None and "Represents a user" in user_cls.description
+    )
 
     # --- ENUM SSOT ---
     status_sec = sections_index.get_by_ref(CodeSectionType.enum, "Status")
     assert status_sec is not None and status_sec.code_section_enum is not None
     status_enum = status_sec.code_section_enum
     assert status_enum.name == get_segment_text(status_enum.name_segment)
-    assert status_enum.description is not None and "Status enumeration" in status_enum.description
+    assert (
+        status_enum.description is not None
+        and "Status enumeration" in status_enum.description
+    )
 
     # --- FUNCTION SSOT ---
-    send_email_sec = sections_index.get_by_ref(CodeSectionType.function, "User.sendEmail")
-    assert send_email_sec is not None and send_email_sec.code_section_function is not None
+    send_email_sec = sections_index.get_by_ref(
+        CodeSectionType.function, "User.sendEmail"
+    )
+    assert (
+        send_email_sec is not None and send_email_sec.code_section_function is not None
+    )
     send_email_fn = send_email_sec.code_section_function
     assert send_email_fn.name_segment is not None
     assert send_email_fn.name == get_segment_text(send_email_fn.name_segment)
     assert send_email_fn.is_async is True
-    assert send_email_fn.description is not None and "Sends an email" in send_email_fn.description
+    assert (
+        send_email_fn.description is not None
+        and "Sends an email" in send_email_fn.description
+    )
 
     # --- ATTRIBUTE SSOT ---
     email_attr_sec = sections_index.get_by_ref(CodeSectionType.attribute, "User.email")
-    assert email_attr_sec is not None and email_attr_sec.code_section_attribute is not None
+    assert (
+        email_attr_sec is not None and email_attr_sec.code_section_attribute is not None
+    )
     email_attr = email_attr_sec.code_section_attribute
     assert email_attr.name_segment is not None
     assert email_attr.name == get_segment_text(email_attr.name_segment)
@@ -543,10 +644,15 @@ def test_code_builder_ssot_fields_and_description_backfill(
     assert email_attr.is_required is False  # Optional via '?'
     assert email_attr.is_unique is False
     assert email_attr.is_primary is False
-    assert email_attr.description is not None and "User's email address" in email_attr.description
+    assert (
+        email_attr.description is not None
+        and "User's email address" in email_attr.description
+    )
 
 
-def test_attribute_type_detection(sample_file_codes: dict[str, tuple[Code, CodeSectionBuilderIndex]]):
+def test_attribute_type_detection(
+    sample_file_codes: dict[str, tuple[Code, CodeSectionBuilderIndex]]
+):
     """Test that attribute types are correctly detected by the attribute adapter."""
     code, _sections_index = sample_file_codes["nested_attributes"]
 

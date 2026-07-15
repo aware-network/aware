@@ -1,0 +1,6 @@
+projection PaneConfig is_branchable {
+    root interface.PaneConfig
+
+    interface.PaneConfig::projection_experience_view ProjectionExperience
+
+}

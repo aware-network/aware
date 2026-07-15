@@ -5,7 +5,16 @@ from typing import Literal, TypeAlias
 
 
 NamespaceKind: TypeAlias = Literal["ns_url", "uuid"]
-ParamType: TypeAlias = Literal["uuid", "str", "bytes", "bool", "int", "float", "str_list"]
+ParamType: TypeAlias = Literal[
+    "uuid",
+    "str",
+    "bytes",
+    "bool",
+    "int",
+    "float",
+    "decimal",
+    "str_list",
+]
 LetOp: TypeAlias = Literal[
     "hex",
     "normalize",
@@ -15,6 +24,8 @@ LetOp: TypeAlias = Literal[
     "bool_int",
     "uuid_str_default",
     "int_str_default",
+    "decimal_text",
+    "decimal_text_default",
     "list_join",
 ]
 ParsedDefaultPrimitive: TypeAlias = str | bool | int | float | None

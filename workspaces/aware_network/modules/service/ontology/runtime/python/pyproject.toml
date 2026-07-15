@@ -1,0 +1,25 @@
+[project]
+name = "aware-service-runtime"
+version = "0.1.0"
+description = "Aware service runtime module."
+authors = [{ name = "AWARE Team" }]
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.8.2,<3.0.0",
+  "aware-api-runtime",
+  "aware_environment_service_dto",
+  "aware_service_service_dto",
+  "aware-service-ontology",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_service_runtime"]
+[tool.aware.tests]
+requires_module = "service"

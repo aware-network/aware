@@ -51,6 +51,7 @@ class ApiProviderDeltaCurrentSemanticAnalysis:
             "reason": reason,
             "source": "aware_api.semantic_analysis",
             "manifest_path": self.manifest_path.as_posix(),
+            "workspace_root": self.snapshot.repo_root.as_posix(),
             "package_root": self.analysis.package_root,
             "source_files": self.analysis.source_files,
             "changed_source_files": (self.analysis.change_preview.changed_source_files),
@@ -76,8 +77,12 @@ def analyze_provider_delta_current_semantics(
     *,
     request: object,
     manifest_path: Path,
+    workspace_root: Path | str | None = None,
 ) -> ApiProviderDeltaCurrentSemanticAnalysis:
-    snapshot = APIWorkspace.from_toml(toml_path=manifest_path).build_snapshot()
+    snapshot = APIWorkspace.from_toml(
+        toml_path=manifest_path,
+        repo_root=workspace_root,
+    ).build_snapshot()
     delta = code_package_delta_from_provider_delta_request(request=request)
     analysis = analyze_api_code_package_delta(
         package_root=snapshot.package_root,

@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import Any, Literal
 from uuid import UUID, uuid4
 
+from aware_code.decimal_value import canonical_decimal_text
 from aware_code.types import JsonArray, JsonObject
 from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 from aware_meta.graph.instance.commit.materializer import OIGMaterializer
@@ -548,6 +550,8 @@ def _invoke_failure_text(response: MetaGraphCommitReceipt) -> str:
 
 
 def _jsonify_value(value: object) -> object:
+    if isinstance(value, Decimal):
+        return canonical_decimal_text(value, field_name="Meta proof Decimal")
     if isinstance(value, UUID):
         return str(value)
     if isinstance(value, tuple):

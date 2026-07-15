@@ -1,0 +1,45 @@
+[project]
+name = "aware-environment-service"
+version = "0.1.0"
+description = "Canonical Environment service package for generated API and service protocol adapters."
+authors = [{ name = "AWARE Team" }]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-history-ontology",
+  "aware-meta-ontology",
+  "aware-environment",
+  "aware_environment_service_api",
+  "aware_environment_service_dto",
+  "aware_environment_service_protocol",
+  "aware_attention_service_api",
+  "aware_attention_service_dto",
+  "aware-experience-sdk",
+  "aware_experience_service_api",
+  "aware_experience_service_dto",
+  "aware_identity_service_api",
+  "aware_identity_service_dto",
+  "aware_meta_service_dto",
+  "aware-meta-service",
+  "aware-meta-sdk",
+  "aware_ontology_service_api",
+  "aware_ontology_service_dto",
+  "aware_ontology_service_protocol",
+  "aware-ontology-service",
+  "aware-service-runtime",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_environment_service"]
+include = [
+  "aware_environment_service/py.typed",
+]
+
+[tool.aware.tests]
+requires_module = "environment"

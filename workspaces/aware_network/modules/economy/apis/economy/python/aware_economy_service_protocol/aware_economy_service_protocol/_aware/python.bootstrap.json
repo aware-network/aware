@@ -1,0 +1,10 @@
+{
+  "dependency_import_roots": [
+    "aware_economy_service_dto"
+  ],
+  "modules": [
+    "aware_economy_service_protocol.protocols"
+  ],
+  "package_prefix": "aware_economy_service_protocol",
+  "version": "v1"
+}

@@ -1,0 +1,16 @@
+aware_pane = 1
+
+[pane]
+package_name = "aware-economy-wallet-capital-pane"
+fqn_prefix = "aware_economy_wallet_capital_pane"
+pane_name = "wallet_capital"
+description = "Economy wallet-capital pane package for wallet-first capital ingress and activity."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+
+[[dependencies]]
+package_name = "aware-economy-experience"
+kind = "experience_package"

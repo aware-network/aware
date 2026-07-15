@@ -1,0 +1,38 @@
+class NodeConfigEnvironmentProfileMount {
+    // Relationships
+    environment_profile_package aware_environment.environment.EnvironmentProfilePackage?
+
+    // Attributes
+    /// Stable EnvironmentProfilePackage package name selected for install.
+    package_name String
+    /// Authored EnvironmentProfileConfig key under the selected package.
+    profile_key String
+    /// Stable mount key under the Environment target.
+    mount_key String key
+    /// Installation mode (`mounted`, `system`, `extension`, etc.).
+    mode String = "mounted"
+    /// Ordered install hint.
+    position Int? = null
+
+    fn build construct(
+        profile_key String,
+        package_name String,
+        mount_key String key,
+        mode String = "mounted",
+        position Int? = null
+    ) -> NodeConfigEnvironmentProfileMount {
+        """
+        Create one Node-owned EnvironmentProfilePackage install mount.
+
+        Contract:
+        - Parent `NodeConfigEnvironmentTarget` scope is injected by propagation.
+        - Identity is keyed by parent environment target plus `mount_key`.
+        - `package_name` resolves the target EnvironmentProfilePackage portal.
+        - `profile_key` selects the child EnvironmentProfileConfig key exported by that package.
+        - The mount is an explicit Environment-owned OS profile install pointer.
+        - Experience profiles are not represented here; they activate after Environment profile install.
+        """
+    }
+}
+
+ann node.NodeConfigEnvironmentProfileMount::environment_profile_package load eager

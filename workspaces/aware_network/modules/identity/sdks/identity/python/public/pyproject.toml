@@ -1,0 +1,34 @@
+[project]
+name = "aware-identity-sdk"
+version = "0.1.0"
+description = "Identity SDK facade over generated Identity API clients."
+authors = [{ name = "AWARE Team" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aware-actor",
+  "aware-control",
+  "aware-api-client",
+  "aware_api_service_dto",
+  "aware-identity-ontology-dto",
+  "aware-types",
+  "aware_service_service_dto",
+  "aware_identity_service_api",
+  "aware_identity_service_dto",
+  "pydantic>=2.8.0,<3.0.0",
+]
+
+[project.optional-dependencies]
+test = [
+  "aware-sdk-network",
+  "pytest>=8.4.2",
+  "pytest-asyncio>=0.23.7",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_identity_sdk"]
+include = ["README.md", "aware_identity_sdk/py.typed"]

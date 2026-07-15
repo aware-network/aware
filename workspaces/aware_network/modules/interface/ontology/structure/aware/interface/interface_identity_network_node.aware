@@ -1,0 +1,11 @@
+class InterfaceIdentityNetworkNode {
+    // Relationships
+    network_node aware_network.network.NetworkNode key
+
+    // Attributes
+    connected_at DateTime = now()
+    last_seen_at DateTime = now()
+    last_ack_at DateTime?
+    disconnected_at DateTime?
+    last_delivery_offset Int = 0
+}

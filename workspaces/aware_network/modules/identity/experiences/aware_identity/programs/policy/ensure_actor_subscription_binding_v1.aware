@@ -1,0 +1,40 @@
+// Ensure deterministic ActorSubscription binding from a pre-provisioned scope id.
+//
+// Required symbols:
+// - plan.actor_id
+// - plan.actor_identity_branch_id
+// - plan.subscription_name
+// - plan.event_config_condition_config_scope_id
+//
+// Contract (v1):
+// - Subscription binding rail is actor-side only.
+// - Requires event scope to exist first (event-first invariant).
+// - Idempotent on rerun (constructor semantics + stable ids).
+
+program EnsureActorSubscriptionBinding_v1Config(
+    actor_id UUID = plan.actor_id,
+    actor_identity_branch_id UUID = plan.actor_identity_branch_id,
+    subscription_name String = plan.subscription_name,
+    event_config_condition_config_scope_id UUID = plan.event_config_condition_config_scope_id,
+    actor_subscription_id UUID = identity.stable_actor_subscription_id(
+        actor_id=actor_id,
+        event_config_condition_config_scope_id=event_config_condition_config_scope_id,
+        name=subscription_name
+    ),
+    actor_subscription_branch_id UUID = actor_identity_branch_id
+) {
+    actor identity_system system
+
+    port actor_subscription_actor_identity_branch_id actor_subscription {
+        node actor_subscription actor.Actor::actor_subscriptions(actor_subscription=actor_subscription_id)
+    }
+}
+
+program EnsureActorSubscriptionBinding_v1 impl EnsureActorSubscriptionBinding_v1Config {
+    bind actor_subscription_actor_identity_branch_id actor_subscription.main
+    identity_system call actor_subscription actor.ActorSubscription.create_via_actor(
+        actor_id=actor_id,
+        event_config_condition_config_scope_id=event_config_condition_config_scope_id,
+        name=subscription_name
+    )
+}

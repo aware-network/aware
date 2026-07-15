@@ -1,0 +1,11 @@
+{
+  "dependency_import_roots": [
+    "aware_reactivity_service_dto"
+  ],
+  "modules": [
+    "aware_memory_service_dto.memory.working.models",
+    "aware_memory_service_dto.memory.working.service_operation"
+  ],
+  "package_prefix": "aware_memory_service_dto",
+  "version": "v1"
+}

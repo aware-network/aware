@@ -10,6 +10,15 @@ api reactivity {
     }
 
     capability event {
+        endpoint publish_event aware_reactivity_service_dto.reactivity.ReactivitySemanticEventPublishRequest {
+            """
+            Publish one provider-neutral committed semantic event occurrence
+            idempotently through the existing Reactivity event stream.
+            """
+
+            response aware_reactivity_service_dto.reactivity.ReactivitySemanticEventPublishResponse
+        }
+
         endpoint subscribe_events aware_reactivity_service_dto.reactivity.ReactivityEventSubscriptionRequest {
             """
             Subscribe to Reactivity-owned semantic bridge events.
@@ -27,7 +36,27 @@ api reactivity {
         }
     }
 
+    capability meaning {
+        endpoint resolve_provider_intent aware_reactivity_service_dto.reactivity.ReactivityEventMeaningProviderResolveRequest {
+            """
+            Resolve exactly one registered provider action for an event meaning
+            request without invoking the provider.
+            """
+
+            response aware_reactivity_service_dto.reactivity.ReactivityEventMeaningProviderResolveResponse
+        }
+    }
+
     capability action {
+        endpoint claim_execution aware_reactivity_service_dto.reactivity.ReactivityActionExecutionClaimRequest {
+            """
+            Atomically claim one deterministic ontology-backed ActionExecution
+            before provider fulfillment.
+            """
+
+            response aware_reactivity_service_dto.reactivity.ReactivityActionExecutionClaimResponse
+        }
+
         endpoint resolve_intents aware_reactivity_service_dto.reactivity.ReactivityActionIntentResolveRequest {
             """
             Resolve actor-subscription-backed action intents for one matched

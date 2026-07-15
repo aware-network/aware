@@ -1,4 +1,0 @@
-enum CodeSectionAnnotationStorageOperation {
-    index
-    unique
-}

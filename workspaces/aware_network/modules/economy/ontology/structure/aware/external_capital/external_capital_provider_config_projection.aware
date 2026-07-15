@@ -1,0 +1,17 @@
+/// External-capital provider configuration projection.
+///
+/// Provider configuration has an operator-owned lifecycle independent from
+/// TransactionIntent branches. Quotes portal to these routes but remain
+/// immutable members of their owning TransactionIntent projection.
+projection ExternalCapitalProviderConfig {
+    root external_capital.ExternalCapitalProviderConfig
+    external_capital.ExternalCapitalProviderConfig::provider_finance_entity FinanceEntity
+    external_capital.ExternalCapitalProviderConfig::routes
+    external_capital.ExternalCapitalProviderRoute::target_coin Coin
+
+    observable home {
+        """
+        External-capital provider configuration and supported routes.
+        """
+    }
+}

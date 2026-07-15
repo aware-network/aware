@@ -1,0 +1,44 @@
+/// Request/response DTOs for Experience session view-frame resolution.
+///
+/// The operation returns a consumer read model by first resolving Experience
+/// session context, which resolves Attention through Environment service API
+/// truth. It does not persist a frame or inspect Attention internals directly.
+
+class ExperienceSessionViewFrameServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class ExperienceSessionViewFrameServiceResponse {
+    operation String
+    request_id UUID?
+    accepted Bool = false
+    status String
+    error String?
+    frame session_view_frame.ExperienceSessionViewFrame?
+    evidence JsonObject = {}
+}
+
+class ResolveExperienceSessionViewFrameRequest augment session_view_frame.ExperienceSessionViewFrameServiceRequest {
+    operation String = "resolve_experience_session_view_frame"
+    session_scope session_handoff.ExperienceSessionHandoffScope
+    actor_context session_handoff.ExperienceSessionHandoffActorContext?
+    environment_admission aware_environment_service_dto.environment.EnvironmentActorAdmissionReceipt?
+    environment_session_join aware_environment_service_dto.environment.EnvironmentSessionJoinReceipt?
+    experience_actor_admission actor_admission.ExperienceActorConfigAdmissionReceipt?
+    experience_identity_session_config_id UUID?
+    environment_attention session_context.ExperienceSessionAttentionResolutionRequest?
+    idempotency_key String?
+    evidence JsonObject = {}
+}
+
+class ResolveExperienceSessionViewFrameResponse augment session_view_frame.ExperienceSessionViewFrameServiceResponse {
+    operation String = "resolve_experience_session_view_frame"
+    frame session_view_frame.ExperienceSessionViewFrame
+}
+
+ann session_view_frame.ExperienceSessionViewFrameServiceRequest::operation discriminate key
+ann session_view_frame.ResolveExperienceSessionViewFrameRequest::operation discriminate tag "resolve_experience_session_view_frame"
+
+ann session_view_frame.ExperienceSessionViewFrameServiceResponse::operation discriminate key
+ann session_view_frame.ResolveExperienceSessionViewFrameResponse::operation discriminate tag "resolve_experience_session_view_frame"

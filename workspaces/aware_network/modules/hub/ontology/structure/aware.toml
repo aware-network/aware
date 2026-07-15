@@ -1,0 +1,15 @@
+aware = 1
+
+[package]
+package_name = "hub-ontology"
+fqn_prefix = "aware_hub"
+kind = "ontology"
+version_number = 1
+title = "Hub Ontology"
+description = "Ontology anchor for Hub-owned authority surfaces."
+
+[build]
+environment_slug = "aware_hub"
+
+[[dependencies]]
+package_name = "code-ontology"

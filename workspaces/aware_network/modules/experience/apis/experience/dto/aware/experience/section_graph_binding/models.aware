@@ -1,0 +1,190 @@
+/// Canonical DTOs for Experience-owned section-graph-binding catalog and state.
+///
+/// Ownership:
+/// - Experience API owns the stable transport DTO boundary.
+/// - Experience ontology owns the underlying `section -> view -> graph identity` truth.
+/// - Attention remains the only lawful owner of committed focus truth.
+
+class ExperienceSectionGraphBindingDescriptor {
+    binding_key String
+    section_key String
+    projection_observable_id UUID
+    projection_experience_graph_identity_id UUID
+    object_projection_graph_identity_id UUID
+    view_ref String
+    graph_identity_ref String
+}
+
+class ExperienceLayoutGraphBindingDescriptor {
+    binding_key String
+    projection_experience_layout_graph_binding_id UUID
+    projection_experience_id UUID
+    layout_config_id UUID
+    section_bindings section_graph_binding.ExperienceSectionGraphBindingDescriptor[] = []
+}
+
+class ExperienceSectionFocusTarget {
+    /// Canonical token values:
+    /// - "constructor": branchless focus over projection identity.
+    /// - "materialized": focus has a committed ObjectInstanceGraphBranch.
+    kind String = "constructor"
+    focus_id UUID?
+    focus_scope_id UUID?
+    projection_experience_graph_identity_id UUID?
+    object_projection_graph_identity_id UUID
+    object_instance_graph_branch_id UUID?
+    projection_hash String?
+    target_type String?
+    target_id UUID?
+    description String?
+}
+
+class ExperienceViewInvocationActionDescriptor {
+    /// Compatibility alias for `view_invocation_action_config_id`.
+    action_id UUID
+    view_invocation_action_config_id UUID
+    experience_invocation_action_config_id UUID
+    api_view_capability_endpoint_id UUID
+    action_key String
+    target_kind String
+    endpoint_ref String
+    label String?
+    receipt_policy String?
+    confirmation_policy String?
+    optimistic_policy String?
+    sdk_operation_api_view_capability_endpoint_id UUID?
+    api_capability_endpoint_id UUID?
+    sdk_operation_id UUID?
+}
+
+class ExperienceInvocationActionRolePolicy {
+    role_policy_id UUID?
+    experience_invocation_action_config_id UUID
+    role_config_id UUID
+    role_config_name String?
+    policy_key String = "invoke"
+    requirement_kind String = "admitted_actor_role"
+    description String?
+}
+
+class ExperienceInvocationActionRolePolicyResolution {
+    experience_name String
+    experience_invocation_action_config_id UUID
+    action_key String?
+    allowed_policies section_graph_binding.ExperienceInvocationActionRolePolicy[] = []
+    blockers String[] = []
+    evidence JsonObject = {}
+}
+
+class ExperienceInvocationActionAdmissionPreflight {
+    accepted Bool = false
+    status String
+    actor_id UUID?
+    experience_invocation_action_config_id UUID?
+    action_key String?
+    matched_role_config_id UUID?
+    matched_role_config_name String?
+    matched_actor_role_id UUID?
+    blockers String[] = []
+    evidence JsonObject = {}
+}
+
+class ExperienceViewInvocationActionReceipt {
+    projection_experience_view_instance_id UUID
+    view_invocation_action_config_id UUID
+    experience_invocation_action_config_id UUID
+    experience_invocation_action_id UUID
+    projection_experience_view_invocation_action_id UUID
+    invocation_key UUID
+    actor_id UUID?
+    api_call_id UUID?
+    sdk_operation_call_id UUID?
+    request_ref String?
+    receipt_ref String?
+    status String
+    object_instance_graph_commit_id UUID?
+    commit_id UUID?
+}
+
+class ExperienceViewInvocationActionApiDispatchReceipt {
+    endpoint_ref String
+    discriminant String
+    status String = "succeeded"
+    network_request_id UUID?
+    api_call_id UUID?
+    api_capability_endpoint_id UUID?
+    call_key UUID?
+    request_hash String?
+    request_model_id UUID?
+    api_call_outcome_id UUID?
+    response_model_id UUID?
+    service_operation_id UUID?
+    service_operation_config_id UUID?
+    service_operation_config_api_endpoint_id UUID?
+    service_operation_commit_id UUID?
+    service_operation_head_commit_id UUID?
+    service_operation_event_ids UUID[] = []
+    service_operation_head_event_ids UUID[] = []
+    service_operation_branch_id UUID?
+    service_operation_projection_hash String?
+    api_call_outcome_commit_id UUID?
+    api_call_outcome_head_commit_id UUID?
+    api_call_outcome_event_ids UUID[] = []
+    api_call_outcome_head_event_ids UUID[] = []
+    api_call_outcome_branch_id UUID?
+    api_call_outcome_projection_hash String?
+}
+
+class ExperienceSectionViewResolution {
+    /// Experience-owned instance bridge:
+    /// ProjectionExperience + Attention Section + Observable -> ViewInstance.
+    projection_experience_id UUID
+    section_id UUID
+    object_projection_graph_observable_id UUID
+    projection_experience_section_id UUID
+    projection_experience_section_view_id UUID
+    projection_experience_view_instance_id UUID
+    projection_experience_view_id UUID
+    section_graph_binding_id UUID
+    view_ref String
+    view_instance_key String
+    section_key String?
+    status String
+    actions section_graph_binding.ExperienceViewInvocationActionDescriptor[] = []
+}
+
+class ExperienceSectionGraphBindingState {
+    binding section_graph_binding.ExperienceSectionGraphBindingDescriptor
+    exists Bool = false
+    is_active Bool = false
+    focus_scope_id UUID?
+    focus_id UUID?
+    projection_observable_id UUID?
+    projection_experience_graph_identity_id UUID?
+    observable_id UUID?
+    focus_target section_graph_binding.ExperienceSectionFocusTarget?
+    section_view section_graph_binding.ExperienceSectionViewResolution?
+}
+
+class ExperienceSectionGraphBindingStateSnapshot {
+    experience_name String
+    catalog_revision String?
+    states section_graph_binding.ExperienceSectionGraphBindingState[] = []
+}
+
+class ExperienceSectionGraphBindingStateEvent {
+    kind String = "snapshot"
+    snapshot section_graph_binding.ExperienceSectionGraphBindingStateSnapshot
+}
+
+class ExperienceLayoutGraphBindingState {
+    binding section_graph_binding.ExperienceLayoutGraphBindingDescriptor
+    exists Bool = false
+    section_states section_graph_binding.ExperienceSectionGraphBindingState[] = []
+}
+
+class ExperienceLayoutGraphBindingStateSnapshot {
+    experience_name String
+    catalog_revision String?
+    states section_graph_binding.ExperienceLayoutGraphBindingState[] = []
+}

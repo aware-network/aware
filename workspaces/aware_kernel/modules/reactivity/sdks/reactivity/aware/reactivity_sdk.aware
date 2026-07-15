@@ -13,9 +13,24 @@ sdk reactivity_sdk {
         endpoint reactivity.event.subscribe_events;
     }
 
+    operation publish_semantic_event {
+        "Publish one provider-neutral committed semantic event occurrence idempotently."
+        endpoint reactivity.event.publish_event;
+    }
+
     operation resolve_action_intents {
         "Resolve actor-subscription-backed action intents for one matched Reactivity policy event."
         endpoint reactivity.action.resolve_intents;
+    }
+
+    operation claim_action_execution {
+        "Claim one canonical ActionExecution before provider fulfillment."
+        endpoint reactivity.action.claim_execution;
+    }
+
+    operation resolve_event_meaning_provider_intent {
+        "Resolve exactly one registered provider action for event meaning without fulfillment."
+        endpoint reactivity.meaning.resolve_provider_intent;
     }
 
     operation publish_action_lifecycle {

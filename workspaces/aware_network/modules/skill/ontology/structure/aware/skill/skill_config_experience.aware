@@ -1,0 +1,39 @@
+class SkillConfigExperience {
+    // Relationships
+    projection_experience aware_experience.projection.ProjectionExperience key
+    targets SkillConfigTarget[]
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        projection_experience_id UUID key,
+        description String? = null
+    ) -> SkillConfigExperience {
+        """
+        Create one Skill-owned bridge to an Experience projection namespace.
+
+        Contract:
+        - Skill owns that this SkillConfig may use the Experience namespace.
+        - Experience owns graph identity/profile resolution under that namespace.
+        """
+    }
+
+    fn add_target (
+        projection_experience_graph_identity_id UUID key,
+        name String key,
+        description String? = null
+    ) -> SkillConfigTarget {
+        """
+        Add one reusable Skill target bound to an Experience graph identity.
+        """
+        let created = construct targets.build(
+            projection_experience_graph_identity_id = projection_experience_graph_identity_id,
+            name = name,
+            description = description,
+        )
+    }
+}
+
+ann skill.SkillConfigExperience::projection_experience load eager
+ann skill.SkillConfigExperience::targets load eager

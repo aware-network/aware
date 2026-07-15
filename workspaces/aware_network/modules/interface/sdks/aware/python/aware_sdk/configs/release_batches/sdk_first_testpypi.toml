@@ -1,0 +1,66 @@
+version = 1
+id = "sdk_first_testpypi"
+track = "sdk-first"
+target_kind = "test_pypi"
+target_index = "testpypi"
+description = "SDK-first TestPyPI package batch for public client rails before the central aware-sdk shell."
+
+[[packages]]
+name = "aware-types"
+path = "workspaces/aware_kernel/libs/types/python"
+package_kind = "shared-types"
+
+[[packages]]
+name = "aware-utils"
+path = "workspaces/aware_kernel/libs/utils/python"
+package_kind = "shared-library"
+
+[[packages]]
+name = "aware-file-system"
+path = "libs/file_system/python"
+package_kind = "shared-library"
+
+[[packages]]
+name = "aware-api-client"
+path = "workspaces/aware_network/modules/api/libs/api/python"
+package_kind = "shared-api-client"
+
+[[packages]]
+name = "aware_environment_service_api"
+path = "apis/environment/python/aware_environment_service_api"
+package_kind = "generated-api-client"
+
+[[packages]]
+name = "aware_workspace_service_api"
+path = "workspaces/aware_workspace/apis/workspace/python/aware_workspace_service_api"
+package_kind = "generated-api-client"
+
+[[packages]]
+name = "aware_hub_service_api"
+path = "workspaces/aware_network/modules/hub/apis/hub/python/aware_hub_service_api"
+package_kind = "generated-api-client"
+
+[[packages]]
+name = "aware_identity_service_api"
+path = "workspaces/aware_network/modules/identity/apis/identity/python/aware_identity_service_api"
+package_kind = "generated-api-client"
+
+[[packages]]
+name = "aware-environment-sdk"
+path = "sdks/environment/python"
+package_kind = "sdk-facade"
+
+[[packages]]
+name = "aware-workspace-sdk"
+path = "workspaces/aware_workspace/sdks/workspace/python/public"
+package_kind = "sdk-facade"
+
+[[packages]]
+name = "aware-hub-sdk"
+path = "workspaces/aware_network/modules/hub/sdks/hub/python"
+package_kind = "sdk-facade"
+
+[[packages]]
+name = "aware-identity-sdk"
+path = "workspaces/aware_network/modules/identity/sdks/identity/python/public"
+package_kind = "sdk-facade"

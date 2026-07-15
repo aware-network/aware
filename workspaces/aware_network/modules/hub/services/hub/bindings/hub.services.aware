@@ -1,0 +1,54 @@
+service aware_hub {
+    api hub
+
+    operation discover_public_map {
+        endpoint hub.public_map.discover
+        receipt read_model
+    }
+
+    operation discover_code_package_channel_heads {
+        endpoint hub.code_package.discover_channel_heads
+        receipt read_model
+        view hub.channel_heads
+    }
+
+    operation search_code_package {
+        endpoint hub.code_package.search
+        receipt read_model
+    }
+
+    operation describe_code_package {
+        endpoint hub.code_package.describe
+        receipt read_model
+    }
+
+    operation resolve_code_package {
+        endpoint hub.code_package.resolve
+        receipt read_model
+    }
+
+    operation download_code_package {
+        endpoint hub.code_package.download
+        receipt read_model
+    }
+
+    operation publish_code_package {
+        endpoint hub.code_package.publish
+        admission identity_required
+    }
+
+    operation resolve_deployment_artifact {
+        endpoint hub.deployment_artifact.resolve
+        receipt read_model
+    }
+
+    operation publish_hub_artifact {
+        endpoint hub.artifact.publish
+        admission identity_required
+    }
+
+    operation resolve_hub_artifact {
+        endpoint hub.artifact.resolve
+        receipt read_model
+    }
+}

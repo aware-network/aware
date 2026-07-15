@@ -69,6 +69,7 @@ from aware_code_service_dto.code.features.package_delta import (
     CodePackageDeltaKind,
 )
 from python_grammar.meta_language_plugin import (
+    ONTOLOGY_DTO_RENDERER_PROFILE,
     ONTOLOGY_ORM_MODELS_RENDERER_PROFILE,
     PYTHON_META_PLUGIN,
 )
@@ -78,6 +79,140 @@ from python_grammar.renderer_delta_orm_runtime import (
     PYTHON_ORM_RENDERER_PROFILE,
     PythonOrmRuntimeGeneratedDeltaRenderer,
 )
+from python_grammar.renderer_delta_structural import (
+    PYTHON_ONTOLOGY_DTO_MATERIALIZATION_SOURCE,
+    PYTHON_ORM_MODELS_MATERIALIZATION_SOURCE,
+    PYTHON_STRUCTURAL_GENERATED_DELTA_RENDERER_NAME,
+    PYTHON_STRUCTURAL_SOURCE_ARTIFACT_PAYLOAD_KEY,
+    build_python_structural_source_artifact_payload,
+)
+from python_grammar.renderer_delta_runtime_handlers import (
+    PYTHON_RUNTIME_HANDLER_GENERATED_DELTA_RENDERER_NAME,
+    PYTHON_RUNTIME_HANDLER_IMPL_KIND,
+    PYTHON_RUNTIME_HANDLER_META_KIND,
+)
+
+
+@pytest.mark.parametrize(
+    "renderer_kind",
+    (PYTHON_RUNTIME_HANDLER_IMPL_KIND, PYTHON_RUNTIME_HANDLER_META_KIND),
+)
+def test_python_runtime_handler_delta_renderer_is_registered_by_kind(
+    renderer_kind: str,
+) -> None:
+    renderers = PYTHON_META_PLUGIN.get_generated_delta_renderers(
+        renderer_kind=renderer_kind,
+    )
+
+    assert tuple(renderers) == (PYTHON_RUNTIME_HANDLER_GENERATED_DELTA_RENDERER_NAME,)
+
+
+@pytest.mark.parametrize(
+    ("renderer_profile", "materialization_source", "base_class"),
+    (
+        (
+            ONTOLOGY_ORM_MODELS_RENDERER_PROFILE,
+            PYTHON_ORM_MODELS_MATERIALIZATION_SOURCE,
+            "ORMModel",
+        ),
+        (
+            ONTOLOGY_DTO_RENDERER_PROFILE,
+            PYTHON_ONTOLOGY_DTO_MATERIALIZATION_SOURCE,
+            "BaseModel",
+        ),
+    ),
+)
+def test_python_structural_source_artifact_delta_uses_registered_profile_renderer(
+    tmp_path: Path,
+    renderer_profile: str,
+    materialization_source: str,
+    base_class: str,
+) -> None:
+    CodeLanguagePluginRegistry.register(AWARE_CODE_PLUGIN)
+    source_path = "home/controls.aware"
+    code = _build_code(
+        tmp_path / "sources",
+        source_path,
+        """
+class RemoteControl {
+    remote_id String key
+}
+""".strip(),
+    )
+    namespace_by_code_id, _domains = _namespace_by_code_id(
+        fqn_prefix="aware_home",
+        namespace="default",
+        code_ids=[code.id],
+    )
+    graph = build_object_config_graph_from_code(
+        name="aware-home-test",
+        description="Aware Home structural renderer test.",
+        fqn_prefix="aware_home",
+        file_codes=[(source_path, code)],
+        namespace_by_code_id=namespace_by_code_id,
+    ).graph
+    MetaLanguagePluginRegistry.register(PYTHON_META_PLUGIN)
+    output_root = tmp_path / renderer_profile
+    full_result = materialize_object_config_graph_via_language_plugin(
+        LanguagePluginMaterializationRequest(
+            source_graph=graph,
+            target_language_plugin_id=CodeLanguage.python,
+            output_root=output_root,
+            package_name="home-ontology",
+            renderer_kind="default",
+            renderer_profile=renderer_profile,
+            materialization_source=materialization_source,
+            source_is_runtime=True,
+            emit_files=True,
+        )
+    )
+    relative_path = "home/controls.py"
+    payload = build_python_structural_source_artifact_payload(
+        language_graph=full_result.language_graph,
+        relative_path=relative_path,
+        renderer_profile=renderer_profile,
+        materialization_source=materialization_source,
+        generated_ocg_node_manifest=full_result.generated_ocg_node_manifest,
+        external_language_graphs=full_result.language_external_graphs,
+        import_root=full_result.import_root,
+    )
+    assert payload is not None
+    operation = MetaProviderDeltaTypedOperation(
+        operation_kind="meta_ocg_provider_delta_typed_operation",
+        operation_key="meta_ocg.class.create:aware_home.default.home.RemoteControl",
+        operation_family="create",
+        provider_operation_type="meta_ocg.class.create",
+        semantic_key="ocg:home-ontology/node:aware_home.default.home.RemoteControl",
+        ontology_subject_kind="class",
+        source_refs=(source_path,),
+        baseline={"object": {}},
+        current={PYTHON_STRUCTURAL_SOURCE_ARTIFACT_PAYLOAD_KEY: payload},
+    )
+    rendered = PYTHON_META_PLUGIN.render_generated_materialization_delta(
+        MetaLanguageGeneratedMaterializationDeltaRenderRequest(
+            operation=operation,
+            context=MetaLanguageGeneratedMaterializationDeltaContext(
+                package_name="home-ontology",
+                package_root=output_root.as_posix(),
+                sources_root=".",
+                target_language="python",
+                renderer_profile=renderer_profile,
+                materialization_source=materialization_source,
+            ),
+            renderer_profile=renderer_profile,
+            capability_key=PYTHON_STRUCTURAL_GENERATED_DELTA_RENDERER_NAME,
+        )
+    )
+    assert rendered.handled is True
+    assert rendered.result is not None
+    [entry] = rendered.result.entries
+    assert entry.package_delta is not None
+    [path] = entry.package_delta.paths
+    assert path.relative_path == relative_path
+    assert path.content_text == (output_root / relative_path).read_text(
+        encoding="utf-8"
+    )
+    assert f"class RemoteControl({base_class}):" in (path.content_text or "")
 
 
 @pytest.mark.asyncio
@@ -1092,7 +1227,10 @@ class StorageBlob {
     assert "from typing import TYPE_CHECKING" in actual
     assert "from uuid import UUID" in actual
     assert "if TYPE_CHECKING:" in actual
-    assert "from aware_home_ontology.default.bucket.storage_bucket import StorageBucket" in actual
+    assert (
+        "from aware_home_ontology.default.bucket.storage_bucket import StorageBucket"
+        in actual
+    )
     assert (
         "    bucket_id: UUID | None = "
         'Field(default=None, description="Foreign key for StorageBlob.bucket")'

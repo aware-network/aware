@@ -1,0 +1,19 @@
+node aware_network_services_host {
+    service aware_storage
+    service aware_content
+    service aware_code
+    service aware_file_system
+    service aware_reactivity
+    service aware_attention
+    service aware_identity {
+        package experience identity-default;
+    }
+    service aware_memory
+    service aware_economy
+    service aware_external_capital_provider
+    service aware_experience
+    service aware_service
+    service aware_network
+    service aware_skill
+    service aware_hub
+}

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from collections.abc import Sequence
 from uuid import UUID
 
 from aware_meta.runtime.graph_context import MetaGraphRuntimeContext
@@ -32,9 +33,7 @@ class MetaGraphRuntime:
         context: MetaGraphRuntimeContext | None = None,
     ) -> None:
         if invocation_engine is not None and backend is not None:
-            raise ValueError(
-                "invocation_engine cannot be combined with backend"
-            )
+            raise ValueError("invocation_engine cannot be combined with backend")
         if invocation_engine is None and backend is None:
             raise ValueError("MetaGraphRuntime requires backend or invocation_engine")
         if invocation_engine is not None:
@@ -52,6 +51,12 @@ class MetaGraphRuntime:
         self, request: MetaGraphInvokeFunctionInput
     ) -> MetaGraphCommitReceipt:
         return await self._invocation_engine.invoke_function(request)
+
+    async def invoke_function_aggregate(
+        self,
+        requests: Sequence[MetaGraphInvokeFunctionInput],
+    ) -> object:
+        return await self._invocation_engine.invoke_function_aggregate(requests)
 
     def bind(
         self,

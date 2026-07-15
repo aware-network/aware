@@ -1,0 +1,66 @@
+aware_service = 1
+
+[service]
+package_name = "aware-economy-service"
+fqn_prefix = "aware_economy_service"
+version_number = 1
+title = "Aware Economy Service"
+description = "Canonical Economy service package over the generated Economy API service-protocol rail."
+
+[build]
+sources_dir = "bindings"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+compilation_mode = "service_ontology"
+
+[host]
+service_surface = "service"
+activation_mode = "materialize_and_load_committed"
+materialize_on_start = true
+
+[implementation]
+
+[[implementation.packages]]
+package_name = "aware-economy-service"
+language = "python"
+import_root = "aware_economy_service"
+manifest_path = "pyproject.toml"
+package_root = "."
+entrypoint = "aware_economy_service.service_bindings:build_service_bindings"
+role = "service_bindings"
+
+[[api_provider_sets]]
+key = "kernel.global_services.v1"
+title = "Kernel Global Services"
+membership_key = "kernel-services-host"
+description = "Kernel global service providers."
+
+[runtime]
+secrets_dir_env = "AWARE_SECRETS_DIR"
+canonical_secrets_dir = "/run/aware/secrets"
+
+[[runtime.requirements]]
+name = "AWARE_ECONOMY_REQUIRE_IDENTITY_API"
+kind = "config"
+required = true
+resolver = "environment"
+allowed_values = ["1", "true", "yes"]
+description = "Fail-closed guard requiring Identity API invocation before Economy finance bootstrap."
+
+[[dependencies]]
+package_name = "economy-service-api"
+version_number = 1
+kind = "api_service_protocol"
+
+[[dependencies]]
+package_name = "identity-service-api"
+version_number = 1
+kind = "api_invocation"
+
+[[ontology_packages]]
+package_name = "economy-ontology"
+fqn_prefix = "aware_economy"
+role = "replica"
+requirement_mode = "required"
+description = "Economy service reads Economy ontology truth from the Service-owned replica ORM session for operator read models."

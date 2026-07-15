@@ -1,0 +1,242 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_HUB"
+kind = "ns_url"
+value = "aware://hub/v1"
+
+[[functions]]
+name = "stable_hub_artifact_id"
+namespace = "NS_HUB"
+template = "aware:hub_artifact:{hub_authority_id}:{artifact_family_norm}:{artifact_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: hub_authority_id, artifact_family, artifact_key"
+
+[[functions.params]]
+name = "hub_authority_id"
+type = "uuid"
+
+[[functions.params]]
+name = "artifact_family"
+type = "str"
+
+[[functions.params]]
+name = "artifact_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "artifact_family_norm"
+param = "artifact_family"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "artifact_key_norm"
+param = "artifact_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_hub_artifact_revision_id"
+namespace = "NS_HUB"
+template = "aware:hub_artifact_revision:{hub_artifact_id}:{revision_id_norm}"
+doc = "Compiler-generated from class-attribute identity keys: hub_artifact_id, revision_id"
+
+[[functions.params]]
+name = "hub_artifact_id"
+type = "uuid"
+
+[[functions.params]]
+name = "revision_id"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "revision_id_norm"
+param = "revision_id"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_hub_authority_id"
+namespace = "NS_HUB"
+template = "aware:hub_authority:{authority_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: authority_key"
+
+[[functions.params]]
+name = "authority_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "authority_key_norm"
+param = "authority_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_hub_channel_id"
+namespace = "NS_HUB"
+template = "aware:hub_channel:{hub_authority_id}:{channel_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: hub_authority_id, channel_key"
+
+[[functions.params]]
+name = "hub_authority_id"
+type = "uuid"
+
+[[functions.params]]
+name = "channel_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "channel_key_norm"
+param = "channel_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_hub_channel_head_id"
+namespace = "NS_HUB"
+template = "aware:hub_channel_head:{hub_channel_id}:{artifact_family_norm}:{artifact_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: hub_channel_id, artifact_family, artifact_key"
+
+[[functions.params]]
+name = "hub_channel_id"
+type = "uuid"
+
+[[functions.params]]
+name = "artifact_family"
+type = "str"
+
+[[functions.params]]
+name = "artifact_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "artifact_family_norm"
+param = "artifact_family"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "artifact_key_norm"
+param = "artifact_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_hub_code_package_publication_id"
+namespace = "NS_HUB"
+template = "aware:hub_code_package_publication:{hub_authority_id}:{channel_key_norm}:{language_norm}:{package_name_norm}:{revision_id_norm}:{surface_norm}"
+doc = "Compiler-generated from class-attribute identity keys: hub_authority_id, channel_key, language, package_name, revision_id, surface"
+
+[[functions.params]]
+name = "hub_authority_id"
+type = "uuid"
+
+[[functions.params]]
+name = "channel_key"
+type = "str"
+
+[[functions.params]]
+name = "language"
+type = "str"
+
+[[functions.params]]
+name = "package_name"
+type = "str"
+
+[[functions.params]]
+name = "revision_id"
+type = "str"
+
+[[functions.params]]
+name = "surface"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "channel_key_norm"
+param = "channel_key"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "language_norm"
+param = "language"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "package_name_norm"
+param = "package_name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "revision_id_norm"
+param = "revision_id"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "surface_norm"
+param = "surface"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_hub_producer_provenance_id"
+namespace = "NS_HUB"
+template = "aware:hub_producer_provenance:{producer_key_norm}:{producer_kind_norm}:{provenance_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: producer_key, producer_kind, provenance_key"
+
+[[functions.params]]
+name = "producer_key"
+type = "str"
+
+[[functions.params]]
+name = "producer_kind"
+type = "str"
+
+[[functions.params]]
+name = "provenance_key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize"
+name = "producer_key_norm"
+param = "producer_key"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "producer_kind_norm"
+param = "producer_kind"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize_default"
+name = "provenance_key_norm"
+param = "provenance_key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_hub_publication_receipt_id"
+namespace = "NS_HUB"
+template = "aware:hub_publication_receipt:{hub_authority_id}:{receipt_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: hub_authority_id, receipt_key"
+
+[[functions.params]]
+name = "hub_authority_id"
+type = "uuid"
+
+[[functions.params]]
+name = "receipt_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "receipt_key_norm"
+param = "receipt_key"
+normalize = ["casefold", "strip"]

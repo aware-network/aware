@@ -602,6 +602,8 @@ def _api_runtime_artifact_fragment_plan(
             else ()
         )
         if isinstance(item, Mapping)
+        and _optional_text(item.get("operation_family"))
+        in _SUPPORTED_FRAGMENT_OPERATION_FAMILIES
     )
     candidates = tuple(
         _mapping_payload(item)
@@ -999,6 +1001,8 @@ def _api_generated_path_candidate_plan(
         item
         for item in _tuple_evidence(semantic_dirty_diff.get("semantic_dirty_entries"))
         if isinstance(item, Mapping)
+        and _optional_text(item.get("operation_family"))
+        in _SUPPORTED_FRAGMENT_OPERATION_FAMILIES
     )
     endpoint_contexts = _api_endpoint_generated_path_contexts(analysis=analysis)
     if dirty_entries and not endpoint_contexts:

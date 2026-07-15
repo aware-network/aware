@@ -111,12 +111,27 @@ class ORMModelRegistry:
         """Attach a canonical ClassConfig to a model class using exact FQN."""
         model_class = cls._fqn_to_class.get(fqn)
         if not model_class:
-            logger.warning(f"Cannot attach ClassConfig - class not found for FQN: {fqn}")
+            logger.warning(
+                f"Cannot attach ClassConfig - class not found for FQN: {fqn}"
+            )
             return False
         cc_id = getattr(class_config, "id", None)
         if cc_id is None:
             logger.warning(f"Cannot attach ClassConfig - missing id for FQN: {fqn}")
             return False
+        current_model_class = cls._class_config_id_to_model.get(cc_id)
+        if (
+            current_model_class is not None
+            and not _is_generated_ontology_read_model(current_model_class)
+            and _is_generated_ontology_read_model(model_class)
+        ):
+            logger.debug(
+                "Preserved ontology runtime model ClassConfig binding over "
+                f"generated read model: class_config_id={cc_id} "
+                f"runtime_model={current_model_class.__module__}.{current_model_class.__name__} "
+                f"read_model={model_class.__module__}.{model_class.__name__}"
+            )
+            return True
         cls._class_config_id_to_model[cc_id] = model_class
         logger.debug(f"Attached ClassConfig to {fqn}")
         return True
@@ -132,13 +147,17 @@ class ORMModelRegistry:
         if len(classes) == 1:
             return classes[0]
         elif len(classes) > 1:
-            logger.warning(f"Multiple classes found for name '{class_name}' - use FQN instead")
+            logger.warning(
+                f"Multiple classes found for name '{class_name}' - use FQN instead"
+            )
             return None
         else:
             return None
 
     @classmethod
-    def get_class_by_class_config_id(cls, class_config_id: UUID) -> Optional[type[ORMModel]]:
+    def get_class_by_class_config_id(
+        cls, class_config_id: UUID
+    ) -> Optional[type[ORMModel]]:
         """Get a model class by canonical ClassConfig ID."""
         return cls._class_config_id_to_model.get(class_config_id)
 
@@ -185,7 +204,9 @@ class ORMModelRegistry:
         cls._fqn_to_class.update(snapshot.get("fqn_to_class", {}))
         for name, classes in snapshot.get("name_to_classes", {}).items():
             cls._name_to_classes.setdefault(name, []).extend(classes)
-        cls._class_config_id_to_model.update(snapshot.get("class_config_id_to_model", {}))
+        cls._class_config_id_to_model.update(
+            snapshot.get("class_config_id_to_model", {})
+        )
 
     @classmethod
     def temporary_clear(cls):
@@ -209,3 +230,8 @@ class ORMModelRegistry:
                 return False
 
         return _TemporaryClear()
+
+
+def _is_generated_ontology_read_model(model_class: type[ORMModel]) -> bool:
+    package_root = model_class.__module__.partition(".")[0]
+    return package_root.endswith("_ontology_orm_models")

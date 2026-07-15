@@ -1,0 +1,8 @@
+class MemoryProcedureConfig {
+    // Relationships
+    content aware_content.content.Content key
+
+    // Attributes
+    title String
+    description String
+}

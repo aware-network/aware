@@ -1,0 +1,57 @@
+class ExternalCapitalProviderConfig {
+    // Relationships
+    provider_finance_entity finance.FinanceEntity key
+    routes ExternalCapitalProviderRoute[]
+
+    // Attributes
+    additional_metadata JsonObject? = {}
+    label String?
+    provider_key String key
+    status ExternalCapitalProviderStatus = active
+
+    fn build construct (
+        provider_finance_entity_id UUID key,
+        provider_key String key,
+        label String? = null,
+        status ExternalCapitalProviderStatus = active,
+        additional_metadata JsonObject? = {}
+    ) -> ExternalCapitalProviderConfig {
+        """
+        Creates one Economy-owned external-capital provider configuration.
+
+        The provider key selects an Experience connector provider at dispatch
+        time. This object owns economic coordinates and supported routes only;
+        it never stores provider endpoints or secrets.
+        """
+    }
+
+    fn add_route (
+        route_key String key,
+        target_coin_id UUID key,
+        external_currency String,
+        external_minor_unit_exponent Int,
+        conversion_mode ExternalCapitalConversionMode = direct_denomination,
+        min_external_amount_minor Int? = null,
+        max_external_amount_minor Int? = null,
+        status ExternalCapitalRouteStatus = active,
+        additional_metadata JsonObject? = {}
+    ) -> ExternalCapitalProviderRoute {
+        """
+        Adds one provider-neutral external-capital route.
+
+        V0 accepts direct-denomination routes only. Cross-currency conversion
+        requires a later authenticated capital-rate source.
+        """
+        let created = construct routes.build(
+            route_key = route_key,
+            target_coin_id = target_coin_id,
+            external_currency = external_currency,
+            external_minor_unit_exponent = external_minor_unit_exponent,
+            conversion_mode = conversion_mode,
+            min_external_amount_minor = min_external_amount_minor,
+            max_external_amount_minor = max_external_amount_minor,
+            status = status,
+            additional_metadata = additional_metadata,
+        )
+    }
+}

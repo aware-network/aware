@@ -266,6 +266,24 @@ class _RuntimeDependencyPackage:
         ).resolve()
 
 
+def _runtime_dependency_python_root(
+    *,
+    package: _RuntimeDependencyPackage,
+    snapshot: APIWorkspaceSnapshot,
+) -> Path:
+    source_owned_api_dto_package_names = set(
+        _source_owned_api_dto_export_package_names(snapshot=snapshot)
+    )
+    if package.package_name not in source_owned_api_dto_package_names:
+        return package.python_root
+
+    targets = snapshot.spec.targets.python
+    language_root = (
+        "python" if targets is None or not targets.root_dir else targets.root_dir
+    )
+    return (snapshot.package_root / language_root / package.import_root).resolve()
+
+
 @dataclass(frozen=True, slots=True)
 class APIRuntimeSemanticArtifacts:
     runtime_package_dir: Path
@@ -484,7 +502,10 @@ def resolve_api_runtime_semantic_artifacts(
         accessible_dependency_graphs_path=accessible_dependency_graphs_path,
         dependency_packages=dependency_packages,
         dependency_python_roots=tuple(
-            _dedupe_paths(package.python_root for package in dependency_packages)
+            _dedupe_paths(
+                _runtime_dependency_python_root(package=package, snapshot=snapshot)
+                for package in dependency_packages
+            )
         ),
         dependency_runtime_roots=tuple(
             _dedupe_paths(package.runtime_root for package in dependency_packages)
@@ -1201,7 +1222,11 @@ def _emit_api_runtime_semantics_manifest(
                     root=repo_root,
                 ),
                 "python_root_relpath": _path_rel_or_abs(
-                    path=package.python_root, root=repo_root
+                    path=_runtime_dependency_python_root(
+                        package=package,
+                        snapshot=snapshot,
+                    ),
+                    root=repo_root,
                 ),
                 "runtime_root_relpath": _path_rel_or_abs(
                     path=package.runtime_root, root=repo_root
@@ -1452,6 +1477,22 @@ def _load_existing_dependency_object_config_graph(
     package: _RuntimeDependencyPackage,
 ) -> ObjectConfigGraph | None:
     if package.kind == AwarePackageKind.api:
+        if package.runtime_manifest_path.is_file():
+            expected_source_digest = _compute_runtime_dependency_source_digest(
+                package=package
+            )
+            if _runtime_dependency_source_digest_matches(
+                package=package,
+                expected_digest=expected_source_digest,
+            ) or _runtime_dependency_ocg_outputs_are_fresh_for_inputs(package=package):
+                try:
+                    graph = _load_runtime_dependency_object_config_graph_snapshot(
+                        package=package
+                    )
+                except Exception:
+                    graph = None
+                if graph is not None:
+                    return graph
         return _load_api_dependency_object_config_graph_from_models(package=package)
     if not package.runtime_manifest_path.is_file():
         return None

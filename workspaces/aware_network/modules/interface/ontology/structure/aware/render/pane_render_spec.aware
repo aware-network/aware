@@ -1,0 +1,91 @@
+class PaneRenderSpec {
+    // Relationships
+    pane_config interface.PaneConfig key
+    nodes PaneRenderNode[]
+    renderer_requirements PaneRendererCapabilityRequirement[]
+
+    // Attributes
+    name String key
+    spec_version String key
+    root_node_key String
+    view_ref String?
+    projection_view_key String?
+    state_model aware_meta.class.ClassConfig?
+    description String?
+
+    fn create construct (
+        pane_config_id UUID key,
+        name String key,
+        spec_version String key,
+        root_node_key String,
+        view_ref String? = null,
+        projection_view_key String? = null,
+        state_model_id UUID? = null,
+        description String? = null
+    ) -> PaneRenderSpec {
+        """
+        Create one deterministic renderer-neutral render spec for a pane/view binding.
+
+        Contract:
+        - Pane remains the canonical UI unit.
+        - This spec starts after PaneConfig and never replaces
+          Attention, FocusScope, ProjectionView, or PaneConfig truth.
+        - Nodes and bindings are declarative data so renderers can interpret the same
+          visual, semantic, and command contract without dynamic code loading.
+        """
+    }
+
+    fn add_node (
+        node_key String,
+        node_kind PaneRenderNodeKind,
+        semantic_role PaneRenderSemanticRole? = null,
+        parent_node_key String? = null,
+        slot_key String? = null,
+        order Int = 0,
+        label String? = null,
+        text String? = null,
+        placeholder String? = null,
+        component_ref String? = null,
+        component_contract_id UUID? = null,
+        fallback_node_kind PaneRenderNodeKind? = null,
+        fallback_text String? = null
+    ) -> PaneRenderNode {
+        """
+        Add one ordered semantic render node to this spec.
+        """
+        let created = construct nodes.create(
+            node_key = node_key,
+            node_kind = node_kind,
+            semantic_role = semantic_role,
+            parent_node_key = parent_node_key,
+            slot_key = slot_key,
+            order = order,
+            label = label,
+            text = text,
+            placeholder = placeholder,
+            component_ref = component_ref,
+            component_contract_id = component_contract_id,
+            fallback_node_kind = fallback_node_kind,
+            fallback_text = fallback_text,
+        )
+    }
+
+    fn require_renderer_capability (
+        capability_kind PaneRenderCapabilityKind,
+        capability_key String,
+        is_required Bool = true
+    ) -> PaneRendererCapabilityRequirement {
+        """
+        Declare one renderer capability required or preferred by this render spec.
+        """
+        let requirement = construct renderer_requirements.create(
+            capability_kind = capability_kind,
+            capability_key = capability_key,
+            is_required = is_required,
+        )
+    }
+}
+
+ann render.PaneRenderSpec::pane_config load eager
+ann render.PaneRenderSpec::nodes load eager
+ann render.PaneRenderSpec::renderer_requirements load eager

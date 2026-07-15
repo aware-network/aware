@@ -163,6 +163,24 @@ class ReactivityPolicyEventActionBindingSpec(BaseModel):
     metadata: JsonObject = Field(default_factory=JsonObject)
 
 
+class ReactivityPolicyEventMeaningResolverBindingSpec(BaseModel):
+    """
+    Register one provider-owned ActionConfig as a meaning resolver for an
+    EventConfig. The ActionConfig remains the API endpoint anchor.
+    """
+
+    # Attributes
+    event_config_name: str | None = Field(default=None)
+    action_config_name: str | None = Field(default=None)
+    event_config_id: UUID | None = Field(default=None)
+    action_config_id: UUID | None = Field(default=None)
+    resolver_key: str = Field(default="default")
+    api_capability_endpoint_id: UUID
+    priority: int = Field(default=0)
+    is_enabled: bool = Field(default=True)
+    binding_id: UUID | None = Field(default=None)
+
+
 class ReactivityPolicyBundleSpec(BaseModel):
     # Attributes
     owner_ref: str
@@ -176,6 +194,7 @@ class ReactivityPolicyBundleSpec(BaseModel):
     action_configs: list[ReactivityPolicyActionConfigSpec] = Field(default_factory=list)
     event_condition_bindings: list[ReactivityPolicyEventConditionBindingSpec] = Field(default_factory=list)
     event_action_bindings: list[ReactivityPolicyEventActionBindingSpec] = Field(default_factory=list)
+    event_meaning_resolver_bindings: list[ReactivityPolicyEventMeaningResolverBindingSpec] = Field(default_factory=list)
     metadata: JsonObject = Field(default_factory=JsonObject)
 
 
@@ -217,6 +236,17 @@ class ReactivityPolicyInstalledEventActionBinding(BaseModel):
     status: str = Field(default="ensured")
 
 
+class ReactivityPolicyInstalledEventMeaningResolverBinding(BaseModel):
+    # Attributes
+    event_config_id: UUID
+    action_config_id: UUID
+    event_config_meaning_resolver_config_id: UUID
+    resolver_key: str
+    api_capability_endpoint_id: UUID
+    priority: int = Field(default=0)
+    status: str = Field(default="ensured")
+
+
 class ReactivityPolicyBundleReceipt(BaseModel):
     # Attributes
     bundle_id: UUID
@@ -230,6 +260,9 @@ class ReactivityPolicyBundleReceipt(BaseModel):
     action_configs: list[ReactivityPolicyInstalledActionConfig] = Field(default_factory=list)
     event_condition_bindings: list[ReactivityPolicyInstalledEventConditionBinding] = Field(default_factory=list)
     event_action_bindings: list[ReactivityPolicyInstalledEventActionBinding] = Field(default_factory=list)
+    event_meaning_resolver_bindings: list[ReactivityPolicyInstalledEventMeaningResolverBinding] = Field(
+        default_factory=list
+    )
     metadata: JsonObject = Field(default_factory=JsonObject)
 
 

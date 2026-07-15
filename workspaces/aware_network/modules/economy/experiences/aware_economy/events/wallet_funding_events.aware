@@ -1,0 +1,3 @@
+event WalletFundingIntentPrepared name "economy.wallet_funding.intent.prepared" renderer "economy.wallet_funding.intent.prepared" title "Wallet Funding Intent Prepared" description "A committed wallet funding intent is ready for provider fulfillment." {
+    bind TransactionIntent TransactionIntent.TransactionIntent create
+}

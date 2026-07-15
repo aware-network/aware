@@ -1,6 +1,0 @@
-/// Duplicate FQN sample (part 1)
-class User {
-    name String
-}
-
-

@@ -1,0 +1,13 @@
+enum InterfaceOs {
+    android
+    ios
+    linux
+    macos
+    web
+    windows
+}
+
+enum InterfaceSessionState {
+    active
+    inactive
+}

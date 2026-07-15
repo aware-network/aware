@@ -1,0 +1,12 @@
+service aware_content {
+    api content;
+
+    operation resolve_content_text {
+        endpoint content.text.resolve_content_text;
+    }
+
+    operation materialize_content_package {
+        endpoint content.package.materialize_content_package;
+        admission identity_required;
+    }
+}

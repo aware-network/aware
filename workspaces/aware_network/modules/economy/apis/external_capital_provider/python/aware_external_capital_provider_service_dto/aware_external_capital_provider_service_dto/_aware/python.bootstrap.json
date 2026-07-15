@@ -1,0 +1,8 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_external_capital_provider_service_dto.external_capital.wallet_funding"
+  ],
+  "package_prefix": "aware_external_capital_provider_service_dto",
+  "version": "v1"
+}

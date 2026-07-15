@@ -1,0 +1,107 @@
+/// Hub-owned generic artifact authority DTOs.
+///
+/// Contract:
+/// - Hub owns artifact family/key/channel/revision authority.
+/// - Producers may provide payload bytes, payload JSON, a staged payload URL, or
+///   a pre-published payload lock.
+/// - Producer provenance remains descriptive; Hub artifact revisions own the
+///   immutable payload lock and channel head.
+
+class HubArtifactAuthorityRequest {
+    operation String
+    request_id UUID?
+}
+
+class HubArtifactAuthorityResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+}
+
+class HubArtifactProducerProvenance {
+    producer_kind String = "unknown"
+    producer_key String = "default"
+    provenance_key String?
+    producer_revision_id String?
+    source_revision_id String?
+    source_revision_kind String?
+    materialization_ref String?
+    build_ref String?
+    metadata JsonObject = {}
+}
+
+class HubArtifactPayloadLock {
+    artifact_family String
+    artifact_key String
+    channel String = "stable"
+    revision_id String
+    payload_url String
+    payload_sha256 String
+    payload_size_bytes Int?
+    payload_media_type String?
+    payload_contract String?
+    authority_source_url String?
+    selector_key String?
+    target_ref String?
+    metadata JsonObject = {}
+}
+
+class PublishHubArtifactRequest augment hub.HubArtifactAuthorityRequest {
+    operation String = "publish_hub_artifact"
+    artifact_family String
+    artifact_key String
+    revision_id String
+    channel String = "stable"
+    authority_base_url String?
+    index_url String?
+    payload_url String?
+    payload_sha256 String?
+    payload_size_bytes Int?
+    payload_media_type String?
+    payload_contract String?
+    payload_json JsonObject?
+    payload_bytes_base64 String?
+    payload_source_url String?
+    selector_key String?
+    target_ref String?
+    producer hub.HubArtifactProducerProvenance?
+    publisher_execution_id String?
+    idempotency_key String?
+    published_at_utc String?
+    metadata JsonObject = {}
+}
+
+class PublishHubArtifactResponse augment hub.HubArtifactAuthorityResponse {
+    operation String = "publish_hub_artifact"
+    accepted Bool = false
+    authority_source_url String
+    artifact_lock hub.HubArtifactPayloadLock
+    producer hub.HubArtifactProducerProvenance?
+}
+
+class ResolveHubArtifactRequest augment hub.HubArtifactAuthorityRequest {
+    operation String = "resolve_hub_artifact"
+    artifact_family String
+    artifact_key String
+    channel String = "stable"
+    revision_id String?
+    authority_base_url String?
+    index_url String?
+}
+
+class ResolveHubArtifactResponse augment hub.HubArtifactAuthorityResponse {
+    operation String = "resolve_hub_artifact"
+    authority_source_url String
+    artifact_lock hub.HubArtifactPayloadLock
+    producer hub.HubArtifactProducerProvenance?
+}
+
+ann hub.HubArtifactAuthorityRequest::operation discriminate key
+ann hub.PublishHubArtifactRequest::operation discriminate tag "publish_hub_artifact"
+ann hub.ResolveHubArtifactRequest::operation discriminate tag "resolve_hub_artifact"
+
+ann hub.HubArtifactAuthorityResponse::operation discriminate key
+ann hub.PublishHubArtifactResponse::operation discriminate tag "publish_hub_artifact"
+ann hub.ResolveHubArtifactResponse::operation discriminate tag "resolve_hub_artifact"

@@ -1,0 +1,122 @@
+/// Identity session operations for the Network Node control-plane (DTO-only).
+///
+/// These operations are routed via:
+/// `NetworkOperation(type=NETWORK_NODE) -> NetworkNodeOperation(request/response)`.
+///
+/// NOTE:
+/// - Discriminator tags are declared here to avoid network -> identity deps.
+/// - These variants live here to keep identity/session concerns isolated from
+///   environment provisioning concerns.
+///
+/// Security:
+/// - These DTOs are transport-only. The node MUST treat returned artifacts
+///   (challenge, roles, etc.) as non-SSOT and enforce identity + authorization
+///   on stateful operations (e.g. provisioning, commits, publishes).
+///
+/// v0:
+/// - `identity_challenge` returns a nonce-like `challenge` string.
+/// - `identity_login` completes authentication using a signature over that
+///   challenge (exact signature scheme is node policy).
+/// - `whoami` returns the currently-bound identity session for the active
+///   websocket connection.
+
+/// Request a challenge nonce for identity authentication.
+///
+/// The client signs the returned `challenge` with its private key and submits it
+/// via `IdentityLoginRequest`.
+class IdentityChallengeRequest augment aware_network_service_dto.comms.models.NetworkNodeOperationRequest {
+    operation String = "identity_challenge"
+
+    // Attributes
+    public_key String
+}
+
+class IdentityChallengeResponse augment aware_network_service_dto.comms.models.NetworkNodeOperationResponse {
+    operation String = "identity_challenge"
+
+    // Attributes
+    status String
+    error String?
+    public_key String
+    challenge String
+    expires_at String?
+}
+
+/// Complete identity authentication using the issued challenge.
+class IdentityLoginRequest augment aware_network_service_dto.comms.models.NetworkNodeOperationRequest {
+    operation String = "identity_login"
+
+    // Attributes
+    public_key String
+    challenge String
+    signature String
+}
+
+class IdentityLoginResponse augment aware_network_service_dto.comms.models.NetworkNodeOperationResponse {
+    operation String = "identity_login"
+
+    // Attributes
+    status String
+    error String?
+    public_key String
+    roles String[] = []
+}
+
+/// Authenticate via a revocable bearer token (e.g. APT token).
+///
+/// This is intended for external agents/tools that cannot safely hold an Ed25519
+/// private key but still need a revocable credential.
+class TokenLoginRequest augment aware_network_service_dto.comms.models.NetworkNodeOperationRequest {
+    operation String = "token_login"
+
+    // Attributes
+    token String
+}
+
+class TokenLoginResponse augment aware_network_service_dto.comms.models.NetworkNodeOperationResponse {
+    operation String = "token_login"
+
+    // Attributes
+    status String
+    error String?
+    public_key String?
+    roles String[] = []
+
+    // Token metadata (transport-only; SSOT is commit-backed identity lane).
+    token_id UUID?
+    token_type String?
+    scopes String[] = []
+    context_environment_id UUID?
+    context_process_id UUID?
+    context_thread_id UUID?
+    expires_at String?
+}
+
+/// Return the node's view of the current identity session bound to this websocket connection.
+class WhoamiRequest augment aware_network_service_dto.comms.models.NetworkNodeOperationRequest {
+    operation String = "whoami"
+}
+
+class WhoamiResponse augment aware_network_service_dto.comms.models.NetworkNodeOperationResponse {
+    operation String = "whoami"
+
+    // Attributes
+    status String
+    error String?
+    authenticated Bool
+    public_key String?
+    roles String[] = []
+    interface_session_id UUID?
+    interface_id UUID?
+    last_seen_at String?
+}
+
+// Discriminated-union tags (declared here to avoid network -> identity deps).
+ann aware_network_service_dto.comms.identity.IdentityChallengeRequest::operation discriminate tag "identity_challenge"
+ann aware_network_service_dto.comms.identity.IdentityLoginRequest::operation discriminate tag "identity_login"
+ann aware_network_service_dto.comms.identity.TokenLoginRequest::operation discriminate tag "token_login"
+ann aware_network_service_dto.comms.identity.WhoamiRequest::operation discriminate tag "whoami"
+ann aware_network_service_dto.comms.identity.IdentityChallengeResponse::operation discriminate tag "identity_challenge"
+ann aware_network_service_dto.comms.identity.IdentityLoginResponse::operation discriminate tag "identity_login"
+ann aware_network_service_dto.comms.identity.TokenLoginResponse::operation discriminate tag "token_login"
+ann aware_network_service_dto.comms.identity.WhoamiResponse::operation discriminate tag "whoami"

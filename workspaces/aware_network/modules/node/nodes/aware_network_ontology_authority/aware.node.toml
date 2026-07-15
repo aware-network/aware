@@ -1,0 +1,97 @@
+aware_node = 1
+
+[node]
+package_name = "aware-network-ontology-authority-node"
+fqn_prefix = "aware_network_ontology_authority_node"
+title = "Aware Network Ontology Authority Node"
+description = "Aware Network ontology authority node package for WorkspaceRevision-backed kernel and network ontology publication."
+
+[build]
+sources_dir = "nodes"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+compilation_mode = "node_ontology"
+
+[[dependencies]]
+package_name = "aware-ontology-service"
+kind = "service_package"
+
+[[dependencies]]
+package_name = "storage-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "content-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "code-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "history-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "meta-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "ontology-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "api-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "sdk-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "reactivity-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "environment-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "attention-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "identity-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "economy-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "experience-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "service-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "network-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "interface-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "node-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "hub-ontology"
+kind = "ontology_package"
+
+[[dependencies]]
+package_name = "skill-ontology"
+kind = "ontology_package"

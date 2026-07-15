@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date, datetime
+from decimal import Decimal
 from enum import Enum
 from pathlib import Path
 import json
@@ -12,6 +13,7 @@ from urllib.parse import quote
 from uuid import UUID
 
 from aware_orm.models.orm_model import ORMModel
+from aware_types import canonical_decimal_text
 
 
 ModelT = TypeVar("ModelT", bound=ORMModel)
@@ -476,6 +478,8 @@ def open_sqlite_orm_memory_connection() -> sqlite3.Connection:
 
 
 def sqlite_value_for_model(value: object) -> object:
+    if isinstance(value, Decimal):
+        return canonical_decimal_text(value)
     if isinstance(value, UUID):
         return str(value)
     if isinstance(value, datetime | date):

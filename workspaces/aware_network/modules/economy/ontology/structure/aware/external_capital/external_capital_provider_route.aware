@@ -1,0 +1,33 @@
+class ExternalCapitalProviderRoute {
+    // Relationships
+    target_coin coin.Coin key
+
+    // Attributes
+    additional_metadata JsonObject? = {}
+    conversion_mode ExternalCapitalConversionMode = direct_denomination
+    external_currency String
+    external_minor_unit_exponent Int
+    max_external_amount_minor Int?
+    min_external_amount_minor Int?
+    route_key String key
+    status ExternalCapitalRouteStatus = active
+
+    fn build construct (
+        route_key String key,
+        target_coin_id UUID key,
+        external_currency String,
+        external_minor_unit_exponent Int,
+        conversion_mode ExternalCapitalConversionMode = direct_denomination,
+        min_external_amount_minor Int? = null,
+        max_external_amount_minor Int? = null,
+        status ExternalCapitalRouteStatus = active,
+        additional_metadata JsonObject? = {}
+    ) -> ExternalCapitalProviderRoute {
+        """
+        Creates one immutable route declaration under a provider config.
+
+        Route updates require a new route key so existing funding quotes remain
+        auditable against the route they accepted.
+        """
+    }
+}

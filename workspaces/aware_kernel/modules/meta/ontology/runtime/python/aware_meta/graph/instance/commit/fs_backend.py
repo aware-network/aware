@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass
+import ctypes
 import hashlib
 import json
 import os
@@ -12,6 +17,10 @@ from aware_meta.graph.instance.commit.contract import JsonObject
 
 
 _AWARE_ROOT_ENV = "AWARE_ROOT"
+_CURRENT_DURABLE_WRITE_TRANSACTION: ContextVar[DurableWriteTransaction | None] = (
+    ContextVar("aware_meta_durable_write_transaction", default=None)
+)
+_LIBC: ctypes.CDLL | None = None
 
 
 def _env_int(name: str, default: int, *, minimum: int) -> int:
@@ -41,7 +50,119 @@ def _resolve_oig_root(root_dir: Path | None) -> Path:
     return _resolve_aware_root(root_dir) / ".aware" / "oig"
 
 
+@dataclass(frozen=True, slots=True)
+class DurableWriteTransactionStats:
+    status: str
+    write_count: int = 0
+    syncfs_count: int = 0
+    file_fsync_count: int = 0
+    directory_fsync_count: int = 0
+
+    def to_dict(self) -> dict[str, int | str]:
+        return {
+            "status": self.status,
+            "write_count": self.write_count,
+            "syncfs_count": self.syncfs_count,
+            "file_fsync_count": self.file_fsync_count,
+            "directory_fsync_count": self.directory_fsync_count,
+        }
+
+
+class DurableWriteTransaction:
+    """Group durable file sync for append-owned commit truth writes."""
+
+    def __init__(self) -> None:
+        self._paths: list[Path] = []
+        self._directories: set[Path] = set()
+        self._committed = False
+        self._stats = DurableWriteTransactionStats(status="open")
+
+    @property
+    def write_count(self) -> int:
+        return len(self._paths)
+
+    @property
+    def committed(self) -> bool:
+        return self._committed
+
+    def stats_snapshot(self) -> dict[str, int | str]:
+        return self._stats.to_dict()
+
+    def atomic_write(self, path: Path, data: str) -> None:
+        if self._committed:
+            raise RuntimeError("Durable write transaction is already committed")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        with open(tmp, "w", encoding="utf-8") as file_handle:
+            _ = file_handle.write(data)
+            file_handle.flush()
+        _ = tmp.replace(path)
+        self._paths.append(path)
+        self._directories.add(path.parent)
+
+    def commit(self) -> DurableWriteTransactionStats:
+        if self._committed:
+            return self._stats
+        write_count = len(self._paths)
+        if write_count == 0:
+            self._stats = DurableWriteTransactionStats(status="empty")
+            self._committed = True
+            return self._stats
+
+        syncfs_count = 0
+        file_fsync_count = 0
+        directory_fsync_count = 0
+        if _syncfs_path(next(iter(self._directories))):
+            syncfs_count = 1
+            status = "syncfs_committed"
+        else:
+            for path in self._paths:
+                with open(path, "rb") as file_handle:
+                    os.fsync(file_handle.fileno())
+                    file_fsync_count += 1
+            for directory in self._directories:
+                if _fsync_directory(directory):
+                    directory_fsync_count += 1
+            status = "file_fsync_committed"
+        self._stats = DurableWriteTransactionStats(
+            status=status,
+            write_count=write_count,
+            syncfs_count=syncfs_count,
+            file_fsync_count=file_fsync_count,
+            directory_fsync_count=directory_fsync_count,
+        )
+        self._committed = True
+        return self._stats
+
+
+def current_durable_write_transaction() -> DurableWriteTransaction | None:
+    return _CURRENT_DURABLE_WRITE_TRANSACTION.get()
+
+
+@contextmanager
+def grouped_durable_write_transaction() -> Iterator[DurableWriteTransaction]:
+    current = current_durable_write_transaction()
+    if current is not None:
+        yield current
+        return
+
+    transaction = DurableWriteTransaction()
+    token = _CURRENT_DURABLE_WRITE_TRANSACTION.set(transaction)
+    try:
+        yield transaction
+    finally:
+        try:
+            transaction.commit()
+        finally:
+            _CURRENT_DURABLE_WRITE_TRANSACTION.reset(token)
+
+
 def _atomic_write(path: Path, data: str) -> None:
+    transaction = current_durable_write_transaction()
+    if transaction is not None:
+        transaction.atomic_write(path, data)
+        return
+
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     with open(tmp, "w", encoding="utf-8") as file_handle:
@@ -49,6 +170,46 @@ def _atomic_write(path: Path, data: str) -> None:
         file_handle.flush()
         os.fsync(file_handle.fileno())
     _ = tmp.replace(path)
+
+
+def _syncfs_path(path: Path) -> bool:
+    libc = _libc()
+    if libc is None or not hasattr(libc, "syncfs"):
+        return False
+    fd = -1
+    try:
+        fd = os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+        result = int(libc.syncfs(fd))
+        return result == 0
+    except Exception:
+        return False
+    finally:
+        if fd >= 0:
+            os.close(fd)
+
+
+def _libc() -> ctypes.CDLL | None:
+    global _LIBC
+    if _LIBC is not None:
+        return _LIBC
+    try:
+        _LIBC = ctypes.CDLL(None, use_errno=True)
+    except Exception:
+        return None
+    return _LIBC
+
+
+def _fsync_directory(path: Path) -> bool:
+    fd = -1
+    try:
+        fd = os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+        os.fsync(fd)
+        return True
+    except Exception:
+        return False
+    finally:
+        if fd >= 0:
+            os.close(fd)
 
 
 def _atomic_write_rebuildable_sidecar(path: Path, data: str) -> None:

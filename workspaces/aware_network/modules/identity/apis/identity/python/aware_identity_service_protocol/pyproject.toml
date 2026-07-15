@@ -1,0 +1,20 @@
+[project]
+name = "aware_identity_service_protocol"
+version = "0.1.0"
+description = "Public Identity service API boundary for canonical Identity admission, credential profiles, and actor-role assignment over the class-instance-aware role rail."
+authors = [{ name = "Aware Automations" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aware_identity_service_dto",
+    "aware-utils",
+    "pydantic>=2.13.4,<3.0.0"
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_identity_service_protocol"]
+include = ["README.md", "aware_identity_service_protocol/py.typed"]

@@ -1,0 +1,46 @@
+/// Service DTOs for Experience package projection ownership operations.
+///
+/// These operations are the public facade for package-level Experience projection
+/// ownership and materialization evidence. ServiceHost, Node, Interface, and
+/// Agent consumers should call this API/SDK surface instead of importing
+/// Experience runtime materialization internals.
+
+class ExperiencePackageProjectionOwnershipServiceRequest {
+    operation String
+    request_id UUID?
+    actor_id UUID?
+    workspace_root String?
+    experience_toml_path String?
+    package_name String?
+    experience_name String?
+    request_context JsonObject = {}
+}
+
+class ExperiencePackageProjectionOwnershipServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    status String
+    info String?
+    error String?
+    package_name String?
+    experience_name String?
+    catalog package_materialization.ExperiencePackageProjectionOwnershipCatalog?
+    evidence JsonObject = {}
+}
+
+class ResolveExperiencePackageProjectionOwnershipRequest augment package_materialization.ExperiencePackageProjectionOwnershipServiceRequest {
+    operation String = "resolve_experience_package_projection_ownership"
+    validate_only Bool = true
+}
+
+class ResolveExperiencePackageProjectionOwnershipResponse augment package_materialization.ExperiencePackageProjectionOwnershipServiceResponse {
+    operation String = "resolve_experience_package_projection_ownership"
+    catalog package_materialization.ExperiencePackageProjectionOwnershipCatalog
+}
+
+ann package_materialization.ExperiencePackageProjectionOwnershipServiceRequest::operation discriminate key
+ann package_materialization.ResolveExperiencePackageProjectionOwnershipRequest::operation discriminate tag "resolve_experience_package_projection_ownership"
+
+ann package_materialization.ExperiencePackageProjectionOwnershipServiceResponse::operation discriminate key
+ann package_materialization.ResolveExperiencePackageProjectionOwnershipResponse::operation discriminate tag "resolve_experience_package_projection_ownership"

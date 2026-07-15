@@ -10,9 +10,7 @@ from uuid import UUID
 from aware_code_ontology.package.code_package_artifact import CodePackageArtifactRef
 
 
-CODE_PACKAGE_ARTIFACT_DELTA_PLAN_SCHEMA = (
-    "aware.code.package.artifact_delta_plan.v1"
-)
+CODE_PACKAGE_ARTIFACT_DELTA_PLAN_SCHEMA = "aware.code.package.artifact_delta_plan.v1"
 CODE_PACKAGE_ARTIFACT_DELTA_PLAN_REF_KEY = "code_package_artifact_delta_plan"
 ArtifactOperationKind = Literal[
     "create",
@@ -21,6 +19,7 @@ ArtifactOperationKind = Literal[
     "noop_existing",
     "delete",
 ]
+ArtifactMissingPolicy = Literal["delete", "retain"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,6 +36,39 @@ class CodePackageArtifactCurrentStateRow:
     artifact_family: str | None = None
     artifact_role: str | None = None
     producer_key: str | None = None
+    artifact_ref: CodePackageArtifactRef | None = None
+
+    @classmethod
+    def from_artifact_ref(
+        cls,
+        artifact_ref: CodePackageArtifactRef,
+    ) -> CodePackageArtifactCurrentStateRow:
+        output_key = (artifact_ref.output_key or "").strip()
+        artifact_key = (artifact_ref.artifact_key or "").strip()
+        if not output_key or not artifact_key:
+            raise RuntimeError(
+                "CodePackage artifact state ref requires output_key and artifact_key"
+            )
+        return cls(
+            output_key=output_key,
+            artifact_key=artifact_key,
+            identity_key=artifact_identity_key(
+                output_key=output_key,
+                artifact_key=artifact_key,
+            ),
+            signature_hash=code_package_artifact_ref_signature_hash(
+                artifact_ref=artifact_ref
+            ),
+            status=str(getattr(artifact_ref.status, "value", artifact_ref.status)),
+            digest=_optional_text(artifact_ref.digest),
+            relative_path=_optional_text(artifact_ref.relative_path),
+            uri=_optional_text(artifact_ref.uri),
+            media_type=_optional_text(artifact_ref.media_type),
+            artifact_family=_optional_text(artifact_ref.artifact_family),
+            artifact_role=_optional_text(artifact_ref.artifact_role),
+            producer_key=_optional_text(artifact_ref.producer_key),
+            artifact_ref=artifact_ref,
+        )
 
     @classmethod
     def from_payload(
@@ -51,6 +83,19 @@ class CodePackageArtifactCurrentStateRow:
         identity_key = _optional_text(payload.get("identity_key")) or (
             artifact_identity_key(output_key=output_key, artifact_key=artifact_key)
         )
+        raw_artifact_ref = payload.get("artifact_ref")
+        artifact_ref = (
+            CodePackageArtifactRef.model_validate(raw_artifact_ref)
+            if isinstance(raw_artifact_ref, Mapping)
+            else None
+        )
+        if artifact_ref is not None and (
+            artifact_ref.output_key != output_key
+            or artifact_ref.artifact_key != artifact_key
+            or code_package_artifact_ref_signature_hash(artifact_ref=artifact_ref)
+            != signature_hash
+        ):
+            return None
         return cls(
             output_key=output_key,
             artifact_key=artifact_key,
@@ -64,6 +109,7 @@ class CodePackageArtifactCurrentStateRow:
             artifact_family=_optional_text(payload.get("artifact_family")),
             artifact_role=_optional_text(payload.get("artifact_role")),
             producer_key=_optional_text(payload.get("producer_key")),
+            artifact_ref=artifact_ref,
         )
 
     def to_payload(self) -> dict[str, object]:
@@ -81,6 +127,11 @@ class CodePackageArtifactCurrentStateRow:
                 "artifact_family": self.artifact_family,
                 "artifact_role": self.artifact_role,
                 "producer_key": self.producer_key,
+                "artifact_ref": (
+                    self.artifact_ref.model_dump(mode="json", exclude_none=True)
+                    if self.artifact_ref is not None
+                    else None
+                ),
             }
         )
 
@@ -159,6 +210,7 @@ class CodePackageArtifactAuthoritativeScope:
     producer_key: str | None = None
     artifact_family: str | None = None
     artifact_role: str | None = None
+    missing_artifact_policy: ArtifactMissingPolicy = "delete"
 
     @classmethod
     def from_payload(
@@ -175,6 +227,9 @@ class CodePackageArtifactAuthoritativeScope:
             producer_key=_optional_text(payload.get("producer_key")),
             artifact_family=_optional_text(payload.get("artifact_family")),
             artifact_role=_optional_text(payload.get("artifact_role")),
+            missing_artifact_policy=_missing_artifact_policy(
+                payload.get("missing_artifact_policy")
+            ),
         )
 
     def matches(self, row: CodePackageArtifactCurrentStateRow) -> bool:
@@ -193,6 +248,7 @@ class CodePackageArtifactAuthoritativeScope:
                 "producer_key": self.producer_key,
                 "artifact_family": self.artifact_family,
                 "artifact_role": self.artifact_role,
+                "missing_artifact_policy": self.missing_artifact_policy,
             }
         )
 
@@ -225,9 +281,7 @@ class CodePackageArtifactOperationCounts:
             create=self.create + int(operation == "create"),
             refresh=self.refresh + int(operation == "refresh"),
             upsert=self.upsert + int(operation == "upsert"),
-            noop_existing=(
-                self.noop_existing + int(operation == "noop_existing")
-            ),
+            noop_existing=(self.noop_existing + int(operation == "noop_existing")),
             delete=self.delete + int(operation == "delete"),
         )
 
@@ -385,9 +439,7 @@ class CodePackageArtifactDeltaPlan:
             operation
             for item in raw_operations
             if isinstance(item, Mapping)
-            if (
-                operation := CodePackageArtifactDeltaOperation.from_payload(item)
-            )
+            if (operation := CodePackageArtifactDeltaOperation.from_payload(item))
             is not None
         )
         raw_package_ids = payload.get("code_package_ids")
@@ -416,16 +468,12 @@ class CodePackageArtifactDeltaPlan:
         return cls(
             status=_optional_text(payload.get("status")) or "empty",
             classification_policy=(
-                _optional_text(payload.get("classification_policy"))
-                or "not_hydrated"
+                _optional_text(payload.get("classification_policy")) or "not_hydrated"
             ),
             current_state_status=(
-                _optional_text(payload.get("current_state_status"))
-                or "not_hydrated"
+                _optional_text(payload.get("current_state_status")) or "not_hydrated"
             ),
-            current_artifact_count=_int_payload(
-                payload.get("current_artifact_count")
-            ),
+            current_artifact_count=_int_payload(payload.get("current_artifact_count")),
             artifact_ref_count=_int_payload(payload.get("artifact_ref_count")),
             unique_artifact_ref_count=_int_payload(
                 payload.get("unique_artifact_ref_count")
@@ -450,9 +498,7 @@ def code_package_artifact_delta_plan_from_package_plans(
     package_plans: tuple[CodePackageArtifactDeltaPlan, ...],
 ) -> CodePackageArtifactDeltaPlan:
     plans = tuple(plan for plan in package_plans if plan.status != "empty")
-    operations = tuple(
-        operation for plan in plans for operation in plan.operations
-    )
+    operations = tuple(operation for plan in plans for operation in plan.operations)
     authoritative_scopes = tuple(
         scope for plan in plans for scope in plan.authoritative_scopes
     )
@@ -471,9 +517,7 @@ def code_package_artifact_delta_plan_from_package_plans(
         current_state_status=_combined_text(state_statuses),
         current_artifact_count=sum(plan.current_artifact_count for plan in plans),
         artifact_ref_count=artifact_ref_count,
-        unique_artifact_ref_count=sum(
-            plan.unique_artifact_ref_count for plan in plans
-        ),
+        unique_artifact_ref_count=sum(plan.unique_artifact_ref_count for plan in plans),
         code_package_ids=package_ids,
         operation_counts=operation_counts,
         operations=operations,
@@ -491,7 +535,9 @@ def code_package_artifact_delta_plan_from_refs(
         ...,
     ] = (),
 ) -> CodePackageArtifactDeltaPlan:
-    final_refs_by_key: dict[tuple[str, str, str], CodePackageArtifactDeltaOperation] = {}
+    final_refs_by_key: dict[tuple[str, str, str], CodePackageArtifactDeltaOperation] = (
+        {}
+    )
     operations: list[CodePackageArtifactDeltaOperation] = []
     current_rows_by_key = (
         current_artifact_state.rows_by_identity_key
@@ -575,9 +621,7 @@ def code_package_artifact_delta_plan_from_refs(
     current_state_hydrated = current_artifact_state is not None
     return CodePackageArtifactDeltaPlan(
         status=(
-            "planned"
-            if code_package_artifact_refs or delete_operations
-            else "empty"
+            "planned" if code_package_artifact_refs or delete_operations else "empty"
         ),
         classification_policy=(
             "current_code_package_artifact_state"
@@ -607,6 +651,78 @@ def code_package_artifact_delta_plan_from_refs(
             else "hydrate_current_code_package_artifact_state_for_create_refresh_delete"
         ),
         authoritative_scopes=authoritative_scopes,
+    )
+
+
+def code_package_artifact_refs_after_delta_plan(
+    *,
+    desired_artifact_refs: tuple[CodePackageArtifactRef, ...],
+    current_artifact_state: CodePackageArtifactCurrentStateIndex | None,
+    artifact_delta_plan: CodePackageArtifactDeltaPlan,
+) -> tuple[CodePackageArtifactRef, ...]:
+    """Apply a classified plan to committed CodePackage artifact truth."""
+
+    desired_refs_by_identity = {
+        artifact_identity_key(
+            output_key=(artifact_ref.output_key or "").strip(),
+            artifact_key=(artifact_ref.artifact_key or "").strip(),
+        ): artifact_ref
+        for artifact_ref in desired_artifact_refs
+    }
+    next_refs_by_identity: dict[str, CodePackageArtifactRef] = {}
+    if current_artifact_state is not None:
+        deleted_identity_keys = {
+            operation.identity_key
+            for operation in artifact_delta_plan.operations
+            if operation.operation == "delete"
+        }
+        for row in current_artifact_state.artifacts:
+            if row.identity_key in deleted_identity_keys:
+                continue
+            if row.identity_key in desired_refs_by_identity:
+                continue
+            if row.artifact_ref is None:
+                raise RuntimeError(
+                    "Committed CodePackage artifact state is missing lossless "
+                    "artifact_ref payload required for delta apply: "
+                    f"output_key={row.output_key!r} artifact_key={row.artifact_key!r}"
+                )
+            next_refs_by_identity[row.identity_key] = row.artifact_ref
+    next_refs_by_identity.update(desired_refs_by_identity)
+    return tuple(next_refs_by_identity[key] for key in sorted(next_refs_by_identity))
+
+
+def code_package_artifact_state_after_delta_plan(
+    *,
+    code_package_id: UUID,
+    desired_artifact_refs: tuple[CodePackageArtifactRef, ...],
+    current_artifact_state: CodePackageArtifactCurrentStateIndex | None,
+    artifact_delta_plan: CodePackageArtifactDeltaPlan,
+) -> CodePackageArtifactCurrentStateIndex:
+    """Apply artifact operations while retaining unchanged committed rows."""
+
+    next_rows_by_identity = (
+        dict(current_artifact_state.rows_by_identity_key)
+        if current_artifact_state is not None
+        else {}
+    )
+    for operation in artifact_delta_plan.operations:
+        if operation.operation == "delete":
+            next_rows_by_identity.pop(operation.identity_key, None)
+    for artifact_ref in desired_artifact_refs:
+        if artifact_ref.code_package_id != code_package_id:
+            raise RuntimeError(
+                "CodePackage artifact delta ref targets a different package: "
+                f"expected={code_package_id} actual={artifact_ref.code_package_id}"
+            )
+        row = CodePackageArtifactCurrentStateRow.from_artifact_ref(artifact_ref)
+        next_rows_by_identity[row.identity_key] = row
+    return CodePackageArtifactCurrentStateIndex(
+        status="hydrated",
+        code_package_id=str(code_package_id),
+        artifacts=tuple(
+            next_rows_by_identity[key] for key in sorted(next_rows_by_identity)
+        ),
     )
 
 
@@ -697,7 +813,10 @@ def _delete_artifact_operations_from_authoritative_scopes(
     ):
         if row.identity_key in desired_identity_keys:
             continue
-        if not any(scope.matches(row) for scope in authoritative_scopes):
+        if not any(
+            scope.matches(row) and scope.missing_artifact_policy == "delete"
+            for scope in authoritative_scopes
+        ):
             continue
         operations.append(
             CodePackageArtifactDeltaOperation(
@@ -715,6 +834,10 @@ def _delete_artifact_operations_from_authoritative_scopes(
             )
         )
     return tuple(operations)
+
+
+def _missing_artifact_policy(value: object) -> ArtifactMissingPolicy:
+    return "retain" if value == "retain" else "delete"
 
 
 def _combined_text(values: set[str]) -> str:

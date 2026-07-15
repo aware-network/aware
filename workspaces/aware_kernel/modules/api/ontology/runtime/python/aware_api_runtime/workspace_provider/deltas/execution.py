@@ -9,6 +9,7 @@ from aware_api_runtime.semantic_functions.execution import (
 )
 from aware_api_runtime.semantic_function_refs import (
     API_CAPABILITY_CREATE_ENDPOINT_FUNCTION_REF,
+    API_CAPABILITY_ENDPOINT_UPDATE_FUNCTION_REF,
     API_CREATE_CAPABILITY_FUNCTION_REF,
     API_CREATE_FUNCTION_REF,
 )
@@ -24,6 +25,23 @@ API_TYPED_OPERATION_EXECUTION_UPDATE_UPSERT_BLOCK_REASON = "api_provider_delta_t
 API_TYPED_OPERATION_EXECUTION_TYPED_EXECUTOR_BLOCK_REASON = (
     "api_provider_delta_typed_operation_execution_requires_typed_executor_support"
 )
+API_TYPED_OPERATION_EXECUTION_DURABLE_INPUTS_BLOCK_REASON = (
+    "api_provider_delta_typed_operation_execution_requires_durable_execution_inputs"
+)
+API_TYPED_OPERATION_EXECUTION_API_BACKEND_INPUT_BLOCK_REASON = "api_provider_delta_typed_operation_execution_requires_api_execution_backend_provider_input"
+API_TYPED_OPERATION_EXECUTION_ENDPOINT_UPDATE_BLOCK_REASON = "api_provider_delta_typed_operation_existing_api_capability_endpoint_update_requires_update_executor"
+API_TYPED_OPERATION_EXECUTION_API_UPDATE_BLOCK_REASON = (
+    "api_provider_delta_existing_api_update_requires_api_update_executor"
+)
+API_TYPED_OPERATION_EXECUTION_CAPABILITY_UPDATE_BLOCK_REASON = (
+    "api_provider_delta_existing_api_capability_update_requires_update_executor"
+)
+API_TYPED_OPERATION_EXECUTION_ENDPOINT_IDENTITY_UPDATE_BLOCK_REASON = (
+    "api_provider_delta_endpoint_identity_update_requires_replacement"
+)
+API_TYPED_OPERATION_EXECUTION_ENDPOINT_REQUEST_CONTRACT_UPDATE_BLOCK_REASON = (
+    "api_provider_delta_endpoint_request_contract_update_requires_explicit_executor"
+)
 API_PROVIDER_KEY = "aware_api"
 API_TYPED_OPERATION_EXECUTION_READY_REASON = (
     "api_provider_delta_typed_operation_execution_ready"
@@ -36,6 +54,7 @@ API_TYPED_OPERATION_EXECUTION_SUPPORTED_FAMILIES = frozenset(
 def api_delta_typed_operation_execution_preflight(
     *,
     provider_delta_typed_operation_plan: Mapping[str, object],
+    durable_execution_inputs_preflight: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     typed_operations = tuple(
         _mapping_payload(operation)
@@ -84,6 +103,26 @@ def api_delta_typed_operation_execution_preflight(
         for preflight in operation_preflights
         if preflight["executor_support_ready"] is not True
     )
+    durable_execution_inputs_checked = durable_execution_inputs_preflight is not None
+    durable_execution_inputs_available = (
+        durable_execution_inputs_preflight.get("available") is True
+        if durable_execution_inputs_preflight is not None
+        else False
+    )
+    durable_execution_inputs_ready = (
+        durable_execution_inputs_preflight is None
+        or not durable_execution_inputs_available
+        or durable_execution_inputs_preflight.get("status")
+        == "durable_execution_inputs_ready"
+    )
+    api_execution_backend_provider_input_available = (
+        durable_execution_inputs_preflight is None
+        or not durable_execution_inputs_available
+        or durable_execution_inputs_preflight.get(
+            "api_execution_backend_provider_input_available"
+        )
+        is True
+    )
     payload_complete = plan_ready and not missing_fields_by_operation
     status, reason = api_delta_typed_operation_execution_preflight_status_reason(
         plan_ready=plan_ready,
@@ -93,6 +132,11 @@ def api_delta_typed_operation_execution_preflight(
         update_operation_count=update_operation_count,
         upsert_operation_count=upsert_operation_count,
         unsupported_operation_count=unsupported_operation_count,
+        durable_execution_inputs_checked=durable_execution_inputs_checked,
+        durable_execution_inputs_ready=durable_execution_inputs_ready,
+        api_execution_backend_provider_input_available=(
+            api_execution_backend_provider_input_available
+        ),
     )
     blocked = status not in {
         "typed_operation_execution_empty",
@@ -136,6 +180,42 @@ def api_delta_typed_operation_execution_preflight(
         "update_upsert_executor_support_ready": True,
         "delete_executor_support_ready": False,
         "operation_execution_preflights": operation_preflights,
+        "durable_execution_inputs_checked": durable_execution_inputs_checked,
+        "durable_execution_inputs_status": (
+            _optional_text(durable_execution_inputs_preflight.get("status"))
+            if durable_execution_inputs_preflight is not None
+            else None
+        ),
+        "durable_execution_inputs_reason": (
+            _optional_text(durable_execution_inputs_preflight.get("reason"))
+            if durable_execution_inputs_preflight is not None
+            else None
+        ),
+        "durable_execution_inputs_available": (
+            durable_execution_inputs_available
+            if durable_execution_inputs_preflight is not None
+            else None
+        ),
+        "durable_execution_inputs_enforced": durable_execution_inputs_available,
+        "durable_execution_inputs_ready": durable_execution_inputs_ready,
+        "durable_execution_inputs_common_inputs_available": (
+            durable_execution_inputs_preflight.get("common_inputs_available") is True
+            if durable_execution_inputs_preflight is not None
+            else None
+        ),
+        "durable_execution_inputs_provider_input_keys": (
+            tuple(
+                str(key)
+                for key in _tuple_evidence(
+                    durable_execution_inputs_preflight.get("provider_input_keys")
+                )
+            )
+            if durable_execution_inputs_preflight is not None
+            else ()
+        ),
+        "api_execution_backend_provider_input_available": (
+            api_execution_backend_provider_input_available
+        ),
         "available": plan_ready,
         "blocked": blocked,
         "blocked_status": status if blocked else None,
@@ -270,6 +350,9 @@ def api_delta_typed_operation_execution_preflight_status_reason(
     update_operation_count: int,
     upsert_operation_count: int,
     unsupported_operation_count: int,
+    durable_execution_inputs_checked: bool = False,
+    durable_execution_inputs_ready: bool = True,
+    api_execution_backend_provider_input_available: bool = True,
 ) -> tuple[str, str]:
     if not plan_ready:
         return (
@@ -293,6 +376,19 @@ def api_delta_typed_operation_execution_preflight_status_reason(
         return (
             "typed_operation_execution_blocked",
             API_TYPED_OPERATION_EXECUTION_TYPED_EXECUTOR_BLOCK_REASON,
+        )
+    if durable_execution_inputs_checked and not durable_execution_inputs_ready:
+        return (
+            "typed_operation_execution_blocked",
+            API_TYPED_OPERATION_EXECUTION_DURABLE_INPUTS_BLOCK_REASON,
+        )
+    if (
+        durable_execution_inputs_checked
+        and not api_execution_backend_provider_input_available
+    ):
+        return (
+            "typed_operation_execution_blocked",
+            API_TYPED_OPERATION_EXECUTION_API_BACKEND_INPUT_BLOCK_REASON,
         )
     return (
         "typed_operation_execution_ready",
@@ -388,6 +484,26 @@ async def api_delta_execute_typed_operation_plan(
             planned_object_ids=planned_object_ids,
             resolved_argument_ref_object_ids=resolved_argument_ref_object_ids,
         )
+        if operation_payload["status"] == "resolved_existing":
+            semantic_key = _optional_text(operation.get("semantic_key"))
+            result_object_id = _optional_text(operation_payload.get("object_id"))
+            if semantic_key is not None and result_object_id is not None:
+                planned_object_ids[semantic_key] = result_object_id
+            steps.append(
+                api_delta_typed_operation_resolved_existing_step(
+                    operation=operation,
+                    ordinal=ordinal,
+                    object_id=result_object_id,
+                    reason=(
+                        _optional_text(operation_payload.get("reason"))
+                        or "api_provider_delta_typed_operation_existing_object_resolved"
+                    ),
+                )
+            )
+            status_counts["resolved_existing"] = (
+                status_counts.get("resolved_existing", 0) + 1
+            )
+            continue
         if operation_payload["status"] != "ready":
             steps.append(
                 api_delta_typed_operation_blocked_step(
@@ -434,6 +550,11 @@ async def api_delta_execute_typed_operation_plan(
         result_payload = result.evidence_payload()
         semantic_key = _optional_text(operation.get("semantic_key"))
         result_object_id = _optional_text(result.object_id)
+        if (
+            result_object_id is None
+            and _optional_text(operation.get("operation_family")) == "update"
+        ):
+            result_object_id = _optional_text(invocation.receiver_object_id)
         if semantic_key is not None and result_object_id is not None:
             planned_object_ids[semantic_key] = result_object_id
         steps.append(
@@ -451,7 +572,7 @@ async def api_delta_execute_typed_operation_plan(
                 "function_ref": invocation.function_ref,
                 "call_target": invocation.call_target,
                 "receiver_object_id": invocation.receiver_object_id,
-                "result_object_id": result.object_id,
+                "result_object_id": result_object_id,
                 "commit_id": result_payload.get("commit_id"),
                 "head_commit_id": result_payload.get("head_commit_id"),
                 "branch_id": result_payload.get("branch_id"),
@@ -469,12 +590,14 @@ async def api_delta_execute_typed_operation_plan(
         status_counts=status_counts,
     )
     invoked_count = status_counts.get("invoked", 0)
+    resolved_existing_count = status_counts.get("resolved_existing", 0)
+    executed_count = invoked_count + resolved_existing_count
     payload.update(
         {
             "status": status,
             "reason": api_delta_typed_operation_execution_reason(status=status),
             "execution_wired": True,
-            "did_execute": invoked_count > 0,
+            "did_execute": executed_count > 0,
             "status_counts": dict(sorted(status_counts.items())),
             "step_count": len(steps),
             "steps": tuple(steps),
@@ -485,6 +608,8 @@ async def api_delta_execute_typed_operation_plan(
             "result_object_ids_by_semantic_key": dict(
                 sorted(planned_object_ids.items())
             ),
+            "resolved_existing_count": resolved_existing_count,
+            "invoked_count": invoked_count,
             "production_execution_wired": invoked_count > 0,
         }
     )
@@ -509,6 +634,24 @@ def api_delta_typed_operation_invocation_payload(
             "reason": API_TYPED_OPERATION_EXECUTION_TYPED_EXECUTOR_BLOCK_REASON,
         }
     if operation_name == "ensure_api":
+        existing_object_id = _resolvable_existing_semantic_object_id(
+            operation=operation,
+            subject_kinds=frozenset(("api",)),
+            current_semantic_object_ids=current_semantic_object_ids,
+            planned_object_ids=planned_object_ids,
+        )
+        if existing_object_id is not None:
+            if operation_family == "update":
+                return {
+                    "status": "blocked",
+                    "reason": API_TYPED_OPERATION_EXECUTION_API_UPDATE_BLOCK_REASON,
+                    "object_id": existing_object_id,
+                }
+            return {
+                "status": "resolved_existing",
+                "reason": ("api_provider_delta_typed_operation_existing_api_resolved"),
+                "object_id": existing_object_id,
+            }
         return {
             "status": "ready",
             "invocation": SemanticGraphFunctionInvocation(
@@ -526,6 +669,28 @@ def api_delta_typed_operation_invocation_payload(
             ),
         }
     if operation_name == "ensure_api_capability":
+        existing_object_id = _resolvable_existing_semantic_object_id(
+            operation=operation,
+            subject_kinds=frozenset(("api_capability",)),
+            current_semantic_object_ids=current_semantic_object_ids,
+            planned_object_ids=planned_object_ids,
+        )
+        if existing_object_id is not None:
+            if operation_family == "update":
+                return {
+                    "status": "blocked",
+                    "reason": (
+                        API_TYPED_OPERATION_EXECUTION_CAPABILITY_UPDATE_BLOCK_REASON
+                    ),
+                    "object_id": existing_object_id,
+                }
+            return {
+                "status": "resolved_existing",
+                "reason": (
+                    "api_provider_delta_typed_operation_existing_api_capability_resolved"
+                ),
+                "object_id": existing_object_id,
+            }
         receiver_semantic_key = _optional_text(
             api_operation.get("receiver_semantic_key")
         ) or _optional_text(arguments.get("api_semantic_key"))
@@ -558,6 +723,50 @@ def api_delta_typed_operation_invocation_payload(
             ),
         }
     if operation_name == "ensure_api_capability_endpoint":
+        existing_object_id = _resolvable_existing_semantic_object_id(
+            operation=operation,
+            subject_kinds=frozenset(("api_capability_endpoint",)),
+            current_semantic_object_ids=current_semantic_object_ids,
+            planned_object_ids=planned_object_ids,
+        )
+        if existing_object_id is not None:
+            changed_fields = _typed_operation_changed_fields(operation=operation)
+            if "name" in changed_fields:
+                return {
+                    "status": "blocked",
+                    "reason": (
+                        API_TYPED_OPERATION_EXECUTION_ENDPOINT_IDENTITY_UPDATE_BLOCK_REASON
+                    ),
+                    "object_id": existing_object_id,
+                }
+            if "request_class_ref" in changed_fields:
+                return {
+                    "status": "blocked",
+                    "reason": (
+                        API_TYPED_OPERATION_EXECUTION_ENDPOINT_REQUEST_CONTRACT_UPDATE_BLOCK_REASON
+                    ),
+                    "object_id": existing_object_id,
+                }
+            if changed_fields == ("description",):
+                return {
+                    "status": "ready",
+                    "invocation": SemanticGraphFunctionInvocation(
+                        call_target="instance",
+                        function_ref=API_CAPABILITY_ENDPOINT_UPDATE_FUNCTION_REF,
+                        receiver_object_id=existing_object_id,
+                        arguments={"description": arguments.get("description")},
+                        provider_key=API_PROVIDER_KEY,
+                        result_semantic_key=semantic_key,
+                        evidence=api_delta_typed_operation_invocation_evidence(
+                            operation=operation,
+                        ),
+                    ),
+                }
+            return {
+                "status": "blocked",
+                "reason": API_TYPED_OPERATION_EXECUTION_ENDPOINT_UPDATE_BLOCK_REASON,
+                "object_id": existing_object_id,
+            }
         receiver_semantic_key = _optional_text(
             api_operation.get("receiver_semantic_key")
         ) or _optional_text(arguments.get("capability_semantic_key"))
@@ -611,6 +820,18 @@ def api_delta_typed_operation_invocation_payload(
     }
 
 
+def _typed_operation_changed_fields(
+    *,
+    operation: Mapping[str, object],
+) -> tuple[str, ...]:
+    baseline = _mapping_payload(operation.get("baseline"))
+    return tuple(
+        field_name
+        for value in _tuple_evidence(baseline.get("changed_fields"))
+        if (field_name := _optional_text(value)) is not None
+    )
+
+
 def api_delta_typed_operation_invocation_evidence(
     *,
     operation: Mapping[str, object],
@@ -625,6 +846,38 @@ def api_delta_typed_operation_invocation_evidence(
         "api_operation": _mapping_payload(operation.get("api_operation")),
         "source_entry_key": _optional_text(operation.get("source_entry_key")),
         "source_delta_key": _optional_text(operation.get("source_delta_key")),
+    }
+
+
+def api_delta_typed_operation_resolved_existing_step(
+    *,
+    operation: Mapping[str, object],
+    ordinal: int,
+    object_id: str | None,
+    reason: str,
+) -> dict[str, object]:
+    return {
+        "status": "resolved_existing",
+        "ordinal": ordinal,
+        "reason": reason,
+        "resolution_status": api_delta_typed_operation_resolution_status(
+            operation=operation,
+        ),
+        "operation_key": _optional_text(operation.get("operation_key")),
+        "operation_family": _optional_text(operation.get("operation_family")),
+        "provider_operation_type": _optional_text(
+            operation.get("provider_operation_type")
+        ),
+        "semantic_key": _optional_text(operation.get("semantic_key")),
+        "result_object_id": object_id,
+        "evidence": {
+            "operation": dict(operation),
+            "resolution": {
+                "status": "resolved_existing",
+                "object_id": object_id,
+                "reason": reason,
+            },
+        },
     }
 
 
@@ -685,6 +938,8 @@ def api_delta_typed_operation_execution_status(
         return "blocked"
     if status_counts.get("invoked", 0) > 0:
         return "executed"
+    if status_counts.get("resolved_existing", 0) > 0:
+        return "executed"
     return "no_operations"
 
 
@@ -722,6 +977,31 @@ def _resolve_typed_operation_receiver_object_id(
     )
 
 
+def _resolvable_existing_semantic_object_id(
+    *,
+    operation: Mapping[str, object],
+    subject_kinds: frozenset[str],
+    current_semantic_object_ids: Mapping[str, str],
+    planned_object_ids: Mapping[str, str],
+) -> str | None:
+    operation_family = _optional_text(operation.get("operation_family"))
+    if operation_family not in {"update", "upsert"}:
+        return None
+    subject_kind = _optional_text(operation.get("ontology_subject_kind"))
+    if subject_kind not in subject_kinds:
+        return None
+    semantic_key = _optional_text(operation.get("semantic_key"))
+    baseline = _mapping_payload(operation.get("baseline"))
+    baseline_object_id = _optional_text(baseline.get("object_id"))
+    if semantic_key is not None:
+        return (
+            planned_object_ids.get(semantic_key)
+            or current_semantic_object_ids.get(semantic_key)
+            or baseline_object_id
+        )
+    return baseline_object_id
+
+
 def _string_map(values: Mapping[str, object]) -> dict[str, str]:
     return {
         key: item
@@ -742,7 +1022,10 @@ def api_delta_typed_operation_execution_block(
     status = _optional_text(
         provider_delta_typed_operation_execution_preflight.get("status")
     )
-    if status != "typed_operation_execution_blocked":
+    if status in {
+        "typed_operation_execution_ready",
+        "typed_operation_execution_empty",
+    }:
         return None
     reason = (
         _optional_text(provider_delta_typed_operation_execution_preflight.get("reason"))

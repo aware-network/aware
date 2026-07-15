@@ -1,4 +1,0 @@
-type Tag {
-    // Attributes
-    name String unique
-}

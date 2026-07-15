@@ -1,0 +1,4 @@
+node aware_network_interface_host {
+    service aware_interface
+    interface aware_control
+}

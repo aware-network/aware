@@ -102,6 +102,80 @@ Map<String, dynamic> _$ContentTextResolutionV1ToJson(
   'provenance': instance.provenance,
 };
 
+_ContentTextCommitPartV1 _$ContentTextCommitPartV1FromJson(
+  Map<String, dynamic> json,
+) => _ContentTextCommitPartV1(
+  position: (json['position'] as num).toInt(),
+  partKey: json['part_key'] as String?,
+  mediaType: json['media_type'] as String,
+  text: json['text'] as String,
+  digestAlgorithm: json['digest_algorithm'] as String,
+  digest: json['digest'] as String?,
+  sizeBytes: (json['size_bytes'] as num?)?.toInt(),
+  provenance: json['provenance'] as Map<String, dynamic>,
+);
+
+Map<String, dynamic> _$ContentTextCommitPartV1ToJson(
+  _ContentTextCommitPartV1 instance,
+) => <String, dynamic>{
+  'position': instance.position,
+  'part_key': instance.partKey,
+  'media_type': instance.mediaType,
+  'text': instance.text,
+  'digest_algorithm': instance.digestAlgorithm,
+  'digest': instance.digest,
+  'size_bytes': instance.sizeBytes,
+  'provenance': instance.provenance,
+};
+
+_ContentTextCommitResultV1 _$ContentTextCommitResultV1FromJson(
+  Map<String, dynamic> json,
+) => _ContentTextCommitResultV1(
+  contentId: const UuidValueConverter().fromJson(json['content_id'] as String),
+  contentKey: json['content_key'] as String,
+  title: json['title'] as String?,
+  sourceKind: json['source_kind'] as String,
+  sourceRef: json['source_ref'] as String,
+  mediaType: json['media_type'] as String,
+  digestAlgorithm: json['digest_algorithm'] as String,
+  digest: json['digest'] as String,
+  sizeBytes: (json['size_bytes'] as num).toInt(),
+  domainCommitId: _$JsonConverterFromJson<String, UuidValue>(
+    json['domain_commit_id'],
+    const UuidValueConverter().fromJson,
+  ),
+  objectInstanceGraphCommitId: _$JsonConverterFromJson<String, UuidValue>(
+    json['object_instance_graph_commit_id'],
+    const UuidValueConverter().fromJson,
+  ),
+  serviceHostReceiptRef: json['service_host_receipt_ref'] as String?,
+  provenance: json['provenance'] as Map<String, dynamic>,
+);
+
+Map<String, dynamic> _$ContentTextCommitResultV1ToJson(
+  _ContentTextCommitResultV1 instance,
+) => <String, dynamic>{
+  'content_id': const UuidValueConverter().toJson(instance.contentId),
+  'content_key': instance.contentKey,
+  'title': instance.title,
+  'source_kind': instance.sourceKind,
+  'source_ref': instance.sourceRef,
+  'media_type': instance.mediaType,
+  'digest_algorithm': instance.digestAlgorithm,
+  'digest': instance.digest,
+  'size_bytes': instance.sizeBytes,
+  'domain_commit_id': _$JsonConverterToJson<String, UuidValue>(
+    instance.domainCommitId,
+    const UuidValueConverter().toJson,
+  ),
+  'object_instance_graph_commit_id': _$JsonConverterToJson<String, UuidValue>(
+    instance.objectInstanceGraphCommitId,
+    const UuidValueConverter().toJson,
+  ),
+  'service_host_receipt_ref': instance.serviceHostReceiptRef,
+  'provenance': instance.provenance,
+};
+
 _ContentPackageExportPartV1 _$ContentPackageExportPartV1FromJson(
   Map<String, dynamic> json,
 ) => _ContentPackageExportPartV1(
@@ -547,6 +621,70 @@ Map<String, dynamic> _$ResolveContentTextRequestToJson(
   'operation': instance.$type,
 };
 
+CommitContentTextRequest _$CommitContentTextRequestFromJson(
+  Map<String, dynamic> json,
+) => CommitContentTextRequest(
+  requestId: _$JsonConverterFromJson<String, UuidValue>(
+    json['request_id'],
+    const UuidValueConverter().fromJson,
+  ),
+  actorId: _$JsonConverterFromJson<String, UuidValue>(
+    json['actor_id'],
+    const UuidValueConverter().fromJson,
+  ),
+  branchId: _$JsonConverterFromJson<String, UuidValue>(
+    json['branch_id'],
+    const UuidValueConverter().fromJson,
+  ),
+  contentKey: json['content_key'] as String,
+  title: json['title'] as String?,
+  sourceKind: json['source_kind'] as String,
+  sourceRef: json['source_ref'] as String,
+  mediaType: json['media_type'] as String,
+  text: json['text'] as String?,
+  parts:
+      (json['parts'] as List<dynamic>?)
+          ?.map(
+            (e) => ContentTextCommitPartV1.fromJson(e as Map<String, dynamic>),
+          )
+          .toList() ??
+      const [],
+  digestAlgorithm: json['digest_algorithm'] as String,
+  digest: json['digest'] as String?,
+  sizeBytes: (json['size_bytes'] as num?)?.toInt(),
+  provenance: json['provenance'] as Map<String, dynamic>,
+  $type: json['operation'] as String?,
+);
+
+Map<String, dynamic> _$CommitContentTextRequestToJson(
+  CommitContentTextRequest instance,
+) => <String, dynamic>{
+  'request_id': _$JsonConverterToJson<String, UuidValue>(
+    instance.requestId,
+    const UuidValueConverter().toJson,
+  ),
+  'actor_id': _$JsonConverterToJson<String, UuidValue>(
+    instance.actorId,
+    const UuidValueConverter().toJson,
+  ),
+  'branch_id': _$JsonConverterToJson<String, UuidValue>(
+    instance.branchId,
+    const UuidValueConverter().toJson,
+  ),
+  'content_key': instance.contentKey,
+  'title': instance.title,
+  'source_kind': instance.sourceKind,
+  'source_ref': instance.sourceRef,
+  'media_type': instance.mediaType,
+  'text': instance.text,
+  'parts': instance.parts.map((e) => e.toJson()).toList(),
+  'digest_algorithm': instance.digestAlgorithm,
+  'digest': instance.digest,
+  'size_bytes': instance.sizeBytes,
+  'provenance': instance.provenance,
+  'operation': instance.$type,
+};
+
 MaterializeContentPackageRequest _$MaterializeContentPackageRequestFromJson(
   Map<String, dynamic> json,
 ) => MaterializeContentPackageRequest(
@@ -620,6 +758,42 @@ Map<String, dynamic> _$ResolveContentTextResponseToJson(
   'error': instance.error,
   'receipt': instance.receipt?.toJson(),
   'resolution': instance.resolution?.toJson(),
+  'operation': instance.$type,
+};
+
+CommitContentTextResponse _$CommitContentTextResponseFromJson(
+  Map<String, dynamic> json,
+) => CommitContentTextResponse(
+  requestId: _$JsonConverterFromJson<String, UuidValue>(
+    json['request_id'],
+    const UuidValueConverter().fromJson,
+  ),
+  success: json['success'] as bool,
+  error: json['error'] as String?,
+  receipt: json['receipt'] == null
+      ? null
+      : ContentOperationReceipt.fromJson(
+          json['receipt'] as Map<String, dynamic>,
+        ),
+  commitResult: json['commit_result'] == null
+      ? null
+      : ContentTextCommitResultV1.fromJson(
+          json['commit_result'] as Map<String, dynamic>,
+        ),
+  $type: json['operation'] as String?,
+);
+
+Map<String, dynamic> _$CommitContentTextResponseToJson(
+  CommitContentTextResponse instance,
+) => <String, dynamic>{
+  'request_id': _$JsonConverterToJson<String, UuidValue>(
+    instance.requestId,
+    const UuidValueConverter().toJson,
+  ),
+  'success': instance.success,
+  'error': instance.error,
+  'receipt': instance.receipt?.toJson(),
+  'commit_result': instance.commitResult?.toJson(),
   'operation': instance.$type,
 };
 

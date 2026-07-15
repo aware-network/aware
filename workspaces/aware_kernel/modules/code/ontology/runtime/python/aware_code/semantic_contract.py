@@ -19,6 +19,11 @@ from aware_code.semantic_materialization import (
     SEMANTIC_PROVIDER_DELTA_REQUEST_CONTRACT_VERSION,
     SEMANTIC_PROVIDER_DELTA_RESULT_CONTRACT_VERSION,
 )
+from aware_code.semantic_currentness import (
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_ENTRYPOINT,
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_METADATA_KEY,
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_CONTRACT_VERSION,
+)
 from aware_code.semantic_package.schemas import CapabilityParticipationDescriptor
 
 
@@ -50,9 +55,7 @@ CODE_PROVIDER_DELTA_PRODUCT_READINESS: dict[str, object] = {
     "ready_operation_count": 1,
     "render_all_required_operation_count": 0,
     "blocked_operation_count": 0,
-    "workspace_delta_first_default_policy": (
-        "public_lifecycle_ready_operations_only"
-    ),
+    "workspace_delta_first_default_policy": ("public_lifecycle_ready_operations_only"),
     "workspace_delta_first_ready_operation_count": 1,
     "workspace_delta_first_mode_counts": {"public_graph_only_ready": 1},
     "workspace_delta_first_ready_operations": (CODE_PROVIDER_DELTA_OPERATION,),
@@ -74,6 +77,15 @@ CODE_MATERIALIZATION_CAPABILITY_METADATA: dict[str, object] = {
     SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_METADATA_KEY: (
         CODE_MATERIALIZATION_DELTA_ADAPTER_METADATA
     ),
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_METADATA_KEY: {
+        "callable_module": "aware_code.materialization.workspace_provider",
+        "callable_name": (
+            SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_ENTRYPOINT
+        ),
+        "contract_version": (
+            SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_CONTRACT_VERSION
+        ),
+    },
 }
 
 CODE_CAPABILITY_PARTICIPATION = (

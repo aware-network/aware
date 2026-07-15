@@ -1,0 +1,307 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "36110b62-5e32-59de-b7fa-b06bfa0eff77",
+      "module": "aware_node_service_dto.node.host",
+      "name": "BootEnvironmentDescriptor",
+      "aware_class_ref": "aware_node_service_dto.comms.models.BootEnvironmentDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "5318ba8a-8918-5938-9ad1-b14bd4f8cdf2",
+      "module": "aware_node_service_dto.node.host",
+      "name": "DescribeHostedRuntimesRequest",
+      "aware_class_ref": "aware_node_service_dto.comms.models.DescribeHostedRuntimesRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "e3dfdeb1-9cdf-5b1b-9588-2897c42dc138",
+      "module": "aware_node_service_dto.node.host",
+      "name": "DescribeHostedRuntimesResponse",
+      "aware_class_ref": "aware_node_service_dto.comms.models.DescribeHostedRuntimesResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7594952f-77f0-56cf-802e-b69184682ac5",
+      "module": "aware_node_service_dto.node.host",
+      "name": "DescribeHostedServiceRuntimesRequest",
+      "aware_class_ref": "aware_node_service_dto.comms.models.DescribeHostedServiceRuntimesRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "713ef02d-83e6-5cbc-b202-f042e7e1c8b5",
+      "module": "aware_node_service_dto.node.host",
+      "name": "DescribeHostedServiceRuntimesResponse",
+      "aware_class_ref": "aware_node_service_dto.comms.models.DescribeHostedServiceRuntimesResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "af0d11ba-250a-5e8e-827e-3173ee3f64a6",
+      "module": "aware_node_service_dto.node.host",
+      "name": "DiscoverApiRoutesRequest",
+      "aware_class_ref": "aware_node_service_dto.comms.models.DiscoverApiRoutesRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "94780755-77c5-5799-a703-0af1d0a605ec",
+      "module": "aware_node_service_dto.node.host",
+      "name": "DiscoverApiRoutesResponse",
+      "aware_class_ref": "aware_node_service_dto.comms.models.DiscoverApiRoutesResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "2bae9c9b-144c-59aa-8522-eedb3d837880",
+      "module": "aware_node_service_dto.node.host",
+      "name": "DiscoverEnvironmentConfigsRequest",
+      "aware_class_ref": "aware_node_service_dto.comms.models.DiscoverEnvironmentConfigsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "71389e43-5516-5b1b-9abd-2e089decf88d",
+      "module": "aware_node_service_dto.node.host",
+      "name": "DiscoverEnvironmentConfigsResponse",
+      "aware_class_ref": "aware_node_service_dto.comms.models.DiscoverEnvironmentConfigsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "f5f429d4-5e1a-527b-989d-eb71438cf06b",
+      "module": "aware_node_service_dto.node.host",
+      "name": "EnvironmentConfigDescriptor",
+      "aware_class_ref": "aware_node_service_dto.comms.models.EnvironmentConfigDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "ef788333-05a2-51c4-aa7f-5aa4472ae09f",
+      "module": "aware_node_service_dto.node.host",
+      "name": "GetBootEnvironmentDescriptorRequest",
+      "aware_class_ref": "aware_node_service_dto.comms.models.GetBootEnvironmentDescriptorRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c863e6f8-c68b-5032-86e1-68bd6802de86",
+      "module": "aware_node_service_dto.node.host",
+      "name": "GetBootEnvironmentDescriptorResponse",
+      "aware_class_ref": "aware_node_service_dto.comms.models.GetBootEnvironmentDescriptorResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7ea5cabb-0605-54c9-a827-8dd15fc4f1f7",
+      "module": "aware_node_service_dto.node.host",
+      "name": "GetEnvironmentStatusRequest",
+      "aware_class_ref": "aware_node_service_dto.comms.models.GetEnvironmentStatusRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "82b78917-bfab-502b-9843-22607b1f11a6",
+      "module": "aware_node_service_dto.node.host",
+      "name": "GetEnvironmentStatusResponse",
+      "aware_class_ref": "aware_node_service_dto.comms.models.GetEnvironmentStatusResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "bf598c28-dc2c-53fe-93f3-beb018fd40bf",
+      "module": "aware_node_service_dto.node.host",
+      "name": "HostedRuntimeLifecycleStatus",
+      "aware_class_ref": "aware_node_service_dto.comms.models.HostedRuntimeLifecycleStatus",
+      "functions": []
+    },
+    {
+      "class_config_id": "ebea15e8-0595-51cd-b29c-eee9a3938faa",
+      "module": "aware_node_service_dto.node.host",
+      "name": "HostedRuntimeRecoveryCapability",
+      "aware_class_ref": "aware_node_service_dto.comms.models.HostedRuntimeRecoveryCapability",
+      "functions": []
+    },
+    {
+      "class_config_id": "03143c26-c050-54c7-8185-f1e46fe0b7dc",
+      "module": "aware_node_service_dto.node.host",
+      "name": "HostedServiceRuntimeServiceStatus",
+      "aware_class_ref": "aware_node_service_dto.comms.models.HostedServiceRuntimeServiceStatus",
+      "functions": []
+    },
+    {
+      "class_config_id": "f60b77d4-a777-501f-91c0-4feab73a4f93",
+      "module": "aware_node_service_dto.node.host",
+      "name": "HostedServiceRuntimeStatus",
+      "aware_class_ref": "aware_node_service_dto.comms.models.HostedServiceRuntimeStatus",
+      "functions": []
+    },
+    {
+      "class_config_id": "10c767b8-d2be-55e7-978e-3c755228b2fa",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeEnvironmentProvisioningReceipt",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeEnvironmentProvisioningReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "3a55606e-d8a8-5216-84e2-24c66742a491",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeHostOperation",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeHostOperation",
+      "functions": []
+    },
+    {
+      "class_config_id": "62baaa69-55c4-5dcf-b9a2-e1b6c3c89f53",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeHostOperationContext",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeHostOperationContext",
+      "functions": []
+    },
+    {
+      "class_config_id": "44694742-db19-54fa-aae9-8e4946f7ef44",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeHostOperationRequest",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeHostOperationRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "7360fb58-f692-5517-a64e-163e0f754eb4",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeHostOperationResponse",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeHostOperationResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "1a073df5-d774-5d26-b072-3fbcc52a5f4d",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeRunManifest",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeRunManifest",
+      "functions": []
+    },
+    {
+      "class_config_id": "4410e960-0ad8-53e3-aa20-fcaf5eed11b4",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeRunManifestAuthInputs",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeRunManifestAuthInputs",
+      "functions": []
+    },
+    {
+      "class_config_id": "d4d8ee01-17cf-5de8-b9f7-9c1507ea609e",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeRunManifestHostedInterfaceSpec",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeRunManifestHostedInterfaceSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "84d7f49d-1962-59cc-93e9-72c20974b985",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeRunManifestHostedServiceSpec",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeRunManifestHostedServiceSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "dbd26c8b-99df-5f64-b7b8-123793873df3",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeRunManifestProvenance",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeRunManifestProvenance",
+      "functions": []
+    },
+    {
+      "class_config_id": "c0158c5e-fd19-5093-aecf-d53ca8227968",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeRunManifestReadinessPolicy",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeRunManifestReadinessPolicy",
+      "functions": []
+    },
+    {
+      "class_config_id": "e979a9f8-2ca3-58a0-90b2-8377c245ec7a",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeRunManifestRouteInputs",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeRunManifestRouteInputs",
+      "functions": []
+    },
+    {
+      "class_config_id": "2bc6f991-6a52-5d2d-9f3f-dcd49d35a496",
+      "module": "aware_node_service_dto.node.host",
+      "name": "NodeServiceApiDependencyRouteDescriptor",
+      "aware_class_ref": "aware_node_service_dto.comms.models.NodeServiceApiDependencyRouteDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "81a5e7d1-e18d-552c-b0d5-84432e3bd88b",
+      "module": "aware_node_service_dto.node.host",
+      "name": "ProvisionEnvironmentRequest",
+      "aware_class_ref": "aware_node_service_dto.comms.models.ProvisionEnvironmentRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9673b91e-c079-5a0e-9d3a-2a3e240f64da",
+      "module": "aware_node_service_dto.node.host",
+      "name": "ProvisionEnvironmentResponse",
+      "aware_class_ref": "aware_node_service_dto.comms.models.ProvisionEnvironmentResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "14e5aa26-95e5-5a45-987c-83d1ff826a79",
+      "module": "aware_node_service_dto.node.host",
+      "name": "RestartHostedRuntimeRequest",
+      "aware_class_ref": "aware_node_service_dto.comms.models.RestartHostedRuntimeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "4d714861-006e-5d92-a7e5-ac88264b87f6",
+      "module": "aware_node_service_dto.node.host",
+      "name": "RestartHostedRuntimeResponse",
+      "aware_class_ref": "aware_node_service_dto.comms.models.RestartHostedRuntimeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "04dfff9e-e8f9-5c23-a726-01f647cb9906",
+      "module": "aware_node_service_dto.node.runtime_artifact_descriptor",
+      "name": "BundleCompatibilityPayload",
+      "aware_class_ref": "aware_node_service_dto.comms.models.BundleCompatibilityPayload",
+      "functions": []
+    },
+    {
+      "class_config_id": "566cd34a-cf53-5bc4-a022-953d879f2d6e",
+      "module": "aware_node_service_dto.node.runtime_artifact_descriptor",
+      "name": "BundleCompatibilitySignature",
+      "aware_class_ref": "aware_node_service_dto.comms.models.BundleCompatibilitySignature",
+      "functions": []
+    },
+    {
+      "class_config_id": "e92783cd-6b59-5a3e-ab31-36ab0f3642b7",
+      "module": "aware_node_service_dto.node.runtime_artifact_descriptor",
+      "name": "BundleModuleEvolutionRecord",
+      "aware_class_ref": "aware_node_service_dto.comms.models.BundleModuleEvolutionRecord",
+      "functions": []
+    },
+    {
+      "class_config_id": "05c81b0b-b13c-546c-97e7-2f9af52695dd",
+      "module": "aware_node_service_dto.node.runtime_artifact_descriptor",
+      "name": "BundleModuleServiceProviderVectorEntry",
+      "aware_class_ref": "aware_node_service_dto.comms.models.BundleModuleServiceProviderVectorEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "1abbb685-fef9-5926-8811-ccff8761885e",
+      "module": "aware_node_service_dto.node.runtime_artifact_descriptor",
+      "name": "BundlePublicStructureContractVectorEntry",
+      "aware_class_ref": "aware_node_service_dto.comms.models.BundlePublicStructureContractVectorEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "a1e6dc49-6d5a-5925-b708-6183b79b6089",
+      "module": "aware_node_service_dto.node.runtime_artifact_descriptor",
+      "name": "BundleReleaseIdentity",
+      "aware_class_ref": "aware_node_service_dto.comms.models.BundleReleaseIdentity",
+      "functions": []
+    },
+    {
+      "class_config_id": "8b5dc33b-f8ed-5d5b-83d3-7241a71b632e",
+      "module": "aware_node_service_dto.node.runtime_artifact_descriptor",
+      "name": "EnvironmentBundleDescriptor",
+      "aware_class_ref": "aware_node_service_dto.comms.models.EnvironmentBundleDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "4c4fe36a-ac10-5fd3-8caf-6d330d4038b6",
+      "module": "aware_node_service_dto.node.runtime_artifact_descriptor",
+      "name": "EnvironmentBundleHints",
+      "aware_class_ref": "aware_node_service_dto.comms.models.EnvironmentBundleHints",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

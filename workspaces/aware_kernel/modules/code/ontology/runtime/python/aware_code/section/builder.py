@@ -19,9 +19,6 @@ from aware_code.node.node import CodeNode, T_Node
 from aware_code.node.adapter import CodeNodeAdapter
 from aware_code.types.json import Json
 
-# Aware Core
-from aware_utils.logging import logger
-
 
 def build_section_from_bytes(
     code_section_type: CodeSectionType,
@@ -74,8 +71,10 @@ def build_section_from_bytes(
     existing = section_index.get_by_hash(code_section_type, identity_hash)
     if existing:
         code_section = existing
-        logger.warning(
-            f"Reusing existing {code_section_type.name} section for {qualname} (identity_hash={identity_hash[:8]}...)",
+        section_index.record_reuse(
+            code_section_type=code_section_type,
+            qualname=qualname,
+            identity_hash=identity_hash,
         )
     else:
         code_section = CodeSection(
@@ -130,7 +129,9 @@ def build_section_from_code(
     metadata: Json | None = None,
 ) -> CodeSection:
     # Get the qualname, body bytes and reference string
-    qualname, body_bytes, reference = get_code_identity_info(adapter, source, node, parent)
+    qualname, body_bytes, reference = get_code_identity_info(
+        adapter, source, node, parent
+    )
 
     return build_section_from_code_by_identity(
         code_section_type=code_section_type,
@@ -194,7 +195,9 @@ def build_section_from_code_by_identity(
     return code_section
 
 
-def make_identity_hash(code_section_type: CodeSectionType, code_id: UUID, qualname: str, body_bytes: bytes) -> str:
+def make_identity_hash(
+    code_section_type: CodeSectionType, code_id: UUID, qualname: str, body_bytes: bytes
+) -> str:
     """
     Generate a deterministic hash for a code section.
 
@@ -224,7 +227,10 @@ def make_identity_hash(code_section_type: CodeSectionType, code_id: UUID, qualna
 
 
 def get_code_identity_info(
-    adapter: CodeNodeAdapter[T_Node], source: bytes, node: CodeNode[T_Node], parent: str | None = None
+    adapter: CodeNodeAdapter[T_Node],
+    source: bytes,
+    node: CodeNode[T_Node],
+    parent: str | None = None,
 ) -> tuple[str, bytes, str | None]:
     # Get the qualname
     qualname = adapter.qualname(node, parent)

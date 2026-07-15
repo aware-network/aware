@@ -1,0 +1,47 @@
+/// Service package to required OntologyPackage bridge.
+///
+/// This records ontology packages a ServicePackage must consume through a
+/// Service-owned replica. The bridge is package truth so WorkspaceRevision and
+/// Hub consumers can reproduce required ontology replica inputs without reading
+/// local authoring manifests.
+class ServicePackageOntologyPackage {
+    // Relationships
+    ontology_package aware_ontology.ontology.OntologyPackage key
+    ontology_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    role String = "replica"
+    requirement_mode String = "required"
+    package_name String
+    fqn_prefix String
+    expected_hash_sha256 String?
+    description String?
+
+    fn build construct (
+        ontology_package_id UUID key,
+        package_name String,
+        fqn_prefix String,
+        role String = "replica",
+        requirement_mode String = "required",
+        ontology_package_object_instance_graph_commit_id UUID? = null,
+        expected_hash_sha256 String? = null,
+        description String? = null
+    ) -> ServicePackageOntologyPackage {
+        """
+        Attach one ontology package required by this ServicePackage replica rail.
+
+        Contract:
+        - Parent `ServicePackage` scope is injected by propagation.
+        - Identity is keyed by the required `OntologyPackage`.
+        - `role = "replica"` means the Service consumes ontology truth through a
+          local read-only projection advanced from Environment fanout.
+        - `requirement_mode = "required"` means ServiceHost readiness must fail
+          before handler dispatch when the replica requirement is unavailable.
+        - The optional OIG commit pin lets WorkspaceRevision/Hub consumers replay
+          exact ontology package truth without reopening local source manifests.
+        """
+    }
+}
+
+ann service.ServicePackageOntologyPackage::ontology_package load eager
+ann service.ServicePackageOntologyPackage::ontology_package_object_instance_graph_commit load eager

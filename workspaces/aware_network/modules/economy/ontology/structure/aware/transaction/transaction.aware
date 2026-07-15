@@ -1,0 +1,41 @@
+class Transaction {
+    // Relationships
+    coin coin.Coin key
+    source_wallet_public wallet.WalletPublic?
+    target_wallet_public wallet.WalletPublic key
+
+    // Attributes
+    capital_origin_id UUID key
+    coin_amount Decimal
+    confirmed_at DateTime?
+    description String?
+    gas_price Decimal
+    idempotency_key String?
+    kind TransactionKind = transfer
+    nonce Int key
+    receiver_signature String?
+    sender_signature String?
+    source_previous_coin_balance Decimal?
+    status TransactionStatus = created
+    target_previous_coin_balance Decimal?
+    transaction_hash String
+
+    fn create construct (source_wallet_public_id UUID, capital_origin_id UUID key, target_wallet_public_id UUID key, coin_id UUID key, coin_amount Decimal, nonce Int key, description String? = null, idempotency_key String? = null) -> Transaction {
+        """
+        Creates a new transaction record.
+
+        Receipt: Transaction(status=created) with hash/signature/nonce set by handler.
+        Transaction is a root Economy transfer receipt; higher-level lanes may
+        reference it but do not own its identity.
+        """
+    }
+
+    fn create_external_ingress construct (capital_origin_id UUID key, target_wallet_public_id UUID key, coin_id UUID key, coin_amount Decimal, nonce Int key, description String? = null, idempotency_key String? = null) -> Transaction {
+        """
+        Creates an external-capital ingress receipt with no source WalletPublic.
+
+        Receipt: Transaction(kind=external_ingress, status=created) with target,
+        amount, and deterministic provider-evidence nonce.
+        """
+    }
+}

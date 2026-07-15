@@ -1,0 +1,4 @@
+enum PriceType {
+    dynamic
+    fixed
+}

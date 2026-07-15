@@ -1,0 +1,172 @@
+api economy {
+    view wallet_capital on Wallet.home state aware_economy_service_dto.economy.EconomyWalletCapitalViewStateV1 {
+        """
+        Wallet-rooted capital surface over balance, provider evidence, transactions,
+        reservations, escrows, and settlements.
+        """
+
+        stream snapshot
+        endpoint refresh_wallet_capital wallet_capital_view_state_resolve.resolve_wallet_capital_view_state
+        endpoint fund_wallet wallet_funding_prepare.prepare_wallet_funding
+    }
+
+    capability economy_actor_status {
+        endpoint economy_actor_status aware_economy_service_dto.economy.EconomyActorStatusRequest {
+            """
+            Read the actor's finance and product-readiness state.
+            """
+
+            response aware_economy_service_dto.economy.EconomyActorStatusResponse
+        }
+    }
+
+    capability ensure_finance_entity {
+        endpoint ensure_finance_entity aware_economy_service_dto.economy.EconomyEnsureFinanceEntityRequest {
+            """
+            Ensure the actor has a canonical FinanceEntity and wallet.
+            """
+
+            response aware_economy_service_dto.economy.EconomyEnsureFinanceEntityResponse
+        }
+    }
+
+    capability wallet_funding_prepare {
+        endpoint prepare_wallet_funding aware_economy_service_dto.economy.EconomyWalletFundingPrepareRequest {
+            """
+            Prepare an Aware-owned wallet funding intent before external provider confirmation.
+            """
+
+            response aware_economy_service_dto.economy.EconomyWalletFundingPrepareResponse
+        }
+    }
+
+    capability wallet_funding_context_resolve {
+        endpoint resolve_wallet_funding_context aware_economy_service_dto.economy.EconomyWalletFundingContextResolveRequest {
+            """
+            Resolve provider-neutral committed wallet-funding context by intent and commit identity.
+            """
+
+            response aware_economy_service_dto.economy.EconomyWalletFundingContextResolveResponse
+        }
+    }
+
+    capability wallet_funding_record {
+        endpoint record_verified_wallet_funding aware_economy_service_dto.economy.EconomyWalletFundingRecordRequest {
+            """
+            Record verified external funding evidence as Economy transaction and wallet balance truth.
+            """
+
+            response aware_economy_service_dto.economy.EconomyWalletFundingRecordResponse
+        }
+    }
+
+    capability wallet_funding_cancel {
+        endpoint record_wallet_funding_expiration aware_economy_service_dto.economy.EconomyWalletFundingCancelRequest {
+            """
+            Record verified terminal no-credit evidence and cancel the funding intent.
+            """
+
+            response aware_economy_service_dto.economy.EconomyWalletFundingCancelResponse
+        }
+    }
+
+    capability provider_lifecycle_record {
+        endpoint record_provider_lifecycle_event aware_economy_service_dto.economy.EconomyProviderLifecycleRecordRequest {
+            """
+            Record verified external provider lifecycle evidence as Aware wallet receipt truth.
+            """
+
+            response aware_economy_service_dto.economy.EconomyProviderLifecycleRecordResponse
+        }
+    }
+
+    capability wallet_balance_describe {
+        endpoint describe_wallet_balance aware_economy_service_dto.economy.EconomyWalletBalanceDescribeRequest {
+            """
+            Read the current Economy wallet balance for a wallet and coin.
+            """
+
+            response aware_economy_service_dto.economy.EconomyWalletBalanceDescribeResponse
+        }
+    }
+
+    capability wallet_capital_frame_resolve {
+        endpoint resolve_wallet_capital_frame aware_economy_service_dto.economy.EconomyWalletCapitalFrameResolveRequest {
+            """
+            Resolve an operator-safe wallet capital read frame from Economy replica truth.
+            """
+
+            response aware_economy_service_dto.economy.EconomyWalletCapitalFrameResolveResponse
+        }
+    }
+
+    capability wallet_capital_view_state_resolve {
+        endpoint resolve_wallet_capital_view_state aware_economy_service_dto.economy.EconomyWalletCapitalViewStateResolveRequest {
+            """
+            Resolve the wallet-capital API view state from Economy replica truth.
+            """
+
+            response aware_economy_service_dto.economy.EconomyWalletCapitalViewStateV1
+        }
+    }
+
+    capability price_reservation_reserve {
+        endpoint price_reservation_reserve aware_economy_service_dto.economy.EconomyPriceReservationReserveRequest {
+            """
+            Reserve one canonical Economy price receipt. Dynamic prices require a provider-neutral upper-bound cost basis and evidence reference.
+            """
+
+            response aware_economy_service_dto.economy.EconomyPriceReservationReserveResponse
+        }
+    }
+
+    capability price_reservation_finalize {
+        endpoint price_reservation_finalize aware_economy_service_dto.economy.EconomyPriceReservationFinalizeRequest {
+            """
+            Finalize one canonical Economy price reservation. Economy derives settled value from the committed schedule and actual provider-neutral metering evidence.
+            """
+
+            response aware_economy_service_dto.economy.EconomyPriceReservationFinalizeResponse
+        }
+    }
+
+    capability service_operation_permit_ensure {
+        endpoint ensure_service_operation_permit aware_economy_service_dto.economy.EconomyServiceOperationPermitEnsureRequest {
+            """
+            Ensure or refresh the admitted actor's Economy permit for one priced Service operation contract.
+            """
+
+            response aware_economy_service_dto.economy.EconomyServiceOperationPermitEnsureResponse
+        }
+    }
+
+    capability smart_contract_reservation_prepare {
+        endpoint prepare_smart_contract_reservation aware_economy_service_dto.economy.EconomySmartContractReservationPrepareRequest {
+            """
+            Reserve service capital from a committed Aware Wallet through a smart-contract escrow receipt.
+            """
+
+            response aware_economy_service_dto.economy.EconomySmartContractReservationPrepareResponse
+        }
+    }
+
+    capability smart_contract_reservation_release {
+        endpoint release_smart_contract_reservation aware_economy_service_dto.economy.EconomySmartContractReservationReleaseRequest {
+            """
+            Cancel or expire a pending smart-contract reservation and release its held wallet capital.
+            """
+
+            response aware_economy_service_dto.economy.EconomySmartContractReservationReleaseResponse
+        }
+    }
+
+    capability smart_contract_settlement_finalize {
+        endpoint finalize_smart_contract_settlement aware_economy_service_dto.economy.EconomySmartContractSettlementFinalizeRequest {
+            """
+            Finalize a smart-contract settlement and reconcile payer/receiver Aware Wallet balances.
+            """
+
+            response aware_economy_service_dto.economy.EconomySmartContractSettlementFinalizeResponse
+        }
+    }
+}

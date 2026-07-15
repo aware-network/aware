@@ -122,6 +122,12 @@
       "relative_path": "event/event_config_condition_config_scope_event.py"
     },
     {
+      "node_id": "0b1605ce-5252-5f06-a195-b667f619197c",
+      "node_type": "class",
+      "entity_id": "cd0824a9-2772-5caf-a09d-894d16b4e7a9",
+      "relative_path": "event/event_config_meaning_resolver_config.py"
+    },
+    {
       "node_id": "bd619527-6dad-50b8-b403-4b7c6e424431",
       "node_type": "class",
       "entity_id": "734865fb-b02f-55f7-b8f7-7580794a2e7f",

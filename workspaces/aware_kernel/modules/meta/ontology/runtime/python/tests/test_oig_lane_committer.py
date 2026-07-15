@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 import json
 from pathlib import Path
 from typing import cast
@@ -50,6 +50,21 @@ from aware_meta.graph.instance.commit.committer import (
     LaneCommitError,
     LaneHeadPreHashMismatchError,
 )
+from aware_meta.graph.instance.commit.contract import LaneCommitBatchRequest
+from aware_meta.graph.instance.commit.body_codec import (
+    OigCommitBodyDraft,
+    OigCommitBodyRootChangeDraft,
+    oig_commit_body_change_ref_draft_from_change,
+    oig_commit_body_class_instance_change_draft_from_change,
+    oig_commit_body_relationship_change_draft_from_change,
+)
+from aware_meta.graph.instance.commit.builder import (
+    extract_object_instance_graph_commit_root_metadata,
+)
+from aware_meta.graph.instance.commit.state_index import build_commit_state_index
+from aware_meta_ontology.graph.instance.object_instance_graph_change import (
+    ObjectInstanceGraphChange,
+)
 from aware_meta.graph.instance.commit.hash_contract import compute_oig_lane_hash_state
 from aware_meta.graph.instance.commit.materializer import OIGMaterializer
 from aware_meta.graph.instance.diff import diff_object_instance_graph_changes
@@ -86,6 +101,29 @@ def _read_json_object(path: Path) -> dict[str, object]:
 
 def _primitive_desc() -> AttributeTypeDescriptor:
     return AttributeTypeDescriptor(kind=Kind.primitive, child_links=[])
+
+
+def _body_draft_from_changes(
+    changes: Sequence[ObjectInstanceGraphChange],
+) -> OigCommitBodyDraft:
+    return OigCommitBodyDraft(
+        roots=tuple(
+            OigCommitBodyRootChangeDraft(
+                id=cast(UUID, change.id),
+                type=change.type,
+                change=oig_commit_body_change_ref_draft_from_change(change.change),
+                class_instance_changes=tuple(
+                    oig_commit_body_class_instance_change_draft_from_change(item)
+                    for item in change.class_instance_changes
+                ),
+                class_instance_relationship_changes=tuple(
+                    oig_commit_body_relationship_change_draft_from_change(item)
+                    for item in change.class_instance_relationship_changes
+                ),
+            )
+            for change in changes
+        )
+    )
 
 
 def test_lane_hash_state_normalization_uses_bounded_oig_clone(
@@ -390,6 +428,287 @@ async def test_lane_committer_appends_and_materializes(
         oig_id=graph_id,
     )
     assert out.hash == g2.hash
+
+
+@pytest.mark.asyncio
+async def test_lane_committer_commit_many_batches_linear_history(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    _set_aware_root(tmp_path=tmp_path, monkeypatch=monkeypatch)
+
+    name_cfg = make_attribute_config(
+        owner_key=_USER_FQN,
+        name="name",
+        is_required=True,
+        type_descriptor=_primitive_desc(),
+    )
+    ocg, opg, user_cc = _make_ocg_and_opg(name_cfg=name_cfg)
+
+    from aware_orm.models.base_model import BaseORMModel
+
+    class User(BaseORMModel):
+        name: str
+
+    author_id = uuid4()
+    branch_id = uuid4()
+    graph_id: UUID = uuid4()
+    user_id: UUID = uuid4()
+
+    g0 = make_rooted_object_instance_graph(
+        object_config_graph=ocg,
+        object_projection_graph=opg,
+        root_source_object_id=user_id,
+        root_class_config_id=user_cc.id,
+        oig_id=graph_id,
+        key="g",
+        name="g",
+        description="d",
+    )
+    ci1 = build_class_instance(
+        object_instance_graph_id=graph_id,
+        class_config=user_cc,
+        source=User(id=user_id, name="a"),
+    )
+    g1 = build_object_instance_graph_from_class_instances(
+        name="g",
+        description="d",
+        object_config_graph_id=ocg.id,
+        object_projection_graph_id=opg.id,
+        root_class_instance=ci1,
+        class_instances=[ci1],
+        class_instance_relationships=[],
+        oig_id=graph_id,
+    )
+    ci2 = build_class_instance(
+        object_instance_graph_id=graph_id,
+        class_config=user_cc,
+        source=User(id=user_id, name="b"),
+    )
+    g2 = build_object_instance_graph_from_class_instances(
+        name="g",
+        description="d",
+        object_config_graph_id=ocg.id,
+        object_projection_graph_id=opg.id,
+        root_class_instance=ci2,
+        class_instances=[ci2],
+        class_instance_relationships=[],
+        oig_id=graph_id,
+    )
+
+    changes1 = diff_object_instance_graph_changes(
+        old=g0,
+        new=g1,
+        object_instance_graph_identity_id=_TEST_OIGI_ID,
+    )
+    changes2 = diff_object_instance_graph_changes(
+        old=g1,
+        new=g2,
+        object_instance_graph_identity_id=_TEST_OIGI_ID,
+    )
+
+    committer = FSLaneCommitter()
+    c1_id = uuid4()
+    c2_id = uuid4()
+    commits = await committer.commit_many(
+        branch_id=branch_id,
+        projection_hash=opg.projection_hash,
+        requests=(
+            LaneCommitBatchRequest(
+                object_projection_graph_identity_id=None,
+                object_instance_graph_identity_id=_TEST_OIGI_ID,
+                object_instance_graph_id=graph_id,
+                before_oig=g0,
+                root_object_id=user_id,
+                changes=tuple(changes1),
+                graph_hash_pre=g0.hash,
+                graph_hash_post=g1.hash,
+                author_id=author_id,
+                commit_id=c1_id,
+                source_language=ocg.language,
+            ),
+            LaneCommitBatchRequest(
+                object_projection_graph_identity_id=None,
+                object_instance_graph_identity_id=_TEST_OIGI_ID,
+                object_instance_graph_id=graph_id,
+                before_oig=g1,
+                root_object_id=user_id,
+                changes=tuple(changes2),
+                graph_hash_pre=g1.hash,
+                graph_hash_post=g2.hash,
+                author_id=author_id,
+                commit_id=c2_id,
+                source_language=ocg.language,
+            ),
+        ),
+    )
+
+    assert tuple(commit.commit.id for commit in commits) == (c1_id, c2_id)
+    assert commits[0].commit.commit_parents == []
+    assert len(commits[1].commit.commit_parents) == 1
+    assert commits[1].commit.commit_parents[0].parent_commit_id == c1_id
+    perf = committer.last_commit_perf_profile_snapshot()
+    assert perf["batch_request_count"] == 2
+    assert perf["batch_commit_count"] == 2
+    assert perf["append_batch_append_record_count"] == 2
+    assert perf["append_durable_head_write_count"] == 1
+    assert perf["append_batch_final_head_write_count"] == 1
+    assert perf.get("append_head_read_ms", -1) >= 0
+    assert perf.get("append_write_head_ms", -1) >= 0
+
+    head = _read_json_object(
+        tmp_path / ".aware" / "oig" / str(branch_id) / opg.projection_hash / "HEAD.json"
+    )
+    assert head["commit_id"] == str(c2_id)
+
+    mat = OIGMaterializer()
+    out, _ = await mat.get(
+        branch_id=branch_id,
+        ocg=ocg,
+        opg=opg,
+        commit_id=c2_id,
+        oig_id=graph_id,
+    )
+    assert out.hash == g2.hash
+
+
+@pytest.mark.asyncio
+async def test_lane_committer_commit_record_many_batches_body_drafts(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    _set_aware_root(tmp_path=tmp_path, monkeypatch=monkeypatch)
+
+    name_cfg = make_attribute_config(
+        owner_key=_USER_FQN,
+        name="name",
+        is_required=True,
+        type_descriptor=_primitive_desc(),
+    )
+    ocg, opg, user_cc = _make_ocg_and_opg(name_cfg=name_cfg)
+
+    from aware_orm.models.base_model import BaseORMModel
+
+    class User(BaseORMModel):
+        name: str
+
+    author_id = uuid4()
+    branch_id = uuid4()
+    graph_id = uuid4()
+    user_id = uuid4()
+    g0 = make_rooted_object_instance_graph(
+        object_config_graph=ocg,
+        object_projection_graph=opg,
+        root_source_object_id=user_id,
+        root_class_config_id=user_cc.id,
+        oig_id=graph_id,
+        key="g",
+        name="g",
+        description="d",
+    )
+    ci1 = build_class_instance(
+        object_instance_graph_id=graph_id,
+        class_config=user_cc,
+        source=User(id=user_id, name="a"),
+    )
+    g1 = build_object_instance_graph_from_class_instances(
+        name="g",
+        description="d",
+        object_config_graph_id=ocg.id,
+        object_projection_graph_id=opg.id,
+        root_class_instance=ci1,
+        class_instances=[ci1],
+        class_instance_relationships=[],
+        oig_id=graph_id,
+    )
+    ci2 = build_class_instance(
+        object_instance_graph_id=graph_id,
+        class_config=user_cc,
+        source=User(id=user_id, name="b"),
+    )
+    g2 = build_object_instance_graph_from_class_instances(
+        name="g",
+        description="d",
+        object_config_graph_id=ocg.id,
+        object_projection_graph_id=opg.id,
+        root_class_instance=ci2,
+        class_instances=[ci2],
+        class_instance_relationships=[],
+        oig_id=graph_id,
+    )
+    changes1 = diff_object_instance_graph_changes(
+        old=g0,
+        new=g1,
+        object_instance_graph_identity_id=_TEST_OIGI_ID,
+    )
+    changes2 = diff_object_instance_graph_changes(
+        old=g1,
+        new=g2,
+        object_instance_graph_identity_id=_TEST_OIGI_ID,
+    )
+    c1_id = uuid4()
+    c2_id = uuid4()
+    committer = FSLaneCommitter()
+    records = await committer.commit_record_many(
+        branch_id=branch_id,
+        projection_hash=opg.projection_hash,
+        requests=(
+            LaneCommitBatchRequest(
+                object_projection_graph_identity_id=None,
+                object_instance_graph_identity_id=_TEST_OIGI_ID,
+                object_instance_graph_id=graph_id,
+                before_oig=g0,
+                root_object_id=user_id,
+                changes=(),
+                body_draft=_body_draft_from_changes(changes1),
+                graph_hash_pre=g0.hash,
+                graph_hash_post=g1.hash,
+                author_id=author_id,
+                commit_id=c1_id,
+                source_language=ocg.language,
+                root_metadata=extract_object_instance_graph_commit_root_metadata(
+                    graph=g0
+                ),
+                pre_state_index=build_commit_state_index(g0),
+            ),
+            LaneCommitBatchRequest(
+                object_projection_graph_identity_id=None,
+                object_instance_graph_identity_id=_TEST_OIGI_ID,
+                object_instance_graph_id=graph_id,
+                before_oig=g1,
+                root_object_id=user_id,
+                changes=(),
+                body_draft=_body_draft_from_changes(changes2),
+                graph_hash_pre=g1.hash,
+                graph_hash_post=g2.hash,
+                author_id=author_id,
+                commit_id=c2_id,
+                source_language=ocg.language,
+                root_metadata=extract_object_instance_graph_commit_root_metadata(
+                    graph=g1
+                ),
+                pre_state_index=build_commit_state_index(g1),
+            ),
+        ),
+    )
+
+    assert tuple(record.commit_id for record in records) == (c1_id, c2_id)
+    assert records[0].parent_commit_ids == ()
+    assert records[1].parent_commit_ids == (c1_id,)
+    perf = committer.last_commit_perf_profile_snapshot()
+    assert perf["record_native_batch_count"] == 1
+    assert perf["build_commit_record_from_body_draft_count"] == 2
+    assert perf["append_batch_append_record_count"] == 2
+    assert perf["append_batch_final_head_write_count"] == 1
+
+    materialized, _ = await OIGMaterializer().get(
+        branch_id=branch_id,
+        ocg=ocg,
+        opg=opg,
+        commit_id=c2_id,
+        oig_id=graph_id,
+    )
+    assert materialized.hash == g2.hash
 
 
 @pytest.mark.asyncio

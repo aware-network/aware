@@ -1,0 +1,24 @@
+aware_pane = 1
+
+[pane]
+package_name = "aware-node-session-status-pane"
+fqn_prefix = "aware_node_session_status_pane"
+pane_name = "node_session_status"
+description = "Node and session status pane package for the aware_control interface."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+
+[[dependencies]]
+package_name = "aware-control"
+kind = "experience_package"
+
+[dart]
+package_path = "dart/aware_node_session_status_pane"
+package_name = "aware_node_session_status_pane"
+
+[dart.flutter]
+library = "package:aware_node_session_status_pane/aware_node_session_status_pane.dart"
+symbol = "registerPanePackage"

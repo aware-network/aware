@@ -14,6 +14,7 @@ from aware_meta_ontology.graph.instance.object_instance_graph_change import (
 )
 
 from aware_meta.attribute.instance.value.builder import fingerprint_attribute_value
+from aware_meta.graph.instance.commit.body_codec import OigCommitBodyDraft
 
 
 CommitStateRowKind = Literal["NODE", "ATTR", "EDGE"]
@@ -317,46 +318,85 @@ def apply_commit_state_index_row_changes(
     semantic operation, state witness, or package-specific source row contract.
     """
 
-    rows = set(pre_state_index.rows)
+    change_trees = tuple(changes)
+    return _apply_commit_state_index_effects(
+        pre_state_index=pre_state_index,
+        class_effects=(
+            (class_change.class_instance_id, _change_type(class_change.change.type))
+            for change_tree in change_trees
+            for class_change in change_tree.class_instance_changes
+        ),
+        relationship_effects=(
+            (
+                relationship_change.class_config_relationship_id,
+                relationship_change.source_class_instance_id,
+                relationship_change.target_class_instance_id,
+                _change_type(relationship_change.change.type),
+            )
+            for change_tree in change_trees
+            for relationship_change in change_tree.class_instance_relationship_changes
+        ),
+        post_class_state_rows_by_id=post_class_state_rows_by_id,
+    )
 
+
+def apply_commit_state_index_body_draft(
+    *,
+    pre_state_index: CommitStateIndex,
+    body_draft: OigCommitBodyDraft,
+    post_class_state_rows_by_id: Mapping[UUID, Iterable[CommitStateRow]],
+) -> CommitStateIndex:
+    """Apply typed commit-body effects to compact state rows."""
+
+    if not body_draft.roots:
+        raise ValueError("Commit body draft state apply requires at least one root")
+    return _apply_commit_state_index_effects(
+        pre_state_index=pre_state_index,
+        class_effects=(
+            (class_change.class_instance_id, _change_type(class_change.change.type))
+            for root in body_draft.roots
+            for class_change in root.class_instance_changes
+        ),
+        relationship_effects=(
+            (
+                relationship_change.class_config_relationship_id,
+                relationship_change.source_class_instance_id,
+                relationship_change.target_class_instance_id,
+                _change_type(relationship_change.change.type),
+            )
+            for root in body_draft.roots
+            for relationship_change in root.class_instance_relationship_changes
+        ),
+        post_class_state_rows_by_id=post_class_state_rows_by_id,
+    )
+
+
+def _apply_commit_state_index_effects(
+    *,
+    pre_state_index: CommitStateIndex,
+    class_effects: Iterable[tuple[UUID, ChangeType]],
+    relationship_effects: Iterable[tuple[UUID, UUID, UUID, ChangeType]],
+    post_class_state_rows_by_id: Mapping[UUID, Iterable[CommitStateRow]],
+) -> CommitStateIndex:
     class_instance_ids_to_delete: set[str] = set()
     class_instance_ids_to_replace: set[UUID] = set()
 
-    change_trees = tuple(changes)
-    for change_tree in change_trees:
-        for class_change in change_tree.class_instance_changes:
-            operation = _change_type(class_change.change.type)
-            class_instance_id = class_change.class_instance_id
-            if operation == ChangeType.delete:
-                class_instance_ids_to_delete.add(str(class_instance_id))
-                continue
-            if operation in (ChangeType.create, ChangeType.update):
-                class_instance_ids_to_replace.add(class_instance_id)
-                continue
-            raise ValueError(
-                "Unsupported ClassInstance change type for state index row apply: "
-                f"{operation}"
-            )
+    class_effect_tuple = tuple(class_effects)
+    relationship_effect_tuple = tuple(relationship_effects)
+    for class_instance_id, operation in class_effect_tuple:
+        if operation == ChangeType.delete:
+            class_instance_ids_to_delete.add(str(class_instance_id))
+            continue
+        if operation in (ChangeType.create, ChangeType.update):
+            class_instance_ids_to_replace.add(class_instance_id)
+            continue
+        raise ValueError(
+            "Unsupported ClassInstance change type for state index row apply: "
+            f"{operation}"
+        )
 
-    for class_instance_id in class_instance_ids_to_delete:
-        rows = {
-            row
-            for row in rows
-            if not (
-                (row.kind == "NODE" and row.value == class_instance_id)
-                or (row.kind == "ATTR" and row.key == class_instance_id)
-                or (
-                    row.kind == "EDGE"
-                    and (
-                        row.value.startswith(f"{class_instance_id}->")
-                        or row.value.endswith(f"->{class_instance_id}")
-                    )
-                )
-            )
-        }
-
+    replacement_rows: set[CommitStateRow] = set()
     for class_instance_id in sorted(class_instance_ids_to_replace, key=str):
-        class_instance_id_text = str(class_instance_id)
         post_rows = tuple(post_class_state_rows_by_id.get(class_instance_id, ()))
         if not post_rows:
             raise ValueError(
@@ -367,34 +407,50 @@ def apply_commit_state_index_row_changes(
             class_instance_id=class_instance_id,
             rows=post_rows,
         )
-        rows = {
-            row
-            for row in rows
-            if not (
-                (row.kind == "NODE" and row.value == class_instance_id_text)
-                or (row.kind == "ATTR" and row.key == class_instance_id_text)
-            )
-        }
-        rows.update(post_rows)
+        replacement_rows.update(post_rows)
 
-    for change_tree in change_trees:
-        for relationship_change in change_tree.class_instance_relationship_changes:
-            operation = _change_type(relationship_change.change.type)
-            row = _relationship_state_row(
-                relationship_id=relationship_change.class_config_relationship_id,
-                source_id=relationship_change.source_class_instance_id,
-                target_id=relationship_change.target_class_instance_id,
-            )
-            if operation == ChangeType.create:
-                rows.add(row)
-                continue
-            if operation == ChangeType.delete:
-                rows.discard(row)
-                continue
+    relationship_operations: dict[CommitStateRow, ChangeType] = {}
+    for relationship_id, source_id, target_id, operation in relationship_effect_tuple:
+        row = _relationship_state_row(
+            relationship_id=relationship_id,
+            source_id=source_id,
+            target_id=target_id,
+        )
+        if operation not in (ChangeType.create, ChangeType.delete):
             raise ValueError(
                 "Unsupported ClassInstanceRelationship change type for state "
                 f"index apply: {operation}"
             )
+        relationship_operations[row] = operation
+
+    affected_class_instance_ids = class_instance_ids_to_delete | {
+        str(class_instance_id) for class_instance_id in class_instance_ids_to_replace
+    }
+    rows: set[CommitStateRow] = set()
+    for row in pre_state_index.rows:
+        if row.kind == "NODE":
+            if row.value in affected_class_instance_ids:
+                continue
+        elif row.kind == "ATTR":
+            if row.key in affected_class_instance_ids:
+                continue
+        elif row.kind == "EDGE":
+            if row in relationship_operations:
+                continue
+            raw_source_id, separator, raw_target_id = row.value.partition("->")
+            if separator and (
+                raw_source_id in class_instance_ids_to_delete
+                or raw_target_id in class_instance_ids_to_delete
+            ):
+                continue
+        rows.add(row)
+
+    rows.update(replacement_rows)
+    rows.update(
+        row
+        for row, operation in relationship_operations.items()
+        if operation == ChangeType.create
+    )
 
     return _canonical_commit_state_index(rows)
 
@@ -423,6 +479,7 @@ def _validate_class_instance_state_rows(
 
 
 __all__ = [
+    "apply_commit_state_index_body_draft",
     "apply_commit_state_index_row_changes",
     "CommitStateIndex",
     "CommitStateRow",

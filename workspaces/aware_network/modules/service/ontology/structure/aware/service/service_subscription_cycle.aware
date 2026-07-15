@@ -1,0 +1,22 @@
+class ServiceSubscriptionCycle {
+    // Relationships
+    invoice ServiceSubscriptionInvoice?
+
+    // Attributes
+    cycle_number Int key
+    period_end DateTime
+    period_start DateTime
+    status ServiceSubscriptionCycleStatus = pending
+
+    fn build construct (
+        cycle_number Int key,
+        period_start DateTime,
+        period_end DateTime,
+        status ServiceSubscriptionCycleStatus = pending,
+        invoice_id UUID? = null
+    ) -> ServiceSubscriptionCycle {
+        """
+        Records one billing cycle under a ServiceSubscription.
+        """
+    }
+}

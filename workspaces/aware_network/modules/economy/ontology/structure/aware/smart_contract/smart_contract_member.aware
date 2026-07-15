@@ -1,0 +1,15 @@
+class SmartContractMember {
+    // Relationships
+    finance_entity finance.FinanceEntity key
+
+    // Attributes
+    type SmartContractMemberType key
+
+    fn create construct (finance_entity_id UUID key, type SmartContractMemberType key) -> SmartContractMember {
+        """
+        Creates a SmartContractMember for a contract.
+
+        Receipt: SmartContractMember linked to SmartContract + FinanceEntity.
+        """
+    }
+}

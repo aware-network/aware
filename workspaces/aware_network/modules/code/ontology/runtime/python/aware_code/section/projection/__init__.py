@@ -1,1 +1,0 @@
-"""Projection code section support."""

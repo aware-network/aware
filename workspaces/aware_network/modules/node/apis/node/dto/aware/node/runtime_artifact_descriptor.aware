@@ -1,0 +1,92 @@
+/// Node-owned environment runtime artifact descriptor/trust contract.
+///
+/// This is the public descriptor envelope emitted by Node HTTP artifact routes
+/// and consumed by Interface/session bootstrap. It is not Structure composition
+/// truth and must not be owned by Structure API.
+
+class BundlePublicStructureContractVectorEntry {
+    package_name String
+    package_kind String
+    contract_hash String
+    compatibility_class String
+}
+
+class BundleModuleEvolutionRecord {
+    schema_version Int?
+    source_stage String?
+    package_name String
+    package_kind String
+    package_version_number Int?
+    dependency_package_names String[] = []
+    ontology_anchor_package_name String?
+    ontology_anchor_contract_hash String?
+    ontology_anchor_commit_id String?
+    runtime_revision Int?
+    representation_revision Int?
+    public_structure_contract_vector BundlePublicStructureContractVectorEntry[] = []
+}
+
+class BundleReleaseIdentity {
+    schema_version Int
+    environment_config_id UUID
+    module_evolution_record_vector BundleModuleEvolutionRecord[] = []
+}
+
+class BundleModuleServiceProviderVectorEntry {
+    module_id String
+    provider_modules String[] = []
+}
+
+class BundleCompatibilityPayload {
+    schema_version Int
+    environment_id UUID
+    environment_config_id UUID
+    status String
+    ocg_hash String?
+    opg_hashes String[] = []
+    bundle_head_id String
+    bundle_manifest_sha256 String
+    bundle_manifest_size_bytes Int
+    release_identity BundleReleaseIdentity?
+    environment_service_provider_modules String[] = []
+    environment_module_service_provider_vector BundleModuleServiceProviderVectorEntry[] = []
+}
+
+class BundleCompatibilitySignature {
+    schema_version String
+    algorithm String
+    signer_id String?
+    key_id String?
+    public_key String?
+    payload_sha256 String
+    signature String
+}
+
+class EnvironmentBundleDescriptor {
+    environment_id UUID
+    environment_config_id UUID
+    environment_config_title String?
+    environment_title String?
+    status String
+    error String?
+    ocg_hash String?
+    opg_hashes String[] = []
+    bundle_manifest_http_path String
+    bundle_artifact_http_path_prefix String
+    bundle_head_id String
+    bundle_manifest_sha256 String
+    bundle_manifest_size_bytes Int
+    release_identity BundleReleaseIdentity?
+    environment_service_provider_modules String[] = []
+    environment_module_service_provider_vector BundleModuleServiceProviderVectorEntry[] = []
+    compatibility_payload BundleCompatibilityPayload
+    compatibility_signature BundleCompatibilitySignature
+}
+
+class EnvironmentBundleHints {
+    bundle_manifest_http_path String?
+    bundle_artifact_http_path_prefix String?
+    bundle_descriptor_http_path String?
+    bundle_head_id String?
+    bundle_release_identity BundleReleaseIdentity?
+}

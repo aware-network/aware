@@ -11,6 +11,8 @@ import pytest
 from aware_code.semantic_materialization import (
     SEMANTIC_MATERIALIZATION_LIFECYCLE_PROFILE_CONTEXT_KEY,
     SemanticPackageMaterializationExecutionContext,
+    SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_CONTEXT_KEY,
+    SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_SCHEMA,
     SEMANTIC_PROVIDER_DELTA_DURABLE_EXECUTION_INPUTS_KEY,
     SemanticPackageMaterializationRequest,
 )
@@ -97,6 +99,29 @@ def _patch_no_runtime_graph_closure(
         workspace_provider,
         "_target_runtime_object_config_graph_from_manifest_closure",
         lambda **_: None,
+    )
+
+
+def _patch_no_dependency_graph_resolution(
+    *,
+    monkeypatch: pytest.MonkeyPatch,
+    workspace_provider: object,
+) -> None:
+    monkeypatch.setattr(
+        workspace_provider,
+        "_external_object_config_graph_resolution_for_request",
+        lambda **_: workspace_provider._DependencyGraphResolutionResult(  # noqa: SLF001
+            graphs=(),
+            evidence={
+                "schema": "aware_ontology.dependency_graph_resolution.v1",
+                "catalog_dependency_status": "unavailable",
+                "manifest_closure_used": False,
+                "context_lookup_used": False,
+                "context_lookup_hit": False,
+                "runtime_context_rebuild_used": False,
+                "graph_count": 0,
+            },
+        ),
     )
 
 
@@ -443,6 +468,204 @@ def test_ontology_provider_accepts_runtime_only_dependency_graph_maps(
     )
 
 
+def test_ontology_provider_resolves_dependency_graphs_from_catalog_context_fast_path(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    _prepend_runtime_roots(monkeypatch=monkeypatch)
+
+    from aware_code_ontology.code.code_enums import CodeLanguage
+    from aware_meta_ontology.graph.config.object_config_graph import (
+        ObjectConfigGraph,
+    )
+    from aware_ontology.materialization import workspace_provider
+
+    dep_a_graph = ObjectConfigGraph(
+        id=uuid4(),
+        name="Dependency A",
+        description=None,
+        hash="sha256:dep-a",
+        fqn_prefix="aware_dep_a",
+        language=CodeLanguage.aware,
+    )
+    dep_b_graph = ObjectConfigGraph(
+        id=uuid4(),
+        name="Dependency B",
+        description=None,
+        hash="sha256:dep-b",
+        fqn_prefix="aware_dep_b",
+        language=CodeLanguage.aware,
+    )
+    dep_c_graph = ObjectConfigGraph(
+        id=uuid4(),
+        name="Dependency C",
+        description=None,
+        hash="sha256:dep-c",
+        fqn_prefix="aware_dep_c",
+        language=CodeLanguage.aware,
+    )
+    context = {
+        SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_CONTEXT_KEY: {
+            "schema": SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_SCHEMA,
+            "entries": (
+                {
+                    "package_name": "demo-ontology",
+                    "fqn_prefix": "aware_demo",
+                    "dependency_package_names": (
+                        "dep-a-ontology",
+                        "dep-b-ontology",
+                    ),
+                },
+                {
+                    "package_name": "dep-a-ontology",
+                    "fqn_prefix": "aware_dep_a",
+                    "dependency_package_names": ("dep-c-ontology",),
+                },
+                {
+                    "package_name": "dep-b-ontology",
+                    "fqn_prefix": "aware_dep_b",
+                    "dependency_package_names": (),
+                },
+                {
+                    "package_name": "dep-c-ontology",
+                    "fqn_prefix": "aware_dep_c",
+                    "dependency_package_names": (),
+                },
+            ),
+        },
+        "runtime_object_config_graphs_by_package_name": {
+            "dep-a-ontology": dep_a_graph,
+            "dep-b-ontology": dep_b_graph,
+            "dep-c-ontology": dep_c_graph,
+        },
+    }
+
+    def _fail_if_manifest_closure_is_loaded(**_: object) -> object:
+        raise AssertionError("manifest closure should not be loaded")
+
+    monkeypatch.setattr(
+        workspace_provider,
+        "resolve_meta_runtime_package_manifest_closure_for_package_names",
+        _fail_if_manifest_closure_is_loaded,
+    )
+    monkeypatch.setattr(
+        workspace_provider,
+        "build_meta_graph_runtime_context_for_aware_package_manifests",
+        _fail_if_manifest_closure_is_loaded,
+    )
+
+    result = workspace_provider._target_dependency_object_config_graph_resolution(  # noqa: SLF001
+        request=cast(
+            Any,
+            SimpleNamespace(
+                workspace_root=tmp_path,
+                context=context,
+            ),
+        ),
+        source=cast(
+            Any,
+            SimpleNamespace(
+                package_name="demo-ontology",
+                fqn_prefix="aware_demo",
+            ),
+        ),
+        context=context,
+    )
+
+    assert result.graphs == (dep_c_graph, dep_a_graph, dep_b_graph)
+    assert result.evidence["catalog_dependency_status"] == "available"
+    assert result.evidence["dependency_package_names"] == (
+        "dep-c-ontology",
+        "dep-a-ontology",
+        "dep-b-ontology",
+    )
+    assert result.evidence["context_lookup_hit"] is True
+    assert result.evidence["manifest_closure_used"] is False
+    assert result.evidence["runtime_context_rebuild_used"] is False
+
+
+def test_ontology_provider_dependency_graph_resolution_falls_back_on_incomplete_catalog(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    _prepend_runtime_roots(monkeypatch=monkeypatch)
+
+    from aware_code_ontology.code.code_enums import CodeLanguage
+    from aware_meta_ontology.graph.config.object_config_graph import (
+        ObjectConfigGraph,
+    )
+    from aware_ontology.materialization import workspace_provider
+
+    dep_graph = ObjectConfigGraph(
+        id=uuid4(),
+        name="Dependency",
+        description=None,
+        hash="sha256:dep",
+        fqn_prefix="aware_dep",
+        language=CodeLanguage.aware,
+    )
+    context = {
+        SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_CONTEXT_KEY: {
+            "schema": SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_SCHEMA,
+            "entries": (
+                {
+                    "package_name": "demo-ontology",
+                    "fqn_prefix": "aware_demo",
+                    "dependency_package_names": ("dep-ontology",),
+                },
+            ),
+        },
+        "runtime_object_config_graphs_by_package_name": {
+            "dep-ontology": dep_graph,
+        },
+    }
+    manifest_path = (
+        tmp_path / "modules" / "dep" / "structure" / "ontology" / "aware.toml"
+    )
+    manifest_path.parent.mkdir(parents=True)
+    observed: dict[str, object] = {}
+
+    def _fake_manifest_closure(**kwargs: object) -> tuple[Path, ...]:
+        observed.update(kwargs)
+        return (manifest_path,)
+
+    monkeypatch.setattr(
+        workspace_provider,
+        "resolve_meta_runtime_package_manifest_closure_for_package_names",
+        _fake_manifest_closure,
+    )
+    monkeypatch.setattr(
+        workspace_provider,
+        "_dependency_package_names_for_manifest_paths",
+        lambda **_: ("dep-ontology",),
+    )
+
+    result = workspace_provider._target_dependency_object_config_graph_resolution(  # noqa: SLF001
+        request=cast(
+            Any,
+            SimpleNamespace(
+                workspace_root=tmp_path,
+                context=context,
+            ),
+        ),
+        source=cast(
+            Any,
+            SimpleNamespace(
+                package_name="demo-ontology",
+                fqn_prefix="aware_demo",
+            ),
+        ),
+        context=context,
+    )
+
+    assert observed["package_names"] == ("demo-ontology",)
+    assert result.graphs == (dep_graph,)
+    assert result.evidence["catalog_dependency_status"] == "unavailable"
+    assert result.evidence["manifest_closure_used"] is True
+    assert result.evidence["context_lookup_hit"] is True
+    assert result.evidence["runtime_context_rebuild_used"] is False
+
+
 def test_ontology_provider_external_graphs_ignore_unrelated_context_graphs(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -472,14 +695,20 @@ def test_ontology_provider_external_graphs_ignore_unrelated_context_graphs(
     )
     monkeypatch.setattr(
         workspace_provider,
-        "_target_dependency_object_config_graphs",
-        lambda **_: (dependency_graph,),
+        "_target_dependency_object_config_graph_resolution",
+        lambda **_: workspace_provider._DependencyGraphResolutionResult(  # noqa: SLF001
+            graphs=(dependency_graph,),
+            evidence={"graph_count": 1},
+        ),
     )
 
     assert (
         workspace_provider._external_object_config_graphs_for_request(  # noqa: SLF001
             request=SimpleNamespace(),
-            source=SimpleNamespace(package_name="demo-ontology"),
+            source=SimpleNamespace(
+                package_name="demo-ontology",
+                fqn_prefix="aware_demo",
+            ),
             context={"runtime_object_config_graphs": (unrelated_graph,)},
         )
         == (dependency_graph,)
@@ -1022,10 +1251,9 @@ async def test_ontology_provider_bridges_meta_language_outputs_before_snapshot(
         "_commit_ontology_package_snapshot",
         _fake_commit_snapshot,
     )
-    monkeypatch.setattr(
-        workspace_provider,
-        "_external_object_config_graphs_for_request",
-        lambda **_: (),
+    _patch_no_dependency_graph_resolution(
+        monkeypatch=monkeypatch,
+        workspace_provider=workspace_provider,
     )
     _patch_no_runtime_graph_closure(
         monkeypatch=monkeypatch,
@@ -1138,6 +1366,12 @@ async def test_ontology_provider_bridges_meta_language_outputs_before_snapshot(
     assert semantic_package["module_name"] == "demo"
     assert semantic_package["package_name"] == "demo-ontology"
     assert semantic_package["fqn_prefix"] == "aware_demo"
+    assert semantic_package["ontology_config_commit_id"] == str(
+        config_commit.config_commit_id
+    )
+    assert semantic_package["ontology_package_commit_id"] == str(
+        package_commit.package_commit_id
+    )
     assert semantic_package["manifest_relative_path"] == (
         "modules/demo/aware.ontology.toml"
     )
@@ -1160,6 +1394,20 @@ async def test_ontology_provider_bridges_meta_language_outputs_before_snapshot(
     assert result.details["manifest_path"] == ontology_toml_path.as_posix()
     assert result.details["source_manifest_path"] == (
         source_manifest_path.resolve().as_posix()
+    )
+    dependency_resolution = cast(
+        Mapping[str, object],
+        result.details["dependency_graph_resolution"],
+    )
+    assert dependency_resolution["schema"] == (
+        "aware_ontology.dependency_graph_resolution.v1"
+    )
+    assert dependency_resolution["graph_count"] == 0
+    phase_timings = cast(Mapping[str, object], result.details["phase_timings_s"])
+    assert phase_timings["resolve_dependency_graphs.metric.graph_count"] == 0.0
+    assert (
+        phase_timings["resolve_dependency_graphs.metric.runtime_context_rebuild_used"]
+        == 0.0
     )
     assert result.details["runtime_bundle_manifest_path"] == (
         runtime_manifest_path.resolve().as_posix()
@@ -1368,10 +1616,9 @@ async def test_ontology_provider_skips_meta_language_outputs_for_semantic_render
         "_commit_ontology_package_snapshot",
         _fake_commit_snapshot,
     )
-    monkeypatch.setattr(
-        workspace_provider,
-        "_external_object_config_graphs_for_request",
-        lambda **_: (),
+    _patch_no_dependency_graph_resolution(
+        monkeypatch=monkeypatch,
+        workspace_provider=workspace_provider,
     )
     _patch_no_runtime_graph_closure(
         monkeypatch=monkeypatch,
@@ -1583,10 +1830,9 @@ async def test_ontology_provider_bridges_language_outputs_for_reuse_without_arti
         "_commit_ontology_package_snapshot",
         _fake_commit_snapshot,
     )
-    monkeypatch.setattr(
-        workspace_provider,
-        "_external_object_config_graphs_for_request",
-        lambda **_: (),
+    _patch_no_dependency_graph_resolution(
+        monkeypatch=monkeypatch,
+        workspace_provider=workspace_provider,
     )
     _patch_no_runtime_graph_closure(
         monkeypatch=monkeypatch,
@@ -1744,10 +1990,9 @@ async def test_ontology_provider_skips_language_outputs_for_complete_reuse_artif
         "_commit_ontology_package_snapshot",
         _fake_commit_snapshot,
     )
-    monkeypatch.setattr(
-        workspace_provider,
-        "_external_object_config_graphs_for_request",
-        lambda **_: (),
+    _patch_no_dependency_graph_resolution(
+        monkeypatch=monkeypatch,
+        workspace_provider=workspace_provider,
     )
     _patch_no_runtime_graph_closure(
         monkeypatch=monkeypatch,
@@ -1797,6 +2042,45 @@ async def test_ontology_provider_skips_language_outputs_for_complete_reuse_artif
     )
     assert bridge["status"] == "skipped"
     assert bridge["render_profile"] == "compile_parity"
+
+
+def test_ontology_provider_uses_workspace_language_reuse_evidence_when_manifest_targets_are_empty(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _prepend_runtime_roots(monkeypatch=monkeypatch)
+
+    from aware_ontology.materialization import workspace_provider
+
+    leaf_result = _fake_leaf_result(package_name="demo-ontology")
+    leaf_result.object_config_graph_package.language_materializations = ()
+    expected = {
+        "status": "complete",
+        "reason": "workspace_language_targets_realized",
+        "target_count": 2,
+        "package_count": 2,
+    }
+    observed: dict[str, object] = {}
+
+    def _workspace_evidence(**kwargs: object) -> dict[str, object]:
+        observed.update(kwargs)
+        return expected
+
+    monkeypatch.setattr(
+        workspace_provider.meta_workspace_provider,
+        "object_config_graph_package_language_reuse_evidence",
+        _workspace_evidence,
+    )
+    request = SimpleNamespace()
+
+    evidence = (
+        workspace_provider._reused_leaf_language_artifact_evidence(  # noqa: SLF001
+            request=cast(Any, request),
+            leaf_result=leaf_result,
+        )
+    )
+
+    assert evidence == expected
+    assert observed == {"request": request, "leaf_result": leaf_result}
 
 
 @pytest.mark.asyncio
@@ -2945,3 +3229,52 @@ def _fake_leaf_result(*, package_name: str) -> object:
         semantic_commit_strategy="full_rebuild",
         semantic_commit_fallback_reset=False,
     )
+
+
+@pytest.mark.asyncio
+async def test_ontology_currentness_replay_requires_semantic_graph_context(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _prepend_runtime_roots(monkeypatch=monkeypatch)
+    from aware_code.semantic_currentness import (  # noqa: WPS433
+        SemanticMaterializationCurrentnessReplayRequest,
+    )
+    from aware_code.semantic_materialization import (  # noqa: WPS433
+        SemanticPackageMaterializationBundle,
+    )
+    from aware_ontology.materialization import workspace_provider  # noqa: WPS433
+
+    branch_id = uuid4()
+    oig_commit_id = uuid4()
+    bundle = SemanticPackageMaterializationBundle(
+        package_key="demo-ontology",
+        manifest_toml_path=Path("modules/demo/ontology/aware.ontology.toml"),
+        semantic_package_id=uuid4(),
+        semantic_root_id=uuid4(),
+        semantic_branch_id=branch_id,
+        semantic_head_commit_id=oig_commit_id,
+        semantic_object_instance_graph_commit_id=oig_commit_id,
+        semantic_root_object_instance_graph_commit_id=oig_commit_id,
+        semantic_projection_hash="ontology-package-projection",
+    )
+
+    async def _read_head(**_kwargs: object) -> dict[str, object]:
+        return {"object_instance_graph_commit_id": str(oig_commit_id)}
+
+    result = await workspace_provider.resolve_currentness_replay(
+        SemanticMaterializationCurrentnessReplayRequest(
+            provider_key="aware_ontology",
+            semantic_owner="aware_ontology.provider",
+            workspace_root=Path.cwd(),
+            workspace_manifest_kind="ontology",
+            semantic_package_family="ontology",
+            semantic_package_kind="ontology_package",
+            input_proof={"kind": "declared_source_tree", "complete": True},
+            bundles=(bundle,),
+            read_head=_read_head,
+        )
+    )
+
+    assert result.reused is True
+    assert result.context_requirement.requires_semantic_graphs is True
+    assert result.context_requirement.semantic_graphs == "required"

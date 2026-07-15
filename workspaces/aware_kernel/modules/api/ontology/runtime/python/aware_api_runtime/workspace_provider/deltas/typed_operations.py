@@ -24,6 +24,16 @@ def api_delta_typed_operation_plan(
         for entry in _tuple_evidence(semantic_dirty_diff.get("semantic_dirty_entries"))
         if isinstance(entry, Mapping)
     )
+    actionable_entries = tuple(
+        entry
+        for entry in dirty_entries
+        if api_delta_typed_operation_family(entry=entry) != "noop"
+    )
+    noop_entries = tuple(
+        entry
+        for entry in dirty_entries
+        if api_delta_typed_operation_family(entry=entry) == "noop"
+    )
     preview = analysis.change_preview
     semantic_event_payloads = tuple(
         event.evidence_payload() for event in tuple(preview.semantic_events)
@@ -47,7 +57,7 @@ def api_delta_typed_operation_plan(
                 semantic_event_by_delta_key=semantic_event_by_delta_key,
                 function_call_plan_by_semantic_key=(function_call_plan_by_semantic_key),
             )
-            for entry in dirty_entries
+            for entry in actionable_entries
         )
         if operation is not None
     )
@@ -61,7 +71,7 @@ def api_delta_typed_operation_plan(
                 semantic_event_by_delta_key=semantic_event_by_delta_key,
                 function_call_plan_by_semantic_key=(function_call_plan_by_semantic_key),
             )
-            for entry in dirty_entries
+            for entry in actionable_entries
         )
         if operation is not None
     )
@@ -112,6 +122,12 @@ def api_delta_typed_operation_plan(
             semantic_dirty_diff.get("baseline_index_compare_reason")
         ),
         "dirty_entry_count": len(dirty_entries),
+        "noop_entry_count": len(noop_entries),
+        "noop_semantic_keys": tuple(
+            semantic_key
+            for entry in noop_entries
+            if (semantic_key := _optional_text(entry.get("semantic_key"))) is not None
+        ),
         "typed_operation_count": len(exposed_operations),
         "blocked_operation_count": len(exposed_blocked_operations),
         "operation_family_counts": api_delta_operation_count_by_field(
@@ -318,6 +334,12 @@ def api_delta_typed_operation_baseline_payload(
         "object_instance_graph_commit_id": _optional_text(
             entry.get("baseline_object_instance_graph_commit_id")
         ),
+        "payload": (
+            _mapping_payload(entry.get("before_payload"))
+            if isinstance(entry.get("before_payload"), Mapping)
+            else None
+        ),
+        "changed_fields": tuple(_tuple_evidence(entry.get("changed_fields"))),
     }
 
 

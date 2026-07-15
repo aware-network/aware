@@ -31,6 +31,8 @@ class ReactivityActionIntent(BaseModel):
         description="Caller-derived opaque ActionIntent identity key.\nSubscription resolvers derive this from subscription provenance; the\nontology ActionIntent consumes it as actor-free idempotency input."
     )
     event_id: UUID
+    event_config_id: UUID
+    activation_id: UUID
     event_type: str
     source: str
     branch_id: UUID
@@ -57,6 +59,7 @@ class ReactivityActionIntent(BaseModel):
     status: ActionIntentStatus = Field(default=ActionIntentStatus.requested)
     root_object_id: UUID | None = Field(default=None)
     object_instance_graph_id: UUID | None = Field(default=None)
+    object_instance_graph_commit_id: UUID | None = Field(default=None)
     object_instance_graph_branch_id: UUID | None = Field(default=None)
     focus_scope_id: UUID | None = Field(default=None)
     focus_id: UUID | None = Field(default=None)
@@ -82,6 +85,8 @@ class ReactivityActionIntentResolveRequest(BaseModel):
     request_id: UUID | None = Field(default=None)
     subscriber_id: str | None = Field(default=None)
     event_id: UUID
+    event_config_id: UUID
+    activation_id: UUID
     event_type: str
     source: str
     created_at_unix_ms: int = Field(default=0)
@@ -100,6 +105,7 @@ class ReactivityActionIntentResolveRequest(BaseModel):
     event_config_condition_config_id: UUID | None = Field(default=None)
     root_object_id: UUID | None = Field(default=None)
     object_instance_graph_id: UUID | None = Field(default=None)
+    object_instance_graph_commit_id: UUID | None = Field(default=None)
     object_instance_graph_branch_id: UUID | None = Field(default=None)
     focus_scope_id: UUID | None = Field(default=None)
     focus_id: UUID | None = Field(default=None)

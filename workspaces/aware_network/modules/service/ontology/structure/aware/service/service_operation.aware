@@ -1,0 +1,32 @@
+class ServiceOperation {
+    // Relationships
+    api_call aware_api.api.ApiCall?
+    api_endpoint ServiceOperationConfigApiEndpoint?
+    service_operation_config ServiceOperationConfig key
+
+    // Attributes
+    execution_context JsonObject = {}
+    operation_key String key
+    result_info String? = null
+    status ServiceOperationStatus = queued
+
+    fn build construct (
+        service_operation_config_id UUID key,
+        operation_key String key,
+        api_call_id UUID? = null,
+        api_endpoint_id UUID? = null,
+        status ServiceOperationStatus = queued,
+        result_info String? = null,
+        execution_context JsonObject? = null
+    ) -> ServiceOperation {
+        """
+        Creates one canonical service execution receipt under a concrete Service.
+        """
+    }
+
+    fn set_status (status ServiceOperationStatus, result_info String? = null) -> ServiceOperation {
+        """
+        Updates execution status for this ServiceOperation.
+        """
+    }
+}

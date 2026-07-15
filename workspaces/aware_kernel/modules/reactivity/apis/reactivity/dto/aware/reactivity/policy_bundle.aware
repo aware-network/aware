@@ -133,6 +133,20 @@ class ReactivityPolicyEventActionBindingSpec {
     metadata JsonObject = {}
 }
 
+/// Register one provider-owned ActionConfig as a meaning resolver for an
+/// EventConfig. The ActionConfig remains the API endpoint anchor.
+class ReactivityPolicyEventMeaningResolverBindingSpec {
+    event_config_name String?
+    action_config_name String?
+    event_config_id UUID?
+    action_config_id UUID?
+    resolver_key String = "default"
+    api_capability_endpoint_id UUID
+    priority Int = 0
+    is_enabled Bool = true
+    binding_id UUID?
+}
+
 class ReactivityPolicyBundleSpec {
     owner_ref String
     policy_key String
@@ -145,6 +159,7 @@ class ReactivityPolicyBundleSpec {
     action_configs ReactivityPolicyActionConfigSpec[] = []
     event_condition_bindings ReactivityPolicyEventConditionBindingSpec[] = []
     event_action_bindings ReactivityPolicyEventActionBindingSpec[] = []
+    event_meaning_resolver_bindings ReactivityPolicyEventMeaningResolverBindingSpec[] = []
     metadata JsonObject = {}
 }
 
@@ -181,6 +196,16 @@ class ReactivityPolicyInstalledEventActionBinding {
     status String = "ensured"
 }
 
+class ReactivityPolicyInstalledEventMeaningResolverBinding {
+    event_config_id UUID
+    action_config_id UUID
+    event_config_meaning_resolver_config_id UUID
+    resolver_key String
+    api_capability_endpoint_id UUID
+    priority Int = 0
+    status String = "ensured"
+}
+
 class ReactivityPolicyBundleReceipt {
     bundle_id UUID
     owner_ref String
@@ -193,6 +218,7 @@ class ReactivityPolicyBundleReceipt {
     action_configs ReactivityPolicyInstalledActionConfig[] = []
     event_condition_bindings ReactivityPolicyInstalledEventConditionBinding[] = []
     event_action_bindings ReactivityPolicyInstalledEventActionBinding[] = []
+    event_meaning_resolver_bindings ReactivityPolicyInstalledEventMeaningResolverBinding[] = []
     metadata JsonObject = {}
 }
 

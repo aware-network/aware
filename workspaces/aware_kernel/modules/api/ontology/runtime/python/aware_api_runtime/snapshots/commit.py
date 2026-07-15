@@ -115,6 +115,7 @@ class ApiReferenceSnapshotViewRef:
 @dataclass(frozen=True, slots=True)
 class ApiPackageLanguagePackageSnapshotRef:
     code_package_id: UUID
+    object_instance_graph_commit_id: UUID
     package_name: str
     language: CodeLanguage
     import_root: str
@@ -535,6 +536,9 @@ def _build_api_package_manifest_snapshot_objects(
                 ),
                 api_package_id=api_package.id,
                 code_package_id=language_ref.code_package_id,
+                object_instance_graph_commit_id=(
+                    language_ref.object_instance_graph_commit_id
+                ),
                 package_name=package_name_text,
                 language=language_ref.language,
                 import_root=import_root,

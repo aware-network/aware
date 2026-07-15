@@ -1,0 +1,62 @@
+aware_service = 1
+
+[service]
+package_name = "aware-interface-service"
+fqn_prefix = "aware_interface_service"
+version_number = 1
+title = "Aware Interface Service"
+description = "Canonical Interface service package over the generated Interface API service-protocol rail."
+
+[build]
+sources_dir = "bindings"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+compilation_mode = "service_ontology"
+
+[host]
+service_surface = "service"
+activation_mode = "materialize_and_load_committed"
+materialize_on_start = true
+
+[implementation]
+
+[[implementation.packages]]
+package_name = "aware-interface-service"
+language = "python"
+import_root = "aware_interface_service"
+manifest_path = "pyproject.toml"
+package_root = "."
+entrypoint = "aware_interface_service.service_bindings:build_service_bindings"
+role = "service_bindings"
+
+[[object_config_graph_packages]]
+manifest = "db/aware.toml"
+role = "local_state"
+description = "Interface service-owned local SQLite state store."
+
+[[api_provider_sets]]
+key = "kernel.interface_services.v1"
+title = "Kernel Interface Services"
+membership_key = "kernel-interface-host"
+description = "Kernel Interface host service provider."
+
+[[dependencies]]
+package_name = "interface-service-api"
+version_number = 1
+kind = "api_service_protocol"
+
+[[dependencies]]
+package_name = "experience-service-api"
+version_number = 1
+kind = "api_invocation"
+
+[[dependencies]]
+package_name = "identity-service-api"
+version_number = 1
+kind = "api_invocation"
+
+[[dependencies]]
+package_name = "attention-service-api"
+version_number = 1
+kind = "api_invocation"

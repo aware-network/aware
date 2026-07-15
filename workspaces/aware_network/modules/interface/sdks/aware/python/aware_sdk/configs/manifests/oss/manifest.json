@@ -1,0 +1,47 @@
+{
+  "id": "oss",
+  "discovery": [
+    {
+      "id": "libraries",
+      "category": "lib",
+      "category_aliases": ["libs"],
+      "type": "package",
+      "root": "libs",
+      "max_depth": 2,
+      "tests_dir": "tests",
+      "name": {
+        "strategy": "path_join",
+        "reverse": true,
+        "delimiter": "_"
+      },
+      "description": "{path_title} library tests"
+    },
+    {
+      "id": "tools",
+      "category": "tools",
+      "type": "package",
+      "root": "tools",
+      "max_depth": 1,
+      "tests_dir": "tests",
+      "name": {
+        "strategy": "template",
+        "template": "{name_dash}"
+      },
+      "description": "{name} tooling tests"
+    },
+    {
+      "id": "environments",
+      "category": "env",
+      "category_aliases": ["environments"],
+      "type": "package",
+      "root": "environments",
+      "max_depth": 1,
+      "tests_dir": "tests",
+      "name": {
+        "strategy": "template",
+        "template": "{name_dash}"
+      },
+      "description": "{name} environment tests"
+    }
+  ]
+}

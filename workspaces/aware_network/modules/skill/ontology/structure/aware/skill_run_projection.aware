@@ -1,0 +1,13 @@
+/// SkillRun projection
+///
+/// Purpose:
+/// - Expose Skill-owned execution status receipts independently from package mounting.
+/// - Route authored step truth back through SkillConfig and API call payload truth through ApiCall.
+/// - Keep SkillRun as orchestration status only; API owns request/response payload materialization.
+projection SkillRun is_branchable {
+    root skill.SkillRun
+
+    skill.SkillRun::steps
+    skill.SkillRunStep::skill_config_step SkillConfig
+    skill.SkillRunStep::api_call aware_api.ApiCall
+}

@@ -1,0 +1,23 @@
+class EconomyAnalytic {
+    // Relationships
+    analytic_executions EconomyAnalyticExecution[]
+    analytic_metrics EconomyAnalyticMetric[]
+
+    // Attributes
+    average_cost_base_amount Decimal? = 0
+    average_cost_final_amount Decimal? = 0
+    average_duration Float? = 0.0
+    failure_count Int? = 0
+    key String key = "default"
+    success_count Int? = 0
+    success_rate Float? = 0.0
+
+    fn build construct(key String key = "default", analytic_id UUID? = null) -> EconomyAnalytic {
+        """
+        Creates an Economy-owned analytic container.
+
+        If `analytic_id` is provided, it is used as the object id to support idempotent callers
+        that derive stable ids from Economy service roots.
+        """
+    }
+}

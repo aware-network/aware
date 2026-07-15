@@ -1,0 +1,3 @@
+graph environments_default on aware_environment_experience {
+    root now
+}

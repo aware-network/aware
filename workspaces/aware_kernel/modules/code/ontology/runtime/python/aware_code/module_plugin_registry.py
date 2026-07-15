@@ -24,6 +24,7 @@ from aware_code.language_service_provider_descriptor import (
 from aware_code.code_module_contract import CodeModuleContract
 from aware_code.module_semantic_contract import (
     AWARE_MODULE_SEMANTIC_CONTRACT_EXPORT_NAME,
+    AWARE_MODULE_SEMANTIC_REGISTRY_DESCRIPTOR_EXPORT_NAME,
     ModuleSemanticContract,
     ModuleSemanticGrammarRuleDescriptor,
     ModuleSemanticMaterializationArtifactOutputDescriptor,
@@ -34,6 +35,8 @@ from aware_code.module_semantic_contract import (
     ModuleSemanticMaterializationPackageOutputDescriptor,
     ModuleSemanticMaterializationRuntimeDescriptor,
     ModuleSemanticMaterializationRuntimeContextDescriptor,
+    ModuleSemanticRuntimeProjectionPackageDescriptor,
+    ModuleSemanticRegistryDescriptor,
     ModuleSemanticMaterializationToolingDescriptor,
     WorkspaceSemanticArtifactLeafOwnershipResolver,
     WorkspaceSemanticPackageLayoutResolver,
@@ -76,6 +79,7 @@ class _AwarePluginBootstrapSpec:
     capability_contract_module: str | None = None
     capability_execution_module: str | None = None
     semantic_contract_module: str | None = None
+    semantic_registry_module: str | None = None
     code_package_materialization_contract_module: str | None = None
     packages: tuple[AwareModulePackageContract, ...] = ()
     capability_policy: tuple[AwareModulePluginCapabilityPolicy, ...] = ()
@@ -102,6 +106,24 @@ class ResolvedSemanticCapabilityProvider:
     callable_name: str
     provider: Callable[..., object]
     metadata: Mapping[str, object] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class ResolvedSemanticCapabilityExecutionDescriptor:
+    capability: str
+    provider_key: str
+    semantic_owner: str
+    callable_module: str
+    callable_name: str
+    metadata: Mapping[str, object] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class RegisteredSemanticRuntimeProjectionPackage:
+    """Provider-tagged runtime projection ownership from registry truth."""
+
+    provider_key: str
+    descriptor: ModuleSemanticRuntimeProjectionPackageDescriptor
 
 
 @dataclass(frozen=True, slots=True)
@@ -217,6 +239,9 @@ class AwareModulePluginRegistry:
         str, LanguageServiceModuleCapabilityExecutionContract | None
     ] = {}
     _module_semantic_contracts: dict[str, ModuleSemanticContract | None] = {}
+    _module_semantic_registry_descriptors: dict[
+        str, ModuleSemanticRegistryDescriptor | None
+    ] = {}
     _module_code_package_materialization_contracts: dict[
         str, ModuleCodePackageMaterializationContract | None
     ] = {}
@@ -229,6 +254,10 @@ class AwareModulePluginRegistry:
     ] = {}
     _semantic_capability_providers: dict[
         tuple[str, str, str | None], ResolvedSemanticCapabilityProvider | None
+    ] = {}
+    _semantic_capability_execution_descriptors: dict[
+        tuple[str, str, str | None],
+        ResolvedSemanticCapabilityExecutionDescriptor | None,
     ] = {}
     _builtin_code_language_plugins: tuple["CodeLanguagePlugin[object]", ...] | None = (
         None
@@ -330,11 +359,13 @@ class AwareModulePluginRegistry:
         cls._language_service_capability_contracts.clear()
         cls._language_service_capability_execution_contracts.clear()
         cls._module_semantic_contracts.clear()
+        cls._module_semantic_registry_descriptors.clear()
         cls._module_code_package_materialization_contracts.clear()
         cls._code_module_contracts.clear()
         cls._language_service_provider_descriptors.clear()
         cls._language_service_capability_providers.clear()
         cls._semantic_capability_providers.clear()
+        cls._semantic_capability_execution_descriptors.clear()
         cls._builtin_code_language_plugins = None
         cls._builtin_meta_language_plugins = None
         cls._builtin_bootstrap_attempted = False
@@ -345,6 +376,7 @@ class AwareModulePluginRegistry:
         cls._language_service_capability_contracts.pop(provider_key, None)
         cls._language_service_capability_execution_contracts.pop(provider_key, None)
         cls._module_semantic_contracts.pop(provider_key, None)
+        cls._module_semantic_registry_descriptors.pop(provider_key, None)
         cls._module_code_package_materialization_contracts.pop(provider_key, None)
         cls._code_module_contracts.pop(provider_key, None)
         cls._language_service_provider_descriptors.pop(provider_key, None)
@@ -354,6 +386,9 @@ class AwareModulePluginRegistry:
         for cache_key in tuple(cls._semantic_capability_providers):
             if len(cache_key) >= 2 and cache_key[1] == provider_key:
                 cls._semantic_capability_providers.pop(cache_key, None)
+        for cache_key in tuple(cls._semantic_capability_execution_descriptors):
+            if len(cache_key) >= 2 and cache_key[1] == provider_key:
+                cls._semantic_capability_execution_descriptors.pop(cache_key, None)
 
     @classmethod
     def get_builtin_code_language_plugins(
@@ -420,6 +455,17 @@ class AwareModulePluginRegistry:
             return None
         semantic_contract_module = (plugin.semantic_contract_module or "").strip()
         return semantic_contract_module or None
+
+    @classmethod
+    def semantic_registry_module_for_provider_key(
+        cls,
+        provider_key: str,
+    ) -> str | None:
+        plugin = cls._plugins.get(provider_key)
+        if plugin is None:
+            return None
+        semantic_registry_module = (plugin.semantic_registry_module or "").strip()
+        return semantic_registry_module or None
 
     @classmethod
     def code_package_materialization_contract_module_for_provider_key(
@@ -657,6 +703,50 @@ class AwareModulePluginRegistry:
         return normalized
 
     @classmethod
+    def module_semantic_registry_descriptor_for_provider_key(
+        cls,
+        provider_key: str,
+    ) -> ModuleSemanticRegistryDescriptor | ModuleSemanticContract | None:
+        """Resolve lightweight registry truth, falling back to the full contract."""
+
+        cls.ensure_builtin_plugins_registered()
+        cached = cls._module_semantic_registry_descriptors.get(provider_key)
+        if (
+            cached is not None
+            or provider_key in cls._module_semantic_registry_descriptors
+        ):
+            return cached
+
+        registry_module = cls.semantic_registry_module_for_provider_key(provider_key)
+        if registry_module is None:
+            return cls.module_semantic_contract_for_provider_key(provider_key)
+        try:
+            module = import_module(registry_module)
+        except ModuleNotFoundError:
+            cls._module_semantic_registry_descriptors[provider_key] = None
+            return None
+        descriptor = getattr(
+            module,
+            AWARE_MODULE_SEMANTIC_REGISTRY_DESCRIPTOR_EXPORT_NAME,
+            None,
+        )
+        if not isinstance(descriptor, ModuleSemanticRegistryDescriptor):
+            logger.warning(
+                "Aware module semantic registry missing descriptor %s in %s",
+                AWARE_MODULE_SEMANTIC_REGISTRY_DESCRIPTOR_EXPORT_NAME,
+                registry_module,
+            )
+            cls._module_semantic_registry_descriptors[provider_key] = None
+            return None
+        if descriptor.provider_key != provider_key:
+            raise ValueError(
+                "Aware module semantic registry provider mismatch: "
+                f"requested={provider_key!r} declared={descriptor.provider_key!r}"
+            )
+        cls._module_semantic_registry_descriptors[provider_key] = descriptor
+        return descriptor
+
+    @classmethod
     def get_module_semantic_contracts(
         cls,
         *,
@@ -677,6 +767,44 @@ class AwareModulePluginRegistry:
             if contract is not None
         ]
         return tuple(sorted(contracts, key=lambda item: item.provider_key))
+
+    @classmethod
+    def get_semantic_runtime_projection_packages(
+        cls,
+        *,
+        provider_keys: Iterable[str] | None = None,
+    ) -> tuple[RegisteredSemanticRuntimeProjectionPackage, ...]:
+        """Return projection ownership without requiring full provider imports."""
+
+        cls.ensure_builtin_plugins_registered()
+        selected_provider_keys = (
+            tuple(provider_keys)
+            if provider_keys is not None
+            else cls.get_provider_keys()
+        )
+        registrations: list[RegisteredSemanticRuntimeProjectionPackage] = []
+        for provider_key in selected_provider_keys:
+            registry = cls.module_semantic_registry_descriptor_for_provider_key(
+                provider_key
+            )
+            if registry is None:
+                continue
+            if isinstance(registry, ModuleSemanticRegistryDescriptor):
+                descriptors = registry.runtime_projection_packages
+            else:
+                descriptors = tuple(
+                    package
+                    for runtime in registry.materialization_runtime
+                    for package in runtime.runtime_projection_packages
+                )
+            registrations.extend(
+                RegisteredSemanticRuntimeProjectionPackage(
+                    provider_key=provider_key,
+                    descriptor=descriptor,
+                )
+                for descriptor in descriptors
+            )
+        return tuple(registrations)
 
     @classmethod
     def module_code_package_materialization_contract_for_provider_key(
@@ -1020,11 +1148,79 @@ class AwareModulePluginRegistry:
         if cached is not None or cache_key in cls._semantic_capability_providers:
             return cached
 
+        descriptor = cls.resolve_semantic_capability_execution_descriptor(
+            provider_key=normalized_provider_key,
+            capability=normalized_capability,
+            semantic_owner=normalized_semantic_owner,
+        )
+        if descriptor is None:
+            cls._semantic_capability_providers[cache_key] = None
+            return None
+        try:
+            module = import_module(descriptor.callable_module)
+        except ModuleNotFoundError:
+            cls._semantic_capability_providers[cache_key] = None
+            return None
+        provider = getattr(module, descriptor.callable_name, None)
+        if not callable(provider):
+            logger.warning(
+                "Aware semantic capability execution entrypoint is not callable for %s:%s at %s.%s",
+                normalized_capability,
+                descriptor.semantic_owner,
+                descriptor.callable_module,
+                descriptor.callable_name,
+            )
+            cls._semantic_capability_providers[cache_key] = None
+            return None
+        resolved = ResolvedSemanticCapabilityProvider(
+            capability=descriptor.capability,
+            provider_key=descriptor.provider_key,
+            semantic_owner=descriptor.semantic_owner,
+            callable_module=descriptor.callable_module,
+            callable_name=descriptor.callable_name,
+            provider=provider,
+            metadata=descriptor.metadata,
+        )
+        cls._semantic_capability_providers[cache_key] = resolved
+        return resolved
+
+    @classmethod
+    def resolve_semantic_capability_execution_descriptor(
+        cls,
+        *,
+        provider_key: str,
+        capability: str,
+        semantic_owner: str | None = None,
+    ) -> ResolvedSemanticCapabilityExecutionDescriptor | None:
+        """Resolve provider metadata without importing its execution module."""
+
+        cls.ensure_builtin_plugins_registered()
+        normalized_provider_key = provider_key.strip()
+        normalized_capability = capability.strip()
+        normalized_semantic_owner = (
+            semantic_owner.strip()
+            if isinstance(semantic_owner, str) and semantic_owner.strip()
+            else None
+        )
+        if not normalized_provider_key or not normalized_capability:
+            return None
+        cache_key = (
+            normalized_capability,
+            normalized_provider_key,
+            normalized_semantic_owner,
+        )
+        cached = cls._semantic_capability_execution_descriptors.get(cache_key)
+        if (
+            cached is not None
+            or cache_key in cls._semantic_capability_execution_descriptors
+        ):
+            return cached
+
         contract = cls.module_semantic_contract_for_provider_key(
             normalized_provider_key
         )
         if contract is None:
-            cls._semantic_capability_providers[cache_key] = None
+            cls._semantic_capability_execution_descriptors[cache_key] = None
             return None
 
         participation_descriptors = contract.capability_participation_for(
@@ -1092,49 +1288,41 @@ class AwareModulePluginRegistry:
                 )
             )
         if not execution_policies:
-            cls._semantic_capability_providers[cache_key] = None
+            cls._semantic_capability_execution_descriptors[cache_key] = None
             return None
 
         semantic_contract_module = cls.semantic_contract_module_for_provider_key(
             normalized_provider_key
         )
+        plugin = cls._plugins.get(normalized_provider_key)
+        capability_execution_module = (
+            plugin.capability_execution_module if plugin is not None else None
+        )
         for policy in execution_policies:
             callable_module = (
-                policy.callable_module or semantic_contract_module or ""
+                policy.callable_module
+                or capability_execution_module
+                or semantic_contract_module
+                or ""
             ).strip()
             callable_name = (policy.callable_name or "").strip()
             if not callable_module or not callable_name:
                 continue
-            try:
-                module = import_module(callable_module)
-            except ModuleNotFoundError:
-                continue
-            provider = getattr(module, callable_name, None)
-            if not callable(provider):
-                logger.warning(
-                    "Aware semantic capability execution entrypoint is not callable for %s:%s at %s.%s",
-                    normalized_capability,
-                    policy.semantic_owner,
-                    callable_module,
-                    callable_name,
-                )
-                continue
-            resolved = ResolvedSemanticCapabilityProvider(
+            resolved = ResolvedSemanticCapabilityExecutionDescriptor(
                 capability=normalized_capability,
                 provider_key=normalized_provider_key,
                 semantic_owner=policy.semantic_owner,
                 callable_module=callable_module,
                 callable_name=callable_name,
-                provider=provider,
                 metadata=participation_metadata_by_key.get(
                     (policy.capability, policy.semantic_owner),
                     {},
                 ),
             )
-            cls._semantic_capability_providers[cache_key] = resolved
+            cls._semantic_capability_execution_descriptors[cache_key] = resolved
             return resolved
 
-        cls._semantic_capability_providers[cache_key] = None
+        cls._semantic_capability_execution_descriptors[cache_key] = None
         return None
 
     @classmethod
@@ -1222,7 +1410,7 @@ class AwareModulePluginRegistry:
         ):
             return ()
 
-        contract = cls.module_semantic_contract_for_provider_key(
+        contract = cls.module_semantic_registry_descriptor_for_provider_key(
             normalized_provider_key
         )
         if contract is None:
@@ -1870,6 +2058,7 @@ class AwareModulePluginRegistry:
         capability_contract_module: str | None = None,
         capability_execution_module: str | None = None,
         semantic_contract_module: str | None = None,
+        semantic_registry_module: str | None = None,
         code_package_materialization_contract_module: str | None = None,
         packages: tuple[AwareModulePackageContract, ...] = (),
         replace_existing: bool = False,
@@ -1890,6 +2079,7 @@ class AwareModulePluginRegistry:
             capability_contract_module
             or capability_execution_module
             or semantic_contract_module
+            or semantic_registry_module
             or code_package_materialization_contract_module
             or packages
         ):
@@ -1903,6 +2093,9 @@ class AwareModulePluginRegistry:
                 ),
                 semantic_contract_module=(
                     semantic_contract_module or plugin.semantic_contract_module
+                ),
+                semantic_registry_module=(
+                    semantic_registry_module or plugin.semantic_registry_module
                 ),
                 code_package_materialization_contract_module=(
                     code_package_materialization_contract_module
@@ -1930,6 +2123,7 @@ class AwareModulePluginRegistry:
                 capability_contract_module=spec.capability_contract_module,
                 capability_execution_module=spec.capability_execution_module,
                 semantic_contract_module=spec.semantic_contract_module,
+                semantic_registry_module=spec.semantic_registry_module,
                 code_package_materialization_contract_module=(
                     spec.code_package_materialization_contract_module
                 ),
@@ -2006,6 +2200,9 @@ def _module_plugin_bootstrap_spec_from_manifest(
         semantic_contract_module = (
             plugin.semantic_contract_module or ""
         ).strip() or None
+        semantic_registry_module = (
+            plugin.semantic_registry_module or ""
+        ).strip() or None
         code_package_materialization_contract_module = (
             plugin.code_package_materialization_contract_module or ""
         ).strip() or None
@@ -2063,6 +2260,7 @@ def _module_plugin_bootstrap_spec_from_manifest(
                 capability_contract_module=capability_contract_module,
                 capability_execution_module=capability_execution_module,
                 semantic_contract_module=semantic_contract_module,
+                semantic_registry_module=semantic_registry_module,
                 code_package_materialization_contract_module=(
                     code_package_materialization_contract_module
                 ),
@@ -2090,6 +2288,7 @@ def _plugin_bootstrap_equivalent(
         and existing.capability_execution_module
         == candidate.capability_execution_module
         and existing.semantic_contract_module == candidate.semantic_contract_module
+        and existing.semantic_registry_module == candidate.semantic_registry_module
         and existing.code_package_materialization_contract_module
         == candidate.code_package_materialization_contract_module
         and existing.packages == candidate.packages
@@ -2434,7 +2633,9 @@ def _combined_registration_hook(
 
 __all__ = [
     "AwareModulePluginRegistry",
+    "RegisteredSemanticRuntimeProjectionPackage",
     "ResolvedSemanticArtifactLeafOwnershipResolver",
+    "ResolvedSemanticCapabilityExecutionDescriptor",
     "ResolvedSemanticCapabilityProvider",
     "ResolvedSemanticPackageLayoutResolver",
 ]

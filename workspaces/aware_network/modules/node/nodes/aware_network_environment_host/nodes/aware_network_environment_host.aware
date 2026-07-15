@@ -1,0 +1,5 @@
+node aware_network_environment_host {
+    environment aware-control {
+    }
+    service aware_environment
+}

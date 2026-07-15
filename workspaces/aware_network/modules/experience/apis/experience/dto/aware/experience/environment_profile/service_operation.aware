@@ -1,0 +1,112 @@
+/// Service DTOs for Experience-owned EnvironmentExperience profile operations.
+///
+/// These operations are the target facade for Environment compatibility
+/// proxies. Environment callers should not import Experience runtime
+/// materialization internals directly.
+
+class ExperienceEnvironmentProfileServiceRequest {
+    operation String
+    request_id UUID?
+    actor_id UUID?
+    environment_id UUID
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    experience_name String?
+    request_context JsonObject = {}
+}
+
+class ExperienceEnvironmentProfileServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    status String
+    info String?
+    error String?
+    environment_id UUID?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    experience_name String?
+    environment_experience_profile_id UUID?
+    profile_key String?
+    evidence JsonObject = {}
+}
+
+class UpsertExperienceEnvironmentProfileRequest augment environment_profile.ExperienceEnvironmentProfileServiceRequest {
+    operation String = "upsert_experience_environment_profile"
+    /// Declarative profile to resolve and commit into Experience-owned profile truth.
+    profile environment_profile.ExperienceEnvironmentProfileSpec
+    /// Named runtime topology seeds to bind beside the reusable profile config.
+    topology_seeds environment_profile.ExperienceEnvironmentProfileTopologySeedSpec[] = []
+    /// Validate and plan without committing runtime state.
+    validate_only Bool = false
+}
+
+class UpsertExperienceEnvironmentProfileResponse augment environment_profile.ExperienceEnvironmentProfileServiceResponse {
+    operation String = "upsert_experience_environment_profile"
+    process_config_ids UUID[] = []
+    thread_config_ids UUID[] = []
+    thread_projection_association_ids UUID[] = []
+    thread_layout_config_ids UUID[] = []
+    topology_seed_ids UUID[] = []
+    topology_process_seed_ids UUID[] = []
+    topology_thread_seed_ids UUID[] = []
+    topology_thread_layout_seed_ids UUID[] = []
+}
+
+class ProvisionExperienceEnvironmentProfileRequest augment environment_profile.ExperienceEnvironmentProfileServiceRequest {
+    operation String = "provision_experience_environment_profile"
+    /// Optional explicit profile override. When omitted, Experience resolves from active environment profile truth.
+    environment_experience_profile_id UUID?
+    /// Optional profile key selector for Experience-owned profile resolution.
+    profile_key String?
+    /// Named topology seed to lower into runtime Process/Thread/ThreadLayout territory.
+    topology_seed_key String
+    /// Validate and plan without committing runtime state.
+    validate_only Bool = false
+}
+
+class ProvisionExperienceEnvironmentProfileResponse augment environment_profile.ExperienceEnvironmentProfileServiceResponse {
+    operation String = "provision_experience_environment_profile"
+    runtime_mounts environment_profile.ExperienceEnvironmentProfileRuntimeMountReceipt[] = []
+    process_ids UUID[] = []
+    thread_ids UUID[] = []
+    thread_layout_ids UUID[] = []
+}
+
+class ApplyExperienceEnvironmentProfileProgramsRequest augment environment_profile.ExperienceEnvironmentProfileServiceRequest {
+    operation String = "apply_experience_environment_profile_programs"
+    /// Experience-owned Program/Turn run boundary.
+    ///
+    /// Contract:
+    /// - Environment contributes topology ids (`environment_id`, `thread_id`) only.
+    /// - Experience owns Program, ProgramTurn, Turn, and ThreadProgram run truth.
+    /// - The service must not route this through legacy RuntimeHarness/libs/runtime rails.
+    environment_experience_profile_id UUID?
+    profile_key String?
+    phase String = "bootstrap"
+    target_actor_id UUID?
+    validate_only Bool = false
+}
+
+class ApplyExperienceEnvironmentProfileProgramsResponse augment environment_profile.ExperienceEnvironmentProfileServiceResponse {
+    operation String = "apply_experience_environment_profile_programs"
+    /// Execution phase resolved by the Experience-owned Program run boundary.
+    phase String = "bootstrap"
+    target_actor_id UUID?
+    /// Receipts describe Experience-owned Program/Turn run effects.
+    receipts environment_profile.ExperienceEnvironmentProfileProgramApplyReceipt[] = []
+}
+
+ann environment_profile.ExperienceEnvironmentProfileServiceRequest::operation discriminate key
+ann environment_profile.UpsertExperienceEnvironmentProfileRequest::operation discriminate tag "upsert_experience_environment_profile"
+ann environment_profile.ProvisionExperienceEnvironmentProfileRequest::operation discriminate tag "provision_experience_environment_profile"
+ann environment_profile.ApplyExperienceEnvironmentProfileProgramsRequest::operation discriminate tag "apply_experience_environment_profile_programs"
+
+ann environment_profile.ExperienceEnvironmentProfileServiceResponse::operation discriminate key
+ann environment_profile.UpsertExperienceEnvironmentProfileResponse::operation discriminate tag "upsert_experience_environment_profile"
+ann environment_profile.ProvisionExperienceEnvironmentProfileResponse::operation discriminate tag "provision_experience_environment_profile"
+ann environment_profile.ApplyExperienceEnvironmentProfileProgramsResponse::operation discriminate tag "apply_experience_environment_profile_programs"

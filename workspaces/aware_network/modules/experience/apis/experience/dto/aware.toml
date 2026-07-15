@@ -1,0 +1,21 @@
+aware = 1
+
+[package]
+package_name = "experience-service-dto"
+fqn_prefix = "aware_experience_service_dto"
+kind = "api"
+version_number = 1
+title = "Experience Service DTO"
+description = "API-owned DTO package for Experience service endpoint payloads and semantic layout receipts."
+
+[build]
+environment_slug = "aware_experience_service_dto"
+
+[[dependencies]]
+package_name = "experience-ontology"
+
+[[dependencies]]
+package_name = "environment-service-dto"
+
+[[dependencies]]
+package_name = "identity-service-dto"

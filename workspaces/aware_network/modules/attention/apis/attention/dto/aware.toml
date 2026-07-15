@@ -1,0 +1,12 @@
+aware = 1
+
+[package]
+package_name = "attention-service-dto"
+fqn_prefix = "aware_attention_service_dto"
+kind = "api"
+version_number = 1
+title = "Attention Service DTO"
+description = "API-owned DTO package for Attention service endpoint payloads."
+
+[build]
+environment_slug = "aware_attention_service_dto"

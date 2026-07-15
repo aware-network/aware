@@ -1,0 +1,37 @@
+class SkillConfigApi {
+    // Relationships
+    api aware_api.api.Api key
+    api_endpoints SkillConfigApiEndpoint[]
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        api_id UUID key,
+        description String? = null
+    ) -> SkillConfigApi {
+        """
+        Create one Skill-level API grouping.
+        """
+    }
+
+    fn add_api_endpoint (
+        api_endpoint_id UUID key,
+        capability_name String key,
+        name String key,
+        description String? = null
+    ) -> SkillConfigApiEndpoint {
+        """
+        Add one Skill-owned API endpoint requirement under this API grouping.
+        """
+        let created = construct api_endpoints.build(
+            api_endpoint_id = api_endpoint_id,
+            capability_name = capability_name,
+            name = name,
+            description = description,
+        )
+    }
+}
+
+ann skill.SkillConfigApi::api load eager
+ann skill.SkillConfigApi::api_endpoints load eager

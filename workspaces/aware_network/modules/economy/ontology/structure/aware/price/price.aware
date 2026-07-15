@@ -1,0 +1,50 @@
+class Price {
+    // Relationships
+    coin coin.Coin key
+    price_schedules PriceSchedule[]
+
+    // Attributes
+    additional_metadata JsonObject? = {}
+    name String key
+    type PriceType key
+
+    fn build construct (
+        coin_id UUID key,
+        name String key,
+        type PriceType key,
+        additional_metadata JsonObject? = {}
+    ) -> Price {
+        """
+        Creates one Economy-owned price primitive.
+
+        Receipt: Price linked to Coin as a stable pricing family root.
+        """
+    }
+
+    fn create_price_schedule (
+        pricing_policy_id UUID key,
+        name String key,
+        effective_from DateTime,
+        version Int key = 1,
+        effective_until DateTime? = null,
+        fixed_amount Decimal? = null,
+        markup_percentage Decimal? = null,
+        additional_metadata JsonObject? = {}
+    ) -> PriceSchedule {
+        """
+        Creates one schedule under this Price.
+
+        Receipt: PriceSchedule linked to this Price and the referenced PricingPolicy.
+        """
+        let created = construct price_schedules.build(
+            pricing_policy_id = pricing_policy_id,
+            name = name,
+            version = version,
+            effective_from = effective_from,
+            effective_until = effective_until,
+            fixed_amount = fixed_amount,
+            markup_percentage = markup_percentage,
+            additional_metadata = additional_metadata,
+        )
+    }
+}

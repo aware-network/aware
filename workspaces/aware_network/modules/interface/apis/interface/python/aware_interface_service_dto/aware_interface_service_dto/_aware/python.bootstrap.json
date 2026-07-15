@@ -1,0 +1,15 @@
+{
+  "dependency_import_roots": [
+    "aware_environment_service_dto",
+    "aware_experience_service_dto"
+  ],
+  "modules": [
+    "aware_interface_service_dto.comms.models.control_plane",
+    "aware_interface_service_dto.comms.models.hosted_interface_namespace",
+    "aware_interface_service_dto.comms.models.interface_config_bundle",
+    "aware_interface_service_dto.comms.models.interface_host_state",
+    "aware_interface_service_dto.comms.view.mount_status"
+  ],
+  "package_prefix": "aware_interface_service_dto",
+  "version": "v1"
+}

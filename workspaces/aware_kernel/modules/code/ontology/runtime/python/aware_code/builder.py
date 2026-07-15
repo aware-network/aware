@@ -1,5 +1,6 @@
 """Code Builder."""
 
+from dataclasses import dataclass
 from typing import TypeVar, cast
 
 # Code Models
@@ -99,6 +100,197 @@ from aware_utils.logging import logger
 from aware_utils.description_normalizer import DescriptionNormalizer
 
 T_AdapterNode = TypeVar("T_AdapterNode")
+
+_MAX_CODE_SYNTAX_DIAGNOSTICS = 8
+_CODE_SYNTAX_EXCERPT_CONTEXT_BYTES = 48
+_CODE_SYNTAX_EXCERPT_MAX_BYTES = 160
+_STRICT_SEMANTIC_RECOVERY_ANCESTOR_KINDS = frozenset(
+    {
+        "binding_def",
+        "class_def",
+        "edge_def",
+        "enum_def",
+        "fn_def",
+        "projection_def",
+    }
+)
+
+
+@dataclass(frozen=True, slots=True)
+class CodeSyntaxDiagnostic:
+    node_kind: str
+    is_missing: bool
+    start_byte: int
+    end_byte: int
+    start_line: int
+    start_column: int
+    end_line: int
+    end_column: int
+    source_excerpt: str
+
+
+class CodeSyntaxError(ValueError):
+    """Raised when parser recovery would otherwise become semantic Code state."""
+
+    code_key: str
+    language: CodeLanguage
+    diagnostics: tuple[CodeSyntaxDiagnostic, ...]
+
+    def __init__(
+        self,
+        *,
+        code_key: str,
+        language: CodeLanguage,
+        diagnostics: tuple[CodeSyntaxDiagnostic, ...],
+    ) -> None:
+        self.code_key = code_key
+        self.language = language
+        self.diagnostics = diagnostics
+        details = "; ".join(
+            (
+                f"{diagnostic.node_kind} "
+                f"line={diagnostic.start_line}:{diagnostic.start_column}-"
+                f"{diagnostic.end_line}:{diagnostic.end_column} "
+                f"bytes={diagnostic.start_byte}:{diagnostic.end_byte} "
+                f"missing={str(diagnostic.is_missing).lower()} "
+                f"excerpt={diagnostic.source_excerpt!r}"
+            )
+            for diagnostic in diagnostics
+        )
+        message = f"Code syntax error before semantic section construction: code_key={code_key!r} language={language.value!r} diagnostic_count={len(diagnostics)} diagnostics=[{details}]"
+        super().__init__(message)
+
+
+def _require_code_tree_syntax_valid(
+    *,
+    code_tree: CodeTree[object],
+    code_key: str,
+    language: CodeLanguage,
+) -> None:
+    native_root = code_tree.root.node
+    if getattr(native_root, "has_error", False) is not True:
+        return
+
+    diagnostics = _code_tree_syntax_diagnostics(
+        native_root=native_root,
+        source_bytes=code_tree.source_bytes,
+    )
+    if not diagnostics:
+        return
+    raise CodeSyntaxError(
+        code_key=code_key,
+        language=language,
+        diagnostics=diagnostics,
+    )
+
+
+def _code_tree_syntax_diagnostics(
+    *,
+    native_root: object,
+    source_bytes: bytes,
+) -> tuple[CodeSyntaxDiagnostic, ...]:
+    diagnostics: list[CodeSyntaxDiagnostic] = []
+    pending: list[tuple[object, bool]] = [(native_root, False)]
+    while pending and len(diagnostics) < _MAX_CODE_SYNTAX_DIAGNOSTICS:
+        native_node, has_strict_semantic_ancestor = pending.pop()
+        node_kind = str(getattr(native_node, "type", "") or "")
+        is_error = getattr(native_node, "is_error", False) is True
+        is_missing = getattr(native_node, "is_missing", False) is True
+        if is_error or is_missing:
+            if has_strict_semantic_ancestor:
+                diagnostics.append(
+                    _code_syntax_diagnostic_from_native_node(
+                        native_node=native_node,
+                        source_bytes=source_bytes,
+                        is_missing=is_missing,
+                    )
+                )
+            continue
+
+        children = getattr(native_node, "children", ())
+        if isinstance(children, (list, tuple)):
+            child_has_strict_semantic_ancestor = (
+                has_strict_semantic_ancestor
+                or node_kind in _STRICT_SEMANTIC_RECOVERY_ANCESTOR_KINDS
+            )
+            pending.extend(
+                (child, child_has_strict_semantic_ancestor)
+                for child in reversed(cast(list[object] | tuple[object, ...], children))
+            )
+
+    return tuple(diagnostics)
+
+
+def _code_syntax_diagnostic_from_native_node(
+    *,
+    native_node: object,
+    source_bytes: bytes,
+    is_missing: bool,
+) -> CodeSyntaxDiagnostic:
+    start_byte = _bounded_native_int(
+        getattr(native_node, "start_byte", 0),
+        upper_bound=len(source_bytes),
+    )
+    end_byte = _bounded_native_int(
+        getattr(native_node, "end_byte", start_byte),
+        upper_bound=len(source_bytes),
+    )
+    if end_byte < start_byte:
+        end_byte = start_byte
+    start_line, start_column = _native_point(getattr(native_node, "start_point", None))
+    end_line, end_column = _native_point(getattr(native_node, "end_point", None))
+    return CodeSyntaxDiagnostic(
+        node_kind=str(getattr(native_node, "type", "parser_error") or "parser_error"),
+        is_missing=is_missing,
+        start_byte=start_byte,
+        end_byte=end_byte,
+        start_line=start_line,
+        start_column=start_column,
+        end_line=end_line,
+        end_column=end_column,
+        source_excerpt=_bounded_code_syntax_excerpt(
+            source_bytes=source_bytes,
+            start_byte=start_byte,
+            end_byte=end_byte,
+        ),
+    )
+
+
+def _bounded_native_int(value: object, *, upper_bound: int) -> int:
+    resolved = value if isinstance(value, int) and not isinstance(value, bool) else 0
+    return min(max(resolved, 0), max(upper_bound, 0))
+
+
+def _native_point(value: object) -> tuple[int, int]:
+    row = getattr(value, "row", 0)
+    column = getattr(value, "column", 0)
+    resolved_row = row if isinstance(row, int) and not isinstance(row, bool) else 0
+    resolved_column = (
+        column if isinstance(column, int) and not isinstance(column, bool) else 0
+    )
+    return max(resolved_row, 0) + 1, max(resolved_column, 0) + 1
+
+
+def _bounded_code_syntax_excerpt(
+    *,
+    source_bytes: bytes,
+    start_byte: int,
+    end_byte: int,
+) -> str:
+    excerpt_start = max(start_byte - _CODE_SYNTAX_EXCERPT_CONTEXT_BYTES, 0)
+    excerpt_end = min(
+        max(end_byte, start_byte + 1) + _CODE_SYNTAX_EXCERPT_CONTEXT_BYTES,
+        len(source_bytes),
+    )
+    excerpt_bytes = source_bytes[excerpt_start:excerpt_end][
+        :_CODE_SYNTAX_EXCERPT_MAX_BYTES
+    ]
+    return (
+        excerpt_bytes.decode("utf-8", errors="replace")
+        .replace("\r", "\\r")
+        .replace("\n", "\\n")
+        .replace("\t", "\\t")
+    )
 
 
 def _coerce_code_language(
@@ -207,6 +399,11 @@ def build_code_from_tree(
     blob_store: BlobStore | None = None,
 ) -> Code:
     language = _require_code_language(language)
+    _require_code_tree_syntax_valid(
+        code_tree=cast(CodeTree[object], code_tree),
+        code_key=code_key,
+        language=language,
+    )
 
     # Get the section builders
     language_plugin: CodeLanguagePlugin[T_AdapterNode] = (

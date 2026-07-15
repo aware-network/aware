@@ -66,7 +66,7 @@ from aware_meta.materialization.deltas.typed_operation_contracts import (
 )
 from aware_meta.language_plugin_registry import MetaLanguagePluginRegistry
 from aware_code_ontology.code.code_enums import CodeLanguage as MetaPluginCodeLanguage
-from aware_types import JsonObject
+from aware_types import JsonObject, canonical_decimal_text
 from python_grammar.renderer_delta_orm_targets import (
     ORM_RUNTIME_PRODUCT_INTENT,
     orm_runtime_target_payload,
@@ -142,6 +142,7 @@ _PYTHON_PRIMITIVE_TYPE_TEXT = {
     "bytes": "bytes",
     "datetime": "datetime",
     "date_time": "datetime",
+    "decimal": "Annotated[Decimal, DecimalWire()]",
     "float": "float",
     "integer": "int",
     "int": "int",
@@ -905,12 +906,15 @@ def _python_orm_function_create_updated_source_text(
     registry_text = _python_orm_function_create_registry_text(operation=operation)
     if method_text is None or io_text is None or registry_text is None:
         return None
-    if _python_top_level_class_exists(source_text=source_without_registry, class_name=(
-        _python_orm_function_input_model_name(
-            owner_name=owner_name,
-            function_name=function_name,
-        )
-    )):
+    if _python_top_level_class_exists(
+        source_text=source_without_registry,
+        class_name=(
+            _python_orm_function_input_model_name(
+                owner_name=owner_name,
+                function_name=function_name,
+            )
+        ),
+    ):
         return None
     class_span = _python_top_level_class_span(
         source_text=source_without_registry,
@@ -919,9 +923,9 @@ def _python_orm_function_create_updated_source_text(
     if class_span is None:
         return None
     class_start, class_end = class_span
-    class_text = source_without_registry.encode("utf-8")[
-        class_start:class_end
-    ].decode("utf-8")
+    class_text = source_without_registry.encode("utf-8")[class_start:class_end].decode(
+        "utf-8"
+    )
     updated_class_text = _python_orm_insert_method_in_class_text(
         class_text=class_text,
         method_text=method_text,
@@ -1011,7 +1015,9 @@ def _python_orm_function_create_facade_method_text(
         lines.append(signature_args)
         lines.append(f"    ) -> {return_type}:")
     else:
-        lines.append(f"    async def {function_name}({signature_args}) -> {return_type}:")
+        lines.append(
+            f"    async def {function_name}({signature_args}) -> {return_type}:"
+        )
     if description is not None:
         lines.extend(_python_docstring_lines(description, indent="        "))
         lines.append("")
@@ -1229,15 +1235,21 @@ def _python_orm_replace_stub_method_in_class_text(
         tree = ast.parse(class_text)
     except SyntaxError:
         return None
-    class_node = next((node for node in tree.body if isinstance(node, ast.ClassDef)), None)
+    class_node = next(
+        (node for node in tree.body if isinstance(node, ast.ClassDef)), None
+    )
     if class_node is None:
         return None
     for child in class_node.body:
         if not isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
-        if child.name != function_name or not _python_function_body_is_not_implemented(child):
+        if child.name != function_name or not _python_function_body_is_not_implemented(
+            child
+        ):
             continue
-        start_line = child.decorator_list[0].lineno if child.decorator_list else child.lineno
+        start_line = (
+            child.decorator_list[0].lineno if child.decorator_list else child.lineno
+        )
         end_line = getattr(child, "end_lineno", None)
         if not isinstance(end_line, int):
             return None
@@ -1266,7 +1278,10 @@ def _python_function_body_is_not_implemented(
 def _python_raise_is_not_implemented(statement: ast.Raise) -> bool:
     if isinstance(statement.exc, ast.Call) and isinstance(statement.exc.func, ast.Name):
         return statement.exc.func.id == "NotImplementedError"
-    return isinstance(statement.exc, ast.Name) and statement.exc.id == "NotImplementedError"
+    return (
+        isinstance(statement.exc, ast.Name)
+        and statement.exc.id == "NotImplementedError"
+    )
 
 
 def _python_append_top_level_after_class(
@@ -1310,15 +1325,16 @@ def _python_orm_ensure_function_imports(
     ):
         imported_name = _python_imported_symbol_name(import_line=import_line)
         if imported_name is not None and (
-            f"class {imported_name}(" in updated
-            or f"class {imported_name}:" in updated
+            f"class {imported_name}(" in updated or f"class {imported_name}:" in updated
         ):
             continue
         updated = _python_ensure_import(
             source_text=updated,
             group_header=_python_import_group_header(import_line),
             import_line=import_line,
-            before_group_header="# Types" if import_line.startswith("from aware_types ") else None,
+            before_group_header=(
+                "# Types" if import_line.startswith("from aware_types ") else None
+            ),
         )
     return _python_normalize_import_spacing(
         source_text=_python_normalize_pydantic_imports(source_text=updated),
@@ -1367,7 +1383,8 @@ def _python_markerless_import_insert_offset(
     prefer_import_block_end: bool = False,
 ) -> int:
     if prefer_import_block_end and any(
-        marker in source_text for marker in ("# Standard\n", "# Third-party\n", "# Orm\n")
+        marker in source_text
+        for marker in ("# Standard\n", "# Third-party\n", "# Orm\n")
     ):
         class_index = source_text.find("\n\nclass ")
         if class_index >= 0:
@@ -1427,7 +1444,19 @@ def _python_descriptor_import_lines(
     descriptor_kind = optional_text(descriptor.get("kind"))
     if descriptor_kind == "primitive":
         primitive = optional_text(descriptor.get("primitive_base_type"))
-        if primitive is not None and primitive.rsplit(".", maxsplit=1)[-1].lower() == "json":
+        if (
+            primitive is not None
+            and primitive.rsplit(".", maxsplit=1)[-1].lower() == "decimal"
+        ):
+            return (
+                "from decimal import Decimal",
+                "from typing import Annotated",
+                "from aware_types import DecimalWire",
+            )
+        if (
+            primitive is not None
+            and primitive.rsplit(".", maxsplit=1)[-1].lower() == "json"
+        ):
             return ("from aware_types import JsonObject",)
         return ()
     if descriptor_kind == "enum":
@@ -1500,7 +1529,10 @@ def _python_import_group_header(import_line: str) -> str:
 
 
 def _python_normalize_pydantic_imports(*, source_text: str) -> str:
-    if "from pydantic import BaseModel" not in source_text or "from pydantic import Field" not in source_text:
+    if (
+        "from pydantic import BaseModel" not in source_text
+        or "from pydantic import Field" not in source_text
+    ):
         return source_text
     source_text = source_text.replace("from pydantic import BaseModel\n", "")
     source_text = source_text.replace("from pydantic import Field\n", "")
@@ -1522,9 +1554,7 @@ def _python_normalize_pydantic_imports(*, source_text: str) -> str:
 def _python_normalize_import_spacing(*, source_text: str) -> str:
     while "\n\n\n#" in source_text:
         source_text = source_text.replace("\n\n\n#", "\n\n#")
-    for import_line in (
-        "from aware_types import JsonObject",
-    ):
+    for import_line in ("from aware_types import JsonObject",):
         source_text = source_text.replace(
             f"{import_line}\n\nclass ",
             f"{import_line}\n\n\nclass ",
@@ -1564,8 +1594,7 @@ def _python_top_level_class_exists(
     except SyntaxError:
         return False
     return any(
-        isinstance(node, ast.ClassDef) and node.name == class_name
-        for node in tree.body
+        isinstance(node, ast.ClassDef) and node.name == class_name for node in tree.body
     )
 
 
@@ -3298,13 +3327,43 @@ def _python_signature_default_literal(
     parsed_value = _python_parse_default_value(value)
     if parsed_value is None:
         return "None"
-    if optional_text(descriptor.get("kind")) == "enum" and isinstance(parsed_value, str):
+    if optional_text(descriptor.get("kind")) == "enum" and isinstance(
+        parsed_value, str
+    ):
         return f"{type_text}.{_python_enum_option_name(parsed_value)}"
+    if _descriptor_is_decimal(descriptor):
+        return f"Decimal({canonical_decimal_text(parsed_value)!r})"
+    if _descriptor_is_decimal_collection(descriptor) and isinstance(parsed_value, list):
+        return (
+            "["
+            + ", ".join(
+                f"Decimal({canonical_decimal_text(item)!r})" for item in parsed_value
+            )
+            + "]"
+        )
     if isinstance(parsed_value, bool):
         return "True" if parsed_value else "False"
     if isinstance(parsed_value, int | float | str | list | dict):
         return repr(parsed_value)
     return None
+
+
+def _descriptor_is_decimal(descriptor: Mapping[str, object]) -> bool:
+    primitive = optional_text(descriptor.get("primitive_base_type"))
+    return (
+        optional_text(descriptor.get("kind")) == "primitive"
+        and primitive is not None
+        and primitive.rsplit(".", maxsplit=1)[-1].lower() == "decimal"
+    )
+
+
+def _descriptor_is_decimal_collection(descriptor: Mapping[str, object]) -> bool:
+    if optional_text(descriptor.get("kind")) != "collection":
+        return False
+    return any(
+        _descriptor_is_decimal(child)
+        for child in _python_descriptor_children(descriptor=descriptor)
+    )
 
 
 def _python_parse_default_value(value: object) -> object | None:
@@ -3417,9 +3476,8 @@ def _python_single_non_null_child_type_text(
 ) -> str | None:
     child_links = tuple_mappings(descriptor.get("child_links"))
     child_descriptors = tuple_mappings(descriptor.get("child_descriptors"))
-    children = (
-        child_descriptors
-        or tuple(mapping_value(link.get("child")) for link in child_links)
+    children = child_descriptors or tuple(
+        mapping_value(link.get("child")) for link in child_links
     )
     child_texts = tuple(
         text

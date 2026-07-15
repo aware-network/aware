@@ -1,0 +1,104 @@
+api hub {
+    view channel_heads on HubChannelHeads.home state aware_hub_service_dto.hub.view.HubPublicDiscoveryViewStateV1 {
+        """
+        Public Hub package channel-head discovery view over committed Hub authority truth.
+        """
+
+        stream snapshot
+        endpoint discover_channel_heads code_package.discover_channel_heads
+        endpoint search_packages code_package.search
+        endpoint describe_package code_package.describe
+        endpoint resolve_package code_package.resolve
+        endpoint download_package code_package.download
+        endpoint resolve_deployment_artifact deployment_artifact.resolve
+    }
+
+    capability public_map {
+        endpoint discover aware_hub_service_dto.hub.DiscoverPublicMapRequest {
+            """
+            Discover the public Hub package/revision map for pre-identity Control surfaces.
+            """
+
+            response aware_hub_service_dto.hub.DiscoverPublicMapResponse
+        }
+    }
+
+    capability code_package {
+        endpoint discover_channel_heads aware_code_service_dto.code.DiscoverCodePackageChannelHeadsRequest {
+            """
+            Discover public Hub CodePackage channel heads for pre-identity map surfaces.
+            """
+
+            response aware_code_service_dto.code.DiscoverCodePackageChannelHeadsResponse
+        }
+
+        endpoint search aware_code_service_dto.code.SearchCodePackageRequest {
+            """
+            Search CodePackage descriptors through Hub package authority truth.
+            """
+
+            response aware_code_service_dto.code.SearchCodePackageResponse
+        }
+
+        endpoint describe aware_code_service_dto.code.DescribeCodePackageRequest {
+            """
+            Describe one CodePackage descriptor through Hub package authority truth.
+            """
+
+            response aware_code_service_dto.code.DescribeCodePackageResponse
+        }
+
+        endpoint resolve aware_code_service_dto.code.ResolveCodePackageRequest {
+            """
+            Resolve one exact CodePackage artifact lock through Hub package authority truth.
+            """
+
+            response aware_code_service_dto.code.ResolveCodePackageResponse
+        }
+
+        endpoint download aware_code_service_dto.code.DownloadCodePackageRequest {
+            """
+            Return one explicit CodePackage artifact download lock through Hub package authority truth.
+            """
+
+            response aware_code_service_dto.code.DownloadCodePackageResponse
+        }
+
+        endpoint publish aware_code_service_dto.code.PublishCodePackageRequest {
+            """
+            Register one staged CodePackage artifact lock into Hub package authority truth.
+            """
+
+            response aware_code_service_dto.code.PublishCodePackageResponse
+        }
+    }
+
+    capability deployment_artifact {
+        endpoint resolve aware_hub_service_dto.hub.ResolveDeploymentArtifactRequest {
+            """
+            Resolve a deployment artifact payload lock through Hub authority truth.
+            """
+
+            response aware_hub_service_dto.hub.ResolveDeploymentArtifactResponse
+        }
+    }
+
+    capability artifact {
+        endpoint publish aware_hub_service_dto.hub.PublishHubArtifactRequest {
+            """
+            Publish a generic immutable artifact payload lock through Hub authority truth.
+            """
+
+            response aware_hub_service_dto.hub.PublishHubArtifactResponse
+        }
+
+        endpoint resolve aware_hub_service_dto.hub.ResolveHubArtifactRequest {
+            """
+            Resolve a generic immutable artifact payload lock through Hub authority truth.
+            """
+
+            response aware_hub_service_dto.hub.ResolveHubArtifactResponse
+        }
+    }
+
+}

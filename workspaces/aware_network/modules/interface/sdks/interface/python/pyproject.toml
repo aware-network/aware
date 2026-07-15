@@ -1,0 +1,32 @@
+[project]
+name = "aware-interface-sdk"
+version = "0.1.0"
+description = "Interface SDK facade over the generated Interface service API."
+authors = [{ name = "AWARE Team" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aware_environment_service_dto",
+  "aware-types",
+  "aware_interface_service_api",
+]
+
+[project.optional-dependencies]
+local = [
+  "aware-interface-service",
+]
+test = [
+  "pytest>=8.4.2",
+  "pytest-asyncio>=0.23.7",
+]
+
+[project.entry-points."aware.sdk_operation_catalogs"]
+interface_sdk = "aware_interface_sdk.operation_catalog:get_sdk_operation_catalog"
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_interface_sdk"]
+include = ["README.md", "aware_interface_sdk/py.typed"]

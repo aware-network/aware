@@ -1,0 +1,24 @@
+aware = 1
+
+[package]
+package_name = "skill-ontology"
+fqn_prefix = "aware_skill"
+kind = "ontology"
+version_number = 1
+title = "Skill Ontology"
+description = "Canonical Skill module for API-backed reusable capability instructions."
+
+[build]
+environment_slug = "aware_skill"
+
+[[dependencies]]
+package_name = "api-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"
+
+[[dependencies]]
+package_name = "experience-ontology"
+
+[[dependencies]]
+package_name = "meta-ontology"

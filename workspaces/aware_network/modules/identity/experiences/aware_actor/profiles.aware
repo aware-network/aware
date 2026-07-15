@@ -1,0 +1,34 @@
+experience aware_actor_roles {
+    profile actor.home {
+        title "Aware Actor Home"
+        description "Canonical Actor Thread profile inside Boot Environment. Surfaces roles, commits, and subscriptions after Identity Admission."
+        narrative "See who I am in the network, what I can do, what I have done, and when I react."
+
+        transition identity.actor_home {
+            source projection aware_control_identity view identity.admission.v1
+            trigger event aware_control.IdentityAdmitted
+            target projection aware_actor_roles binding actor.home
+            name "Actor Home"
+            rationale "Identity admission completed; focus the Actor Home surface."
+            idempotency_policy "event_commit"
+        }
+
+        process continuous actor default {
+            title "Actor"
+            narrative "Continuous Actor process — the actor narrative anchor inside Boot Environment."
+            intent actor
+
+            thread actor.home default {
+                title "Actor Home"
+                narrative "Primary Actor Thread for roles, commits, and subscriptions."
+                workspace_view thread.workspace
+                projection aware_actor_roles view actor.roles.v1 default
+                projection aware_actor_commits view actor.commits.v1
+                projection aware_actor_subscriptions view actor.subscriptions.v1
+                layout configuration_map default {
+                    section main projection aware_actor_roles view actor.roles.v1 binding actor.home default
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,31 @@
+[project]
+name = "aware-environment-sdk"
+version = "0.1.0"
+description = "Environment SDK facade over generated Environment API clients."
+authors = [{ name = "AWARE Team" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aware-types",
+  "aware-environment-experience",
+  "aware_attention_service_dto",
+  "aware_environment_service_api",
+  "aware_environment_service_dto",
+  "aware_identity_service_dto",
+  "pydantic>=2.8.0,<3.0.0",
+]
+
+[project.optional-dependencies]
+test = [
+  "aware-sdk-core",
+  "pytest>=8.4.2",
+  "pytest-asyncio>=0.23.7",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_environment_sdk"]
+include = ["README.md", "aware_environment_sdk/py.typed"]

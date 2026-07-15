@@ -1,0 +1,53 @@
+service aware_reactivity {
+    api reactivity;
+
+    operation get_status {
+        endpoint reactivity.status.get_status;
+        admission identity_required;
+    }
+
+    operation subscribe_events {
+        endpoint reactivity.event.subscribe_events;
+        admission identity_required;
+    }
+
+    operation publish_event {
+        endpoint reactivity.event.publish_event;
+        admission identity_required;
+    }
+
+    operation resolve_event_meaning_provider_intent {
+        endpoint reactivity.meaning.resolve_provider_intent;
+        admission identity_required;
+    }
+
+    operation subscribe_action_lifecycle {
+        endpoint reactivity.action.subscribe_lifecycle;
+        admission identity_required;
+    }
+
+    operation claim_action_execution {
+        endpoint reactivity.action.claim_execution;
+        admission identity_required;
+    }
+
+    operation resolve_action_intents {
+        endpoint reactivity.action.resolve_intents;
+        admission identity_required;
+    }
+
+    operation publish_action_lifecycle {
+        endpoint reactivity.action.publish_lifecycle;
+        admission identity_required;
+    }
+
+    operation ensure_policy_bundle {
+        endpoint reactivity.policy.ensure_bundle;
+        admission identity_required;
+    }
+
+    operation list_policy_bundles {
+        endpoint reactivity.policy.list_bundles;
+        admission identity_required;
+    }
+}

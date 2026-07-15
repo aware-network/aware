@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 # Code Ontology
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBaseType
@@ -47,6 +49,7 @@ from aware_meta.graph.config.render.layout_strategy import ObjectConfigGraphRend
 
 from python_grammar.renderer import PythonRenderer
 from python_grammar.renderer_policy import PythonRenderPolicy
+from python_grammar.signature_validation import PythonSignatureMaterializationError
 from python_grammar_test_support import (
     class_attr_link,
     function_attr_link,
@@ -85,7 +88,7 @@ class _TestLayout(ObjectConfigGraphRenderLayoutStrategy):
         return ".".join(p for p in parts if p).strip(".")
 
 
-def test_python_renderer_emits_valid_signature_when_required_follows_default() -> None:
+def test_python_renderer_rejects_required_parameter_after_default() -> None:
     cls = make_class(name="Thing", is_base=True)
 
     prim = build_code_primitive_type(base_type=CodePrimitiveBaseType.string)
@@ -136,15 +139,101 @@ def test_python_renderer_emits_valid_signature_when_required_follows_default() -
     renderer = PythonRenderer(layout_strategy=_TestLayout(base_dir=Path("/tmp")))
     code = renderer.create_empty_code()
     writer = CodeSectionWriter(code=code, index=CodeSectionBuilderIndex(), indent_size=renderer.indent)
-    renderer.emit_file([cls, fn], writer, schema="default", class_to_class_config_map={cls.id: cls})
+    with pytest.raises(
+        PythonSignatureMaterializationError,
+        match=(
+            "python.function.signature.required_after_default: Thing.do: "
+            "required parameter 'required' follows defaulted parameter 'optional'"
+        ),
+    ) as exc_info:
+        renderer.emit_file(
+            [cls, fn],
+            writer,
+            schema="default",
+            class_to_class_config_map={cls.id: cls},
+        )
+
+    diagnostic = exc_info.value.evidence_payload()
+    assert diagnostic["classification"] == "author_action_required"
+    assert diagnostic["outputs_applied"] is False
+    assert diagnostic["target_language"] == "python"
+    assert diagnostic["symbol"] == "Thing.do"
+    assert diagnostic["context"] == {
+        "offending_parameter": "required",
+        "preceding_defaulted_parameter": "optional",
+    }
+    assert diagnostic["remediation"] == (
+        "Move 'required' before the first defaulted parameter or give it an "
+        "explicit default."
+    )
 
     out = writer.code.content_part_text.inline_text or ""
-    compile(out, "generated.py", "exec")  # ensure render output is syntactically valid
+    assert "async def do(" not in out
 
-    # Python requires required params before default params; renderer must repair the ordering.
+
+def test_python_renderer_preserves_valid_required_then_default_order() -> None:
+    cls = make_class(name="Thing", is_base=True)
+    prim = build_code_primitive_type(base_type=CodePrimitiveBaseType.string)
+    prim_cfg = PrimitiveConfig(primitive_type=prim, primitive_type_id=prim.id)
+    desc = AttributeTypeDescriptor(
+        kind=AttributeTypeDescriptorKind.primitive,
+        primitive_config=prim_cfg,
+        primitive_config_id=prim_cfg.id,
+    )
+    fn = make_function(
+        name="do",
+        owner_key=function_owner_key(cls),
+        is_async=True,
+        kind=FunctionKind.instance,
+    )
+    required_attr = make_attribute(
+        name="required",
+        owner_key=function_io_owner_key(fn, FunctionAttributeType.input),
+        is_public=True,
+        is_required=True,
+        is_unique=False,
+        is_virtual=False,
+        type_descriptor=desc,
+        type_descriptor_id=desc.id,
+    )
+    optional_attr = make_attribute(
+        name="optional",
+        owner_key=function_io_owner_key(fn, FunctionAttributeType.input),
+        is_public=True,
+        is_required=False,
+        is_unique=False,
+        is_virtual=False,
+        type_descriptor=desc,
+        type_descriptor_id=desc.id,
+    )
+    fn.function_config_attribute_configs = [
+        function_attr_link(fn, required_attr, type=FunctionAttributeType.input, position=0),
+        function_attr_link(fn, optional_attr, type=FunctionAttributeType.input, position=1),
+    ]
+    cls.class_config_function_configs = [
+        ClassConfigFunctionConfig(
+            class_config_id=cls.id,
+            function_config=fn,
+            function_config_id=fn.id,
+            is_public=True,
+            is_constructor=False,
+            position=0,
+        )
+    ]
+
+    renderer = PythonRenderer(layout_strategy=_TestLayout(base_dir=Path("/tmp")))
+    code = renderer.create_empty_code()
+    writer = CodeSectionWriter(code=code, index=CodeSectionBuilderIndex(), indent_size=renderer.indent)
+    renderer.emit_file(
+        [cls, fn],
+        writer,
+        schema="default",
+        class_to_class_config_map={cls.id: cls},
+    )
+
+    out = writer.code.content_part_text.inline_text or ""
+    compile(out, "generated.py", "exec")
     assert "async def do(self, required: str, optional: str | None = None) -> None" in out
-    assert '"required": required' in out
-    assert '"optional": optional' in out
 
 
 def test_python_renderer_discriminator_tag_order_uses_source_position() -> None:

@@ -1,0 +1,13 @@
+aware_attention = 1
+
+[attention]
+package_name = "aware-control-shell-attention"
+fqn_prefix = "aware_control_shell_attention"
+title = "Aware Control Shell"
+description = "Network-owned shell topology for the Aware Control interface."
+
+[build]
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+frame_mode = "horizontal"

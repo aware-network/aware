@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from aware_code.primitive_codec_base import build_code_primitive_type
 from aware_meta_ontology.attribute.attribute_type_descriptor import (
     AttributeTypeDescriptor,
 )
@@ -14,6 +15,7 @@ from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
 from aware_code.section.builder_index import CodeSectionBuilderIndex
 from aware_code.section.writer import CodeSectionWriter
 from aware_code_ontology.code.code_enums import CodeLanguage
+from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBaseType
 from aware_meta.graph.config.render.layout_strategy import (
     ObjectConfigGraphRenderLayoutStrategy,
 )
@@ -26,6 +28,7 @@ from aware_meta_ontology.function.function_config import FunctionConfig
 from aware_meta_ontology.function.function_config_enums import FunctionKind
 from aware_meta_ontology.function.function_config_enums import FunctionAttributeType
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
+from aware_meta_ontology.primitive.primitive_config import PrimitiveConfig
 
 from python_grammar.renderer_runtime_handlers import (
     PythonRendererRuntimeHandlerImplStubs,
@@ -88,12 +91,23 @@ def _class_desc(target: ClassConfig) -> AttributeTypeDescriptor:
     )
 
 
+def _primitive_desc(base: CodePrimitiveBaseType) -> AttributeTypeDescriptor:
+    primitive = build_code_primitive_type(base_type=base)
+    primitive_config = PrimitiveConfig(
+        primitive_type=primitive,
+        primitive_type_id=primitive.id,
+    )
+    return AttributeTypeDescriptor(
+        kind=AttributeTypeDescriptorKind.primitive,
+        primitive_config=primitive_config,
+        primitive_config_id=primitive_config.id,
+    )
+
+
 def test_runtime_handlers_impl_renderer_has_no_generated_registry_path(
     tmp_path: Path,
 ) -> None:
-    renderer = PythonRendererRuntimeHandlerImplStubs(
-        layout_strategy=_Layout(base_dir=tmp_path)
-    )
+    renderer = PythonRendererRuntimeHandlerImplStubs(layout_strategy=_Layout(base_dir=tmp_path))
 
     assert renderer.extra_output_paths() == []
     assert _render(renderer, []) == ""
@@ -120,9 +134,7 @@ def test_runtime_handlers_impl_renderer_emits_only_impl_stub(
         )
     ]
 
-    renderer = PythonRendererRuntimeHandlerImplStubs(
-        layout_strategy=_Layout(base_dir=tmp_path)
-    )
+    renderer = PythonRendererRuntimeHandlerImplStubs(layout_strategy=_Layout(base_dir=tmp_path))
 
     assert renderer.layout_strategy.get_class_file_path(thing) == (
         Path("handlers") / "impl" / "conversation" / "conversation.py"
@@ -133,6 +145,54 @@ def test_runtime_handlers_impl_renderer_emits_only_impl_stub(
     assert "# --- AWARE: LOGIC START build" in source
     assert "FUNCTION_IMPLS" not in source
     assert "handlers._generated.handlers" not in source
+
+
+def test_runtime_handlers_impl_renderer_renders_nullable_decimal_null_as_none(
+    tmp_path: Path,
+) -> None:
+    account = make_class(name="Account", is_base=True)
+    update = make_function(
+        name="update",
+        owner_key=function_owner_key(account),
+        is_async=True,
+        kind=FunctionKind.instance,
+    )
+    amount = make_attribute(
+        name="amount",
+        owner_key=function_io_owner_key(update, FunctionAttributeType.input),
+        default_value="null",
+        is_public=True,
+        is_required=False,
+        is_unique=False,
+        is_virtual=False,
+        type_descriptor=_primitive_desc(CodePrimitiveBaseType.decimal),
+    )
+    update.function_config_attribute_configs = [
+        function_attr_link(
+            update,
+            amount,
+            type=FunctionAttributeType.input,
+            position=0,
+            is_identity_key=False,
+        ),
+    ]
+    account.class_config_function_configs = [
+        ClassConfigFunctionConfig(
+            class_config_id=account.id,
+            function_config_id=update.id,
+            function_config=update,
+            is_public=True,
+            is_constructor=False,
+            position=0,
+        ),
+    ]
+
+    renderer = PythonRendererRuntimeHandlerImplStubs(layout_strategy=_Layout(base_dir=tmp_path))
+    source = _render(renderer, [account, update])
+
+    assert "from decimal import Decimal" in source
+    assert "from aware_types import DecimalWire" in source
+    assert "amount: Annotated[Decimal, DecimalWire()] | None = None" in source
 
 
 def test_runtime_handlers_impl_renderer_uses_runtime_policy_for_lowered_constructor_logic(
@@ -180,17 +240,11 @@ def test_runtime_handlers_impl_renderer_uses_runtime_policy_for_lowered_construc
         fqn_prefix="aware_code",
         language=CodeLanguage.aware,
     )
-    runtime_graph.object_config_graph_nodes = [
-        make_class_node(runtime_graph.id, runtime_class)
-    ]
+    runtime_graph.object_config_graph_nodes = [make_class_node(runtime_graph.id, runtime_class)]
 
     layout = _Layout(base_dir=tmp_path)
-    unconfigured_renderer = PythonRendererRuntimeHandlerImplStubs(
-        layout_strategy=layout
-    )
-    impl_path = tmp_path / unconfigured_renderer.layout_strategy.get_class_file_path(
-        runtime_class
-    )
+    unconfigured_renderer = PythonRendererRuntimeHandlerImplStubs(layout_strategy=layout)
+    impl_path = tmp_path / unconfigured_renderer.layout_strategy.get_class_file_path(runtime_class)
     impl_path.parent.mkdir(parents=True, exist_ok=True)
     impl_path.write_text(
         "\n".join(
@@ -290,9 +344,7 @@ async def build(thing: Thing) -> Door:
         encoding="utf-8",
     )
 
-    renderer = PythonRendererRuntimeHandlerImplStubs(
-        layout_strategy=_Layout(base_dir=tmp_path)
-    )
+    renderer = PythonRendererRuntimeHandlerImplStubs(layout_strategy=_Layout(base_dir=tmp_path))
 
     source = _render(renderer, [thing, build])
 

@@ -1,0 +1,64 @@
+// Ensure deterministic ActorSubscription binding for a specific actor using
+// a target domain branch as reactivity scope input.
+//
+// Required symbols:
+// - plan.actor_id
+// - plan.actor_identity_branch_id
+// - plan.subscription_name
+// - plan.event_config_name
+// - plan.condition_config_name
+// - plan.object_instance_graph_domain_branch_id
+//
+// Contract (v1):
+// - Runtime-owned scope rail:
+//   EventConfigConditionConfigScope is auto-ensured by runtime from class-instance
+//   creation + policy registry (ConditionConfigClassConfig -> EventConfigConditionConfig).
+// - This program is actor-intent only:
+//   bind ActorSubscription to a deterministic scope id derived from policy + lane.
+// - EventConfigConditionConfigScope id is derived deterministically from
+//   (event-condition binding + OIGI + OIGB).
+// - Idempotent on rerun (constructor semantics + stable id).
+
+program EnsureActorSubscriptionBindingFromBranch_v1Config(
+    actor_id UUID = plan.actor_id,
+    actor_identity_branch_id UUID = plan.actor_identity_branch_id,
+    subscription_name String = plan.subscription_name,
+    event_config_name String = plan.event_config_name,
+    condition_config_name String = plan.condition_config_name,
+    object_instance_graph_domain_branch_id UUID = plan.object_instance_graph_domain_branch_id,
+    event_config_id UUID = reactivity.stable_event_config_id(name=event_config_name),
+    condition_config_id UUID = reactivity.stable_condition_config_id(name=condition_config_name),
+    event_config_condition_config_id UUID = reactivity.stable_event_config_condition_config_id(
+        event_config_id=event_config_id,
+        condition_config_id=condition_config_id
+    ),
+    object_instance_graph_identity_id UUID = meta.stable_object_instance_graph_identity_id(
+        branch_id=object_instance_graph_domain_branch_id
+    ),
+    event_config_condition_config_scope_id UUID = reactivity.stable_event_config_condition_config_scope_id(
+        event_config_condition_config_id=event_config_condition_config_id,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        scope_key="lane"
+    ),
+    actor_subscription_id UUID = identity.stable_actor_subscription_id(
+        actor_id=actor_id,
+        event_config_condition_config_scope_id=event_config_condition_config_scope_id,
+        name=subscription_name
+    ),
+    actor_subscription_branch_id UUID = actor_identity_branch_id
+) {
+    actor identity_system system
+
+    port actor_subscription_actor_subscription_id actor_subscription {
+        node actor_subscription actor.Actor::actor_subscriptions(actor_subscription=actor_subscription_id)
+    }
+}
+
+program EnsureActorSubscriptionBindingFromBranch_v1 impl EnsureActorSubscriptionBindingFromBranch_v1Config {
+    bind actor_subscription_actor_subscription_id actor_subscription.main
+    identity_system call actor_subscription actor.ActorSubscription.create_via_actor(
+        actor_id=actor_id,
+        event_config_condition_config_scope_id=event_config_condition_config_scope_id,
+        name=subscription_name
+    )
+}

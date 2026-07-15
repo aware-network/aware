@@ -18,7 +18,7 @@ Invariants:
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 import time
 from typing import cast
@@ -46,9 +46,14 @@ from aware_meta.graph.instance.commit.builder import (
     build_object_instance_graph_seed_commit,
     build_object_instance_graph_seed_commit_record,
 )
-from aware_meta.graph.instance.commit.body_codec import OigCommitBodyDraft
+from aware_meta.graph.instance.commit.body_codec import (
+    OigCommitBodyDraft,
+    build_oig_commit_body,
+    object_instance_graph_changes_from_body_draft,
+)
 from aware_meta.graph.instance.commit.contract import (
     CommitActionDescriptor,
+    LaneCommitBatchRequest,
     ObjectInstanceGraphCommitBodyRecord,
     ObjectInstanceGraphCommitGraphHashSource,
     ObjectInstanceGraphCommitPreStateEvidence,
@@ -60,6 +65,9 @@ from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 from aware_meta.graph.instance.commit.perf_trace import (
     commit_perf_span,
     record_commit_perf_elapsed,
+)
+from aware_meta.graph.instance.commit.stored_commit_records import (
+    object_instance_graph_commit_envelope_from_commit,
 )
 from aware_meta.graph.instance.commit.state_witness import (
     build_commit_state_witness_cursor,
@@ -561,6 +569,663 @@ class FSLaneCommitter:
     def last_commit_perf_profile_snapshot(self) -> dict[str, int]:
         return dict(self._last_commit_perf_profile)
 
+    async def commit_many(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        requests: Sequence[LaneCommitBatchRequest],
+    ) -> tuple[ObjectInstanceGraphCommit, ...]:
+        """
+        Append a linear batch of same-lane commits under one store append.
+
+        The caller remains responsible for providing sequential pre-state OIGs.
+        This method verifies the supplied graph hash chain and builds parent
+        pointers from one resolved lane HEAD plus prior commits in the batch.
+        """
+        commit_started = time.monotonic()
+        request_tuple = tuple(requests)
+        if not projection_hash:
+            raise LaneCommitError("projection_hash is required")
+        if not request_tuple:
+            raise LaneCommitError("commit_many requires at least one request")
+
+        first_request = request_tuple[0]
+        metadata = _lane_commit_trace_metadata(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            object_instance_graph_identity_id=(
+                first_request.object_instance_graph_identity_id
+            ),
+            object_instance_graph_id=first_request.object_instance_graph_id,
+            change_count=sum(len(tuple(request.changes)) for request in request_tuple),
+            commit_action=first_request.commit_action,
+        )
+        metadata["batch_request_count"] = len(request_tuple)
+        perf: dict[str, int] = {
+            "batch_request_count": len(request_tuple),
+            "batch_commit_count": len(request_tuple),
+        }
+
+        expected_object_projection_graph_identity_id = (
+            first_request.object_projection_graph_identity_id
+        )
+        expected_object_instance_graph_identity_id = (
+            first_request.object_instance_graph_identity_id
+        )
+        expected_object_instance_graph_id = first_request.object_instance_graph_id
+        previous_graph_hash_post: str | None = None
+        with commit_perf_span(
+            phase="runtime.invoke_function.domain_commit.batch_pre_hash_validate",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            pre_hash_validate_started = time.monotonic()
+            for index, request in enumerate(request_tuple):
+                if not request.graph_hash_post:
+                    raise LaneCommitError("graph_hash_post is required")
+                if request.before_oig.id != request.object_instance_graph_id:
+                    raise LaneCommitError(
+                        "before_oig.id must match object_instance_graph_id: "
+                        + f"before_oig.id={request.before_oig.id} "
+                        + f"object_instance_graph_id={request.object_instance_graph_id}"
+                    )
+                if not tuple(request.changes):
+                    raise LaneCommitError(
+                        "commit_many requires changes in every request"
+                    )
+                if (
+                    request.object_projection_graph_identity_id
+                    != expected_object_projection_graph_identity_id
+                ):
+                    raise LaneCommitError(
+                        "Batch object_projection_graph_identity_id mismatch: "
+                        + f"expected={expected_object_projection_graph_identity_id} "
+                        + f"got={request.object_projection_graph_identity_id}"
+                    )
+                if (
+                    request.object_instance_graph_identity_id
+                    != expected_object_instance_graph_identity_id
+                ):
+                    raise LaneCommitError(
+                        "Batch object_instance_graph_identity_id mismatch: "
+                        + f"expected={expected_object_instance_graph_identity_id} "
+                        + f"got={request.object_instance_graph_identity_id}"
+                    )
+                if (
+                    request.object_instance_graph_id
+                    != expected_object_instance_graph_id
+                ):
+                    raise LaneCommitError(
+                        "Batch object_instance_graph_id mismatch: "
+                        + f"expected={expected_object_instance_graph_id} "
+                        + f"got={request.object_instance_graph_id}"
+                    )
+                if (
+                    previous_graph_hash_post
+                    and request.graph_hash_pre
+                    and request.graph_hash_pre != previous_graph_hash_post
+                ):
+                    raise LaneCommitError(
+                        "Batch graph_hash_pre mismatch: "
+                        + f"request_index={index} expected={previous_graph_hash_post} "
+                        + f"got={request.graph_hash_pre}"
+                    )
+
+                if request.pre_state_evidence is not None:
+                    _require_matching_pre_state_evidence(
+                        pre_state_evidence=request.pre_state_evidence,
+                        branch_id=branch_id,
+                        projection_hash=projection_hash,
+                        object_instance_graph_id=request.object_instance_graph_id,
+                        graph_hash_pre=request.graph_hash_pre,
+                        perf=perf,
+                    )
+                    request.before_oig.hash = request.graph_hash_pre
+                    perf["pre_state_evidence_check_count"] = (
+                        perf.get("pre_state_evidence_check_count", 0) + 1
+                    )
+                elif request.pre_state_index is not None:
+                    state_index_hash = request.pre_state_index.compute_hash()
+                    if state_index_hash != request.graph_hash_pre:
+                        raise LaneStateIndexPreHashMismatchError(
+                            details=LaneStateIndexPreHashMismatchDetails(
+                                branch_id=branch_id,
+                                projection_hash=projection_hash,
+                                object_instance_graph_id=(
+                                    request.object_instance_graph_id
+                                ),
+                                graph_hash_pre=request.graph_hash_pre,
+                                state_index_hash=state_index_hash,
+                            )
+                        )
+                    request.before_oig.hash = request.graph_hash_pre
+                    perf["pre_state_index_hash_count"] = (
+                        perf.get("pre_state_index_hash_count", 0) + 1
+                    )
+                else:
+                    pre_hash_state = compute_oig_lane_hash_state(
+                        graph=request.before_oig,
+                        schema_attribute_configs_by_id=(
+                            request.schema_attribute_configs_by_id
+                        ),
+                        expected_hash=request.graph_hash_pre,
+                    )
+                    if request.graph_hash_pre and not pre_hash_state.matches(
+                        request.graph_hash_pre
+                    ):
+                        raise LaneBeforeOigHashMismatchError(
+                            details=LaneBeforeOigHashMismatchDetails(
+                                branch_id=branch_id,
+                                projection_hash=projection_hash,
+                                object_instance_graph_id=(
+                                    request.object_instance_graph_id
+                                ),
+                                graph_hash_pre=request.graph_hash_pre,
+                                lane_hash=pre_hash_state.lane_hash,
+                                raw_hash=pre_hash_state.raw_hash,
+                            )
+                        )
+                    request.before_oig.hash = pre_hash_state.matched_hash_or_default(
+                        request.graph_hash_pre
+                    )
+
+                for ch in tuple(request.changes):
+                    if ch.object_instance_graph_id != request.object_instance_graph_id:
+                        raise LaneCommitError(
+                            "ObjectInstanceGraphChange targets unexpected "
+                            "object_instance_graph_id: "
+                            + f"expected={request.object_instance_graph_id} "
+                            + f"got={ch.object_instance_graph_id}"
+                        )
+                previous_graph_hash_post = request.graph_hash_post
+            perf["pre_hash_validate_ms"] = self._elapsed_ms(
+                started=pre_hash_validate_started
+            )
+
+        with commit_perf_span(
+            phase="runtime.invoke_function.domain_commit.batch_head_resolve",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            head_resolve_started = time.monotonic()
+            head = await self._store.head(
+                branch_id=branch_id, projection_hash=projection_hash
+            )
+            perf["head_resolve_ms"] = self._elapsed_ms(started=head_resolve_started)
+        head_state = _decode_lane_head_state(head=head)
+        head_commit_id = head_state.commit_id
+        head_post_hash = head_state.graph_hash_post
+        head_oig_id = head_state.object_instance_graph_id
+        if head_oig_id is not None and head_oig_id != expected_object_instance_graph_id:
+            raise LaneCommitError(
+                "Lane OIG id mismatch: "
+                + f"head_object_instance_graph_id={head_oig_id} "
+                + f"expected_object_instance_graph_id={expected_object_instance_graph_id}"
+            )
+        if (
+            head_post_hash
+            and first_request.graph_hash_pre
+            and head_post_hash != first_request.graph_hash_pre
+        ):
+            raise LaneHeadPreHashMismatchError(
+                details=LaneHeadPreHashMismatchDetails(
+                    branch_id=branch_id,
+                    projection_hash=projection_hash,
+                    object_instance_graph_id=expected_object_instance_graph_id,
+                    head_commit_id=head_commit_id,
+                    head_graph_hash_post=head_post_hash,
+                    graph_hash_pre=first_request.graph_hash_pre,
+                )
+            )
+
+        commits: list[ObjectInstanceGraphCommit] = []
+        records: list[ObjectInstanceGraphCommitBodyRecord] = []
+        parent_commit_id = head_commit_id
+        with commit_perf_span(
+            phase="runtime.invoke_function.domain_commit.batch_build_commit_payload",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            build_payload_started = time.monotonic()
+            for request in request_tuple:
+                graph_hash_source: ObjectInstanceGraphCommitGraphHashSource = (
+                    request.pre_state_evidence.graph_hash_source
+                    if request.pre_state_evidence is not None
+                    else "state_hash"
+                )
+                source_language = request.source_language or DEFAULT_SOURCE_LANGUAGE
+                status = request.status or DEFAULT_COMMIT_STATUS
+                commit = build_object_instance_graph_commit_from_changes(
+                    before_oig=request.before_oig,
+                    changes=list(request.changes),
+                    branch_id=branch_id,
+                    object_instance_graph_identity_id=(
+                        request.object_instance_graph_identity_id
+                    ),
+                    object_instance_graph_id=request.object_instance_graph_id,
+                    projection_hash=projection_hash,
+                    graph_hash_pre=request.graph_hash_pre,
+                    graph_hash_post=request.graph_hash_post,
+                    graph_hash_source=graph_hash_source,
+                    author_id=request.author_id,
+                    parent_commit_id=parent_commit_id,
+                    commit_id=request.commit_id,
+                    source_language=source_language,
+                    status=status,
+                )
+                commits.append(commit)
+                commit_id = commit.commit.id
+                root_metadata = request.root_metadata
+                if root_metadata is None:
+                    record = ObjectInstanceGraphCommitBodyRecord(
+                        envelope=object_instance_graph_commit_envelope_from_commit(
+                            branch_id=branch_id,
+                            projection_hash=projection_hash,
+                            commit=commit,
+                        ),
+                        body=build_oig_commit_body(commit),
+                    )
+                elif request.body_draft is not None:
+                    record = build_object_instance_graph_commit_record_from_body_draft(
+                        root_metadata=root_metadata,
+                        body_draft=request.body_draft,
+                        branch_id=branch_id,
+                        object_instance_graph_identity_id=(
+                            request.object_instance_graph_identity_id
+                        ),
+                        object_instance_graph_id=request.object_instance_graph_id,
+                        projection_hash=projection_hash,
+                        graph_hash_pre=request.graph_hash_pre,
+                        graph_hash_post=request.graph_hash_post,
+                        author_id=request.author_id,
+                        parent_commit_id=parent_commit_id,
+                        commit_id=commit_id,
+                        source_language=source_language,
+                        status=status,
+                        graph_hash_source=graph_hash_source,
+                    )
+                    perf["build_commit_record_from_body_draft_count"] = (
+                        perf.get("build_commit_record_from_body_draft_count", 0) + 1
+                    )
+                else:
+                    record = (
+                        build_object_instance_graph_commit_record_from_shallow_changes(
+                            root_metadata=root_metadata,
+                            changes=list(request.changes),
+                            branch_id=branch_id,
+                            object_instance_graph_identity_id=(
+                                request.object_instance_graph_identity_id
+                            ),
+                            object_instance_graph_id=request.object_instance_graph_id,
+                            projection_hash=projection_hash,
+                            graph_hash_pre=request.graph_hash_pre,
+                            graph_hash_post=request.graph_hash_post,
+                            author_id=request.author_id,
+                            parent_commit_id=parent_commit_id,
+                            commit_id=commit_id,
+                            source_language=source_language,
+                            status=status,
+                            graph_hash_source=graph_hash_source,
+                        )
+                    )
+                    perf["build_commit_record_from_shallow_count"] = (
+                        perf.get("build_commit_record_from_shallow_count", 0) + 1
+                    )
+                _validate_body_draft_against_pre_state_index(
+                    body_draft=request.body_draft,
+                    pre_state_index=request.pre_state_index,
+                )
+                records.append(record)
+                parent_commit_id = commit.commit.id
+            perf["build_commit_payload_ms"] = self._elapsed_ms(
+                started=build_payload_started
+            )
+
+        try:
+            with commit_perf_span(
+                phase="runtime.invoke_function.domain_commit.batch_validate_commit_payload",
+                category="meta.runtime.invoke_function",
+                metadata=metadata,
+            ):
+                validate_started = time.monotonic()
+                for commit in commits:
+                    validate_object_instance_graph_commit(
+                        commit=commit,
+                        expected_object_instance_graph_identity_id=(
+                            expected_object_instance_graph_identity_id
+                        ),
+                        expected_object_instance_graph_id=(
+                            expected_object_instance_graph_id
+                        ),
+                        expected_projection_hash=projection_hash,
+                        require_linear_history=True,
+                    )
+                perf["validate_commit_payload_ms"] = self._elapsed_ms(
+                    started=validate_started
+                )
+        except OigCommitValidationError as e:
+            raise LaneCommitError(f"Invalid OIG batch commit payload: {e}") from e
+        record_tuple = tuple(records)
+        write_health_index = all(
+            request.write_health_index for request in request_tuple
+        )
+        with commit_perf_span(
+            phase="runtime.invoke_function.domain_commit.batch_store_append_records",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            append_started = time.monotonic()
+            append_perf = await self._store.append_records(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                records=record_tuple,
+                root_object_ids=tuple(
+                    request.root_object_id for request in request_tuple
+                ),
+                commit_actions=tuple(
+                    request.commit_action for request in request_tuple
+                ),
+                object_projection_graph_identity_id=(
+                    expected_object_projection_graph_identity_id
+                ),
+                write_health_index=write_health_index,
+            )
+            perf["append_records_ms"] = self._elapsed_ms(started=append_started)
+        for metric_name, metric_value in append_perf.items():
+            try:
+                coerced_value = int(metric_value)
+            except Exception:
+                continue
+            perf[f"append_{metric_name}"] = max(coerced_value, 0)
+        perf["total_ms"] = self._elapsed_ms(started=commit_started)
+        self._last_commit_perf_profile = perf
+        return tuple(commits)
+
+    async def commit_record_many(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        requests: Sequence[LaneCommitBatchRequest],
+    ) -> tuple[ObjectInstanceGraphCommitBodyRecord, ...]:
+        """Append ordered body-draft records without legacy commit wrappers."""
+
+        commit_started = time.monotonic()
+        request_tuple = tuple(requests)
+        if not projection_hash:
+            raise LaneCommitError("projection_hash is required")
+        if not request_tuple:
+            raise LaneCommitError("commit_record_many requires at least one request")
+
+        first_request = request_tuple[0]
+        metadata = _lane_commit_trace_metadata(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            object_instance_graph_identity_id=(
+                first_request.object_instance_graph_identity_id
+            ),
+            object_instance_graph_id=first_request.object_instance_graph_id,
+            change_count=0,
+            commit_action=first_request.commit_action,
+        )
+        metadata["batch_request_count"] = len(request_tuple)
+        metadata["record_native"] = True
+        perf: dict[str, int] = {
+            "batch_request_count": len(request_tuple),
+            "batch_record_count": len(request_tuple),
+            "record_native_batch_count": 1,
+        }
+
+        expected_opgi_id = first_request.object_projection_graph_identity_id
+        expected_oigi_id = first_request.object_instance_graph_identity_id
+        expected_oig_id = first_request.object_instance_graph_id
+        previous_graph_hash_post: str | None = None
+        with commit_perf_span(
+            phase="runtime.invoke_function.domain_commit.record_batch_pre_hash_validate",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            pre_hash_validate_started = time.monotonic()
+            for request_index, request in enumerate(request_tuple):
+                if not request.graph_hash_pre:
+                    raise LaneCommitError("graph_hash_pre is required")
+                if not request.graph_hash_post:
+                    raise LaneCommitError("graph_hash_post is required")
+                if request.before_oig.id != request.object_instance_graph_id:
+                    raise LaneCommitError(
+                        "before_oig.id must match object_instance_graph_id: "
+                        + f"before_oig.id={request.before_oig.id} "
+                        + f"object_instance_graph_id={request.object_instance_graph_id}"
+                    )
+                if request.body_draft is None or not request.body_draft.roots:
+                    raise LaneCommitError(
+                        "commit_record_many requires a non-empty body draft "
+                        f"in request {request_index}"
+                    )
+                if request.root_metadata is None:
+                    raise LaneCommitError(
+                        "commit_record_many requires root_metadata in every request"
+                    )
+                if request.object_projection_graph_identity_id != expected_opgi_id:
+                    raise LaneCommitError(
+                        "Batch object_projection_graph_identity_id mismatch: "
+                        + f"expected={expected_opgi_id} "
+                        + f"got={request.object_projection_graph_identity_id}"
+                    )
+                if request.object_instance_graph_identity_id != expected_oigi_id:
+                    raise LaneCommitError(
+                        "Batch object_instance_graph_identity_id mismatch: "
+                        + f"expected={expected_oigi_id} "
+                        + f"got={request.object_instance_graph_identity_id}"
+                    )
+                if request.object_instance_graph_id != expected_oig_id:
+                    raise LaneCommitError(
+                        "Batch object_instance_graph_id mismatch: "
+                        + f"expected={expected_oig_id} "
+                        + f"got={request.object_instance_graph_id}"
+                    )
+                if (
+                    previous_graph_hash_post is not None
+                    and request.graph_hash_pre != previous_graph_hash_post
+                ):
+                    raise LaneCommitError(
+                        "Batch graph_hash_pre mismatch: "
+                        + f"request_index={request_index} "
+                        + f"expected={previous_graph_hash_post} "
+                        + f"got={request.graph_hash_pre}"
+                    )
+
+                if request.pre_state_evidence is not None:
+                    _require_matching_pre_state_evidence(
+                        pre_state_evidence=request.pre_state_evidence,
+                        branch_id=branch_id,
+                        projection_hash=projection_hash,
+                        object_instance_graph_id=request.object_instance_graph_id,
+                        graph_hash_pre=request.graph_hash_pre,
+                        perf=perf,
+                    )
+                    perf["pre_state_evidence_check_count"] = (
+                        perf.get("pre_state_evidence_check_count", 0) + 1
+                    )
+                elif request.pre_state_index is not None:
+                    state_index_hash = request.pre_state_index.compute_hash()
+                    if state_index_hash != request.graph_hash_pre:
+                        raise LaneStateIndexPreHashMismatchError(
+                            details=LaneStateIndexPreHashMismatchDetails(
+                                branch_id=branch_id,
+                                projection_hash=projection_hash,
+                                object_instance_graph_id=request.object_instance_graph_id,
+                                graph_hash_pre=request.graph_hash_pre,
+                                state_index_hash=state_index_hash,
+                            )
+                        )
+                    perf["pre_state_index_hash_count"] = (
+                        perf.get("pre_state_index_hash_count", 0) + 1
+                    )
+                else:
+                    pre_hash_state = compute_oig_lane_hash_state(
+                        graph=request.before_oig,
+                        schema_attribute_configs_by_id=(
+                            request.schema_attribute_configs_by_id
+                        ),
+                        expected_hash=request.graph_hash_pre,
+                    )
+                    if not pre_hash_state.matches(request.graph_hash_pre):
+                        raise LaneBeforeOigHashMismatchError(
+                            details=LaneBeforeOigHashMismatchDetails(
+                                branch_id=branch_id,
+                                projection_hash=projection_hash,
+                                object_instance_graph_id=request.object_instance_graph_id,
+                                graph_hash_pre=request.graph_hash_pre,
+                                lane_hash=pre_hash_state.lane_hash,
+                                raw_hash=pre_hash_state.raw_hash,
+                            )
+                        )
+                _validate_body_draft_against_pre_state_index(
+                    body_draft=request.body_draft,
+                    pre_state_index=request.pre_state_index,
+                )
+                previous_graph_hash_post = request.graph_hash_post
+            perf["pre_hash_validate_ms"] = self._elapsed_ms(
+                started=pre_hash_validate_started
+            )
+
+        with commit_perf_span(
+            phase="runtime.invoke_function.domain_commit.record_batch_head_resolve",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            head_resolve_started = time.monotonic()
+            head = await self._store.head(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+            )
+            perf["head_resolve_ms"] = self._elapsed_ms(started=head_resolve_started)
+        head_state = _decode_lane_head_state(head=head)
+        head_commit_id = head_state.commit_id
+        if (
+            head_state.object_instance_graph_id is not None
+            and head_state.object_instance_graph_id != expected_oig_id
+        ):
+            raise LaneCommitError(
+                "Lane OIG id mismatch: "
+                + f"head_object_instance_graph_id={head_state.object_instance_graph_id} "
+                + f"expected_object_instance_graph_id={expected_oig_id}"
+            )
+        if (
+            head_state.graph_hash_post
+            and head_state.graph_hash_post != first_request.graph_hash_pre
+        ):
+            raise LaneHeadPreHashMismatchError(
+                details=LaneHeadPreHashMismatchDetails(
+                    branch_id=branch_id,
+                    projection_hash=projection_hash,
+                    object_instance_graph_id=expected_oig_id,
+                    head_commit_id=head_commit_id,
+                    head_graph_hash_post=head_state.graph_hash_post,
+                    graph_hash_pre=first_request.graph_hash_pre,
+                )
+            )
+
+        records: list[ObjectInstanceGraphCommitBodyRecord] = []
+        parent_commit_id = head_commit_id
+        with commit_perf_span(
+            phase="runtime.invoke_function.domain_commit.record_batch_build_records",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            build_records_started = time.monotonic()
+            for request in request_tuple:
+                body_draft = request.body_draft
+                root_metadata = request.root_metadata
+                if body_draft is None or root_metadata is None:
+                    raise LaneCommitError(
+                        "Record-native batch request lost required draft metadata"
+                    )
+                graph_hash_source: ObjectInstanceGraphCommitGraphHashSource = (
+                    request.pre_state_evidence.graph_hash_source
+                    if request.pre_state_evidence is not None
+                    else "state_hash"
+                )
+                record = build_object_instance_graph_commit_record_from_body_draft(
+                    root_metadata=root_metadata,
+                    body_draft=body_draft,
+                    branch_id=branch_id,
+                    object_instance_graph_identity_id=(
+                        request.object_instance_graph_identity_id
+                    ),
+                    object_instance_graph_id=request.object_instance_graph_id,
+                    projection_hash=projection_hash,
+                    graph_hash_pre=request.graph_hash_pre,
+                    graph_hash_post=request.graph_hash_post,
+                    author_id=request.author_id,
+                    parent_commit_id=parent_commit_id,
+                    commit_id=request.commit_id,
+                    source_language=(
+                        request.source_language or DEFAULT_SOURCE_LANGUAGE
+                    ),
+                    status=request.status or DEFAULT_COMMIT_STATUS,
+                    graph_hash_source=graph_hash_source,
+                )
+                expected_parents = (
+                    () if parent_commit_id is None else (parent_commit_id,)
+                )
+                if record.envelope.parent_commit_ids != expected_parents:
+                    raise LaneCommitError(
+                        "Record-native batch parent chain mismatch: "
+                        + f"expected={expected_parents} "
+                        + f"got={record.envelope.parent_commit_ids}"
+                    )
+                if (
+                    record.envelope.object_instance_graph_identity_id
+                    != expected_oigi_id
+                ):
+                    raise LaneCommitError("Invalid record-native batch OIGI id")
+                if record.envelope.object_instance_graph_id != expected_oig_id:
+                    raise LaneCommitError("Invalid record-native batch OIG id")
+                if record.body.commit_id != record.envelope.commit_id:
+                    raise LaneCommitError("Invalid record-native batch body commit id")
+                records.append(record)
+                parent_commit_id = record.commit_id
+            perf["build_commit_payload_ms"] = self._elapsed_ms(
+                started=build_records_started
+            )
+            perf["build_commit_record_from_body_draft_count"] = len(records)
+
+        record_tuple = tuple(records)
+        with commit_perf_span(
+            phase="runtime.invoke_function.domain_commit.record_batch_store_append_records",
+            category="meta.runtime.invoke_function",
+            metadata=metadata,
+        ):
+            append_started = time.monotonic()
+            append_perf = await self._store.append_records(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+                records=record_tuple,
+                root_object_ids=tuple(
+                    request.root_object_id for request in request_tuple
+                ),
+                commit_actions=tuple(
+                    request.commit_action for request in request_tuple
+                ),
+                object_projection_graph_identity_id=expected_opgi_id,
+                write_health_index=all(
+                    request.write_health_index for request in request_tuple
+                ),
+            )
+            perf["append_records_ms"] = self._elapsed_ms(started=append_started)
+        for metric_name, metric_value in append_perf.items():
+            try:
+                coerced_value = int(metric_value)
+            except Exception:
+                continue
+            perf[f"append_{metric_name}"] = max(coerced_value, 0)
+        perf["total_ms"] = self._elapsed_ms(started=commit_started)
+        self._last_commit_perf_profile = perf
+        return record_tuple
+
     async def commit_record_seed(
         self,
         *,
@@ -776,8 +1441,10 @@ class FSLaneCommitter:
             raise LaneCommitError("graph_hash_pre is required for shallow append")
         if not graph_hash_post:
             raise LaneCommitError("graph_hash_post is required")
-        if not changes:
-            raise LaneCommitError("changes are required for shallow append")
+        if not changes and (body_draft is None or not body_draft.roots):
+            raise LaneCommitError(
+                "changes or a non-empty body draft are required for shallow append"
+            )
 
         state_index_hash_started = time.monotonic()
         state_index_hash = pre_state_index.compute_hash()
@@ -984,8 +1651,10 @@ class FSLaneCommitter:
             raise LaneCommitError("graph_hash_pre is required for shallow append")
         if not graph_hash_post:
             raise LaneCommitError("graph_hash_post is required")
-        if not changes:
-            raise LaneCommitError("changes are required for shallow append")
+        if not changes and (body_draft is None or not body_draft.roots):
+            raise LaneCommitError(
+                "changes or a non-empty body draft are required for shallow append"
+            )
 
         trace_metadata: dict[str, object] = {
             "branch_id": str(branch_id),
@@ -1415,6 +2084,7 @@ class FSLaneCommitter:
         status: CommitStatus = DEFAULT_COMMIT_STATUS,
         commit_action: CommitActionDescriptor | None = None,
         schema_attribute_configs_by_id: Mapping[UUID, AttributeConfig] | None = None,
+        body_draft: OigCommitBodyDraft | None = None,
     ) -> ObjectInstanceGraphCommit | None:
         """
         Append a new commit to the lane.
@@ -1427,6 +2097,28 @@ class FSLaneCommitter:
         """
         commit_started = time.monotonic()
         perf: dict[str, int] = {}
+        if body_draft is not None:
+            if changes:
+                raise LaneCommitError(
+                    "Domain commit cannot mix changes and body-draft evidence"
+                )
+            with commit_perf_span(
+                phase=(
+                    "runtime.invoke_function.domain_commit."
+                    "hydrate_body_draft_compatibility_changes"
+                ),
+                category="meta.runtime.invoke_function",
+                metadata={"body_draft_root_count": len(body_draft.roots)},
+            ):
+                changes = list(
+                    object_instance_graph_changes_from_body_draft(
+                        draft=body_draft,
+                        object_instance_graph_identity_id=(
+                            object_instance_graph_identity_id
+                        ),
+                        object_instance_graph_id=object_instance_graph_id,
+                    )
+                )
         trace_metadata = _lane_commit_trace_metadata(
             branch_id=branch_id,
             projection_hash=projection_hash,

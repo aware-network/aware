@@ -1,0 +1,24 @@
+aware_pane = 1
+
+[pane]
+package_name = "aware-network-territory-pane"
+fqn_prefix = "aware_network_territory_pane"
+pane_name = "network_territory"
+description = "Network node, environment, and hosted-service territory pane package for Control ingress."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+
+[[dependencies]]
+package_name = "aware-network-experience"
+kind = "experience_package"
+
+[dart]
+package_path = "dart/aware_network_territory_pane"
+package_name = "aware_network_territory_pane"
+
+[dart.flutter]
+library = "package:aware_network_territory_pane/aware_network_territory_pane.dart"
+symbol = "registerPanePackage"

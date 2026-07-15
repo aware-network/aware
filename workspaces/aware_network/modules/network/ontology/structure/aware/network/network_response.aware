@@ -1,0 +1,8 @@
+class NetworkResponse {
+    // Relationships
+    network_request NetworkRequest unique key
+
+    // Attributes
+    error String?
+    status NetworkRequestStatus
+}

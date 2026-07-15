@@ -1,0 +1,89 @@
+class RenderComponentPackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    render_component_config render.RenderComponentConfig unique
+    render_component_config_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    aware_render_component_version Int = 1
+    dart JsonObject = {}
+    description String?
+    exclude_paths JsonArray = []
+    force_fresh_scan Bool = true
+    fqn_prefix String?
+    include_paths JsonArray = []
+    manifest_relative_path String?
+    name String key
+    package_root String = "."
+    python JsonObject = {}
+    sources_root String = "."
+    title String?
+    version_number Int = 1
+
+    fn build construct(
+        name String key,
+        render_component_config_id UUID,
+        render_component_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_render_component_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = ".",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        python JsonObject = {},
+        dart JsonObject = {}
+    ) -> RenderComponentPackage {
+        """
+        Create the canonical Interface-owned package root over an existing `RenderComponentConfig`.
+
+        Contract:
+        - Identity is keyed by render component package `name`.
+        - `RenderComponentPackage` is the package/public root over reusable rich renderer
+          component contracts.
+        - `render_component_config_id` must point at the canonical component contract root.
+        - `render_component_config_object_instance_graph_commit_id` pins the historical
+          ObjectInstanceGraphCommit for replayable component package truth.
+        - `source_code_package_id` is the explicit raw-source provenance link for renderer
+          implementation packages.
+        - Manifest/build/python/dart attributes mirror `aware.render_component.toml` so committed
+          package truth can drive Interface and Pane render component routing without reopening
+          authoring TOML.
+        - Panes may depend on this package, but components never own pane state or call services.
+        """
+    }
+
+    fn sync_manifest_truth(
+        render_component_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_render_component_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = ".",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        python JsonObject = {},
+        dart JsonObject = {}
+    ) -> RenderComponentPackage {
+        """
+        Sync mutable manifest/build/python/dart truth onto an existing RenderComponentPackage root.
+
+        This keeps `build` create-only while allowing committed package truth to follow the latest
+        parsed `aware.render_component.toml` snapshot and pinned semantic RenderComponentConfig commit.
+        """
+    }
+}
+
+ann interface.RenderComponentPackage::source_code_package load eager
+ann interface.RenderComponentPackage::render_component_config load eager
+ann interface.RenderComponentPackage::render_component_config_object_instance_graph_commit load eager

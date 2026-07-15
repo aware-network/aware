@@ -1,0 +1,13 @@
+/// AppConfig projection
+///
+/// Purpose:
+/// - Expose reusable app screen configuration as its own portal target.
+/// - Keep screens as Experience layout graph binding entries.
+/// - Avoid app-to-Environment and app-to-pane-default shortcuts.
+projection AppConfig {
+    root interface.AppConfig
+
+    interface.AppConfig::screen_configs
+    interface.AppConfigScreenConfig::projection_experience aware_experience.ProjectionExperience
+    interface.AppConfigScreenConfig::projection_experience_layout_graph_binding aware_experience.ProjectionExperienceLayoutGraphBinding
+}

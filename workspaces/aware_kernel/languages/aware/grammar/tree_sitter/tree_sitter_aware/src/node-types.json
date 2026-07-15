@@ -166,25 +166,6 @@
     }
   },
   {
-    "type": "ann_arg",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "ident",
-          "named": true
-        },
-        {
-          "type": "literal",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "ann_def",
     "named": true,
     "fields": {
@@ -937,6 +918,192 @@
         "types": [
           {
             "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "app_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "app_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "app_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "app_block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "app_description_decl",
+    "named": true,
+    "fields": {
+      "description": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "app_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "app_description_decl",
+          "named": true
+        },
+        {
+          "type": "app_screen_def",
+          "named": true
+        },
+        {
+          "type": "app_title_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "app_screen_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "app_screen_item",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "app_screen_def",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "app_screen_block",
+            "named": true
+          }
+        ]
+      },
+      "screen_key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "app_screen_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "app_screen_projection_layout_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "app_screen_projection_layout_decl",
+    "named": true,
+    "fields": {
+      "layout": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      },
+      "projection": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "view_path",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "app_title_decl",
+    "named": true,
+    "fields": {
+      "title": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
             "named": true
           }
         ]
@@ -5383,27 +5550,7 @@
     "type": "interface_pane_mount_def",
     "named": true,
     "fields": {
-      "default_marker": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "default_marker",
-            "named": true
-          }
-        ]
-      },
       "target": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "qualified_name",
-            "named": true
-          }
-        ]
-      },
-      "view": {
         "multiple": false,
         "required": true,
         "types": [
@@ -8855,10 +9002,20 @@
     "fields": {
       "body": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "service_operation_price_block",
+            "named": true
+          }
+        ]
+      },
+      "price": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "qualified_name",
             "named": true
           }
         ]
@@ -9575,6 +9732,10 @@
           "named": true
         },
         {
+          "type": "app_def",
+          "named": true
+        },
+        {
           "type": "attention_layout_def",
           "named": true
         },
@@ -9840,11 +10001,19 @@
     "named": false
   },
   {
+    "type": "ann_arg",
+    "named": true
+  },
+  {
     "type": "api",
     "named": false
   },
   {
     "type": "api_view",
+    "named": false
+  },
+  {
+    "type": "app",
     "named": false
   },
   {
@@ -10353,6 +10522,10 @@
   },
   {
     "type": "scope",
+    "named": false
+  },
+  {
+    "type": "screen",
     "named": false
   },
   {

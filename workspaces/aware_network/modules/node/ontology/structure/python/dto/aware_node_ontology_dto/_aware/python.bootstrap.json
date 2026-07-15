@@ -1,0 +1,30 @@
+{
+  "dependency_import_roots": [
+    "aware_code_ontology_dto",
+    "aware_environment_ontology_dto",
+    "aware_interface_ontology_dto",
+    "aware_ontology_ontology_dto",
+    "aware_service_ontology_dto"
+  ],
+  "modules": [
+    "aware_node_ontology_dto.node.node_config",
+    "aware_node_ontology_dto.node.node_config_environment_profile_mount",
+    "aware_node_ontology_dto.node.node_config_environment_target",
+    "aware_node_ontology_dto.node.node_config_interface_target",
+    "aware_node_ontology_dto.node.node_config_ontology_target",
+    "aware_node_ontology_dto.node.node_config_service_code_package",
+    "aware_node_ontology_dto.node.node_config_service_target",
+    "aware_node_ontology_dto.node.node_package",
+    "aware_node_ontology_dto.node.node_package_included_node_package",
+    "aware_node_ontology_dto.stable_ids"
+  ],
+  "package_prefix": "aware_node_ontology_dto",
+  "pydantic_model_dependency_import_roots": [
+    "aware_code_ontology_dto",
+    "aware_environment_ontology_dto",
+    "aware_interface_ontology_dto",
+    "aware_ontology_ontology_dto",
+    "aware_service_ontology_dto"
+  ],
+  "version": "v1"
+}

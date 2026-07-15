@@ -1,0 +1,11 @@
+/// NetworkNodePackage projection
+///
+/// Purpose:
+/// - Expose the Network-owned package rail for Workspace/package consumers.
+/// - Keep `NetworkNodeConfig` as the semantic desired-state root under the package boundary.
+/// - Avoid collapsing package truth and live `NetworkNode` runtime state into one object.
+projection NetworkNodePackage is_branchable {
+    root network.NetworkNodePackage
+
+    network.NetworkNodePackage::network_node_config NetworkNodeConfig
+}

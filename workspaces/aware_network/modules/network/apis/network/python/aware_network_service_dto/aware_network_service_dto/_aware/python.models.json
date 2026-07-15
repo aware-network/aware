@@ -1,0 +1,858 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "863c01d7-08a2-5767-8b06-67d96538ac04",
+      "module": "aware_network_service_dto.comms.economy.membership_operation",
+      "name": "MembershipCheckoutSessionCreateRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.economy.MembershipCheckoutSessionCreateRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a4fb980b-48ac-5027-ab94-832ac8b606b0",
+      "module": "aware_network_service_dto.comms.economy.membership_operation",
+      "name": "MembershipCheckoutSessionCreateResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.economy.MembershipCheckoutSessionCreateResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "b812b7f5-28bd-53ab-a11d-0bf5878044a4",
+      "module": "aware_network_service_dto.comms.economy.membership_operation",
+      "name": "MembershipPurchaseClaimRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.economy.MembershipPurchaseClaimRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b1d9c841-5f43-51dc-92f8-c28117acab5e",
+      "module": "aware_network_service_dto.comms.economy.membership_operation",
+      "name": "MembershipPurchaseClaimResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.economy.MembershipPurchaseClaimResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "57380181-279c-51cb-9e69-9664d602d672",
+      "module": "aware_network_service_dto.comms.economy.membership_operation",
+      "name": "MembershipPurchasePrepareRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.economy.MembershipPurchasePrepareRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "0513e625-e7ef-56a3-8ea0-b93fc1763d79",
+      "module": "aware_network_service_dto.comms.economy.membership_operation",
+      "name": "MembershipPurchasePrepareResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.economy.MembershipPurchasePrepareResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "9753660a-ea95-5391-b672-5f01947361df",
+      "module": "aware_network_service_dto.comms.economy.membership_operation",
+      "name": "MembershipStatusRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.economy.MembershipStatusRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "f2d4c74c-3dba-5d56-b8aa-50268c73d4a0",
+      "module": "aware_network_service_dto.comms.economy.membership_operation",
+      "name": "MembershipStatusResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.economy.MembershipStatusResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e5b946ab-fe14-5740-91d8-5cb9cb729703",
+      "module": "aware_network_service_dto.comms.identity.identity_session_operation",
+      "name": "IdentityChallengeRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.identity.IdentityChallengeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "7d84d60c-65b1-54e2-8ad3-26fbe4da37d8",
+      "module": "aware_network_service_dto.comms.identity.identity_session_operation",
+      "name": "IdentityChallengeResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.identity.IdentityChallengeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "b4295e10-732c-51ae-856f-f81003900127",
+      "module": "aware_network_service_dto.comms.identity.identity_session_operation",
+      "name": "IdentityLoginRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.identity.IdentityLoginRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c21e2ac5-fb9d-5060-a6c5-7172cfe14d77",
+      "module": "aware_network_service_dto.comms.identity.identity_session_operation",
+      "name": "IdentityLoginResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.identity.IdentityLoginResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "8a92ebad-dbde-5f62-9d75-63e1512ba84e",
+      "module": "aware_network_service_dto.comms.identity.identity_session_operation",
+      "name": "TokenLoginRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.identity.TokenLoginRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "be4eb177-872d-55e8-b5d8-d4879a1585ab",
+      "module": "aware_network_service_dto.comms.identity.identity_session_operation",
+      "name": "TokenLoginResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.identity.TokenLoginResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "2ccbaa74-f907-5926-9f83-fe2d4bfea504",
+      "module": "aware_network_service_dto.comms.identity.identity_session_operation",
+      "name": "WhoamiRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.identity.WhoamiRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "fcdc259a-495e-564f-b2af-b6f2edfc05c7",
+      "module": "aware_network_service_dto.comms.identity.identity_session_operation",
+      "name": "WhoamiResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.identity.WhoamiResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "0f8da91b-4495-5b4c-bd67-444ee42c4a51",
+      "module": "aware_network_service_dto.comms.models.network",
+      "name": "NetworkOperation",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkOperation",
+      "functions": []
+    },
+    {
+      "class_config_id": "6107fdfb-66fc-5617-8ab0-a2d7f0109d7d",
+      "module": "aware_network_service_dto.comms.models.network",
+      "name": "NetworkOperationHop",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkOperationHop",
+      "functions": []
+    },
+    {
+      "class_config_id": "5fce8bf4-4531-5217-9fd9-2f5ddf3eb095",
+      "module": "aware_network_service_dto.comms.models.network",
+      "name": "NetworkRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "2e680257-1fe1-5e16-b7ac-c89319303378",
+      "module": "aware_network_service_dto.comms.models.network",
+      "name": "NetworkResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e8583ace-4147-592d-a2c4-f2a6d7a2864d",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "BootEnvironmentDescriptor",
+      "aware_class_ref": "aware_network_service_dto.comms.models.BootEnvironmentDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "fc8c9d49-6966-5499-9cfd-9677f49bc37a",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "CloseStreamRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.CloseStreamRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "6040a4bc-bfaf-5513-9a06-fc7d3932b86d",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "CloseStreamResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.CloseStreamResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "4dd894b4-24fd-5786-87a0-d55ec896c33f",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "DescribeHostedServiceRuntimesRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.DescribeHostedServiceRuntimesRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "0e72ac52-f95b-5954-9f80-89d30378ac23",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "DescribeHostedServiceRuntimesResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.DescribeHostedServiceRuntimesResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "f26b88d8-f225-56a2-a212-f8a141ef800b",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "DiscoverEnvironmentConfigsRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.DiscoverEnvironmentConfigsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "6a4827a1-643b-5da7-acb4-ed3859afac4f",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "DiscoverEnvironmentConfigsResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.DiscoverEnvironmentConfigsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "aae2f6d7-4087-53a9-be0b-a0d0e22d1621",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "DiscoverHostedServicesRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.DiscoverHostedServicesRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "ce26737c-bec6-5e92-b241-0d67ec2a6a3f",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "DiscoverHostedServicesResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.DiscoverHostedServicesResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "20c8d915-6654-5847-ad6b-c4461b63007c",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "DiscoverServiceApiDependencyRoutesRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.DiscoverServiceApiDependencyRoutesRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9af9c4c5-951e-5e07-a6a6-be972da36c65",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "DiscoverServiceApiDependencyRoutesResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.DiscoverServiceApiDependencyRoutesResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "375f2421-0c0c-516e-b3d9-6347202fbd17",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "EnvironmentConfigDescriptor",
+      "aware_class_ref": "aware_network_service_dto.comms.models.EnvironmentConfigDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "ab00f78b-9b4c-551f-b109-122ed288bfac",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "GetBootEnvironmentDescriptorRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.GetBootEnvironmentDescriptorRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "bcc1cc82-9927-56ec-9136-30a795e18a3f",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "GetBootEnvironmentDescriptorResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.GetBootEnvironmentDescriptorResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e7312074-f730-51c0-8ac2-a09868d0e588",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "GetEnvironmentStatusRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.GetEnvironmentStatusRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b0218abd-285e-59d9-85d7-211aefc4ea16",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "GetEnvironmentStatusResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.GetEnvironmentStatusResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "99b2dd45-0e10-5fb9-ab69-5af4a48a2689",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "HostedServiceAdvertisement",
+      "aware_class_ref": "aware_network_service_dto.comms.models.HostedServiceAdvertisement",
+      "functions": []
+    },
+    {
+      "class_config_id": "7f09dc01-8e9b-5a15-a46d-edf5bf7d97e7",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "HostedServiceRuntimeServiceStatus",
+      "aware_class_ref": "aware_network_service_dto.comms.models.HostedServiceRuntimeServiceStatus",
+      "functions": []
+    },
+    {
+      "class_config_id": "aea4682e-bcb8-53e1-9fa9-2e5854be31dd",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "HostedServiceRuntimeStatus",
+      "aware_class_ref": "aware_network_service_dto.comms.models.HostedServiceRuntimeStatus",
+      "functions": []
+    },
+    {
+      "class_config_id": "8f0f5bc5-3fe8-55bb-a79a-a7c8bfca7325",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "InterfaceSessionHeartbeatRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.InterfaceSessionHeartbeatRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "6e788a80-b54a-5042-b50d-b0e9269f0f4b",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "InterfaceSessionHeartbeatResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.InterfaceSessionHeartbeatResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "5bd8a610-897f-5d83-aab8-e64d6a66633a",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "InterfaceSessionRegisterRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.InterfaceSessionRegisterRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "e19c3e7d-c378-5bf5-86fa-d278c958a1df",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "InterfaceSessionRegisterResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.InterfaceSessionRegisterResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "01f90630-43a3-5db2-b5c4-bbe79405b72e",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "NetworkNodeOperation",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkNodeOperation",
+      "functions": []
+    },
+    {
+      "class_config_id": "7550b958-917c-52af-80c5-5bc941a6157f",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "NetworkNodeOperationContext",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkNodeOperationContext",
+      "functions": []
+    },
+    {
+      "class_config_id": "20550961-7ce4-5e6d-ac0b-2751864bc5e8",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "NetworkNodeOperationRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkNodeOperationRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "f2ef69f9-6cd8-5b99-8ac3-423c7995bfca",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "NetworkNodeOperationResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkNodeOperationResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "810ecf5a-1f1f-5451-a82a-6b2649ad58c7",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "NodeEnvironmentProvisioningReceipt",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeEnvironmentProvisioningReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "817b41fd-88fa-5e17-b39a-151f5966d346",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "ProvisionEnvironmentRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.ProvisionEnvironmentRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c1257d0a-161b-52c6-ab7b-3f57db93ddf9",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "ProvisionEnvironmentResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.ProvisionEnvironmentResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "bae71df4-6eb4-5c47-93dc-a8ccf24fc59e",
+      "module": "aware_network_service_dto.comms.models.network_node",
+      "name": "ServiceApiDependencyRouteDescriptor",
+      "aware_class_ref": "aware_network_service_dto.comms.models.ServiceApiDependencyRouteDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "3c3f2401-3e1e-5534-8b9e-03cde17780c7",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkDiscoverExperienceTerritoryRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkDiscoverExperienceTerritoryRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "f71a01b8-dfd2-548e-a38f-39157ead9306",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkDiscoverExperienceTerritoryResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkDiscoverExperienceTerritoryResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "5932cfb7-74bc-5156-8d76-6aec23cd8be4",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkDiscoverTerritoryRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkDiscoverTerritoryRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "70457b65-6e75-5b4d-852a-31bebac47c82",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkDiscoverTerritoryResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkDiscoverTerritoryResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "fff0b3be-b006-5c1a-be78-1bf25c975a43",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkEnvironmentDescriptor",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkEnvironmentDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "a0428df6-abde-5915-8be2-6749b856c888",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkExperienceServiceCandidate",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkExperienceServiceCandidate",
+      "functions": []
+    },
+    {
+      "class_config_id": "21330186-00e1-5192-b170-4fd9a5ea4dca",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkExperienceTerritoryEntry",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkExperienceTerritoryEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "8c318f44-d276-5cf0-96f0-f456489983b9",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkHostedServiceDescriptor",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkHostedServiceDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "fa74465d-cedf-58f1-b785-888d729b87a2",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkListEnvironmentsRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkListEnvironmentsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "3d86be9e-a6b7-56fd-bb8d-916ac33f06b5",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkListEnvironmentsResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkListEnvironmentsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "674fc331-d343-541d-9da9-73d479c56f97",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkListHostedServicesRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkListHostedServicesRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a250dcdf-d04d-518d-b89c-33b794c22ac2",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkListHostedServicesResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkListHostedServicesResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "52c212db-d07b-5e5b-929a-0c8bd2c9562e",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkListPeersRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkListPeersRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "73e9a40c-d8c1-5476-b679-be1c49cc8431",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkListPeersResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkListPeersResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ef192117-0a94-51ba-94a1-18ea688ea4c3",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkNodePublicationCommitReceipt",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkNodePublicationCommitReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "ec99afac-fb3e-503a-8427-25bd991f1da6",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkNodePublicationCoverage",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkNodePublicationCoverage",
+      "functions": []
+    },
+    {
+      "class_config_id": "8d37c30b-b964-5819-a168-999c9443c0b3",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkNodePublicationEnvironment",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkNodePublicationEnvironment",
+      "functions": []
+    },
+    {
+      "class_config_id": "cf830d1d-e068-59ce-bd4b-def2b6df408f",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkNodePublicationHostedService",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkNodePublicationHostedService",
+      "functions": []
+    },
+    {
+      "class_config_id": "efa06c75-1afe-5636-b03d-3ea3ea048a7d",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkNodePublicationIntent",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkNodePublicationIntent",
+      "functions": []
+    },
+    {
+      "class_config_id": "21188ee8-0d42-5ab5-8334-520a55f3a21d",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkNodePublicationNode",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkNodePublicationNode",
+      "functions": []
+    },
+    {
+      "class_config_id": "36a24132-3648-5168-9ab5-a682534d4f14",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkNodeRouteDescriptor",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkNodeRouteDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "a69beae1-ffab-55a2-8067-f72742a945db",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkPeerDescriptor",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkPeerDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "5bc5e800-b5da-54f0-9f9b-6a1e0c3bc2c0",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkPeerFanoutRuleDescriptor",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkPeerFanoutRuleDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "9fbd6ce1-c8f0-5894-832f-d2321e40a56c",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkPublishEnvironmentRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkPublishEnvironmentRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "adf5cd56-ab86-5fce-bd31-f9d7abb71e41",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkPublishEnvironmentResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkPublishEnvironmentResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "f7b22879-90aa-5ffa-966e-9ecfd3dee530",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkPublishHostedServiceRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkPublishHostedServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "02516ed3-0683-510f-9f54-02700dd583c7",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkPublishHostedServiceResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkPublishHostedServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "86bb05c8-15b6-5a72-a69a-d0f980f8a155",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkReconcileNodePublicationRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkReconcileNodePublicationRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "251a88a3-9469-54d5-b879-0c0991cad525",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkReconcileNodePublicationResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkReconcileNodePublicationResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7de0793d-7918-54ac-9ed4-8b36066462b9",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkRegisterNodeRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkRegisterNodeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "4bb0c4e8-bf3f-5114-a613-b7998dab4a8d",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkRegisterNodeResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkRegisterNodeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "375ff48c-1980-518b-acc7-1e006fd42041",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkResolveHostedServiceRoutesRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkResolveHostedServiceRoutesRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "7be7df6d-bdd6-5512-96eb-b59aabb9382b",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkResolveHostedServiceRoutesResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkResolveHostedServiceRoutesResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "6fb6c966-13d3-521c-b23f-827afd17f584",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkResolvedHostedServiceRoute",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkResolvedHostedServiceRoute",
+      "functions": []
+    },
+    {
+      "class_config_id": "53a415b4-d723-533b-9296-4eea16d050f7",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkTerritoryNodeDescriptor",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkTerritoryNodeDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "f6310513-3a23-5e86-abbb-33ccd3e11b9b",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkUpsertPeerRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkUpsertPeerRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9eb1eec5-f184-51fa-b6a6-f2e2ce6d16db",
+      "module": "aware_network_service_dto.comms.models.network_service",
+      "name": "NetworkUpsertPeerResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NetworkUpsertPeerResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ec51e95a-e468-5c99-bee1-bdb6f1562567",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "DescribeNodeRuntimeRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.DescribeNodeRuntimeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "1e5e5105-563e-51f3-9209-c0dd45dc5d46",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "DescribeNodeRuntimeResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.DescribeNodeRuntimeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "312fb019-c4d5-5602-a1c6-5f335f05dbaf",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "EnsureNodeRuntimeStartedRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.EnsureNodeRuntimeStartedRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "3f448ff3-abce-53ea-aebb-224a7778ed87",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "EnsureNodeRuntimeStartedResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.EnsureNodeRuntimeStartedResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "b2e1f790-47aa-54d6-8be7-b888aade59c0",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployOperation",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeDeployOperation",
+      "functions": []
+    },
+    {
+      "class_config_id": "6ce5eb82-be84-5f69-8730-61c592910297",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployOperationContext",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeDeployOperationContext",
+      "functions": []
+    },
+    {
+      "class_config_id": "5e2ba683-ae73-501f-a509-73331f064258",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployOperationEvent",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeDeployOperationEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "ce74353b-15cb-591a-9fde-448f5fe575c0",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployOperationRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeDeployOperationRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "09fbfe93-4a2d-5759-981f-490960481e22",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployOperationResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeDeployOperationResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "30a586e3-90ff-573d-8252-3ed5eb6f7526",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployRuntimeLogEvent",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeDeployRuntimeLogEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "f54729e4-812c-52ff-be33-886cb574a34e",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployRuntimeStatus",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeDeployRuntimeStatus",
+      "functions": []
+    },
+    {
+      "class_config_id": "49b0234e-f897-5664-8b2e-cab811d13c20",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployRuntimeStatusEvent",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeDeployRuntimeStatusEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "e28d87a9-428c-5d49-a28b-f2ad47f21cec",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployRuntimeTerminalEvent",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeDeployRuntimeTerminalEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "2ed0b15d-44e9-5fb7-98e2-d78fcce52c33",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployTarget",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeDeployTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "56cbd21f-4e59-5ed5-8a2a-f8601141cc67",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployTargetStatus",
+      "aware_class_ref": "aware_network_service_dto.comms.models.NodeDeployTargetStatus",
+      "functions": []
+    },
+    {
+      "class_config_id": "60175167-ad53-5cf9-bdfe-c3cf81155e61",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "RestartNodeRuntimeRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.RestartNodeRuntimeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "6e6a2e0e-fe1c-52c8-acad-552bf9cd728c",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "RestartNodeRuntimeResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.RestartNodeRuntimeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "80130e56-8f83-509e-8300-67e388ba89d1",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "StopNodeRuntimeRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.StopNodeRuntimeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "da3f810e-bcea-50b3-9a12-f4c68844d53d",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "StopNodeRuntimeResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.StopNodeRuntimeResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "751a8290-e86c-5ed6-83b5-2eca2a2c377c",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "StreamNodeRuntimeEventsRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.StreamNodeRuntimeEventsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8abdbaf4-a52e-5499-8030-4e3b50eb24b0",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "StreamNodeRuntimeEventsResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.StreamNodeRuntimeEventsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "f04eada9-4c53-5689-a154-2db8b2d7de03",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "TailNodeRuntimeLogsRequest",
+      "aware_class_ref": "aware_network_service_dto.comms.models.TailNodeRuntimeLogsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "156f8e5c-8d76-58f8-b8db-f495a9c8c585",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "TailNodeRuntimeLogsResponse",
+      "aware_class_ref": "aware_network_service_dto.comms.models.TailNodeRuntimeLogsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "d0883392-48f5-59df-8c0f-f6f962b56734",
+      "module": "aware_network_service_dto.comms.view.session_status",
+      "name": "NetworkNodeSessionStatusViewStateV1",
+      "aware_class_ref": "aware_network_service_dto.comms.view.NetworkNodeSessionStatusViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "93517332-19eb-5ea7-adef-839b28e2481a",
+      "module": "aware_network_service_dto.comms.view.territory_discovery",
+      "name": "NetworkTerritoryDiscoveryViewStateV1",
+      "aware_class_ref": "aware_network_service_dto.comms.view.NetworkTerritoryDiscoveryViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "a69dbe22-d16c-5b3b-94d8-98ee6fa3d90c",
+      "module": "aware_network_service_dto.comms.view.territory_discovery",
+      "name": "NetworkTerritoryEnvironmentViewStateV1",
+      "aware_class_ref": "aware_network_service_dto.comms.view.NetworkTerritoryEnvironmentViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "71a13507-bfb0-5a62-bfc0-a5d1434bd466",
+      "module": "aware_network_service_dto.comms.view.territory_discovery",
+      "name": "NetworkTerritoryHostedServiceViewStateV1",
+      "aware_class_ref": "aware_network_service_dto.comms.view.NetworkTerritoryHostedServiceViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "314c56a7-a97a-5aeb-85f3-f6202298fc88",
+      "module": "aware_network_service_dto.comms.view.territory_discovery",
+      "name": "NetworkTerritoryNodeRouteViewStateV1",
+      "aware_class_ref": "aware_network_service_dto.comms.view.NetworkTerritoryNodeRouteViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "54154fe5-d0f3-50fd-aa04-2e5115324872",
+      "module": "aware_network_service_dto.comms.view.territory_discovery",
+      "name": "NetworkTerritoryNodeViewStateV1",
+      "aware_class_ref": "aware_network_service_dto.comms.view.NetworkTerritoryNodeViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "1a197654-473b-5df5-b960-83def7416170",
+      "module": "aware_network_service_dto.comms.view.territory_discovery",
+      "name": "NetworkTerritoryPeerViewStateV1",
+      "aware_class_ref": "aware_network_service_dto.comms.view.NetworkTerritoryPeerViewStateV1",
+      "functions": []
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "2b41c7d5-1f4e-55f7-a276-5d716db0aefe",
+      "module": "aware_network_service_dto.comms.models.node_deploy_operation",
+      "name": "NodeDeployRuntimePhase"
+    },
+    {
+      "enum_config_id": "0b5768a7-332f-535f-9ade-9844ca8a0946",
+      "module": "aware_network_service_dto.network.network_enums",
+      "name": "NetworkAppType"
+    },
+    {
+      "enum_config_id": "a6a81cb0-24cc-5325-9b33-7b7ee34c3424",
+      "module": "aware_network_service_dto.network.network_enums",
+      "name": "NetworkOperationMessageType"
+    },
+    {
+      "enum_config_id": "9b260560-a04d-5d2c-b087-a53f2e31b2c2",
+      "module": "aware_network_service_dto.network.network_enums",
+      "name": "NetworkOperationType"
+    },
+    {
+      "enum_config_id": "add131ea-e55c-553c-b0f3-916dbc3b3020",
+      "module": "aware_network_service_dto.network.network_enums",
+      "name": "NetworkRequestStatus"
+    }
+  ]
+}

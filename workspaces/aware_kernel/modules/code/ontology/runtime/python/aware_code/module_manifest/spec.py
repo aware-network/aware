@@ -39,6 +39,7 @@ class AwareModulePluginSpec:
     capability_contract_module: str | None = None
     capability_execution_module: str | None = None
     semantic_contract_module: str | None = None
+    semantic_registry_module: str | None = None
     code_package_materialization_contract_module: str | None = None
     capability_policy: tuple[AwareModulePluginCapabilityPolicySpec, ...] = ()
     required: bool = True

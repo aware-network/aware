@@ -1,0 +1,67 @@
+/// Canonical DTO for actor subscription data exposed at Identity API boundary.
+///
+/// This keeps subscription ownership in Identity API so downstream bridges
+/// (reactivity/agent) depend on a stable contract instead of local dataclasses.
+
+class ActorSubscriptionBridgeConfig {
+    id UUID
+    actor_id UUID
+    event_config_condition_config_scope_id UUID
+    event_config_condition_config_id UUID
+    object_instance_graph_identity_id UUID
+    object_instance_graph_branch_id UUID?
+    name String
+    action_type String?
+    event_config_action_config_ids UUID[] = []
+    addressing_policy String = "any"
+    is_enabled Bool = true
+    status String = "active"
+    priority Int = 0
+    filter_config JsonValue?
+}
+
+class ActorSubscriptionEnsureRequest {
+    request_id UUID?
+    actor_id UUID
+    event_config_condition_config_scope_id UUID
+    name String
+    description String?
+    action_type String?
+    event_config_action_config_ids UUID[] = []
+    addressing_policy String = "any"
+    is_enabled Bool = true
+    status String = "active"
+    filter_mode String = "all_instances"
+    filter_config JsonValue?
+    priority Int = 0
+    batch_mode Bool = false
+    batch_window_ms Int = 1000
+    max_batch_size Int = 100
+    require_read_access Bool = true
+    check_ownership Bool = true
+    rate_limit_per_minute Int?
+    rate_limit_per_hour Int?
+}
+
+class ActorSubscriptionEnsureReceipt {
+    request_id UUID?
+    subscription ActorSubscriptionBridgeConfig
+    subscription_created Bool = false
+    info String?
+}
+
+class ActorSubscriptionResolveRequest {
+    request_id UUID?
+    actor_id UUID?
+    event_config_condition_config_id UUID?
+    object_instance_graph_identity_id UUID?
+    object_instance_graph_branch_id UUID?
+    include_inactive Bool = false
+    include_disabled Bool = false
+}
+
+class ActorSubscriptionResolveResult {
+    request_id UUID?
+    subscriptions ActorSubscriptionBridgeConfig[] = []
+    info String?
+}

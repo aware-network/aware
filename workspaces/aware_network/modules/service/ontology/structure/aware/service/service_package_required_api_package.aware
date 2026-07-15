@@ -1,0 +1,24 @@
+class ServicePackageRequiredApiPackage {
+    // Relationships
+    api_package aware_api.api.ApiPackage key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        api_package_id UUID key,
+        description String? = null
+    ) -> ServicePackageRequiredApiPackage {
+        """
+        Create one package-level Service consumer bridge to one API package.
+
+        Contract:
+        - Parent `ServicePackage` scope is injected by propagation.
+        - Identity is keyed by the attached `ApiPackage`.
+        - This declares that the Service package requires/invokes this API package.
+        - It does not imply this Service package provides or hosts the API.
+        """
+    }
+}
+
+ann service.ServicePackageRequiredApiPackage::api_package load eager

@@ -65,6 +65,7 @@ from aware_api_runtime.ontology_graph.materialization.resolution import (  # noq
     _collect_accessible_object_config_graphs,
     _projection_matches,
     _resolve_object_projection_graph,
+    _resolve_object_projection_graph_observable,
     _resolve_target_object_config_graph,
 )
 from aware_api_runtime.compile_materialization.service import (  # noqa: E402
@@ -145,10 +146,12 @@ from aware_meta_ontology.graph.projection.object_projection_graph_observable imp
 from aware_meta.materialization import (
     stable_object_config_graph_package_branch_id,
 )  # noqa: E402
+from aware_meta.graph.projection.stable_ids import (  # noqa: E402
+    stable_object_projection_graph_observable_id,
+)
 from aware_meta_ontology.stable_ids import (  # noqa: E402
     stable_object_config_graph_identity_id,
     stable_object_projection_graph_identity_id,
-    stable_object_projection_graph_observable_id,
 )
 from aware_meta_ontology.class_.class_config import ClassConfig  # noqa: E402
 
@@ -1351,6 +1354,44 @@ def test_api_dependency_graph_context_reuses_complete_workspace_semantic_context
         class_config_ids["aware_home_api.door.LockDoorResult"]
         == response_class_config_id
     )
+
+
+def test_api_dependency_graph_context_does_not_reuse_missing_view_observable_evidence(
+    tmp_path: Path,
+) -> None:
+    toml_path = _write_dependency_class_config_workspace(tmp_path)
+    (tmp_path / "bindings" / "service.apis.aware").write_text(
+        "\n".join(
+            [
+                "api dependency_proof {",
+                "    view door_panel on Door.default state aware_home_api.door.DoorPanelViewState {",
+                "        stream snapshot",
+                "    }",
+                "    capability lock_door {",
+                "        endpoint lock_door aware_home_api.door.LockDoor {",
+                "            response aware_home_api.door.LockDoorResult;",
+                "        }",
+                "    }",
+                "}",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    snapshot = compile_api_workspace(toml_path=toml_path, repo_root=tmp_path).snapshot
+    api_graph = _home_api_context_graph(
+        extra_class_fqns=("aware_home_api.door.DoorPanelViewState",),
+    )
+    identity_poor_ontology_graph = _home_ontology_context_graph()
+
+    graphs = api_materialization_service._api_dependency_graph_context_reusable_graphs_for_materialization(  # noqa: SLF001
+        snapshot=snapshot,
+        accessible_graphs=(identity_poor_ontology_graph, api_graph),
+        source="workspace_semantic_context",
+        dependency_repo_roots=(),
+    )
+
+    assert graphs is None
 
 
 def test_api_dependency_graph_context_does_not_reuse_layoutless_source_owned_workspace_context(
@@ -3584,6 +3625,190 @@ def test_accessible_graph_collection_prefers_observable_identity_detail() -> Non
     assert graph_without_observable_identity not in accessible_graphs
 
 
+def test_accessible_graph_collection_keeps_explicit_artifact_over_stale_runtime_identity() -> (
+    None
+):
+    graph_id = uuid4()
+    opg = ObjectProjectionGraph(
+        id=uuid4(),
+        object_config_graph_id=graph_id,
+        language=CodeLanguage.aware,
+        name="Wallet",
+        projection_hash="sha256:wallet",
+        object_projection_graph_nodes=[],
+        object_projection_graph_edges=[],
+        object_projection_graph_constructors=[],
+        object_projection_graph_relationships=[],
+        object_instance_graphs=[],
+    )
+    ocgi_id = stable_object_config_graph_identity_id(key="aware_economy")
+    opgi_id = stable_object_projection_graph_identity_id(
+        object_config_graph_identity_id=ocgi_id,
+        object_projection_graph_id=opg.id,
+    )
+    observable = ObjectProjectionGraphObservable(
+        id=stable_object_projection_graph_observable_id(
+            object_projection_graph_identity_id=opgi_id,
+            observable_key="home",
+        ),
+        object_projection_graph_identity_id=opgi_id,
+        key="Wallet:home",
+        observable_key="home",
+        kind="instance",
+    )
+
+    def _graph_with_observables(
+        observables: list[ObjectProjectionGraphObservable],
+    ) -> SimpleNamespace:
+        return SimpleNamespace(
+            id=graph_id,
+            name="economy-ontology",
+            fqn_prefix="aware_economy",
+            object_projection_graphs=(opg,),
+            object_config_graph_nodes=(),
+            object_config_graph_bindings=(),
+            object_config_graph_relationships=(),
+            object_config_graph_identity=ObjectConfigGraphIdentity(
+                id=ocgi_id,
+                key="aware_economy",
+                label="ocg:aware_economy",
+                object_projection_graph_identities=[
+                    ObjectProjectionGraphIdentity(
+                        id=opgi_id,
+                        object_config_graph_identity_id=ocgi_id,
+                        object_projection_graph_id=opg.id,
+                        object_projection_graph=opg,
+                        projection_name="Wallet",
+                        object_projection_graph_observables=observables,
+                        object_instance_graph_identities=[],
+                    )
+                ],
+            ),
+        )
+
+    explicit_artifact_graph = _graph_with_observables([observable])
+    stale_runtime_graph = _graph_with_observables(
+        [observable, observable.model_copy(update={"id": uuid4()})]
+    )
+    root_graph = SimpleNamespace(
+        id=uuid4(),
+        name="service",
+        fqn_prefix="aware_service",
+        object_projection_graphs=(),
+        object_config_graph_nodes=(),
+        object_config_graph_bindings=(),
+        object_config_graph_relationships=(
+            SimpleNamespace(target_object_config_graph=stale_runtime_graph),
+        ),
+        object_config_graph_identity=None,
+    )
+
+    accessible_graphs = _collect_accessible_object_config_graphs(
+        index=cast(Any, SimpleNamespace(ocg=root_graph)),
+        extra_graphs=(cast(Any, explicit_artifact_graph),),
+    )
+
+    assert explicit_artifact_graph in accessible_graphs
+    assert stale_runtime_graph not in accessible_graphs
+    resolved = _resolve_object_projection_graph_observable(
+        index=None,
+        accessible_graphs=cast(Any, accessible_graphs),
+        observable_ref="Wallet.home",
+    )
+    assert resolved.id == observable.id
+
+
+def test_observable_resolution_ignores_noncanonical_composite_mirror_identity() -> None:
+    package_graph_id = uuid4()
+    opg = ObjectProjectionGraph(
+        id=uuid4(),
+        object_config_graph_id=package_graph_id,
+        language=CodeLanguage.aware,
+        name="Wallet",
+        projection_hash="sha256:wallet-composed",
+        object_projection_graph_nodes=[],
+        object_projection_graph_edges=[],
+        object_projection_graph_constructors=[],
+        object_projection_graph_relationships=[],
+        object_instance_graphs=[],
+    )
+    package_ocgi_id = stable_object_config_graph_identity_id(key="aware_economy")
+    opgi_id = stable_object_projection_graph_identity_id(
+        object_config_graph_identity_id=package_ocgi_id,
+        object_projection_graph_id=opg.id,
+    )
+    canonical_observable = ObjectProjectionGraphObservable(
+        id=stable_object_projection_graph_observable_id(
+            object_projection_graph_identity_id=opgi_id,
+            observable_key="home",
+        ),
+        object_projection_graph_identity_id=opgi_id,
+        key="Wallet:home",
+        observable_key="home",
+        kind="instance",
+    )
+
+    def _identity(
+        observable: ObjectProjectionGraphObservable,
+    ) -> ObjectProjectionGraphIdentity:
+        return ObjectProjectionGraphIdentity(
+            id=opgi_id,
+            object_config_graph_identity_id=package_ocgi_id,
+            object_projection_graph_id=opg.id,
+            object_projection_graph=opg,
+            projection_name="Wallet",
+            object_projection_graph_observables=[observable],
+            object_instance_graph_identities=[],
+        )
+
+    package_graph = SimpleNamespace(
+        id=package_graph_id,
+        name="economy-ontology",
+        fqn_prefix="aware_economy",
+        object_projection_graphs=(opg,),
+        object_config_graph_nodes=(),
+        object_config_graph_bindings=(),
+        object_config_graph_relationships=(),
+        object_config_graph_identity=ObjectConfigGraphIdentity(
+            id=package_ocgi_id,
+            key="aware_economy",
+            label="ocg:aware_economy",
+            object_projection_graph_identities=[_identity(canonical_observable)],
+        ),
+    )
+    composite_graph_id = uuid4()
+    composite_graph = SimpleNamespace(
+        id=composite_graph_id,
+        name="runtime-context",
+        fqn_prefix="aware.runtime_context",
+        object_projection_graphs=(opg,),
+        object_config_graph_nodes=(),
+        object_config_graph_bindings=(),
+        object_config_graph_relationships=(),
+        object_config_graph_identity=ObjectConfigGraphIdentity(
+            id=stable_object_config_graph_identity_id(key="aware.runtime_context"),
+            key="aware.runtime_context",
+            label="ocg:aware.runtime_context",
+            object_projection_graph_identities=[
+                _identity(canonical_observable.model_copy(update={"id": uuid4()}))
+            ],
+        ),
+    )
+    index = cast(Any, SimpleNamespace(ocg=composite_graph))
+    accessible_graphs = _collect_accessible_object_config_graphs(
+        index=index,
+        extra_graphs=(cast(Any, package_graph),),
+    )
+
+    resolved = _resolve_object_projection_graph_observable(
+        index=index,
+        accessible_graphs=cast(Any, accessible_graphs),
+        observable_ref="Wallet.home",
+    )
+
+    assert resolved.id == canonical_observable.id
+
+
 def test_api_endpoint_catalog_detects_partial_committed_api_lane() -> None:
     api_id = uuid4()
     capability_id = uuid4()
@@ -3807,6 +4032,7 @@ def test_authored_api_materialization_result_exposes_zero_generated_dto_counts()
         api_object_instance_graph_commit_id=None,
         package_commit_id=None,
         package_head_commit_id=None,
+        package_object_instance_graph_commit_id=None,
     )
 
     assert result.generated_dto_graph_count == 0

@@ -1,0 +1,54 @@
+/// Canonical Experience profile read/query DTOs (transport-layer, ontology agnostic).
+///
+/// SSOT: `experience-service-dto` generated from this `.aware` contract.
+///
+/// This package sits between later Experience service-host operations and
+/// consumers such as Perception. Runtime-local shims may re-export these DTOs
+/// for compatibility, but schema ownership remains here.
+
+class ExperienceGraphIdentityProfileExemplar {
+    key String
+    label String?
+    prompt_hint String?
+    note String?
+    is_primary Bool = false
+}
+
+class ExperienceGraphIdentityProfile {
+    graph_identity_ref String
+    review_label String
+    resolution_prompts String[] = []
+    aliases String[] = []
+    summary String?
+    notes String?
+    exemplars ExperienceGraphIdentityProfileExemplar[] = []
+}
+
+class ExperienceGraphIdentityProfileCatalogReadRequest {
+    operation String = "read_graph_identity_profile_catalog"
+    experience_name String
+    graph_name String
+}
+
+class ExperienceGraphIdentityProfileCatalogReadResponse {
+    operation String = "read_graph_identity_profile_catalog"
+    experience_name String
+    graph_name String
+    catalog_revision String?
+    profiles ExperienceGraphIdentityProfile[] = []
+}
+
+class ExperienceGraphIdentityProfileReadRequest {
+    operation String = "read_graph_identity_profile"
+    experience_name String
+    graph_name String
+    graph_identity_refs String[] = []
+}
+
+class ExperienceGraphIdentityProfileReadResponse {
+    operation String = "read_graph_identity_profile"
+    experience_name String
+    graph_name String
+    catalog_revision String?
+    profiles ExperienceGraphIdentityProfile[] = []
+}

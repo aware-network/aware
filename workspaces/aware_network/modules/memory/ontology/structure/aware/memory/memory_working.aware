@@ -1,0 +1,117 @@
+class MemoryWorking {
+    // Relationships
+    actor aware_identity.actor.Actor key
+    content_chain aware_content.chain.ContentChain
+    items MemoryWorkingItem[]
+
+    // Attributes
+    key String key = "default"
+
+    fn build construct (actor_id UUID key, key String key = "default") -> MemoryWorking {
+        """
+        Create one deterministic standalone MemoryWorking lane for an Identity Actor.
+
+        Policy:
+        - Memory owns the lane object and references Identity Actor relationally.
+        - Stable identity is actor plus `key`.
+        - The lane may be branched/forked without collapsing into non-branchable Actor identity.
+        - ContentChain must be created via ContentChain.build (no direct instantiation).
+        """
+    }
+
+    fn create_item (
+        kind MemoryWorkingItemKind,
+        position Int,
+        created_at DateTime? = null,
+        event_frame_id UUID? = null,
+        content_frame_id UUID? = null,
+        tool_frame_id UUID? = null,
+        attention_transition_id UUID? = null,
+        rationale String? = null,
+        summary String? = null
+    ) -> MemoryWorkingItem {
+        """
+        Construct one item under this MemoryWorking lane.
+
+        Contract:
+        - Parent->child containment is explicit (`items.build`) so propagation
+          can mark `memory_working_id` as child identity rail.
+        """
+        let created = construct items.build(
+            kind = kind,
+            position = position,
+            created_at = created_at,
+            event_frame_id = event_frame_id,
+            content_frame_id = content_frame_id,
+            tool_frame_id = tool_frame_id,
+            attention_transition_id = attention_transition_id,
+            rationale = rationale,
+            summary = summary,
+        )
+    }
+
+    fn add_event_item (
+        event_id UUID,
+        event_config_id UUID? = null,
+        event_activation_id UUID? = null,
+        event_type String? = null,
+        event_source String? = null,
+        event_status String? = null,
+        commit_branch_id UUID? = null,
+        commit_projection_hash String? = null,
+        commit_id UUID? = null,
+        object_instance_graph_id UUID? = null,
+        object_instance_graph_commit_id UUID? = null,
+        action_intent_id UUID? = null,
+        intent_key String? = null,
+        action_config_id UUID? = null,
+        action_execution_id UUID? = null,
+        action_execution_key String? = null,
+        api_call_key UUID? = null,
+        action_binding_id UUID? = null,
+        action_experience_id UUID? = null,
+        environment_profile_id UUID? = null,
+        environment_event_id UUID? = null,
+        invocation_config_id UUID? = null,
+        endpoint_id UUID? = null,
+        actor_subscription_id UUID? = null,
+        rationale String? = null,
+        summary String? = null
+    ) -> MemoryWorkingItem {
+        """
+        Appends an `event` memory item.
+        """
+    }
+
+    fn add_content_item (content_id UUID, rationale String? = null, summary String? = null) -> MemoryWorkingItem {
+        """
+        Appends a `content` memory item.
+        """
+    }
+
+    fn add_tool_item (
+        tool_call_id UUID,
+        tool_response_id UUID? = null,
+        object_instance_graph_branch_id UUID? = null,
+        projection_hash String? = null,
+        rationale String? = null,
+        summary String? = null
+    ) -> MemoryWorkingItem {
+        """
+        Appends a `tool` memory item.
+        """
+    }
+
+    fn add_attention_item (
+        attention_focus_transition_id UUID key,
+        rationale String? = null,
+        summary String? = null
+    ) -> MemoryWorkingItem {
+        """
+        Appends an `attention` memory item by retaining an Attention-owned
+        focus transition.
+        """
+    }
+}
+
+ann memory.MemoryWorking identity standalone

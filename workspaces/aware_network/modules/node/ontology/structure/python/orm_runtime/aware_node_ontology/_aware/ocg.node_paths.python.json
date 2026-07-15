@@ -1,0 +1,59 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "8aceb922-82d2-5211-8d84-12ab7f4f4ae6",
+      "node_type": "class",
+      "entity_id": "b36b8763-690f-5735-b29e-f271e419e51e",
+      "relative_path": "node/node_config.py"
+    },
+    {
+      "node_id": "d82f58dc-1e09-526e-9a09-343dbab5169f",
+      "node_type": "class",
+      "entity_id": "af444d6a-2782-555e-8c47-973cf8db9db8",
+      "relative_path": "node/node_config_environment_profile_mount.py"
+    },
+    {
+      "node_id": "5bbf272f-8d0d-52b3-8e81-bd2476b8e8ac",
+      "node_type": "class",
+      "entity_id": "462d8dc5-ec87-549a-bd71-e0863d9733c0",
+      "relative_path": "node/node_config_environment_target.py"
+    },
+    {
+      "node_id": "35f3690e-a29f-5fd8-806b-c3e4cdffa200",
+      "node_type": "class",
+      "entity_id": "1fe770a6-67d9-5853-bfe6-5967d1387138",
+      "relative_path": "node/node_config_interface_target.py"
+    },
+    {
+      "node_id": "808de3e0-05dd-5399-914f-b1695fd9bffa",
+      "node_type": "class",
+      "entity_id": "c8ba5bcb-14bd-5e3c-a545-ba24af124fba",
+      "relative_path": "node/node_config_ontology_target.py"
+    },
+    {
+      "node_id": "81d094ee-3a7f-5f27-851d-574ac2c81597",
+      "node_type": "class",
+      "entity_id": "9c0f05df-ce97-5de0-80cf-8ae079752067",
+      "relative_path": "node/node_config_service_code_package.py"
+    },
+    {
+      "node_id": "312a61f4-7422-566a-aafa-67f37aeb14d3",
+      "node_type": "class",
+      "entity_id": "c982671a-05b3-54de-9341-a77c9e6ada40",
+      "relative_path": "node/node_config_service_target.py"
+    },
+    {
+      "node_id": "0554979e-2371-563b-8999-1290994f29ea",
+      "node_type": "class",
+      "entity_id": "3945e9f9-ec8e-59b9-9e79-b7b000601cb1",
+      "relative_path": "node/node_package.py"
+    },
+    {
+      "node_id": "9faf65f7-8935-52f2-924d-f224d688d3dc",
+      "node_type": "class",
+      "entity_id": "3c98aed8-be55-51e3-969a-04ca83d64747",
+      "relative_path": "node/node_package_included_node_package.py"
+    }
+  ]
+}

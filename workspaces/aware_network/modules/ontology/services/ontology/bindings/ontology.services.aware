@@ -1,0 +1,44 @@
+service aware_ontology {
+    api ontology;
+
+    operation ensure_object_config_graph_package {
+        endpoint ontology.package.ensure_object_config_graph_package;
+        admission identity_required;
+    }
+
+    operation ensure_ready {
+        endpoint ontology.persistence.ensure_ready;
+        admission identity_required;
+        receipt read_model;
+    }
+
+    operation resolve_runtime_artifact_set {
+        endpoint ontology.runtime.resolve_runtime_artifact_set;
+        receipt read_model;
+    }
+
+    operation invoke_function {
+        endpoint ontology.graph.invoke_function;
+        admission identity_required;
+    }
+
+    operation get_lane_head {
+        endpoint ontology.graph.get_lane_head;
+        receipt read_model;
+    }
+
+    operation get_object_instance_graph_commit {
+        endpoint ontology.graph.get_object_instance_graph_commit;
+        receipt read_model;
+    }
+
+    operation resolve_projection {
+        endpoint ontology.graph.resolve_projection;
+        receipt read_model;
+    }
+
+    operation subscribe {
+        endpoint ontology.commit.subscribe;
+        admission identity_required;
+    }
+}

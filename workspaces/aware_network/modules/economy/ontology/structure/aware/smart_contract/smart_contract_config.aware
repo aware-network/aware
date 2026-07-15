@@ -1,0 +1,33 @@
+class SmartContractConfig {
+    // Relationships
+    smart_contracts SmartContract[]
+
+    // Attributes
+    description String
+    name String key
+    smart_contract_schema JsonObject? = {}
+    type SmartContractType key
+
+    fn build construct (name String key, description String, type SmartContractType key, smart_contract_schema JsonObject? = {}) -> SmartContractConfig {
+        """
+        Creates a SmartContractConfig template.
+
+        Receipt: SmartContractConfig(name, description, type, schema).
+        """
+    }
+
+    fn create_smart_contract (
+        blockchain_address String,
+        status SmartContractStatus = active,
+        arguments JsonObject? = null
+    ) -> SmartContract {
+        """
+        Creates one SmartContract under this SmartContractConfig.
+        """
+        let created = construct smart_contracts.build(
+            blockchain_address = blockchain_address,
+            status = status,
+            arguments = arguments,
+        )
+    }
+}

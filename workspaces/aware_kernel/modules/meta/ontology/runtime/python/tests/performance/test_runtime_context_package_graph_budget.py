@@ -16,6 +16,7 @@ from aware_meta.package_graph_reuse_cache import (
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_MATERIALIZED_PACKAGE,
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_VERSION,
     object_config_graph_package_context_reuse_cache_path,
+    object_config_graph_package_runtime_index_sidecar_cache_path,
     object_config_graph_package_reuse_cache_path,
     write_object_config_graph_package_runtime_index_sidecar_cache_payload,
 )
@@ -27,6 +28,7 @@ from aware_meta.runtime.graph_context import (
     _object_config_graph_payload_for_context_cache,
     _source_text_manifest_hash,
     _stable_object_config_graph_package_branch_id,
+    MetaGraphRuntimeCompactContextError,
     MetaGraphRuntimeContext,
     build_meta_graph_runtime_context_for_aware_package_manifests,
 )
@@ -36,6 +38,7 @@ from aware_meta_ontology.stable_ids import (
     stable_object_config_graph_id,
     stable_object_config_graph_package_id,
 )
+from aware_orm.session.change_collector import is_change_tracking_hooks_enabled
 
 from .budgets import assert_metric_lte
 from .samples import build_meta_performance_runtime_graph
@@ -133,6 +136,49 @@ def test_runtime_context_strict_runtime_only_cache_hit_budget(
             timing.phase_timings_s
         )
         assert "read_catalog_materialized_cache_payload" not in (timing.phase_timings_s)
+
+
+def test_runtime_context_cache_body_hydration_disables_mutation_hooks(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workspace_root = tmp_path
+    fixture = _write_runtime_context_cache_fixture(
+        workspace_root=workspace_root,
+        dependency_package_names=(),
+    )
+    observed_hook_states: list[bool] = []
+    original_model_validate = ObjectConfigGraph.model_validate
+
+    def _observed_model_validate(
+        _cls: type[ObjectConfigGraph], value: object
+    ) -> ObjectConfigGraph:
+        observed_hook_states.append(is_change_tracking_hooks_enabled())
+        return original_model_validate(value)
+
+    monkeypatch.setattr(
+        ObjectConfigGraph,
+        "model_validate",
+        classmethod(_observed_model_validate),
+    )
+
+    context = build_meta_graph_runtime_context_for_aware_package_manifests(
+        package_manifest_paths=fixture.manifest_paths,
+        workspace_root=workspace_root,
+        strict_package_graph_cache=True,
+        package_entries_by_manifest_path=fixture.entries_by_manifest_path,
+        package_graph_cache_request_signature="sha256:meta-perf:read-only-hydration",
+        load_source_graph_payloads=False,
+    )
+
+    assert observed_hook_states
+    assert observed_hook_states == [False] * len(observed_hook_states)
+    assert is_change_tracking_hooks_enabled() is True
+    assert {timing.cache_status for timing in context.package_timings} == {"hit"}
+    for timing in context.package_timings:
+        assert "load_catalog_runtime_graph_payload.model_validate" in (
+            timing.phase_timings_s
+        )
 
 
 def test_runtime_context_strict_runtime_only_loads_runtime_payloads_concurrently(
@@ -245,6 +291,126 @@ def test_runtime_context_strict_runtime_only_index_only_skips_graph_body_loads(
         assert "load_catalog_runtime_index_sidecar" in timing.phase_timings_s
         assert "load_catalog_source_graph_payload" not in timing.phase_timings_s
         assert "load_catalog_runtime_graph_payload" not in timing.phase_timings_s
+
+
+def test_runtime_context_index_only_rejection_identifies_deficient_package(
+    tmp_path: Path,
+) -> None:
+    workspace_root = tmp_path
+    fixture = _write_runtime_context_cache_fixture(
+        workspace_root=workspace_root,
+        dependency_package_names=("meta-perf-dep-0-ontology",),
+    )
+    manifest_path = fixture.manifest_paths[1]
+    package_name = "meta-perf-dep-1-ontology"
+    fqn_prefix = "aware_meta_perf_dep_1"
+    branch_id = _stable_object_config_graph_package_branch_id(
+        workspace_root=workspace_root,
+        aware_toml_path=manifest_path,
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+    )
+    package_id = stable_object_config_graph_package_id(
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+    )
+    object_config_graph_package_runtime_index_sidecar_cache_path(
+        aware_root=workspace_root,
+        branch_id=branch_id,
+        object_config_graph_package_id=package_id,
+    ).unlink()
+    object_config_graph_package_context_reuse_cache_path(
+        aware_root=workspace_root,
+        branch_id=branch_id,
+        object_config_graph_package_id=package_id,
+    ).unlink()
+
+    with pytest.raises(MetaGraphRuntimeCompactContextError) as raised:
+        build_meta_graph_runtime_context_for_aware_package_manifests(
+            package_manifest_paths=fixture.manifest_paths,
+            workspace_root=workspace_root,
+            strict_package_graph_cache=True,
+            package_entries_by_manifest_path=fixture.entries_by_manifest_path,
+            package_graph_cache_request_signature=(
+                "sha256:meta-perf:index-only-rejection"
+            ),
+            load_source_graph_payloads=False,
+            runtime_context_graph_body_requirement="index_only",
+        )
+
+    evidence = raised.value.evidence
+    assert evidence["package_name"] == package_name
+    assert evidence["manifest_path"] == manifest_path.resolve().as_posix()
+    assert evidence["cache_owner_root"] == workspace_root.resolve().as_posix()
+    assert evidence["reason"] == "catalog_cache_payload_missing"
+    assert evidence["cache_diagnostics"] == {
+        "cache_miss_reason": "catalog_cache_payload_missing",
+        "cache_status": "miss",
+        "context_cache_miss_reason": "catalog_cache_payload_missing",
+        "context_cache_status": "miss",
+    }
+
+
+def test_runtime_context_index_only_rejection_reports_signature_coordinates(
+    tmp_path: Path,
+) -> None:
+    workspace_root = tmp_path
+    fixture = _write_runtime_context_cache_fixture(
+        workspace_root=workspace_root,
+        dependency_package_names=("meta-perf-dep-0-ontology",),
+    )
+    manifest_path = fixture.manifest_paths[2]
+    package_name = "meta-perf-lab-ontology"
+    fqn_prefix = "aware_meta_perf_lab"
+    branch_id = _stable_object_config_graph_package_branch_id(
+        workspace_root=workspace_root,
+        aware_toml_path=manifest_path,
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+    )
+    package_id = stable_object_config_graph_package_id(
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+    )
+    paths = (
+        object_config_graph_package_runtime_index_sidecar_cache_path(
+            aware_root=workspace_root,
+            branch_id=branch_id,
+            object_config_graph_package_id=package_id,
+        ),
+        object_config_graph_package_context_reuse_cache_path(
+            aware_root=workspace_root,
+            branch_id=branch_id,
+            object_config_graph_package_id=package_id,
+        ),
+    )
+    for path in paths:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["dependency_signature"] = "sha256:stale-dependency-signature"
+        path.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+
+    with pytest.raises(MetaGraphRuntimeCompactContextError) as raised:
+        build_meta_graph_runtime_context_for_aware_package_manifests(
+            package_manifest_paths=fixture.manifest_paths,
+            workspace_root=workspace_root,
+            strict_package_graph_cache=True,
+            package_entries_by_manifest_path=fixture.entries_by_manifest_path,
+            package_graph_cache_request_signature=(
+                "sha256:meta-perf:index-only-signature-rejection"
+            ),
+            load_source_graph_payloads=False,
+            runtime_context_graph_body_requirement="index_only",
+        )
+
+    diagnostics = raised.value.evidence["cache_diagnostics"]
+    assert isinstance(diagnostics, dict)
+    assert diagnostics["cache_miss_reason"] == "dependency_signature_mismatch"
+    assert diagnostics["dependency_signature_actual"] == (
+        "sha256:stale-dependency-signature"
+    )
+    assert diagnostics["dependency_signature_expected"] != (
+        diagnostics["dependency_signature_actual"]
+    )
 
 
 def test_runtime_context_strict_session_cache_budget_skips_payload_graph_loads(

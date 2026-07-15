@@ -1,0 +1,61 @@
+/// View-state contract for public Hub package channel-head discovery.
+/// Public API view key: hub.channel_heads
+
+class HubPublicDiscoveryDescriptorV1 : inline_value {
+    package_name String?
+    language String?
+    surface String?
+    manifest_kind String?
+    version String?
+    revision_id String?
+    digest String?
+    package_root String?
+    sources_root String?
+    fqn_prefix String?
+    manifest_relative_path String?
+    artifact_media_type String?
+    artifact_size_bytes Int?
+    download_handle String?
+    metadata JsonObject = {}
+}
+
+class HubPublicDiscoveryArtifactLockV1 : inline_value {
+    artifact_url String?
+    sha256 String?
+    size_bytes Int?
+    media_type String?
+    archive_format String?
+    revision_id String?
+    published_at String?
+}
+
+class HubPublicDiscoveryEntryV1 : inline_value {
+    package_name String?
+    language String?
+    surface String?
+    channel String = "stable"
+    revision_id String?
+    updated_at String?
+    publisher_execution_id String?
+    idempotency_key String?
+    metadata JsonObject = {}
+    descriptor HubPublicDiscoveryDescriptorV1?
+    artifact_lock HubPublicDiscoveryArtifactLockV1?
+    refs JsonObject = {}
+}
+
+class HubPublicDiscoveryViewStateV1 : inline_value {
+    status String = "waiting"
+    authority_source_url String?
+    query String?
+    package_name String?
+    language String?
+    surface String?
+    channel String?
+    limit Int = 50
+    entries HubPublicDiscoveryEntryV1[] = []
+    summary String?
+    empty_message String = "No public Hub packages published yet"
+    error String?
+    provenance JsonObject = {}
+}

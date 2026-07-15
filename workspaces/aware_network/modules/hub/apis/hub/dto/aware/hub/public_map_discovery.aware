@@ -1,0 +1,72 @@
+/// Hub public map discovery DTOs.
+///
+/// Contract:
+/// - Hub owns public package/revision map discovery before identity admission.
+/// - Entries describe distribution/readiness truth only; they do not activate
+///   runtime, resolve Experience semantics, price access, or mutate Interface.
+/// - Initial service implementation may lower existing CodePackage authority
+///   entries into this shape while later Hub producers publish richer artifact
+///   families such as experience-package, workspace-revision, and kernel-revision.
+
+class PublicMapDiscoveryRequest {
+    operation String
+    request_id UUID?
+}
+
+class PublicMapDiscoveryResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+}
+
+class HubPublicMapEntry {
+    artifact_family String
+    artifact_key String
+    channel String = "stable"
+    revision_id String?
+    package_name String?
+    language String?
+    surface String?
+    manifest_kind String?
+    digest String?
+    artifact_url String?
+    artifact_sha256 String?
+    artifact_size_bytes Int?
+    media_type String?
+    title String?
+    summary String?
+    experience_name String?
+    fqn_prefix String?
+    producer_kind String?
+    producer_revision_id String?
+    source_revision_id String?
+    visibility String = "public"
+    metadata JsonObject = {}
+}
+
+class DiscoverPublicMapRequest augment hub.PublicMapDiscoveryRequest {
+    operation String = "discover_public_map"
+    query String?
+    artifact_family String?
+    artifact_key String?
+    package_name String?
+    experience_name String?
+    channel String?
+    authority_base_url String?
+    index_url String?
+    limit Int = 50
+}
+
+class DiscoverPublicMapResponse augment hub.PublicMapDiscoveryResponse {
+    operation String = "discover_public_map"
+    authority_source_url String?
+    entries hub.HubPublicMapEntry[] = []
+}
+
+ann hub.PublicMapDiscoveryRequest::operation discriminate key
+ann hub.DiscoverPublicMapRequest::operation discriminate tag "discover_public_map"
+
+ann hub.PublicMapDiscoveryResponse::operation discriminate key
+ann hub.DiscoverPublicMapResponse::operation discriminate tag "discover_public_map"

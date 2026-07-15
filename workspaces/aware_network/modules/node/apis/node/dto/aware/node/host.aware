@@ -1,0 +1,435 @@
+/// Transport-neutral DTOs for the live Node-owned host/provisioning control plane.
+///
+/// SSOT: `node-service-dto` generated from `apis/node/dto`.
+///
+/// IMPORTANT:
+/// - This contract is a peer rail to `NodeDeployOperation` and
+///   `NetworkNodeOperation`.
+/// - It owns live host/provisioning work after the node runtime is already up.
+/// - The first extraction preserves the current environment-bridge request
+///   family names while moving ownership from Network to Node.
+
+class NodeHostOperationContext {
+    // Attributes
+    actor_id UUID?
+    node_id UUID?
+}
+
+class NodeHostOperation {
+    request NodeHostOperationRequest?
+    response NodeHostOperationResponse?
+}
+
+ann comms.models.NodeHostOperation oneof request response
+
+class NodeHostOperationRequest augment comms.models.NodeHostOperationContext {
+    operation String
+}
+
+class NodeHostOperationResponse augment comms.models.NodeHostOperationContext {
+    operation String
+    status String = "pending"
+    error String?
+}
+
+/// Describe an environment config (template/map) available for provisioning.
+class EnvironmentConfigDescriptor {
+    environment_config_id UUID
+    title String?
+    canonical_language String?
+    ocg_hash String?
+    opg_hashes String[] = []
+    outer_wrapper_kind String?
+    environment_handle String?
+    workspace_target_ref String?
+}
+
+/// Descriptor for the node-managed BOOT environment (v0).
+///
+/// IMPORTANT:
+/// - The "kernel" is an EnvironmentConfig (module mount set).
+/// - The "boot environment" is an Environment instance derived from that config.
+/// - This DTO exists to avoid client-side heuristics for selecting the kernel config.
+class BootEnvironmentDescriptor {
+    // Attributes
+    kernel_environment_config_id UUID
+    boot_environment_id UUID
+    kernel_environment_config_title String?
+    boot_environment_title String?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    opg_hashes String[] = []
+}
+
+/// Product receipt for a Node-provisioned Environment.
+///
+/// The nested `readiness_receipt` is the public Environment API receipt payload.
+/// Node keeps it as JSON so NodeHost DTOs do not import Environment Environment
+/// DTOs while still exposing the full provenance evidence to operators.
+class NodeEnvironmentProvisioningReceipt {
+    status String
+    error String?
+    actor_id UUID?
+    node_id UUID?
+    environment_id UUID?
+    environment_config_id UUID?
+    environment_config_title String?
+    environment_title String?
+    environment_endpoint String?
+    ocg_hash String?
+    opg_hashes String[] = []
+    runtime_artifact_refs_json String?
+    service_api_provider_refs_json String?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    outer_wrapper_kind String?
+    environment_handle String?
+    workspace_root String?
+    workspace_toml_path String?
+    workspace_id String?
+    workspace_package_id String?
+    workspace_build_invocation_id String?
+    workspace_build_receipt_path String?
+    workspace_build_latest_path String?
+    workspace_target_latest_path String?
+    workspace_target_ref String?
+    readiness_receipt JsonObject?
+    network_node_environment_receipt JsonObject?
+}
+
+/// Live descriptor for a service-to-service API dependency route bound by Node.
+///
+/// This is transport-neutral NodeHost API DTO truth. Node derives these routes
+/// from selected ServicePackage required/provided ApiPackage bridges plus live
+/// ServiceHost handshakes; consumers query them instead of reopening package
+/// manifests or depending on launch-time env injection.
+class NodeServiceApiDependencyRouteDescriptor {
+    consumer_service_package_id UUID
+    consumer_service_package_name String
+    provider_service_package_id UUID
+    provider_service_package_name String
+    api_package_id UUID
+    api_package_name String?
+    route_kind String
+    host_id String
+    host_version String?
+    protocol_version String
+    socket_path String?
+    consumer_node_id UUID?
+    provider_node_id UUID?
+    provider_node_base_url String?
+    route_connection_id UUID?
+    request_timeout_s Float
+    service_names String[] = []
+    endpoint_refs_by_service JsonObject = {}
+    stream_endpoint_refs_by_service JsonObject = {}
+}
+
+/// Typed per-service view of one supervised hosted-Service runtime.
+///
+/// This is Node-owned runtime-status truth, not routing-only advertisement.
+class HostedServiceRuntimeServiceStatus {
+    service_name String
+    endpoint_refs String[] = []
+    stream_endpoint_refs String[] = []
+}
+
+/// Node-owned runtime status for one supervised hosted-Service host/runtime.
+///
+/// IMPORTANT:
+/// - This remains control-plane truth owned by the supervising Node.
+/// - It is derived from private Service-host handshake + process supervision.
+/// - It is intentionally separate from Network hosted-service advertisements,
+///   which remain routing/discovery truth.
+class HostedServiceRuntimeStatus {
+    host_id String
+    host_version String?
+    protocol_version String
+    readiness_status String = "unknown"
+    is_ready Bool = false
+    is_alive Bool = false
+    supports_stream_events Bool = false
+    summary String?
+    error String?
+    updated_at String?
+    services HostedServiceRuntimeServiceStatus[] = []
+}
+
+/// Generic Node-owned recovery capability for any supervised hosted runtime.
+///
+/// Node owns whether an operation is available and why. Provider-specific
+/// meaning remains outside this DTO; consumers map these keys into their own
+/// API/UX contracts.
+class HostedRuntimeRecoveryCapability {
+    key String
+    enabled Bool = false
+    reason String?
+    action_key String?
+}
+
+/// Generic Node-owned lifecycle view for any supervised hosted runtime.
+///
+/// IMPORTANT:
+/// - `runtime_kind` is an open string, not an enum. Current values such as
+///   `service`, `interface`, `environment`, or `ontology` are provider keys,
+///   not Node-owned type variants.
+/// - Node reports lifecycle/process/readiness/recovery truth only.
+/// - Provider-specific status must live behind provider APIs and may be
+///   exposed here only as opaque JSON metadata/refs.
+class HostedRuntimeLifecycleStatus {
+    runtime_key String
+    runtime_kind String
+    status String = "unknown"
+    is_ready Bool = false
+    is_alive Bool = false
+    summary String?
+    error String?
+    updated_at String?
+    pid Int?
+    returncode Int?
+    endpoint String?
+    socket_path String?
+    manifest_ref String?
+    provider_ref String?
+    provider_package String?
+    provider_api_ref String?
+    provider_metadata JsonObject?
+    recovery_capabilities HostedRuntimeRecoveryCapability[] = []
+}
+
+/// Node-owned runtime input consumed by `aware_node_service.app`.
+///
+/// This is product run truth. Producers may be local source manifest tooling or
+/// artifact-backed Workspace/Hub flows, but Node consumes this contract instead
+/// of inferring runtime policy from source roots or legacy deploy env names.
+class NodeRunManifestHostedServiceSpec {
+    name String?
+    bootstrap_config_path String
+    launch_command String[] = []
+    ready_timeout_s Float?
+    request_timeout_s Float?
+    socket_root String?
+}
+
+class NodeRunManifestHostedInterfaceSpec {
+    name String?
+    bootstrap_config_path String
+    launch_command String[] = []
+    ready_timeout_s Float?
+}
+
+class NodeRunManifestRouteInputs {
+    service_api_dependency_package_refs_json String?
+    service_api_dependency_package_refs_path String?
+    remote_service_api_provider_refs_json String?
+    remote_service_api_provider_refs_path String?
+}
+
+class NodeRunManifestAuthInputs {
+    token_authority_manifest_path String?
+    token_seed_receipt_path String?
+}
+
+class NodeRunManifestReadinessPolicy {
+    node_http_ready_timeout_s Float = 600.0
+    environment_service_ready_timeout_s Float = 600.0
+    environment_ready_timeout_s Float = 600.0
+    hosted_service_ready_timeout_s Float = 180.0
+    hosted_interface_ready_timeout_s Float = 180.0
+    hosted_service_request_timeout_s Float = 5.0
+}
+
+class NodeRunManifestProvenance {
+    source_kind String
+    workspace_root String?
+    workspace_revision_id String?
+    workspace_source_revision_id String?
+    workspace_source_revision_kind String?
+    workspace_deployment_revision_id String?
+    environment_runtime_revision_id String?
+    materialized_workspace_root String?
+    workspace_revision_manifest_path String?
+    deployment_payload_path String?
+    artifact_refs_json String?
+}
+
+class NodeRunManifest {
+    version String = "aware.node.run_manifest.v1"
+    node_package String
+    node_id UUID?
+    display_name String?
+
+    host String
+    port Int
+    node_base_url String?
+    node_websocket_path String = "/interface/network_node"
+
+    run_dir String
+    aware_root String?
+    node_host_root String?
+    env_file_path String?
+    command_file_path String?
+    log_path String?
+    pid_file_path String?
+    status_file_path String?
+
+    python_project_path String?
+    python_execution_closure_manifest_path String?
+    deployment_payload_path String?
+
+    persistence_backend String?
+    database_url String?
+    registry_path String?
+    secrets_dir String?
+
+    environment_provision_mode String?
+    environment_manifest_path String?
+    runtime_base_environment_manifest_path String?
+    environment_service_port Int?
+    environment_api_endpoint String?
+
+    hosted_services NodeRunManifestHostedServiceSpec[] = []
+    hosted_interfaces NodeRunManifestHostedInterfaceSpec[] = []
+    route_inputs NodeRunManifestRouteInputs?
+    auth_inputs NodeRunManifestAuthInputs?
+    readiness NodeRunManifestReadinessPolicy?
+    provenance NodeRunManifestProvenance?
+}
+
+class ProvisionEnvironmentRequest augment comms.models.NodeHostOperationRequest {
+    operation String = "provision_environment"
+
+    // Attributes
+    environment_config_id UUID
+    environment_title String?
+    environment_description String?
+    environment_port Int?
+    database_url String?
+    persistence_backend String?
+    eager_ready Bool = true
+}
+
+class ProvisionEnvironmentResponse augment comms.models.NodeHostOperationResponse {
+    operation String = "provision_environment"
+
+    // Attributes
+    status String
+    error String?
+    environment_id UUID?
+    environment_config_id UUID?
+    environment_config_title String?
+    environment_title String?
+    environment_endpoint String?
+    ocg_hash String?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    opg_hashes String[] = []
+    provisioning_receipt NodeEnvironmentProvisioningReceipt?
+}
+
+class GetEnvironmentStatusRequest augment comms.models.NodeHostOperationRequest {
+    operation String = "get_environment_status"
+
+    // Attributes
+    environment_id UUID
+}
+
+class GetEnvironmentStatusResponse augment comms.models.NodeHostOperationResponse {
+    operation String = "get_environment_status"
+
+    // Attributes
+    status String
+    error String?
+    environment_id UUID
+    environment_config_id UUID?
+    environment_config_title String?
+    environment_title String?
+    environment_endpoint String?
+    ocg_hash String?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    opg_hashes String[] = []
+    provisioning_receipt NodeEnvironmentProvisioningReceipt?
+}
+
+class GetBootEnvironmentDescriptorRequest augment comms.models.NodeHostOperationRequest {
+    operation String = "get_boot_environment_descriptor"
+}
+
+class GetBootEnvironmentDescriptorResponse augment comms.models.NodeHostOperationResponse {
+    operation String = "get_boot_environment_descriptor"
+
+    // Attributes
+    status String
+    error String?
+    descriptor BootEnvironmentDescriptor?
+}
+
+class DiscoverEnvironmentConfigsRequest augment comms.models.NodeHostOperationRequest {
+    operation String = "discover_environment_configs"
+}
+
+class DiscoverEnvironmentConfigsResponse augment comms.models.NodeHostOperationResponse {
+    operation String = "discover_environment_configs"
+    configs EnvironmentConfigDescriptor[] = []
+}
+
+class DiscoverApiRoutesRequest augment comms.models.NodeHostOperationRequest {
+    operation String = "discover_service_api_dependency_routes"
+
+    // Optional filters for consumers that need one API route from the Node registry.
+    consumer_service_package_id UUID?
+    api_package_id UUID?
+}
+
+class DiscoverApiRoutesResponse augment comms.models.NodeHostOperationResponse {
+    operation String = "discover_service_api_dependency_routes"
+    routes NodeServiceApiDependencyRouteDescriptor[] = []
+}
+
+/// Describe supervised hosted-Service runtime health/status currently visible to this Node.
+class DescribeHostedServiceRuntimesRequest augment comms.models.NodeHostOperationRequest {
+    operation String = "describe_hosted_service_runtimes"
+}
+
+class DescribeHostedServiceRuntimesResponse augment comms.models.NodeHostOperationResponse {
+    operation String = "describe_hosted_service_runtimes"
+    hosted_service_runtimes HostedServiceRuntimeStatus[] = []
+}
+
+/// Describe generic supervised hosted-runtime lifecycle status currently
+/// visible to this Node.
+class DescribeHostedRuntimesRequest augment comms.models.NodeHostOperationRequest {
+    operation String = "describe_hosted_runtimes"
+    runtime_kind String?
+    runtime_key String?
+}
+
+class DescribeHostedRuntimesResponse augment comms.models.NodeHostOperationResponse {
+    operation String = "describe_hosted_runtimes"
+    hosted_runtimes HostedRuntimeLifecycleStatus[] = []
+}
+
+/// Request a Node-owned lifecycle restart for a supervised hosted runtime.
+///
+/// v0 is intentionally generic and fail-closed. Runtime-specific restart
+/// mechanics must be owned by the supervisor for the selected `runtime_key`;
+/// provider clients must not infer restartability from paths or labels.
+class RestartHostedRuntimeRequest augment comms.models.NodeHostOperationRequest {
+    operation String = "restart_hosted_runtime"
+    runtime_key String
+    reason String?
+    evidence JsonObject?
+}
+
+class RestartHostedRuntimeResponse augment comms.models.NodeHostOperationResponse {
+    operation String = "restart_hosted_runtime"
+    runtime_key String
+    runtime_kind String?
+    hosted_runtime HostedRuntimeLifecycleStatus?
+    operation_receipt JsonObject?
+}

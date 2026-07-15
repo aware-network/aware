@@ -3,10 +3,11 @@ from __future__ import annotations
 from collections.abc import Awaitable, Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
 from aware_code.types import JsonArray, JsonObject, JsonValue
+from aware_meta.runtime.commit_groups import MetaInvocationCommitGroupEvidence
 from aware_meta.runtime.handler_executor import MetaGraphRuntimeIndex
 from aware_meta.runtime.invocation_commit_actions import MetaInvocationCommitAction
 
@@ -69,12 +70,21 @@ class MetaGraphCommitReceipt:
     commit_action: MetaInvocationCommitAction | None = None
     perf_trace_duration_ms: float | None = None
     perf_trace_summary: Mapping[str, Mapping[str, float | int]] | None = None
+    commit_group: MetaInvocationCommitGroupEvidence | None = None
 
 
 class MetaGraphInvocationBackend(Protocol):
     async def invoke_function(
         self, request: MetaGraphInvokeFunctionInput
     ) -> MetaGraphCommitReceipt: ...
+
+
+@runtime_checkable
+class MetaGraphAggregateInvocationBackend(MetaGraphInvocationBackend, Protocol):
+    async def invoke_function_aggregate(
+        self,
+        requests: Sequence[MetaGraphInvokeFunctionInput],
+    ) -> object: ...
 
 
 MetaGraphInvokeFunctionCallable = Callable[
@@ -103,9 +113,21 @@ class MetaGraphInvocationEngine:
     ) -> MetaGraphCommitReceipt:
         return await self._backend.invoke_function(request)
 
+    async def invoke_function_aggregate(
+        self,
+        requests: Sequence[MetaGraphInvokeFunctionInput],
+    ) -> object:
+        if not isinstance(self._backend, MetaGraphAggregateInvocationBackend):
+            raise AttributeError(
+                "MetaGraphInvocationEngine backend does not expose "
+                "invoke_function_aggregate."
+            )
+        return await self._backend.invoke_function_aggregate(tuple(requests))
+
 
 __all__ = [
     "MetaGraphCallTarget",
+    "MetaGraphAggregateInvocationBackend",
     "MetaGraphCommitReceipt",
     "MetaGraphInvocationBackend",
     "MetaGraphInvocationEngine",

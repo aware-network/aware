@@ -1,0 +1,27 @@
+aware_experience = 1
+
+[experience]
+package_name = "aware-control"
+fqn_prefix = "aware_control"
+version_number = 1
+title = "Aware Control"
+description = "Minimal bootstrap control experience for Identity, Hub, Workspace, Interface mount, and Node session panes."
+
+[build]
+environment_handle = "aware-control"
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+
+[[dependencies]]
+package_name = "aware-control-shell-attention"
+kind = "attention_package"
+
+[targets.dart]
+root_dir = "languages/dart"
+package_dir = "aware_control"
+
+[targets.python]
+root_dir = "languages/python"
+package_dir = "aware_control"

@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from hashlib import sha256
+from inspect import isawaitable
 import json
+import msgpack
 from pathlib import Path
 from pathlib import PurePosixPath
+from types import SimpleNamespace
 from typing import Any, cast
 from uuid import UUID
 
@@ -24,10 +27,18 @@ from aware_code.semantic_materialization import (
     SemanticPackageMaterializationBundle,
     SemanticPackageMaterializationRequest,
     SemanticPackageMaterializationResult,
+    SemanticProviderDeltaPreviousEvidenceResolverRequest,
+    SemanticProviderDeltaPreviousEvidenceResolverResult,
     SemanticSourceSessionContext,
     build_semantic_provider_delta_head_move_plan,
 )
 from aware_code.semantic_contract_config import source_code_package_config_ref
+from aware_code.semantic_currentness import (
+    SemanticMaterializationCurrentnessReplayRequest,
+    SemanticMaterializationCurrentnessReplayResult,
+    semantic_materialization_bundle_matches_live_head,
+    semantic_materialization_declared_source_tree_input_is_complete,
+)
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_code_ontology.code.code_plan import CodePackageDelta
 from aware_code_ontology.code.code_plan import CodePackageDeltaAuthorityKind
@@ -38,10 +49,15 @@ from aware_code_ontology.code.code_plan import CodePackageDeltaProduction
 from aware_code_ontology.code.code_plan import CodePackagePathRole
 
 from aware_code_ontology.stable_ids import stable_code_package_id
+from aware_api_ontology.stable_ids import (
+    stable_api_capability_endpoint_id,
+    stable_api_capability_id,
+)
 from aware_api_runtime.compile_materialization import (
     build_generated_api_compile_plan_accessible_graphs,
     materialize_api_package_from_compile_plan_input,
     materialize_api_package_from_manifest,
+    materialize_api_dto_language_code_package,
 )
 from aware_api_runtime.manifest import (
     AwareApiTomlError,
@@ -60,9 +76,16 @@ from aware_api_runtime.workspace_provider.deltas.semantic_analysis import (
 from aware_api_runtime.workspace_provider.deltas.baseline import (
     api_delta_baseline_hydration_preflight as _api_delta_baseline_hydration_preflight,
     api_delta_baseline_ref_payload as _api_delta_baseline_ref_payload,
+    api_delta_baseline_semantic_object_index_from_root_and_source as _api_delta_baseline_semantic_object_index_from_root_and_source,
+    api_delta_baseline_semantic_object_index_from_root_oig as _api_delta_baseline_semantic_object_index_from_root_oig,
+    api_delta_baseline_semantic_payload_index_from_source_code_package_oig as _api_delta_baseline_semantic_payload_index_from_source_code_package_oig,
+    api_delta_durable_execution_inputs_payload as _api_delta_durable_execution_inputs_payload,
     api_delta_durable_execution_inputs_preflight as _api_delta_durable_execution_inputs_preflight,
     api_delta_operation_execution_context as _api_delta_operation_execution_context,
     api_delta_previous_evidence_current_object_count as _api_delta_previous_evidence_current_object_count,
+    api_delta_previous_materialization_baseline_semantic_object_index as _api_delta_previous_materialization_baseline_semantic_object_index,
+    api_delta_root_baseline_hydration_ref_resolution as _api_delta_root_baseline_hydration_ref_resolution,
+    api_delta_source_baseline_hydration_ref_resolution as _api_delta_source_baseline_hydration_ref_resolution,
 )
 from aware_api_runtime.workspace_provider.deltas.dirty_diff import (
     api_delta_semantic_dirty_diff_from_analysis as _api_delta_semantic_dirty_diff_from_analysis,
@@ -295,6 +318,10 @@ async def materialize(
             getattr(result, "language_code_package_refs", ()) or (),
         )
     )
+    language_code_package_refs = _with_api_runtime_artifact_refs(
+        language_code_package_refs=language_code_package_refs,
+        artifact_ownership_receipts=artifact_ownership_receipts,
+    )
     runtime_code_package_refs = _dedupe_runtime_code_package_refs(
         (
             *_runtime_code_package_refs(language_code_package_refs),
@@ -327,6 +354,9 @@ async def materialize(
             ],
             "api_endpoint_catalog": _encode_api_endpoint_catalog_detail(
                 result.api_endpoint_catalog
+            ),
+            "api_semantic_object_index": _api_semantic_object_index_detail(
+                api=result.api,
             ),
             "generated_dto_graph_count": result.generated_dto_graph_count,
             "generated_dto_class_config_count": (
@@ -389,9 +419,17 @@ async def materialize(
                 semantic_root_id=result.api.id,
                 semantic_branch_id=request.branch_id,
                 semantic_head_commit_id=result.package_head_commit_id,
-                semantic_object_instance_graph_commit_id=result.package_head_commit_id,
+                semantic_object_instance_graph_commit_id=(
+                    result.package_object_instance_graph_commit_id
+                ),
                 semantic_root_object_instance_graph_commit_id=(
                     result.api_object_instance_graph_commit_id
+                ),
+                semantic_projection_name="ApiPackage",
+                semantic_projection_hash=getattr(
+                    result,
+                    "package_projection_hash",
+                    None,
                 ),
                 source_code_package_id=result.source_code_package_id,
                 source_object_instance_graph_commit_id=(
@@ -415,6 +453,149 @@ async def materialize(
         api_reference_branch_ids_by_api_name={result.api.name: request.branch_id},
         api_endpoint_catalog=result.api_endpoint_catalog,
     )
+
+
+async def resolve_currentness_replay(
+    request: SemanticMaterializationCurrentnessReplayRequest,
+) -> SemanticMaterializationCurrentnessReplayResult:
+    if (
+        request.provider_key != "aware_api"
+        or request.semantic_package_family != "api"
+        or request.semantic_package_kind not in {"api_dto_package", "api_package"}
+        or request.workspace_manifest_kind not in {"api_dto", "api"}
+    ):
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="not_supported",
+            reason="api_package_currentness_shape_unsupported",
+        )
+    if not semantic_materialization_declared_source_tree_input_is_complete(
+        request=request
+    ):
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="must_execute",
+            reason="api_package_current_input_incomplete",
+        )
+    if not request.bundles:
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="must_execute",
+            reason="api_package_previous_bundle_missing",
+        )
+    if request.semantic_package_kind == "api_package" and not (
+        _tuple_evidence(
+            request.replay_output_details.get("artifact_ownership_receipts")
+        )
+    ):
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="must_execute",
+            reason="api_replay_output_receipts_missing",
+        )
+    artifact_ref_count = 0
+    for bundle in request.bundles:
+        if request.semantic_package_kind == "api_package" and not (
+            await semantic_materialization_bundle_matches_live_head(
+                bundle=bundle,
+                read_head=request.read_head,
+            )
+        ):
+            return SemanticMaterializationCurrentnessReplayResult(
+                status="must_execute",
+                reason="api_package_live_head_mismatch",
+            )
+        if not bundle.runtime_code_package_refs:
+            return SemanticMaterializationCurrentnessReplayResult(
+                status="must_execute",
+                reason="api_runtime_code_package_witness_missing",
+            )
+        for runtime_ref in bundle.runtime_code_package_refs:
+            payload = (
+                runtime_ref.to_payload()
+                if hasattr(runtime_ref, "to_payload")
+                else runtime_ref
+            )
+            if not isinstance(payload, Mapping):
+                return SemanticMaterializationCurrentnessReplayResult(
+                    status="must_execute",
+                    reason="api_runtime_code_package_witness_invalid",
+                )
+            branch_id = _uuid_or_none(payload.get("branch_id"))
+            projection_hash = _optional_text(payload.get("projection_hash"))
+            output_oig_commit_id = _uuid_or_none(
+                payload.get("object_instance_graph_commit_id")
+                or payload.get("source_object_instance_graph_commit_id")
+            )
+            if (
+                _uuid_or_none(payload.get("source_code_package_id")) is None
+                or branch_id is None
+                or projection_hash is None
+                or output_oig_commit_id is None
+            ):
+                return SemanticMaterializationCurrentnessReplayResult(
+                    status="must_execute",
+                    reason="api_runtime_code_package_witness_incomplete",
+                )
+            head = await request.read_head(
+                branch_id=branch_id,
+                projection_hash=projection_hash,
+            )
+            if (
+                not isinstance(head, Mapping)
+                or _uuid_or_none(head.get("object_instance_graph_commit_id"))
+                != output_oig_commit_id
+            ):
+                return SemanticMaterializationCurrentnessReplayResult(
+                    status="must_execute",
+                    reason="api_runtime_code_package_live_head_mismatch",
+                )
+            artifact_refs = _tuple_evidence(payload.get("runtime_artifact_refs"))
+            for artifact_ref in artifact_refs:
+                artifact_ref_count += 1
+                if not isinstance(artifact_ref, Mapping) or not (
+                    _api_runtime_artifact_ref_matches(
+                        workspace_root=request.workspace_root,
+                        artifact_ref=artifact_ref,
+                    )
+                ):
+                    return SemanticMaterializationCurrentnessReplayResult(
+                        status="must_execute",
+                        reason="api_runtime_artifact_witness_mismatch",
+                    )
+    if artifact_ref_count == 0:
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="must_execute",
+            reason="api_runtime_artifact_witness_missing",
+        )
+    return SemanticMaterializationCurrentnessReplayResult(
+        status="reused",
+        reason="api_output_heads_and_artifacts_current",
+        replay_kind="previous_api_output_bundles",
+    )
+
+
+def _api_runtime_artifact_ref_matches(
+    *,
+    workspace_root: Path,
+    artifact_ref: Mapping[str, object],
+) -> bool:
+    manifest_path = _optional_text(artifact_ref.get("manifest_path"))
+    expected_digest = _optional_text(artifact_ref.get("digest"))
+    if (
+        manifest_path is None
+        or expected_digest is None
+        or _optional_text(artifact_ref.get("digest_algorithm")) != "sha256"
+    ):
+        return False
+    resolved_workspace_root = workspace_root.resolve()
+    path = (resolved_workspace_root / manifest_path).resolve()
+    try:
+        path.relative_to(resolved_workspace_root)
+    except ValueError:
+        return False
+    if not path.is_file() or path.is_symlink():
+        return False
+    try:
+        return sha256(path.read_bytes()).hexdigest() == expected_digest
+    except OSError:
+        return False
 
 
 async def _materialize_api_dto_export(
@@ -479,6 +660,38 @@ async def _materialize_api_dto_export(
         workspace_root=request.workspace_root,
         dto_materializations=(dto_materialization,),
     )
+    runtime_artifact_ownership_receipts = _publish_api_dto_runtime_graph_artifacts(
+        request=request,
+        package_name=export.package_name,
+        graph=graph,
+    )
+    artifact_ownership_receipts = (
+        *artifact_ownership_receipts,
+        *runtime_artifact_ownership_receipts,
+    )
+    language_code_package_ref = await materialize_api_dto_language_code_package(
+        index=request.index,
+        actor_id=request.actor_id,
+        workspace_root=request.workspace_root,
+        package_name=_read_generated_package_name(
+            package_root=dto_materialization.package_root,
+        ),
+        import_root=dto_materialization.import_root,
+        package_root=dto_materialization.package_root,
+    )
+    language_code_package_payload = language_code_package_ref.to_payload()
+    language_code_package_payload["runtime_artifact_refs"] = tuple(
+        {
+            "manifest_path": receipt["manifest_path"],
+            "digest": receipt["digest"],
+            "digest_algorithm": receipt["digest_algorithm"],
+            "artifact_role": receipt["artifact_role"],
+        }
+        for receipt in runtime_artifact_ownership_receipts
+    )
+    runtime_code_package_refs = _runtime_code_package_refs(
+        (language_code_package_payload,)
+    )
     generated_code_package_deltas = _api_dto_generated_code_package_deltas(
         workspace_root=request.workspace_root,
         dto_materializations=(dto_materialization,),
@@ -517,6 +730,7 @@ async def _materialize_api_dto_export(
             "api_dto_materialized_file_count": len(materialized_files),
             "api_dto_materialized_files": list(materialized_files),
             "source_code_package_id": str(source_code_package_id),
+            "language_code_packages": [language_code_package_payload],
             "artifact_ownership_receipts": artifact_ownership_receipts,
             "generated_code_package_deltas": [
                 delta.model_dump(mode="json") for delta in generated_code_package_deltas
@@ -531,10 +745,10 @@ async def _materialize_api_dto_export(
                     fqn_prefix=graph.fqn_prefix or "",
                 ),
                 semantic_root_id=graph.id,
-                semantic_branch_id=request.branch_id,
                 semantic_root_kind="api_dto",
-                semantic_projection_name="ApiPackage",
                 source_code_package_id=source_code_package_id,
+                runtime_code_package_refs=runtime_code_package_refs,
+                implementation_code_packages=runtime_code_package_refs,
             ),
         ),
         mode="full_rebuild",
@@ -848,6 +1062,106 @@ def _api_dto_artifact_ownership_receipts(
     )
 
 
+def _publish_api_dto_runtime_graph_artifacts(
+    *,
+    request: SemanticPackageMaterializationRequest,
+    package_name: str,
+    graph: ObjectConfigGraph,
+) -> tuple[dict[str, object], ...]:
+    package_root = request.manifest_path.parent.resolve()
+    runtime_root = (
+        package_root / ".aware" / "api" / "runtime" / package_name
+    ).resolve()
+    try:
+        runtime_root.relative_to(package_root)
+    except ValueError as exc:
+        raise RuntimeError(
+            "API DTO runtime artifact root escaped the DTO package root: "
+            f"package={package_name!r} root={runtime_root}"
+        ) from exc
+    runtime_root.mkdir(parents=True, exist_ok=True)
+    snapshot_path = runtime_root / "ocg.snapshot.msgpack"
+    snapshot_payload = graph.model_dump(mode="json", exclude_none=True)
+    snapshot_bytes = msgpack.packb(snapshot_payload, use_bin_type=True)
+    snapshot_path.write_bytes(snapshot_bytes)
+    manifest_path = runtime_root / "api.manifest.json"
+    manifest_payload = {
+        "schema": "aware.api.dto_runtime_graph.v1",
+        "status": "ok",
+        "compile_target": "api_dto",
+        "api_package_name": package_name,
+        "api_fqn_prefix": graph.fqn_prefix,
+        "source_manifest_relpath": _workspace_relative_path(
+            workspace_root=request.workspace_root,
+            path=request.manifest_path,
+        ),
+        "ocg": {
+            "id": str(graph.id),
+            "hash": graph.hash,
+            "snapshot": snapshot_path.name,
+            "snapshot_digest": sha256(snapshot_bytes).hexdigest(),
+            "snapshot_digest_algorithm": "sha256",
+        },
+    }
+    manifest_bytes = (
+        json.dumps(manifest_payload, indent=2, sort_keys=True) + "\n"
+    ).encode("utf-8")
+    manifest_path.write_bytes(manifest_bytes)
+    receipts: list[dict[str, object]] = []
+    for path, content, role in (
+        (manifest_path, manifest_bytes, "runtime_manifest"),
+        (snapshot_path, snapshot_bytes, "runtime_graph_snapshot"),
+    ):
+        relative_path = _workspace_relative_path(
+            workspace_root=request.workspace_root,
+            path=path,
+        )
+        receipts.append(
+            {
+                "producer_provider_key": "aware_api",
+                "producer_key": "aware_api.api_dto.runtime_graph",
+                "producer_kind": "api_product_build",
+                "semantic_owner": "aware_api.provider",
+                "output_key": "api.dto_runtime_graph_file",
+                "output_kind": "file",
+                "artifact_family": "api_product_runtime",
+                "artifact_role": role,
+                "artifact_key": f"{package_name}:{role}:{relative_path}",
+                "package_name": package_name,
+                "path": path.as_posix(),
+                "manifest_path": relative_path,
+                "digest": sha256(content).hexdigest(),
+                "digest_algorithm": "sha256",
+                "size_bytes": len(content),
+                "status": "available",
+                "required_for": [
+                    "workspace_revision",
+                    "api_dependency_graph_resolution",
+                ],
+                "runtime_contract_version": "aware.api.dto_runtime_graph.v1",
+            }
+        )
+    return tuple(receipts)
+
+
+def _read_generated_package_name(*, package_root: Path) -> str:
+    import tomllib  # noqa: WPS433
+
+    manifest_path = package_root.resolve() / "pyproject.toml"
+    payload = tomllib.loads(manifest_path.read_text(encoding="utf-8"))
+    project = payload.get("project")
+    if not isinstance(project, Mapping):
+        raise RuntimeError(
+            f"Generated API DTO pyproject.toml has no [project]: {manifest_path}"
+        )
+    package_name = _optional_text(project.get("name"))
+    if package_name is None:
+        raise RuntimeError(
+            "Generated API DTO pyproject.toml has no project.name: " f"{manifest_path}"
+        )
+    return package_name
+
+
 async def _materialize_compile_plan_input(
     *,
     request: SemanticPackageMaterializationRequest,
@@ -901,6 +1215,10 @@ async def _materialize_compile_plan_input(
             artifact_ownership_receipts
         )
     )
+    runtime_code_package_refs = _with_api_runtime_artifact_refs(
+        language_code_package_refs=runtime_code_package_refs,
+        artifact_ownership_receipts=artifact_ownership_receipts,
+    )
     compile_parity_receipts = _api_client_service_protocol_compile_parity_receipts(
         request=request,
         result=result,
@@ -936,6 +1254,9 @@ async def _materialize_compile_plan_input(
             "api_endpoint_catalog": _encode_api_endpoint_catalog_detail(
                 result.api_endpoint_catalog
             ),
+            "api_semantic_object_index": _api_semantic_object_index_detail(
+                api=result.api,
+            ),
             "artifact_ownership_receipts": artifact_ownership_receipts,
             "runtime_code_package_refs": runtime_code_package_refs,
             "compile_parity_receipts": compile_parity_receipts,
@@ -965,9 +1286,17 @@ async def _materialize_compile_plan_input(
                 semantic_root_id=result.api.id,
                 semantic_branch_id=request.branch_id,
                 semantic_head_commit_id=result.package_head_commit_id,
-                semantic_object_instance_graph_commit_id=result.package_head_commit_id,
+                semantic_object_instance_graph_commit_id=(
+                    result.package_object_instance_graph_commit_id
+                ),
                 semantic_root_object_instance_graph_commit_id=(
                     result.api_object_instance_graph_commit_id
+                ),
+                semantic_projection_name="ApiPackage",
+                semantic_projection_hash=getattr(
+                    result,
+                    "package_projection_hash",
+                    None,
                 ),
                 source_code_package_id=None,
                 runtime_code_package_refs=runtime_code_package_refs,
@@ -1003,12 +1332,681 @@ def _compile_plan_payload_from_input(
     )
 
 
+def resolve_api_provider_delta_previous_materialization_evidence(
+    *,
+    request: SemanticProviderDeltaPreviousEvidenceResolverRequest,
+) -> SemanticProviderDeltaPreviousEvidenceResolverResult:
+    resolver_request = (
+        SemanticProviderDeltaPreviousEvidenceResolverRequest.model_validate(request)
+    )
+    if resolver_request.provider_key != "aware_api":
+        return SemanticProviderDeltaPreviousEvidenceResolverResult(
+            status="not_available",
+            reason="api_previous_evidence_resolver_provider_key_mismatch",
+        )
+
+    previous_evidence = _model_payload(
+        resolver_request.previous_materialization_evidence,
+    )
+    detail_payloads = _api_provider_delta_previous_materialization_detail_payloads(
+        previous_evidence=previous_evidence,
+    )
+    current_object_ids = _api_provider_delta_current_object_ids_from_details(
+        detail_payloads=detail_payloads,
+    )
+    baseline_semantic_object_index = (
+        _api_provider_delta_baseline_semantic_object_index_from_details(
+            detail_payloads=detail_payloads,
+        )
+    )
+    if not current_object_ids:
+        return SemanticProviderDeltaPreviousEvidenceResolverResult(
+            status="not_available",
+            reason="api_previous_evidence_provider_details_unavailable",
+            previous_materialization_evidence=previous_evidence,
+            diagnostics=(
+                "API previous-evidence resolver requires provider_materialization_details "
+                "from a prior API materialization receipt.",
+            ),
+            metadata={
+                "detail_payload_count": len(detail_payloads),
+            },
+        )
+
+    existing_object_ids = _api_provider_delta_string_mapping(
+        previous_evidence.get("current_semantic_object_ids")
+    )
+    merged_current_object_ids = dict(
+        sorted({**current_object_ids, **existing_object_ids}.items())
+    )
+    previous_evidence.update(
+        {
+            "available": True,
+            "current_semantic_object_ids": merged_current_object_ids,
+            "current_semantic_object_id_count": len(merged_current_object_ids),
+            "baseline_semantic_object_index": baseline_semantic_object_index,
+            "baseline_semantic_object_index_count": len(baseline_semantic_object_index),
+            "provider_delta_operation_execution_context_available": True,
+            "provider_delta_previous_evidence_resolution": {
+                "status": "resolved",
+                "reason": "api_previous_full_rebuild_receipt_details_resolved",
+                "source": "aware_api.semantic_contract.previous_evidence_resolver",
+                "detail_payload_count": len(detail_payloads),
+                "current_semantic_object_id_count": len(merged_current_object_ids),
+            },
+        }
+    )
+    return SemanticProviderDeltaPreviousEvidenceResolverResult(
+        status="resolved",
+        reason="api_previous_full_rebuild_receipt_details_resolved",
+        previous_materialization_evidence=previous_evidence,
+        current_semantic_object_ids=merged_current_object_ids,
+        metadata={
+            "source": "aware_api.semantic_contract.previous_evidence_resolver",
+            "detail_payload_count": len(detail_payloads),
+            "current_semantic_object_id_count": len(merged_current_object_ids),
+            "baseline_semantic_object_index_count": len(baseline_semantic_object_index),
+        },
+    )
+
+
+def _api_provider_delta_previous_materialization_detail_payloads(
+    *,
+    previous_evidence: Mapping[str, object],
+) -> tuple[Mapping[str, object], ...]:
+    details = previous_evidence.get("provider_materialization_details")
+    if details is None:
+        details = previous_evidence.get("details")
+    return _api_provider_delta_api_detail_payloads(value=details)
+
+
+def _api_provider_delta_api_detail_payloads(
+    *,
+    value: object,
+) -> tuple[Mapping[str, object], ...]:
+    payload = _model_payload(value)
+    payloads: list[Mapping[str, object]] = []
+    if (
+        _optional_text(payload.get("api_id")) is not None
+        and _optional_text(payload.get("api_name")) is not None
+        and isinstance(payload.get("api_endpoint_catalog"), Mapping)
+    ):
+        payloads.append(payload)
+    for nested_key in (
+        "details",
+        "provider_materialization_details",
+        "result",
+    ):
+        nested = payload.get(nested_key)
+        if nested is not None and nested is not value:
+            payloads.extend(_api_provider_delta_api_detail_payloads(value=nested))
+    for sequence_key in (
+        "steps",
+        "results",
+        "semantic_package_results",
+        "workspace_materialization_results",
+    ):
+        for item in _tuple_evidence(payload.get(sequence_key)):
+            payloads.extend(_api_provider_delta_api_detail_payloads(value=item))
+    return tuple(payloads)
+
+
+def _api_provider_delta_current_object_ids_from_details(
+    *,
+    detail_payloads: tuple[Mapping[str, object], ...],
+) -> dict[str, str]:
+    current_object_ids: dict[str, str] = {}
+    for payload in detail_payloads:
+        api_id = _optional_text(payload.get("api_id"))
+        api_name = _optional_text(payload.get("api_name"))
+        if api_id is None or api_name is None:
+            continue
+        try:
+            api_uuid = UUID(api_id)
+        except ValueError:
+            continue
+        current_object_ids[f"api:{api_name}"] = api_id
+        endpoint_catalog = payload.get("api_endpoint_catalog")
+        if not isinstance(endpoint_catalog, Mapping):
+            continue
+        for raw_api_name, raw_capability_catalog in endpoint_catalog.items():
+            resolved_api_name = _optional_text(raw_api_name) or api_name
+            if not isinstance(raw_capability_catalog, Mapping):
+                continue
+            for (
+                raw_capability_name,
+                raw_endpoint_names,
+            ) in raw_capability_catalog.items():
+                capability_name = _optional_text(raw_capability_name)
+                if capability_name is None:
+                    continue
+                capability_id = stable_api_capability_id(
+                    api_id=api_uuid,
+                    name=capability_name,
+                )
+                capability_key = f"api:{resolved_api_name}/capability:{capability_name}"
+                current_object_ids[capability_key] = str(capability_id)
+                for endpoint_name in _api_provider_delta_text_items(raw_endpoint_names):
+                    endpoint_id = stable_api_capability_endpoint_id(
+                        api_capability_id=capability_id,
+                        name=endpoint_name,
+                    )
+                    current_object_ids[f"{capability_key}/endpoint:{endpoint_name}"] = (
+                        str(endpoint_id)
+                    )
+    return dict(sorted(current_object_ids.items()))
+
+
+def _api_provider_delta_baseline_semantic_object_index_from_details(
+    *,
+    detail_payloads: tuple[Mapping[str, object], ...],
+) -> dict[str, dict[str, object]]:
+    entries: dict[str, dict[str, object]] = {}
+    for detail in detail_payloads:
+        raw_index = detail.get("api_semantic_object_index")
+        if not isinstance(raw_index, Mapping):
+            continue
+        for raw_semantic_key, raw_entry in raw_index.items():
+            semantic_key = _optional_text(raw_semantic_key)
+            entry = _mapping_payload(raw_entry)
+            if (
+                semantic_key is None
+                or _optional_text(entry.get("object_id")) is None
+                or not isinstance(entry.get("payload"), Mapping)
+            ):
+                continue
+            entries[semantic_key] = entry
+    return dict(sorted(entries.items()))
+
+
+def _api_provider_delta_text_items(value: object) -> tuple[str, ...]:
+    if isinstance(value, str):
+        text = _optional_text(value)
+        return () if text is None else (text,)
+    if isinstance(value, Mapping):
+        return ()
+    if not isinstance(value, (list, tuple, set)):
+        return ()
+    return tuple(text for item in value if (text := _optional_text(item)) is not None)
+
+
+def _api_provider_delta_string_mapping(value: object) -> dict[str, str]:
+    if not isinstance(value, Mapping):
+        return {}
+    result: dict[str, str] = {}
+    for raw_key, raw_value in value.items():
+        key = _optional_text(raw_key)
+        mapped_value = _optional_text(raw_value)
+        if key is not None and mapped_value is not None:
+            result[key] = mapped_value
+    return dict(sorted(result.items()))
+
+
 async def materialize_delta(request: object) -> dict[str, object]:
     from aware_api_runtime.workspace_provider.deltas.service import (  # noqa: WPS433
         materialize_delta as _materialize_delta,
     )
 
     return await _materialize_delta(request=request)
+
+
+class _ApiDeltaFullBaselineOigHydrationRequest:
+    require_full_baseline_oig = True
+
+    def __init__(self, *, request: object) -> None:
+        self._request = request
+
+    def __getattr__(self, name: str) -> object:
+        if isinstance(self._request, Mapping):
+            try:
+                return self._request[name]
+            except KeyError:
+                pass
+        return getattr(self._request, name)
+
+
+async def _api_delta_request_with_durable_baseline_context(
+    *,
+    request: object,
+) -> tuple[object, Mapping[str, object]]:
+    preflight = _api_delta_baseline_hydration_preflight(request=request)
+    if (
+        preflight.get("current_head_context_available") is True
+        and preflight.get("baseline_semantic_object_index_available") is True
+    ):
+        return request, {
+            "status": "current_head_baseline_payload_available",
+            "reason": (
+                "api_provider_delta_current_head_baseline_payload_already_available"
+            ),
+            "source": "api.provider_delta.preflight",
+            "current_semantic_object_id_count": preflight.get(
+                "current_semantic_object_id_count",
+                0,
+            ),
+            "baseline_semantic_object_index_count": preflight.get(
+                "baseline_semantic_object_index_count",
+                0,
+            ),
+        }
+
+    baseline_ref = _api_delta_baseline_ref_payload(request=request)
+    if baseline_ref is None:
+        return request, {
+            "status": "baseline_ref_missing",
+            "reason": "api_provider_delta_baseline_hydration_requires_baseline_ref",
+            "source": "api.provider_delta.durable_baseline_context",
+        }
+
+    durable_inputs = _api_delta_durable_execution_inputs_payload(request=request)
+    provider_inputs = _mapping_payload(durable_inputs.get("provider_inputs"))
+    hydrator = provider_inputs.get("baseline_oig_hydrator")
+    if not callable(hydrator):
+        if preflight.get("current_head_context_available") is True:
+            return request, {
+                "status": "current_head_ids_only",
+                "reason": (
+                    "api_provider_delta_current_head_payload_hydrator_unavailable"
+                ),
+                "source": "api.provider_delta.durable_baseline_context",
+                "current_semantic_object_id_count": preflight.get(
+                    "current_semantic_object_id_count",
+                    0,
+                ),
+                "baseline_semantic_object_index_count": 0,
+            }
+        return request, {
+            "status": "hydrator_unavailable",
+            "reason": "api_provider_delta_baseline_oig_hydrator_unavailable",
+            "source": "api.provider_delta.durable_baseline_context",
+            "provider_input_keys": tuple(sorted(str(key) for key in provider_inputs)),
+        }
+
+    root_ref_resolution = _api_delta_root_baseline_hydration_ref_resolution(
+        baseline_ref=baseline_ref,
+    )
+    root_ref_evidence = root_ref_resolution.evidence_payload()
+    if root_ref_resolution.status != "ready":
+        return request, {
+            "status": "baseline_root_ref_blocked",
+            "reason": root_ref_resolution.reason,
+            "source": "api.provider_delta.durable_baseline_context",
+            "baseline_root_hydration_ref_resolution": root_ref_evidence,
+            "blockers": root_ref_resolution.blockers,
+        }
+    hydration_ref = root_ref_resolution.hydration_ref
+    if hydration_ref is None:
+        raise AssertionError("ready API root hydration ref unexpectedly missing")
+
+    source_ref_resolution = _api_delta_source_baseline_hydration_ref_resolution(
+        baseline_ref=baseline_ref,
+    )
+    source_ref_evidence = source_ref_resolution.evidence_payload()
+    if source_ref_resolution.status != "ready":
+        return request, {
+            "status": "baseline_source_ref_blocked",
+            "reason": source_ref_resolution.reason,
+            "source": "api.provider_delta.durable_baseline_context",
+            "baseline_root_hydration_ref_resolution": root_ref_evidence,
+            "baseline_source_hydration_ref_resolution": source_ref_evidence,
+            "blockers": source_ref_resolution.blockers,
+        }
+    source_hydration_ref = source_ref_resolution.hydration_ref
+    if source_hydration_ref is None:
+        raise AssertionError("ready API source hydration ref unexpectedly missing")
+
+    full_hydration_request = _ApiDeltaFullBaselineOigHydrationRequest(
+        request=request,
+    )
+
+    try:
+        root_hydrated = hydrator(
+            request=full_hydration_request,
+            baseline_ref=hydration_ref.model_dump(mode="json"),
+        )
+        if isawaitable(root_hydrated):
+            root_hydrated = await root_hydrated
+    except Exception as exc:
+        return request, {
+            "status": "root_hydration_failed",
+            "reason": "api_provider_delta_baseline_root_oig_hydration_failed",
+            "source": "api.provider_delta.durable_baseline_context",
+            "error": f"{type(exc).__name__}: {exc}",
+            "baseline_root_hydration_ref_resolution": root_ref_evidence,
+            "baseline_source_hydration_ref_resolution": source_ref_evidence,
+        }
+    try:
+        source_hydrated = hydrator(
+            request=full_hydration_request,
+            baseline_ref=source_hydration_ref.model_dump(mode="json"),
+        )
+        if isawaitable(source_hydrated):
+            source_hydrated = await source_hydrated
+    except Exception as exc:
+        return request, {
+            "status": "source_hydration_failed",
+            "reason": "api_provider_delta_baseline_source_oig_hydration_failed",
+            "source": "api.provider_delta.durable_baseline_context",
+            "error": f"{type(exc).__name__}: {exc}",
+            "baseline_root_hydration_ref_resolution": root_ref_evidence,
+            "baseline_source_hydration_ref_resolution": source_ref_evidence,
+        }
+
+    hydration_payload = _api_delta_baseline_hydration_payload(
+        root_value=root_hydrated,
+        root_hydration_ref=hydration_ref,
+        source_value=source_hydrated,
+        source_hydration_ref=source_hydration_ref,
+    )
+    baseline_semantic_object_index = (
+        _api_delta_baseline_semantic_object_index_from_hydration(
+            hydration_payload=hydration_payload,
+        )
+    )
+    current_object_ids = _api_delta_current_object_ids_from_baseline_hydration(
+        hydration_payload=hydration_payload,
+    )
+    if not current_object_ids:
+        return request, {
+            "status": str(hydration_payload.get("status") or "hydration_no_index"),
+            "reason": str(
+                hydration_payload.get("reason")
+                or "api_provider_delta_baseline_hydration_returned_no_semantic_index"
+            ),
+            "source": "api.provider_delta.durable_baseline_context",
+            "did_hydrate": hydration_payload.get("did_hydrate") is True,
+            "baseline_semantic_object_index_available": (
+                hydration_payload.get("baseline_semantic_object_index_available")
+                is True
+            ),
+            "baseline_semantic_object_index_count": hydration_payload.get(
+                "baseline_semantic_object_index_count",
+                0,
+            ),
+            "api_baseline_root_oig_projection": hydration_payload.get(
+                "api_baseline_root_oig_projection",
+            ),
+            "api_baseline_source_oig_projection": hydration_payload.get(
+                "api_baseline_source_oig_projection",
+            ),
+            "api_baseline_root_source_merge": hydration_payload.get(
+                "api_baseline_root_source_merge",
+            ),
+            "baseline_root_hydration_ref_resolution": root_ref_evidence,
+            "baseline_source_hydration_ref_resolution": source_ref_evidence,
+        }
+
+    hydrated_request = _api_delta_request_with_previous_current_object_ids(
+        request=request,
+        current_object_ids=current_object_ids,
+        baseline_semantic_object_index=baseline_semantic_object_index,
+        hydration_payload=hydration_payload,
+    )
+    return hydrated_request, {
+        "status": "current_head_context_hydrated",
+        "reason": "api_provider_delta_current_head_context_hydrated_from_baseline_oig",
+        "source": "api.provider_delta.durable_baseline_context",
+        "hydration_status": hydration_payload.get("status"),
+        "hydration_reason": hydration_payload.get("reason"),
+        "current_semantic_object_id_count": len(current_object_ids),
+        "baseline_semantic_object_index_count": len(baseline_semantic_object_index),
+        "baseline_semantic_object_index_source": hydration_payload.get(
+            "baseline_semantic_object_index_source",
+        ),
+        "api_baseline_root_oig_projection": hydration_payload.get(
+            "api_baseline_root_oig_projection",
+        ),
+        "api_baseline_source_oig_projection": hydration_payload.get(
+            "api_baseline_source_oig_projection",
+        ),
+        "api_baseline_root_source_merge": hydration_payload.get(
+            "api_baseline_root_source_merge",
+        ),
+        "baseline_root_hydration_ref_resolution": root_ref_evidence,
+        "baseline_source_hydration_ref_resolution": source_ref_evidence,
+    }
+
+
+def _api_delta_baseline_hydration_payload(
+    *,
+    root_value: object,
+    root_hydration_ref: object,
+    source_value: object,
+    source_hydration_ref: object,
+) -> dict[str, object]:
+    if not isinstance(root_value, tuple) or len(root_value) < 2:
+        return _model_payload(root_value)
+    payload = _model_payload(root_value[1])
+    root_projection = _api_delta_baseline_semantic_object_index_from_root_oig(
+        oig=root_value[0],
+        baseline_ref=root_hydration_ref,
+    )
+    projection_evidence = root_projection.evidence_payload()
+    payload["api_baseline_root_oig_projection"] = projection_evidence
+    if root_projection.status != "ready":
+        payload.update(
+            {
+                "status": "baseline_api_root_projection_blocked",
+                "reason": root_projection.reason,
+                "baseline_semantic_object_index_available": False,
+                "baseline_semantic_object_index_count": 0,
+                "baseline_semantic_object_index_source": (
+                    "aware_api.provider_delta.hydrated_api_root_oig"
+                ),
+                "blockers": root_projection.blockers,
+            }
+        )
+        return payload
+    if not isinstance(source_value, tuple) or len(source_value) < 2:
+        source_payload = _model_payload(source_value)
+        payload.update(
+            {
+                "status": str(
+                    source_payload.get("status") or "baseline_source_oig_missing"
+                ),
+                "reason": str(
+                    source_payload.get("reason")
+                    or "api_provider_delta_baseline_source_oig_required"
+                ),
+                "baseline_semantic_object_index_available": False,
+                "baseline_semantic_object_index_count": 0,
+                "baseline_semantic_object_index_source": (
+                    "aware_api.provider_delta.hydrated_source_code_package_and_api_root_oig"
+                ),
+                "baseline_source_hydration": source_payload,
+            }
+        )
+        return payload
+    source_projection = (
+        _api_delta_baseline_semantic_payload_index_from_source_code_package_oig(
+            oig=source_value[0],
+            baseline_ref=source_hydration_ref,
+        )
+    )
+    source_projection_evidence = source_projection.evidence_payload()
+    payload["api_baseline_source_oig_projection"] = source_projection_evidence
+    if source_projection.status != "ready":
+        payload.update(
+            {
+                "status": "baseline_api_source_projection_blocked",
+                "reason": source_projection.reason,
+                "baseline_semantic_object_index_available": False,
+                "baseline_semantic_object_index_count": 0,
+                "baseline_semantic_object_index_source": (
+                    "aware_api.provider_delta.hydrated_source_code_package_and_api_root_oig"
+                ),
+                "blockers": source_projection.blockers,
+            }
+        )
+        return payload
+    merged_projection = _api_delta_baseline_semantic_object_index_from_root_and_source(
+        root_projection=root_projection,
+        source_projection=source_projection,
+        root_ref=root_hydration_ref,
+        source_ref=source_hydration_ref,
+    )
+    merge_evidence = merged_projection.evidence_payload()
+    payload["api_baseline_root_source_merge"] = merge_evidence
+    if merged_projection.status != "ready":
+        payload.update(
+            {
+                "status": "baseline_api_root_source_merge_blocked",
+                "reason": merged_projection.reason,
+                "baseline_semantic_object_index_available": False,
+                "baseline_semantic_object_index_count": 0,
+                "baseline_semantic_object_index_source": (
+                    "aware_api.provider_delta.hydrated_source_code_package_and_api_root_oig"
+                ),
+                "blockers": merged_projection.blockers,
+            }
+        )
+        return payload
+    baseline_index = {
+        semantic_key: dict(entry)
+        for semantic_key, entry in (
+            merged_projection.baseline_semantic_object_index.items()
+        )
+    }
+    payload.update(
+        {
+            "baseline_semantic_object_index_available": True,
+            "baseline_semantic_object_index_count": len(baseline_index),
+            "baseline_semantic_object_index_source": (
+                "aware_api.provider_delta.hydrated_source_code_package_and_api_root_oig"
+            ),
+            "baseline_semantic_object_index": dict(sorted(baseline_index.items())),
+        }
+    )
+    return payload
+
+
+def _api_delta_current_object_ids_from_baseline_hydration(
+    *,
+    hydration_payload: Mapping[str, object],
+) -> dict[str, str]:
+    baseline_index = hydration_payload.get("baseline_semantic_object_index")
+    if not isinstance(baseline_index, Mapping):
+        return {}
+    current_object_ids: dict[str, str] = {}
+    for raw_semantic_key, raw_entry in baseline_index.items():
+        semantic_key = _optional_text(raw_semantic_key)
+        entry = _mapping_payload(raw_entry)
+        object_id = _optional_text(entry.get("object_id"))
+        if semantic_key is None or object_id is None:
+            continue
+        current_object_ids[semantic_key] = object_id
+    return dict(sorted(current_object_ids.items()))
+
+
+def _api_delta_baseline_semantic_object_index_from_hydration(
+    *,
+    hydration_payload: Mapping[str, object],
+) -> dict[str, dict[str, object]]:
+    baseline_index = hydration_payload.get("baseline_semantic_object_index")
+    if not isinstance(baseline_index, Mapping):
+        return {}
+    entries: dict[str, dict[str, object]] = {}
+    for raw_semantic_key, raw_entry in baseline_index.items():
+        semantic_key = _optional_text(raw_semantic_key)
+        entry = _mapping_payload(raw_entry)
+        if semantic_key is None or _optional_text(entry.get("object_id")) is None:
+            continue
+        entries[semantic_key] = entry
+    return dict(sorted(entries.items()))
+
+
+def _api_delta_request_with_previous_current_object_ids(
+    *,
+    request: object,
+    current_object_ids: Mapping[str, str],
+    baseline_semantic_object_index: Mapping[str, Mapping[str, object]],
+    hydration_payload: Mapping[str, object],
+) -> object:
+    previous_evidence = _model_payload(
+        getattr(request, "previous_materialization_evidence", None),
+    )
+    existing = previous_evidence.get("current_semantic_object_ids")
+    merged_current_object_ids = dict(current_object_ids)
+    if isinstance(existing, Mapping):
+        for raw_key, raw_value in existing.items():
+            key = _optional_text(raw_key)
+            value = _optional_text(raw_value)
+            if key is not None and value is not None:
+                merged_current_object_ids[key] = value
+
+    merged_baseline_index = {
+        semantic_key: dict(entry)
+        for semantic_key, entry in baseline_semantic_object_index.items()
+    }
+    merged_baseline_index.update(
+        _api_delta_previous_materialization_baseline_semantic_object_index(
+            request=request,
+        )
+    )
+
+    previous_evidence.update(
+        {
+            "available": True,
+            "current_semantic_object_ids": dict(
+                sorted(merged_current_object_ids.items())
+            ),
+            "current_semantic_object_id_count": len(merged_current_object_ids),
+            "baseline_semantic_object_index": dict(
+                sorted(merged_baseline_index.items())
+            ),
+            "baseline_semantic_object_index_count": len(merged_baseline_index),
+            "provider_delta_operation_execution_context_available": True,
+            "baseline_context_hydration": {
+                "status": hydration_payload.get("status"),
+                "reason": hydration_payload.get("reason"),
+                "source": hydration_payload.get("source"),
+                "baseline_semantic_object_index_count": hydration_payload.get(
+                    "baseline_semantic_object_index_count",
+                    len(current_object_ids),
+                ),
+            },
+        }
+    )
+
+    fields = _api_delta_request_runtime_fields(request=request)
+    fields["previous_materialization_evidence"] = previous_evidence
+    return SimpleNamespace(**fields)
+
+
+def _api_delta_request_runtime_fields(*, request: object) -> dict[str, object]:
+    fields: dict[str, object] = {}
+    for field_name in (
+        "contract_version",
+        "provider_delta_request_key",
+        "requested_mode",
+        "rejection_reason",
+        "package",
+        "semantic_contract",
+        "current_delta_fingerprint",
+        "code_package_delta",
+        "delta_cause_hints",
+        "previous_materialization_evidence",
+        "baseline_ref",
+        "provider_delta_lane_state",
+        "baseline_source_object_instance_graph_commit_id",
+        "baseline_semantic_object_instance_graph_commit_id",
+        "baseline_semantic_root_object_instance_graph_commit_id",
+        "enable_commit_ref_probe",
+        "runtime",
+        "index",
+        "actor_id",
+        "branch_id",
+        "workspace_root",
+        "execute_provider_delta_materialization",
+        "enable_provider_delta_operation_execution",
+        "provider_delta_operation_execution_enabled",
+        "semantic_function_call_execution_context",
+        "semantic_materialization_execution_context",
+        "context",
+    ):
+        if hasattr(request, field_name):
+            fields[field_name] = getattr(request, field_name)
+    return fields
 
 
 async def _materialize_delta_impl(request: object) -> dict[str, object]:
@@ -1025,7 +2023,9 @@ async def _materialize_delta_impl(request: object) -> dict[str, object]:
             details={"provider_key": provider_key},
         )
 
-    manifest_path = _resolve_delta_manifest_path(package_payload.get("manifest_path"))
+    manifest_path = _api_provider_delta_context_manifest_path(
+        request=request,
+    ) or _resolve_delta_manifest_path(package_payload.get("manifest_path"))
     if manifest_path is None:
         return _provider_delta_fallback_result(
             request=request,
@@ -1041,6 +2041,9 @@ async def _materialize_delta_impl(request: object) -> dict[str, object]:
             details=_api_delta_request_detail(request=request),
         )
 
+    request, baseline_context_hydration = (
+        await _api_delta_request_with_durable_baseline_context(request=request)
+    )
     durable_execution_inputs_preflight = _api_delta_durable_execution_inputs_preflight(
         request=request
     )
@@ -1066,6 +2069,7 @@ async def _materialize_delta_impl(request: object) -> dict[str, object]:
         current_semantic_analysis = _analyze_provider_delta_current_semantics(
             request=request,
             manifest_path=manifest_path,
+            workspace_root=getattr(request, "workspace_root", None),
         )
         snapshot = current_semantic_analysis.snapshot
         analysis = current_semantic_analysis.analysis
@@ -1120,9 +2124,17 @@ async def _materialize_delta_impl(request: object) -> dict[str, object]:
         provider_delta_head_move_plan=provider_delta_head_move_plan,
         function_call_plans=function_call_plans,
     )
+    typed_operation_execution_durable_preflight = (
+        durable_execution_inputs_preflight
+        if _api_delta_operation_execution_requested(request=request)
+        else None
+    )
     provider_delta_typed_operation_execution_preflight = (
         _api_delta_typed_operation_execution_preflight(
             provider_delta_typed_operation_plan=provider_delta_typed_operation_plan,
+            durable_execution_inputs_preflight=(
+                typed_operation_execution_durable_preflight
+            ),
         )
     )
     operation_plan = _api_delta_operation_plan_from_analysis(
@@ -1255,6 +2267,7 @@ async def _materialize_delta_impl(request: object) -> dict[str, object]:
         "semantic_event_count": len(analysis.change_preview.semantic_events),
         "action_binding_count": len(analysis.change_preview.action_bindings),
         "current_delta_fingerprint": current_delta_fingerprint,
+        "baseline_context_hydration": baseline_context_hydration,
         "provider_delta_durable_execution_inputs_preflight": (
             durable_execution_inputs_preflight
         ),
@@ -1654,6 +2667,30 @@ async def _api_delta_operation_execution_detail(
             }
         )
         return payload
+    if (
+        provider_delta_typed_operation_plan is not None
+        and provider_delta_typed_operation_execution_preflight is not None
+        and provider_delta_typed_operation_execution_preflight.get("status")
+        == "typed_operation_execution_empty"
+    ):
+        payload.update(
+            {
+                "status": "no_operations",
+                "reason": "api_provider_delta_typed_operation_execution_no_operations",
+                "operation_count": 0,
+                "execution_wired": True,
+                "would_execute": False,
+                "semantic_function_call_resolution_count": 0,
+                "semantic_function_call_resolution_status_counts": {},
+                "semantic_function_call_execution": {
+                    "enabled": True,
+                    "continue_on_failure": False,
+                    "status": "no_operations",
+                    "source": "typed_operation_plan",
+                },
+            }
+        )
+        return payload
     if not function_call_plans:
         payload.update(
             {
@@ -1869,6 +2906,7 @@ async def _api_delta_commit_ref_payload_for_succeeded_delta(
 ) -> tuple[dict[str, dict[str, object]], dict[str, object]]:
     operation_bundle_refs = _api_delta_bundle_refs_from_operation_execution(
         operation_execution=operation_execution,
+        request=request,
     )
     package_source_bundle_refs = _api_delta_bundle_refs_from_package_source_execution(
         package_source_execution=package_source_execution,
@@ -2028,6 +3066,7 @@ async def _api_delta_package_source_execution_detail(
 
     operation_refs = _api_delta_bundle_refs_from_operation_execution(
         operation_execution=operation_execution,
+        request=request,
     )
     api_id = _optional_text(operation_refs.get("semantic_root_id"))
     api_object_instance_graph_commit_id = _optional_text(
@@ -2309,6 +3348,73 @@ def _encode_api_endpoint_catalog_detail(
     }
 
 
+def _api_semantic_object_index_detail(*, api: object) -> dict[str, dict[str, object]]:
+    api_id = _optional_text(getattr(api, "id", None))
+    api_name = _optional_text(getattr(api, "name", None))
+    if api_id is None or api_name is None:
+        return {}
+    capabilities = tuple(getattr(api, "api_capabilities", ()) or ())
+    api_graphs = tuple(getattr(api, "api_graphs", ()) or ())
+    entries: dict[str, dict[str, object]] = {}
+    api_semantic_key = f"api:{api_name}"
+    entries[api_semantic_key] = {
+        "semantic_key": api_semantic_key,
+        "object_id": api_id,
+        "object_kind": "api",
+        "payload": {
+            "name": api_name,
+            "description": getattr(api, "description", None),
+            "capability_count": len(capabilities),
+            "graph_count": len(api_graphs),
+        },
+    }
+    for capability in capabilities:
+        capability_id = _optional_text(getattr(capability, "id", None))
+        capability_name = _optional_text(getattr(capability, "name", None))
+        if capability_id is None or capability_name is None:
+            continue
+        endpoints = tuple(getattr(capability, "api_capability_endpoints", ()) or ())
+        capability_semantic_key = f"{api_semantic_key}/capability:{capability_name}"
+        entries[capability_semantic_key] = {
+            "semantic_key": capability_semantic_key,
+            "object_id": capability_id,
+            "object_kind": "api_capability",
+            "payload": {
+                "api_name": api_name,
+                "name": capability_name,
+                "description": getattr(capability, "description", None),
+                "endpoint_count": len(endpoints),
+            },
+        }
+        for endpoint in endpoints:
+            endpoint_id = _optional_text(getattr(endpoint, "id", None))
+            endpoint_name = _optional_text(getattr(endpoint, "name", None))
+            if endpoint_id is None or endpoint_name is None:
+                continue
+            request_config = getattr(endpoint, "request_config", None)
+            request_class_config_id = (
+                _optional_text(getattr(request_config, "class_config_id", None))
+                if request_config is not None and not isawaitable(request_config)
+                else None
+            )
+            endpoint_semantic_key = (
+                f"{capability_semantic_key}/endpoint:{endpoint_name}"
+            )
+            entries[endpoint_semantic_key] = {
+                "semantic_key": endpoint_semantic_key,
+                "object_id": endpoint_id,
+                "object_kind": "api_capability_endpoint",
+                "payload": {
+                    "api_name": api_name,
+                    "capability_name": capability_name,
+                    "name": endpoint_name,
+                    "description": getattr(endpoint, "description", None),
+                    "request_class_config_id": request_class_config_id,
+                },
+            }
+    return dict(sorted(entries.items()))
+
+
 def _semantic_keys_from_request(
     request: SemanticPackageMaterializationRequest,
 ) -> tuple[str, ...]:
@@ -2571,6 +3677,11 @@ def _api_delta_bundle_refs_from_materialization_result(
     api = getattr(result, "api")
     api_package = getattr(result, "api_package")
     package_head_commit_id = getattr(result, "package_head_commit_id", None)
+    package_object_instance_graph_commit_id = getattr(
+        result,
+        "package_object_instance_graph_commit_id",
+        None,
+    )
     return {
         "source_code_package_id": getattr(result, "source_code_package_id", None),
         "source_object_instance_graph_commit_id": getattr(
@@ -2581,7 +3692,9 @@ def _api_delta_bundle_refs_from_materialization_result(
         "semantic_package_id": getattr(api_package, "id", None),
         "semantic_branch_id": branch_id,
         "semantic_head_commit_id": package_head_commit_id,
-        "semantic_object_instance_graph_commit_id": package_head_commit_id,
+        "semantic_object_instance_graph_commit_id": (
+            package_object_instance_graph_commit_id
+        ),
         "semantic_root_id": getattr(api, "id", None),
         "semantic_root_object_instance_graph_commit_id": getattr(
             result,
@@ -2594,6 +3707,7 @@ def _api_delta_bundle_refs_from_materialization_result(
 def _api_delta_bundle_refs_from_operation_execution(
     *,
     operation_execution: Mapping[str, object],
+    request: object,
 ) -> dict[str, object]:
     if operation_execution.get("status") != "executed":
         return {}
@@ -2617,17 +3731,47 @@ def _api_delta_bundle_refs_from_operation_execution(
             for step in invoked_steps
             if step.get("resolution_status") == "create_root"
         ),
-        invoked_steps[0],
+        None,
     )
-    root_result = _api_delta_operation_step_result_payload(step=root_step)
+    root_result = (
+        _api_delta_operation_step_result_payload(step=root_step)
+        if root_step is not None
+        else {}
+    )
     branch_result = _api_delta_last_operation_result_with_branch(
         invoked_steps=invoked_steps,
     )
-    root_object_id = _optional_text(
-        root_step.get("result_object_id")
-    ) or _optional_text(root_result.get("object_id"))
-    root_commit_id = _api_delta_operation_result_commit_id(result=root_result)
-    branch_id = _optional_text(branch_result.get("branch_id"))
+    baseline_ref = _api_delta_baseline_ref_payload(request=request) or {}
+    baseline_index = _api_delta_previous_materialization_baseline_semantic_object_index(
+        request=request,
+    )
+    baseline_root_entry = next(
+        (
+            entry
+            for semantic_key, entry in baseline_index.items()
+            if _optional_text(entry.get("object_kind")) == "api"
+            or (semantic_key.startswith("api:") and "/" not in semantic_key)
+        ),
+        {},
+    )
+    root_object_id = (
+        (
+            _optional_text(root_step.get("result_object_id"))
+            if root_step is not None
+            else None
+        )
+        or _optional_text(root_result.get("object_id"))
+        or _optional_text(baseline_root_entry.get("object_id"))
+        or _optional_text(baseline_ref.get("semantic_root_id"))
+    )
+    root_commit_id = _api_delta_operation_result_object_instance_graph_commit_id(
+        result=root_result
+    ) or _optional_text(
+        baseline_ref.get("semantic_root_object_instance_graph_commit_id")
+    )
+    branch_id = _optional_text(branch_result.get("branch_id")) or _optional_text(
+        baseline_ref.get("semantic_branch_id")
+    )
 
     bundle_refs: dict[str, object] = {}
     if branch_id is not None:
@@ -2668,16 +3812,20 @@ def _api_delta_bundle_refs_from_package_source_execution(
         operation_name="api_product_build",
     )
     source_code_package_id = _optional_text(code_package_step.get("result_object_id"))
-    source_commit_id = _api_delta_operation_result_commit_id(
+    source_commit_id = _api_delta_operation_result_object_instance_graph_commit_id(
         result=_api_delta_operation_step_result_payload(step=source_upsert_step),
     )
     api_package_id = _optional_text(api_package_step.get("result_object_id"))
-    api_package_commit_id = _api_delta_operation_result_commit_id(
-        result=_api_delta_operation_step_result_payload(step=api_package_step),
+    api_package_result = _api_delta_operation_step_result_payload(step=api_package_step)
+    api_package_head_commit_id = _api_delta_operation_result_head_commit_id(
+        result=api_package_result,
     )
-    api_package_branch_id = _optional_text(
-        _api_delta_operation_step_result_payload(step=api_package_step).get("branch_id")
+    api_package_object_instance_graph_commit_id = (
+        _api_delta_operation_result_object_instance_graph_commit_id(
+            result=api_package_result,
+        )
     )
+    api_package_branch_id = _optional_text(api_package_result.get("branch_id"))
     bundle_refs: dict[str, object] = {}
     if source_code_package_id is not None:
         bundle_refs["source_code_package_id"] = source_code_package_id
@@ -2687,9 +3835,12 @@ def _api_delta_bundle_refs_from_package_source_execution(
         bundle_refs["semantic_package_id"] = api_package_id
     if api_package_branch_id is not None:
         bundle_refs["semantic_branch_id"] = api_package_branch_id
-    if api_package_commit_id is not None:
-        bundle_refs["semantic_head_commit_id"] = api_package_commit_id
-        bundle_refs["semantic_object_instance_graph_commit_id"] = api_package_commit_id
+    if api_package_head_commit_id is not None:
+        bundle_refs["semantic_head_commit_id"] = api_package_head_commit_id
+    if api_package_object_instance_graph_commit_id is not None:
+        bundle_refs["semantic_object_instance_graph_commit_id"] = (
+            api_package_object_instance_graph_commit_id
+        )
     return bundle_refs
 
 
@@ -2887,15 +4038,22 @@ def _api_delta_last_operation_result_with_branch(
     return _api_delta_operation_step_result_payload(step=invoked_steps[-1])
 
 
-def _api_delta_operation_result_commit_id(
+def _api_delta_operation_result_head_commit_id(
     *,
     result: Mapping[str, object],
 ) -> str | None:
-    commit_id = _optional_text(result.get("head_commit_id")) or _optional_text(
+    return _optional_text(result.get("head_commit_id")) or _optional_text(
         result.get("commit_id")
     )
-    if commit_id is not None:
-        return commit_id
+
+
+def _api_delta_operation_result_object_instance_graph_commit_id(
+    *,
+    result: Mapping[str, object],
+) -> str | None:
+    direct = _optional_text(result.get("object_instance_graph_commit_id"))
+    if direct is not None:
+        return direct
     evidence = result.get("evidence")
     if not isinstance(evidence, Mapping):
         return None
@@ -3163,7 +4321,8 @@ def _api_provider_delta_context_manifest_path(*, request: object) -> Path | None
         )
     if manifest_path_text is None:
         return None
-    workspace_root = Path(getattr(request, "workspace_root", Path.cwd()))
+    workspace_root_value = getattr(request, "workspace_root", None) or Path.cwd()
+    workspace_root = Path(workspace_root_value)
     candidate = Path(manifest_path_text).expanduser()
     if not candidate.is_absolute():
         candidate = workspace_root / candidate
@@ -3316,7 +4475,7 @@ def _api_client_service_protocol_compile_parity_receipts(
             getattr(result, "api_object_instance_graph_commit_id", None)
         ),
         "api_package_object_instance_graph_commit_id": _optional_text(
-            getattr(result, "package_head_commit_id", None)
+            getattr(result, "package_object_instance_graph_commit_id", None)
         ),
         "runtime_compile_plan_hash": _optional_text(
             getattr(result, "runtime_compile_plan_hash", None)
@@ -4559,6 +5718,17 @@ def _optional_text(value: object) -> str | None:
     return text or None
 
 
+def _uuid_or_none(value: object) -> UUID | None:
+    if isinstance(value, UUID):
+        return value
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        return UUID(value.strip())
+    except ValueError:
+        return None
+
+
 def _language_materialization_post_step_tool_mapping_by_tool_id(
     *,
     context: Mapping[str, object],
@@ -4608,13 +5778,47 @@ def _runtime_code_package_refs(
                 "source_object_instance_graph_commit_id": (
                     language_ref.get("object_instance_graph_commit_id")
                 ),
+                "branch_id": language_ref.get("branch_id"),
+                "projection_hash": language_ref.get("projection_hash"),
+                "domain_commit_id": language_ref.get("domain_commit_id"),
+                "object_instance_graph_commit_id": language_ref.get(
+                    "object_instance_graph_commit_id"
+                ),
                 "package_name": language_ref.get("package_name"),
                 "manifest_relative_path": language_ref.get("manifest_relative_path"),
                 "package_root": language_ref.get("package_root"),
                 "sources_root": language_ref.get("sources_root"),
                 "language": language_ref.get("language"),
+                "runtime_artifact_refs": language_ref.get("runtime_artifact_refs"),
             }
         )
+    return tuple(refs)
+
+
+def _with_api_runtime_artifact_refs(
+    *,
+    language_code_package_refs: tuple[dict[str, object], ...],
+    artifact_ownership_receipts: tuple[Mapping[str, object], ...],
+) -> tuple[dict[str, object], ...]:
+    if not language_code_package_refs:
+        return language_code_package_refs
+    runtime_artifact_refs = tuple(
+        {
+            "manifest_path": manifest_path,
+            "digest": digest,
+            "digest_algorithm": "sha256",
+            "artifact_role": _optional_text(receipt.get("artifact_role")),
+        }
+        for receipt in artifact_ownership_receipts
+        if _optional_text(receipt.get("status")) == "available"
+        if _optional_text(receipt.get("output_kind")) == "file"
+        if (manifest_path := _optional_text(receipt.get("manifest_path"))) is not None
+        if (digest := _optional_text(receipt.get("digest"))) is not None
+    )
+    if not runtime_artifact_refs:
+        return language_code_package_refs
+    refs = [dict(ref) for ref in language_code_package_refs]
+    refs[0]["runtime_artifact_refs"] = runtime_artifact_refs
     return tuple(refs)
 
 
@@ -4707,7 +5911,15 @@ def _dedupe_runtime_code_package_refs(
         )
         if code_package_id is None:
             continue
-        refs_by_id[code_package_id] = dict(ref)
+        existing = refs_by_id.get(code_package_id)
+        if existing is None:
+            refs_by_id[code_package_id] = dict(ref)
+            continue
+        merged = dict(existing)
+        for key, value in ref.items():
+            if key not in merged or merged[key] is None or merged[key] == "":
+                merged[key] = value
+        refs_by_id[code_package_id] = merged
     return tuple(refs_by_id[key] for key in sorted(refs_by_id))
 
 
@@ -4786,4 +5998,9 @@ async def _function_call_execution_detail(
     return payload
 
 
-__all__ = ["materialize", "materialize_delta"]
+__all__ = [
+    "materialize",
+    "materialize_delta",
+    "resolve_currentness_replay",
+    "resolve_api_provider_delta_previous_materialization_evidence",
+]

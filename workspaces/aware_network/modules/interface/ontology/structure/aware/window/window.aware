@@ -1,0 +1,40 @@
+/// Window exposes Interface-owned visible layout state.
+///
+/// Contract:
+/// - Environment/Thread owns shared active layout truth.
+/// - InterfaceWindow owns the protected thread target.
+/// - Window.active_layout is a direct visible Attention Layout pointer for replayable renderer state.
+/// - WindowLayout remains compatibility/override/cached section-binding state, not the normal selector.
+class Window {
+    // Relationships
+    layouts WindowLayout[]
+    active_layout aware_attention.layout.Layout?
+
+    // Attributes
+    window_id UUID key
+    active_layout_mode WindowActiveLayoutMode = follow_thread_active
+
+    fn build construct (window_id UUID key) -> Window {
+        """
+        Builds a new Window with a deterministic id.
+        """
+    }
+
+    fn add_layout (layout_id UUID) -> WindowLayout {
+        """
+        Attaches a Layout to this Window.
+        """
+        let attached = construct layouts.build(
+            layout_id = layout_id,
+        )
+    }
+
+    fn set_active_layout (
+        layout_id UUID,
+        mode WindowActiveLayoutMode = follow_thread_active
+    ) -> {
+        """
+        Sets the visible Attention Layout pointer for this Window without creating WindowLayout state.
+        """
+    }
+}

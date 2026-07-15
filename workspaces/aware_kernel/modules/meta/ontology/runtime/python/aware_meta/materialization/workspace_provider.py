@@ -61,6 +61,7 @@ from aware_meta.materialization.artifact_lifecycle import (
 )
 from aware_meta.materialization.service import (
     ObjectConfigGraphPackageLeafMaterializationResult,
+    _complete_language_materialization_package_realization_refs,
     materialize_object_config_graph_package_leaf_from_manifest,
     realize_object_config_graph_package_language_materialization_packages,
 )
@@ -1047,6 +1048,7 @@ async def materialize_provider_delta_outputs(
                         output_root=target.output_root,
                         import_root=target.import_root,
                         package_name=target.package_name,
+                        code_package_surface=target.code_package_surface,
                         renderer_profile=target.renderer_profile,
                         renderer_kind=target.renderer_kind,
                         materialization_source=target.materialization_source,
@@ -2184,6 +2186,69 @@ def _external_object_config_graphs_from_context(
     return tuple(graphs)
 
 
+def _external_object_config_graphs_by_fqn_prefix_from_context_index(
+    context: Mapping[str, object],
+) -> dict[str, ObjectConfigGraph]:
+    graphs_by_fqn_prefix: dict[str, ObjectConfigGraph] = {}
+    seen: set[UUID] = set()
+    # Match the broad external graph order: runtime graphs win over source
+    # duplicates for the same semantic FQN.
+    for graph_kind in ("runtime", "source"):
+        for graph in _indexed_object_config_graphs_for_kind_from_context(
+            context=context,
+            graph_kind=graph_kind,
+        ):
+            if graph.id in seen:
+                continue
+            seen.add(graph.id)
+            fqn_prefix = _object_config_graph_fqn_prefix_key(graph=graph)
+            if fqn_prefix is None:
+                continue
+            graphs_by_fqn_prefix.setdefault(fqn_prefix, graph)
+    return graphs_by_fqn_prefix
+
+
+def _indexed_object_config_graphs_for_kind_from_context(
+    *,
+    context: Mapping[str, object],
+    graph_kind: str,
+) -> tuple[ObjectConfigGraph, ...]:
+    if graph_kind == "runtime":
+        top_level_mapping_keys = (
+            "runtime_object_config_graphs_by_package_name",
+            "runtime_graph_by_package_name",
+        )
+        meta_context_mapping_attr = "runtime_graph_by_package_name"
+    else:
+        top_level_mapping_keys = (
+            "semantic_object_config_graphs_by_package_name",
+            "source_graph_by_package_name",
+        )
+        meta_context_mapping_attr = "source_graph_by_package_name"
+    graphs: list[ObjectConfigGraph] = []
+    seen: set[UUID] = set()
+
+    def append_mapping_graphs(value: object) -> None:
+        for graph in _object_config_graphs_from_mapping_value(value):
+            if graph.id in seen:
+                continue
+            seen.add(graph.id)
+            graphs.append(graph)
+
+    for key in top_level_mapping_keys:
+        append_mapping_graphs(context.get(key))
+    meta_context = context.get("aware_meta.graph_runtime_context")
+    append_mapping_graphs(getattr(meta_context, meta_context_mapping_attr, {}))
+    provider_context = context.get("provider_runtime_context")
+    for key in top_level_mapping_keys:
+        append_mapping_graphs(_context_value(provider_context, key=key))
+    provider_meta_context = _context_value(provider_context, key="meta_context")
+    append_mapping_graphs(
+        _context_value(provider_meta_context, key=meta_context_mapping_attr)
+    )
+    return tuple(graphs)
+
+
 def _leaf_external_object_config_graphs_from_context(
     *,
     context: Mapping[str, object],
@@ -2198,6 +2263,18 @@ def _leaf_external_object_config_graphs_from_context(
     )
     if not dependency_fqn_prefixes:
         return ()
+    indexed_graphs_by_fqn_prefix = (
+        _external_object_config_graphs_by_fqn_prefix_from_context_index(
+            context,
+        )
+    )
+    indexed_dependency_graphs = _dependency_graphs_from_fqn_prefix_index(
+        dependency_fqn_prefixes=dependency_fqn_prefixes,
+        source_fqn_prefix=source_fqn_prefix,
+        graphs_by_fqn_prefix=indexed_graphs_by_fqn_prefix,
+    )
+    if indexed_dependency_graphs is not None:
+        return indexed_dependency_graphs
     external_graphs = _external_object_config_graphs_from_context(context)
     if not external_graphs:
         return ()
@@ -2226,6 +2303,44 @@ def _leaf_external_object_config_graphs_from_context(
         graph
         for fqn_prefix in dependency_fqn_prefixes
         for graph in (graphs_by_fqn_prefix.get(fqn_prefix),)
+        if graph is not None
+    )
+
+
+def _dependency_graphs_from_fqn_prefix_index(
+    *,
+    dependency_fqn_prefixes: tuple[str, ...],
+    source_fqn_prefix: str | None,
+    graphs_by_fqn_prefix: Mapping[str, ObjectConfigGraph],
+) -> tuple[ObjectConfigGraph, ...] | None:
+    if not dependency_fqn_prefixes:
+        return ()
+    if not graphs_by_fqn_prefix:
+        return None
+    selected_graphs_by_fqn_prefix: dict[str, ObjectConfigGraph] = {}
+    for fqn_prefix in dependency_fqn_prefixes:
+        graph = graphs_by_fqn_prefix.get(fqn_prefix)
+        if graph is None:
+            return None
+        selected_graphs_by_fqn_prefix.setdefault(fqn_prefix, graph)
+    available_graphs_by_id = {
+        graph.id: graph for graph in graphs_by_fqn_prefix.values()
+    }
+    resolved_fqn_prefixes = _dependency_fqn_prefixes_with_loaded_relationship_targets(
+        dependency_fqn_prefixes=dependency_fqn_prefixes,
+        source_fqn_prefix=source_fqn_prefix,
+        graphs_by_fqn_prefix=selected_graphs_by_fqn_prefix,
+        available_graphs_by_id=available_graphs_by_id,
+    )
+    if any(
+        fqn_prefix not in selected_graphs_by_fqn_prefix
+        for fqn_prefix in resolved_fqn_prefixes
+    ):
+        return None
+    return tuple(
+        graph
+        for fqn_prefix in resolved_fqn_prefixes
+        for graph in (selected_graphs_by_fqn_prefix.get(fqn_prefix),)
         if graph is not None
     )
 
@@ -3104,6 +3219,7 @@ def _materialized_language_packages_from_leaf_result(
         leaf_result.object_config_graph_object_instance_graph_commit_id
     )
     rows: list[dict[str, object]] = []
+    represented_code_package_ids: set[str] = set()
     for language_materialization in tuple(
         getattr(object_config_graph_package, "language_materializations", ()) or ()
     ):
@@ -3136,6 +3252,8 @@ def _materialized_language_packages_from_leaf_result(
             )
             if code_package_id is None and package_name is None:
                 continue
+            if code_package_id is not None:
+                represented_code_package_ids.add(code_package_id)
             rows.append(
                 {
                     "schema": _MATERIALIZED_LANGUAGE_PACKAGE_SCHEMA,
@@ -3183,6 +3301,19 @@ def _materialized_language_packages_from_leaf_result(
                     ),
                     "package_name": package_name,
                     "language": language,
+                    "code_package_surface": _optional_string_value(
+                        ref.get("code_package_surface")
+                    ),
+                    "code_package_config_key": _optional_string_value(
+                        ref.get("code_package_config_key")
+                    ),
+                    "code_package_config_id": _optional_string_value(
+                        ref.get("code_package_config_id")
+                    ),
+                    "manifest_kind": _optional_string_value(ref.get("manifest_kind")),
+                    "manifest_relative_path": _optional_string_value(
+                        ref.get("manifest_relative_path")
+                    ),
                     "output_dir": (
                         _object_value_text(materialized_package, "output_dir")
                         or _object_value_text(language_materialization, "output_dir")
@@ -3231,6 +3362,68 @@ def _materialized_language_packages_from_leaf_result(
                     ),
                 }
             )
+    for code_package_id, ref in refs_by_code_package_id.items():
+        if code_package_id in represented_code_package_ids:
+            continue
+        rows.append(
+            {
+                "schema": _MATERIALIZED_LANGUAGE_PACKAGE_SCHEMA,
+                "object_config_graph_package_id": object_config_graph_package_id,
+                "language_materialization_id": None,
+                "language_materialization_target_key": None,
+                "code_package_id": code_package_id,
+                "code_package_branch_id": _optional_string_value(
+                    ref.get("code_package_branch_id")
+                ),
+                "code_package_commit_id": _optional_string_value(
+                    ref.get("code_package_commit_id")
+                ),
+                "code_package_head_commit_id": _optional_string_value(
+                    ref.get("code_package_head_commit_id")
+                ),
+                "code_package_object_instance_graph_commit_id": (
+                    _optional_string_value(
+                        ref.get("code_package_object_instance_graph_commit_id")
+                    )
+                ),
+                "object_config_graph_object_instance_graph_commit_id": (
+                    _optional_string_value(
+                        ref.get("object_config_graph_object_instance_graph_commit_id")
+                    )
+                    or root_oig_commit_id
+                ),
+                "package_output_key": _optional_string_value(
+                    ref.get("package_output_key")
+                ),
+                "package_name": _optional_string_value(ref.get("package_name")),
+                "language": _optional_string_value(
+                    ref.get("target_language_plugin_id")
+                ),
+                "code_package_surface": _optional_string_value(
+                    ref.get("code_package_surface")
+                ),
+                "code_package_config_key": _optional_string_value(
+                    ref.get("code_package_config_key")
+                ),
+                "code_package_config_id": _optional_string_value(
+                    ref.get("code_package_config_id")
+                ),
+                "manifest_kind": _optional_string_value(ref.get("manifest_kind")),
+                "manifest_relative_path": _optional_string_value(
+                    ref.get("manifest_relative_path")
+                ),
+                "output_dir": _optional_string_value(ref.get("output_dir")),
+                "package_root": _optional_string_value(ref.get("package_root")),
+                "sources_root": _optional_string_value(ref.get("sources_root")),
+                "import_root": _optional_string_value(ref.get("import_root")),
+                "materialization_source": _optional_string_value(
+                    ref.get("materialization_source")
+                ),
+                "renderer_kind": _optional_string_value(ref.get("renderer_kind")),
+                "renderer_profile": _optional_string_value(ref.get("renderer_profile")),
+                "status": _optional_string_value(ref.get("status")) or "materialized",
+            }
+        )
     return tuple(
         sorted(
             rows,
@@ -3712,6 +3905,7 @@ async def _leaf_language_materialization_receipts(
                     output_root=target.output_root,
                     import_root=target.import_root,
                     package_name=target.package_name,
+                    code_package_surface=target.code_package_surface,
                     renderer_profile=target.renderer_profile,
                     renderer_kind=target.renderer_kind,
                     materialization_source=target.materialization_source,
@@ -3796,7 +3990,7 @@ async def _leaf_language_materialization_receipts(
             )
             raise
         await _drain_language_target_subphase_progress(language_subphase_futures)
-        receipts.extend(
+        target_ownership_receipts = tuple(
             _workspace_language_receipt_payload(
                 receipt_payload=receipt.as_payload(),
                 output_root=target.output_root,
@@ -3811,6 +4005,13 @@ async def _leaf_language_materialization_receipts(
         )
         generated_code_package_refs.extend(code_package_outputs.refs)
         generated_code_package_deltas.extend(code_package_outputs.deltas)
+        receipts.extend(
+            _language_ownership_receipts_with_generated_code_package_truth(
+                ownership_receipts=target_ownership_receipts,
+                generated_code_package_refs=code_package_outputs.refs,
+                workspace_root=request.workspace_root,
+            )
+        )
         await _emit_semantic_materialization_progress(
             request=request,
             phase_name="meta.language_target",
@@ -3897,6 +4098,64 @@ async def _leaf_language_materialization_receipts(
         runtime_to_language_cache=runtime_to_language_cache.stats_payload(),
         runtime_derivation_cache=runtime_derivation_cache.stats_payload(),
     )
+
+
+def _language_ownership_receipts_with_generated_code_package_truth(
+    *,
+    ownership_receipts: Iterable[Mapping[str, object]],
+    generated_code_package_refs: Iterable[Mapping[str, object]],
+    workspace_root: Path,
+) -> tuple[dict[str, object], ...]:
+    normalized_workspace_root = workspace_root.resolve()
+    package_refs: list[tuple[Path, Mapping[str, object]]] = []
+    for ref in generated_code_package_refs:
+        package_root = _optional_string_value(ref.get("package_root"))
+        if package_root is None:
+            continue
+        root_path = Path(package_root)
+        if not root_path.is_absolute():
+            root_path = normalized_workspace_root / root_path
+        package_refs.append((root_path.resolve(), ref))
+    package_refs.sort(key=lambda item: len(item[0].parts), reverse=True)
+
+    enriched: list[dict[str, object]] = []
+    for receipt in ownership_receipts:
+        payload = dict(receipt)
+        raw_path = _optional_string_value(payload.get("path"))
+        receipt_path = Path(raw_path).resolve() if raw_path is not None else None
+        matched_ref = next(
+            (
+                ref
+                for package_root, ref in package_refs
+                if receipt_path is not None
+                and (
+                    receipt_path == package_root or package_root in receipt_path.parents
+                )
+            ),
+            None,
+        )
+        if matched_ref is not None:
+            payload.update(
+                {
+                    key: matched_ref.get(key)
+                    for key in (
+                        "code_package_id",
+                        "code_package_config_key",
+                        "code_package_config_id",
+                        "code_package_surface",
+                        "manifest_kind",
+                        "manifest_relative_path",
+                        "package_root",
+                        "sources_root",
+                    )
+                    if matched_ref.get(key) is not None
+                }
+            )
+            package_name = _optional_string_value(matched_ref.get("package_name"))
+            if package_name is not None:
+                payload["code_package_name"] = package_name
+        enriched.append(payload)
+    return tuple(enriched)
 
 
 def _language_dependency_source_graph_cache_key(
@@ -4876,6 +5135,117 @@ def _leaf_language_materialization_targets(
             target=target,
             leaf_result=leaf_result,
         )
+    )
+
+
+def object_config_graph_package_language_reuse_evidence(
+    *,
+    request: SemanticPackageMaterializationRequest,
+    leaf_result: ObjectConfigGraphPackageLeafMaterializationResult,
+) -> dict[str, object]:
+    targets = _leaf_language_materialization_targets(
+        request=request,
+        leaf_result=leaf_result,
+    )
+    if not targets:
+        return {
+            "status": "incomplete",
+            "reason": "workspace_language_targets_missing",
+            "target_count": 0,
+            "package_count": 0,
+        }
+    receipt = leaf_result.materialization_index_receipt
+    witness = (
+        receipt.get("language_materialization_package_realization")
+        if isinstance(receipt, Mapping)
+        else None
+    )
+    if not isinstance(witness, Mapping):
+        return {
+            "status": "incomplete",
+            "reason": "language_realization_witness_missing",
+            "target_count": len(targets),
+            "package_count": 0,
+        }
+    raw_refs = witness.get("generated_code_package_refs")
+    if not isinstance(raw_refs, (list, tuple)):
+        return {
+            "status": "incomplete",
+            "reason": "generated_code_package_refs_missing",
+            "target_count": len(targets),
+            "package_count": 0,
+        }
+    refs = _complete_language_materialization_package_realization_refs(
+        generated_code_package_refs=(
+            ref for ref in raw_refs if isinstance(ref, Mapping)
+        ),
+        object_config_graph_package_id=leaf_result.object_config_graph_package.id,
+    )
+    used_ref_indexes: set[int] = set()
+    current_ocg_commit_id = _uuidish_text(
+        leaf_result.object_config_graph_object_instance_graph_commit_id
+    )
+    for target in targets:
+        matched_index = next(
+            (
+                index
+                for index, ref in enumerate(refs)
+                if index not in used_ref_indexes
+                and _language_materialization_ref_matches_target(
+                    ref=ref,
+                    target=target,
+                    object_config_graph_object_instance_graph_commit_id=(
+                        current_ocg_commit_id
+                    ),
+                )
+            ),
+            None,
+        )
+        if matched_index is None:
+            return {
+                "status": "incomplete",
+                "reason": "language_target_realization_missing",
+                "target_count": len(targets),
+                "package_count": len(used_ref_indexes),
+                "missing_target": _compile_parity_target_payload(target=target),
+            }
+        used_ref_indexes.add(matched_index)
+    return {
+        "status": "complete",
+        "reason": "workspace_language_targets_realized",
+        "target_count": len(targets),
+        "package_count": len(used_ref_indexes),
+    }
+
+
+def _language_materialization_ref_matches_target(
+    *,
+    ref: Mapping[str, object],
+    target: _LanguageMaterializationTarget,
+    object_config_graph_object_instance_graph_commit_id: str | None,
+) -> bool:
+    if (
+        _optional_string_value(ref.get("target_language_plugin_id"))
+        != target.target_language_plugin_id.value
+    ):
+        return False
+    if (
+        _optional_string_value(ref.get("materialization_source"))
+        != target.materialization_source
+    ):
+        return False
+    if _optional_string_value(ref.get("renderer_profile")) != (target.renderer_profile):
+        return False
+    if _optional_string_value(ref.get("renderer_kind")) != target.renderer_kind:
+        return False
+    declared_package_name = _optional_string_value(ref.get("declared_package_name"))
+    if declared_package_name != target.package_name:
+        return False
+    return (
+        _optional_string_value(
+            ref.get("object_config_graph_object_instance_graph_commit_id")
+        )
+        == object_config_graph_object_instance_graph_commit_id
     )
 
 

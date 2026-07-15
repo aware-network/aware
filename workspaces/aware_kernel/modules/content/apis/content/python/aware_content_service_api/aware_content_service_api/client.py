@@ -8,9 +8,12 @@ from aware_api import AwareApiEndpointInvoker
 from ._bindings import API_INTERFACE_SPEC, API_INVOCATION_MANIFEST
 from ._bindings import (
     CONTENT__PACKAGE__MATERIALIZE_CONTENT_PACKAGE_ENDPOINT_REF,
+    CONTENT__TEXT__COMMIT_CONTENT_TEXT_ENDPOINT_REF,
     CONTENT__TEXT__RESOLVE_CONTENT_TEXT_ENDPOINT_REF,
 )
 from aware_content_service_dto.content.content_service_operation import (
+    CommitContentTextRequest,
+    CommitContentTextResponse,
     MaterializeContentPackageRequest,
     MaterializeContentPackageResponse,
     ResolveContentTextRequest,
@@ -39,6 +42,17 @@ class ContentPackageCapabilityClient:
 class ContentTextCapabilityClient:
     def __init__(self, client: AwareApiEndpointInvoker) -> None:
         self._client = client
+
+    async def commit_content_text(self, request: CommitContentTextRequest) -> CommitContentTextResponse:
+        """Commit provider-neutral text as Content truth and return exact commit evidence."""
+        return cast(
+            CommitContentTextResponse,
+            await self._client.invoke_api_endpoint(
+                manifest=API_INVOCATION_MANIFEST,
+                endpoint_ref=CONTENT__TEXT__COMMIT_CONTENT_TEXT_ENDPOINT_REF,
+                request_payload=request,
+            ),
+        )
 
     async def resolve_content_text(self, request: ResolveContentTextRequest) -> ResolveContentTextResponse:
         """Resolve one Content object into deterministic text parts and a flattened text payload."""

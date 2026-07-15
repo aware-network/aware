@@ -1,0 +1,10 @@
+class NetworkNodeMember {
+    // NOTE: v0 keeps Network canonical + self-contained.
+    // Identity references are represented by stable primitives (not cross-module portals).
+    identity_id UUID key
+
+    // Attributes
+    is_primary Bool = true
+    last_sync_at DateTime = now()
+    managed_since DateTime = now()
+}

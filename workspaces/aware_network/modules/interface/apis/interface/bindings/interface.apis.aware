@@ -1,0 +1,297 @@
+api interface {
+    view package_mount_status on InterfacePackage.package state aware_interface_service_dto.comms.view.InterfaceMountStatusViewStateV1 {
+        """
+        Interface package mount status surface for the active host session.
+        """
+
+        stream snapshot
+        endpoint get_interface_state get_interface_state.get_interface_state
+    }
+
+    capability admit_interface {
+        endpoint admit_interface aware_interface_service_dto.comms.models.NamespaceEnsureRequest {
+            """
+            Admit or resume one renderer/agent namespace into the Interface service runtime.
+            """
+
+            response aware_interface_service_dto.comms.models.NamespaceEnsureResponse
+        }
+    }
+
+    capability start_interface_session {
+        endpoint start_interface_session aware_interface_service_dto.comms.models.InterfaceSessionStartRequest {
+            """
+            Commit one Interface-owned shared door rooted on a canonical Identity Session.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceSessionStartResponse
+        }
+    }
+
+    capability describe_interface_session {
+        endpoint describe_interface_session aware_interface_service_dto.comms.models.InterfaceSessionDescribeRequest {
+            """
+            Read one committed InterfaceSession and its Interface-owned ExperienceSession portal rows.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceSessionDescribeResponse
+        }
+    }
+
+    capability mount_interface_experience_session {
+        endpoint mount_interface_experience_session aware_interface_service_dto.comms.models.InterfaceExperienceSessionMountRequest {
+            """
+            Commit one InterfaceSession-owned portal to an existing ExperienceSession authority.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceExperienceSessionMountResponse
+        }
+    }
+
+    capability get_interface_state {
+        endpoint get_interface_state aware_interface_service_dto.comms.models.InterfaceStatusRequest {
+            """
+            Read the current Interface host state for an admitted namespace.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceStatusResponse
+        }
+    }
+
+    capability admit_environment_actor {
+        endpoint admit_environment_actor aware_interface_service_dto.comms.models.InterfaceAdmitEnvironmentActorRequest {
+            """
+            Admit the current Interface actor to an Environment/Profile before Experience lens resolution.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceAdmitEnvironmentActorResponse
+        }
+    }
+
+    capability join_environment_session {
+        endpoint join_environment_session aware_interface_service_dto.comms.models.InterfaceJoinEnvironmentSessionRequest {
+            """
+            Join an Environment session and consume the Environment-owned default navigation context.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceJoinEnvironmentSessionResponse
+        }
+    }
+
+    capability select_environment_navigation_target {
+        endpoint select_environment_navigation_target aware_interface_service_dto.comms.models.InterfaceSelectEnvironmentNavigationTargetRequest {
+            """
+            Select the active Environment Process/Thread target through Interface-owned shell navigation.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceSelectEnvironmentNavigationTargetResponse
+        }
+    }
+
+    capability enter_environment {
+        endpoint enter_environment aware_interface_service_dto.comms.models.InterfaceEnterEnvironmentRequest {
+            """
+            Enter or resume an Environment shell context without Interface-owned Process/Thread defaults.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceEnterEnvironmentResponse
+        }
+    }
+
+    capability resolve_experience_lens {
+        endpoint resolve_experience_lens aware_interface_service_dto.comms.models.InterfaceResolveExperienceLensRequest {
+            """
+            Resolve the current Interface focus into an actor-specific Experience lens over an admitted Environment session.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceResolveExperienceLensResponse
+        }
+    }
+
+    capability enter_app_screen {
+        endpoint enter_app_screen aware_interface_service_dto.comms.models.InterfaceEnterAppScreenRequest {
+            """
+            Enter one committed AppPackage screen through Interface Host and Experience layout activation.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceEnterAppScreenResponse
+        }
+    }
+
+    capability watch_interface_state {
+        endpoint watch_interface_state aware_interface_service_dto.comms.models.InterfaceFollowRequest {
+            """
+            Read and stream Interface host state snapshots for an admitted namespace.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceFollowResponse
+
+            stream server {
+                """
+                Canonical streamed Interface host state snapshots.
+                """
+
+                event snapshot aware_interface_service_dto.comms.models.InterfaceStateNotification;
+            }
+        }
+    }
+
+    capability perform_interface_action {
+        endpoint perform_interface_action aware_interface_service_dto.comms.models.InterfaceActionRequest {
+            """
+            Dispatch a mounted Interface action through the canonical service boundary.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceActionResponse
+        }
+    }
+
+    capability select_interface_step {
+        endpoint select_interface_step aware_interface_service_dto.comms.models.InterfaceSelectStepRequest {
+            """
+            Select the active Interface orchestration step for an admitted namespace.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceSelectStepResponse
+        }
+    }
+
+    capability select_interface_profile {
+        endpoint select_interface_profile aware_interface_service_dto.comms.models.InterfaceSelectProfileRequest {
+            """
+            Select the active Interface control profile for an admitted namespace.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceSelectProfileResponse
+        }
+    }
+
+    capability select_interface_runtime_layout {
+        endpoint select_interface_runtime_layout aware_interface_service_dto.comms.models.InterfaceSelectRuntimeLayoutRequest {
+            """
+            Select the active Interface runtime layout configuration.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceSelectRuntimeLayoutResponse
+        }
+    }
+
+    capability activate_interface_runtime_focus {
+        endpoint activate_interface_runtime_focus aware_interface_service_dto.comms.models.InterfaceActivateRuntimeFocusRequest {
+            """
+            Activate an Interface runtime section representation or focus target.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceActivateRuntimeFocusResponse
+        }
+    }
+
+    capability request_interface_window_layout {
+        endpoint request_interface_window_layout aware_interface_service_dto.comms.models.InterfaceRequestWindowLayoutRequest {
+            """
+            Request a canonical Interface window/layout/section binding for a consumer action.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceRequestWindowLayoutResponse
+        }
+    }
+
+    capability apply_attention_layout_transition {
+        endpoint apply_attention_layout_transition aware_interface_service_dto.comms.models.InterfaceApplyAttentionLayoutTransitionRequest {
+            """
+            Commit one complete shared-layout vector through Interface Host and Attention authority.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceApplyAttentionLayoutTransitionResponse
+        }
+    }
+
+    capability apply_attention_layout_topology_transition {
+        endpoint apply_attention_layout_topology_transition aware_interface_service_dto.comms.models.InterfaceApplyAttentionLayoutTopologyTransitionRequest {
+            """
+            Commit one complete active-membership/order vector through Interface Host and Attention authority.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceApplyAttentionLayoutTopologyTransitionResponse
+        }
+    }
+
+    capability invoke_interface_api {
+        endpoint invoke_interface_api aware_interface_service_dto.comms.models.InterfaceInvokeApiRequest {
+            """
+            Invoke a mounted API endpoint from Interface action context.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceInvokeApiResponse
+        }
+    }
+
+    capability stream_interface_api {
+        endpoint stream_interface_api aware_interface_service_dto.comms.models.InterfaceStreamApiRequest {
+            """
+            Invoke a mounted streaming API endpoint from Interface action context.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceStreamApiResponse
+
+            stream server {
+                """
+                Canonical streamed mounted API events.
+                """
+
+                event delta aware_interface_service_dto.comms.models.InterfaceApiEventNotification;
+                event complete aware_interface_service_dto.comms.models.InterfaceApiStreamClosedNotification;
+            }
+        }
+    }
+
+    capability report_renderer_capabilities {
+        endpoint report_renderer_capabilities aware_interface_service_dto.comms.models.InterfaceReportRendererCapabilitiesRequest {
+            """
+            Report renderer capabilities for the admitted Interface namespace.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceReportRendererCapabilitiesResponse
+        }
+    }
+
+    capability sync_view_state_cursor {
+        endpoint sync_view_state_cursor aware_interface_service_dto.comms.models.InterfaceSyncViewStateCursorRequest {
+            """
+            Acknowledge consumed view-state cursors for Interface renderer backpressure.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceSyncViewStateCursorResponse
+        }
+    }
+
+    capability ping_interface_host {
+        endpoint ping_interface_host aware_interface_service_dto.comms.models.PingRequest {
+            """
+            Read local Interface host readiness for service transport adapters.
+            """
+
+            response aware_interface_service_dto.comms.models.PingResponse
+        }
+    }
+
+    capability list_interface_namespaces {
+        endpoint list_interface_namespaces aware_interface_service_dto.comms.models.NamespaceListRequest {
+            """
+            List locally admitted Interface namespaces for operator/debug surfaces.
+            """
+
+            response aware_interface_service_dto.comms.models.NamespaceListResponse
+        }
+    }
+
+    capability stop_interface_namespace {
+        endpoint stop_interface_namespace aware_interface_service_dto.comms.models.InterfaceStopRequest {
+            """
+            Stop one local Interface namespace.
+            """
+
+            response aware_interface_service_dto.comms.models.InterfaceStopResponse
+        }
+    }
+}

@@ -1,0 +1,126 @@
+/// API-owned view-state contracts for Economy panes.
+/// Public API view key: economy.wallet_capital
+
+class EconomyWalletCapitalBalanceViewStateV1 : inline_value {
+    wallet_balance_id String?
+    wallet_id String?
+    wallet_public_id String?
+    finance_entity_id String?
+    coin_id String?
+    balance Decimal = 0
+    held_balance Decimal = 0
+    available_balance Decimal = 0
+    status String = "unknown"
+}
+
+class EconomyWalletCapitalActivityViewStateV1 : inline_value {
+    activity_ref String
+    activity_kind String
+    status String?
+    occurred_at String?
+    amount Decimal?
+    coin_id String?
+    transaction_intent_id String?
+    transaction_external_id String?
+    transaction_id String?
+    reservation_id String?
+    escrow_id String?
+    settlement_id String?
+    provider_lifecycle_receipt_id String?
+    provider_key String?
+    idempotency_key String?
+    description String?
+    provenance JsonObject = {}
+}
+
+class EconomyWalletCapitalActionViewStateV1 : inline_value {
+    action_key String
+    label String?
+    enabled Bool = false
+    status String = "unavailable"
+    disabled_reason String?
+    input_hints JsonObject = {}
+    provenance JsonObject = {}
+}
+
+class EconomyWalletCapitalFundingProviderViewStateV1 : inline_value {
+    provider_config_id String
+    provider_route_id String
+    provider_finance_entity_id String
+    provider_key String
+    label String?
+    status String = "available"
+    route_key String
+    default_coin_id String?
+    supported_coin_ids String[] = []
+    external_currency String
+    external_minor_unit_exponent Int
+    conversion_mode String
+    min_external_amount_minor Int?
+    max_external_amount_minor Int?
+    disabled_reason String?
+    provenance JsonObject = {}
+}
+
+class EconomyWalletCapitalFundingIntentViewStateV1 : inline_value {
+    funding_intent_ref String
+    transaction_intent_id String?
+    provider_config_id String?
+    provider_key String?
+    coin_id String?
+    amount Decimal?
+    idempotency_key String?
+    status String = "pending"
+    created_at String?
+    updated_at String?
+    capital_conversion_quote_id String?
+    provider_route_id String?
+    external_amount_minor Int?
+    external_currency String?
+    target_amount Decimal?
+    conversion_mode String?
+    quote_source String?
+    quote_hash String?
+    quote_captured_at String?
+    quote_expires_at String?
+    provenance JsonObject = {}
+}
+
+class EconomyWalletCapitalViewStateV1 : inline_value {
+    view_ref String = "economy.wallet_capital"
+    root_projection_ref String = "Wallet.home"
+    operation String = "refresh_wallet_capital"
+    status String = "waiting"
+    status_tone String = "neutral"
+    wallet_id String?
+    wallet_public_id String?
+    finance_entity_id String?
+    coin_id String?
+    ready Bool = false
+    refresh_action_key String = "refresh_wallet_capital"
+    funding_action_key String = "fund_wallet"
+    action_keys String[] = []
+    actions EconomyWalletCapitalActionViewStateV1[] = []
+    action_count Int = 0
+    can_fund_wallet Bool = false
+    funding_status String = "unavailable"
+    funding_disabled_reason String?
+    funding_providers EconomyWalletCapitalFundingProviderViewStateV1[] = []
+    funding_provider_count Int = 0
+    pending_funding_intents EconomyWalletCapitalFundingIntentViewStateV1[] = []
+    pending_funding_intent_count Int = 0
+    balances EconomyWalletCapitalBalanceViewStateV1[] = []
+    activity EconomyWalletCapitalActivityViewStateV1[] = []
+    activity_count Int = 0
+    transaction_intent_count Int = 0
+    transaction_external_count Int = 0
+    transaction_count Int = 0
+    reservation_count Int = 0
+    escrow_count Int = 0
+    settlement_count Int = 0
+    provider_lifecycle_receipt_count Int = 0
+    info String?
+    empty_message String = "No wallet capital activity yet."
+    blockers String[] = []
+    provenance JsonObject = {}
+}

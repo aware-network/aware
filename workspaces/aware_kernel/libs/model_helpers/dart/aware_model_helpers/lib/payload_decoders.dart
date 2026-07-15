@@ -75,6 +75,23 @@ double decodeDouble(Object? value) {
   return decoded;
 }
 
+AwareDecimal? decodeAwareDecimalOrNull(Object? value) {
+  if (value == null) return null;
+  if (value is AwareDecimal) return value;
+  if (value is String) return AwareDecimal.parse(value);
+  throw StateError(
+    'Expected decimal text but got ${value.runtimeType}',
+  );
+}
+
+AwareDecimal decodeAwareDecimal(Object? value) {
+  final decoded = decodeAwareDecimalOrNull(value);
+  if (decoded == null) {
+    throw StateError('Expected decimal text but got null');
+  }
+  return decoded;
+}
+
 bool? decodeBoolOrNull(Object? value) {
   if (value == null) return null;
   if (value is bool) return value;

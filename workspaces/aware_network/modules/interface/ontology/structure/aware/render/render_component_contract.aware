@@ -1,0 +1,108 @@
+class RenderComponentContract {
+    // Relationships
+    input_ports RenderComponentInputPort[]
+    action_ports RenderComponentActionPort[]
+    capabilities RenderComponentCapability[]
+    fallback_policies RenderComponentFallbackPolicy[]
+
+    // Attributes
+    component_ref String key
+    contract_version Int = 1
+    display_name String?
+    description String?
+    surface_kind String?
+
+    fn build construct (
+        component_ref String key,
+        contract_version Int = 1,
+        display_name String? = null,
+        description String? = null,
+        surface_kind String? = null
+    ) -> RenderComponentContract {
+        """
+        Create one renderer-neutral component contract.
+
+        Contract:
+        - `component_ref` is the stable reference PaneRenderSpec will use when selecting a
+          reusable render component.
+        - Input ports receive explicitly bound pane/view state.
+        - Action ports emit canonical pane/API actions through ActionBinding.
+        - Capabilities and fallback policies let renderers degrade without guessing pane state.
+        """
+    }
+
+    fn add_input_port (
+        port_key String key,
+        value_kind String,
+        is_required Bool = true,
+        description String? = null
+    ) -> RenderComponentInputPort {
+        """
+        Add one explicit state/data input port.
+        """
+        let created = construct input_ports.build(
+            port_key = port_key,
+            value_kind = value_kind,
+            is_required = is_required,
+            description = description,
+        )
+    }
+
+    fn add_action_port (
+        port_key String key,
+        event PaneActionEvent = activate,
+        is_required Bool = true,
+        description String? = null
+    ) -> RenderComponentActionPort {
+        """
+        Add one explicit action output port.
+        """
+        let created = construct action_ports.build(
+            port_key = port_key,
+            event = event,
+            is_required = is_required,
+            description = description,
+        )
+    }
+
+    fn require_capability (
+        capability_kind String key,
+        capability_key String key,
+        is_required Bool = true,
+        description String? = null
+    ) -> RenderComponentCapability {
+        """
+        Declare one renderer capability required or preferred by this component.
+        """
+        let created = construct capabilities.build(
+            capability_kind = capability_kind,
+            capability_key = capability_key,
+            is_required = is_required,
+            description = description,
+        )
+    }
+
+    fn add_fallback_policy (
+        policy_key String key,
+        fallback_kind String,
+        fallback_component_ref String? = null,
+        fallback_node_kind PaneRenderNodeKind? = null,
+        description String? = null
+    ) -> RenderComponentFallbackPolicy {
+        """
+        Declare how renderers should degrade when this component cannot be mounted.
+        """
+        let created = construct fallback_policies.build(
+            policy_key = policy_key,
+            fallback_kind = fallback_kind,
+            fallback_component_ref = fallback_component_ref,
+            fallback_node_kind = fallback_node_kind,
+            description = description,
+        )
+    }
+}
+
+ann render.RenderComponentContract::input_ports load eager
+ann render.RenderComponentContract::action_ports load eager
+ann render.RenderComponentContract::capabilities load eager
+ann render.RenderComponentContract::fallback_policies load eager

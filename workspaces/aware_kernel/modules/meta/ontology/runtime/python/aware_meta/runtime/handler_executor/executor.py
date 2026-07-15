@@ -40,9 +40,22 @@ class MetaGraphPhaseHandlerExecutor:
             category="meta.runtime.handler_execution",
             metadata=metadata,
         ):
-            pre_state = await self.pre_state_materializer.materialize_pre_state(
-                request
-            )
+            if request.pre_state_override is not None:
+                with commit_perf_span(
+                    phase="handler_execution.materialize_pre_state.override",
+                    category="meta.runtime.handler_execution",
+                    metadata=metadata,
+                ):
+                    pre_state = request.pre_state_override
+                    if pre_state.execution_plan is not request.execution_plan:
+                        raise ValueError(
+                            "Meta pre-state override belongs to a different "
+                            "execution plan."
+                        )
+            else:
+                pre_state = await self.pre_state_materializer.materialize_pre_state(
+                    request
+                )
         with commit_perf_span(
             phase="handler_execution.bind_arguments",
             category="meta.runtime.handler_execution",
@@ -114,12 +127,10 @@ class MetaGraphPhaseHandlerExecutor:
                     category="meta.runtime.handler_execution",
                     metadata=metadata,
                 ):
-                    append_ready = (
-                        await append_ready_change_assembler.assemble_append_ready_changes(
-                            request,
-                            mutation_set,
-                            boundary_validation,
-                        )
+                    append_ready = await append_ready_change_assembler.assemble_append_ready_changes(
+                        request,
+                        mutation_set,
+                        boundary_validation,
                     )
                 with commit_perf_span(
                     phase="handler_execution.build_execution_result",
@@ -139,6 +150,7 @@ class MetaGraphPhaseHandlerExecutor:
                         ),
                         before_oig=append_ready.before_oig,
                         changes=append_ready.changes,
+                        body_draft=append_ready.body_draft,
                         append_ready_changes=append_ready,
                         materialization_cache_prime_snapshot=(
                             append_ready.materialization_cache_prime_snapshot

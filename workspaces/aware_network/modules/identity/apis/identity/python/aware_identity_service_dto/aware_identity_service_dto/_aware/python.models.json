@@ -1,0 +1,467 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "f851fff2-b3f1-5086-beea-86ae90706b2e",
+      "module": "aware_identity_service_dto.actor.commit",
+      "name": "ActorCommitEnsureReceipt",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorCommitEnsureReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "07307780-53c4-5e65-a365-2fe39a3c4e06",
+      "module": "aware_identity_service_dto.actor.commit",
+      "name": "ActorCommitEnsureRequest",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorCommitEnsureRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "bcf4e5dc-ab20-5f73-aeb2-7f32a117c171",
+      "module": "aware_identity_service_dto.actor.commit",
+      "name": "ActorCommitRecord",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorCommitRecord",
+      "functions": []
+    },
+    {
+      "class_config_id": "1cef8376-c157-584b-ac55-a70749919b98",
+      "module": "aware_identity_service_dto.actor.commit",
+      "name": "ActorCommitResolveRequest",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorCommitResolveRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c5399a26-bfc5-5b2b-a962-9424ecc5a611",
+      "module": "aware_identity_service_dto.actor.commit",
+      "name": "ActorCommitResolveResult",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorCommitResolveResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "6c18f18a-fb13-5685-bcb3-468fae376485",
+      "module": "aware_identity_service_dto.actor.reactivity_execution",
+      "name": "ActorReactivityActionExecutionRequest",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorReactivityActionExecutionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "fceafccb-3ad8-551c-b24b-cf1685ff9bc5",
+      "module": "aware_identity_service_dto.actor.reactivity_execution",
+      "name": "ActorReactivityActionExecutionResult",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorReactivityActionExecutionResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "3ba97fd5-8dff-5fcf-9498-e1b5bea6eff2",
+      "module": "aware_identity_service_dto.actor.subscription",
+      "name": "ActorSubscriptionBridgeConfig",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorSubscriptionBridgeConfig",
+      "functions": []
+    },
+    {
+      "class_config_id": "a6694a6b-4ead-580a-bdf8-0b909d11627c",
+      "module": "aware_identity_service_dto.actor.subscription",
+      "name": "ActorSubscriptionEnsureReceipt",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorSubscriptionEnsureReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "abe41488-6774-5c5f-8c49-9d723e5277c7",
+      "module": "aware_identity_service_dto.actor.subscription",
+      "name": "ActorSubscriptionEnsureRequest",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorSubscriptionEnsureRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8e9b2481-7847-5e75-8eba-ebd1dfb9a164",
+      "module": "aware_identity_service_dto.actor.subscription",
+      "name": "ActorSubscriptionResolveRequest",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorSubscriptionResolveRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "794a01e3-f5f2-54ef-a87d-5c98540fe1e9",
+      "module": "aware_identity_service_dto.actor.subscription",
+      "name": "ActorSubscriptionResolveResult",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorSubscriptionResolveResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "bff7323b-2afd-5f57-9981-c64243c90a53",
+      "module": "aware_identity_service_dto.actor.view",
+      "name": "ActorCommitEntryV1",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorCommitEntryV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "68e8f0a3-f634-51a9-bcc4-20f66e451a23",
+      "module": "aware_identity_service_dto.actor.view",
+      "name": "ActorCommitsViewStateV1",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorCommitsViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "83fc2101-0297-50a5-b3b6-f5776280cb93",
+      "module": "aware_identity_service_dto.actor.view",
+      "name": "ActorRoleEntryV1",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorRoleEntryV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "95653ace-75eb-5fb8-808c-ae6595485f73",
+      "module": "aware_identity_service_dto.actor.view",
+      "name": "ActorRolesViewStateV1",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorRolesViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "38592b3c-b5bb-5ecc-a1fd-d0d51ba9b7ca",
+      "module": "aware_identity_service_dto.actor.view",
+      "name": "ActorSubscriptionEntryV1",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorSubscriptionEntryV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "5f31b1ed-0687-53ce-a7c7-a921c018fa46",
+      "module": "aware_identity_service_dto.actor.view",
+      "name": "ActorSubscriptionsViewStateV1",
+      "aware_class_ref": "aware_identity_service_dto.actor.ActorSubscriptionsViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "11001fdf-9572-5a1a-9664-5a2bfca4d4ed",
+      "module": "aware_identity_service_dto.credential.profile",
+      "name": "CredentialProfileSetupReceipt",
+      "aware_class_ref": "aware_identity_service_dto.credential.CredentialProfileSetupReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "2fdf8803-bac2-5602-9829-c39c763e5ca8",
+      "module": "aware_identity_service_dto.credential.profile",
+      "name": "CredentialProfileSetupRequest",
+      "aware_class_ref": "aware_identity_service_dto.credential.CredentialProfileSetupRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "4799068d-5397-5cd6-bb4b-96a6e0843d05",
+      "module": "aware_identity_service_dto.credential.profile",
+      "name": "CredentialReadinessCheckReceipt",
+      "aware_class_ref": "aware_identity_service_dto.credential.CredentialReadinessCheckReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "85a1dea1-30fc-5209-87ff-4146ee3e8ea2",
+      "module": "aware_identity_service_dto.credential.profile",
+      "name": "CredentialReadinessCheckRequest",
+      "aware_class_ref": "aware_identity_service_dto.credential.CredentialReadinessCheckRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "0f2a9761-1fd0-56a1-852c-430e8494fd4b",
+      "module": "aware_identity_service_dto.identity.admission",
+      "name": "IdentitySignupViaProfileRequest",
+      "aware_class_ref": "aware_identity_service_dto.identity.IdentitySignupViaProfileRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "bcbbb2ea-1d7b-5c4c-b007-037f8126e576",
+      "module": "aware_identity_service_dto.identity.models",
+      "name": "IdentityAdmissionReceipt",
+      "aware_class_ref": "aware_identity_service_dto.identity.IdentityAdmissionReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "db4bb457-27a8-5e83-af1f-7e6e009926d9",
+      "module": "aware_identity_service_dto.identity.view",
+      "name": "IdentityAdmissionViewStateV1",
+      "aware_class_ref": "aware_identity_service_dto.identity.IdentityAdmissionViewStateV1",
+      "functions": []
+    },
+    {
+      "class_config_id": "22d4e5a8-305a-5156-9962-5f1bfbf6e055",
+      "module": "aware_identity_service_dto.profile.requests",
+      "name": "CreateProfileRequest",
+      "aware_class_ref": "aware_identity_service_dto.profile.CreateProfileRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "552ef294-b935-514f-85d8-a176f349f2c0",
+      "module": "aware_identity_service_dto.role.assignment",
+      "name": "RoleAssignmentBinding",
+      "aware_class_ref": "aware_identity_service_dto.role.RoleAssignmentBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "b906c035-c857-5dd7-98fa-251d360ad8e8",
+      "module": "aware_identity_service_dto.role.assignment",
+      "name": "RoleAssignmentReceipt",
+      "aware_class_ref": "aware_identity_service_dto.role.RoleAssignmentReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "4e500e7a-4c70-536c-983d-637f51733f7f",
+      "module": "aware_identity_service_dto.role.assignment",
+      "name": "RoleAssignmentRequest",
+      "aware_class_ref": "aware_identity_service_dto.role.RoleAssignmentRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9eebf5de-2c57-5586-a6f1-71bf24c9f3cd",
+      "module": "aware_identity_service_dto.role.assignment",
+      "name": "RoleAssignmentResolveRequest",
+      "aware_class_ref": "aware_identity_service_dto.role.RoleAssignmentResolveRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "90e57855-e159-5360-9eb8-d303956f08d1",
+      "module": "aware_identity_service_dto.role.assignment",
+      "name": "RoleAssignmentResolveResult",
+      "aware_class_ref": "aware_identity_service_dto.role.RoleAssignmentResolveResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "c432ffbf-aace-5c89-ba3f-f22c400bc289",
+      "module": "aware_identity_service_dto.role.assignment",
+      "name": "RoleUnassignmentReceipt",
+      "aware_class_ref": "aware_identity_service_dto.role.RoleUnassignmentReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "4668973d-7b6e-5b0a-a394-a4a9b4a260be",
+      "module": "aware_identity_service_dto.role.assignment",
+      "name": "RoleUnassignmentRequest",
+      "aware_class_ref": "aware_identity_service_dto.role.RoleUnassignmentRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "9ab96f07-5d9d-5e20-a202-88976f4f8d4a",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "ActorSessionsListRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.ActorSessionsListRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "97260c2f-024f-5f83-9052-e830e667d8e8",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "ActorSessionsListResult",
+      "aware_class_ref": "aware_identity_service_dto.session.ActorSessionsListResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "b23db8c0-d0ca-5294-8067-b74774f820e3",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "ChildSessionsListRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.ChildSessionsListRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d3d1f397-2637-5c33-9508-3be1dd59f904",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "ChildSessionsListResult",
+      "aware_class_ref": "aware_identity_service_dto.session.ChildSessionsListResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "4e6811c1-e8a0-5f19-abbf-62167a94ea08",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionConfigActorConfigBindReceipt",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionConfigActorConfigBindReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "455cb528-ceb1-57e5-8548-1ec747f7b887",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionConfigActorConfigBindRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionConfigActorConfigBindRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "60f0bb87-2ed1-5d2d-90da-ed4e5aa1f169",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionConfigActorConfigSummary",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionConfigActorConfigSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "73c92fc9-8319-500a-9fd5-ae142ab1a09b",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionConfigEnsureReceipt",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionConfigEnsureReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "9ef48382-c4a2-5c29-bfaf-068beda5427c",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionConfigEnsureRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionConfigEnsureRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "953dedae-2a9b-5c8e-9914-f4f43cbffffa",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionConfigSummary",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionConfigSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "1dd799f1-3306-56c0-a0ce-58f1380efc7a",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionDescribeRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionDescribeRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "f5c8e66f-95e4-5e30-8c4e-d3abec749207",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionDescribeResult",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionDescribeResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "38a3ad30-3bac-59e7-b266-69293f254dd1",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionJoinReceipt",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionJoinReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "de28dab9-7da2-56c9-a7f8-55e98f353233",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionJoinRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionJoinRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "42803f9d-b0e3-54e1-ac0e-e466f7e34ee9",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionMemberActorRoleRecordReceipt",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionMemberActorRoleRecordReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "72c888dc-10e3-5059-8cd0-a90b54cd7c56",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionMemberActorRoleRecordRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionMemberActorRoleRecordRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "7c061aaf-2dd4-597d-aa46-91534a75fa5c",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionMemberActorRoleSummary",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionMemberActorRoleSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "509ea102-30e6-5dba-af48-11aeeebeb28c",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionMemberSummary",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionMemberSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "f5842f2a-bd7b-5fe4-941b-aa4571b34c32",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionMembersListRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionMembersListRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a628314e-c3f2-55a7-b6ed-d7b8c3aec004",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionMembersListResult",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionMembersListResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "6d4bc2b9-8c9c-5919-ae34-b52f89b09347",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionProviderConfigBindReceipt",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionProviderConfigBindReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "58e9b595-7ba3-5f91-9a07-2d1fea76769a",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionProviderConfigBindRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionProviderConfigBindRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "da60f942-a6b5-5207-b75e-990a15a98c50",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionProviderRegisterReceipt",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionProviderRegisterReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "ed19902b-dc42-53ae-8246-938c2548284a",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionProviderRegisterRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionProviderRegisterRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "207d1ec7-2e1c-584a-8da2-6ce2949a657e",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionProviderSessionAttachReceipt",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionProviderSessionAttachReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "ec2c8cb7-7e8d-5617-89d7-b0b2926be89d",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionProviderSessionAttachRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionProviderSessionAttachRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "f0664f0c-7958-545a-be24-a1cf1cdd90ee",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionProviderSessionConfigSummary",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionProviderSessionConfigSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "0e1fa0af-5960-584f-9d3f-0132b97ff716",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionProviderSessionSummary",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionProviderSessionSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "943f8539-a5ce-5103-9de1-e7364cc4cf98",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionProviderSummary",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionProviderSummary",
+      "functions": []
+    },
+    {
+      "class_config_id": "c8de9766-a128-59e6-8aff-9d8dda62dfdc",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionStartReceipt",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionStartReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "7c62be9d-767b-5c4d-8419-e6b195f71549",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionStartRequest",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionStartRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a0baa68a-f410-5b78-a370-ad2e2bf4c397",
+      "module": "aware_identity_service_dto.session.session",
+      "name": "SessionSummary",
+      "aware_class_ref": "aware_identity_service_dto.session.SessionSummary",
+      "functions": []
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "daeae22b-9fa1-5bfe-8389-63d9be4ad56f",
+      "module": "aware_identity_service_dto.profile.requests",
+      "name": "IdentityType"
+    }
+  ]
+}

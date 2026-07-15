@@ -1,0 +1,32 @@
+/// Network Node Peer projection (v0)
+///
+/// Contract:
+/// - Rooted at NetworkNodePeer
+/// - Node endpoints are referenced via portals to the `network_node` projection.
+
+projection NetworkNodePeer {
+    root network.NetworkNodePeer
+    network.NetworkNodePeer::fanout_rules
+
+    /// Cross-OPG: Fanout rules reference a target lane via the meta history plane.
+    ///
+    /// NOTE:
+    /// - `NetworkNodePeerFanoutRule.lane_branch_id` stores the stable OIGB id (not invertible).
+    /// - The portal target is the `ObjectInstanceGraphIdentity` projection, which owns OIGB objects.
+    network.NetworkNodePeerFanoutRule::lane_branch aware_meta.ObjectInstanceGraphIdentity
+
+    network.NetworkNodePeer::source_peer_node NetworkNode
+    network.NetworkNodePeer::target_peer_node NetworkNode
+
+    observable peers.list {
+        """
+        Network peers list.
+        """
+    }
+
+    observable peers.detail {
+        """
+        Network peer detail.
+        """
+    }
+}

@@ -1,0 +1,205 @@
+/// Economy projections (multi-lane)
+///
+/// SSOT: workspaces/aware_network/modules/economy/ontology/structure/aware/**
+/// Runtime materialization moves in the next Economy migration gate.
+///
+/// Migration note:
+/// - Economy is on an active kernel cleanup/migration rail.
+/// - Projections are being extracted into standalone `*_projection.aware` files one by one as each lane is
+///   validated and cleaned up.
+/// - Keep this aggregate file only for projections that have not been migrated yet.
+/// - Once all projections are extracted, remove this file.
+///
+/// Contract:
+/// - Membership edges (no target) define intra-lane ownership (same OIG lane).
+/// - Portal edges (`Type::member TargetLane`) define cross-lane references (Option A, forward-only).
+///
+/// Lanes:
+/// - coin
+/// - price
+/// - wallet
+/// - finance_entity
+/// - escrow
+/// - transaction
+/// - provider_lifecycle_receipt
+/// - service
+/// - service_config
+/// - smart_contract
+/// - smart_contract_config
+
+// coin
+projection Coin {
+    root coin.Coin
+    coin.Coin::coin_exchange_rates
+    coin.CoinExchangeRate::quote_coin
+
+    observable home {
+        """
+        Coin overview.
+        """
+    }
+}
+
+// wallet
+projection Wallet {
+    root wallet.Wallet
+    wallet.Wallet::external_ingress_applications
+    wallet.WalletExternalIngressApplication::coin Coin
+    wallet.WalletExternalIngressApplication::transaction Transaction
+    wallet.Wallet::wallet_private
+    wallet.Wallet::transactions Transaction
+    wallet.Wallet::wallet_public
+    wallet.WalletPublic::escrows
+    wallet.Wallet::wallet_balances
+    wallet.WalletBalance::coin Coin
+
+    observable home {
+        """
+        Wallet overview.
+        """
+    }
+}
+
+// finance_entity
+projection FinanceEntity {
+    root finance.FinanceEntity
+    finance.FinanceEntity::identity aware_identity.Identity
+    finance.FinanceEntity::wallet Wallet
+
+    observable home {
+        """
+        Finance entity overview.
+        """
+    }
+}
+
+// escrow
+projection Escrow {
+    root escrow.Escrow
+    escrow.Escrow::coin Coin
+
+    observable home {
+        """
+        Escrow overview.
+        """
+    }
+}
+
+// The older FinanceActivity bridge rail is removed from live Economy truth.
+// Reintroduce posting/event projections only if a new service-free primitive
+// is specified and proven.
+
+// transaction
+// WalletPublic currently co-materializes inside the Wallet lane. Public wallet
+// references portal to Wallet until a dedicated WalletPublic projection split is
+// specified and all wallet-public edges move together.
+projection Transaction {
+    root transaction.Transaction
+    transaction.Transaction::coin Coin
+    transaction.Transaction::source_wallet_public Wallet
+    transaction.Transaction::target_wallet_public Wallet
+
+    observable home {
+        """
+        Transaction overview.
+        """
+    }
+}
+
+projection TransactionIntent {
+    root transaction.TransactionIntent
+    transaction.TransactionIntent::capital_conversion_quote
+    transaction.TransactionIntent::coin Coin
+    transaction.TransactionIntent::external_expirations
+    transaction.TransactionIntent::provider_config ExternalCapitalProviderConfig
+    transaction.TransactionIntent::recipient_finance_entity FinanceEntity
+    transaction.TransactionIntent::recipient_wallet Wallet
+    transaction.TransactionIntent::recipient_wallet_public Wallet
+    transaction.CapitalConversionQuote::provider_route ExternalCapitalProviderConfig
+    transaction.CapitalConversionQuote::target_coin Coin
+    transaction.TransactionIntentExternalExpiration::capital_conversion_quote
+    transaction.TransactionIntentExternalExpiration::provider_config ExternalCapitalProviderConfig
+
+    observable home {
+        """
+        Wallet funding intent and immutable capital conversion quote.
+        """
+    }
+}
+
+projection TransactionExternal {
+    root transaction.TransactionExternal
+    transaction.TransactionExternal::capital_conversion_quote TransactionIntent
+    transaction.TransactionExternal::provider_config ExternalCapitalProviderConfig
+    transaction.TransactionExternal::provider_finance_entity FinanceEntity
+    transaction.TransactionExternal::transaction Transaction
+    transaction.TransactionExternal::transaction_intent TransactionIntent
+
+    observable home {
+        """
+        External payment provenance overview.
+        """
+    }
+}
+
+projection ProviderLifecycleReceipt {
+    root transaction.ProviderLifecycleReceipt
+    transaction.ProviderLifecycleReceipt::coin Coin
+    transaction.ProviderLifecycleReceipt::provider_finance_entity FinanceEntity
+    transaction.ProviderLifecycleReceipt::transaction Transaction
+    transaction.ProviderLifecycleReceipt::transaction_external TransactionExternal
+    transaction.ProviderLifecycleReceipt::wallet Wallet
+    transaction.ProviderLifecycleReceipt::wallet_finance_entity FinanceEntity
+    transaction.ProviderLifecycleReceipt::wallet_public Wallet
+
+    observable home {
+        """
+        Provider lifecycle receipt overview.
+        """
+    }
+}
+
+// smart_contract_config
+projection SmartContractConfig {
+    root smart_contract.SmartContractConfig
+    smart_contract.SmartContractConfig::smart_contracts SmartContract
+
+    observable home {
+        """
+        Smart contract config overview.
+        """
+    }
+}
+
+// smart_contract
+projection SmartContract {
+    root smart_contract.SmartContract
+    smart_contract.SmartContract::smart_contract_members
+    smart_contract.SmartContractMember::finance_entity FinanceEntity
+    smart_contract.SmartContractPermit::finance_entity FinanceEntity
+    smart_contract.SmartContractPermit::coin Coin
+    smart_contract.SmartContractPermit::price_schedule Price
+    smart_contract.SmartContract::smart_contract_permits
+    smart_contract.SmartContractPermit::smart_contract_reservations
+    smart_contract.SmartContractReservation::escrow
+    smart_contract.SmartContractReservation::rate_snapshot Price
+    smart_contract.SmartContractReservation::smart_contract_settlements
+    smart_contract.SmartContractSettlement::coin Coin
+    smart_contract.SmartContractSettlement::payer_finance_entity FinanceEntity
+    smart_contract.SmartContractSettlement::payer_wallet_public Wallet
+    smart_contract.SmartContractSettlement::receiver_finance_entity FinanceEntity
+    smart_contract.SmartContractSettlement::receiver_wallet_public Wallet
+    smart_contract.SmartContractSettlement::transactions Transaction
+
+    observable home {
+        """
+        Smart contract overview.
+        """
+    }
+}
+
+// TODO: Clarify proposal relationships
+// projection SmartContract {
+//     root smart_contract.SmartContract
+//     proposal.Proposal::proposal_votes
+// }

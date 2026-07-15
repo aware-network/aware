@@ -1,0 +1,27 @@
+/// Protected per-window target over an Interface-authorized Environment
+/// navigation context.
+///
+/// Contract:
+/// - `interface_environment` proves this window target is scoped by Interface
+///   Environment access.
+/// - `environment_navigation_context` is the browser-tab-like OS pointer this
+///   InterfaceWindow follows.
+/// - The selected Process/Thread target remains Environment truth on
+///   EnvironmentNavigationContext.
+/// - The selected Thread's active layout remains Environment/Attention truth:
+///   resolve through EnvironmentNavigationContext -> Thread.active_thread_layout.
+class InterfaceWindowNavigationContext {
+    // Relationships
+    interface_environment InterfaceEnvironment key
+    environment_navigation_context aware_environment.environment.EnvironmentNavigationContext key
+
+    fn create construct (
+        interface_environment_id UUID key,
+        environment_navigation_context_id UUID key
+    ) -> InterfaceWindowNavigationContext {
+        """
+        Creates a deterministic InterfaceWindow -> InterfaceEnvironment /
+        EnvironmentNavigationContext target association.
+        """
+    }
+}

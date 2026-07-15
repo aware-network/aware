@@ -188,6 +188,13 @@ def test_build_class_instance_dedupes_duplicate_attribute_links() -> None:
     ]
     assert profile.attr_links_total == 2
     assert profile.duplicate_attribute_links_skipped == 1
+    assert profile.source_attribute_lookups == 1
+    assert profile.source_attribute_values_found == 1
+    assert profile.attributes_built == 1
+    assert profile.construct_shell_s >= 0.0
+    assert profile.plan_attributes_s >= 0.0
+    assert profile.build_attributes_s >= 0.0
+    assert profile.link_attributes_s >= 0.0
 
 
 def test_build_class_instance_uses_default_value_when_missing() -> None:
@@ -607,7 +614,12 @@ def test_build_class_instance_collects_profile_counts() -> None:
     assert profile.relationship_attribute_ids_total == 1
     assert profile.required_fk_attribute_ids_total == 0
     assert profile.attributes_built == 2
+    assert profile.source_attribute_lookups == 2
+    assert profile.source_attribute_values_found == 1
     assert profile.virtual_attributes_skipped == 1
     assert profile.relationship_attributes_skipped == 1
     assert profile.optional_attributes_omitted == 0
     assert profile.default_values_used == 1
+    assert profile.source_attribute_values_s >= 0.0
+    assert profile.build_attributes_s >= 0.0
+    assert profile.link_attributes_s >= 0.0

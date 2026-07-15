@@ -1,0 +1,19 @@
+{
+  "dependency_import_roots": [
+    "aware_api_service_dto",
+    "aware_service_service_dto"
+  ],
+  "modules": [
+    "aware_network_service_dto.comms.economy.membership_operation",
+    "aware_network_service_dto.comms.identity.identity_session_operation",
+    "aware_network_service_dto.comms.models.network",
+    "aware_network_service_dto.comms.models.network_node",
+    "aware_network_service_dto.comms.models.network_service",
+    "aware_network_service_dto.comms.models.node_deploy_operation",
+    "aware_network_service_dto.comms.view.session_status",
+    "aware_network_service_dto.comms.view.territory_discovery",
+    "aware_network_service_dto.network.network_enums"
+  ],
+  "package_prefix": "aware_network_service_dto",
+  "version": "v1"
+}

@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import logging
 import sys
 from pathlib import Path
+
+from _pytest.logging import LogCaptureFixture
 
 from aware_code.semantic_capability import (
     SEMANTIC_ANALYSIS_CAPABILITY,
     SemanticAnalysisCapabilityRequest,
+    SemanticCapabilityDependencyGraph,
 )
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_code_ontology.code.code_plan import (
@@ -172,6 +176,48 @@ def test_analyze_meta_ocg_sources_returns_ocg_semantic_preview(
     )
 
 
+def test_analyze_meta_ocg_sources_aggregates_section_reuse_logs(
+    tmp_path: Path,
+    caplog: LogCaptureFixture,
+) -> None:
+    manifest_path = _write_aware_toml(tmp_path)
+    for source_name, class_name in (("room.aware", "Room"), ("door.aware", "Door")):
+        _write(
+            tmp_path / "aware" / "home" / source_name,
+            "\n".join(
+                [
+                    f"class {class_name} {{",
+                    "    // Attributes",
+                    "    name String",
+                    "}",
+                    "",
+                ]
+            ),
+        )
+
+    caplog.set_level(logging.INFO)
+    result = analyze_meta_ocg_sources(
+        package_root=tmp_path,
+        source_files=(
+            Path("aware/home/room.aware"),
+            Path("aware/home/door.aware"),
+        ),
+        manifest_path=manifest_path,
+    )
+
+    assert result.diagnostics == ()
+    messages = [record.getMessage() for record in caplog.records]
+    reuse_messages = [
+        message
+        for message in messages
+        if message.startswith("Code section reuse summary:")
+    ]
+    assert len(reuse_messages) == 1
+    assert "total_count=1" in reuse_messages[0]
+    assert "'comment': 1" in reuse_messages[0]
+    assert "Reusing existing comment section" not in caplog.text
+
+
 def test_analyze_meta_ocg_semantic_capability_reports_aware_toml_dependencies(
     tmp_path: Path,
 ) -> None:
@@ -251,6 +297,89 @@ def test_analyze_meta_ocg_semantic_capability_reports_dependencies_on_error(
         dependency.package_name
         for dependency in result.change_preview.required_semantic_dependencies
     ] == ["environment-api"]
+
+
+def test_analyze_meta_ocg_semantic_capability_uses_dependency_graphs(
+    tmp_path: Path,
+) -> None:
+    dependency_root = tmp_path / "dependency"
+    dependency_manifest = dependency_root / "aware.toml"
+    _write(
+        dependency_manifest,
+        "\n".join(
+            [
+                "aware = 1",
+                "",
+                "[package]",
+                'package_name = "home-ontology"',
+                'fqn_prefix = "aware_home"',
+                'kind = "ontology"',
+                "",
+                "[build]",
+                'environment_slug = "aware_home"',
+                'sources_dir = "aware"',
+                'include_paths = ["**/*.aware"]',
+                "exclude_paths = []",
+                "",
+            ]
+        ),
+    )
+    _write(
+        dependency_root / "aware" / "home" / "tv.aware",
+        _class_source("Tv", "name"),
+    )
+    dependency_analysis = analyze_meta_ocg_sources(
+        package_root=dependency_root,
+        source_files=(Path("aware/home/tv.aware"),),
+        manifest_path=dependency_manifest,
+    )
+    assert dependency_analysis.object_config_graph is not None
+
+    api_root = tmp_path / "api"
+    api_manifest = _write_aware_toml(
+        api_root,
+        dependency_package_names=("home-ontology",),
+    )
+    _write(
+        api_root / "aware" / "bindings.aware",
+        "\n".join(
+            [
+                "binding aware_demo aware_home {",
+                "    map tv_by_name tv.TvByName home.Tv.name {",
+                '        template { "name::{name}" }',
+                "    }",
+                "}",
+                "",
+            ]
+        ),
+    )
+    _write(
+        api_root / "aware" / "tv" / "keys.aware",
+        "\n".join(["class TvByName {", "    name String", "}", ""]),
+    )
+
+    result = analyze_meta_ocg_semantic_capability(
+        SemanticAnalysisCapabilityRequest(
+            package_root=api_root,
+            source_files=(
+                Path("aware/bindings.aware"),
+                Path("aware/tv/keys.aware"),
+            ),
+            manifest_path=api_manifest,
+            dependency_graphs=(
+                SemanticCapabilityDependencyGraph(
+                    package_name="home-ontology",
+                    graph_kind="source",
+                    graph=dependency_analysis.object_config_graph.model_dump(
+                        mode="json"
+                    ),
+                ),
+            ),
+        )
+    )
+
+    assert result.diagnostics == ()
+    assert result.change_preview.affected_semantic_keys
 
 
 def test_analyze_meta_ocg_sources_derives_namespace_without_namespace_spec(
@@ -527,11 +656,7 @@ def test_analyze_meta_ocg_semantic_capability_returns_code_capability_result(
 
 
 def test_analyze_home_story_ontology_package_without_structure_materializer() -> None:
-    package_root = (
-        Path(__file__).resolve().parent
-        / "fixtures"
-        / "home_story_ontology"
-    )
+    package_root = Path(__file__).resolve().parent / "fixtures" / "home_story_ontology"
     source_files = tuple(
         sorted(
             path.relative_to(package_root)

@@ -11,6 +11,7 @@ from aware_code.semantic_source_meaning import (
     CodeSemanticSourceIndexRef,
     CodeSemanticSourceMeaningBinding,
     CodeSemanticSourceMeaningContract,
+    CodeSemanticSourceMeaningTypedOperationBinding,
     clear_code_semantic_source_index_cache_for_tests,
     resolve_code_semantic_source_delta_meaning,
     resolve_code_semantic_source_meaning,
@@ -19,6 +20,7 @@ from aware_code.source_index import (
     CodeGrammarGraphSelector,
     CodeGrammarSource,
     CodeGrammarSourceIndex,
+    CodeGrammarTemplateValueBinding,
 )
 from aware_code_ontology.code.code_plan import (
     CodePackageDelta,
@@ -77,6 +79,56 @@ def test_meaning_binding_emits_semantic_update_from_grammar_anchor_diff() -> Non
     assert event.payload["after"] == "String"
 
 
+def test_meaning_binding_resolves_declared_nearest_ancestor_template_values() -> None:
+    baseline = _source_index(
+        _experience_profile_source(title="Home Story OS"),
+    )
+    current = _source_index(
+        _experience_profile_source(title="Aware Home OS"),
+    )
+
+    resolution = resolve_code_semantic_source_meaning(
+        contract=_experience_profile_title_contract(),
+        baseline_source_index=baseline,
+        current_source_index=current,
+    )
+
+    assert resolution.status == "resolved"
+    assert resolution.diagnostics == ()
+    assert resolution.changed_binding_count == 1
+    assert len(resolution.semantic_deltas) == 1
+    delta = resolution.semantic_deltas[0]
+    assert delta.semantic_key == "experience.profile:home_story:os.default"
+    assert delta.subject_type == ("aware_experience.EnvironmentExperienceProfileConfig")
+    assert delta.verb == "update"
+    assert delta.before_payload is not None
+    assert delta.before_payload["title"] == "Home Story OS"
+    assert delta.after_payload is not None
+    assert delta.after_payload["title"] == "Aware Home OS"
+    source_index = delta.metadata["source_index"]
+    assert isinstance(source_index, dict)
+    assert source_index["template_values"] == {
+        "experience_name": "home_story",
+        "profile_key": "os.default",
+    }
+
+
+def test_meaning_binding_blocks_when_required_ancestor_context_is_missing() -> None:
+    source = _source_index('title "Unscoped"\n')
+
+    resolution = resolve_code_semantic_source_meaning(
+        contract=_experience_profile_title_contract(),
+        current_source_index=source,
+    )
+
+    assert resolution.status == "blocked"
+    assert resolution.semantic_deltas == ()
+    assert resolution.diagnostics == (
+        "binding 'aware_experience.profile.title' did not resolve in current "
+        "or baseline source index.",
+    )
+
+
 def test_meaning_binding_derives_template_values_for_generic_attribute_binding() -> (
     None
 ):
@@ -113,6 +165,47 @@ def test_meaning_binding_derives_template_values_for_generic_attribute_binding()
     template_values = _payload(source_index["template_values"])
     assert template_values["class_name"] == "TvChannel"
     assert template_values["attribute_name"] == "channel_number"
+
+
+def test_meaning_binding_normalizes_aware_string_literal_semantic_value() -> None:
+    contract = CodeSemanticSourceMeaningContract(
+        provider_key="demo",
+        semantic_owner="demo.profile",
+        bindings=(
+            CodeSemanticSourceMeaningBinding(
+                binding_key="demo.profile.title",
+                grammar_rule_name="experience_profile_title_stmt",
+                anchor_field_path="title",
+                graph_selector=CodeGrammarGraphSelector(
+                    provider_key="demo",
+                    semantic_owner="demo.profile",
+                ),
+                semantic_subject_type="demo.Profile",
+                semantic_key_template="demo.profile",
+                semantic_field="title",
+                value_domain="aware_string_literal",
+            ),
+        ),
+    )
+    baseline = _source_index(
+        "experience demo {\n    profile default {\n"
+        "        title 'Before'\n    }\n}\n"
+    )
+    current = _source_index(
+        "experience demo {\n    profile default {\n" '        title "After"\n    }\n}\n'
+    )
+
+    resolution = resolve_code_semantic_source_meaning(
+        contract=contract,
+        baseline_source_index=baseline,
+        current_source_index=current,
+    )
+
+    [delta] = resolution.semantic_deltas
+    assert delta.before_payload is not None
+    assert delta.before_payload["title"] == "Before"
+    assert delta.after_payload is not None
+    assert delta.after_payload["title"] == "After"
 
 
 def test_meaning_binding_derives_attribute_membership_identity_key_update() -> None:
@@ -1238,26 +1331,24 @@ def _home_attribute_type_contract_with_typed_operation() -> (
                 semantic_key_template=binding.semantic_key_template,
                 semantic_field=binding.semantic_field,
                 value_domain=binding.value_domain,
-                metadata={
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.attribute.type:"
-                                "{class_name}.{attribute_name}:update"
-                            ),
-                            "event_verbs": ["update"],
-                            "operation_family": "update",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.attribute."
-                                "type.update"
-                            ),
-                            "semantic_subject_type": ("ClassConfigAttributeConfig"),
-                            "field_path": "type",
-                            "requires_baseline_object_identity": True,
-                            "metadata": {"source": "aware_meta.semantic_contract"},
-                        },
-                    ],
-                },
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.attribute.type:"
+                            "{class_name}.{attribute_name}:update"
+                        ),
+                        event_verbs=("update",),
+                        operation_family="update",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.attribute." "type.update"
+                        ),
+                        semantic_subject_type=("ClassConfigAttributeConfig"),
+                        field_path="type",
+                        requires_baseline_object_identity=True,
+                        contract_source="aware_meta.semantic_contract",
+                    ),
+                ),
+                metadata={},
             ),
         ),
     )
@@ -1309,30 +1400,28 @@ def _generic_attribute_membership_identity_key_contract() -> (
                 ),
                 semantic_field="is_identity_key",
                 value_domain="aware_attribute_membership_identity_key",
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.attribute."
+                            "membership.identity_key:"
+                            "{class_name}.{attribute_name}:update"
+                        ),
+                        event_verbs=("update",),
+                        operation_family="update",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.attribute."
+                            "membership.update"
+                        ),
+                        semantic_subject_type=("aware_meta.ClassConfigAttributeConfig"),
+                        field_path="is_identity_key",
+                        requires_baseline_object_identity=True,
+                        contract_source="aware_meta.semantic_contract",
+                    ),
+                ),
                 metadata={
                     "change_detection_template_fields": ["is_identity_key"],
                     "excluded_template_values": ["relationship_key"],
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.attribute."
-                                "membership.identity_key:"
-                                "{class_name}.{attribute_name}:update"
-                            ),
-                            "event_verbs": ["update"],
-                            "operation_family": "update",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.attribute."
-                                "membership.update"
-                            ),
-                            "semantic_subject_type": (
-                                "aware_meta.ClassConfigAttributeConfig"
-                            ),
-                            "field_path": "is_identity_key",
-                            "requires_baseline_object_identity": True,
-                            "metadata": {"source": "aware_meta.semantic_contract"},
-                        },
-                    ],
                 },
             ),
         ),
@@ -1357,23 +1446,23 @@ def _generic_function_create_contract() -> CodeSemanticSourceMeaningContract:
                 semantic_key_template="meta.function:{class_name}.{function_name}",
                 semantic_field="name",
                 value_domain="aware_function_name",
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.function:"
+                            "{class_name}.{function_name}:create"
+                        ),
+                        event_verbs=("upsert",),
+                        operation_family="create",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.function.create"
+                        ),
+                        semantic_subject_type="aware_meta.FunctionConfig",
+                        field_path="name",
+                    ),
+                ),
                 metadata={
                     "include_template_values_in_payload": True,
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.function:"
-                                "{class_name}.{function_name}:create"
-                            ),
-                            "event_verbs": ["upsert"],
-                            "operation_family": "create",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.function.create"
-                            ),
-                            "semantic_subject_type": "aware_meta.FunctionConfig",
-                            "field_path": "name",
-                        },
-                    ],
                 },
             ),
         ),
@@ -1398,39 +1487,39 @@ def _generic_attribute_structural_contract() -> CodeSemanticSourceMeaningContrac
                 semantic_key_template=("meta.attribute:{class_name}.{attribute_name}"),
                 semantic_field="definition",
                 value_domain="aware_attribute_definition",
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.attribute:"
+                            "{class_name}.{attribute_name}:create"
+                        ),
+                        event_verbs=("upsert",),
+                        operation_family="create",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.attribute.create"
+                        ),
+                        semantic_subject_type="aware_meta.AttributeConfig",
+                        field_path="definition",
+                        requires_baseline_object_identity=False,
+                    ),
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.attribute:"
+                            "{class_name}.{attribute_name}:delete"
+                        ),
+                        event_verbs=("delete",),
+                        operation_family="delete",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.attribute.delete"
+                        ),
+                        semantic_subject_type="aware_meta.AttributeConfig",
+                        field_path="definition",
+                        requires_baseline_object_identity=True,
+                    ),
+                ),
                 metadata={
                     "include_template_values_in_payload": True,
                     "excluded_template_values": ["relationship_key"],
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.attribute:"
-                                "{class_name}.{attribute_name}:create"
-                            ),
-                            "event_verbs": ["upsert"],
-                            "operation_family": "create",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.attribute.create"
-                            ),
-                            "semantic_subject_type": "aware_meta.AttributeConfig",
-                            "field_path": "definition",
-                            "requires_baseline_object_identity": False,
-                        },
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.attribute:"
-                                "{class_name}.{attribute_name}:delete"
-                            ),
-                            "event_verbs": ["delete"],
-                            "operation_family": "delete",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.attribute.delete"
-                            ),
-                            "semantic_subject_type": "aware_meta.AttributeConfig",
-                            "field_path": "definition",
-                            "requires_baseline_object_identity": True,
-                        },
-                    ],
                 },
             ),
         ),
@@ -1455,34 +1544,32 @@ def _generic_attribute_identity_contract() -> CodeSemanticSourceMeaningContract:
                 semantic_key_template=("meta.attribute:{class_name}.{attribute_name}"),
                 semantic_field="name",
                 value_domain="aware_attribute_name",
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.attribute.identity:"
+                            "{class_name}.{attribute_name}:rename"
+                        ),
+                        event_verbs=("rename",),
+                        operation_family="rename",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.attribute."
+                            "identity.rename"
+                        ),
+                        semantic_subject_type="aware_meta.AttributeConfig",
+                        field_path="name",
+                        requires_baseline_object_identity=True,
+                        fallback_required=True,
+                        fallback_reason=(
+                            "meta_attribute_identity_rename_requires_"
+                            "explicit_replacement_policy"
+                        ),
+                    ),
+                ),
                 metadata={
                     "identity_rename_policy": "explicit_fallback_required",
                     "include_template_values_in_payload": True,
                     "excluded_template_values": ["relationship_key"],
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.attribute.identity:"
-                                "{class_name}.{attribute_name}:rename"
-                            ),
-                            "event_verbs": ["rename"],
-                            "operation_family": "rename",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.attribute."
-                                "identity.rename"
-                            ),
-                            "semantic_subject_type": "aware_meta.AttributeConfig",
-                            "field_path": "name",
-                            "requires_baseline_object_identity": True,
-                            "metadata": {
-                                "fallback_required": True,
-                                "fallback_reason": (
-                                    "meta_attribute_identity_rename_requires_"
-                                    "explicit_replacement_policy"
-                                ),
-                            },
-                        },
-                    ],
                 },
             ),
         ),
@@ -1509,25 +1596,28 @@ def _generic_function_impl_body_contract() -> CodeSemanticSourceMeaningContract:
                 ),
                 semantic_field="body_text",
                 value_domain="aware_function_impl_body",
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.function_impl."
+                            "body:{class_name}.{function_name}:update"
+                        ),
+                        event_verbs=(
+                            "update",
+                            "upsert",
+                        ),
+                        operation_family="update",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph."
+                            "function_impl.body.update"
+                        ),
+                        semantic_subject_type="aware_meta.FunctionImpl",
+                        field_path="body_text",
+                        requires_baseline_object_identity=True,
+                    ),
+                ),
                 metadata={
                     "include_template_values_in_payload": True,
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.function_impl."
-                                "body:{class_name}.{function_name}:update"
-                            ),
-                            "event_verbs": ["update", "upsert"],
-                            "operation_family": "update",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph."
-                                "function_impl.body.update"
-                            ),
-                            "semantic_subject_type": "aware_meta.FunctionImpl",
-                            "field_path": "body_text",
-                            "requires_baseline_object_identity": True,
-                        },
-                    ],
                 },
             ),
         ),
@@ -1554,25 +1644,28 @@ def _generic_function_membership_constructor_contract() -> (
                 semantic_key_template="meta.function:{class_name}.{function_name}",
                 semantic_field="is_constructor",
                 value_domain="aware_function_membership_constructor",
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.function.membership."
+                            "constructor:{class_name}.{function_name}:update"
+                        ),
+                        event_verbs=(
+                            "update",
+                            "upsert",
+                        ),
+                        operation_family="update",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.function."
+                            "signature.update"
+                        ),
+                        semantic_subject_type="aware_meta.FunctionConfig",
+                        field_path="is_constructor",
+                        requires_baseline_object_identity=True,
+                    ),
+                ),
                 metadata={
                     "include_template_values_in_payload": True,
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.function.membership."
-                                "constructor:{class_name}.{function_name}:update"
-                            ),
-                            "event_verbs": ["update", "upsert"],
-                            "operation_family": "update",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.function."
-                                "signature.update"
-                            ),
-                            "semantic_subject_type": "aware_meta.FunctionConfig",
-                            "field_path": "is_constructor",
-                            "requires_baseline_object_identity": True,
-                        },
-                    ],
                 },
             ),
         ),
@@ -1597,25 +1690,27 @@ def _generic_class_description_contract() -> CodeSemanticSourceMeaningContract:
                 semantic_key_template="meta.class:{class_name}",
                 semantic_field="description",
                 value_domain="aware_doc_comment",
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.class."
+                            "description:{class_name}:update"
+                        ),
+                        event_verbs=(
+                            "update",
+                            "upsert",
+                        ),
+                        operation_family="update",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.class." "description.update"
+                        ),
+                        semantic_subject_type="aware_meta.ClassConfig",
+                        field_path="description",
+                        requires_baseline_object_identity=True,
+                    ),
+                ),
                 metadata={
                     "include_template_values_in_payload": True,
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.class."
-                                "description:{class_name}:update"
-                            ),
-                            "event_verbs": ["update", "upsert"],
-                            "operation_family": "update",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.class."
-                                "description.update"
-                            ),
-                            "semantic_subject_type": "aware_meta.ClassConfig",
-                            "field_path": "description",
-                            "requires_baseline_object_identity": True,
-                        },
-                    ],
                 },
             ),
         ),
@@ -1640,25 +1735,27 @@ def _generic_enum_description_contract() -> CodeSemanticSourceMeaningContract:
                 semantic_key_template="meta.enum:{enum_name}",
                 semantic_field="description",
                 value_domain="aware_doc_comment",
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.enum."
+                            "description:{enum_name}:update"
+                        ),
+                        event_verbs=(
+                            "update",
+                            "upsert",
+                        ),
+                        operation_family="update",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.enum." "description.update"
+                        ),
+                        semantic_subject_type="aware_meta.EnumConfig",
+                        field_path="description",
+                        requires_baseline_object_identity=True,
+                    ),
+                ),
                 metadata={
                     "include_template_values_in_payload": True,
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.enum."
-                                "description:{enum_name}:update"
-                            ),
-                            "event_verbs": ["update", "upsert"],
-                            "operation_family": "update",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.enum."
-                                "description.update"
-                            ),
-                            "semantic_subject_type": "aware_meta.EnumConfig",
-                            "field_path": "description",
-                            "requires_baseline_object_identity": True,
-                        },
-                    ],
                 },
             ),
         ),
@@ -1683,32 +1780,29 @@ def _generic_enum_identity_contract() -> CodeSemanticSourceMeaningContract:
                 semantic_key_template="meta.enum:{enum_name}",
                 semantic_field="name",
                 value_domain="aware_enum_name",
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.enum.identity:"
+                            "{enum_name}:rename"
+                        ),
+                        event_verbs=("rename",),
+                        operation_family="rename",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.enum." "identity.rename"
+                        ),
+                        semantic_subject_type="aware_meta.EnumConfig",
+                        field_path="name",
+                        requires_baseline_object_identity=True,
+                        fallback_required=True,
+                        fallback_reason=(
+                            "meta_enum_identity_rename_requires_" "explicit_policy"
+                        ),
+                    ),
+                ),
                 metadata={
                     "identity_rename_policy": "explicit_fallback_required",
                     "include_template_values_in_payload": True,
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.enum.identity:"
-                                "{enum_name}:rename"
-                            ),
-                            "event_verbs": ["rename"],
-                            "operation_family": "rename",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.enum." "identity.rename"
-                            ),
-                            "semantic_subject_type": "aware_meta.EnumConfig",
-                            "field_path": "name",
-                            "requires_baseline_object_identity": True,
-                            "metadata": {
-                                "fallback_required": True,
-                                "fallback_reason": (
-                                    "meta_enum_identity_rename_requires_"
-                                    "explicit_policy"
-                                ),
-                            },
-                        },
-                    ],
                 },
             ),
         ),
@@ -1735,28 +1829,29 @@ def _generic_relationship_load_policy_contract() -> CodeSemanticSourceMeaningCon
                 ),
                 semantic_field="load_policy_args",
                 value_domain="aware_relationship_load_policy_args",
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.relationship."
+                            "load_policy:{class_name}."
+                            "{relationship_key}:update"
+                        ),
+                        event_verbs=(
+                            "update",
+                            "upsert",
+                        ),
+                        operation_family="update",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.relationship."
+                            "load_policy.update"
+                        ),
+                        semantic_subject_type=("aware_meta.ClassConfigRelationship"),
+                        field_path="load_policy_args",
+                        requires_baseline_object_identity=True,
+                    ),
+                ),
                 metadata={
                     "include_template_values_in_payload": True,
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.relationship."
-                                "load_policy:{class_name}."
-                                "{relationship_key}:update"
-                            ),
-                            "event_verbs": ["update", "upsert"],
-                            "operation_family": "update",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.relationship."
-                                "load_policy.update"
-                            ),
-                            "semantic_subject_type": (
-                                "aware_meta.ClassConfigRelationship"
-                            ),
-                            "field_path": "load_policy_args",
-                            "requires_baseline_object_identity": True,
-                        },
-                    ],
                 },
             ),
         ),
@@ -1784,6 +1879,36 @@ def _generic_relationship_structural_contract() -> CodeSemanticSourceMeaningCont
                 semantic_field="definition",
                 value_domain="aware_relationship_definition",
                 required=False,
+                typed_operation_bindings=(
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.relationship:"
+                            "{class_name}.{relationship_key}:create"
+                        ),
+                        event_verbs=("upsert",),
+                        operation_family="create",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.relationship.create"
+                        ),
+                        semantic_subject_type=("aware_meta.ClassConfigRelationship"),
+                        field_path="definition",
+                        requires_baseline_object_identity=False,
+                    ),
+                    CodeSemanticSourceMeaningTypedOperationBinding(
+                        operation_key_template=(
+                            "aware_meta.object_config_graph.relationship:"
+                            "{class_name}.{relationship_key}:delete"
+                        ),
+                        event_verbs=("delete",),
+                        operation_family="delete",
+                        semantic_operation_type=(
+                            "aware_meta.object_config_graph.relationship.delete"
+                        ),
+                        semantic_subject_type=("aware_meta.ClassConfigRelationship"),
+                        field_path="definition",
+                        requires_baseline_object_identity=True,
+                    ),
+                ),
                 metadata={
                     "include_template_values_in_payload": True,
                     "required_template_values": [
@@ -1791,41 +1916,63 @@ def _generic_relationship_structural_contract() -> CodeSemanticSourceMeaningCont
                         "target_class_name",
                         "relationship_type",
                     ],
-                    "typed_operation_bindings": [
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.relationship:"
-                                "{class_name}.{relationship_key}:create"
-                            ),
-                            "event_verbs": ["upsert"],
-                            "operation_family": "create",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.relationship.create"
-                            ),
-                            "semantic_subject_type": (
-                                "aware_meta.ClassConfigRelationship"
-                            ),
-                            "field_path": "definition",
-                            "requires_baseline_object_identity": False,
-                        },
-                        {
-                            "operation_key_template": (
-                                "aware_meta.object_config_graph.relationship:"
-                                "{class_name}.{relationship_key}:delete"
-                            ),
-                            "event_verbs": ["delete"],
-                            "operation_family": "delete",
-                            "semantic_operation_type": (
-                                "aware_meta.object_config_graph.relationship.delete"
-                            ),
-                            "semantic_subject_type": (
-                                "aware_meta.ClassConfigRelationship"
-                            ),
-                            "field_path": "definition",
-                            "requires_baseline_object_identity": True,
-                        },
-                    ],
                 },
+            ),
+        ),
+    )
+
+
+def _experience_profile_source(*, title: str) -> str:
+    return "\n".join(
+        (
+            "experience home_story {",
+            "    profile os.default {",
+            f'        title "{title}"',
+            "    }",
+            "}",
+            "",
+        )
+    )
+
+
+def _experience_profile_title_contract() -> CodeSemanticSourceMeaningContract:
+    return CodeSemanticSourceMeaningContract(
+        provider_key="aware_experience",
+        semantic_owner="aware_experience.provider",
+        grammar_profile_key="code.grammar_profile.aware_kernel",
+        bindings=(
+            CodeSemanticSourceMeaningBinding(
+                binding_key="aware_experience.profile.title",
+                grammar_rule_name="experience_profile_title_stmt",
+                anchor_field_path="title",
+                graph_selector=CodeGrammarGraphSelector(
+                    provider_key="aware_experience",
+                    semantic_owner="aware_experience.provider",
+                    subject_type=(
+                        "aware_experience.EnvironmentExperienceProfileConfig"
+                    ),
+                    field_name="title",
+                ),
+                semantic_subject_type=(
+                    "aware_experience.EnvironmentExperienceProfileConfig"
+                ),
+                semantic_key_template=(
+                    "experience.profile:{experience_name}:{profile_key}"
+                ),
+                semantic_field="title",
+                value_domain="aware_string_literal",
+                template_value_bindings=(
+                    CodeGrammarTemplateValueBinding(
+                        value_key="experience_name",
+                        grammar_rule_name="experience_profile_scope_def",
+                        field_path="name",
+                    ),
+                    CodeGrammarTemplateValueBinding(
+                        value_key="profile_key",
+                        grammar_rule_name="experience_profile_def",
+                        field_path="key",
+                    ),
+                ),
             ),
         ),
     )

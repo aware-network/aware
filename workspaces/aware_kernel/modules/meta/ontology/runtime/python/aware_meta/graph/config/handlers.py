@@ -43,11 +43,13 @@ from aware_meta_ontology.graph.config.object_config_graph_enums import (
 )
 from aware_meta_ontology.function.function_config import FunctionConfig
 from aware_meta_ontology.enum.enum_config import EnumConfig
+from aware_meta_ontology.stable_ids import stable_object_projection_graph_constructor_id
 from aware_meta.graph.config.model_bootstrap import get_node_function_config
 
 # Object Projection Graph Builder
 from aware_meta.graph.projection.builder import (
     build_object_projection_graph,
+    build_object_projection_graph_context,
 )
 from aware_meta.graph.projection.hash import calculate_hash
 from aware_meta.graph.projection.stable_ids import (
@@ -75,7 +77,9 @@ from aware_utils.logging import logger
 from aware_utils.string_transform import singularize, to_snake_case
 
 
-def _expand_graph_dependency_closure(graphs: list[ObjectConfigGraph]) -> list[ObjectConfigGraph]:
+def _expand_graph_dependency_closure(
+    graphs: list[ObjectConfigGraph],
+) -> list[ObjectConfigGraph]:
     ordered: list[ObjectConfigGraph] = []
     seen: set[UUID] = set()
     stack: list[ObjectConfigGraph] = list(graphs)
@@ -111,7 +115,9 @@ def build_object_projection_graphs(
     ocg: ObjectConfigGraph,
     *,
     external_graphs: list[ObjectConfigGraph] | None = None,
-    cross_relationships_by_target_ocg: dict[UUID, list[ClassConfigRelationship]] | None = None,
+    cross_relationships_by_target_ocg: (
+        dict[UUID, list[ClassConfigRelationship]] | None
+    ) = None,
     projection_declarations_by_name: dict[str, ProjectionDeclaration] | None = None,
     provision_portals: bool = True,
 ) -> list[ObjectProjectionGraph]:
@@ -120,29 +126,25 @@ def build_object_projection_graphs(
     # Keep the root graph unique so later hash/constructor passes never see the
     # same class ids twice as distinct decoded graph objects.
     external_graphs = [
-        graph for graph in _expand_graph_dependency_closure(list(external_graphs or [])) if graph.id != ocg.id
+        graph
+        for graph in _expand_graph_dependency_closure(list(external_graphs or []))
+        if graph.id != ocg.id
     ]
 
     # Projection membership/portal SSOT is compiler-owned and persisted on the OCG.
     projection_declarations: list[ObjectProjectionGraphDeclaration] = list(
         ocg.object_projection_graph_declarations or []
     )
+    if not projection_declarations:
+        return []
+    projection_build_context = build_object_projection_graph_context(
+        ocg=ocg,
+        external_graphs=external_graphs,
+        cross_relationships_by_target_ocg=cross_relationships_by_target_ocg,
+    )
 
     # Build OPGs for each projection
     opgs: list[ObjectProjectionGraph] = []
-    portal_bindings: list[tuple[str, ObjectProjectionGraphBinding]] = []
-    detached_relationships_by_id: dict[UUID, ClassConfigRelationship] = {}
-    if cross_relationships_by_target_ocg:
-        for rels in cross_relationships_by_target_ocg.values():
-            for rel in rels:
-                _ = detached_relationships_by_id.setdefault(rel.id, rel)
-    for graph in [ocg, *(external_graphs or [])]:
-        for ocg_rel in graph.object_config_graph_relationships or []:
-            for rel in ocg_rel.class_config_relationships or []:
-                _ = detached_relationships_by_id.setdefault(rel.id, rel)
-    detached_relationships: list[ClassConfigRelationship] = [
-        detached_relationships_by_id[key] for key in sorted(detached_relationships_by_id, key=str)
-    ]
     for decl in sorted(
         projection_declarations,
         key=lambda d: (
@@ -158,9 +160,7 @@ def build_object_projection_graphs(
         bindings = list(decl.object_projection_graph_bindings or [])
         membership_bindings: list[ObjectProjectionGraphBinding] = []
         for b in bindings:
-            if (b.target_projection_name or "").strip():
-                portal_bindings.append((projection_name, b))
-            else:
+            if not (b.target_projection_name or "").strip():
                 membership_bindings.append(b)
 
         # Deterministic order within a projection.
@@ -176,12 +176,18 @@ def build_object_projection_graphs(
         )
 
         if not any(b.attribute_name is None for b in membership_bindings):
-            raise ValueError(f"OPG build: projection {projection_name!r} missing root binding (attribute_name == null)")
+            raise ValueError(
+                f"OPG build: projection {projection_name!r} missing root binding (attribute_name == null)"
+            )
 
-        runtime_decl = projection_declarations_by_name.get(projection_name) if projection_declarations_by_name else None
-        description = ((runtime_decl.description or None) if runtime_decl is not None else None) or (
-            decl.description or None
+        runtime_decl = (
+            projection_declarations_by_name.get(projection_name)
+            if projection_declarations_by_name
+            else None
         )
+        description = (
+            (runtime_decl.description or None) if runtime_decl is not None else None
+        ) or (decl.description or None)
 
         opg = build_object_projection_graph(
             name=projection_name,
@@ -190,6 +196,7 @@ def build_object_projection_graphs(
             projection_bindings=membership_bindings,
             external_graphs=external_graphs,
             cross_relationships_by_target_ocg=cross_relationships_by_target_ocg,
+            build_context=projection_build_context,
         )
         opgs.append(opg)
 
@@ -201,23 +208,83 @@ def build_object_projection_graphs(
     )
 
     if provision_portals:
-        # Provision explicit cross-OPG relationships (portals).
-        _provision_object_projection_graph_relationships(
+        finalize_object_projection_graph_portals(
             ocg=ocg,
             opgs=opgs,
-            portal_bindings=portal_bindings,
-            detached_relationships=detached_relationships,
             external_graphs=external_graphs,
+            cross_relationships_by_target_ocg=(cross_relationships_by_target_ocg),
         )
+    return opgs
 
-        # Recompute projection_hash after provisioning portals so the hash reflects the full OPG contract.
-        # (Membership hash is computed in the builder; portals are added in a second pass.)
-        _recompute_opg_hashes_with_portals(
-            ocg=ocg,
-            opgs=opgs,
-            external_graphs=external_graphs,
-            detached_relationships=detached_relationships,
+
+def finalize_object_projection_graph_portals(
+    *,
+    ocg: ObjectConfigGraph,
+    opgs: list[ObjectProjectionGraph],
+    external_graphs: list[ObjectConfigGraph] | None = None,
+    cross_relationships_by_target_ocg: (
+        dict[UUID, list[ClassConfigRelationship]] | None
+    ) = None,
+) -> list[ObjectProjectionGraph]:
+    """Provision portals and final hashes onto existing membership OPGs."""
+    normalized_external_graphs = [
+        graph
+        for graph in _expand_graph_dependency_closure(list(external_graphs or []))
+        if graph.id != ocg.id
+    ]
+    portal_bindings = [
+        (projection_name, binding)
+        for declaration in sorted(
+            ocg.object_projection_graph_declarations or [],
+            key=lambda item: (
+                (item.projection_name or "").strip(),
+                (item.key or "").strip(),
+                str(item.id),
+            ),
         )
+        for projection_name in ((declaration.projection_name or "").strip(),)
+        if projection_name
+        for binding in declaration.object_projection_graph_bindings or []
+        if (binding.target_projection_name or "").strip()
+    ]
+    if not portal_bindings:
+        return opgs
+
+    detached_relationships_by_id: dict[UUID, ClassConfigRelationship] = {}
+    if cross_relationships_by_target_ocg:
+        for relationships in cross_relationships_by_target_ocg.values():
+            for relationship in relationships:
+                detached_relationships_by_id.setdefault(
+                    relationship.id,
+                    relationship,
+                )
+    for graph in [ocg, *normalized_external_graphs]:
+        for graph_relationship in graph.object_config_graph_relationships or []:
+            for relationship in graph_relationship.class_config_relationships or []:
+                detached_relationships_by_id.setdefault(
+                    relationship.id,
+                    relationship,
+                )
+    detached_relationships = [
+        detached_relationships_by_id[key]
+        for key in sorted(detached_relationships_by_id, key=str)
+    ]
+
+    for opg in opgs:
+        opg.object_projection_graph_relationships = []
+    _provision_object_projection_graph_relationships(
+        ocg=ocg,
+        opgs=opgs,
+        portal_bindings=portal_bindings,
+        detached_relationships=detached_relationships,
+        external_graphs=normalized_external_graphs,
+    )
+    _recompute_opg_hashes_with_portals(
+        ocg=ocg,
+        opgs=opgs,
+        external_graphs=normalized_external_graphs,
+        detached_relationships=detached_relationships,
+    )
     return opgs
 
 
@@ -251,7 +318,9 @@ def _provision_object_projection_graph_relationships(
     for ext in external_graphs or []:
         all_opgs.extend(ext.object_projection_graphs)
 
-    local_opg_by_name: dict[str, ObjectProjectionGraph] = {opg.name: opg for opg in opgs}
+    local_opg_by_name: dict[str, ObjectProjectionGraph] = {
+        opg.name: opg for opg in opgs
+    }
 
     opg_by_owner_and_name: dict[tuple[str, str], ObjectProjectionGraph] = {}
     opgs_by_name: dict[str, list[tuple[str, ObjectProjectionGraph]]] = {}
@@ -328,7 +397,9 @@ def _provision_object_projection_graph_relationships(
 
     nodes_by_opg_id_and_class_id: dict[UUID, dict[UUID, ObjectProjectionGraphNode]] = {}
     for opg in all_opgs:
-        nodes_by_opg_id_and_class_id[opg.id] = {n.class_config_id: n for n in opg.object_projection_graph_nodes}
+        nodes_by_opg_id_and_class_id[opg.id] = {
+            n.class_config_id: n for n in opg.object_projection_graph_nodes
+        }
 
     graphs: list[ObjectConfigGraph] = [ocg, *(external_graphs or [])]
 
@@ -339,7 +410,10 @@ def _provision_object_projection_graph_relationships(
     for g in graphs:
         ns_by_node_id = build_node_namespace_by_node_id(g)
         for node in g.object_config_graph_nodes:
-            if node.type != ObjectConfigGraphNodeType.class_ or node.class_config is None:
+            if (
+                node.type != ObjectConfigGraphNodeType.class_
+                or node.class_config is None
+            ):
                 continue
             class_by_id.setdefault(node.class_config.id, node.class_config)
 
@@ -368,7 +442,9 @@ def _provision_object_projection_graph_relationships(
             prev = attr_name_by_id.get(link.attribute_config.id)
             cur = (c.id, link.attribute_config.name)
             if prev is not None and prev != cur:
-                raise ValueError(f"OPG portal: duplicate attribute_config_id={link.attribute_config.id} across graphs")
+                raise ValueError(
+                    f"OPG portal: duplicate attribute_config_id={link.attribute_config.id} across graphs"
+                )
             attr_name_by_id[link.attribute_config.id] = cur
 
     def _reference_attr_name(rel: ClassConfigRelationship) -> str:
@@ -382,7 +458,9 @@ def _provision_object_projection_graph_relationships(
                 ref_attr_id = ra.attribute_config_id
                 break
         if ref_attr_id is None:
-            raise ValueError(f"OPG portal: relationship {rel.id} missing FORWARD+REFERENCE attribute binding")
+            raise ValueError(
+                f"OPG portal: relationship {rel.id} missing FORWARD+REFERENCE attribute binding"
+            )
         owner_and_name = attr_name_by_id.get(ref_attr_id)
         if owner_and_name is None:
             raise ValueError(
@@ -411,9 +489,13 @@ def _provision_object_projection_graph_relationships(
         relationship whose association edge class matches the source class.
         """
 
-        for rel in list(rel_by_source_and_attr.values()) + list(detached_relationships or []):
+        for rel in list(rel_by_source_and_attr.values()) + list(
+            detached_relationships or []
+        ):
             assoc_edge = rel.class_config_relationship_association_edge
-            assoc_class_id = assoc_edge.class_config_id if assoc_edge is not None else None
+            assoc_class_id = (
+                assoc_edge.class_config_id if assoc_edge is not None else None
+            )
             if assoc_class_id != source_class_id:
                 continue
 
@@ -424,7 +506,9 @@ def _provision_object_projection_graph_relationships(
             endpoint_name = to_snake_case(target_class.name)
             if rel.class_config_id == rel.target_class_config_id:
                 reference_name = _reference_attr_name(rel)
-                endpoint_name = to_snake_case(singularize(reference_name) or reference_name)
+                endpoint_name = to_snake_case(
+                    singularize(reference_name) or reference_name
+                )
 
             if endpoint_name == attribute_name:
                 return rel
@@ -434,14 +518,19 @@ def _provision_object_projection_graph_relationships(
     rel_by_source_and_attr: dict[tuple[UUID, str], ClassConfigRelationship] = {}
     for g in graphs:
         for node in g.object_config_graph_nodes:
-            if node.type != ObjectConfigGraphNodeType.relationship or node.class_config_relationship is None:
+            if (
+                node.type != ObjectConfigGraphNodeType.relationship
+                or node.class_config_relationship is None
+            ):
                 continue
             rel = node.class_config_relationship
             attr_name = _reference_attr_name(rel)
             key = (rel.class_config_id, attr_name)
             prev = rel_by_source_and_attr.get(key)
             if prev is not None and prev.id != rel.id:
-                raise ValueError(f"OPG portal: ambiguous relationship key {key} -> {prev.id} and {rel.id}")
+                raise ValueError(
+                    f"OPG portal: ambiguous relationship key {key} -> {prev.id} and {rel.id}"
+                )
             rel_by_source_and_attr[key] = rel
 
     # Canonical: detached cross-OCG relationships are not embedded as relationship nodes, but portals
@@ -455,7 +544,9 @@ def _provision_object_projection_graph_relationships(
         key = (rel.class_config_id, attr_name)
         prev = rel_by_source_and_attr.get(key)
         if prev is not None and prev.id != rel.id:
-            raise ValueError(f"OPG portal: ambiguous relationship key {key} -> {prev.id} and {rel.id}")
+            raise ValueError(
+                f"OPG portal: ambiguous relationship key {key} -> {prev.id} and {rel.id}"
+            )
         rel_by_source_and_attr[key] = rel
 
     # Deterministic order for portal provisioning.
@@ -472,7 +563,9 @@ def _provision_object_projection_graph_relationships(
         ),
     )
 
-    seen: set[tuple[UUID, UUID, UUID]] = set()  # (source_opg_id, relationship_id, target_opg_id)
+    seen: set[tuple[UUID, UUID, UUID]] = (
+        set()
+    )  # (source_opg_id, relationship_id, target_opg_id)
     for source_projection_name, portal in portal_bindings_sorted:
         if not portal.target_projection_name:
             continue
@@ -500,7 +593,9 @@ def _provision_object_projection_graph_relationships(
                 + "via projection declarations"
             )
 
-        target_owner, target_name = _parse_projection_target(portal.target_projection_name)
+        target_owner, target_name = _parse_projection_target(
+            portal.target_projection_name
+        )
         if target_owner is not None:
             target_opg = opg_by_owner_and_name.get((target_owner, target_name))
             if target_opg is None:
@@ -515,7 +610,8 @@ def _provision_object_projection_graph_relationships(
                 matches = opgs_by_name.get(target_name) or []
                 if not matches:
                     raise ValueError(
-                        "OPG portal: target projection " + f"{target_name!r} not defined via projection declarations"
+                        "OPG portal: target projection "
+                        + f"{target_name!r} not defined via projection declarations"
                     )
                 if len(matches) != 1:
                     owners = sorted({o for o, _ in matches})
@@ -531,7 +627,9 @@ def _provision_object_projection_graph_relationships(
         if source_class_id is None:
             raise ValueError(f"OPG portal: class not found for portal source: {fqn}")
 
-        source_node = nodes_by_opg_id_and_class_id.get(source_opg.id, {}).get(source_class_id)
+        source_node = nodes_by_opg_id_and_class_id.get(source_opg.id, {}).get(
+            source_class_id
+        )
         if source_node is None:
             raise ValueError(
                 f"OPG portal: source class {fqn} is not a member of projection {source_opg.name!r}; "
@@ -545,9 +643,13 @@ def _provision_object_projection_graph_relationships(
                 attribute_name=portal.attribute_name,
             )
         if rel is None:
-            raise ValueError(f"OPG portal: relationship not found for portal edge: {fqn}::{portal.attribute_name}")
+            raise ValueError(
+                f"OPG portal: relationship not found for portal edge: {fqn}::{portal.attribute_name}"
+            )
 
-        target_node = nodes_by_opg_id_and_class_id.get(target_opg.id, {}).get(rel.target_class_config_id)
+        target_node = nodes_by_opg_id_and_class_id.get(target_opg.id, {}).get(
+            rel.target_class_config_id
+        )
         if target_node is None:
             if rel.target_class_config_id in class_id_to_fqn:
                 exception_class_ref = class_id_to_fqn[rel.target_class_config_id]
@@ -632,7 +734,10 @@ def _provision_object_projection_graph_constructors(
     class_by_id: dict[UUID, ClassConfig] = {}
     for g in graphs:
         for node in g.object_config_graph_nodes:
-            if node.type != ObjectConfigGraphNodeType.class_ or node.class_config is None:
+            if (
+                node.type != ObjectConfigGraphNodeType.class_
+                or node.class_config is None
+            ):
                 continue
             class_by_id.setdefault(node.class_config.id, node.class_config)
 
@@ -643,13 +748,19 @@ def _provision_object_projection_graph_constructors(
 
         roots = [n for n in opg.object_projection_graph_nodes if n.is_root]
         if not roots:
-            raise ValueError(f"OPG {opg.name!r} has no root nodes; cannot provision constructors")
+            raise ValueError(
+                f"OPG {opg.name!r} has no root nodes; cannot provision constructors"
+            )
 
-        seen: set[tuple[UUID, UUID]] = set()  # (root_node_id, class_config_function_config_id)
+        seen: set[tuple[UUID, UUID]] = (
+            set()
+        )  # (root_node_id, class_config_function_config_id)
         for root_node in roots:
             root_cc = class_by_id.get(root_node.class_config_id)
             if root_cc is None:
-                raise ValueError(f"OPG {opg.name!r} root class_config_id={root_node.class_config_id} not found in OCG")
+                raise ValueError(
+                    f"OPG {opg.name!r} root class_config_id={root_node.class_config_id} not found in OCG"
+                )
 
             for cc_fc in root_cc.class_config_function_configs:
                 if not cc_fc.is_constructor:
@@ -660,6 +771,11 @@ def _provision_object_projection_graph_constructors(
                 seen.add(key)
                 opg.object_projection_graph_constructors.append(
                     ObjectProjectionGraphConstructor(
+                        id=stable_object_projection_graph_constructor_id(
+                            object_projection_graph_id=opg.id,
+                            root_node_id=root_node.id,
+                            function_constructor_id=cc_fc.id,
+                        ),
                         object_projection_graph_id=opg.id,
                         root_node_id=root_node.id,
                         root_node=root_node,
@@ -682,19 +798,30 @@ def build_object_config_graph_overlays_from_annotations(
     - second-pass overlays generated by meta policies (e.g., reserved keywords)
     """
     overlays_by_language: dict[CodeLanguage, ObjectConfigGraphOverlay] = {}
-    code_section_annotation_overlay: dict[CodeLanguage, list[CodeSectionAnnotationOverlay]] = {}
+    code_section_annotation_overlay: dict[
+        CodeLanguage, list[CodeSectionAnnotationOverlay]
+    ] = {}
 
     # Get code section annotation overlays from OCG annotations and group by language.
     for ocg_annotation in ocg.object_config_graph_annotations:
         if ocg_annotation.kind == ObjectConfigGraphAnnotationKind.overlay:
             if ocg_annotation.code_section_annotation_overlay is None:
-                logger.error(f"Code section annotation overlay not found for annotation {ocg_annotation.id}")
-                raise ValueError(f"Code section annotation overlay not found for annotation {ocg_annotation.id}")
-            if ocg_annotation.code_section_annotation_overlay.language not in code_section_annotation_overlay:
-                code_section_annotation_overlay[ocg_annotation.code_section_annotation_overlay.language] = []
-            code_section_annotation_overlay[ocg_annotation.code_section_annotation_overlay.language].append(
-                ocg_annotation.code_section_annotation_overlay
-            )
+                logger.error(
+                    f"Code section annotation overlay not found for annotation {ocg_annotation.id}"
+                )
+                raise ValueError(
+                    f"Code section annotation overlay not found for annotation {ocg_annotation.id}"
+                )
+            if (
+                ocg_annotation.code_section_annotation_overlay.language
+                not in code_section_annotation_overlay
+            ):
+                code_section_annotation_overlay[
+                    ocg_annotation.code_section_annotation_overlay.language
+                ] = []
+            code_section_annotation_overlay[
+                ocg_annotation.code_section_annotation_overlay.language
+            ].append(ocg_annotation.code_section_annotation_overlay)
 
     # Explicit overlays from annotations
     if code_section_annotation_overlay:
@@ -716,25 +843,35 @@ def build_object_config_graph_overlays_from_annotations(
             language,
             code_section_annotation_overlays,
         ) in code_section_annotation_overlay.items():
-            overlays_by_language[language] = build_object_config_graph_overlay_from_annotations(
-                ocg=ocg,
-                index=index,
-                code_section_annotation_overlays=code_section_annotation_overlays,
-                language=language,
+            overlays_by_language[language] = (
+                build_object_config_graph_overlay_from_annotations(
+                    ocg=ocg,
+                    index=index,
+                    code_section_annotation_overlays=code_section_annotation_overlays,
+                    language=language,
+                )
             )
 
     # Second-pass policy overlays (reserved keywords, etc.)
-    overlays_by_language = apply_reserved_keyword_overlays(ocg, overlays_by_language=overlays_by_language)
+    overlays_by_language = apply_reserved_keyword_overlays(
+        ocg, overlays_by_language=overlays_by_language
+    )
 
     # Deterministic order
     return [
         overlays_by_language[key]
-        for key in sorted(overlays_by_language.keys(), key=lambda language_key: language_key.value)
+        for key in sorted(
+            overlays_by_language.keys(), key=lambda language_key: language_key.value
+        )
     ]
 
 
 def get_enum_configs(ocg: ObjectConfigGraph) -> list[EnumConfig]:
-    return [n.enum_config for n in ocg.object_config_graph_nodes if n.enum_config is not None]
+    return [
+        n.enum_config
+        for n in ocg.object_config_graph_nodes
+        if n.enum_config is not None
+    ]
 
 
 def get_function_configs(ocg: ObjectConfigGraph) -> list[FunctionConfig]:
@@ -746,12 +883,18 @@ def get_function_configs(ocg: ObjectConfigGraph) -> list[FunctionConfig]:
 
 
 def get_class_configs(ocg: ObjectConfigGraph) -> list[ClassConfig]:
-    return [n.class_config for n in ocg.object_config_graph_nodes if n.class_config is not None]
+    return [
+        n.class_config
+        for n in ocg.object_config_graph_nodes
+        if n.class_config is not None
+    ]
 
 
 def get_class_config_relationships(
     ocg: ObjectConfigGraph,
 ) -> list[ClassConfigRelationship]:
     return [
-        n.class_config_relationship for n in ocg.object_config_graph_nodes if n.class_config_relationship is not None
+        n.class_config_relationship
+        for n in ocg.object_config_graph_nodes
+        if n.class_config_relationship is not None
     ]

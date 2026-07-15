@@ -1,0 +1,86 @@
+class NetworkNodePeer {
+    // Relationships
+    source_peer_node NetworkNode key
+    target_peer_node NetworkNode key
+    fanout_rules NetworkNodePeerFanoutRule[]
+
+    // Attributes
+    status NetworkRequestStatus = pending
+    peer_http_base_url String?
+    connected_at DateTime = now()
+    failed_interactions Int = 0
+    last_ping_at DateTime = now()
+    latency_ms Int?
+    successful_interactions Int = 0
+    trust_score Float = 50
+
+    fn create construct (
+        network_node_id UUID,
+        peer_node_id UUID,
+        peer_http_base_url String? = null
+    ) -> NetworkNodePeer {
+        """
+        Creates an accepted peer link between two NetworkNodes (v0 bootstrap).
+
+        Contract:
+        - Deterministic NetworkNodePeer.id (stable by (network_node_id, peer_node_id)).
+        - Idempotent: repeated calls yield the same NetworkNodePeer.id.
+        - Sets status=`accepted`.
+        """
+    }
+
+    fn request construct (
+        network_node_id UUID,
+        peer_node_id UUID,
+        peer_http_base_url String? = null
+    ) -> NetworkNodePeer {
+        """
+        Creates a pending peer request between two NetworkNodes (v0).
+
+        Contract:
+        - Deterministic NetworkNodePeer.id (stable by (network_node_id, peer_node_id)).
+        - Idempotent: repeated calls yield the same NetworkNodePeer.id.
+        - Sets status=`pending`.
+        """
+    }
+
+    fn respond (status NetworkRequestStatus) -> NetworkNodePeer {
+        """
+        Accept or reject a pending NetworkNodePeer request (v0).
+
+        Canonical contract:
+        - Allowed transitions: pending -> accepted|rejected (idempotent).
+        """
+    }
+
+    fn upsert_fanout_rule (
+        lane_branch_id UUID,
+        lane_projection_hash String,
+        enabled Bool = true,
+        mode NetworkFanoutMode = notify_pull
+    ) -> NetworkNodePeer {
+        """
+        Upsert a fan-out rule for this peer (v0).
+
+        Contract:
+        - Targets a lane key (`lane_branch_id`, `lane_projection_hash`).
+        - Idempotent by (peer.id, lane key).
+        """
+        let created = construct fanout_rules.create(
+            lane_branch_id = lane_branch_id,
+            lane_projection_hash = lane_projection_hash,
+            enabled = enabled,
+            mode = mode,
+        )
+    }
+
+    fn remove_fanout_rule (lane_branch_id UUID, lane_projection_hash String) -> NetworkNodePeer {
+        """
+        Remove a fan-out rule for this peer (v0).
+
+        Contract:
+        - Idempotent: removing a missing rule is a no-op.
+        """
+    }
+
+}

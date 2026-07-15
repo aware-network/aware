@@ -9,6 +9,7 @@ from uuid import UUID
 
 # Code Ontology
 from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBaseType
+from aware_code_ontology.primitive.code_primitive_type import CodePrimitiveType
 
 # Meta Ontology
 from aware_meta_ontology.class_.class_config import ClassConfig
@@ -37,6 +38,7 @@ from aware_meta.attribute.instance.value.stable_ids import (
 
 # Code Runtime
 from aware_code.types import Json
+from aware_code.decimal_value import canonical_decimal_text
 
 from aware_orm.session.autobind import disable_autobind
 from aware_orm.session.change_collector import disable_change_tracking_hooks
@@ -109,7 +111,9 @@ def build_attribute_value_tree(
             if stable_root_id is not None:
                 _assign_stable_value_tree_ids(root=root, stable_root_id=stable_root_id)
             if validate_tree:
-                validate_attribute_value_tree_with_context(root, class_configs_by_id=class_configs_by_id)
+                validate_attribute_value_tree_with_context(
+                    root, class_configs_by_id=class_configs_by_id
+                )
             return root
 
 
@@ -140,7 +144,10 @@ def _build_node(
         return AttributeValue(
             type_descriptor=type_descriptor,
             type_descriptor_id=type_descriptor.id,
-            primitive_value=_coerce_primitive_value(value),
+            primitive_value=_coerce_primitive_value(
+                value,
+                type_descriptor=type_descriptor,
+            ),
         )
 
     if kind == Kind.enum:
@@ -166,7 +173,11 @@ def _build_node(
             type_descriptor=type_descriptor,
             class_configs_by_id=class_configs_by_id,
         )
-        value_mode = class_config.value_mode if class_config is not None else ClassValueMode.graph_ref
+        value_mode = (
+            class_config.value_mode
+            if class_config is not None
+            else ClassValueMode.graph_ref
+        )
         if value_mode == ClassValueMode.inline_value:
             if hasattr(value, "model_dump"):
                 try:
@@ -232,7 +243,9 @@ def _build_node(
             path=path,
         )
 
-    raise AttributeValueBuildError(f"{path.render()}: unsupported descriptor kind {kind}")
+    raise AttributeValueBuildError(
+        f"{path.render()}: unsupported descriptor kind {kind}"
+    )
 
 
 def _build_collection(
@@ -246,11 +259,15 @@ def _build_collection(
 ) -> AttributeValue:
     ck = type_descriptor.collection_kind
     if ck is None:
-        raise AttributeValueBuildError(f"{path.render()}: collection descriptor missing collection_kind")
+        raise AttributeValueBuildError(
+            f"{path.render()}: collection descriptor missing collection_kind"
+        )
 
     element_desc = _pick_role_child(type_descriptor, Role.element)
     if element_desc is None:
-        raise AttributeValueBuildError(f"{path.render()}: collection descriptor missing ELEMENT child")
+        raise AttributeValueBuildError(
+            f"{path.render()}: collection descriptor missing ELEMENT child"
+        )
 
     container = AttributeValue(
         type_descriptor=type_descriptor,
@@ -282,7 +299,9 @@ def _build_collection(
 
     if ck == AttributeCollectionType.list:
         if not isinstance(value, (list, tuple)):
-            raise AttributeValueBuildError(f"{path.render()}: LIST expects list/tuple, got {type(value).__name__}")
+            raise AttributeValueBuildError(
+                f"{path.render()}: LIST expects list/tuple, got {type(value).__name__}"
+            )
 
         for idx, item in enumerate(value):
             child = _build_node(
@@ -313,7 +332,9 @@ def _build_collection(
         elif isinstance(value, (list, tuple)):
             items = value
         else:
-            raise AttributeValueBuildError(f"{path.render()}: SET expects set/list/tuple, got {type(value).__name__}")
+            raise AttributeValueBuildError(
+                f"{path.render()}: SET expects set/list/tuple, got {type(value).__name__}"
+            )
 
         built: list[tuple[str, AttributeValue]] = []
         for item in items:
@@ -336,7 +357,9 @@ def _build_collection(
         seen: set[str] = set()
         for ident, child in built:
             if ident in seen:
-                raise AttributeValueBuildError(f"{path.render()}: SET duplicate element identity_key={ident}")
+                raise AttributeValueBuildError(
+                    f"{path.render()}: SET duplicate element identity_key={ident}"
+                )
             seen.add(ident)
             container.child_links.append(
                 AttributeValueLink(
@@ -363,12 +386,16 @@ def _build_mapping(
     path: _Path,
 ) -> AttributeValue:
     if not isinstance(value, Mapping):
-        raise AttributeValueBuildError(f"{path.render()}: MAPPING expects dict-like, got {type(value).__name__}")
+        raise AttributeValueBuildError(
+            f"{path.render()}: MAPPING expects dict-like, got {type(value).__name__}"
+        )
 
     key_desc = _pick_role_child(type_descriptor, Role.key)
     val_desc = _pick_role_child(type_descriptor, Role.value_)
     if key_desc is None or val_desc is None:
-        raise AttributeValueBuildError(f"{path.render()}: MAPPING descriptor missing KEY or VALUE child")
+        raise AttributeValueBuildError(
+            f"{path.render()}: MAPPING descriptor missing KEY or VALUE child"
+        )
 
     container = AttributeValue(
         type_descriptor=type_descriptor,
@@ -409,7 +436,9 @@ def _build_mapping(
     seen: set[str] = set()
     for ident, key_node, val_node in entries:
         if ident in seen:
-            raise AttributeValueBuildError(f"{path.render()}: MAPPING duplicate key identity_key={ident}")
+            raise AttributeValueBuildError(
+                f"{path.render()}: MAPPING duplicate key identity_key={ident}"
+            )
         seen.add(ident)
         container.child_links.append(
             AttributeValueLink(
@@ -445,11 +474,15 @@ def _build_tuple(
     path: _Path,
 ) -> AttributeValue:
     if not isinstance(value, (list, tuple)):
-        raise AttributeValueBuildError(f"{path.render()}: TUPLE expects list/tuple, got {type(value).__name__}")
+        raise AttributeValueBuildError(
+            f"{path.render()}: TUPLE expects list/tuple, got {type(value).__name__}"
+        )
 
     members = _member_descriptors(type_descriptor)
     if not members:
-        raise AttributeValueBuildError(f"{path.render()}: TUPLE descriptor missing MEMBER children")
+        raise AttributeValueBuildError(
+            f"{path.render()}: TUPLE descriptor missing MEMBER children"
+        )
 
     # Canonical tuple arity is determined by descriptor member positions.
     expected_positions = list(members.keys())
@@ -499,12 +532,16 @@ def _build_union(
 ) -> AttributeValue:
     members = _member_descriptors(type_descriptor)
     if not members:
-        raise AttributeValueBuildError(f"{path.render()}: UNION descriptor missing MEMBER children")
+        raise AttributeValueBuildError(
+            f"{path.render()}: UNION descriptor missing MEMBER children"
+        )
 
     # 1) Explicit selection wins.
     if union is not None:
         if union.position not in members:
-            raise AttributeValueBuildError(f"{path.render()}: UNION invalid selected position={union.position}")
+            raise AttributeValueBuildError(
+                f"{path.render()}: UNION invalid selected position={union.position}"
+            )
         selected_pos = union.position
         selected_value = union.value
     else:
@@ -572,7 +609,9 @@ def _resolve_enum_option_id(
         try:
             return resolver(type_descriptor, value)
         except Exception as e:  # pragma: no cover
-            raise AttributeValueBuildError(f"{path.render()}: enum resolver failed: {e}") from e
+            raise AttributeValueBuildError(
+                f"{path.render()}: enum resolver failed: {e}"
+            ) from e
     raise AttributeValueBuildError(
         f"{path.render()}: ENUM expects UUID/EnumOption or resolver; got {type(value).__name__}"
     )
@@ -593,7 +632,9 @@ def _resolve_class_instance_id(
         try:
             return resolver(type_descriptor, value)
         except Exception as e:  # pragma: no cover
-            raise AttributeValueBuildError(f"{path.render()}: class instance resolver failed: {e}") from e
+            raise AttributeValueBuildError(
+                f"{path.render()}: class instance resolver failed: {e}"
+            ) from e
     raise AttributeValueBuildError(
         f"{path.render()}: CLASS expects UUID/ClassInstance or resolver; got {type(value).__name__}"
     )
@@ -611,10 +652,14 @@ def _resolve_class_config_for_descriptor(
     return type_descriptor.class_config
 
 
-def _pick_role_child(desc: AttributeTypeDescriptor, role: Role) -> AttributeTypeDescriptor | None:
+def _pick_role_child(
+    desc: AttributeTypeDescriptor, role: Role
+) -> AttributeTypeDescriptor | None:
     for link in desc.child_links:
         if link.child is None:
-            raise AttributeValueBuildError("AttributeValueLink missing child (cannot pick role child)")
+            raise AttributeValueBuildError(
+                "AttributeValueLink missing child (cannot pick role child)"
+            )
         if link.role == role:
             return link.child
     return None
@@ -626,7 +671,9 @@ def _member_descriptors(
     members: dict[int, AttributeTypeDescriptor] = {}
     for link in desc.child_links:
         if link.child is None:
-            raise AttributeValueBuildError("AttributeValueLink missing child (cannot pick role child)")
+            raise AttributeValueBuildError(
+                "AttributeValueLink missing child (cannot pick role child)"
+            )
         if link.role != Role.member:
             continue
         pos = link.position
@@ -664,7 +711,9 @@ def fingerprint_attribute_value(node: AttributeValue) -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
-def _assign_stable_value_tree_ids(*, root: AttributeValue, stable_root_id: UUID) -> None:
+def _assign_stable_value_tree_ids(
+    *, root: AttributeValue, stable_root_id: UUID
+) -> None:
     """Assign deterministic ids to an AttributeValue tree in-place.
 
     This is required so OIG snapshots built from in-memory instances can be used as
@@ -694,7 +743,9 @@ def _assign_stable_value_tree_ids(*, root: AttributeValue, stable_root_id: UUID)
 
             child = link.child
             if child is None:
-                raise AttributeValueBuildError("AttributeValueLink missing child (cannot assign stable ids)")
+                raise AttributeValueBuildError(
+                    "AttributeValueLink missing child (cannot assign stable ids)"
+                )
             walk(child, node_id=child_id)
             link.child = child
 
@@ -704,12 +755,16 @@ def _assign_stable_value_tree_ids(*, root: AttributeValue, stable_root_id: UUID)
 def _fingerprint_payload(node: AttributeValue) -> dict[str, Any]:
     desc = node.type_descriptor
     if desc is None:
-        raise AttributeValueBuildError("AttributeValue missing type_descriptor (cannot fingerprint)")
+        raise AttributeValueBuildError(
+            "AttributeValue missing type_descriptor (cannot fingerprint)"
+        )
 
     children = []
     for link in node.child_links:
         if link.child is None:
-            raise AttributeValueBuildError("AttributeValueLink missing child (cannot fingerprint)")
+            raise AttributeValueBuildError(
+                "AttributeValueLink missing child (cannot fingerprint)"
+            )
         children.append(
             {
                 "role": link.role.value,
@@ -727,20 +782,27 @@ def _fingerprint_payload(node: AttributeValue) -> dict[str, Any]:
         )
     )
 
+    inline_value_instance = getattr(node, "inline_value_instance", None)
     return {
         "descriptor_id": str(desc.id),
         "kind": desc.kind.value,
-        "collection_kind": (desc.collection_kind.value if desc.collection_kind is not None else None),
+        "collection_kind": (
+            desc.collection_kind.value if desc.collection_kind is not None else None
+        ),
         "primitive_value": _jsonify(node.primitive_value),
-        "enum_option_id": (str(node.enum_option_id) if node.enum_option_id is not None else None),
-        "class_instance_id": (str(node.class_instance_id) if node.class_instance_id is not None else None),
+        "enum_option_id": (
+            str(node.enum_option_id) if node.enum_option_id is not None else None
+        ),
+        "class_instance_id": (
+            str(node.class_instance_id) if node.class_instance_id is not None else None
+        ),
         "inline_value_instance_id": (
             str(node.inline_value_instance_id)
             if node.inline_value_instance_id is not None
             else (
-                str(node.inline_value_instance.id)
-                if getattr(node, "inline_value_instance", None) is not None
-                and getattr(node.inline_value_instance, "id", None) is not None
+                str(inline_value_instance.id)
+                if inline_value_instance is not None
+                and getattr(inline_value_instance, "id", None) is not None
                 else None
             )
         ),
@@ -770,7 +832,11 @@ def _jsonify(value: Any) -> Any:
     return str(value)
 
 
-def _coerce_primitive_value(value: Any) -> Json | None:
+def coerce_primitive_attribute_value(
+    value: Any,
+    *,
+    type_descriptor: AttributeTypeDescriptor | None = None,
+) -> Json | None:
     """
     Coerce a primitive payload into the canonical Json envelope.
 
@@ -780,14 +846,33 @@ def _coerce_primitive_value(value: Any) -> Json | None:
     """
     if value is None:
         return None
+    if _primitive_base_type(type_descriptor) == CodePrimitiveBaseType.decimal:
+        return Json(
+            {"value": canonical_decimal_text(value, field_name="Decimal value")}
+        )
     if isinstance(value, dict):
         return Json(_jsonify(value))
     return Json({"value": _jsonify(value)})
+
+
+_coerce_primitive_value = coerce_primitive_attribute_value
+
+
+def _primitive_base_type(
+    type_descriptor: AttributeTypeDescriptor | None,
+) -> CodePrimitiveBaseType | None:
+    if type_descriptor is None or type_descriptor.primitive_config is None:
+        return None
+    primitive_type = CodePrimitiveType.model_validate(
+        type_descriptor.primitive_config.primitive_type
+    )
+    return primitive_type.base_type
 
 
 __all__ = [
     "AttributeValueBuildError",
     "UnionSelection",
     "build_attribute_value_tree",
+    "coerce_primitive_attribute_value",
     "fingerprint_attribute_value",
 ]

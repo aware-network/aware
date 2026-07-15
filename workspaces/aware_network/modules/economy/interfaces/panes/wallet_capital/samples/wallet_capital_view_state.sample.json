@@ -1,0 +1,118 @@
+{
+  "view_ref": "economy.wallet_capital",
+  "root_projection_ref": "Wallet.home",
+  "operation": "refresh_wallet_capital",
+  "status": "ready",
+  "status_tone": "success",
+  "wallet_id": "wallet:finance-primary",
+  "wallet_public_id": "wallet-public:finance-primary",
+  "finance_entity_id": "finance-entity:identity-primary",
+  "coin_id": "aware.usd",
+  "ready": true,
+  "refresh_action_key": "refresh_wallet_capital",
+  "funding_action_key": "fund_wallet",
+  "action_keys": ["refresh_wallet_capital", "fund_wallet"],
+  "actions": [
+    {
+      "action_key": "refresh_wallet_capital",
+      "label": "Refresh",
+      "enabled": true,
+      "status": "available"
+    },
+    {
+      "action_key": "fund_wallet",
+      "label": "Fund wallet",
+      "enabled": true,
+      "status": "available",
+      "input_hints": {
+        "amount": "minor-units",
+        "provider": "provider-owned"
+      }
+    }
+  ],
+  "action_count": 2,
+  "can_fund_wallet": true,
+  "funding_status": "available",
+  "funding_providers": [
+    {
+      "provider_config_id": "provider-config:stripe-wallet-funding",
+      "provider_route_id": "provider-route:stripe-usd",
+      "provider_finance_entity_id": "finance-entity:stripe-provider",
+      "provider_key": "stripe_wallet_funding",
+      "label": "Stripe wallet funding",
+      "status": "active",
+      "route_key": "stripe-usd-direct",
+      "default_coin_id": "aware.usd",
+      "supported_coin_ids": ["aware.usd"],
+      "external_currency": "USD",
+      "external_minor_unit_exponent": 2,
+      "conversion_mode": "direct_denomination",
+      "min_external_amount_minor": 500,
+      "max_external_amount_minor": 500000
+    }
+  ],
+  "funding_provider_count": 1,
+  "pending_funding_intents": [
+    {
+      "funding_intent_ref": "funding-intent:demo-pending",
+      "transaction_intent_id": "transaction-intent:demo-pending",
+      "provider_config_id": "provider-config:stripe-wallet-funding",
+      "provider_key": "stripe_wallet_funding",
+      "coin_id": "aware.usd",
+      "amount": "2500",
+      "idempotency_key": "wallet-funding-demo-20260709",
+      "status": "pending",
+      "created_at": "2026-07-09T10:00:00Z",
+      "updated_at": "2026-07-09T10:01:00Z",
+      "capital_conversion_quote_id": "capital-quote:demo-pending",
+      "provider_route_id": "provider-route:stripe-usd",
+      "external_amount_minor": 2500,
+      "external_currency": "USD",
+      "target_amount": "2500",
+      "conversion_mode": "direct_denomination",
+      "quote_source": "external_capital_provider_route",
+      "quote_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "quote_captured_at": "2026-07-09T10:00:00Z",
+      "quote_expires_at": "2026-07-09T10:30:00Z"
+    }
+  ],
+  "pending_funding_intent_count": 1,
+  "balances": [
+    {
+      "wallet_balance_id": "wallet-balance:aware-usd",
+      "wallet_id": "wallet:finance-primary",
+      "wallet_public_id": "wallet-public:finance-primary",
+      "finance_entity_id": "finance-entity:identity-primary",
+      "coin_id": "aware.usd",
+      "balance": "12500",
+      "held_balance": "2500",
+      "available_balance": "10000",
+      "status": "active"
+    }
+  ],
+  "activity": [
+    {
+      "activity_ref": "wallet-capital-activity:wallet-funding-prepared",
+      "activity_kind": "wallet_funding_intent",
+      "status": "pending",
+      "occurred_at": "2026-07-09T10:01:00Z",
+      "amount": "2500",
+      "coin_id": "aware.usd",
+      "transaction_intent_id": "transaction-intent:demo-pending",
+      "provider_key": "stripe_wallet_funding",
+      "idempotency_key": "wallet-funding-demo-20260709",
+      "description": "Wallet funding intent prepared before external provider settlement."
+    }
+  ],
+  "activity_count": 1,
+  "transaction_intent_count": 1,
+  "transaction_external_count": 0,
+  "transaction_count": 0,
+  "reservation_count": 0,
+  "escrow_count": 0,
+  "settlement_count": 0,
+  "provider_lifecycle_receipt_count": 0,
+  "info": "Capital enters through the Aware wallet first; services consume wallet-backed Economy state.",
+  "empty_message": "No wallet capital activity yet.",
+  "blockers": []
+}

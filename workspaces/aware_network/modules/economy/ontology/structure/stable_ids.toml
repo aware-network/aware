@@ -1,0 +1,548 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_ECONOMY"
+kind = "ns_url"
+value = "aware://economy/v1"
+
+[[functions]]
+name = "stable_coin_id"
+namespace = "NS_ECONOMY"
+template = "aware:coin:{symbol_norm}"
+doc = "Compiler-generated from class-attribute identity keys: symbol"
+
+[[functions.params]]
+name = "symbol"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "symbol_norm"
+param = "symbol"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_coin_exchange_rate_id"
+namespace = "NS_ECONOMY"
+template = "aware:coin_exchange_rate:{quote_coin_id}:{data_source_norm}"
+doc = "Compiler-generated from class-attribute identity keys: quote_coin_id, data_source"
+
+[[functions.params]]
+name = "quote_coin_id"
+type = "uuid"
+
+[[functions.params]]
+name = "data_source"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "data_source_norm"
+param = "data_source"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_economy_analytic_id"
+namespace = "NS_ECONOMY"
+template = "aware:economy_analytic:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_economy_analytic_execution_id"
+namespace = "NS_ECONOMY"
+template = "aware:economy_analytic_execution:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_economy_analytic_execution_metric_id"
+namespace = "NS_ECONOMY"
+template = "aware:economy_analytic_execution_metric:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_economy_analytic_metric_id"
+namespace = "NS_ECONOMY"
+template = "aware:economy_analytic_metric:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_economy_package_id"
+namespace = "NS_ECONOMY"
+template = "aware:economy_package:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_escrow_id"
+namespace = "NS_ECONOMY"
+template = "aware:escrow:{wallet_public_id}:{op_nonce}"
+doc = "Compiler-generated from class-attribute identity keys: wallet_public_id, op_nonce"
+
+[[functions.params]]
+name = "wallet_public_id"
+type = "uuid"
+
+[[functions.params]]
+name = "op_nonce"
+type = "int"
+
+[[functions]]
+name = "stable_finance_entity_id"
+namespace = "NS_ECONOMY"
+template = "aware:finance_entity:{identity_id}"
+doc = "Compiler-generated from class-attribute identity keys: identity_id"
+
+[[functions.params]]
+name = "identity_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_price_id"
+namespace = "NS_ECONOMY"
+template = "aware:price:{coin_id}:{name_norm}:{type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: coin_id, name, type"
+
+[[functions.params]]
+name = "coin_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.params]]
+name = "type"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "type_norm"
+param = "type"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_price_reservation_id"
+namespace = "NS_ECONOMY"
+template = "aware:price_reservation:{rate_snapshot_id}:{reservation_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: rate_snapshot_id, reservation_key"
+
+[[functions.params]]
+name = "rate_snapshot_id"
+type = "uuid"
+
+[[functions.params]]
+name = "reservation_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "reservation_key_norm"
+param = "reservation_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_price_schedule_id"
+namespace = "NS_ECONOMY"
+template = "aware:price_schedule:{price_id}:{pricing_policy_id}:{name_norm}:{version}"
+doc = "Compiler-generated from class-attribute identity keys: price_id, pricing_policy_id, name, version"
+
+[[functions.params]]
+name = "price_id"
+type = "uuid"
+
+[[functions.params]]
+name = "pricing_policy_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.params]]
+name = "version"
+type = "int"
+default = 1
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_pricing_policy_id"
+namespace = "NS_ECONOMY"
+template = "aware:pricing_policy:{name_norm}:{version}"
+doc = "Compiler-generated from class-attribute identity keys: name, version"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.params]]
+name = "version"
+type = "int"
+default = 1
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_rate_snapshot_id"
+namespace = "NS_ECONOMY"
+template = "aware:rate_snapshot:{price_schedule_id}:{snapshot_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: price_schedule_id, snapshot_key"
+
+[[functions.params]]
+name = "price_schedule_id"
+type = "uuid"
+
+[[functions.params]]
+name = "snapshot_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "snapshot_key_norm"
+param = "snapshot_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_smart_contract_id"
+namespace = "NS_ECONOMY"
+template = "aware:smart_contract:{smart_contract_config_id}:{blockchain_address_norm}"
+doc = "Compiler-generated from class-attribute identity keys: smart_contract_config_id, blockchain_address"
+
+[[functions.params]]
+name = "smart_contract_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "blockchain_address"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "blockchain_address_norm"
+param = "blockchain_address"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_smart_contract_config_id"
+namespace = "NS_ECONOMY"
+template = "aware:smart_contract_config:{name_norm}:{type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name, type"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.params]]
+name = "type"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "type_norm"
+param = "type"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_smart_contract_member_id"
+namespace = "NS_ECONOMY"
+template = "aware:smart_contract_member:{smart_contract_id}:{finance_entity_id}:{type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: smart_contract_id, finance_entity_id, type"
+
+[[functions.params]]
+name = "smart_contract_id"
+type = "uuid"
+
+[[functions.params]]
+name = "finance_entity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "type"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "type_norm"
+param = "type"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_smart_contract_permit_id"
+namespace = "NS_ECONOMY"
+template = "aware:smart_contract_permit:{smart_contract_id}:{finance_entity_id}:{permit_nonce}"
+doc = "Compiler-generated from class-attribute identity keys: smart_contract_id, finance_entity_id, permit_nonce"
+
+[[functions.params]]
+name = "smart_contract_id"
+type = "uuid"
+
+[[functions.params]]
+name = "finance_entity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "permit_nonce"
+type = "int"
+
+[[functions]]
+name = "stable_smart_contract_reservation_id"
+namespace = "NS_ECONOMY"
+template = "aware:smart_contract_reservation:{smart_contract_permit_id}:{op_nonce}"
+doc = "Compiler-generated from class-attribute identity keys: smart_contract_permit_id, op_nonce"
+
+[[functions.params]]
+name = "smart_contract_permit_id"
+type = "uuid"
+
+[[functions.params]]
+name = "op_nonce"
+type = "int"
+
+[[functions]]
+name = "stable_smart_contract_settlement_id"
+namespace = "NS_ECONOMY"
+template = "aware:smart_contract_settlement:{smart_contract_reservation_id}"
+doc = "Compiler-generated from class-attribute identity keys: smart_contract_reservation_id"
+
+[[functions.params]]
+name = "smart_contract_reservation_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_transaction_id"
+namespace = "NS_ECONOMY"
+template = "aware:transaction:{coin_id}:{source_wallet_public_id}:{target_wallet_public_id}:{nonce}"
+doc = "Compiler-generated from class-attribute identity keys: coin_id, source_wallet_public_id, target_wallet_public_id, nonce"
+
+[[functions.params]]
+name = "coin_id"
+type = "uuid"
+
+[[functions.params]]
+name = "source_wallet_public_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_wallet_public_id"
+type = "uuid"
+
+[[functions.params]]
+name = "nonce"
+type = "int"
+
+[[functions]]
+name = "stable_transaction_external_id"
+namespace = "NS_ECONOMY"
+template = "aware:transaction_external:{provider_finance_entity_id}:{transaction_id}:{provider_event_id_norm}"
+doc = "Compiler-generated from class-attribute identity keys: provider_finance_entity_id, transaction_id, provider_event_id"
+
+[[functions.params]]
+name = "provider_finance_entity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "transaction_id"
+type = "uuid"
+
+[[functions.params]]
+name = "provider_event_id"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "provider_event_id_norm"
+param = "provider_event_id"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_transaction_external_method_id"
+namespace = "NS_ECONOMY"
+template = "aware:transaction_external_method:{finance_entity_id}:{provider_norm}"
+doc = "Compiler-generated from class-attribute identity keys: finance_entity_id, provider"
+
+[[functions.params]]
+name = "finance_entity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "provider"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "provider_norm"
+param = "provider"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_transaction_intent_id"
+namespace = "NS_ECONOMY"
+template = "aware:transaction_intent:{provider_finance_entity_id}:{recipient_finance_entity_id}:{funding_intent_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: provider_finance_entity_id, recipient_finance_entity_id, funding_intent_key"
+
+[[functions.params]]
+name = "provider_finance_entity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "recipient_finance_entity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "funding_intent_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "funding_intent_key_norm"
+param = "funding_intent_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_wallet_id"
+namespace = "NS_ECONOMY"
+template = "aware:wallet:{private_key_encrypted_norm}:{public_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: private_key_encrypted, public_key"
+
+[[functions.params]]
+name = "private_key_encrypted"
+type = "str"
+
+[[functions.params]]
+name = "public_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "private_key_encrypted_norm"
+param = "private_key_encrypted"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "public_key_norm"
+param = "public_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_wallet_balance_id"
+namespace = "NS_ECONOMY"
+template = "aware:wallet_balance:{wallet_id}:{coin_id}"
+doc = "Compiler-generated from class-attribute identity keys: wallet_id, coin_id"
+
+[[functions.params]]
+name = "wallet_id"
+type = "uuid"
+
+[[functions.params]]
+name = "coin_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_wallet_private_id"
+namespace = "NS_ECONOMY"
+template = "aware:wallet_private:{private_key_encrypted_norm}"
+doc = "Compiler-generated from class-attribute identity keys: private_key_encrypted"
+
+[[functions.params]]
+name = "private_key_encrypted"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "private_key_encrypted_norm"
+param = "private_key_encrypted"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_wallet_public_id"
+namespace = "NS_ECONOMY"
+template = "aware:wallet_public:{public_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: public_key"
+
+[[functions.params]]
+name = "public_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "public_key_norm"
+param = "public_key"
+normalize = ["casefold", "strip"]

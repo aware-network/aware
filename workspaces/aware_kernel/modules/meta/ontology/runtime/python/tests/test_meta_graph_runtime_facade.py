@@ -22,6 +22,7 @@ from aware_meta.runtime import (
     MetaGraphHandlerExecutionResult,
     MetaGraphRuntimeContext,
     MetaGraphRuntimeIndex,
+    MetaGraphRuntimeIndexView,
     build_meta_graph_function_target_index,
     build_meta_graph_runtime_context,
 )
@@ -43,6 +44,7 @@ from aware_meta.runtime.commit.required_reactions import (
     RuntimeCommitReactionContext,
     RuntimeCommitReactionReceipt,
 )
+from aware_meta.runtime.commit import identity_lane as identity_lane_module
 from aware_meta.graph.instance.commit.perf_trace import (
     CommitPerfTraceRecorder,
     active_commit_perf_trace,
@@ -92,6 +94,108 @@ def _required_field_names(cls: Any) -> set[str]:
         if item.default is MISSING and item.default_factory is MISSING:
             required.add(item.name)
     return required
+
+
+def test_oigi_generated_execution_trace_projection_is_event_window_scoped() -> None:
+    recorder = CommitPerfTraceRecorder()
+    recorder.record(
+        phase="handler_execution.materialize_pre_state",
+        duration_ms=99.0,
+        category="meta.runtime.handler_execution",
+    )
+    event_start = len(recorder.snapshot())
+    recorder.record(
+        phase="handler_execution.materialize_pre_state",
+        duration_ms=2.5,
+        category="meta.runtime.handler_execution",
+        metadata={"function_id": "oigi-seed"},
+    )
+    recorder.record(
+        phase="runtime.invoke_function.unrelated",
+        duration_ms=7.0,
+        category="meta.runtime.invoke_function",
+    )
+    recorder.record(
+        phase="handler_execution.bind_arguments",
+        duration_ms=1.25,
+        category="meta.runtime.handler_execution",
+        metadata={"function_id": "oigi-seed"},
+    )
+
+    identity_lane_module._project_oigi_generated_execution_trace_events(  # noqa: SLF001
+        recorder=recorder,
+        event_start=event_start,
+    )
+
+    projected = tuple(
+        event
+        for event in recorder.snapshot()
+        if event.phase.startswith(
+            "runtime.invoke_function.ensure_identity_lane_head."
+            "execute_generated_handler.detail."
+        )
+    )
+    assert tuple(event.phase.rsplit(".", 1)[-1] for event in projected) == (
+        "materialize_pre_state",
+        "bind_arguments",
+    )
+    assert tuple(event.duration_ms for event in projected) == (2.5, 1.25)
+    assert tuple(event.metadata["function_id"] for event in projected) == (
+        "oigi-seed",
+        "oigi-seed",
+    )
+    assert projected[0].metadata["source_phase"] == (
+        "handler_execution.materialize_pre_state"
+    )
+
+
+def test_oigi_execution_plan_trace_projection_is_event_window_scoped() -> None:
+    recorder = CommitPerfTraceRecorder()
+    recorder.record(
+        phase="handler_execution.execution_plan.resolve_implementation",
+        duration_ms=99.0,
+        category="meta.runtime.handler_execution",
+    )
+    event_start = len(recorder.snapshot())
+    recorder.record(
+        phase="handler_execution.execution_plan.resolve_implementation",
+        duration_ms=2.5,
+        category="meta.runtime.handler_execution",
+        metadata={"function_id": "oigi-seed"},
+    )
+    recorder.record(
+        phase="handler_execution.bind_arguments",
+        duration_ms=7.0,
+        category="meta.runtime.handler_execution",
+    )
+    recorder.record(
+        phase="handler_execution.execution_plan.construct_plan",
+        duration_ms=1.25,
+        category="meta.runtime.handler_execution",
+        metadata={"function_id": "oigi-seed"},
+    )
+
+    identity_lane_module._project_oigi_execution_plan_trace_events(  # noqa: SLF001
+        recorder=recorder,
+        event_start=event_start,
+    )
+
+    projected = tuple(
+        event
+        for event in recorder.snapshot()
+        if event.phase.startswith(
+            "runtime.invoke_function.ensure_identity_lane_head."
+            "build_handler_request.build_execution_plan.detail."
+        )
+    )
+    assert tuple(event.phase.rsplit(".", 1)[-1] for event in projected) == (
+        "resolve_implementation",
+        "construct_plan",
+    )
+    assert tuple(event.duration_ms for event in projected) == (2.5, 1.25)
+    assert projected[0].metadata["source_phase"] == (
+        "handler_execution.execution_plan.resolve_implementation"
+    )
 
 
 def _meta_commit_index(
@@ -331,9 +435,9 @@ async def test_meta_graph_runtime_bound_lane_uses_graph_invocation_target_id() -
 
 
 def test_meta_graph_lane_facade_has_no_runtime_harness_dependency() -> None:
-    source = Path("workspaces/aware_kernel/modules/meta/ontology/runtime/python/aware_meta/runtime/graph_lane.py").read_text(
-        encoding="utf-8"
-    )
+    source = Path(
+        "workspaces/aware_kernel/modules/meta/ontology/runtime/python/aware_meta/runtime/graph_lane.py"
+    ).read_text(encoding="utf-8")
 
     assert "aware_runtime" not in source
     assert "RuntimeHarness" not in source
@@ -767,9 +871,7 @@ async def test_meta_graph_commit_backend_appends_domain_commit_and_returns_recei
         lane_committer=committer,
         required_reaction_runner=reaction_runner.run,
     )
-    recorder = CommitPerfTraceRecorder(
-        default_category="meta.runtime.invoke_function"
-    )
+    recorder = CommitPerfTraceRecorder(default_category="meta.runtime.invoke_function")
 
     with active_commit_perf_trace(recorder):
         receipt = await backend.invoke_function(request)
@@ -839,9 +941,9 @@ async def test_meta_graph_commit_backend_appends_domain_commit_and_returns_recei
         "runtime.invoke_function.required_commit_reactions",
         "runtime.invoke_function.build_commit_receipt",
     }
-    assert trace_summary["runtime.invoke_function.handler_execute_function"][
-        "count"
-    ] == 1
+    assert (
+        trace_summary["runtime.invoke_function.handler_execute_function"]["count"] == 1
+    )
     event_metadata = {
         str(event.get("phase")): event.get("metadata")
         for event in recorder.snapshot_json()
@@ -873,6 +975,7 @@ async def test_meta_graph_commit_backend_ensures_oigi_head_before_instance_domai
         projection_hash=projection_hash,
         opg_id=uuid4(),
     )
+    index.relationships_by_id = {}
     index.ocg.object_projection_graphs = [
         SimpleNamespace(
             name="ObjectInstanceGraphIdentity",
@@ -915,6 +1018,12 @@ async def test_meta_graph_commit_backend_ensures_oigi_head_before_instance_domai
     async def _ensure_oigi_head(**kwargs: object) -> None:
         events.append("ensure_oigi_head")
         assert kwargs["index"] is index
+        index_view = kwargs["index_view"]
+        assert isinstance(index_view, MetaGraphRuntimeIndexView)
+        assert index_view is backend._runtime_index_view(
+            cast(MetaGraphRuntimeIndex, index)
+        )
+        assert index_view.index is index
         assert kwargs["object_instance_graph_id"] == lane_scope.object_instance_graph_id
         assert kwargs["domain_projection_hash"] == projection_hash
         assert kwargs["author_id"] == request.actor_id

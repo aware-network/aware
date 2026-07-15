@@ -9,13 +9,13 @@ filesystem paths.
 from __future__ import annotations
 
 from collections import OrderedDict
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from enum import Enum
 import hashlib
 import json
-from uuid import UUID
+from uuid import UUID, uuid4
 import time
 from typing import Final, cast
 
@@ -39,8 +39,12 @@ from aware_history_ontology.lane.lane import Lane
 from aware_meta_ontology.attribute.attribute import Attribute
 from aware_meta_ontology.attribute.attribute_change import AttributeChange
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
+from aware_meta_ontology.attribute.attribute_type_descriptor import (
+    AttributeTypeDescriptor,
+)
 from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
     AttributeTypeDescriptorKind,
+    AttributeTypeDescriptorRole,
 )
 from aware_meta_ontology.attribute.attribute_value import AttributeValue
 from aware_meta_ontology.attribute.attribute_value_change import AttributeValueChange
@@ -99,6 +103,7 @@ from aware_meta.graph.instance.commit.builder import (
 from aware_meta.graph.instance.commit.body_codec import (
     OigCommitBodyAttributeChangeDraft,
     OigCommitBodyAttributeValueChangeDraft,
+    OigCommitBodyAttributeValueLinkChangeDraft,
     OigCommitBodyChangeRefDraft,
     OigCommitBodyDraft,
     OigCommitBodyFieldDeltaDraft,
@@ -112,22 +117,30 @@ from aware_meta.graph.instance.commit.body_codec import (
 )
 from aware_meta.graph.instance.commit.contract import (
     CommitActionDescriptor,
+    LaneCommitBatchRequest,
     ObjectInstanceGraphCommitEnvelope,
     ObjectInstanceGraphCommitIdentitySidecar,
     ObjectInstanceGraphCommitPreStateEvidence,
+    ObjectInstanceGraphCommitRootMetadata,
     OigiHistoryDomainCommitProjection,
 )
 from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+from aware_meta.graph.instance.commit.fs_snapshot_store import FSSnapshotStore
 from aware_meta.graph.instance.commit.stored_commit_records import (
     object_instance_graph_commit_envelope_from_commit,
 )
 from aware_meta.graph.instance.commit.materialization_cache import (
+    COMMIT_STATE_HASH_INDEX_KEY,
+    COMMIT_STATE_INDEX_KEY,
     CachedLaneMaterializer,
 )
-from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
+from aware_meta.graph.instance.commit.perf_trace import (
+    commit_perf_span,
+)
 from aware_meta.graph.instance.commit.state_index import (
     CommitStateIndex,
     CommitStateRow,
+    apply_commit_state_index_body_draft,
     apply_commit_state_index_row_changes,
     build_commit_state_index,
 )
@@ -141,12 +154,14 @@ from aware_meta.graph.instance.diff import (
 )
 from aware_meta.graph.instance.apply import OigChangeApplyError, OigDeltaApplyError
 from aware_meta.graph.instance.diff_orm import (
+    OrmChangeTranslationRelationshipProjectionContext,
     build_object_instance_graph_changes_from_orm_change_set,
 )
 from aware_meta.graph.instance.root import resolve_root_source_object_id
 from aware_meta.runtime.author import resolve_meta_author_id
 from aware_meta.runtime.graph_identity import resolve_meta_graph_ocgi_opgi
 from aware_meta.runtime.handler_executor.contracts import MetaGraphRuntimeIndex
+from aware_meta.runtime.handler_executor.index import MetaGraphRuntimeIndexView
 from aware_meta.runtime.oig_model_reifier import reify_oig_session
 from aware_meta.runtime.oig_post import materialize_meta_oig_post
 from aware_meta.runtime.value_resolvers import (
@@ -157,7 +172,10 @@ from aware_meta.attribute.instance.builder import (
     build_attribute,
 )
 from aware_meta.attribute.instance.value.builder import fingerprint_attribute_value
-from aware_meta.attribute.instance.value.stable_ids import stable_attribute_value_id
+from aware_meta.attribute.instance.value.stable_ids import (
+    stable_attribute_value_id,
+    stable_attribute_value_link_id,
+)
 from aware_meta.class_.instance.builder import (
     ClassInstanceAttributeBuildPlan,
     ClassInstanceBuildError,
@@ -204,6 +222,26 @@ class _OigiHistoryDirectProjectionUnsupported(ValueError):
 
 
 @dataclass(frozen=True, slots=True)
+class ObjectInstanceGraphIdentityHistoryUpsertResult:
+    object_instance_graph_identity_id: UUID
+    status: str
+    branch_id: UUID | None = None
+    projection_hash: str | None = None
+    object_instance_graph_id: UUID | None = None
+    commit_id: UUID | None = None
+    object_instance_graph_commit_id: UUID | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ObjectInstanceGraphIdentityHistoryDomainCommitBatchItem:
+    domain_branch_id: UUID
+    domain_projection_hash: str
+    domain_commit: ObjectInstanceGraphCommit | None = None
+    domain_commit_envelope: ObjectInstanceGraphCommitEnvelope | None = None
+    source_class_instance_identity_id: UUID | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class _OigiHistoryProjectionResult:
     change_set: ORMChangeSet
     session: Session | None
@@ -227,17 +265,18 @@ class _OigiHistoryDirectClassInstanceTargets:
 @dataclass(frozen=True, slots=True)
 class _OigiHistoryDirectProjectionContext:
     class_configs_by_id: Mapping[UUID, ClassConfig]
-    relationship_attribute_ids_by_cc_id: dict[UUID, set[UUID]]
-    include_relationship_attribute_ids_by_cc_id: dict[UUID, set[UUID]]
+    relationship_attribute_ids_by_cc_id: Mapping[UUID, set[UUID]]
+    include_relationship_attribute_ids_by_cc_id: Mapping[UUID, set[UUID]]
     opg_class_config_ids: frozenset[UUID]
     before_class_instances_by_id: dict[UUID, ClassInstance]
+    attribute_plans_by_class_config_id: dict[UUID, ClassInstanceAttributeBuildPlan]
 
 
 @dataclass(frozen=True, slots=True)
 class _OigiHistoryStaticDirectProjectionContext:
     class_configs_by_id: Mapping[UUID, ClassConfig]
-    relationship_attribute_ids_by_cc_id: dict[UUID, set[UUID]]
-    include_relationship_attribute_ids_by_cc_id: dict[UUID, set[UUID]]
+    relationship_attribute_ids_by_cc_id: Mapping[UUID, set[UUID]]
+    include_relationship_attribute_ids_by_cc_id: Mapping[UUID, set[UUID]]
     opg_class_config_ids: frozenset[UUID]
 
 
@@ -265,36 +304,33 @@ class _OigiHistoryProjectedChangedClassInstance:
 
 
 @dataclass(frozen=True, slots=True)
+class _OigiHistoryClassInstanceChangeHeaderDraft:
+    operation: ChangeType
+    body_draft: OigCommitBodyClassInstanceChangeDraft
+
+
+@dataclass(frozen=True, slots=True)
 class _OigiPrimitiveLeafSourceRowEmission:
     attribute_id: UUID
     attribute_config_id: UUID
     value_fingerprint: str
-    attribute_change_draft: _OigiPrimitiveLeafAttributeChangeDraft | None
+    attribute_change_body_draft: OigCommitBodyAttributeChangeDraft | None
     reused_before_fingerprint: bool = False
     row_backed_before_attribute: bool = False
 
 
 @dataclass(frozen=True, slots=True)
-class _OigiPrimitiveLeafValueChangeDraft:
-    attribute_value_id: UUID
-    operation: ChangeType
-    fields: tuple[tuple[str, object], ...]
-    created_at: datetime
-
-
-@dataclass(frozen=True, slots=True)
-class _OigiPrimitiveLeafAttributeChangeDraft:
+class _OigiModelFreeEnumUnionCreateEmission:
     attribute_id: UUID
     attribute_config_id: UUID
-    operation: ChangeType
-    value_root_change: _OigiPrimitiveLeafValueChangeDraft
-    created_at: datetime
+    value_fingerprint: str
+    attribute_change_draft: OigCommitBodyAttributeChangeDraft
 
 
 @dataclass(frozen=True, slots=True)
-class _OigiPrimitiveLeafAttributeChangeBuildResult:
-    attribute_change: AttributeChange
-    body_draft: OigCommitBodyAttributeChangeDraft
+class _OigiModelFreeValueCreateProjection:
+    fingerprint_payload: dict[str, object]
+    body_draft: OigCommitBodyAttributeValueChangeDraft
 
 
 @dataclass(frozen=True, slots=True)
@@ -306,6 +342,7 @@ class _OigiPrimitiveLeafPayloadParts:
 @dataclass(frozen=True, slots=True)
 class _OigiHistoryChangedTargetSourceProjection:
     post_state_rows: tuple[CommitStateRow, ...]
+    class_instance_change: ClassInstanceChange | None
     class_instance_body_draft: OigCommitBodyClassInstanceChangeDraft
 
 
@@ -317,6 +354,16 @@ class _OigiHistoryChangeProjection:
     body_draft: OigCommitBodyDraft | None
     pre_state_evidence: ObjectInstanceGraphCommitPreStateEvidence | None = None
     pre_state_index: CommitStateIndex | None = None
+    post_state_index: CommitStateIndex | None = None
+    direct_projection_context: _OigiHistoryDirectProjectionContext | None = None
+    pre_state_rows_by_class_instance_id: (
+        dict[UUID, tuple[CommitStateRow, ...]] | None
+    ) = None
+    post_state_rows_by_changed_class_instance_id: (
+        dict[UUID, tuple[CommitStateRow, ...]] | None
+    ) = None
+    changed_class_instances_by_id: dict[UUID, ClassInstance] | None = None
+    deleted_class_instance_ids: frozenset[UUID] = frozenset()
 
 
 @dataclass(frozen=True, slots=True)
@@ -324,6 +371,94 @@ class _OigiHistoryMaterializedHead:
     before_oig: ObjectInstanceGraph
     head_commit_id: UUID
     head_oig_id: UUID
+    pre_state_index: CommitStateIndex | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class _OigiHistoryPreparedBatchAppend:
+    result_index: int
+    batch_item: ObjectInstanceGraphIdentityHistoryDomainCommitBatchItem
+    domain_commit_envelope: ObjectInstanceGraphCommitEnvelope
+    lane_id: UUID
+    history_commit_id: UUID
+    before_oig: ObjectInstanceGraph
+    after_oig: ObjectInstanceGraph
+    changes: list[ObjectInstanceGraphChange]
+    graph_hash_pre: str
+    graph_hash_post: str
+    body_draft: OigCommitBodyDraft | None
+    pre_state_evidence: ObjectInstanceGraphCommitPreStateEvidence | None
+    pre_state_index: CommitStateIndex | None
+    post_state_index: CommitStateIndex | None
+    root_metadata: ObjectInstanceGraphCommitRootMetadata
+    commit_action: CommitActionDescriptor
+
+
+async def _publish_oigi_segmented_head_snapshot(
+    *,
+    store: FSCommitStore,
+    branch_id: UUID,
+    projection_hash: str,
+    commit_id: UUID,
+    graph: ObjectInstanceGraph,
+    state_index: CommitStateIndex | None,
+    perf_ms: dict[str, int] | None,
+    perf_metric_prefix: str,
+) -> None:
+    if state_index is None:
+        _increment_perf(
+            perf_ms,
+            f"{perf_metric_prefix}_segmented_head_snapshot_unavailable_count",
+        )
+        return
+    if graph.id is None or not graph.hash:
+        raise RuntimeError("OIGI segmented head snapshot requires graph id/hash")
+
+    started = time.monotonic()
+    snapshot_store = FSSnapshotStore(root_dir=store.aware_root)
+    root_source_object_id = resolve_root_source_object_id(graph)
+    with commit_perf_span(
+        phase=_oigi_history_trace_phase("publish_segmented_head_snapshot"),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={
+            "branch_id": str(branch_id),
+            "projection_hash": projection_hash,
+            "commit_id": str(commit_id),
+            "class_instance_count": len(graph.class_instances),
+            "state_row_count": len(state_index.rows),
+        },
+    ):
+        await snapshot_store.put_state_snapshot_rows(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=commit_id,
+            object_instance_graph_id=graph.id,
+            graph_hash=graph.hash,
+            graph_meta={
+                "id": graph.id,
+                "key": graph.key,
+                "name": graph.name,
+                "description": graph.description,
+                "object_projection_graph_id": graph.object_projection_graph_id,
+                "root_class_instance_id": graph.root_class_instance_id,
+                "root_source_object_id": root_source_object_id,
+                "hash": graph.hash,
+            },
+            class_instances=graph.class_instances,
+            class_instance_relationships=graph.class_instance_relationships,
+            state_index=state_index,
+            write_state_witness=True,
+            write_state_class_segment_index=True,
+        )
+    _increment_perf(
+        perf_ms,
+        f"{perf_metric_prefix}_segmented_head_snapshot_written_count",
+    )
+    _record_perf(
+        perf_ms,
+        f"{perf_metric_prefix}_segmented_head_snapshot_ms",
+        started=started,
+    )
 
 
 def _oigi_history_trace_metadata(
@@ -411,6 +546,38 @@ def _record_commit_perf(
         metric_value,
     ) in committer.last_commit_perf_profile_snapshot().items():
         perf_ms[f"{prefix}_{metric_name}"] = max(metric_value, 0)
+
+
+def _record_oigi_history_count_phases(
+    *,
+    phase_prefix: str,
+    committer: FSLaneCommitter,
+    trace_metadata: Mapping[str, object],
+) -> None:
+    profile = committer.last_commit_perf_profile_snapshot()
+    for metric_name, phase_name in (
+        ("append_append_record_count", "append_record"),
+        ("append_durable_body_write_count", "durable_body_written"),
+        ("append_durable_body_validate_count", "durable_body_validated"),
+        ("append_durable_envelope_write_count", "durable_envelope_written"),
+        ("append_durable_envelope_validate_count", "durable_envelope_validated"),
+        ("append_rebuildable_meta_write_count", "rebuildable_meta_written"),
+        ("append_rebuildable_meta_validate_count", "rebuildable_meta_validated"),
+        ("append_durable_meta_skip_count", "durable_meta_skipped"),
+        ("append_durable_head_write_count", "durable_head_written"),
+    ):
+        raw_count = profile.get(metric_name, 0)
+        try:
+            count = int(raw_count)
+        except Exception:
+            continue
+        for _index in range(max(count, 0)):
+            with commit_perf_span(
+                phase=_oigi_history_trace_phase(f"{phase_prefix}.{phase_name}"),
+                category=_OIGI_HISTORY_TRACE_CATEGORY,
+                metadata={**trace_metadata, "metric_name": metric_name},
+            ):
+                pass
 
 
 def _optional_string_from_mapping(
@@ -552,12 +719,45 @@ def _write_oigi_history_projection_index(
 def _oigi_history_head_state_hash_mismatch(
     *,
     before_oig: ObjectInstanceGraph,
+    materialized_indexes: Mapping[str, object] | None = None,
 ) -> tuple[str, str] | None:
-    state_index_hash = build_commit_state_index(before_oig).compute_hash()
+    state_index_hash = _commit_state_hash_from_materialized_indexes(
+        materialized_indexes=materialized_indexes,
+    )
+    if state_index_hash is None:
+        state_index_hash = build_commit_state_index(before_oig).compute_hash()
     graph_hash = str(before_oig.hash or "")
     if state_index_hash == graph_hash:
         return None
     return state_index_hash, graph_hash
+
+
+def _commit_state_hash_from_materialized_indexes(
+    *,
+    materialized_indexes: Mapping[str, object] | None,
+) -> str | None:
+    state_index = _commit_state_index_from_materialized_indexes(
+        materialized_indexes=materialized_indexes,
+    )
+    if state_index is not None:
+        return state_index.compute_hash()
+    if not materialized_indexes:
+        return None
+    raw_hash = materialized_indexes.get(COMMIT_STATE_HASH_INDEX_KEY)
+    if not isinstance(raw_hash, str):
+        return None
+    normalized_hash = raw_hash.strip()
+    return normalized_hash or None
+
+
+def _commit_state_index_from_materialized_indexes(
+    *,
+    materialized_indexes: Mapping[str, object] | None,
+) -> CommitStateIndex | None:
+    if not materialized_indexes:
+        return None
+    raw_index = materialized_indexes.get(COMMIT_STATE_INDEX_KEY)
+    return raw_index if isinstance(raw_index, CommitStateIndex) else None
 
 
 async def _materialize_oigi_history_head_with_recovery(
@@ -591,7 +791,7 @@ async def _materialize_oigi_history_head_with_recovery(
         )
 
     try:
-        before_oig, _indexes = await materializer.get(
+        before_oig, materialized_indexes = await materializer.get(
             branch_id=domain_oig_id,
             ocg=index.ocg,
             opg=oigi_opg,
@@ -606,12 +806,44 @@ async def _materialize_oigi_history_head_with_recovery(
         recovery_cause: BaseException = exc
         recovery_metric = "invalid_oigi_head_replay_reset_count"
     else:
-        hash_mismatch = _oigi_history_head_state_hash_mismatch(before_oig=before_oig)
+        materialized_pre_state_index = _commit_state_index_from_materialized_indexes(
+            materialized_indexes=materialized_indexes,
+        )
+        state_hash_index_hit = (
+            _commit_state_hash_from_materialized_indexes(
+                materialized_indexes=materialized_indexes,
+            )
+            is not None
+        )
+        _increment_perf(
+            perf_ms,
+            (
+                f"{perf_metric_prefix}_materialize_head_state_hash_index_hit_count"
+                if state_hash_index_hit
+                else f"{perf_metric_prefix}_materialize_head_state_hash_rebuild_count"
+            ),
+        )
+        with commit_perf_span(
+            phase=_oigi_history_trace_phase("materialize_head_state_hash_check"),
+            category=_OIGI_HISTORY_TRACE_CATEGORY,
+            metadata={
+                "state_hash_source": (
+                    "materialized_index"
+                    if state_hash_index_hit
+                    else "rebuilt_state_index"
+                ),
+            },
+        ):
+            hash_mismatch = _oigi_history_head_state_hash_mismatch(
+                before_oig=before_oig,
+                materialized_indexes=materialized_indexes,
+            )
         if hash_mismatch is None:
             return _OigiHistoryMaterializedHead(
                 before_oig=before_oig,
                 head_commit_id=head_commit_id,
                 head_oig_id=head_oig_id,
+                pre_state_index=materialized_pre_state_index,
             )
         state_index_hash, graph_hash = hash_mismatch
         recovery_cause = _materialization_error(
@@ -672,7 +904,7 @@ async def _materialize_oigi_history_head_with_recovery(
             + f"object_instance_graph_id={domain_oig_id} "
             + f"projection_hash={oigi_projection_hash}"
         ) from recovery_cause
-    before_oig, _indexes = await materializer.get(
+    before_oig, materialized_indexes = await materializer.get(
         branch_id=domain_oig_id,
         ocg=index.ocg,
         opg=oigi_opg,
@@ -681,7 +913,10 @@ async def _materialize_oigi_history_head_with_recovery(
         attribute_configs_by_id=dict(index.attribute_configs_by_id),
         class_configs_by_id=dict(index.class_configs_by_id),
     )
-    hash_mismatch = _oigi_history_head_state_hash_mismatch(before_oig=before_oig)
+    hash_mismatch = _oigi_history_head_state_hash_mismatch(
+        before_oig=before_oig,
+        materialized_indexes=materialized_indexes,
+    )
     if hash_mismatch is not None:
         state_index_hash, graph_hash = hash_mismatch
         raise _materialization_error(
@@ -692,6 +927,9 @@ async def _materialize_oigi_history_head_with_recovery(
         before_oig=before_oig,
         head_commit_id=reseeded_head_commit_id,
         head_oig_id=reseeded_head_oig_id,
+        pre_state_index=_commit_state_index_from_materialized_indexes(
+            materialized_indexes=materialized_indexes,
+        ),
     )
 
 
@@ -1904,21 +2142,68 @@ def _build_oigi_history_direct_projection_context(
     index: MetaGraphRuntimeIndex,
     before_oig: ObjectInstanceGraph,
     oigi_opg: ObjectProjectionGraph,
+    relationship_projection_context: (
+        OrmChangeTranslationRelationshipProjectionContext | None
+    ) = None,
 ) -> _OigiHistoryDirectProjectionContext:
     static_context = _build_oigi_history_static_direct_projection_context(
         index=index,
         oigi_opg=oigi_opg,
+        relationship_projection_context=relationship_projection_context,
     )
-    return _OigiHistoryDirectProjectionContext(
-        class_configs_by_id=static_context.class_configs_by_id,
-        relationship_attribute_ids_by_cc_id=(
-            static_context.relationship_attribute_ids_by_cc_id
+    with commit_perf_span(
+        phase=_oigi_history_trace_phase(
+            "build_direct_projection_context.before_class_instances_index"
         ),
-        include_relationship_attribute_ids_by_cc_id=(
-            static_context.include_relationship_attribute_ids_by_cc_id
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={"class_instance_count": len(before_oig.class_instances)},
+    ):
+        before_class_instances_by_id = _before_class_instances_by_id(before_oig)
+    with commit_perf_span(
+        phase=_oigi_history_trace_phase(
+            "build_direct_projection_context.context_assembly"
         ),
-        opg_class_config_ids=static_context.opg_class_config_ids,
-        before_class_instances_by_id=_before_class_instances_by_id(before_oig),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={},
+    ):
+        return _OigiHistoryDirectProjectionContext(
+            class_configs_by_id=static_context.class_configs_by_id,
+            relationship_attribute_ids_by_cc_id=(
+                static_context.relationship_attribute_ids_by_cc_id
+            ),
+            include_relationship_attribute_ids_by_cc_id=(
+                static_context.include_relationship_attribute_ids_by_cc_id
+            ),
+            opg_class_config_ids=static_context.opg_class_config_ids,
+            before_class_instances_by_id=before_class_instances_by_id,
+            attribute_plans_by_class_config_id={},
+        )
+
+
+def _advance_oigi_history_direct_projection_batch_state(
+    *,
+    context: _OigiHistoryDirectProjectionContext,
+    pre_state_rows_by_class_instance_id: dict[UUID, tuple[CommitStateRow, ...]],
+    changed_class_instances_by_id: Mapping[UUID, ClassInstance],
+    post_state_rows_by_changed_class_instance_id: Mapping[
+        UUID, tuple[CommitStateRow, ...]
+    ],
+    deleted_class_instance_ids: frozenset[UUID],
+) -> tuple[
+    _OigiHistoryDirectProjectionContext,
+    dict[UUID, tuple[CommitStateRow, ...]],
+]:
+    class_instances_by_id = dict(context.before_class_instances_by_id)
+    for class_instance_id in deleted_class_instance_ids:
+        class_instances_by_id.pop(class_instance_id, None)
+        pre_state_rows_by_class_instance_id.pop(class_instance_id, None)
+    class_instances_by_id.update(changed_class_instances_by_id)
+    pre_state_rows_by_class_instance_id.update(
+        post_state_rows_by_changed_class_instance_id
+    )
+    return (
+        replace(context, before_class_instances_by_id=class_instances_by_id),
+        pre_state_rows_by_class_instance_id,
     )
 
 
@@ -1926,41 +2211,124 @@ def _build_oigi_history_static_direct_projection_context(
     *,
     index: MetaGraphRuntimeIndex,
     oigi_opg: ObjectProjectionGraph,
+    relationship_projection_context: (
+        OrmChangeTranslationRelationshipProjectionContext | None
+    ) = None,
 ) -> _OigiHistoryStaticDirectProjectionContext:
-    opg_class_config_ids = _opg_class_config_ids(opg=oigi_opg)
-    cache_key = _oigi_history_static_direct_projection_context_cache_key(
-        index=index,
-        oigi_opg=oigi_opg,
-        opg_class_config_ids=opg_class_config_ids,
-    )
-    cached = _OIGI_STATIC_DIRECT_CONTEXT_CACHE.get(cache_key)
+    with commit_perf_span(
+        phase=_oigi_history_trace_phase(
+            "build_direct_projection_context.opg_class_config_ids"
+        ),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={"opg_node_count": len(oigi_opg.object_projection_graph_nodes)},
+    ):
+        opg_class_config_ids = _opg_class_config_ids(opg=oigi_opg)
+    with commit_perf_span(
+        phase=_oigi_history_trace_phase(
+            "build_direct_projection_context.static_cache_key"
+        ),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={},
+    ):
+        cache_key = _oigi_history_static_direct_projection_context_cache_key(
+            index=index,
+            oigi_opg=oigi_opg,
+            opg_class_config_ids=opg_class_config_ids,
+        )
+    with commit_perf_span(
+        phase=_oigi_history_trace_phase(
+            "build_direct_projection_context.static_cache_lookup"
+        ),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={"cache_size": len(_OIGI_STATIC_DIRECT_CONTEXT_CACHE)},
+    ):
+        cached = _OIGI_STATIC_DIRECT_CONTEXT_CACHE.get(cache_key)
     if cached is not None:
-        _OIGI_STATIC_DIRECT_CONTEXT_CACHE.move_to_end(cache_key)
+        with commit_perf_span(
+            phase=_oigi_history_trace_phase(
+                "build_direct_projection_context.static_cache_hit"
+            ),
+            category=_OIGI_HISTORY_TRACE_CATEGORY,
+            metadata={},
+        ):
+            _OIGI_STATIC_DIRECT_CONTEXT_CACHE.move_to_end(cache_key)
         return cached
 
-    class_configs_by_id = dict(index.class_configs_by_id)
-    relationships_by_id = dict(index.relationships_by_id)
-    static_context = _OigiHistoryStaticDirectProjectionContext(
-        class_configs_by_id=class_configs_by_id,
-        relationship_attribute_ids_by_cc_id=(
-            build_relationship_attribute_config_ids_by_class_config_id(
-                class_configs_by_id=class_configs_by_id,
-                relationships_by_id=relationships_by_id,
+    if relationship_projection_context is not None:
+        if relationship_projection_context.opg_class_config_ids != opg_class_config_ids:
+            raise ValueError(
+                "Warmed ORM relationship projection context does not match "
+                "the OIGI ObjectProjectionGraph class scope"
             )
-        ),
-        include_relationship_attribute_ids_by_cc_id=(
-            build_include_relationship_attribute_config_ids_by_class_config_id(
-                object_projection_graph=oigi_opg,
-                class_configs_by_id=class_configs_by_id,
-                relationships_by_id=relationships_by_id,
+        with commit_perf_span(
+            phase=_oigi_history_trace_phase(
+                "build_direct_projection_context.warmed_projection_context_reuse"
+            ),
+            category=_OIGI_HISTORY_TRACE_CATEGORY,
+            metadata={},
+        ):
+            static_context = _OigiHistoryStaticDirectProjectionContext(
+                class_configs_by_id=dict(index.class_configs_by_id),
+                relationship_attribute_ids_by_cc_id=(
+                    relationship_projection_context.relationship_attribute_ids_by_cc_id
+                ),
+                include_relationship_attribute_ids_by_cc_id=(
+                    relationship_projection_context.include_relationship_attribute_ids_by_cc_id
+                ),
+                opg_class_config_ids=opg_class_config_ids,
             )
-        ),
-        opg_class_config_ids=opg_class_config_ids,
-    )
+    else:
+        with commit_perf_span(
+            phase=_oigi_history_trace_phase(
+                "build_direct_projection_context.static_cache_miss_build"
+            ),
+            category=_OIGI_HISTORY_TRACE_CATEGORY,
+            metadata={
+                "class_config_count": len(index.class_configs_by_id),
+                "relationship_count": len(index.relationships_by_id),
+            },
+        ):
+            class_configs_by_id = dict(index.class_configs_by_id)
+            relationships_by_id = dict(index.relationships_by_id)
+            static_context = _OigiHistoryStaticDirectProjectionContext(
+                class_configs_by_id=class_configs_by_id,
+                relationship_attribute_ids_by_cc_id=(
+                    build_relationship_attribute_config_ids_by_class_config_id(
+                        class_configs_by_id=class_configs_by_id,
+                        relationships_by_id=relationships_by_id,
+                    )
+                ),
+                include_relationship_attribute_ids_by_cc_id=(
+                    build_include_relationship_attribute_config_ids_by_class_config_id(
+                        object_projection_graph=oigi_opg,
+                        class_configs_by_id=class_configs_by_id,
+                        relationships_by_id=relationships_by_id,
+                    )
+                ),
+                opg_class_config_ids=opg_class_config_ids,
+            )
     _OIGI_STATIC_DIRECT_CONTEXT_CACHE[cache_key] = static_context
     if len(_OIGI_STATIC_DIRECT_CONTEXT_CACHE) > _OIGI_STATIC_DIRECT_CONTEXT_CACHE_LIMIT:
         _OIGI_STATIC_DIRECT_CONTEXT_CACHE.popitem(last=False)
     return static_context
+
+
+def _oigi_history_warmed_relationship_projection_context(
+    *,
+    index: MetaGraphRuntimeIndex,
+    index_view: MetaGraphRuntimeIndexView | None,
+    oigi_opg: ObjectProjectionGraph,
+) -> OrmChangeTranslationRelationshipProjectionContext | None:
+    if index_view is None:
+        return None
+    if index_view.index is not index:
+        raise ValueError(
+            "MetaGraphRuntimeIndexView belongs to a different runtime index"
+        )
+    return index_view.existing_orm_change_translation_relationship_projection_context(
+        object_config_graph=index.ocg,
+        object_projection_graph=oigi_opg,
+    )
 
 
 def _oigi_history_static_direct_projection_context_cache_key(
@@ -2102,6 +2470,20 @@ def _build_oigi_history_changed_class_instance_targets(
                 "OIGI direct source-row projection ClassConfig missing from "
                 f"runtime index: class_config_id={class_config_id}"
             )
+        attribute_plan = context.attribute_plans_by_class_config_id.get(class_config_id)
+        if attribute_plan is None:
+            attribute_plan = plan_class_instance_attribute_links(
+                class_config=class_config,
+                relationship_attribute_config_ids=(
+                    context.relationship_attribute_ids_by_cc_id.get(class_config_id)
+                ),
+                include_relationship_attribute_config_ids=(
+                    context.include_relationship_attribute_ids_by_cc_id.get(
+                        class_config_id
+                    )
+                ),
+            )
+            context.attribute_plans_by_class_config_id[class_config_id] = attribute_plan
         class_instance_id = stable_class_instance_id(
             object_instance_graph_id=before_oig.id,
             class_config_id=class_config.id,
@@ -2121,17 +2503,7 @@ def _build_oigi_history_changed_class_instance_targets(
                 source=source,
                 class_config=class_config,
                 class_instance=class_instance,
-                attribute_plan=plan_class_instance_attribute_links(
-                    class_config=class_config,
-                    relationship_attribute_config_ids=(
-                        context.relationship_attribute_ids_by_cc_id.get(class_config_id)
-                    ),
-                    include_relationship_attribute_config_ids=(
-                        context.include_relationship_attribute_ids_by_cc_id.get(
-                            class_config_id
-                        )
-                    ),
-                ),
+                attribute_plan=attribute_plan,
             )
         )
     return _OigiHistoryDirectClassInstanceTargets(
@@ -2244,24 +2616,17 @@ def _project_oigi_history_changed_target(
     perf_ms: dict[str, int] | None,
     perf_metric_prefix: str,
 ) -> _OigiHistoryProjectedChangedClassInstance | None:
-    class_header = _build_oigi_history_class_instance_change_header(
+    class_header = _build_oigi_history_class_instance_change_header_draft(
         before_class_instance=before_class_instance,
         class_instance=target.class_instance,
         created_at=created_at,
     )
     if class_header is None:
         return None
-    class_instance_change, operation = class_header
-    with commit_perf_span(
-        phase=_oigi_history_trace_phase(
-            "build_direct_source_state_rows.before_attribute_fingerprints"
-        ),
-        category=_OIGI_HISTORY_TRACE_CATEGORY,
-        metadata={},
-    ):
-        before_attribute_fingerprints_by_config_id = (
-            _attribute_fingerprints_by_config_id(before_state_rows)
-        )
+    operation = class_header.operation
+    before_attribute_fingerprints_by_config_id = _attribute_fingerprints_by_config_id(
+        before_state_rows
+    )
     _increment_perf(
         perf_ms,
         f"{perf_metric_prefix}_source_row_before_attribute_fingerprint_count",
@@ -2270,8 +2635,10 @@ def _project_oigi_history_changed_target(
     source_projection = _build_oigi_changed_target_source_state_rows_and_changes(
         target=target,
         before_class_instance=before_class_instance,
-        before_attribute_fingerprints_by_config_id=before_attribute_fingerprints_by_config_id,
-        class_instance_change=class_instance_change,
+        before_attribute_fingerprints_by_config_id=(
+            before_attribute_fingerprints_by_config_id
+        ),
+        class_instance_header_draft=class_header,
         class_configs_by_id=class_configs_by_id,
         created_at=created_at,
         perf_ms=perf_ms,
@@ -2281,8 +2648,8 @@ def _project_oigi_history_changed_target(
         return None
     if (
         operation == ChangeType.update
-        and not class_instance_change.change.change_deltas
-        and not class_instance_change.attribute_changes
+        and not class_header.body_draft.change.fields
+        and not source_projection.class_instance_body_draft.attribute_changes
     ):
         return _OigiHistoryProjectedChangedClassInstance(
             target=target,
@@ -2293,7 +2660,7 @@ def _project_oigi_history_changed_target(
     return _OigiHistoryProjectedChangedClassInstance(
         target=target,
         post_state_rows=source_projection.post_state_rows,
-        class_instance_change=class_instance_change,
+        class_instance_change=source_projection.class_instance_change,
         class_instance_body_draft=source_projection.class_instance_body_draft,
     )
 
@@ -2303,7 +2670,7 @@ def _build_oigi_changed_target_source_state_rows_and_changes(
     target: _OigiHistoryChangedClassInstanceTarget,
     before_class_instance: ClassInstance | None,
     before_attribute_fingerprints_by_config_id: Mapping[UUID, str],
-    class_instance_change: ClassInstanceChange,
+    class_instance_header_draft: _OigiHistoryClassInstanceChangeHeaderDraft,
     class_configs_by_id: Mapping[UUID, ClassConfig],
     created_at: datetime,
     perf_ms: dict[str, int] | None,
@@ -2319,18 +2686,11 @@ def _build_oigi_changed_target_source_state_rows_and_changes(
         raise _OigiHistoryDirectProjectionUnsupported(
             "OIGI direct source-row projection requires ClassInstance.id."
         )
-    with commit_perf_span(
-        phase=_oigi_history_trace_phase(
-            "build_direct_source_state_rows.before_attribute_index"
-        ),
-        category=_OIGI_HISTORY_TRACE_CATEGORY,
-        metadata={},
-    ):
-        before_attributes_by_id = (
-            _oigi_attributes_by_id(before_class_instance.attributes)
-            if before_class_instance is not None
-            else {}
-        )
+    before_attributes_by_id = (
+        _oigi_attributes_by_id(before_class_instance.attributes)
+        if before_class_instance is not None
+        else {}
+    )
     _increment_perf(
         perf_ms,
         f"{perf_metric_prefix}_source_row_before_attribute_index_count",
@@ -2350,22 +2710,13 @@ def _build_oigi_changed_target_source_state_rows_and_changes(
     attribute_change_body_drafts: list[
         tuple[tuple[str, str], OigCommitBodyAttributeChangeDraft]
     ] = []
-    primitive_attribute_change_drafts: list[
-        tuple[tuple[str, str], _OigiPrimitiveLeafAttributeChangeDraft]
-    ] = []
+    class_instance_change: ClassInstanceChange | None = None
     for link in target.attribute_plan.attribute_links:
         _increment_perf(
             perf_ms,
             f"{perf_metric_prefix}_source_row_attribute_link_count",
         )
-        with commit_perf_span(
-            phase=_oigi_history_trace_phase(
-                "build_direct_source_state_rows.attribute_plan_iteration"
-            ),
-            category=_OIGI_HISTORY_TRACE_CATEGORY,
-            metadata={},
-        ):
-            attr_cfg = _oigi_attribute_config_from_link(link=link)
+        attr_cfg = _oigi_attribute_config_from_link(link=link)
         if attr_cfg is None:
             _increment_perf(
                 perf_ms,
@@ -2390,14 +2741,7 @@ def _build_oigi_changed_target_source_state_rows_and_changes(
             )
             continue
 
-        with commit_perf_span(
-            phase=_oigi_history_trace_phase(
-                "build_direct_source_state_rows.source_value_resolution"
-            ),
-            category=_OIGI_HISTORY_TRACE_CATEGORY,
-            metadata={},
-        ):
-            found, raw_value = target.source.try_attribute_value(attr_cfg)
+        found, raw_value = target.source.try_attribute_value(attr_cfg)
         if not found:
             if attr_cfg.default_value is not None:
                 _increment_perf(
@@ -2435,23 +2779,16 @@ def _build_oigi_changed_target_source_state_rows_and_changes(
                 f"class_instance_id={class_instance.id} "
                 f"attribute_config_id={attr_cfg.id}"
             )
-        with commit_perf_span(
-            phase=_oigi_history_trace_phase(
-                "build_direct_source_state_rows.emit_primitive_leaf_source_row"
+        primitive_emission = _try_emit_oigi_model_free_primitive_leaf_source_row(
+            owner_key=target.source.id,
+            attribute_config=attr_cfg,
+            value=raw_value,
+            before_attributes_by_id=before_attributes_by_id,
+            before_attribute_fingerprints_by_config_id=(
+                before_attribute_fingerprints_by_config_id
             ),
-            category=_OIGI_HISTORY_TRACE_CATEGORY,
-            metadata={},
-        ):
-            primitive_emission = _try_emit_oigi_model_free_primitive_leaf_source_row(
-                owner_key=target.source.id,
-                attribute_config=attr_cfg,
-                value=raw_value,
-                before_attributes_by_id=before_attributes_by_id,
-                before_attribute_fingerprints_by_config_id=(
-                    before_attribute_fingerprints_by_config_id
-                ),
-                created_at=created_at,
-            )
+            created_at=created_at,
+        )
         if primitive_emission is not _OIGI_MODEL_FREE_PRIMITIVE_SOURCE_ROW_UNSUPPORTED:
             emission = cast(
                 _OigiPrimitiveLeafSourceRowEmission,
@@ -2465,7 +2802,7 @@ def _build_oigi_changed_target_source_state_rows_and_changes(
             attribute_rows.add(
                 (str(emission.attribute_config_id), emission.value_fingerprint)
             )
-            if emission.attribute_change_draft is None:
+            if emission.attribute_change_body_draft is None:
                 if emission.reused_before_fingerprint:
                     _increment_perf(
                         perf_ms,
@@ -2498,45 +2835,74 @@ def _build_oigi_changed_target_source_state_rows_and_changes(
             )
             _increment_perf(
                 perf_ms,
-                f"{perf_metric_prefix}_source_row_model_free_primitive_change_draft_count",
+                f"{perf_metric_prefix}_source_row_model_free_primitive_body_draft_fused_count",
             )
-            primitive_attribute_change_drafts.append(
+            _increment_perf(
+                perf_ms,
+                f"{perf_metric_prefix}_source_row_primitive_body_draft_direct_count",
+            )
+            attribute_change_body_drafts.append(
                 (
                     (str(emission.attribute_config_id), str(emission.attribute_id)),
-                    emission.attribute_change_draft,
+                    emission.attribute_change_body_draft,
                 )
             )
             continue
+        model_free_create = _try_emit_oigi_model_free_enum_union_create(
+            owner_key=target.source.id,
+            attribute_config=attr_cfg,
+            value=raw_value,
+            before_attributes_by_id=before_attributes_by_id,
+            before_attribute_fingerprints_by_config_id=(
+                before_attribute_fingerprints_by_config_id
+            ),
+            created_at=created_at,
+        )
+        if model_free_create is not None:
+            changed_attribute_ids.add(model_free_create.attribute_id)
+            attribute_rows.add(
+                (
+                    str(model_free_create.attribute_config_id),
+                    model_free_create.value_fingerprint,
+                )
+            )
+            attribute_change_body_drafts.append(
+                (
+                    (
+                        str(model_free_create.attribute_config_id),
+                        str(model_free_create.attribute_id),
+                    ),
+                    model_free_create.attribute_change_draft,
+                )
+            )
+            _increment_perf(
+                perf_ms,
+                f"{perf_metric_prefix}_source_row_model_free_enum_union_create_count",
+            )
+            continue
         try:
-            with commit_perf_span(
-                phase=_oigi_history_trace_phase(
-                    "build_direct_source_state_rows.build_attribute_value"
-                ),
-                category=_OIGI_HISTORY_TRACE_CATEGORY,
-                metadata={},
-            ):
-                attribute = _try_build_oigi_primitive_leaf_attribute(
+            attribute = _try_build_oigi_primitive_leaf_attribute(
+                owner_key=target.source.id,
+                attribute_config=attr_cfg,
+                value=raw_value,
+            )
+            if attribute is None:
+                _increment_perf(
+                    perf_ms,
+                    f"{perf_metric_prefix}_source_row_generic_attribute_builder_count",
+                )
+                attribute = build_attribute(
                     owner_key=target.source.id,
                     attribute_config=attr_cfg,
                     value=raw_value,
+                    class_configs_by_id=dict(class_configs_by_id),
+                    enum_option_resolver=default_meta_enum_option_resolver,
                 )
-                if attribute is None:
-                    _increment_perf(
-                        perf_ms,
-                        f"{perf_metric_prefix}_source_row_generic_attribute_builder_count",
-                    )
-                    attribute = build_attribute(
-                        owner_key=target.source.id,
-                        attribute_config=attr_cfg,
-                        value=raw_value,
-                        class_configs_by_id=dict(class_configs_by_id),
-                        enum_option_resolver=default_meta_enum_option_resolver,
-                    )
-                else:
-                    _increment_perf(
-                        perf_ms,
-                        f"{perf_metric_prefix}_source_row_primitive_attribute_fast_path_count",
-                    )
+            else:
+                _increment_perf(
+                    perf_ms,
+                    f"{perf_metric_prefix}_source_row_primitive_attribute_fast_path_count",
+                )
         except AttributeBuildError as exc:
             raise _OigiHistoryDirectProjectionUnsupported(
                 "OIGI direct source-row projection could not build attribute "
@@ -2557,104 +2923,116 @@ def _build_oigi_changed_target_source_state_rows_and_changes(
             perf_ms,
             f"{perf_metric_prefix}_source_row_built_attribute_count",
         )
-        with commit_perf_span(
-            phase=_oigi_history_trace_phase(
-                "build_direct_source_state_rows.link_attribute"
-            ),
-            category=_OIGI_HISTORY_TRACE_CATEGORY,
-            metadata={},
-        ):
-            edge = _try_append_oigi_direct_attribute_edge(
-                class_instance=class_instance,
-                attribute=attribute,
-                direct_edge_ids=direct_linked_edge_ids,
+        edge = _try_append_oigi_direct_attribute_edge(
+            class_instance=class_instance,
+            attribute=attribute,
+            direct_edge_ids=direct_linked_edge_ids,
+        )
+        if edge is None:
+            _increment_perf(
+                perf_ms,
+                f"{perf_metric_prefix}_source_row_link_attribute_fallback_count",
             )
-            if edge is None:
-                _increment_perf(
-                    perf_ms,
-                    f"{perf_metric_prefix}_source_row_link_attribute_fallback_count",
-                )
-                _ = link_attribute(class_instance, attribute)
-            else:
-                _increment_perf(
-                    perf_ms,
-                    f"{perf_metric_prefix}_source_row_direct_attribute_link_count",
-                )
+            _ = link_attribute(class_instance, attribute)
+        else:
+            _increment_perf(
+                perf_ms,
+                f"{perf_metric_prefix}_source_row_direct_attribute_link_count",
+            )
         changed_attribute_ids.add(attribute.id)
-        with commit_perf_span(
-            phase=_oigi_history_trace_phase(
-                "build_direct_source_state_rows.fingerprint_current"
-            ),
-            category=_OIGI_HISTORY_TRACE_CATEGORY,
-            metadata={},
-        ):
-            value_fingerprint = fingerprint_attribute_value(attribute.value_root)
+        value_fingerprint = fingerprint_attribute_value(attribute.value_root)
         attribute_rows.add((str(attr_cfg.id), value_fingerprint))
         before_attribute = before_attributes_by_id.get(attribute.id)
-        with commit_perf_span(
-            phase=_oigi_history_trace_phase(
-                "build_direct_source_state_rows.fingerprint_before"
-            ),
-            category=_OIGI_HISTORY_TRACE_CATEGORY,
-            metadata={},
-        ):
-            before_value_fingerprint = before_attribute_fingerprints_by_config_id.get(
-                attribute.attribute_config_id
+        before_value_fingerprint = before_attribute_fingerprints_by_config_id.get(
+            attribute.attribute_config_id
+        )
+        if before_value_fingerprint is None and before_attribute is not None:
+            before_value_fingerprint = fingerprint_attribute_value(
+                before_attribute.value_root
             )
-            if before_value_fingerprint is None and before_attribute is not None:
-                before_value_fingerprint = fingerprint_attribute_value(
-                    before_attribute.value_root
-                )
         row_backed_before_attribute = (
             before_attribute is None and before_value_fingerprint is not None
         )
-        with commit_perf_span(
-            phase=_oigi_history_trace_phase(
-                "build_direct_source_state_rows.build_attribute_change"
-            ),
-            category=_OIGI_HISTORY_TRACE_CATEGORY,
-            metadata={},
-        ):
-            attribute_change_result = (
-                _try_build_oigi_history_primitive_leaf_attribute_change(
+        generic_operation = (
+            ChangeType.update
+            if before_attribute is not None or row_backed_before_attribute
+            else ChangeType.create
+        )
+        direct_body_draft = (
+            _try_build_oigi_enum_union_create_body_draft_with_trace(
+                attribute=attribute,
+                created_at=created_at,
+            )
+            if generic_operation == ChangeType.create
+            else None
+        )
+        if direct_body_draft is not None:
+            attribute_change_body_drafts.append(
+                (
+                    (str(attribute.attribute_config_id), str(attribute.id)),
+                    direct_body_draft,
+                )
+            )
+            _increment_perf(
+                perf_ms,
+                f"{perf_metric_prefix}_source_row_enum_union_direct_body_draft_count",
+            )
+            continue
+        if class_instance_change is None:
+            compatibility_header = _build_oigi_history_class_instance_change_header(
+                before_class_instance=before_class_instance,
+                class_instance=class_instance,
+                created_at=created_at,
+            )
+            if compatibility_header is None:
+                return None
+            class_instance_change, compatibility_operation = compatibility_header
+            if compatibility_operation != class_instance_header_draft.operation:
+                raise _OigiHistoryDirectProjectionUnsupported(
+                    "OIGI direct source-row projection class header operation "
+                    "changed during compatibility materialization."
+                )
+            _increment_perf(
+                perf_ms,
+                f"{perf_metric_prefix}_source_row_compat_class_header_count",
+            )
+        attribute_change_result = (
+            _try_build_oigi_history_primitive_leaf_attribute_change(
+                before_attribute=before_attribute,
+                before_value_fingerprint=before_value_fingerprint,
+                attribute=attribute,
+                value_fingerprint=value_fingerprint,
+                parent=class_instance_change,
+                created_at=created_at,
+                row_backed_before_attribute=row_backed_before_attribute,
+            )
+        )
+        if attribute_change_result is _OIGI_PRIMITIVE_LEAF_ATTRIBUTE_CHANGE_UNSUPPORTED:
+            _increment_perf(
+                perf_ms,
+                f"{perf_metric_prefix}_source_row_generic_attribute_change_builder_count",
+            )
+            attribute_change = (
+                None
+                if row_backed_before_attribute
+                else _build_oigi_history_attribute_change(
                     before_attribute=before_attribute,
                     before_value_fingerprint=before_value_fingerprint,
                     attribute=attribute,
                     value_fingerprint=value_fingerprint,
                     parent=class_instance_change,
                     created_at=created_at,
-                    row_backed_before_attribute=row_backed_before_attribute,
                 )
             )
-            if (
-                attribute_change_result
-                is _OIGI_PRIMITIVE_LEAF_ATTRIBUTE_CHANGE_UNSUPPORTED
-            ):
-                _increment_perf(
-                    perf_ms,
-                    f"{perf_metric_prefix}_source_row_generic_attribute_change_builder_count",
-                )
-                attribute_change = (
-                    None
-                    if row_backed_before_attribute
-                    else _build_oigi_history_attribute_change(
-                        before_attribute=before_attribute,
-                        before_value_fingerprint=before_value_fingerprint,
-                        attribute=attribute,
-                        value_fingerprint=value_fingerprint,
-                        parent=class_instance_change,
-                        created_at=created_at,
-                    )
-                )
-            else:
-                _increment_perf(
-                    perf_ms,
-                    f"{perf_metric_prefix}_source_row_primitive_attribute_change_fast_path_count",
-                )
-                attribute_change = cast(
-                    AttributeChange | None,
-                    attribute_change_result,
-                )
+        else:
+            _increment_perf(
+                perf_ms,
+                f"{perf_metric_prefix}_source_row_primitive_attribute_change_fast_path_count",
+            )
+            attribute_change = cast(
+                AttributeChange | None,
+                attribute_change_result,
+            )
         if attribute_change is None:
             if (
                 before_attribute is None and not row_backed_before_attribute
@@ -2690,68 +3068,44 @@ def _build_oigi_changed_target_source_state_rows_and_changes(
         )
         return None
 
-    with commit_perf_span(
-        phase=_oigi_history_trace_phase(
-            "build_direct_source_state_rows.assemble_primitive_leaf_change_drafts"
-        ),
-        category=_OIGI_HISTORY_TRACE_CATEGORY,
-        metadata={},
-    ):
-        for sort_key, draft in sorted(
-            primitive_attribute_change_drafts,
+    sorted_attribute_changes = [
+        change
+        for _sort_key, change in sorted(attribute_changes, key=lambda item: item[0])
+    ]
+    sorted_attribute_change_body_drafts = tuple(
+        draft
+        for _sort_key, draft in sorted(
+            attribute_change_body_drafts,
             key=lambda item: item[0],
-        ):
-            change_result = (
-                _build_oigi_history_primitive_leaf_attribute_change_with_body_draft(
-                    draft=draft,
-                    parent=class_instance_change,
-                )
-            )
-            attribute_changes.append((sort_key, change_result.attribute_change))
-            attribute_change_body_drafts.append((sort_key, change_result.body_draft))
-            _increment_perf(
-                perf_ms,
-                f"{perf_metric_prefix}_source_row_primitive_body_draft_direct_count",
-            )
+        )
+    )
+    if class_instance_change is None:
+        class_instance_body_draft = replace(
+            class_instance_header_draft.body_draft,
+            attribute_changes=sorted_attribute_change_body_drafts,
+        )
         _increment_perf(
             perf_ms,
-            f"{perf_metric_prefix}_source_row_model_free_primitive_change_draft_assembled_count",
-            value=len(primitive_attribute_change_drafts),
+            f"{perf_metric_prefix}_source_row_draft_native_class_header_count",
         )
-
-    with commit_perf_span(
-        phase=_oigi_history_trace_phase(
-            "build_direct_source_state_rows.sort_rows_changes"
-        ),
-        category=_OIGI_HISTORY_TRACE_CATEGORY,
-        metadata={},
-    ):
-        class_instance_change.attribute_changes = [
-            change
-            for _sort_key, change in sorted(attribute_changes, key=lambda item: item[0])
-        ]
+    else:
+        class_instance_change.attribute_changes = sorted_attribute_changes
         class_instance_body_draft = _build_oigi_commit_body_class_instance_change_draft(
             class_instance_change=class_instance_change,
-            attribute_change_drafts=tuple(
-                draft
-                for _sort_key, draft in sorted(
-                    attribute_change_body_drafts,
-                    key=lambda item: item[0],
-                )
-            ),
+            attribute_change_drafts=sorted_attribute_change_body_drafts,
         )
-        _increment_perf(
-            perf_ms,
-            f"{perf_metric_prefix}_source_row_class_instance_body_draft_direct_count",
-        )
-        for attribute_config_id, value_fingerprint in sorted(attribute_rows):
-            rows.append(
-                CommitStateRow(
-                    kind="ATTR",
-                    key=str(class_instance.id),
-                    value=f"{attribute_config_id}:{value_fingerprint}",
-                )
+    _increment_perf(
+        perf_ms,
+        f"{perf_metric_prefix}_source_row_class_instance_body_draft_direct_count",
+    )
+    for attribute_config_id, value_fingerprint in sorted(attribute_rows):
+        rows.append(
+            CommitStateRow(
+                kind="ATTR",
+                key=str(class_instance.id),
+                value=f"{attribute_config_id}:{value_fingerprint}",
             )
+        )
     _increment_perf(
         perf_ms,
         f"{perf_metric_prefix}_source_row_state_row_count",
@@ -2760,7 +3114,7 @@ def _build_oigi_changed_target_source_state_rows_and_changes(
     _increment_perf(
         perf_ms,
         f"{perf_metric_prefix}_source_row_attribute_change_count",
-        value=len(class_instance_change.attribute_changes),
+        value=len(sorted_attribute_changes),
     )
     _increment_perf(
         perf_ms,
@@ -2768,6 +3122,7 @@ def _build_oigi_changed_target_source_state_rows_and_changes(
     )
     return _OigiHistoryChangedTargetSourceProjection(
         post_state_rows=tuple(rows),
+        class_instance_change=class_instance_change,
         class_instance_body_draft=class_instance_body_draft,
     )
 
@@ -2829,6 +3184,509 @@ def _record_oigi_direct_source_row_projection_fallback(
         metadata=metadata,
     ):
         pass
+
+
+def _oigi_nonprimitive_attribute_descriptor_shape_key(
+    attribute_config: AttributeConfig,
+) -> str:
+    descriptor = attribute_config.type_descriptor
+    child_signatures = sorted(
+        {
+            f"{link.role.value}_{link.child.kind.value}"
+            for link in descriptor.child_links
+        }
+    )
+    child_signature = "none" if not child_signatures else "_and_".join(child_signatures)
+    return ".".join(
+        (
+            descriptor.kind.value,
+            descriptor.collection_kind.value,
+            _oigi_bounded_count_key(len(descriptor.child_links)),
+            child_signature,
+        )
+    )
+
+
+def _oigi_attribute_value_topology_key(value_root: AttributeValue | None) -> str:
+    if value_root is None:
+        return "none.nodes_zero.links_zero.depth_zero.leaves_none"
+
+    node_count = 0
+    link_count = 0
+    max_depth = 0
+    leaf_kinds: set[str] = set()
+    seen: set[int] = set()
+    pending: list[tuple[AttributeValue, int]] = [(value_root, 0)]
+    while pending:
+        value, depth = pending.pop()
+        identity = id(value)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        node_count += 1
+        max_depth = max(max_depth, depth)
+        descriptor_kind = _oigi_attribute_value_descriptor_kind(value)
+        links = value.child_links
+        if not links:
+            leaf_kinds.add(
+                descriptor_kind.value if descriptor_kind is not None else "unknown"
+            )
+        link_count += len(links)
+        pending.extend((link.child, depth + 1) for link in links)
+
+    root_kind = _oigi_attribute_value_descriptor_kind(value_root)
+    leaf_signature = "none" if not leaf_kinds else "_and_".join(sorted(leaf_kinds))
+    return ".".join(
+        (
+            root_kind.value if root_kind is not None else "unknown",
+            f"nodes_{_oigi_bounded_count_key(node_count)}",
+            f"links_{_oigi_bounded_count_key(link_count)}",
+            f"depth_{_oigi_bounded_count_key(max_depth)}",
+            f"leaves_{leaf_signature}",
+        )
+    )
+
+
+def _oigi_bounded_count_key(count: int) -> str:
+    if count <= 0:
+        return "zero"
+    if count == 1:
+        return "one"
+    if count == 2:
+        return "two"
+    return "many"
+
+
+def _oigi_nonprimitive_trace_phase(*, shape: str, stage: str) -> str:
+    return _oigi_history_trace_phase(
+        f"build_direct_source_state_rows.generic_shape.{shape}.{stage}"
+    )
+
+
+def _build_oigi_nonprimitive_attribute_with_trace(
+    *,
+    shape: str,
+    owner_key: UUID,
+    attribute_config: AttributeConfig,
+    value: object,
+    class_configs_by_id: Mapping[UUID, ClassConfig],
+) -> Attribute:
+    with commit_perf_span(
+        phase=_oigi_nonprimitive_trace_phase(shape=shape, stage="build_value_tree"),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={"descriptor_shape": shape},
+    ):
+        return build_attribute(
+            owner_key=owner_key,
+            attribute_config=attribute_config,
+            value=value,
+            class_configs_by_id=dict(class_configs_by_id),
+            enum_option_resolver=default_meta_enum_option_resolver,
+        )
+
+
+def _record_oigi_nonprimitive_value_topology(
+    *, shape: str, value_root: AttributeValue | None
+) -> None:
+    topology = _oigi_attribute_value_topology_key(value_root)
+    with commit_perf_span(
+        phase=_oigi_nonprimitive_trace_phase(
+            shape=shape,
+            stage=f"value_topology.{topology}",
+        ),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={"descriptor_shape": shape, "value_topology": topology},
+    ):
+        pass
+
+
+def _fingerprint_oigi_nonprimitive_value_with_trace(
+    *, shape: str, value_root: AttributeValue
+) -> str:
+    with commit_perf_span(
+        phase=_oigi_nonprimitive_trace_phase(shape=shape, stage="fingerprint_value"),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={"descriptor_shape": shape},
+    ):
+        return fingerprint_attribute_value(value_root)
+
+
+def _link_oigi_nonprimitive_attribute_with_trace(
+    *,
+    shape: str,
+    class_instance: ClassInstance,
+    attribute: Attribute,
+    direct_edge_ids: set[UUID],
+) -> ClassInstanceAttribute | None:
+    with commit_perf_span(
+        phase=_oigi_nonprimitive_trace_phase(shape=shape, stage="link_attribute"),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={"descriptor_shape": shape},
+    ):
+        edge = _try_append_oigi_direct_attribute_edge(
+            class_instance=class_instance,
+            attribute=attribute,
+            direct_edge_ids=direct_edge_ids,
+        )
+        if edge is None:
+            _ = link_attribute(class_instance, attribute)
+        return edge
+
+
+def _build_oigi_nonprimitive_attribute_change_with_trace(
+    *,
+    shape: str,
+    operation: ChangeType,
+    before_attribute: Attribute | None,
+    before_value_fingerprint: str | None,
+    attribute: Attribute,
+    value_fingerprint: str,
+    parent: ClassInstanceChange,
+    created_at: datetime,
+) -> AttributeChange | None:
+    with commit_perf_span(
+        phase=_oigi_nonprimitive_trace_phase(
+            shape=shape,
+            stage=f"build_semantic_change.{operation.value}",
+        ),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={"descriptor_shape": shape, "operation": operation.value},
+    ):
+        return _build_oigi_history_attribute_change(
+            before_attribute=before_attribute,
+            before_value_fingerprint=before_value_fingerprint,
+            attribute=attribute,
+            value_fingerprint=value_fingerprint,
+            parent=parent,
+            created_at=created_at,
+        )
+
+
+def _build_oigi_nonprimitive_body_draft_with_trace(
+    *,
+    shape: str,
+    operation: ChangeType,
+    attribute_change: AttributeChange,
+) -> OigCommitBodyAttributeChangeDraft:
+    with commit_perf_span(
+        phase=_oigi_nonprimitive_trace_phase(
+            shape=shape,
+            stage=f"build_body_draft.{operation.value}",
+        ),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={"descriptor_shape": shape, "operation": operation.value},
+    ):
+        return oig_commit_body_attribute_change_draft_from_change(attribute_change)
+
+
+def _try_build_oigi_enum_union_create_body_draft_with_trace(
+    *,
+    attribute: Attribute,
+    created_at: datetime,
+) -> OigCommitBodyAttributeChangeDraft | None:
+    return _try_build_oigi_enum_union_create_body_draft(
+        attribute=attribute,
+        created_at=created_at,
+    )
+
+
+def _try_emit_oigi_model_free_enum_union_create(
+    *,
+    owner_key: UUID,
+    attribute_config: AttributeConfig,
+    value: object,
+    before_attributes_by_id: Mapping[UUID, Attribute],
+    before_attribute_fingerprints_by_config_id: Mapping[UUID, str],
+    created_at: datetime,
+) -> _OigiModelFreeEnumUnionCreateEmission | None:
+    attribute_config_id = attribute_config.id
+    type_descriptor = attribute_config.type_descriptor
+    if (
+        attribute_config_id is None
+        or type_descriptor is None
+        or type_descriptor.kind
+        not in (AttributeTypeDescriptorKind.enum, AttributeTypeDescriptorKind.union)
+    ):
+        return None
+    attribute_id = stable_attribute_id(
+        owner_key=owner_key,
+        attribute_config_id=attribute_config_id,
+    )
+    if (
+        attribute_id in before_attributes_by_id
+        or attribute_config_id in before_attribute_fingerprints_by_config_id
+    ):
+        return None
+    value_root_id = stable_attribute_value_id(
+        parent_value_id=attribute_id,
+        role="member",
+        position=0,
+        identity_key="root",
+    )
+    value_projection = _try_build_oigi_model_free_value_create_projection(
+        type_descriptor=type_descriptor,
+        value=value,
+        value_id=value_root_id,
+        created_at=created_at,
+    )
+    if value_projection is None:
+        return None
+    fingerprint_blob = json.dumps(
+        value_projection.fingerprint_payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    )
+    return _OigiModelFreeEnumUnionCreateEmission(
+        attribute_id=attribute_id,
+        attribute_config_id=attribute_config_id,
+        value_fingerprint=hashlib.sha256(fingerprint_blob.encode("utf-8")).hexdigest(),
+        attribute_change_draft=OigCommitBodyAttributeChangeDraft(
+            id=uuid4(),
+            attribute_id=attribute_id,
+            change=_oigi_commit_body_change_ref_draft_from_typed_fields(
+                change_id=uuid4(),
+                key=f"attribute:attr:{attribute_config_id}:create",
+                change_type=ChangeType.create,
+                fields=(("attribute_config_id", attribute_config_id),),
+                created_at=created_at,
+            ),
+            value_root_change=value_projection.body_draft,
+        ),
+    )
+
+
+def _try_build_oigi_model_free_value_create_projection(
+    *,
+    type_descriptor: AttributeTypeDescriptor,
+    value: object,
+    value_id: UUID,
+    created_at: datetime,
+) -> _OigiModelFreeValueCreateProjection | None:
+    descriptor_id = type_descriptor.id
+    kind = type_descriptor.kind
+    if descriptor_id is None:
+        return None
+    fields: tuple[tuple[str, object], ...]
+    children: list[dict[str, object]] = []
+    link_drafts: tuple[OigCommitBodyAttributeValueLinkChangeDraft, ...] = ()
+    primitive_value: object = None
+    enum_option_id: UUID | None = None
+    if kind == AttributeTypeDescriptorKind.primitive:
+        if type_descriptor.child_links:
+            return None
+        primitive_parts = _oigi_primitive_leaf_payload_parts(value)
+        primitive_value = primitive_parts.fingerprint_primitive_value
+        fields = (
+            ()
+            if primitive_parts.primitive_payload is None
+            else (("primitive_value", primitive_parts.primitive_payload),)
+        )
+    elif kind == AttributeTypeDescriptorKind.enum:
+        if type_descriptor.child_links:
+            return None
+        try:
+            enum_option_id = default_meta_enum_option_resolver(
+                type_descriptor,
+                value,
+            )
+        except Exception:
+            return None
+        fields = (("enum_option_id", enum_option_id),)
+    elif kind == AttributeTypeDescriptorKind.union:
+        member_links = [
+            link
+            for link in type_descriptor.child_links
+            if link.role == AttributeTypeDescriptorRole.member
+            and link.position is not None
+            and link.child is not None
+        ]
+        if len(member_links) != 1 or len(type_descriptor.child_links) != 1:
+            return None
+        member_link = member_links[0]
+        child_descriptor = member_link.child
+        if child_descriptor is None:
+            return None
+        role = member_link.role.value
+        child_value_id = stable_attribute_value_id(
+            parent_value_id=value_id,
+            role=role,
+            position=member_link.position,
+            identity_key=None,
+        )
+        child_projection = _try_build_oigi_model_free_value_create_projection(
+            type_descriptor=child_descriptor,
+            value=value,
+            value_id=child_value_id,
+            created_at=created_at,
+        )
+        if child_projection is None:
+            return None
+        link_id = stable_attribute_value_link_id(
+            parent_value_id=value_id,
+            role=role,
+            position=member_link.position,
+            identity_key=None,
+        )
+        link_fields: tuple[tuple[str, object], ...] = (
+            ("role", role),
+            ("position", member_link.position),
+        )
+        link_drafts = (
+            OigCommitBodyAttributeValueLinkChangeDraft(
+                id=uuid4(),
+                attribute_value_link_id=link_id,
+                change=_oigi_commit_body_change_ref_draft_from_typed_fields(
+                    change_id=uuid4(),
+                    key=f"attribute_value_link:{role}:{member_link.position}::create",
+                    change_type=ChangeType.create,
+                    fields=link_fields,
+                    created_at=created_at,
+                ),
+                child_attribute_value_change=child_projection.body_draft,
+            ),
+        )
+        children.append(
+            {
+                "role": role,
+                "position": member_link.position,
+                "child": child_projection.fingerprint_payload,
+            }
+        )
+        fields = ()
+    else:
+        return None
+    collection_kind = type_descriptor.collection_kind
+    fingerprint_payload: dict[str, object] = {
+        "descriptor_id": str(descriptor_id),
+        "kind": kind.value,
+        "collection_kind": (
+            collection_kind.value if collection_kind is not None else None
+        ),
+        "primitive_value": _oigi_fingerprint_jsonify(primitive_value),
+        "enum_option_id": (str(enum_option_id) if enum_option_id is not None else None),
+        "class_instance_id": None,
+        "inline_value_instance_id": None,
+        "children": children,
+    }
+    return _OigiModelFreeValueCreateProjection(
+        fingerprint_payload=fingerprint_payload,
+        body_draft=OigCommitBodyAttributeValueChangeDraft(
+            id=uuid4(),
+            attribute_value_id=value_id,
+            change=_oigi_commit_body_change_ref_draft_from_typed_fields(
+                change_id=uuid4(),
+                key="attribute_value:value:create",
+                change_type=ChangeType.create,
+                fields=fields,
+                created_at=created_at,
+            ),
+            attribute_value_link_changes=link_drafts,
+        ),
+    )
+
+
+def _try_build_oigi_enum_union_create_body_draft(
+    *,
+    attribute: Attribute,
+    created_at: datetime,
+) -> OigCommitBodyAttributeChangeDraft | None:
+    attribute_id = attribute.id
+    attribute_config_id = attribute.attribute_config_id
+    value_root = attribute.value_root
+    root_kind = _oigi_attribute_value_descriptor_kind(value_root)
+    if (
+        attribute_id is None
+        or attribute_config_id is None
+        or root_kind
+        not in (AttributeTypeDescriptorKind.enum, AttributeTypeDescriptorKind.union)
+    ):
+        return None
+    value_root_draft = _try_build_oigi_attribute_value_tree_create_body_draft(
+        value=value_root,
+        created_at=created_at,
+    )
+    if value_root_draft is None:
+        return None
+    return OigCommitBodyAttributeChangeDraft(
+        id=uuid4(),
+        attribute_id=attribute_id,
+        change=_oigi_commit_body_change_ref_draft_from_typed_fields(
+            change_id=uuid4(),
+            key=f"attribute:attr:{attribute_config_id}:create",
+            change_type=ChangeType.create,
+            fields=(("attribute_config_id", attribute_config_id),),
+            created_at=created_at,
+        ),
+        value_root_change=value_root_draft,
+    )
+
+
+def _try_build_oigi_attribute_value_tree_create_body_draft(
+    *,
+    value: AttributeValue,
+    created_at: datetime,
+) -> OigCommitBodyAttributeValueChangeDraft | None:
+    value_id = value.id
+    value_kind = _oigi_attribute_value_descriptor_kind(value)
+    if value_id is None or value_kind is None:
+        return None
+    if value.child_links and value_kind != AttributeTypeDescriptorKind.union:
+        return None
+
+    link_drafts: list[OigCommitBodyAttributeValueLinkChangeDraft] = []
+    for link in sorted(value.child_links, key=_oigi_attribute_value_link_sort_key):
+        link_id = link.id
+        child = link.child
+        if link_id is None or child is None:
+            return None
+        child_draft = _try_build_oigi_attribute_value_tree_create_body_draft(
+            value=child,
+            created_at=created_at,
+        )
+        if child_draft is None:
+            return None
+        fields: list[tuple[str, object]] = [("role", link.role.value)]
+        if link.position is not None:
+            fields.append(("position", link.position))
+        if link.identity_key is not None:
+            fields.append(("identity_key", link.identity_key))
+        link_drafts.append(
+            OigCommitBodyAttributeValueLinkChangeDraft(
+                id=uuid4(),
+                attribute_value_link_id=link_id,
+                change=_oigi_commit_body_change_ref_draft_from_typed_fields(
+                    change_id=uuid4(),
+                    key=(
+                        "attribute_value_link:"
+                        f"{link.role.value}:"
+                        f"{link.position if link.position is not None else ''}:"
+                        f"{link.identity_key or ''}:create"
+                    ),
+                    change_type=ChangeType.create,
+                    fields=fields,
+                    created_at=created_at,
+                ),
+                child_attribute_value_change=child_draft,
+            )
+        )
+
+    return OigCommitBodyAttributeValueChangeDraft(
+        id=uuid4(),
+        attribute_value_id=value_id,
+        change=_oigi_commit_body_change_ref_draft_from_typed_fields(
+            change_id=uuid4(),
+            key="attribute_value:value:create",
+            change_type=ChangeType.create,
+            fields=_oigi_history_attribute_value_fields(
+                before_value=None,
+                value=value,
+                operation=ChangeType.create,
+            ),
+            created_at=created_at,
+        ),
+        attribute_value_link_changes=tuple(link_drafts),
+    )
 
 
 def _try_build_oigi_primitive_leaf_attribute(
@@ -2918,6 +3776,7 @@ def _try_emit_oigi_model_free_primitive_leaf_source_row(
         if (before_attribute is not None or row_backed_before_attribute)
         else ChangeType.create
     )
+    before_fingerprint: str | None = None
     if operation == ChangeType.update:
         if before_attribute is not None and before_value is None:
             return _OIGI_MODEL_FREE_PRIMITIVE_SOURCE_ROW_UNSUPPORTED
@@ -2936,8 +3795,7 @@ def _try_emit_oigi_model_free_primitive_leaf_source_row(
         if before_fingerprint is None:
             return _OIGI_MODEL_FREE_PRIMITIVE_SOURCE_ROW_UNSUPPORTED
         if (
-            before_fingerprint is not None
-            and before_value is not None
+            before_value is not None
             and _oigi_attribute_value_primitive_payload(before_value)
             == primitive_parts.primitive_payload
         ):
@@ -2945,94 +3803,59 @@ def _try_emit_oigi_model_free_primitive_leaf_source_row(
                 attribute_id=attribute_id,
                 attribute_config_id=attribute_config_id,
                 value_fingerprint=before_fingerprint,
-                attribute_change_draft=None,
+                attribute_change_body_draft=None,
                 reused_before_fingerprint=True,
                 row_backed_before_attribute=row_backed_before_attribute,
             )
 
-        value_fingerprint = _oigi_primitive_leaf_value_fingerprint(
-            type_descriptor=type_descriptor,
-            primitive_value=primitive_parts.fingerprint_primitive_value,
-        )
-        if value_fingerprint is None:
-            return _OIGI_MODEL_FREE_PRIMITIVE_SOURCE_ROW_UNSUPPORTED
-        if before_fingerprint is not None and before_fingerprint == value_fingerprint:
-            return _OigiPrimitiveLeafSourceRowEmission(
-                attribute_id=attribute_id,
-                attribute_config_id=attribute_config_id,
-                value_fingerprint=value_fingerprint,
-                attribute_change_draft=None,
-                reused_before_fingerprint=row_backed_before_attribute,
-                row_backed_before_attribute=row_backed_before_attribute,
-            )
-        if row_backed_before_attribute:
-            value_change_draft = _OigiPrimitiveLeafValueChangeDraft(
-                attribute_value_id=stable_attribute_value_id(
-                    parent_value_id=attribute_id,
-                    role="member",
-                    position=0,
-                    identity_key="root",
-                ),
-                operation=ChangeType.update,
-                fields=(("primitive_value", primitive_parts.primitive_payload),),
-                created_at=created_at,
-            )
-            return _OigiPrimitiveLeafSourceRowEmission(
-                attribute_id=attribute_id,
-                attribute_config_id=attribute_config_id,
-                value_fingerprint=value_fingerprint,
-                attribute_change_draft=_OigiPrimitiveLeafAttributeChangeDraft(
-                    attribute_id=attribute_id,
-                    attribute_config_id=attribute_config_id,
-                    operation=ChangeType.update,
-                    value_root_change=value_change_draft,
-                    created_at=created_at,
-                ),
-                row_backed_before_attribute=row_backed_before_attribute,
-            )
-    else:
-        value_fingerprint = _oigi_primitive_leaf_value_fingerprint(
-            type_descriptor=type_descriptor,
-            primitive_value=primitive_parts.fingerprint_primitive_value,
-        )
-        if value_fingerprint is None:
-            return _OIGI_MODEL_FREE_PRIMITIVE_SOURCE_ROW_UNSUPPORTED
-
-    value_change_draft = _oigi_primitive_leaf_attribute_value_change_draft_from_parts(
-        before_value=before_value,
-        value_id=(
-            stable_attribute_value_id(
-                parent_value_id=attribute_id,
-                role="member",
-                position=0,
-                identity_key="root",
-            )
-            if operation == ChangeType.create
-            else None
-        ),
-        primitive_payload=primitive_parts.primitive_payload,
-        operation=operation,
-        created_at=created_at,
+    value_fingerprint = _oigi_primitive_leaf_value_fingerprint(
+        type_descriptor=type_descriptor,
+        primitive_value=primitive_parts.fingerprint_primitive_value,
     )
-    if value_change_draft is None:
+    if value_fingerprint is None:
+        return _OIGI_MODEL_FREE_PRIMITIVE_SOURCE_ROW_UNSUPPORTED
+    if before_fingerprint == value_fingerprint:
         return _OigiPrimitiveLeafSourceRowEmission(
             attribute_id=attribute_id,
             attribute_config_id=attribute_config_id,
             value_fingerprint=value_fingerprint,
-            attribute_change_draft=None,
+            attribute_change_body_draft=None,
+            reused_before_fingerprint=row_backed_before_attribute,
+            row_backed_before_attribute=row_backed_before_attribute,
         )
 
+    if operation == ChangeType.update and not row_backed_before_attribute:
+        if before_value is None or before_value.id is None:
+            return _OIGI_MODEL_FREE_PRIMITIVE_SOURCE_ROW_UNSUPPORTED
+        value_id = before_value.id
+    else:
+        value_id = stable_attribute_value_id(
+            parent_value_id=attribute_id,
+            role="member",
+            position=0,
+            identity_key="root",
+        )
+    value_fields: tuple[tuple[str, object], ...] = (
+        ()
+        if operation == ChangeType.create and primitive_parts.primitive_payload is None
+        else (("primitive_value", primitive_parts.primitive_payload),)
+    )
     return _OigiPrimitiveLeafSourceRowEmission(
         attribute_id=attribute_id,
         attribute_config_id=attribute_config_id,
         value_fingerprint=value_fingerprint,
-        attribute_change_draft=_OigiPrimitiveLeafAttributeChangeDraft(
-            attribute_id=attribute_id,
-            attribute_config_id=attribute_config_id,
-            operation=operation,
-            value_root_change=value_change_draft,
-            created_at=created_at,
+        attribute_change_body_draft=(
+            _build_oigi_history_primitive_leaf_attribute_body_draft(
+                attribute_id=attribute_id,
+                attribute_config_id=attribute_config_id,
+                operation=operation,
+                value_id=value_id,
+                value_operation=operation,
+                value_fields=value_fields,
+                created_at=created_at,
+            )
         ),
+        row_backed_before_attribute=row_backed_before_attribute,
     )
 
 
@@ -3281,131 +4104,54 @@ def _build_oigi_history_primitive_leaf_attribute_value_change(
     )
 
 
-def _oigi_primitive_leaf_attribute_value_change_draft_from_parts(
+def _build_oigi_history_primitive_leaf_attribute_body_draft(
     *,
-    before_value: AttributeValue | None,
-    value_id: UUID | None,
-    primitive_payload: JsonValue,
+    attribute_id: UUID,
+    attribute_config_id: UUID,
     operation: ChangeType,
+    value_id: UUID,
+    value_operation: ChangeType,
+    value_fields: tuple[tuple[str, object], ...],
     created_at: datetime,
-) -> _OigiPrimitiveLeafValueChangeDraft | None:
-    if operation == ChangeType.update:
-        if before_value is None:
-            return None
-        effective_value_id = before_value.id
-        before_payload = _oigi_attribute_value_primitive_payload(before_value)
-        if before_payload == primitive_payload:
-            return None
-        fields: tuple[tuple[str, object], ...] = (
-            ("primitive_value", primitive_payload),
-        )
-    else:
-        effective_value_id = value_id
-        if primitive_payload is None:
-            fields = ()
-        else:
-            fields = (("primitive_value", primitive_payload),)
-
-    if effective_value_id is None:
-        return None
-    return _OigiPrimitiveLeafValueChangeDraft(
-        attribute_value_id=effective_value_id,
-        operation=operation,
-        fields=fields,
-        created_at=created_at,
-    )
-
-
-def _build_oigi_history_primitive_leaf_attribute_value_change_from_draft(
-    *,
-    draft: _OigiPrimitiveLeafValueChangeDraft,
-) -> AttributeValueChange:
-    change = _build_oigi_change_model_construct(
-        key=f"attribute_value:value:{draft.operation.value}",
-        change_type=draft.operation,
-        fields=draft.fields,
-        created_at=draft.created_at,
-    )
-    return AttributeValueChange.model_construct(
-        attribute_value_id=draft.attribute_value_id,
-        change=change,
-        change_id=change.id,
-        attribute_value_link_changes=[],
-    )
-
-
-def _build_oigi_history_primitive_leaf_attribute_change_from_draft(
-    *,
-    draft: _OigiPrimitiveLeafAttributeChangeDraft,
-    parent: ClassInstanceChange,
-) -> AttributeChange:
-    return _build_oigi_history_primitive_leaf_attribute_change_with_body_draft(
-        draft=draft,
-        parent=parent,
-    ).attribute_change
-
-
-def _build_oigi_history_primitive_leaf_attribute_change_with_body_draft(
-    *,
-    draft: _OigiPrimitiveLeafAttributeChangeDraft,
-    parent: ClassInstanceChange,
-) -> _OigiPrimitiveLeafAttributeChangeBuildResult:
-    value_change = _build_oigi_history_primitive_leaf_attribute_value_change_from_draft(
-        draft=draft.value_root_change,
-    )
-    value_change_draft = OigCommitBodyAttributeValueChangeDraft(
-        id=_required_oigi_direct_projection_uuid(
-            value_change.id,
-            "attribute_value_change.id",
+) -> OigCommitBodyAttributeChangeDraft:
+    return OigCommitBodyAttributeChangeDraft(
+        id=uuid4(),
+        attribute_id=attribute_id,
+        change=_oigi_commit_body_change_ref_draft_from_typed_fields(
+            change_id=uuid4(),
+            key=f"attribute:attr:{attribute_config_id}:{operation.value}",
+            change_type=operation,
+            fields=(("attribute_config_id", attribute_config_id),),
+            created_at=created_at,
         ),
-        attribute_value_id=draft.value_root_change.attribute_value_id,
-        change=_oigi_commit_body_change_ref_draft_from_fields(
-            change=value_change.change,
-            fields=draft.value_root_change.fields,
-        ),
-        attribute_value_link_changes=(),
-    )
-    change = _build_oigi_change_model_construct(
-        key=f"attribute:attr:{draft.attribute_config_id}:{draft.operation.value}",
-        change_type=draft.operation,
-        fields=(("attribute_config_id", draft.attribute_config_id),),
-        created_at=draft.created_at,
-    )
-    attribute_change = AttributeChange.model_construct(
-        attribute_id=draft.attribute_id,
-        class_instance_change_id=parent.id,
-        change=change,
-        change_id=change.id,
-        value_root_change=value_change,
-        value_root_change_id=value_change.id,
-    )
-    return _OigiPrimitiveLeafAttributeChangeBuildResult(
-        attribute_change=attribute_change,
-        body_draft=OigCommitBodyAttributeChangeDraft(
-            id=_required_oigi_direct_projection_uuid(
-                attribute_change.id,
-                "attribute_change.id",
+        value_root_change=OigCommitBodyAttributeValueChangeDraft(
+            id=uuid4(),
+            attribute_value_id=value_id,
+            change=_oigi_commit_body_change_ref_draft_from_typed_fields(
+                change_id=uuid4(),
+                key=f"attribute_value:value:{value_operation.value}",
+                change_type=value_operation,
+                fields=value_fields,
+                created_at=created_at,
             ),
-            attribute_id=draft.attribute_id,
-            change=_oigi_commit_body_change_ref_draft_from_fields(
-                change=change,
-                fields=(("attribute_config_id", draft.attribute_config_id),),
-            ),
-            value_root_change=value_change_draft,
+            attribute_value_link_changes=(),
         ),
     )
 
 
-def _oigi_commit_body_change_ref_draft_from_fields(
+def _oigi_commit_body_change_ref_draft_from_typed_fields(
     *,
-    change: Change,
+    change_id: UUID,
+    key: str,
+    change_type: ChangeType,
     fields: Iterable[tuple[str, object]],
+    created_at: datetime,
 ) -> OigCommitBodyChangeRefDraft:
     return OigCommitBodyChangeRefDraft(
-        id=_required_oigi_direct_projection_uuid(change.id, "change.id"),
-        key=change.key,
-        type=change.type,
-        created_at=change.created_at,
+        id=change_id,
+        key=key,
+        type=change_type,
+        created_at=created_at,
         fields=tuple(
             OigCommitBodyFieldDeltaDraft(
                 position=position,
@@ -3451,32 +4197,6 @@ def _required_oigi_direct_projection_uuid(value: object, name: str) -> UUID:
     raise _OigiHistoryDirectProjectionUnsupported(
         f"OIGI direct source-row projection missing required UUID: {name}"
     )
-
-
-def _build_oigi_change_model_construct(
-    *,
-    key: str,
-    change_type: ChangeType,
-    fields: Iterable[tuple[str, object]],
-    created_at: datetime,
-) -> Change:
-    change = Change.model_construct(
-        key=key,
-        type=change_type,
-        change_deltas=[],
-        created_at=created_at,
-    )
-    change.change_deltas = [
-        ChangeDelta.model_construct(
-            change_id=change.id,
-            position=position,
-            property=property_name,
-            kind=ChangeDeltaKind.scalar_set,
-            payload=Json({"value": _oigi_json_value(value)}),
-        )
-        for position, (property_name, value) in enumerate(fields)
-    ]
-    return change
 
 
 def _build_oigi_history_primitive_leaf_attribute_value_change_from_parts(
@@ -3708,11 +4428,12 @@ def _build_oigi_history_changes_from_direct_targets(
             if class_instance_id is None:
                 return None
             changed_class_instance_ids.add(class_instance_id)
+            if projection.class_instance_body_draft is not None:
+                class_instance_body_drafts.append(projection.class_instance_body_draft)
             if projection.class_instance_change is not None:
                 class_instance_changes.append(projection.class_instance_change)
                 if projection.class_instance_body_draft is None:
                     return None
-                class_instance_body_drafts.append(projection.class_instance_body_draft)
 
     with commit_perf_span(
         phase=_oigi_history_trace_phase(
@@ -3755,7 +4476,7 @@ def _build_oigi_history_changes_from_direct_targets(
             created_at=created_at,
         )
 
-    if not class_instance_changes and not relationship_changes:
+    if not class_instance_body_drafts and not relationship_changes:
         return [], OigCommitBodyDraft(roots=())
     out: list[ObjectInstanceGraphChange] = []
     body_roots: list[OigCommitBodyRootChangeDraft] = []
@@ -3998,6 +4719,45 @@ def _build_oigi_history_class_instance_change_header(
             attribute_changes=[],
         )
     return class_instance_change, operation
+
+
+def _build_oigi_history_class_instance_change_header_draft(
+    *,
+    before_class_instance: ClassInstance | None,
+    class_instance: ClassInstance,
+    created_at: datetime,
+) -> _OigiHistoryClassInstanceChangeHeaderDraft | None:
+    class_instance_id = class_instance.id
+    if class_instance_id is None:
+        return None
+    operation = (
+        ChangeType.create if before_class_instance is None else ChangeType.update
+    )
+    fields: tuple[tuple[str, object], ...] = ()
+    if operation == ChangeType.create:
+        fields = (
+            ("class_config_id", class_instance.class_config_id),
+            ("source_object_id", class_instance.source_object_id),
+        )
+    return _OigiHistoryClassInstanceChangeHeaderDraft(
+        operation=operation,
+        body_draft=OigCommitBodyClassInstanceChangeDraft(
+            id=uuid4(),
+            class_instance_id=class_instance_id,
+            change=_oigi_commit_body_change_ref_draft_from_typed_fields(
+                change_id=uuid4(),
+                key=(
+                    "class_instance:"
+                    f"{class_instance.class_config_id}:"
+                    f"{class_instance_id}:{operation.value}"
+                ),
+                change_type=operation,
+                fields=fields,
+                created_at=created_at,
+            ),
+            attribute_changes=(),
+        ),
+    )
 
 
 def _build_oigi_history_attribute_changes(
@@ -4503,19 +5263,44 @@ def _build_oigi_history_changes_from_projection(
     oigi_opg: ObjectProjectionGraph,
     object_instance_graph_identity_id: UUID,
     projection: _OigiHistoryProjectionResult,
+    materialized_pre_state_index: CommitStateIndex | None = None,
+    direct_projection_context: _OigiHistoryDirectProjectionContext | None = None,
+    relationship_projection_context: (
+        OrmChangeTranslationRelationshipProjectionContext | None
+    ) = None,
+    pre_state_rows_by_class_instance_id: (
+        dict[UUID, tuple[CommitStateRow, ...]] | None
+    ) = None,
     perf_ms: dict[str, int] | None,
     perf_metric_prefix: str,
 ) -> _OigiHistoryChangeProjection:
     context_started = time.monotonic()
-    with commit_perf_span(
-        phase=_oigi_history_trace_phase("build_direct_projection_context"),
-        category=_OIGI_HISTORY_TRACE_CATEGORY,
-        metadata={},
-    ):
-        direct_context = _build_oigi_history_direct_projection_context(
-            index=index,
-            before_oig=before_oig,
-            oigi_opg=oigi_opg,
+    if direct_projection_context is None:
+        with commit_perf_span(
+            phase=_oigi_history_trace_phase("build_direct_projection_context"),
+            category=_OIGI_HISTORY_TRACE_CATEGORY,
+            metadata={"mode": "build"},
+        ):
+            direct_context = _build_oigi_history_direct_projection_context(
+                index=index,
+                before_oig=before_oig,
+                oigi_opg=oigi_opg,
+                relationship_projection_context=relationship_projection_context,
+            )
+        _increment_perf(
+            perf_ms,
+            f"{perf_metric_prefix}_direct_projection_context_build_count",
+        )
+    else:
+        with commit_perf_span(
+            phase=_oigi_history_trace_phase("reuse_direct_projection_context"),
+            category=_OIGI_HISTORY_TRACE_CATEGORY,
+            metadata={"mode": "batch_reuse"},
+        ):
+            direct_context = direct_projection_context
+        _increment_perf(
+            perf_ms,
+            f"{perf_metric_prefix}_direct_projection_context_reuse_count",
         )
     _record_perf(
         perf_ms,
@@ -4539,8 +5324,37 @@ def _build_oigi_history_changes_from_projection(
         f"{perf_metric_prefix}_build_direct_compat_class_instances_ms",
         started=class_instances_started,
     )
-    pre_state_index = build_commit_state_index(before_oig)
-    pre_state_row_maps = pre_state_index.row_maps(include_relationship_keys=False)
+    pre_state_index = materialized_pre_state_index or build_commit_state_index(
+        before_oig
+    )
+    if perf_ms is not None and materialized_pre_state_index is not None:
+        perf_ms[f"{perf_metric_prefix}_materialized_pre_state_index_reuse_count"] = 1
+    if pre_state_rows_by_class_instance_id is None:
+        with commit_perf_span(
+            phase=_oigi_history_trace_phase("build_direct_pre_state_row_maps"),
+            category=_OIGI_HISTORY_TRACE_CATEGORY,
+            metadata={"mode": "build"},
+        ):
+            before_state_rows_by_id = dict(
+                pre_state_index.row_maps(
+                    include_relationship_keys=False
+                ).class_state_rows_by_id
+            )
+        _increment_perf(
+            perf_ms,
+            f"{perf_metric_prefix}_pre_state_row_maps_build_count",
+        )
+    else:
+        with commit_perf_span(
+            phase=_oigi_history_trace_phase("reuse_direct_pre_state_row_maps"),
+            category=_OIGI_HISTORY_TRACE_CATEGORY,
+            metadata={"mode": "batch_reuse"},
+        ):
+            before_state_rows_by_id = pre_state_rows_by_class_instance_id
+        _increment_perf(
+            perf_ms,
+            f"{perf_metric_prefix}_pre_state_row_maps_reuse_count",
+        )
     source_state_started = time.monotonic()
     with commit_perf_span(
         phase=_oigi_history_trace_phase("build_direct_source_state_rows"),
@@ -4550,7 +5364,7 @@ def _build_oigi_history_changes_from_projection(
         changed_projections = _project_oigi_history_changed_targets(
             targets=changed_targets,
             context=direct_context,
-            before_state_row_maps=pre_state_row_maps.class_state_rows_by_id,
+            before_state_row_maps=before_state_rows_by_id,
             created_at=projection.change_set.collected_at,
             perf_ms=perf_ms,
             perf_metric_prefix=perf_metric_prefix,
@@ -4684,10 +5498,18 @@ def _build_oigi_history_changes_from_projection(
         category=_OIGI_HISTORY_TRACE_CATEGORY,
         metadata={},
     ):
-        post_state_index = apply_commit_state_index_row_changes(
-            pre_state_index=pre_state_index,
-            changes=changes,
-            post_class_state_rows_by_id=post_class_state_rows_by_id,
+        post_state_index = (
+            apply_commit_state_index_body_draft(
+                pre_state_index=pre_state_index,
+                body_draft=body_draft,
+                post_class_state_rows_by_id=post_class_state_rows_by_id,
+            )
+            if body_draft is not None and body_draft.roots
+            else apply_commit_state_index_row_changes(
+                pre_state_index=pre_state_index,
+                changes=changes,
+                post_class_state_rows_by_id=post_class_state_rows_by_id,
+            )
         )
         state_row_graph_hash_post = post_state_index.compute_hash()
     _record_perf(
@@ -4773,13 +5595,44 @@ def _build_oigi_history_changes_from_projection(
     if perf_ms is not None:
         perf_ms[f"{perf_metric_prefix}_direct_change_count"] = len(changes)
         perf_ms[f"{perf_metric_prefix}_compat_change_builder_fallback_count"] = 0
+    reusable_direct_projection = projection_changes_supported
+    changed_class_instances_by_id = (
+        {
+            projection.target.class_instance.id: projection.target.class_instance
+            for projection in changed_projections
+            if projection.target.class_instance.id is not None
+        }
+        if reusable_direct_projection
+        else None
+    )
+    deleted_class_instance_ids = (
+        frozenset(
+            class_instance.id
+            for class_instance in direct_targets.deleted_class_instances
+            if class_instance.id is not None
+        )
+        if reusable_direct_projection
+        else frozenset()
+    )
     return _OigiHistoryChangeProjection(
-        changes=changes,
+        changes=[] if body_draft is not None and body_draft.roots else changes,
         graph_hash_post=graph_hash_post,
         after_oig=after_oig,
         body_draft=body_draft,
         pre_state_evidence=pre_state_evidence,
         pre_state_index=pre_state_index,
+        post_state_index=post_state_index,
+        direct_projection_context=(
+            direct_context if reusable_direct_projection else None
+        ),
+        pre_state_rows_by_class_instance_id=(
+            before_state_rows_by_id if reusable_direct_projection else None
+        ),
+        post_state_rows_by_changed_class_instance_id=(
+            post_class_state_rows_by_id if reusable_direct_projection else None
+        ),
+        changed_class_instances_by_id=changed_class_instances_by_id,
+        deleted_class_instance_ids=deleted_class_instance_ids,
     )
 
 
@@ -5222,6 +6075,7 @@ async def _project_oigi_history_direct(
 async def upsert_object_instance_graph_identity_history_from_domain_commit(
     *,
     index: MetaGraphRuntimeIndex,
+    index_view: MetaGraphRuntimeIndexView | None = None,
     actor_id: UUID,
     domain_branch_id: UUID,
     domain_projection_hash: str,
@@ -5235,6 +6089,826 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
     lane_materializer: CachedLaneMaterializer | None = None,
 ) -> UUID:
     """Upsert the OIGI history plane for a domain commit."""
+    result = (
+        await upsert_object_instance_graph_identity_history_from_domain_commit_result(
+            index=index,
+            index_view=index_view,
+            actor_id=actor_id,
+            domain_branch_id=domain_branch_id,
+            domain_projection_hash=domain_projection_hash,
+            domain_commit=domain_commit,
+            domain_commit_envelope=domain_commit_envelope,
+            source_class_instance_identity_id=source_class_instance_identity_id,
+            perf_ms=perf_ms,
+            perf_metric_prefix=perf_metric_prefix,
+            projector_mode=projector_mode,
+            store=store,
+            lane_materializer=lane_materializer,
+        )
+    )
+    return result.object_instance_graph_identity_id
+
+
+async def upsert_object_instance_graph_identity_history_from_domain_commit_results_batch(
+    *,
+    index: MetaGraphRuntimeIndex,
+    index_view: MetaGraphRuntimeIndexView | None = None,
+    actor_id: UUID,
+    domain_commits: Sequence[ObjectInstanceGraphIdentityHistoryDomainCommitBatchItem],
+    perf_ms: dict[str, int] | None = None,
+    perf_metric_prefix: str = "run_commit_reaction_oigi_batch",
+    projector_mode: str = "handler",
+    store: FSCommitStore | None = None,
+    lane_materializer: CachedLaneMaterializer | None = None,
+) -> tuple[ObjectInstanceGraphIdentityHistoryUpsertResult, ...]:
+    """Upsert OIGI history for a same-domain lane commit batch."""
+
+    total_started = time.monotonic()
+    item_tuple = tuple(domain_commits)
+    if not item_tuple:
+        return ()
+    if projector_mode not in {"handler", "direct"}:
+        raise ValueError(
+            "Unsupported OIGI history projector mode: " + repr(projector_mode)
+        )
+    if perf_ms is not None:
+        perf_ms[f"{perf_metric_prefix}_input_count"] = len(item_tuple)
+
+    store = store or FSCommitStore()
+    materializer = lane_materializer or CachedLaneMaterializer()
+    oigi_ctx = resolve_object_instance_graph_identity_lane_context(index=index)
+    if oigi_ctx is None:
+        raise RuntimeError("Missing required OPG: object_instance_graph_identity")
+    oigi_opg = oigi_ctx.opg
+    relationship_projection_context = (
+        _oigi_history_warmed_relationship_projection_context(
+            index=index,
+            index_view=index_view,
+            oigi_opg=oigi_opg,
+        )
+    )
+    oigi_projection_hash = oigi_ctx.projection_hash
+    if not (oigi_projection_hash or "").strip():
+        raise RuntimeError(
+            "object_instance_graph_identity OPG has empty projection_hash"
+        )
+
+    author_id = resolve_meta_author_id(actor_id)
+    resolved_items: list[
+        tuple[
+            int,
+            ObjectInstanceGraphIdentityHistoryDomainCommitBatchItem,
+            ObjectInstanceGraphCommitEnvelope,
+        ]
+    ] = []
+    domain_oig_ids: set[UUID] = set()
+    for index_in_batch, item in enumerate(item_tuple):
+        domain_commit_envelope = item.domain_commit_envelope
+        if domain_commit_envelope is None:
+            if item.domain_commit is None:
+                raise RuntimeError(
+                    "ObjectInstanceGraphIdentity history upsert requires a "
+                    "domain commit envelope"
+                )
+            domain_commit_envelope = object_instance_graph_commit_envelope_from_commit(
+                branch_id=item.domain_branch_id,
+                projection_hash=item.domain_projection_hash,
+                commit=item.domain_commit,
+            )
+        domain_oig_ids.add(domain_commit_envelope.object_instance_graph_id)
+        resolved_items.append((index_in_batch, item, domain_commit_envelope))
+
+    if len(domain_oig_ids) != 1:
+        if perf_ms is not None:
+            perf_ms[f"{perf_metric_prefix}_incompatible_fallback_count"] = len(
+                item_tuple
+            )
+        fallback_results: list[ObjectInstanceGraphIdentityHistoryUpsertResult] = []
+        for index_in_batch, item, domain_commit_envelope in resolved_items:
+            fallback_results.append(
+                await upsert_object_instance_graph_identity_history_from_domain_commit_result(
+                    index=index,
+                    index_view=index_view,
+                    actor_id=actor_id,
+                    domain_branch_id=item.domain_branch_id,
+                    domain_projection_hash=item.domain_projection_hash,
+                    domain_commit=item.domain_commit,
+                    domain_commit_envelope=domain_commit_envelope,
+                    source_class_instance_identity_id=(
+                        item.source_class_instance_identity_id
+                    ),
+                    perf_ms=perf_ms,
+                    perf_metric_prefix=f"{perf_metric_prefix}_{index_in_batch}",
+                    projector_mode=projector_mode,
+                    store=store,
+                    lane_materializer=materializer,
+                )
+            )
+        _record_perf(perf_ms, f"{perf_metric_prefix}_total_ms", started=total_started)
+        return tuple(fallback_results)
+
+    domain_oig_id = next(iter(domain_oig_ids))
+    first_envelope = resolved_items[0][2]
+    trace_metadata = _oigi_history_trace_metadata(
+        domain_oig_id=domain_oig_id,
+        domain_branch_id=resolved_items[0][1].domain_branch_id,
+        domain_projection_hash=resolved_items[0][1].domain_projection_hash,
+        domain_commit_id=first_envelope.commit_id,
+        oigi_projection_hash=oigi_projection_hash,
+        projector_mode=projector_mode,
+    )
+
+    head_started = time.monotonic()
+    with commit_perf_span(
+        phase=_oigi_history_trace_phase("batch_head_read"),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={**trace_metadata, "batch_input_count": len(item_tuple)},
+    ):
+        oigi_head_raw = cast(
+            object,
+            await store.head(
+                branch_id=domain_oig_id,
+                projection_hash=oigi_projection_hash,
+            ),
+        )
+    _record_perf(perf_ms, f"{perf_metric_prefix}_head_read_ms", started=head_started)
+    oigi_head = (
+        cast(Mapping[str, object], oigi_head_raw)
+        if isinstance(oigi_head_raw, Mapping)
+        else None
+    )
+    if oigi_head is None or not oigi_head.get("commit_id"):
+        raise RuntimeError(
+            "Missing object_instance_graph_identity lane HEAD (commit-first invariant): "
+            + f"object_instance_graph_id={domain_oig_id} projection_hash={oigi_projection_hash}"
+        )
+
+    head_commit_id = _optional_uuid_from_mapping(oigi_head, "commit_id")
+    if head_commit_id is None:
+        raise RuntimeError(
+            "Invalid object_instance_graph_identity HEAD commit_id (commit-first invariant): "
+            + f"object_instance_graph_id={domain_oig_id} projection_hash={oigi_projection_hash}"
+        )
+    head_oig_id = _optional_uuid_from_mapping(oigi_head, "object_instance_graph_id")
+    if head_oig_id is None:
+        raise RuntimeError(
+            "Invalid object_instance_graph_identity HEAD object_instance_graph_id (commit-first invariant): "
+            + f"object_instance_graph_id={domain_oig_id} projection_hash={oigi_projection_hash}"
+        )
+
+    results: list[ObjectInstanceGraphIdentityHistoryUpsertResult | None] = [
+        None for _ in item_tuple
+    ]
+    pending: list[
+        tuple[
+            int,
+            ObjectInstanceGraphIdentityHistoryDomainCommitBatchItem,
+            ObjectInstanceGraphCommitEnvelope,
+            UUID,
+            UUID,
+        ]
+    ] = []
+    for index_in_batch, item, domain_commit_envelope in resolved_items:
+        lane_id = stable_lane_id(
+            branch_id=item.domain_branch_id,
+            lane_hash=item.domain_projection_hash,
+        )
+        history_commit_id = _history_commit_id(
+            lane_id=lane_id,
+            domain_commit_id=domain_commit_envelope.commit_id,
+        )
+        projection_index_hit = await _oigi_history_projection_head_index_hit(
+            store=store,
+            oigi_head=oigi_head,
+            domain_oig_id=domain_oig_id,
+            oigi_projection_hash=oigi_projection_hash,
+            object_instance_graph_identity_id=head_oig_id,
+            domain_branch_id=item.domain_branch_id,
+            domain_projection_hash=item.domain_projection_hash,
+            lane_id=lane_id,
+            domain_commit_id=domain_commit_envelope.commit_id,
+            history_commit_id=history_commit_id,
+            perf_ms=perf_ms,
+            perf_metric_prefix=f"{perf_metric_prefix}_{index_in_batch}",
+        )
+        if projection_index_hit:
+            results[index_in_batch] = ObjectInstanceGraphIdentityHistoryUpsertResult(
+                object_instance_graph_identity_id=head_oig_id,
+                status="projection_index_hit",
+                branch_id=domain_oig_id,
+                projection_hash=oigi_projection_hash,
+                object_instance_graph_id=head_oig_id,
+                commit_id=history_commit_id,
+                object_instance_graph_commit_id=head_commit_id,
+            )
+            continue
+        pending.append(
+            (
+                index_in_batch,
+                item,
+                domain_commit_envelope,
+                lane_id,
+                history_commit_id,
+            )
+        )
+    if perf_ms is not None:
+        perf_ms[f"{perf_metric_prefix}_projection_index_hit_count"] = len(
+            item_tuple
+        ) - len(pending)
+    if not pending:
+        _record_perf(perf_ms, f"{perf_metric_prefix}_total_ms", started=total_started)
+        return tuple(
+            cast(ObjectInstanceGraphIdentityHistoryUpsertResult, result)
+            for result in results
+        )
+
+    materialize_started = time.monotonic()
+    with commit_perf_span(
+        phase=_oigi_history_trace_phase("batch_materialize_head"),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata={
+            **trace_metadata,
+            "oigi_lane_commit_id": str(head_commit_id),
+            "pending_count": len(pending),
+        },
+    ):
+        materialized_head = await _materialize_oigi_history_head_with_recovery(
+            materializer=materializer,
+            lane_materializer=lane_materializer,
+            store=store,
+            index=index,
+            oigi_opg=oigi_opg,
+            domain_oig_id=domain_oig_id,
+            domain_projection_hash=pending[0][1].domain_projection_hash,
+            oigi_projection_hash=oigi_projection_hash,
+            head_commit_id=head_commit_id,
+            head_oig_id=head_oig_id,
+            author_id=author_id,
+            perf_ms=perf_ms,
+            perf_metric_prefix=perf_metric_prefix,
+        )
+        before_oig = materialized_head.before_oig
+        head_commit_id = materialized_head.head_commit_id
+        head_oig_id = materialized_head.head_oig_id
+        materialized_pre_state_index = materialized_head.pre_state_index
+    _record_perf(
+        perf_ms,
+        f"{perf_metric_prefix}_materialize_head_ms",
+        started=materialize_started,
+    )
+
+    with commit_perf_span(
+        phase=_oigi_history_trace_phase("batch_resolve_root_context"),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata=trace_metadata,
+    ):
+        actual_root_object_id = resolve_root_source_object_id(before_oig)
+        if actual_root_object_id != head_oig_id:
+            raise RuntimeError(
+                "object_instance_graph_identity lane root mismatch: "
+                + f"expected_root={head_oig_id} got_root={actual_root_object_id}"
+            )
+        root_cc_id: UUID | None = None
+        for node in oigi_opg.object_projection_graph_nodes:
+            if node.is_root:
+                root_cc_id = node.class_config_id
+                break
+        if root_cc_id is None:
+            if not oigi_opg.object_projection_graph_nodes:
+                raise RuntimeError("object_instance_graph_identity OPG has no nodes")
+            root_cc_id = oigi_opg.object_projection_graph_nodes[0].class_config_id
+
+    function_name = "upsert_history_from_lane_head"
+    function_id: UUID | None = None
+    with commit_perf_span(
+        phase=_oigi_history_trace_phase("batch_resolve_function_config"),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata=trace_metadata,
+    ):
+        for node in index.ocg.object_config_graph_nodes:
+            if node.type != ObjectConfigGraphNodeType.class_:
+                continue
+            cc = node.class_config
+            if cc is None or cc.id != root_cc_id:
+                continue
+            for link in cc.class_config_function_configs:
+                fc = link.function_config
+                if fc.name == function_name:
+                    function_id = fc.id
+                    break
+            if function_id is not None:
+                break
+    if function_id is None:
+        raise RuntimeError(
+            "FunctionConfig not found in OCG for ObjectInstanceGraphIdentity history upsert: "
+            + f"class_config_id={root_cc_id} function_name={function_name}"
+        )
+
+    with commit_perf_span(
+        phase=_oigi_history_trace_phase("batch_resolve_domain_opgi"),
+        category=_OIGI_HISTORY_TRACE_CATEGORY,
+        metadata=trace_metadata,
+    ):
+        _ocgi, opgi = resolve_meta_graph_ocgi_opgi(
+            index=index,
+            projection_hash=pending[0][1].domain_projection_hash,
+        )
+    if opgi is None:
+        raise RuntimeError(
+            "Missing required OPGI on runtime bundle: "
+            + f"projection_hash={pending[0][1].domain_projection_hash}"
+        )
+
+    prepared_appends: list[_OigiHistoryPreparedBatchAppend] = []
+    deferred_no_changes: list[
+        tuple[
+            int,
+            ObjectInstanceGraphIdentityHistoryDomainCommitBatchItem,
+            ObjectInstanceGraphCommitEnvelope,
+            UUID,
+            UUID,
+            int,
+            str,
+        ]
+    ] = []
+    batch_direct_projection_context: _OigiHistoryDirectProjectionContext | None = None
+    batch_pre_state_rows_by_class_instance_id: (
+        dict[UUID, tuple[CommitStateRow, ...]] | None
+    ) = None
+    for (
+        result_index,
+        item,
+        domain_commit_envelope,
+        lane_id,
+        history_commit_id,
+    ) in pending:
+        item_trace_metadata = _oigi_history_trace_metadata(
+            domain_oig_id=domain_oig_id,
+            domain_branch_id=item.domain_branch_id,
+            domain_projection_hash=item.domain_projection_hash,
+            domain_commit_id=domain_commit_envelope.commit_id,
+            oigi_projection_hash=oigi_projection_hash,
+            oigi_lane_commit_id=head_commit_id,
+            history_commit_id=history_commit_id,
+            lane_id=lane_id,
+            projector_mode=projector_mode,
+        )
+        execute_started = time.monotonic()
+        with commit_perf_span(
+            phase=_oigi_history_trace_phase("batch_project_change_set"),
+            category=_OIGI_HISTORY_TRACE_CATEGORY,
+            metadata={**item_trace_metadata, "batch_result_index": result_index},
+        ):
+            projection = await _project_oigi_history_projection(
+                index=index,
+                before_oig=before_oig,
+                oigi_opg=oigi_opg,
+                root_class_config_id=root_cc_id,
+                object_projection_graph_identity_id=opgi.id,
+                object_instance_graph_identity_id=head_oig_id,
+                domain_oig_id=domain_oig_id,
+                domain_branch_id=item.domain_branch_id,
+                domain_projection_hash=item.domain_projection_hash,
+                lane_id=lane_id,
+                head_commit_id=domain_commit_envelope.commit_id,
+                domain_commit=item.domain_commit,
+                domain_commit_envelope=domain_commit_envelope,
+                store=store,
+                perf_ms=perf_ms,
+                perf_metric_prefix=f"{perf_metric_prefix}_{result_index}",
+            )
+        _record_perf(
+            perf_ms,
+            (
+                f"{perf_metric_prefix}_{result_index}_execute_history_handler_ms"
+                if projector_mode == "handler"
+                else f"{perf_metric_prefix}_{result_index}_project_history_direct_ms"
+            ),
+            started=execute_started,
+        )
+
+        build_changes_started = time.monotonic()
+        try:
+            with commit_perf_span(
+                phase=_oigi_history_trace_phase("batch_build_direct_oig_changes"),
+                category=_OIGI_HISTORY_TRACE_CATEGORY,
+                metadata=item_trace_metadata,
+            ):
+                change_projection = _build_oigi_history_changes_from_projection(
+                    index=index,
+                    before_oig=before_oig,
+                    oigi_opg=oigi_opg,
+                    relationship_projection_context=relationship_projection_context,
+                    object_instance_graph_identity_id=head_oig_id,
+                    projection=projection,
+                    materialized_pre_state_index=materialized_pre_state_index,
+                    direct_projection_context=batch_direct_projection_context,
+                    pre_state_rows_by_class_instance_id=(
+                        batch_pre_state_rows_by_class_instance_id
+                    ),
+                    perf_ms=perf_ms,
+                    perf_metric_prefix=f"{perf_metric_prefix}_{result_index}",
+                )
+                changes = change_projection.changes
+                after_oig = change_projection.after_oig
+                graph_hash_post = change_projection.graph_hash_post
+                body_draft = change_projection.body_draft
+                pre_state_evidence = change_projection.pre_state_evidence
+                pre_state_index = change_projection.pre_state_index
+                post_state_index = change_projection.post_state_index
+        except (OigBuildError, _OigiHistoryDirectProjectionUnsupported):
+            batch_direct_projection_context = None
+            batch_pre_state_rows_by_class_instance_id = None
+            _increment_perf(
+                perf_ms,
+                f"{perf_metric_prefix}_direct_projection_batch_fallback_count",
+            )
+            with commit_perf_span(
+                phase=_oigi_history_trace_phase(
+                    "batch_build_oig_changes_compat_fallback"
+                ),
+                category=_OIGI_HISTORY_TRACE_CATEGORY,
+                metadata=item_trace_metadata,
+            ):
+                changes, after_oig = _build_oigi_history_changes_from_compat_change_set(
+                    index=index,
+                    before_oig=before_oig,
+                    oigi_opg=oigi_opg,
+                    object_instance_graph_identity_id=head_oig_id,
+                    projection=projection,
+                    perf_ms=perf_ms,
+                    perf_metric_prefix=f"{perf_metric_prefix}_{result_index}",
+                )
+                graph_hash_post = after_oig.hash
+                body_draft = None
+                pre_state_evidence = None
+                pre_state_index = None
+                post_state_index = None
+        else:
+            if (
+                change_projection.direct_projection_context is not None
+                and change_projection.pre_state_rows_by_class_instance_id is not None
+                and change_projection.post_state_rows_by_changed_class_instance_id
+                is not None
+                and change_projection.changed_class_instances_by_id is not None
+            ):
+                (
+                    batch_direct_projection_context,
+                    batch_pre_state_rows_by_class_instance_id,
+                ) = _advance_oigi_history_direct_projection_batch_state(
+                    context=change_projection.direct_projection_context,
+                    pre_state_rows_by_class_instance_id=(
+                        change_projection.pre_state_rows_by_class_instance_id
+                    ),
+                    changed_class_instances_by_id=(
+                        change_projection.changed_class_instances_by_id
+                    ),
+                    post_state_rows_by_changed_class_instance_id=(
+                        change_projection.post_state_rows_by_changed_class_instance_id
+                    ),
+                    deleted_class_instance_ids=(
+                        change_projection.deleted_class_instance_ids
+                    ),
+                )
+                _increment_perf(
+                    perf_ms,
+                    f"{perf_metric_prefix}_direct_projection_batch_state_advance_count",
+                )
+            else:
+                batch_direct_projection_context = None
+                batch_pre_state_rows_by_class_instance_id = None
+                _increment_perf(
+                    perf_ms,
+                    f"{perf_metric_prefix}_direct_projection_batch_reuse_unavailable_count",
+                )
+        _record_perf(
+            perf_ms,
+            f"{perf_metric_prefix}_{result_index}_build_changes_ms",
+            started=build_changes_started,
+        )
+
+        if not changes and (body_draft is None or not body_draft.roots):
+            if prepared_appends:
+                deferred_no_changes.append(
+                    (
+                        result_index,
+                        item,
+                        domain_commit_envelope,
+                        lane_id,
+                        history_commit_id,
+                        len(prepared_appends),
+                        before_oig.hash,
+                    )
+                )
+            else:
+                wrote_projection_index = _write_oigi_history_projection_index(
+                    store=store,
+                    domain_oig_id=domain_oig_id,
+                    oigi_projection_hash=oigi_projection_hash,
+                    object_instance_graph_identity_id=head_oig_id,
+                    domain_branch_id=item.domain_branch_id,
+                    domain_projection_hash=item.domain_projection_hash,
+                    lane_id=lane_id,
+                    domain_commit_id=domain_commit_envelope.commit_id,
+                    history_commit_id=history_commit_id,
+                    oigi_lane_commit_id=head_commit_id,
+                    oigi_graph_hash_post=before_oig.hash,
+                )
+                if perf_ms is not None and wrote_projection_index:
+                    _increment_perf(
+                        perf_ms,
+                        f"{perf_metric_prefix}_projection_index_written_count",
+                    )
+                results[result_index] = ObjectInstanceGraphIdentityHistoryUpsertResult(
+                    object_instance_graph_identity_id=head_oig_id,
+                    status="no_changes",
+                    branch_id=domain_oig_id,
+                    projection_hash=oigi_projection_hash,
+                    object_instance_graph_id=head_oig_id,
+                    commit_id=history_commit_id,
+                    object_instance_graph_commit_id=head_commit_id,
+                )
+            before_oig = after_oig
+            materialized_pre_state_index = post_state_index
+            continue
+
+        prepared_appends.append(
+            _OigiHistoryPreparedBatchAppend(
+                result_index=result_index,
+                batch_item=item,
+                domain_commit_envelope=domain_commit_envelope,
+                lane_id=lane_id,
+                history_commit_id=history_commit_id,
+                before_oig=before_oig,
+                after_oig=after_oig,
+                changes=changes,
+                graph_hash_pre=before_oig.hash,
+                graph_hash_post=graph_hash_post,
+                body_draft=body_draft,
+                pre_state_evidence=pre_state_evidence,
+                pre_state_index=pre_state_index,
+                post_state_index=post_state_index,
+                root_metadata=extract_object_instance_graph_commit_root_metadata(
+                    graph=before_oig,
+                ),
+                commit_action=CommitActionDescriptor(
+                    operation_label=(
+                        "ObjectInstanceGraphIdentity.upsert_history_from_lane_head"
+                    ),
+                    call_target="instance",
+                    function_id=function_id,
+                    object_id=head_oig_id,
+                    class_instance_identity_id=(item.source_class_instance_identity_id),
+                ),
+            )
+        )
+        before_oig = after_oig
+        materialized_pre_state_index = post_state_index
+
+    if prepared_appends:
+        committer = FSLaneCommitter(store=store)
+        batch_requests = tuple(
+            LaneCommitBatchRequest(
+                object_projection_graph_identity_id=opgi.id,
+                object_instance_graph_identity_id=head_oig_id,
+                object_instance_graph_id=plan.before_oig.id,
+                before_oig=plan.before_oig,
+                root_object_id=resolve_root_source_object_id(plan.before_oig),
+                changes=tuple(plan.changes),
+                graph_hash_pre=plan.graph_hash_pre,
+                graph_hash_post=plan.graph_hash_post,
+                author_id=author_id,
+                commit_action=plan.commit_action,
+                root_metadata=plan.root_metadata,
+                pre_state_index=plan.pre_state_index,
+                pre_state_evidence=plan.pre_state_evidence,
+                body_draft=plan.body_draft,
+                write_health_index=False,
+            )
+            for plan in prepared_appends
+        )
+        fs_commit_started = time.monotonic()
+        record_native_batch = all(
+            plan.body_draft is not None and plan.body_draft.roots
+            for plan in prepared_appends
+        )
+        with commit_perf_span(
+            phase=_oigi_history_trace_phase("batch_append_oigi_commits"),
+            category=_OIGI_HISTORY_TRACE_CATEGORY,
+            metadata={
+                **trace_metadata,
+                "append_count": len(batch_requests),
+                "batch_input_count": len(item_tuple),
+                "record_native": record_native_batch,
+            },
+        ):
+            if record_native_batch:
+                oigi_lane_commit_records = await committer.commit_record_many(
+                    branch_id=domain_oig_id,
+                    projection_hash=oigi_projection_hash,
+                    requests=batch_requests,
+                )
+                oigi_lane_commit_ids = tuple(
+                    record.commit_id for record in oigi_lane_commit_records
+                )
+                oigi_lane_graph_hashes_post = tuple(
+                    record.envelope.graph_hash_post
+                    for record in oigi_lane_commit_records
+                )
+                oigi_lane_object_instance_graph_ids = tuple(
+                    record.object_instance_graph_id
+                    for record in oigi_lane_commit_records
+                )
+                oigi_lane_object_instance_graph_commit_ids = tuple(
+                    record.object_instance_graph_commit_id
+                    for record in oigi_lane_commit_records
+                )
+            else:
+                oigi_lane_commits = await committer.commit_many(
+                    branch_id=domain_oig_id,
+                    projection_hash=oigi_projection_hash,
+                    requests=batch_requests,
+                )
+                oigi_lane_commit_ids = tuple(
+                    lane_commit.commit.id for lane_commit in oigi_lane_commits
+                )
+                oigi_lane_graph_hashes_post = tuple(
+                    lane_commit.graph_hash_post for lane_commit in oigi_lane_commits
+                )
+                oigi_lane_object_instance_graph_ids = tuple(
+                    lane_commit.object_instance_graph_id
+                    for lane_commit in oigi_lane_commits
+                )
+                oigi_lane_object_instance_graph_commit_ids = tuple(
+                    lane_commit.id for lane_commit in oigi_lane_commits
+                )
+        if len(oigi_lane_commit_ids) != len(prepared_appends):
+            raise RuntimeError(
+                "OIGI history batch append returned an unexpected commit count: "
+                f"expected={len(prepared_appends)} "
+                f"got={len(oigi_lane_commit_ids)}"
+            )
+        if perf_ms is not None:
+            perf_ms[f"{perf_metric_prefix}_record_native_append_count"] = len(
+                oigi_lane_commit_ids
+            )
+            perf_ms[f"{perf_metric_prefix}_record_native_batch_count"] = (
+                1 if record_native_batch else 0
+            )
+            perf_ms[f"{perf_metric_prefix}_batch_append_count"] = 1
+        _record_perf(
+            perf_ms,
+            f"{perf_metric_prefix}_fs_commit_ms",
+            started=fs_commit_started,
+        )
+        _record_commit_perf(
+            perf_ms,
+            prefix=f"{perf_metric_prefix}_fs_commit",
+            committer=committer,
+        )
+        for (
+            plan,
+            commit_id,
+            graph_hash_post,
+            object_instance_graph_id,
+            object_instance_graph_commit_id,
+        ) in zip(
+            prepared_appends,
+            oigi_lane_commit_ids,
+            oigi_lane_graph_hashes_post,
+            oigi_lane_object_instance_graph_ids,
+            oigi_lane_object_instance_graph_commit_ids,
+            strict=True,
+        ):
+            if commit_id == oigi_lane_commit_ids[-1]:
+                await _publish_oigi_segmented_head_snapshot(
+                    store=store,
+                    branch_id=domain_oig_id,
+                    projection_hash=oigi_projection_hash,
+                    commit_id=commit_id,
+                    graph=plan.after_oig,
+                    state_index=plan.post_state_index,
+                    perf_ms=perf_ms,
+                    perf_metric_prefix=perf_metric_prefix,
+                )
+            with commit_perf_span(
+                phase=_oigi_history_trace_phase("batch_prime_materialization_cache"),
+                category=_OIGI_HISTORY_TRACE_CATEGORY,
+                metadata={
+                    **trace_metadata,
+                    "commit_id": str(commit_id),
+                    "result_index": plan.result_index,
+                },
+            ):
+                materializer.prime(
+                    branch_id=domain_oig_id,
+                    opg=oigi_opg,
+                    commit_id=commit_id,
+                    oig_id=head_oig_id,
+                    graph=plan.after_oig,
+                    commit_state_hash=(
+                        plan.graph_hash_post
+                        if plan.post_state_index is not None
+                        else None
+                    ),
+                    commit_state_index=plan.post_state_index,
+                )
+            wrote_projection_index = _write_oigi_history_projection_index(
+                store=store,
+                domain_oig_id=domain_oig_id,
+                oigi_projection_hash=oigi_projection_hash,
+                object_instance_graph_identity_id=head_oig_id,
+                domain_branch_id=plan.batch_item.domain_branch_id,
+                domain_projection_hash=plan.batch_item.domain_projection_hash,
+                lane_id=plan.lane_id,
+                domain_commit_id=plan.domain_commit_envelope.commit_id,
+                history_commit_id=plan.history_commit_id,
+                oigi_lane_commit_id=commit_id,
+                oigi_graph_hash_post=graph_hash_post,
+            )
+            if perf_ms is not None and wrote_projection_index:
+                _increment_perf(
+                    perf_ms,
+                    f"{perf_metric_prefix}_projection_index_written_count",
+                )
+            results[plan.result_index] = ObjectInstanceGraphIdentityHistoryUpsertResult(
+                object_instance_graph_identity_id=head_oig_id,
+                status="created",
+                branch_id=domain_oig_id,
+                projection_hash=oigi_projection_hash,
+                object_instance_graph_id=object_instance_graph_id,
+                commit_id=commit_id,
+                object_instance_graph_commit_id=object_instance_graph_commit_id,
+            )
+    else:
+        oigi_lane_commit_ids = ()
+
+    for (
+        result_index,
+        item,
+        domain_commit_envelope,
+        lane_id,
+        history_commit_id,
+        after_prepared_count,
+        oigi_graph_hash_post,
+    ) in deferred_no_changes:
+        resolved_head_commit_id = (
+            head_commit_id
+            if after_prepared_count == 0
+            else oigi_lane_commit_ids[after_prepared_count - 1]
+        )
+        wrote_projection_index = _write_oigi_history_projection_index(
+            store=store,
+            domain_oig_id=domain_oig_id,
+            oigi_projection_hash=oigi_projection_hash,
+            object_instance_graph_identity_id=head_oig_id,
+            domain_branch_id=item.domain_branch_id,
+            domain_projection_hash=item.domain_projection_hash,
+            lane_id=lane_id,
+            domain_commit_id=domain_commit_envelope.commit_id,
+            history_commit_id=history_commit_id,
+            oigi_lane_commit_id=resolved_head_commit_id,
+            oigi_graph_hash_post=oigi_graph_hash_post,
+        )
+        if perf_ms is not None and wrote_projection_index:
+            _increment_perf(
+                perf_ms,
+                f"{perf_metric_prefix}_projection_index_written_count",
+            )
+        results[result_index] = ObjectInstanceGraphIdentityHistoryUpsertResult(
+            object_instance_graph_identity_id=head_oig_id,
+            status="no_changes",
+            branch_id=domain_oig_id,
+            projection_hash=oigi_projection_hash,
+            object_instance_graph_id=head_oig_id,
+            commit_id=history_commit_id,
+            object_instance_graph_commit_id=resolved_head_commit_id,
+        )
+
+    _record_perf(perf_ms, f"{perf_metric_prefix}_total_ms", started=total_started)
+    return tuple(
+        cast(ObjectInstanceGraphIdentityHistoryUpsertResult, result)
+        for result in results
+    )
+
+
+async def upsert_object_instance_graph_identity_history_from_domain_commit_result(
+    *,
+    index: MetaGraphRuntimeIndex,
+    index_view: MetaGraphRuntimeIndexView | None = None,
+    actor_id: UUID,
+    domain_branch_id: UUID,
+    domain_projection_hash: str,
+    domain_commit: ObjectInstanceGraphCommit | None = None,
+    domain_commit_envelope: ObjectInstanceGraphCommitEnvelope | None = None,
+    source_class_instance_identity_id: UUID | None = None,
+    perf_ms: dict[str, int] | None = None,
+    perf_metric_prefix: str = "run_commit_reaction_oigi",
+    projector_mode: str = "handler",
+    store: FSCommitStore | None = None,
+    lane_materializer: CachedLaneMaterializer | None = None,
+) -> ObjectInstanceGraphIdentityHistoryUpsertResult:
+    """Upsert the OIGI history plane and return commit evidence."""
     total_started = time.monotonic()
     if domain_commit_envelope is None:
         if domain_commit is None:
@@ -5252,6 +6926,13 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
         raise RuntimeError("Missing required OPG: object_instance_graph_identity")
 
     oigi_opg = oigi_ctx.opg
+    relationship_projection_context = (
+        _oigi_history_warmed_relationship_projection_context(
+            index=index,
+            index_view=index_view,
+            oigi_opg=oigi_opg,
+        )
+    )
     oigi_projection_hash = oigi_ctx.projection_hash
     if not (oigi_projection_hash or "").strip():
         raise RuntimeError(
@@ -5352,7 +7033,15 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
             f"{perf_metric_prefix}_total_ms",
             started=total_started,
         )
-        return head_oig_id
+        return ObjectInstanceGraphIdentityHistoryUpsertResult(
+            object_instance_graph_identity_id=head_oig_id,
+            status="projection_index_hit",
+            branch_id=domain_oig_id,
+            projection_hash=oigi_projection_hash,
+            object_instance_graph_id=head_oig_id,
+            commit_id=history_head_commit_id,
+            object_instance_graph_commit_id=head_commit_id,
+        )
     if perf_ms is not None:
         perf_ms[f"{perf_metric_prefix}_projection_index_fast_path_count"] = 0
 
@@ -5384,6 +7073,7 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
         before_oig = materialized_head.before_oig
         head_commit_id = materialized_head.head_commit_id
         head_oig_id = materialized_head.head_oig_id
+        materialized_pre_state_index = materialized_head.pre_state_index
     _record_perf(
         perf_ms,
         f"{perf_metric_prefix}_materialize_head_ms",
@@ -5494,6 +7184,7 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
     build_changes_started = time.monotonic()
     pre_state_evidence: ObjectInstanceGraphCommitPreStateEvidence | None = None
     pre_state_index: CommitStateIndex | None = None
+    post_state_index: CommitStateIndex | None = None
     try:
         with commit_perf_span(
             phase=_oigi_history_trace_phase("build_direct_oig_changes"),
@@ -5504,8 +7195,10 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
                 index=index,
                 before_oig=before_oig,
                 oigi_opg=oigi_opg,
+                relationship_projection_context=relationship_projection_context,
                 object_instance_graph_identity_id=head_oig_id,
                 projection=projection,
+                materialized_pre_state_index=materialized_pre_state_index,
                 perf_ms=perf_ms,
                 perf_metric_prefix=perf_metric_prefix,
             )
@@ -5515,6 +7208,7 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
             body_draft = change_projection.body_draft
             pre_state_evidence = change_projection.pre_state_evidence
             pre_state_index = change_projection.pre_state_index
+            post_state_index = change_projection.post_state_index
     except (OigBuildError, _OigiHistoryDirectProjectionUnsupported):
         with commit_perf_span(
             phase=_oigi_history_trace_phase("build_oig_changes_compat_fallback"),
@@ -5534,12 +7228,13 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
             body_draft = None
             pre_state_evidence = None
             pre_state_index = None
+            post_state_index = None
     _record_perf(
         perf_ms,
         f"{perf_metric_prefix}_build_changes_ms",
         started=build_changes_started,
     )
-    if not changes:
+    if not changes and (body_draft is None or not body_draft.roots):
         with commit_perf_span(
             phase=_oigi_history_trace_phase("projection_index_write"),
             category=_OIGI_HISTORY_TRACE_CATEGORY,
@@ -5567,7 +7262,15 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
             f"{perf_metric_prefix}_total_ms",
             started=total_started,
         )
-        return head_oig_id
+        return ObjectInstanceGraphIdentityHistoryUpsertResult(
+            object_instance_graph_identity_id=head_oig_id,
+            status="no_changes",
+            branch_id=domain_oig_id,
+            projection_hash=oigi_projection_hash,
+            object_instance_graph_id=head_oig_id,
+            commit_id=history_head_commit_id,
+            object_instance_graph_commit_id=head_commit_id,
+        )
 
     commit_action = CommitActionDescriptor(
         operation_label="ObjectInstanceGraphIdentity.upsert_history_from_lane_head",
@@ -5657,6 +7360,21 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
         perf_ms[f"{perf_metric_prefix}_record_native_body_draft_append_count"] = (
             1 if body_draft is not None and body_draft.roots else 0
         )
+    _record_oigi_history_count_phases(
+        phase_prefix="append_oigi_commit",
+        committer=committer,
+        trace_metadata=trace_metadata,
+    )
+    await _publish_oigi_segmented_head_snapshot(
+        store=store,
+        branch_id=domain_oig_id,
+        projection_hash=oigi_projection_hash,
+        commit_id=oigi_lane_commit_record.commit_id,
+        graph=after_oig,
+        state_index=post_state_index,
+        perf_ms=perf_ms,
+        perf_metric_prefix=perf_metric_prefix,
+    )
     with commit_perf_span(
         phase=_oigi_history_trace_phase("prime_materialization_cache"),
         category=_OIGI_HISTORY_TRACE_CATEGORY,
@@ -5668,6 +7386,10 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
             commit_id=oigi_lane_commit_record.commit_id,
             oig_id=head_oig_id,
             graph=after_oig,
+            commit_state_hash=(
+                graph_hash_post if post_state_index is not None else None
+            ),
+            commit_state_index=post_state_index,
         )
     with commit_perf_span(
         phase=_oigi_history_trace_phase("projection_index_write"),
@@ -5706,7 +7428,21 @@ async def upsert_object_instance_graph_identity_history_from_domain_commit(
         f"{perf_metric_prefix}_total_ms",
         started=total_started,
     )
-    return head_oig_id
+    return ObjectInstanceGraphIdentityHistoryUpsertResult(
+        object_instance_graph_identity_id=head_oig_id,
+        status="created",
+        branch_id=domain_oig_id,
+        projection_hash=oigi_projection_hash,
+        object_instance_graph_id=oigi_lane_commit_record.object_instance_graph_id,
+        commit_id=oigi_lane_commit_record.commit_id,
+        object_instance_graph_commit_id=(
+            oigi_lane_commit_record.object_instance_graph_commit_id
+        ),
+    )
 
 
-__all__ = ["upsert_object_instance_graph_identity_history_from_domain_commit"]
+__all__ = [
+    "ObjectInstanceGraphIdentityHistoryUpsertResult",
+    "upsert_object_instance_graph_identity_history_from_domain_commit",
+    "upsert_object_instance_graph_identity_history_from_domain_commit_result",
+]

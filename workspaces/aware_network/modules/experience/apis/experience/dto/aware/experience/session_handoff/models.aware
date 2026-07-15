@@ -1,0 +1,127 @@
+/// Canonical DTOs for consumer-to-Experience session handoff.
+///
+/// Ownership:
+/// - Interface supplies caller and runtime focus evidence.
+/// - Experience owns session actor admission and session feature execution.
+/// - The handoff does not make Interface own the Experience session lifecycle.
+
+class ExperienceSessionHandoffScope {
+    namespace String?
+    experience_name String
+    profile_key String?
+    environment_id UUID?
+    environment_session_id UUID?
+    actor_id UUID?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    workspace_session_id String?
+    view_ref String?
+    window_key String?
+    layout_key String?
+    layout_config_id UUID?
+    section_key String?
+    layout_config_section_config_id UUID?
+    layout_section_id UUID?
+    section_focus_scope_id UUID?
+    focus_scope_id UUID?
+    focus_id UUID?
+    observable_id UUID?
+    projection_view_key String?
+    section_graph_binding_key String?
+    projection_experience_graph_identity_id UUID?
+    object_projection_graph_identity_id UUID?
+    object_instance_graph_branch_id UUID?
+    topology_seed_key String?
+    source_kind String = "interface_runtime_focus"
+    evidence JsonObject = {}
+}
+
+class ExperienceSessionHandoffActorContext {
+    status String = "ready"
+    kind String?
+    source String?
+    actor_id UUID?
+    identity_id UUID?
+    execution_id String?
+    provider_key String?
+    provider_session_id String?
+    agent_process_thread_id String?
+    evidence JsonObject = {}
+}
+
+class ExperienceSessionHandoffFeatureSpec {
+    feature_key String
+    reason String?
+    lease_key String?
+    config JsonObject = {}
+}
+
+class ExperienceSessionIdentityEvidence {
+    parent_environment_identity_session aware_identity_service_dto.session.SessionSummary?
+    experience_identity_session aware_identity_service_dto.session.SessionSummary?
+    experience_identity_member aware_identity_service_dto.session.SessionMemberSummary?
+    experience_identity_actor_roles aware_identity_service_dto.session.SessionMemberActorRoleSummary[] = []
+    environment_session_join aware_environment_service_dto.environment.EnvironmentSessionJoinReceipt?
+    experience_actor_admission actor_admission.ExperienceActorConfigAdmissionReceipt?
+    evidence JsonObject = {}
+}
+
+class ExperienceSessionHandoffActorAdmissionReceipt {
+    status String
+    admitted Bool = false
+    reason String?
+    actor_id UUID?
+    actor_kind String?
+    identity_id UUID?
+    execution_id String?
+    provider_key String?
+    provider_session_id String?
+    agent_process_thread_id String?
+    environment_admission aware_environment_service_dto.environment.EnvironmentActorAdmissionReceipt?
+    environment_session_join aware_environment_service_dto.environment.EnvironmentSessionJoinReceipt?
+    experience_actor_admission actor_admission.ExperienceActorConfigAdmissionReceipt?
+    identity_evidence session_handoff.ExperienceSessionIdentityEvidence?
+    blockers String[] = []
+    next_suggested_action String?
+    evidence JsonObject = {}
+}
+
+class ExperienceSessionHandoffFeatureLeaseReceipt {
+    lease_key String
+    feature_key String
+    desired_state String
+    worker_status String
+    revision Int
+    info String?
+    last_error String?
+    health_payload JsonObject?
+}
+
+class ExperienceSessionHandoffReceipt {
+    accepted Bool = false
+    status String
+    admitted Bool = false
+    feature_enabled Bool = false
+    session_scope session_handoff.ExperienceSessionHandoffScope
+    actor_admission session_handoff.ExperienceSessionHandoffActorAdmissionReceipt?
+    identity_evidence session_handoff.ExperienceSessionIdentityEvidence?
+    feature_lease session_handoff.ExperienceSessionHandoffFeatureLeaseReceipt?
+    idempotency_key String?
+    error String?
+    evidence JsonObject = {}
+}
+
+class ExperienceSessionHandoffStatusReceipt {
+    accepted Bool = false
+    status String
+    session_scope session_handoff.ExperienceSessionHandoffScope
+    actor_admission session_handoff.ExperienceSessionHandoffActorAdmissionReceipt?
+    identity_evidence session_handoff.ExperienceSessionIdentityEvidence?
+    feature_lease session_handoff.ExperienceSessionHandoffFeatureLeaseReceipt?
+    feature_leases session_handoff.ExperienceSessionHandoffFeatureLeaseReceipt[] = []
+    feature_lease_count Int = 0
+    error String?
+    evidence JsonObject = {}
+}

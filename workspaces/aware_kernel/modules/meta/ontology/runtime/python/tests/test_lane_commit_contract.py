@@ -12,6 +12,7 @@ from aware_history_ontology.commit.commit_enums import CommitStatus
 from aware_meta.graph.instance.commit.committer import FSLaneCommitter
 from aware_meta.graph.instance.commit.contract import (
     CommitEnvelopeReader,
+    CommitActionDescriptor,
     JsonObject,
     LaneCommitBackend,
     LaneCommitStore,
@@ -144,7 +145,9 @@ async def test_commit_store_writes_rebuildable_indexes_on_sidecar_rail(
     durable_paths: list[Path] = []
     rebuildable_paths: list[Path] = []
     original_durable_write = fs_commit_store_module._atomic_write
-    original_rebuildable_write = fs_commit_store_module._atomic_write_rebuildable_sidecar
+    original_rebuildable_write = (
+        fs_commit_store_module._atomic_write_rebuildable_sidecar
+    )
 
     def _record_durable_write(path: Path, data: str) -> None:
         durable_paths.append(path)
@@ -173,10 +176,16 @@ async def test_commit_store_writes_rebuildable_indexes_on_sidecar_rail(
         branch_id=branch_id,
         projection_hash=projection_hash,
         commit=commit,
+        commit_action=CommitActionDescriptor(
+            operation_label="tests.rebuildable_commit_action_metadata",
+            call_target="test",
+        ),
     )
 
     assert durable_paths
     assert all("indexes" not in path.parts for path in durable_paths)
+    assert not [path for path in durable_paths if path.name.endswith(".meta.json")]
+    assert [path for path in rebuildable_paths if path.name.endswith(".meta.json")]
     assert {
         path.parent.name for path in rebuildable_paths if "indexes" in path.parts
     } >= {

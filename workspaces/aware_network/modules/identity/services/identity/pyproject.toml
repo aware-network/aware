@@ -1,0 +1,38 @@
+[project]
+name = "aware-identity-service"
+version = "0.1.0"
+description = "Canonical Identity service package for service-host adapters."
+authors = [{ name = "AWARE Team" }]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-actor",
+  "aware_environment_service_dto",
+  "aware-environment-sdk",
+  "aware-identity",
+  "aware-identity-ontology-dto",
+  "aware-identity-sdk",
+  "aware_experience_service_api",
+  "aware_identity_service_api",
+  "aware_identity_service_dto",
+  "aware_identity_service_protocol",
+  "aware_reactivity_service_api",
+  "aware_reactivity_service_dto",
+  "aware-service-runtime",
+  "aware-service-service",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_identity_service"]
+include = [
+  "aware_identity_service/py.typed",
+]
+
+[tool.aware.tests]
+requires_module = "identity"

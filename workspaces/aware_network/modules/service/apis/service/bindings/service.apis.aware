@@ -1,0 +1,11 @@
+api service {
+    capability operation {
+        endpoint invoke aware_service_service_dto.comms.models.ServiceOperationRequest {
+            """
+            Invoke a canonical Service operation envelope through the Service service boundary.
+            """
+
+            response aware_service_service_dto.comms.models.ServiceOperationResponse
+        }
+    }
+}

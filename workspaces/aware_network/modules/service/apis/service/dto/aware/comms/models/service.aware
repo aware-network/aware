@@ -1,0 +1,232 @@
+/// Canonical Service operation DTOs (transport-layer, graph/ORM agnostic).
+///
+/// SSOT: `service-service-dto` generated from this API-owned `.aware` contract.
+///
+/// `aware_comms` may re-export these DTOs for transport/service import
+/// stability, but schema ownership remains under `apis/service/dto`.
+
+enum RequestStatus {
+    succeeded
+    failed
+    pending
+}
+
+enum StreamLifecycle {
+    auto_close
+    started
+    closed
+}
+
+class ServiceOperationContext {
+    actor_id UUID?
+    branch_id UUID
+    projection_hash String
+}
+
+/// Caller-carried references used by Service to resolve one admitted commercial
+/// contract. These are coordinates only; Service and Economy resolve truth.
+class ServiceContractAccessContextRefV1 {
+    consumer_finance_entity_id UUID
+    service_subscription_id UUID
+    service_contract_id UUID
+    service_contract_config_id UUID
+    smart_contract_id UUID
+}
+
+/// Consumer intent for Economy SDK permit ensure/refresh. The caller never
+/// supplies wallet coordinates or authoritative permit state.
+class ServiceOperationPermitIntentV1 {
+    contract_version String = "aware.service.operation_permit_intent.v1"
+    contract_access comms.models.ServiceContractAccessContextRefV1
+    price_schedule_id UUID
+    coin_id UUID
+    cap_amount Decimal
+    expires_at DateTime
+    finance_role_key String = "primary"
+}
+
+/// Exact per-invocation binding validated by Service before execution.
+/// Permit authority remains in Economy; this object carries references only.
+class ServiceOperationAuthorizationRefV1 {
+    contract_version String = "aware.service.operation_authorization.v1"
+    service_contract_id UUID
+    permit_id UUID
+    operation_key String
+    request_hash String
+}
+
+/// Shared Service invocation metadata passed beside a business API request.
+/// Domain DTOs such as Inference requests must not duplicate these fields.
+class ServiceOperationInvocationAuthorizationV1 {
+    contract_version String = "aware.service.operation_invocation_authorization.v1"
+    contract_access comms.models.ServiceContractAccessContextRefV1
+    operation_authorization comms.models.ServiceOperationAuthorizationRefV1
+}
+
+/// Provider-neutral evidence consumed by shared Service/Economy pricing.
+/// Domain services produce evidence; they never create Price or settlement truth.
+class ServiceOperationMeteringEvidenceV1 {
+    contract_version String = "aware.service.operation_metering.v1"
+    phase String
+    cost_basis_amount Decimal
+    cost_basis_coin_id UUID
+    evidence_ref String
+}
+
+/// Reference-only projection of the shared commercial execution receipt.
+/// Amounts, balances, and ledger authority remain queryable from Economy.
+class ServiceOperationEconomicReceiptRefsV1 {
+    contract_version String = "aware.service.operation_economic_receipt_refs.v1"
+    service_operation_id UUID
+    service_contract_id UUID
+    permit_id UUID
+    price_id UUID
+    price_schedule_id UUID
+    rate_snapshot_id UUID
+    price_reservation_id UUID
+    smart_contract_reservation_id UUID
+    settlement_id UUID
+    transaction_id UUID?
+    payer_wallet_balance_id UUID
+    receiver_wallet_balance_id UUID
+    status String
+    idempotent_replay Bool = false
+}
+
+class ServiceOperation {
+    request ServiceOperationRequest?
+    response ServiceOperationResponse?
+}
+
+ann comms.models.ServiceOperation oneof request response
+
+class ServiceHostControlRequest {
+    operation String
+}
+
+class ServiceHostControlResponse {
+    operation String
+    status RequestStatus = succeeded
+    error String?
+}
+
+class ConfigureServiceApiDependencyRoutesHostControlRequest augment comms.models.ServiceHostControlRequest {
+    operation String = "configure_service_api_dependency_routes"
+    routes JsonArray = []
+}
+
+class ConfigureServiceApiDependencyRoutesHostControlResponse augment comms.models.ServiceHostControlResponse {
+    operation String = "configure_service_api_dependency_routes"
+    status RequestStatus = succeeded
+    error String?
+    route_count Int = 0
+}
+
+class ActivateServiceHostLifecyclesHostControlRequest augment comms.models.ServiceHostControlRequest {
+    operation String = "activate_service_host_lifecycles"
+}
+
+class ActivateServiceHostLifecyclesHostControlResponse augment comms.models.ServiceHostControlResponse {
+    operation String = "activate_service_host_lifecycles"
+    status RequestStatus = succeeded
+    error String?
+    lifecycle_handler_count Int = 0
+    already_active Bool = false
+}
+
+ann comms.models.ServiceHostControlRequest::operation discriminate key
+ann comms.models.ConfigureServiceApiDependencyRoutesHostControlRequest::operation discriminate tag "configure_service_api_dependency_routes"
+ann comms.models.ActivateServiceHostLifecyclesHostControlRequest::operation discriminate tag "activate_service_host_lifecycles"
+
+ann comms.models.ServiceHostControlResponse::operation discriminate key
+ann comms.models.ConfigureServiceApiDependencyRoutesHostControlResponse::operation discriminate tag "configure_service_api_dependency_routes"
+ann comms.models.ActivateServiceHostLifecyclesHostControlResponse::operation discriminate tag "activate_service_host_lifecycles"
+
+class ServiceApiDispatchEnvelope {
+    api_call_id UUID
+    api_capability_endpoint_id UUID
+    call_key UUID
+    request_hash String
+    commit_id UUID
+    head_commit_id UUID
+    branch_id UUID
+    projection_hash String
+    api_name String
+    capability_name String
+    endpoint_name String
+    endpoint_ref String
+    discriminant String
+    source_path String
+    request_model_id UUID
+    request_class_config_id UUID
+    request_class_ref String
+    request_source_path String
+    response_class_ref String?
+    response_source_path String?
+}
+
+class ServiceApiDispatchFulfillmentBinding {
+    name String
+    graph_target String
+    graph_capability_function_name String
+    graph_function_python_ref String
+    graph_function_runtime_target String
+    method_name String
+    request_type_ref String
+    response_type_ref String
+    source_path String
+    api_capability_endpoint_function_id UUID?
+}
+
+class ServiceApiDispatchRequest {
+    operation_key String
+    envelope ServiceApiDispatchEnvelope
+    request_payload JsonObject
+    fulfillment_bindings ServiceApiDispatchFulfillmentBinding[]
+}
+
+class ServiceApiDispatchReceipt {
+    endpoint_ref String
+    discriminant String
+    status RequestStatus = succeeded
+    network_request_id UUID?
+    api_call_id UUID?
+    api_capability_endpoint_id UUID?
+    call_key UUID?
+    request_hash String?
+    request_model_id UUID?
+    api_call_outcome_id UUID?
+    response_model_id UUID?
+    service_operation_id UUID?
+    service_operation_config_id UUID?
+    service_operation_config_api_endpoint_id UUID?
+    service_operation_commit_id UUID?
+    service_operation_head_commit_id UUID?
+    service_operation_branch_id UUID?
+    service_operation_projection_hash String?
+    api_call_outcome_commit_id UUID?
+    api_call_outcome_head_commit_id UUID?
+    api_call_outcome_branch_id UUID?
+    api_call_outcome_projection_hash String?
+    economic_receipt comms.models.ServiceOperationEconomicReceiptRefsV1?
+}
+
+class ServiceOperationRequest {
+    context ServiceOperationContext
+    service String
+    operation JsonValue?
+    api_dispatch ServiceApiDispatchRequest?
+    stream_target_id UUID?
+    stream_correlation_id UUID?
+    network_request_id UUID?
+}
+
+ann comms.models.ServiceOperationRequest oneof operation api_dispatch
+
+class ServiceOperationResponse {
+    status RequestStatus
+    error String?
+    response_payload JsonValue?
+    receipt ServiceApiDispatchReceipt?
+    stream_lifecycle StreamLifecycle = auto_close
+}

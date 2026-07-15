@@ -1,0 +1,49 @@
+/// Network protocol enums.
+///
+/// These live in the ontology (SSOT) because they are referenced by network
+/// domain models and must be available when composing the runtime OCG without
+/// any DTO/API packages.
+enum NetworkAppType {
+    environment
+    interface
+    network_node
+}
+
+enum NetworkOperationMessageType {
+    request
+    response
+    stream
+    notification
+}
+
+enum NetworkOperationType {
+    api
+    environment
+    environment_config
+    service
+    network_node
+}
+
+enum NetworkEnvironmentRole {
+    owner
+    replica
+}
+
+enum NetworkFanoutMode {
+    notify_pull
+}
+
+enum NetworkRequestStatus {
+    accepted
+    pending
+    rejected
+    succeeded
+    failed
+}
+
+enum NetworkNodeStatus {
+    active
+    inactive
+    suspended
+    syncing
+}

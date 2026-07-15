@@ -1,0 +1,262 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_NETWORK"
+kind = "ns_url"
+value = "aware://network/v1"
+
+[[functions]]
+name = "stable_external_app_id"
+namespace = "NS_NETWORK"
+template = "aware:external_app:{provider_norm}"
+doc = "Compiler-generated from class-attribute identity keys: provider"
+
+[[functions.params]]
+name = "provider"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "provider_norm"
+param = "provider"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_network_directory_id"
+namespace = "NS_NETWORK"
+template = "aware:network_directory:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_network_node_id"
+namespace = "NS_NETWORK"
+template = "aware:network_node:{public_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: public_key"
+
+[[functions.params]]
+name = "public_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "public_key_norm"
+param = "public_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_network_node_config_id"
+namespace = "NS_NETWORK"
+template = "aware:network_node_config:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_network_node_environment_id"
+namespace = "NS_NETWORK"
+template = "aware:network_node_environment:{network_node_id}:{environment_id}"
+doc = "Compiler-generated from class-attribute identity keys: network_node_id, environment_id"
+
+[[functions.params]]
+name = "network_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "environment_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_network_node_member_id"
+namespace = "NS_NETWORK"
+template = "aware:network_node_member:{identity_id}"
+doc = "Compiler-generated from class-attribute identity keys: identity_id"
+
+[[functions.params]]
+name = "identity_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_network_node_package_id"
+namespace = "NS_NETWORK"
+template = "aware:network_node_package:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_network_node_peer_id"
+namespace = "NS_NETWORK"
+template = "aware:network_node_peer:{source_peer_node_id}:{target_peer_node_id}"
+doc = "Compiler-generated from class-attribute identity keys: source_peer_node_id, target_peer_node_id"
+
+[[functions.params]]
+name = "source_peer_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "target_peer_node_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_network_node_peer_fanout_rule_id"
+namespace = "NS_NETWORK"
+template = "aware:network_node_peer_fanout_rule:{network_node_peer_id}:{lane_branch_id}:{lane_projection_hash_norm}"
+doc = "Compiler-generated from class-attribute identity keys: network_node_peer_id, lane_branch_id, lane_projection_hash"
+
+[[functions.params]]
+name = "network_node_peer_id"
+type = "uuid"
+
+[[functions.params]]
+name = "lane_branch_id"
+type = "uuid"
+
+[[functions.params]]
+name = "lane_projection_hash"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "lane_projection_hash_norm"
+param = "lane_projection_hash"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_network_node_service_id"
+namespace = "NS_NETWORK"
+template = "aware:network_node_service:{network_node_id}:{service_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: network_node_id, service_package_id"
+
+[[functions.params]]
+name = "network_node_id"
+type = "uuid"
+
+[[functions.params]]
+name = "service_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_network_node_validator_id"
+namespace = "NS_NETWORK"
+template = "aware:network_node_validator:{public_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: public_key"
+
+[[functions.params]]
+name = "public_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "public_key_norm"
+param = "public_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_network_operation_id"
+namespace = "NS_NETWORK"
+template = "aware:network_operation:{message_type_norm}:{type_norm}"
+doc = "Compiler-generated from class-attribute identity keys: message_type, type"
+
+[[functions.params]]
+name = "message_type"
+type = "str"
+
+[[functions.params]]
+name = "type"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "message_type_norm"
+param = "message_type"
+normalize = ["casefold", "strip"]
+
+[[functions.lets]]
+op = "normalize"
+name = "type_norm"
+param = "type"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_network_operation_hop_id"
+namespace = "NS_NETWORK"
+template = "aware:network_operation_hop:{hop_index}"
+doc = "Compiler-generated from class-attribute identity keys: hop_index"
+
+[[functions.params]]
+name = "hop_index"
+type = "int"
+
+[[functions]]
+name = "stable_network_request_id"
+namespace = "NS_NETWORK"
+template = "aware:network_request:{requester_id}"
+doc = "Compiler-generated from class-attribute identity keys: requester_id"
+
+[[functions.params]]
+name = "requester_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_network_response_id"
+namespace = "NS_NETWORK"
+template = "aware:network_response:{network_request_id}"
+doc = "Compiler-generated from class-attribute identity keys: network_request_id"
+
+[[functions.params]]
+name = "network_request_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_network_stream_id"
+namespace = "NS_NETWORK"
+template = "aware:network_stream:{object_instance_graph_branch_id}"
+doc = "Compiler-generated from class-attribute identity keys: object_instance_graph_branch_id"
+
+[[functions.params]]
+name = "object_instance_graph_branch_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_network_stream_frame_id"
+namespace = "NS_NETWORK"
+template = "aware:network_stream_frame:{network_stream_id}:{seq}"
+doc = "Compiler-generated from class-attribute identity keys: network_stream_id, seq"
+
+[[functions.params]]
+name = "network_stream_id"
+type = "uuid"
+
+[[functions.params]]
+name = "seq"
+type = "int"

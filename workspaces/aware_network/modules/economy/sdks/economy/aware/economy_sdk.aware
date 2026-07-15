@@ -1,0 +1,35 @@
+sdk economy_sdk {
+    "Canonical Economy SDK operations over the Economy service API."
+
+    api economy;
+
+    operation actor_status {
+        "Read FinanceEntity, Wallet, and product-readiness state for one actor."
+        endpoint economy.economy_actor_status.economy_actor_status;
+    }
+
+    operation ensure_finance_entity {
+        "Ensure one actor has canonical Economy FinanceEntity and Wallet readiness."
+        endpoint economy.ensure_finance_entity.ensure_finance_entity;
+    }
+
+    operation ensure_service_operation_permit {
+        "Ensure or refresh the admitted actor's Economy permit for one priced Service operation contract."
+        endpoint economy.service_operation_permit_ensure.ensure_service_operation_permit;
+    }
+
+    operation refresh_wallet_capital {
+        "Resolve wallet-capital API view state from the Economy view-state route."
+        endpoint economy.wallet_capital_view_state_resolve.resolve_wallet_capital_view_state;
+    }
+
+    operation fund_wallet {
+        "Prepare provider-neutral wallet funding for the Economy wallet-capital view action."
+        endpoint economy.wallet_funding_prepare.prepare_wallet_funding;
+    }
+
+    operation resolve_wallet_funding_context {
+        "Resolve committed wallet-funding capital context for an authorized provider action."
+        endpoint economy.wallet_funding_context_resolve.resolve_wallet_funding_context;
+    }
+}

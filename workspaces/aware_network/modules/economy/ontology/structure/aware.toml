@@ -1,0 +1,18 @@
+aware = 1
+
+[package]
+package_name = "economy-ontology"
+fqn_prefix = "aware_economy"
+kind = "ontology"
+version_number = 1
+title = "Economy"
+description = "SSOT canonical (.aware) sources for economy"
+
+[build]
+environment_slug = "aware_economy"
+
+[[dependencies]]
+package_name = "identity-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"

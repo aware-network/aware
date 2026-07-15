@@ -1,0 +1,68 @@
+/// Config-level Experience resolution DTOs for semantic Thread-Layout intent.
+///
+/// Ownership:
+/// - Experience owns semantic intent, config targets, access requirements, view mappings, and evidence.
+/// - Environment owns runtime process/thread/layout activation from this receipt.
+/// - Attention owns focus/window application after runtime activation.
+
+class ExperienceThreadLayoutEnvironmentTarget {
+    environment_id UUID?
+    environment_handle String?
+    environment_selector String?
+}
+
+class ExperienceThreadLayoutConfigTarget {
+    process_key String?
+    process_config_id UUID?
+    thread_key String?
+    thread_config_id UUID?
+    layout_key String?
+    layout_config_id UUID?
+    interface_package_id UUID?
+    interface_package_name String?
+    window_key String = "main"
+}
+
+class ExperienceThreadLayoutSectionViewMapping {
+    section_key String
+    layout_section_config_id UUID?
+    projection_experience_name String?
+    view_key String?
+    view_ref String?
+    section_graph_binding_key String?
+    observable_id UUID?
+    representation_id UUID?
+    is_default Bool = false
+    intent String?
+}
+
+class ExperienceThreadLayoutAccessRequirement {
+    access_scope String = "shared"
+    role_config_id UUID?
+    role_config_name String?
+    class_instance_identity_required Bool = false
+    role_assignment_binding_required Bool = false
+}
+
+class ExperienceThreadLayoutEnvironmentActivation {
+    /// Declarative EnvironmentExperience profile the Environment runtime should upsert before provisioning.
+    profile environment_profile.ExperienceEnvironmentProfileSpec
+    /// Runtime topology seeds owned by the resolved Experience profile.
+    topology_seeds environment_profile.ExperienceEnvironmentProfileTopologySeedSpec[] = []
+    /// Seed selected for the immediate Thread/Layout provision step.
+    topology_seed_key String?
+}
+
+class ExperienceThreadLayoutIntentResolution {
+    experience_name String
+    profile_key String?
+    intent_key String
+    environment thread_layout_resolution.ExperienceThreadLayoutEnvironmentTarget?
+    target thread_layout_resolution.ExperienceThreadLayoutConfigTarget
+    sections thread_layout_resolution.ExperienceThreadLayoutSectionViewMapping[] = []
+    default_section_key String?
+    default_focus_key String?
+    access_requirement thread_layout_resolution.ExperienceThreadLayoutAccessRequirement?
+    environment_activation thread_layout_resolution.ExperienceThreadLayoutEnvironmentActivation?
+    evidence JsonObject = {}
+}

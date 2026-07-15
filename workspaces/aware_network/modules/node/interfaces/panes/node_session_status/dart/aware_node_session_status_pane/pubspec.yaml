@@ -1,0 +1,26 @@
+name: aware_node_session_status_pane
+description: Node and session status pane package for the aware_control interface.
+version: 0.0.1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  aware_pane:
+    path: ../../../../../../interface/libs/pane/dart/aware_pane
+  aware_pane_runtime:
+    path: ../../../../../../interface/libs/pane_runtime/dart/aware_pane_runtime
+  aware_widgets:
+    path: ../../../../../../interface/libs/widgets/dart/aware_widgets
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

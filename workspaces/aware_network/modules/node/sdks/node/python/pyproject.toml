@@ -1,0 +1,28 @@
+[project]
+name = "aware-node-sdk"
+version = "0.1.0"
+description = "Node SDK facade over generated Node Service API Client."
+authors = [{ name = "AWARE Team" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aware_node_service_api",
+]
+
+[project.optional-dependencies]
+local = [
+  "aware-node-operator",
+]
+test = [
+  "aware-node-operator",
+  "pytest>=8.4.2",
+  "pytest-asyncio>=0.23.7",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_node_sdk"]
+include = ["README.md", "aware_node_sdk/py.typed"]

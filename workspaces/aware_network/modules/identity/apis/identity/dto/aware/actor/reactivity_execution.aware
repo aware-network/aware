@@ -1,0 +1,45 @@
+/// Canonical DTOs for actor-scoped reactivity action dispatch.
+///
+/// Ownership:
+/// - Identity API: actor/subscription execution context.
+/// - Reactivity API: semantic bridge events and condition-action bindings.
+/// - Agent runtime (or any actor runtime): implementation of action execution.
+
+class ActorReactivityActionExecutionRequest {
+    action_execution_id UUID?
+    event_id UUID
+    event_type String
+    source String
+    environment_id UUID
+    branch_id UUID
+    projection_hash String
+    commit_id UUID
+    actor_id UUID?
+    target_actor_id UUID?
+    actor_subscription_id UUID?
+    event_config_condition_config_id UUID?
+    action_binding_id UUID?
+    action_config_id UUID?
+    action_type String?
+    root_object_id UUID?
+    object_instance_graph_id UUID?
+    focus_scope_id UUID?
+    focus_id UUID?
+    view_id UUID?
+    interface_id UUID?
+    window_id UUID?
+    window_layout_id UUID?
+    window_section_id UUID?
+    visible_window_section_ids UUID[] = []
+    graph_hash_post String?
+}
+
+class ActorReactivityActionExecutionResult {
+    action_execution_id UUID?
+    event_id UUID
+    handled Bool = true
+    info String?
+    actor_identity_id UUID?
+    actor_process_thread_id UUID?
+    execution_request_id UUID?
+}

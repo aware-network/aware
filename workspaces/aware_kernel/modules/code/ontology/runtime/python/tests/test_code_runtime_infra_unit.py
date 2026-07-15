@@ -9,7 +9,7 @@ import pytest
 from tree_sitter import Parser
 from tree_sitter_aware.tree_sitter_language import AWARE_LANGUAGE
 
-from aware_code.builder import build_code_from_content, collect_nodes
+from aware_code.builder import CodeSyntaxError, build_code_from_content, collect_nodes
 from aware_code.handlers.impl.code import code as code_handler
 from aware_code.language.plugin import CodeLanguagePlugin
 from aware_code.language.registry import CodeLanguagePluginRegistry
@@ -217,6 +217,126 @@ def test_build_code_from_content_basic_path_smoke() -> None:
     )
     assert built.language == CodeLanguage.aware
     assert built.content_part_text is not None
+
+
+def test_build_code_from_content_reports_parser_recovery_before_index_mutation() -> (
+    None
+):
+    setup_code_plugins()
+    source = '''class InterfaceLayoutTransitionSectionIntent {
+    """One stable-id row in a complete shared-layout transition intent."""
+
+    layout_config_section_config_id UUID
+    order Int
+    weight_micros Int
+    is_visible Bool = true
+    is_collapsed Bool = false
+}
+'''
+    code_key = "comms/models/interface_attention_layout_transition.aware"
+
+    diagnostics = []
+    for _ in range(2):
+        sections_index = CodeSectionBuilderIndex()
+        with pytest.raises(CodeSyntaxError) as exc_info:
+            build_code_from_content(
+                sections_index=sections_index,
+                content=source,
+                code_key=code_key,
+                language=CodeLanguage.aware,
+                symbol_table=CodeSymbolTable(),
+            )
+
+        error = exc_info.value
+        assert error.code_key == code_key
+        assert error.language is CodeLanguage.aware
+        assert 1 <= len(error.diagnostics) <= 8
+        assert error.diagnostics[0].node_kind == "ERROR"
+        assert error.diagnostics[0].start_line == 2
+        assert error.diagnostics[0].start_byte < error.diagnostics[0].end_byte
+        assert "stable-id row" in error.diagnostics[0].source_excerpt
+        assert code_key in str(error)
+        assert "language='aware'" in str(error)
+        assert "diagnostic_count=" in str(error)
+        assert "line=" in str(error)
+        assert "bytes=" in str(error)
+        assert "excerpt=" in str(error)
+        assert sections_index.get_all_sections() == []
+        diagnostics.append(error.diagnostics)
+
+    assert diagnostics[0] == diagnostics[1]
+
+
+def test_build_code_from_content_accepts_aware_member_doc_comment() -> None:
+    setup_code_plugins()
+    built = build_code_from_content(
+        sections_index=CodeSectionBuilderIndex(),
+        content="""/// One stable-id row in a complete shared-layout transition intent.
+class InterfaceLayoutTransitionSectionIntent {
+    layout_config_section_config_id UUID
+}
+""",
+        code_key="comms/models/interface_attention_layout_transition.aware",
+        language=CodeLanguage.aware,
+        symbol_table=CodeSymbolTable(),
+    )
+
+    assert built.language is CodeLanguage.aware
+    assert any(
+        section.type is CodeSectionType.class_ for section in built.code_sections
+    )
+
+
+def test_code_syntax_diagnostics_are_capped() -> None:
+    setup_code_plugins()
+    source = "\n".join(
+        f'''class Broken{index} {{
+    """invalid syntax {index}"""
+    value String
+}}'''
+        for index in range(12)
+    )
+
+    with pytest.raises(CodeSyntaxError) as exc_info:
+        build_code_from_content(
+            sections_index=CodeSectionBuilderIndex(),
+            content=source,
+            code_key="inline://many-syntax-errors",
+            language=CodeLanguage.aware,
+            symbol_table=CodeSymbolTable(),
+        )
+
+    assert len(exc_info.value.diagnostics) == 8
+
+
+def test_build_code_from_content_accepts_recovered_chained_annotation_path() -> None:
+    setup_code_plugins()
+    source = """class CodeSectionClass {
+    code_section_attributes attribute.CodeSectionAttribute[]
+    code_section_functions function.CodeSectionFunction[]
+}
+ann class.CodeSectionClass::code_section_attributes::CodeSectionClassAttribute load eager
+ann class.CodeSectionClass::code_section_functions::CodeSectionClassFunction load eager
+"""
+    parser = Parser(language=AWARE_LANGUAGE)
+    assert parser.parse(source.encode()).root_node.has_error is True
+
+    built = build_code_from_content(
+        sections_index=CodeSectionBuilderIndex(),
+        content=source,
+        code_key="class_/code_section_class.aware",
+        language=CodeLanguage.aware,
+        symbol_table=CodeSymbolTable(),
+    )
+
+    assert built.language is CodeLanguage.aware
+    assert (
+        sum(
+            section.type is CodeSectionType.annotation
+            for section in built.code_sections
+        )
+        == 2
+    )
 
 
 def test_build_code_from_content_allows_documented_relationship_field_without_attribute_section() -> (

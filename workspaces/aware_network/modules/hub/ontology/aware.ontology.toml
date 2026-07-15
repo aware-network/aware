@@ -1,0 +1,25 @@
+aware_ontology = 1
+
+[ontology]
+package_name = "hub-ontology"
+fqn_prefix = "aware_hub"
+version_number = 1
+title = "Hub Ontology"
+description = "Ontology anchor for Hub-owned authority surfaces."
+source_manifest = "structure/aware.toml"
+package_root = "."
+sources_root = "structure/aware"
+stable_ids_ownership = "compiler"
+stable_ids_parity_policy = "error"
+stable_ids_resolution_policy = "class_strict"
+
+[layout]
+profile = "ontology_structure_v1"
+
+[runtime]
+manifest = "runtime/python/pyproject.toml"
+project_name = "aware-hub"
+import_root = "aware_hub"
+
+[[dependencies]]
+package_name = "code-ontology"

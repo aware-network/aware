@@ -1,0 +1,152 @@
+api memory {
+    capability ensure_memory_working {
+        endpoint ensure_memory_working aware_memory_service_dto.memory.working.EnsureMemoryWorkingRequest {
+            """
+            Resolve or create one actor-scoped MemoryWorking lane.
+            """
+
+            response aware_memory_service_dto.memory.working.EnsureMemoryWorkingResponse
+        }
+    }
+
+    capability describe_memory_working {
+        endpoint describe_memory_working aware_memory_service_dto.memory.working.DescribeMemoryWorkingRequest {
+            """
+            Read one MemoryWorking lane by id or actor/key coordinates.
+            """
+
+            response aware_memory_service_dto.memory.working.DescribeMemoryWorkingResponse
+        }
+    }
+
+    capability list_memory_working_items {
+        endpoint list_memory_working_items aware_memory_service_dto.memory.working.ListMemoryWorkingItemsRequest {
+            """
+            List ordered MemoryWorkingItem pins for one working-memory lane.
+            """
+
+            response aware_memory_service_dto.memory.working.ListMemoryWorkingItemsResponse
+        }
+    }
+
+    capability validate_memory_working_item {
+        endpoint validate_memory_working_item aware_memory_service_dto.memory.working.ValidateMemoryWorkingItemRequest {
+            """
+            Validate one retained MemoryWorkingItem and return source evidence.
+            """
+
+            response aware_memory_service_dto.memory.working.ValidateMemoryWorkingItemResponse
+        }
+    }
+
+    capability resolve_memory_context {
+        endpoint resolve_memory_context aware_memory_service_dto.memory.working.ResolveMemoryContextRequest {
+            """
+            Resolve one actor working-memory lane into evidence-labeled context.
+            """
+
+            response aware_memory_service_dto.memory.working.ResolveMemoryContextResponse
+        }
+    }
+
+    capability resolve_actor_memory_context {
+        endpoint resolve_actor_memory_context aware_memory_service_dto.memory.working.ResolveActorMemoryContextRequest {
+            """
+            Validate actor/session context through Identity, then resolve usable Memory evidence.
+            """
+
+            response aware_memory_service_dto.memory.working.ResolveActorMemoryContextResponse
+        }
+    }
+
+    capability watch_actor_memory_context {
+        endpoint watch_actor_memory_context aware_memory_service_dto.memory.working.WatchActorMemoryContextRequest {
+            """
+            Read and stream actor-scoped Memory context snapshots.
+            """
+
+            response aware_memory_service_dto.memory.working.WatchActorMemoryContextResponse
+
+            stream server {
+                """
+                Canonical streamed Memory actor-context snapshots.
+                """
+
+                event snapshot aware_memory_service_dto.memory.working.MemoryActorContextEvent;
+            }
+        }
+    }
+
+    capability resolve_actor_memory_context_frame {
+        endpoint resolve_actor_memory_context_frame aware_memory_service_dto.memory.working.ResolveActorMemoryContextFrameRequest {
+            """
+            Resolve actor-scoped Memory context into a compact consumer frame.
+            """
+
+            response aware_memory_service_dto.memory.working.ResolveActorMemoryContextFrameResponse
+        }
+    }
+
+    capability watch_actor_memory_context_frame {
+        endpoint watch_actor_memory_context_frame aware_memory_service_dto.memory.working.WatchActorMemoryContextFrameRequest {
+            """
+            Read and stream actor-scoped Memory consumer frames.
+            """
+
+            response aware_memory_service_dto.memory.working.WatchActorMemoryContextFrameResponse
+
+            stream server {
+                """
+                Canonical streamed Memory actor-context consumer frames.
+                """
+
+                event snapshot aware_memory_service_dto.memory.working.MemoryActorContextFrameEvent;
+            }
+        }
+    }
+
+    capability remember_attention_transition {
+        endpoint remember_attention_transition aware_memory_service_dto.memory.working.RememberAttentionTransitionRequest {
+            """
+            Validate and retain one AttentionFocusTransition pointer in working memory.
+            """
+
+            response aware_memory_service_dto.memory.working.RememberAttentionTransitionResponse
+        }
+    }
+
+    capability remember_content {
+        endpoint remember_content aware_memory_service_dto.memory.working.RememberContentRequest {
+            """
+            Retain one Content pointer in working memory.
+            """
+
+            response aware_memory_service_dto.memory.working.RememberContentResponse
+        }
+    }
+
+    capability remember_event {
+        endpoint remember_event aware_memory_service_dto.memory.working.RememberEventRequest {
+            """
+            Retain one Reactivity Event pointer in working memory.
+            """
+
+            response aware_memory_service_dto.memory.working.RememberEventResponse
+        }
+    }
+
+    capability record_resolved_event_meaning {
+        endpoint record_resolved_event_meaning aware_memory_service_dto.memory.working.RecordResolvedEventMeaningRequest {
+            """
+            Persist one provider-neutral resolved meaning under a verified
+            remembered event with resolver terminal provenance.
+            """
+
+            response aware_memory_service_dto.memory.working.RecordResolvedEventMeaningResponse
+        }
+    }
+
+    graph aware_memory {
+        projection aware_memory.MemoryWorking;
+    }
+}

@@ -111,6 +111,16 @@ class CodeGrammarGraphSelector:
 
 
 @dataclass(frozen=True, slots=True)
+class CodeGrammarTemplateValueBinding:
+    """Provider-declared grammar context value for semantic-key rendering."""
+
+    value_key: str
+    field_path: str
+    grammar_rule_name: str | None = None
+    required: bool = True
+
+
+@dataclass(frozen=True, slots=True)
 class CodeGrammarAnchorQuery:
     binding_key: str
     language: str
@@ -121,6 +131,8 @@ class CodeGrammarAnchorQuery:
     anchor_role: str | None = None
     value_domain: str | None = None
     direction: str | None = None
+    semantic_key_template: str | None = None
+    template_value_bindings: tuple[CodeGrammarTemplateValueBinding, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -295,9 +307,7 @@ class CodeGrammarSourceIndexCache:
             sources=sources_tuple,
             session_context=session_context,
         )
-        source_cache_keys = (
-            (cache_key.value,) if cache_key is not None else ()
-        )
+        source_cache_keys = (cache_key.value,) if cache_key is not None else ()
         session_cache_keys = (
             ()
             if explicit_cache_keys
@@ -401,9 +411,7 @@ class CodeGrammarSourceIndexCache:
         *,
         session_context: SemanticSourceSessionContext | None,
     ) -> "CodeGrammarSourceIndex | None":
-        for cache_key in semantic_source_index_cache_keys_from_context(
-            session_context
-        ):
+        for cache_key in semantic_source_index_cache_keys_from_context(session_context):
             cached = self.get_by_cache_key(
                 cache_key=cache_key,
                 session_context=session_context,
@@ -660,6 +668,11 @@ def _resolve_anchors_from_record(
             query=query,
             source_bytes=record.source_bytes,
         )
+        if not _template_values_match_semantic_key(
+            query=query,
+            template_values=template_values,
+        ):
+            continue
         graph_selector = _resolved_graph_selector(
             selector=query.graph_selector,
             template_values=template_values,
@@ -693,6 +706,22 @@ def _resolve_anchors_from_record(
     return tuple(resolutions)
 
 
+def _template_values_match_semantic_key(
+    *,
+    query: CodeGrammarAnchorQuery,
+    template_values: Mapping[str, str],
+) -> bool:
+    template = query.semantic_key_template
+    expected = query.graph_selector.semantic_key
+    if template is None or expected is None:
+        return True
+    try:
+        resolved = template.format_map(dict(template_values))
+    except (KeyError, ValueError):
+        return False
+    return resolved == expected
+
+
 def _template_values_for_node(
     *,
     node: Node,
@@ -700,6 +729,13 @@ def _template_values_for_node(
     source_bytes: bytes,
 ) -> dict[str, str]:
     values: dict[str, str] = {}
+    values.update(
+        _declared_template_values_for_node(
+            node=node,
+            bindings=query.template_value_bindings,
+            source_bytes=source_bytes,
+        )
+    )
     if query.grammar_rule_name == "attr_def":
         name_node = node.child_by_field_name("name")
         if name_node is not None:
@@ -875,6 +911,44 @@ def _template_values_for_node(
         values.setdefault("field_name", values["enum_option_value"])
         values.setdefault("field_path", values["enum_option_path"])
     return values
+
+
+def _declared_template_values_for_node(
+    *,
+    node: Node,
+    bindings: tuple[CodeGrammarTemplateValueBinding, ...],
+    source_bytes: bytes,
+) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for binding in bindings:
+        context_node = _template_value_context_node(
+            node=node,
+            grammar_rule_name=binding.grammar_rule_name,
+        )
+        if context_node is None:
+            continue
+        value_node = _child_by_field_path(
+            context_node,
+            binding.field_path,
+            source_bytes=source_bytes,
+        )
+        if value_node is None:
+            continue
+        values[binding.value_key] = _node_text(
+            source_bytes=source_bytes,
+            node=value_node,
+        )
+    return values
+
+
+def _template_value_context_node(
+    *,
+    node: Node,
+    grammar_rule_name: str | None,
+) -> Node | None:
+    if grammar_rule_name is None or grammar_rule_name == node.type:
+        return node
+    return _nearest_parent_by_type(node=node, node_type=grammar_rule_name)
 
 
 def _resolved_graph_selector(
@@ -1438,6 +1512,7 @@ __all__ = [
     "CodeGrammarAnchorResolution",
     "CodeGrammarGraphSelector",
     "CodeGrammarSource",
+    "CodeGrammarTemplateValueBinding",
     "CodeGrammarSourceIndex",
     "CodeGrammarSourceIndexCache",
     "CodeGrammarSourceIndexCacheKey",

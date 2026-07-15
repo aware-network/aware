@@ -1,8 +1,8 @@
 /// Canonical Reactivity service API operation DTOs.
 ///
 /// These operations expose Reactivity-owned event/action streams. Upstream
-/// commit truth is consumed by the service through Meta lane fanout, not
-/// through local graph store access.
+/// commit truth is consumed by the service through Environment SDK/API fanout,
+/// not through local graph store access.
 
 class ReactivityServiceStatusRequest {
     request_id UUID?
@@ -12,8 +12,12 @@ class ReactivityServiceStatusRequest {
 class ReactivityServiceStatusResponse {
     request_id UUID?
     service_id String = "reactivity"
-    active Bool = true
-    upstream_source String = "meta_lane_fanout"
+    active Bool = false
+    upstream_source String = "environment_service_api_fanout"
+    environment_fanout_attached Bool = false
+    environment_fanout_running Bool = false
+    identity_subscription_route_ready Bool = false
+    blockers String[] = []
     info String?
     error String?
 }
@@ -33,6 +37,27 @@ class ReactivityEventSubscriptionResponse {
     accepted Bool = true
     upstream_source String = "meta_lane_fanout"
     resume_after_event_id UUID?
+    info String?
+    error String?
+}
+
+/// Publish one provider-neutral committed semantic event occurrence.
+///
+/// Publication is observation ingress only. The event carries no action
+/// target or request payload; ActorSubscription resolution remains on the
+/// separate action-intent boundary.
+class ReactivitySemanticEventPublishRequest {
+    request_id UUID?
+    publisher_id String
+    event ActorReactivityBridgeEvent
+}
+
+class ReactivitySemanticEventPublishResponse {
+    request_id UUID?
+    accepted Bool = true
+    published Bool = false
+    duplicate Bool = false
+    event_id UUID?
     info String?
     error String?
 }

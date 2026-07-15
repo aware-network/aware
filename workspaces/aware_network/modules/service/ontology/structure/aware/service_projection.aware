@@ -1,0 +1,127 @@
+projection ServiceConfig {
+    root service.ServiceConfig
+    service.ServiceConfig::apis
+    service.ServiceConfig::code_package_configs
+    service.ServiceConfigCodePackageConfig::code_package_config aware_code.CodePackageConfig
+    service.ServiceConfig::contract_configs
+    service.ServiceConfig::experiences
+    service.ServiceConfigApi::api aware_api.Api
+    service.ServiceConfigApi::api_projections
+    service.ServiceConfigApiProjection::api_graph_projection aware_api.Api
+    service.ServiceConfigExperience::projection_experience aware_experience.ProjectionExperience
+    service.ServiceConfig::service_operation_configs
+    service.ServiceOperationConfig::api_endpoints
+    service.ServiceOperationConfig::api_views
+    service.ServiceOperationConfig::role_requirements
+    service.ServiceOperationConfigApiEndpoint::endpoint_functions
+    service.ServiceOperationConfigApiEndpointFunction::api_capability_endpoint_function aware_api.Api
+    service.ServiceOperationConfigApiEndpoint::service_config_api
+    service.ServiceOperationConfigApiEndpoint::api_capability_endpoint aware_api.Api
+    service.ServiceOperationConfigApiView::service_config_api
+    service.ServiceOperationConfigApiView::api_view aware_api.Api
+    service.ServiceOperationConfigRoleRequirement::role_config aware_identity.RoleConfig
+    service.ServiceConfig::services Service
+    service.ServiceContractConfig::actor_role_grants
+    service.ServiceContractConfig::operation_grants
+    service.ServiceContractConfig::projection_experience aware_experience.ProjectionExperience
+    service.ServiceContractConfigActorRoleGrant::role_config aware_identity.RoleConfig
+    service.ServiceContractConfigOperationGrant::service_operation_config
+    service.ServiceContractConfigOperationGrant::quota_policy
+    service.ServiceContractConfigOperationGrant::permit_policy
+    service.ServiceContractConfigOperationGrant::price_policy
+
+    observable home {
+        """
+        Service capability definition overview, including shared API bridge truth,
+        Experience view fulfillment, and ActorRole operation requirements.
+        """
+    }
+}
+
+projection Service {
+    root service.Service
+    service.Service::branches
+    service.Service::commercial_profile ServiceCommercialProfile
+    service.Service::contracts ServiceContract
+    service.Service::plans
+    service.ServiceBranch::service_config_api_projection ServiceConfig
+    service.ServiceBranch::object_instance_graph_branch aware_meta.ObjectInstanceGraphIdentity
+    service.ServicePlan::coin aware_economy.Coin
+    service.ServicePlan::smart_contract_config aware_economy.SmartContractConfig
+    service.Service::service_operations
+    service.ServiceOperation::api_call aware_api.ApiCall
+    service.ServiceOperation::service_operation_config ServiceConfig
+    service.ServiceOperation::api_endpoint ServiceConfig
+
+    observable home {
+        """
+        Service instance overview, including live commercial profile, contract portals,
+        pricing plans, and runtime operation receipts.
+        """
+    }
+}
+
+projection ServiceCommercialProfile {
+    root service.ServiceCommercialProfile
+    service.ServiceCommercialProfile::producer_finance_entity aware_economy.FinanceEntity
+    service.ServiceCommercialProfile::default_smart_contract_config aware_economy.SmartContractConfig
+
+    observable home {
+        """
+        Live producer-side commercial profile for one Service.
+        """
+    }
+}
+
+projection ServiceContract {
+    root service.ServiceContract
+    service.ServiceContract::commercial_profile ServiceCommercialProfile
+    service.ServiceContract::service_contract_config ServiceConfig
+    service.ServiceContract::producer_finance_entity aware_economy.FinanceEntity
+    service.ServiceContract::consumer_finance_entity aware_economy.FinanceEntity
+    service.ServiceContract::smart_contract aware_economy.SmartContract
+    service.ServiceContract::economy_settlement
+    service.ServiceContractEconomySettlement::permit aware_economy.SmartContract
+    service.ServiceContractEconomySettlement::payer_wallet aware_economy.Wallet
+    service.ServiceContractEconomySettlement::payer_wallet_public aware_economy.Wallet
+    service.ServiceContractEconomySettlement::receiver_wallet aware_economy.Wallet
+    service.ServiceContractEconomySettlement::receiver_wallet_public aware_economy.Wallet
+    service.ServiceContractEconomySettlement::coin aware_economy.Coin
+
+    observable home {
+        """
+        Service-owned commercial agreement receipt backed by Economy primitives
+        and one reusable ServiceContractConfig.
+        """
+    }
+}
+
+projection ServicePlan {
+    root service.ServicePlan
+    service.ServicePlan::coin aware_economy.Coin
+    service.ServicePlan::smart_contract_config aware_economy.SmartContractConfig
+
+    observable home {
+        """
+        Canonical provider pricing plan overview for one Service.
+        """
+    }
+}
+
+projection ServiceSubscription {
+    root service.ServiceSubscription
+    service.ServiceSubscription::service Service
+    service.ServiceSubscription::plan ServicePlan
+    service.ServiceSubscription::cycles
+    service.ServiceSubscription::invoices
+    service.ServiceSubscriptionCycle::invoice
+    service.ServiceSubscriptionInvoice::coin aware_economy.Coin
+    service.ServiceSubscription::consumer_finance_entity aware_economy.FinanceEntity
+    service.ServiceSubscription::contract aware_economy.SmartContract
+
+    observable home {
+        """
+        Canonical consumer subscription overview linked to a Service plan and economy primitives.
+        """
+    }
+}

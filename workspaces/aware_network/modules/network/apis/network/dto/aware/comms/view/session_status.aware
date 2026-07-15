@@ -1,0 +1,17 @@
+/// API-owned view-state contract for NetworkNode session readiness.
+/// Public API view key: network.session_status
+
+class NetworkNodeSessionStatusViewStateV1 : inline_value {
+    managed Bool = false
+    available Bool = false
+    ready Bool = false
+    phase String = "idle"
+    active_target_id String?
+    target_key String?
+    display_name String?
+    backend_kind String?
+    summary String?
+    error String?
+    recent_log_lines String[] = []
+    target_statuses JsonObject[] = []
+}

@@ -1,0 +1,23 @@
+class NodeConfigInterfaceTarget {
+    // Relationships
+    interface_config aware_interface.interface.InterfaceConfig?
+
+    // Attributes
+    interface_name String key
+
+    fn build construct(
+        interface_name String key
+    ) -> NodeConfigInterfaceTarget {
+        """
+        Create one Node-owned interface target by canonical interface name.
+
+        Contract:
+        - Parent `NodeConfig` scope is injected by propagation.
+        - Identity is keyed by `(node_config_id, interface_name)`.
+        - The target `InterfaceConfig` portal is resolved from `interface_name` without storing a
+          raw relationship-id attribute as semantic source.
+        """
+    }
+}
+
+ann node.NodeConfigInterfaceTarget::interface_config load eager

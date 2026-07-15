@@ -1,0 +1,23 @@
+aware_experience = 1
+
+[experience]
+package_name = "aware-economy-experience"
+fqn_prefix = "aware_economy_experience"
+version_number = 1
+title = "Aware Economy"
+description = "Canonical Economy experience package for wallet-first capital surfaces and future capital compiler flows."
+
+[build]
+environment_handle = "kernel"
+sources_dir = "."
+include_paths = ["experiences.aware", "graphs.aware", "environments.aware", "events/**/*.aware", "actions/**/*.aware", "connectors/**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+
+[targets.dart]
+root_dir = "languages/dart"
+package_dir = "aware_economy_experience"
+
+[targets.python]
+root_dir = "languages/python"
+package_dir = "aware_economy_experience"

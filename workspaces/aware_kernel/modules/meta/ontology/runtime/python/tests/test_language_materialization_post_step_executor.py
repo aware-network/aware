@@ -6,13 +6,20 @@ from types import SimpleNamespace
 
 import pytest
 
-from aware_meta.materialization import post_step_executor
+from aware_meta.materialization import (
+    LanguageMaterializationPostStepInput,
+    post_step_executor,
+)
 from aware_code.language.registry import CodeLanguagePluginRegistry
 from aware_code.setup_language_plugins import setup_code_plugins
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_meta.materialization.post_step_executor import (
     LanguageMaterializationPostStepExecutionRequest,
     execute_language_materialization_post_steps,
+)
+from aware_meta.materialization_diagnostics import (
+    MaterializationDiagnosticError,
+    materialization_failure_details,
 )
 
 
@@ -74,7 +81,7 @@ def test_meta_post_step_executor_requires_cli_tool_state_env(
     source.parent.mkdir(parents=True)
     source.write_text("class Demo {}\n", encoding="utf-8")
 
-    with pytest.raises(RuntimeError, match="language_tooling_state_required"):
+    with pytest.raises(MaterializationDiagnosticError) as caught:
         execute_language_materialization_post_steps(
             LanguageMaterializationPostStepExecutionRequest(
                 target_language_plugin_id=CodeLanguage.dart,
@@ -84,6 +91,463 @@ def test_meta_post_step_executor_requires_cli_tool_state_env(
                 materialization_source="ontology",
             )
         )
+
+    diagnostic = materialization_failure_details(caught.value)[
+        "materialization_diagnostic"
+    ]
+    assert isinstance(diagnostic, dict)
+    assert diagnostic == {
+        "schema": "aware.materialization.diagnostic.v1",
+        "code": "materialization.tooling.required_state_missing",
+        "classification": "compiler_error",
+        "message": (
+            "Materialization post-step 'dart.pub_get' is missing required Workspace "
+            "tooling state bindings: HOME, PUB_CACHE."
+        ),
+        "phase": "post_step_tool_state_validation",
+        "remediation": (
+            "Repair or escalate the Workspace-to-Meta tooling context so it "
+            "supplies the declared workspace-local state bindings, then "
+            "rematerialize after the compiler integration changes. Do not work "
+            "around this contract by exporting user-global tool state. Generated "
+            "outputs were already applied before validation failed."
+        ),
+        "outputs_applied": True,
+        "exception_type": "MaterializationDiagnosticError",
+        "target_language": "dart",
+        "output_path": output_root.as_posix(),
+        "context": {
+            "tool_id": "dart.pub_get",
+            "missing_state_keys": ("home", "pub_cache"),
+            "missing_env_names": ("HOME", "PUB_CACHE"),
+            "target_count": 1,
+        },
+    }
+    assert str(tmp_path) not in str(diagnostic["context"])
+
+
+def test_meta_post_step_executor_classifies_missing_cli_executable_honestly(
+    builtin_code_language_plugins: None,
+    tmp_path: Path,
+) -> None:
+    _ = builtin_code_language_plugins
+    output_root = tmp_path / "dart"
+    source = output_root / "lib" / "demo.dart"
+    source.parent.mkdir(parents=True)
+    source.write_text("class Demo {}\n", encoding="utf-8")
+    missing_executable = tmp_path / "missing-toolchain" / "dart"
+
+    with pytest.raises(MaterializationDiagnosticError) as caught:
+        execute_language_materialization_post_steps(
+            LanguageMaterializationPostStepExecutionRequest(
+                target_language_plugin_id=CodeLanguage.dart,
+                output_root=output_root,
+                generated_file_paths=(source,),
+                package_name="aware-demo-ontology",
+                materialization_source="ontology",
+                tool_env_by_tool_id={
+                    "dart.pub_get": {
+                        "HOME": str(tmp_path / "tool-home"),
+                        "PUB_CACHE": str(tmp_path / "pub-cache"),
+                    },
+                },
+                executable_overrides_by_tool_id={
+                    "dart.pub_get": {"dart": str(missing_executable)},
+                },
+            )
+        )
+
+    assert source.read_text(encoding="utf-8") == "class Demo {}\n"
+    diagnostic = materialization_failure_details(caught.value)[
+        "materialization_diagnostic"
+    ]
+    assert diagnostic == {
+        "schema": "aware.materialization.diagnostic.v1",
+        "code": "materialization.tooling.executable_unavailable",
+        "classification": "external_dependency",
+        "message": (
+            "Materialization post-step 'dart.pub_get' could not launch executable "
+            f"{str(missing_executable)!r}."
+        ),
+        "phase": "post_step_tool_execution",
+        "remediation": (
+            "Restore the declared executable or configure a valid tooling "
+            "executable override, then rematerialize after the external dependency "
+            "state changes. Generated outputs were already applied before this "
+            "post-step failed."
+        ),
+        "outputs_applied": True,
+        "exception_type": "MaterializationDiagnosticError",
+        "target_language": "dart",
+        "output_path": output_root.as_posix(),
+        "context": {
+            "tool_id": "dart.pub_get",
+            "executable": str(missing_executable),
+            "target_count": 1,
+            "cause_exception_type": "FileNotFoundError",
+        },
+    }
+    assert "HOME" not in str(diagnostic)
+    assert "PUB_CACHE" not in str(diagnostic)
+
+
+def test_meta_post_step_executor_reports_bounded_unclassified_nonzero_exit(
+    builtin_code_language_plugins: None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _ = builtin_code_language_plugins
+    output_root = tmp_path / "dart"
+    source = output_root / "lib" / "demo.dart"
+    source.parent.mkdir(parents=True)
+    source.write_text("class Demo {}\n", encoding="utf-8")
+
+    tool_output = "tool rejected its input: " + ("x" * 5000)
+    monkeypatch.setattr(
+        post_step_executor.subprocess,
+        "run",
+        lambda *args, **kwargs: SimpleNamespace(
+            returncode=2,
+            stdout="",
+            stderr=tool_output,
+        ),
+    )
+
+    with pytest.raises(MaterializationDiagnosticError) as caught:
+        execute_language_materialization_post_steps(
+            LanguageMaterializationPostStepExecutionRequest(
+                target_language_plugin_id=CodeLanguage.dart,
+                output_root=output_root,
+                generated_file_paths=(source,),
+                package_name="aware-demo-ontology",
+                materialization_source="ontology",
+                tool_env_by_tool_id={
+                    "dart.pub_get": {
+                        "HOME": str(tmp_path / "tool-home"),
+                        "PUB_CACHE": str(tmp_path / "pub-cache"),
+                    },
+                },
+            )
+        )
+
+    diagnostic = materialization_failure_details(caught.value)[
+        "materialization_diagnostic"
+    ]
+    assert isinstance(diagnostic, dict)
+    assert diagnostic["code"] == "materialization.tooling.nonzero_exit"
+    assert diagnostic["classification"] == "unclassified_failure"
+    assert diagnostic["phase"] == "post_step_tool_execution"
+    assert diagnostic["outputs_applied"] is True
+    assert diagnostic["target_language"] == "dart"
+    assert diagnostic["output_path"] == output_root.as_posix()
+    message = diagnostic["message"]
+    assert isinstance(message, str)
+    assert message.startswith(
+        "Materialization post-step 'dart.pub_get' exited with code 2: "
+    )
+    assert message.endswith("...")
+    context = diagnostic["context"]
+    assert isinstance(context, dict)
+    assert context["tool_id"] == "dart.pub_get"
+    assert context["tool_role"] == "dependency_resolver"
+    assert context["executable"] == "dart"
+    assert context["exit_code"] == 2
+    assert context["network_required"] is True
+    assert context["target_count"] == 1
+    assert context["output_stream"] == "stderr"
+    output_excerpt = context["output_excerpt"]
+    assert isinstance(output_excerpt, str)
+    assert len(output_excerpt) == 4000
+    assert output_excerpt.endswith("...")
+    assert context["output_truncated"] is True
+    assert source.read_text(encoding="utf-8") == "class Demo {}\n"
+
+
+def test_meta_post_step_executor_reports_nonzero_exit_without_tool_output(
+    builtin_code_language_plugins: None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _ = builtin_code_language_plugins
+    output_root = tmp_path / "dart"
+    source = output_root / "lib" / "demo.dart"
+    source.parent.mkdir(parents=True)
+    source.write_text("class Demo {}\n", encoding="utf-8")
+    monkeypatch.setattr(
+        post_step_executor.subprocess,
+        "run",
+        lambda *args, **kwargs: SimpleNamespace(
+            returncode=3,
+            stdout="",
+            stderr="",
+        ),
+    )
+
+    with pytest.raises(MaterializationDiagnosticError) as caught:
+        execute_language_materialization_post_steps(
+            LanguageMaterializationPostStepExecutionRequest(
+                target_language_plugin_id=CodeLanguage.dart,
+                output_root=output_root,
+                generated_file_paths=(source,),
+                package_name="aware-demo-ontology",
+                materialization_source="ontology",
+                tool_env_by_tool_id={
+                    "dart.pub_get": {
+                        "HOME": str(tmp_path / "tool-home"),
+                        "PUB_CACHE": str(tmp_path / "pub-cache"),
+                    },
+                },
+            )
+        )
+
+    diagnostic = materialization_failure_details(caught.value)[
+        "materialization_diagnostic"
+    ]
+    assert isinstance(diagnostic, dict)
+    assert diagnostic["message"] == (
+        "Materialization post-step 'dart.pub_get' exited with code 3."
+    )
+    context = diagnostic["context"]
+    assert isinstance(context, dict)
+    assert context["output_stream"] == "none"
+    assert context["output_excerpt"] == ""
+    assert context["output_truncated"] is False
+
+
+def test_meta_post_step_executor_reports_bounded_timeout_partial_bytes(
+    builtin_code_language_plugins: None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _ = builtin_code_language_plugins
+    output_root = tmp_path / "dart"
+    source = output_root / "lib" / "demo.dart"
+    source.parent.mkdir(parents=True)
+    source.write_text("class Demo {}\n", encoding="utf-8")
+    partial_stderr = b"partial timeout output: \xff" + (b"x" * 5000)
+
+    def _raise_timeout(*args: object, **kwargs: object) -> SimpleNamespace:
+        raise post_step_executor.subprocess.TimeoutExpired(
+            cmd=("dart", "pub", "get"),
+            timeout=120.0,
+            output=b"partial stdout",
+            stderr=partial_stderr,
+        )
+
+    monkeypatch.setattr(post_step_executor.subprocess, "run", _raise_timeout)
+
+    with pytest.raises(MaterializationDiagnosticError) as caught:
+        execute_language_materialization_post_steps(
+            LanguageMaterializationPostStepExecutionRequest(
+                target_language_plugin_id=CodeLanguage.dart,
+                output_root=output_root,
+                generated_file_paths=(source,),
+                package_name="aware-demo-ontology",
+                materialization_source="ontology",
+                tool_env_by_tool_id={
+                    "dart.pub_get": {
+                        "HOME": str(tmp_path / "tool-home"),
+                        "PUB_CACHE": str(tmp_path / "pub-cache"),
+                    },
+                },
+            )
+        )
+
+    diagnostic = materialization_failure_details(caught.value)[
+        "materialization_diagnostic"
+    ]
+    assert isinstance(diagnostic, dict)
+    assert diagnostic["code"] == "materialization.tooling.timeout"
+    assert diagnostic["classification"] == "unclassified_failure"
+    assert diagnostic["phase"] == "post_step_tool_execution"
+    assert diagnostic["outputs_applied"] is True
+    message = diagnostic["message"]
+    assert isinstance(message, str)
+    assert message.startswith(
+        "Materialization post-step 'dart.pub_get' timed out after 120.0 seconds: "
+        "partial timeout output: �"
+    )
+    assert message.endswith("...")
+    assert "b'" not in message
+    context = diagnostic["context"]
+    assert isinstance(context, dict)
+    assert context["tool_id"] == "dart.pub_get"
+    assert context["tool_role"] == "dependency_resolver"
+    assert context["executable"] == "dart"
+    assert context["timeout_s"] == 120.0
+    assert context["network_required"] is True
+    assert context["target_count"] == 1
+    assert context["output_stream"] == "stderr"
+    output_excerpt = context["output_excerpt"]
+    assert isinstance(output_excerpt, str)
+    assert len(output_excerpt) == 4000
+    assert output_excerpt.startswith("partial timeout output: �")
+    assert output_excerpt.endswith("...")
+    assert context["output_truncated"] is True
+    assert context["cause_exception_type"] == "TimeoutExpired"
+    assert source.read_text(encoding="utf-8") == "class Demo {}\n"
+
+
+def test_meta_post_step_executor_reports_timeout_without_partial_output(
+    builtin_code_language_plugins: None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _ = builtin_code_language_plugins
+    output_root = tmp_path / "dart"
+    source = output_root / "lib" / "demo.dart"
+    source.parent.mkdir(parents=True)
+    source.write_text("class Demo {}\n", encoding="utf-8")
+
+    def _raise_timeout(*args: object, **kwargs: object) -> SimpleNamespace:
+        raise post_step_executor.subprocess.TimeoutExpired(
+            cmd=("dart", "pub", "get"),
+            timeout=12.5,
+        )
+
+    monkeypatch.setattr(post_step_executor.subprocess, "run", _raise_timeout)
+
+    with pytest.raises(MaterializationDiagnosticError) as caught:
+        execute_language_materialization_post_steps(
+            LanguageMaterializationPostStepExecutionRequest(
+                target_language_plugin_id=CodeLanguage.dart,
+                output_root=output_root,
+                generated_file_paths=(source,),
+                package_name="aware-demo-ontology",
+                materialization_source="ontology",
+                timeout_s=12.5,
+                tool_env_by_tool_id={
+                    "dart.pub_get": {
+                        "HOME": str(tmp_path / "tool-home"),
+                        "PUB_CACHE": str(tmp_path / "pub-cache"),
+                    },
+                },
+            )
+        )
+
+    diagnostic = materialization_failure_details(caught.value)[
+        "materialization_diagnostic"
+    ]
+    assert isinstance(diagnostic, dict)
+    assert diagnostic["message"] == (
+        "Materialization post-step 'dart.pub_get' timed out after 12.5 seconds."
+    )
+    context = diagnostic["context"]
+    assert isinstance(context, dict)
+    assert context["timeout_s"] == 12.5
+    assert context["output_stream"] == "none"
+    assert context["output_excerpt"] == ""
+    assert context["output_truncated"] is False
+
+
+def test_meta_post_step_executor_preserves_warned_structured_diagnostic(
+    builtin_code_language_plugins: None,
+    tmp_path: Path,
+) -> None:
+    _ = builtin_code_language_plugins
+    output_root = tmp_path / "dart"
+    source = output_root / "lib" / "demo.dart"
+    source.parent.mkdir(parents=True)
+    source.write_text("class Demo {}\n", encoding="utf-8")
+    missing_executable = tmp_path / "missing-toolchain" / "dart"
+
+    result = execute_language_materialization_post_steps(
+        LanguageMaterializationPostStepExecutionRequest(
+            target_language_plugin_id=CodeLanguage.dart,
+            output_root=output_root,
+            generated_file_paths=(source,),
+            package_name="aware-demo-ontology",
+            materialization_source="ontology",
+            explicit_steps=(
+                LanguageMaterializationPostStepInput(
+                    name="dart.pub_get",
+                    on_fail="warn",
+                ),
+            ),
+            tool_env_by_tool_id={
+                "dart.pub_get": {
+                    "HOME": str(tmp_path / "tool-home"),
+                    "PUB_CACHE": str(tmp_path / "pub-cache"),
+                },
+            },
+            executable_overrides_by_tool_id={
+                "dart.pub_get": {"dart": str(missing_executable)},
+            },
+        )
+    )
+
+    assert result.execution_results == ()
+    receipt = result.receipts[0]
+    assert receipt["status"] == "failed"
+    assert receipt["on_fail"] == "warn"
+    assert receipt["continued"] is True
+    diagnostic = receipt["materialization_diagnostic"]
+    assert isinstance(diagnostic, dict)
+    assert diagnostic["code"] == ("materialization.tooling.executable_unavailable")
+    assert diagnostic["classification"] == "external_dependency"
+    assert diagnostic["outputs_applied"] is True
+    assert any(
+        "[materialization.tooling.executable_unavailable]" in warning
+        for warning in result.warnings
+    )
+    assert source.read_text(encoding="utf-8") == "class Demo {}\n"
+
+
+def test_meta_post_step_executor_normalizes_warned_raw_exception(
+    builtin_code_language_plugins: None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _ = builtin_code_language_plugins
+    output_root = tmp_path / "dart"
+    source = output_root / "lib" / "demo.dart"
+    source.parent.mkdir(parents=True)
+    source.write_text("class Demo {}\n", encoding="utf-8")
+
+    def _raise_permission_error(*args: object, **kwargs: object) -> SimpleNamespace:
+        raise PermissionError("tool launch permission denied")
+
+    monkeypatch.setattr(
+        post_step_executor.subprocess,
+        "run",
+        _raise_permission_error,
+    )
+
+    result = execute_language_materialization_post_steps(
+        LanguageMaterializationPostStepExecutionRequest(
+            target_language_plugin_id=CodeLanguage.dart,
+            output_root=output_root,
+            generated_file_paths=(source,),
+            package_name="aware-demo-ontology",
+            materialization_source="ontology",
+            explicit_steps=(
+                LanguageMaterializationPostStepInput(
+                    name="dart.pub_get",
+                    on_fail="warn",
+                ),
+            ),
+            tool_env_by_tool_id={
+                "dart.pub_get": {
+                    "HOME": str(tmp_path / "tool-home"),
+                    "PUB_CACHE": str(tmp_path / "pub-cache"),
+                },
+            },
+        )
+    )
+
+    receipt = result.receipts[0]
+    diagnostic = receipt["materialization_diagnostic"]
+    assert isinstance(diagnostic, dict)
+    assert diagnostic["code"] == "materialization.unclassified_error"
+    assert diagnostic["classification"] == "unclassified_failure"
+    assert diagnostic["phase"] == "post_step_tool_execution"
+    assert diagnostic["outputs_applied"] is True
+    context = diagnostic["context"]
+    assert isinstance(context, dict)
+    assert context["cause_exception_type"] == "PermissionError"
+    assert context["tool_id"] == "dart.pub_get"
+    assert context["tool_role"] == "dependency_resolver"
+    assert context["target_count"] == 1
 
 
 def test_meta_post_step_executor_applies_cli_tool_env_and_executable_override(

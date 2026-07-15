@@ -1,0 +1,135 @@
+class ServiceConfig {
+    // Relationships
+    apis ServiceConfigApi[]
+    contract_configs ServiceContractConfig[]
+    code_package_configs ServiceConfigCodePackageConfig[]
+    experiences ServiceConfigExperience[]
+    service_operation_configs ServiceOperationConfig[]
+    services Service[]
+
+    // Attributes
+    description String?
+    name String key
+
+    fn build construct (
+        name String key,
+        description String? = null
+    ) -> ServiceConfig {
+        """
+        Creates one canonical service capability definition.
+        """
+    }
+
+    fn create_service_operation_config (
+        name String,
+        description String? = null,
+        price_id UUID? = null,
+        admission_mode ServiceOperationAdmissionMode = contract_required,
+        fulfillment_kind ServiceOperationFulfillmentKind = coordination,
+        receipt_policy ServiceOperationReceiptPolicy = committed,
+        settlement_policy ServiceOperationSettlementPolicy = none
+    ) -> ServiceOperationConfig {
+        """
+        Creates one operation definition under this ServiceConfig.
+        """
+        let created = construct service_operation_configs.build(
+            name = name,
+            description = description,
+            price_id = price_id,
+            admission_mode = admission_mode,
+            fulfillment_kind = fulfillment_kind,
+            receipt_policy = receipt_policy,
+            settlement_policy = settlement_policy,
+        )
+    }
+
+    fn create_service (
+        name String,
+        description String? = null
+    ) -> Service {
+        """
+        Creates one Service instance under this ServiceConfig.
+        """
+        let created = construct services.build(
+            name = name,
+            description = description,
+        )
+    }
+
+    fn create_contract_config (
+        name String key,
+        default_kind ServiceContractKind = subscription,
+        projection_experience_id UUID? = null,
+        description String? = null,
+        metadata_json JsonObject? = {}
+    ) -> ServiceContractConfig {
+        """
+        Creates one reusable contract configuration under this ServiceConfig.
+
+        Contract:
+        - ServiceContractConfig declares which operations and roles a kind of contract can grant.
+        - Concrete ServiceContract receipts reference this config when activated for a consumer.
+        - Commercial profile, subscription, and smart-contract receipts do not own reusable grant semantics.
+        """
+        let created = construct contract_configs.build(
+            name = name,
+            default_kind = default_kind,
+            projection_experience_id = projection_experience_id,
+            description = description,
+            metadata_json = metadata_json,
+        )
+    }
+
+    fn create_api (
+        api_id UUID,
+        description String? = null
+    ) -> ServiceConfigApi {
+        """
+        Creates one shared-API discovery bridge under this ServiceConfig.
+        """
+        let created = construct apis.build(
+            api_id = api_id,
+            description = description,
+        )
+    }
+
+    fn create_experience (
+        projection_experience_id UUID,
+        description String? = null
+    ) -> ServiceConfigExperience {
+        """
+        Creates one shared-Experience discovery bridge under this ServiceConfig.
+        """
+        let created = construct experiences.build(
+            projection_experience_id = projection_experience_id,
+            description = description,
+        )
+    }
+
+    fn declare_code_package_config (
+        slot_key String key,
+        code_package_config_id UUID key,
+        cardinality ServiceConfigCodePackageConfigCardinality = many,
+        required Bool = false,
+        description String? = null
+    ) -> ServiceConfigCodePackageConfig {
+        """
+        Declare one CodePackageConfig slot this ServiceConfig can activate.
+
+        Contract:
+        - This is service capability truth, not deployment selection.
+        - `slot_key` is service-local vocabulary such as `experience`.
+        - CodePackageConfig owns package kind, manifest, materialization, and runtime context truth.
+        - Node/deployment profiles later bind concrete CodePackage instances to this slot.
+        """
+        let created = construct code_package_configs.build(
+            slot_key = slot_key,
+            code_package_config_id = code_package_config_id,
+            cardinality = cardinality,
+            required = required,
+            description = description,
+        )
+    }
+}
+
+ann service.ServiceConfig::code_package_configs load eager

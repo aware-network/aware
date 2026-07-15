@@ -208,7 +208,7 @@ def test_oigi_primitive_row_backed_prestate_reuses_existing_attribute() -> None:
         attribute_config_id=attribute_config.id,
     )
     assert emission.attribute_id == expected_attribute_id
-    assert emission.attribute_change_draft is None
+    assert emission.attribute_change_body_draft is None
     assert emission.reused_before_fingerprint is True
     assert emission.row_backed_before_attribute is True
 
@@ -238,17 +238,22 @@ def test_oigi_primitive_row_backed_prestate_emits_update_not_create() -> None:
         attribute_config_id=attribute_config.id,
     )
     assert emission.attribute_id == expected_attribute_id
-    assert emission.attribute_change_draft is not None
-    assert emission.attribute_change_draft.operation == ChangeType.update
-    assert emission.attribute_change_draft.value_root_change.operation == (
-        ChangeType.update
+    assert emission.attribute_change_body_draft is not None
+    assert emission.attribute_change_body_draft.change.type == ChangeType.update
+    assert emission.attribute_change_body_draft.value_root_change is not None
+    assert (
+        emission.attribute_change_body_draft.value_root_change.change.type
+        == ChangeType.update
     )
-    assert emission.attribute_change_draft.value_root_change.attribute_value_id == (
-        stable_attribute_value_id(
-            parent_value_id=expected_attribute_id,
-            role="member",
-            position=0,
-            identity_key="root",
+    assert (
+        emission.attribute_change_body_draft.value_root_change.attribute_value_id
+        == (
+            stable_attribute_value_id(
+                parent_value_id=expected_attribute_id,
+                role="member",
+                position=0,
+                identity_key="root",
+            )
         )
     )
     assert emission.row_backed_before_attribute is True
@@ -273,17 +278,22 @@ def test_oigi_required_primitive_without_prestate_emits_create() -> None:
         attribute_config_id=attribute_config.id,
     )
     assert emission.attribute_id == expected_attribute_id
-    assert emission.attribute_change_draft is not None
-    assert emission.attribute_change_draft.operation == ChangeType.create
-    assert emission.attribute_change_draft.value_root_change.operation == (
-        ChangeType.create
+    assert emission.attribute_change_body_draft is not None
+    assert emission.attribute_change_body_draft.change.type == ChangeType.create
+    assert emission.attribute_change_body_draft.value_root_change is not None
+    assert (
+        emission.attribute_change_body_draft.value_root_change.change.type
+        == ChangeType.create
     )
-    assert emission.attribute_change_draft.value_root_change.attribute_value_id == (
-        stable_attribute_value_id(
-            parent_value_id=expected_attribute_id,
-            role="member",
-            position=0,
-            identity_key="root",
+    assert (
+        emission.attribute_change_body_draft.value_root_change.attribute_value_id
+        == (
+            stable_attribute_value_id(
+                parent_value_id=expected_attribute_id,
+                role="member",
+                position=0,
+                identity_key="root",
+            )
         )
     )
     assert emission.row_backed_before_attribute is False
@@ -302,10 +312,12 @@ def test_oigi_optional_primitive_without_prestate_emits_create() -> None:
         created_at=datetime.now(UTC),
     )
 
-    assert emission.attribute_change_draft is not None
-    assert emission.attribute_change_draft.operation == ChangeType.create
-    assert emission.attribute_change_draft.value_root_change.operation == (
-        ChangeType.create
+    assert emission.attribute_change_body_draft is not None
+    assert emission.attribute_change_body_draft.change.type == ChangeType.create
+    assert emission.attribute_change_body_draft.value_root_change is not None
+    assert (
+        emission.attribute_change_body_draft.value_root_change.change.type
+        == ChangeType.create
     )
     assert emission.row_backed_before_attribute is False
 

@@ -21,6 +21,7 @@ from aware_code.semantic_materialization import (
     SEMANTIC_SOURCE_SESSION_SOURCE_INDEX_CACHE_KIND,
     SemanticSourceSessionContext,
 )
+from aware_code.grammar_anchor.value_codec import decode_aware_string_literal
 from aware_code.source_index import (
     CodeGrammarAnchorQuery,
     CodeGrammarAnchorResolution,
@@ -28,6 +29,7 @@ from aware_code.source_index import (
     CodeGrammarSourceIndex,
     CodeGrammarSourceIndexCache,
     CodeGrammarSource,
+    CodeGrammarTemplateValueBinding,
 )
 
 
@@ -58,6 +60,53 @@ CodeSemanticSourceDeltaMeaningResolutionMode = Literal[
 
 
 @dataclass(frozen=True, slots=True)
+class CodeSemanticSourceMeaningTypedOperationBinding:
+    """Typed operation policy emitted for one matching meaning event."""
+
+    semantic_operation_type: str
+    operation_key_template: str | None = None
+    event_verbs: tuple[SemanticCapabilityEventVerb, ...] = ()
+    operation_family: SemanticCapabilityEventVerb | None = None
+    semantic_subject_type: str | None = None
+    field_path: str | None = None
+    requires_baseline_object_identity: bool = False
+    contract_source: str | None = None
+    semantic_apply_boundary: str | None = None
+    preview_only: bool = True
+    fallback_required: bool = False
+    fallback_reason: str | None = None
+    generated_materialization_intent: Mapping[str, object] | None = None
+
+    def evidence_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "event_verbs": self.event_verbs,
+            "semantic_operation_type": self.semantic_operation_type,
+            "requires_baseline_object_identity": (
+                self.requires_baseline_object_identity
+            ),
+            "preview_only": self.preview_only,
+            "fallback_required": self.fallback_required,
+        }
+        optional_values = {
+            "operation_key_template": self.operation_key_template,
+            "operation_family": self.operation_family,
+            "semantic_subject_type": self.semantic_subject_type,
+            "field_path": self.field_path,
+            "contract_source": self.contract_source,
+            "semantic_apply_boundary": self.semantic_apply_boundary,
+            "fallback_reason": self.fallback_reason,
+        }
+        payload.update(
+            (key, value) for key, value in optional_values.items() if value is not None
+        )
+        if self.generated_materialization_intent is not None:
+            payload["generated_materialization_intent"] = dict(
+                self.generated_materialization_intent
+            )
+        return payload
+
+
+@dataclass(frozen=True, slots=True)
 class CodeSemanticSourceMeaningBinding:
     """Declarative source-to-semantic meaning binding over a grammar anchor."""
 
@@ -75,6 +124,10 @@ class CodeSemanticSourceMeaningBinding:
     event_key_template: str | None = None
     event_type: str = "semantic_change"
     condition_keys: tuple[str, ...] = ()
+    template_value_bindings: tuple[CodeGrammarTemplateValueBinding, ...] = ()
+    typed_operation_bindings: tuple[
+        CodeSemanticSourceMeaningTypedOperationBinding, ...
+    ] = ()
     required: bool = True
     metadata: Mapping[str, object] = field(default_factory=dict)
 
@@ -88,6 +141,7 @@ class CodeSemanticSourceMeaningBinding:
             graph_selector=self.graph_selector,
             anchor_role=self.anchor_role,
             value_domain=self.value_domain,
+            template_value_bindings=self.template_value_bindings,
         )
 
     def evidence_payload(self) -> dict[str, object]:
@@ -102,6 +156,18 @@ class CodeSemanticSourceMeaningBinding:
             "semantic_field": self.semantic_field,
             "event_type": self.event_type,
             "condition_keys": self.condition_keys,
+            "template_value_bindings": tuple(
+                {
+                    "value_key": item.value_key,
+                    "field_path": item.field_path,
+                    "grammar_rule_name": item.grammar_rule_name,
+                    "required": item.required,
+                }
+                for item in self.template_value_bindings
+            ),
+            "typed_operation_bindings": tuple(
+                item.evidence_payload() for item in self.typed_operation_bindings
+            ),
             "required": self.required,
             "metadata": dict(self.metadata),
         }
@@ -771,6 +837,51 @@ def _validate_contract(*, contract: CodeSemanticSourceMeaningContract) -> list[s
             diagnostics.append(f"{prefix}.semantic_key_template is required.")
         if not binding.semantic_field.strip():
             diagnostics.append(f"{prefix}.semantic_field is required.")
+        seen_value_keys: set[str] = set()
+        for value_index, value_binding in enumerate(binding.template_value_bindings):
+            value_prefix = f"{prefix}.template_value_bindings[{value_index}]"
+            if not value_binding.value_key.strip():
+                diagnostics.append(f"{value_prefix}.value_key is required.")
+            elif value_binding.value_key in seen_value_keys:
+                diagnostics.append(
+                    f"{value_prefix}.value_key {value_binding.value_key!r} "
+                    "is duplicated."
+                )
+            seen_value_keys.add(value_binding.value_key)
+            if not value_binding.field_path.strip():
+                diagnostics.append(f"{value_prefix}.field_path is required.")
+            if (
+                value_binding.grammar_rule_name is not None
+                and not value_binding.grammar_rule_name.strip()
+            ):
+                diagnostics.append(f"{value_prefix}.grammar_rule_name cannot be empty.")
+        for operation_index, operation_binding in enumerate(
+            binding.typed_operation_bindings
+        ):
+            operation_prefix = f"{prefix}.typed_operation_bindings[{operation_index}]"
+            if not operation_binding.semantic_operation_type.strip():
+                diagnostics.append(
+                    f"{operation_prefix}.semantic_operation_type is required."
+                )
+            invalid_event_verbs = tuple(
+                verb
+                for verb in operation_binding.event_verbs
+                if verb
+                not in {"noop", "create", "update", "upsert", "delete", "rename"}
+            )
+            if invalid_event_verbs:
+                diagnostics.append(
+                    f"{operation_prefix}.event_verbs contains unsupported values: "
+                    f"{invalid_event_verbs!r}."
+                )
+            if (
+                operation_binding.operation_family is not None
+                and operation_binding.operation_family
+                not in {"noop", "create", "update", "upsert", "delete", "rename"}
+            ):
+                diagnostics.append(
+                    f"{operation_prefix}.operation_family is unsupported."
+                )
     return diagnostics
 
 
@@ -1268,13 +1379,23 @@ def _required_template_values(
     *,
     binding: CodeSemanticSourceMeaningBinding,
 ) -> tuple[str, ...]:
+    declared_fields = tuple(
+        item.value_key for item in binding.template_value_bindings if item.required
+    )
     raw_fields = binding.metadata.get("required_template_values")
     if not isinstance(raw_fields, (list, tuple)):
-        return ()
+        return declared_fields
     return tuple(
-        field_name.strip()
-        for field_name in raw_fields
-        if isinstance(field_name, str) and field_name.strip()
+        dict.fromkeys(
+            (
+                *declared_fields,
+                *(
+                    field_name.strip()
+                    for field_name in raw_fields
+                    if isinstance(field_name, str) and field_name.strip()
+                ),
+            )
+        )
     )
 
 
@@ -1485,31 +1606,15 @@ def _typed_operations_for_event(
 ) -> tuple[SemanticCapabilityTypedOperation, ...]:
     if resolution is None:
         return ()
-    raw_typed_operation_bindings = binding.metadata.get("typed_operation_bindings")
-    if not isinstance(raw_typed_operation_bindings, (list, tuple)):
-        return ()
     operations: list[SemanticCapabilityTypedOperation] = []
-    for raw_binding in raw_typed_operation_bindings:
-        if not isinstance(raw_binding, Mapping):
-            continue
-        if not _event_verb_allowed(
-            raw_action_binding=raw_binding,
-            event=event,
+    for operation_binding in binding.typed_operation_bindings:
+        if (
+            operation_binding.event_verbs
+            and event.verb not in operation_binding.event_verbs
         ):
             continue
-        semantic_operation_type = _render_metadata_template(
-            raw_binding.get("semantic_operation_type_template")
-            or raw_binding.get("semantic_operation_type"),
-            contract=contract,
-            binding=binding,
-            event=event,
-            resolution=resolution,
-        )
-        if semantic_operation_type is None:
-            continue
         operation_key = _render_metadata_template(
-            raw_binding.get("operation_key_template")
-            or raw_binding.get("operation_key"),
+            operation_binding.operation_key_template,
             contract=contract,
             binding=binding,
             event=event,
@@ -1517,37 +1622,48 @@ def _typed_operations_for_event(
         )
         if operation_key is None:
             operation_key = f"{event.event_key}:typed_operation"
-        operation_metadata = _metadata_mapping(raw_binding.get("metadata"))
-        operation_metadata.setdefault("binding_key", binding.binding_key)
-        operation_metadata.setdefault("event_type", event.event_type)
-        operation_metadata.setdefault(
-            "contract_version",
-            CODE_SEMANTIC_SOURCE_MEANING_BINDING_CONTRACT_VERSION,
+        operation_metadata: dict[str, object] = {
+            "binding_key": binding.binding_key,
+            "event_type": event.event_type,
+            "contract_version": CODE_SEMANTIC_SOURCE_MEANING_BINDING_CONTRACT_VERSION,
+            "preview_only": operation_binding.preview_only,
+        }
+        optional_metadata = {
+            "source": operation_binding.contract_source,
+            "semantic_apply_boundary": operation_binding.semantic_apply_boundary,
+            "fallback_reason": operation_binding.fallback_reason,
+        }
+        operation_metadata.update(
+            (key, value)
+            for key, value in optional_metadata.items()
+            if value is not None
         )
+        if operation_binding.fallback_required:
+            operation_metadata["fallback_required"] = True
+        if operation_binding.generated_materialization_intent is not None:
+            operation_metadata["generated_materialization_intent"] = dict(
+                operation_binding.generated_materialization_intent
+            )
         operations.append(
             SemanticCapabilityTypedOperation(
                 operation_key=operation_key,
                 operation_family=_typed_operation_family(
-                    value=raw_binding.get("operation_family"),
+                    value=operation_binding.operation_family,
                     event=event,
                 ),
-                semantic_operation_type=semantic_operation_type,
+                semantic_operation_type=operation_binding.semantic_operation_type,
                 semantic_key=event.semantic_key,
                 semantic_subject_type=(
-                    _optional_text(raw_binding.get("semantic_subject_type"))
-                    or event.subject_type
+                    operation_binding.semantic_subject_type or event.subject_type
                 ),
-                field_path=(
-                    _optional_text(raw_binding.get("field_path"))
-                    or binding.semantic_field
-                ),
+                field_path=(operation_binding.field_path or binding.semantic_field),
                 event_key=event.event_key,
                 source=_CONTRACT_SOURCE,
                 source_refs=event.source_refs,
                 before_payload=delta.before_payload,
                 after_payload=delta.after_payload,
                 requires_baseline_object_identity=(
-                    raw_binding.get("requires_baseline_object_identity") is True
+                    operation_binding.requires_baseline_object_identity
                 ),
                 metadata=operation_metadata,
             )
@@ -1679,8 +1795,11 @@ def _value_payload(
 ) -> Mapping[str, object] | None:
     if resolution is None:
         return None
+    semantic_value: object = resolution.text
+    if binding.value_domain == "aware_string_literal":
+        semantic_value = decode_aware_string_literal(resolution.text)
     payload: dict[str, object] = {
-        binding.semantic_field: resolution.text,
+        binding.semantic_field: semantic_value,
         "text_hash": resolution.text_hash,
         "source_hash": resolution.source_hash,
     }
@@ -1789,6 +1908,9 @@ def _render_template(
         "anchor_text": resolution.text,
         "source_key": resolution.source_key,
     }
+    values.update(
+        {key: value for key, value in template_values.items() if key not in values}
+    )
     return template.format(**values)
 
 
@@ -1833,6 +1955,7 @@ __all__ = [
     "CodeSemanticSourceDeltaMeaningResolutionMode",
     "CodeSemanticSourceIndexRef",
     "CodeSemanticSourceMeaningBinding",
+    "CodeSemanticSourceMeaningTypedOperationBinding",
     "CodeSemanticSourceMeaningContract",
     "CodeSemanticSourceMeaningResolution",
     "clear_code_semantic_source_index_cache_for_tests",

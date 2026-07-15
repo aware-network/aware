@@ -1,0 +1,70 @@
+class ServiceSubscription {
+    // Relationships
+    consumer_finance_entity aware_economy.finance.FinanceEntity key
+    contract aware_economy.smart_contract.SmartContract
+    cycles ServiceSubscriptionCycle[]
+    invoices ServiceSubscriptionInvoice[]
+    plan ServicePlan
+    service Service key
+
+    // Attributes
+    cancel_at_period_end Bool = false
+    current_period_end DateTime?
+    current_period_start DateTime?
+    external_subscription_handle String?
+    metadata_json JsonObject?
+    status ServiceSubscriptionStatus = active
+
+    fn build construct (
+        consumer_finance_entity_id UUID key,
+        service_id UUID key,
+        plan_id UUID,
+        contract_id UUID,
+        external_subscription_handle String? = null,
+        status ServiceSubscriptionStatus = active,
+        current_period_start DateTime? = null,
+        current_period_end DateTime? = null,
+        cancel_at_period_end Bool = false,
+        metadata_json JsonObject? = null
+    ) -> ServiceSubscription {
+        """
+        Creates or upserts one consumer subscription receipt for a canonical Service.
+        """
+    }
+
+    fn create_cycle (
+        cycle_number Int,
+        period_start DateTime,
+        period_end DateTime,
+        status ServiceSubscriptionCycleStatus = pending,
+        invoice_id UUID? = null
+    ) -> ServiceSubscriptionCycle {
+        """
+        Appends one billing cycle receipt under this ServiceSubscription.
+        """
+        let created = construct cycles.build(
+            cycle_number = cycle_number,
+            period_start = period_start,
+            period_end = period_end,
+            status = status,
+            invoice_id = invoice_id,
+        )
+    }
+
+    fn create_invoice (
+        amount Decimal,
+        coin_id UUID,
+        external_invoice_handle String? = null,
+        status ServiceSubscriptionInvoiceStatus = open
+    ) -> ServiceSubscriptionInvoice {
+        """
+        Appends one invoice receipt under this ServiceSubscription.
+        """
+        let created = construct invoices.build(
+            amount = amount,
+            coin_id = coin_id,
+            external_invoice_handle = external_invoice_handle,
+            status = status,
+        )
+    }
+}

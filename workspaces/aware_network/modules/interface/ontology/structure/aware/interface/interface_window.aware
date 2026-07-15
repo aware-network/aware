@@ -1,0 +1,47 @@
+class InterfaceWindow {
+    // Relationships
+    window window.Window key
+    window_navigation_contexts InterfaceWindowNavigationContext[]
+    active_navigation_context InterfaceWindowNavigationContext?
+
+    fn create construct (window_id UUID key) -> InterfaceWindow {
+        """
+        Creates a new InterfaceWindow.
+        """
+    }
+
+    fn attach_navigation_context (
+        interface_environment_id UUID,
+        environment_navigation_context_id UUID
+    ) -> InterfaceWindowNavigationContext {
+        """
+        Creates (or ensures) a window target over an Interface-authorized
+        EnvironmentNavigationContext.
+
+        Contract:
+        - InterfaceWindow follows Environment navigation context truth.
+        - The selected Process/Thread target resolves from the navigation context.
+        - The selected Thread's active layout remains Environment/Attention truth.
+        """
+        let attached = construct window_navigation_contexts.create(
+            interface_environment_id = interface_environment_id,
+            environment_navigation_context_id = environment_navigation_context_id,
+        )
+    }
+
+    fn set_active_navigation_context (
+        interface_environment_id UUID,
+        environment_navigation_context_id UUID
+    ) -> InterfaceWindowNavigationContext {
+        """
+        Selects the protected EnvironmentNavigationContext this InterfaceWindow
+        follows.
+
+        Contract:
+        - Mutates only the InterfaceWindow active navigation-context pointer.
+        - Does not mutate the EnvironmentNavigationContext target.
+        - Thread selection changes happen through
+          EnvironmentNavigationContext.select_target.
+        """
+    }
+}

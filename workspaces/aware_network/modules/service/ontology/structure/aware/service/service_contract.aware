@@ -1,0 +1,81 @@
+class ServiceContract {
+    // Relationships
+    commercial_profile ServiceCommercialProfile
+    consumer_finance_entity aware_economy.finance.FinanceEntity
+    economy_settlement ServiceContractEconomySettlement? unique
+    producer_finance_entity aware_economy.finance.FinanceEntity
+    service_contract_config ServiceContractConfig key
+    smart_contract aware_economy.smart_contract.SmartContract key
+
+    // Attributes
+    effective_from DateTime
+    effective_until DateTime?
+    kind ServiceContractKind
+    metadata_json JsonObject? = {}
+    status ServiceContractStatus = pending
+
+    fn build construct (
+        service_contract_config_id UUID key,
+        commercial_profile_id UUID,
+        producer_finance_entity_id UUID,
+        consumer_finance_entity_id UUID,
+        smart_contract_id UUID key,
+        kind ServiceContractKind,
+        effective_from DateTime,
+        status ServiceContractStatus = pending,
+        effective_until DateTime? = null,
+        metadata_json JsonObject? = {}
+    ) -> ServiceContract {
+        """
+        Creates one Service-owned commercial agreement receipt under a concrete Service.
+
+        Contract:
+        - Stable identity is anchored by the parent Service containment rail plus ServiceContractConfig plus SmartContract.
+        - `service_contract_config` points to reusable operation/role grant semantics.
+        - `commercial_profile` is a typed reference rail for portal-backed provenance/navigation,
+          not contract ownership or stable-id propagation.
+        - Producer/consumer finance entities are settlement snapshots for this agreement.
+        """
+    }
+
+    fn set_status (
+        status ServiceContractStatus,
+        effective_until DateTime? = null,
+        metadata_json JsonObject? = {}
+    ) -> ServiceContract {
+        """
+        Updates the lifecycle status for this ServiceContract receipt.
+        """
+    }
+
+    fn configure_economy_settlement (
+        permit_id UUID,
+        permit_nonce Int,
+        payer_wallet_id UUID,
+        payer_wallet_public_id UUID,
+        receiver_wallet_id UUID,
+        receiver_wallet_public_id UUID,
+        coin_id UUID,
+        deadline DateTime
+    ) -> ServiceContractEconomySettlement {
+        """
+        Binds typed Economy settlement coordinates to this concrete ServiceContract.
+
+        Contract:
+        - ServiceContract remains access/terms authority.
+        - Economy owns capital mutation, spend-envelope cap checks, operation nonce allocation,
+          reservation, escrow, and settlement receipts.
+        - These coordinates replace the legacy metadata settlement payload for active settlement.
+        """
+        let created = construct economy_settlement.build(
+            permit_id = permit_id,
+            permit_nonce = permit_nonce,
+            payer_wallet_id = payer_wallet_id,
+            payer_wallet_public_id = payer_wallet_public_id,
+            receiver_wallet_id = receiver_wallet_id,
+            receiver_wallet_public_id = receiver_wallet_public_id,
+            coin_id = coin_id,
+            deadline = deadline,
+        )
+    }
+}

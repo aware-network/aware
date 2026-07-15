@@ -48,6 +48,7 @@ def build_code_primitive_signature(
         CodePrimitiveBaseType.boolean,
         CodePrimitiveBaseType.bytes,
         CodePrimitiveBaseType.datetime,
+        CodePrimitiveBaseType.decimal,
         CodePrimitiveBaseType.float,
         CodePrimitiveBaseType.integer,
         CodePrimitiveBaseType.null,
@@ -63,14 +64,22 @@ def build_code_primitive_signature(
         return f"{base}<{item_type.signature}>"
     if base_type == CodePrimitiveBaseType.dict:
         if key_type is None or value_type is None:
-            raise ValueError("dict requires key_type and value_type for canonical signature")
+            raise ValueError(
+                "dict requires key_type and value_type for canonical signature"
+            )
         return f"dict<{key_type.signature},{value_type.signature}>"
     if base_type == CodePrimitiveBaseType.tuple:
         if not element_types:
-            raise ValueError("tuple requires at least one element type for canonical signature")
+            raise ValueError(
+                "tuple requires at least one element type for canonical signature"
+            )
         return "tuple<" + ",".join(element.signature for element in element_types) + ">"
     if base_type == CodePrimitiveBaseType.union:
         if not union_types:
-            raise ValueError("union requires at least one member type for canonical signature")
+            raise ValueError(
+                "union requires at least one member type for canonical signature"
+            )
         return "union<" + "|".join(member.signature for member in union_types) + ">"
-    raise ValueError(f"Unsupported CodePrimitiveBaseType for canonical signature: {base_type.value}")
+    raise ValueError(
+        f"Unsupported CodePrimitiveBaseType for canonical signature: {base_type.value}"
+    )

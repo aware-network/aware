@@ -1,0 +1,16 @@
+class ServiceOperationConfigApiEndpointFunction {
+    // Relationships
+    api_capability_endpoint_function aware_api.api.ApiCapabilityEndpointFunction key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        api_capability_endpoint_function_id UUID key,
+        description String? = null
+    ) -> ServiceOperationConfigApiEndpointFunction {
+        """
+        Create one config-level binding from a ServiceOperationConfigApiEndpoint to one API-owned endpoint function.
+        """
+    }
+}

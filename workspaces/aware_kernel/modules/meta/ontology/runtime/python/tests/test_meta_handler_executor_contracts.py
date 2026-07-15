@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
@@ -15,14 +15,23 @@ from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBaseType
 from aware_history_ontology.change.change import Change
 from aware_history_ontology.change.change_enums import ChangeType
+from aware_meta.attribute.instance.builder import build_attribute
 from aware_meta.attribute.instance.value.builder import build_attribute_value_tree
+from aware_meta.graph.instance.apply import apply_object_instance_graph_changes
 from aware_meta.graph.instance.hash import compute_hash
 from aware_meta.graph.instance.index import build_index
+from aware_meta.graph.instance.diff import (
+    build_object_instance_graph_dirty_class_instance_changes,
+    diff_object_instance_graph_changes,
+)
 from aware_meta.graph.config.stable_ids import stable_attribute_id
 from aware_meta.graph.instance.commit.perf_trace import (
     CommitPerfTraceRecorder,
     active_commit_perf_trace,
     summarize_commit_perf_events,
+)
+from aware_meta.graph.instance.commit.body_codec import (
+    oig_commit_body_draft_from_changes,
 )
 from aware_meta.primitive.config.builder import build_primitive_config
 from aware_meta.runtime import (
@@ -91,11 +100,14 @@ from aware_meta.runtime import (
 )
 from aware_orm.models.orm_model import ORMModel
 from aware_orm.registry import ORMModelRegistry
+from aware_orm.session.change_collector import ORMChangeSet
 from aware_orm.runtime.invocation import invoke_instance
 from aware_meta.runtime.handler_context import (
     current_handler_session,
 )
 from aware_meta.runtime import oigi_generated_handlers
+from aware_meta.runtime.handler_executor import session as session_delta_module
+from aware_meta.runtime.handler_executor import append_ready as append_ready_module
 from aware_meta.runtime.handler_executor import (
     build_meta_graph_append_ready_changes,
     build_meta_graph_mutation_boundary_validation,
@@ -128,6 +140,10 @@ from aware_meta.runtime.graph_commit_invocation_backend import (
 from aware_meta.runtime.handler_executor.function_impl_runner import (
     _filter_nested_session_delta_to_target_scope,
 )
+from aware_meta.runtime.generated_impl_delegation import (
+    _impl_delegation_direct_change_evidence_enabled,
+    _simple_scalar_direct_change_evidence_from_change_set,
+)
 from aware_meta.test_support import (
     make_attribute_config,
     make_class_attribute_edge,
@@ -139,6 +155,7 @@ from aware_meta.runtime.value_resolvers import default_meta_enum_option_resolver
 from aware_meta_ontology.attribute.attribute_type_descriptor import (
     AttributeTypeDescriptor,
 )
+from aware_meta_ontology.attribute.attribute_config import AttributeConfig
 from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
     AttributeTypeDescriptorKind,
 )
@@ -539,6 +556,12 @@ def test_meta_graph_execution_plan_uses_cached_descriptor_and_projection() -> No
         staged_call=staged_call,
         index_view=index_view,
     )
+    second_plan = build_meta_graph_execution_plan(
+        index=cast(MetaGraphRuntimeIndex, index),
+        request=request,
+        staged_call=staged_call,
+        index_view=index_view,
+    )
 
     assert plan.index is index
     assert plan.staged_call is staged_call
@@ -549,6 +572,53 @@ def test_meta_graph_execution_plan_uses_cached_descriptor_and_projection() -> No
     assert plan.target_object_id == target_object_id
     assert plan.expected_graph_hash_pre == "sha256:test:pre"
     assert plan.expected_head_commit_id == request.expected_head_commit_id
+    assert plan.orm_change_translation_index_cache is not None
+    assert (
+        second_plan.orm_change_translation_index_cache
+        is plan.orm_change_translation_index_cache
+    )
+    assert plan.oig_model_construction_plan_cache is not None
+    assert (
+        second_plan.oig_model_construction_plan_cache
+        is plan.oig_model_construction_plan_cache
+    )
+    assert plan.oig_model_construction_plan_cache.index is index
+
+
+def test_meta_graph_execution_plan_rejects_view_from_replacement_index() -> None:
+    function_config = FunctionConfig(
+        id=uuid4(),
+        owner_key="aware.tests",
+        name="attach_lane",
+    )
+    index = _meta_graph_commit_index(function_config=function_config)
+    replacement_index = _meta_graph_commit_index(
+        function_config=FunctionConfig(
+            id=function_config.id,
+            owner_key=function_config.owner_key,
+            name=function_config.name,
+        )
+    )
+    projection_hash = next(iter(index.opg_by_hash.keys()))
+    request = MetaGraphInvokeFunctionInput(
+        index=cast(MetaGraphRuntimeIndex, index),
+        actor_id=uuid4(),
+        function_id=function_config.id,
+        domain_branch_id=uuid4(),
+        domain_projection_hash=projection_hash,
+    )
+    staged_call = MetaGraphCommitInvocationBackend().stage_function_call(request)
+    replacement_view = MetaGraphRuntimeIndexView(
+        index=cast(MetaGraphCommitIndex, replacement_index)
+    )
+
+    with pytest.raises(ValueError, match="different runtime index object"):
+        build_meta_graph_execution_plan(
+            index=cast(MetaGraphRuntimeIndex, index),
+            request=request,
+            staged_call=staged_call,
+            index_view=replacement_view,
+        )
 
 
 def test_meta_handler_execution_phase_protocols_are_explicitly_typed() -> None:
@@ -2837,6 +2907,258 @@ async def test_meta_generated_language_handler_runner_resolves_descriptor() -> N
 
 
 @pytest.mark.asyncio
+async def test_meta_generated_language_handler_carries_dirty_ids_to_post_oig_diff() -> (
+    None
+):
+    from aware_orm.session.change_collector import current_change_collector
+
+    target_object_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=target_object_id,
+    )
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
+    bound_arguments = MetaGraphBoundArguments(
+        execution_plan=handler_request.execution_plan,
+        positional=JsonArray(),
+        keyword=JsonObject(),
+    )
+    post_oig = pre_state.before_oig.model_copy(deep=True)
+    post_oig.class_instances = []
+    expected_post_hash = compute_hash(post_oig, index=build_index(post_oig))
+    descriptor = handler_request.execution_plan.implementation
+    key = MetaGraphGeneratedLanguageHandlerKey.from_descriptor(descriptor)
+
+    async def generated_handler(
+        _request: MetaGraphHandlerExecutionRequest,
+        _pre_state_arg: MetaGraphPreState,
+        _positional: JsonArray,
+        _keyword: JsonObject,
+    ) -> MetaGraphLanguageHandlerExecution:
+        collector = current_change_collector()
+        assert collector is not None
+        collector.record_scalar_set(
+            obj=SimpleNamespace(id=target_object_id),
+            field_name="name",
+            old_value="before",
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"resolved": True}),
+            execution_time_ms=13,
+            post_oig=post_oig,
+            expected_graph_hash_post=expected_post_hash,
+        )
+
+    runner = MetaGraphGeneratedLanguageHandlerRunner(
+        handler_resolver=MetaGraphGeneratedLanguageHandlerRegistry(
+            handlers_by_key={key: generated_handler}
+        )
+    )
+    phase = MetaGraphImplementationDispatcherPhase(language_handler_runner=runner)
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
+    )
+
+    with active_commit_perf_trace(recorder):
+        dispatch_result = await phase.dispatch_implementation(
+            handler_request,
+            pre_state,
+            bound_arguments,
+        )
+
+    assert dispatch_result.session_delta is not None
+    assert dispatch_result.session_delta.graph_hash_post == expected_post_hash
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert (
+        trace_summary[
+            "handler_execution.session_delta.diff_post_oig_dirty_class_instance_set"
+        ]["count"]
+        == 1
+    )
+    assert (
+        "handler_execution.session_delta.diff_post_oig_sparse_identity_snapshot"
+        not in trace_summary
+    )
+    assert (
+        trace_summary["handler_execution.language_handler.snapshot_dirty_source_ids"][
+            "count"
+        ]
+        == 1
+    )
+
+
+def test_impl_delegation_direct_change_evidence_defaults_on_with_opt_out(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    env_name = "AWARE_META_IMPL_DELEGATION_DIRECT_CHANGE_EVIDENCE"
+    monkeypatch.delenv(env_name, raising=False)
+    assert _impl_delegation_direct_change_evidence_enabled() is True
+
+    monkeypatch.setenv(env_name, "0")
+    assert _impl_delegation_direct_change_evidence_enabled() is False
+
+
+def test_impl_delegation_simple_scalar_direct_evidence_updates_class_instance() -> None:
+    target_object_id = uuid4()
+    function_impl = FunctionImpl(
+        key="aware.tests.Thread.mutate",
+        kind=FunctionImplKind.instruction_body,
+    )
+    handler_request = _meta_handler_execution_request(
+        function_impl=function_impl,
+        target_object_id=target_object_id,
+    )
+    class_config_id = next(
+        iter(handler_request.execution_plan.index.class_configs_by_id)
+    )
+    class_config = make_class_config(
+        "Thread",
+        id=class_config_id,
+        class_fqn="aware.tests.Thread",
+    )
+    handler_request.execution_plan.index.class_configs_by_id[class_config_id] = (
+        class_config
+    )
+    fixture = _function_impl_self_set_fixture(
+        handler_request=handler_request,
+        target_object_id=target_object_id,
+        initial_value="before",
+        input_value_name="label",
+    )
+    target_attribute_edge = class_config.class_config_attribute_configs[0]
+    assert target_attribute_edge.attribute_config is not None
+    assert target_attribute_edge.attribute_config_id is not None
+    before_oig = fixture.pre_state.before_oig.model_copy(deep=True)
+    before_attribute = build_attribute(
+        owner_key=target_object_id,
+        attribute_config=target_attribute_edge.attribute_config,
+        value="before",
+        class_configs_by_id=dict(
+            handler_request.execution_plan.index.class_configs_by_id
+        ),
+        enum_option_resolver=default_meta_enum_option_resolver,
+    )
+    before_attribute_edge = before_oig.class_instances[0].class_instance_attributes[0]
+    before_attribute_edge.attribute = before_attribute
+    before_attribute_edge.attribute_id = before_attribute.id
+    before_hash = compute_hash(before_oig, index=build_index(before_oig))
+    before_oig.hash = before_hash
+    pre_state = MetaGraphPreState(
+        execution_plan=fixture.pre_state.execution_plan,
+        before_oig=before_oig,
+        graph_hash_pre=before_hash,
+        target_object_id=fixture.pre_state.target_object_id,
+        root_object_id=fixture.pre_state.root_object_id,
+        root_class_instance_identity_id=(
+            fixture.pre_state.root_class_instance_identity_id
+        ),
+        oig_index=build_meta_graph_pre_state_index(before_oig),
+    )
+
+    class _ThreadScalarModel(ORMModel):
+        label: str
+
+    change_set = ORMChangeSet(
+        collected_at=datetime.now(timezone.utc),
+        created_ids=frozenset(),
+        touched_ids=frozenset({target_object_id}),
+        deleted_ids=frozenset(),
+        objects_by_id={
+            target_object_id: _ThreadScalarModel(
+                id=target_object_id,
+                label="after",
+            )
+        },
+        scalar_fields_by_id={target_object_id: {"label"}},
+        list_fields_by_id={},
+        scalar_baseline={(target_object_id, "label"): "before"},
+        list_baseline={},
+        list_added={},
+        list_removed={},
+    )
+
+    attempt = _simple_scalar_direct_change_evidence_from_change_set(
+        request=handler_request,
+        pre_state=pre_state,
+        change_set=change_set,
+    )
+
+    assert attempt.fallback_reason is None
+    assert len(attempt.changes) == 1
+    object_change = attempt.changes[0]
+    assert object_change.object_instance_graph_id == pre_state.before_oig.id
+    assert len(object_change.class_instance_changes) == 1
+    class_change = object_change.class_instance_changes[0]
+    assert class_change.class_instance_id == target_object_id
+    assert class_change.change.type == ChangeType.update
+    assert len(class_change.attribute_changes) == 1
+    attr_change = class_change.attribute_changes[0]
+    assert attr_change.attribute_id == stable_attribute_id(
+        owner_key=target_object_id,
+        attribute_config_id=target_attribute_edge.attribute_config_id,
+    )
+    assert attr_change.value_root_change is not None
+    value_delta = attr_change.value_root_change.change.change_deltas[0]
+    assert value_delta.payload == {"value": "after"}
+
+
+def test_impl_delegation_simple_scalar_direct_evidence_falls_back_on_list_change() -> (
+    None
+):
+    target_object_id = uuid4()
+    function_impl = FunctionImpl(
+        key="aware.tests.Thread.mutate",
+        kind=FunctionImplKind.instruction_body,
+    )
+    handler_request = _meta_handler_execution_request(
+        function_impl=function_impl,
+        target_object_id=target_object_id,
+    )
+    class_config_id = next(
+        iter(handler_request.execution_plan.index.class_configs_by_id)
+    )
+    handler_request.execution_plan.index.class_configs_by_id[class_config_id] = (
+        make_class_config(
+            "Thread",
+            id=class_config_id,
+            class_fqn="aware.tests.Thread",
+        )
+    )
+    fixture = _function_impl_self_set_fixture(
+        handler_request=handler_request,
+        target_object_id=target_object_id,
+        initial_value="before",
+        input_value_name="label",
+    )
+    change_set = ORMChangeSet(
+        collected_at=datetime.now(timezone.utc),
+        created_ids=frozenset(),
+        touched_ids=frozenset({target_object_id}),
+        deleted_ids=frozenset(),
+        objects_by_id={target_object_id: SimpleNamespace(id=target_object_id)},
+        scalar_fields_by_id={target_object_id: {"label"}},
+        list_fields_by_id={target_object_id: {"children"}},
+        scalar_baseline={(target_object_id, "label"): "before"},
+        list_baseline={(target_object_id, "children"): []},
+        list_added={},
+        list_removed={},
+    )
+
+    attempt = _simple_scalar_direct_change_evidence_from_change_set(
+        request=handler_request,
+        pre_state=fixture.pre_state,
+        change_set=change_set,
+    )
+
+    assert attempt.changes == ()
+    assert attempt.fallback_reason == "has_list_changes"
+
+
+@pytest.mark.asyncio
 async def test_meta_generated_handler_registry_fails_closed_missing_handler() -> None:
     handler_request = _meta_handler_execution_request(
         expected_graph_hash_pre="sha256:test:pre",
@@ -3586,7 +3908,10 @@ async def test_meta_session_delta_mutation_source_collects_mutations() -> None:
         expected_graph_hash_pre="sha256:test:pre",
         target_object_id=target_object_id,
     )
-    pre_state = _meta_pre_state(handler_request)
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
     changes = (
         _object_change(
             class_changes=(
@@ -3708,13 +4033,20 @@ def test_meta_execution_session_delta_builder_computes_post_hash_from_changes() 
         expected_post_oig,
         index=build_index(expected_post_oig),
     )
+    before_class_instance_ids = tuple(
+        class_instance.id for class_instance in pre_state.before_oig.class_instances
+    )
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
+    )
     builder = MetaGraphExecutionSessionDeltaBuilder()
 
-    session_delta = builder.build_delta_from_changes(
-        request=handler_request,
-        pre_state=pre_state,
-        changes=changes,
-    )
+    with active_commit_perf_trace(recorder):
+        session_delta = builder.build_delta_from_changes(
+            request=handler_request,
+            pre_state=pre_state,
+            changes=changes,
+        )
 
     assert session_delta.execution_plan is handler_request.execution_plan
     assert session_delta.before_oig is pre_state.before_oig
@@ -3722,6 +4054,123 @@ def test_meta_execution_session_delta_builder_computes_post_hash_from_changes() 
     assert session_delta.graph_hash_pre == "sha256:test:pre"
     assert session_delta.graph_hash_post == expected_post_hash
     assert session_delta.root_object_id == target_object_id
+    assert (
+        tuple(
+            class_instance.id for class_instance in pre_state.before_oig.class_instances
+        )
+        == before_class_instance_ids
+    )
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert (
+        trace_summary["handler_execution.session_delta.copy_direct_change_graph"][
+            "count"
+        ]
+        == 1
+    )
+    assert (
+        trace_summary["handler_execution.session_delta.apply_direct_changes_for_hash"][
+            "count"
+        ]
+        == 1
+    )
+    assert (
+        trace_summary[
+            "handler_execution.session_delta.canonical_apply."
+            "build_class_instance_index"
+        ]["count"]
+        == 1
+    )
+    assert (
+        trace_summary[
+            "handler_execution.session_delta.canonical_apply."
+            "class_instance.membership"
+        ]["count"]
+        == 1
+    )
+    assert (
+        trace_summary[
+            "handler_execution.session_delta.canonical_apply.sort_graph_members"
+        ]["count"]
+        == 1
+    )
+
+
+def test_meta_execution_session_delta_builder_replays_body_draft() -> None:
+    target_object_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=target_object_id,
+    )
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
+    changes = (
+        _object_change(
+            object_instance_graph_id=pre_state.before_oig.id,
+            object_instance_graph_identity_id=(
+                handler_request.staged_call.lane_scope.object_instance_graph_identity_id
+            ),
+            class_changes=(
+                _class_instance_change(
+                    class_instance_id=target_object_id,
+                    change_type=ChangeType.delete,
+                ),
+            ),
+        ),
+    )
+    body_draft = oig_commit_body_draft_from_changes(changes)
+    expected_post_oig = pre_state.before_oig.model_copy(deep=True)
+    expected_post_oig.class_instances = []
+    expected_post_hash = compute_hash(
+        expected_post_oig,
+        index=build_index(expected_post_oig),
+    )
+
+    session_delta = MetaGraphExecutionSessionDeltaBuilder().build_delta_from_body_draft(
+        request=handler_request,
+        pre_state=pre_state,
+        body_draft=body_draft,
+    )
+
+    assert session_delta.changes == ()
+    assert session_delta.body_draft is body_draft
+    assert session_delta.graph_hash_post == expected_post_hash
+    assert session_delta.validated_replay_artifact is not None
+    assert session_delta.validated_replay_artifact.body_draft is body_draft
+    dispatch_result = MetaGraphHandlerDispatchResult(
+        execution_plan=handler_request.execution_plan,
+        success=True,
+        session_delta=session_delta,
+    )
+    mutation_set = build_meta_graph_mutation_set_from_session_delta(
+        request=handler_request,
+        pre_state=pre_state,
+        dispatch_result=dispatch_result,
+        session_delta=session_delta,
+    )
+    append_ready = build_meta_graph_append_ready_changes(
+        request=handler_request,
+        mutation_set=mutation_set,
+        boundary_validation=MetaGraphMutationBoundaryValidation(
+            execution_plan=handler_request.execution_plan,
+            mutation_set=mutation_set,
+            status=MetaGraphMutationBoundaryStatus.accepted,
+        ),
+    )
+    assert append_ready.changes == ()
+    assert append_ready.body_draft is body_draft
+    assert append_ready.graph_hash_post == expected_post_hash
+    with pytest.raises(
+        MetaGraphExecutionSessionDeltaError,
+        match="post hash mismatch",
+    ):
+        MetaGraphExecutionSessionDeltaBuilder().build_delta_from_body_draft(
+            request=handler_request,
+            pre_state=pre_state,
+            body_draft=body_draft,
+            expected_graph_hash_post="sha256:not-the-replayed-hash",
+        )
 
 
 def test_meta_execution_session_delta_builder_diffs_post_oig_evidence() -> None:
@@ -3752,6 +4201,420 @@ def test_meta_execution_session_delta_builder_diffs_post_oig_evidence() -> None:
     assert session_delta.graph_hash_post == expected_post_hash
     assert len(session_delta.changes) == 1
     assert session_delta.changes[0].object_instance_graph_id == pre_state.before_oig.id
+
+
+def test_meta_execution_session_delta_builder_uses_sparse_post_oig_diff() -> None:
+    target_object_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=target_object_id,
+    )
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
+    post_oig = pre_state.before_oig.model_copy(deep=True)
+    post_oig.class_instances = []
+    expected_post_hash = compute_hash(post_oig, index=build_index(post_oig))
+    expected_full_changes = diff_object_instance_graph_changes(
+        old=pre_state.before_oig,
+        new=post_oig,
+        object_instance_graph_identity_id=(
+            handler_request.staged_call.lane_scope.object_instance_graph_identity_id
+        ),
+    )
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
+    )
+    builder = MetaGraphExecutionSessionDeltaBuilder()
+
+    with active_commit_perf_trace(recorder):
+        session_delta = builder.build_delta_from_post_oig(
+            request=handler_request,
+            pre_state=pre_state,
+            post_oig=post_oig,
+            expected_graph_hash_post=expected_post_hash,
+        )
+
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert (
+        trace_summary[
+            "handler_execution.session_delta." "diff_post_oig_sparse_identity_snapshot"
+        ]["count"]
+        == 1
+    )
+    assert "handler_execution.session_delta.diff_post_oig_full_fallback" not in (
+        trace_summary
+    )
+    assert _session_delta_change_signature(session_delta.changes) == (
+        _session_delta_change_signature(expected_full_changes)
+    )
+
+
+def test_meta_execution_session_delta_builder_uses_dirty_post_oig_diff() -> None:
+    target_object_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=target_object_id,
+    )
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
+    post_oig = pre_state.before_oig.model_copy(deep=True)
+    post_oig.class_instances = []
+    expected_post_hash = compute_hash(post_oig, index=build_index(post_oig))
+    expected_full_changes = diff_object_instance_graph_changes(
+        old=pre_state.before_oig,
+        new=post_oig,
+        object_instance_graph_identity_id=(
+            handler_request.staged_call.lane_scope.object_instance_graph_identity_id
+        ),
+    )
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
+    )
+    builder = MetaGraphExecutionSessionDeltaBuilder()
+
+    with active_commit_perf_trace(recorder):
+        session_delta = builder.build_delta_from_post_oig(
+            request=handler_request,
+            pre_state=pre_state,
+            post_oig=post_oig,
+            expected_graph_hash_post=expected_post_hash,
+            dirty_source_object_ids=(target_object_id,),
+        )
+
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert (
+        trace_summary[
+            "handler_execution.session_delta.diff_post_oig_dirty_class_instance_set"
+        ]["count"]
+        == 1
+    )
+    assert (
+        "handler_execution.session_delta.diff_post_oig_sparse_identity_snapshot"
+        not in trace_summary
+    )
+    assert _session_delta_change_signature(session_delta.changes) == (
+        _session_delta_change_signature(expected_full_changes)
+    )
+
+
+def test_dirty_class_instance_diff_captures_adjacent_relationship_changes() -> None:
+    source_id = uuid4()
+    target_id = uuid4()
+    relationship_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=source_id,
+    )
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=source_id,
+    )
+    class_config_id = pre_state.before_oig.class_instances[0].class_config_id
+    target_instance = ClassInstance.model_construct(
+        id=target_id,
+        object_instance_graph_id=pre_state.before_oig.id,
+        class_config_id=class_config_id,
+        source_object_id=target_id,
+        class_instance_attributes=[],
+    )
+    before_oig = pre_state.before_oig.model_copy(deep=True)
+    before_oig.class_instances = [
+        pre_state.before_oig.class_instances[0],
+        target_instance,
+    ]
+    before_oig.class_instance_relationships = [
+        ClassInstanceRelationship(
+            id=uuid4(),
+            object_instance_graph_id=before_oig.id,
+            class_config_relationship_id=relationship_id,
+            source_class_instance_id=source_id,
+            target_class_instance_id=target_id,
+        )
+    ]
+    post_oig = before_oig.model_copy(deep=True)
+    post_oig.class_instance_relationships = []
+    expected_full_changes = diff_object_instance_graph_changes(
+        old=before_oig,
+        new=post_oig,
+        object_instance_graph_identity_id=(
+            handler_request.staged_call.lane_scope.object_instance_graph_identity_id
+        ),
+    )
+
+    dirty_changes = build_object_instance_graph_dirty_class_instance_changes(
+        old=before_oig,
+        new=post_oig,
+        object_instance_graph_identity_id=(
+            handler_request.staged_call.lane_scope.object_instance_graph_identity_id
+        ),
+        dirty_class_instance_ids=(source_id,),
+    )
+
+    assert _session_delta_change_signature(dirty_changes) == (
+        _session_delta_change_signature(expected_full_changes)
+    )
+
+
+@pytest.mark.parametrize(
+    "delete_descendant",
+    (True, False),
+    ids=("deleted_descendant", "created_descendant"),
+)
+def test_dirty_class_instance_diff_rejects_uncovered_membership_change(
+    delete_descendant: bool,
+) -> None:
+    source_id = uuid4()
+    child_id = uuid4()
+    relationship_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=source_id,
+    )
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=source_id,
+    )
+    class_config_id = pre_state.before_oig.class_instances[0].class_config_id
+    child_instance = ClassInstance.model_construct(
+        id=child_id,
+        object_instance_graph_id=pre_state.before_oig.id,
+        class_config_id=class_config_id,
+        source_object_id=child_id,
+        class_instance_attributes=[],
+    )
+    expanded_oig = pre_state.before_oig.model_copy(deep=True)
+    expanded_oig.class_instances = [
+        pre_state.before_oig.class_instances[0],
+        child_instance,
+    ]
+    expanded_oig.class_instance_relationships = [
+        ClassInstanceRelationship(
+            id=uuid4(),
+            object_instance_graph_id=expanded_oig.id,
+            class_config_relationship_id=relationship_id,
+            source_class_instance_id=source_id,
+            target_class_instance_id=child_id,
+        )
+    ]
+    reduced_oig = expanded_oig.model_copy(deep=True)
+    reduced_oig.class_instances = [reduced_oig.class_instances[0]]
+    reduced_oig.class_instance_relationships = []
+    old_oig, new_oig = (
+        (expanded_oig, reduced_oig)
+        if delete_descendant
+        else (reduced_oig, expanded_oig)
+    )
+
+    with pytest.raises(ValueError, match="membership changes"):
+        build_object_instance_graph_dirty_class_instance_changes(
+            old=old_oig,
+            new=new_oig,
+            object_instance_graph_identity_id=(
+                handler_request.staged_call.lane_scope.object_instance_graph_identity_id
+            ),
+            dirty_class_instance_ids=(source_id,),
+        )
+
+
+def test_session_delta_falls_back_for_uncovered_deleted_descendant() -> None:
+    source_id = uuid4()
+    child_id = uuid4()
+    relationship_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=source_id,
+    )
+    initial_pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=source_id,
+    )
+    class_config_id = initial_pre_state.before_oig.class_instances[0].class_config_id
+    child_instance = ClassInstance.model_construct(
+        id=child_id,
+        object_instance_graph_id=initial_pre_state.before_oig.id,
+        class_config_id=class_config_id,
+        source_object_id=child_id,
+        class_instance_attributes=[],
+    )
+    before_oig = initial_pre_state.before_oig.model_copy(deep=True)
+    before_oig.class_instances = [
+        initial_pre_state.before_oig.class_instances[0],
+        child_instance,
+    ]
+    before_oig.class_instance_relationships = [
+        ClassInstanceRelationship(
+            id=uuid4(),
+            object_instance_graph_id=before_oig.id,
+            class_config_relationship_id=relationship_id,
+            source_class_instance_id=source_id,
+            target_class_instance_id=child_id,
+        )
+    ]
+    graph_hash_pre = compute_hash(before_oig, build_index(before_oig))
+    pre_state = MetaGraphPreState(
+        execution_plan=handler_request.execution_plan,
+        before_oig=before_oig,
+        graph_hash_pre=graph_hash_pre,
+        target_object_id=source_id,
+        root_object_id=source_id,
+        oig_index=build_meta_graph_pre_state_index(before_oig),
+    )
+    post_oig = before_oig.model_copy(deep=True)
+    post_oig.class_instances = [post_oig.class_instances[0]]
+    post_oig.class_instance_relationships = []
+    graph_hash_post = compute_hash(post_oig, build_index(post_oig))
+    expected_full_changes = tuple(
+        diff_object_instance_graph_changes(
+            old=before_oig,
+            new=post_oig,
+            object_instance_graph_identity_id=(
+                handler_request.staged_call.lane_scope.object_instance_graph_identity_id
+            ),
+        )
+    )
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
+    )
+
+    with active_commit_perf_trace(recorder):
+        session_delta = (
+            MetaGraphExecutionSessionDeltaBuilder().build_delta_from_post_oig(
+                request=handler_request,
+                pre_state=pre_state,
+                post_oig=post_oig,
+                expected_graph_hash_post=graph_hash_post,
+                dirty_source_object_ids=(source_id,),
+            )
+        )
+
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert (
+        trace_summary[
+            "handler_execution.session_delta.diff_post_oig_dirty_class_instance_set"
+        ]["count"]
+        == 1
+    )
+    assert (
+        trace_summary[
+            "handler_execution.session_delta."
+            "diff_post_oig_dirty_class_instance_set_fallback"
+        ]["count"]
+        == 1
+    )
+    assert (
+        trace_summary[
+            "handler_execution.session_delta.diff_post_oig_sparse_identity_snapshot"
+        ]["count"]
+        == 1
+    )
+    assert _session_delta_change_signature(session_delta.changes) == (
+        _session_delta_change_signature(expected_full_changes)
+    )
+    replay_oig = before_oig.model_copy(deep=True)
+    apply_object_instance_graph_changes(
+        graph=replay_oig,
+        changes=session_delta.changes,
+        attribute_configs_by_id=(
+            handler_request.execution_plan.index.attribute_configs_by_id
+        ),
+        class_configs_by_id=handler_request.execution_plan.index.class_configs_by_id,
+    )
+    assert compute_hash(replay_oig, build_index(replay_oig)) == graph_hash_post
+
+
+def test_meta_execution_session_delta_builder_falls_back_from_unmapped_dirty_ids() -> (
+    None
+):
+    target_object_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=target_object_id,
+    )
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
+    post_oig = pre_state.before_oig.model_copy(deep=True)
+    post_oig.class_instances = []
+    expected_post_hash = compute_hash(post_oig, index=build_index(post_oig))
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
+    )
+    builder = MetaGraphExecutionSessionDeltaBuilder()
+
+    with active_commit_perf_trace(recorder):
+        session_delta = builder.build_delta_from_post_oig(
+            request=handler_request,
+            pre_state=pre_state,
+            post_oig=post_oig,
+            expected_graph_hash_post=expected_post_hash,
+            dirty_source_object_ids=(uuid4(),),
+        )
+
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert (
+        "handler_execution.session_delta.diff_post_oig_dirty_class_instance_set"
+        not in trace_summary
+    )
+    assert (
+        trace_summary[
+            "handler_execution.session_delta." "diff_post_oig_sparse_identity_snapshot"
+        ]["count"]
+        == 1
+    )
+    assert session_delta.graph_hash_post == expected_post_hash
+
+
+def test_meta_execution_session_delta_builder_falls_back_from_sparse_post_oig_diff(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target_object_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=target_object_id,
+    )
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
+    post_oig = pre_state.before_oig.model_copy(deep=True)
+    post_oig.class_instances = []
+    expected_post_hash = compute_hash(post_oig, index=build_index(post_oig))
+
+    def _raise_sparse_diff(**_kwargs: object) -> list[ObjectInstanceGraphChange]:
+        raise ValueError("forced sparse diff failure")
+
+    monkeypatch.setattr(
+        session_delta_module,
+        "build_object_instance_graph_identity_snapshot_changes",
+        _raise_sparse_diff,
+    )
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
+    )
+    builder = MetaGraphExecutionSessionDeltaBuilder()
+
+    with active_commit_perf_trace(recorder):
+        session_delta = builder.build_delta_from_post_oig(
+            request=handler_request,
+            pre_state=pre_state,
+            post_oig=post_oig,
+            expected_graph_hash_post=expected_post_hash,
+        )
+
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert (
+        trace_summary["handler_execution.session_delta.diff_post_oig_full_fallback"][
+            "count"
+        ]
+        == 1
+    )
+    assert len(session_delta.changes) == 1
+    assert session_delta.graph_hash_post == expected_post_hash
 
 
 def test_meta_execution_session_delta_builder_rejects_wrong_change_oig() -> None:
@@ -4152,7 +5015,14 @@ async def test_meta_append_ready_assembler_builds_append_ready_changes() -> None
         expected_graph_hash_pre="sha256:test:pre",
         target_object_id=target_object_id,
     )
-    pre_state = _meta_pre_state(handler_request)
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
+    graph_hash_post = compute_hash(
+        pre_state.before_oig,
+        build_index(pre_state.before_oig),
+    )
     changes = (
         _object_change(
             class_changes=(
@@ -4168,7 +5038,7 @@ async def test_meta_append_ready_assembler_builds_append_ready_changes() -> None
         before_oig=pre_state.before_oig,
         changes=changes,
         graph_hash_pre="sha256:test:pre",
-        graph_hash_post="sha256:test:post",
+        graph_hash_post=graph_hash_post,
         root_object_id=target_object_id,
         root_class_instance_identity_id=root_identity_id,
     )
@@ -4189,9 +5059,538 @@ async def test_meta_append_ready_assembler_builds_append_ready_changes() -> None
     assert append_ready.before_oig is pre_state.before_oig
     assert append_ready.changes == changes
     assert append_ready.graph_hash_pre == "sha256:test:pre"
-    assert append_ready.graph_hash_post == "sha256:test:post"
+    assert append_ready.graph_hash_post == graph_hash_post
     assert append_ready.root_object_id == target_object_id
     assert append_ready.root_class_instance_identity_id == root_identity_id
+
+
+@dataclass(frozen=True)
+class _ValidatedReplayFixture:
+    request: MetaGraphHandlerExecutionRequest
+    pre_state: MetaGraphPreState
+    session_delta: MetaGraphExecutionSessionDelta
+    mutation_set: MetaGraphMutationSet
+    validation: MetaGraphMutationBoundaryValidation
+
+
+def _validated_replay_fixture() -> _ValidatedReplayFixture:
+    target_object_id = uuid4()
+    request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:placeholder",
+        target_object_id=target_object_id,
+    )
+    pre_state = _meta_pre_state_with_class_instance(
+        request,
+        class_instance_id=target_object_id,
+    )
+    pre_state = replace(
+        pre_state,
+        graph_hash_pre=compute_hash(
+            pre_state.before_oig,
+            build_index(pre_state.before_oig),
+        ),
+    )
+    changes = (
+        _object_change(
+            object_instance_graph_id=pre_state.before_oig.id,
+            object_instance_graph_identity_id=(
+                request.staged_call.lane_scope.object_instance_graph_identity_id
+            ),
+            class_changes=(
+                _class_instance_change(
+                    class_instance_id=target_object_id,
+                    change_type=ChangeType.delete,
+                ),
+            ),
+        ),
+    )
+    session_delta = MetaGraphExecutionSessionDeltaBuilder().build_delta_from_changes(
+        request=request,
+        pre_state=pre_state,
+        changes=changes,
+    )
+    dispatch_result = MetaGraphHandlerDispatchResult(
+        execution_plan=request.execution_plan,
+        success=True,
+        session_delta=session_delta,
+    )
+    mutation_set = build_meta_graph_mutation_set_from_session_delta(
+        request=request,
+        pre_state=pre_state,
+        dispatch_result=dispatch_result,
+        session_delta=session_delta,
+    )
+    validation = MetaGraphMutationBoundaryValidation(
+        execution_plan=request.execution_plan,
+        mutation_set=mutation_set,
+        status=MetaGraphMutationBoundaryStatus.accepted,
+    )
+    return _ValidatedReplayFixture(
+        request=request,
+        pre_state=pre_state,
+        session_delta=session_delta,
+        mutation_set=mutation_set,
+        validation=validation,
+    )
+
+
+def _artifact_fallback_reason(recorder: CommitPerfTraceRecorder) -> str:
+    event = next(
+        event
+        for event in recorder.snapshot_json()
+        if event["phase"] == "handler_execution.append_ready.replay_artifact.fallback"
+    )
+    metadata = cast(dict[str, object], event["metadata"])
+    return str(metadata["artifact_fallback_reason"])
+
+
+def test_meta_append_ready_reuses_content_bound_session_replay_artifact(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fixture = _validated_replay_fixture()
+    artifact = fixture.session_delta.validated_replay_artifact
+    assert artifact is not None
+    assert fixture.mutation_set.validated_replay_artifact is artifact
+
+    def _unexpected_second_apply(**_kwargs: object) -> None:
+        raise AssertionError("append-ready must not reapply validated direct changes")
+
+    monkeypatch.setattr(
+        append_ready_module,
+        "apply_object_instance_graph_changes",
+        _unexpected_second_apply,
+    )
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution",
+    )
+    with active_commit_perf_trace(recorder):
+        append_ready = build_meta_graph_append_ready_changes(
+            request=fixture.request,
+            mutation_set=fixture.mutation_set,
+            boundary_validation=fixture.validation,
+        )
+
+    assert append_ready.materialization_cache_prime_snapshot is not None
+    assert (
+        append_ready.materialization_cache_prime_snapshot.post_oig is artifact.post_oig
+    )
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert (
+        trace_summary["handler_execution.append_ready.replay_artifact.reuse"]["count"]
+        == 1
+    )
+    assert (
+        "handler_execution.append_ready.replay_artifact.fallback" not in trace_summary
+    )
+    assert "handler_execution.append_ready.replay.apply_changes" not in trace_summary
+    assert {
+        "handler_execution.append_ready.replay_artifact.fingerprint_changes",
+        "handler_execution.append_ready.replay_artifact.hash_pre_state",
+        "handler_execution.append_ready.replay_artifact.hash_post_state",
+    }.issubset(trace_summary)
+
+
+def test_meta_append_ready_rejects_mutated_change_content_via_full_replay() -> None:
+    fixture = _validated_replay_fixture()
+    fixture.mutation_set.changes[0].class_instance_changes[
+        0
+    ].change.type = ChangeType.update
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution",
+    )
+
+    with (
+        active_commit_perf_trace(recorder),
+        pytest.raises(
+            MetaGraphAppendReadyAssemblyError,
+            match="not replayable",
+        ),
+    ):
+        build_meta_graph_append_ready_changes(
+            request=fixture.request,
+            mutation_set=fixture.mutation_set,
+            boundary_validation=fixture.validation,
+        )
+
+    assert _artifact_fallback_reason(recorder) == "change_set_sha256_mismatch"
+
+
+def test_meta_append_ready_replays_and_repairs_mutated_artifact_post_state() -> None:
+    fixture = _validated_replay_fixture()
+    artifact = fixture.mutation_set.validated_replay_artifact
+    assert artifact is not None
+    artifact.post_oig.class_instances.append(
+        fixture.pre_state.before_oig.class_instances[0].model_copy(deep=True)
+    )
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution",
+    )
+
+    with active_commit_perf_trace(recorder):
+        append_ready = build_meta_graph_append_ready_changes(
+            request=fixture.request,
+            mutation_set=fixture.mutation_set,
+            boundary_validation=fixture.validation,
+        )
+
+    snapshot = append_ready.materialization_cache_prime_snapshot
+    assert snapshot is not None
+    assert snapshot.post_oig is not artifact.post_oig
+    assert snapshot.post_oig.class_instances == []
+    assert compute_hash(snapshot.post_oig, build_index(snapshot.post_oig)) == (
+        fixture.mutation_set.graph_hash_post
+    )
+    assert _artifact_fallback_reason(recorder) == "post_state_hash_mismatch"
+
+
+def test_meta_append_ready_rejects_mutated_pre_state_via_full_replay() -> None:
+    fixture = _validated_replay_fixture()
+    extra_class_instance = fixture.pre_state.before_oig.class_instances[0].model_copy(
+        deep=True
+    )
+    extra_class_instance.id = uuid4()
+    fixture.pre_state.before_oig.class_instances.append(extra_class_instance)
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution",
+    )
+
+    with (
+        active_commit_perf_trace(recorder),
+        pytest.raises(
+            MetaGraphAppendReadyAssemblyError,
+            match="not replayable",
+        ),
+    ):
+        build_meta_graph_append_ready_changes(
+            request=fixture.request,
+            mutation_set=fixture.mutation_set,
+            boundary_validation=fixture.validation,
+        )
+
+    assert _artifact_fallback_reason(recorder) == "pre_state_hash_mismatch"
+
+
+def test_meta_append_ready_foreign_artifact_plan_falls_back_to_full_replay() -> None:
+    fixture = _validated_replay_fixture()
+    artifact = fixture.mutation_set.validated_replay_artifact
+    assert artifact is not None
+    other_request = _meta_handler_execution_request(
+        expected_graph_hash_pre=fixture.pre_state.graph_hash_pre,
+        target_object_id=fixture.pre_state.target_object_id,
+    )
+    mutation_set = replace(
+        fixture.mutation_set,
+        validated_replay_artifact=replace(
+            artifact,
+            execution_plan=other_request.execution_plan,
+        ),
+    )
+    validation = replace(fixture.validation, mutation_set=mutation_set)
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution",
+    )
+
+    with active_commit_perf_trace(recorder):
+        append_ready = build_meta_graph_append_ready_changes(
+            request=fixture.request,
+            mutation_set=mutation_set,
+            boundary_validation=validation,
+        )
+
+    assert append_ready.graph_hash_post == fixture.mutation_set.graph_hash_post
+    assert _artifact_fallback_reason(recorder) == "execution_plan_identity_mismatch"
+
+
+def test_meta_append_ready_copied_change_tuple_falls_back_to_full_replay() -> None:
+    fixture = _validated_replay_fixture()
+    mutation_set = replace(
+        fixture.mutation_set,
+        changes=tuple(list(fixture.mutation_set.changes)),
+    )
+    validation = replace(fixture.validation, mutation_set=mutation_set)
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution",
+    )
+
+    with active_commit_perf_trace(recorder):
+        append_ready = build_meta_graph_append_ready_changes(
+            request=fixture.request,
+            mutation_set=mutation_set,
+            boundary_validation=validation,
+        )
+
+    assert append_ready.graph_hash_post == fixture.mutation_set.graph_hash_post
+    assert _artifact_fallback_reason(recorder) == "changes_identity_mismatch"
+
+
+def test_meta_append_ready_assembler_rejects_post_hash_mismatch() -> None:
+    target_object_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=target_object_id,
+    )
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
+    changes = (
+        _object_change(
+            class_changes=(
+                _class_instance_change(
+                    class_instance_id=target_object_id,
+                    change_type=ChangeType.update,
+                ),
+            ),
+        ),
+    )
+    mutation_set = MetaGraphMutationSet(
+        execution_plan=handler_request.execution_plan,
+        before_oig=pre_state.before_oig,
+        changes=changes,
+        graph_hash_pre="sha256:test:pre",
+        graph_hash_post="sha256:test:wrong",
+    )
+    validation = MetaGraphMutationBoundaryValidation(
+        execution_plan=handler_request.execution_plan,
+        mutation_set=mutation_set,
+        status=MetaGraphMutationBoundaryStatus.accepted,
+    )
+
+    with pytest.raises(MetaGraphAppendReadyAssemblyError, match="not replayable"):
+        build_meta_graph_append_ready_changes(
+            request=handler_request,
+            mutation_set=mutation_set,
+            boundary_validation=validation,
+        )
+
+
+def test_meta_append_ready_replay_keeps_nested_pre_state_immutable() -> None:
+    target_object_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=target_object_id,
+    )
+    graph_id = handler_request.staged_call.lane_scope.object_instance_graph_id
+    class_config_id = next(
+        iter(handler_request.execution_plan.index.class_configs_by_id)
+    )
+    class_config = handler_request.execution_plan.index.class_configs_by_id[
+        class_config_id
+    ]
+    type_descriptor = AttributeTypeDescriptor(
+        id=uuid4(),
+        kind=AttributeTypeDescriptorKind.primitive,
+    )
+    attribute_config = make_attribute_config(
+        owner_key="aware.tests.AppendReady",
+        name="label",
+        type_descriptor=type_descriptor,
+        type_descriptor_id=type_descriptor.id,
+    )
+    cast(
+        dict[UUID, AttributeConfig],
+        handler_request.execution_plan.index.attribute_configs_by_id,
+    )[attribute_config.id] = attribute_config
+    class_config.class_config_attribute_configs = [
+        ClassConfigAttributeConfig(
+            id=uuid4(),
+            class_config_id=class_config_id,
+            attribute_config=attribute_config,
+            attribute_config_id=attribute_config.id,
+            position=0,
+        )
+    ]
+    value_root = build_attribute_value_tree(
+        type_descriptor=type_descriptor,
+        value="before",
+        stable_root_id=uuid4(),
+    )
+    attribute = Attribute(
+        id=uuid4(),
+        owner_key=target_object_id,
+        attribute_config=attribute_config,
+        attribute_config_id=attribute_config.id,
+        value_root=value_root,
+        value_root_id=value_root.id,
+    )
+    class_instance = ClassInstance.model_construct(
+        id=target_object_id,
+        object_instance_graph_id=graph_id,
+        class_config_id=class_config_id,
+        source_object_id=target_object_id,
+        class_instance_attributes=[
+            ClassInstanceAttribute(
+                id=uuid4(),
+                class_instance_id=target_object_id,
+                attribute=attribute,
+                attribute_id=attribute.id,
+            )
+        ],
+    )
+    before_oig = ObjectInstanceGraph.model_construct(
+        id=graph_id,
+        key="append-ready-test",
+        name="append-ready-test",
+        object_projection_graph_id=(
+            handler_request.staged_call.lane_scope.object_projection_graph_id
+        ),
+        root_class_instance=class_instance,
+        root_class_instance_id=class_instance.id,
+        class_instances=[class_instance],
+        class_instance_relationships=[],
+        hash="",
+    )
+    before_hash = compute_hash(before_oig, build_index(before_oig))
+    post_oig = before_oig.model_copy(deep=True)
+    post_attribute = post_oig.class_instances[0].attributes[0]
+    replacement_value = build_attribute_value_tree(
+        type_descriptor=type_descriptor,
+        value="after",
+        stable_root_id=post_attribute.value_root.id,
+    )
+    post_attribute.value_root.primitive_value = replacement_value.primitive_value
+    post_hash = compute_hash(post_oig, build_index(post_oig))
+    changes = tuple(
+        diff_object_instance_graph_changes(
+            old=before_oig,
+            new=post_oig,
+            object_instance_graph_identity_id=(
+                handler_request.staged_call.lane_scope.object_instance_graph_identity_id
+            ),
+        )
+    )
+    mutation_set = MetaGraphMutationSet(
+        execution_plan=handler_request.execution_plan,
+        before_oig=before_oig,
+        changes=changes,
+        graph_hash_pre=before_hash,
+        graph_hash_post=post_hash,
+    )
+    validation = MetaGraphMutationBoundaryValidation(
+        execution_plan=handler_request.execution_plan,
+        mutation_set=mutation_set,
+        status=MetaGraphMutationBoundaryStatus.accepted,
+    )
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution",
+    )
+
+    with active_commit_perf_trace(recorder):
+        append_ready = build_meta_graph_append_ready_changes(
+            request=handler_request,
+            mutation_set=mutation_set,
+            boundary_validation=validation,
+        )
+
+    assert append_ready.graph_hash_post == post_hash
+    assert compute_hash(before_oig, build_index(before_oig)) == before_hash
+    assert before_hash != post_hash
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert {
+        "handler_execution.append_ready.replay.copy_graph",
+        "handler_execution.append_ready.replay.apply_changes",
+        "handler_execution.append_ready.replay.build_index",
+        "handler_execution.append_ready.replay.compute_hash",
+    }.issubset(trace_summary)
+    copy_event = next(
+        event
+        for event in recorder.snapshot_json()
+        if event["phase"] == "handler_execution.append_ready.replay.copy_graph"
+    )
+    copy_metadata = cast(dict[str, object], copy_event["metadata"])
+    assert copy_metadata["class_instance_copy_count"] == 1
+    assert copy_metadata["attribute_copy_count"] == 1
+    assert copy_metadata["value_node_copy_count"] == 1
+    assert not any(
+        phase.startswith("handler_execution.session_delta.canonical_apply.")
+        for phase in trace_summary
+    )
+
+    traced_graph = before_oig.model_copy(deep=True)
+    apply_recorder = CommitPerfTraceRecorder(
+        default_category="meta.graph.instance.canonical_apply",
+    )
+    with active_commit_perf_trace(apply_recorder):
+        apply_object_instance_graph_changes(
+            graph=traced_graph,
+            changes=changes,
+            attribute_configs_by_id=(
+                handler_request.execution_plan.index.attribute_configs_by_id
+            ),
+            class_configs_by_id=(
+                handler_request.execution_plan.index.class_configs_by_id
+            ),
+            trace_phase_prefix="test.canonical_apply",
+        )
+
+    assert compute_hash(traced_graph, build_index(traced_graph)) == post_hash
+    apply_trace_summary = summarize_commit_perf_events(apply_recorder.snapshot_json())
+    assert {
+        "test.canonical_apply.build_class_instance_index",
+        "test.canonical_apply.class_instance.membership",
+        "test.canonical_apply.class_instance.attributes",
+        "test.canonical_apply.class_instance.sort_attributes",
+        "test.canonical_apply.attribute.apply",
+        "test.canonical_apply.attribute_value.apply_scalar_changes",
+        "test.canonical_apply.attribute_value.apply_child_changes",
+        "test.canonical_apply.attribute_value.canonicalize",
+        "test.canonical_apply.attribute_value.validate",
+        "test.canonical_apply.sort_graph_members",
+    }.issubset(apply_trace_summary)
+    attribute_event = next(
+        event
+        for event in apply_recorder.snapshot_json()
+        if event["phase"] == "test.canonical_apply.attribute.apply"
+    )
+    attribute_metadata = cast(dict[str, object], attribute_event["metadata"])
+    assert attribute_metadata["class_instance_change_count"] == 1
+    assert attribute_metadata["attribute_change_count"] == 1
+    assert attribute_metadata["relationship_change_count"] == 0
+
+
+def test_meta_append_ready_replay_fails_closed_on_canonical_apply_error() -> None:
+    target_object_id = uuid4()
+    handler_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        target_object_id=target_object_id,
+    )
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
+    changes = (
+        _object_change(
+            class_changes=(
+                _class_instance_change(
+                    class_instance_id=uuid4(),
+                    change_type=ChangeType.update,
+                ),
+            ),
+            object_instance_graph_id=pre_state.before_oig.id,
+        ),
+    )
+    mutation_set = MetaGraphMutationSet(
+        execution_plan=handler_request.execution_plan,
+        before_oig=pre_state.before_oig,
+        changes=changes,
+        graph_hash_pre="sha256:test:pre",
+        graph_hash_post="sha256:test:post",
+    )
+    validation = MetaGraphMutationBoundaryValidation(
+        execution_plan=handler_request.execution_plan,
+        mutation_set=mutation_set,
+        status=MetaGraphMutationBoundaryStatus.accepted,
+    )
+
+    with pytest.raises(
+        MetaGraphAppendReadyAssemblyError,
+        match="OigChangeApplyError",
+    ):
+        build_meta_graph_append_ready_changes(
+            request=handler_request,
+            mutation_set=mutation_set,
+            boundary_validation=validation,
+        )
 
 
 def test_meta_append_ready_assembler_rejects_boundary_failure() -> None:
@@ -4347,6 +5746,59 @@ async def test_meta_phase_handler_executor_runs_ready_phases_then_fails_closed()
 
 
 @pytest.mark.asyncio
+async def test_meta_phase_handler_executor_uses_pre_state_override() -> None:
+    base_request = _meta_handler_execution_request(
+        expected_graph_hash_pre="sha256:test:pre",
+        args=JsonArray([1]),
+    )
+    override_pre_state = _meta_pre_state(base_request)
+    handler_request = MetaGraphHandlerExecutionRequest(
+        request=base_request.request,
+        staged_call=base_request.staged_call,
+        execution_plan=base_request.execution_plan,
+        pre_state_override=override_pre_state,
+    )
+    materializer_events: list[str] = []
+    materializer = _RecordingPreStateMaterializer(
+        pre_state=_meta_pre_state(base_request),
+        events=materializer_events,
+    )
+    binder_events: list[str] = []
+    binder = _RecordingArgumentBinder(
+        bound_arguments=MetaGraphBoundArguments(
+            execution_plan=handler_request.execution_plan,
+            positional=JsonArray([1]),
+            keyword=JsonObject(),
+        ),
+        events=binder_events,
+    )
+    executor = MetaGraphPhaseHandlerExecutor(
+        pre_state_materializer=materializer,
+        argument_binder=binder,
+    )
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.runtime.handler_execution"
+    )
+
+    with pytest.raises(
+        MetaGraphHandlerExecutionNotReadyError,
+        match="implementation dispatch",
+    ):
+        with active_commit_perf_trace(recorder):
+            await executor.execute_function(handler_request)
+
+    assert materializer.requests == []
+    assert materializer_events == []
+    assert binder_events == ["arguments"]
+    assert binder.calls == [(handler_request, override_pre_state)]
+    trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
+    assert trace_summary["handler_execution.materialize_pre_state"]["count"] == 1
+    assert (
+        trace_summary["handler_execution.materialize_pre_state.override"]["count"] == 1
+    )
+
+
+@pytest.mark.asyncio
 async def test_meta_phase_executor_reaches_dispatcher_then_fails_closed() -> None:
     handler_request = _meta_handler_execution_request(
         expected_graph_hash_pre="sha256:test:pre",
@@ -4469,7 +5921,10 @@ async def test_meta_phase_executor_reaches_boundary_validator_then_fails_closed(
         args=JsonArray([1]),
         kwargs=JsonObject({"label": "ok"}),
     )
-    pre_state = _meta_pre_state(handler_request)
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
     bound_arguments = MetaGraphBoundArguments(
         execution_plan=handler_request.execution_plan,
         positional=JsonArray([1]),
@@ -4544,7 +5999,14 @@ async def test_meta_phase_executor_returns_append_ready_result() -> None:
         args=JsonArray([1]),
         kwargs=JsonObject({"label": "ok"}),
     )
-    pre_state = _meta_pre_state(handler_request)
+    pre_state = _meta_pre_state_with_class_instance(
+        handler_request,
+        class_instance_id=target_object_id,
+    )
+    graph_hash_post = compute_hash(
+        pre_state.before_oig,
+        build_index(pre_state.before_oig),
+    )
     bound_arguments = MetaGraphBoundArguments(
         execution_plan=handler_request.execution_plan,
         positional=JsonArray([1]),
@@ -4571,7 +6033,7 @@ async def test_meta_phase_executor_returns_append_ready_result() -> None:
         before_oig=pre_state.before_oig,
         changes=changes,
         graph_hash_pre="sha256:test:pre",
-        graph_hash_post="sha256:test:post",
+        graph_hash_post=graph_hash_post,
         root_object_id=target_object_id,
         root_class_instance_identity_id=root_identity_id,
     )
@@ -4612,13 +6074,13 @@ async def test_meta_phase_executor_returns_append_ready_result() -> None:
     assert result.payload == JsonObject({"ok": True})
     assert result.execution_time_ms == 7
     assert result.graph_hash_pre == "sha256:test:pre"
-    assert result.graph_hash_post == "sha256:test:post"
+    assert result.graph_hash_post == graph_hash_post
     assert result.root_object_id == target_object_id
     assert result.root_class_instance_identity_id == root_identity_id
     assert result.before_oig is pre_state.before_oig
     assert result.changes == changes
     assert result.append_ready_changes is not None
-    assert result.append_ready_changes.graph_hash_post == "sha256:test:post"
+    assert result.append_ready_changes.graph_hash_post == graph_hash_post
     trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
     assert set(trace_summary) >= {
         "handler_execution.materialize_pre_state",
@@ -5465,6 +6927,41 @@ def _object_change(
         change=_history_change(ChangeType.update),
         type=ObjectInstanceGraphChangeType.object_instance,
         class_instance_changes=list(class_changes),
+    )
+
+
+def _session_delta_change_signature(
+    changes: object,
+) -> tuple[
+    tuple[
+        str,
+        tuple[tuple[UUID, str], ...],
+        tuple[tuple[UUID, UUID, UUID, str], ...],
+    ],
+    ...,
+]:
+    typed_changes = tuple(cast(tuple[ObjectInstanceGraphChange, ...], changes))
+    return tuple(
+        (
+            root.type.value,
+            tuple(
+                (
+                    class_change.class_instance_id,
+                    class_change.change.type.value,
+                )
+                for class_change in root.class_instance_changes
+            ),
+            tuple(
+                (
+                    relationship_change.class_config_relationship_id,
+                    relationship_change.source_class_instance_id,
+                    relationship_change.target_class_instance_id,
+                    relationship_change.change.type.value,
+                )
+                for relationship_change in root.class_instance_relationship_changes
+            ),
+        )
+        for root in typed_changes
     )
 
 

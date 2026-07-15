@@ -14,6 +14,40 @@ enum CodeGrammarAnchorRenderTargetKind {
     text_span
 }
 
+/// Semantic operation requested over one resolved grammar anchor.
+enum CodeGrammarAnchorRenderAction {
+    replace
+    delete
+}
+
+/// Discriminant for a provider-neutral semantic value rendered by Code.
+enum CodeGrammarAnchorRenderSemanticValueKind {
+    string
+    boolean
+    integer
+    float
+    null
+    json
+    type_ref
+}
+
+/// Provider-neutral primitive type reference rendered by a grammar value codec.
+class CodeGrammarAnchorRenderTypeRefValue : inline_value {
+    type_name String
+    nullable Bool = false
+}
+
+/// Typed semantic value accepted by a Code-owned grammar value codec.
+class CodeGrammarAnchorRenderSemanticValue : inline_value {
+    kind code.CodeGrammarAnchorRenderSemanticValueKind
+    string_value String?
+    boolean_value Bool?
+    integer_value Int?
+    float_value Float?
+    json_value JsonValue?
+    type_ref_value code.CodeGrammarAnchorRenderTypeRefValue?
+}
+
 /// Typed byte-span target for render deltas that cannot yet use parser anchors.
 class CodeGrammarAnchorRenderSpanTarget : inline_value {
     target_key String?
@@ -35,7 +69,10 @@ class CodeGrammarAnchorRenderReplacement : inline_value {
     source_key String?
     target_kind code.CodeGrammarAnchorRenderTargetKind = grammar_anchor
     span_target code.CodeGrammarAnchorRenderSpanTarget?
-    replacement_text String
+    action code.CodeGrammarAnchorRenderAction = replace
+    semantic_value code.CodeGrammarAnchorRenderSemanticValue?
+    /// Representation text is accepted only for explicit text-span targets.
+    replacement_text String?
     before_text_hash String?
     event_ref String?
     semantic_key String?

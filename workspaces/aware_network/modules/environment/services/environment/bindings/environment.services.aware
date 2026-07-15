@@ -1,0 +1,82 @@
+service aware_environment {
+    api environment
+
+    operation describe_environment_config {
+        endpoint environment.describe_config.describe_environment_config
+        receipt read_model
+    }
+
+    operation describe_environment {
+        endpoint environment.describe.describe_environment
+        receipt read_model
+        view environment.navigator
+        view environment.process_workspace
+        view environment.thread_layout
+    }
+
+    operation describe_environment_topology {
+        endpoint environment.topology.describe_environment_topology
+        receipt read_model
+        view environment.navigator
+        view environment.process_workspace
+        view environment.thread_layout
+    }
+
+    operation describe_environment_status {
+        endpoint environment.status.describe_environment_status
+        receipt read_model
+        view environment.navigator
+        view environment.process_workspace
+        view environment.thread_layout
+    }
+
+    operation ensure_ready {
+        endpoint environment.ready.ensure_ready
+        admission identity_required
+    }
+
+    operation start_environment_session {
+        endpoint environment.session.start_session
+        admission identity_required
+    }
+
+    operation join_environment_session {
+        endpoint environment.session.join_session
+        admission identity_required
+    }
+
+    operation describe_environment_session {
+        endpoint environment.session.describe_session
+        receipt read_model
+    }
+
+    operation resolve_environment_session_attention {
+        endpoint environment.session.resolve_attention
+        receipt read_model
+    }
+
+    operation mount_environment_session_attention {
+        endpoint environment.session.mount_attention_session
+        admission identity_required
+    }
+
+    operation get_lane_head {
+        endpoint environment.lane_head.get_lane_head
+        receipt read_model
+    }
+
+    operation get_object_instance_graph_commit {
+        endpoint environment.object_instance_graph_commit.get_object_instance_graph_commit
+        receipt read_model
+    }
+
+    operation materialize_committed_projection_dto {
+        endpoint environment.committed_projection_dto.materialize_committed_projection_dto
+        admission identity_required
+    }
+
+    operation invoke_function {
+        endpoint environment.function_call.invoke_function
+        admission identity_required
+    }
+}

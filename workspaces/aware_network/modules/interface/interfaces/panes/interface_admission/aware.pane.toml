@@ -1,0 +1,12 @@
+aware_pane = 1
+
+[pane]
+package_name = "aware-interface-admission-pane"
+fqn_prefix = "aware_interface_admission_pane"
+pane_name = "interface_admission"
+description = "Canonical Interface Admission pane package for pairing a renderer into an Aware Interface."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []

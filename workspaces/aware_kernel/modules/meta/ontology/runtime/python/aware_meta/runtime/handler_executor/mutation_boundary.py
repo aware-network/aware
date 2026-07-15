@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, TypeAlias
 from uuid import UUID
 
 from aware_history_ontology.change.change_enums import ChangeType
+from aware_meta.graph.instance.commit.body_codec import OigCommitBodyRootChangeDraft
+from aware_meta_ontology.graph.instance.object_instance_graph_change import (
+    ObjectInstanceGraphChange,
+)
 
 from aware_meta.runtime.handler_executor.contracts import (
     MetaGraphHandlerExecutionRequest,
@@ -20,6 +24,9 @@ class MetaGraphMutationBoundaryError(RuntimeError):
 
 class MetaGraphMutationBoundaryNotReadyError(MetaGraphMutationBoundaryError):
     """Raised when no Meta mutation boundary policy is wired."""
+
+
+_MutationRoot: TypeAlias = ObjectInstanceGraphChange | OigCommitBodyRootChangeDraft
 
 
 class MetaGraphMutationBoundaryPolicy(Protocol):
@@ -138,7 +145,7 @@ def _mutate_self_violation(
     )
     created_ids: set[UUID] = set()
 
-    for root in mutation_set.changes:
+    for root in _mutation_roots(mutation_set):
         for class_change in root.class_instance_changes:
             change_type = class_change.change.type
             class_instance_id = class_change.class_instance_id
@@ -168,17 +175,17 @@ def _mutate_self_violation(
                 return (
                     "Class instance mutation requires an invoked target object. "
                     f"class_instance_id={class_instance_id} "
-                    f"change_type={change_type.value}"
+                    f"change_type={_change_type_text(change_type)}"
                 )
             if class_instance_id != target_class_instance_id:
                 return (
                     "Cross-object class mutation detected. "
                     f"target_object_id={target_class_instance_id} "
                     f"class_instance_id={class_instance_id} "
-                    f"change_type={change_type.value}"
+                    f"change_type={_change_type_text(change_type)}"
                 )
 
-    for root in mutation_set.changes:
+    for root in _mutation_roots(mutation_set):
         for relationship_change in root.class_instance_relationship_changes:
             source_id = relationship_change.source_class_instance_id
             if source_id == target_class_instance_id:
@@ -214,7 +221,7 @@ def _descendant_class_instance_ids(
             relationship.source_class_instance_id,
             [],
         ).append(relationship.target_class_instance_id)
-    for root in mutation_set.changes:
+    for root in _mutation_roots(mutation_set):
         for relationship_change in root.class_instance_relationship_changes:
             if relationship_change.change.type is ChangeType.delete:
                 continue
@@ -232,6 +239,20 @@ def _descendant_class_instance_ids(
         descendants.add(class_instance_id)
         stack.extend(relationships_by_source.get(class_instance_id, ()))
     return descendants
+
+
+def _mutation_roots(mutation_set: MetaGraphMutationSet) -> tuple[_MutationRoot, ...]:
+    if mutation_set.body_draft is not None:
+        if mutation_set.changes:
+            raise MetaGraphMutationBoundaryError(
+                "Meta mutation evidence cannot contain both changes and a body draft."
+            )
+        return tuple(mutation_set.body_draft.roots)
+    return tuple(mutation_set.changes)
+
+
+def _change_type_text(change_type: ChangeType | str) -> str:
+    return change_type.value if isinstance(change_type, ChangeType) else change_type
 
 
 def _validate_boundary_inputs(

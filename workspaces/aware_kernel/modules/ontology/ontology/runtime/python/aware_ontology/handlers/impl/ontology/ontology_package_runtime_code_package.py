@@ -95,6 +95,14 @@ async def build_via_ontology_package(
         if session is not None and object_instance_graph_commit_id is not None
         else None
     )
+    if resolved_commit is not None and resolved_commit.root_source_object_id != code_package_id:
+        raise RuntimeError(
+            "OntologyPackageRuntimeCodePackage.build_via_ontology_package "
+            "commit owner mismatch for "
+            f"code_package_id={code_package_id} "
+            f"object_instance_graph_commit_id={object_instance_graph_commit_id} "
+            f"commit_root_source_object_id={resolved_commit.root_source_object_id}"
+        )
 
     if session is not None:
         existing = session.imap_get(
@@ -107,20 +115,13 @@ async def build_via_ontology_package(
                     "OntologyPackageRuntimeCodePackage.build_via_ontology_package "
                     f"payload mismatch for runtime_code_package_id={runtime_package_id}"
                 )
-            if object_instance_graph_commit_id is not None and existing.object_instance_graph_commit_id not in {
-                None,
-                object_instance_graph_commit_id,
-            }:
-                raise RuntimeError(
-                    "OntologyPackageRuntimeCodePackage.build_via_ontology_package "
-                    "commit mismatch for "
-                    f"runtime_code_package_id={runtime_package_id}"
-                )
             if existing.code_package is None:
                 existing.code_package = resolved_code_package
             if object_instance_graph_commit_id is not None:
+                pin_changed = existing.object_instance_graph_commit_id != object_instance_graph_commit_id
                 existing.object_instance_graph_commit_id = object_instance_graph_commit_id
-                existing.object_instance_graph_commit = resolved_commit
+                if resolved_commit is not None or pin_changed:
+                    existing.object_instance_graph_commit = resolved_commit
             existing.package_name = normalized_package_name
             existing.language = language
             existing.import_root = normalized_import_root

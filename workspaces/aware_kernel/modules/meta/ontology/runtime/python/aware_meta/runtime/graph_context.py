@@ -13,6 +13,7 @@ from typing import TypeVar, cast
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from aware_code.semantic_materialization import (
+    SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_PREFLIGHT,
     SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_ISOLATE_TARGET_MANIFESTS,
     SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_KEY,
     SEMANTIC_MATERIALIZATION_TARGET_MANIFEST_PATHS_CONTEXT_KEY,
@@ -41,6 +42,8 @@ from aware_meta.package_graph_reuse_cache import (
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_RUNTIME_INDEX_SIDECAR,
     OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_VERSION,
     external_graph_signature,
+    object_config_graph_package_context_reuse_cache_path,
+    object_config_graph_package_reuse_cache_path,
     object_config_graph_payload_has_materialized_body,
     object_config_graph_payload_has_namespace_evidence,
     read_object_config_graph_package_context_reuse_cache_payload,
@@ -62,6 +65,7 @@ from aware_meta.runtime.handler_executor.index import (
 from aware_meta.runtime.package_index import (
     MetaRuntimePackageIndexEntry,
     build_meta_runtime_package_projection_index,
+    load_meta_runtime_package_projection_lookup,
     stable_meta_runtime_package_branch_id,
 )
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
@@ -87,6 +91,7 @@ from aware_meta_ontology.stable_ids import (
     stable_object_config_graph_package_id,
 )
 from aware_meta.graph.config.stable_ids import stable_object_config_graph_identity_id
+from aware_orm.session.change_collector import disable_change_tracking_hooks
 
 
 _AWARE_SOURCE_EXTENSION = ".aware"
@@ -114,6 +119,37 @@ _RUNTIME_INDEX_SNAPSHOT_CACHE: OrderedDict[
     "MetaGraphRuntimeIndexSnapshot",
 ] = OrderedDict()
 _RUNTIME_INDEX_SNAPSHOT_CACHE_LOCK = RLock()
+
+
+class MetaGraphRuntimeCompactContextError(RuntimeError):
+    """A package prevented construction of a read-only index context."""
+
+    def __init__(
+        self,
+        *,
+        package_name: str,
+        manifest_path: Path,
+        cache_owner_root: Path,
+        reason: str,
+        diagnostics: Mapping[str, object] | None = None,
+        branch_id: UUID | None = None,
+        object_config_graph_package_id: UUID | None = None,
+    ) -> None:
+        self.evidence = {
+            "schema": "aware.meta.runtime_compact_context_rejection.v1",
+            "package_name": package_name,
+            "manifest_path": manifest_path.resolve().as_posix(),
+            "cache_owner_root": cache_owner_root.resolve().as_posix(),
+            "reason": reason,
+            "branch_id": str(branch_id) if branch_id is not None else None,
+            "object_config_graph_package_id": (
+                str(object_config_graph_package_id)
+                if object_config_graph_package_id is not None
+                else None
+            ),
+            "cache_diagnostics": dict(diagnostics or {}),
+        }
+        super().__init__(f"{package_name}: {reason}")
 
 
 @dataclass(frozen=True, slots=True)
@@ -252,6 +288,10 @@ class MetaGraphRuntimeContext:
     runtime_context_graph_body_requirement: str = (
         _RUNTIME_CONTEXT_GRAPH_BODY_REQUIREMENT_RUNTIME_GRAPH_BODY
     )
+    runtime_context_preflight_fallback_reason: str | None = None
+    runtime_context_preflight_fallback_evidence: Mapping[str, object] = field(
+        default_factory=dict
+    )
 
     def projection_hash_for_name(self, projection_name: str) -> str:
         """Resolve an authored projection name exactly."""
@@ -288,12 +328,32 @@ class MetaWorkspaceMaterializationRuntimeContext:
         return self.meta_context.package_timings
 
     @property
+    def runtime_context_preflight_fallback_reason(self) -> str | None:
+        return self.meta_context.runtime_context_preflight_fallback_reason
+
+    @property
+    def runtime_context_preflight_fallback_evidence(self) -> Mapping[str, object]:
+        return self.meta_context.runtime_context_preflight_fallback_evidence
+
+    @property
     def runtime_object_config_graphs(self) -> tuple[ObjectConfigGraph, ...]:
         return self.meta_context.runtime_graphs
 
     @property
+    def runtime_object_config_graphs_by_package_name(
+        self,
+    ) -> Mapping[str, ObjectConfigGraph]:
+        return self.meta_context.runtime_graph_by_package_name
+
+    @property
     def semantic_object_config_graphs(self) -> tuple[ObjectConfigGraph, ...]:
         return self.meta_context.source_graphs
+
+    @property
+    def semantic_object_config_graphs_by_package_name(
+        self,
+    ) -> Mapping[str, ObjectConfigGraph]:
+        return self.meta_context.source_graph_by_package_name
 
     def projection_hash_for_name(self, projection_name: str) -> str:
         return self.meta_context.projection_hash_for_name(projection_name)
@@ -549,6 +609,7 @@ def build_meta_graph_runtime_context_for_aware_package_manifests(
                     cache_owner_root=package_cache_owner_root,
                     catalog_entry=catalog_entry,
                     external_graph_refs=external_graph_refs,
+                    external_runtime_graphs=external_runtime_graphs,
                     load_source_graph=load_source_graph_payloads,
                     phase_timings_s=package_phase_timings_s,
                     diagnostics=cache_diagnostics,
@@ -559,6 +620,7 @@ def build_meta_graph_runtime_context_for_aware_package_manifests(
                     manifest_path=manifest_path,
                     spec=spec,
                     external_graphs=external_graphs,
+                    external_runtime_graphs=external_runtime_graphs,
                     phase_timings_s=package_phase_timings_s,
                     diagnostics=cache_diagnostics,
                 )
@@ -754,6 +816,15 @@ def _try_build_strict_runtime_only_context_from_catalog_cache(
                 manifest_path=manifest_path,
             )
             if catalog_entry is None:
+                if graph_body_requirement == (
+                    _RUNTIME_CONTEXT_GRAPH_BODY_REQUIREMENT_INDEX_ONLY
+                ):
+                    raise MetaGraphRuntimeCompactContextError(
+                        package_name=package_name,
+                        manifest_path=manifest_path,
+                        cache_owner_root=resolved_workspace_root,
+                        reason="catalog_entry_missing",
+                    )
                 return None
             _validate_catalog_entry_matches_manifest_spec(
                 catalog_entry=catalog_entry,
@@ -785,6 +856,20 @@ def _try_build_strict_runtime_only_context_from_catalog_cache(
                     if dependency_name not in source_graph_ref_by_package_name
                 )
                 if missing_dependencies:
+                    if graph_body_requirement == (
+                        _RUNTIME_CONTEXT_GRAPH_BODY_REQUIREMENT_INDEX_ONLY
+                    ):
+                        raise MetaGraphRuntimeCompactContextError(
+                            package_name=package_name,
+                            manifest_path=manifest_path,
+                            cache_owner_root=resolved_workspace_root,
+                            reason="dependency_index_predecessor_missing",
+                            diagnostics={
+                                "missing_dependency_package_names": list(
+                                    missing_dependencies
+                                )
+                            },
+                        )
                     return None
                 dependency_closure_names = _dependency_closure_package_names(
                     dependency_names=dependency_names,
@@ -815,6 +900,33 @@ def _try_build_strict_runtime_only_context_from_catalog_cache(
                 ),
             )
             if prepared_package is None:
+                if graph_body_requirement == (
+                    _RUNTIME_CONTEXT_GRAPH_BODY_REQUIREMENT_INDEX_ONLY
+                ):
+                    branch_id = _stable_object_config_graph_package_branch_id(
+                        workspace_root=package_cache_owner_root,
+                        aware_toml_path=manifest_path,
+                        package_name=package_name,
+                        fqn_prefix=catalog_entry.fqn_prefix,
+                    )
+                    object_config_graph_package_id = (
+                        stable_object_config_graph_package_id(
+                            package_name=package_name,
+                            fqn_prefix=catalog_entry.fqn_prefix,
+                        )
+                    )
+                    raise MetaGraphRuntimeCompactContextError(
+                        package_name=package_name,
+                        manifest_path=manifest_path,
+                        cache_owner_root=package_cache_owner_root,
+                        reason=str(
+                            cache_diagnostics.get("cache_miss_reason")
+                            or "runtime_index_sidecar_unavailable"
+                        ),
+                        diagnostics=cache_diagnostics,
+                        branch_id=branch_id,
+                        object_config_graph_package_id=(object_config_graph_package_id),
+                    )
                 return None
             source_graph_ref_by_package_name[package_name] = (
                 prepared_package.cached_graphs.source_graph_ref
@@ -842,6 +954,13 @@ def _try_build_strict_runtime_only_context_from_catalog_cache(
                 )
             )
     if not prepared_packages:
+        if graph_body_requirement == _RUNTIME_CONTEXT_GRAPH_BODY_REQUIREMENT_INDEX_ONLY:
+            raise MetaGraphRuntimeCompactContextError(
+                package_name="<selection>",
+                manifest_path=resolved_workspace_root,
+                cache_owner_root=resolved_workspace_root,
+                reason="no_runtime_packages_selected",
+            )
         return None
 
     if graph_body_requirement == _RUNTIME_CONTEXT_GRAPH_BODY_REQUIREMENT_INDEX_ONLY:
@@ -1249,32 +1368,71 @@ def build_meta_workspace_materialization_runtime_context(
         provider_phase_timings_s,
         "workspace_provider_build_meta_graph_runtime_s",
     ):
-        runtime = build_meta_graph_runtime_for_aware_package_manifests(
-            package_manifest_paths=manifest_paths,
-            workspace_root=request.workspace_root,
-            composite_name="Aware Workspace Meta Materialization Context",
-            implementation_policy=_workspace_materialization_implementation_policy(),
-            strict_package_graph_cache=(
-                _has_explicit_semantic_ontology_package_catalog(request.context)
-            ),
-            package_entries_by_manifest_path=package_entries_by_manifest_path,
-            package_cache_owner_roots_by_manifest_path=(
-                package_cache_owner_roots_by_manifest_path
-            ),
-            source_analysis_allowed_manifest_paths=(
-                source_analysis_allowed_manifest_paths
-            ),
-            package_graph_cache_request_signature=(
-                package_graph_cache_request_signature
-            ),
-            handler_owner_prefixes=handler_owner_prefixes,
-            load_source_graph_payloads=(
-                _runtime_context_load_source_graph_payloads_for_request(request)
-            ),
-            runtime_context_graph_body_requirement=(
-                _runtime_context_graph_body_requirement_for_request(request)
-            ),
-        )
+
+        def build_runtime_for_requirement(
+            *,
+            load_source_graph_payloads: bool,
+            graph_body_requirement: str,
+        ):
+            return build_meta_graph_runtime_for_aware_package_manifests(
+                package_manifest_paths=manifest_paths,
+                workspace_root=request.workspace_root,
+                composite_name="Aware Workspace Meta Materialization Context",
+                implementation_policy=(
+                    _workspace_materialization_implementation_policy()
+                ),
+                strict_package_graph_cache=(
+                    _has_explicit_semantic_ontology_package_catalog(request.context)
+                ),
+                package_entries_by_manifest_path=package_entries_by_manifest_path,
+                package_cache_owner_roots_by_manifest_path=(
+                    package_cache_owner_roots_by_manifest_path
+                ),
+                source_analysis_allowed_manifest_paths=(
+                    source_analysis_allowed_manifest_paths
+                ),
+                package_graph_cache_request_signature=(
+                    package_graph_cache_request_signature
+                ),
+                handler_owner_prefixes=handler_owner_prefixes,
+                load_source_graph_payloads=load_source_graph_payloads,
+                runtime_context_graph_body_requirement=graph_body_requirement,
+                discover_generated_handlers=(
+                    not _runtime_context_read_only_preflight_requested(request)
+                ),
+            )
+
+        try:
+            runtime = build_runtime_for_requirement(
+                load_source_graph_payloads=(
+                    _runtime_context_load_source_graph_payloads_for_request(request)
+                ),
+                graph_body_requirement=(
+                    _runtime_context_graph_body_requirement_for_request(request)
+                ),
+            )
+        except (FileNotFoundError, RuntimeError, ValueError) as exc:
+            if not _runtime_context_read_only_preflight_requested(request):
+                raise
+            preflight_fallback_reason = f"{type(exc).__name__}: {exc}"
+            preflight_fallback_evidence = (
+                dict(exc.evidence)
+                if isinstance(exc, MetaGraphRuntimeCompactContextError)
+                else {}
+            )
+            fallback_started_at = perf_counter()
+            runtime = build_runtime_for_requirement(
+                load_source_graph_payloads=True,
+                graph_body_requirement=(
+                    _RUNTIME_CONTEXT_GRAPH_BODY_REQUIREMENT_RUNTIME_GRAPH_BODY
+                ),
+            )
+            provider_phase_timings_s[
+                "workspace_provider_preflight_full_context_fallback_s"
+            ] = _round_duration_s(perf_counter() - fallback_started_at)
+        else:
+            preflight_fallback_reason = None
+            preflight_fallback_evidence = {}
     wrap_started_at = perf_counter()
     meta_context = runtime.context
     if meta_context is None:
@@ -1289,6 +1447,12 @@ def build_meta_workspace_materialization_runtime_context(
         meta_context=meta_context,
         phase_timings_s=provider_phase_timings_s,
     )
+    if preflight_fallback_reason is not None:
+        meta_context = _meta_context_with_preflight_fallback_evidence(
+            meta_context=meta_context,
+            reason=preflight_fallback_reason,
+            evidence=preflight_fallback_evidence,
+        )
     return MetaWorkspaceMaterializationRuntimeContext(
         meta_context=meta_context,
         runtime=runtime,
@@ -1318,6 +1482,28 @@ def _meta_context_with_workspace_provider_phase_timings(
         return cast(MetaGraphRuntimeContext, meta_context)
 
 
+def _meta_context_with_preflight_fallback_evidence(
+    *,
+    meta_context: MetaGraphRuntimeContext,
+    reason: str,
+    evidence: Mapping[str, object],
+) -> MetaGraphRuntimeContext:
+    try:
+        return replace(
+            meta_context,
+            runtime_context_preflight_fallback_reason=reason,
+            runtime_context_preflight_fallback_evidence=dict(evidence),
+        )
+    except TypeError:
+        setattr(meta_context, "runtime_context_preflight_fallback_reason", reason)
+        setattr(
+            meta_context,
+            "runtime_context_preflight_fallback_evidence",
+            dict(evidence),
+        )
+        return meta_context
+
+
 def _workspace_materialization_implementation_policy() -> MetaGraphImplementationPolicy:
     """Keep provider-delta OCG mutations on handler-backed ontology functions."""
 
@@ -1329,6 +1515,8 @@ def _workspace_materialization_implementation_policy() -> MetaGraphImplementatio
 def _runtime_context_load_source_graph_payloads_for_request(
     request: SemanticPackageMaterializationRuntimeContextRequest,
 ) -> bool:
+    if _runtime_context_read_only_preflight_requested(request):
+        return False
     mode = _clean_string_value(
         request.context.get("runtime_context_graph_publication_mode")
     ) or _clean_string_value(
@@ -1340,6 +1528,8 @@ def _runtime_context_load_source_graph_payloads_for_request(
 def _runtime_context_graph_body_requirement_for_request(
     request: SemanticPackageMaterializationRuntimeContextRequest,
 ) -> str:
+    if _runtime_context_read_only_preflight_requested(request):
+        return _RUNTIME_CONTEXT_GRAPH_BODY_REQUIREMENT_INDEX_ONLY
     return _normalize_runtime_context_graph_body_requirement(
         _clean_string_value(
             request.context.get(_RUNTIME_CONTEXT_GRAPH_BODY_REQUIREMENT_KEY)
@@ -1347,6 +1537,15 @@ def _runtime_context_graph_body_requirement_for_request(
         or _clean_string_value(
             request.provider_payload.get(_RUNTIME_CONTEXT_GRAPH_BODY_REQUIREMENT_KEY)
         )
+    )
+
+
+def _runtime_context_read_only_preflight_requested(
+    request: SemanticPackageMaterializationRuntimeContextRequest,
+) -> bool:
+    return (
+        request.demand
+        == SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_PREFLIGHT
     )
 
 
@@ -1925,7 +2124,7 @@ def _workspace_materialization_package_manifest_paths(
     )
     required_projection_package_names = _required_projection_package_names(
         repo_root=request.repo_root,
-        aware_root=request.repo_root,
+        aware_root=request.workspace_root,
         entries_by_package_name=entries_by_package_name,
         required_projection_names=required_projection_names,
     )
@@ -2009,7 +2208,7 @@ def resolve_workspace_required_projection_package_manifest_paths(
     )
     required_projection_package_names = _required_projection_package_names(
         repo_root=request.repo_root,
-        aware_root=request.repo_root,
+        aware_root=request.workspace_root,
         entries_by_package_name=entries_by_package_name,
         required_projection_names=required_projection_names,
     )
@@ -2222,28 +2421,99 @@ def _required_projection_package_names(
 ) -> tuple[str, ...]:
     if not required_projection_names:
         return ()
-    catalog_package_names = _required_projection_package_names_from_catalog_entries(
-        entries_by_package_name=entries_by_package_name,
-        required_projection_names=required_projection_names,
+    package_name_by_projection_name, unresolved_projection_names = (
+        _required_projection_package_owner_map_from_catalog_entries(
+            entries_by_package_name=entries_by_package_name,
+            required_projection_names=required_projection_names,
+        )
     )
-    if catalog_package_names is not None:
-        return catalog_package_names
+    if unresolved_projection_names:
+        compact_index = load_meta_runtime_package_projection_lookup(
+            repo_root=repo_root,
+            aware_root=aware_root,
+            package_entries=tuple(entries_by_package_name.values()),
+        )
+        if compact_index is not None:
+            for projection_name in unresolved_projection_names:
+                projection = compact_index.projections_by_name.get(projection_name)
+                if projection is not None:
+                    package_name_by_projection_name[projection_name] = (
+                        projection.package_name
+                    )
+            unresolved_projection_names = tuple(
+                projection_name
+                for projection_name in unresolved_projection_names
+                if projection_name not in package_name_by_projection_name
+            )
+    if not unresolved_projection_names:
+        return _ordered_projection_owner_package_names(
+            required_projection_names=required_projection_names,
+            package_name_by_projection_name=package_name_by_projection_name,
+        )
     package_projection_index = build_meta_runtime_package_projection_index(
         repo_root=repo_root,
         aware_root=aware_root,
         package_entries=tuple(entries_by_package_name.values()),
-        required_projection_names=required_projection_names,
+        required_projection_names=unresolved_projection_names,
     )
     missing_projection_names = package_projection_index.missing_projection_names(
-        required_projection_names
+        unresolved_projection_names
     )
     if missing_projection_names:
         raise ValueError(
             "Required Meta runtime projections were not found in the package "
             "projection index: " + ", ".join(missing_projection_names)
         )
-    return package_projection_index.package_names_for_projection_names(
-        required_projection_names
+    for projection_name in unresolved_projection_names:
+        projection = package_projection_index.projections_by_name.get(projection_name)
+        if projection is not None:
+            package_name_by_projection_name[projection_name] = projection.package_name
+    return _ordered_projection_owner_package_names(
+        required_projection_names=required_projection_names,
+        package_name_by_projection_name=package_name_by_projection_name,
+    )
+
+
+def _required_projection_package_owner_map_from_catalog_entries(
+    *,
+    entries_by_package_name: Mapping[str, MetaRuntimePackageIndexEntry],
+    required_projection_names: tuple[str, ...],
+) -> tuple[dict[str, str], tuple[str, ...]]:
+    required_names = set(required_projection_names)
+    package_name_by_projection_name: dict[str, str] = {}
+    ambiguous_projection_names: set[str] = set()
+    for entry in entries_by_package_name.values():
+        for projection_name in entry.projection_names:
+            if projection_name not in required_names:
+                continue
+            existing_package_name = package_name_by_projection_name.get(projection_name)
+            if (
+                existing_package_name is not None
+                and existing_package_name != entry.package_name
+            ):
+                ambiguous_projection_names.add(projection_name)
+                package_name_by_projection_name.pop(projection_name, None)
+                continue
+            if projection_name not in ambiguous_projection_names:
+                package_name_by_projection_name[projection_name] = entry.package_name
+    unresolved = tuple(
+        projection_name
+        for projection_name in required_projection_names
+        if projection_name not in package_name_by_projection_name
+    )
+    return package_name_by_projection_name, unresolved
+
+
+def _ordered_projection_owner_package_names(
+    *,
+    required_projection_names: tuple[str, ...],
+    package_name_by_projection_name: Mapping[str, str],
+) -> tuple[str, ...]:
+    return tuple(
+        dict.fromkeys(
+            package_name_by_projection_name[projection_name]
+            for projection_name in required_projection_names
+        )
     )
 
 
@@ -2252,31 +2522,18 @@ def _required_projection_package_names_from_catalog_entries(
     entries_by_package_name: Mapping[str, MetaRuntimePackageIndexEntry],
     required_projection_names: tuple[str, ...],
 ) -> tuple[str, ...] | None:
-    package_name_by_projection_name: dict[str, str] = {}
-    ambiguous_projection_names: set[str] = set()
-    for entry in entries_by_package_name.values():
-        for projection_name in entry.projection_names:
-            existing_package_name = package_name_by_projection_name.get(projection_name)
-            if (
-                existing_package_name is not None
-                and existing_package_name != entry.package_name
-            ):
-                ambiguous_projection_names.add(projection_name)
-                continue
-            package_name_by_projection_name[projection_name] = entry.package_name
-    package_names: list[str] = []
-    seen_package_names: set[str] = set()
-    for projection_name in required_projection_names:
-        if projection_name in ambiguous_projection_names:
-            return None
-        package_name = package_name_by_projection_name.get(projection_name)
-        if package_name is None:
-            return None
-        if package_name in seen_package_names:
-            continue
-        seen_package_names.add(package_name)
-        package_names.append(package_name)
-    return tuple(package_names)
+    package_name_by_projection_name, unresolved_projection_names = (
+        _required_projection_package_owner_map_from_catalog_entries(
+            entries_by_package_name=entries_by_package_name,
+            required_projection_names=required_projection_names,
+        )
+    )
+    if unresolved_projection_names:
+        return None
+    return _ordered_projection_owner_package_names(
+        required_projection_names=required_projection_names,
+        package_name_by_projection_name=package_name_by_projection_name,
+    )
 
 
 def _ontology_package_manifest_catalog(
@@ -3022,6 +3279,7 @@ def _try_load_catalog_cached_package_graphs(
     catalog_entry: MetaRuntimePackageIndexEntry,
     external_graph_refs: tuple[_PackageGraphRef, ...] | None = None,
     external_graphs: tuple[ObjectConfigGraph, ...] = (),
+    external_runtime_graphs: tuple[ObjectConfigGraph, ...] | None = None,
     load_source_graph: bool = True,
     phase_timings_s: dict[str, float] | None = None,
     diagnostics: dict[str, object] | None = None,
@@ -3048,13 +3306,34 @@ def _try_load_catalog_cached_package_graphs(
         dependency_signature = _external_graph_signature(
             external_graphs=signature_external_graphs,
         )
+        materialized_dependency_signature = _external_graph_signature(
+            external_graphs=(
+                signature_external_graphs
+                if external_runtime_graphs is None
+                else external_runtime_graphs
+            ),
+        )
     with _record_phase(phase_timings_s, "read_catalog_context_cache_payload"):
         context_payload = _read_package_context_reuse_cache_payload(
             workspace_root=cache_owner_root,
             branch_id=branch_id,
             object_config_graph_package_id=object_config_graph_package_id,
         )
-    if context_payload is not None:
+    context_superseded = context_payload is not None and (
+        _materialized_package_cache_supersedes_context(
+            workspace_root=cache_owner_root,
+            branch_id=branch_id,
+            object_config_graph_package_id=object_config_graph_package_id,
+            context_payload=context_payload,
+        )
+    )
+    if context_superseded:
+        if diagnostics is not None:
+            diagnostics["catalog_context_cache_miss_reason"] = (
+                "context_cache_superseded_by_materialized_package"
+            )
+            diagnostics["catalog_context_cache_status"] = "miss"
+    elif context_payload is not None:
         cached_graphs = _try_load_catalog_cache_payload_graphs(
             payload=context_payload,
             cache_source="catalog_context_reuse_cache",
@@ -3064,6 +3343,8 @@ def _try_load_catalog_cached_package_graphs(
             object_config_graph_id=object_config_graph_id,
             object_config_graph_package_id=object_config_graph_package_id,
             dependency_signature=dependency_signature,
+            context_dependency_signature=dependency_signature,
+            external_runtime_graphs=external_runtime_graphs or (),
             load_source_graph=load_source_graph,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
@@ -3099,7 +3380,9 @@ def _try_load_catalog_cached_package_graphs(
         branch_id=branch_id,
         object_config_graph_id=object_config_graph_id,
         object_config_graph_package_id=object_config_graph_package_id,
-        dependency_signature=dependency_signature,
+        dependency_signature=materialized_dependency_signature,
+        context_dependency_signature=dependency_signature,
+        external_runtime_graphs=external_runtime_graphs or (),
         load_source_graph=True,
         phase_timings_s=phase_timings_s,
         diagnostics=diagnostics,
@@ -3109,6 +3392,175 @@ def _try_load_catalog_cached_package_graphs(
             "cache_miss_reason"
         )
         diagnostics["catalog_materialized_cache_status"] = "miss"
+    if cached_graphs is None and context_payload is not None:
+        cached_graphs = _try_rederive_catalog_context_after_dependency_movement(
+            context_payload=context_payload,
+            materialized_payload=materialized_payload,
+            cache_owner_root=cache_owner_root,
+            catalog_entry=catalog_entry,
+            branch_id=branch_id,
+            object_config_graph_id=object_config_graph_id,
+            object_config_graph_package_id=object_config_graph_package_id,
+            dependency_signature=dependency_signature,
+            external_runtime_graphs=external_runtime_graphs or (),
+            phase_timings_s=phase_timings_s,
+            diagnostics=diagnostics,
+        )
+    return cached_graphs
+
+
+def _try_rederive_catalog_context_after_dependency_movement(
+    *,
+    context_payload: Mapping[str, object],
+    materialized_payload: Mapping[str, object],
+    cache_owner_root: Path,
+    catalog_entry: MetaRuntimePackageIndexEntry,
+    branch_id: UUID,
+    object_config_graph_id: UUID,
+    object_config_graph_package_id: UUID,
+    dependency_signature: str,
+    external_runtime_graphs: tuple[ObjectConfigGraph, ...],
+    phase_timings_s: dict[str, float] | None,
+    diagnostics: dict[str, object] | None,
+) -> _CachedPackageGraphs | None:
+    context_cache_kind = _diagnostic_string(context_payload, "cache_kind")
+    materialized_cache_kind = _diagnostic_string(materialized_payload, "cache_kind")
+    if (
+        context_cache_kind
+        != OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_CONTEXT_GRAPHS
+        or materialized_cache_kind
+        != OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_MATERIALIZED_PACKAGE
+    ):
+        if diagnostics is not None:
+            diagnostics["catalog_context_rederivation_status"] = "rejected"
+            diagnostics["catalog_context_rederivation_reason"] = "cache_kind_mismatch"
+        return None
+
+    context_source_manifest_hash = _diagnostic_string(
+        context_payload,
+        "source_manifest_hash",
+    )
+    materialized_source_manifest_hash = _diagnostic_string(
+        materialized_payload,
+        "source_manifest_hash",
+    )
+    if (
+        context_source_manifest_hash is None
+        or context_source_manifest_hash != materialized_source_manifest_hash
+    ):
+        if diagnostics is not None:
+            diagnostics["catalog_context_rederivation_status"] = "rejected"
+            diagnostics["catalog_context_rederivation_reason"] = (
+                "source_manifest_hash_mismatch"
+            )
+        return None
+
+    context_payload_identity = _PackageGraphCacheIdentity(
+        package_name=catalog_entry.package_name,
+        fqn_prefix=catalog_entry.fqn_prefix,
+        branch_id=branch_id,
+        object_config_graph_id=object_config_graph_id,
+        object_config_graph_package_id=object_config_graph_package_id,
+        source_manifest_hash=context_source_manifest_hash,
+        dependency_signature=str(context_payload.get("dependency_signature") or ""),
+    )
+    materialized_payload_identity = replace(
+        context_payload_identity,
+        dependency_signature=str(
+            materialized_payload.get("dependency_signature") or ""
+        ),
+    )
+    context_identity_diagnostics: dict[str, object] = {}
+    materialized_identity_diagnostics: dict[str, object] = {}
+    if not _catalog_cache_payload_matches_identity(
+        payload=context_payload,
+        identity=context_payload_identity,
+        cache_kind=context_cache_kind,
+        diagnostics=context_identity_diagnostics,
+    ) or not _catalog_cache_payload_matches_identity(
+        payload=materialized_payload,
+        identity=materialized_payload_identity,
+        cache_kind=materialized_cache_kind,
+        diagnostics=materialized_identity_diagnostics,
+    ):
+        if diagnostics is not None:
+            diagnostics["catalog_context_rederivation_status"] = "rejected"
+            diagnostics["catalog_context_rederivation_reason"] = (
+                _diagnostic_string(context_identity_diagnostics, "cache_miss_reason")
+                or _diagnostic_string(
+                    materialized_identity_diagnostics,
+                    "cache_miss_reason",
+                )
+                or "cache_identity_mismatch"
+            )
+        return None
+
+    with _record_phase(
+        phase_timings_s,
+        "load_catalog_context_source_graph_for_dependency_rederivation",
+    ):
+        source_graph = _load_graph_payload_from_context_cache(
+            payload=context_payload,
+            payload_key="source_object_config_graph",
+            hash_key="source_object_config_graph_hash",
+            phase_timings_s=phase_timings_s,
+            phase_prefix="load_catalog_context_source_graph_for_dependency_rederivation",
+        )
+    if source_graph is None:
+        if diagnostics is not None:
+            diagnostics["catalog_context_rederivation_status"] = "rejected"
+            diagnostics["catalog_context_rederivation_reason"] = (
+                "source_graph_payload_invalid"
+            )
+        return None
+
+    current_identity = replace(
+        context_payload_identity,
+        dependency_signature=dependency_signature,
+    )
+    with _record_phase(
+        phase_timings_s,
+        "derive_runtime_graph_from_context_source_after_dependency_movement",
+    ):
+        runtime_graph = derive_runtime_object_config_graph(
+            source_graph,
+            external_runtime_graphs=external_runtime_graphs,
+            include_projection_graphs=True,
+        ).runtime_graph
+    cached_graphs = _validated_catalog_cached_graphs(
+        source_graph=source_graph,
+        runtime_graph=runtime_graph,
+        source_graph_hash=str(source_graph.hash or ""),
+        identity=current_identity,
+        diagnostics=diagnostics,
+    )
+    if cached_graphs is None:
+        return None
+    with _record_phase(
+        phase_timings_s,
+        "write_catalog_context_after_dependency_rederivation",
+    ):
+        context_cache_written = _try_write_catalog_context_package_graph_cache(
+            identity=current_identity,
+            workspace_root=cache_owner_root,
+            source_graph=source_graph,
+            runtime_graph=runtime_graph,
+        )
+    if not context_cache_written:
+        if diagnostics is not None:
+            diagnostics["catalog_context_rederivation_status"] = "write_failed"
+        _record_cache_miss(diagnostics, "context_cache_write_failed")
+        return None
+    _package_graph_session_cache_put(
+        identity=current_identity,
+        cached_graphs=cached_graphs,
+    )
+    if diagnostics is not None:
+        diagnostics["catalog_context_rederivation_status"] = "written"
+    _record_cache_hit(
+        diagnostics,
+        source="catalog_context_source_dependency_rederivation",
+    )
     return cached_graphs
 
 
@@ -3130,6 +3582,10 @@ def _prepare_strict_runtime_only_catalog_package_from_index_sidecar_cache(
             object_config_graph_package_id=identity.object_config_graph_package_id,
         )
     if payload is None:
+        _record_context_cache_miss(
+            diagnostics,
+            "runtime_index_sidecar_cache_payload_missing",
+        )
         return None
     source_manifest_hash = _diagnostic_string(payload, "source_manifest_hash") or ""
     if not source_manifest_hash:
@@ -3222,6 +3678,17 @@ def _prepare_strict_runtime_only_catalog_package(
         )
     if payload is None:
         _record_context_cache_miss(diagnostics, "catalog_cache_payload_missing")
+        return None
+    if _materialized_package_cache_supersedes_context(
+        workspace_root=cache_owner_root,
+        branch_id=branch_id,
+        object_config_graph_package_id=object_config_graph_package_id,
+        context_payload=payload,
+    ):
+        _record_context_cache_miss(
+            diagnostics,
+            "context_cache_superseded_by_materialized_package",
+        )
         return None
     source_manifest_hash = _diagnostic_string(payload, "source_manifest_hash") or ""
     if not source_manifest_hash:
@@ -3371,6 +3838,8 @@ def _try_load_catalog_cache_payload_graphs(
     object_config_graph_id: UUID,
     object_config_graph_package_id: UUID,
     dependency_signature: str,
+    context_dependency_signature: str,
+    external_runtime_graphs: tuple[ObjectConfigGraph, ...],
     load_source_graph: bool,
     phase_timings_s: dict[str, float] | None,
     diagnostics: dict[str, object] | None,
@@ -3417,6 +3886,7 @@ def _try_load_catalog_cache_payload_graphs(
         cached_graphs = _load_catalog_materialized_package_graphs(
             payload=payload,
             identity=identity,
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -3424,12 +3894,18 @@ def _try_load_catalog_cache_payload_graphs(
             if cached_graphs.source_graph is None:
                 _record_cache_miss(diagnostics, "materialized_source_graph_missing")
                 return None
+            context_identity = replace(
+                identity,
+                dependency_signature=context_dependency_signature,
+            )
+            cached_graphs = replace(cached_graphs, identity=context_identity)
+            identity = context_identity
             with _record_phase(
                 phase_timings_s,
                 "write_catalog_context_cache_from_materialized_payload",
             ):
                 context_cache_written = _try_write_catalog_context_package_graph_cache(
-                    identity=identity,
+                    identity=context_identity,
                     workspace_root=cache_owner_root,
                     source_graph=cached_graphs.source_graph,
                     runtime_graph=cached_graphs.runtime_graph,
@@ -3467,7 +3943,11 @@ def _catalog_cache_payload_matches_identity(
     if payload.get("fqn_prefix") != identity.fqn_prefix:
         _record_cache_miss(diagnostics, "catalog_fqn_prefix_mismatch")
         return False
-    if payload.get("dependency_signature") != identity.dependency_signature:
+    payload_dependency_signature = payload.get("dependency_signature")
+    if payload_dependency_signature != identity.dependency_signature:
+        if diagnostics is not None:
+            diagnostics["dependency_signature_expected"] = identity.dependency_signature
+            diagnostics["dependency_signature_actual"] = payload_dependency_signature
         _record_cache_miss(diagnostics, "dependency_signature_mismatch")
         return False
     if (
@@ -3547,6 +4027,7 @@ def _load_catalog_materialized_package_graphs(
     *,
     payload: Mapping[str, object],
     identity: _PackageGraphCacheIdentity,
+    external_runtime_graphs: tuple[ObjectConfigGraph, ...],
     phase_timings_s: dict[str, float] | None,
     diagnostics: dict[str, object] | None,
 ) -> _CachedPackageGraphs | None:
@@ -3564,11 +4045,10 @@ def _load_catalog_materialized_package_graphs(
     with _record_phase(phase_timings_s, "derive_runtime_graph_from_materialized_cache"):
         runtime_derivation = derive_runtime_object_config_graph(
             source_graph,
-            include_projection_graphs=False,
+            external_runtime_graphs=external_runtime_graphs,
+            include_projection_graphs=True,
         )
-        runtime_graph = _ensure_runtime_projection_graphs(
-            (runtime_derivation.runtime_graph,)
-        )[0]
+        runtime_graph = runtime_derivation.runtime_graph
     return _validated_catalog_cached_graphs(
         source_graph=source_graph,
         runtime_graph=runtime_graph,
@@ -4136,6 +4616,7 @@ def _try_load_cached_package_graphs(
     manifest_path: Path,
     spec: object,
     external_graphs: tuple[ObjectConfigGraph, ...],
+    external_runtime_graphs: tuple[ObjectConfigGraph, ...] = (),
     phase_timings_s: dict[str, float] | None = None,
     diagnostics: dict[str, object] | None = None,
 ) -> _CachedPackageGraphs | None:
@@ -4166,6 +4647,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="context_cache_payload_missing",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4174,6 +4656,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="context_cache_version_mismatch",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4184,6 +4667,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="context_cache_kind_mismatch",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4192,6 +4676,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="source_manifest_hash_mismatch",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4200,6 +4685,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="dependency_signature_mismatch",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4211,6 +4697,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="runtime_graph_derivation_signature_mismatch",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4222,6 +4709,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="object_config_graph_id_mismatch",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4233,6 +4721,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="object_config_graph_package_id_mismatch",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4250,6 +4739,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="source_graph_payload_invalid",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4266,6 +4756,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="runtime_graph_payload_invalid",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4274,6 +4765,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="source_graph_id_mismatch",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4282,6 +4774,7 @@ def _try_load_cached_package_graphs(
             workspace_root=workspace_root,
             identity=identity,
             context_miss_reason="runtime_graph_id_mismatch",
+            external_runtime_graphs=external_runtime_graphs,
             phase_timings_s=phase_timings_s,
             diagnostics=diagnostics,
         )
@@ -4308,6 +4801,7 @@ def _try_load_materialized_cached_package_graphs_after_context_miss(
     workspace_root: Path,
     identity: _PackageGraphCacheIdentity,
     context_miss_reason: str,
+    external_runtime_graphs: tuple[ObjectConfigGraph, ...] = (),
     phase_timings_s: dict[str, float] | None,
     diagnostics: dict[str, object] | None,
 ) -> _CachedPackageGraphs | None:
@@ -4315,6 +4809,7 @@ def _try_load_materialized_cached_package_graphs_after_context_miss(
     return _try_load_materialized_cached_package_graphs(
         workspace_root=workspace_root,
         identity=identity,
+        external_runtime_graphs=external_runtime_graphs,
         phase_timings_s=phase_timings_s,
         diagnostics=diagnostics,
     )
@@ -4324,6 +4819,7 @@ def _try_load_materialized_cached_package_graphs(
     *,
     workspace_root: Path,
     identity: _PackageGraphCacheIdentity,
+    external_runtime_graphs: tuple[ObjectConfigGraph, ...] = (),
     phase_timings_s: dict[str, float] | None,
     diagnostics: dict[str, object] | None,
 ) -> _CachedPackageGraphs | None:
@@ -4369,6 +4865,7 @@ def _try_load_materialized_cached_package_graphs(
     cached_graphs = _load_materialized_package_graphs(
         payload=payload,
         identity=identity,
+        external_runtime_graphs=external_runtime_graphs,
         phase_timings_s=phase_timings_s,
         diagnostics=load_diagnostics,
         load_graph_phase_name="load_materialized_graph_payload",
@@ -4412,6 +4909,7 @@ def _load_materialized_package_graphs(
     *,
     payload: Mapping[str, object],
     identity: _PackageGraphCacheIdentity,
+    external_runtime_graphs: tuple[ObjectConfigGraph, ...] = (),
     phase_timings_s: dict[str, float] | None,
     diagnostics: dict[str, object] | None,
     load_graph_phase_name: str,
@@ -4430,11 +4928,10 @@ def _load_materialized_package_graphs(
     with _record_phase(phase_timings_s, "derive_runtime_graph_from_materialized_cache"):
         runtime_derivation = derive_runtime_object_config_graph(
             source_graph,
-            include_projection_graphs=False,
+            external_runtime_graphs=external_runtime_graphs,
+            include_projection_graphs=True,
         )
-        runtime_graph = _ensure_runtime_projection_graphs(
-            (runtime_derivation.runtime_graph,)
-        )[0]
+        runtime_graph = runtime_derivation.runtime_graph
     return _validated_catalog_cached_graphs(
         source_graph=source_graph,
         runtime_graph=runtime_graph,
@@ -4852,7 +5349,12 @@ def _load_graph_payload_from_context_cache(
         phase_timings_s,
         _payload_load_phase_name(phase_prefix, "model_validate"),
     ):
-        graph = ObjectConfigGraph.model_validate(normalized_payload)
+        # Runtime-context cache bodies are immutable read models. Mutation hooks
+        # would rescan relationships and wrap every nested ORM list while the
+        # graph is reconstructed, even though the persisted payload already
+        # carries canonical ids/FKs and is checked below against its graph hash.
+        with disable_change_tracking_hooks():
+            graph = ObjectConfigGraph.model_validate(normalized_payload)
     with _record_phase(
         phase_timings_s,
         _payload_load_phase_name(phase_prefix, "hash_check"),
@@ -4883,6 +5385,70 @@ def _read_package_context_reuse_cache_payload(
         branch_id=branch_id,
         object_config_graph_package_id=object_config_graph_package_id,
     )
+
+
+def _materialized_package_cache_supersedes_context(
+    *,
+    workspace_root: Path,
+    branch_id: UUID,
+    object_config_graph_package_id: UUID,
+    context_payload: Mapping[str, object],
+) -> bool:
+    context_path = object_config_graph_package_context_reuse_cache_path(
+        aware_root=workspace_root,
+        branch_id=branch_id,
+        object_config_graph_package_id=object_config_graph_package_id,
+    )
+    materialized_path = object_config_graph_package_reuse_cache_path(
+        aware_root=workspace_root,
+        branch_id=branch_id,
+        object_config_graph_package_id=object_config_graph_package_id,
+    )
+    try:
+        if materialized_path.stat().st_mtime_ns <= context_path.stat().st_mtime_ns:
+            return False
+    except OSError:
+        return False
+
+    materialized_payload = _read_package_materialized_reuse_cache_payload(
+        workspace_root=workspace_root,
+        branch_id=branch_id,
+        object_config_graph_package_id=object_config_graph_package_id,
+    )
+    if materialized_payload is None or materialized_payload.get("cache_kind") != (
+        OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_MATERIALIZED_PACKAGE
+    ):
+        return False
+    if materialized_payload.get("v") != _PACKAGE_REUSE_CACHE_VERSION:
+        return False
+
+    materialized_source_manifest_hash = _diagnostic_string(
+        materialized_payload,
+        "source_manifest_hash",
+    )
+    context_source_manifest_hash = _diagnostic_string(
+        context_payload,
+        "source_manifest_hash",
+    )
+    materialized_source_graph_hash = _diagnostic_string(
+        materialized_payload,
+        "object_config_graph_hash",
+    )
+    context_source_graph_hash = _diagnostic_string(
+        context_payload,
+        "source_object_config_graph_hash",
+    )
+    return _different_non_empty_text(
+        materialized_source_manifest_hash,
+        context_source_manifest_hash,
+    ) or _different_non_empty_text(
+        materialized_source_graph_hash,
+        context_source_graph_hash,
+    )
+
+
+def _different_non_empty_text(left: str | None, right: str | None) -> bool:
+    return bool(left and right and left != right)
 
 
 def _read_package_runtime_index_sidecar_cache_payload(

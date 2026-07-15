@@ -1,0 +1,51 @@
+aware_service = 1
+
+[service]
+package_name = "aware-external-capital-provider-service"
+fqn_prefix = "aware_external_capital_provider_service"
+version_number = 1
+title = "Aware External Capital Provider Service"
+description = "Provider-owned actuator service for external wallet-funding continuations."
+
+[build]
+sources_dir = "bindings"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+compilation_mode = "service_ontology"
+
+[host]
+service_surface = "service"
+activation_mode = "materialize_and_load_committed"
+materialize_on_start = true
+
+[implementation]
+
+[[implementation.packages]]
+package_name = "aware-external-capital-provider-service"
+language = "python"
+import_root = "aware_external_capital_provider_service"
+manifest_path = "pyproject.toml"
+package_root = "."
+entrypoint = "aware_external_capital_provider_service.service_bindings:build_service_bindings"
+role = "service_bindings"
+
+[[api_provider_sets]]
+key = "kernel.global_services.v1"
+title = "Kernel Global Services"
+membership_key = "kernel-services-host"
+description = "Kernel global service providers."
+
+[runtime]
+secrets_dir_env = "AWARE_SECRETS_DIR"
+canonical_secrets_dir = "/run/aware/secrets"
+
+[[dependencies]]
+package_name = "external-capital-provider-service-api"
+version_number = 1
+kind = "api_service_protocol"
+
+[[dependencies]]
+package_name = "economy-service-api"
+version_number = 1
+kind = "api_invocation"

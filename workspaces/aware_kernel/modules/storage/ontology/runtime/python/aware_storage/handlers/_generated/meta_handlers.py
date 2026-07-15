@@ -9,7 +9,10 @@ from uuid import UUID
 # Third-party
 from aware_code.types import JsonArray, JsonObject
 from aware_meta.graph.instance.builder import build_object_instance_graph
-from aware_meta.graph.instance.diff_orm import build_object_instance_graph_changes_from_orm_change_set
+from aware_meta.graph.instance.diff_orm import (
+    OrmChangeTranslationError,
+    build_object_instance_graph_changes_from_orm_change_set,
+)
 from aware_meta.runtime.handler_executor.argument_coercion import coerce_meta_handler_call_kwargs
 from aware_meta.runtime.handler_executor.contracts import MetaGraphHandlerExecutionRequest, MetaGraphPreState
 from aware_meta.runtime.handler_executor.language_handler import (
@@ -114,18 +117,21 @@ def _changes_from_current_collector(
             "Generated Meta instance handler requires an active ORM change collector."
         )
     change_set = collector.snapshot()
-    changes = tuple(
-        build_object_instance_graph_changes_from_orm_change_set(
-            before_oig=pre_state.before_oig,
-            object_instance_graph_identity_id=(request.staged_call.lane_scope.object_instance_graph_identity_id),
-            ocg=request.execution_plan.index.ocg,
-            opg=request.execution_plan.object_projection_graph,
-            change_set=change_set,
-            class_configs_by_id=dict(request.execution_plan.index.class_configs_by_id),
-            relationships_by_id=dict(request.execution_plan.index.relationships_by_id),
-            enum_option_resolver=default_meta_enum_option_resolver,
+    try:
+        changes = tuple(
+            build_object_instance_graph_changes_from_orm_change_set(
+                before_oig=pre_state.before_oig,
+                object_instance_graph_identity_id=(request.staged_call.lane_scope.object_instance_graph_identity_id),
+                ocg=request.execution_plan.index.ocg,
+                opg=request.execution_plan.object_projection_graph,
+                change_set=change_set,
+                class_configs_by_id=dict(request.execution_plan.index.class_configs_by_id),
+                relationships_by_id=dict(request.execution_plan.index.relationships_by_id),
+                enum_option_resolver=default_meta_enum_option_resolver,
+            )
         )
-    )
+    except OrmChangeTranslationError:
+        return None
     constructed_class_instance_ids = tuple(
         class_change.class_instance_id
         for root_change in changes
@@ -368,7 +374,7 @@ def _root_id_storage_bucket__build(*, request: MetaGraphHandlerExecutionRequest,
     name = bound_input.get("name")
     backend = bound_input.get("backend")
     if backend is None:
-        backend = "local"
+        backend = StorageBackend.local
     allowed_mime_types = bound_input.get("allowed_mime_types")
     if allowed_mime_types is None:
         allowed_mime_types = []

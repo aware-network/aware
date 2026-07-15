@@ -1,0 +1,43 @@
+/// Wire DTOs for NetworkOperation envelopes (graph/ORM agnostic).
+
+class NetworkRequest {
+    id UUID?
+    status network.NetworkRequestStatus = pending
+    requester_id UUID?
+    requester JsonObject?
+}
+
+class NetworkResponse {
+    id UUID?
+    status network.NetworkRequestStatus = pending
+    error String?
+    network_request_id UUID?
+}
+
+class NetworkOperationHop {
+    source_app_type network.NetworkAppType
+    target_app_type network.NetworkAppType
+
+    source_node_id UUID?
+    source_interface_id UUID?
+    source_environment_id UUID?
+
+    target_node_id UUID?
+    target_interface_id UUID?
+    target_environment_id UUID?
+}
+
+class NetworkOperation {
+    id UUID
+    message_type network.NetworkOperationMessageType = notification
+    type network.NetworkOperationType = api
+
+    network_operation_hop_list NetworkOperationHop[]
+    network_request NetworkRequest?
+    network_response NetworkResponse?
+
+    // Payloads (DTO-only)
+    api_operation aware_api_service_dto.comms.models.ApiOperation?
+    service_operation aware_service_service_dto.comms.models.ServiceOperation?
+    network_node_operation NetworkNodeOperation?
+}

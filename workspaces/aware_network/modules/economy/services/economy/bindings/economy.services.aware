@@ -1,0 +1,78 @@
+service aware_economy {
+    api economy;
+
+    operation economy_actor_status {
+        endpoint economy.economy_actor_status.economy_actor_status;
+    }
+
+    operation ensure_finance_entity {
+        endpoint economy.ensure_finance_entity.ensure_finance_entity;
+        admission identity_required;
+    }
+
+    operation prepare_wallet_funding {
+        endpoint economy.wallet_funding_prepare.prepare_wallet_funding;
+        admission identity_required;
+    }
+
+    operation resolve_wallet_funding_context {
+        endpoint economy.wallet_funding_context_resolve.resolve_wallet_funding_context;
+        admission identity_required;
+        receipt read_model;
+    }
+
+    operation record_verified_wallet_funding {
+        endpoint economy.wallet_funding_record.record_verified_wallet_funding;
+        admission identity_required;
+    }
+
+    operation record_wallet_funding_expiration {
+        endpoint economy.wallet_funding_cancel.record_wallet_funding_expiration;
+        admission identity_required;
+    }
+
+    operation record_provider_lifecycle_event {
+        endpoint economy.provider_lifecycle_record.record_provider_lifecycle_event;
+        admission identity_required;
+    }
+
+    operation describe_wallet_balance {
+        endpoint economy.wallet_balance_describe.describe_wallet_balance;
+        admission identity_required;
+    }
+
+    operation resolve_wallet_capital_frame {
+        endpoint economy.wallet_capital_frame_resolve.resolve_wallet_capital_frame;
+        admission identity_required;
+    }
+
+    operation resolve_wallet_capital_view_state {
+        endpoint economy.wallet_capital_view_state_resolve.resolve_wallet_capital_view_state;
+        receipt read_model;
+        view economy.wallet_capital;
+        admission identity_required;
+    }
+
+    operation price_reservation_reserve {
+        endpoint economy.price_reservation_reserve.price_reservation_reserve;
+    }
+
+    operation price_reservation_finalize {
+        endpoint economy.price_reservation_finalize.price_reservation_finalize;
+    }
+
+    operation prepare_smart_contract_reservation {
+        endpoint economy.smart_contract_reservation_prepare.prepare_smart_contract_reservation;
+        admission identity_required;
+    }
+
+    operation release_smart_contract_reservation {
+        endpoint economy.smart_contract_reservation_release.release_smart_contract_reservation;
+        admission identity_required;
+    }
+
+    operation finalize_smart_contract_settlement {
+        endpoint economy.smart_contract_settlement_finalize.finalize_smart_contract_settlement;
+        admission identity_required;
+    }
+}

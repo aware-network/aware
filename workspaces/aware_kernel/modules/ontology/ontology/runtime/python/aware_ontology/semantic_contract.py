@@ -21,6 +21,11 @@ from aware_code.semantic_materialization import (
     SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_ISOLATE_TARGET_MANIFESTS,
     SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_KEY,
 )
+from aware_code.semantic_currentness import (
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_ENTRYPOINT,
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_METADATA_KEY,
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_CONTRACT_VERSION,
+)
 from aware_code.semantic_package.schemas import (
     CapabilityParticipationDescriptor,
 )
@@ -81,6 +86,15 @@ ONTOLOGY_MATERIALIZATION_CAPABILITY_METADATA: dict[str, object] = {
     SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_METADATA_KEY: (
         ONTOLOGY_MATERIALIZATION_DELTA_ADAPTER_METADATA
     ),
+    SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_METADATA_KEY: {
+        "callable_module": "aware_ontology.materialization.workspace_provider",
+        "callable_name": (
+            SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_ADAPTER_ENTRYPOINT
+        ),
+        "contract_version": (
+            SEMANTIC_MATERIALIZATION_CURRENTNESS_REPLAY_CONTRACT_VERSION
+        ),
+    },
 }
 ONTOLOGY_SEMANTIC_SOURCE_MEANING_CAPABILITY_METADATA: dict[str, object] = {
     **META_SEMANTIC_SOURCE_MEANING_CAPABILITY_METADATA,
@@ -271,6 +285,7 @@ def _ontology_meta_language_artifact_output(
         media_type=descriptor.media_type,
         runtime_contract_version=descriptor.runtime_contract_version,
         required_for=descriptor.required_for,
+        artifact_scope_policy=descriptor.artifact_scope_policy,
         required=descriptor.required,
         priority=descriptor.priority,
         provider_payload=provider_payload,
@@ -293,6 +308,7 @@ ONTOLOGY_MATERIALIZATION_ARTIFACT_OUTPUTS = tuple(
         output_kind="materialization_detail",
         media_type="application/json",
         runtime_contract_version=ONTOLOGY_RUNTIME_ARTIFACT_SET_CONTRACT_VERSION,
+        artifact_scope_policy="replace_missing",
         required_for=(
             "workspace_revision",
             "runtime_index",

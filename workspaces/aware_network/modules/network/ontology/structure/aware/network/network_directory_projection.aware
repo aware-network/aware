@@ -1,0 +1,17 @@
+/// Network Directory projection (v0)
+///
+/// Contract:
+/// - Rooted at `NetworkDirectory`.
+/// - Service-owned territory discovery reads from Network read models derived from commits.
+/// - Does not own mutable child facts; those remain in node/peer lanes and are read from
+///   committed Network projection tables.
+
+projection NetworkDirectory {
+    root network.NetworkDirectory
+
+    observable territory {
+        """
+        Network territory and experience discovery scope.
+        """
+    }
+}

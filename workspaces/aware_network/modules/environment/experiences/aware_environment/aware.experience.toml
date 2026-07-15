@@ -1,0 +1,23 @@
+aware_experience = 1
+
+[experience]
+package_name = "aware-environment-experience"
+fqn_prefix = "aware_environment_experience"
+version_number = 1
+title = "Aware Environments"
+description = "Environment module-owned navigation experience package for Interface-mounted OS surfaces."
+
+[build]
+environment_handle = "kernel"
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+
+[targets.dart]
+root_dir = "languages/dart"
+package_dir = "aware_environment_experience"
+
+[targets.python]
+root_dir = "languages/python"
+package_dir = "aware_environment_experience"

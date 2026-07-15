@@ -1,0 +1,381 @@
+/// Wire DTOs for Network Node operations (control-plane; graph/ORM agnostic).
+
+class NetworkNodeOperationContext {
+    // Attributes
+    actor_id UUID?
+    node_id UUID?
+}
+
+/// NetworkNodeOperation is either a request or a response.
+class NetworkNodeOperation {
+    request NetworkNodeOperationRequest?
+    response NetworkNodeOperationResponse?
+}
+
+// Envelope XOR constraints (SSOT via annotations; no name-based inference in renderers).
+ann comms.models.NetworkNodeOperation oneof request response
+
+/// Request union base (operation + context).
+class NetworkNodeOperationRequest augment comms.models.NetworkNodeOperationContext {
+    operation String
+}
+
+/// Response union base (operation + context).
+class NetworkNodeOperationResponse augment comms.models.NetworkNodeOperationContext {
+    operation String
+}
+
+class ProvisionEnvironmentRequest augment comms.models.NetworkNodeOperationRequest {
+    operation String = "provision_environment"
+
+    // Attributes
+    environment_config_id UUID
+    environment_title String?
+    environment_description String?
+    environment_port Int?
+    database_url String?
+    persistence_backend String?
+    eager_ready Bool = true
+}
+
+/// Product receipt for a NetworkNode-provisioned Environment.
+///
+/// The nested `readiness_receipt` is the public Environment API receipt payload.
+/// Network keeps it as JSON so Network control-plane DTOs stay decoupled from
+/// Environment Environment DTO packages while exposing full provenance evidence.
+class NodeEnvironmentProvisioningReceipt {
+    status String
+    error String?
+    actor_id UUID?
+    node_id UUID?
+    environment_id UUID?
+    environment_config_id UUID?
+    environment_config_title String?
+    environment_title String?
+    environment_endpoint String?
+    ocg_hash String?
+    opg_hashes String[] = []
+    runtime_artifact_refs_json String?
+    service_api_provider_refs_json String?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    outer_wrapper_kind String?
+    environment_handle String?
+    workspace_root String?
+    workspace_toml_path String?
+    workspace_id String?
+    workspace_package_id String?
+    workspace_build_invocation_id String?
+    workspace_build_receipt_path String?
+    workspace_build_latest_path String?
+    workspace_target_latest_path String?
+    workspace_target_ref String?
+    readiness_receipt JsonObject?
+    network_node_environment_receipt JsonObject?
+}
+
+class ProvisionEnvironmentResponse augment comms.models.NetworkNodeOperationResponse {
+    operation String = "provision_environment"
+
+    // Attributes
+    status String
+    error String?
+    environment_id UUID?
+    environment_config_id UUID?
+    environment_config_title String?
+    environment_title String?
+    environment_endpoint String?
+    ocg_hash String?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    opg_hashes String[] = []
+    provisioning_receipt NodeEnvironmentProvisioningReceipt?
+}
+
+class GetEnvironmentStatusRequest augment comms.models.NetworkNodeOperationRequest {
+    operation String = "get_environment_status"
+
+    // Attributes
+    environment_id UUID
+}
+
+class GetEnvironmentStatusResponse augment comms.models.NetworkNodeOperationResponse {
+    operation String = "get_environment_status"
+
+    // Attributes
+    status String
+    error String?
+    environment_id UUID
+    environment_config_id UUID?
+    environment_config_title String?
+    environment_title String?
+    environment_endpoint String?
+    ocg_hash String?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    opg_hashes String[] = []
+    provisioning_receipt NodeEnvironmentProvisioningReceipt?
+}
+
+/// Close a previously-registered STREAM correlation on the node (control-plane).
+///
+/// This is transport-only and must not embed service payload semantics.
+/// It allows callers (ENVIRONMENT or INTERFACE) to stop forwarding STREAM frames
+/// for a given `NetworkOperation.id` correlation key.
+class CloseStreamRequest augment comms.models.NetworkNodeOperationRequest {
+    operation String = "close_stream"
+
+    // Attributes
+    network_operation_id UUID
+}
+
+class CloseStreamResponse augment comms.models.NetworkNodeOperationResponse {
+    operation String = "close_stream"
+
+    // Attributes
+    status String = "succeeded"
+    error String?
+    network_operation_id UUID
+}
+
+/// Canonical interface session registration (DTO-only).
+///
+/// This replaces the legacy `channel="interface_control"` control frames.
+/// The node uses this to bind the active websocket connection (hop.source_interface_id)
+/// to an identity for routing + gating.
+class InterfaceSessionRegisterRequest augment comms.models.NetworkNodeOperationRequest {
+    operation String = "interface_session_register"
+
+    // Attributes
+    interface_id UUID
+    interface_session_id UUID
+    session_label String?
+    capabilities String[] = []
+    protocol_version Int = 1
+}
+
+class InterfaceSessionRegisterResponse augment comms.models.NetworkNodeOperationResponse {
+    operation String = "interface_session_register"
+
+    // Attributes
+    status String
+    error String?
+    interface_id UUID
+    interface_session_id UUID
+    interface_identity_network_node_id UUID?
+    interface_session_network_binding_id UUID?
+    last_seen_at String?
+    protocol_version Int
+}
+
+/// Interface session heartbeat (DTO-only).
+///
+/// Optional v0 keepalive so the node can expire stale sessions deterministically
+/// without relying on transport TCP timeouts.
+class InterfaceSessionHeartbeatRequest augment comms.models.NetworkNodeOperationRequest {
+    operation String = "interface_session_heartbeat"
+
+    // Attributes
+    interface_session_id UUID
+    timestamp String?
+}
+
+class InterfaceSessionHeartbeatResponse augment comms.models.NetworkNodeOperationResponse {
+    operation String = "interface_session_heartbeat"
+
+    // Attributes
+    status String = "succeeded"
+    error String?
+    interface_session_id UUID
+    last_seen_at String?
+}
+
+/// Describe an environment config (template/map) available for provisioning.
+class EnvironmentConfigDescriptor {
+    environment_config_id UUID
+    title String?
+    canonical_language String?
+    ocg_hash String?
+    opg_hashes String[] = []
+    outer_wrapper_kind String?
+    environment_handle String?
+    workspace_target_ref String?
+}
+
+/// Descriptor for the node-managed BOOT environment (v0).
+///
+/// IMPORTANT:
+/// - The "kernel" is an EnvironmentConfig (module mount set).
+/// - The "boot environment" is an Environment instance derived from that config.
+/// - This DTO exists to avoid client-side heuristics for selecting the kernel config.
+class BootEnvironmentDescriptor {
+    // Attributes
+    kernel_environment_config_id UUID
+    boot_environment_id UUID
+    kernel_environment_config_title String?
+    boot_environment_title String?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    opg_hashes String[] = []
+}
+
+/// Return the node's BOOT environment descriptor (kernel config + boot environment instance).
+class GetBootEnvironmentDescriptorRequest augment comms.models.NetworkNodeOperationRequest {
+    operation String = "get_boot_environment_descriptor"
+}
+
+class GetBootEnvironmentDescriptorResponse augment comms.models.NetworkNodeOperationResponse {
+    operation String = "get_boot_environment_descriptor"
+
+    // Attributes
+    status String
+    error String?
+    descriptor BootEnvironmentDescriptor?
+}
+
+class DiscoverEnvironmentConfigsRequest augment comms.models.NetworkNodeOperationRequest {
+    operation String = "discover_environment_configs"
+}
+
+class DiscoverEnvironmentConfigsResponse augment comms.models.NetworkNodeOperationResponse {
+    operation String = "discover_environment_configs"
+    configs EnvironmentConfigDescriptor[] = []
+}
+
+/// Node-owned route descriptor for one bound service-to-service API dependency.
+///
+/// This is the network transport DTO for NodeHost route-registry truth. Node
+/// derives it from selected ServicePackage required/provided ApiPackage bridges
+/// plus live ServiceHost handshakes; remote/subprocess consumers must not
+/// reopen package manifests or infer provider routes locally.
+class ServiceApiDependencyRouteDescriptor {
+    consumer_service_package_id UUID
+    consumer_service_package_name String
+    provider_service_package_id UUID
+    provider_service_package_name String
+    api_package_id UUID
+    api_package_name String?
+    route_kind String
+    host_id String
+    host_version String?
+    protocol_version String
+    socket_path String?
+    consumer_node_id UUID?
+    provider_node_id UUID?
+    provider_node_base_url String?
+    route_connection_id UUID?
+    request_timeout_s Float
+    service_names String[] = []
+    endpoint_refs_by_service JsonObject = {}
+    stream_endpoint_refs_by_service JsonObject = {}
+}
+
+/// Discover live service API dependency routes bound by the target Node.
+class DiscoverServiceApiDependencyRoutesRequest augment comms.models.NetworkNodeOperationRequest {
+    operation String = "discover_service_api_dependency_routes"
+
+    // Optional filters for consumers that need one API route from the Node registry.
+    consumer_service_package_id UUID?
+    api_package_id UUID?
+}
+
+class DiscoverServiceApiDependencyRoutesResponse augment comms.models.NetworkNodeOperationResponse {
+    operation String = "discover_service_api_dependency_routes"
+    routes ServiceApiDependencyRouteDescriptor[] = []
+}
+
+/// Node-owned advertisement for one supervised hosted generic Service.
+///
+/// This is control-plane discovery truth derived by the hosting Node from its
+/// private Service-host handshake/runtime registry. Remote Nodes consume this
+/// DTO; they do not consume the raw Service-host handshake contract directly.
+class HostedServiceAdvertisement {
+    service_package_id UUID?
+    service_id UUID?
+    service_name String
+    service_package_names String[] = []
+    endpoint_refs String[] = []
+    host_id String
+    host_version String?
+    protocol_version String
+    supports_stream_events Bool = false
+}
+
+/// Typed per-service view of one supervised hosted-Service runtime.
+///
+/// This is runtime-status truth, not routing-only advertisement.
+class HostedServiceRuntimeServiceStatus {
+    service_name String
+    endpoint_refs String[] = []
+    stream_endpoint_refs String[] = []
+}
+
+/// Node-owned runtime status for one supervised hosted-Service host/runtime.
+///
+/// IMPORTANT:
+/// - This remains control-plane truth owned by the supervising Node.
+/// - It is derived from private Service-host handshake + process supervision.
+/// - It is intentionally separate from `HostedServiceAdvertisement`, which
+///   remains routing/discovery-only.
+class HostedServiceRuntimeStatus {
+    host_id String
+    host_version String?
+    protocol_version String
+    readiness_status String = "unknown"
+    is_ready Bool = false
+    is_alive Bool = false
+    supports_stream_events Bool = false
+    summary String?
+    error String?
+    updated_at String?
+    services HostedServiceRuntimeServiceStatus[] = []
+}
+
+/// Discover generic hosted Services currently supervised by this Node.
+class DiscoverHostedServicesRequest augment comms.models.NetworkNodeOperationRequest {
+    operation String = "discover_hosted_services"
+}
+
+class DiscoverHostedServicesResponse augment comms.models.NetworkNodeOperationResponse {
+    operation String = "discover_hosted_services"
+    hosted_services HostedServiceAdvertisement[] = []
+}
+
+/// Describe supervised hosted-Service runtime health/status currently visible to this Node.
+class DescribeHostedServiceRuntimesRequest augment comms.models.NetworkNodeOperationRequest {
+    operation String = "describe_hosted_service_runtimes"
+}
+
+class DescribeHostedServiceRuntimesResponse augment comms.models.NetworkNodeOperationResponse {
+    operation String = "describe_hosted_service_runtimes"
+    hosted_service_runtimes HostedServiceRuntimeStatus[] = []
+}
+
+// Discriminated-union declarations (SSOT: attribute FQNs)
+ann comms.models.NetworkNodeOperationRequest::operation discriminate key
+ann comms.models.ProvisionEnvironmentRequest::operation discriminate tag "provision_environment"
+ann comms.models.GetBootEnvironmentDescriptorRequest::operation discriminate tag "get_boot_environment_descriptor"
+ann comms.models.DiscoverEnvironmentConfigsRequest::operation discriminate tag "discover_environment_configs"
+ann comms.models.DiscoverServiceApiDependencyRoutesRequest::operation discriminate tag "discover_service_api_dependency_routes"
+ann comms.models.DiscoverHostedServicesRequest::operation discriminate tag "discover_hosted_services"
+ann comms.models.DescribeHostedServiceRuntimesRequest::operation discriminate tag "describe_hosted_service_runtimes"
+ann comms.models.GetEnvironmentStatusRequest::operation discriminate tag "get_environment_status"
+ann comms.models.CloseStreamRequest::operation discriminate tag "close_stream"
+ann comms.models.InterfaceSessionRegisterRequest::operation discriminate tag "interface_session_register"
+ann comms.models.InterfaceSessionHeartbeatRequest::operation discriminate tag "interface_session_heartbeat"
+
+ann comms.models.NetworkNodeOperationResponse::operation discriminate key
+ann comms.models.ProvisionEnvironmentResponse::operation discriminate tag "provision_environment"
+ann comms.models.GetBootEnvironmentDescriptorResponse::operation discriminate tag "get_boot_environment_descriptor"
+ann comms.models.DiscoverEnvironmentConfigsResponse::operation discriminate tag "discover_environment_configs"
+ann comms.models.DiscoverServiceApiDependencyRoutesResponse::operation discriminate tag "discover_service_api_dependency_routes"
+ann comms.models.DiscoverHostedServicesResponse::operation discriminate tag "discover_hosted_services"
+ann comms.models.DescribeHostedServiceRuntimesResponse::operation discriminate tag "describe_hosted_service_runtimes"
+ann comms.models.GetEnvironmentStatusResponse::operation discriminate tag "get_environment_status"
+ann comms.models.CloseStreamResponse::operation discriminate tag "close_stream"
+ann comms.models.InterfaceSessionRegisterResponse::operation discriminate tag "interface_session_register"
+ann comms.models.InterfaceSessionHeartbeatResponse::operation discriminate tag "interface_session_heartbeat"

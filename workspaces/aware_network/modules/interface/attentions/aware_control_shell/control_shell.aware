@@ -1,0 +1,31 @@
+layout coordination_center default {
+    section orchestration {
+        title "Identity"
+        order 0
+        flex 1.0
+        visible true
+    }
+
+    section primary {
+        title "Capabilities"
+        order 1
+        flex 1.2
+        visible true
+    }
+
+    section inspector {
+        title "Territories"
+        order 2
+        flex 1.0
+        visible true
+    }
+}
+
+layout personal {
+    section identity_admission {
+        title "Identity Admission"
+        order 0
+        flex 1.0
+        visible true
+    }
+}

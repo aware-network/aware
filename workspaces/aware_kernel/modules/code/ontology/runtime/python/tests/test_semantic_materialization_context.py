@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import cast
+from uuid import uuid4
 
 from aware_code.semantic_materialization import (
     SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY,
     SEMANTIC_FUNCTION_CALL_CONTEXT_KEY,
+    SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_EXECUTION,
+    SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_PREFLIGHT,
     SEMANTIC_SOURCE_SESSION_CONTEXT_CONTRACT_VERSION,
     SEMANTIC_SOURCE_SESSION_CONTEXT_KEY,
     SEMANTIC_SOURCE_SESSION_SOURCE_INDEX_CACHE_KIND,
@@ -19,6 +23,9 @@ from aware_code.semantic_materialization import (
     SEMANTIC_PROVIDER_DELTA_RESULT_CONTRACT_VERSION,
     SemanticMaterializationBaselineRef,
     SemanticMaterializationBaselineResolution,
+    SemanticPackageMaterializationRuntimeContextRequest,
+    SemanticPackageMaterializationObjectIdentity,
+    SemanticPackageMaterializationResult,
     SemanticFunctionCallContext,
     SemanticSourceSessionCacheRef,
     SemanticSourceSessionContext,
@@ -34,6 +41,67 @@ from aware_code.semantic_materialization import (
     encode_semantic_function_call_context_by_provider,
     encode_semantic_source_session_context,
 )
+
+
+def test_semantic_package_materialization_result_carries_current_object_ids() -> None:
+    result = SemanticPackageMaterializationResult(
+        details={},
+        bundle_packages=(),
+        current_semantic_object_ids={"experience.profile:home:default": "profile-id"},
+    )
+
+    assert result.current_semantic_object_ids == {
+        "experience.profile:home:default": "profile-id"
+    }
+
+
+def test_semantic_package_materialization_object_identity_encodes_lane_provenance() -> (
+    None
+):
+    identity = SemanticPackageMaterializationObjectIdentity(
+        semantic_key="experience.profile:home_story:os.default",
+        object_id="profile-config-id",
+        domain_branch_id="profile-branch-id",
+        projection_hash="profile-projection-hash",
+        domain_object_instance_graph_id="profile-oig-id",
+        object_instance_graph_commit_id="profile-oig-commit-id",
+        semantic_head_commit_id="profile-head-id",
+        source="aware_experience.activation_profile_config",
+    )
+
+    assert identity.evidence_payload() == {
+        "semantic_key": "experience.profile:home_story:os.default",
+        "object_id": "profile-config-id",
+        "domain_branch_id": "profile-branch-id",
+        "projection_hash": "profile-projection-hash",
+        "domain_object_instance_graph_id": "profile-oig-id",
+        "object_instance_graph_commit_id": "profile-oig-commit-id",
+        "semantic_head_commit_id": "profile-head-id",
+        "source": "aware_experience.activation_profile_config",
+    }
+
+
+def test_semantic_runtime_context_request_has_typed_demand() -> None:
+    request = SemanticPackageMaterializationRuntimeContextRequest(
+        provider_key="aware_meta",
+        semantic_owner="aware_meta.object_config_graph",
+        workspace_root=Path("/workspace"),
+        repo_root=Path("/repo"),
+        actor_id=uuid4(),
+    )
+    preflight_request = SemanticPackageMaterializationRuntimeContextRequest(
+        provider_key=request.provider_key,
+        semantic_owner=request.semantic_owner,
+        workspace_root=request.workspace_root,
+        repo_root=request.repo_root,
+        actor_id=request.actor_id,
+        demand=(SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_PREFLIGHT),
+    )
+
+    assert request.demand == SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_EXECUTION
+    assert preflight_request.demand == (
+        SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_PREFLIGHT
+    )
 
 
 def test_semantic_function_call_context_normalizes_payload() -> None:

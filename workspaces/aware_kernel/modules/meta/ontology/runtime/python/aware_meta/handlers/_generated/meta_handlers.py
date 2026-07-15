@@ -27,7 +27,10 @@ from aware_history_ontology.lane.lane import Lane
 
 # Meta
 from aware_meta.graph.instance.builder import build_object_instance_graph
-from aware_meta.graph.instance.diff_orm import build_object_instance_graph_changes_from_orm_change_set
+from aware_meta.graph.instance.diff_orm import (
+    OrmChangeTranslationError,
+    build_object_instance_graph_changes_from_orm_change_set,
+)
 from aware_meta.runtime.handler_context import current_handler_session
 from aware_meta.runtime.handler_executor.argument_coercion import coerce_meta_handler_call_kwargs
 from aware_meta.runtime.handler_executor.contracts import MetaGraphHandlerExecutionRequest, MetaGraphPreState
@@ -255,18 +258,21 @@ def _changes_from_current_collector(
             "Generated Meta instance handler requires an active ORM change collector."
         )
     change_set = collector.snapshot()
-    changes = tuple(
-        build_object_instance_graph_changes_from_orm_change_set(
-            before_oig=pre_state.before_oig,
-            object_instance_graph_identity_id=(request.staged_call.lane_scope.object_instance_graph_identity_id),
-            ocg=request.execution_plan.index.ocg,
-            opg=request.execution_plan.object_projection_graph,
-            change_set=change_set,
-            class_configs_by_id=dict(request.execution_plan.index.class_configs_by_id),
-            relationships_by_id=dict(request.execution_plan.index.relationships_by_id),
-            enum_option_resolver=default_meta_enum_option_resolver,
+    try:
+        changes = tuple(
+            build_object_instance_graph_changes_from_orm_change_set(
+                before_oig=pre_state.before_oig,
+                object_instance_graph_identity_id=(request.staged_call.lane_scope.object_instance_graph_identity_id),
+                ocg=request.execution_plan.index.ocg,
+                opg=request.execution_plan.object_projection_graph,
+                change_set=change_set,
+                class_configs_by_id=dict(request.execution_plan.index.class_configs_by_id),
+                relationships_by_id=dict(request.execution_plan.index.relationships_by_id),
+                enum_option_resolver=default_meta_enum_option_resolver,
+            )
         )
-    )
+    except OrmChangeTranslationError:
+        return None
     constructed_class_instance_ids = tuple(
         class_change.class_instance_id
         for root_change in changes
@@ -529,7 +535,7 @@ def _root_id_attribute_config__create_primitive(*, request: MetaGraphHandlerExec
     name = bound_input.get("name")
     primitive_base_type = bound_input.get("primitive_base_type")
     if primitive_base_type is None:
-        primitive_base_type = "any"
+        primitive_base_type = CodePrimitiveBaseType.any
     description = bound_input.get("description")
     if description is None:
         description = None
@@ -800,10 +806,10 @@ def _root_id_attribute_config__create_collection_primitive(
     name = bound_input.get("name")
     collection_kind = bound_input.get("collection_kind")
     if collection_kind is None:
-        collection_kind = "list"
+        collection_kind = AttributeCollectionType.list
     primitive_base_type = bound_input.get("primitive_base_type")
     if primitive_base_type is None:
-        primitive_base_type = "any"
+        primitive_base_type = CodePrimitiveBaseType.any
     description = bound_input.get("description")
     if description is None:
         description = None
@@ -1102,10 +1108,10 @@ def _root_id_attribute_type_descriptor__create_collection_primitive(
 
     collection_kind = bound_input.get("collection_kind")
     if collection_kind is None:
-        collection_kind = "list"
+        collection_kind = AttributeCollectionType.list
     primitive_base_type = bound_input.get("primitive_base_type")
     if primitive_base_type is None:
-        primitive_base_type = "any"
+        primitive_base_type = CodePrimitiveBaseType.any
     _aware_self_values = {"collection_kind": collection_kind, "primitive_base_type": primitive_base_type}
     _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("d3fac7a1-b0db-5840-8fa8-b3d30f3ab9df")
     if _aware_self_binding is None:
@@ -1697,7 +1703,7 @@ def _root_id_class_config__create_via_object_config_graph_node(
         description = None
     value_mode = bound_input.get("value_mode")
     if value_mode is None:
-        value_mode = "graph_ref"
+        value_mode = ClassValueMode.graph_ref
     _aware_self_values = {
         "object_config_graph_node_id": object_config_graph_node_id,
         "class_fqn": class_fqn,
@@ -1939,10 +1945,10 @@ def _root_id_class_config_attribute_config__create_collection_primitive_via_clas
     name = bound_input.get("name")
     collection_kind = bound_input.get("collection_kind")
     if collection_kind is None:
-        collection_kind = "list"
+        collection_kind = AttributeCollectionType.list
     primitive_base_type = bound_input.get("primitive_base_type")
     if primitive_base_type is None:
-        primitive_base_type = "any"
+        primitive_base_type = CodePrimitiveBaseType.any
     description = bound_input.get("description")
     if description is None:
         description = None
@@ -2193,7 +2199,7 @@ def _root_id_class_config_attribute_config__create_primitive_via_class_config(
     name = bound_input.get("name")
     primitive_base_type = bound_input.get("primitive_base_type")
     if primitive_base_type is None:
-        primitive_base_type = "any"
+        primitive_base_type = CodePrimitiveBaseType.any
     description = bound_input.get("description")
     if description is None:
         description = None
@@ -2345,7 +2351,7 @@ def _root_id_class_config_function_config__create_via_class_config(
         is_async = False
     kind = bound_input.get("kind")
     if kind is None:
-        kind = "instance"
+        kind = FunctionKind.instance
     is_public = bound_input.get("is_public")
     if is_public is None:
         is_public = True
@@ -3801,7 +3807,7 @@ def _root_id_function_config__create(*, request: MetaGraphHandlerExecutionReques
         is_async = False
     kind = bound_input.get("kind")
     if kind is None:
-        kind = "instance"
+        kind = FunctionKind.instance
     _aware_self_values = {
         "owner_key": owner_key,
         "name": name,
@@ -4237,7 +4243,7 @@ def _root_id_function_config_attribute_config__create_class_via_function_config(
         is_virtual = False
     type = bound_input.get("type")
     if type is None:
-        type = "input"
+        type = FunctionAttributeType.input
     position = bound_input.get("position")
     if position is None:
         position = 0
@@ -4246,7 +4252,7 @@ def _root_id_function_config_attribute_config__create_class_via_function_config(
         is_identity_key = False
     identity_key_origin = bound_input.get("identity_key_origin")
     if identity_key_origin is None:
-        identity_key_origin = "standalone"
+        identity_key_origin = FunctionIdentityKeyOrigin.standalone
     _aware_self_values = {
         "function_config_id": function_config_id,
         "owner_key": owner_key,
@@ -4353,10 +4359,10 @@ def _root_id_function_config_attribute_config__create_collection_primitive_via_f
     name = bound_input.get("name")
     collection_kind = bound_input.get("collection_kind")
     if collection_kind is None:
-        collection_kind = "list"
+        collection_kind = AttributeCollectionType.list
     primitive_base_type = bound_input.get("primitive_base_type")
     if primitive_base_type is None:
-        primitive_base_type = "any"
+        primitive_base_type = CodePrimitiveBaseType.any
     description = bound_input.get("description")
     if description is None:
         description = None
@@ -4380,7 +4386,7 @@ def _root_id_function_config_attribute_config__create_collection_primitive_via_f
         is_virtual = False
     type = bound_input.get("type")
     if type is None:
-        type = "input"
+        type = FunctionAttributeType.input
     position = bound_input.get("position")
     if position is None:
         position = 0
@@ -4389,7 +4395,7 @@ def _root_id_function_config_attribute_config__create_collection_primitive_via_f
         is_identity_key = False
     identity_key_origin = bound_input.get("identity_key_origin")
     if identity_key_origin is None:
-        identity_key_origin = "standalone"
+        identity_key_origin = FunctionIdentityKeyOrigin.standalone
     _aware_self_values = {
         "function_config_id": function_config_id,
         "owner_key": owner_key,
@@ -4517,7 +4523,7 @@ def _root_id_function_config_attribute_config__create_enum_via_function_config(
         is_virtual = False
     type = bound_input.get("type")
     if type is None:
-        type = "input"
+        type = FunctionAttributeType.input
     position = bound_input.get("position")
     if position is None:
         position = 0
@@ -4526,7 +4532,7 @@ def _root_id_function_config_attribute_config__create_enum_via_function_config(
         is_identity_key = False
     identity_key_origin = bound_input.get("identity_key_origin")
     if identity_key_origin is None:
-        identity_key_origin = "standalone"
+        identity_key_origin = FunctionIdentityKeyOrigin.standalone
     _aware_self_values = {
         "function_config_id": function_config_id,
         "owner_key": owner_key,
@@ -4631,7 +4637,7 @@ def _root_id_function_config_attribute_config__create_primitive_via_function_con
     name = bound_input.get("name")
     primitive_base_type = bound_input.get("primitive_base_type")
     if primitive_base_type is None:
-        primitive_base_type = "any"
+        primitive_base_type = CodePrimitiveBaseType.any
     description = bound_input.get("description")
     if description is None:
         description = None
@@ -4655,7 +4661,7 @@ def _root_id_function_config_attribute_config__create_primitive_via_function_con
         is_virtual = False
     type = bound_input.get("type")
     if type is None:
-        type = "input"
+        type = FunctionAttributeType.input
     position = bound_input.get("position")
     if position is None:
         position = 0
@@ -4664,7 +4670,7 @@ def _root_id_function_config_attribute_config__create_primitive_via_function_con
         is_identity_key = False
     identity_key_origin = bound_input.get("identity_key_origin")
     if identity_key_origin is None:
-        identity_key_origin = "standalone"
+        identity_key_origin = FunctionIdentityKeyOrigin.standalone
     _aware_self_values = {
         "function_config_id": function_config_id,
         "owner_key": owner_key,
@@ -4815,7 +4821,7 @@ def _root_id_function_config_invocation__create_via_function_config(
         root_invocation_id = None
     root_kind = bound_input.get("root_kind")
     if root_kind is None:
-        root_kind = "owner"
+        root_kind = FunctionInvocationRootKind.owner
     capture_name = bound_input.get("capture_name")
     if capture_name is None:
         capture_name = None
@@ -4947,7 +4953,7 @@ def _root_id_function_impl__build_via_function_config(
         key = "default"
     kind = bound_input.get("kind")
     if kind is None:
-        kind = "instruction_body"
+        kind = FunctionImplKind.instruction_body
     _aware_self_values = {"function_config_id": function_config_id, "key": key, "kind": kind}
     _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("37e775bf-2989-5f1c-bdfd-b6ca72544db5")
     if _aware_self_binding is None:
@@ -5508,7 +5514,7 @@ def _root_id_function_impl_instruction_delete__build_via_function_impl_instructi
     function_impl_instruction_id = bound_input.get("function_impl_instruction_id")
     target_kind = bound_input.get("target_kind")
     if target_kind is None:
-        target_kind = "self"
+        target_kind = FunctionImplDeleteTargetKind.self
     _aware_self_values = {"function_impl_instruction_id": function_impl_instruction_id, "target_kind": target_kind}
     _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("88a971f5-178f-5b1c-ae29-c562b93c27a6")
     if _aware_self_binding is None:
@@ -5640,7 +5646,7 @@ def _root_id_function_impl_instruction_invoke__build_via_function_impl_instructi
         class_config_relationship_id = None
     kind = bound_input.get("kind")
     if kind is None:
-        kind = "call"
+        kind = FunctionImplInvokeKind.call
     _aware_self_values = {
         "function_impl_instruction_id": function_impl_instruction_id,
         "target_function_config_id": target_function_config_id,
@@ -7171,7 +7177,7 @@ def _root_id_object_config_graph__build(*, request: MetaGraphHandlerExecutionReq
     fqn_prefix = bound_input.get("fqn_prefix")
     language = bound_input.get("language")
     if language is None:
-        language = "aware"
+        language = CodeLanguage.aware
     object_config_graph_id = bound_input.get("object_config_graph_id")
     if object_config_graph_id is None:
         object_config_graph_id = None
@@ -8143,10 +8149,10 @@ def _root_id_object_config_graph_package__build(*, request: MetaGraphHandlerExec
         object_config_graph_package_id = None
     function_impl_ownership = bound_input.get("function_impl_ownership")
     if function_impl_ownership is None:
-        function_impl_ownership = "authored"
+        function_impl_ownership = ObjectConfigGraphPackageFunctionImplOwnership.authored
     function_impl_parity_policy = bound_input.get("function_impl_parity_policy")
     if function_impl_parity_policy is None:
-        function_impl_parity_policy = "off"
+        function_impl_parity_policy = ObjectConfigGraphPackageFunctionImplParityPolicy.off
     implementation_policy_source = bound_input.get("implementation_policy_source")
     if implementation_policy_source is None:
         implementation_policy_source = "aware_toml"
@@ -9532,7 +9538,7 @@ def _root_id_object_projection_graph__build_via_object_config_graph(
     projection_hash = bound_input.get("projection_hash")
     language = bound_input.get("language")
     if language is None:
-        language = "aware"
+        language = CodeLanguage.aware
     description = bound_input.get("description")
     if description is None:
         description = None
@@ -10038,19 +10044,19 @@ def _root_id_object_projection_graph_edge__build_via_object_projection_graph(
     class_config_relationship_id = bound_input.get("class_config_relationship_id")
     include = bound_input.get("include")
     if include is None:
-        include = "required"
+        include = ObjectProjectionGraphEdgeInclude.required
     multiplicity = bound_input.get("multiplicity")
     if multiplicity is None:
-        multiplicity = "many"
+        multiplicity = ObjectProjectionGraphEdgeMultiplicity.many
     traversal_direction = bound_input.get("traversal_direction")
     if traversal_direction is None:
-        traversal_direction = "forward"
+        traversal_direction = ClassConfigRelationshipDirection.forward
     depth_limit = bound_input.get("depth_limit")
     if depth_limit is None:
         depth_limit = None
     attribute_role = bound_input.get("attribute_role")
     if attribute_role is None:
-        attribute_role = "reference"
+        attribute_role = ObjectProjectionGraphAttributeRole.reference
     loading_override = bound_input.get("loading_override")
     if loading_override is None:
         loading_override = None
@@ -10368,7 +10374,7 @@ def _root_id_object_projection_graph_node__build_via_object_projection_graph(
         required_for_validity = False
     selection = bound_input.get("selection")
     if selection is None:
-        selection = "all"
+        selection = ObjectProjectionGraphNodeSelection.all
     top_n = bound_input.get("top_n")
     if top_n is None:
         top_n = None
@@ -10615,7 +10621,7 @@ def _root_id_object_projection_graph_observable__create_via_object_projection_gr
     key = bound_input.get("key")
     kind = bound_input.get("kind")
     if kind is None:
-        kind = "instance"
+        kind = ObjectProjectionGraphObservableKind.instance
     label = bound_input.get("label")
     if label is None:
         label = None
@@ -11067,10 +11073,28 @@ async def attribute_config__update_primitive__handler(
         expected_class_name="AttributeConfig",
     )
     result = await _call_attribute_config__update_primitive(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11094,10 +11118,28 @@ async def attribute_config__update_enum__handler(
         expected_class_name="AttributeConfig",
     )
     result = await _call_attribute_config__update_enum(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11121,10 +11163,28 @@ async def attribute_config__update_class__handler(
         expected_class_name="AttributeConfig",
     )
     result = await _call_attribute_config__update_class(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11338,10 +11398,28 @@ async def attribute_type_descriptor__create_child_link__handler(
         expected_class_name="AttributeTypeDescriptor",
     )
     result = await _call_attribute_type_descriptor__create_child_link(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11416,10 +11494,28 @@ async def class_config__update_config__handler(
         expected_class_name="ClassConfig",
     )
     result = await _call_class_config__update_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11443,10 +11539,28 @@ async def class_config__update_parent_class__handler(
         expected_class_name="ClassConfig",
     )
     result = await _call_class_config__update_parent_class(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11470,10 +11584,28 @@ async def class_config__create_primitive_attribute_config__handler(
         expected_class_name="ClassConfig",
     )
     result = await _call_class_config__create_primitive_attribute_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11497,10 +11629,28 @@ async def class_config__create_enum_attribute_config__handler(
         expected_class_name="ClassConfig",
     )
     result = await _call_class_config__create_enum_attribute_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11524,10 +11674,28 @@ async def class_config__create_class_attribute_config__handler(
         expected_class_name="ClassConfig",
     )
     result = await _call_class_config__create_class_attribute_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11555,10 +11723,28 @@ async def class_config__create_collection_primitive_attribute_config__handler(
     result = await _call_class_config__create_collection_primitive_attribute_config(
         bound_input=bound_input, target=target
     )
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11582,10 +11768,28 @@ async def class_config__remove_attribute_config__handler(
         expected_class_name="ClassConfig",
     )
     result = await _call_class_config__remove_attribute_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11609,10 +11813,28 @@ async def class_config__create_function_config__handler(
         expected_class_name="ClassConfig",
     )
     result = await _call_class_config__create_function_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11636,10 +11858,28 @@ async def class_config__remove_function_config__handler(
         expected_class_name="ClassConfig",
     )
     result = await _call_class_config__remove_function_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11663,10 +11903,28 @@ async def class_config__create_relationship__handler(
         expected_class_name="ClassConfig",
     )
     result = await _call_class_config__create_relationship(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11690,10 +11948,28 @@ async def class_config__remove_relationship_config__handler(
         expected_class_name="ClassConfig",
     )
     result = await _call_class_config__remove_relationship_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11766,10 +12042,28 @@ async def class_config_attribute_config__update_config__handler(
         expected_class_name="ClassConfigAttributeConfig",
     )
     result = await _call_class_config_attribute_config__update_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -11999,10 +12293,28 @@ async def class_config_function_config__update_config__handler(
         expected_class_name="ClassConfigFunctionConfig",
     )
     result = await _call_class_config_function_config__update_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12075,10 +12387,28 @@ async def class_config_relationship__create_association__handler(
         expected_class_name="ClassConfigRelationship",
     )
     result = await _call_class_config_relationship__create_association(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12102,10 +12432,28 @@ async def class_config_relationship__create_attribute__handler(
         expected_class_name="ClassConfigRelationship",
     )
     result = await _call_class_config_relationship__create_attribute(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12129,10 +12477,28 @@ async def class_config_relationship__update_config__handler(
         expected_class_name="ClassConfigRelationship",
     )
     result = await _call_class_config_relationship__update_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12311,10 +12677,28 @@ async def class_instance__create_attribute__handler(
         expected_class_name="ClassInstance",
     )
     result = await _call_class_instance__create_attribute(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12538,10 +12922,28 @@ async def enum_config__create_enum_option__handler(
         expected_class_name="EnumConfig",
     )
     result = await _call_enum_config__create_enum_option(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12565,10 +12967,28 @@ async def enum_config__delete_enum_option__handler(
         expected_class_name="EnumConfig",
     )
     result = await _call_enum_config__delete_enum_option(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12592,10 +13012,28 @@ async def enum_config__update_config__handler(
         expected_class_name="EnumConfig",
     )
     result = await _call_enum_config__update_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12666,10 +13104,28 @@ async def enum_option__update_config__handler(
         expected_class_name="EnumOption",
     )
     result = await _call_enum_option__update_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12740,10 +13196,28 @@ async def function_call__create_response__handler(
         expected_class_name="FunctionCall",
     )
     result = await _call_function_call__create_response(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12910,10 +13384,28 @@ async def function_config__update_config__handler(
         expected_class_name="FunctionConfig",
     )
     result = await _call_function_config__update_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12937,10 +13429,28 @@ async def function_config__add_primitive_attribute_config__handler(
         expected_class_name="FunctionConfig",
     )
     result = await _call_function_config__add_primitive_attribute_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12964,10 +13474,28 @@ async def function_config__add_enum_attribute_config__handler(
         expected_class_name="FunctionConfig",
     )
     result = await _call_function_config__add_enum_attribute_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -12991,10 +13519,28 @@ async def function_config__add_class_attribute_config__handler(
         expected_class_name="FunctionConfig",
     )
     result = await _call_function_config__add_class_attribute_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13022,10 +13568,28 @@ async def function_config__add_collection_primitive_attribute_config__handler(
     result = await _call_function_config__add_collection_primitive_attribute_config(
         bound_input=bound_input, target=target
     )
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13049,10 +13613,28 @@ async def function_config__remove_attribute_config__handler(
         expected_class_name="FunctionConfig",
     )
     result = await _call_function_config__remove_attribute_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13076,10 +13658,28 @@ async def function_config__create_function_impl__handler(
         expected_class_name="FunctionConfig",
     )
     result = await _call_function_config__create_function_impl(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13103,10 +13703,28 @@ async def function_config__create_invocation__handler(
         expected_class_name="FunctionConfig",
     )
     result = await _call_function_config__create_invocation(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13130,10 +13748,28 @@ async def function_config_attribute_config__update_config__handler(
         expected_class_name="FunctionConfigAttributeConfig",
     )
     result = await _call_function_config_attribute_config__update_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13412,10 +14048,28 @@ async def function_impl__create_instruction__handler(
         expected_class_name="FunctionImpl",
     )
     result = await _call_function_impl__create_instruction(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13439,10 +14093,28 @@ async def function_impl__remove_instruction__handler(
         expected_class_name="FunctionImpl",
     )
     result = await _call_function_impl__remove_instruction(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13513,10 +14185,28 @@ async def function_impl_instruction__attach_let__handler(
         expected_class_name="FunctionImplInstruction",
     )
     result = await _call_function_impl_instruction__attach_let(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13540,10 +14230,28 @@ async def function_impl_instruction__attach_invoke__handler(
         expected_class_name="FunctionImplInstruction",
     )
     result = await _call_function_impl_instruction__attach_invoke(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13567,10 +14275,28 @@ async def function_impl_instruction__attach_construct__handler(
         expected_class_name="FunctionImplInstruction",
     )
     result = await _call_function_impl_instruction__attach_construct(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13594,10 +14320,28 @@ async def function_impl_instruction__attach_set__handler(
         expected_class_name="FunctionImplInstruction",
     )
     result = await _call_function_impl_instruction__attach_set(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13621,10 +14365,28 @@ async def function_impl_instruction__attach_require__handler(
         expected_class_name="FunctionImplInstruction",
     )
     result = await _call_function_impl_instruction__attach_require(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13648,10 +14410,28 @@ async def function_impl_instruction__attach_delete__handler(
         expected_class_name="FunctionImplInstruction",
     )
     result = await _call_function_impl_instruction__attach_delete(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13675,10 +14455,28 @@ async def function_impl_instruction__create_value_source__handler(
         expected_class_name="FunctionImplInstruction",
     )
     result = await _call_function_impl_instruction__create_value_source(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13751,10 +14549,28 @@ async def function_impl_instruction_construct__add_assignment__handler(
         expected_class_name="FunctionImplInstructionConstruct",
     )
     result = await _call_function_impl_instruction_construct__add_assignment(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -13937,10 +14753,28 @@ async def function_impl_instruction_invoke__add_attribute_config__handler(
         expected_class_name="FunctionImplInstructionInvoke",
     )
     result = await _call_function_impl_instruction_invoke__add_attribute_config(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -14121,10 +14955,28 @@ async def function_impl_instruction_require__add_operand__handler(
         expected_class_name="FunctionImplInstructionRequire",
     )
     result = await _call_function_impl_instruction_require__add_operand(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -14252,10 +15104,28 @@ async def function_impl_instruction_set__update_assignment__handler(
         expected_class_name="FunctionImplInstructionSet",
     )
     result = await _call_function_impl_instruction_set__update_assignment(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -14330,10 +15200,28 @@ async def function_impl_value_source__attach_literal_primitive__handler(
         expected_class_name="FunctionImplValueSource",
     )
     result = await _call_function_impl_value_source__attach_literal_primitive(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -14357,10 +15245,28 @@ async def function_impl_value_source__attach_transform__handler(
         expected_class_name="FunctionImplValueSource",
     )
     result = await _call_function_impl_value_source__attach_transform(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -14384,10 +15290,28 @@ async def function_impl_value_source__attach_read_path__handler(
         expected_class_name="FunctionImplValueSource",
     )
     result = await _call_function_impl_value_source__attach_read_path(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -14411,10 +15335,28 @@ async def function_impl_value_source__update_function_input_ref__handler(
         expected_class_name="FunctionImplValueSource",
     )
     result = await _call_function_impl_value_source__update_function_input_ref(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -14542,10 +15484,28 @@ async def function_impl_value_source_read_path__add_segment__handler(
         expected_class_name="FunctionImplValueSourceReadPath",
     )
     result = await _call_function_impl_value_source_read_path__add_segment(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -14677,10 +15637,28 @@ async def function_impl_value_source_transform__add_operand__handler(
         expected_class_name="FunctionImplValueSourceTransform",
     )
     result = await _call_function_impl_value_source_transform__add_operand(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -14859,10 +15837,28 @@ async def inline_value_instance__create_attribute__handler(
         expected_class_name="InlineValueInstance",
     )
     result = await _call_inline_value_instance__create_attribute(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -14984,10 +15980,28 @@ async def object_config_graph__create_node__handler(
         expected_class_name="ObjectConfigGraph",
     )
     result = await _call_object_config_graph__create_node(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15011,10 +16025,28 @@ async def object_config_graph__delete_node__handler(
         expected_class_name="ObjectConfigGraph",
     )
     result = await _call_object_config_graph__delete_node(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15038,10 +16070,28 @@ async def object_config_graph__create_object_projection_graph__handler(
         expected_class_name="ObjectConfigGraph",
     )
     result = await _call_object_config_graph__create_object_projection_graph(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15069,10 +16119,28 @@ async def object_config_graph__create_object_projection_graph_declaration__handl
     result = await _call_object_config_graph__create_object_projection_graph_declaration(
         bound_input=bound_input, target=target
     )
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15096,10 +16164,28 @@ async def object_config_graph__get_topology_description__handler(
         expected_class_name="ObjectConfigGraph",
     )
     result = await _call_object_config_graph__get_topology_description(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15127,10 +16213,28 @@ async def object_config_graph__create_object_config_graph_relationship__handler(
     result = await _call_object_config_graph__create_object_config_graph_relationship(
         bound_input=bound_input, target=target
     )
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15154,10 +16258,28 @@ async def object_config_graph__create_object_config_graph_binding__handler(
         expected_class_name="ObjectConfigGraph",
     )
     result = await _call_object_config_graph__create_object_config_graph_binding(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15181,10 +16303,28 @@ async def object_config_graph_binding__create_class__handler(
         expected_class_name="ObjectConfigGraphBinding",
     )
     result = await _call_object_config_graph_binding__create_class(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15259,10 +16399,28 @@ async def object_config_graph_binding_class__create_formula__handler(
         expected_class_name="ObjectConfigGraphBindingClass",
     )
     result = await _call_object_config_graph_binding_class__create_formula(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15343,10 +16501,28 @@ async def object_config_graph_binding_formula__create_segment_reference__handler
     result = await _call_object_config_graph_binding_formula__create_segment_reference(
         bound_input=bound_input, target=target
     )
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15535,10 +16711,28 @@ async def object_config_graph_identity__create_object_projection_graph_identity_
     result = await _call_object_config_graph_identity__create_object_projection_graph_identity(
         bound_input=bound_input, target=target
     )
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15562,10 +16756,28 @@ async def object_config_graph_node__create_class__handler(
         expected_class_name="ObjectConfigGraphNode",
     )
     result = await _call_object_config_graph_node__create_class(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15589,10 +16801,28 @@ async def object_config_graph_node__create_enum__handler(
         expected_class_name="ObjectConfigGraphNode",
     )
     result = await _call_object_config_graph_node__create_enum(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15712,10 +16942,28 @@ async def object_config_graph_package__attach_object_config_graph__handler(
         expected_class_name="ObjectConfigGraphPackage",
     )
     result = await _call_object_config_graph_package__attach_object_config_graph(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15739,10 +16987,28 @@ async def object_config_graph_relationship__create_class__handler(
         expected_class_name="ObjectConfigGraphRelationship",
     )
     result = await _call_object_config_graph_relationship__create_class(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15870,10 +17136,28 @@ async def object_instance_graph__create_class_instance__handler(
         expected_class_name="ObjectInstanceGraph",
     )
     result = await _call_object_instance_graph__create_class_instance(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15946,10 +17230,28 @@ async def object_instance_graph_branch__attach_lane__handler(
         expected_class_name="ObjectInstanceGraphBranch",
     )
     result = await _call_object_instance_graph_branch__attach_lane(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -15975,10 +17277,28 @@ async def object_instance_graph_branch__attach_branch_relationship__handler(
     result = await _call_object_instance_graph_branch__attach_branch_relationship(
         bound_input=bound_input, target=target
     )
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16220,10 +17540,28 @@ async def object_instance_graph_identity__upsert_history_from_lane_head__handler
     result = await _call_object_instance_graph_identity__upsert_history_from_lane_head(
         bound_input=bound_input, target=target
     )
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16251,10 +17589,28 @@ async def object_instance_graph_identity__create_class_instance_identity__handle
     result = await _call_object_instance_graph_identity__create_class_instance_identity(
         bound_input=bound_input, target=target
     )
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16282,10 +17638,28 @@ async def object_instance_graph_identity__create_class_instance_relationship_ide
     result = await _call_object_instance_graph_identity__create_class_instance_relationship_identity(
         bound_input=bound_input, target=target
     )
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16309,10 +17683,28 @@ async def object_instance_graph_identity__create_change__handler(
         expected_class_name="ObjectInstanceGraphIdentity",
     )
     result = await _call_object_instance_graph_identity__create_change(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16389,10 +17781,28 @@ async def object_instance_graph_lane__create_function_call__handler(
         expected_class_name="ObjectInstanceGraphLane",
     )
     result = await _call_object_instance_graph_lane__create_function_call(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16467,10 +17877,28 @@ async def object_projection_graph__create_node__handler(
         expected_class_name="ObjectProjectionGraph",
     )
     result = await _call_object_projection_graph__create_node(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16494,10 +17922,28 @@ async def object_projection_graph__create_edge__handler(
         expected_class_name="ObjectProjectionGraph",
     )
     result = await _call_object_projection_graph__create_edge(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16521,10 +17967,28 @@ async def object_projection_graph__create_constructor__handler(
         expected_class_name="ObjectProjectionGraph",
     )
     result = await _call_object_projection_graph__create_constructor(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16548,10 +18012,28 @@ async def object_projection_graph__create_relationship__handler(
         expected_class_name="ObjectProjectionGraph",
     )
     result = await _call_object_projection_graph__create_relationship(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16575,10 +18057,28 @@ async def object_projection_graph__create_object_instance_graph__handler(
         expected_class_name="ObjectProjectionGraph",
     )
     result = await _call_object_projection_graph__create_object_instance_graph(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16755,10 +18255,28 @@ async def object_projection_graph_declaration__create_binding__handler(
         expected_class_name="ObjectProjectionGraphDeclaration",
     )
     result = await _call_object_projection_graph_declaration__create_binding(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16888,10 +18406,28 @@ async def object_projection_graph_identity__create_object_instance_graph_identit
     result = await _call_object_projection_graph_identity__create_object_instance_graph_identity(
         bound_input=bound_input, target=target
     )
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16915,10 +18451,28 @@ async def object_projection_graph_identity__create_observable__handler(
         expected_class_name="ObjectProjectionGraphIdentity",
     )
     result = await _call_object_projection_graph_identity__create_observable(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -16995,10 +18549,28 @@ async def object_projection_graph_node__create_key__handler(
         expected_class_name="ObjectProjectionGraphNode",
     )
     result = await _call_object_projection_graph_node__create_key(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),

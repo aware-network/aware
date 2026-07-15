@@ -1,0 +1,177 @@
+/// Transport-agnostic DTOs for pre-node deploy supervisor operations.
+///
+/// IMPORTANT:
+/// - This contract is a peer rail to live-node `NetworkNodeOperation`.
+/// - It exists before a node websocket is available.
+/// - `local` vs `remote` remains a transport/backend concern, not an API fork.
+
+enum NodeDeployRuntimePhase {
+    idle
+    starting_bundle
+    start_db
+    starting_environment
+    waiting_environment
+    starting_node
+    waiting_node
+    ready
+    failed
+}
+
+class NodeDeployTarget {
+    target_id UUID?
+    target_key String?
+    display_name String?
+    node_base_url String?
+    node_websocket_path String?
+}
+
+class NodeDeployTargetStatus {
+    target_id String
+    display_name String
+    kind String?
+    endpoint String?
+    phase String = "idle"
+    is_active Bool = false
+    is_healthy Bool = false
+    summary String?
+    error String?
+    detail_lines String[] = []
+}
+
+class NodeDeployRuntimeStatus {
+    target NodeDeployTarget?
+    phase NodeDeployRuntimePhase = idle
+    active_target_id String?
+    backend_kind String?
+    is_active Bool = false
+    is_healthy Bool = false
+    node_base_url String?
+    node_websocket_path String?
+    summary String?
+    error String?
+    updated_at String?
+    recent_log_lines String[] = []
+    target_statuses comms.models.NodeDeployTargetStatus[] = []
+}
+
+class NodeDeployOperationContext {
+    actor_id UUID?
+}
+
+class NodeDeployOperation {
+    request NodeDeployOperationRequest?
+    response NodeDeployOperationResponse?
+    stream_item NodeDeployOperationEvent?
+}
+
+ann comms.models.NodeDeployOperation oneof request response stream_item
+
+class NodeDeployOperationRequest augment comms.models.NodeDeployOperationContext {
+    operation String
+    target NodeDeployTarget?
+}
+
+class NodeDeployOperationResponse augment comms.models.NodeDeployOperationContext {
+    operation String
+    status String = "pending"
+    error String?
+    runtime_status NodeDeployRuntimeStatus?
+}
+
+class NodeDeployOperationEvent augment comms.models.NodeDeployOperationContext {
+    kind String
+    operation String?
+    runtime_status NodeDeployRuntimeStatus?
+    message String?
+    timestamp String?
+}
+
+class DescribeNodeRuntimeRequest augment comms.models.NodeDeployOperationRequest {
+    operation String = "describe_node_runtime"
+}
+
+class DescribeNodeRuntimeResponse augment comms.models.NodeDeployOperationResponse {
+    operation String = "describe_node_runtime"
+}
+
+class EnsureNodeRuntimeStartedRequest augment comms.models.NodeDeployOperationRequest {
+    operation String = "ensure_node_runtime_started"
+    wait_for_ready Bool = true
+}
+
+class EnsureNodeRuntimeStartedResponse augment comms.models.NodeDeployOperationResponse {
+    operation String = "ensure_node_runtime_started"
+}
+
+class RestartNodeRuntimeRequest augment comms.models.NodeDeployOperationRequest {
+    operation String = "restart_node_runtime"
+    wait_for_ready Bool = true
+}
+
+class RestartNodeRuntimeResponse augment comms.models.NodeDeployOperationResponse {
+    operation String = "restart_node_runtime"
+}
+
+class StopNodeRuntimeRequest augment comms.models.NodeDeployOperationRequest {
+    operation String = "stop_node_runtime"
+    force Bool = false
+}
+
+class StopNodeRuntimeResponse augment comms.models.NodeDeployOperationResponse {
+    operation String = "stop_node_runtime"
+}
+
+class TailNodeRuntimeLogsRequest augment comms.models.NodeDeployOperationRequest {
+    operation String = "tail_node_runtime_logs"
+    line_count Int = 200
+}
+
+class TailNodeRuntimeLogsResponse augment comms.models.NodeDeployOperationResponse {
+    operation String = "tail_node_runtime_logs"
+    log_lines String[] = []
+}
+
+class StreamNodeRuntimeEventsRequest augment comms.models.NodeDeployOperationRequest {
+    operation String = "stream_node_runtime_events"
+    include_history Bool = true
+}
+
+class StreamNodeRuntimeEventsResponse augment comms.models.NodeDeployOperationResponse {
+    operation String = "stream_node_runtime_events"
+    stream_open Bool = true
+}
+
+class NodeDeployRuntimeStatusEvent augment comms.models.NodeDeployOperationEvent {
+    kind String = "runtime_status"
+}
+
+class NodeDeployRuntimeLogEvent augment comms.models.NodeDeployOperationEvent {
+    kind String = "runtime_log"
+    log_line String?
+}
+
+class NodeDeployRuntimeTerminalEvent augment comms.models.NodeDeployOperationEvent {
+    kind String = "runtime_terminal"
+    terminal_status String = "succeeded"
+}
+
+ann comms.models.NodeDeployOperationRequest::operation discriminate key
+ann comms.models.DescribeNodeRuntimeRequest::operation discriminate tag "describe_node_runtime"
+ann comms.models.EnsureNodeRuntimeStartedRequest::operation discriminate tag "ensure_node_runtime_started"
+ann comms.models.RestartNodeRuntimeRequest::operation discriminate tag "restart_node_runtime"
+ann comms.models.StopNodeRuntimeRequest::operation discriminate tag "stop_node_runtime"
+ann comms.models.TailNodeRuntimeLogsRequest::operation discriminate tag "tail_node_runtime_logs"
+ann comms.models.StreamNodeRuntimeEventsRequest::operation discriminate tag "stream_node_runtime_events"
+
+ann comms.models.NodeDeployOperationResponse::operation discriminate key
+ann comms.models.DescribeNodeRuntimeResponse::operation discriminate tag "describe_node_runtime"
+ann comms.models.EnsureNodeRuntimeStartedResponse::operation discriminate tag "ensure_node_runtime_started"
+ann comms.models.RestartNodeRuntimeResponse::operation discriminate tag "restart_node_runtime"
+ann comms.models.StopNodeRuntimeResponse::operation discriminate tag "stop_node_runtime"
+ann comms.models.TailNodeRuntimeLogsResponse::operation discriminate tag "tail_node_runtime_logs"
+ann comms.models.StreamNodeRuntimeEventsResponse::operation discriminate tag "stream_node_runtime_events"
+
+ann comms.models.NodeDeployOperationEvent::kind discriminate key
+ann comms.models.NodeDeployRuntimeStatusEvent::kind discriminate tag "runtime_status"
+ann comms.models.NodeDeployRuntimeLogEvent::kind discriminate tag "runtime_log"
+ann comms.models.NodeDeployRuntimeTerminalEvent::kind discriminate tag "runtime_terminal"

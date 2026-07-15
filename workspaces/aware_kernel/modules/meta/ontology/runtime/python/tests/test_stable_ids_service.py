@@ -1373,6 +1373,69 @@ def test_stable_ids_service_class_strict_derives_from_class_keys_even_when_const
     assert stable_fn.doc == "Compiler-generated from class-attribute identity keys: key"
 
 
+def test_stable_ids_service_derives_exact_decimal_identity_formula() -> None:
+    graph = _build_class_attr_priority_compatible_test_graph()
+    exact_value = next(
+        node.class_config
+        for node in graph.object_config_graph_nodes
+        if node.class_config is not None
+    )
+    class_attr = exact_value.class_config_attribute_configs[0].attribute_config
+    function_attr = (
+        exact_value.class_config_function_configs[0]
+        .function_config.function_config_attribute_configs[0]
+        .attribute_config
+    )
+    for attr in (class_attr, function_attr):
+        descriptor = _primitive_desc(CodePrimitiveBaseType.decimal)
+        object.__setattr__(attr, "type_descriptor", descriptor)
+        object.__setattr__(attr, "type_descriptor_id", descriptor.id)
+        object.__setattr__(attr, "default_value", '"1.2300"')
+
+    spec = load_stable_ids_spec_for_graph(graph=graph, ownership="compiler")
+
+    assert spec is not None
+    stable_fn = next(fn for fn in spec.functions if fn.name == "stable_conversation_id")
+    assert [
+        (param.name, param.type, param.optional, param.default)
+        for param in stable_fn.params
+    ] == [("slug", "decimal", True, None)]
+    assert stable_fn.template == "aware:conversation:{slug_text}"
+    assert [(let.op, let.name, let.param, let.default) for let in stable_fn.lets] == [
+        ("decimal_text_default", "slug_text", "slug", "1.23")
+    ]
+
+
+def test_stable_ids_spec_loader_accepts_decimal_formula_contract() -> None:
+    spec = load_stable_ids_spec_from_toml_text(
+        toml_text="""
+version = 1
+
+[[namespaces]]
+name = "NS_TEST"
+kind = "ns_url"
+value = "aware://test/v1"
+
+[[functions]]
+name = "stable_exact_value_id"
+namespace = "NS_TEST"
+template = "aware:exact_value:{amount_text}"
+
+[[functions.params]]
+name = "amount"
+type = "decimal"
+
+[[functions.lets]]
+op = "decimal_text"
+name = "amount_text"
+param = "amount"
+""",
+    )
+
+    assert spec.functions[0].params[0].type == "decimal"
+    assert spec.functions[0].lets[0].op == "decimal_text"
+
+
 def test_stable_ids_service_class_strict_exports_contained_constructor_parent_formula() -> (
     None
 ):

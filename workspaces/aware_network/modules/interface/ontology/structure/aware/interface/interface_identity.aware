@@ -1,0 +1,9 @@
+class InterfaceIdentity {
+    // Relationships
+    identity aware_identity.identity.Identity key
+    interface_identity_network_nodes InterfaceIdentityNetworkNode[]
+
+    // Attributes
+    linked_at DateTime = now()
+    last_confirmed_at DateTime?
+}

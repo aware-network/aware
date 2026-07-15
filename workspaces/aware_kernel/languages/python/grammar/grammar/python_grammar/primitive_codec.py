@@ -1,6 +1,7 @@
 """Python-specific primitive type implementation."""
 
 import ast
+from decimal import Decimal
 from typing import cast
 from typing_extensions import override
 
@@ -10,6 +11,7 @@ from aware_code_ontology.primitive.code_primitive_type import CodePrimitiveType
 from aware_code.primitive_codec_base import CodePrimitiveCodecBase
 from aware_code.type_descriptor_nodes import CollectionKind
 from aware_code.types import JsonObject
+from aware_types import canonical_decimal_text, decimal_value
 
 from python_grammar.type_parser import PythonTypeParser
 
@@ -20,6 +22,7 @@ PYTHON_TYPE_MAPPING: dict[CodePrimitiveBaseType, str] = {
     CodePrimitiveBaseType.boolean: "bool",
     CodePrimitiveBaseType.bytes: "bytes",
     CodePrimitiveBaseType.datetime: "datetime",
+    CodePrimitiveBaseType.decimal: "Annotated[Decimal, DecimalWire()]",
     CodePrimitiveBaseType.integer: "int",
     CodePrimitiveBaseType.float: "float",
     CodePrimitiveBaseType.json: "Json",
@@ -54,7 +57,9 @@ class PythonPrimitiveCodec(CodePrimitiveCodecBase):
             return None
         t = type_text.strip()
         # Strip quotes
-        if (t.startswith('"') and t.endswith('"')) or (t.startswith("'") and t.endswith("'")):
+        if (t.startswith('"') and t.endswith('"')) or (
+            t.startswith("'") and t.endswith("'")
+        ):
             t = t[1:-1]
         low = t.lower()
         exact_map = {
@@ -73,8 +78,8 @@ class PythonPrimitiveCodec(CodePrimitiveCodecBase):
             "integer": CodePrimitiveBaseType.integer,
             "float": CodePrimitiveBaseType.float,
             "double": CodePrimitiveBaseType.float,
-            "decimal": CodePrimitiveBaseType.float,
-            "numeric": CodePrimitiveBaseType.float,
+            "decimal": CodePrimitiveBaseType.decimal,
+            "numeric": CodePrimitiveBaseType.decimal,
             "json": CodePrimitiveBaseType.json,
             "jsonarray": CodePrimitiveBaseType.json,
             "jsonobject": CodePrimitiveBaseType.json,
@@ -134,6 +139,11 @@ class PythonPrimitiveCodec(CodePrimitiveCodecBase):
         primitive_type = self.get_literal(type_text)
         if primitive_type is not None:
             return primitive_type
+
+        annotated = self._parser.get_annotated_parts(type_text)
+        if annotated is not None:
+            base, _metadata = annotated
+            return self.parse(base)
 
         # Handle Vector(…) parametric
         primitive_type = self.get_vector(type_text)
@@ -222,7 +232,9 @@ class PythonPrimitiveCodec(CodePrimitiveCodecBase):
             parts = [p.strip() for p in raw.split(",") if p.strip()]
             values: list[str] = []
             for p in parts:
-                if (p.startswith('"') and p.endswith('"')) or (p.startswith("'") and p.endswith("'")):
+                if (p.startswith('"') and p.endswith('"')) or (
+                    p.startswith("'") and p.endswith("'")
+                ):
                     values.append(p[1:-1])
                 else:
                     values.append(p)
@@ -259,7 +271,9 @@ class PythonPrimitiveCodec(CodePrimitiveCodecBase):
         if inner is not None:
             inner_type = self.parse(inner)
             if inner_type:
-                return self._primitive(base_type=CodePrimitiveBaseType.array, item_type=inner_type)
+                return self._primitive(
+                    base_type=CodePrimitiveBaseType.array, item_type=inner_type
+                )
             raise ValueError(f"Failed to parse inner type from List[{type_text}]")
         return None
 
@@ -273,7 +287,11 @@ class PythonPrimitiveCodec(CodePrimitiveCodecBase):
             key_type = self.parse(key_s)
             value_type = self.parse(val_s)
             if key_type and value_type:
-                return self._primitive(base_type=CodePrimitiveBaseType.dict, key_type=key_type, value_type=value_type)
+                return self._primitive(
+                    base_type=CodePrimitiveBaseType.dict,
+                    key_type=key_type,
+                    value_type=value_type,
+                )
             raise ValueError(f"Failed to parse key or value from Dict[{type_text}]")
         return None
 
@@ -359,8 +377,12 @@ class PythonPrimitiveCodec(CodePrimitiveCodecBase):
         # Handle union types
         elif prim.base_type == CodePrimitiveBaseType.union and prim.union_types:
             # Check if this is an optional type (union with null)
-            null_types = [t for t in prim.union_types if t.base_type == CodePrimitiveBaseType.null]
-            non_null_types = [t for t in prim.union_types if t.base_type != CodePrimitiveBaseType.null]
+            null_types = [
+                t for t in prim.union_types if t.base_type == CodePrimitiveBaseType.null
+            ]
+            non_null_types = [
+                t for t in prim.union_types if t.base_type != CodePrimitiveBaseType.null
+            ]
 
             if len(null_types) == 1 and len(non_null_types) == 1:
                 # This is Optional[T] case
@@ -527,9 +549,17 @@ class PythonPrimitiveCodec(CodePrimitiveCodecBase):
             for mem in union_members:
                 if self.is_list(mem) or self.is_set(mem):
                     inner = self.get_inner_type(mem)
-                    non_list = [m for m in union_members if not (self.is_list(m) or self.is_set(m))]
+                    non_list = [
+                        m
+                        for m in union_members
+                        if not (self.is_list(m) or self.is_set(m))
+                    ]
                     if self._parser.is_union_bracket_syntax(s):
-                        return f"Union[{', '.join(non_list + [inner])}]" if non_list else inner
+                        return (
+                            f"Union[{', '.join(non_list + [inner])}]"
+                            if non_list
+                            else inner
+                        )
                     return " | ".join(non_list + [inner]) if non_list else inner
 
         # Not a collection type
@@ -570,8 +600,25 @@ class PythonPrimitiveCodec(CodePrimitiveCodecBase):
             # literal_eval failed – fall back.
             pass
 
+        try:
+            expression = ast.parse(lit, mode="eval").body
+        except SyntaxError:
+            expression = None
+        if (
+            isinstance(expression, ast.Call)
+            and isinstance(expression.func, ast.Name)
+            and expression.func.id == "Decimal"
+            and not expression.keywords
+            and len(expression.args) == 1
+            and isinstance(expression.args[0], ast.Constant)
+            and isinstance(expression.args[0].value, str | int)
+        ):
+            return decimal_value(expression.args[0].value)
+
         # Strip surrounding quotes for simple strings like 'hello' or "hello"
-        if (lit.startswith("'") and lit.endswith("'")) or (lit.startswith('"') and lit.endswith('"')):
+        if (lit.startswith("'") and lit.endswith("'")) or (
+            lit.startswith('"') and lit.endswith('"')
+        ):
             return lit[1:-1]
 
         # As a last resort, return the raw text
@@ -593,6 +640,8 @@ class PythonPrimitiveCodec(CodePrimitiveCodecBase):
         """
         if value is None:
             return "None"
+        elif isinstance(value, Decimal):
+            return f"Decimal({canonical_decimal_text(value)!r})"
         elif isinstance(value, bool):
             return str(value)  # Returns "True" or "False"
         elif isinstance(value, str):
@@ -605,3 +654,36 @@ class PythonPrimitiveCodec(CodePrimitiveCodecBase):
         else:
             # For any other type, use repr as fallback
             return repr(value)
+
+    def to_typed_literal_string(
+        self,
+        value: object,
+        primitive_type: CodePrimitiveType,
+    ) -> str:
+        """Render a literal using its declared primitive semantics."""
+        if primitive_type.base_type == CodePrimitiveBaseType.decimal:
+            return self.to_literal_string(decimal_value(value))
+        if (
+            primitive_type.base_type == CodePrimitiveBaseType.array
+            and primitive_type.item_type is not None
+            and isinstance(value, list)
+        ):
+            return (
+                "["
+                + ", ".join(
+                    self.to_typed_literal_string(item, primitive_type.item_type)
+                    for item in value
+                )
+                + "]"
+            )
+        if primitive_type.base_type == CodePrimitiveBaseType.union:
+            if value is None:
+                return "None"
+            non_null = [
+                member
+                for member in primitive_type.union_types or []
+                if member.base_type != CodePrimitiveBaseType.null
+            ]
+            if len(non_null) == 1:
+                return self.to_typed_literal_string(value, non_null[0])
+        return self.to_literal_string(value)

@@ -53,6 +53,10 @@ def test_primitive_codec_base_builds_canonical_leaf_ids() -> None:
     assert prim.signature == "integer"
     assert prim.id == stable_code_primitive_type_id(signature="integer")
 
+    decimal = codec.decimal()
+    assert decimal.signature == "decimal"
+    assert decimal.id == stable_code_primitive_type_id(signature="decimal")
+
 
 def test_primitive_codec_base_builds_canonical_tuple_slots() -> None:
     codec = _TestCodec()

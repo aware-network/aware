@@ -1,0 +1,29 @@
+[project]
+name = "aware-skill-service"
+version = "0.1.0"
+description = "Canonical Skill service package over the generated Skill API service-protocol rail."
+authors = [{ name = "AWARE Team" }]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-api-runtime",
+  "aware-skill",
+  "aware_skill_service_api",
+  "aware_skill_service_protocol",
+  "aware-service-runtime",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_skill_service"]
+include = [
+  "aware_skill_service/py.typed",
+]
+
+[tool.aware.tests]
+requires_module = "skill"

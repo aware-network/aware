@@ -1,0 +1,37 @@
+class Escrow {
+    // Relationships
+    coin coin.Coin
+
+    // Attributes
+    description String?
+    escrow_hash String
+    locked_amount Decimal
+    op_nonce Int key
+    signature String
+    smart_contract_reservation_id UUID
+    status EscrowStatus = locked
+
+    fn create construct (smart_contract_reservation_id UUID, op_nonce Int key, coin_id UUID, locked_amount Decimal, description String? = null) -> Escrow {
+        """
+        Creates a new escrow record.
+
+        Receipt: Escrow(status=locked) linked to SmartContractReservation + WalletPublic, with hash/signature computed by handler.
+        """
+    }
+
+    fn release () -> Escrow {
+        """
+        Releases a locked escrow after reservation settlement/cancelation.
+
+        Receipt: Escrow(status=completed).
+        """
+    }
+
+    fn release_for_reservation_status (reservation_id UUID, reservation_status String) -> Escrow {
+        """
+        Releases a locked escrow using a smart-contract reservation lifecycle receipt.
+
+        Receipt: Escrow(status=completed) when reservation_id matches and reservation_status is terminal/releasable.
+        """
+    }
+}

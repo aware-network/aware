@@ -1,0 +1,12 @@
+/// ServiceApiProviderSet projection
+///
+/// Purpose:
+/// - Expose committed provider-set membership for deployment/provider-route consumers.
+/// - Keep provider-set grouping semantic and replayable via Service commits.
+/// - Avoid operator-only JSON/path arguments as the source of provider-set truth.
+projection ServiceApiProviderSet is_branchable {
+    root service.ServiceApiProviderSet
+
+    service.ServiceApiProviderSet::service_packages
+    service.ServiceApiProviderSetServicePackage::service_package ServicePackage
+}

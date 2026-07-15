@@ -1,0 +1,15 @@
+/// Attention Section (observable representation unit) to Experience View (rendering target)
+class WindowLayoutSection {
+    // Relationships
+    layout_section aware_attention.layout.LayoutSection key
+    projection_experience_view aware_experience.projection.ProjectionExperienceView
+
+    fn build construct (
+        layout_section_id UUID key,
+        projection_experience_view_id UUID
+    ) -> WindowLayoutSection {
+        """
+        Builds a deterministic WindowLayoutSection attachment for (window_layout, layout_section).
+        """
+    }
+}

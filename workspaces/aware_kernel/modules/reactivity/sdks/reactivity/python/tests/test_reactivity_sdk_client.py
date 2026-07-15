@@ -5,6 +5,8 @@ from uuid import uuid4
 
 import pytest
 
+from aware_reactivity.stable_ids import stable_event_config_id, stable_event_id
+
 from aware_reactivity_sdk import (
     AwareReactivitySdk,
     ReactivitySdkClient,
@@ -12,9 +14,20 @@ from aware_reactivity_sdk import (
     build_action_lifecycle_subscription_request,
     build_event_subscription_request,
 )
-from aware_reactivity_service_dto.reactivity.action_execution import ActionExecution
+from aware_reactivity_service_dto.reactivity.action_execution import (
+    ActionExecution,
+    ReactivityActionExecutionClaimRequest,
+    ReactivityActionExecutionClaimResponse,
+)
+from aware_reactivity_service_dto.reactivity.action_feedback_enums import (
+    ActionExecutionClaimStatus,
+)
 from aware_reactivity_service_dto.reactivity.bridge_event import (
     ActorReactivityBridgeEvent,
+)
+from aware_reactivity_service_dto.reactivity.event_meaning import (
+    ReactivityEventMeaningProviderResolveRequest,
+    ReactivityEventMeaningProviderResolveResponse,
 )
 from aware_reactivity_service_dto.reactivity.action_intent import (
     ReactivityActionIntentResolveRequest,
@@ -33,6 +46,12 @@ from aware_reactivity_service_dto.reactivity.service_operation import (
 )
 from aware_reactivity_service_dto.reactivity.service_operation import (
     ReactivityEventSubscriptionResponse,
+)
+from aware_reactivity_service_dto.reactivity.service_operation import (
+    ReactivitySemanticEventPublishRequest,
+)
+from aware_reactivity_service_dto.reactivity.service_operation import (
+    ReactivitySemanticEventPublishResponse,
 )
 from aware_reactivity_service_dto.reactivity.policy_bundle import (
     ReactivityPolicyBundleEnsureRequest,
@@ -64,8 +83,18 @@ class _StatusApi:
 class _EventApi:
     def __init__(self, event: ActorReactivityBridgeEvent) -> None:
         self.requests = []
+        self.publish_requests = []
         self.stream_requests = []
         self.event = event
+
+    async def publish_event(self, request):  # noqa: ANN001, ANN201
+        self.publish_requests.append(request)
+        return ReactivitySemanticEventPublishResponse(
+            request_id=request.request_id,
+            accepted=True,
+            published=True,
+            event_id=request.event.event_id,
+        )
 
     async def subscribe_events(self, request):  # noqa: ANN001, ANN201
         self.requests.append(request)
@@ -82,10 +111,20 @@ class _EventApi:
 class _ActionApi:
     def __init__(self, execution: ActionExecution) -> None:
         self.resolve_requests = []
+        self.claim_requests = []
         self.publish_requests = []
         self.subscription_requests = []
         self.stream_requests = []
         self.execution = execution
+
+    async def claim_execution(self, request):  # noqa: ANN001, ANN201
+        self.claim_requests.append(request)
+        return ReactivityActionExecutionClaimResponse(
+            request_id=request.request_id,
+            accepted=True,
+            claim_status=ActionExecutionClaimStatus.claimed,
+            action_execution=self.execution,
+        )
 
     async def resolve_intents(self, request):  # noqa: ANN001, ANN201
         self.resolve_requests.append(request)
@@ -135,9 +174,26 @@ class _PolicyApi:
         )
 
 
+class _MeaningApi:
+    def __init__(self) -> None:
+        self.resolve_requests = []
+
+    async def resolve_provider_intent(self, request):  # noqa: ANN001, ANN201
+        self.resolve_requests.append(request)
+        return ReactivityEventMeaningProviderResolveResponse(
+            request_id=request.request_id,
+            accepted=True,
+        )
+
+
 class _ReactivityApi:
     def __init__(self) -> None:
-        event_id = uuid4()
+        event_config_id = stable_event_config_id(name="workspace.commit")
+        activation_id = uuid4()
+        event_id = stable_event_id(
+            config_id=event_config_id,
+            activation_id=activation_id,
+        )
         branch_id = uuid4()
         commit_id = uuid4()
         action_intent_id = uuid4()
@@ -145,6 +201,8 @@ class _ReactivityApi:
         self.event = _EventApi(
             ActorReactivityBridgeEvent(
                 event_id=event_id,
+                event_config_id=event_config_id,
+                activation_id=activation_id,
                 event_type="workspace.commit",
                 source="workspace",
                 created_at_unix_ms=1,
@@ -165,6 +223,7 @@ class _ReactivityApi:
             )
         )
         self.policy = _PolicyApi()
+        self.meaning = _MeaningApi()
 
 
 class _ApiClient:
@@ -197,6 +256,17 @@ async def test_reactivity_sdk_routes_through_generated_api() -> None:
             event_type_filters=["workspace.commit"],
         )
     ]
+    semantic_event_publish_request = ReactivitySemanticEventPublishRequest(
+        publisher_id="workspace",
+        event=cast(ActorReactivityBridgeEvent, event_stream[0]),
+    )
+    semantic_event_publish_response = await sdk.publish_semantic_event(
+        semantic_event_publish_request
+    )
+    meaning_request = ReactivityEventMeaningProviderResolveRequest(
+        event=cast(ActorReactivityBridgeEvent, event_stream[0])
+    )
+    meaning_response = await sdk.resolve_event_meaning_provider_intent(meaning_request)
     action_subscription = await sdk.subscribe_action_lifecycle(
         subscriber_id="actor-subscription",
         event_id_filters=[event_id],
@@ -218,6 +288,8 @@ async def test_reactivity_sdk_routes_through_generated_api() -> None:
 
     resolve_request = ReactivityActionIntentResolveRequest(
         event_id=event_id,
+        event_config_id=stable_event_config_id(name="workspace.commit"),
+        activation_id=uuid4(),
         event_type="workspace.commit",
         source="workspace",
         branch_id=branch_id,
@@ -225,6 +297,14 @@ async def test_reactivity_sdk_routes_through_generated_api() -> None:
         commit_id=uuid4(),
     )
     resolve_response = await sdk.resolve_action_intents(resolve_request)
+    claim_request = ReactivityActionExecutionClaimRequest.model_construct(
+        request_id=uuid4(),
+        claimant_id="experience.action_dispatch",
+        intent=None,
+        execution_key="primary",
+        execution_context={},
+    )
+    claim_response = await sdk.claim_action_execution(claim_request)
     publish_request = ReactivityActionLifecyclePublishRequest(
         publisher_id="workspace",
         execution=cast(ActionExecution, action_stream[0]),
@@ -243,8 +323,11 @@ async def test_reactivity_sdk_routes_through_generated_api() -> None:
 
     assert status.active is True
     assert event_subscription.subscriber_id == "actor-subscription"
+    assert semantic_event_publish_response.published is True
+    assert meaning_response.accepted is True
     assert action_subscription.subscriber_id == "actor-subscription"
     assert resolve_response.accepted is True
+    assert claim_response.claim_status is ActionExecutionClaimStatus.claimed
     assert publish_response.published_count == 1
     assert ensure_response.accepted is True
     assert list_response.accepted is True
@@ -256,13 +339,19 @@ async def test_reactivity_sdk_routes_through_generated_api() -> None:
     assert api_client.reactivity.event.stream_requests[0].event_type_filters == [
         "workspace.commit"
     ]
-    assert api_client.reactivity.action.subscription_requests[0].action_type_filters == [
-        "workspace.verify"
-    ]
+    assert (
+        api_client.reactivity.event.publish_requests[0]
+        is semantic_event_publish_request
+    )
+    assert api_client.reactivity.meaning.resolve_requests[0] is meaning_request
+    assert api_client.reactivity.action.subscription_requests[
+        0
+    ].action_type_filters == ["workspace.verify"]
     assert api_client.reactivity.action.stream_requests[0].action_type_filters == [
         "workspace.verify"
     ]
     assert api_client.reactivity.action.resolve_requests[0] is resolve_request
+    assert api_client.reactivity.action.claim_requests[0] is claim_request
     assert api_client.reactivity.action.publish_requests[0] is publish_request
     assert api_client.reactivity.policy.ensure_requests[0] is ensure_request
     assert api_client.reactivity.policy.list_requests[0].policy_key == "workspace"
@@ -302,3 +391,26 @@ async def test_reactivity_sdk_raises_on_rejected_response() -> None:
 
     with pytest.raises(ReactivitySdkError, match="subscription disabled"):
         await sdk.reactivity.subscribe_events(subscriber_id="actor-subscription")
+
+
+@pytest.mark.asyncio
+async def test_reactivity_sdk_raises_on_rejected_semantic_event_publish() -> None:
+    api_client = _ApiClient()
+
+    async def reject_publish(request):  # noqa: ANN001, ANN202
+        return ReactivitySemanticEventPublishResponse(
+            request_id=request.request_id,
+            accepted=False,
+            event_id=request.event.event_id,
+            error="event_id_conflict",
+        )
+
+    api_client.reactivity.event.publish_event = reject_publish
+    sdk = ReactivitySdkClient(api_client=api_client)
+    request = ReactivitySemanticEventPublishRequest(
+        publisher_id="workspace",
+        event=api_client.reactivity.event.event,
+    )
+
+    with pytest.raises(ReactivitySdkError, match="event_id_conflict"):
+        await sdk.publish_semantic_event(request)

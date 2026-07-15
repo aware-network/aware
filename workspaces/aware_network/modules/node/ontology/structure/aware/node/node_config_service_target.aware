@@ -1,0 +1,53 @@
+class NodeConfigServiceTarget {
+    // Relationships
+    service_config aware_service.service.ServiceConfig?
+    code_packages NodeConfigServiceCodePackage[]
+
+    // Attributes
+    service_name String key
+
+    fn build construct(
+        service_name String key
+    ) -> NodeConfigServiceTarget {
+        """
+        Create one Node-owned service target by canonical service name.
+
+        Contract:
+        - Parent `NodeConfig` scope is injected by propagation.
+        - Identity is keyed by `(node_config_id, service_name)`.
+        - The target `ServiceConfig` portal is resolved from `service_name` without storing a raw
+          relationship-id attribute as semantic source.
+        """
+    }
+
+    fn activate_code_package(
+        slot_key String key,
+        package_name String key,
+        language aware_code.code.CodeLanguage key = aware,
+        service_config_code_package_config_id UUID? = null,
+        code_package_id UUID? = null,
+        description String? = null
+    ) -> NodeConfigServiceCodePackage {
+        """
+        Activate one concrete CodePackage under this service target.
+
+        Contract:
+        - Parent `NodeConfigServiceTarget` scope is injected by propagation.
+        - The activation is deployment intent only; the service declaration owns hostable slots.
+        - Local-dev sources may name `slot_key` and `package_name` before WorkspaceRevision has
+          resolved package refs. When available, materializers can attach the Service slot and
+          CodePackage relationships.
+        """
+        let created = construct code_packages.build(
+            slot_key = slot_key,
+            package_name = package_name,
+            language = language,
+            service_config_code_package_config_id = service_config_code_package_config_id,
+            code_package_id = code_package_id,
+            description = description,
+        )
+    }
+}
+
+ann node.NodeConfigServiceTarget::service_config load eager
+ann node.NodeConfigServiceTarget::code_packages load eager

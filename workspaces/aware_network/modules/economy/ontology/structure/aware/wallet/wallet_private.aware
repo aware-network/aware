@@ -1,0 +1,15 @@
+class WalletPrivate {
+    // Attributes
+    private_key_encrypted String key
+
+    fn build construct (private_key_encrypted String key) -> WalletPrivate {
+        """
+        Creates a wallet private/custody record.
+
+        Receipt: WalletPrivate (opaque custody handle or encrypted key reference).
+
+        Fail-closed:
+        - production-visible `dev:` private-key material is rejected.
+        """
+    }
+}

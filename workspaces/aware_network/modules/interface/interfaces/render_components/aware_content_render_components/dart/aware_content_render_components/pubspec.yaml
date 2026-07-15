@@ -1,0 +1,24 @@
+name: aware_content_render_components
+description: Render component package for reusable Aware content surfaces.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  aware_shell:
+    path: ../../../../../libs/shell/dart/aware_shell
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: any
+  aware_pane_runtime:
+    path: ../../../../../libs/pane_runtime/dart/aware_pane_runtime
+
+flutter:
+  uses-material-design: true

@@ -5,11 +5,13 @@ from typing import Any, cast
 from uuid import UUID, uuid4
 
 from pydantic import Field
+import pytest
 
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_code_ontology.package.code_package import CodePackage
 from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBaseType
 from aware_code_ontology.primitive.code_primitive_type import CodePrimitiveType
+from aware_meta.runtime.handler_executor.index import OigModelConstructionPlanCache
 from aware_meta.runtime.oig_model_reifier import (
     bind_oig_models_to_current_handler_session,
     reify_oig_root_model,
@@ -294,12 +296,14 @@ def test_reify_oig_root_model_rebuilds_attributes_and_relationships() -> None:
             function_call=FunctionCall.model_construct(id=uuid4()),
             index=cast(Any, index),
         )
+        construction_plan_cache = OigModelConstructionPlanCache(index=cast(Any, index))
         with scoped_meta_graph_handler_execution_context(seed_execution_context):
             seeded_count = bind_oig_models_to_current_handler_session(
                 index=cast(Any, index),
                 opg=opg,
                 oig=oig,
                 branch_id=branch_id,
+                construction_plan_cache=construction_plan_cache,
             )
 
         assert seeded_count == 2
@@ -309,6 +313,58 @@ def test_reify_oig_root_model_rebuilds_attributes_and_relationships() -> None:
         seeded_child = seed_session.imap_get(_ReifierChild, child_object_id)
         assert seeded_child is not None
         assert seeded_child.parent_id == parent_object_id
+
+        first_name_plan = construction_plan_cache.field_plan(
+            orm_class=_ReifierParent,
+            config_name="name",
+        )
+        assert (
+            construction_plan_cache.field_plan(
+                orm_class=_ReifierParent,
+                config_name="name",
+            )
+            is first_name_plan
+        )
+
+        second_seed_session = Session(branch_id=branch_id, skip_db=True)
+        second_seed_context = MetaGraphHandlerExecutionContext(
+            session=second_seed_session,
+            ctx=MetaGraphHandlerContext(requester_id=uuid4()),
+            function_call=FunctionCall.model_construct(id=uuid4()),
+            index=cast(Any, index),
+        )
+        with scoped_meta_graph_handler_execution_context(second_seed_context):
+            second_seeded_count = bind_oig_models_to_current_handler_session(
+                index=cast(Any, index),
+                opg=opg,
+                oig=oig,
+                branch_id=branch_id,
+                construction_plan_cache=construction_plan_cache,
+            )
+
+        second_seeded_root = second_seed_session.imap_get(
+            _ReifierParent,
+            parent_object_id,
+        )
+        second_seeded_child = second_seed_session.imap_get(
+            _ReifierChild,
+            child_object_id,
+        )
+        assert second_seeded_count == 2
+        assert second_seeded_root is not None
+        assert second_seeded_child is not None
+        assert second_seeded_root is not seeded_root
+        assert second_seeded_child is not seeded_child
+        assert second_seeded_root.children == [second_seeded_child]
+
+        foreign_index = SimpleNamespace(
+            attribute_configs_by_id=index.attribute_configs_by_id,
+            class_configs_by_id=index.class_configs_by_id,
+            relationships_by_id=index.relationships_by_id,
+        )
+        foreign_cache = OigModelConstructionPlanCache(index=cast(Any, foreign_index))
+        with pytest.raises(ValueError, match="different runtime index object"):
+            foreign_cache.require_index(cast(Any, index))
     finally:
         ORMModelRegistry.restore_state(registry_snapshot)
 

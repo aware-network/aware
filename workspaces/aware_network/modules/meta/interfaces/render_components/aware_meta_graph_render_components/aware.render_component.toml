@@ -1,0 +1,20 @@
+aware_render_component = 1
+
+[render_component]
+package_name = "aware-meta-graph-render-components"
+fqn_prefix = "aware_meta_graph_render_components"
+title = "Aware Meta Graph Render Components"
+description = "Reusable General Meta graph canvas render components for Interface PaneRenderSpec."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+
+[dart]
+package_path = "dart/aware_meta_graph_render_components"
+package_name = "aware_meta_graph_render_components"
+
+[dart.flutter]
+library = "package:aware_meta_graph_render_components/aware_meta_graph_render_components.dart"
+symbol = "registerRenderComponents"

@@ -1,0 +1,6 @@
+enum TransactionExternalStatus {
+    disputed
+    ignored
+    processed
+    refunded
+}

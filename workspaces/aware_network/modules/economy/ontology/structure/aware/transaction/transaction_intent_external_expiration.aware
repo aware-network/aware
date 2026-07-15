@@ -1,0 +1,15 @@
+class TransactionIntentExternalExpiration {
+    // Relationships
+    capital_conversion_quote CapitalConversionQuote
+    provider_config external_capital.ExternalCapitalProviderConfig key
+
+    // Attributes
+    external_created_at DateTime
+    idempotency_key String
+    provider_event_id String key
+    provider_key String
+    provider_payload_hash String
+    provider_public_reference String
+    quote_hash String
+    recorded_at DateTime = now()
+}

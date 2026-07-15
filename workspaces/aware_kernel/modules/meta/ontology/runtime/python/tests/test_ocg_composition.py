@@ -335,6 +335,85 @@ def test_compose_ocg_seed_schema_graph_keeps_namespace_only_topology() -> None:
     assert timings.metrics["seed_schema_view_effective_external_graph_count"] == 1
 
 
+def test_compose_ocg_seed_schema_graph_uses_shallow_rebind_without_source_mutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    schema_graph = _make_ocg(name="schema", ocg_hash="sha256:schema-shallow")
+    external_graph = _make_ocg(name="external", ocg_hash="sha256:external-shallow")
+    owner_class_config_id = uuid4()
+    inbound_owner_class_config_id = uuid4()
+    outbound_relationship = ClassConfigRelationship(
+        id=uuid4(),
+        class_config_id=owner_class_config_id,
+        target_class_config_id=uuid4(),
+        relationship_key="external.Node.outbound",
+        relationship_type=ClassConfigRelationshipType.many_to_one,
+        forward_required=False,
+    )
+    inbound_relationship = ClassConfigRelationship(
+        id=uuid4(),
+        class_config_id=inbound_owner_class_config_id,
+        target_class_config_id=owner_class_config_id,
+        relationship_key="external.Parent.node",
+        relationship_type=ClassConfigRelationshipType.many_to_one,
+        forward_required=False,
+    )
+    class_config = ClassConfig(
+        id=owner_class_config_id,
+        name="Node",
+        class_fqn="external.Node",
+        class_config_relationships=[
+            outbound_relationship,
+            inbound_relationship,
+        ],
+    )
+    external_node = ObjectConfigGraphNode(
+        id=uuid4(),
+        type=ObjectConfigGraphNodeType.class_,
+        node_key="external.Node",
+        object_config_graph_id=external_graph.id,
+        class_config=class_config,
+        class_config_id=class_config.id,
+    )
+    external_graph.object_config_graph_nodes.append(external_node)
+    model_copy_deep_args: list[object] = []
+    original_model_copy = ObjectConfigGraphNode.model_copy
+
+    def spy_model_copy(
+        self: ObjectConfigGraphNode,
+        *args: object,
+        **kwargs: object,
+    ) -> ObjectConfigGraphNode:
+        model_copy_deep_args.append(kwargs.get("deep"))
+        return original_model_copy(self, *args, **kwargs)
+
+    monkeypatch.setattr(ObjectConfigGraphNode, "model_copy", spy_model_copy)
+    timings = _CaptureTimings()
+
+    out = compose_ocg_seed_schema_graph(
+        schema_graph=schema_graph,
+        external_graphs=[external_graph],
+        timings=timings,
+    )
+
+    assert model_copy_deep_args == [False]
+    assert timings.metrics["seed_schema_view.compose.input_deep_clone_entries"] is False
+    assert external_node.object_config_graph_id == external_graph.id
+    assert external_node.class_config is class_config
+    assert external_node.class_config.class_config_relationships == [
+        outbound_relationship,
+        inbound_relationship,
+    ]
+    out_node = next(
+        node for node in out.object_config_graph_nodes if node.id == external_node.id
+    )
+    assert out_node is not external_node
+    assert out_node.object_config_graph_id == schema_graph.id
+    assert out_node.class_config is not class_config
+    assert out_node.class_config is not None
+    assert out_node.class_config.class_config_relationships == [outbound_relationship]
+
+
 def test_compose_ocg_seed_schema_graph_uses_opg_required_schema_scope() -> None:
     schema_graph = _make_ocg(name="schema", ocg_hash="sha256:schema")
     external_graph = _make_ocg(name="external", ocg_hash="sha256:external")

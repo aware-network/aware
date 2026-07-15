@@ -1,0 +1,31 @@
+{
+  "dependency_import_roots": [
+    "aware_api_ontology_dto",
+    "aware_code_ontology_dto",
+    "aware_experience_ontology_dto",
+    "aware_meta_ontology_dto"
+  ],
+  "modules": [
+    "aware_skill_ontology_dto.skill.skill_config",
+    "aware_skill_ontology_dto.skill.skill_config_api",
+    "aware_skill_ontology_dto.skill.skill_config_api_endpoint",
+    "aware_skill_ontology_dto.skill.skill_config_experience",
+    "aware_skill_ontology_dto.skill.skill_config_step",
+    "aware_skill_ontology_dto.skill.skill_config_step_target",
+    "aware_skill_ontology_dto.skill.skill_config_target",
+    "aware_skill_ontology_dto.skill.skill_package",
+    "aware_skill_ontology_dto.skill.skill_package_api_package",
+    "aware_skill_ontology_dto.skill.skill_run",
+    "aware_skill_ontology_dto.skill.skill_run_enums",
+    "aware_skill_ontology_dto.skill.skill_run_step",
+    "aware_skill_ontology_dto.stable_ids"
+  ],
+  "package_prefix": "aware_skill_ontology_dto",
+  "pydantic_model_dependency_import_roots": [
+    "aware_api_ontology_dto",
+    "aware_code_ontology_dto",
+    "aware_experience_ontology_dto",
+    "aware_meta_ontology_dto"
+  ],
+  "version": "v1"
+}

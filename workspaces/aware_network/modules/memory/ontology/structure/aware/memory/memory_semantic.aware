@@ -1,0 +1,17 @@
+class MemorySemantic {
+    // Relationships
+    identity aware_identity.identity.Identity key
+
+    // Attributes
+    key String key = "default"
+
+    fn build construct(identity_id UUID key, key String key = "default") -> MemorySemantic {
+        """
+        Create one deterministic semantic-memory lane for an owning Identity.
+
+        Policy:
+        - Memory owns the lane object and references Identity relationally.
+        - Shared semantic memory is deterministic from Identity plus `key`.
+        """
+    }
+}

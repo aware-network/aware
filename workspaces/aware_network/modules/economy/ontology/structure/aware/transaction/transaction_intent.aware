@@ -1,0 +1,76 @@
+class TransactionIntent {
+    // Relationships
+    capital_conversion_quote CapitalConversionQuote? unique
+    coin coin.Coin
+    external_expirations TransactionIntentExternalExpiration[]
+    provider_config external_capital.ExternalCapitalProviderConfig key
+    recipient_finance_entity finance.FinanceEntity key
+    recipient_wallet wallet.Wallet
+    recipient_wallet_public wallet.WalletPublic
+
+    // Attributes
+    amount Decimal
+    created_at DateTime
+    funding_intent_key String key
+    idempotency_key String
+    metadata_json JsonObject?
+    provider_key String
+    status TransactionIntentStatus = created
+    updated_at DateTime?
+
+    fn create construct (
+        provider_config_id UUID key,
+        recipient_finance_entity_id UUID key,
+        recipient_wallet_id UUID,
+        recipient_wallet_public_id UUID,
+        funding_intent_key String key,
+        coin_id UUID,
+        amount Decimal,
+        provider_key String,
+        idempotency_key String,
+        provider_route_id UUID,
+        external_currency String,
+        external_minor_unit_exponent Int,
+        conversion_mode external_capital.ExternalCapitalConversionMode,
+        created_at DateTime,
+        quote_expires_at DateTime? = null,
+        metadata_json JsonObject? = null
+    ) -> TransactionIntent {
+        """
+        Records an Aware-owned wallet funding intent and its accepted capital quote atomically.
+
+        Receipt: TransactionIntent(status=created) with one immutable CapitalConversionQuote.
+        """
+    }
+
+    fn mark_pending (occurred_at DateTime) -> TransactionIntent {
+        """Marks that the external-capital continuation was created."""
+    }
+
+    fn confirm (occurred_at DateTime) -> TransactionIntent {
+        """Confirms the intent after verified external-capital ingress."""
+    }
+
+    fn cancel (occurred_at DateTime) -> TransactionIntent {
+        """Cancels the intent after verified terminal no-credit evidence."""
+    }
+
+    fn cancel_from_external_evidence (
+        provider_config_id UUID key,
+        capital_conversion_quote_id UUID,
+        provider_key String,
+        provider_event_id String key,
+        idempotency_key String,
+        quote_hash String,
+        provider_public_reference String,
+        provider_payload_hash String,
+        external_created_at DateTime
+    ) -> TransactionIntentExternalExpiration {
+        """
+        Records verified provider expiration evidence and cancels this intent atomically.
+
+        Receipt: contained TransactionIntentExternalExpiration; no Transaction
+        or Wallet application is created.
+        """
+    }
+}

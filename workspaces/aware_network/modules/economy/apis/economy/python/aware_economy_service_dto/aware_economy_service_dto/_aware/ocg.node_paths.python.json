@@ -1,0 +1,287 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "abc2b323-62d2-5e69-8028-c953ce76e97e",
+      "node_type": "class",
+      "entity_id": "0760132f-230f-5179-981d-40f8c0bdf617",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "5a780986-3a6f-58cd-960b-e03f10d01213",
+      "node_type": "class",
+      "entity_id": "084663f3-8c7d-5994-8462-f9d56a3b83e0",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "3e199a0e-a55f-5480-9e9a-c83345d578b5",
+      "node_type": "class",
+      "entity_id": "151fed11-0d8b-5da6-bd04-f82c79c53d6d",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "f33b559a-d5ba-5e45-baff-9d15b3194aba",
+      "node_type": "class",
+      "entity_id": "1d933dfc-e1c3-5853-8375-7aea08362e0d",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "35c18270-6abb-5c75-a033-be562b97c6d7",
+      "node_type": "class",
+      "entity_id": "21e932b2-5a8b-5751-beaf-aaa44196ec67",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "62b871a2-c09f-5a8d-944b-a08abc534422",
+      "node_type": "class",
+      "entity_id": "232a5724-b612-5173-ac6b-ab639d1f634d",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "2d9f50ce-3f2e-5800-8128-18fe06c24c10",
+      "node_type": "class",
+      "entity_id": "2501b01d-1e17-576b-868e-381efaaf3c4b",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "42829d69-3ac2-5d0b-8a7e-121714eceb0f",
+      "node_type": "class",
+      "entity_id": "2e680a0b-5660-5b63-b49e-91f7a0c9b32c",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "7a080e82-2b76-568e-a98e-459fb20549c3",
+      "node_type": "class",
+      "entity_id": "321f34b7-3ed1-59fa-93a6-fd137f4cb672",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "906d8476-6054-581e-81a7-1fab0176288f",
+      "node_type": "class",
+      "entity_id": "38c85ce6-ef08-5be8-92db-22b48460b4a4",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "5d4508c9-d5a1-57f3-bb68-05744cca77a4",
+      "node_type": "class",
+      "entity_id": "3a9126e0-4dfe-54a1-812d-59baad725bca",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "33331dab-fd64-5767-98f4-271592f7f421",
+      "node_type": "class",
+      "entity_id": "3d7fdcba-863b-572f-bcfb-eaef73342830",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "ac026dae-5b3a-55e1-9630-ec48a61c77d9",
+      "node_type": "class",
+      "entity_id": "3fab2144-9ec4-514d-84c9-922ff342fc42",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "70b9cbd0-e433-5fc7-a2fa-947d9778a930",
+      "node_type": "class",
+      "entity_id": "420650c8-85e9-57b1-839b-1cd91e79f90a",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "0c200516-67b5-5588-a2cd-4d93032a7e29",
+      "node_type": "class",
+      "entity_id": "47f78ad5-5171-563d-ad51-e49560284bde",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "7e19c7ca-fcbf-5dc4-ba02-906754930495",
+      "node_type": "class",
+      "entity_id": "543fbdc3-653b-5404-ac8b-f387e1f34768",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "a211254a-61a5-536b-8c32-0788d7fbee91",
+      "node_type": "class",
+      "entity_id": "54d09869-57ff-54d9-b453-445af2cc66ad",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "3ba397c9-7840-53bd-89bf-a5303865df9b",
+      "node_type": "class",
+      "entity_id": "58185aaa-255a-5b00-a702-3c3c77efd802",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "42f0cb9d-baaa-5d3f-ba66-7fa047a457e5",
+      "node_type": "class",
+      "entity_id": "58303fe5-4a13-5836-87b6-5d6fbfbaf3dc",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "42f74e70-7ef2-517e-a4ff-63dd9358be56",
+      "node_type": "class",
+      "entity_id": "60df77f2-d642-59dc-addc-4a3e17593df6",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "b5291dc6-8ac8-5383-a0be-d2c77e791326",
+      "node_type": "class",
+      "entity_id": "78ade13f-d155-51c5-9b4e-e7447ae209ca",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "37e40f74-6a22-59c3-86cc-5241d47c4e99",
+      "node_type": "class",
+      "entity_id": "78ccf01b-a1b6-550a-a417-d589852c2e1d",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "89785bc4-1bee-5e20-b6b0-7ea871184bc9",
+      "node_type": "class",
+      "entity_id": "825cfe22-f73b-5722-bfd2-164fa25b527a",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "825a5257-dabc-585e-96ad-e13162e7e301",
+      "node_type": "class",
+      "entity_id": "845547d2-6a2a-5ebd-bf2c-3d2ce421492d",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "f420f8b0-b655-5691-9fa2-a7c217fccb8c",
+      "node_type": "class",
+      "entity_id": "849c1f16-5732-5fee-bb78-f3fd77a26bd0",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "003df21c-b9c0-5657-90d4-d1c341ad2ec1",
+      "node_type": "class",
+      "entity_id": "905839a2-82c6-556e-827b-4f0fd30c063c",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "e8c423af-2991-54b9-8822-cfc50b0e225b",
+      "node_type": "class",
+      "entity_id": "90b24ac8-6c3b-5745-9b5d-12f0db54d7f9",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "e470e1a4-1269-565f-94e8-66a479613b65",
+      "node_type": "class",
+      "entity_id": "9326c75f-5475-5d3f-a1ca-5e60a3282ec9",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "cafc594e-5f6d-5e76-9487-2c98ab5840b5",
+      "node_type": "class",
+      "entity_id": "9a2f24b6-c557-54c6-ae40-90034069e8f7",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "54a1389d-22f8-5977-942a-4ec361251fc3",
+      "node_type": "class",
+      "entity_id": "a14d01e2-2510-506a-8263-b47881cfac57",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "092e13f3-6f9a-5606-97af-789eedc9136c",
+      "node_type": "class",
+      "entity_id": "a2a15424-4be7-5d19-9c86-03c2ff202501",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "7358f53e-f0e7-5dff-9b05-004d1bce4177",
+      "node_type": "class",
+      "entity_id": "a6c71c17-5866-538f-bf01-ade1ffc57f93",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "0d16c471-772d-5165-95e0-6b99e559e73e",
+      "node_type": "class",
+      "entity_id": "b01c3d6c-23ac-591f-82cd-98dce31dd316",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "4377700a-eda5-53d4-a24b-5e6b0eb93025",
+      "node_type": "class",
+      "entity_id": "b1ec43de-1aa4-55ee-8b1a-bad9a6db0b94",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "1a4a81f9-8b60-540e-a816-670602ba8426",
+      "node_type": "class",
+      "entity_id": "b3af0f3f-6d5f-5a5d-88b1-70329e896b36",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "25d227c2-d663-599c-9cd8-b7c0f723fa6a",
+      "node_type": "class",
+      "entity_id": "b87da48d-c48d-5681-bea2-ba51c6d38ad6",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "c18772db-bb81-5ed0-9590-bd8e0183d227",
+      "node_type": "class",
+      "entity_id": "b9c496d5-3ffd-5465-b4b3-dc8adefc7768",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "2b60754f-b2ed-5cbd-b3a7-245912c3f33c",
+      "node_type": "class",
+      "entity_id": "c7359b42-69e9-5d4e-a79a-7417db61c2e4",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "bdf4d27f-6c1f-507f-944a-8f849ac4e84a",
+      "node_type": "class",
+      "entity_id": "d6f3983b-b2a5-50c0-ae6a-e6c1463edbda",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "96f868ab-29ff-5ef3-a272-353d53ee5602",
+      "node_type": "class",
+      "entity_id": "eec85bd5-0929-5811-87fa-6401e6cf02ef",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "2266f734-77d5-5956-8a45-315ca184b410",
+      "node_type": "class",
+      "entity_id": "ffa6862a-334f-5223-be78-612c2908ad72",
+      "relative_path": "economy/service.py"
+    },
+    {
+      "node_id": "67db09ba-708b-586a-829d-7bb96b7e1cbb",
+      "node_type": "class",
+      "entity_id": "08ca7f2d-a1d3-5be4-bf33-4ec4bb7032fa",
+      "relative_path": "economy/view.py"
+    },
+    {
+      "node_id": "13a88ba5-723f-566a-9c7d-71b9ed778e55",
+      "node_type": "class",
+      "entity_id": "098e64df-13fb-5503-a553-a1bff9562e83",
+      "relative_path": "economy/view.py"
+    },
+    {
+      "node_id": "9ec2e2e5-fdd0-56bf-b49d-c3fe199cde0e",
+      "node_type": "class",
+      "entity_id": "100cd4c5-be13-5178-8979-d2eec5e9fe50",
+      "relative_path": "economy/view.py"
+    },
+    {
+      "node_id": "f8c219f1-538f-5c47-a6a5-e30cd1ac0d17",
+      "node_type": "class",
+      "entity_id": "5457486c-41bc-5e5d-86a0-03ef8689db11",
+      "relative_path": "economy/view.py"
+    },
+    {
+      "node_id": "f770cbeb-bc83-52a5-8437-e3a17896d080",
+      "node_type": "class",
+      "entity_id": "922ddf12-2bbc-5dd7-b2d4-a0da9348b857",
+      "relative_path": "economy/view.py"
+    },
+    {
+      "node_id": "9d34fedc-d169-500e-b46d-7c00ebc1b8a1",
+      "node_type": "class",
+      "entity_id": "a9b8b91c-6250-52ff-8f5c-5d6134edfbe9",
+      "relative_path": "economy/view.py"
+    }
+  ]
+}

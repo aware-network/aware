@@ -1,0 +1,264 @@
+{
+  "description": null,
+  "interface_config_id": "35f6cb75-4e95-555e-bc1c-3c950557b367",
+  "interface_package_id": "f6453e34-de79-5952-8581-eb671225f518",
+  "interface_package_name": "aware-control-interface",
+  "name": "aware_control",
+  "pane_configs": [
+    {
+      "description": null,
+      "name": "identity_admission",
+      "narrative_key": "control.identity_admission",
+      "pane_config_id": "cd452f5c-c142-5042-81c8-15978d9900b5",
+      "pane_kind": "identity_admission",
+      "pane_package_id": "a05f7fd9-4bf4-5f9f-aa30-fcf716174489",
+      "pane_package_name": "aware-identity-admission-pane",
+      "projection_experience_views": [
+        {
+          "binding_id": "cd452f5c-c142-5042-81c8-15978d9900b5",
+          "invocation_actions": [
+            {
+              "action_key": "admit_identity",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "b0c5159f-4ba1-50a7-95a3-1c6bc1c1dbf8",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "c1b54c39-739f-5175-b12b-40b0e859653c",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "identity.signup_via_profile.signup_via_profile"
+            }
+          ],
+          "is_default": true,
+          "object_projection_graph_identity_id": "7c8127b0-e892-5e48-b40c-54bdc7c4e5f8",
+          "object_projection_graph_observable_id": "43abb1c1-cc28-542f-b4af-ff0825b5e929",
+          "projection_experience_graph_identity_id": null,
+          "projection_experience_view_id": "dc56874b-6991-5928-b7c1-30a8d3c38df2",
+          "projection_view_key": "identity.admission.v1",
+          "section_graph_binding_key": null,
+          "section_mounts": [
+            {
+              "layout_config_section_config_id": "3398ae1f-d33d-5165-8268-2e515c9dfd35",
+              "mount_id": "504129ba-7d8c-58fe-8d78-c21be61c4ee1"
+            }
+          ],
+          "state_model_id": "db4bb457-27a8-5e83-af1f-7e6e009926d9",
+          "view_ref": "aware_control_identity.identity.admission.v1"
+        }
+      ]
+    },
+    {
+      "description": null,
+      "name": "hub_package_selector",
+      "narrative_key": "control.hub_package",
+      "pane_config_id": "2af43b5b-81ec-5a8d-aaef-2a8d359aec2c",
+      "pane_kind": "hub_package_selector",
+      "pane_package_id": "f600cb70-ea21-56e1-85ce-6965d92b536a",
+      "pane_package_name": "aware-hub-package-selector-pane",
+      "projection_experience_views": [
+        {
+          "binding_id": "2af43b5b-81ec-5a8d-aaef-2a8d359aec2c",
+          "invocation_actions": [
+            {
+              "action_key": "describe_package",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "c1cbe27e-4e03-597c-9b1c-f5dedef7af81",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "e489b16b-7dcf-5c0e-92c4-a48789b8ac5a",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "hub.code_package.describe"
+            },
+            {
+              "action_key": "discover_channel_heads",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "ced1a451-8a56-5a53-8f01-24c64914506f",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "6fe1aaeb-5f11-5c67-bf41-c583ac8e7ade",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "hub.code_package.discover_channel_heads"
+            },
+            {
+              "action_key": "download_package",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "89cba972-746d-5367-87a9-f1b38a48bd49",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "7c9b3376-0d5e-5851-9920-292b60e4583e",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "hub.code_package.download"
+            },
+            {
+              "action_key": "resolve_deployment_artifact",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "801acc17-4062-53f8-8c9b-804db8a0deb7",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "f384ea11-da88-5102-84cd-c4d89a96da64",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "hub.deployment_artifact.resolve"
+            },
+            {
+              "action_key": "resolve_package",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "705ba5c3-0be0-597e-b1ab-006b3e8dfb61",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "48dd24e5-236b-573a-99bb-9b4cb54a3edf",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "hub.code_package.resolve"
+            },
+            {
+              "action_key": "search_packages",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "60b8fecd-a36e-52e8-8d77-f84cb3849fe4",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "ba9dccd4-3677-517f-8581-d95fe51907a4",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "hub.code_package.search"
+            }
+          ],
+          "is_default": true,
+          "object_projection_graph_identity_id": "fc5f3450-ac8c-5143-8ccb-299c9c4b01d9",
+          "object_projection_graph_observable_id": "1be1113f-c2d0-550a-b9fb-5f9ed6f362bd",
+          "projection_experience_graph_identity_id": null,
+          "projection_experience_view_id": "a3551a3d-ce0f-572b-be21-223264623f2b",
+          "projection_view_key": "home.channel_heads.v1",
+          "section_graph_binding_key": null,
+          "section_mounts": [
+            {
+              "layout_config_section_config_id": "d4ccc335-7e0e-5b5b-8dc4-3945a4e85ce8",
+              "mount_id": "33744287-5892-5922-ba46-757f3850209b"
+            }
+          ],
+          "state_model_id": "ca8d79b2-ef3f-5ea8-bf43-16f2cad7e93c",
+          "view_ref": "aware_hub.home.channel_heads.v1"
+        }
+      ]
+    },
+    {
+      "description": null,
+      "name": "network_territory",
+      "narrative_key": "control.network_territory",
+      "pane_config_id": "d3d3e119-83c9-5bad-b76b-f864cd8cfcda",
+      "pane_kind": "network_territory",
+      "pane_package_id": "4df05965-63a7-5a27-a54f-cf479cac2545",
+      "pane_package_name": "aware-network-territory-pane",
+      "projection_experience_views": [
+        {
+          "binding_id": "d3d3e119-83c9-5bad-b76b-f864cd8cfcda",
+          "invocation_actions": [
+            {
+              "action_key": "discover_territory",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "f5f5f076-c983-540a-b91a-93a1dd0a0202",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "e2cc35a1-1f2e-59fe-b77e-bbb76a0ca74f",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "network.discovery.discover_territory"
+            },
+            {
+              "action_key": "list_environments",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "a15f5518-d883-5dc9-af8c-a6ed9d1442a7",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "c6b5f3e7-a30b-595e-957a-e5b360114cfc",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "network.environment.list"
+            },
+            {
+              "action_key": "list_hosted_services",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "98cbdc75-c42e-5e9a-9671-0bb7fd536f64",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "08cc4ca1-f324-5be2-a7bb-5849951fd850",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "network.hosted_service.list"
+            },
+            {
+              "action_key": "list_peers",
+              "action_kind": "api",
+              "api_capability_endpoint_id": "6b09b2b9-bc1d-55d0-a335-37d8e4e80c89",
+              "confirmation_policy": null,
+              "label": null,
+              "optimistic_policy": null,
+              "projection_experience_view_invocation_action_id": "460b24bf-0900-531a-9dc2-5741fc59e6ff",
+              "receipt_policy": null,
+              "sdk_operation_id": null,
+              "target_ref": "network.peer.list"
+            }
+          ],
+          "is_default": true,
+          "object_projection_graph_identity_id": "c76fba6d-3f8d-5b49-92b7-c8bb61b20c94",
+          "object_projection_graph_observable_id": "22cac6c1-303f-58a7-b407-693ed6d96f3c",
+          "projection_experience_graph_identity_id": null,
+          "projection_experience_view_id": "44197134-7e41-5ecf-99ca-9df7627bfdca",
+          "projection_view_key": "territory.discovery.v1",
+          "section_graph_binding_key": null,
+          "section_mounts": [
+            {
+              "layout_config_section_config_id": "9ecb6c41-d5bf-518b-8686-11a5bedd089a",
+              "mount_id": "45c2fa1f-aaf8-5546-a1b4-191ba4776204"
+            }
+          ],
+          "state_model_id": "93517332-19eb-5ea7-adef-839b28e2481a",
+          "view_ref": "aware_network.territory.discovery.v1"
+        }
+      ]
+    }
+  ],
+  "window_configs": [
+    {
+      "description": null,
+      "interface_config_window_config_id": "6f5f1526-4cec-540e-b6e9-12ca086a2758",
+      "key": "main",
+      "layout_configs": [
+        {
+          "is_default": true,
+          "key": "coordination_center",
+          "layout_config_id": "b21adb2d-5b6e-5b6d-a773-73214ea1676e",
+          "sections": [
+            {
+              "key": "orchestration",
+              "layout_config_section_config_id": "3398ae1f-d33d-5165-8268-2e515c9dfd35"
+            },
+            {
+              "key": "primary",
+              "layout_config_section_config_id": "d4ccc335-7e0e-5b5b-8dc4-3945a4e85ce8"
+            },
+            {
+              "key": "inspector",
+              "layout_config_section_config_id": "9ecb6c41-d5bf-518b-8686-11a5bedd089a"
+            }
+          ],
+          "window_config_layout_config_id": "7e897763-bf96-54f5-8262-d47fcbc38714"
+        }
+      ],
+      "window_config_id": "bbe369bd-1d6c-5f2e-9ce8-1f4529faac74"
+    }
+  ]
+}

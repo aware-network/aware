@@ -13,7 +13,10 @@ from aware_code.types import JsonArray, JsonObject
 
 # Meta
 from aware_meta.graph.instance.builder import build_object_instance_graph
-from aware_meta.graph.instance.diff_orm import build_object_instance_graph_changes_from_orm_change_set
+from aware_meta.graph.instance.diff_orm import (
+    OrmChangeTranslationError,
+    build_object_instance_graph_changes_from_orm_change_set,
+)
 from aware_meta.runtime.handler_executor.argument_coercion import coerce_meta_handler_call_kwargs
 from aware_meta.runtime.handler_executor.contracts import MetaGraphHandlerExecutionRequest, MetaGraphPreState
 from aware_meta.runtime.handler_executor.language_handler import (
@@ -113,18 +116,21 @@ def _changes_from_current_collector(
             "Generated Meta instance handler requires an active ORM change collector."
         )
     change_set = collector.snapshot()
-    changes = tuple(
-        build_object_instance_graph_changes_from_orm_change_set(
-            before_oig=pre_state.before_oig,
-            object_instance_graph_identity_id=(request.staged_call.lane_scope.object_instance_graph_identity_id),
-            ocg=request.execution_plan.index.ocg,
-            opg=request.execution_plan.object_projection_graph,
-            change_set=change_set,
-            class_configs_by_id=dict(request.execution_plan.index.class_configs_by_id),
-            relationships_by_id=dict(request.execution_plan.index.relationships_by_id),
-            enum_option_resolver=default_meta_enum_option_resolver,
+    try:
+        changes = tuple(
+            build_object_instance_graph_changes_from_orm_change_set(
+                before_oig=pre_state.before_oig,
+                object_instance_graph_identity_id=(request.staged_call.lane_scope.object_instance_graph_identity_id),
+                ocg=request.execution_plan.index.ocg,
+                opg=request.execution_plan.object_projection_graph,
+                change_set=change_set,
+                class_configs_by_id=dict(request.execution_plan.index.class_configs_by_id),
+                relationships_by_id=dict(request.execution_plan.index.relationships_by_id),
+                enum_option_resolver=default_meta_enum_option_resolver,
+            )
         )
-    )
+    except OrmChangeTranslationError:
+        return None
     constructed_class_instance_ids = tuple(
         class_change.class_instance_id
         for root_change in changes
@@ -923,10 +929,28 @@ async def ontology_config__create_ontology__handler(
         expected_class_name="OntologyConfig",
     )
     result = await _call_ontology_config__create_ontology(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -997,10 +1021,28 @@ async def ontology_package__attach_runtime_code_package__handler(
         expected_class_name="OntologyPackage",
     )
     result = await _call_ontology_package__attach_runtime_code_package(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),
@@ -1024,10 +1066,28 @@ async def ontology_package__attach_dependency__handler(
         expected_class_name="OntologyPackage",
     )
     result = await _call_ontology_package__attach_dependency(bound_input=bound_input, target=target)
-    changes, constructed_class_instance_ids = _changes_from_current_collector(
+    change_evidence = _changes_from_current_collector(
         request=request,
         pre_state=pre_state,
     )
+    if change_evidence is None:
+        post_oig = _post_oig_with_root_model(
+            request=request,
+            pre_state=pre_state,
+            root_model=root_model,
+        )
+        return MetaGraphLanguageHandlerExecution(
+            success=True,
+            payload=JsonObject({"value": _json_payload_value(result)}),
+            post_oig=post_oig,
+            root_object_id=root_model.id,
+            root_class_instance_identity_id=pre_state.root_class_instance_identity_id,
+            constructed_class_instance_ids=_constructed_class_instance_ids_from_post_oig(
+                pre_state=pre_state,
+                post_oig=post_oig,
+            ),
+        )
+    changes, constructed_class_instance_ids = change_evidence
     return MetaGraphLanguageHandlerExecution(
         success=True,
         payload=JsonObject({"value": _json_payload_value(result)}),

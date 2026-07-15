@@ -1,0 +1,27 @@
+aware = 1
+
+[package]
+package_name = "memory-ontology"
+fqn_prefix = "aware_memory"
+kind = "ontology"
+version_number = 1
+title = "Memory"
+description = "SSOT canonical (.aware) sources for memory."
+
+[build]
+environment_slug = "aware_memory"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "content-ontology"
+
+[[dependencies]]
+package_name = "reactivity-ontology"
+
+[[dependencies]]
+package_name = "identity-ontology"
+
+[[dependencies]]
+package_name = "attention-ontology"

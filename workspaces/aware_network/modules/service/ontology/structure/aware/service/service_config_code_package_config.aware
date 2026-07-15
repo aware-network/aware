@@ -1,0 +1,27 @@
+class ServiceConfigCodePackageConfig {
+    // Relationships
+    code_package_config aware_code.package.CodePackageConfig key
+
+    // Attributes
+    slot_key String key
+    cardinality ServiceConfigCodePackageConfigCardinality = many
+    required Bool = false
+    description String?
+
+    fn build construct (
+        slot_key String key,
+        code_package_config_id UUID key,
+        cardinality ServiceConfigCodePackageConfigCardinality = many,
+        required Bool = false,
+        description String? = null
+    ) -> ServiceConfigCodePackageConfig {
+        """
+        Create one config-level bridge between a ServiceConfig and one hostable CodePackageConfig.
+
+        Contract:
+        - Parent ServiceConfig scope is injected by propagation.
+        - The bridge declares service capability only.
+        - Concrete CodePackage activation is Node/deployment-specific and must not be inferred here.
+        """
+    }
+}

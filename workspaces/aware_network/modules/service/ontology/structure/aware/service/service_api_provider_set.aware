@@ -1,0 +1,50 @@
+class ServiceApiProviderSet {
+    // Relationships
+    service_packages ServiceApiProviderSetServicePackage[]
+
+    // Attributes
+    description String?
+    key String key
+    title String?
+    version_number Int = 1
+
+    fn build construct(
+        key String key,
+        title String? = null,
+        description String? = null,
+        version_number Int = 1
+    ) -> ServiceApiProviderSet {
+        """
+        Create one Service-owned API provider set.
+
+        Contract:
+        - Identity is keyed by a stable provider-set key, for example `kernel.global_services.v1`.
+        - A provider set groups committed ServicePackage roots that may fulfill API calls remotely.
+        - Deployment artifacts may project this object into runtime provider refs, but the semantic
+          truth is the committed provider-set object and its ServicePackage memberships.
+        """
+    }
+
+    fn attach_service_package(
+        service_package_id UUID key,
+        membership_key String? = null,
+        description String? = null
+    ) -> ServiceApiProviderSetServicePackage {
+        """
+        Attach one committed ServicePackage to this API provider set.
+
+        Contract:
+        - Parent `ServiceApiProviderSet` scope is injected by propagation.
+        - Identity is keyed by the attached `ServicePackage`.
+        - This declares provider-set membership only; API fulfillment still comes from the
+          ServicePackage provided-api bridges.
+        """
+        let created = construct service_packages.build(
+            service_package_id = service_package_id,
+            membership_key = membership_key,
+            description = description,
+        )
+    }
+}
+
+ann service.ServiceApiProviderSet::service_packages load eager

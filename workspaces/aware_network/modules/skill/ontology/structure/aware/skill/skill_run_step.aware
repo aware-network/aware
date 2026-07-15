@@ -1,0 +1,29 @@
+class SkillRunStep {
+    // Relationships
+    api_call aware_api.api.ApiCall? unique
+    skill_config_step SkillConfigStep key
+
+    // Attributes
+    error String?
+    finished_at_utc DateTime?
+    started_at_utc DateTime?
+    status SkillRunStatus = queued
+
+    fn build construct (
+        skill_config_step_id UUID key,
+        api_call_id UUID? = null,
+        status SkillRunStatus = queued,
+        started_at_utc DateTime? = null,
+        finished_at_utc DateTime? = null,
+        error String? = null
+    ) -> SkillRunStep {
+        """
+        Create one Skill-owned step execution receipt.
+
+        Contract:
+        - This object reports Skill orchestration state only.
+        - The referenced `SkillConfigStep` owns authored instruction and ordering.
+        - The referenced `ApiCall`, when present, owns request and response payload truth.
+        """
+    }
+}

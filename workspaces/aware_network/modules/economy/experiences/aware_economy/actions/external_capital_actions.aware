@@ -1,0 +1,5 @@
+action ExternalCapitalCreateWalletFundingSession {
+    """Create an external provider session for a committed wallet-funding intent."""
+
+    name "external_capital.create_wallet_funding_session";
+}

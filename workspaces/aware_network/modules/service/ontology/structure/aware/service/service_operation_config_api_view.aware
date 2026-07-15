@@ -1,0 +1,23 @@
+class ServiceOperationConfigApiView {
+    // Relationships
+    api_view aware_api.api.ApiView key
+    service_config_api ServiceConfigApi key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        service_config_api_id UUID key,
+        api_view_id UUID key,
+        description String? = null
+    ) -> ServiceOperationConfigApiView {
+        """
+        Creates one ServiceOperationConfig-owned fulfillment binding for an API view.
+
+        Contract:
+        - Parent ServiceOperationConfig scope is propagated by constructor lowering.
+        - `api_view` is the API-owned readable state contract this Service operation fulfills.
+        - The owning ServiceOperationConfig is the fulfillment provider; no nested view-provider rail exists.
+        """
+    }
+}

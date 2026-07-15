@@ -255,7 +255,7 @@ def provider_delta_source_projection_stage(
         "available": True,
         "ready": status == "source_projection_ready",
         "blocked": status == "source_projection_blocked",
-        "projected": result.projected,
+        "projected": result.projected or grammar_anchor_replacement_count > 0,
         "provider_key": META_SOURCE_PROJECTION_PROVIDER_KEY,
         "current_delta_fingerprint": current_delta_fingerprint,
         "change_count": len(projection.events),
@@ -452,7 +452,10 @@ def _semantic_source_operation_with_baseline_index(
         if semantic_source_object_id is not None:
             enriched.setdefault("semantic_source_object_id", semantic_source_object_id)
         return enriched
-    if semantic_operation_type != META_OBJECT_CONFIG_GRAPH_FUNCTION_SIGNATURE_UPDATE_OPERATION:
+    if (
+        semantic_operation_type
+        != META_OBJECT_CONFIG_GRAPH_FUNCTION_SIGNATURE_UPDATE_OPERATION
+    ):
         return operation
     identity = _function_baseline_identity_for_semantic_source_operation(
         operation=operation,
@@ -1874,13 +1877,10 @@ def _meta_typed_operation_from_semantic_source_operation(
             default_source_refs=default_source_refs,
             semantic_key=semantic_key,
         )
-    if (
-        semantic_operation_type
-        in {
-            META_OBJECT_CONFIG_GRAPH_CLASS_DESCRIPTION_UPDATE_OPERATION,
-            META_OBJECT_CONFIG_GRAPH_CLASS_PARENT_UPDATE_OPERATION,
-        }
-    ):
+    if semantic_operation_type in {
+        META_OBJECT_CONFIG_GRAPH_CLASS_DESCRIPTION_UPDATE_OPERATION,
+        META_OBJECT_CONFIG_GRAPH_CLASS_PARENT_UPDATE_OPERATION,
+    }:
         return _meta_class_update_typed_operation_from_semantic_source_operation(
             operation,
             default_source_refs=default_source_refs,
@@ -2364,10 +2364,9 @@ def _meta_class_create_typed_operation_from_semantic_source_operation(
     ).evidence_payload()
     current = mapping_value(operation_payload.get("current"))
     payload = mapping_value(current.get("payload"))
-    generated_materialization = (
-        mapping_value(operation.get("generated_materialization"))
-        or mapping_value(after_payload.get("generated_materialization"))
-    )
+    generated_materialization = mapping_value(
+        operation.get("generated_materialization")
+    ) or mapping_value(after_payload.get("generated_materialization"))
     if generated_materialization:
         current["generated_materialization"] = dict(generated_materialization)
         payload["generated_materialization"] = dict(generated_materialization)
@@ -2564,9 +2563,11 @@ def _meta_attribute_create_typed_operation_from_semantic_source_operation(
     signature = (
         dict(raw_semantic_signature)
         if raw_semantic_descriptor.get("kind") is not None
-        else semantic_signature
-        if semantic_descriptor.get("kind") is not None
-        else dict(mapping_value(current.get("attribute_signature")))
+        else (
+            semantic_signature
+            if semantic_descriptor.get("kind") is not None
+            else dict(mapping_value(current.get("attribute_signature")))
+        )
     )
     signature.update(
         {
@@ -2805,7 +2806,8 @@ def _meta_class_update_typed_operation_from_semantic_source_operation(
     operation_family = optional_text(operation.get("operation_family")) or "update"
     semantic_operation_type = optional_text(operation.get("semantic_operation_type"))
     parent_update = (
-        semantic_operation_type == META_OBJECT_CONFIG_GRAPH_CLASS_PARENT_UPDATE_OPERATION
+        semantic_operation_type
+        == META_OBJECT_CONFIG_GRAPH_CLASS_PARENT_UPDATE_OPERATION
     )
     provider_operation_type = (
         "meta_ocg.class.parent.update" if parent_update else "meta_ocg.class.update"
@@ -3763,10 +3765,9 @@ def _meta_function_create_typed_operation_from_semantic_source_operation(
         "position": _int_value(after_payload.get("position")) or 0,
         "function_signature": function_signature,
     }
-    generated_materialization = (
-        mapping_value(operation.get("generated_materialization"))
-        or mapping_value(after_payload.get("generated_materialization"))
-    )
+    generated_materialization = mapping_value(
+        operation.get("generated_materialization")
+    ) or mapping_value(after_payload.get("generated_materialization"))
     if generated_materialization:
         current["generated_materialization"] = dict(generated_materialization)
     return {

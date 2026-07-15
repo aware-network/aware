@@ -1,0 +1,4 @@
+mirror aware_network.network.NetworkAppType
+mirror aware_network.network.NetworkOperationMessageType
+mirror aware_network.network.NetworkOperationType
+mirror aware_network.network.NetworkRequestStatus

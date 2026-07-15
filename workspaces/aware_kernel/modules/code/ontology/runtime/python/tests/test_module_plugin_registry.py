@@ -269,6 +269,100 @@ def test_resolved_semantic_capability_provider_preserves_participation_metadata(
     }
 
 
+def test_semantic_capability_descriptor_does_not_import_execution_module() -> None:
+    module_name = "unimported_semantic_materialization_provider"
+    replay_adapter = {
+        "callable_module": "fake_currentness_adapter",
+        "callable_name": "resolve_currentness_replay",
+    }
+
+    with _isolated_module_plugin_registry():
+        AwareModulePluginRegistry.register(AwareModulePlugin(provider_key="fake"))
+        AwareModulePluginRegistry._module_semantic_contracts["fake"] = (  # noqa: SLF001
+            ModuleSemanticContract(
+                provider_key="fake",
+                capability_participation=(
+                    CapabilityParticipationDescriptor(
+                        capability=SEMANTIC_MATERIALIZATION_CAPABILITY,
+                        semantic_owner="fake.provider",
+                        metadata={"currentness": replay_adapter},
+                    ),
+                ),
+                capability_execution_policy=(
+                    ModuleCapabilityExecutionPolicyDescriptor(
+                        capability=SEMANTIC_MATERIALIZATION_CAPABILITY,
+                        semantic_owner="fake.provider",
+                        callable_module=module_name,
+                        callable_name="materialize",
+                    ),
+                ),
+            )
+        )
+
+        descriptor = (
+            AwareModulePluginRegistry.resolve_semantic_capability_execution_descriptor(
+                provider_key="fake",
+                capability=SEMANTIC_MATERIALIZATION_CAPABILITY,
+                semantic_owner="fake.provider",
+            )
+        )
+
+        assert descriptor is not None
+        assert descriptor.callable_module == module_name
+        assert descriptor.metadata == {"currentness": replay_adapter}
+        assert module_name not in sys.modules
+
+
+def test_resolved_semantic_capability_provider_uses_plugin_execution_module(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module_name = "fake_semantic_analysis_execution"
+    module = ModuleType(module_name)
+
+    def _analyze(**_: object) -> None:
+        return None
+
+    module.analyze = _analyze  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, module_name, module)
+
+    with _isolated_module_plugin_registry():
+        AwareModulePluginRegistry.register(
+            AwareModulePlugin(
+                provider_key="fake",
+                capability_execution_module=module_name,
+                semantic_contract_module="fake_semantic_contract",
+            )
+        )
+        AwareModulePluginRegistry._module_semantic_contracts["fake"] = (  # noqa: SLF001
+            ModuleSemanticContract(
+                provider_key="fake",
+                capability_participation=(
+                    CapabilityParticipationDescriptor(
+                        capability="semantic_analysis",
+                        semantic_owner="fake.api",
+                    ),
+                ),
+                capability_execution_policy=(
+                    ModuleCapabilityExecutionPolicyDescriptor(
+                        capability="semantic_analysis",
+                        semantic_owner="fake.api",
+                        callable_name="analyze",
+                    ),
+                ),
+            )
+        )
+
+        resolved = AwareModulePluginRegistry.resolve_semantic_capability_provider(
+            provider_key="fake",
+            capability="semantic_analysis",
+        )
+
+    assert resolved is not None
+    assert resolved.callable_module == module_name
+    assert resolved.callable_name == "analyze"
+    assert resolved.provider is _analyze
+
+
 def test_resolved_semantic_capability_provider_prefers_exact_semantic_owner(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -519,6 +613,8 @@ def test_module_semantic_contract_filters_materialization_input_descriptors() ->
         artifact_role="compile_plan",
         package_family="fake",
         semantic_kind="fake_package",
+        semantic_projection_name="FakePackage",
+        semantic_root_kind="fake",
         runtime_contract_version="aware.fake.compile_plan.v1",
         callable_module="fake.materialization.provider",
         callable_name="materialize",
@@ -528,6 +624,9 @@ def test_module_semantic_contract_filters_materialization_input_descriptors() ->
         provider_key="fake",
         materialization_inputs=(descriptor,),
     )
+
+    assert descriptor.semantic_projection_name == "FakePackage"
+    assert descriptor.semantic_root_kind == "fake"
 
     assert contract.materialization_inputs_for(
         semantic_owner="fake.provider",

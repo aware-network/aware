@@ -1,0 +1,162 @@
+/// Canonical DTOs for Attention session transition reads.
+///
+/// Ownership:
+/// - Attention API owns the transport read models.
+/// - Attention ontology owns persisted AttentionSession and
+///   AttentionFocusTransition truth.
+/// - Identity owns actor membership/subscription checks.
+
+class AttentionSessionPin {
+    attention_session_id UUID
+    identity_session_id UUID
+    active_layout_id UUID?
+    key String?
+    title String?
+    description String?
+    purpose String?
+    status String = "active"
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject = {}
+}
+
+class AttentionSessionLayoutPin {
+    attention_session_layout_id UUID
+    attention_session_id UUID
+    layout_id UUID
+    layout_config_id UUID?
+    active_section_id UUID?
+    active_layout_transition_id UUID?
+    active_topology_transition_id UUID?
+    key String?
+    order Int = 0
+    is_active Bool = true
+}
+
+/// One stable admitted section anchor supplied in a complete topology intent.
+class AttentionLayoutTopologyTransitionSectionInput {
+    attention_session_section_id UUID
+    order Int
+}
+
+/// Committed active-membership state for one stable admitted section anchor.
+class AttentionLayoutTopologyTransitionSectionState {
+    attention_layout_topology_transition_section_id UUID
+    attention_layout_topology_transition_id UUID
+    attention_session_section_id UUID
+    layout_section_id UUID?
+    section_id UUID?
+    section_key String?
+    order Int
+}
+
+/// Immutable full-vector topology transition committed on an
+/// AttentionSessionLayout lane.
+class AttentionLayoutTopologyTransitionPin {
+    attention_layout_topology_transition_id UUID
+    attention_session_layout_id UUID
+    previous_topology_transition_id UUID?
+    client_intent_id String
+    sequence Int = 0
+    transition_kind String = "topology"
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject = {}
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+    section_states session.AttentionLayoutTopologyTransitionSectionState[] = []
+}
+
+class AttentionSessionSectionPin {
+    attention_session_section_id UUID
+    attention_session_layout_id UUID
+    layout_section_id UUID
+    section_id UUID
+    active_transition_id UUID?
+    section_key String?
+    order Int = 0
+    is_active Bool = true
+}
+
+/// Read pin for one AttentionFocusTransition plus its parent session chain.
+///
+/// This is a DTO projection over Attention ontology rows. It is not a second
+/// persisted frame model.
+class AttentionFocusTransitionPin {
+    attention_focus_transition_id UUID
+    attention_session_section_id UUID
+    attention_session_layout_id UUID?
+    attention_session_id UUID?
+    identity_session_id UUID?
+    layout_section_id UUID?
+    section_id UUID?
+    section_key String?
+    layout_id UUID?
+    layout_config_id UUID?
+    previous_transition_id UUID?
+    focus_scope_id UUID
+    focus_id UUID?
+    observable_id UUID?
+    object_projection_graph_identity_id UUID?
+    object_instance_graph_branch_id UUID?
+    object_instance_graph_commit_id UUID?
+    transition_key String
+    sequence Int = 0
+    projection_hash String?
+    transition_kind String = "focus"
+    rationale String?
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject = {}
+}
+
+class AttentionTransitionValidationResult {
+    exists Bool = false
+    valid Bool = false
+    failure_reasons String[] = []
+    transition session.AttentionFocusTransitionPin?
+}
+
+/// One typed section row supplied by a consumer in a full-vector layout intent.
+///
+/// Pixels and floating-point flex values are intentionally absent. Shared
+/// geometry crosses the Attention boundary only as exact integer micros.
+class AttentionLayoutTransitionSectionInput {
+    attention_session_section_id UUID
+    order Int
+    weight_micros Int
+    is_visible Bool = true
+    is_collapsed Bool = false
+}
+
+/// Committed shared geometry for one mounted AttentionSessionSection.
+class AttentionLayoutTransitionSectionState {
+    attention_layout_transition_section_id UUID
+    attention_layout_transition_id UUID
+    attention_session_section_id UUID
+    layout_section_id UUID?
+    section_id UUID?
+    section_key String?
+    order Int
+    weight_micros Int
+    is_visible Bool = true
+    is_collapsed Bool = false
+}
+
+/// Immutable full-vector shared-layout transition committed on an
+/// AttentionSession lane.
+class AttentionLayoutTransitionPin {
+    attention_layout_transition_id UUID
+    attention_session_layout_id UUID
+    previous_transition_id UUID?
+    topology_transition_id UUID?
+    client_intent_id String
+    sequence Int = 0
+    transition_kind String = "layout"
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject = {}
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+    section_states session.AttentionLayoutTransitionSectionState[] = []
+}

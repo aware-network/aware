@@ -1,0 +1,64 @@
+/// Hub authority projections.
+///
+/// Contract:
+/// - Hub views are commit-backed ontology projection views.
+/// - CodePackage publication is the primary Hub distribution surface.
+/// - Generic artifact revisions carry reusable payload locks and producer
+///   provenance without importing producer APIs.
+
+projection HubCodePackageAuthority is_branchable {
+    root hub.HubAuthority
+
+    hub.HubAuthority::artifacts
+    hub.HubArtifact::revisions
+    hub.HubArtifactRevision::producer_provenance
+    hub.HubAuthority::channels
+    hub.HubChannel::heads
+    hub.HubChannelHead::artifact_revision
+    hub.HubChannelHead::code_package_publication
+    hub.HubAuthority::code_package_publications
+    hub.HubCodePackagePublication::code_package aware_code.CodePackage
+    hub.HubCodePackagePublication::artifact_revision
+    hub.HubCodePackagePublication::producer_provenance
+    hub.HubAuthority::receipts
+    hub.HubPublicationReceipt::artifact_revision
+    hub.HubPublicationReceipt::code_package_publication
+
+    observable home {
+        """
+        Hub CodePackage publication authority with artifact locks, provenance, and receipts.
+        """
+    }
+}
+
+projection HubArtifactAuthority is_branchable {
+    root hub.HubArtifact
+
+    hub.HubArtifact::revisions
+    hub.HubArtifactRevision::producer_provenance
+
+    observable home {
+        """
+        Hub generic artifact authority with immutable payload locks and producer provenance.
+        """
+    }
+}
+
+projection HubChannelHeads is_branchable {
+    root hub.HubAuthority
+
+    hub.HubAuthority::channels
+    hub.HubChannel::heads
+    hub.HubChannelHead::artifact_revision
+    hub.HubArtifactRevision::producer_provenance
+    hub.HubChannelHead::code_package_publication HubCodePackageAuthority
+    hub.HubAuthority::receipts
+    hub.HubPublicationReceipt::artifact_revision
+    hub.HubPublicationReceipt::code_package_publication HubCodePackageAuthority
+
+    observable home {
+        """
+        Hub channel heads for package and artifact discovery views.
+        """
+    }
+}

@@ -1,0 +1,17 @@
+experience aware_hub on aware_code.package.CodePackage {
+    observable home {
+        view channel_heads.v1 default api_view hub.channel_heads {
+            """Public Hub channel-head discovery surface for pre-identity map truth."""
+        }
+    }
+
+    node package.CodePackage(package_name String) {
+        id now
+    }
+
+    surface hub.discovery {
+        section discovery;
+        view home.channel_heads.v1;
+        graph now;
+    }
+}

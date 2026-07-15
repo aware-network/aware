@@ -15,14 +15,15 @@ if TYPE_CHECKING:
     from aware_reactivity_service_dto.reactivity.action_feedback import ActionFeedback
     from aware_reactivity_service_dto.reactivity.action_intent import ReactivityActionIntent
     from aware_reactivity_service_dto.reactivity.action_terminal import ActionTerminal
+    from aware_reactivity_service_dto.reactivity.bridge_event import ActorReactivityBridgeEvent
 
 
 class ReactivityServiceStatusRequest(BaseModel):
     """
     Canonical Reactivity service API operation DTOs.
     These operations expose Reactivity-owned event/action streams. Upstream
-    commit truth is consumed by the service through Meta lane fanout, not
-    through local graph store access.
+    commit truth is consumed by the service through Environment SDK/API fanout,
+    not through local graph store access.
     """
 
     # Attributes
@@ -34,8 +35,12 @@ class ReactivityServiceStatusResponse(BaseModel):
     # Attributes
     request_id: UUID | None = Field(default=None)
     service_id: str = Field(default="reactivity")
-    active: bool = Field(default=True)
-    upstream_source: str = Field(default="meta_lane_fanout")
+    active: bool = Field(default=False)
+    upstream_source: str = Field(default="environment_service_api_fanout")
+    environment_fanout_attached: bool = Field(default=False)
+    environment_fanout_running: bool = Field(default=False)
+    identity_subscription_route_ready: bool = Field(default=False)
+    blockers: list[str] = Field(default_factory=list)
     info: str | None = Field(default=None)
     error: str | None = Field(default=None)
 
@@ -57,6 +62,31 @@ class ReactivityEventSubscriptionResponse(BaseModel):
     accepted: bool = Field(default=True)
     upstream_source: str = Field(default="meta_lane_fanout")
     resume_after_event_id: UUID | None = Field(default=None)
+    info: str | None = Field(default=None)
+    error: str | None = Field(default=None)
+
+
+class ReactivitySemanticEventPublishRequest(BaseModel):
+    """
+    Publish one provider-neutral committed semantic event occurrence.
+    Publication is observation ingress only. The event carries no action
+    target or request payload; ActorSubscription resolution remains on the
+    separate action-intent boundary.
+    """
+
+    # Attributes
+    request_id: UUID | None = Field(default=None)
+    publisher_id: str
+    event: ActorReactivityBridgeEvent
+
+
+class ReactivitySemanticEventPublishResponse(BaseModel):
+    # Attributes
+    request_id: UUID | None = Field(default=None)
+    accepted: bool = Field(default=True)
+    published: bool = Field(default=False)
+    duplicate: bool = Field(default=False)
+    event_id: UUID | None = Field(default=None)
     info: str | None = Field(default=None)
     error: str | None = Field(default=None)
 

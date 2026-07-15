@@ -1,7 +1,7 @@
 /// Content service operation DTOs.
 ///
 /// Contract:
-/// - Content API is a read/render and package materialization boundary over
+/// - Content API is a read/render, text commit, and package materialization boundary over
 ///   Content ontology truth.
 /// - DTOs carry Content ids and Experience-safe reference ids, not Social,
 ///   provider, or workspace-specific payloads.
@@ -34,6 +34,33 @@ class ContentTextResolutionV1 : inline_value {
     digest String?
     size_bytes Int = 0
     source_kind String = "inline_text"
+    provenance JsonObject = {}
+}
+
+class ContentTextCommitPartV1 : inline_value {
+    position Int = 0
+    part_key String?
+    media_type String = "text/plain"
+    text String
+    digest_algorithm String = "sha256"
+    digest String?
+    size_bytes Int?
+    provenance JsonObject = {}
+}
+
+class ContentTextCommitResultV1 : inline_value {
+    content_id UUID
+    content_key String
+    title String?
+    source_kind String
+    source_ref String
+    media_type String = "text/plain"
+    digest_algorithm String = "sha256"
+    digest String
+    size_bytes Int
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    service_host_receipt_ref String?
     provenance JsonObject = {}
 }
 
@@ -194,6 +221,26 @@ class ResolveContentTextResponse augment content.ContentServiceResponse {
     resolution content.ContentTextResolutionV1?
 }
 
+class CommitContentTextRequest augment content.ContentServiceRequest {
+    operation String = "commit_content_text"
+    content_key String
+    title String?
+    source_kind String
+    source_ref String
+    media_type String = "text/plain"
+    text String?
+    parts content.ContentTextCommitPartV1[] = []
+    digest_algorithm String = "sha256"
+    digest String?
+    size_bytes Int?
+    provenance JsonObject = {}
+}
+
+class CommitContentTextResponse augment content.ContentServiceResponse {
+    operation String = "commit_content_text"
+    commit_result content.ContentTextCommitResultV1?
+}
+
 class MaterializeContentPackageRequest augment content.ContentServiceRequest {
     operation String = "materialize_content_package"
     package_export content.ContentPackageExportDocumentV1
@@ -206,8 +253,10 @@ class MaterializeContentPackageResponse augment content.ContentServiceResponse {
 
 ann content.ContentServiceRequest::operation discriminate key
 ann content.ResolveContentTextRequest::operation discriminate tag "resolve_content_text"
+ann content.CommitContentTextRequest::operation discriminate tag "commit_content_text"
 ann content.MaterializeContentPackageRequest::operation discriminate tag "materialize_content_package"
 
 ann content.ContentServiceResponse::operation discriminate key
 ann content.ResolveContentTextResponse::operation discriminate tag "resolve_content_text"
+ann content.CommitContentTextResponse::operation discriminate tag "commit_content_text"
 ann content.MaterializeContentPackageResponse::operation discriminate tag "materialize_content_package"

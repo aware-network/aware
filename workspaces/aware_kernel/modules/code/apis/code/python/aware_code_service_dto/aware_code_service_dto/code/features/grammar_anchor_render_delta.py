@@ -22,7 +22,10 @@ from aware_code_service_dto.code.service import (
 )
 
 # Types
-from aware_types import JsonObject
+from aware_types import (
+    JsonObject,
+    JsonValue,
+)
 
 if TYPE_CHECKING:
     from aware_code_service_dto.code.features.grammar_anchor_binding import CodeGrammarAnchorBinding
@@ -51,6 +54,46 @@ class CodeGrammarAnchorRenderTargetKind(Enum):
     text_span = "text_span"
 
 
+class CodeGrammarAnchorRenderAction(Enum):
+    """Semantic operation requested over one resolved grammar anchor."""
+
+    replace = "replace"
+    delete = "delete"
+
+
+class CodeGrammarAnchorRenderSemanticValueKind(Enum):
+    """Discriminant for a provider-neutral semantic value rendered by Code."""
+
+    string = "string"
+    boolean = "boolean"
+    integer = "integer"
+    float = "float"
+    null = "null"
+    json = "json"
+    type_ref = "type_ref"
+
+
+class CodeGrammarAnchorRenderTypeRefValue(BaseModel):
+    """Provider-neutral primitive type reference rendered by a grammar value codec."""
+
+    # Attributes
+    type_name: str
+    nullable: bool = Field(default=False)
+
+
+class CodeGrammarAnchorRenderSemanticValue(BaseModel):
+    """Typed semantic value accepted by a Code-owned grammar value codec."""
+
+    # Attributes
+    kind: CodeGrammarAnchorRenderSemanticValueKind
+    string_value: str | None = Field(default=None)
+    boolean_value: bool | None = Field(default=None)
+    integer_value: int | None = Field(default=None)
+    float_value: float | None = Field(default=None)
+    json_value: JsonValue | None = Field(default=None)
+    type_ref_value: CodeGrammarAnchorRenderTypeRefValue | None = Field(default=None)
+
+
 class CodeGrammarAnchorRenderSpanTarget(BaseModel):
     """Typed byte-span target for render deltas that cannot yet use parser anchors."""
 
@@ -76,7 +119,11 @@ class CodeGrammarAnchorRenderReplacement(BaseModel):
     source_key: str | None = Field(default=None)
     target_kind: CodeGrammarAnchorRenderTargetKind = Field(default=CodeGrammarAnchorRenderTargetKind.grammar_anchor)
     span_target: CodeGrammarAnchorRenderSpanTarget | None = Field(default=None)
-    replacement_text: str
+    action: CodeGrammarAnchorRenderAction = Field(default=CodeGrammarAnchorRenderAction.replace)
+    semantic_value: CodeGrammarAnchorRenderSemanticValue | None = Field(default=None)
+    replacement_text: str | None = Field(
+        default=None, description="Representation text is accepted only for explicit text-span targets."
+    )
     before_text_hash: str | None = Field(default=None)
     event_ref: str | None = Field(default=None)
     semantic_key: str | None = Field(default=None)

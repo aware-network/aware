@@ -1,0 +1,20 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "7495d2e0-33f2-5a1a-a65d-6797aca9a349",
+      "module": "aware_external_capital_provider_service_dto.external_capital.wallet_funding",
+      "name": "ExternalCapitalWalletFundingSessionRequest",
+      "aware_class_ref": "aware_external_capital_provider_service_dto.external_capital.ExternalCapitalWalletFundingSessionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "61bf052e-5851-5263-9b15-187ec1a82f06",
+      "module": "aware_external_capital_provider_service_dto.external_capital.wallet_funding",
+      "name": "ExternalCapitalWalletFundingSessionResponse",
+      "aware_class_ref": "aware_external_capital_provider_service_dto.external_capital.ExternalCapitalWalletFundingSessionResponse",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

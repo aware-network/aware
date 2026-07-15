@@ -1,0 +1,35 @@
+class ServiceContractOperationPricePolicy {
+    // Relationships
+    price aware_economy.price.Price?
+    pricing_policy aware_economy.price.PricingPolicy?
+
+    // Attributes
+    fail_closed Bool = true
+    max_cost_required Bool = false
+    price_ref String?
+    price_source ServiceContractOperationPriceSource = operation_default
+    pricing_policy_ref String?
+    quote_ttl_s Int?
+    settlement_policy_override ServiceOperationSettlementPolicy?
+
+    fn build construct (
+        price_source ServiceContractOperationPriceSource = operation_default,
+        price_id UUID? = null,
+        price_ref String? = null,
+        pricing_policy_id UUID? = null,
+        pricing_policy_ref String? = null,
+        settlement_policy_override ServiceOperationSettlementPolicy? = null,
+        max_cost_required Bool = false,
+        quote_ttl_s Int? = null,
+        fail_closed Bool = true
+    ) -> ServiceContractOperationPricePolicy {
+        """
+        Creates the Service-owned price selection policy intent for one operation grant.
+
+        Contract:
+        - Parent ServiceContractConfigOperationGrant scope is propagated by constructor lowering.
+        - Price policy selects Economy price truth; it does not compute quotes or settle funds.
+        - Economy owns Price, PricingPolicy, PriceSchedule, RateSnapshot, reservation, escrow, and settlement receipts.
+        """
+    }
+}

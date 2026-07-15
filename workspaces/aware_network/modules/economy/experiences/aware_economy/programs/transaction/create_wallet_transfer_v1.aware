@@ -1,0 +1,98 @@
+// Create a transfer transaction and apply the shared Finance posting rail.
+//
+// Required symbols:
+// - plan.transaction_id
+// - plan.source_wallet_id
+// - plan.source_wallet_public_id
+// - plan.target_wallet_id
+// - plan.target_wallet_public_id
+// - plan.coin_id
+// - plan.coin_amount
+// - plan.nonce
+// - plan.source_expected_coin_balance
+// - plan.source_new_coin_balance
+// - plan.target_expected_coin_balance
+// - plan.target_new_coin_balance
+// - plan.wallet_source_wallet_id_branch_id
+// - plan.wallet_target_wallet_id_branch_id
+// - plan.reconcile_transfer_wallet_balances_invocation_plan_artifact
+//
+// Optional symbols:
+// - plan.description
+// - plan.idempotency_key
+//
+// Contract (v1):
+// - Transaction remains transfer SSOT.
+// - Finance-owned posting is delegated to `economy:ReconcileTransferWalletBalances_v1`.
+// - Transaction status does not post by itself.
+// - Idempotent on rerun via stable transaction identity + wallet reconciliation.
+
+program CreateWalletTransfer_v1 {
+    actor economy_system system
+
+    port transaction_transaction_id transaction {
+        node main transaction(transaction=transaction_id)
+    }
+    port wallet_source_wallet_id wallet {
+        node main wallet(wallet=source_wallet_id)
+    }
+    port wallet_target_wallet_id wallet {
+        node main wallet(wallet=target_wallet_id)
+    }
+
+    input transaction_id from plan.transaction_id
+    input source_wallet_id from plan.source_wallet_id
+    input target_wallet_id from plan.target_wallet_id
+    let target_wallet_public_id = plan.target_wallet_public_id
+    let coin_id = plan.coin_id
+    let coin_amount = plan.coin_amount
+    let nonce = plan.nonce
+    let description = plan.description
+    let idempotency_key = plan.idempotency_key
+    let source_expected_coin_balance = plan.source_expected_coin_balance
+    let source_new_coin_balance = plan.source_new_coin_balance
+    let target_expected_coin_balance = plan.target_expected_coin_balance
+    let target_new_coin_balance = plan.target_new_coin_balance
+    let source_wallet_branch_id = plan.wallet_source_wallet_id_branch_id
+    let target_wallet_branch_id = plan.wallet_target_wallet_id_branch_id
+    let source_wallet_public_id = plan.source_wallet_public_id
+    let reconcile_transfer_wallet_balances_invocation_plan_artifact = plan.reconcile_transfer_wallet_balances_invocation_plan_artifact
+
+    bind transaction_transaction_id transaction.main
+    economy_system call transaction.Transaction.create(
+        source_wallet_public_id=source_wallet_public_id,
+        capital_origin_id=source_wallet_public_id,
+        target_wallet_public_id=target_wallet_public_id,
+        coin_id=coin_id,
+        coin_amount=coin_amount,
+        nonce=nonce,
+        description=description,
+        idempotency_key=idempotency_key
+    )
+
+    economy_system call program.port.wallet_target_wallet_id.projection_node plan.apply_program_ref(
+        program_ref="economy:ReconcileTransferWalletBalances_v1",
+        symbols=kernel.symbols(
+            "plan.invocation_plan_artifact",
+            reconcile_transfer_wallet_balances_invocation_plan_artifact,
+            "plan.source_wallet_id",
+            source_wallet_id,
+            "plan.source_expected_coin_balance",
+            source_expected_coin_balance,
+            "plan.source_new_coin_balance",
+            source_new_coin_balance,
+            "plan.target_wallet_id",
+            target_wallet_id,
+            "plan.target_expected_coin_balance",
+            target_expected_coin_balance,
+            "plan.target_new_coin_balance",
+            target_new_coin_balance,
+            "plan.coin_id",
+            coin_id,
+            "plan.wallet_source_wallet_id_branch_id",
+            source_wallet_branch_id,
+            "plan.wallet_target_wallet_id_branch_id",
+            target_wallet_branch_id
+        )
+    )
+}

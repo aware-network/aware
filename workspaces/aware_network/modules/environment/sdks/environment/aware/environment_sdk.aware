@@ -1,0 +1,114 @@
+sdk environment_sdk {
+    "Canonical Environment SDK operations over the Environment service API."
+
+    api environment
+
+    operation fetch_capabilities {
+        "Read Environment runtime capability advertisement."
+        endpoint environment.capabilities.fetch_capabilities
+    }
+
+    operation describe_environment_config {
+        "Describe the hosted EnvironmentConfig."
+        endpoint environment.describe_config.describe_environment_config
+    }
+
+    operation describe_environment {
+        "Describe one provisioned Environment and its boot/lane pointers."
+        endpoint environment.describe.describe_environment
+        view environment.navigator
+        view environment.process_workspace
+        view environment.thread_layout
+    }
+
+    operation describe_environment_topology {
+        "Describe process/thread topology and attached OIG lanes."
+        endpoint environment.topology.describe_environment_topology
+        view environment.navigator
+        view environment.process_workspace
+        view environment.thread_layout
+    }
+
+    operation describe_environment_status {
+        "Read the canonical Environment status envelope."
+        endpoint environment.status.describe_environment_status
+        view environment.navigator
+        view environment.process_workspace
+        view environment.thread_layout
+    }
+
+    operation ensure_ready {
+        "Ensure the Environment runtime is ready for graph operations."
+        endpoint environment.ready.ensure_ready
+    }
+
+    operation get_lane_head {
+        "Read the current head commit for one Environment lane key."
+        endpoint environment.lane_head.get_lane_head
+    }
+
+    operation get_object_instance_graph_commit {
+        "Read one ObjectInstanceGraphCommit by id."
+        endpoint environment.object_instance_graph_commit.get_object_instance_graph_commit
+    }
+
+    operation resolve_runtime_refs {
+        "Resolve hosted runtime graph/function/class references."
+        endpoint environment.runtime_ref.resolve_runtime_refs
+    }
+
+    operation configure_service_api_dependency_routes {
+        "Configure Environment-hosted service API dependency routes."
+        endpoint environment.service_routes.configure_service_api_dependency_routes
+    }
+
+    operation create_navigation_context {
+        "Create an EnvironmentSession-owned navigation context after accepted session join."
+        endpoint environment.navigation.create_navigation_context
+    }
+
+    operation select_navigation_target {
+        "Select the Process/Thread target for one Environment navigation context."
+        endpoint environment.navigation.select_navigation_target
+    }
+
+    operation describe_navigation_context {
+        "Describe one Environment navigation context."
+        endpoint environment.navigation.describe_navigation_context
+    }
+
+    operation list_navigation_contexts {
+        "List Environment navigation contexts owned by one EnvironmentSession."
+        endpoint environment.navigation.list_navigation_contexts
+    }
+
+    operation resolve_session_attention {
+        "Resolve Environment session Thread/Layout pins against Attention session validation."
+        endpoint environment.session.resolve_attention
+    }
+
+    operation invoke_function {
+        "Invoke one graph function through the Environment runtime boundary."
+        endpoint environment.function_call.invoke_function
+    }
+
+    operation apply_program_ref {
+        "Apply one program reference through the Environment API boundary."
+        endpoint environment.program_ref.apply_program_ref
+    }
+
+    operation submit_program_turn {
+        "Submit one program turn through runtime-owned turn orchestration."
+        endpoint environment.program_turn.submit_program_turn
+    }
+
+    operation run_program {
+        "Run one program through the Environment runtime."
+        endpoint environment.program.run_program
+    }
+
+    operation get_turn_execution {
+        "Read canonical runtime mailbox turn state by turn id."
+        endpoint environment.turn_execution.get_turn_execution
+    }
+}

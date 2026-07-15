@@ -1,0 +1,24 @@
+experience aware_network {
+    profile network.territory {
+        title "Aware Network Territory"
+        description "Canonical Network territory profile for node, environment, and hosted-service discovery."
+        narrative "Inspect reachable Network territory before selecting a remote deployment target."
+
+        process continuous network default {
+            title "Network"
+            narrative "Continuous Network territory process for local and remote topology inspection."
+            intent network.territory
+
+            thread network.territory default {
+                title "Network Territory"
+                narrative "Primary Network territory thread for node and hosted service discovery."
+                workspace_view thread.workspace
+                projection aware_network view territory.discovery.v1 default
+
+                layout territory default {
+                    section inspector projection aware_network view territory.discovery.v1 binding network.territory default
+                }
+            }
+        }
+    }
+}

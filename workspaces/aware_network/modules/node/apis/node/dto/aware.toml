@@ -1,0 +1,15 @@
+aware = 1
+
+[package]
+package_name = "node-service-dto"
+fqn_prefix = "aware_node_service_dto"
+kind = "api"
+version_number = 1
+title = "Node Service DTO"
+description = "API-owned DTO package for Node service endpoint payloads."
+
+[build]
+environment_slug = "aware_node_service_dto"
+
+[build.namespace]
+"node/**/*.aware" = "comms.models"

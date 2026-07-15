@@ -1,0 +1,56 @@
+class SkillRun {
+    // Relationships
+    steps SkillRunStep[]
+
+    // Attributes
+    error String?
+    finished_at_utc DateTime?
+    run_key String key
+    started_at_utc DateTime?
+    status SkillRunStatus = queued
+
+    fn build construct (
+        run_key String key,
+        status SkillRunStatus = queued,
+        started_at_utc DateTime? = null,
+        finished_at_utc DateTime? = null,
+        error String? = null
+    ) -> SkillRun {
+        """
+        Create one Skill-owned orchestration run receipt.
+
+        Contract:
+        - `SkillRun` records boundary status only.
+        - Input/output payloads remain API-owned through `SkillRunStep.api_call`.
+        - The parent `SkillConfig` is the canonical owner through `SkillConfig.runs`.
+        """
+    }
+
+    fn create_step (
+        skill_config_step_id UUID key,
+        api_call_id UUID? = null,
+        status SkillRunStatus = queued,
+        started_at_utc DateTime? = null,
+        finished_at_utc DateTime? = null,
+        error String? = null
+    ) -> SkillRunStep {
+        """
+        Attach one execution receipt for an authored SkillConfigStep.
+
+        Contract:
+        - `skill_config_step_id` is the authored step identity and supplies ordering.
+        - `api_call_id` is optional while queued/running/skipped, but terminal invoked steps
+          must attach API-owned call truth at the service/runtime layer.
+        """
+        let created = construct steps.build(
+            skill_config_step_id = skill_config_step_id,
+            api_call_id = api_call_id,
+            status = status,
+            started_at_utc = started_at_utc,
+            finished_at_utc = finished_at_utc,
+            error = error,
+        )
+    }
+}
+
+ann skill.SkillRun::steps load eager

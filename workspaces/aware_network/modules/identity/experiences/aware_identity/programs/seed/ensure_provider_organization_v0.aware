@@ -1,0 +1,28 @@
+// Ensure provider organization and deterministic initial member linkage.
+//
+// Required symbols:
+// - plan.provider_identity_id
+// - plan.provider_actor_id
+// - plan.member_identity_id
+//
+// Idempotency:
+// - Constructor calls are lane-head guarded by the seed executor.
+
+program EnsureProviderOrganization_v0Config(
+    provider_identity_id UUID = plan.provider_identity_id,
+    provider_actor_id UUID = plan.provider_actor_id,
+    member_identity_id UUID = plan.member_identity_id,
+    organization_id UUID = identity.stable_organization_id(actor_id=provider_actor_id)
+) {
+    actor identity_system system
+
+    port organization_organization_id organization {
+        node organization organization.Organization(organization=organization_id)
+    }
+}
+
+program EnsureProviderOrganization_v0 impl EnsureProviderOrganization_v0Config {
+    bind organization_organization_id organization.main
+    identity_system call organization organization.Organization.create(actor_id=provider_actor_id)
+    identity_system call organization organization.Organization.create_member(identity_id=member_identity_id, role=member)
+}

@@ -36,13 +36,22 @@ def build_code_primitive_type(
     resolved_key_type = key_type
     resolved_value_type = value_type
 
-    if base_type in {CodePrimitiveBaseType.array, CodePrimitiveBaseType.set} and resolved_item_type is None:
-        resolved_item_type = build_code_primitive_type(base_type=CodePrimitiveBaseType.any)
+    if (
+        base_type in {CodePrimitiveBaseType.array, CodePrimitiveBaseType.set}
+        and resolved_item_type is None
+    ):
+        resolved_item_type = build_code_primitive_type(
+            base_type=CodePrimitiveBaseType.any
+        )
     if base_type == CodePrimitiveBaseType.dict:
         if resolved_key_type is None:
-            resolved_key_type = build_code_primitive_type(base_type=CodePrimitiveBaseType.any)
+            resolved_key_type = build_code_primitive_type(
+                base_type=CodePrimitiveBaseType.any
+            )
         if resolved_value_type is None:
-            resolved_value_type = build_code_primitive_type(base_type=CodePrimitiveBaseType.any)
+            resolved_value_type = build_code_primitive_type(
+                base_type=CodePrimitiveBaseType.any
+            )
 
     signature = build_code_primitive_signature(
         base_type=base_type,
@@ -155,6 +164,10 @@ class CodePrimitiveCodecBase(ABC):
         """Create a float type."""
         return self._primitive(base_type=CodePrimitiveBaseType.float)
 
+    def decimal(self) -> CodePrimitiveType:
+        """Create an exact base-10 decimal type."""
+        return self._primitive(base_type=CodePrimitiveBaseType.decimal)
+
     def string(self) -> CodePrimitiveType:
         """Create a string type."""
         return self._primitive(base_type=CodePrimitiveBaseType.string)
@@ -198,9 +211,13 @@ class CodePrimitiveCodecBase(ABC):
 
     def array(self, item_type: CodePrimitiveType) -> CodePrimitiveType:
         """Create an array type with specified item type."""
-        return self._primitive(base_type=CodePrimitiveBaseType.array, item_type=item_type)
+        return self._primitive(
+            base_type=CodePrimitiveBaseType.array, item_type=item_type
+        )
 
-    def dict(self, key_type: CodePrimitiveType, value_type: CodePrimitiveType) -> CodePrimitiveType:
+    def dict(
+        self, key_type: CodePrimitiveType, value_type: CodePrimitiveType
+    ) -> CodePrimitiveType:
         """Create a dictionary type with specified key and value types."""
         return self._primitive(
             base_type=CodePrimitiveBaseType.dict,

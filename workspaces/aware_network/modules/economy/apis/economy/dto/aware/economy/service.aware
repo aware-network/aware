@@ -1,0 +1,644 @@
+/// Canonical Economy service-host DTOs (transport-layer, graph/ORM agnostic).
+///
+/// SSOT: `economy-service-dto` generated from `apis/economy/dto`.
+///
+/// This package sits between caller/API bindings and the Economy service host.
+/// Runtime-local Python shims may re-export these DTOs for compatibility, but
+/// public schema ownership remains under `apis/economy/dto`.
+
+class EconomyActorStatusRequest {
+    operation String = "economy_actor_status"
+    actor_id String?
+    finance_role_key String = "primary"
+}
+
+class EconomyActorStatusResponse {
+    operation String = "economy_actor_status"
+    finance_role_key String = "primary"
+    finance_entity_ready Bool
+    wallet_ready Bool
+    next_step String
+    finance_entity_id String?
+    wallet_id String?
+    wallet_public_id String?
+}
+
+class EconomyEnsureFinanceEntityRequest {
+    operation String = "ensure_finance_entity"
+    actor_id String?
+    finance_role_key String = "primary"
+}
+
+class EconomyEnsureFinanceEntityResponse {
+    operation String = "ensure_finance_entity"
+    finance_role_key String = "primary"
+    finance_entity_id String
+    wallet_id String
+    wallet_public_id String
+}
+
+class EconomyWalletFundingPrepareRequest {
+    operation String = "prepare_wallet_funding"
+    target_wallet_id String
+    coin_id String
+    amount Decimal
+    funding_intent_key String
+    idempotency_key String
+    provider_key String
+}
+
+class EconomyWalletFundingPrepareResponse {
+    operation String = "prepare_wallet_funding"
+    transaction_intent_id String
+    transaction_intent_commit_id String
+    funding_intent_key String
+    idempotency_key String
+    provider_key String
+    provider_config_id String
+    provider_route_id String
+    provider_finance_entity_id String
+    recipient_finance_entity_id String
+    recipient_wallet_id String
+    recipient_wallet_public_id String
+    coin_id String
+    amount Decimal
+    capital_conversion_quote_id String
+    quote_hash String
+    external_amount_minor Int
+    external_currency String
+    conversion_mode String
+    quote_captured_at String
+    quote_expires_at String?
+    status String
+    idempotent_replay Bool = false
+}
+
+class EconomyWalletFundingContextResolveRequest {
+    operation String = "resolve_wallet_funding_context"
+    transaction_intent_id String
+    transaction_intent_commit_id String
+}
+
+class EconomyWalletFundingContextResolveResponse {
+    operation String = "resolve_wallet_funding_context"
+    transaction_intent_id String
+    transaction_intent_commit_id String
+    funding_intent_key String
+    idempotency_key String
+    provider_key String
+    provider_config_id String
+    provider_route_id String
+    provider_finance_entity_id String
+    recipient_finance_entity_id String
+    recipient_wallet_id String
+    recipient_wallet_public_id String
+    coin_id String
+    amount Decimal
+    status String
+    capital_conversion_quote_id String
+    quote_hash String
+    external_amount_minor Int
+    external_currency String
+    target_amount Decimal
+    conversion_mode String
+    quote_source String
+    quote_captured_at String
+    quote_expires_at String?
+}
+
+class EconomyWalletFundingRecordRequest {
+    operation String = "record_verified_wallet_funding"
+    transaction_intent_id String
+    transaction_intent_commit_id String
+    provider_key String
+    provider_event_id String
+    idempotency_key String
+    capital_conversion_quote_id String
+    quote_hash String
+    external_amount_minor Int
+    external_currency String
+    provider_public_reference String
+    provider_payload_hash String
+    external_created_at String
+}
+
+class EconomyWalletFundingRecordResponse {
+    operation String = "record_verified_wallet_funding"
+    transaction_intent_id String
+    transaction_intent_commit_id String
+    capital_conversion_quote_id String
+    quote_hash String
+    transaction_external_id String
+    transaction_id String
+    transaction_nonce Int
+    wallet_external_ingress_application_id String
+    wallet_balance_id String
+    provider_finance_entity_id String
+    recipient_finance_entity_id String
+    recipient_wallet_id String
+    recipient_wallet_public_id String
+    coin_id String
+    amount Decimal
+    previous_balance Decimal
+    new_balance Decimal
+    status String
+    idempotent_replay Bool = false
+}
+
+class EconomyWalletFundingCancelRequest {
+    operation String = "record_wallet_funding_expiration"
+    transaction_intent_id String
+    transaction_intent_commit_id String
+    provider_key String
+    provider_event_id String
+    idempotency_key String
+    capital_conversion_quote_id String
+    quote_hash String
+    provider_public_reference String
+    provider_payload_hash String
+    external_created_at String
+}
+
+class EconomyWalletFundingCancelResponse {
+    operation String = "record_wallet_funding_expiration"
+    transaction_intent_id String
+    transaction_intent_commit_id String
+    transaction_intent_external_expiration_id String
+    provider_config_id String
+    capital_conversion_quote_id String
+    quote_hash String
+    provider_key String
+    provider_event_id String
+    provider_public_reference String
+    status String
+    idempotent_replay Bool = false
+}
+
+class EconomyProviderLifecycleRecordRequest {
+    operation String = "record_provider_lifecycle_event"
+    provider_key String
+    provider_event_id String
+    provider_lifecycle_object_id String
+    provider_lifecycle_effect_key String
+    provider_payment_reference String
+    external_amount_minor Int
+    external_currency String
+    event_kind String
+    provider_payload_hash String
+    external_created_at String
+    metadata_json JsonObject?
+}
+
+class EconomyProviderLifecycleRecordResponse {
+    operation String = "record_provider_lifecycle_event"
+    provider_lifecycle_receipt_id String
+    wallet_balance_id String
+    provider_finance_entity_id String
+    provider_key String
+    provider_event_id String
+    provider_lifecycle_object_id String
+    provider_lifecycle_effect_key String
+    idempotency_key String
+    wallet_finance_entity_id String
+    wallet_id String
+    wallet_public_id String
+    coin_id String
+    amount Decimal
+    event_kind String
+    status String
+    previous_balance Decimal
+    new_balance Decimal
+    previous_held_balance Decimal
+    new_held_balance Decimal
+    previous_available_balance Decimal
+    new_available_balance Decimal
+    provider_payment_reference String
+    provider_payload_hash String
+    transaction_id String
+    transaction_external_id String
+    idempotent_replay Bool = false
+}
+
+class EconomyWalletBalanceDescribeRequest {
+    operation String = "describe_wallet_balance"
+    actor_id String?
+    wallet_id String
+    coin_id String
+}
+
+class EconomyWalletBalanceDescribeResponse {
+    operation String = "describe_wallet_balance"
+    wallet_balance_id String
+    wallet_id String
+    coin_id String
+    balance Decimal
+    held_balance Decimal
+    available_balance Decimal
+    ready Bool
+    last_transaction_id String?
+}
+
+class EconomyWalletCapitalBalanceSummary {
+    wallet_balance_id String
+    wallet_id String
+    wallet_public_id String?
+    finance_entity_id String?
+    coin_id String
+    balance Decimal
+    held_balance Decimal
+    available_balance Decimal
+}
+
+class EconomyWalletCapitalFundingProviderSummary {
+    provider_config_id String
+    provider_route_id String
+    provider_finance_entity_id String
+    provider_key String
+    label String?
+    route_key String
+    target_coin_id String
+    external_currency String
+    external_minor_unit_exponent Int
+    conversion_mode String
+    min_external_amount_minor Int?
+    max_external_amount_minor Int?
+    status String
+}
+
+class EconomyWalletCapitalConversionQuoteSummary {
+    capital_conversion_quote_id String
+    provider_route_id String
+    target_coin_id String
+    external_amount_minor Int
+    external_currency String
+    target_amount Decimal
+    conversion_mode String
+    quote_source String
+    quote_hash String
+    quote_captured_at String
+    quote_expires_at String?
+}
+
+class EconomyWalletCapitalTransactionIntentSummary {
+    transaction_intent_id String
+    provider_config_id String
+    recipient_finance_entity_id String
+    recipient_wallet_id String
+    recipient_wallet_public_id String
+    coin_id String
+    amount Decimal
+    funding_intent_key String
+    idempotency_key String
+    provider_key String
+    status String
+    created_at String
+    updated_at String?
+    capital_conversion_quote EconomyWalletCapitalConversionQuoteSummary
+}
+
+class EconomyWalletCapitalTransactionExternalSummary {
+    transaction_external_id String
+    transaction_id String
+    transaction_intent_id String
+    provider_config_id String
+    capital_conversion_quote_id String
+    provider_finance_entity_id String
+    provider_key String
+    provider_event_id String
+    provider_public_reference String
+    provider_payload_hash String
+    external_amount_minor Int
+    external_currency String
+    quote_hash String
+    idempotency_key String
+    status String
+    processed_at String?
+    external_created_at String?
+    metadata_json JsonObject?
+}
+
+class EconomyWalletCapitalTransactionSummary {
+    transaction_id String
+    source_wallet_public_id String
+    target_wallet_public_id String
+    coin_id String
+    coin_amount Decimal
+    gas_price Decimal
+    nonce Int
+    status String
+    transaction_hash String
+    idempotency_key String?
+    description String?
+    confirmed_at String?
+    source_previous_coin_balance Decimal?
+    target_previous_coin_balance Decimal?
+}
+
+class EconomyWalletCapitalReservationSummary {
+    reservation_id String
+    smart_contract_permit_id String
+    escrow_id String?
+    rate_snapshot_id String
+    op_nonce Int
+    args_hash String
+    max_cost Decimal
+    final_cost Decimal?
+    status String
+    deadline String?
+}
+
+class EconomyWalletCapitalEscrowSummary {
+    escrow_id String
+    wallet_public_id String
+    coin_id String
+    locked_amount Decimal
+    op_nonce Int
+    escrow_hash String
+    smart_contract_reservation_id String
+    status String
+    description String?
+}
+
+class EconomyWalletCapitalSettlementSummary {
+    settlement_id String
+    smart_contract_reservation_id String
+    payer_finance_entity_id String
+    payer_wallet_public_id String
+    receiver_finance_entity_id String
+    receiver_wallet_public_id String
+    coin_id String
+    final_cost Decimal
+    status String
+}
+
+class EconomyWalletCapitalProviderLifecycleSummary {
+    provider_lifecycle_receipt_id String
+    provider_finance_entity_id String
+    provider_key String
+    provider_event_id String
+    provider_lifecycle_object_id String
+    provider_lifecycle_effect_key String
+    idempotency_key String
+    wallet_finance_entity_id String
+    wallet_id String
+    wallet_public_id String
+    coin_id String
+    amount Decimal
+    event_kind String
+    status String
+    previous_balance Decimal
+    new_balance Decimal
+    previous_held_balance Decimal
+    new_held_balance Decimal
+    previous_available_balance Decimal
+    new_available_balance Decimal
+    provider_payment_reference String
+    provider_payload_hash String
+    transaction_id String
+    transaction_external_id String
+    processed_at String?
+    external_created_at String?
+    metadata_json JsonObject?
+}
+
+class EconomyWalletCapitalFrameResolveRequest {
+    operation String = "resolve_wallet_capital_frame"
+    actor_id String?
+    wallet_id String
+    coin_id String?
+    limit Int = 50
+    include_transaction_intents Bool = true
+    include_funding_providers Bool = true
+    include_transaction_externals Bool = true
+    include_transactions Bool = true
+    include_reservations Bool = true
+    include_escrows Bool = true
+    include_settlements Bool = true
+    include_provider_lifecycle Bool = true
+}
+
+class EconomyWalletCapitalFrameResolveResponse {
+    operation String = "resolve_wallet_capital_frame"
+    wallet_id String
+    wallet_public_id String?
+    finance_entity_id String?
+    coin_id String?
+    ready Bool = false
+    balances EconomyWalletCapitalBalanceSummary[] = []
+    funding_providers EconomyWalletCapitalFundingProviderSummary[] = []
+    transaction_intents EconomyWalletCapitalTransactionIntentSummary[] = []
+    transaction_externals EconomyWalletCapitalTransactionExternalSummary[] = []
+    transactions EconomyWalletCapitalTransactionSummary[] = []
+    reservations EconomyWalletCapitalReservationSummary[] = []
+    escrows EconomyWalletCapitalEscrowSummary[] = []
+    settlements EconomyWalletCapitalSettlementSummary[] = []
+    provider_lifecycle_receipts EconomyWalletCapitalProviderLifecycleSummary[] = []
+    activity_count Int = 0
+    info String?
+}
+
+class EconomyWalletCapitalViewStateResolveRequest {
+    operation String = "resolve_wallet_capital_view_state"
+    actor_id String?
+    wallet_id String
+    coin_id String?
+    limit Int = 50
+    include_transaction_intents Bool = true
+    include_transaction_externals Bool = true
+    include_transactions Bool = true
+    include_reservations Bool = true
+    include_escrows Bool = true
+    include_settlements Bool = true
+    include_provider_lifecycle Bool = true
+}
+
+class EconomyPriceReservationReserveRequest {
+    operation String = "price_reservation_reserve"
+    actor_id String?
+    price_id String
+    request_hash String
+    operation_key String
+    pricing_policy_id String?
+    upper_bound_cost_basis_amount Decimal?
+    cost_basis_coin_id String?
+    meter_evidence_ref String?
+}
+
+class EconomyPriceReservationReserveResponse {
+    operation String = "price_reservation_reserve"
+    price_id String
+    price_schedule_id String
+    rate_snapshot_id String
+    price_reservation_id String
+    quoted_amount Decimal
+    cost_basis_amount Decimal?
+    markup_percentage Decimal?
+    markup_amount Decimal?
+    meter_evidence_ref String?
+    status String
+}
+
+class EconomyPriceReservationFinalizeRequest {
+    operation String = "price_reservation_finalize"
+    actor_id String?
+    price_reservation_id String
+    status String
+    actual_cost_basis_amount Decimal?
+    cost_basis_coin_id String?
+    meter_evidence_ref String?
+}
+
+class EconomyPriceReservationFinalizeResponse {
+    operation String = "price_reservation_finalize"
+    price_reservation_id String
+    status String
+    final_amount Decimal?
+    actual_cost_basis_amount Decimal?
+    actual_markup_amount Decimal?
+    meter_evidence_ref String?
+}
+
+class EconomyServiceOperationPermitEnsureRequest {
+    operation String = "ensure_service_operation_permit"
+    actor_id String?
+    finance_role_key String = "primary"
+    smart_contract_id String
+    price_schedule_id String
+    coin_id String
+    cap_amount Decimal
+    expires_at String
+}
+
+class EconomyServiceOperationPermitEnsureResponse {
+    operation String = "ensure_service_operation_permit"
+    actor_id String
+    finance_role_key String
+    smart_contract_id String
+    permit_id String
+    parent_permit_id String?
+    permit_nonce Int
+    finance_entity_id String
+    wallet_id String
+    wallet_public_id String
+    price_schedule_id String
+    coin_id String
+    cap_amount Decimal
+    expires_at String
+    status String
+    refreshed Bool = false
+    idempotent_replay Bool = false
+}
+
+class EconomySmartContractReservationPrepareRequest {
+    operation String = "prepare_smart_contract_reservation"
+    actor_id String?
+    smart_contract_id String
+    permit_id String
+    permit_nonce Int
+    payer_finance_entity_id String
+    payer_wallet_id String
+    payer_wallet_public_id String
+    args_hash String
+    max_cost Decimal
+    rate_snapshot_id String
+    deadline String
+    coin_id String
+}
+
+class EconomySmartContractReservationPrepareResponse {
+    operation String = "prepare_smart_contract_reservation"
+    smart_contract_id String
+    permit_id String
+    reservation_id String
+    escrow_id String
+    payer_finance_entity_id String
+    payer_wallet_id String
+    payer_wallet_public_id String
+    op_nonce Int
+    coin_id String
+    max_cost Decimal
+    payer_balance Decimal
+    payer_held_balance Decimal
+    payer_available_balance Decimal
+    status String
+    idempotent_replay Bool = false
+}
+
+class EconomySmartContractReservationReleaseRequest {
+    operation String = "release_smart_contract_reservation"
+    actor_id String?
+    smart_contract_id String
+    permit_id String
+    reservation_id String
+    payer_finance_entity_id String
+    payer_wallet_id String
+    payer_wallet_public_id String
+    coin_id String
+    status String
+}
+
+class EconomySmartContractReservationReleaseResponse {
+    operation String = "release_smart_contract_reservation"
+    smart_contract_id String
+    permit_id String
+    reservation_id String
+    escrow_id String
+    payer_finance_entity_id String
+    payer_wallet_id String
+    payer_wallet_public_id String
+    payer_wallet_balance_id String
+    coin_id String
+    released_amount Decimal
+    payer_balance Decimal
+    payer_previous_held_balance Decimal
+    payer_new_held_balance Decimal
+    payer_previous_available_balance Decimal
+    payer_new_available_balance Decimal
+    status String
+    idempotent_replay Bool = false
+}
+
+class EconomySmartContractSettlementFinalizeRequest {
+    operation String = "finalize_smart_contract_settlement"
+    actor_id String?
+    smart_contract_id String
+    permit_id String
+    reservation_id String
+    payer_finance_entity_id String
+    payer_wallet_id String
+    payer_wallet_public_id String
+    receiver_finance_entity_id String
+    receiver_wallet_id String
+    receiver_wallet_public_id String
+    coin_id String
+    final_cost Decimal
+}
+
+class EconomySmartContractSettlementFinalizeResponse {
+    operation String = "finalize_smart_contract_settlement"
+    smart_contract_id String
+    permit_id String
+    reservation_id String
+    settlement_id String
+    transaction_id String?
+    payer_finance_entity_id String
+    payer_wallet_id String
+    payer_wallet_public_id String
+    payer_wallet_balance_id String
+    payer_previous_balance Decimal
+    payer_new_balance Decimal
+    payer_previous_held_balance Decimal
+    payer_new_held_balance Decimal
+    payer_previous_available_balance Decimal
+    payer_new_available_balance Decimal
+    receiver_finance_entity_id String
+    receiver_wallet_id String
+    receiver_wallet_public_id String
+    receiver_wallet_balance_id String
+    receiver_previous_balance Decimal
+    receiver_new_balance Decimal
+    coin_id String
+    final_cost Decimal
+    status String
+    idempotent_replay Bool = false
+}

@@ -1,0 +1,11 @@
+action MemoryRememberEvent {
+    """Remember a Reactivity event through the Memory service action rail."""
+
+    name "memory.remember_event";
+}
+
+action MemoryRecordResolvedEventMeaning {
+    """Persist one provider-neutral resolver result through Memory."""
+
+    name "memory.record_resolved_event_meaning";
+}

@@ -1,0 +1,9 @@
+// MemorySemantic projection
+//
+// Contract:
+// - Memory owns semantic-memory lanes and references Identity relationally.
+
+projection MemorySemantic {
+    root memory.MemorySemantic
+    memory.MemorySemantic::identity Identity
+}

@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
+import pytest
+
 from aware_history_ontology.change.change_enums import ChangeType
 from aware_meta_ontology.attribute.attribute_type_descriptor import (
     AttributeTypeDescriptor,
@@ -19,6 +21,8 @@ from aware_meta.graph.instance.builder import (
 from aware_meta.graph.instance.diff import (
     DeltaOp,
     _class_instance_seed_change,
+    build_class_instance_changes_from_iterables,
+    build_object_instance_graph_dirty_class_instance_changes,
     build_object_instance_graph_seed_changes,
     diff_object_instance_graph,
 )
@@ -36,6 +40,18 @@ from aware_meta.test_support import (
 
 def _primitive_desc() -> AttributeTypeDescriptor:
     return AttributeTypeDescriptor(kind=Kind.primitive, child_links=[])
+
+
+def _canonical_change_signature(value: object) -> object:
+    if isinstance(value, list):
+        return [_canonical_change_signature(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+    return {
+        key: _canonical_change_signature(item)
+        for key, item in value.items()
+        if key != "id" and not key.endswith("change_id")
+    }
 
 
 def test_class_instance_seed_change_dedupes_equivalent_attributes() -> None:
@@ -78,6 +94,156 @@ def test_class_instance_seed_change_dedupes_equivalent_attributes() -> None:
 
     assert len(change.attribute_changes) == 1
     assert change.attribute_changes[0].attribute_id == ci.attributes[0].id
+
+
+def test_iterable_class_instance_changes_match_dirty_graph_members_and_replay() -> None:
+    user_fqn = test_class_fqn("User")
+    name_cfg = make_attribute_config(
+        owner_key=user_fqn,
+        name="name",
+        is_required=True,
+        type_descriptor=_primitive_desc(),
+    )
+    user_cc = make_class_config(
+        "User", class_fqn=user_fqn, class_config_attribute_configs=[]
+    )
+    user_cc.class_config_attribute_configs = [
+        make_class_attribute_edge(
+            class_config_id=user_cc.id,
+            attribute_config=name_cfg,
+            name=name_cfg.name,
+            position=0,
+        )
+    ]
+
+    from aware_orm.models.base_model import BaseORMModel
+
+    class User(BaseORMModel):
+        name: str
+
+    graph_id = uuid4()
+    ocg_id = uuid4()
+    opg_id = uuid4()
+    oigi_id = uuid4()
+    updated_id = uuid4()
+    deleted_id = uuid4()
+    created_id = uuid4()
+    before_updated = build_class_instance(
+        object_instance_graph_id=graph_id,
+        class_config=user_cc,
+        source=User(id=updated_id, name="before"),
+    )
+    after_updated = build_class_instance(
+        object_instance_graph_id=graph_id,
+        class_config=user_cc,
+        source=User(id=updated_id, name="after"),
+    )
+    deleted = build_class_instance(
+        object_instance_graph_id=graph_id,
+        class_config=user_cc,
+        source=User(id=deleted_id, name="deleted"),
+    )
+    created = build_class_instance(
+        object_instance_graph_id=graph_id,
+        class_config=user_cc,
+        source=User(id=created_id, name="created"),
+    )
+    before = build_object_instance_graph_from_class_instances(
+        name="g",
+        description="d",
+        object_config_graph_id=ocg_id,
+        object_projection_graph_id=opg_id,
+        root_class_instance=before_updated,
+        class_instances=[before_updated, deleted],
+        class_instance_relationships=[],
+        oig_id=graph_id,
+    )
+    after = build_object_instance_graph_from_class_instances(
+        name="g",
+        description="d",
+        object_config_graph_id=ocg_id,
+        object_projection_graph_id=opg_id,
+        root_class_instance=after_updated,
+        class_instances=[after_updated, created],
+        class_instance_relationships=[],
+        oig_id=graph_id,
+    )
+    created_at = datetime(2026, 7, 10, tzinfo=timezone.utc)
+    dirty_roots = build_object_instance_graph_dirty_class_instance_changes(
+        old=before,
+        new=after,
+        object_instance_graph_identity_id=oigi_id,
+        dirty_class_instance_ids={
+            before_updated.id,
+            deleted.id,
+            created.id,
+        },
+        created_at=created_at,
+    )
+    iterable_changes = build_class_instance_changes_from_iterables(
+        graph=before,
+        old_class_instances=[before_updated, deleted],
+        new_class_instances=[after_updated, created],
+        object_instance_graph_identity_id=oigi_id,
+        created_at=created_at,
+    )
+
+    assert len(dirty_roots) == 1
+    assert [
+        _canonical_change_signature(change.model_dump(mode="json"))
+        for change in iterable_changes
+    ] == [
+        _canonical_change_signature(change.model_dump(mode="json"))
+        for change in dirty_roots[0].class_instance_changes
+    ]
+    assert [change.class_instance_id for change in iterable_changes] == sorted(
+        (before_updated.id, deleted.id, created.id), key=str
+    )
+
+    iterable_root = dirty_roots[0].model_copy(deep=True)
+    iterable_root.class_instance_changes = iterable_changes
+    candidate = before.model_copy(deep=True)
+    apply_object_instance_graph_changes(
+        graph=candidate,
+        changes=[iterable_root],
+        attribute_configs_by_id={name_cfg.id: name_cfg},
+        class_configs_by_id={user_cc.id: user_cc},
+    )
+    assert compute_hash(candidate, index=build_index(candidate)) == compute_hash(
+        after,
+        index=build_index(after),
+    )
+
+
+def test_iterable_class_instance_changes_reject_duplicate_ids() -> None:
+    from aware_orm.models.base_model import BaseORMModel
+
+    class User(BaseORMModel):
+        pass
+
+    class_instance_id = uuid4()
+    class_instance = build_class_instance(
+        object_instance_graph_id=uuid4(),
+        class_config=make_class_config("User", class_fqn=test_class_fqn("User")),
+        source=User(id=class_instance_id),
+    )
+    graph = build_object_instance_graph_from_class_instances(
+        name="g",
+        description="d",
+        object_config_graph_id=uuid4(),
+        object_projection_graph_id=uuid4(),
+        root_class_instance=class_instance,
+        class_instances=[class_instance],
+        class_instance_relationships=[],
+    )
+
+    with pytest.raises(ValueError, match="duplicate ClassInstance id"):
+        build_class_instance_changes_from_iterables(
+            graph=graph,
+            old_class_instances=[class_instance, class_instance.model_copy(deep=True)],
+            new_class_instances=[],
+            object_instance_graph_identity_id=uuid4(),
+        )
 
 
 def test_seed_changes_with_before_update_existing_attribute_value() -> None:

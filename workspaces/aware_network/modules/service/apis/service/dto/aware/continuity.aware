@@ -1,0 +1,56 @@
+/// Provider-neutral continuity observation shared by service participants.
+///
+/// This DTO is the common provenance and lifecycle envelope only. Participant
+/// APIs own their domain continuity state and pair it with this observation in
+/// their own typed response. Recovery decisions must not depend on an opaque
+/// JSON payload in this contract.
+
+enum ServiceContinuityStatus {
+    unknown
+    ready
+    degraded
+    blocked
+    unavailable
+}
+
+enum ServiceContinuityFreshness {
+    unknown
+    live
+    cached
+    stale
+}
+
+class ServiceContinuityBlocker {
+    code String
+    message String
+    source_ref String?
+    retryable Bool = false
+    retry_after DateTime?
+}
+
+class ServiceContinuityNextAction {
+    action_key String
+    title String
+    description String?
+    capability_ref String?
+    endpoint_ref String?
+    requires_live_authority Bool = true
+}
+
+class ServiceContinuityObservation {
+    observation_id UUID
+    schema_version String = "service.continuity.observation.v1"
+    participant_ref String
+    service_package_ref String
+    continuity_contract_ref String
+    status continuity.ServiceContinuityStatus = unknown
+    freshness continuity.ServiceContinuityFreshness = unknown
+    observed_at DateTime
+    valid_until DateTime?
+    source_revision_ref String?
+    authority_id String?
+    authority_generation_id String?
+    observation_receipt_ref String?
+    blockers continuity.ServiceContinuityBlocker[] = []
+    next_actions continuity.ServiceContinuityNextAction[] = []
+}

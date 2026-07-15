@@ -1,0 +1,146 @@
+/// Canonical DTOs for Attention-owned section focus-scope observable state.
+///
+/// Ownership:
+/// - Attention API owns the stable transport DTO boundary.
+/// - Attention runtime/service own the committed section -> focus_scope -> observable truth.
+/// - Interface later consumes this boundary and resolves experience views + panes on top.
+///
+/// SSOT: `attention-service-dto` generated from `workspaces/aware_network/modules/attention/apis/attention/dto`.
+
+class AttentionSectionFocusTarget {
+    /// Canonical token values:
+    /// - "constructor": branchless focus over projection identity.
+    /// - "materialized": focus has a committed ObjectInstanceGraphBranch.
+    kind String = "constructor"
+    focus_id UUID?
+    focus_scope_id UUID?
+    object_projection_graph_identity_id UUID
+    object_instance_graph_branch_id UUID?
+    projection_hash String?
+    target_type String?
+    target_id UUID?
+    description String?
+}
+
+class AttentionSectionSnapshot {
+    section_id UUID
+    section_key String
+    section_title String?
+    section_description String?
+    exists Bool = false
+    section_focus_scope_id UUID?
+    focus_scope_id UUID?
+    focus_scope_title String?
+    focus_scope_description String?
+    focus_id UUID?
+    observable_id UUID?
+    focus_target AttentionSectionFocusTarget?
+    is_active Bool = false
+}
+
+/// Commit pointer observed while one Attention focus scope was active.
+///
+/// This intentionally carries only graph commit pointers. Observation time is the
+/// create commit time of the underlying FocusScopeCommit object, not a DTO scalar.
+class AttentionFocusScopeCommitPin {
+    focus_scope_commit_id UUID
+    focus_scope_id UUID
+    focus_id UUID
+    object_instance_graph_commit_id UUID
+}
+
+/// One section request inside a bundle-backed runtime mount snapshot read.
+class AttentionRuntimeMountSectionRequest {
+    layout_config_section_config_id UUID?
+    layout_section_id UUID?
+    section_id UUID?
+    section_key String
+    title String?
+    description String?
+    order Int?
+    flex Float?
+    is_visible Bool?
+    default_observable_id UUID?
+    default_rationale String?
+}
+
+/// One layout candidate inside a bundle-backed runtime mount read.
+class AttentionRuntimeMountLayoutRequest {
+    layout_config_id UUID?
+    layout_id UUID?
+    layout_key String
+    is_default Bool = false
+    sections AttentionRuntimeMountSectionRequest[] = []
+}
+
+/// Runtime layout-section truth for one Attention-selected layout section.
+class AttentionRuntimeLayoutSectionState {
+    source_kind String = "runtime_mount_request"
+    layout_config_id UUID?
+    layout_id UUID?
+    layout_config_section_config_id UUID?
+    layout_section_id UUID?
+    attention_session_section_id UUID?
+    section_id UUID?
+    section_key String
+    title String?
+    description String?
+    order Int = 0
+    flex Float = 1.0
+    weight_micros Int?
+    is_visible Bool = true
+    is_collapsed Bool = false
+}
+
+/// Environment-owned runtime target that Attention must echo when resolving focus.
+///
+/// This is a service/API DTO copy of Environment runtime receipt truth. Attention uses it
+/// only to bind focus reads to a concrete Environment Process/Thread/ThreadLayout target;
+/// it does not mutate Environment and does not import Environment runtime internals.
+class AttentionEnvironmentRuntimeTarget {
+    environment_id UUID
+    environment_experience_profile_id UUID?
+    environment_experience_profile_mount_id UUID?
+    mount_key String?
+    topology_seed_key String?
+    process_config_id UUID?
+    process_key String?
+    process_id UUID?
+    thread_config_id UUID?
+    thread_key String?
+    thread_id UUID?
+    thread_layout_config_id UUID?
+    layout_key String?
+    layout_config_id UUID?
+    layout_id UUID?
+    thread_layout_id UUID?
+    activate_on_seed Bool = false
+    status String?
+}
+
+/// Batch snapshot of section-scoped Attention state for one Attention-selected runtime layout.
+class AttentionRuntimeMountSnapshot {
+    window_key String?
+    environment_target AttentionEnvironmentRuntimeTarget?
+    attention_session_id UUID?
+    attention_session_layout_id UUID?
+    layout_config_id UUID?
+    layout_id UUID?
+    layout_key String?
+    active_section_key String?
+    active_observable_id UUID?
+    active_layout_transition attention.session.AttentionLayoutTransitionPin?
+    active_layout_topology_transition attention.session.AttentionLayoutTopologyTransitionPin?
+    /// Full stable admitted catalog. Unlike `layout_sections`, these rows are
+    /// not filtered by the active topology transition.
+    admitted_layout_sections AttentionRuntimeLayoutSectionState[] = []
+    /// Active ordered membership after topology and geometry overlays.
+    layout_sections AttentionRuntimeLayoutSectionState[] = []
+    section_snapshots AttentionSectionSnapshot[] = []
+}
+
+/// One streamed runtime-mount snapshot event emitted by the Attention service.
+class AttentionRuntimeMountSnapshotEvent {
+    kind String = "snapshot"
+    runtime_mount AttentionRuntimeMountSnapshot
+}

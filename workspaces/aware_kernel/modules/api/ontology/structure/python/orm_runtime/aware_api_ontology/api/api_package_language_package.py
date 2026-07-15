@@ -22,11 +22,13 @@ from aware_types import JsonArray
 
 if TYPE_CHECKING:
     from aware_code_ontology.package.code_package import CodePackage
+    from aware_meta_ontology.graph.instance.object_instance_graph_commit import ObjectInstanceGraphCommit
 
 
 class ApiPackageLanguagePackage(ORMModel):
     # Relationships
     code_package: CodePackage | None = Field(default=None)
+    object_instance_graph_commit: ObjectInstanceGraphCommit | None = Field(default=None)
 
     # Attributes
     exclude_paths: JsonArray = Field(default_factory=JsonArray)
@@ -42,6 +44,9 @@ class ApiPackageLanguagePackage(ORMModel):
     # Foreign Keys
     api_package_id: UUID = Field(description="Foreign key for ApiPackage.language_packages")
     code_package_id: UUID = Field(description="Foreign key for ApiPackageLanguagePackage.code_package")
+    object_instance_graph_commit_id: UUID = Field(
+        description="Foreign key for ApiPackageLanguagePackage.object_instance_graph_commit"
+    )
 
     @classmethod
     async def build_via_api_package(
@@ -52,6 +57,7 @@ class ApiPackageLanguagePackage(ORMModel):
         language: CodeLanguage,
         import_root: str,
         manifest_relative_path: str,
+        object_instance_graph_commit_id: UUID,
         package_root: str = ".",
         role: str = "public_package",
         output_key: str = "python.public_package",
@@ -65,6 +71,8 @@ class ApiPackageLanguagePackage(ORMModel):
         - Parent `ApiPackage` scope is injected by propagation.
         - Identity is keyed by the attached generated CodePackage.
         - The payload is the canonical import/install contract for API consumers.
+        - `object_instance_graph_commit_id` is the exact WorkspaceRevision/Hub
+          replay pin for the generated CodePackage.
         - Consumers must not infer API generated packages from local layout or
           `aware.api.toml` target JSON alone.
         """
@@ -76,6 +84,7 @@ class ApiPackageLanguagePackage(ORMModel):
             "language": language,
             "import_root": import_root,
             "manifest_relative_path": manifest_relative_path,
+            "object_instance_graph_commit_id": object_instance_graph_commit_id,
             "package_root": package_root,
             "role": role,
             "output_key": output_key,
@@ -96,6 +105,7 @@ class ApiPackageLanguagePackageBuildViaApiPackageInput(BaseModel):
     language: CodeLanguage
     import_root: str
     manifest_relative_path: str
+    object_instance_graph_commit_id: UUID
     package_root: str = Field(default=".")
     role: str = Field(default="public_package")
     output_key: str = Field(default="python.public_package")
@@ -112,7 +122,7 @@ FUNCTIONS = {
         "build_via_api_package": {
             "canonical": {
                 "name": "build_via_api_package",
-                "description": "Create one API-owned generated language package declaration.\n\nContract:\n- Parent `ApiPackage` scope is injected by propagation.\n- Identity is keyed by the attached generated CodePackage.\n- The payload is the canonical import/install contract for API consumers.\n- Consumers must not infer API generated packages from local layout or\n  `aware.api.toml` target JSON alone.",
+                "description": "Create one API-owned generated language package declaration.\n\nContract:\n- Parent `ApiPackage` scope is injected by propagation.\n- Identity is keyed by the attached generated CodePackage.\n- The payload is the canonical import/install contract for API consumers.\n- `object_instance_graph_commit_id` is the exact WorkspaceRevision/Hub\n  replay pin for the generated CodePackage.\n- Consumers must not infer API generated packages from local layout or\n  `aware.api.toml` target JSON alone.",
                 "is_constructor": True,
             },
             "input": ApiPackageLanguagePackageBuildViaApiPackageInput,

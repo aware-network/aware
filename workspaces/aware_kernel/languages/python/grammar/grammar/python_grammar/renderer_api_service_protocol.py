@@ -32,6 +32,7 @@ from aware_meta_ontology.function.function_config import FunctionConfig
 from aware_meta_ontology.function.function_config_enums import FunctionAttributeType
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
 from aware_utils.string_transform import to_pascal_case, to_snake_case
+from aware_types import canonical_decimal_text
 
 
 API_SERVICE_PROTOCOL_SECTION_TEXT_MANIFEST_CONTRACT_VERSION = (
@@ -410,6 +411,12 @@ def render_python_api_service_protocol_sections(
     lines.append("from dataclasses import dataclass")
     typing_imports = ["Final", "Protocol", "TypeAlias", "cast"]
     if any(
+        "Annotated[" in field.type_annotation
+        for model in execution_models_for_imports
+        for field in model.fields
+    ):
+        typing_imports.insert(0, "Annotated")
+    if any(
         "Any" in field.type_annotation
         for model in execution_models_for_imports
         for field in model.fields
@@ -422,6 +429,12 @@ def render_python_api_service_protocol_sections(
         for field in model.fields
     ):
         lines.append("from uuid import UUID")
+    if any(
+        "Decimal" in field.type_annotation
+        for model in execution_models_for_imports
+        for field in model.fields
+    ):
+        lines.append("from decimal import Decimal")
     lines.append("")
     pydantic_imports = ["BaseModel"]
     if any(
@@ -1692,6 +1705,7 @@ def _collect_aware_type_imports(
                         .split()
                     }
                     for symbol in (
+                        "DecimalWire",
                         "Json",
                         "JsonArray",
                         "JsonObject",
@@ -1983,6 +1997,8 @@ def _render_default_literal(
             return f"Field(default={json.dumps(str(value))})"
         if primitive_type.base_type == CodePrimitiveBaseType.boolean:
             return f"Field(default={'True' if bool(value) else 'False'})"
+        if primitive_type.base_type == CodePrimitiveBaseType.decimal:
+            return f"Field(default=Decimal({canonical_decimal_text(value)!r}))"
         return f"Field(default={value!r})"
     return f"Field(default={value!r})"
 
@@ -1996,6 +2012,8 @@ def _render_primitive_type(base_type: CodePrimitiveBaseType) -> str:
         return "int"
     if base_type == CodePrimitiveBaseType.float:
         return "float"
+    if base_type == CodePrimitiveBaseType.decimal:
+        return "Annotated[Decimal, DecimalWire()]"
     if base_type == CodePrimitiveBaseType.uuid:
         return "UUID"
     if base_type == CodePrimitiveBaseType.json:

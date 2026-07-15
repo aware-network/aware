@@ -1,0 +1,1570 @@
+/// Canonical environment operation DTOs (transport-layer, graph/ORM agnostic).
+///
+/// SSOT: `environment-service-dto` generated from `apis/environment/dto`.
+///
+/// `aware_comms` re-exports these DTOs for transport/service import stability,
+/// but schema ownership remains here so all language targets compile from one rail.
+
+class EnvironmentOperationContext {
+    // Attributes
+    actor_id UUID?
+    environment_id UUID
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    projection_hash String?
+}
+
+/// Context for environment notifications (fan-out).
+///
+/// Notifications may be emitted by commit stores and transport layers that do not
+/// have a full EnvironmentOperationContext. The lane key is still canonical.
+class EnvironmentOperationNotificationContext {
+    // Attributes
+    actor_id UUID?
+    environment_id UUID?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID
+    projection_hash String
+}
+
+/// EnvironmentOperation is either a request or a response.
+class EnvironmentOperation {
+    request EnvironmentOperationRequest?
+    response EnvironmentOperationResponse?
+    notification EnvironmentOperationNotification?
+}
+
+// Envelope XOR constraints (SSOT via annotations; no name-based inference in renderers).
+ann environment.EnvironmentOperation oneof request response notification
+
+/// Request union base (operation + context).
+class EnvironmentOperationRequest augment environment.EnvironmentOperationContext {
+    operation String
+}
+
+/// Response union base (operation + context).
+class EnvironmentOperationResponse augment environment.EnvironmentOperationContext {
+    operation String
+}
+
+/// Notification union base (operation + context).
+///
+/// Used for commit receipts / lane head moves so clients can sync lanes without
+/// inferring from unrelated transports (e.g., inference streams).
+class EnvironmentOperationNotification augment environment.EnvironmentOperationNotificationContext {
+    operation String
+}
+
+enum InvokeFunctionCallTarget {
+    instance
+    opg_constructor
+}
+
+class FetchCapabilitiesRequest augment environment.EnvironmentOperationRequest {
+    operation String = "fetch_capabilities"
+}
+
+/// Describe the hosted EnvironmentConfig (template/map) for this ENVIRONMENT service.
+///
+/// This does NOT describe a provisioned environment instance (territory). Use
+/// `DescribeEnvironmentRequest` for the territory instance.
+class DescribeEnvironmentConfigRequest augment environment.EnvironmentOperationRequest {
+    operation String = "describe_environment_config"
+}
+
+/// Describe a provisioned Environment instance (territory) and its boot/lane pointers.
+class DescribeEnvironmentRequest augment environment.EnvironmentOperationRequest {
+    operation String = "describe_environment"
+}
+
+/// Describe the provisioned environment OS topology (Process/Thread) and the
+/// attached domain lanes per thread (ThreadObjectInstanceGraphBranch).
+///
+/// Purpose:
+/// - Deterministic lane discovery for agents/CLIs (no guessing from UI titles).
+/// - Interface-parity bootstrap for (process_key, thread_key) -> lane list.
+class DescribeEnvironmentTopologyRequest augment environment.EnvironmentOperationRequest {
+    operation String = "describe_environment_topology"
+    /// Optional filter by canonical Process key (stable-id input).
+    process_key String?
+    /// Optional filter by canonical Thread key (stable-id input).
+    thread_key String?
+}
+
+/// Describe canonical environment status envelope for local/remote parity.
+///
+/// Contract:
+/// - One payload shape for both local and remote providers.
+/// - Blocks must declare authority kind explicitly.
+/// - `strict_commit_truth=true` refuses when commit truth cannot be resolved.
+class DescribeEnvironmentStatusRequest augment environment.EnvironmentOperationRequest {
+    operation String = "describe_environment_status"
+    /// Optional block filter (`environment_interface`, `local_workspace`, `issue`, `runtime`, `commit_truth`).
+    include_blocks String[] = []
+    /// When true, missing commit-truth authority is a refusal.
+    strict_commit_truth Bool = false
+}
+
+class EnsureReadyRequest augment environment.EnvironmentOperationRequest {
+    operation String = "ensure_ready"
+}
+
+class GetLaneHeadRequest augment environment.EnvironmentOperationRequest {
+    operation String = "get_lane_head"
+}
+
+class GetObjectInstanceGraphCommitRequest augment environment.EnvironmentOperationRequest {
+    operation String = "get_object_instance_graph_commit"
+    commit_id UUID
+}
+
+/// Materialize one committed projection root as an ontology DTO snapshot.
+///
+/// V0 verifier contract:
+/// - Caller must provide an explicit `(branch_id, projection_hash, commit_id)`.
+/// - Runtime must not resolve DTO classes from caller paths or repo-local imports.
+/// - Runtime may return `dto_runtime_artifact_unavailable` until the deploy
+///   contract declares a pinned DTO artifact/package closure for the requested
+///   DTO target.
+class MaterializeCommittedProjectionDtoRequest augment environment.EnvironmentOperationRequest {
+    operation String = "materialize_committed_projection_dto"
+    commit_id UUID
+    expected_graph_hash_post String?
+    object_instance_graph_id UUID?
+    root_object_id UUID?
+    use_commit_root Bool = true
+    dto_class_ref String?
+    class_config_id UUID?
+    dto_package_name String?
+    dto_import_root String?
+    view_ref String?
+    projection_view_key String?
+    include_relationships Bool = true
+    max_depth Int?
+}
+
+class ResolveRuntimeFunctionTargetQuery {
+    query_key String?
+    function_ref String
+    call_target InvokeFunctionCallTarget = instance
+    projection_hash_hint String?
+}
+
+class ResolveRuntimeClassRefQuery {
+    query_key String?
+    class_ref String
+}
+
+class ResolveRuntimeRefsRequest augment environment.EnvironmentOperationRequest {
+    operation String = "resolve_runtime_refs"
+    function_targets ResolveRuntimeFunctionTargetQuery[] = []
+    class_refs ResolveRuntimeClassRefQuery[] = []
+}
+
+/// Install live service-to-service API dependency routes into this Environment.
+///
+/// Node sends this after it binds selected ServicePackage required/provided
+/// ApiPackage truth to concrete provider ServiceHost endpoints. The payload
+/// uses the shared route descriptor JSON contract; Environment must not infer
+/// providers from source manifests.
+class ConfigureServiceApiDependencyRoutesRequest augment environment.EnvironmentOperationRequest {
+    operation String = "configure_service_api_dependency_routes"
+    routes JsonArray = []
+}
+
+/// Admit an actor to a concrete EnvironmentProfile using Identity-owned ActorConfig
+/// eligibility.
+///
+/// Contract:
+/// - Environment owns the admission scope and EnvironmentProfile -> ActorConfig
+///   eligibility check.
+/// - Identity owns concrete RoleAssignment/ActorRole truth.
+/// - This operation grants no Experience access and does not infer Experience
+///   participation.
+class AdmitEnvironmentActorRequest augment environment.EnvironmentOperationRequest {
+    operation String = "admit_actor"
+    request_id UUID?
+    environment_profile_id UUID
+    actor_config_id UUID
+    class_instance_identity_id UUID
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+    requested_role_config_ids UUID[] = []
+    requested_role_config_names String[] = []
+    reason String?
+    evidence JsonObject = {}
+}
+
+class InvokeFunctionRequest augment environment.EnvironmentOperationRequest {
+    operation String = "invoke_function"
+    /// Lane addressing (canonical):
+    /// - `branch_id` (in EnvironmentOperationContext) is REQUIRED for `call_target=instance`.
+    /// - `branch_id` MAY be omitted for `call_target=opg_constructor` (runtime allocates and returns it).
+    ///
+    /// The lane key is `(branch_id, projection_hash)`; runtime must not guess `branch_id` from env/thread.
+    call_target InvokeFunctionCallTarget = instance
+    object_id UUID?
+    object_projection_graph_id UUID?
+    /// Resolved ObjectProjectionGraphIdentity for this call target when known.
+    ///
+    /// Environment does not need this to invoke Meta, but consumers such as
+    /// Attention need it to bind committed focus to the same projection identity
+    /// without subscribing to Meta directly.
+    object_projection_graph_identity_id UUID?
+    function_id UUID
+    args JsonArray = []
+    kwargs JsonObject = {}
+    expected_graph_hash_pre String?
+    expected_head_commit_id UUID?
+    commit Bool = true
+    publish Bool = false
+}
+
+class CapabilityArgument {
+    id UUID
+    name String
+    direction String?
+    type String?
+    required Bool = true
+    default JsonValue?
+    enum JsonArray?
+    description String?
+}
+
+class CapabilityFunction {
+    id UUID
+    name String
+    summary String?
+    role_id UUID?
+    is_constructor Bool = false
+    inputs CapabilityArgument[]
+    outputs CapabilityArgument[]
+    arguments CapabilityArgument[]
+}
+
+class CapabilityRole {
+    id UUID
+    name String
+    description String?
+    metadata JsonObject = {}
+    functions CapabilityFunction[]
+}
+
+class CapabilityObject {
+    id UUID
+    name String
+    description String?
+    functions CapabilityFunction[]
+}
+
+class FetchCapabilitiesResponse augment environment.EnvironmentOperationResponse {
+    operation String = "fetch_capabilities"
+    roles CapabilityRole[]
+    functions CapabilityFunction[]
+    objects CapabilityObject[]
+}
+
+class ResolvedRuntimeFunctionTarget {
+    query_key String?
+    status String
+    error String?
+    function_ref String
+    call_target InvokeFunctionCallTarget = instance
+    class_config_id UUID?
+    class_name String?
+    class_fqn String?
+    class_config_function_config_id UUID?
+    function_id UUID?
+    function_name String?
+    projection_hash String?
+    object_projection_graph_id UUID?
+    object_projection_graph_identity_id UUID?
+    candidate_projection_hashes String[] = []
+    evidence JsonObject = {}
+}
+
+class ResolvedRuntimeClassRef {
+    query_key String?
+    status String
+    error String?
+    class_ref String
+    class_config_id UUID?
+    class_name String?
+    class_fqn String?
+    evidence JsonObject = {}
+}
+
+class ResolveRuntimeRefsResponse augment environment.EnvironmentOperationResponse {
+    operation String = "resolve_runtime_refs"
+    status String
+    error String?
+    function_targets ResolvedRuntimeFunctionTarget[] = []
+    class_refs ResolvedRuntimeClassRef[] = []
+    evidence JsonObject = {}
+}
+
+class ConfigureServiceApiDependencyRoutesResponse augment environment.EnvironmentOperationResponse {
+    operation String = "configure_service_api_dependency_routes"
+    status String = "succeeded"
+    error String?
+    route_count Int = 0
+    route_consumers_started Bool = false
+}
+
+/// Environment-owned membership pointer to one Ontology authority.
+///
+/// Contract:
+/// - This is not an OIG/OIGI inventory view.
+/// - OIGI discovery remains behind the linked Ontology authority.
+/// - Commit fields are mutation/read receipts for the Environment lane only.
+class EnvironmentOntologyMembership {
+    environment_ontology_id UUID?
+    ontology_id UUID
+    role String = "runtime"
+    status String = "active"
+    title String?
+    description String?
+    commit_id UUID?
+    graph_hash_post String?
+    evidence JsonObject = {}
+}
+
+/// Attach one Ontology authority to an existing stable Environment.
+///
+/// Contract:
+/// - Mutates `Environment.ontologies` through the Environment projection lane.
+/// - Service implementation must route the mutation through Ontology graph
+///   authority; no service-local registry is allowed.
+/// - Does not accept or persist OIG/OIGI membership or OIG commit pins.
+class AttachEnvironmentOntologyRequest augment environment.EnvironmentOperationRequest {
+    operation String = "attach_environment_ontology"
+    ontology_id UUID
+    role String = "runtime"
+    status String = "active"
+    title String?
+    description String?
+    expected_graph_hash_pre String?
+    expected_head_commit_id UUID?
+    commit Bool = true
+    publish Bool = false
+}
+
+class AttachEnvironmentOntologyResponse augment environment.EnvironmentOperationResponse {
+    operation String = "attach_environment_ontology"
+    status String
+    error String?
+    membership EnvironmentOntologyMembership?
+    commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_pre String?
+    graph_hash_post String?
+    evidence JsonObject = {}
+}
+
+/// Resolve and register an Ontology-owned runtime artifact set for this running
+/// Environment.
+///
+/// Contract:
+/// - This does not create Environment/Ontology membership. Use
+///   `attach_environment_ontology` for commit truth first.
+/// - Runtime artifacts are resolved through Ontology service authority.
+/// - Environment owns only an activation/availability registry over returned
+///   artifact-set descriptors; Ontology remains artifact provenance authority.
+class EnsureEnvironmentOntologyRuntimeRequest augment environment.EnvironmentOperationRequest {
+    operation String = "ensure_environment_ontology_runtime"
+    ontology_id UUID?
+    package_name String?
+    fqn_prefix String?
+    artifact_set_id String?
+    workspace_revision_id String?
+    materialization_ref String?
+    include_artifacts Bool = true
+    source_payload JsonObject?
+    membership_commit_id UUID?
+}
+
+class EnsureEnvironmentOntologyRuntimeResponse augment environment.EnvironmentOperationResponse {
+    operation String = "ensure_environment_ontology_runtime"
+    status String
+    error String?
+    ontology_id UUID?
+    package_name String?
+    fqn_prefix String?
+    artifact_set_id String?
+    runtime_projection_descriptor_count Int = 0
+    capability_object_count Int = 0
+    capability_function_count Int = 0
+    registered_artifact_ref_count Int = 0
+    registry_artifact_ref_count Int = 0
+    membership_commit_id UUID?
+    evidence JsonObject = {}
+}
+
+/// List Environment-owned Ontology memberships from a committed Environment DTO.
+///
+/// Contract:
+/// - Returns only `EnvironmentOntology` membership pointers.
+/// - Does not expand Ontology-owned OIGI inventory.
+class ListEnvironmentOntologiesRequest augment environment.EnvironmentOperationRequest {
+    operation String = "list_environment_ontologies"
+    commit_id UUID?
+    root_object_id UUID?
+    expected_graph_hash_post String?
+    dto_class_ref String? = "aware_environment_ontology_dto.environment.environment.Environment"
+    dto_package_name String? = "environment-ontology-dto"
+    dto_import_root String? = "aware_environment_ontology_dto"
+}
+
+class ListEnvironmentOntologiesResponse augment environment.EnvironmentOperationResponse {
+    operation String = "list_environment_ontologies"
+    status String
+    error String?
+    memberships EnvironmentOntologyMembership[] = []
+    commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+    evidence JsonObject = {}
+}
+
+class EnvironmentProfileProjectionSpec {
+    /// Canonical OPG identity key (`{ocg_fqn_prefix}:{projection_name}`).
+    object_projection_graph_ref String
+    view_key String?
+    narrative String?
+    intent String?
+    position Int? = null
+    is_default Bool = false
+}
+
+class EnvironmentProfileLayoutSectionSpec {
+    /// Stable section key under the selected Attention LayoutConfig.
+    section_key String
+    /// Optional direct Attention LayoutConfigSectionConfig id.
+    layout_config_section_config_id UUID?
+    /// Optional OPG ref hosted in this section.
+    object_projection_graph_ref String?
+    view_key String?
+    key String?
+    position Int? = null
+    is_default Bool = false
+    narrative String?
+    intent String?
+}
+
+class EnvironmentProfileLayoutConfigSpec {
+    /// Canonical Attention LayoutConfig key.
+    layout_key String?
+    /// Optional direct Attention LayoutConfig id.
+    layout_config_id UUID?
+    /// Optional stable association key under the ThreadConfig.
+    key String?
+    position Int? = null
+    narrative String?
+    intent String?
+    sections EnvironmentProfileLayoutSectionSpec[] = []
+}
+
+class EnvironmentProfileThreadConfigSpec {
+    /// Reusable ThreadConfig key under the target ProcessConfig.
+    key String
+    title String?
+    description String?
+    workspace_view_key String?
+    position Int? = null
+    is_default Bool = false
+    narrative String?
+    intent String?
+    state_prompt_template String?
+    projection_refs EnvironmentProfileProjectionSpec[] = []
+    layout_configs EnvironmentProfileLayoutConfigSpec[] = []
+}
+
+class EnvironmentProfileProcessConfigSpec {
+    /// Reusable ProcessConfig key under the profile.
+    key String
+    type String
+    title String?
+    description String?
+    shape String?
+    position Int? = null
+    is_default Bool = false
+    narrative String?
+    intent String?
+    thread_configs EnvironmentProfileThreadConfigSpec[] = []
+}
+
+class EnvironmentProfileTopologyLayoutSeedSpec {
+    /// Must reference a layout candidate declared in the selected ThreadConfig.
+    layout_key String
+    key String?
+    position Int? = null
+    activate_on_seed Bool = false
+    narrative String?
+    intent String?
+}
+
+class EnvironmentProfileTopologyThreadSeedSpec {
+    /// Must reference a ThreadConfig key under the selected ProcessConfig.
+    thread_config_key String
+    /// Runtime Thread.key for this concrete seed instance.
+    thread_key String
+    key String?
+    title String?
+    description String?
+    position Int? = null
+    is_main Bool = false
+    narrative String?
+    intent String?
+    layout_seeds EnvironmentProfileTopologyLayoutSeedSpec[] = []
+}
+
+class EnvironmentProfileTopologyProcessSeedSpec {
+    /// Must reference a ProcessConfig key under the selected profile.
+    process_config_key String
+    /// Runtime Process.key for this concrete seed instance.
+    process_key String
+    key String?
+    title String?
+    description String?
+    position Int? = null
+    narrative String?
+    intent String?
+    thread_seeds EnvironmentProfileTopologyThreadSeedSpec[] = []
+}
+
+class EnvironmentProfileTopologySeedSpec {
+    key String
+    title String?
+    description String?
+    narrative String?
+    process_seeds EnvironmentProfileTopologyProcessSeedSpec[] = []
+}
+
+class EnvironmentProfileRuntimeMountReceipt {
+    environment_id UUID
+    environment_profile_id UUID
+    topology_seed_key String
+    process_config_id UUID?
+    process_key String
+    process_id UUID
+    thread_config_id UUID?
+    thread_key String
+    thread_id UUID
+    thread_layout_config_id UUID?
+    layout_key String?
+    layout_config_id UUID?
+    layout_id UUID?
+    thread_layout_id UUID?
+    activate_on_seed Bool = false
+    status String = "succeeded"
+}
+
+class EnvironmentProfileInstallSpec {
+    key String?
+    title String?
+    description String?
+    narrative String?
+    process_configs EnvironmentProfileProcessConfigSpec[] = []
+}
+
+class UpsertEnvironmentProfileRequest augment environment.EnvironmentOperationRequest {
+    operation String = "upsert_environment_profile"
+    /// Optional hosted EnvironmentConfig override.
+    ///
+    /// Contract:
+    /// - Normal hosted service calls omit this and Environment service resolves
+    ///   the EnvironmentConfig from its own runtime artifact set.
+    /// - Test/tool callers may provide it to validate deterministic profile
+    ///   config IDs without making Interface own EnvironmentConfig truth.
+    environment_config_id UUID?
+    profile EnvironmentProfileInstallSpec
+    topology_seeds EnvironmentProfileTopologySeedSpec[] = []
+    validate_only Bool = false
+}
+
+class UpsertEnvironmentProfileResponse augment environment.EnvironmentOperationResponse {
+    operation String = "upsert_environment_profile"
+    status String
+    error String?
+    environment_config_id UUID?
+    environment_profile_config_id UUID?
+    environment_profile_id UUID?
+    process_config_ids UUID[] = []
+    thread_config_ids UUID[] = []
+    thread_projection_association_ids UUID[] = []
+    thread_layout_config_ids UUID[] = []
+    topology_seed_ids UUID[] = []
+    topology_process_seed_ids UUID[] = []
+    topology_thread_seed_ids UUID[] = []
+    topology_thread_layout_seed_ids UUID[] = []
+}
+
+class ProvisionEnvironmentProfileRequest augment environment.EnvironmentOperationRequest {
+    operation String = "provision_environment_profile"
+    environment_profile_id UUID?
+    topology_seed_key String
+    validate_only Bool = false
+}
+
+class ProvisionEnvironmentProfileResponse augment environment.EnvironmentOperationResponse {
+    operation String = "provision_environment_profile"
+    status String
+    error String?
+    environment_profile_id UUID?
+    process_ids UUID[] = []
+    thread_ids UUID[] = []
+    thread_layout_ids UUID[] = []
+    runtime_mounts EnvironmentProfileRuntimeMountReceipt[] = []
+}
+
+class EnvironmentActorAdmissionRoleEligibility {
+    environment_profile_actor_config_id UUID
+    actor_config_role_config_id UUID
+    role_config_id UUID
+    role_config_name String?
+}
+
+class EnvironmentActorAdmissionRoleBinding {
+    environment_profile_actor_config_id UUID
+    actor_config_role_config_id UUID
+    role_config_id UUID
+    role_config_name String?
+    actor_id UUID
+    role_id UUID
+    actor_role_id UUID
+    role_class_instance_id UUID
+    class_instance_identity_id UUID
+    role_config_class_config_id UUID
+    object_instance_graph_identity_id UUID
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+}
+
+class EnvironmentActorAdmissionReceipt {
+    accepted Bool = false
+    status String
+    error String?
+    reason String?
+    actor_id UUID?
+    environment_id UUID
+    environment_profile_id UUID
+    environment_profile_actor_config_id UUID?
+    actor_config_id UUID?
+    class_instance_identity_id UUID?
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+    requested_role_config_ids UUID[] = []
+    requested_role_config_names String[] = []
+    eligible_roles EnvironmentActorAdmissionRoleEligibility[] = []
+    bindings EnvironmentActorAdmissionRoleBinding[] = []
+    blockers String[] = []
+    evidence JsonObject = {}
+}
+
+class AdmitEnvironmentActorResponse augment environment.EnvironmentOperationResponse {
+    operation String = "admit_actor"
+    request_id UUID?
+    accepted Bool = false
+    status String
+    error String?
+    receipt EnvironmentActorAdmissionReceipt
+    evidence JsonObject = {}
+}
+
+/// Start a shared EnvironmentSession after accepted Environment admission.
+///
+/// Contract:
+/// - Admission receipt is required and must match actor/environment/profile.
+/// - Creates or resolves a session under the EnvironmentProfile and joins the
+///   admitted actor as a member.
+/// - Resolves the Environment-owned default navigation context only when
+///   `resolve_default_navigation_context` is true.
+/// - Callers never supply Process/Thread defaults through this operation.
+class StartEnvironmentSessionRequest augment environment.EnvironmentOperationRequest {
+    operation String = "start_environment_session"
+    request_id UUID?
+    environment_profile_id UUID
+    environment_session_config_id UUID
+    admission_receipt EnvironmentActorAdmissionReceipt
+    session_key String
+    title String?
+    description String?
+    purpose String?
+    source_kind String?
+    source_ref String?
+    resolve_default_navigation_context Bool = false
+    metadata JsonObject = {}
+}
+
+/// Join an existing shared EnvironmentSession after accepted Environment admission.
+///
+/// Contract:
+/// - Admission receipt is required and must match actor/environment/profile.
+/// - Resolves the Environment-owned default navigation context only when
+///   `resolve_default_navigation_context` is true.
+/// - Callers never supply Process/Thread defaults through this operation.
+class JoinEnvironmentSessionRequest augment environment.EnvironmentOperationRequest {
+    operation String = "join_environment_session"
+    request_id UUID?
+    environment_profile_id UUID
+    environment_session_id UUID
+    admission_receipt EnvironmentActorAdmissionReceipt
+    reason String?
+    resolve_default_navigation_context Bool = false
+    metadata JsonObject = {}
+}
+
+/// Describe a shared EnvironmentSession.
+///
+/// Contract:
+/// - Read model only; does not grant admission or navigation.
+class DescribeEnvironmentSessionRequest augment environment.EnvironmentOperationRequest {
+    operation String = "describe_environment_session"
+    environment_session_id UUID
+}
+
+class EnvironmentSessionIdentityEvidence {
+    identity_session aware_identity_service_dto.session.SessionSummary?
+    identity_member aware_identity_service_dto.session.SessionMemberSummary?
+    identity_actor_roles aware_identity_service_dto.session.SessionMemberActorRoleSummary[] = []
+    evidence JsonObject = {}
+}
+
+class EnvironmentSessionView {
+    environment_session_id UUID
+    environment_session_config_id UUID?
+    identity_session_id UUID?
+    identity_session aware_identity_service_dto.session.SessionSummary?
+    environment_id UUID
+    environment_profile_id UUID
+    session_key String
+    title String?
+    description String?
+    purpose String?
+    status String = "active"
+    created_by_actor_id UUID?
+    source_kind String?
+    source_ref String?
+    evidence JsonObject = {}
+}
+
+class EnvironmentSessionJoinReceipt {
+    accepted Bool = false
+    status String
+    error String?
+    reason String?
+    actor_id UUID?
+    environment_id UUID
+    environment_profile_id UUID
+    environment_session_id UUID?
+    environment_session_key String?
+    identity_evidence EnvironmentSessionIdentityEvidence?
+    blockers String[] = []
+    evidence JsonObject = {}
+}
+
+class StartEnvironmentSessionResponse augment environment.EnvironmentOperationResponse {
+    operation String = "start_environment_session"
+    request_id UUID?
+    accepted Bool = false
+    status String
+    error String?
+    session EnvironmentSessionView?
+    join_receipt EnvironmentSessionJoinReceipt
+    default_navigation_context EnvironmentNavigationContextView?
+    default_navigation_receipt EnvironmentNavigationCommitReceipt?
+    evidence JsonObject = {}
+}
+
+class JoinEnvironmentSessionResponse augment environment.EnvironmentOperationResponse {
+    operation String = "join_environment_session"
+    request_id UUID?
+    accepted Bool = false
+    status String
+    error String?
+    session EnvironmentSessionView?
+    receipt EnvironmentSessionJoinReceipt
+    default_navigation_context EnvironmentNavigationContextView?
+    default_navigation_receipt EnvironmentNavigationCommitReceipt?
+    evidence JsonObject = {}
+}
+
+class DescribeEnvironmentSessionResponse augment environment.EnvironmentOperationResponse {
+    operation String = "describe_environment_session"
+    status String
+    error String?
+    session EnvironmentSessionView?
+    evidence JsonObject = {}
+}
+
+/// Environment-owned resolution over session Thread/Layout pins into Attention.
+///
+/// Contract:
+/// - Environment validates the EnvironmentSession/NavigationContext/SessionThread
+///   scope through Environment-owned state.
+/// - AttentionSession and AttentionFocusTransition structure is validated by
+///   the Attention service surface, not by reading Attention ontology internals.
+/// - This is a read/validation receipt, not a persisted frame model.
+class ResolveEnvironmentSessionAttentionRequest augment environment.EnvironmentOperationRequest {
+    operation String = "resolve_environment_session_attention"
+    request_id UUID?
+    environment_session_id UUID
+    environment_navigation_context_id UUID?
+    environment_session_thread_id UUID?
+    environment_session_attention_session_id UUID?
+    expected_attention_session_id UUID?
+    attention_focus_transition_id UUID?
+    expected_attention_session_section_id UUID?
+    expected_focus_scope_id UUID?
+    expected_object_instance_graph_commit_id UUID?
+    expected_projection_hash String?
+    include_attention_session Bool = true
+    include_transition_list Bool = false
+    transition_limit Int?
+    metadata JsonObject = {}
+}
+
+class EnvironmentSessionAttentionResolution {
+    environment_session_id UUID
+    environment_navigation_context_id UUID?
+    environment_session_thread_id UUID?
+    environment_session_attention_session_id UUID?
+    environment_id UUID
+    environment_profile_id UUID?
+    thread_id UUID?
+    thread_layout_id UUID?
+    attention_session_id UUID?
+    identity_session_id UUID?
+    attention_session aware_attention_service_dto.attention.session.AttentionSessionPin?
+    active_transition aware_attention_service_dto.attention.session.AttentionFocusTransitionPin?
+    validation aware_attention_service_dto.attention.session.AttentionTransitionValidationResult?
+    transitions aware_attention_service_dto.attention.session.AttentionFocusTransitionPin[] = []
+    status String = "resolved"
+    blockers String[] = []
+    evidence JsonObject = {}
+}
+
+class ResolveEnvironmentSessionAttentionResponse augment environment.EnvironmentOperationResponse {
+    operation String = "resolve_environment_session_attention"
+    request_id UUID?
+    status String
+    error String?
+    resolution EnvironmentSessionAttentionResolution?
+    evidence JsonObject = {}
+}
+
+/// Commit one EnvironmentSession-owned portal to an existing AttentionSession.
+class MountEnvironmentSessionAttentionRequest augment environment.EnvironmentOperationRequest {
+    operation String = "mount_environment_session_attention"
+    request_id UUID?
+    environment_session_id UUID
+    attention_session_id UUID
+    key String?
+    title String?
+    status String = "active"
+    metadata JsonObject = {}
+}
+
+class MountEnvironmentSessionAttentionResponse augment environment.EnvironmentOperationResponse {
+    operation String = "mount_environment_session_attention"
+    request_id UUID?
+    environment_session_attention_session_id UUID
+    environment_session_id UUID
+    attention_session_id UUID
+    key String?
+    title String?
+    status String
+    metadata JsonObject = {}
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+}
+
+class EnvironmentNavigationContextView {
+    environment_navigation_context_id UUID
+    environment_session_id UUID
+    environment_id UUID
+    key String
+    title String?
+    status String = "active"
+    is_default Bool = false
+    selected_process_id UUID?
+    selected_thread_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    root_object_id UUID?
+    commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+    evidence JsonObject = {}
+}
+
+class EnvironmentNavigationCommitReceipt {
+    accepted Bool = false
+    status String
+    error String?
+    reason String?
+    actor_id UUID?
+    environment_id UUID
+    environment_session_id UUID
+    environment_navigation_context_id UUID?
+    key String?
+    is_default Bool = false
+    branch_id UUID?
+    projection_hash String?
+    root_object_id UUID?
+    commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_pre String?
+    graph_hash_post String?
+    function_call_id UUID?
+    function_call_response_id UUID?
+    selected_process_id UUID?
+    selected_thread_id UUID?
+    blockers String[] = []
+    evidence JsonObject = {}
+}
+
+/// Create one EnvironmentSession-owned navigation context.
+///
+/// Contract:
+/// - Requires accepted EnvironmentSession join evidence.
+/// - Does not accept Environment admission receipts.
+/// - Does not resolve Attention focus or Experience lens/action state.
+class CreateEnvironmentNavigationContextRequest augment environment.EnvironmentOperationRequest {
+    operation String = "create_environment_navigation_context"
+    request_id UUID?
+    environment_session_id UUID
+    session_join_receipt EnvironmentSessionJoinReceipt
+    key String
+    title String?
+    status String = "active"
+    is_default Bool = false
+    selected_process_id UUID?
+    selected_thread_id UUID?
+    metadata JsonObject = {}
+}
+
+class CreateEnvironmentNavigationContextResponse augment environment.EnvironmentOperationResponse {
+    operation String = "create_environment_navigation_context"
+    request_id UUID?
+    accepted Bool = false
+    status String
+    error String?
+    context EnvironmentNavigationContextView?
+    receipt EnvironmentNavigationCommitReceipt
+    evidence JsonObject = {}
+}
+
+/// Select the Process/Thread target for one Environment navigation context.
+///
+/// Contract:
+/// - Requires accepted EnvironmentSession join evidence.
+/// - Mutates only the EnvironmentNavigationContext target pointer.
+/// - History is derived from graph commits; no custom navigation event rail.
+class SelectEnvironmentNavigationTargetRequest augment environment.EnvironmentOperationRequest {
+    operation String = "select_environment_navigation_target"
+    request_id UUID?
+    environment_session_id UUID
+    environment_navigation_context_id UUID
+    session_join_receipt EnvironmentSessionJoinReceipt
+    selected_process_id UUID?
+    selected_thread_id UUID?
+    expected_head_commit_id UUID?
+    expected_graph_hash_pre String?
+    reason String?
+    metadata JsonObject = {}
+}
+
+class SelectEnvironmentNavigationTargetResponse augment environment.EnvironmentOperationResponse {
+    operation String = "select_environment_navigation_target"
+    request_id UUID?
+    accepted Bool = false
+    status String
+    error String?
+    context EnvironmentNavigationContextView?
+    receipt EnvironmentNavigationCommitReceipt
+    evidence JsonObject = {}
+}
+
+/// Describe one Environment navigation context.
+///
+/// Contract:
+/// - Requires accepted EnvironmentSession join evidence.
+/// - Read model only; does not grant admission or Attention access.
+class DescribeEnvironmentNavigationContextRequest augment environment.EnvironmentOperationRequest {
+    operation String = "describe_environment_navigation_context"
+    environment_session_id UUID
+    environment_navigation_context_id UUID
+    session_join_receipt EnvironmentSessionJoinReceipt
+    include_commit Bool = true
+}
+
+class DescribeEnvironmentNavigationContextResponse augment environment.EnvironmentOperationResponse {
+    operation String = "describe_environment_navigation_context"
+    status String
+    error String?
+    context EnvironmentNavigationContextView?
+    blockers String[] = []
+    evidence JsonObject = {}
+}
+
+/// List Environment navigation contexts owned by one EnvironmentSession.
+///
+/// Contract:
+/// - Requires accepted EnvironmentSession join evidence.
+/// - Returns context views only; navigation history remains commit-derived.
+class ListEnvironmentNavigationContextsRequest augment environment.EnvironmentOperationRequest {
+    operation String = "list_environment_navigation_contexts"
+    environment_session_id UUID
+    session_join_receipt EnvironmentSessionJoinReceipt
+    include_closed Bool = false
+}
+
+class ListEnvironmentNavigationContextsResponse augment environment.EnvironmentOperationResponse {
+    operation String = "list_environment_navigation_contexts"
+    status String
+    error String?
+    contexts EnvironmentNavigationContextView[] = []
+    blockers String[] = []
+    evidence JsonObject = {}
+}
+
+class DescribeEnvironmentOPGConstructor {
+    function_id UUID
+    root_class_config_id UUID?
+}
+
+class DescribeEnvironmentOPG {
+    id UUID
+    projection_hash String
+    name String?
+    description String?
+    supports_virtual_build Bool = true
+    constructors DescribeEnvironmentOPGConstructor[]
+}
+
+class DescribeEnvironmentConfigResponse augment environment.EnvironmentOperationResponse {
+    operation String = "describe_environment_config"
+    title String?
+    environment_config_id UUID?
+    environment_config_title String?
+    canonical_language String?
+    bundle_manifest_path String?
+    bundle_manifest_http_path String?
+    bundle_artifact_http_path_prefix String?
+    bundle_descriptor_http_path String?
+    bundle_head_id String?
+    bundle_release_identity JsonObject?
+    ocg_id UUID?
+    opg_hashes String[]
+    opgs DescribeEnvironmentOPG[]
+}
+
+class DescribeEnvironmentResponse augment environment.EnvironmentOperationResponse {
+    operation String = "describe_environment"
+
+    status String
+    error String?
+
+    environment_config_id UUID?
+    environment_config_title String?
+    bundle_manifest_path String?
+    bundle_manifest_http_path String?
+    bundle_artifact_http_path_prefix String?
+    bundle_descriptor_http_path String?
+    bundle_head_id String?
+    bundle_release_identity JsonObject?
+    ocg_id UUID?
+
+    environment_title String?
+    environment_description String?
+
+    boot_process_id UUID?
+    boot_thread_id UUID?
+    boot_branch_id UUID?
+
+    head_commit_id UUID?
+    head_graph_hash_post String?
+    head_object_instance_graph_id UUID?
+    head_root_object_id UUID?
+    head_version Int?
+}
+
+class DescribeEnvironmentTopologyLane {
+    lane_hash String
+    /// Best-effort OPG descriptor from hosted OCG (when lane_hash matches a hosted projection_hash).
+    opg_id UUID?
+    opg_name String?
+}
+
+class DescribeEnvironmentTopologyAttachment {
+    /// ThreadObjectInstanceGraphBranch association id.
+    assoc_id UUID
+    title String?
+    is_active Bool = true
+    object_instance_graph_branch_id UUID
+    /// OIGI anchor (invertible branch id for the object_instance_graph_identity projection).
+    object_instance_graph_identity_id UUID?
+    /// Resolved domain Branch.id for this attachment (when identity anchor is present + materialized).
+    domain_branch_id UUID?
+    lanes DescribeEnvironmentTopologyLane[] = []
+}
+
+class DescribeEnvironmentTopologySection {
+    /// Stable section key inside the active Thread layout.
+    section_key String
+    title String = "Section"
+    description String?
+    order Int = 0
+    flex Float = 1.0
+    is_visible Bool = true
+    /// Active Attention FocusScope for this section, when already materialized.
+    focus_scope_id UUID?
+    /// Canonical compiled view ref (`<experience>.<observable>.<view>`).
+    view_ref String?
+    /// Projection-local view key (`<observable>.<view>`).
+    view_key String?
+    /// Owning canonical experience package, derived from `view_ref` when available.
+    package_name String?
+    /// Optional pane key resolved by the Interface Host package registry.
+    pane_key String?
+}
+
+class DescribeEnvironmentTopologyLayout {
+    layout_id UUID?
+    layout_key String?
+    title String = "Layout"
+    description String?
+    is_active Bool = false
+    sections DescribeEnvironmentTopologySection[] = []
+}
+
+class DescribeEnvironmentTopologyThread {
+    thread_id UUID
+    thread_key String?
+    title String?
+    description String?
+    active_layout_id UUID?
+    active_layout_key String?
+    layouts DescribeEnvironmentTopologyLayout[] = []
+    attachments DescribeEnvironmentTopologyAttachment[] = []
+}
+
+class DescribeEnvironmentTopologyProcess {
+    process_id UUID
+    process_key String?
+    title String
+    description String?
+    threads DescribeEnvironmentTopologyThread[] = []
+}
+
+class DescribeEnvironmentTopologyResponse augment environment.EnvironmentOperationResponse {
+    operation String = "describe_environment_topology"
+    status String
+    error String?
+    processes DescribeEnvironmentTopologyProcess[] = []
+}
+
+enum EnvironmentStatusAuthorityKind {
+    environment_interface_view
+    local_fs_view
+    commit_truth
+    mixed
+}
+
+class EnvironmentStatusAuthority {
+    kind EnvironmentStatusAuthorityKind
+    source_artifact String?
+}
+
+class EnvironmentStatusBlock {
+    name String
+    authority EnvironmentStatusAuthority
+    payload JsonObject = {}
+    available Bool = true
+    unavailable_reason String?
+}
+
+class DescribeEnvironmentStatusResponse augment environment.EnvironmentOperationResponse {
+    operation String = "describe_environment_status"
+    status String
+    error String?
+    status_version String
+    blocks EnvironmentStatusBlock[] = []
+    refusals JsonArray = []
+}
+
+class EnvironmentReadinessPersistenceReceipt {
+    status String
+    backend String
+    database_url_ref String?
+    environment_config_id UUID?
+    ocg_id UUID?
+    ocg_hash String?
+    db_schema_hash String?
+    db_schema_registry_hash String?
+    marker_ocg_hash String?
+    marker_head_commit_id UUID?
+    installed Bool = false
+    migrated Bool = false
+    sql_root_count Int = 0
+    step_count Int = 0
+}
+
+class EnvironmentReadinessGraphReceipt {
+    status String
+    lane_head_status String?
+    genesis_status String?
+    branch_id UUID
+    projection_hash String?
+    object_projection_graph_id UUID?
+    constructor_function_id UUID?
+    lane_head_commit_id UUID?
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    object_instance_graph_id UUID?
+    root_object_id UUID?
+    graph_hash_post String?
+    function_call_id UUID?
+    function_call_response_id UUID?
+}
+
+class EnvironmentReadinessRouteReceipt {
+    api_package_name String?
+    provider_service_package_name String?
+    route_kind String?
+    host_id String?
+    host_version String?
+    protocol_version String?
+    endpoint_refs String[] = []
+    stream_endpoint_refs String[] = []
+}
+
+class EnvironmentReadinessReceipt {
+    status String
+    actor_id UUID?
+    environment_id UUID
+    environment_title String?
+    environment_manifest_path String?
+    environment_package_ref JsonObject?
+    process_id UUID?
+    thread_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    ocg_id UUID?
+    opg_hashes String[] = []
+    graph EnvironmentReadinessGraphReceipt?
+    persistence EnvironmentReadinessPersistenceReceipt?
+    meta_route EnvironmentReadinessRouteReceipt?
+}
+
+class EnsureReadyResponse augment environment.EnvironmentOperationResponse {
+    operation String = "ensure_ready"
+    status String
+    error String?
+    bundle_manifest_path String?
+    bundle_manifest_http_path String?
+    bundle_artifact_http_path_prefix String?
+    bundle_descriptor_http_path String?
+    bundle_head_id String?
+    bundle_release_identity JsonObject?
+    ocg_id UUID?
+    opg_hashes String[] = []
+    readiness_receipt EnvironmentReadinessReceipt?
+}
+
+class GetLaneHeadResponse augment environment.EnvironmentOperationResponse {
+    operation String = "get_lane_head"
+    status String
+    error String?
+    commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+    object_instance_graph_id UUID?
+    object_instance_graph_identity_id UUID?
+    object_instance_graph_branch_id UUID?
+    object_projection_graph_id UUID?
+    object_projection_graph_identity_id UUID?
+    root_object_id UUID?
+    head_version Int?
+}
+
+class GetObjectInstanceGraphCommitResponse augment environment.EnvironmentOperationResponse {
+    operation String = "get_object_instance_graph_commit"
+    status String
+    error String?
+    commit_id UUID?
+    object_instance_graph_commit_id UUID
+    object_instance_graph_id UUID?
+    object_instance_graph_identity_id UUID?
+    object_instance_graph_branch_id UUID?
+    object_projection_graph_id UUID?
+    object_projection_graph_identity_id UUID?
+    root_object_id UUID?
+    graph_hash_pre String?
+    graph_hash_post String?
+    commit JsonObject?
+}
+
+class MaterializeCommittedProjectionDtoResponse augment environment.EnvironmentOperationResponse {
+    operation String = "materialize_committed_projection_dto"
+    status String
+    error String?
+    refusal_code String?
+    dto_payload JsonObject?
+    dto_class_ref String?
+    class_config_id UUID?
+    dto_package_name String?
+    dto_import_root String?
+    dto_artifact_digest String?
+    commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    object_instance_graph_id UUID?
+    root_object_id UUID?
+    graph_hash_post String?
+    materializer_version String?
+    evidence JsonObject = {}
+}
+
+class InvokeFunctionResponse augment environment.EnvironmentOperationResponse {
+    operation String = "invoke_function"
+    status String
+    payload JsonValue?
+    error String?
+    logs String[]
+    execution_time_ms Int?
+    root_object_id UUID?
+    graph_hash_pre String?
+    graph_hash_post String?
+    function_call_id UUID?
+    function_call_response_id UUID?
+    changes JsonArray = []
+    commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    object_projection_graph_id UUID?
+    object_projection_graph_identity_id UUID?
+    object_instance_graph_id UUID?
+    object_instance_graph_identity_id UUID?
+    object_instance_graph_branch_id UUID?
+}
+
+/// Canonical lane head receipt notification.
+///
+/// The lane key is `(branch_id, projection_hash)`; receivers must not guess
+/// `branch_id` from env/thread.
+class LaneCommitReceiptNotification augment environment.EnvironmentOperationNotification {
+    operation String = "lane_commit_receipt"
+    commit_id UUID
+    /// Canonical Meta ObjectInstanceGraphCommit id for this domain commit.
+    ///
+    /// This is the direct provenance ref consumers use when they need the
+    /// durable OIG commit identity instead of only the domain commit id.
+    object_instance_graph_commit_id UUID?
+    /// ObjectProjectionGraph that owns the committed ObjectInstanceGraph when
+    /// Environment/Meta topology resolution has enriched the receipt.
+    object_projection_graph_id UUID?
+    /// ObjectProjectionGraphIdentity anchor for Attention focus targets.
+    ///
+    /// Optional at the raw commit-store edge; Environment topology/fanout should
+    /// populate it when resolving OIGI/OPG identity for focus attachment.
+    object_projection_graph_identity_id UUID?
+    /// ObjectInstanceGraph snapshot identity for the committed lane head.
+    object_instance_graph_id UUID?
+    /// ObjectInstanceGraphIdentity worldline anchor for the committed lane head.
+    object_instance_graph_identity_id UUID?
+    /// ObjectInstanceGraphBranch anchor for `(object_instance_graph_identity_id, branch_id)`.
+    ///
+    /// This is the concrete materialized focus target id that Attention can use
+    /// without subscribing to Meta directly.
+    object_instance_graph_branch_id UUID?
+    /// Canonical commit creation timestamp (unix ms) when emitted by commit store.
+    ///
+    /// Optional for backward-compatible transports; receivers should fall back to
+    /// observed-at timestamps when absent.
+    created_at_unix_ms Int?
+    /// Canonical label for the operation that produced this commit (when known).
+    ///
+    /// This must be emitted by runtime/commit-store writers; UI must not guess.
+    operation_label String?
+    /// Optional function-call origin (when this commit was produced by invoke_function).
+    call_target InvokeFunctionCallTarget?
+    function_id UUID?
+    object_id UUID?
+    /// Canonical class-instance identity attribution for this commit when known.
+    ///
+    /// Runtime owns this value and must emit deterministic identity truth.
+    class_instance_identity_id UUID?
+    graph_hash_post String?
+    root_object_id UUID?
+    head_version Int?
+}
+
+/// Canonical reactivity event receipt notification derived from lane commits.
+///
+/// Contract:
+/// - Emitted by runtime receipt environments after condition evaluation.
+/// - Deterministic per `(event_id, commit_id)` and safe for at-least-once transport.
+class LaneEventReceiptNotification augment environment.EnvironmentOperationNotification {
+    operation String = "lane_event_receipt"
+    event_id UUID
+    event_type String
+    source String
+    created_at_unix_ms Int
+    commit_id UUID
+    target_actor_id UUID?
+    actor_subscription_id UUID?
+    event_config_condition_config_id UUID?
+    graph_hash_post String?
+    object_instance_graph_id UUID?
+    root_object_id UUID?
+}
+
+/// Canonical action execution receipt notification derived from a reactivity event.
+///
+/// Contract:
+/// - Emitted when one concrete action execution request is materialized.
+/// - Carries stable `action_execution_id` correlation for feedback/terminal receipts.
+class LaneActionExecutionReceiptNotification augment environment.EnvironmentOperationNotification {
+    operation String = "lane_action_execution_receipt"
+    action_execution_id UUID
+    event_id UUID
+    event_type String
+    source String
+    created_at_unix_ms Int
+    commit_id UUID
+    target_actor_id UUID?
+    actor_subscription_id UUID?
+    event_config_condition_config_id UUID?
+    action_binding_id UUID?
+    action_config_id UUID?
+    action_type String?
+    graph_hash_post String?
+    object_instance_graph_id UUID?
+    root_object_id UUID?
+}
+
+/// Canonical progressive action feedback receipt.
+///
+/// Canonical token sources:
+/// - `stage`: reactivity.ActionFeedbackStage
+/// - `status`: reactivity.ActionFeedbackStatus
+class LaneActionFeedbackReceiptNotification augment environment.EnvironmentOperationNotification {
+    operation String = "lane_action_feedback_receipt"
+    action_execution_id UUID
+    event_id UUID
+    sequence Int
+    created_at_unix_ms Int
+    stage String
+    status String
+    action_binding_id UUID?
+    action_config_id UUID?
+    action_type String?
+    message String?
+    actor_identity_id UUID?
+    actor_process_thread_id UUID?
+    execution_request_id UUID?
+}
+
+/// Canonical action terminal receipt.
+///
+/// Canonical token source:
+/// - `terminal_status`: reactivity.ActionTerminalStatus
+class LaneActionTerminalReceiptNotification augment environment.EnvironmentOperationNotification {
+    operation String = "lane_action_terminal_receipt"
+    action_execution_id UUID
+    event_id UUID
+    terminal_status String
+    handled Bool
+    created_at_unix_ms Int
+    action_binding_id UUID?
+    action_config_id UUID?
+    action_type String?
+    info String?
+    error String?
+    actor_identity_id UUID?
+    actor_process_thread_id UUID?
+    execution_request_id UUID?
+}
+
+/// Canonical turn stream receipt emitted from service stream events.
+///
+/// Contract:
+/// - Mirrors transport-level `stream_event` frames with canonical lane context.
+/// - Payload is non-SSOT telemetry for UX; authoritative state remains commit/event rails.
+class LaneTurnStreamReceiptNotification augment environment.EnvironmentOperationNotification {
+    operation String = "lane_turn_stream_receipt"
+    service String
+    inference_request_id UUID
+    created_at_unix_ms Int
+    stream_kind String
+    sequence Int?
+    agent_identity_id UUID?
+    agent_process_thread_id UUID?
+    text_delta String?
+    message String?
+    payload JsonValue?
+}
+
+// Discriminated-union declarations (SSOT: attribute FQNs)
+
+// Requests
+ann environment.EnvironmentOperationRequest::operation discriminate key
+ann environment.FetchCapabilitiesRequest::operation discriminate tag "fetch_capabilities"
+ann environment.DescribeEnvironmentConfigRequest::operation discriminate tag "describe_environment_config"
+ann environment.DescribeEnvironmentRequest::operation discriminate tag "describe_environment"
+ann environment.DescribeEnvironmentTopologyRequest::operation discriminate tag "describe_environment_topology"
+ann environment.DescribeEnvironmentStatusRequest::operation discriminate tag "describe_environment_status"
+ann environment.EnsureReadyRequest::operation discriminate tag "ensure_ready"
+ann environment.GetLaneHeadRequest::operation discriminate tag "get_lane_head"
+ann environment.GetObjectInstanceGraphCommitRequest::operation discriminate tag "get_object_instance_graph_commit"
+ann environment.MaterializeCommittedProjectionDtoRequest::operation discriminate tag "materialize_committed_projection_dto"
+ann environment.ResolveRuntimeRefsRequest::operation discriminate tag "resolve_runtime_refs"
+ann environment.ConfigureServiceApiDependencyRoutesRequest::operation discriminate tag "configure_service_api_dependency_routes"
+ann environment.AttachEnvironmentOntologyRequest::operation discriminate tag "attach_environment_ontology"
+ann environment.EnsureEnvironmentOntologyRuntimeRequest::operation discriminate tag "ensure_environment_ontology_runtime"
+ann environment.ListEnvironmentOntologiesRequest::operation discriminate tag "list_environment_ontologies"
+ann environment.ResolveEnvironmentSessionAttentionRequest::operation discriminate tag "resolve_environment_session_attention"
+ann environment.MountEnvironmentSessionAttentionRequest::operation discriminate tag "mount_environment_session_attention"
+ann environment.CreateEnvironmentNavigationContextRequest::operation discriminate tag "create_environment_navigation_context"
+ann environment.SelectEnvironmentNavigationTargetRequest::operation discriminate tag "select_environment_navigation_target"
+ann environment.DescribeEnvironmentNavigationContextRequest::operation discriminate tag "describe_environment_navigation_context"
+ann environment.ListEnvironmentNavigationContextsRequest::operation discriminate tag "list_environment_navigation_contexts"
+ann environment.InvokeFunctionRequest::operation discriminate tag "invoke_function"
+ann environment.EnvironmentServiceOperationRequest::operation discriminate tag "service_operation"
+
+// Responses
+ann environment.EnvironmentOperationResponse::operation discriminate key
+ann environment.FetchCapabilitiesResponse::operation discriminate tag "fetch_capabilities"
+ann environment.DescribeEnvironmentConfigResponse::operation discriminate tag "describe_environment_config"
+ann environment.DescribeEnvironmentResponse::operation discriminate tag "describe_environment"
+ann environment.DescribeEnvironmentTopologyResponse::operation discriminate tag "describe_environment_topology"
+ann environment.DescribeEnvironmentStatusResponse::operation discriminate tag "describe_environment_status"
+ann environment.EnsureReadyResponse::operation discriminate tag "ensure_ready"
+ann environment.GetLaneHeadResponse::operation discriminate tag "get_lane_head"
+ann environment.GetObjectInstanceGraphCommitResponse::operation discriminate tag "get_object_instance_graph_commit"
+ann environment.MaterializeCommittedProjectionDtoResponse::operation discriminate tag "materialize_committed_projection_dto"
+ann environment.ResolveRuntimeRefsResponse::operation discriminate tag "resolve_runtime_refs"
+ann environment.ConfigureServiceApiDependencyRoutesResponse::operation discriminate tag "configure_service_api_dependency_routes"
+ann environment.AttachEnvironmentOntologyResponse::operation discriminate tag "attach_environment_ontology"
+ann environment.EnsureEnvironmentOntologyRuntimeResponse::operation discriminate tag "ensure_environment_ontology_runtime"
+ann environment.ListEnvironmentOntologiesResponse::operation discriminate tag "list_environment_ontologies"
+ann environment.ResolveEnvironmentSessionAttentionResponse::operation discriminate tag "resolve_environment_session_attention"
+ann environment.MountEnvironmentSessionAttentionResponse::operation discriminate tag "mount_environment_session_attention"
+ann environment.CreateEnvironmentNavigationContextResponse::operation discriminate tag "create_environment_navigation_context"
+ann environment.SelectEnvironmentNavigationTargetResponse::operation discriminate tag "select_environment_navigation_target"
+ann environment.DescribeEnvironmentNavigationContextResponse::operation discriminate tag "describe_environment_navigation_context"
+ann environment.ListEnvironmentNavigationContextsResponse::operation discriminate tag "list_environment_navigation_contexts"
+ann environment.InvokeFunctionResponse::operation discriminate tag "invoke_function"
+ann environment.EnvironmentServiceOperationResponse::operation discriminate tag "service_operation"
+
+// Notifications
+ann environment.EnvironmentOperationNotification::operation discriminate key
+ann environment.LaneCommitReceiptNotification::operation discriminate tag "lane_commit_receipt"
+ann environment.LaneEventReceiptNotification::operation discriminate tag "lane_event_receipt"
+ann environment.LaneActionExecutionReceiptNotification::operation discriminate tag "lane_action_execution_receipt"
+ann environment.LaneActionFeedbackReceiptNotification::operation discriminate tag "lane_action_feedback_receipt"
+ann environment.LaneActionTerminalReceiptNotification::operation discriminate tag "lane_action_terminal_receipt"
+ann environment.LaneTurnStreamReceiptNotification::operation discriminate tag "lane_turn_stream_receipt"

@@ -11,6 +11,7 @@ from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBase
 from aware_code.primitive_codec_base import CodePrimitiveCodecBase
 from aware_code.type_descriptor_nodes import CollectionKind
 from aware_code.types.json import Json
+from aware_types import canonical_decimal_text
 
 from sql_grammar.type_parser import SqlTypeParser
 
@@ -43,6 +44,7 @@ SQL_TYPE_MAPPING: dict[CodePrimitiveBaseType, str] = {
     CodePrimitiveBaseType.boolean: "BOOLEAN",
     CodePrimitiveBaseType.bytes: "BYTEA",
     CodePrimitiveBaseType.datetime: "TIMESTAMP WITH TIME ZONE",
+    CodePrimitiveBaseType.decimal: "NUMERIC",
     CodePrimitiveBaseType.integer: "INTEGER",
     CodePrimitiveBaseType.float: "NUMERIC",
     CodePrimitiveBaseType.json: "JSONB",
@@ -97,6 +99,7 @@ class SqlPrimitiveCodec(CodePrimitiveCodecBase):
         # Canonical exact tokens and phrases
         INTEGER = CodePrimitiveBaseType.integer
         FLOAT = CodePrimitiveBaseType.float
+        DECIMAL = CodePrimitiveBaseType.decimal
         STRING = CodePrimitiveBaseType.string
         DATETIME = CodePrimitiveBaseType.datetime
         BOOLEAN = CodePrimitiveBaseType.boolean
@@ -133,8 +136,8 @@ class SqlPrimitiveCodec(CodePrimitiveCodecBase):
             "real": FLOAT,
             "double precision": FLOAT,
             "float": FLOAT,
-            "numeric": FLOAT,
-            "decimal": FLOAT,
+            "numeric": DECIMAL,
+            "decimal": DECIMAL,
             # integers
             "int": INTEGER,
             "integer": INTEGER,
@@ -175,7 +178,9 @@ class SqlPrimitiveCodec(CodePrimitiveCodecBase):
         inner = self._parser.get_array_inner(raw)
         if inner is not None:
             item_type = self.parse(inner)
-            return self._primitive(base_type=CodePrimitiveBaseType.array, item_type=item_type)
+            return self._primitive(
+                base_type=CodePrimitiveBaseType.array, item_type=item_type
+            )
 
         # Parametric calls (VECTOR(dim), VARCHAR(255), NUMERIC(...), etc.)
         call = self._parser.get_call(raw)
@@ -186,7 +191,8 @@ class SqlPrimitiveCodec(CodePrimitiveCodecBase):
                 if m:
                     dimension = int(m.group(1))
                     return self._primitive(
-                        base_type=CodePrimitiveBaseType.vector, constraints=Json({"dimension": dimension})
+                        base_type=CodePrimitiveBaseType.vector,
+                        constraints=Json({"dimension": dimension}),
                     )
                 return self._primitive(base_type=CodePrimitiveBaseType.vector)
             # For other parameterized types, treat as the base token (e.g., varchar(255) -> varchar)
@@ -252,7 +258,11 @@ class SqlPrimitiveCodec(CodePrimitiveCodecBase):
                 constraints.append(f"value ~ '{pattern}'")
 
         # Handle numeric constraints
-        elif prim.base_type in [CodePrimitiveBaseType.integer, CodePrimitiveBaseType.float]:
+        elif prim.base_type in [
+            CodePrimitiveBaseType.integer,
+            CodePrimitiveBaseType.float,
+            CodePrimitiveBaseType.decimal,
+        ]:
             minimum = constraints_obj.get("minimum")
             if minimum is not None:
                 constraints.append(f"value >= {minimum}")
@@ -406,7 +416,9 @@ class SqlPrimitiveCodec(CodePrimitiveCodecBase):
             return low == "true"
 
         # Remove quotes for quoted strings
-        if (lit.startswith("'") and lit.endswith("'")) or (lit.startswith('"') and lit.endswith('"')):
+        if (lit.startswith("'") and lit.endswith("'")) or (
+            lit.startswith('"') and lit.endswith('"')
+        ):
             return lit[1:-1]
 
         # Numeric literals – try int then float
@@ -448,3 +460,12 @@ class SqlPrimitiveCodec(CodePrimitiveCodecBase):
         else:
             # Convert to string and quote for safety
             return f"'{str(value)}'"
+
+    def to_typed_literal_string(
+        self,
+        value: object,
+        primitive_type: CodePrimitiveType,
+    ) -> str:
+        if primitive_type.base_type == CodePrimitiveBaseType.decimal:
+            return canonical_decimal_text(value)
+        return self.to_literal_string(value)

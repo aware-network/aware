@@ -1,0 +1,23 @@
+class NetworkNodePeerListItem : inline_value {
+    edge_id UUID
+    peer_node_id UUID
+    direction String
+    status NetworkRequestStatus
+    peer_http_base_url String?
+    fanout_rules NetworkNodePeerFanoutRuleListItem[]
+    trust_score Float
+    connected_at DateTime
+    last_ping_at DateTime
+}
+
+class NetworkNodePeerFanoutRuleListItem : inline_value {
+    id UUID
+    lane_branch_id UUID
+    lane_projection_hash String
+    enabled Bool
+    mode NetworkFanoutMode
+}
+
+class NetworkNodePeerListResponse : inline_value {
+    results NetworkNodePeerListItem[]
+}

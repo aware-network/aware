@@ -1,0 +1,25 @@
+class FinanceEntity {
+    // Relationships
+    identity aware_identity.identity.Identity unique key
+    wallet wallet.Wallet? unique
+
+    // Attributes
+    role_key String = "primary"
+
+    fn build construct (identity_id UUID key, wallet_id UUID, role_key String = "primary") -> FinanceEntity {
+        """
+        Creates a FinanceEntity for the given identity.
+
+        Receipt: FinanceEntity(id=stable(identity_id), role_key=role_key) referencing the deterministic Wallet id.
+
+        Notes:
+        - This constructor is finance_entity-lane only (it does not create wallet-lane commits).
+        - Wallet objects are created via Wallet.build in the `wallet` lane (separate receipt).
+        - It does not mutate the Identity.
+        - role_key declares the wallet purpose for v0 readiness; `primary` is the default person/agent wallet role.
+
+        Validation:
+        - wallet_id must match the deterministic wallet id derived from identity_id + role_key custody material (v0 anti-footgun).
+        """
+    }
+}

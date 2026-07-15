@@ -1,0 +1,30 @@
+pane meta_graph {
+    kind meta_graph;
+    view aware_meta.graph.canvas.v1 {
+        "General Meta graph canvas."
+    }
+
+    render default {
+        view aware_meta.graph.canvas.v1;
+        version "0.1.0";
+        root canvas;
+        require render_component aware.meta.graph.canvas;
+
+        node canvas component role pane {
+            component aware.meta.graph.canvas;
+            fallback_node_kind text;
+            fallback_text "Meta graph unavailable";
+            bind value from state.graph_snapshot attr graph_snapshot transform raw port graph_snapshot;
+            bind value from state.object_config_graph_ref attr object_config_graph_ref transform raw port object_config_graph_ref;
+            bind value from state.object_projection_graph_ref attr object_projection_graph_ref transform raw port object_projection_graph_ref;
+            bind value from state.object_instance_graph_ref attr object_instance_graph_ref transform raw port object_instance_graph_ref;
+            bind value from state.object_instance_graph_branch_ref attr object_instance_graph_branch_ref transform raw port object_instance_graph_branch_ref;
+            bind value from state.object_instance_graph_commit_ref attr object_instance_graph_commit_ref transform raw port object_instance_graph_commit_ref;
+            bind text from state.selected_identity attr selected_identity transform text port selected_identity;
+            bind value from state.viewport_state attr viewport_state transform raw port viewport_state;
+            action activate view select_identity {
+                receipt none;
+            }
+        }
+    }
+}

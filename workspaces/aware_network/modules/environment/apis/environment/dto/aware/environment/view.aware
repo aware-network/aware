@@ -1,0 +1,131 @@
+/// API-owned view-state contracts for Environment navigation surfaces.
+/// Public API view keys:
+/// - environment.navigator
+/// - environment.process_workspace
+/// - environment.thread_layout
+
+class EnvironmentStatusBlockSummaryV1 : inline_value {
+    name String
+    available Bool = true
+    authority_kind String?
+    unavailable_reason String?
+    payload JsonObject = {}
+}
+
+class EnvironmentThreadNavigationItemV1 : inline_value {
+    thread_id UUID?
+    thread_key String?
+    title String = "Thread"
+    description String?
+    attachment_count Int = 0
+    active_attachment_count Int = 0
+    is_selected Bool = false
+}
+
+class EnvironmentProcessNavigationItemV1 : inline_value {
+    process_id UUID?
+    process_key String?
+    title String = "Process"
+    description String?
+    thread_count Int = 0
+    is_selected Bool = false
+    threads EnvironmentThreadNavigationItemV1[] = []
+}
+
+class EnvironmentNavigatorViewStateV1 : inline_value {
+    environment_id UUID?
+    title String = "Environment"
+    status String = "waiting"
+    ready Bool = false
+    selected_process_id UUID?
+    selected_process_key String?
+    selected_thread_id UUID?
+    selected_thread_key String?
+    processes EnvironmentProcessNavigationItemV1[] = []
+    status_blocks EnvironmentStatusBlockSummaryV1[] = []
+    empty_message String = "No environment topology available"
+    provenance JsonObject = {}
+}
+
+class ProcessWorkspaceThreadViewStateV1 : inline_value {
+    thread_id UUID?
+    thread_key String?
+    title String = "Thread"
+    description String?
+    attachment_count Int = 0
+    active_attachment_count Int = 0
+    lane_count Int = 0
+    layout_count Int = 0
+    is_selected Bool = false
+}
+
+class ProcessWorkspaceViewStateV1 : inline_value {
+    environment_id UUID?
+    process_id UUID?
+    process_key String?
+    title String = "Process"
+    description String?
+    status String = "waiting"
+    selected_thread_id UUID?
+    selected_thread_key String?
+    threads ProcessWorkspaceThreadViewStateV1[] = []
+    empty_message String = "No threads available"
+    provenance JsonObject = {}
+}
+
+class ThreadLayoutLaneViewStateV1 : inline_value {
+    lane_hash String
+    opg_id UUID?
+    opg_name String?
+}
+
+class ThreadLayoutAttachmentViewStateV1 : inline_value {
+    attachment_id UUID?
+    title String?
+    is_active Bool = true
+    object_instance_graph_branch_id UUID?
+    object_instance_graph_identity_id UUID?
+    domain_branch_id UUID?
+    lanes ThreadLayoutLaneViewStateV1[] = []
+}
+
+class ThreadLayoutSectionViewStateV1 : inline_value {
+    section_key String
+    title String = "Section"
+    description String?
+    order Int = 0
+    flex Float = 1.0
+    is_visible Bool = true
+    focus_scope_id UUID?
+    view_ref String?
+    view_key String?
+    package_name String?
+    pane_key String?
+}
+
+class ThreadLayoutCandidateViewStateV1 : inline_value {
+    layout_id UUID?
+    layout_key String?
+    title String = "Layout"
+    description String?
+    is_active Bool = false
+    sections ThreadLayoutSectionViewStateV1[] = []
+}
+
+class ThreadLayoutViewStateV1 : inline_value {
+    environment_id UUID?
+    process_id UUID?
+    process_key String?
+    thread_id UUID?
+    thread_key String?
+    title String = "Thread"
+    description String?
+    status String = "waiting"
+    active_layout_id UUID?
+    active_layout_key String?
+    layouts ThreadLayoutCandidateViewStateV1[] = []
+    sections ThreadLayoutSectionViewStateV1[] = []
+    attachments ThreadLayoutAttachmentViewStateV1[] = []
+    empty_message String = "No thread layout available"
+    provenance JsonObject = {}
+}

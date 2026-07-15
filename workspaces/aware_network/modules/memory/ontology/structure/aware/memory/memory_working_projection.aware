@@ -1,0 +1,31 @@
+/// MemoryWorking projection (v0)
+///
+/// Contract:
+/// - MemoryWorking is a standalone branchable projection lane.
+/// - Memory binds to Identity Actor relationally.
+/// - Working-memory payload is modeled as ordered `MemoryWorkingItem` envelopes.
+/// - Attention payload points to AttentionFocusTransition source truth; Memory
+///   must not duplicate attention frames.
+projection MemoryWorking is_branchable {
+    root memory.MemoryWorking
+
+    memory.MemoryWorking::actor Identity
+    memory.MemoryWorking::content_chain
+    memory.MemoryWorking::items
+
+    memory.MemoryWorkingItem::event_frame
+    memory.MemoryWorkingItem::content_frame
+    memory.MemoryWorkingItem::tool_frame
+    memory.MemoryWorkingItem::attention_transition AttentionFocusTransition
+
+    memory.MemoryWorkingEventFrame::event aware_reactivity.Event
+    memory.MemoryWorkingEventFrame::resolved_meaning
+    memory.MemoryWorkingContentFrame::content aware_content.Content
+    memory.MemoryWorkingToolFrame::object_instance_graph_branch ObjectInstanceGraphIdentity
+
+    observable working.home {
+        """
+        Working-memory lane surface (event/content/tool/attention items).
+        """
+    }
+}

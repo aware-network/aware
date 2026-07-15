@@ -8,6 +8,18 @@
       "relative_path": "reactivity/action_execution.py"
     },
     {
+      "node_id": "7d33b59a-5257-5b37-b82a-19a564f61ec9",
+      "node_type": "class",
+      "entity_id": "a44e2293-6190-5818-97a4-3db5d91f3955",
+      "relative_path": "reactivity/action_execution.py"
+    },
+    {
+      "node_id": "ac29f76c-5587-5ac7-803e-6ddb51f492be",
+      "node_type": "class",
+      "entity_id": "b6d06af2-d118-54e2-b99e-7f3874ec067c",
+      "relative_path": "reactivity/action_execution.py"
+    },
+    {
       "node_id": "72007504-0db0-5b58-a137-5879810d9aaf",
       "node_type": "class",
       "entity_id": "5b029b10-9a6e-5ad9-b330-df2dbe86156a",
@@ -68,6 +80,42 @@
       "relative_path": "reactivity/event_condition_binding_resolution.py"
     },
     {
+      "node_id": "48199b4d-497a-5565-9b9d-d412353c1446",
+      "node_type": "class",
+      "entity_id": "13dc74ad-8346-50e1-995f-9080736082cd",
+      "relative_path": "reactivity/event_meaning.py"
+    },
+    {
+      "node_id": "c622611e-dff7-5936-beca-514d93c5a557",
+      "node_type": "class",
+      "entity_id": "5d23e696-26fe-5e2d-b822-742a6248dbb3",
+      "relative_path": "reactivity/event_meaning.py"
+    },
+    {
+      "node_id": "ac970fcb-adb6-5e4d-b67b-b8a87ca26d8c",
+      "node_type": "class",
+      "entity_id": "618c028c-29e1-5b70-afa4-bb5ad4a657f3",
+      "relative_path": "reactivity/event_meaning.py"
+    },
+    {
+      "node_id": "7a3025fb-48d7-51c0-96f2-9810c6a952af",
+      "node_type": "class",
+      "entity_id": "657c4ebc-27f5-58fe-9028-10e9497e9924",
+      "relative_path": "reactivity/event_meaning.py"
+    },
+    {
+      "node_id": "e317a5f8-d1d1-5829-892a-0a925c79f980",
+      "node_type": "class",
+      "entity_id": "6d5509bd-125f-5030-b2b2-1da85785a62e",
+      "relative_path": "reactivity/event_meaning.py"
+    },
+    {
+      "node_id": "4d13e017-1412-53f5-a5cb-7078b8ae3d86",
+      "node_type": "class",
+      "entity_id": "c420811b-398d-57fb-a0ea-6143f82587b7",
+      "relative_path": "reactivity/event_meaning.py"
+    },
+    {
       "node_id": "333a0960-3e99-5ed4-8d5d-f5f3fa160028",
       "node_type": "class",
       "entity_id": "01448eea-4145-5259-9198-3641b39a728e",
@@ -101,6 +149,12 @@
       "node_id": "e4603f36-1d12-5c0e-8e85-76ba6318d6cb",
       "node_type": "class",
       "entity_id": "3685ed90-75ec-5359-8072-c9b6b0b1fd25",
+      "relative_path": "reactivity/policy_bundle.py"
+    },
+    {
+      "node_id": "d0b4dd26-bac6-5990-b6fe-8bd3e7e83d40",
+      "node_type": "class",
+      "entity_id": "3a693078-a60a-5497-9d89-5a5ee96995dd",
       "relative_path": "reactivity/policy_bundle.py"
     },
     {
@@ -170,6 +224,12 @@
       "relative_path": "reactivity/policy_bundle.py"
     },
     {
+      "node_id": "4de4024a-8a90-59f1-afa0-39004db3d03e",
+      "node_type": "class",
+      "entity_id": "bdcb0b9a-f26b-5dfc-a5d4-08e6a7df7d10",
+      "relative_path": "reactivity/policy_bundle.py"
+    },
+    {
       "node_id": "c53b1d2d-e01b-5ad9-b21c-8b2668a3c392",
       "node_type": "class",
       "entity_id": "c6b14255-6c08-58c2-afcf-83633f2f3c0f",
@@ -230,6 +290,12 @@
       "relative_path": "reactivity/service_operation.py"
     },
     {
+      "node_id": "a9694028-85d8-54dd-864a-45ff1f9df229",
+      "node_type": "class",
+      "entity_id": "a6695503-4b08-5505-9e12-572512145460",
+      "relative_path": "reactivity/service_operation.py"
+    },
+    {
       "node_id": "f2af8677-968a-5cea-b816-9eacdf1c46b4",
       "node_type": "class",
       "entity_id": "b61d2a2a-78df-59cc-a164-b5ce007ef33b",
@@ -246,6 +312,18 @@
       "node_type": "class",
       "entity_id": "ec97a36a-434e-56e4-915b-7625b91ccaa6",
       "relative_path": "reactivity/service_operation.py"
+    },
+    {
+      "node_id": "a599dccc-15a2-5755-93fc-bb723672dfe0",
+      "node_type": "class",
+      "entity_id": "fffd45ca-8257-59c8-a7a2-53eeb55871b8",
+      "relative_path": "reactivity/service_operation.py"
+    },
+    {
+      "node_id": "61db8f4d-c593-57b0-badb-55791b91d4cc",
+      "node_type": "enum",
+      "entity_id": "10c47367-85d4-54f7-835b-7d48c21a4e76",
+      "relative_path": "reactivity/action_feedback_enums.py"
     },
     {
       "node_id": "8ba7bbc8-5339-5f0e-8a30-4a290f9dfe59",

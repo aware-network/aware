@@ -13,6 +13,8 @@ class ReactivityActionIntent {
     /// ontology ActionIntent consumes it as actor-free idempotency input.
     intent_key String
     event_id UUID
+    event_config_id UUID
+    activation_id UUID
     event_type String
     source String
     branch_id UUID
@@ -42,6 +44,7 @@ class ReactivityActionIntent {
     status ActionIntentStatus = requested
     root_object_id UUID?
     object_instance_graph_id UUID?
+    object_instance_graph_commit_id UUID?
     object_instance_graph_branch_id UUID?
     focus_scope_id UUID?
     focus_id UUID?
@@ -68,6 +71,8 @@ class ReactivityActionIntentResolveRequest {
     request_id UUID?
     subscriber_id String?
     event_id UUID
+    event_config_id UUID
+    activation_id UUID
     event_type String
     source String
     created_at_unix_ms Int = 0
@@ -88,6 +93,7 @@ class ReactivityActionIntentResolveRequest {
     event_config_condition_config_id UUID?
     root_object_id UUID?
     object_instance_graph_id UUID?
+    object_instance_graph_commit_id UUID?
     object_instance_graph_branch_id UUID?
     focus_scope_id UUID?
     focus_id UUID?

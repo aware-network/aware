@@ -1,0 +1,19 @@
+class NetworkNodeConfig {
+    // Attributes
+    name String key
+    description String?
+
+    fn build construct (
+        name String key,
+        description String? = null
+    ) -> NetworkNodeConfig {
+        """
+        Create the canonical Network-owned semantic config root for a Node package.
+
+        Notes:
+        - `NetworkNodeConfig` is keyed by semantic node package identity, not by bootstrap secrets.
+        - This root stays minimal and node-owned.
+        - Workspace/deploy own hosted composition and runtime-target selection above this rail.
+        """
+    }
+}

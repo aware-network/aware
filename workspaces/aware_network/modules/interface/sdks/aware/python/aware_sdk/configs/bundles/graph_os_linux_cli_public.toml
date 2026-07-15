@@ -1,0 +1,71 @@
+version = 2
+id = "graph_os_linux_cli_public"
+description = "Public Graph-OS Linux CLI plus SDK bundle roots for compile and validation aware-sdk distributions."
+default_platform = "linux-x86_64"
+vendor_dependencies = true
+python_runtime_mode = "managed_venv"
+
+capabilities = [
+  "compile",
+  "runtime",
+  "python",
+  "sql",
+  "sqlite",
+]
+
+packages = [
+  "aware-cli",
+  "aware-sdk",
+  "aware-workspace-service",
+]
+
+kernel_source_paths = [
+  "workspaces/aware_kernel/modules/meta/ontology/structure",
+  "workspaces/aware_kernel/modules/code/ontology/structure",
+  "workspaces/aware_kernel/modules/storage/ontology/structure",
+  "workspaces/aware_kernel/modules/history/ontology/structure",
+  "workspaces/aware_kernel/modules/content/ontology/structure",
+  "modules/api/structure/ontology",
+  "workspaces/aware_workspace/modules/workspace/structure/ontology",
+  "modules/interface/structure/ontology",
+  "workspaces/aware_network/modules/experience/ontology/structure",
+]
+
+required_packages = [
+  "aware-cli",
+  "aware-sdk",
+  "aware-cli-compile-pack",
+  "aware-release",
+  "aware-utils",
+  "aware-environment-artifacts",
+  "aware-code",
+  "aware-meta",
+  "aware-storage",
+  "aware-runtime",
+  "aware-orm",
+  "aware-content",
+  "aware-file-system",
+  "aware-language-service",
+  "aware-workspace",
+  "aware-code-api",
+  "aware-history-api",
+  "aware-meta-api",
+  "aware-code-ontology",
+  "aware-content-ontology",
+  "aware-history",
+  "aware-history-ontology",
+  "aware-meta-ontology",
+  "aware-storage-ontology",
+  "aware-grammar",
+  "sql-grammar",
+  "python-grammar",
+]
+
+audit_packages = [
+  "aware-cli",
+  "aware-sdk",
+  "aware-cli-compile-pack",
+  "aware-environment-artifacts",
+  "aware-meta",
+  "aware-code",
+]

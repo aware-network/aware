@@ -1,0 +1,12 @@
+aware = 1
+
+[package]
+package_name = "external-capital-provider-service-dto"
+fqn_prefix = "aware_external_capital_provider_service_dto"
+kind = "api"
+version_number = 1
+title = "External Capital Provider Service DTO"
+description = "API-owned wallet-funding actuator request and continuation response DTOs."
+
+[build]
+environment_slug = "aware_external_capital_provider_service_dto"

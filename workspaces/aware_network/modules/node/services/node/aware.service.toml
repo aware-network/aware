@@ -1,0 +1,36 @@
+aware_service = 1
+
+[service]
+package_name = "aware-node-service"
+fqn_prefix = "aware_node_service"
+version_number = 1
+title = "Aware Node Service"
+description = "Canonical Node host control-plane service package over the generated Node API service-protocol rail."
+
+[build]
+sources_dir = "bindings"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+compilation_mode = "service_ontology"
+
+[host]
+service_surface = "node_host"
+activation_mode = "materialize_and_load_committed"
+materialize_on_start = false
+
+[implementation]
+
+[[implementation.packages]]
+package_name = "aware-node-service"
+language = "python"
+import_root = "aware_node_service"
+manifest_path = "pyproject.toml"
+package_root = "."
+entrypoint = "aware_node_service.service_bindings:build_service_bindings"
+role = "service_bindings"
+
+[[dependencies]]
+package_name = "node-service-api"
+version_number = 1
+kind = "api_service_protocol"

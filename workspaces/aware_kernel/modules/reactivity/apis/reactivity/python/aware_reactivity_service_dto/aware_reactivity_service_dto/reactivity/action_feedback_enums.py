@@ -25,6 +25,14 @@ class ActionExecutionStatus(Enum):
     timed_out = "timed_out"
 
 
+class ActionExecutionClaimStatus(Enum):
+    """Result of atomically claiming one deterministic ActionExecution attempt."""
+
+    claimed = "claimed"
+    already_running = "already_running"
+    already_terminal = "already_terminal"
+
+
 class ActionFeedbackStage(Enum):
     """
     Canonical lifecycle stage emitted by reactivity action feedback.

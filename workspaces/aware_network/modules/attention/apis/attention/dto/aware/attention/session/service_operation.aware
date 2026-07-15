@@ -1,0 +1,219 @@
+/// Request/response DTOs for Attention session transition reads.
+///
+/// These operations expose read/validation value over existing Attention
+/// ontology truth. They do not authorize actors and do not persist frames.
+
+class AttentionSessionServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class AttentionSessionServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+}
+
+/// Construct one AttentionSession over an already committed Identity Session.
+class StartAttentionSessionRequest augment AttentionSessionServiceRequest {
+    operation String = "start_attention_session"
+    identity_session_id UUID
+    key String?
+    title String?
+    description String?
+    purpose String?
+    status String = "active"
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject? = {}
+}
+
+class StartAttentionSessionResponse augment AttentionSessionServiceResponse {
+    operation String = "start_attention_session"
+    attention_session_id UUID
+    identity_session_id UUID
+    status String
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+}
+
+/// Mount one Attention-owned Layout on an existing AttentionSession lane.
+class MountAttentionSessionLayoutRequest augment AttentionSessionServiceRequest {
+    operation String = "mount_attention_session_layout"
+    attention_session_id UUID
+    layout_id UUID
+    layout_config_id UUID?
+    key String?
+    order Int = 0
+    is_active Bool = true
+}
+
+class MountAttentionSessionLayoutResponse augment AttentionSessionServiceResponse {
+    operation String = "mount_attention_session_layout"
+    attention_session_id UUID
+    attention_session_layout_id UUID
+    layout_id UUID
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+}
+
+/// Mount one Attention-owned Section anchor on an existing session layout.
+class MountAttentionSessionSectionRequest augment AttentionSessionServiceRequest {
+    operation String = "mount_attention_session_section"
+    attention_session_id UUID
+    attention_session_layout_id UUID
+    layout_section_id UUID
+    section_id UUID
+    section_key String?
+    order Int = 0
+    is_active Bool = true
+}
+
+class MountAttentionSessionSectionResponse augment AttentionSessionServiceResponse {
+    operation String = "mount_attention_session_section"
+    attention_session_id UUID
+    attention_session_layout_id UUID
+    attention_session_section_id UUID
+    layout_section_id UUID
+    section_id UUID
+    domain_commit_id UUID?
+    object_instance_graph_commit_id UUID?
+    graph_hash_post String?
+}
+
+class DescribeAttentionSessionRequest augment AttentionSessionServiceRequest {
+    operation String = "describe_attention_session"
+    attention_session_id UUID?
+    identity_session_id UUID?
+}
+
+class DescribeAttentionSessionResponse augment AttentionSessionServiceResponse {
+    operation String = "describe_attention_session"
+    session session.AttentionSessionPin?
+    layouts session.AttentionSessionLayoutPin[] = []
+    active_layout session.AttentionSessionLayoutPin?
+    active_section session.AttentionSessionSectionPin?
+    active_transition session.AttentionFocusTransitionPin?
+    active_layout_transition session.AttentionLayoutTransitionPin?
+    active_layout_topology_transition session.AttentionLayoutTopologyTransitionPin?
+}
+
+/// Commit one complete active-membership/order vector over stable admitted
+/// AttentionSessionSection anchors.
+class ApplyAttentionSessionLayoutTopologyTransitionRequest augment AttentionSessionServiceRequest {
+    operation String = "apply_attention_session_layout_topology_transition"
+    attention_session_id UUID
+    attention_session_layout_id UUID
+    client_intent_id String
+    expected_previous_topology_transition_id UUID?
+    section_states session.AttentionLayoutTopologyTransitionSectionInput[]
+    transition_kind String = "topology"
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject = {}
+}
+
+/// `outcome` is one of `committed`, `idempotent`, or `conflict`.
+class ApplyAttentionSessionLayoutTopologyTransitionResponse augment AttentionSessionServiceResponse {
+    operation String = "apply_attention_session_layout_topology_transition"
+    outcome String
+    conflict_reason String?
+    transition session.AttentionLayoutTopologyTransitionPin?
+    latest_transition session.AttentionLayoutTopologyTransitionPin?
+}
+
+/// Commit one complete shared-layout vector through AttentionSessionLayout.
+class ApplyAttentionSessionLayoutTransitionRequest augment AttentionSessionServiceRequest {
+    operation String = "apply_attention_session_layout_transition"
+    attention_session_id UUID
+    attention_session_layout_id UUID
+    client_intent_id String
+    expected_previous_layout_transition_id UUID?
+    topology_transition_id UUID?
+    section_states session.AttentionLayoutTransitionSectionInput[]
+    transition_kind String = "layout"
+    source_kind String?
+    source_ref String?
+    metadata_json JsonObject = {}
+}
+
+/// `outcome` is one of `committed`, `idempotent`, or `conflict`.
+/// Conflict responses fail closed and include the latest committed transition
+/// so clients can reconcile without a hidden retry.
+class ApplyAttentionSessionLayoutTransitionResponse augment AttentionSessionServiceResponse {
+    operation String = "apply_attention_session_layout_transition"
+    outcome String
+    conflict_reason String?
+    transition session.AttentionLayoutTransitionPin?
+    latest_transition session.AttentionLayoutTransitionPin?
+    latest_topology_transition session.AttentionLayoutTopologyTransitionPin?
+}
+
+class DescribeAttentionTransitionRequest augment AttentionSessionServiceRequest {
+    operation String = "describe_attention_transition"
+    attention_focus_transition_id UUID
+}
+
+class DescribeAttentionTransitionResponse augment AttentionSessionServiceResponse {
+    operation String = "describe_attention_transition"
+    exists Bool = false
+    transition session.AttentionFocusTransitionPin?
+}
+
+class ListAttentionTransitionsRequest augment AttentionSessionServiceRequest {
+    operation String = "list_attention_transitions"
+    attention_session_id UUID?
+    identity_session_id UUID?
+    attention_session_section_id UUID?
+    section_key String?
+    focus_scope_id UUID?
+    transition_kind String?
+    limit Int?
+}
+
+class ListAttentionTransitionsResponse augment AttentionSessionServiceResponse {
+    operation String = "list_attention_transitions"
+    transitions session.AttentionFocusTransitionPin[] = []
+}
+
+class ValidateAttentionTransitionRequest augment AttentionSessionServiceRequest {
+    operation String = "validate_attention_transition"
+    attention_focus_transition_id UUID
+    expected_identity_session_id UUID?
+    expected_attention_session_id UUID?
+    expected_attention_session_section_id UUID?
+    expected_focus_scope_id UUID?
+    expected_object_instance_graph_commit_id UUID?
+    expected_projection_hash String?
+}
+
+class ValidateAttentionTransitionResponse augment AttentionSessionServiceResponse {
+    operation String = "validate_attention_transition"
+    validation session.AttentionTransitionValidationResult
+}
+
+ann attention.session.AttentionSessionServiceRequest::operation discriminate key
+ann attention.session.StartAttentionSessionRequest::operation discriminate tag "start_attention_session"
+ann attention.session.MountAttentionSessionLayoutRequest::operation discriminate tag "mount_attention_session_layout"
+ann attention.session.MountAttentionSessionSectionRequest::operation discriminate tag "mount_attention_session_section"
+ann attention.session.DescribeAttentionSessionRequest::operation discriminate tag "describe_attention_session"
+ann attention.session.ApplyAttentionSessionLayoutTopologyTransitionRequest::operation discriminate tag "apply_attention_session_layout_topology_transition"
+ann attention.session.ApplyAttentionSessionLayoutTransitionRequest::operation discriminate tag "apply_attention_session_layout_transition"
+ann attention.session.DescribeAttentionTransitionRequest::operation discriminate tag "describe_attention_transition"
+ann attention.session.ListAttentionTransitionsRequest::operation discriminate tag "list_attention_transitions"
+ann attention.session.ValidateAttentionTransitionRequest::operation discriminate tag "validate_attention_transition"
+
+ann attention.session.AttentionSessionServiceResponse::operation discriminate key
+ann attention.session.StartAttentionSessionResponse::operation discriminate tag "start_attention_session"
+ann attention.session.MountAttentionSessionLayoutResponse::operation discriminate tag "mount_attention_session_layout"
+ann attention.session.MountAttentionSessionSectionResponse::operation discriminate tag "mount_attention_session_section"
+ann attention.session.DescribeAttentionSessionResponse::operation discriminate tag "describe_attention_session"
+ann attention.session.ApplyAttentionSessionLayoutTopologyTransitionResponse::operation discriminate tag "apply_attention_session_layout_topology_transition"
+ann attention.session.ApplyAttentionSessionLayoutTransitionResponse::operation discriminate tag "apply_attention_session_layout_transition"
+ann attention.session.DescribeAttentionTransitionResponse::operation discriminate tag "describe_attention_transition"
+ann attention.session.ListAttentionTransitionsResponse::operation discriminate tag "list_attention_transitions"
+ann attention.session.ValidateAttentionTransitionResponse::operation discriminate tag "validate_attention_transition"

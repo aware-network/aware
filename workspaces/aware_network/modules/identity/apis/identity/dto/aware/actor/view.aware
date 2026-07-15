@@ -1,0 +1,74 @@
+/// API-owned view-state contracts for Identity actor surfaces.
+/// Public API view keys:
+/// - identity.actor_roles
+/// - identity.actor_commits
+/// - identity.actor_subscriptions
+
+class ActorRoleEntryV1 : inline_value {
+    role_assignment_id UUID?
+    role_config_id UUID?
+    role_config_name String?
+    role_display_name String?
+    scope String?
+    status String?
+    granted_at String?
+    granted_by_actor_id UUID?
+    granted_by_display_name String?
+    metadata JsonObject = {}
+}
+
+class ActorRolesViewStateV1 : inline_value {
+    status String = "waiting"
+    actor_id UUID?
+    actor_display_name String?
+    entries ActorRoleEntryV1[] = []
+    summary String?
+    empty_message String = "No roles assigned yet"
+    error String?
+    provenance JsonObject = {}
+}
+
+class ActorCommitEntryV1 : inline_value {
+    actor_commit_id UUID?
+    commit_id UUID?
+    branch_id UUID?
+    summary String?
+    action_label String?
+    target_kind String?
+    target_label String?
+    authored_at String?
+    metadata JsonObject = {}
+}
+
+class ActorCommitsViewStateV1 : inline_value {
+    status String = "waiting"
+    actor_id UUID?
+    actor_display_name String?
+    entries ActorCommitEntryV1[] = []
+    summary String?
+    empty_message String = "No commits authored yet"
+    error String?
+    provenance JsonObject = {}
+}
+
+class ActorSubscriptionEntryV1 : inline_value {
+    actor_subscription_id UUID?
+    event_kind String?
+    event_label String?
+    scope String?
+    status String?
+    activated_at String?
+    last_triggered_at String?
+    metadata JsonObject = {}
+}
+
+class ActorSubscriptionsViewStateV1 : inline_value {
+    status String = "waiting"
+    actor_id UUID?
+    actor_display_name String?
+    entries ActorSubscriptionEntryV1[] = []
+    summary String?
+    empty_message String = "No subscriptions yet"
+    error String?
+    provenance JsonObject = {}
+}

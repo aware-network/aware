@@ -1,5 +1,7 @@
 """Tests for Python primitive type detection."""
 
+from decimal import Decimal
+
 import pytest
 
 # Primitive types
@@ -10,7 +12,9 @@ from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBase
 from python_grammar.primitive_codec import PythonPrimitiveCodec
 
 
-def from_string_or_raise(primitive_codec: PythonPrimitiveCodec, type_text: str) -> CodePrimitiveType:
+def from_string_or_raise(
+    primitive_codec: PythonPrimitiveCodec, type_text: str
+) -> CodePrimitiveType:
     primitive = primitive_codec.parse(type_text)
     if not primitive:
         raise ValueError(f"Failed to parse primitive type: {type_text}")
@@ -21,51 +25,112 @@ def test_primitive_type_detection():
     """Test that Python primitive types are correctly detected."""
     primitive_codec = PythonPrimitiveCodec()
     # Test basic primitive types
-    assert from_string_or_raise(primitive_codec, "str").base_type == CodePrimitiveBaseType.string
-    assert from_string_or_raise(primitive_codec, "int").base_type == CodePrimitiveBaseType.integer
-    assert from_string_or_raise(primitive_codec, "bool").base_type == CodePrimitiveBaseType.boolean
-    assert from_string_or_raise(primitive_codec, "float").base_type == CodePrimitiveBaseType.float
-    assert from_string_or_raise(primitive_codec, "bytes").base_type == CodePrimitiveBaseType.bytes
-    assert from_string_or_raise(primitive_codec, "None").base_type == CodePrimitiveBaseType.null
+    assert (
+        from_string_or_raise(primitive_codec, "str").base_type
+        == CodePrimitiveBaseType.string
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "int").base_type
+        == CodePrimitiveBaseType.integer
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "bool").base_type
+        == CodePrimitiveBaseType.boolean
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "float").base_type
+        == CodePrimitiveBaseType.float
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "bytes").base_type
+        == CodePrimitiveBaseType.bytes
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "None").base_type
+        == CodePrimitiveBaseType.null
+    )
 
     # Unknown identifiers must not be coerced into primitives (critical for IDENT disambiguation)
     assert primitive_codec.parse("Self") is None
     assert primitive_codec.parse("Intent") is None
 
     # Test numeric types including Decimal
-    assert from_string_or_raise(primitive_codec, "decimal").base_type == CodePrimitiveBaseType.float
-    assert from_string_or_raise(primitive_codec, "numeric").base_type == CodePrimitiveBaseType.float
+    assert (
+        from_string_or_raise(primitive_codec, "Decimal").base_type
+        == CodePrimitiveBaseType.decimal
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "decimal").base_type
+        == CodePrimitiveBaseType.decimal
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "numeric").base_type
+        == CodePrimitiveBaseType.decimal
+    )
+    assert (
+        primitive_codec.render(primitive_codec.decimal())
+        == "Annotated[Decimal, DecimalWire()]"
+    )
+    assert (
+        from_string_or_raise(
+            primitive_codec,
+            "Annotated[Decimal, DecimalWire()]",
+        ).base_type
+        == CodePrimitiveBaseType.decimal
+    )
 
     # Test container types
     list_type = from_string_or_raise(primitive_codec, "list[str]")
     assert list_type is not None
     assert list_type.base_type == CodePrimitiveBaseType.array
-    assert list_type.item_type and list_type.item_type.base_type == CodePrimitiveBaseType.string
+    assert (
+        list_type.item_type
+        and list_type.item_type.base_type == CodePrimitiveBaseType.string
+    )
 
     # Test dictionary types with key_type and value_type
     dict_type = from_string_or_raise(primitive_codec, "dict[str, int]")
     assert dict_type is not None
     assert dict_type.base_type == CodePrimitiveBaseType.dict
-    assert dict_type.key_type and dict_type.key_type.base_type == CodePrimitiveBaseType.string
-    assert dict_type.value_type and dict_type.value_type.base_type == CodePrimitiveBaseType.integer
+    assert (
+        dict_type.key_type
+        and dict_type.key_type.base_type == CodePrimitiveBaseType.string
+    )
+    assert (
+        dict_type.value_type
+        and dict_type.value_type.base_type == CodePrimitiveBaseType.integer
+    )
 
     # Test dictionary with complex value type
     complex_dict_type = from_string_or_raise(primitive_codec, "dict[str, list[int]]")
     assert complex_dict_type is not None
     assert complex_dict_type.base_type == CodePrimitiveBaseType.dict
-    assert complex_dict_type.key_type and complex_dict_type.key_type.base_type == CodePrimitiveBaseType.string
-    assert complex_dict_type.value_type and complex_dict_type.value_type.base_type == CodePrimitiveBaseType.array
+    assert (
+        complex_dict_type.key_type
+        and complex_dict_type.key_type.base_type == CodePrimitiveBaseType.string
+    )
+    assert (
+        complex_dict_type.value_type
+        and complex_dict_type.value_type.base_type == CodePrimitiveBaseType.array
+    )
     assert (
         complex_dict_type.value_type.item_type
-        and complex_dict_type.value_type.item_type.base_type == CodePrimitiveBaseType.integer
+        and complex_dict_type.value_type.item_type.base_type
+        == CodePrimitiveBaseType.integer
     )
 
     # Test dictionary with integer keys
     int_key_dict_type = from_string_or_raise(primitive_codec, "dict[int, str]")
     assert int_key_dict_type is not None
     assert int_key_dict_type.base_type == CodePrimitiveBaseType.dict
-    assert int_key_dict_type.key_type and int_key_dict_type.key_type.base_type == CodePrimitiveBaseType.integer
-    assert int_key_dict_type.value_type and int_key_dict_type.value_type.base_type == CodePrimitiveBaseType.string
+    assert (
+        int_key_dict_type.key_type
+        and int_key_dict_type.key_type.base_type == CodePrimitiveBaseType.integer
+    )
+    assert (
+        int_key_dict_type.value_type
+        and int_key_dict_type.value_type.base_type == CodePrimitiveBaseType.string
+    )
 
     # Test Optional types
     optional_type = from_string_or_raise(primitive_codec, "Optional[str]")
@@ -85,10 +150,34 @@ def test_primitive_type_detection():
     nested_type = from_string_or_raise(primitive_codec, "list[dict[str, int]]")
     assert nested_type is not None
     assert nested_type.base_type == CodePrimitiveBaseType.array
-    assert nested_type.item_type and nested_type.item_type.base_type == CodePrimitiveBaseType.dict
-    assert nested_type.item_type.key_type and nested_type.item_type.key_type.base_type == CodePrimitiveBaseType.string
     assert (
-        nested_type.item_type.value_type and nested_type.item_type.value_type.base_type == CodePrimitiveBaseType.integer
+        nested_type.item_type
+        and nested_type.item_type.base_type == CodePrimitiveBaseType.dict
+    )
+    assert (
+        nested_type.item_type.key_type
+        and nested_type.item_type.key_type.base_type == CodePrimitiveBaseType.string
+    )
+    assert (
+        nested_type.item_type.value_type
+        and nested_type.item_type.value_type.base_type == CodePrimitiveBaseType.integer
+    )
+
+
+def test_decimal_literals_render_exact_constructor() -> None:
+    primitive_codec = PythonPrimitiveCodec()
+    assert primitive_codec.parse_literal('Decimal("1.2300")') == Decimal("1.2300")
+    assert primitive_codec.to_literal_string(Decimal("1.2300")) == "Decimal('1.23')"
+    assert (
+        primitive_codec.to_typed_literal_string("1.2300", primitive_codec.decimal())
+        == "Decimal('1.23')"
+    )
+    assert (
+        primitive_codec.to_typed_literal_string(
+            ["1.20", "3.400"],
+            primitive_codec.array(primitive_codec.decimal()),
+        )
+        == "[Decimal('1.2'), Decimal('3.4')]"
     )
 
 
@@ -123,7 +212,9 @@ def test_primitive_type_transformation():
         key_type=build_code_primitive_type(base_type=CodePrimitiveBaseType.string),
         value_type=build_code_primitive_type(
             base_type=CodePrimitiveBaseType.array,
-            item_type=build_code_primitive_type(base_type=CodePrimitiveBaseType.integer),
+            item_type=build_code_primitive_type(
+                base_type=CodePrimitiveBaseType.integer
+            ),
         ),
     )
     assert primitive_codec.render(complex_dict_type) == "dict[str, list[int]]"
@@ -136,7 +227,12 @@ def test_primitive_type_transformation():
     assert primitive_codec.render(union_type) == "Union[str, int]"
 
     # Any should render as Any (canonical fallback)
-    assert primitive_codec.render(build_code_primitive_type(base_type=CodePrimitiveBaseType.any)) == "Any"
+    assert (
+        primitive_codec.render(
+            build_code_primitive_type(base_type=CodePrimitiveBaseType.any)
+        )
+        == "Any"
+    )
 
 
 def test_is_list_detection():
@@ -203,7 +299,9 @@ def test_get_inner_type_extraction():
     assert primitive_codec.get_inner_type("Optional[list[int]]") == "Optional[int]"
 
     # Test union types with lists
-    assert primitive_codec.get_inner_type("Union[List[str], None]") == "Union[None, str]"
+    assert (
+        primitive_codec.get_inner_type("Union[List[str], None]") == "Union[None, str]"
+    )
     assert primitive_codec.get_inner_type("List[str] | None") == "None | str"
     assert primitive_codec.get_inner_type("str | List[int]") == "str | int"
 

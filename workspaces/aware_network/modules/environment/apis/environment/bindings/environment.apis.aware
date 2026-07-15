@@ -1,0 +1,285 @@
+api environment {
+    view navigator on Environment.environment state aware_environment_service_dto.environment.EnvironmentNavigatorViewStateV1 {
+        """
+        Environment OS navigation surface for Environment -> Process -> Thread selection.
+        """
+
+        stream snapshot
+        endpoint describe_environment describe.describe_environment
+        endpoint describe_environment_status status.describe_environment_status
+        endpoint describe_environment_topology topology.describe_environment_topology
+    }
+
+    view process_workspace on Environment.process state aware_environment_service_dto.environment.ProcessWorkspaceViewStateV1 {
+        """
+        Process-level workspace surface for selected Thread navigation.
+        """
+
+        stream snapshot
+        endpoint describe_environment describe.describe_environment
+        endpoint describe_environment_status status.describe_environment_status
+        endpoint describe_environment_topology topology.describe_environment_topology
+    }
+
+    view thread_layout on Environment.thread state aware_environment_service_dto.environment.ThreadLayoutViewStateV1 {
+        """
+        Thread layout and lane attachment surface for selected coordination focus.
+        """
+
+        stream snapshot
+        endpoint describe_environment describe.describe_environment
+        endpoint describe_environment_status status.describe_environment_status
+        endpoint describe_environment_topology topology.describe_environment_topology
+    }
+
+    capability capabilities {
+        endpoint fetch_capabilities aware_environment_service_dto.environment.FetchCapabilitiesRequest {
+            """
+            Read Environment runtime capability advertisement through the canonical Environment API boundary.
+            """
+
+            response aware_environment_service_dto.environment.FetchCapabilitiesResponse
+        }
+    }
+
+    capability describe_config {
+        endpoint describe_environment_config aware_environment_service_dto.environment.DescribeEnvironmentConfigRequest {
+            """
+            Describe the hosted EnvironmentConfig through the canonical Environment API boundary.
+            """
+
+            response aware_environment_service_dto.environment.DescribeEnvironmentConfigResponse
+        }
+    }
+
+    capability describe {
+        endpoint describe_environment aware_environment_service_dto.environment.DescribeEnvironmentRequest {
+            """
+            Describe one provisioned Environment instance and its current boot/lane pointers.
+            """
+
+            response aware_environment_service_dto.environment.DescribeEnvironmentResponse
+        }
+    }
+
+    capability topology {
+        endpoint describe_environment_topology aware_environment_service_dto.environment.DescribeEnvironmentTopologyRequest {
+            """
+            Describe the process/thread topology and attached OIG lanes for an Environment.
+            """
+
+            response aware_environment_service_dto.environment.DescribeEnvironmentTopologyResponse
+        }
+    }
+
+    capability status {
+        endpoint describe_environment_status aware_environment_service_dto.environment.DescribeEnvironmentStatusRequest {
+            """
+            Read the canonical Environment status envelope with explicit authority blocks.
+            """
+
+            response aware_environment_service_dto.environment.DescribeEnvironmentStatusResponse
+        }
+    }
+
+    capability ready {
+        endpoint ensure_ready aware_environment_service_dto.environment.EnsureReadyRequest {
+            """
+            Ensure the Environment runtime is ready to execute commit-backed graph operations.
+            """
+
+            response aware_environment_service_dto.environment.EnsureReadyResponse
+        }
+    }
+
+    capability lane_head {
+        endpoint get_lane_head aware_environment_service_dto.environment.GetLaneHeadRequest {
+            """
+            Read the current head commit for one explicit Environment lane key.
+            """
+
+            response aware_environment_service_dto.environment.GetLaneHeadResponse
+        }
+    }
+
+    capability object_instance_graph_commit {
+        endpoint get_object_instance_graph_commit aware_environment_service_dto.environment.GetObjectInstanceGraphCommitRequest {
+            """
+            Read one ObjectInstanceGraphCommit by id through the Environment service boundary.
+            """
+
+            response aware_environment_service_dto.environment.GetObjectInstanceGraphCommitResponse
+        }
+    }
+
+    capability committed_projection_dto {
+        endpoint materialize_committed_projection_dto aware_environment_service_dto.environment.MaterializeCommittedProjectionDtoRequest {
+            """
+            Materialize a committed projection root as a typed ontology DTO snapshot through an explicit commit locator.
+            """
+
+            response aware_environment_service_dto.environment.MaterializeCommittedProjectionDtoResponse
+        }
+    }
+
+    capability runtime_ref {
+        endpoint resolve_runtime_refs aware_environment_service_dto.environment.ResolveRuntimeRefsRequest {
+            """
+            Resolve hosted runtime OCG/function/class references for remote graph invocation.
+            """
+
+            response aware_environment_service_dto.environment.ResolveRuntimeRefsResponse
+        }
+    }
+
+    capability service_routes {
+        endpoint configure_service_api_dependency_routes aware_environment_service_dto.environment.ConfigureServiceApiDependencyRoutesRequest {
+            """
+            Configure Environment-hosted service API dependency routes through the canonical Environment API boundary.
+            """
+
+            response aware_environment_service_dto.environment.ConfigureServiceApiDependencyRoutesResponse
+        }
+    }
+
+    capability ontology {
+        endpoint attach_environment_ontology aware_environment_service_dto.environment.AttachEnvironmentOntologyRequest {
+            """
+            Attach one Ontology authority to a stable Environment through the canonical Environment API boundary.
+            """
+
+            response aware_environment_service_dto.environment.AttachEnvironmentOntologyResponse
+        }
+
+        endpoint ensure_environment_ontology_runtime aware_environment_service_dto.environment.EnsureEnvironmentOntologyRuntimeRequest {
+            """
+            Resolve and register one Ontology-owned runtime artifact set for a running Environment.
+            """
+
+            response aware_environment_service_dto.environment.EnsureEnvironmentOntologyRuntimeResponse
+        }
+
+        endpoint list_environment_ontologies aware_environment_service_dto.environment.ListEnvironmentOntologiesRequest {
+            """
+            List Environment-owned Ontology membership pointers without expanding Ontology-owned OIGI inventory.
+            """
+
+            response aware_environment_service_dto.environment.ListEnvironmentOntologiesResponse
+        }
+    }
+
+    capability profile {
+        endpoint upsert_environment_profile aware_environment_service_dto.environment.UpsertEnvironmentProfileRequest {
+            """
+            Install or update Environment-owned profile topology through the Environment API boundary.
+            """
+
+            response aware_environment_service_dto.environment.UpsertEnvironmentProfileResponse
+        }
+
+        endpoint provision_environment_profile aware_environment_service_dto.environment.ProvisionEnvironmentProfileRequest {
+            """
+            Provision concrete Environment Process/Thread topology from an installed EnvironmentProfile seed.
+            """
+
+            response aware_environment_service_dto.environment.ProvisionEnvironmentProfileResponse
+        }
+    }
+
+    capability actor_admission {
+        endpoint admit_actor aware_environment_service_dto.environment.AdmitEnvironmentActorRequest {
+            """
+            Admit an actor to an EnvironmentProfile through committed ActorConfig eligibility and Identity role assignment.
+            """
+
+            response aware_environment_service_dto.environment.AdmitEnvironmentActorResponse
+        }
+    }
+
+    capability session {
+        endpoint start_session aware_environment_service_dto.environment.StartEnvironmentSessionRequest {
+            """
+            Start a shared EnvironmentSession after accepted Environment admission.
+            """
+
+            response aware_environment_service_dto.environment.StartEnvironmentSessionResponse
+        }
+
+        endpoint join_session aware_environment_service_dto.environment.JoinEnvironmentSessionRequest {
+            """
+            Join a shared EnvironmentSession after accepted Environment admission.
+            """
+
+            response aware_environment_service_dto.environment.JoinEnvironmentSessionResponse
+        }
+
+        endpoint describe_session aware_environment_service_dto.environment.DescribeEnvironmentSessionRequest {
+            """
+            Describe a shared EnvironmentSession without resolving navigation or Attention.
+            """
+
+            response aware_environment_service_dto.environment.DescribeEnvironmentSessionResponse
+        }
+
+        endpoint resolve_attention aware_environment_service_dto.environment.ResolveEnvironmentSessionAttentionRequest {
+            """
+            Resolve Environment session Thread/Layout pins against Attention session and transition validation.
+            """
+
+            response aware_environment_service_dto.environment.ResolveEnvironmentSessionAttentionResponse
+        }
+
+        endpoint mount_attention_session aware_environment_service_dto.environment.MountEnvironmentSessionAttentionRequest {
+            """
+            Commit one EnvironmentSession-owned portal to an existing AttentionSession authority.
+            """
+
+            response aware_environment_service_dto.environment.MountEnvironmentSessionAttentionResponse
+        }
+    }
+
+    capability navigation {
+        endpoint create_navigation_context aware_environment_service_dto.environment.CreateEnvironmentNavigationContextRequest {
+            """
+            Create an EnvironmentSession-owned navigation context after accepted session join.
+            """
+
+            response aware_environment_service_dto.environment.CreateEnvironmentNavigationContextResponse
+        }
+
+        endpoint select_navigation_target aware_environment_service_dto.environment.SelectEnvironmentNavigationTargetRequest {
+            """
+            Select the Process/Thread target for one Environment navigation context.
+            """
+
+            response aware_environment_service_dto.environment.SelectEnvironmentNavigationTargetResponse
+        }
+
+        endpoint describe_navigation_context aware_environment_service_dto.environment.DescribeEnvironmentNavigationContextRequest {
+            """
+            Describe one Environment navigation context without mutating Attention or Experience state.
+            """
+
+            response aware_environment_service_dto.environment.DescribeEnvironmentNavigationContextResponse
+        }
+
+        endpoint list_navigation_contexts aware_environment_service_dto.environment.ListEnvironmentNavigationContextsRequest {
+            """
+            List Environment navigation contexts owned by one EnvironmentSession.
+            """
+
+            response aware_environment_service_dto.environment.ListEnvironmentNavigationContextsResponse
+        }
+    }
+
+    capability function_call {
+        endpoint invoke_function aware_environment_service_dto.environment.InvokeFunctionRequest {
+            """
+            Invoke one graph function through the canonical commit-backed Environment runtime boundary.
+            """
+
+            response aware_environment_service_dto.environment.InvokeFunctionResponse
+        }
+    }
+
+}

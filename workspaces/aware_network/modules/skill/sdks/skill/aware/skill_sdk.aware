@@ -1,0 +1,10 @@
+sdk skill_sdk {
+    "Canonical Skill SDK operation over the Skill service API."
+
+    api skill;
+
+    operation invoke_skill {
+        "Invoke one committed SkillPackage through the Skill service API boundary."
+        endpoint skill.invoke.invoke;
+    }
+}

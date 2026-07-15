@@ -1,0 +1,31 @@
+class NetworkNodePackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    network_node_config NetworkNodeConfig unique
+
+    // Attributes
+    name String key
+
+    fn build construct(
+        name String key,
+        network_node_config_id UUID,
+        source_code_package_id UUID? = null
+    ) -> NetworkNodePackage {
+        """
+        Create the canonical Network-owned package root over an existing `NetworkNodeConfig`.
+
+        Contract:
+        - Identity is keyed by Network node package `name`.
+        - `NetworkNodePackage` is the package/public root over an existing canonical
+          `NetworkNodeConfig`.
+        - `network_node_config_id` must point at the canonical NetworkNodeConfig stable id for
+          this package root.
+        - `source_code_package_id` is the explicit raw-source provenance link for this semantic
+          leaf package.
+        - Workspace will later mount `NetworkNodePackage`, not raw `NetworkNodeConfig`.
+        """
+    }
+}
+
+ann network.NetworkNodePackage::source_code_package load eager
+ann network.NetworkNodePackage::network_node_config load eager

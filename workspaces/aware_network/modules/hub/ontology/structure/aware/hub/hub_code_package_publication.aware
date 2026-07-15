@@ -1,0 +1,65 @@
+class HubCodePackagePublication {
+    // Relationships
+    artifact_revision HubArtifactRevision?
+    code_package aware_code.package.CodePackage?
+    producer_provenance HubProducerProvenance?
+
+    // Attributes
+    artifact_sha256 String
+    artifact_size_bytes Int?
+    artifact_url String
+    channel_key String key
+    descriptor_digest String?
+    download_handle String?
+    fqn_prefix String?
+    language aware_code.code.CodeLanguage key
+    manifest_kind String?
+    manifest_relative_path String?
+    media_type String?
+    metadata JsonObject = {}
+    package_name String key
+    package_root String?
+    published_at_utc String?
+    revision_id String key
+    sources_root String?
+    surface String key
+    version String?
+
+    fn publish construct(
+        package_name String key,
+        language aware_code.code.CodeLanguage key,
+        surface String key,
+        channel_key String key,
+        revision_id String key,
+        artifact_url String,
+        artifact_sha256 String,
+        code_package_id UUID? = null,
+        artifact_revision_id UUID? = null,
+        producer_provenance_id UUID? = null,
+        descriptor_digest String? = null,
+        artifact_size_bytes Int? = null,
+        media_type String? = null,
+        download_handle String? = null,
+        manifest_kind String? = null,
+        manifest_relative_path String? = null,
+        package_root String? = null,
+        sources_root String? = null,
+        fqn_prefix String? = null,
+        version String? = null,
+        published_at_utc String? = null,
+        metadata JsonObject = {}
+    ) -> HubCodePackagePublication {
+        """
+        Create one Hub CodePackage publication.
+
+        Contract:
+        - CodePackage semantic truth remains Code-owned.
+        - Hub publication records artifact lock, channel, provenance, and receipt truth.
+        """
+    }
+
+}
+
+ann hub.HubCodePackagePublication::artifact_revision load eager
+ann hub.HubCodePackagePublication::code_package load eager
+ann hub.HubCodePackagePublication::producer_provenance load eager

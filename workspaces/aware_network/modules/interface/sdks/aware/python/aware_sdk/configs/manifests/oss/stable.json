@@ -1,0 +1,13 @@
+{
+  "suites": [
+    "release",
+    "cli",
+    "release-pipeline",
+    "test-runner",
+    "file_system",
+    "terminal",
+    "terminal_providers",
+    "kernel",
+    "environment"
+  ]
+}

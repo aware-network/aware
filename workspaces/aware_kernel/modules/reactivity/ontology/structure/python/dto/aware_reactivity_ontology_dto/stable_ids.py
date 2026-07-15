@@ -164,6 +164,18 @@ def stable_event_config_condition_config_scope_event_id(
     )
 
 
+def stable_event_config_meaning_resolver_config_id(
+    *, event_config_id: UUID, action_config_id: UUID, resolver_key: str = "default"
+) -> UUID:
+    """Compiler-generated from class-attribute identity keys: event_config_id, action_config_id, resolver_key"""
+
+    resolver_key_norm = (resolver_key or "").casefold().strip() or "default"
+    return uuid5(
+        NS_REACTIVITY,
+        f"aware:event_config_meaning_resolver_config:{event_config_id}:{action_config_id}:{resolver_key_norm}",
+    )
+
+
 def stable_event_schedule_id(*, event_config_id: UUID, key: str) -> UUID:
     """Compiler-generated from class-attribute identity keys: event_config_id, key"""
 
@@ -213,6 +225,10 @@ CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID: dict[str, tuple[str, tuple[st
         "stable_condition_config_attribute_config_id",
         ("condition_config_class_config_id", "attribute_config_id", "operator", "negate"),
     ),
+    "cd0824a9-2772-5caf-a09d-894d16b4e7a9": (
+        "stable_event_config_meaning_resolver_config_id",
+        ("event_config_id", "action_config_id", "resolver_key"),
+    ),
     "dc27b639-66c8-5bca-9136-c00bc988ecdf": (
         "stable_condition_config_enum_config_id",
         ("condition_config_attribute_config_id", "enum_config_id"),
@@ -245,6 +261,7 @@ __all__ = [
     "stable_event_config_condition_config_id",
     "stable_event_config_condition_config_scope_id",
     "stable_event_config_condition_config_scope_event_id",
+    "stable_event_config_meaning_resolver_config_id",
     "stable_event_schedule_id",
     "CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID",
 ]

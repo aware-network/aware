@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from collections.abc import Awaitable, Mapping
 from contextlib import contextmanager, nullcontext
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from inspect import isawaitable
 from typing import Protocol, TypeVar, cast
 from uuid import UUID
 
 from aware_code.types import JsonArray, JsonObject, JsonValue
 from aware_meta.graph.instance.commit.perf_trace import commit_perf_span
+from aware_meta.graph.instance.commit.body_codec import OigCommitBodyDraft
 from aware_meta.runtime.handler_executor.contracts import (
     MetaGraphBoundArguments,
     MetaGraphFunctionImplementationDescriptor,
@@ -34,7 +35,7 @@ from aware_orm.runtime.invocation import (
     reset_invocation_provider,
     set_invocation_provider,
 )
-from aware_orm.session.change_collector import scoped_change_collection
+from aware_orm.session.change_collector import ORMChangeSet, scoped_change_collection
 from aware_orm.session.current_session_ctx import set_session
 
 
@@ -58,11 +59,13 @@ class MetaGraphLanguageHandlerExecution:
     error_message: str | None = None
     execution_time_ms: int = 0
     changes: tuple[ObjectInstanceGraphChange, ...] = ()
+    body_draft: OigCommitBodyDraft | None = None
     post_oig: ObjectInstanceGraph | None = None
     expected_graph_hash_post: str | None = None
     root_object_id: UUID | None = None
     root_class_instance_identity_id: UUID | None = None
     constructed_class_instance_ids: tuple[UUID, ...] = ()
+    dirty_source_object_ids: tuple[UUID, ...] = ()
 
 
 class MetaGraphLanguageHandlerImplementation(Protocol):
@@ -324,7 +327,7 @@ class MetaGraphGeneratedLanguageHandlerImplementation:
                 context.session,
                 branch_id=request.staged_call.lane_scope.domain_branch_id,
             ),
-            scoped_change_collection(),
+            scoped_change_collection() as change_collector,
         ):
             from aware_meta.runtime.oig_model_reifier import (  # noqa: WPS433
                 bind_oig_models_to_current_handler_session,
@@ -344,6 +347,9 @@ class MetaGraphGeneratedLanguageHandlerImplementation:
                         opg=request.execution_plan.object_projection_graph,
                         oig=pre_state.before_oig,
                         branch_id=request.staged_call.lane_scope.domain_branch_id,
+                        construction_plan_cache=(
+                            request.execution_plan.oig_model_construction_plan_cache
+                        ),
                     )
             with commit_perf_span(
                 phase="handler_execution.language_handler.call_generated_handler",
@@ -376,7 +382,36 @@ class MetaGraphGeneratedLanguageHandlerImplementation:
                     "Generated Meta language handler must return "
                     "MetaGraphLanguageHandlerExecution evidence."
                 )
+        with commit_perf_span(
+            phase="handler_execution.language_handler.snapshot_dirty_source_ids",
+            category="meta.runtime.handler_execution",
+            metadata=metadata,
+        ):
+            change_set = change_collector.snapshot()
+            dirty_source_object_ids = _dirty_source_object_ids_from_change_set(
+                change_set,
+                extra_ids=result.dirty_source_object_ids,
+            )
+        if dirty_source_object_ids != result.dirty_source_object_ids:
+            result = replace(
+                result,
+                dirty_source_object_ids=dirty_source_object_ids,
+            )
         return result
+
+
+def _dirty_source_object_ids_from_change_set(
+    change_set: ORMChangeSet,
+    *,
+    extra_ids: tuple[UUID, ...] = (),
+) -> tuple[UUID, ...]:
+    dirty_ids = {
+        *change_set.created_ids,
+        *change_set.touched_ids,
+        *change_set.deleted_ids,
+        *extra_ids,
+    }
+    return tuple(sorted(dirty_ids, key=str))
 
 
 def _should_bind_pre_state_models_to_handler_session(
@@ -616,10 +651,7 @@ def _class_function_edge(
 
 def _json_object_from_mapping(payload: Mapping[str, object]) -> JsonObject:
     return JsonObject(
-        {
-            str(key): cast(JsonValue, value)
-            for key, value in dict(payload).items()
-        }
+        {str(key): cast(JsonValue, value) for key, value in dict(payload).items()}
     )
 
 
@@ -680,10 +712,13 @@ class MetaGraphSessionDeltaLanguageHandlerRunner:
             category="meta.runtime.handler_execution",
             metadata=metadata,
         ):
-            if execution.post_oig is not None and execution.changes:
+            if (
+                execution.post_oig is not None
+                and (execution.changes or execution.body_draft is not None)
+            ) or (execution.changes and execution.body_draft is not None):
                 raise MetaGraphLanguageHandlerExecutionError(
-                    "Language-handler execution must return either post_oig evidence "
-                    "or change-tree evidence, not both."
+                    "Language-handler execution must return either post_oig, "
+                    "change-tree, or body-draft evidence, without mixing them."
                 )
         with commit_perf_span(
             phase="handler_execution.language_handler.build_session_delta",
@@ -695,6 +730,21 @@ class MetaGraphSessionDeltaLanguageHandlerRunner:
                     request=request,
                     pre_state=pre_state,
                     post_oig=execution.post_oig,
+                    expected_graph_hash_post=execution.expected_graph_hash_post,
+                    root_object_id=execution.root_object_id,
+                    root_class_instance_identity_id=(
+                        execution.root_class_instance_identity_id
+                    ),
+                    constructed_class_instance_ids=(
+                        execution.constructed_class_instance_ids
+                    ),
+                    dirty_source_object_ids=execution.dirty_source_object_ids,
+                )
+            elif execution.body_draft is not None:
+                session_delta = self.delta_builder.build_delta_from_body_draft(
+                    request=request,
+                    pre_state=pre_state,
+                    body_draft=execution.body_draft,
                     expected_graph_hash_post=execution.expected_graph_hash_post,
                     root_object_id=execution.root_object_id,
                     root_class_instance_identity_id=(

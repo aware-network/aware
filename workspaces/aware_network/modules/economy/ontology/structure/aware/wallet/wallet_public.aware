@@ -1,0 +1,32 @@
+class WalletPublic {
+    // Relationships
+    escrows escrow.Escrow[]
+
+    // Attributes
+    address String unique
+    nonce_counter Int = 0
+    public_key String unique key
+
+    fn build construct (address String, public_key String key) -> WalletPublic {
+        """
+        Creates a wallet public record.
+
+        Receipt: WalletPublic (address + public_key).
+        """
+    }
+
+    fn lock_escrow (smart_contract_reservation_id UUID, op_nonce Int, coin_id UUID, locked_amount Decimal, description String? = null) -> escrow.Escrow {
+        """
+        Locks funds by creating an escrow under this wallet public key.
+
+        Receipt: Escrow(status=locked) + WalletPublic.escrows link (commit-backed).
+        """
+        let created = construct escrows.create(
+            smart_contract_reservation_id = smart_contract_reservation_id,
+            op_nonce = op_nonce,
+            coin_id = coin_id,
+            locked_amount = locked_amount,
+            description = description,
+        )
+    }
+}

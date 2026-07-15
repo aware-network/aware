@@ -1,0 +1,32 @@
+aware_api = 1
+
+[api]
+package_name = "service-service-api"
+fqn_prefix = "aware_service_service_api"
+version_number = 1
+title = "Service Service API"
+description = "Canonical API boundary for Service operation DTO ownership and future service-control capabilities."
+
+[build]
+sources_dir = "bindings"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+compilation_mode = "api_ontology"
+
+[targets.python]
+root_dir = "python"
+
+[targets.python.public_package]
+package_dir = "aware_service_service_api"
+
+[targets.python.service_protocol]
+package_dir = "aware_service_service_protocol"
+
+[[dependencies]]
+package_name = "service-service-dto"
+
+[[semantic_package_exports]]
+kind = "api_dto"
+package_name = "service-service-dto"
+manifest_path = "dto/aware.toml"

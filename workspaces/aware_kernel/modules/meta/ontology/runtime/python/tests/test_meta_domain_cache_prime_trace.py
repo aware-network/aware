@@ -12,6 +12,8 @@ from aware_meta.graph.instance.commit.perf_trace import (
     CommitPerfTraceRecorder,
     active_commit_perf_trace,
 )
+from aware_meta.graph.instance.hash import compute_hash
+from aware_meta.graph.instance.index import build_index
 from aware_meta.runtime.graph_commit_invocation_backend import (
     MetaGraphCommitInvocationBackend,
     MetaGraphDomainCommitAppendRequest,
@@ -173,7 +175,9 @@ def test_domain_cache_prime_uses_valid_post_oig_snapshot(monkeypatch: Any) -> No
 
 
 def test_cached_lane_materializer_prime_emits_index_and_store_spans() -> None:
-    recorder = CommitPerfTraceRecorder(default_category="meta.oig.materialization_cache")
+    recorder = CommitPerfTraceRecorder(
+        default_category="meta.oig.materialization_cache"
+    )
     materializer = CachedLaneMaterializer(
         materializer=cast(Any, _FakeOIGMaterializer()),
         cache=SharedMaterializationCache(max_entries=64),
@@ -203,24 +207,33 @@ def test_cached_lane_materializer_prime_emits_index_and_store_spans() -> None:
 
 
 def test_append_ready_preserves_valid_cache_prime_snapshot() -> None:
-    execution_plan = cast(Any, SimpleNamespace())
+    execution_plan = cast(
+        Any,
+        SimpleNamespace(
+            index=SimpleNamespace(
+                attribute_configs_by_id={},
+                class_configs_by_id={},
+            )
+        ),
+    )
     before_oig = ObjectInstanceGraph.model_construct(
         id=uuid4(),
         class_instances=[],
         class_instance_relationships=[],
     )
     post_oig = before_oig.model_copy(deep=True)
+    graph_hash_post = compute_hash(post_oig, build_index(post_oig))
     snapshot = MetaGraphMaterializationCachePrimeSnapshot(
         execution_plan=execution_plan,
         post_oig=post_oig,
-        graph_hash_post="sha256:test:post",
+        graph_hash_post=graph_hash_post,
     )
     mutation_set = MetaGraphMutationSet(
         execution_plan=execution_plan,
         before_oig=before_oig,
         changes=(),
         graph_hash_pre="sha256:test:pre",
-        graph_hash_post="sha256:test:post",
+        graph_hash_post=graph_hash_post,
         materialization_cache_prime_snapshot=snapshot,
     )
 

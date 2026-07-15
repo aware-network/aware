@@ -1882,6 +1882,7 @@ def test_language_plugin_materialization_runs_python_plugin_validation_gate(
         source_is_runtime=True,
         output_root=output_root,
         import_root="aware_demo",
+        code_package_surface="structure",
         materialization_source="ontology",
         source_code_package_id=UUID("11111111-1111-4111-8111-111111111111"),
         object_config_graph_package_id=UUID("22222222-2222-4222-8222-222222222222"),
@@ -1894,6 +1895,7 @@ def test_language_plugin_materialization_runs_python_plugin_validation_gate(
     second = materialize_object_config_graph_via_language_plugin(request)
 
     assert first.status == "succeeded"
+    assert first.code_package_surface == "structure"
     assert [item.path for item in first.generated_files] == [
         Path(".aware/materializations/ocg.node_paths.python.json"),
         Path(".aware/materializations/python.models.json"),
@@ -1997,6 +1999,7 @@ def test_language_plugin_materialization_runs_python_plugin_validation_gate(
     assert models_receipt.producer_provider_key == "aware_meta"
     assert models_receipt.semantic_owner == META_OBJECT_CONFIG_GRAPH_OWNER
     assert models_receipt.producer_key == META_LANGUAGE_MATERIALIZATION_PRODUCER_KEY
+    assert models_receipt.code_package_surface == "structure"
     assert models_receipt.artifact_family == "ocg_language_materialization"
     assert models_receipt.artifact_role == "runtime_model_index"
     assert models_receipt.status == "available"
@@ -2026,6 +2029,7 @@ def test_language_plugin_materialization_runs_python_plugin_validation_gate(
         == (output_root / "aware_demo" / "_aware" / "python.models.json").as_posix()
     )
     assert snapshot_models_receipt["producer_provider_key"] == "aware_meta"
+    assert snapshot_models_receipt["code_package_surface"] == "structure"
     assert snapshot_models_receipt["source_code_package_id"] == (
         "11111111-1111-4111-8111-111111111111"
     )
@@ -2373,7 +2377,14 @@ def test_python_ontology_dto_package_includes_runtime_graph_stable_ids(
     assert {item.path for item in result.generated_files} >= {
         Path("aware_demo_ontology_dto/default/device.py"),
         Path("aware_demo_ontology_dto/stable_ids.py"),
+        Path("aware_demo_ontology_dto/_aware/ocg.binding.snapshot.msgpack"),
     }
+    assert (
+        output_root
+        / "aware_demo_ontology_dto"
+        / "_aware"
+        / "ocg.binding.snapshot.msgpack"
+    ).is_file()
 
 
 def test_language_plugin_materialization_declares_python_meta_handler_provider(

@@ -1,0 +1,254 @@
+/// Canonical DTOs for actor-scoped working memory.
+///
+/// Ownership:
+/// - Memory API owns these transport read models.
+/// - Memory ontology owns persisted MemoryWorking and MemoryWorkingItem truth.
+/// - Attention validates AttentionFocusTransition truth before Memory retains
+///   an attention pointer.
+/// - Identity owns actor membership and subscriptions.
+
+class MemoryWorkingPin {
+    memory_working_id UUID
+    actor_id UUID
+    key String = "default"
+    content_chain_id UUID?
+    item_count Int = 0
+    latest_item_id UUID?
+}
+
+class MemoryResolvedEventMeaningPin {
+    memory_working_event_meaning_id UUID
+    memory_working_event_frame_id UUID
+    memory_working_item_id UUID
+    event_id UUID
+    meaning_text String
+    provider_reference String?
+    resolved_at DateTime?
+    resolver_status String
+    resolver_endpoint_ref String
+    resolver_discriminant String
+    resolver_program_impl_instruction_intent_id UUID
+    resolver_action_config_id UUID
+    resolver_api_capability_endpoint_id UUID
+    resolver_api_call_id UUID
+    resolver_api_call_key UUID
+    resolver_request_model_id UUID
+    resolver_api_call_outcome_id UUID
+    resolver_response_model_id UUID
+    resolver_response_class_config_id UUID
+    resolver_service_operation_id UUID
+    resolver_service_operation_config_id UUID
+    resolver_service_operation_commit_id UUID
+    resolver_service_operation_head_commit_id UUID
+    resolver_service_operation_branch_id UUID
+    resolver_service_operation_projection_hash String
+    resolver_api_call_outcome_commit_id UUID
+    resolver_api_call_outcome_head_commit_id UUID
+    resolver_api_call_outcome_branch_id UUID
+    resolver_api_call_outcome_projection_hash String
+}
+
+class MemoryResolvedEventMeaningEvidence {
+    validation_status String = "not_resolved"
+    valid Bool = false
+    usable Bool = false
+    failure_reasons String[] = []
+    meaning MemoryResolvedEventMeaningPin?
+}
+
+class MemoryWorkingItemPin {
+    memory_working_item_id UUID
+    memory_working_id UUID
+    kind String
+    position Int = 0
+    created_at DateTime?
+    event_frame_id UUID?
+    event_id UUID?
+    event_config_id UUID?
+    event_activation_id UUID?
+    event_type String?
+    event_source String?
+    event_status String?
+    commit_branch_id UUID?
+    commit_projection_hash String?
+    commit_id UUID?
+    object_instance_graph_id UUID?
+    object_instance_graph_commit_id UUID?
+    action_intent_id UUID?
+    intent_key String?
+    action_config_id UUID?
+    action_execution_id UUID?
+    action_execution_key String?
+    api_call_key UUID?
+    action_binding_id UUID?
+    action_experience_id UUID?
+    environment_profile_id UUID?
+    environment_event_id UUID?
+    invocation_config_id UUID?
+    endpoint_id UUID?
+    actor_subscription_id UUID?
+    resolved_event_meaning MemoryResolvedEventMeaningPin?
+    content_frame_id UUID?
+    content_id UUID?
+    tool_frame_id UUID?
+    tool_call_id UUID?
+    tool_response_id UUID?
+    object_instance_graph_branch_id UUID?
+    projection_hash String?
+    attention_focus_transition_id UUID?
+    rationale String?
+    summary String?
+}
+
+class MemoryEventActionProvenanceEvidence {
+    validation_status String = "not_validated"
+    valid Bool = false
+    usable Bool = false
+    failure_reasons String[] = []
+    event_id UUID?
+    event_config_id UUID?
+    event_activation_id UUID?
+    event_type String?
+    event_source String?
+    event_status String?
+    commit_branch_id UUID?
+    commit_projection_hash String?
+    commit_id UUID?
+    object_instance_graph_id UUID?
+    object_instance_graph_commit_id UUID?
+    actor_id UUID?
+    actor_subscription_id UUID?
+    action_intent_id UUID?
+    intent_key String?
+    action_config_id UUID?
+    action_execution_id UUID?
+    action_execution_key String?
+    api_call_key UUID?
+    action_binding_id UUID?
+    action_experience_id UUID?
+    environment_profile_id UUID?
+    environment_event_id UUID?
+    invocation_config_id UUID?
+    endpoint_id UUID?
+}
+
+class MemoryWorkingItemEvidence {
+    item MemoryWorkingItemPin
+    validation_status String = "not_validated"
+    valid Bool = false
+    usable Bool = false
+    failure_reasons String[] = []
+    attention_validation AttentionTransitionValidationEvidence?
+    event_action_provenance MemoryEventActionProvenanceEvidence?
+    resolved_event_meaning MemoryResolvedEventMeaningEvidence?
+}
+
+class MemoryActorContextEvidence {
+    actor_id UUID?
+    identity_session_id UUID?
+    parent_identity_session_id UUID?
+    attention_session_id UUID?
+    identity_session_exists Bool = false
+    identity_session_status String?
+    actor_session_member_id UUID?
+    actor_session_member_status String?
+    actor_session_member_active Bool = false
+    actor_sessions_considered Int = 0
+    validation_status String = "not_validated"
+    valid Bool = false
+    usable Bool = false
+    failure_reasons String[] = []
+}
+
+class MemoryActorContextSnapshot {
+    actor_context MemoryActorContextEvidence
+    exists Bool = false
+    memory_working MemoryWorkingPin?
+    items MemoryWorkingItemEvidence[] = []
+    usable_item_count Int = 0
+    unresolved_item_count Int = 0
+    cursor String?
+    digest String?
+    sequence Int = 0
+    change_reason String = "initial"
+    observed_at String?
+}
+
+class MemoryActorContextEvent {
+    kind String = "snapshot"
+    snapshot MemoryActorContextSnapshot
+}
+
+class MemoryActorContextFrameItem {
+    memory_working_item_id UUID
+    kind String
+    position Int = 0
+    text String?
+    text_source String?
+    meaning_status String = "not_applicable"
+    resolved_event_meaning_id UUID?
+    source_kind String?
+    source_id UUID?
+    validation_status String = "not_validated"
+    usable Bool = false
+    failure_reasons String[] = []
+}
+
+/// Post-persistence observation projected from committed Memory truth.
+/// This is not a Reactivity event or action request.
+class MemoryWorkingFact {
+    kind String
+    actor_id UUID
+    memory_working_id UUID
+    memory_working_item_id UUID
+    event_id UUID
+    resolved_event_meaning_id UUID?
+    source_actor_subscription_id UUID?
+    memory_commit_id UUID
+    validation_status String = "not_validated"
+    usable Bool = false
+}
+
+class MemoryActorContextFrame {
+    actor_context MemoryActorContextEvidence
+    exists Bool = false
+    memory_working MemoryWorkingPin?
+    usable_items MemoryActorContextFrameItem[] = []
+    unresolved_items MemoryActorContextFrameItem[] = []
+    usable_item_count Int = 0
+    unresolved_item_count Int = 0
+    cursor String?
+    digest String?
+    sequence Int = 0
+    change_reason String = "initial"
+    observed_at String?
+}
+
+class MemoryActorContextFrameEvent {
+    kind String = "frame"
+    frame MemoryActorContextFrame
+    fact MemoryWorkingFact?
+}
+
+class AttentionTransitionValidationEvidence {
+    exists Bool = false
+    valid Bool = false
+    failure_reasons String[] = []
+    attention_focus_transition_id UUID?
+    identity_session_id UUID?
+    attention_session_id UUID?
+    attention_session_section_id UUID?
+    focus_scope_id UUID?
+    object_instance_graph_commit_id UUID?
+    projection_hash String?
+}
+
+class MemoryWorkingCommitReceipt {
+    memory_working_id UUID
+    memory_working_item_id UUID?
+    branch_id UUID?
+    projection_hash String?
+    commit_id UUID?
+    status String = "succeeded"
+    info String?
+}

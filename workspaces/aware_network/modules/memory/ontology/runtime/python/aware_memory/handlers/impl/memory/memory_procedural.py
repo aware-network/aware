@@ -1,0 +1,29 @@
+from __future__ import annotations
+
+# --- AWARE: MANAGED_IMPORTS START
+# fmt: off
+# Standard
+from uuid import UUID
+
+# Memory Ontology
+from aware_memory_ontology.memory.memory_procedural import MemoryProcedural
+
+# fmt: on
+# --- AWARE: MANAGED_IMPORTS END
+
+# --- AWARE: USER_IMPORTS START
+# --- AWARE: USER_IMPORTS END
+
+
+async def build(identity_id: UUID, key: str = "default") -> MemoryProcedural:
+    """
+    Create one deterministic procedural-memory lane for an owning Identity.
+
+    Policy:
+    - Memory owns the lane object and references Identity relationally.
+    - Shared procedural memory is deterministic from Identity plus `key`.
+    """
+
+    # --- AWARE: LOGIC START build
+    raise NotImplementedError("AWARE: implement handler logic")
+    # --- AWARE: LOGIC END build

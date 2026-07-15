@@ -1,0 +1,572 @@
+# GENERATED CODE - DO NOT MODIFY BY HAND
+# Canonical stable-id formula parity artifact (phase A).
+version = 1
+
+[[namespaces]]
+name = "NS_SERVICE"
+kind = "ns_url"
+value = "aware://service/v1"
+
+[[functions]]
+name = "stable_service_id"
+namespace = "NS_SERVICE"
+template = "aware:service:{service_config_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: service_config_id, name"
+
+[[functions.params]]
+name = "service_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_service_api_provider_set_id"
+namespace = "NS_SERVICE"
+template = "aware:service_api_provider_set:{key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: key"
+
+[[functions.params]]
+name = "key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "key_norm"
+param = "key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_service_api_provider_set_service_package_id"
+namespace = "NS_SERVICE"
+template = "aware:service_api_provider_set_service_package:{service_api_provider_set_id}:{service_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_api_provider_set_id, service_package_id"
+
+[[functions.params]]
+name = "service_api_provider_set_id"
+type = "uuid"
+
+[[functions.params]]
+name = "service_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_branch_id"
+namespace = "NS_SERVICE"
+template = "aware:service_branch:{service_id}:{service_config_api_projection_id}:{object_instance_graph_branch_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_id, service_config_api_projection_id, object_instance_graph_branch_id"
+
+[[functions.params]]
+name = "service_id"
+type = "uuid"
+
+[[functions.params]]
+name = "service_config_api_projection_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_instance_graph_branch_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_commercial_profile_id"
+namespace = "NS_SERVICE"
+template = "aware:service_commercial_profile:{service_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_id"
+
+[[functions.params]]
+name = "service_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_config_id"
+namespace = "NS_SERVICE"
+template = "aware:service_config:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_service_config_api_id"
+namespace = "NS_SERVICE"
+template = "aware:service_config_api:{service_config_id}:{api_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_config_id, api_id"
+
+[[functions.params]]
+name = "service_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_config_api_projection_id"
+namespace = "NS_SERVICE"
+template = "aware:service_config_api_projection:{service_config_api_id}:{api_graph_projection_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_config_api_id, api_graph_projection_id"
+
+[[functions.params]]
+name = "service_config_api_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_graph_projection_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_config_experience_id"
+namespace = "NS_SERVICE"
+template = "aware:service_config_experience:{service_config_id}:{projection_experience_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_config_id, projection_experience_id"
+
+[[functions.params]]
+name = "service_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "projection_experience_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_contract_id"
+namespace = "NS_SERVICE"
+template = "aware:service_contract:{service_id}:{service_contract_config_id}:{smart_contract_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_id, service_contract_config_id, smart_contract_id"
+
+[[functions.params]]
+name = "service_id"
+type = "uuid"
+
+[[functions.params]]
+name = "service_contract_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "smart_contract_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_contract_config_id"
+namespace = "NS_SERVICE"
+template = "aware:service_contract_config:{service_config_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: service_config_id, name"
+
+[[functions.params]]
+name = "service_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_service_contract_config_actor_role_grant_id"
+namespace = "NS_SERVICE"
+template = "aware:service_contract_config_actor_role_grant:{service_contract_config_id}:{role_config_id}:{scope_kind_norm}:{scope_ref_norm}"
+doc = "Compiler-generated from class-attribute identity keys: service_contract_config_id, role_config_id, scope_kind, scope_ref"
+
+[[functions.params]]
+name = "service_contract_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "role_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "scope_kind"
+type = "str"
+default = "service"
+
+[[functions.params]]
+name = "scope_ref"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "scope_kind_norm"
+param = "scope_kind"
+normalize = ["casefold", "strip"]
+default = "service"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "scope_ref_norm"
+param = "scope_ref"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_service_contract_config_operation_grant_id"
+namespace = "NS_SERVICE"
+template = "aware:service_contract_config_operation_grant:{service_contract_config_id}:{service_operation_config_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_contract_config_id, service_operation_config_id"
+
+[[functions.params]]
+name = "service_contract_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "service_operation_config_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_contract_operation_quota_policy_id"
+namespace = "NS_SERVICE"
+template = "aware:service_contract_operation_quota_policy:{service_contract_config_operation_grant_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_contract_config_operation_grant_id"
+
+[[functions.params]]
+name = "service_contract_config_operation_grant_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_contract_operation_permit_policy_id"
+namespace = "NS_SERVICE"
+template = "aware:service_contract_operation_permit_policy:{service_contract_config_operation_grant_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_contract_config_operation_grant_id"
+
+[[functions.params]]
+name = "service_contract_config_operation_grant_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_contract_operation_price_policy_id"
+namespace = "NS_SERVICE"
+template = "aware:service_contract_operation_price_policy:{service_contract_config_operation_grant_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_contract_config_operation_grant_id"
+
+[[functions.params]]
+name = "service_contract_config_operation_grant_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_operation_id"
+namespace = "NS_SERVICE"
+template = "aware:service_operation:{service_id}:{service_operation_config_id}:{operation_key_norm}"
+doc = "Compiler-generated from class-attribute identity keys: service_id, service_operation_config_id, operation_key"
+
+[[functions.params]]
+name = "service_id"
+type = "uuid"
+
+[[functions.params]]
+name = "service_operation_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "operation_key"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "operation_key_norm"
+param = "operation_key"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_service_operation_config_id"
+namespace = "NS_SERVICE"
+template = "aware:service_operation_config:{service_config_id}:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: service_config_id, name"
+
+[[functions.params]]
+name = "service_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_service_operation_config_api_endpoint_id"
+namespace = "NS_SERVICE"
+template = "aware:service_operation_config_api_endpoint:{service_operation_config_id}:{api_capability_endpoint_id}:{service_config_api_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_operation_config_id, api_capability_endpoint_id, service_config_api_id"
+
+[[functions.params]]
+name = "service_operation_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_capability_endpoint_id"
+type = "uuid"
+
+[[functions.params]]
+name = "service_config_api_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_operation_config_api_endpoint_function_id"
+namespace = "NS_SERVICE"
+template = "aware:service_operation_config_api_endpoint_function:{service_operation_config_api_endpoint_id}:{api_capability_endpoint_function_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_operation_config_api_endpoint_id, api_capability_endpoint_function_id"
+
+[[functions.params]]
+name = "service_operation_config_api_endpoint_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_capability_endpoint_function_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_operation_config_api_view_id"
+namespace = "NS_SERVICE"
+template = "aware:service_operation_config_api_view:{service_operation_config_id}:{api_view_id}:{service_config_api_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_operation_config_id, api_view_id, service_config_api_id"
+
+[[functions.params]]
+name = "service_operation_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_view_id"
+type = "uuid"
+
+[[functions.params]]
+name = "service_config_api_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_operation_config_role_requirement_id"
+namespace = "NS_SERVICE"
+template = "aware:service_operation_config_role_requirement:{service_operation_config_id}:{role_config_id}:{access_scope_norm}:{scope_kind_norm}:{scope_ref_norm}"
+doc = "Compiler-generated from class-attribute identity keys: service_operation_config_id, role_config_id, access_scope, scope_kind, scope_ref"
+
+[[functions.params]]
+name = "service_operation_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "role_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "access_scope"
+type = "str"
+default = "operation"
+
+[[functions.params]]
+name = "scope_kind"
+type = "str"
+default = "operation"
+
+[[functions.params]]
+name = "scope_ref"
+type = "str"
+default = "default"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "access_scope_norm"
+param = "access_scope"
+normalize = ["casefold", "strip"]
+default = "operation"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "scope_kind_norm"
+param = "scope_kind"
+normalize = ["casefold", "strip"]
+default = "operation"
+
+[[functions.lets]]
+op = "normalize_default"
+name = "scope_ref_norm"
+param = "scope_ref"
+normalize = ["casefold", "strip"]
+default = "default"
+
+[[functions]]
+name = "stable_service_package_id"
+namespace = "NS_SERVICE"
+template = "aware:service_package:{name_norm}"
+doc = "Compiler-generated from class-attribute identity keys: name"
+
+[[functions.params]]
+name = "name"
+type = "str"
+
+[[functions.lets]]
+op = "normalize"
+name = "name_norm"
+param = "name"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_service_package_implementation_package_id"
+namespace = "NS_SERVICE"
+template = "aware:service_package_implementation_package:{service_package_id}:{code_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_package_id, code_package_id"
+
+[[functions.params]]
+name = "service_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "code_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_package_ontology_package_id"
+namespace = "NS_SERVICE"
+template = "aware:service_package_ontology_package:{service_package_id}:{ontology_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_package_id, ontology_package_id"
+
+[[functions.params]]
+name = "service_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "ontology_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_package_object_config_graph_package_id"
+namespace = "NS_SERVICE"
+template = "aware:service_package_object_config_graph_package:{service_package_id}:{object_config_graph_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_package_id, object_config_graph_package_id"
+
+[[functions.params]]
+name = "service_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "object_config_graph_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_package_provided_api_package_id"
+namespace = "NS_SERVICE"
+template = "aware:service_package_provided_api_package:{service_package_id}:{api_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_package_id, api_package_id"
+
+[[functions.params]]
+name = "service_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_package_required_api_package_id"
+namespace = "NS_SERVICE"
+template = "aware:service_package_required_api_package:{service_package_id}:{api_package_id}"
+doc = "Compiler-generated from class-attribute identity keys: service_package_id, api_package_id"
+
+[[functions.params]]
+name = "service_package_id"
+type = "uuid"
+
+[[functions.params]]
+name = "api_package_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_plan_id"
+namespace = "NS_SERVICE"
+template = "aware:service_plan:{service_id}:{coin_id}:{smart_contract_config_id}:{cycle_norm}:{price_amount}"
+doc = "Compiler-generated from class-attribute identity keys: service_id, coin_id, smart_contract_config_id, cycle, price_amount"
+
+[[functions.params]]
+name = "service_id"
+type = "uuid"
+
+[[functions.params]]
+name = "coin_id"
+type = "uuid"
+
+[[functions.params]]
+name = "smart_contract_config_id"
+type = "uuid"
+
+[[functions.params]]
+name = "cycle"
+type = "str"
+
+[[functions.params]]
+name = "price_amount"
+type = "float"
+
+[[functions.lets]]
+op = "normalize"
+name = "cycle_norm"
+param = "cycle"
+normalize = ["casefold", "strip"]
+
+[[functions]]
+name = "stable_service_subscription_id"
+namespace = "NS_SERVICE"
+template = "aware:service_subscription:{consumer_finance_entity_id}:{service_id}"
+doc = "Compiler-generated from class-attribute identity keys: consumer_finance_entity_id, service_id"
+
+[[functions.params]]
+name = "consumer_finance_entity_id"
+type = "uuid"
+
+[[functions.params]]
+name = "service_id"
+type = "uuid"
+
+[[functions]]
+name = "stable_service_subscription_cycle_id"
+namespace = "NS_SERVICE"
+template = "aware:service_subscription_cycle:{service_subscription_id}:{cycle_number}"
+doc = "Compiler-generated from class-attribute identity keys: service_subscription_id, cycle_number"
+
+[[functions.params]]
+name = "service_subscription_id"
+type = "uuid"
+
+[[functions.params]]
+name = "cycle_number"
+type = "int"
+
+[[functions]]
+name = "stable_service_subscription_invoice_id"
+namespace = "NS_SERVICE"
+template = "aware:service_subscription_invoice:{service_subscription_id}:{coin_id}:{amount}"
+doc = "Compiler-generated from class-attribute identity keys: service_subscription_id, coin_id, amount"
+
+[[functions.params]]
+name = "service_subscription_id"
+type = "uuid"
+
+[[functions.params]]
+name = "coin_id"
+type = "uuid"
+
+[[functions.params]]
+name = "amount"
+type = "float"

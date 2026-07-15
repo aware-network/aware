@@ -1,0 +1,401 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "195fcd08-5330-51dc-b053-69dffe81269a",
+      "node_type": "class",
+      "entity_id": "07307780-53c4-5e65-a365-2fe39a3c4e06",
+      "relative_path": "actor/commit.py"
+    },
+    {
+      "node_id": "85d17c6e-ca33-5878-92d5-4325904c482b",
+      "node_type": "class",
+      "entity_id": "1cef8376-c157-584b-ac55-a70749919b98",
+      "relative_path": "actor/commit.py"
+    },
+    {
+      "node_id": "bd933046-882d-5bb1-941f-54d6aca06077",
+      "node_type": "class",
+      "entity_id": "bcf4e5dc-ab20-5f73-aeb2-7f32a117c171",
+      "relative_path": "actor/commit.py"
+    },
+    {
+      "node_id": "8518c752-ce65-5e82-8482-e9eb59a27d10",
+      "node_type": "class",
+      "entity_id": "c5399a26-bfc5-5b2b-a962-9424ecc5a611",
+      "relative_path": "actor/commit.py"
+    },
+    {
+      "node_id": "fec9e97f-e98a-5b5a-9c39-709857dfa0a1",
+      "node_type": "class",
+      "entity_id": "f851fff2-b3f1-5086-beea-86ae90706b2e",
+      "relative_path": "actor/commit.py"
+    },
+    {
+      "node_id": "bb767ad9-7966-5ac9-af06-240114490dc9",
+      "node_type": "class",
+      "entity_id": "6c18f18a-fb13-5685-bcb3-468fae376485",
+      "relative_path": "actor/reactivity_execution.py"
+    },
+    {
+      "node_id": "5a93081e-742f-5123-a838-a4649341fcd2",
+      "node_type": "class",
+      "entity_id": "fceafccb-3ad8-551c-b24b-cf1685ff9bc5",
+      "relative_path": "actor/reactivity_execution.py"
+    },
+    {
+      "node_id": "ba8a611a-2db8-57ef-b46b-28f19709b653",
+      "node_type": "class",
+      "entity_id": "3ba97fd5-8dff-5fcf-9498-e1b5bea6eff2",
+      "relative_path": "actor/subscription.py"
+    },
+    {
+      "node_id": "8909c4d0-f185-5bb9-8446-36eba704f22c",
+      "node_type": "class",
+      "entity_id": "794a01e3-f5f2-54ef-a87d-5c98540fe1e9",
+      "relative_path": "actor/subscription.py"
+    },
+    {
+      "node_id": "96702415-5358-5e05-9173-39b0c9b0ab78",
+      "node_type": "class",
+      "entity_id": "8e9b2481-7847-5e75-8eba-ebd1dfb9a164",
+      "relative_path": "actor/subscription.py"
+    },
+    {
+      "node_id": "45544c04-d648-5680-8cec-729f317ebe68",
+      "node_type": "class",
+      "entity_id": "a6694a6b-4ead-580a-bdf8-0b909d11627c",
+      "relative_path": "actor/subscription.py"
+    },
+    {
+      "node_id": "ace60574-b0a1-58d1-9299-6c4f98112d87",
+      "node_type": "class",
+      "entity_id": "abe41488-6774-5c5f-8c49-9d723e5277c7",
+      "relative_path": "actor/subscription.py"
+    },
+    {
+      "node_id": "5248018d-cbce-5aff-9273-873f91eb5fdf",
+      "node_type": "class",
+      "entity_id": "38592b3c-b5bb-5ecc-a1fd-d0d51ba9b7ca",
+      "relative_path": "actor/view.py"
+    },
+    {
+      "node_id": "270f0afd-5587-54d3-8308-256952255b09",
+      "node_type": "class",
+      "entity_id": "5f31b1ed-0687-53ce-a7c7-a921c018fa46",
+      "relative_path": "actor/view.py"
+    },
+    {
+      "node_id": "9e64eb25-77d0-50b7-9540-babda2a51a64",
+      "node_type": "class",
+      "entity_id": "68e8f0a3-f634-51a9-bcc4-20f66e451a23",
+      "relative_path": "actor/view.py"
+    },
+    {
+      "node_id": "2ef4e151-0f6d-5e1d-bb26-dfbc5e678ed8",
+      "node_type": "class",
+      "entity_id": "83fc2101-0297-50a5-b3b6-f5776280cb93",
+      "relative_path": "actor/view.py"
+    },
+    {
+      "node_id": "86a17303-424e-5aae-b748-077ad34271f1",
+      "node_type": "class",
+      "entity_id": "95653ace-75eb-5fb8-808c-ae6595485f73",
+      "relative_path": "actor/view.py"
+    },
+    {
+      "node_id": "1bd5af59-6905-521c-8d57-85754d90c81f",
+      "node_type": "class",
+      "entity_id": "bff7323b-2afd-5f57-9981-c64243c90a53",
+      "relative_path": "actor/view.py"
+    },
+    {
+      "node_id": "1fadce5f-0d53-5373-b315-c8fcc60a53a9",
+      "node_type": "class",
+      "entity_id": "11001fdf-9572-5a1a-9664-5a2bfca4d4ed",
+      "relative_path": "credential/profile.py"
+    },
+    {
+      "node_id": "44d50546-d866-54f5-a4bb-5d8f48ff2e41",
+      "node_type": "class",
+      "entity_id": "2fdf8803-bac2-5602-9829-c39c763e5ca8",
+      "relative_path": "credential/profile.py"
+    },
+    {
+      "node_id": "542e6bd1-8b85-515b-88c7-b310ce24064b",
+      "node_type": "class",
+      "entity_id": "4799068d-5397-5cd6-bb4b-96a6e0843d05",
+      "relative_path": "credential/profile.py"
+    },
+    {
+      "node_id": "bc3f3082-29fd-5e75-bb0d-b52a56574553",
+      "node_type": "class",
+      "entity_id": "85a1dea1-30fc-5209-87ff-4146ee3e8ea2",
+      "relative_path": "credential/profile.py"
+    },
+    {
+      "node_id": "ea8deff8-eb9d-5892-bf18-0edc6d03a7d2",
+      "node_type": "class",
+      "entity_id": "0f2a9761-1fd0-56a1-852c-430e8494fd4b",
+      "relative_path": "identity/admission.py"
+    },
+    {
+      "node_id": "0cfb19a9-4c71-5ae9-8f88-48041234236b",
+      "node_type": "class",
+      "entity_id": "bcbbb2ea-1d7b-5c4c-b007-037f8126e576",
+      "relative_path": "identity/models.py"
+    },
+    {
+      "node_id": "4e552718-f6ab-5585-b6ed-60f900d5ce83",
+      "node_type": "class",
+      "entity_id": "db4bb457-27a8-5e83-af1f-7e6e009926d9",
+      "relative_path": "identity/view.py"
+    },
+    {
+      "node_id": "cc1a3f86-7147-5f19-8754-a251b0716184",
+      "node_type": "class",
+      "entity_id": "22d4e5a8-305a-5156-9962-5f1bfbf6e055",
+      "relative_path": "profile/requests.py"
+    },
+    {
+      "node_id": "46c7b167-b2e3-5e48-b26d-5d936b7fcebc",
+      "node_type": "class",
+      "entity_id": "4668973d-7b6e-5b0a-a394-a4a9b4a260be",
+      "relative_path": "role/assignment.py"
+    },
+    {
+      "node_id": "54f9aa56-6414-5b51-ba73-de1a2c8e9555",
+      "node_type": "class",
+      "entity_id": "4e500e7a-4c70-536c-983d-637f51733f7f",
+      "relative_path": "role/assignment.py"
+    },
+    {
+      "node_id": "3b6d6dd3-5d75-58e2-b451-f2d0f7f67c0d",
+      "node_type": "class",
+      "entity_id": "552ef294-b935-514f-85d8-a176f349f2c0",
+      "relative_path": "role/assignment.py"
+    },
+    {
+      "node_id": "1efdff28-f483-55eb-abfe-c4a61e9ae10c",
+      "node_type": "class",
+      "entity_id": "90e57855-e159-5360-9eb8-d303956f08d1",
+      "relative_path": "role/assignment.py"
+    },
+    {
+      "node_id": "63e738f3-7ea1-5788-80d1-29c9cf4f87cc",
+      "node_type": "class",
+      "entity_id": "9eebf5de-2c57-5586-a6f1-71bf24c9f3cd",
+      "relative_path": "role/assignment.py"
+    },
+    {
+      "node_id": "d48d4d6d-a94f-524d-9f8a-a98e842aedf4",
+      "node_type": "class",
+      "entity_id": "b906c035-c857-5dd7-98fa-251d360ad8e8",
+      "relative_path": "role/assignment.py"
+    },
+    {
+      "node_id": "c75071a6-ff56-5aef-9f56-ca7fba333a38",
+      "node_type": "class",
+      "entity_id": "c432ffbf-aace-5c89-ba3f-f22c400bc289",
+      "relative_path": "role/assignment.py"
+    },
+    {
+      "node_id": "9b080f96-7739-5bba-9ba6-8db535361970",
+      "node_type": "class",
+      "entity_id": "0e1fa0af-5960-584f-9d3f-0132b97ff716",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "b1841e16-746a-592b-9372-cd52e4be46ab",
+      "node_type": "class",
+      "entity_id": "1dd799f1-3306-56c0-a0ce-58f1380efc7a",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "2d580cf0-24c8-5094-b264-07fe50e167dd",
+      "node_type": "class",
+      "entity_id": "207d1ec7-2e1c-584a-8da2-6ce2949a657e",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "86a9eaeb-cf89-5c2c-b78f-0947fea69826",
+      "node_type": "class",
+      "entity_id": "38a3ad30-3bac-59e7-b266-69293f254dd1",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "a496d874-1247-5e75-8524-dda20c164c2c",
+      "node_type": "class",
+      "entity_id": "42803f9d-b0e3-54e1-ac0e-e466f7e34ee9",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "9410cff5-eb6e-5512-aba9-35a88a9c7dca",
+      "node_type": "class",
+      "entity_id": "455cb528-ceb1-57e5-8548-1ec747f7b887",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "695672d6-9cfd-5f08-b12b-98af3966cbe1",
+      "node_type": "class",
+      "entity_id": "4e6811c1-e8a0-5f19-abbf-62167a94ea08",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "b46425b3-aeca-58c6-9718-648c88fde56b",
+      "node_type": "class",
+      "entity_id": "509ea102-30e6-5dba-af48-11aeeebeb28c",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "608ecc6f-e77d-58fb-a40e-67694b96856d",
+      "node_type": "class",
+      "entity_id": "58e9b595-7ba3-5f91-9a07-2d1fea76769a",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "9b3abd93-4ec2-58d6-99c9-bb03126a20f5",
+      "node_type": "class",
+      "entity_id": "60f0bb87-2ed1-5d2d-90da-ed4e5aa1f169",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "b1699c5d-d206-5ff4-b5ae-d48f46d3a5af",
+      "node_type": "class",
+      "entity_id": "6d4bc2b9-8c9c-5919-ae34-b52f89b09347",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "de114ef2-8782-5c95-abc8-ebbd2e5ad8ff",
+      "node_type": "class",
+      "entity_id": "72c888dc-10e3-5059-8cd0-a90b54cd7c56",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "4ea60cb8-5bd5-596e-9532-bab07eb1bfc8",
+      "node_type": "class",
+      "entity_id": "73c92fc9-8319-500a-9fd5-ae142ab1a09b",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "7e642360-9ebe-5316-b953-58a5b3f9e247",
+      "node_type": "class",
+      "entity_id": "7c061aaf-2dd4-597d-aa46-91534a75fa5c",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "bc89f992-4d1d-587c-bc81-349353e10286",
+      "node_type": "class",
+      "entity_id": "7c62be9d-767b-5c4d-8419-e6b195f71549",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "a12b630f-c56b-5a00-932d-e2dfd6c7a87a",
+      "node_type": "class",
+      "entity_id": "943f8539-a5ce-5103-9de1-e7364cc4cf98",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "3e6e0716-de6c-5ba7-b910-fb1ada86ec85",
+      "node_type": "class",
+      "entity_id": "953dedae-2a9b-5c8e-9914-f4f43cbffffa",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "205becf3-6736-55c7-95c9-9a13e1904102",
+      "node_type": "class",
+      "entity_id": "97260c2f-024f-5f83-9052-e830e667d8e8",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "cba97c0e-ed36-5fae-91e8-a396a82ff16b",
+      "node_type": "class",
+      "entity_id": "9ab96f07-5d9d-5e20-a202-88976f4f8d4a",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "b45fd5be-90df-585c-8ed5-09310bf16e17",
+      "node_type": "class",
+      "entity_id": "9ef48382-c4a2-5c29-bfaf-068beda5427c",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "c3941b4e-5b9b-536b-a71c-9a89dcdbeb27",
+      "node_type": "class",
+      "entity_id": "a0baa68a-f410-5b78-a370-ad2e2bf4c397",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "14fd7313-8a7b-52bc-8efc-4d3740a8755a",
+      "node_type": "class",
+      "entity_id": "a628314e-c3f2-55a7-b6ed-d7b8c3aec004",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "4b539d1a-69ed-5231-8385-3daaa4b4de9f",
+      "node_type": "class",
+      "entity_id": "b23db8c0-d0ca-5294-8067-b74774f820e3",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "0146691c-624d-5e04-a89a-dc43f499311d",
+      "node_type": "class",
+      "entity_id": "c8de9766-a128-59e6-8aff-9d8dda62dfdc",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "9e833c9e-1076-58a6-8c06-daf304bd6711",
+      "node_type": "class",
+      "entity_id": "d3d1f397-2637-5c33-9508-3be1dd59f904",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "b9c0f93c-4d06-5337-b73b-eefc56e3e115",
+      "node_type": "class",
+      "entity_id": "da60f942-a6b5-5207-b75e-990a15a98c50",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "13c1790b-82ba-5f7a-96ec-5b947d35cc0a",
+      "node_type": "class",
+      "entity_id": "de28dab9-7da2-56c9-a7f8-55e98f353233",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "ddc2de36-d3f4-582d-be64-6a66a4a1548d",
+      "node_type": "class",
+      "entity_id": "ec2c8cb7-7e8d-5617-89d7-b0b2926be89d",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "fa759122-f156-57f4-a75a-5805e0f60178",
+      "node_type": "class",
+      "entity_id": "ed19902b-dc42-53ae-8246-938c2548284a",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "d6a98895-0f67-5b8d-89e9-16e8bda62306",
+      "node_type": "class",
+      "entity_id": "f0664f0c-7958-545a-be24-a1cf1cdd90ee",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "694b260d-6c26-58cf-815d-8e724738c98a",
+      "node_type": "class",
+      "entity_id": "f5842f2a-bd7b-5fe4-941b-aa4571b34c32",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "b0859416-5c16-5eb8-b0be-ab471d5a34ab",
+      "node_type": "class",
+      "entity_id": "f5c8e66f-95e4-5e30-8c4e-d3abec749207",
+      "relative_path": "session/session.py"
+    },
+    {
+      "node_id": "0dab5afe-070d-5993-9729-17deff010e44",
+      "node_type": "enum",
+      "entity_id": "daeae22b-9fa1-5bfe-8389-63d9be4ad56f",
+      "relative_path": "profile/requests.py"
+    }
+  ]
+}

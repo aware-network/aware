@@ -1,0 +1,134 @@
+/// Typed working-memory item for attention-first actor context.
+///
+/// Contract:
+/// - One item captures one canonical dynamic axis:
+///   `event`, `content`, `tool`, or `attention`.
+/// - `MemoryWorking` owns item ordering (`position`).
+/// - Attention items point at Attention-owned transition source truth.
+///   Memory must not duplicate focus/layout/view envelopes.
+class MemoryWorkingItem {
+    // Typed kind payload (one should be set based on `kind`)
+    event_frame MemoryWorkingEventFrame? unique
+    content_frame MemoryWorkingContentFrame? unique
+    tool_frame MemoryWorkingToolFrame? unique
+    attention_transition aware_attention.session.AttentionFocusTransition?
+
+    // Attributes
+    kind MemoryWorkingItemKind key
+    position Int key
+    created_at DateTime
+    rationale String?
+    summary String?
+
+    fn build construct(
+        kind MemoryWorkingItemKind key,
+        position Int key,
+        created_at DateTime? = null,
+        event_frame_id UUID? = null,
+        content_frame_id UUID? = null,
+        tool_frame_id UUID? = null,
+        attention_transition_id UUID? = null,
+        rationale String? = null,
+        summary String? = null
+    ) -> MemoryWorkingItem {
+        """
+        Builds a deterministic MemoryWorkingItem envelope.
+        """
+    }
+
+    fn create_event_frame(
+        event_id UUID,
+        event_config_id UUID? = null,
+        event_activation_id UUID? = null,
+        event_type String? = null,
+        event_source String? = null,
+        event_status String? = null,
+        commit_branch_id UUID? = null,
+        commit_projection_hash String? = null,
+        commit_id UUID? = null,
+        object_instance_graph_id UUID? = null,
+        object_instance_graph_commit_id UUID? = null,
+        action_intent_id UUID? = null,
+        intent_key String? = null,
+        action_config_id UUID? = null,
+        action_execution_id UUID? = null,
+        action_execution_key String? = null,
+        api_call_key UUID? = null,
+        action_binding_id UUID? = null,
+        action_experience_id UUID? = null,
+        environment_profile_id UUID? = null,
+        environment_event_id UUID? = null,
+        invocation_config_id UUID? = null,
+        endpoint_id UUID? = null,
+        actor_subscription_id UUID? = null
+    ) -> MemoryWorkingEventFrame {
+        """
+        Construct one event frame under this item (kind=event).
+        """
+        let created = construct event_frame.build(
+            event_id = event_id,
+            event_config_id = event_config_id,
+            event_activation_id = event_activation_id,
+            event_type = event_type,
+            event_source = event_source,
+            event_status = event_status,
+            commit_branch_id = commit_branch_id,
+            commit_projection_hash = commit_projection_hash,
+            commit_id = commit_id,
+            object_instance_graph_id = object_instance_graph_id,
+            object_instance_graph_commit_id = object_instance_graph_commit_id,
+            action_intent_id = action_intent_id,
+            intent_key = intent_key,
+            action_config_id = action_config_id,
+            action_execution_id = action_execution_id,
+            action_execution_key = action_execution_key,
+            api_call_key = api_call_key,
+            action_binding_id = action_binding_id,
+            action_experience_id = action_experience_id,
+            environment_profile_id = environment_profile_id,
+            environment_event_id = environment_event_id,
+            invocation_config_id = invocation_config_id,
+            endpoint_id = endpoint_id,
+            actor_subscription_id = actor_subscription_id,
+        )
+    }
+
+    fn create_content_frame(
+        content_id UUID
+    ) -> MemoryWorkingContentFrame {
+        """
+        Construct one content frame under this item (kind=content).
+        """
+        let created = construct content_frame.build(
+            content_id = content_id,
+        )
+    }
+
+    fn create_tool_frame(
+        tool_call_id UUID,
+        tool_response_id UUID? = null,
+        object_instance_graph_branch_id UUID? = null,
+        projection_hash String? = null
+    ) -> MemoryWorkingToolFrame {
+        """
+        Construct one tool frame under this item (kind=tool).
+        """
+        let created = construct tool_frame.build(
+            tool_call_id = tool_call_id,
+            tool_response_id = tool_response_id,
+            object_instance_graph_branch_id = object_instance_graph_branch_id,
+            projection_hash = projection_hash,
+        )
+    }
+
+    fn link_attention_transition(
+        attention_focus_transition_id UUID key
+    ) -> aware_attention.session.AttentionFocusTransition {
+        """
+        Link this memory item to one Attention-owned focus transition.
+
+        Memory records retention of the transition; it does not copy the
+        transition's focus/layout/view envelope.
+        """
+    }
+}

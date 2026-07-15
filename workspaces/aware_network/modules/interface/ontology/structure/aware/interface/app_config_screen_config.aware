@@ -1,0 +1,28 @@
+class AppConfigScreenConfig {
+    // Relationships
+    projection_experience aware_experience.projection.ProjectionExperience key
+    projection_experience_layout_graph_binding aware_experience.projection.ProjectionExperienceLayoutGraphBinding key
+
+    // Attributes
+    screen_key String key
+
+    fn build construct(
+        screen_key String key,
+        projection_experience_id UUID key,
+        projection_experience_layout_graph_binding_id UUID key
+    ) -> AppConfigScreenConfig {
+        """
+        Create one app screen config under an AppConfig.
+
+        Contract:
+        - `screen_key` is the app-owned entry token.
+        - `projection_experience` is the Experience entry point.
+        - `projection_experience_layout_graph_binding` is the Experience-owned
+          layout-level binding for the screen.
+        - The app does not target Environment internals or pane defaults.
+        """
+    }
+}
+
+ann interface.AppConfigScreenConfig::projection_experience load eager
+ann interface.AppConfigScreenConfig::projection_experience_layout_graph_binding load eager

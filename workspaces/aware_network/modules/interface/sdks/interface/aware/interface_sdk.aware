@@ -1,0 +1,111 @@
+sdk interface_sdk {
+    "Canonical Interface SDK operations over the Interface service API."
+
+    api interface
+
+    operation admit_interface {
+        "Admit or resume one renderer or agent namespace through Interface service authority."
+        endpoint interface.admit_interface.admit_interface
+    }
+
+    operation start_interface_session {
+        "Start or resolve one commit-backed InterfaceSession on the Identity Session spine."
+        endpoint interface.start_interface_session.start_interface_session
+    }
+
+    operation mount_interface_experience_session {
+        "Mount one existing ExperienceSession through an InterfaceSession as an independent committed portal root."
+        endpoint interface.mount_interface_experience_session.mount_interface_experience_session
+    }
+
+    operation get_interface_state {
+        "Read the current Interface host state for an admitted namespace."
+        endpoint interface.get_interface_state.get_interface_state
+        view interface.package_mount_status
+    }
+
+    operation enter_app_screen {
+        "Enter one exact committed AppPackage screen through Interface Host."
+        endpoint interface.enter_app_screen.enter_app_screen
+    }
+
+    operation watch_interface_state {
+        "Read and stream Interface host state snapshots for an admitted namespace."
+        endpoint interface.watch_interface_state.watch_interface_state
+    }
+
+    operation perform_interface_action {
+        "Dispatch one mounted Interface action through the canonical service boundary."
+        endpoint interface.perform_interface_action.perform_interface_action
+    }
+
+    operation select_interface_step {
+        "Select the active Interface orchestration step for an admitted namespace."
+        endpoint interface.select_interface_step.select_interface_step
+    }
+
+    operation select_interface_profile {
+        "Select the active Interface control profile for an admitted namespace."
+        endpoint interface.select_interface_profile.select_interface_profile
+    }
+
+    operation select_interface_runtime_layout {
+        "Select the active Interface runtime layout configuration."
+        endpoint interface.select_interface_runtime_layout.select_interface_runtime_layout
+    }
+
+    operation activate_interface_runtime_focus {
+        "Activate one Interface runtime section representation or focus target."
+        endpoint interface.activate_interface_runtime_focus.activate_interface_runtime_focus
+    }
+
+    operation request_interface_window_layout {
+        "Request a canonical Interface window, layout, and section binding."
+        endpoint interface.request_interface_window_layout.request_interface_window_layout
+    }
+
+    operation apply_attention_layout_transition {
+        "Commit one complete shared-layout vector through Interface Host."
+        endpoint interface.apply_attention_layout_transition.apply_attention_layout_transition
+    }
+
+    operation apply_attention_layout_topology_transition {
+        "Commit one complete active-membership/order vector through Interface Host."
+        endpoint interface.apply_attention_layout_topology_transition.apply_attention_layout_topology_transition
+    }
+
+    operation invoke_interface_api {
+        "Invoke a mounted API endpoint from Interface action context."
+        endpoint interface.invoke_interface_api.invoke_interface_api
+    }
+
+    operation stream_interface_api {
+        "Invoke a mounted streaming API endpoint from Interface action context."
+        endpoint interface.stream_interface_api.stream_interface_api
+    }
+
+    operation report_renderer_capabilities {
+        "Report renderer capabilities for the admitted Interface namespace."
+        endpoint interface.report_renderer_capabilities.report_renderer_capabilities
+    }
+
+    operation sync_view_state_cursor {
+        "Acknowledge consumed view-state cursors for Interface renderer backpressure."
+        endpoint interface.sync_view_state_cursor.sync_view_state_cursor
+    }
+
+    operation ping_interface_host {
+        "Read Interface host readiness through the Interface service boundary."
+        endpoint interface.ping_interface_host.ping_interface_host
+    }
+
+    operation list_interface_namespaces {
+        "List admitted Interface namespaces for operator and debug surfaces."
+        endpoint interface.list_interface_namespaces.list_interface_namespaces
+    }
+
+    operation stop_interface_namespace {
+        "Stop one Interface namespace through Interface service authority."
+        endpoint interface.stop_interface_namespace.stop_interface_namespace
+    }
+}

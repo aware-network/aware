@@ -388,6 +388,7 @@ def test_run_invocation_required_commit_reactions_uses_action_source_identity() 
     commit = ObjectInstanceGraphCommit.model_construct(id=uuid4())
     perf_ms: dict[str, int] = {}
     index = SimpleNamespace()
+    index_view = SimpleNamespace(index=index)
     runner = _FakeRequiredReactionRunner()
     action = build_instance_commit_action(
         operation_label="Thread.attach_lane",
@@ -401,6 +402,7 @@ def test_run_invocation_required_commit_reactions_uses_action_source_identity() 
     receipts = asyncio.run(
         run_invocation_required_commit_reactions(
             index=index,
+            index_view=index_view,  # pyright: ignore[reportArgumentType]
             actor_id=actor_id,
             domain_branch_id=branch_id,
             domain_projection_hash="thread",
@@ -415,6 +417,7 @@ def test_run_invocation_required_commit_reactions_uses_action_source_identity() 
     assert len(runner.contexts) == 1
     context = runner.contexts[0]
     assert context.index is index
+    assert context.index_view is index_view
     assert context.actor_id == actor_id
     assert context.domain_branch_id == branch_id
     assert context.domain_projection_hash == "thread"

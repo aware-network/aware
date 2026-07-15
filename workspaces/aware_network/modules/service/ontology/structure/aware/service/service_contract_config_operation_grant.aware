@@ -1,0 +1,114 @@
+class ServiceContractConfigOperationGrant {
+    // Relationships
+    permit_policy ServiceContractOperationPermitPolicy? unique
+    price_policy ServiceContractOperationPricePolicy? unique
+    quota_policy ServiceContractOperationQuotaPolicy? unique
+    service_operation_config ServiceOperationConfig key
+
+    // Attributes
+    access_scope String = "operation"
+    description String?
+    permit_policy_json JsonObject? = {}
+    price_policy_json JsonObject? = {}
+    quota_policy_json JsonObject? = {}
+
+    fn build construct (
+        service_operation_config_id UUID key,
+        access_scope String = "operation",
+        quota_policy_json JsonObject? = {},
+        permit_policy_json JsonObject? = {},
+        price_policy_json JsonObject? = {},
+        description String? = null
+    ) -> ServiceContractConfigOperationGrant {
+        """
+        Creates one reusable operation grant under a ServiceContractConfig.
+
+        Contract:
+        - Parent ServiceContractConfig scope is propagated by constructor lowering.
+        - Stable identity is one grant per ServiceOperationConfig under a ServiceContractConfig.
+        - Quota, permit, and price policies are Service-side config snapshots; Economy owns execution receipts.
+        - JSON policy attributes are compatibility mirrors; typed child policy objects are canonical.
+        """
+    }
+
+    fn configure_quota_policy (
+        unit ServiceContractOperationQuotaUnit = operation,
+        limit_amount Int? = null,
+        window ServiceContractOperationQuotaWindow = none,
+        burst_limit Int? = null,
+        over_limit_behavior ServiceContractOperationQuotaOverLimitBehavior = deny,
+        fail_closed Bool = true
+    ) -> ServiceContractOperationQuotaPolicy {
+        """
+        Declares typed quota policy intent for this operation grant.
+
+        Contract:
+        - This controls allowance semantics only.
+        - Runtime metering/billing may consume this policy, but Economy owns financial receipts.
+        """
+        let created = construct quota_policy.build(
+            unit = unit,
+            limit_amount = limit_amount,
+            window = window,
+            burst_limit = burst_limit,
+            over_limit_behavior = over_limit_behavior,
+            fail_closed = fail_closed,
+        )
+    }
+
+    fn configure_permit_policy (
+        requires_active_contract Bool = true,
+        requires_smart_contract_permit Bool = false,
+        requires_reservation_before_execute Bool = false,
+        permit_scope ServiceContractOperationPermitScope = operation,
+        idempotency_scope ServiceContractOperationPermitIdempotencyScope = request_hash,
+        fail_closed Bool = true
+    ) -> ServiceContractOperationPermitPolicy {
+        """
+        Declares typed permit policy intent for this operation grant.
+
+        Contract:
+        - This controls pre-execution proof requirements.
+        - Identity role evidence and Economy smart-contract receipts remain owned by their source domains.
+        """
+        let created = construct permit_policy.build(
+            requires_active_contract = requires_active_contract,
+            requires_smart_contract_permit = requires_smart_contract_permit,
+            requires_reservation_before_execute = requires_reservation_before_execute,
+            permit_scope = permit_scope,
+            idempotency_scope = idempotency_scope,
+            fail_closed = fail_closed,
+        )
+    }
+
+    fn configure_price_policy (
+        price_source ServiceContractOperationPriceSource = operation_default,
+        price_id UUID? = null,
+        price_ref String? = null,
+        pricing_policy_id UUID? = null,
+        pricing_policy_ref String? = null,
+        settlement_policy_override ServiceOperationSettlementPolicy? = null,
+        max_cost_required Bool = false,
+        quote_ttl_s Int? = null,
+        fail_closed Bool = true
+    ) -> ServiceContractOperationPricePolicy {
+        """
+        Declares typed price selection policy intent for this operation grant.
+
+        Contract:
+        - This selects or overrides Economy price truth for the granted operation.
+        - Quotes, reservations, escrow, and settlement remain Economy-owned receipts.
+        """
+        let created = construct price_policy.build(
+            price_source = price_source,
+            price_id = price_id,
+            price_ref = price_ref,
+            pricing_policy_id = pricing_policy_id,
+            pricing_policy_ref = pricing_policy_ref,
+            settlement_policy_override = settlement_policy_override,
+            max_cost_required = max_cost_required,
+            quote_ttl_s = quote_ttl_s,
+            fail_closed = fail_closed,
+        )
+    }
+}

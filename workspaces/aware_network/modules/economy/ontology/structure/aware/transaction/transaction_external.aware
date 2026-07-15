@@ -1,0 +1,44 @@
+class TransactionExternal {
+    // Relationships
+    capital_conversion_quote CapitalConversionQuote
+    provider_config external_capital.ExternalCapitalProviderConfig key
+    provider_finance_entity finance.FinanceEntity
+    transaction Transaction
+    transaction_intent TransactionIntent
+
+    // Attributes
+    external_amount_minor Int
+    external_created_at DateTime
+    external_currency String
+    idempotency_key String
+    processed_at DateTime = now()
+    provider_event_id String key
+    provider_key String
+    provider_payload_hash String
+    provider_public_reference String
+    quote_hash String
+    status TransactionExternalStatus = processed
+
+    fn record construct (
+        transaction_id UUID,
+        transaction_intent_id UUID,
+        provider_config_id UUID key,
+        capital_conversion_quote_id UUID,
+        provider_finance_entity_id UUID,
+        provider_key String,
+        provider_event_id String key,
+        idempotency_key String,
+        quote_hash String,
+        external_amount_minor Int,
+        external_currency String,
+        provider_public_reference String,
+        provider_payload_hash String,
+        external_created_at DateTime
+    ) -> TransactionExternal {
+        """
+        Records fully correlated external-capital provenance for one ingress transaction.
+
+        Receipt: TransactionExternal(status=processed) linked to the Transaction.
+        """
+    }
+}

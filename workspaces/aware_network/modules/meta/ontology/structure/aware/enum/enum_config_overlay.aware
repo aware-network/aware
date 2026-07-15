@@ -1,4 +1,0 @@
-/// Per-language overrides for EnumConfig entities
-edge EnumConfigOverlay {
-    rendered_name String?
-}

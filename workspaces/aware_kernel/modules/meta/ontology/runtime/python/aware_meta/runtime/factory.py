@@ -86,6 +86,7 @@ def build_meta_graph_runtime_for_aware_package_manifests(
     handler_owner_prefixes: Iterable[str] | None = None,
     load_source_graph_payloads: bool = True,
     runtime_context_graph_body_requirement: str = "runtime_graph_body",
+    discover_generated_handlers: bool = True,
 ) -> MetaGraphRuntime:
     """Build a Meta-owned graph runtime from package OCG truth.
 
@@ -136,14 +137,18 @@ def build_meta_graph_runtime_for_aware_package_manifests(
         started_at=phase_started_at,
     )
     phase_started_at = perf_counter()
-    discovered_provider_set = _discover_generated_handler_provider_set(
-        context_index=context.index,
-        handler_modules=resolved_handler_modules,
-        bootstrap_modules=resolved_bootstrap_modules,
-        handler_resolver=handler_resolver,
-        invocation_handler_resolver=invocation_handler_resolver,
-        empty_lane_bootstrap_resolver=empty_lane_bootstrap_resolver,
-        handler_owner_prefixes=handler_owner_prefixes,
+    discovered_provider_set = (
+        _discover_generated_handler_provider_set(
+            context_index=context.index,
+            handler_modules=resolved_handler_modules,
+            bootstrap_modules=resolved_bootstrap_modules,
+            handler_resolver=handler_resolver,
+            invocation_handler_resolver=invocation_handler_resolver,
+            empty_lane_bootstrap_resolver=empty_lane_bootstrap_resolver,
+            handler_owner_prefixes=handler_owner_prefixes,
+        )
+        if discover_generated_handlers
+        else None
     )
     _record_meta_runtime_factory_phase_timing(
         phase_timings_s=phase_timings_s,

@@ -278,6 +278,7 @@ async def attach_language_package(
     language: CodeLanguage,
     import_root: str,
     manifest_relative_path: str,
+    object_instance_graph_commit_id: UUID,
     package_root: str = ".",
     role: str = "public_package",
     output_key: str = "python.public_package",
@@ -308,6 +309,7 @@ async def attach_language_package(
         package_root=package_root,
         role=role,
         output_key=output_key,
+        object_instance_graph_commit_id=object_instance_graph_commit_id,
         include_paths=JsonArray(include_paths or []),
         exclude_paths=JsonArray(exclude_paths or []),
     )

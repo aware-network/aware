@@ -1,0 +1,41 @@
+class PaneStateBinding {
+    // Relationships
+    state_model aware_meta.class.ClassConfig?
+    state_attribute_config aware_meta.attribute.AttributeConfig?
+
+    // Attributes
+    binding_key String key
+    target_property PaneStateBindingTargetProperty
+    json_path String
+    transform PaneStateBindingTransform = raw
+    fallback_value String?
+    component_input_port_key String?
+
+    fn create construct (
+        binding_key String key,
+        target_property PaneStateBindingTargetProperty,
+        json_path String,
+        state_model_id UUID? = null,
+        state_attribute_config_id UUID? = null,
+        component_input_port_key String? = null,
+        transform PaneStateBindingTransform = raw,
+        fallback_value String? = null
+    ) -> PaneStateBinding {
+        """
+        Create one relational binding from canonical Experience view state to a render property.
+
+        Contract:
+        - `state_model` points to ProjectionExperienceView.state_model when known.
+        - `state_attribute_config` identifies the exact DTO attribute when available.
+        - `json_path` is the materialized renderer path, not the source of semantic truth.
+        - `target_property` is a bounded pane render target; `media_ref` carries
+          StorageMediaRef pointers supplied by canonical view state.
+        - `component_input_port_key` names the component input port this binding feeds;
+          renderers must not infer unbound component inputs from pane state.
+        - Transforms stay bounded and deterministic; complex behavior belongs in state providers.
+        """
+    }
+}
+
+ann render.PaneStateBinding::state_model load eager
+ann render.PaneStateBinding::state_attribute_config load eager

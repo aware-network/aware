@@ -1,0 +1,47 @@
+class AppConfig {
+    // Relationships
+    screen_configs AppConfigScreenConfig[]
+
+    // Attributes
+    description String?
+    name String key
+    title String?
+
+    fn build construct(
+        name String key,
+        title String? = null,
+        description String? = null
+    ) -> AppConfig {
+        """
+        Create one reusable app configuration.
+
+        Contract:
+        - AppConfig owns app-level screen selection intent.
+        - Screen rows select Experience layout graph bindings.
+        - AppConfig does not own Environment profile/session/process/thread truth.
+        """
+    }
+
+    fn attach_screen_config(
+        screen_key String key,
+        projection_experience_id UUID key,
+        projection_experience_layout_graph_binding_id UUID key
+    ) -> AppConfigScreenConfig {
+        """
+        Attach one screen to this app config.
+
+        Contract:
+        - Parent AppConfig scope is injected by propagation.
+        - The screen is a consumer entry point into Experience layout binding truth.
+        - Runtime selection may activate Attention sessions later, but config does
+          not mutate Attention or Environment state.
+        """
+        let created = construct screen_configs.build(
+            screen_key = screen_key,
+            projection_experience_id = projection_experience_id,
+            projection_experience_layout_graph_binding_id = projection_experience_layout_graph_binding_id,
+        )
+    }
+}
+
+ann interface.AppConfig::screen_configs load eager

@@ -8,6 +8,12 @@ from aware_code.package.discovery import discover_packages_from_manifest_paths
 from aware_code.package.schemas import CodePackageInfo
 from aware_code.package.snapshot_commit import commit_code_package_text_snapshot
 from aware_code.semantic_contract_config import source_code_package_config_ref
+from aware_code.semantic_currentness import (
+    SemanticMaterializationCurrentnessReplayRequest,
+    SemanticMaterializationCurrentnessReplayResult,
+    semantic_materialization_bundle_matches_live_head,
+    semantic_materialization_declared_source_tree_input_is_complete,
+)
 from aware_code.semantic_materialization import (
     SemanticPackageMaterializationBundle,
     SemanticPackageMaterializationRequest,
@@ -114,6 +120,47 @@ async def materialize(
         ),
         commit_id=snapshot.commit_id,
         head_commit_id=snapshot.head_commit_id,
+    )
+
+
+async def resolve_currentness_replay(
+    request: SemanticMaterializationCurrentnessReplayRequest,
+) -> SemanticMaterializationCurrentnessReplayResult:
+    if (
+        request.provider_key != "aware_code"
+        or request.workspace_manifest_kind != "code"
+        or request.semantic_package_family != "code"
+        or request.semantic_package_kind != "code_package"
+    ):
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="not_supported",
+            reason="code_package_currentness_shape_unsupported",
+        )
+    if not semantic_materialization_declared_source_tree_input_is_complete(
+        request=request
+    ):
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="must_execute",
+            reason="code_package_current_input_incomplete",
+        )
+    if not request.bundles:
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="must_execute",
+            reason="code_package_previous_bundle_missing",
+        )
+    for bundle in request.bundles:
+        if not await semantic_materialization_bundle_matches_live_head(
+            bundle=bundle,
+            read_head=request.read_head,
+        ):
+            return SemanticMaterializationCurrentnessReplayResult(
+                status="must_execute",
+                reason="code_package_live_head_mismatch",
+            )
+    return SemanticMaterializationCurrentnessReplayResult(
+        status="reused",
+        reason="code_package_live_head_current",
+        replay_kind="previous_code_package_bundles",
     )
 
 
@@ -702,4 +749,4 @@ def _object_payload(value: object) -> dict[str, object]:
     return {}
 
 
-__all__ = ["materialize", "materialize_delta"]
+__all__ = ["materialize", "materialize_delta", "resolve_currentness_replay"]

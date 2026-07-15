@@ -1,0 +1,7 @@
+pane interface_mount_status {
+    kind interface_mount_status
+
+    view aware_control_interface.package.mount.status.v1 default {
+        """Interface package mount status pane for the active host session."""
+    }
+}

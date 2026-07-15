@@ -1,0 +1,39 @@
+aware_interface = 1
+
+[interface]
+package_name = "aware-control-interface"
+fqn_prefix = "aware_control_interface"
+title = "Aware Control Interface"
+description = "Canonical bootstrap Interface package for core Aware control panes."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+config_bundle_path = "bundles/interface.config.bundle.json"
+compilation_mode = "interface_ontology"
+
+[dart]
+package_path = "dart/aware_control_interface"
+package_name = "aware_control_interface"
+
+[[dependencies]]
+package_name = "aware-control-shell-attention"
+kind = "attention_package"
+
+[[dependencies]]
+package_name = "aware-hub-package-selector-pane"
+kind = "pane_package"
+
+[[dependencies]]
+package_name = "aware-network-territory-pane"
+kind = "pane_package"
+
+[[dependencies]]
+package_name = "aware-identity-admission-pane"
+kind = "pane_package"
+
+[[dependencies]]
+package_name = "aware-content-render-components"
+kind = "render_component_package"

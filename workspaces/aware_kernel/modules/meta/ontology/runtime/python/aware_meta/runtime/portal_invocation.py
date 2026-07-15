@@ -22,6 +22,7 @@ from aware_meta.runtime.invocation_engine import (
     MetaGraphInvokeFunctionCallable,
     MetaGraphInvokeFunctionInput,
 )
+from aware_meta.runtime.oigb_relationship_lane import attach_oigb_relationship
 
 
 @dataclass(frozen=True, slots=True)
@@ -102,7 +103,14 @@ async def invoke_meta_portal_constructor(
                 publish=False,
             )
         )
-        return _result_from_commit_receipt(commit_receipt)
+        result = _result_from_commit_receipt(commit_receipt)
+        if commit_intent and result.status == "succeeded":
+            await _attach_committed_portal_branch_relationship(
+                request=request,
+                result=result,
+                target_branch_id=target_branch_id,
+            )
+        return result
     except Exception as exc:
         return MetaPortalInvocationResult(status="failed", error=str(exc))
 
@@ -205,6 +213,39 @@ def _resolve_function_id_for_class(
     raise RuntimeError(
         "FunctionConfig not found for Meta portal constructor: "
         f"class_config_id={class_config_id} function_name={function_name!r}"
+    )
+
+
+async def _attach_committed_portal_branch_relationship(
+    *,
+    request: MetaPortalConstructorInvocationRequest,
+    result: MetaPortalInvocationResult,
+    target_branch_id: UUID,
+) -> None:
+    result_branch_id = result.branch_id
+    if result_branch_id is None:
+        raise RuntimeError(
+            "Meta portal constructor succeeded without committed target branch_id"
+        )
+    if result_branch_id != target_branch_id:
+        raise RuntimeError(
+            "Meta portal constructor committed unexpected target branch: "
+            f"expected_branch_id={target_branch_id} result_branch_id={result_branch_id}"
+        )
+    if result.projection_hash != request.target_projection_hash:
+        raise RuntimeError(
+            "Meta portal constructor committed unexpected target projection: "
+            f"expected_projection_hash={request.target_projection_hash} "
+            f"result_projection_hash={result.projection_hash}"
+        )
+
+    await attach_oigb_relationship(
+        index=request.index,
+        author_id=request.ctx.requester_id,
+        source_domain_branch_id=request.authorization.source_branch_id,
+        source_projection_hash=request.authorization.source_projection_hash,
+        target_domain_branch_id=result_branch_id,
+        target_projection_hash=request.target_projection_hash,
     )
 
 

@@ -55,6 +55,23 @@ class CodeSemanticAnalysisDependencyRequirement(BaseModel):
     metadata: JsonObject | None = Field(default=None)
 
 
+class CodeSemanticAnalysisDependencyGraph(BaseModel):
+    """Read-only provider-owned graph context for one declared semantic dependency."""
+
+    # Attributes
+    package_name: str
+    graph_kind: str
+    provider_key: str | None = Field(default=None)
+    semantic_owner: str | None = Field(default=None)
+    semantic_branch_id: str | None = Field(default=None)
+    semantic_projection_name: str | None = Field(default=None)
+    semantic_projection_hash: str | None = Field(default=None)
+    semantic_object_instance_graph_commit_id: str | None = Field(default=None)
+    semantic_root_object_instance_graph_commit_id: str | None = Field(default=None)
+    graph: JsonObject
+    metadata: JsonObject | None = Field(default=None)
+
+
 class CodeSemanticDelta(BaseModel):
     """Provider-owned semantic before/after candidate derived from a CodePackageDelta."""
 
@@ -164,6 +181,7 @@ class PreviewCodeSemanticAnalysisPackageDeltaRequest(CodeServiceRequest):
     delta: CodePackageDelta
     layout_contract: CodePackageLayoutContract | None = Field(default=None)
     semantic_contract: CodeSemanticContract | None = Field(default=None)
+    dependency_graphs: list[CodeSemanticAnalysisDependencyGraph] = Field(default_factory=list)
     include_provider_payload: bool = Field(default=False)
     strict: bool = Field(default=True)
     metadata: JsonObject | None = Field(default=None)

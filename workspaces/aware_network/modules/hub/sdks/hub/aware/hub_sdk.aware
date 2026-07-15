@@ -1,0 +1,51 @@
+sdk hub_sdk {
+    "Canonical Hub SDK operations over the Hub service API."
+
+    api hub;
+
+    operation discover_public_map {
+        "Discover the public Hub package/revision map."
+        endpoint hub.public_map.discover
+    }
+
+    operation discover_code_package_channel_heads {
+        "Discover public Hub CodePackage channel heads."
+        endpoint hub.code_package.discover_channel_heads
+        view hub.channel_heads
+    }
+
+    operation search_code_packages {
+        "Search CodePackage descriptors through Hub authority."
+        endpoint hub.code_package.search
+        view hub.channel_heads
+    }
+
+    operation describe_code_package {
+        "Describe one CodePackage descriptor through Hub authority."
+        endpoint hub.code_package.describe
+        view hub.channel_heads
+    }
+
+    operation resolve_code_package {
+        "Resolve one exact CodePackage artifact lock."
+        endpoint hub.code_package.resolve
+        view hub.channel_heads
+    }
+
+    operation download_code_package {
+        "Return one CodePackage artifact download lock."
+        endpoint hub.code_package.download
+        view hub.channel_heads
+    }
+
+    operation publish_code_package {
+        "Register one staged CodePackage artifact lock."
+        endpoint hub.code_package.publish
+    }
+
+    operation resolve_deployment_artifact {
+        "Resolve a deployment artifact payload lock."
+        endpoint hub.deployment_artifact.resolve
+        view hub.channel_heads
+    }
+}

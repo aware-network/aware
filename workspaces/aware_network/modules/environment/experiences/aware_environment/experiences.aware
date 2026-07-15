@@ -1,0 +1,24 @@
+experience aware_environment_experience on aware_environment.environment.Environment {
+    observable environment {
+        view navigator.v1 default api_view environment.navigator {
+            """Environment OS navigation surface for Environment -> Process -> Thread selection."""
+        }
+    }
+
+    observable process {
+        view workspace.v1 default api_view environment.process_workspace {
+            """Process-level workspace surface for selected Thread navigation."""
+        }
+    }
+
+    observable thread {
+        view layout.v1 default api_view environment.thread_layout {
+            """Thread layout and lane attachment surface for selected coordination focus."""
+        }
+    }
+
+    node environment environment.Environment(key String) {
+        id now
+    }
+
+}

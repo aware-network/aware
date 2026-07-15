@@ -1,0 +1,18 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_identity_service_dto.actor.commit",
+    "aware_identity_service_dto.actor.reactivity_execution",
+    "aware_identity_service_dto.actor.subscription",
+    "aware_identity_service_dto.actor.view",
+    "aware_identity_service_dto.credential.profile",
+    "aware_identity_service_dto.identity.admission",
+    "aware_identity_service_dto.identity.models",
+    "aware_identity_service_dto.identity.view",
+    "aware_identity_service_dto.profile.requests",
+    "aware_identity_service_dto.role.assignment",
+    "aware_identity_service_dto.session.session"
+  ],
+  "package_prefix": "aware_identity_service_dto",
+  "version": "v1"
+}

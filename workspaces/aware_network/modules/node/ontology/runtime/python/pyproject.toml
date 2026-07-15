@@ -1,0 +1,29 @@
+[project]
+name = "aware-node"
+version = "0.1.0"
+description = "Aware node runtime module."
+authors = [{ name = "AWARE Team" }]
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.8.2,<3.0.0",
+  "aware_node_service_api",
+  "aware-node-ontology",
+  "aware-code-ontology",
+  "aware-service-ontology",
+  "aware-interface-ontology",
+  "aware-meta",
+  "aware-orm",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_node"]
+
+[tool.aware.tests]
+requires_module = "node"

@@ -10,6 +10,7 @@ class CodePrimitiveBaseType(Enum):
     boolean = "boolean"
     bytes = "bytes"
     datetime = "datetime"
+    decimal = "decimal"
     float = "float"
     integer = "integer"
     string = "string"

@@ -1,0 +1,11 @@
+class NetworkNodeEnvironmentListItem : inline_value {
+    id UUID
+    environment_id UUID
+    role NetworkEnvironmentRole
+    is_active Bool
+    priority Int
+}
+
+class NetworkNodeEnvironmentListResponse : inline_value {
+    results NetworkNodeEnvironmentListItem[]
+}

@@ -1,0 +1,68 @@
+/// View-state contract for public Network territory discovery.
+/// Public API view key: network.territory_discovery
+
+class NetworkTerritoryNodeRouteViewStateV1 : inline_value {
+    node_id String?
+    public_key String?
+    hostname String?
+    port Int?
+    base_url String?
+    status String = "active"
+    last_seen_at String?
+}
+
+class NetworkTerritoryEnvironmentViewStateV1 : inline_value {
+    node_id String?
+    environment_id String?
+    environment_key String?
+    environment_title String?
+    role String = "replica"
+    is_active Bool = true
+    priority Int = 0
+    status String = "active"
+    experience_names String[] = []
+    environment_config_id String?
+    environment_config_key String?
+}
+
+class NetworkTerritoryHostedServiceViewStateV1 : inline_value {
+    service_id String?
+    service_name String?
+    service_package_names String[] = []
+    endpoint_refs String[] = []
+    stream_endpoint_refs String[] = []
+    host_id String?
+    host_version String?
+    protocol_version String?
+    supports_stream_events Bool = false
+}
+
+class NetworkTerritoryPeerViewStateV1 : inline_value {
+    edge_id String?
+    source_node_id String?
+    target_node_id String?
+    peer_node_id String?
+    peer_base_url String?
+    direction String = "outgoing"
+    status String = "accepted"
+    trust_score Float = 0.0
+    connected_at String?
+    last_ping_at String?
+}
+
+class NetworkTerritoryNodeViewStateV1 : inline_value {
+    node NetworkTerritoryNodeRouteViewStateV1?
+    environments NetworkTerritoryEnvironmentViewStateV1[] = []
+    hosted_services NetworkTerritoryHostedServiceViewStateV1[] = []
+    peers NetworkTerritoryPeerViewStateV1[] = []
+}
+
+class NetworkTerritoryDiscoveryViewStateV1 : inline_value {
+    status String = "waiting"
+    authority_source_url String?
+    nodes NetworkTerritoryNodeViewStateV1[] = []
+    summary String?
+    empty_message String = "No Network territory has been published yet"
+    error String?
+    provenance JsonObject = {}
+}

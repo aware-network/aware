@@ -11,6 +11,7 @@ from uuid import UUID
 from aware_code_ontology.code.code_plan import CodePackageDelta
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_code.semantic_capability import SemanticCapabilityFunctionCallPlan
+from aware_code.semantic_capability_keys import SEMANTIC_MATERIALIZATION_CAPABILITY
 from aware_code.semantic_provider_delta_events import (
     SEMANTIC_PROVIDER_DELTA_EVENT_CONTRACT_VERSION,
     SEMANTIC_PROVIDER_DELTA_EVENT_REPORT_CONTRACT_VERSION,
@@ -22,7 +23,6 @@ from aware_code.semantic_provider_delta_events import (
 )
 
 
-SEMANTIC_MATERIALIZATION_CAPABILITY = "materialize"
 SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_METADATA_KEY = (
     "semantic_materialization_delta_adapter"
 )
@@ -58,6 +58,19 @@ SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_KEY = (
 SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_ISOLATE_TARGET_MANIFESTS = (
     "isolate_target_manifests"
 )
+SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_INCLUDE_TARGET_MANIFESTS = (
+    "include_target_manifests"
+)
+SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_EXECUTION = "execution"
+SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_PREFLIGHT = (
+    "read_only_preflight"
+)
+SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_ANALYSIS = (
+    "read_only_analysis"
+)
+SemanticPackageMaterializationRuntimeContextDemand = Literal[
+    "execution", "read_only_preflight", "read_only_analysis"
+]
 SEMANTIC_PACKAGE_SELECTION_INTENTS_CONTEXT_KEY = (
     "workspace_semantic_package_selection_intents"
 )
@@ -73,7 +86,7 @@ SEMANTIC_LANGUAGE_MATERIALIZATION_TOOLING_CONTEXT_KEY = (
     "language_materialization_tooling"
 )
 SEMANTIC_LANGUAGE_MATERIALIZATION_TOOLING_CONTRACT_VERSION = (
-    "aware.code.semantic-materialization.language-tooling.v1"
+    "aware.code.semantic-materialization.language-tooling.v2"
 )
 SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_CONTEXT_KEY = "semantic_ontology_package_catalog"
 SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_SCHEMA = (
@@ -83,6 +96,7 @@ SEMANTIC_PROVIDER_DELTA_EXECUTION_CONTEXT_RESOLVERS_KEY = "execution_context_res
 SEMANTIC_PROVIDER_DELTA_OPERATION_EXECUTION_PROJECTION_NAME_KEY = (
     "operation_execution_projection_name"
 )
+SEMANTIC_PROVIDER_DELTA_PREVIOUS_EVIDENCE_RESOLVER_KEY = "previous_evidence_resolver"
 SEMANTIC_PROVIDER_DELTA_DURABLE_EXECUTION_INPUTS_KEY = (
     "provider_delta_durable_execution_inputs"
 )
@@ -118,6 +132,9 @@ SEMANTIC_PROVIDER_DELTA_REQUEST_BUNDLE_CONTRACT_VERSION = (
 )
 SEMANTIC_PROVIDER_DELTA_DURABLE_EXECUTION_INPUTS_CONTRACT_VERSION = (
     "aware.code.semantic-materialization.provider-delta-durable-execution-inputs.v1"
+)
+SEMANTIC_PROVIDER_DELTA_PREVIOUS_EVIDENCE_RESOLUTION_CONTRACT_VERSION = (
+    "aware.code.semantic-materialization.provider-delta-previous-evidence-resolution.v1"
 )
 SEMANTIC_PROJECTION_PORTAL_POLICY_CONTRACT_VERSION = (
     "aware.code.semantic-materialization.projection-portal-policy.v1"
@@ -983,6 +1000,9 @@ class SemanticPackageMaterializationRuntimeContextRequest:
     repo_root: Path
     actor_id: UUID | None = None
     manifest_path: Path | None = None
+    demand: SemanticPackageMaterializationRuntimeContextDemand = (
+        SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_EXECUTION
+    )
     context: Mapping[str, object] = field(default_factory=dict)
     provider_payload: Mapping[str, object] = field(default_factory=dict)
 
@@ -1127,6 +1147,7 @@ class SemanticPackageMaterializationBundle:
     experience_handle: str | None = None
     profiles: tuple[dict[str, object], ...] = ()
     semantic_packages: tuple[dict[str, object], ...] = ()
+    provider_replay_evidence: Mapping[str, object] = field(default_factory=dict)
     runtime_code_package_refs: tuple[
         Mapping[str, object] | SemanticPackageRuntimeCodePackageIntentRef,
         ...,
@@ -1769,6 +1790,7 @@ class SemanticProviderDeltaRequest:
     semantic_contract: SemanticProviderDeltaSemanticContract
     current_delta_fingerprint: str
     code_package_delta: CodePackageDelta | None = None
+    workspace_root: str | None = None
     contract_version: str = SEMANTIC_PROVIDER_DELTA_REQUEST_CONTRACT_VERSION
     provider_delta_request_key: str = ""
     requested_mode: Literal["delta"] = "delta"
@@ -1855,6 +1877,7 @@ class SemanticProviderDeltaRequest:
             semantic_contract=semantic_contract,
             current_delta_fingerprint=current_delta_fingerprint,
             code_package_delta=code_package_delta,
+            workspace_root=_optional_string(normalized.get("workspace_root")),
             delta_cause_hints=SemanticProviderDeltaCauseHints.model_validate(
                 normalized.get("delta_cause_hints")
             ),
@@ -1890,6 +1913,7 @@ class SemanticProviderDeltaRequest:
                 if self.code_package_delta is not None
                 else None
             ),
+            "workspace_root": self.workspace_root,
             "delta_cause_hints": self.delta_cause_hints.model_dump(mode="json"),
             "previous_materialization_evidence": dict(
                 self.previous_materialization_evidence
@@ -1914,6 +1938,178 @@ class SemanticProviderDeltaRequest:
                 self.baseline_semantic_root_object_instance_graph_commit_id
             ),
         }
+
+
+SemanticProviderDeltaPreviousEvidenceResolverStatus = Literal[
+    "resolved",
+    "not_available",
+    "blocked",
+    "failed",
+]
+
+
+@dataclass(frozen=True, slots=True)
+class SemanticProviderDeltaPreviousEvidenceResolverRequest:
+    """Typed request for provider-owned previous-evidence enrichment."""
+
+    provider_key: str
+    semantic_owner: str
+    workspace_root: Path
+    manifest_path: Path | None
+    request: SemanticProviderDeltaRequest
+    previous_materialization_evidence: Mapping[str, object] = field(
+        default_factory=dict
+    )
+    provider_payload: Mapping[str, object] = field(default_factory=dict)
+    context: Mapping[str, object] = field(default_factory=dict)
+
+    @classmethod
+    def model_validate(
+        cls,
+        value: object,
+    ) -> "SemanticProviderDeltaPreviousEvidenceResolverRequest":
+        if isinstance(value, cls):
+            return value
+        payload = _mapping_payload(value)
+        if payload is None:
+            raise ValueError(
+                "Provider delta previous-evidence resolver request must be a mapping."
+            )
+        request_payload = payload.get("request")
+        request = SemanticProviderDeltaRequest.model_validate(
+            request_payload if request_payload is not None else payload
+        )
+        manifest_path = _optional_string(payload.get("manifest_path"))
+        return cls(
+            provider_key=(
+                _optional_string(payload.get("provider_key"))
+                or request.semantic_contract.provider_key
+            ),
+            semantic_owner=(
+                _optional_string(payload.get("semantic_owner"))
+                or request.semantic_contract.role
+            ),
+            workspace_root=Path(_required_text(payload, "workspace_root")),
+            manifest_path=Path(manifest_path) if manifest_path is not None else None,
+            request=request,
+            previous_materialization_evidence=dict(
+                _mapping_payload(payload.get("previous_materialization_evidence"))
+                or request.previous_materialization_evidence
+            ),
+            provider_payload=dict(
+                _mapping_payload(payload.get("provider_payload")) or {}
+            ),
+            context=dict(_mapping_payload(payload.get("context")) or {}),
+        )
+
+    def model_dump(self, *, mode: str = "json") -> dict[str, object]:
+        _ = mode
+        return {
+            "provider_key": self.provider_key,
+            "semantic_owner": self.semantic_owner,
+            "workspace_root": self.workspace_root.as_posix(),
+            "manifest_path": (
+                self.manifest_path.as_posix()
+                if self.manifest_path is not None
+                else None
+            ),
+            "request": self.request.model_dump(mode="json"),
+            "previous_materialization_evidence": _json_safe_provider_input_value(
+                dict(self.previous_materialization_evidence)
+            ),
+            "provider_payload": _json_safe_provider_input_value(
+                dict(self.provider_payload)
+            ),
+            "context": _json_safe_provider_input_value(dict(self.context)),
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class SemanticProviderDeltaPreviousEvidenceResolverResult:
+    """Typed result for provider-owned previous-evidence enrichment."""
+
+    status: SemanticProviderDeltaPreviousEvidenceResolverStatus
+    reason: str
+    previous_materialization_evidence: Mapping[str, object] = field(
+        default_factory=dict
+    )
+    current_semantic_object_ids: Mapping[str, str] = field(default_factory=dict)
+    diagnostics: tuple[str, ...] = ()
+    metadata: Mapping[str, object] = field(default_factory=dict)
+    contract_version: str = (
+        SEMANTIC_PROVIDER_DELTA_PREVIOUS_EVIDENCE_RESOLUTION_CONTRACT_VERSION
+    )
+
+    @classmethod
+    def model_validate(
+        cls,
+        value: object,
+    ) -> "SemanticProviderDeltaPreviousEvidenceResolverResult":
+        if isinstance(value, cls):
+            return value
+        payload = _mapping_payload(value)
+        if payload is None:
+            raise ValueError(
+                "Provider delta previous-evidence resolver result must be a mapping."
+            )
+        status = _required_text(payload, "status")
+        if status not in {"resolved", "not_available", "blocked", "failed"}:
+            raise ValueError(
+                "Provider delta previous-evidence resolver status is invalid."
+            )
+        current_object_ids = _string_string_mapping(
+            payload.get("current_semantic_object_ids")
+        )
+        evidence = dict(
+            _mapping_payload(payload.get("previous_materialization_evidence")) or {}
+        )
+        if current_object_ids and "current_semantic_object_ids" not in evidence:
+            evidence["current_semantic_object_ids"] = dict(current_object_ids)
+        return cls(
+            contract_version=(
+                _optional_string(payload.get("contract_version"))
+                or SEMANTIC_PROVIDER_DELTA_PREVIOUS_EVIDENCE_RESOLUTION_CONTRACT_VERSION
+            ),
+            status=cast(SemanticProviderDeltaPreviousEvidenceResolverStatus, status),
+            reason=_required_text(payload, "reason"),
+            previous_materialization_evidence=evidence,
+            current_semantic_object_ids=current_object_ids,
+            diagnostics=_string_tuple(payload.get("diagnostics")),
+            metadata=dict(_mapping_payload(payload.get("metadata")) or {}),
+        )
+
+    @property
+    def resolved(self) -> bool:
+        return self.status == "resolved"
+
+    def model_dump(self, *, mode: str = "json") -> dict[str, object]:
+        _ = mode
+        current_object_ids = dict(self.current_semantic_object_ids)
+        if not current_object_ids:
+            current_object_ids = _string_string_mapping(
+                self.previous_materialization_evidence.get(
+                    "current_semantic_object_ids"
+                )
+            )
+        return {
+            "contract_version": self.contract_version,
+            "status": self.status,
+            "reason": self.reason,
+            "available": self.resolved,
+            "current_semantic_object_id_count": len(current_object_ids),
+            "provider_delta_operation_execution_context_available": bool(
+                current_object_ids
+            ),
+            "current_semantic_object_ids": dict(sorted(current_object_ids.items())),
+            "previous_materialization_evidence": _json_safe_provider_input_value(
+                dict(self.previous_materialization_evidence)
+            ),
+            "diagnostics": self.diagnostics,
+            "metadata": _json_safe_provider_input_value(dict(self.metadata)),
+        }
+
+    def evidence_payload(self) -> dict[str, object]:
+        return self.model_dump(mode="json")
 
 
 @dataclass(frozen=True, slots=True)
@@ -2400,9 +2596,48 @@ class SemanticPackageImplementationWorkItem:
 
 
 @dataclass(frozen=True, slots=True)
+class SemanticPackageMaterializationObjectIdentity:
+    """Provider-owned semantic object identity with committed lane provenance."""
+
+    semantic_key: str
+    object_id: str
+    domain_branch_id: str | None = None
+    projection_hash: str | None = None
+    domain_object_instance_graph_id: str | None = None
+    object_instance_graph_commit_id: str | None = None
+    semantic_head_commit_id: str | None = None
+    source: str = "semantic_package_materialization_result"
+
+    def evidence_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "semantic_key": self.semantic_key,
+            "object_id": self.object_id,
+            "source": self.source,
+        }
+        for key, value in (
+            ("domain_branch_id", self.domain_branch_id),
+            ("projection_hash", self.projection_hash),
+            (
+                "domain_object_instance_graph_id",
+                self.domain_object_instance_graph_id,
+            ),
+            ("object_instance_graph_commit_id", self.object_instance_graph_commit_id),
+            ("semantic_head_commit_id", self.semantic_head_commit_id),
+        ):
+            if value is not None:
+                payload[key] = value
+        return payload
+
+
+@dataclass(frozen=True, slots=True)
 class SemanticPackageMaterializationResult:
     details: Mapping[str, object]
     bundle_packages: tuple[SemanticPackageMaterializationBundle, ...]
+    current_semantic_object_ids: Mapping[str, str] = field(default_factory=dict)
+    current_semantic_object_identities: tuple[
+        SemanticPackageMaterializationObjectIdentity,
+        ...,
+    ] = ()
     mode: SemanticPackageMaterializationMode = "full_rebuild"
     affected_semantic_keys: tuple[str, ...] = ()
     applied_semantic_keys: tuple[str, ...] = ()
@@ -2781,7 +3016,13 @@ def _semantic_provider_delta_lane_state_from_request_payload(
             raw_state = evidence.get("provider_delta_lane_state")
     if raw_state is None:
         return None
-    return SemanticProviderDeltaLaneState.model_validate(raw_state)
+    raw_state_payload = _mapping_payload(raw_state)
+    if (
+        not raw_state_payload
+        or _optional_string(raw_state_payload.get("status")) is None
+    ):
+        return None
+    return SemanticProviderDeltaLaneState.model_validate(raw_state_payload)
 
 
 def _baseline_ref_text(
@@ -2972,6 +3213,18 @@ def _string_int_mapping(value: object) -> dict[str, int]:
     return normalized
 
 
+def _string_string_mapping(value: object) -> dict[str, str]:
+    if not isinstance(value, Mapping):
+        return {}
+    normalized: dict[str, str] = {}
+    for raw_key, raw_value in value.items():
+        key = _optional_string(raw_key)
+        mapped_value = _optional_string(raw_value)
+        if key is not None and mapped_value is not None:
+            normalized[key] = mapped_value
+    return dict(sorted(normalized.items()))
+
+
 def _string_tuple(value: object) -> tuple[str, ...]:
     return tuple(
         text
@@ -3042,6 +3295,10 @@ __all__ = [
     "SEMANTIC_PROVIDER_DELTA_RESULT_CONTRACT_VERSION",
     "SEMANTIC_MATERIALIZATION_EXECUTION_CONTEXT_KEY",
     "SEMANTIC_MATERIALIZATION_LIFECYCLE_PROFILE_CONTEXT_KEY",
+    "SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_EXECUTION",
+    "SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_ANALYSIS",
+    "SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_PREFLIGHT",
+    "SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_INCLUDE_TARGET_MANIFESTS",
     "SEMANTIC_MATERIALIZATION_TARGET_MANIFEST_PATHS_CONTEXT_KEY",
     "SEMANTIC_PACKAGE_RUNTIME_CODE_PACKAGE_INTENT_CONTRACT_VERSION",
     "SEMANTIC_PACKAGE_SELECTION_INTENTS_CONTEXT_KEY",
@@ -3052,6 +3309,8 @@ __all__ = [
     "SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_SCHEMA",
     "SEMANTIC_PROVIDER_DELTA_EXECUTION_CONTEXT_RESOLVERS_KEY",
     "SEMANTIC_PROVIDER_DELTA_OPERATION_EXECUTION_PROJECTION_NAME_KEY",
+    "SEMANTIC_PROVIDER_DELTA_PREVIOUS_EVIDENCE_RESOLUTION_CONTRACT_VERSION",
+    "SEMANTIC_PROVIDER_DELTA_PREVIOUS_EVIDENCE_RESOLVER_KEY",
     "SEMANTIC_PROVIDER_DELTA_PRODUCT_READINESS_CONTRACT_VERSION",
     "SEMANTIC_PROVIDER_DELTA_PRODUCT_READINESS_KEY",
     "SEMANTIC_FUNCTION_CALL_CONTEXT_BY_PROVIDER_KEY",
@@ -3078,12 +3337,17 @@ __all__ = [
     "SemanticProjectionPortalPolicyPortal",
     "SemanticProjectionPortalPolicyProjection",
     "SemanticProviderDeltaReadableEventChain",
+    "SemanticProviderDeltaPreviousEvidenceResolverRequest",
+    "SemanticProviderDeltaPreviousEvidenceResolverResult",
+    "SemanticProviderDeltaPreviousEvidenceResolverStatus",
     "SemanticProviderDeltaRequest",
     "SemanticProviderDeltaRequestBundle",
     "SemanticProviderDeltaResult",
     "SemanticProviderDeltaSemanticContract",
     "SemanticPackageMaterializationExecutionContext",
     "SemanticPackageMaterializationExecutionContextRequest",
+    "SemanticPackageMaterializationRuntimeContextDemand",
+    "SemanticPackageMaterializationRuntimeContextRequest",
     "SemanticFunctionCallContext",
     "SemanticSourceSessionCacheRef",
     "SemanticSourceSessionContext",
@@ -3096,6 +3360,7 @@ __all__ = [
     "SemanticPackageMaterializationInput",
     "SemanticPackageImplementationWorkItem",
     "SemanticPackageMaterializationRequest",
+    "SemanticPackageMaterializationObjectIdentity",
     "SemanticPackageMaterializationResult",
     "SemanticPackageRuntimeCodePackageIntentRef",
     "build_semantic_provider_delta_head_move_plan",

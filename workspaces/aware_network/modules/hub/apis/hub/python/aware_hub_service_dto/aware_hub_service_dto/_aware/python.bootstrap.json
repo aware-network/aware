@@ -1,0 +1,11 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_hub_service_dto.hub.artifact_authority",
+    "aware_hub_service_dto.hub.deployment_artifact_authority",
+    "aware_hub_service_dto.hub.public_map_discovery",
+    "aware_hub_service_dto.hub.view.channel_heads"
+  ],
+  "package_prefix": "aware_hub_service_dto",
+  "version": "v1"
+}

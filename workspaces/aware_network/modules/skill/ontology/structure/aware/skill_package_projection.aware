@@ -1,0 +1,15 @@
+/// SkillPackage projection
+///
+/// Purpose:
+/// - Expose the Skill-owned semantic package rail for Workspace/package consumers.
+/// - Keep `SkillConfig` as the semantic configuration root under the package boundary.
+/// - Avoid collapsing package provenance and Skill semantic internals into one object.
+projection SkillPackage is_branchable {
+    root skill.SkillPackage
+
+    skill.SkillPackage::api_packages
+    skill.SkillPackageApiPackage::api_package aware_api.ApiPackage
+    skill.SkillPackage::skill_config SkillConfig
+    skill.SkillPackage::skill_config_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    aware_meta.graph.instance.ObjectInstanceGraphCommit::commit
+}

@@ -1,0 +1,33 @@
+aware = 1
+
+[package]
+package_name = "interface-ontology"
+fqn_prefix = "aware_interface"
+kind = "ontology"
+version_number = 1
+title = "Interface"
+description = "SSOT canonical (.aware) sources for interface"
+
+[build]
+environment_slug = "aware_interface"
+
+[[dependencies]]
+package_name = "meta-ontology"
+
+[[dependencies]]
+package_name = "identity-ontology"
+
+[[dependencies]]
+package_name = "environment-ontology"
+
+[[dependencies]]
+package_name = "network-ontology"
+
+[[dependencies]]
+package_name = "attention-ontology"
+
+[[dependencies]]
+package_name = "experience-ontology"
+
+[[dependencies]]
+package_name = "code-ontology"

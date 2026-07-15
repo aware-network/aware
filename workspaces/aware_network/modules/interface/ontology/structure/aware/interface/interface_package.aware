@@ -1,0 +1,156 @@
+class InterfacePackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    experience_packages InterfacePackageExperiencePackage[]
+    pane_packages InterfacePackagePanePackage[]
+    render_component_packages InterfacePackageRenderComponentPackage[]
+    interface_config InterfaceConfig unique
+    interface_config_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    aware_interface_version Int = 1
+    compilation_mode String = "raw_xor"
+    config_bundle_path String?
+    dart JsonObject = {}
+    dependencies JsonArray = []
+    description String?
+    exclude_paths JsonArray = []
+    force_fresh_scan Bool = true
+    fqn_prefix String?
+    include_paths JsonArray = []
+    manifest_relative_path String?
+    name String key
+    package_root String = "."
+    sources_root String = "."
+    title String?
+    version_number Int = 1
+
+    fn build construct(
+        name String key,
+        interface_config_id UUID,
+        interface_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_interface_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = ".",
+        config_bundle_path String? = null,
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        compilation_mode String = "raw_xor",
+        dependencies JsonArray = [],
+        dart JsonObject = {}
+    ) -> InterfacePackage {
+        """
+        Create the canonical Interface-owned package root over an existing `InterfaceConfig`.
+
+        Contract:
+        - Identity is keyed by Interface package `name`.
+        - `InterfacePackage` is the package/public root over an existing canonical `InterfaceConfig`.
+        - `interface_config_id` must point at the canonical InterfaceConfig stable id for this package root.
+        - `interface_config_object_instance_graph_commit_id` pins the historical ObjectInstanceGraphCommit
+          for the semantic InterfaceConfig root so package consumers can replay exact interface truth
+          without resolving branch head or reopening authoring TOML.
+        - `source_code_package_id` is the explicit raw-source provenance link for this semantic leaf package.
+        - Manifest/build/dependency/dart attributes mirror `aware.interface.toml` so committed package
+          truth can drive Workspace and UI runtime routing without reopening authoring TOML.
+        - Workspace will later mount `InterfacePackage`, not raw `InterfaceConfig`.
+        """
+    }
+
+    fn sync_manifest_truth(
+        interface_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_interface_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = ".",
+        config_bundle_path String? = null,
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        compilation_mode String = "raw_xor",
+        dependencies JsonArray = [],
+        dart JsonObject = {}
+    ) -> InterfacePackage {
+        """
+        Sync mutable manifest/build/dependency/dart truth onto an existing InterfacePackage root.
+
+        This keeps `build` create-only for empty package lanes while allowing committed package
+        truth to follow the latest parsed `aware.interface.toml` snapshot and pinned semantic
+        InterfaceConfig commit.
+        """
+    }
+
+    fn attach_experience_package (
+        experience_package_id UUID,
+        description String? = null
+    ) -> InterfacePackageExperiencePackage {
+        """
+        Attach one Experience package to this InterfacePackage.
+
+        Contract:
+        - This is the package/import rail for authored Interface view ownership.
+        - It declares which Experience packages supply canonical observable/view contracts to this
+          Interface package.
+        - Runtime pane resolution remains a later `observable -> experience view -> pane` seam.
+        """
+        let created = construct experience_packages.build(
+            experience_package_id = experience_package_id,
+            description = description,
+        )
+    }
+
+    fn attach_pane_package (
+        pane_package_id UUID,
+        description String? = null
+    ) -> InterfacePackagePanePackage {
+        """
+        Attach one pane package to this InterfacePackage.
+
+        Contract:
+        - This is the package/import rail for canonical pane implementation ownership.
+        - It lets Interface packages compose pane packages explicitly instead of guessing pane runtime packages.
+        - Runtime registrar loading remains a later seam; this cut only establishes package dependency truth.
+        """
+        let created = construct pane_packages.build(
+            pane_package_id = pane_package_id,
+            description = description,
+        )
+    }
+
+    fn attach_render_component_package (
+        render_component_package_id UUID,
+        description String? = null
+    ) -> InterfacePackageRenderComponentPackage {
+        """
+        Attach one render component package to this InterfacePackage.
+
+        Contract:
+        - This is the package/import rail for reusable rich renderer component contracts.
+        - Interface packages declare component availability explicitly so renderers do not guess
+          native capability registries from pane implementation details.
+        - Pane packages still decide which components their PaneRenderSpec may reference.
+        """
+        let created = construct render_component_packages.build(
+            render_component_package_id = render_component_package_id,
+            description = description,
+        )
+    }
+}
+
+ann interface.InterfacePackage::source_code_package load eager
+ann interface.InterfacePackage::experience_packages load eager
+ann interface.InterfacePackage::pane_packages load eager
+ann interface.InterfacePackage::render_component_packages load eager
+ann interface.InterfacePackage::interface_config load eager
+ann interface.InterfacePackage::interface_config_object_instance_graph_commit load eager

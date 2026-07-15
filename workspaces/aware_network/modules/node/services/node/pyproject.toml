@@ -1,0 +1,41 @@
+[project]
+name = "aware-node-service"
+version = "0.1.0"
+description = "AWARE Node Service"
+authors = [
+  { name = "AWARE Team", email = "info@aware-network.org" },
+]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-economy-ontology-dto",
+  "aware_environment_service_dto",
+  "aware_environment_service_protocol",
+  "aware_identity_service_dto",
+  "aware-node",
+  "aware-network",
+  "aware-ontology",
+  "aware-environment",
+  "aware-meta-service",
+  "aware-meta-sdk",
+  "aware_node_service_api",
+  "aware_node_service_protocol",
+  "aware-network-sdk",
+  "aware-storage-service",
+  "msgpack>=1.0",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.4.2",
+  "pytest-asyncio>=0.23.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_node_service"]
+
+[tool.aware.tests]
+requires_module = "node"

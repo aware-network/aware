@@ -1,0 +1,23 @@
+class SkillConfigStepTarget {
+    // Relationships
+    skill_config_target SkillConfigTarget key
+
+    // Attributes
+    description String?
+
+    fn build construct (
+        skill_config_target_id UUID key,
+        description String? = null
+    ) -> SkillConfigStepTarget {
+        """
+        Create one Skill-owned binding between a Skill step and an Experience target.
+
+        Contract:
+        - `skill_config_target` is Skill/Experience-owned semantic target selection.
+        - The parent `SkillConfigStep` owns API endpoint intent through `SkillConfigApiEndpoint`.
+        - API calls remain payload truth; Service remains downstream fulfillment truth.
+        """
+    }
+}
+
+ann skill.SkillConfigStepTarget::skill_config_target load eager

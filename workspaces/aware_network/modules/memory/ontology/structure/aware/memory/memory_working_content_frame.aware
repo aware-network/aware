@@ -1,0 +1,17 @@
+/// Content payload for a MemoryWorkingItem.
+///
+/// Contract:
+/// - Must be linked to a `MemoryWorkingItem` whose `kind=content`.
+/// - Content remains multimodal-ready via aware_content.
+class MemoryWorkingContentFrame {
+    // Relationships
+    content aware_content.content.Content key
+
+    fn build construct(
+        content_id UUID key
+    ) -> MemoryWorkingContentFrame {
+        """
+        Builds deterministic content frame payload for a memory item.
+        """
+    }
+}

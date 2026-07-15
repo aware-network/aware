@@ -31,6 +31,44 @@ if TYPE_CHECKING:
     from aware_code_service_dto.code.features.semantic_analysis import CodeSemanticTypedOperation
 
 
+class CodeSemanticSourceMeaningTemplateValueBinding(BaseModel):
+    """
+    Typed grammar context value used to render semantic keys and payload evidence.
+    When `grammar_rule_name` is absent, `field_path` resolves from the binding's
+    anchor rule node. When present, Code resolves the nearest ancestor with that
+    rule name before reading the field.
+    """
+
+    # Attributes
+    value_key: str
+    field_path: str
+    grammar_rule_name: str | None = Field(default=None)
+    required: bool = Field(default=True)
+
+
+class CodeSemanticSourceMeaningTypedOperationBinding(BaseModel):
+    """
+    Typed operation policy emitted when one source-meaning event matches.
+    Code interprets the routing fields and preserves provider-owned generated
+    materialization intent as opaque evidence for the owning semantic package.
+    """
+
+    # Attributes
+    operation_key_template: str | None = Field(default=None)
+    event_verbs: list[str] = Field(default_factory=list)
+    operation_family: str | None = Field(default=None)
+    semantic_operation_type: str
+    semantic_subject_type: str | None = Field(default=None)
+    field_path: str | None = Field(default=None)
+    requires_baseline_object_identity: bool = Field(default=False)
+    contract_source: str | None = Field(default=None)
+    semantic_apply_boundary: str | None = Field(default=None)
+    preview_only: bool = Field(default=True)
+    fallback_required: bool = Field(default=False)
+    fallback_reason: str | None = Field(default=None)
+    generated_materialization_intent: JsonObject | None = Field(default=None)
+
+
 class CodeSemanticSourceMeaningBinding(BaseModel):
     """Declarative source-to-semantic meaning binding over a grammar anchor."""
 
@@ -49,6 +87,8 @@ class CodeSemanticSourceMeaningBinding(BaseModel):
     event_key_template: str | None = Field(default=None)
     event_type: str = Field(default="semantic_change")
     condition_keys: list[str] = Field(default_factory=list)
+    template_value_bindings: list[CodeSemanticSourceMeaningTemplateValueBinding] = Field(default_factory=list)
+    typed_operation_bindings: list[CodeSemanticSourceMeaningTypedOperationBinding] = Field(default_factory=list)
     required: bool = Field(default=True)
     metadata: JsonObject | None = Field(default=None)
 

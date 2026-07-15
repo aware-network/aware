@@ -1,0 +1,355 @@
+/// Request/response DTOs for Memory Working service operations.
+///
+/// V0 is intentionally scoped to working memory. Semantic, episodic,
+/// procedural search, event subscription, and Actor-Action models are later
+/// lanes.
+
+class MemoryWorkingServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class MemoryWorkingServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+}
+
+class EnsureMemoryWorkingRequest augment MemoryWorkingServiceRequest {
+    operation String = "ensure_memory_working"
+    actor_id UUID?
+    key String = "default"
+}
+
+class EnsureMemoryWorkingResponse augment MemoryWorkingServiceResponse {
+    operation String = "ensure_memory_working"
+    memory_working working.MemoryWorkingPin
+    receipt working.MemoryWorkingCommitReceipt?
+}
+
+class DescribeMemoryWorkingRequest augment MemoryWorkingServiceRequest {
+    operation String = "describe_memory_working"
+    memory_working_id UUID?
+    actor_id UUID?
+    key String = "default"
+}
+
+class DescribeMemoryWorkingResponse augment MemoryWorkingServiceResponse {
+    operation String = "describe_memory_working"
+    exists Bool = false
+    memory_working working.MemoryWorkingPin?
+}
+
+class ListMemoryWorkingItemsRequest augment MemoryWorkingServiceRequest {
+    operation String = "list_memory_working_items"
+    memory_working_id UUID?
+    actor_id UUID?
+    key String = "default"
+    kind String?
+    limit Int?
+}
+
+class ListMemoryWorkingItemsResponse augment MemoryWorkingServiceResponse {
+    operation String = "list_memory_working_items"
+    memory_working working.MemoryWorkingPin?
+    items working.MemoryWorkingItemPin[] = []
+}
+
+class ValidateMemoryWorkingItemRequest augment MemoryWorkingServiceRequest {
+    operation String = "validate_memory_working_item"
+    memory_working_item_id UUID
+    expected_identity_session_id UUID?
+    expected_attention_session_id UUID?
+    expected_attention_session_section_id UUID?
+    expected_focus_scope_id UUID?
+    expected_object_instance_graph_commit_id UUID?
+    expected_projection_hash String?
+    validate_sources Bool = true
+}
+
+class ValidateMemoryWorkingItemResponse augment MemoryWorkingServiceResponse {
+    operation String = "validate_memory_working_item"
+    evidence working.MemoryWorkingItemEvidence?
+}
+
+class ResolveMemoryContextRequest augment MemoryWorkingServiceRequest {
+    operation String = "resolve_memory_context"
+    memory_working_id UUID?
+    actor_id UUID?
+    key String = "default"
+    kind String?
+    limit Int?
+    expected_identity_session_id UUID?
+    expected_attention_session_id UUID?
+    expected_attention_session_section_id UUID?
+    expected_focus_scope_id UUID?
+    expected_object_instance_graph_commit_id UUID?
+    expected_projection_hash String?
+    validate_sources Bool = true
+    include_unusable Bool = true
+}
+
+class ResolveMemoryContextResponse augment MemoryWorkingServiceResponse {
+    operation String = "resolve_memory_context"
+    exists Bool = false
+    memory_working working.MemoryWorkingPin?
+    items working.MemoryWorkingItemEvidence[] = []
+    usable_item_count Int = 0
+    unresolved_item_count Int = 0
+}
+
+class ResolveActorMemoryContextRequest augment MemoryWorkingServiceRequest {
+    operation String = "resolve_actor_memory_context"
+    actor_id UUID?
+    key String = "default"
+    kind String?
+    limit Int?
+    identity_session_id UUID?
+    parent_identity_session_id UUID?
+    expected_attention_session_id UUID?
+    expected_attention_session_section_id UUID?
+    expected_focus_scope_id UUID?
+    expected_object_instance_graph_commit_id UUID?
+    expected_projection_hash String?
+    validate_identity Bool = true
+    validate_sources Bool = true
+    include_unusable Bool = true
+}
+
+class ResolveActorMemoryContextResponse augment MemoryWorkingServiceResponse {
+    operation String = "resolve_actor_memory_context"
+    actor_context working.MemoryActorContextEvidence
+    exists Bool = false
+    memory_working working.MemoryWorkingPin?
+    items working.MemoryWorkingItemEvidence[] = []
+    usable_item_count Int = 0
+    unresolved_item_count Int = 0
+}
+
+class WatchActorMemoryContextRequest augment MemoryWorkingServiceRequest {
+    operation String = "watch_actor_memory_context"
+    actor_id UUID?
+    key String = "default"
+    kind String?
+    limit Int?
+    identity_session_id UUID?
+    parent_identity_session_id UUID?
+    expected_attention_session_id UUID?
+    expected_attention_session_section_id UUID?
+    expected_focus_scope_id UUID?
+    expected_object_instance_graph_commit_id UUID?
+    expected_projection_hash String?
+    validate_identity Bool = true
+    validate_sources Bool = true
+    include_unusable Bool = true
+    known_cursor String?
+    known_digest String?
+}
+
+class WatchActorMemoryContextResponse augment MemoryWorkingServiceResponse {
+    operation String = "watch_actor_memory_context"
+    snapshot working.MemoryActorContextSnapshot
+    changed Bool = true
+}
+
+class ResolveActorMemoryContextFrameRequest augment MemoryWorkingServiceRequest {
+    operation String = "resolve_actor_memory_context_frame"
+    actor_id UUID?
+    key String = "default"
+    kind String?
+    limit Int?
+    identity_session_id UUID?
+    parent_identity_session_id UUID?
+    expected_attention_session_id UUID?
+    expected_attention_session_section_id UUID?
+    expected_focus_scope_id UUID?
+    expected_object_instance_graph_commit_id UUID?
+    expected_projection_hash String?
+    validate_identity Bool = true
+    validate_sources Bool = true
+    include_unusable Bool = true
+}
+
+class ResolveActorMemoryContextFrameResponse augment MemoryWorkingServiceResponse {
+    operation String = "resolve_actor_memory_context_frame"
+    frame working.MemoryActorContextFrame
+    changed Bool = true
+}
+
+class WatchActorMemoryContextFrameRequest augment MemoryWorkingServiceRequest {
+    operation String = "watch_actor_memory_context_frame"
+    actor_id UUID?
+    key String = "default"
+    kind String?
+    limit Int?
+    identity_session_id UUID?
+    parent_identity_session_id UUID?
+    expected_attention_session_id UUID?
+    expected_attention_session_section_id UUID?
+    expected_focus_scope_id UUID?
+    expected_object_instance_graph_commit_id UUID?
+    expected_projection_hash String?
+    validate_identity Bool = true
+    validate_sources Bool = true
+    include_unusable Bool = true
+    known_cursor String?
+    known_digest String?
+}
+
+class WatchActorMemoryContextFrameResponse augment MemoryWorkingServiceResponse {
+    operation String = "watch_actor_memory_context_frame"
+    frame working.MemoryActorContextFrame
+    changed Bool = true
+}
+
+class RememberAttentionTransitionRequest augment MemoryWorkingServiceRequest {
+    operation String = "remember_attention_transition"
+    memory_working_id UUID?
+    actor_id UUID?
+    key String = "default"
+    attention_focus_transition_id UUID
+    expected_identity_session_id UUID?
+    expected_attention_session_id UUID?
+    expected_attention_session_section_id UUID?
+    expected_focus_scope_id UUID?
+    expected_object_instance_graph_commit_id UUID?
+    expected_projection_hash String?
+    rationale String?
+    summary String?
+}
+
+class RememberAttentionTransitionResponse augment MemoryWorkingServiceResponse {
+    operation String = "remember_attention_transition"
+    memory_working working.MemoryWorkingPin
+    item working.MemoryWorkingItemPin?
+    attention_validation working.AttentionTransitionValidationEvidence
+    receipt working.MemoryWorkingCommitReceipt?
+}
+
+class RememberContentRequest augment MemoryWorkingServiceRequest {
+    operation String = "remember_content"
+    memory_working_id UUID?
+    actor_id UUID?
+    key String = "default"
+    content_id UUID
+    rationale String?
+    summary String?
+}
+
+class RememberContentResponse augment MemoryWorkingServiceResponse {
+    operation String = "remember_content"
+    memory_working working.MemoryWorkingPin
+    item working.MemoryWorkingItemPin?
+    receipt working.MemoryWorkingCommitReceipt?
+}
+
+class RememberEventRequest augment MemoryWorkingServiceRequest {
+    operation String = "remember_event"
+    memory_working_id UUID?
+    actor_id UUID?
+    key String = "default"
+    event_id UUID
+    event_config_id UUID?
+    event_activation_id UUID?
+    event_type String?
+    event_source String?
+    event_status String?
+    commit_branch_id UUID?
+    commit_projection_hash String?
+    commit_id UUID?
+    object_instance_graph_id UUID?
+    object_instance_graph_commit_id UUID?
+    actor_subscription_id UUID?
+    action_intent_id UUID?
+    intent_key String?
+    action_config_id UUID?
+    action_execution_id UUID?
+    action_execution_key String?
+    api_call_key UUID?
+    action_binding_id UUID?
+    action_experience_id UUID?
+    environment_profile_id UUID?
+    environment_event_id UUID?
+    invocation_config_id UUID?
+    endpoint_id UUID?
+    rationale String?
+    summary String?
+}
+
+class RememberEventResponse augment MemoryWorkingServiceResponse {
+    operation String = "remember_event"
+    memory_working working.MemoryWorkingPin
+    memory_working_item_id UUID?
+    item working.MemoryWorkingItemPin?
+    event_action_provenance working.MemoryEventActionProvenanceEvidence?
+    receipt working.MemoryWorkingCommitReceipt?
+}
+
+class RecordResolvedEventMeaningRequest augment MemoryWorkingServiceRequest {
+    operation String = "record_resolved_event_meaning"
+    actor_id UUID?
+    memory_working_item_id UUID
+    resolved_meaning aware_reactivity_service_dto.reactivity.ReactivityEventMeaningResolutionResult
+    resolver_status String
+    resolver_endpoint_ref String
+    resolver_discriminant String
+    resolver_program_impl_instruction_intent_id UUID
+    resolver_action_config_id UUID
+    resolver_api_capability_endpoint_id UUID
+    resolver_api_call_id UUID
+    resolver_api_call_key UUID
+    resolver_request_model_id UUID
+    resolver_api_call_outcome_id UUID
+    resolver_response_model_id UUID
+    resolver_response_class_config_id UUID
+    resolver_service_operation_id UUID
+    resolver_service_operation_config_id UUID
+    resolver_service_operation_commit_id UUID
+    resolver_service_operation_head_commit_id UUID
+    resolver_service_operation_branch_id UUID
+    resolver_service_operation_projection_hash String
+    resolver_api_call_outcome_commit_id UUID
+    resolver_api_call_outcome_head_commit_id UUID
+    resolver_api_call_outcome_branch_id UUID
+    resolver_api_call_outcome_projection_hash String
+}
+
+class RecordResolvedEventMeaningResponse augment MemoryWorkingServiceResponse {
+    operation String = "record_resolved_event_meaning"
+    memory_working working.MemoryWorkingPin?
+    item working.MemoryWorkingItemPin?
+    resolved_event_meaning working.MemoryResolvedEventMeaningEvidence
+    receipt working.MemoryWorkingCommitReceipt?
+}
+
+ann memory.working.MemoryWorkingServiceRequest::operation discriminate key
+ann memory.working.EnsureMemoryWorkingRequest::operation discriminate tag "ensure_memory_working"
+ann memory.working.DescribeMemoryWorkingRequest::operation discriminate tag "describe_memory_working"
+ann memory.working.ListMemoryWorkingItemsRequest::operation discriminate tag "list_memory_working_items"
+ann memory.working.ValidateMemoryWorkingItemRequest::operation discriminate tag "validate_memory_working_item"
+ann memory.working.ResolveMemoryContextRequest::operation discriminate tag "resolve_memory_context"
+ann memory.working.ResolveActorMemoryContextRequest::operation discriminate tag "resolve_actor_memory_context"
+ann memory.working.WatchActorMemoryContextRequest::operation discriminate tag "watch_actor_memory_context"
+ann memory.working.ResolveActorMemoryContextFrameRequest::operation discriminate tag "resolve_actor_memory_context_frame"
+ann memory.working.WatchActorMemoryContextFrameRequest::operation discriminate tag "watch_actor_memory_context_frame"
+ann memory.working.RememberAttentionTransitionRequest::operation discriminate tag "remember_attention_transition"
+ann memory.working.RememberContentRequest::operation discriminate tag "remember_content"
+ann memory.working.RememberEventRequest::operation discriminate tag "remember_event"
+ann memory.working.RecordResolvedEventMeaningRequest::operation discriminate tag "record_resolved_event_meaning"
+
+ann memory.working.MemoryWorkingServiceResponse::operation discriminate key
+ann memory.working.EnsureMemoryWorkingResponse::operation discriminate tag "ensure_memory_working"
+ann memory.working.DescribeMemoryWorkingResponse::operation discriminate tag "describe_memory_working"
+ann memory.working.ListMemoryWorkingItemsResponse::operation discriminate tag "list_memory_working_items"
+ann memory.working.ValidateMemoryWorkingItemResponse::operation discriminate tag "validate_memory_working_item"
+ann memory.working.ResolveMemoryContextResponse::operation discriminate tag "resolve_memory_context"
+ann memory.working.ResolveActorMemoryContextResponse::operation discriminate tag "resolve_actor_memory_context"
+ann memory.working.WatchActorMemoryContextResponse::operation discriminate tag "watch_actor_memory_context"
+ann memory.working.ResolveActorMemoryContextFrameResponse::operation discriminate tag "resolve_actor_memory_context_frame"
+ann memory.working.WatchActorMemoryContextFrameResponse::operation discriminate tag "watch_actor_memory_context_frame"
+ann memory.working.RememberAttentionTransitionResponse::operation discriminate tag "remember_attention_transition"
+ann memory.working.RememberContentResponse::operation discriminate tag "remember_content"
+ann memory.working.RememberEventResponse::operation discriminate tag "remember_event"
+ann memory.working.RecordResolvedEventMeaningResponse::operation discriminate tag "record_resolved_event_meaning"

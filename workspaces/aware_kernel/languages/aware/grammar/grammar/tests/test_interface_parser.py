@@ -6,7 +6,7 @@ from tree_sitter_aware.tree_sitter_language import AWARE_LANGUAGE
 
 def _text(source_bytes: bytes, node: Node | None) -> str:
     assert node is not None
-    return source_bytes[node.start_byte:node.end_byte].decode("utf-8")
+    return source_bytes[node.start_byte : node.end_byte].decode("utf-8")
 
 
 def _find_nodes(node: Node, node_type: str) -> list[Node]:
@@ -47,8 +47,8 @@ interface aware_app {
     }
 
     pane door_control {
-        mount home_story.security.door main.configuration_map.workspace
-        mount home_story.security.door main.scene_view.overlay_left
+        mount main.configuration_map.workspace
+        mount main.scene_view.overlay_left
         narrative security.control
     }
 }
@@ -85,7 +85,28 @@ interface aware_app {
     pane_mount_defs = _find_nodes(root, "interface_pane_mount_def")
     assert len(pane_mount_defs) == 2
     assert _text(source_bytes, pane_mount_defs[0].child_by_field_name("target")) == "main.configuration_map.workspace"
+    assert pane_mount_defs[0].child_by_field_name("default_marker") is None
+    assert pane_mount_defs[0].child_by_field_name("view") is None
 
     narratives = _find_nodes(root, "interface_pane_narrative_def")
     assert len(narratives) == 1
     assert _text(source_bytes, narratives[0].child_by_field_name("narrative")) == "security.control"
+
+
+def test_interface_pane_mount_rejects_default_marker() -> None:
+    source = """
+interface sample {
+    window main {
+        layout configuration_map default {
+            section workspace {}
+        }
+    }
+
+    pane navigator {
+        mount main.configuration_map.workspace default
+    }
+}
+"""
+    parser = Parser(language=AWARE_LANGUAGE)
+    tree = parser.parse(source.encode("utf-8"))
+    assert tree.root_node.has_error

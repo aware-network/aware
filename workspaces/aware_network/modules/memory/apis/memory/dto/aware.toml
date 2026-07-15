@@ -1,0 +1,15 @@
+aware = 1
+
+[package]
+package_name = "memory-service-dto"
+fqn_prefix = "aware_memory_service_dto"
+kind = "api"
+version_number = 1
+title = "Memory Service DTO"
+description = "API-owned DTO package for Memory service endpoint payloads."
+
+[build]
+environment_slug = "aware_memory_service_dto"
+
+[[dependencies]]
+package_name = "reactivity-service-dto"

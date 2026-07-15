@@ -1,0 +1,31 @@
+class ServiceOperationConfigRoleRequirement {
+    // Relationships
+    role_config aware_identity.role.RoleConfig key
+
+    // Attributes
+    access_scope String key = "operation"
+    class_instance_identity_required Bool = false
+    description String?
+    role_assignment_binding_required Bool = true
+    scope_kind String key = "operation"
+    scope_ref String key = "default"
+
+    fn build construct (
+        role_config_id UUID key,
+        access_scope String key = "operation",
+        scope_kind String key = "operation",
+        scope_ref String key = "default",
+        class_instance_identity_required Bool = false,
+        role_assignment_binding_required Bool = true,
+        description String? = null
+    ) -> ServiceOperationConfigRoleRequirement {
+        """
+        Creates one ActorRole evidence requirement for a ServiceOperationConfig.
+
+        Contract:
+        - Role policy remains owned by Identity RoleConfig.
+        - ServiceOperationConfig only declares the evidence required before operation/view fulfillment.
+        - Runtime gate must resolve this through Identity and fail closed when missing.
+        """
+    }
+}

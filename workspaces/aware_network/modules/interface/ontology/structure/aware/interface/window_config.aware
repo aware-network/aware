@@ -1,0 +1,37 @@
+class WindowConfig {
+    // Relationships
+    layout_configs WindowConfigLayoutConfig[]
+
+    // Attributes
+    key String key
+    description String?
+
+    fn build construct (
+        key String key,
+        description String? = null
+    ) -> WindowConfig {
+        """
+        Create one deterministic Interface-side window configuration.
+
+        Contract:
+        - `WindowConfig` is the authored/config namespace that names one interface window.
+        - It composes attention-owned layouts through explicit joins.
+        - It does not own pane semantics.
+        """
+    }
+
+    fn attach_layout_config (
+        layout_config_id UUID,
+        description String? = null,
+        is_default Bool = false
+    ) -> WindowConfigLayoutConfig {
+        """
+        Attach one attention-owned LayoutConfig to this Interface-side window configuration.
+        """
+        let created = construct layout_configs.build(
+            layout_config_id = layout_config_id,
+            description = description,
+            is_default = is_default,
+        )
+    }
+}

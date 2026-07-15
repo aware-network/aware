@@ -1,0 +1,29 @@
+/// ServicePackage projection
+///
+/// Purpose:
+/// - Expose the Service-owned package rail for Workspace/package consumers.
+/// - Keep `ServiceConfig` as the semantic Service definition root under the package boundary.
+/// - Keep Service-owned OCG/state packages explicit through `ServicePackageObjectConfigGraphPackage`.
+/// - Keep required ontology replica packages explicit through `ServicePackageOntologyPackage`.
+/// - Avoid collapsing package truth and Service definition semantics into one object.
+projection ServicePackage is_branchable {
+    root service.ServicePackage
+
+    service.ServicePackage::implementation_packages
+    service.ServicePackageImplementationPackage::code_package aware_code.CodePackage
+    service.ServicePackage::ontology_packages
+    service.ServicePackageOntologyPackage::ontology_package OntologyPackage
+    service.ServicePackageOntologyPackage::ontology_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    service.ServicePackage::object_config_graph_packages
+    service.ServicePackageObjectConfigGraphPackage::object_config_graph_package ObjectConfigGraphPackage
+    service.ServicePackageObjectConfigGraphPackage::object_config_graph_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    service.ServicePackage::provided_api_packages
+    service.ServicePackageProvidedApiPackage::api_package aware_api.ApiPackage
+    service.ServicePackageProvidedApiPackage::api_package_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    service.ServicePackageProvidedApiPackage::service_protocol_package aware_api.ApiPackage
+    service.ServicePackage::required_api_packages
+    service.ServicePackageRequiredApiPackage::api_package aware_api.ApiPackage
+    service.ServicePackage::service_config ServiceConfig
+    service.ServicePackage::service_config_object_instance_graph_commit aware_meta.ObjectInstanceGraphIdentity
+    aware_meta.graph.instance.ObjectInstanceGraphCommit::commit
+}

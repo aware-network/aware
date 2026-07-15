@@ -1,0 +1,55 @@
+// Ensure deterministic Role + ActorRole binding for a specific actor using
+// a target domain branch as policy scope input.
+//
+// Required symbols:
+// - plan.actor_id
+// - plan.actor_identity_branch_id
+// - plan.role_config_name
+// - plan.object_instance_graph_domain_branch_id
+//
+// Contract (v1):
+// - OIGI is derived deterministically from target domain branch id.
+// - Role scope remains OIGI-bound with branch_key="all" (no OIGB narrowing yet).
+// - Role + ActorRole are committed in the actor identity branch.
+// - Idempotent on rerun (constructor semantics).
+
+program EnsureActorRoleBindingFromBranch_v1Config(
+    actor_id UUID = plan.actor_id,
+    actor_identity_branch_id UUID = plan.actor_identity_branch_id,
+    role_config_name String = plan.role_config_name,
+    object_instance_graph_domain_branch_id UUID = plan.object_instance_graph_domain_branch_id,
+    role_config_id UUID = identity.stable_role_config_id(name=role_config_name),
+    object_instance_graph_identity_id UUID = meta.stable_object_instance_graph_identity_id(
+        branch_id=object_instance_graph_domain_branch_id
+    ),
+    role_id UUID = identity.stable_role_id(
+        role_config_id=role_config_id,
+        object_instance_graph_identity_id=object_instance_graph_identity_id,
+        object_instance_graph_branch_key=all
+    ),
+    actor_role_id UUID = identity.stable_actor_role_id(
+        actor_id=actor_id,
+        role_id=role_id
+    ),
+    actor_role_branch_id UUID = actor_identity_branch_id
+) {
+    actor identity_system system
+
+    port role_actor_identity_branch_id role {
+        node role role.Role(role=role_id)
+    }
+    port actor_role_actor_identity_branch_id actor_role {
+        node actor_role actor.Actor::actor_roles(actor_role=actor_role_id)
+    }
+}
+
+program EnsureActorRoleBindingFromBranch_v1 impl EnsureActorRoleBindingFromBranch_v1Config {
+    bind role_actor_identity_branch_id role.main
+    identity_system call role role.Role.create(
+        role_config_id=role_config_id,
+        object_instance_graph_identity_id=object_instance_graph_identity_id
+    )
+
+    bind actor_role_actor_identity_branch_id actor_role.main
+    identity_system call actor_role actor.ActorRole.create_via_actor(actor_id=actor_id, role_id=role_id)
+}

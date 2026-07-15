@@ -1,0 +1,56 @@
+// Ensure Boot Interface Graph
+//
+// Canonical intent:
+// - Express the first-frame Aware Control Interface substrate as an Experience-owned program.
+// - Keep program identity semantic and unversioned; committed ProgramConfig/ProgramImpl history
+//   carries evolution.
+// - Keep execution commit-backed and capability-resolved.
+//
+// Boot graph ensured:
+// - Interface
+// - Window
+// - InterfaceWindow association
+//
+// Environment join is intentionally outside this program. The Interface service
+// or SDK orchestration layer owns joining/selecting an EnvironmentSession and
+// EnvironmentNavigationContext, then explicitly mounts a Window onto that
+// navigation context.
+
+program EnsureBootInterfaceGraphConfig(
+    interface_id UUID = plan.interface_id,
+    os String = plan.os,
+    version String = plan.version,
+    interface_config_id UUID = interface.stable_interface_config_id(name=interface_id),
+    window_key_id UUID = interface.stable_window_key_id(
+        interface_id=interface_id,
+        window_key="execution"
+    ),
+    window_id UUID = interface.stable_window_id(window_id=window_key_id)
+) {
+    actor interface_system system
+
+    port interface_interface_id interface {
+        node main interface.Interface(interface=interface_id)
+    }
+    port window_window_id window {
+        node main window.Window(window=window_id)
+    }
+}
+
+program EnsureBootInterfaceGraph impl EnsureBootInterfaceGraphConfig {
+    // Ensure Interface object in the interface projection.
+    bind interface_interface_id interface.main
+    interface_system call program.port.interface_interface_id.projection_node interface.Interface.build_via_interface_config(
+        interface_config_id=interface_config_id,
+        os=os,
+        version=version
+    )
+
+    // Ensure Window object in the window projection.
+    bind window_window_id window.main
+    interface_system call program.port.window_window_id.projection_node window.Window.build(window_id=window_key_id)
+
+    // Link Interface -> Window.
+    bind interface_interface_id interface.main
+    interface_system call program.port.interface_interface_id.projection_node interface.Interface.attach_window(window_id=window_id)
+}

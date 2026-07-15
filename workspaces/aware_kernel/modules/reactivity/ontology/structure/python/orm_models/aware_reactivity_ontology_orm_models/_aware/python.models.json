@@ -314,6 +314,12 @@
           "output_model": "EventConfigAddConditionConfigOutput"
         },
         {
+          "function_config_id": "b8dbd709-af36-54b9-aa73-bd1aa4729046",
+          "name": "add_meaning_resolver_config",
+          "input_model": "EventConfigAddMeaningResolverConfigInput",
+          "output_model": "EventConfigAddMeaningResolverConfigOutput"
+        },
+        {
           "function_config_id": "d558ec6b-8fd1-5eb5-b2ae-49a995811f0f",
           "name": "create",
           "input_model": "EventConfigCreateInput",
@@ -392,6 +398,20 @@
           "name": "create_via_event_config_condition_config_scope",
           "input_model": "EventConfigConditionConfigScopeEventCreateViaEventConfigConditionConfigScopeInput",
           "output_model": "EventConfigConditionConfigScopeEventCreateViaEventConfigConditionConfigScopeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "cd0824a9-2772-5caf-a09d-894d16b4e7a9",
+      "module": "aware_reactivity_ontology_orm_models.event.event_config_meaning_resolver_config",
+      "name": "EventConfigMeaningResolverConfig",
+      "aware_class_ref": "aware_reactivity.event.EventConfigMeaningResolverConfig",
+      "functions": [
+        {
+          "function_config_id": "0763cd33-5e1f-54ae-a26e-02cb45f0e5e1",
+          "name": "create_via_event_config",
+          "input_model": "EventConfigMeaningResolverConfigCreateViaEventConfigInput",
+          "output_model": "EventConfigMeaningResolverConfigCreateViaEventConfigOutput"
         }
       ]
     },

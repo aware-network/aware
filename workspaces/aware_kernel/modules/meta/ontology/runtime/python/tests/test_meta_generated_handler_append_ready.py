@@ -38,12 +38,14 @@ def test_constructor_post_oig_delta_hashes_handler_post_oig_directly() -> None:
     )
 
     with active_commit_perf_trace(recorder):
-        session_delta = MetaGraphExecutionSessionDeltaBuilder().build_delta_from_post_oig(
-            request=handler_request,
-            pre_state=pre_state,
-            post_oig=post_oig,
-            expected_graph_hash_post=expected_post_hash,
-            root_object_id=root_object_id,
+        session_delta = (
+            MetaGraphExecutionSessionDeltaBuilder().build_delta_from_post_oig(
+                request=handler_request,
+                pre_state=pre_state,
+                post_oig=post_oig,
+                expected_graph_hash_post=expected_post_hash,
+                root_object_id=root_object_id,
+            )
         )
 
     assert session_delta.before_oig is pre_state.before_oig
@@ -81,12 +83,14 @@ def test_non_constructor_post_oig_delta_hashes_directly_when_scope_keeps_all() -
     )
 
     with active_commit_perf_trace(recorder):
-        session_delta = MetaGraphExecutionSessionDeltaBuilder().build_delta_from_post_oig(
-            request=handler_request,
-            pre_state=pre_state,
-            post_oig=post_oig,
-            expected_graph_hash_post=expected_post_hash,
-            root_object_id=root_object_id,
+        session_delta = (
+            MetaGraphExecutionSessionDeltaBuilder().build_delta_from_post_oig(
+                request=handler_request,
+                pre_state=pre_state,
+                post_oig=post_oig,
+                expected_graph_hash_post=expected_post_hash,
+                root_object_id=root_object_id,
+            )
         )
 
     assert session_delta.graph_hash_post == expected_post_hash
@@ -99,16 +103,14 @@ def test_non_constructor_post_oig_delta_hashes_directly_when_scope_keeps_all() -
     trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
     assert "handler_execution.session_delta.diff_post_oig" in trace_summary
     assert (
-        "handler_execution.session_delta.scoped_post_oig_hash_direct"
-        in trace_summary
+        "handler_execution.session_delta.scoped_post_oig_hash_direct" in trace_summary
     )
     assert (
         "handler_execution.session_delta.apply_scoped_changes_for_hash"
         not in trace_summary
     )
     assert (
-        "handler_execution.session_delta.constructor_post_oig_hash"
-        not in trace_summary
+        "handler_execution.session_delta.constructor_post_oig_hash" not in trace_summary
     )
 
 
@@ -146,11 +148,13 @@ def test_non_constructor_post_oig_delta_keeps_filtered_scoped_apply_path() -> No
     )
 
     with active_commit_perf_trace(recorder):
-        session_delta = MetaGraphExecutionSessionDeltaBuilder().build_delta_from_post_oig(
-            request=handler_request,
-            pre_state=pre_state,
-            post_oig=post_oig,
-            expected_graph_hash_post=expected_scoped_hash,
+        session_delta = (
+            MetaGraphExecutionSessionDeltaBuilder().build_delta_from_post_oig(
+                request=handler_request,
+                pre_state=pre_state,
+                post_oig=post_oig,
+                expected_graph_hash_post=expected_scoped_hash,
+            )
         )
 
     assert session_delta.graph_hash_post == expected_scoped_hash
@@ -167,9 +171,9 @@ def test_non_constructor_post_oig_delta_keeps_filtered_scoped_apply_path() -> No
     )
     trace_summary = summarize_commit_perf_events(recorder.snapshot_json())
     assert (
-        "handler_execution.session_delta.apply_scoped_changes_for_hash"
-        in trace_summary
+        "handler_execution.session_delta.apply_scoped_changes_for_hash" in trace_summary
     )
+    assert "handler_execution.session_delta.copy_scoped_change_graph" in trace_summary
     assert "handler_execution.session_delta.hash_scoped_post_oig" in trace_summary
     assert (
         "handler_execution.session_delta.scoped_post_oig_hash_direct"

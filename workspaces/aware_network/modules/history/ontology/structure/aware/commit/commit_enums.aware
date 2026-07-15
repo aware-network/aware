@@ -1,7 +1,0 @@
-enum CommitStatus {
-    applied
-    conflicted
-    local
-    pending_sync
-    rejected
-}

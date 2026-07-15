@@ -1,0 +1,18 @@
+class NetworkOperationHop {
+    // Relationships
+    source_environment aware_environment.environment.Environment?
+    source_interface_id UUID?
+    source_node NetworkNode?
+    target_environment aware_environment.environment.Environment?
+    target_interface_id UUID?
+    target_node NetworkNode?
+
+    // Attributes
+    hop_index Int key
+    source_app_type NetworkAppType
+    target_app_type NetworkAppType
+}
+
+/// Dependency inversion to allow Network<->Interface resolution via Interface->Network
+ann network.NetworkOperationHop::source_interface_id reference port
+ann network.NetworkOperationHop::target_interface_id reference port

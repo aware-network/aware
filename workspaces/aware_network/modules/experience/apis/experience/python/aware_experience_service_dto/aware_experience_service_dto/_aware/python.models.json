@@ -1,0 +1,1119 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "7b734a11-7f6c-5964-8144-b41a85ab0a98",
+      "module": "aware_experience_service_dto.comms.models.experience",
+      "name": "ExperienceGraphIdentityProfile",
+      "aware_class_ref": "aware_experience_service_dto.comms.models.ExperienceGraphIdentityProfile",
+      "functions": []
+    },
+    {
+      "class_config_id": "7d58e619-66a6-5955-a4d6-2d4245e0a6f5",
+      "module": "aware_experience_service_dto.comms.models.experience",
+      "name": "ExperienceGraphIdentityProfileCatalogReadRequest",
+      "aware_class_ref": "aware_experience_service_dto.comms.models.ExperienceGraphIdentityProfileCatalogReadRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "7caa18e8-e233-5b6c-bf16-2d76ecd165cd",
+      "module": "aware_experience_service_dto.comms.models.experience",
+      "name": "ExperienceGraphIdentityProfileCatalogReadResponse",
+      "aware_class_ref": "aware_experience_service_dto.comms.models.ExperienceGraphIdentityProfileCatalogReadResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "3e69f2d1-dbb3-53f1-ade1-75c725827a10",
+      "module": "aware_experience_service_dto.comms.models.experience",
+      "name": "ExperienceGraphIdentityProfileExemplar",
+      "aware_class_ref": "aware_experience_service_dto.comms.models.ExperienceGraphIdentityProfileExemplar",
+      "functions": []
+    },
+    {
+      "class_config_id": "79e9aef6-db7d-5fc3-88dc-3ec592a7fa8c",
+      "module": "aware_experience_service_dto.comms.models.experience",
+      "name": "ExperienceGraphIdentityProfileReadRequest",
+      "aware_class_ref": "aware_experience_service_dto.comms.models.ExperienceGraphIdentityProfileReadRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d2fb39af-4d84-5a2f-a3ec-6fb41cccc2f4",
+      "module": "aware_experience_service_dto.comms.models.experience",
+      "name": "ExperienceGraphIdentityProfileReadResponse",
+      "aware_class_ref": "aware_experience_service_dto.comms.models.ExperienceGraphIdentityProfileReadResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "511fd9d1-ca4b-509d-b64d-af97f48c07c6",
+      "module": "aware_experience_service_dto.experience.actor_admission.models",
+      "name": "ExperienceActorConfigAdmissionReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.actor_admission.ExperienceActorConfigAdmissionReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "55296091-54d1-5882-80cb-fc8fa2633133",
+      "module": "aware_experience_service_dto.experience.actor_admission.models",
+      "name": "ExperienceActorConfigRoleAdmissionBinding",
+      "aware_class_ref": "aware_experience_service_dto.experience.actor_admission.ExperienceActorConfigRoleAdmissionBinding",
+      "functions": []
+    },
+    {
+      "class_config_id": "06010766-fd1f-57ba-aa01-08a27972f015",
+      "module": "aware_experience_service_dto.experience.actor_admission.models",
+      "name": "ExperienceActorConfigRoleEligibility",
+      "aware_class_ref": "aware_experience_service_dto.experience.actor_admission.ExperienceActorConfigRoleEligibility",
+      "functions": []
+    },
+    {
+      "class_config_id": "94390f1c-411a-5597-ba5e-6ec9e34d4ae6",
+      "module": "aware_experience_service_dto.experience.actor_admission.service_operation",
+      "name": "AdmitExperienceActorConfigRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.actor_admission.AdmitExperienceActorConfigRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b1dd5fc2-e9cb-55d7-8c30-dfca87b87f3b",
+      "module": "aware_experience_service_dto.experience.actor_admission.service_operation",
+      "name": "AdmitExperienceActorConfigResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.actor_admission.AdmitExperienceActorConfigResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "0a37909c-7a76-5a70-8c4a-be3ab17fbf35",
+      "module": "aware_experience_service_dto.experience.actor_admission.service_operation",
+      "name": "ExperienceActorConfigAdmissionServiceRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.actor_admission.ExperienceActorConfigAdmissionServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "427e46f6-e952-56f2-91f0-54acac6ac9eb",
+      "module": "aware_experience_service_dto.experience.actor_admission.service_operation",
+      "name": "ExperienceActorConfigAdmissionServiceResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.actor_admission.ExperienceActorConfigAdmissionServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "9d080f96-dc5c-58b1-94b6-1f68ef73dd6b",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileActorSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileActorSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "88bd5e1d-cce1-501e-8c5c-ade7e28879dc",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileEventActionSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileEventActionSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "a6ad1e9a-a333-58a6-820c-f09e9174c340",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileEventSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileEventSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "9396991a-7cf1-5a0a-bea5-51d37fc3c4f6",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileLayoutConfigSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileLayoutConfigSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "a38fe64b-21e6-54d2-bb1f-12fd936c655a",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileProcessSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileProcessSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "462b031d-24a4-5054-8b5b-363eefeee4ab",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileProgramApplyReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileProgramApplyReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "eed611ef-9bff-5073-9bc2-1a72be30e389",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileProgramApplySpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileProgramApplySpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "f322d31e-fa0f-530a-9d8b-726baa69a115",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileProgramSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileProgramSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "ce780f31-3a27-583d-9753-ed4a5863aa47",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileProjectionIdentitySpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileProjectionIdentitySpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "7bd4dc32-9623-5412-8bbf-1e63fe53f669",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileRoleSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileRoleSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "a33b9e4c-b236-5d11-8749-2c33f7ed415c",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileRuntimeMountReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileRuntimeMountReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "8dd846ba-bd85-5a6e-815b-afc2a9c071a9",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "71cdf61d-c349-527b-a738-9a89c8c4f8c5",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileThreadSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileThreadSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "4254658b-6665-5f1b-9482-28553b94e2b8",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileTopologyLayoutSeedSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileTopologyLayoutSeedSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "9c8a92e5-01e5-5856-9e30-775654a0146b",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileTopologyProcessSeedSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileTopologyProcessSeedSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "7afb5b80-5bf8-59e5-a3f2-89876ac87564",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileTopologySeedSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileTopologySeedSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "5a2f28fe-a247-5857-93f7-c71e1961e65d",
+      "module": "aware_experience_service_dto.experience.environment_profile.models",
+      "name": "ExperienceEnvironmentProfileTopologyThreadSeedSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileTopologyThreadSeedSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "ab63b895-363a-5111-a4dc-d771ca68d128",
+      "module": "aware_experience_service_dto.experience.environment_profile.service_operation",
+      "name": "ApplyExperienceEnvironmentProfileProgramsRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ApplyExperienceEnvironmentProfileProgramsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "dad26426-5b5c-5523-80d2-e91fbdc71027",
+      "module": "aware_experience_service_dto.experience.environment_profile.service_operation",
+      "name": "ApplyExperienceEnvironmentProfileProgramsResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ApplyExperienceEnvironmentProfileProgramsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "46e1c7b5-4f7d-5751-b43e-44d72842168b",
+      "module": "aware_experience_service_dto.experience.environment_profile.service_operation",
+      "name": "ExperienceEnvironmentProfileServiceRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "4d82e79c-a1d7-5fe2-9c40-99a914242145",
+      "module": "aware_experience_service_dto.experience.environment_profile.service_operation",
+      "name": "ExperienceEnvironmentProfileServiceResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ExperienceEnvironmentProfileServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "56cdbc4c-f4a1-5453-880b-cc59a6e22ea9",
+      "module": "aware_experience_service_dto.experience.environment_profile.service_operation",
+      "name": "ProvisionExperienceEnvironmentProfileRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ProvisionExperienceEnvironmentProfileRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "7bded25d-ddf7-510f-90de-0304bf1adbe7",
+      "module": "aware_experience_service_dto.experience.environment_profile.service_operation",
+      "name": "ProvisionExperienceEnvironmentProfileResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.ProvisionExperienceEnvironmentProfileResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "0a6a764c-603b-5294-9967-61ff2b309626",
+      "module": "aware_experience_service_dto.experience.environment_profile.service_operation",
+      "name": "UpsertExperienceEnvironmentProfileRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.UpsertExperienceEnvironmentProfileRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "2fbc504b-32eb-598a-9033-c35cf4bfecd6",
+      "module": "aware_experience_service_dto.experience.environment_profile.service_operation",
+      "name": "UpsertExperienceEnvironmentProfileResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.environment_profile.UpsertExperienceEnvironmentProfileResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e5d624f2-529d-5d0f-afc3-91be38b71599",
+      "module": "aware_experience_service_dto.experience.layout_transition.models",
+      "name": "ExperienceInterfaceWindowLayoutTarget",
+      "aware_class_ref": "aware_experience_service_dto.experience.layout_transition.ExperienceInterfaceWindowLayoutTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "e30e4420-0c30-5501-9083-07662793de60",
+      "module": "aware_experience_service_dto.experience.layout_transition.models",
+      "name": "ExperienceLayoutActorRoleGate",
+      "aware_class_ref": "aware_experience_service_dto.experience.layout_transition.ExperienceLayoutActorRoleGate",
+      "functions": []
+    },
+    {
+      "class_config_id": "fbbb3abc-27b8-572c-b325-9e0602c5788c",
+      "module": "aware_experience_service_dto.experience.layout_transition.models",
+      "name": "ExperienceLayoutTransitionReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.layout_transition.ExperienceLayoutTransitionReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "1cd4921c-ed82-5f8b-abd9-5a2c90f847ac",
+      "module": "aware_experience_service_dto.experience.layout_transition.service_operation",
+      "name": "ExperienceLayoutTransitionServiceRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.layout_transition.ExperienceLayoutTransitionServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "70b9d2f6-5526-568c-acb4-ee983e8e40d4",
+      "module": "aware_experience_service_dto.experience.layout_transition.service_operation",
+      "name": "ExperienceLayoutTransitionServiceResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.layout_transition.ExperienceLayoutTransitionServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "56eb41fe-9857-5837-a1ad-c9c58372d67f",
+      "module": "aware_experience_service_dto.experience.layout_transition.service_operation",
+      "name": "RequestExperienceLayoutTransitionRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.layout_transition.RequestExperienceLayoutTransitionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "caa04839-746b-500d-abd7-d4bc9cc85263",
+      "module": "aware_experience_service_dto.experience.layout_transition.service_operation",
+      "name": "RequestExperienceLayoutTransitionResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.layout_transition.RequestExperienceLayoutTransitionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "49abf8e9-cd2d-5e75-9f50-e0b1ff04f156",
+      "module": "aware_experience_service_dto.experience.package_materialization.models",
+      "name": "ExperiencePackageProjectionConsumerRef",
+      "aware_class_ref": "aware_experience_service_dto.experience.package_materialization.ExperiencePackageProjectionConsumerRef",
+      "functions": []
+    },
+    {
+      "class_config_id": "f9cdb4ac-c5c7-5d28-905b-3d69a8c6f08b",
+      "module": "aware_experience_service_dto.experience.package_materialization.models",
+      "name": "ExperiencePackageProjectionNodeContract",
+      "aware_class_ref": "aware_experience_service_dto.experience.package_materialization.ExperiencePackageProjectionNodeContract",
+      "functions": []
+    },
+    {
+      "class_config_id": "4fa607ff-d96d-582f-bef8-a943ea81af77",
+      "module": "aware_experience_service_dto.experience.package_materialization.models",
+      "name": "ExperiencePackageProjectionOwnershipCatalog",
+      "aware_class_ref": "aware_experience_service_dto.experience.package_materialization.ExperiencePackageProjectionOwnershipCatalog",
+      "functions": []
+    },
+    {
+      "class_config_id": "d7ab4db9-b3c9-58c8-97c0-605f6a758ad0",
+      "module": "aware_experience_service_dto.experience.package_materialization.models",
+      "name": "ExperiencePackageProjectionOwnershipEntry",
+      "aware_class_ref": "aware_experience_service_dto.experience.package_materialization.ExperiencePackageProjectionOwnershipEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "7297a6a2-19f6-5e6e-9999-fb45eee4cda3",
+      "module": "aware_experience_service_dto.experience.package_materialization.service_operation",
+      "name": "ExperiencePackageProjectionOwnershipServiceRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.package_materialization.ExperiencePackageProjectionOwnershipServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a25bcfdd-0237-545a-a53b-c11c031dc054",
+      "module": "aware_experience_service_dto.experience.package_materialization.service_operation",
+      "name": "ExperiencePackageProjectionOwnershipServiceResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.package_materialization.ExperiencePackageProjectionOwnershipServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ad0c561b-162c-5563-bef9-c5b3fcfaf6a9",
+      "module": "aware_experience_service_dto.experience.package_materialization.service_operation",
+      "name": "ResolveExperiencePackageProjectionOwnershipRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.package_materialization.ResolveExperiencePackageProjectionOwnershipRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "81f3e8c7-1648-52fe-9012-06f6c468bd94",
+      "module": "aware_experience_service_dto.experience.package_materialization.service_operation",
+      "name": "ResolveExperiencePackageProjectionOwnershipResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.package_materialization.ResolveExperiencePackageProjectionOwnershipResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "040c4f0a-a156-508e-a298-1a5c60140883",
+      "module": "aware_experience_service_dto.experience.program.service_operation",
+      "name": "ApplyProgramRefRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.program.ApplyProgramRefRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "4d6250c3-0b7f-5240-8b10-a2b1b2e4f486",
+      "module": "aware_experience_service_dto.experience.program.service_operation",
+      "name": "ApplyProgramRefResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.program.ApplyProgramRefResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ca5a2d14-a784-5881-8edb-4fe3f467cb73",
+      "module": "aware_experience_service_dto.experience.program.service_operation",
+      "name": "ExperienceProgramServiceRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.program.ExperienceProgramServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a09e4092-5424-5265-97a2-1ba0be7cd1a7",
+      "module": "aware_experience_service_dto.experience.program.service_operation",
+      "name": "ExperienceProgramServiceResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.program.ExperienceProgramServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "4f09ea3e-78cd-592d-b643-fe7ee781064a",
+      "module": "aware_experience_service_dto.experience.program.service_operation",
+      "name": "GetTurnExecutionRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.program.GetTurnExecutionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "a2496e61-528d-5e52-bd38-69a48d9e31c1",
+      "module": "aware_experience_service_dto.experience.program.service_operation",
+      "name": "GetTurnExecutionResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.program.GetTurnExecutionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "b7813240-a163-5335-8c81-3afe76710b5a",
+      "module": "aware_experience_service_dto.experience.program.service_operation",
+      "name": "RunProgramRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.program.RunProgramRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "324d4bdb-4fef-5c2e-a2a1-ecf487ebbf26",
+      "module": "aware_experience_service_dto.experience.program.service_operation",
+      "name": "RunProgramResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.program.RunProgramResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "55b3c1db-4a43-503e-b72e-542dfc9c95ac",
+      "module": "aware_experience_service_dto.experience.program.service_operation",
+      "name": "SubmitProgramTurnRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.program.SubmitProgramTurnRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8fe0eb42-94c4-5163-b92d-5e9bdfaf35d7",
+      "module": "aware_experience_service_dto.experience.program.service_operation",
+      "name": "SubmitProgramTurnResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.program.SubmitProgramTurnResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "61899c40-877d-5d0d-9681-6b0a4d78ca2b",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceInvocationActionAdmissionPreflight",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceInvocationActionAdmissionPreflight",
+      "functions": []
+    },
+    {
+      "class_config_id": "7695a9ac-a4fe-584a-aa19-a7899f122a6c",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceInvocationActionRolePolicy",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceInvocationActionRolePolicy",
+      "functions": []
+    },
+    {
+      "class_config_id": "92f8f528-4a17-5ace-b69f-7dda3e08bd6f",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceInvocationActionRolePolicyResolution",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceInvocationActionRolePolicyResolution",
+      "functions": []
+    },
+    {
+      "class_config_id": "8e111617-40fc-5c2b-b5b0-68fee631e046",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceLayoutGraphBindingDescriptor",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceLayoutGraphBindingDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "02fb6a0a-6291-5a89-b0fd-0cd8747b2bb0",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceLayoutGraphBindingState",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceLayoutGraphBindingState",
+      "functions": []
+    },
+    {
+      "class_config_id": "0c2ab705-1c5e-5f3e-b0ed-8c264352eccf",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceLayoutGraphBindingStateSnapshot",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceLayoutGraphBindingStateSnapshot",
+      "functions": []
+    },
+    {
+      "class_config_id": "fc332a1a-95ff-54d7-8a4b-ccae0aa40901",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceSectionFocusTarget",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceSectionFocusTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "3fcbba22-6d33-5a4a-9088-c51be50584d4",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceSectionGraphBindingDescriptor",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceSectionGraphBindingDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "ceb1311f-5b77-5a58-a2bf-8255384b4963",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceSectionGraphBindingState",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceSectionGraphBindingState",
+      "functions": []
+    },
+    {
+      "class_config_id": "c9131d40-2712-54c6-8984-547b194f7c3c",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceSectionGraphBindingStateEvent",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceSectionGraphBindingStateEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "d7ad702f-843b-52ca-ae6a-b0d4f6c47310",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceSectionGraphBindingStateSnapshot",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceSectionGraphBindingStateSnapshot",
+      "functions": []
+    },
+    {
+      "class_config_id": "a14d83fa-4928-59b7-aa9f-3d3686b46afc",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceSectionViewResolution",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceSectionViewResolution",
+      "functions": []
+    },
+    {
+      "class_config_id": "66f60e8b-f534-5cb5-b27a-7218febe074c",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceViewInvocationActionApiDispatchReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceViewInvocationActionApiDispatchReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "4207ef26-9771-5efc-aa51-26a599ed8182",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceViewInvocationActionDescriptor",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceViewInvocationActionDescriptor",
+      "functions": []
+    },
+    {
+      "class_config_id": "f74de5f1-0d6c-520f-b41a-52b581b5bde2",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.models",
+      "name": "ExperienceViewInvocationActionReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceViewInvocationActionReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "ebee9732-3f28-5599-ac2c-111391c282c8",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ActivateExperienceLayoutGraphBindingRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ActivateExperienceLayoutGraphBindingRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "fca6d384-9f55-501c-b28b-d5698625e1c9",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ActivateExperienceLayoutGraphBindingResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ActivateExperienceLayoutGraphBindingResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e34c2d18-a713-591e-99e5-f93b90f29f93",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ActivateExperienceSectionGraphBindingRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ActivateExperienceSectionGraphBindingRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "6bb3390e-54a1-56e8-a607-98f0c87630c5",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ActivateExperienceSectionGraphBindingResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ActivateExperienceSectionGraphBindingResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c95ee9a7-ff08-5a7f-8c14-652b34df1408",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ApplyExperienceViewEventTransitionRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ApplyExperienceViewEventTransitionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8a1d4209-a090-5107-97b9-a7f7633ddd64",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ApplyExperienceViewEventTransitionResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ApplyExperienceViewEventTransitionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "432a9987-f221-5e64-a8fc-7055bca623c2",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ExperienceSectionGraphBindingActivationScope",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceSectionGraphBindingActivationScope",
+      "functions": []
+    },
+    {
+      "class_config_id": "5556899a-ec91-5d14-83ac-079ec7c1f87f",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ExperienceSectionGraphBindingServiceRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceSectionGraphBindingServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8ef4ad10-cc55-5c89-933f-db467c0a433a",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ExperienceSectionGraphBindingServiceResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceSectionGraphBindingServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "9c85170b-6cb0-5a47-8710-f27634a42f71",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ExperienceViewEventTransitionReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceViewEventTransitionReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "a90b49b9-aa66-5e31-b5d0-78f9dbc0c853",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ExperienceViewEventTransitionTarget",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceViewEventTransitionTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "f8d6eaed-4294-5462-9eb6-0acbeaec919e",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ExperienceViewEventTransitionTrigger",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ExperienceViewEventTransitionTrigger",
+      "functions": []
+    },
+    {
+      "class_config_id": "147432c8-d25e-5039-9138-c6d4df834666",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "GetExperienceLayoutGraphBindingCatalogRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.GetExperienceLayoutGraphBindingCatalogRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d7d7f51d-6304-56c0-b9f5-487a66d3d468",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "GetExperienceLayoutGraphBindingCatalogResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.GetExperienceLayoutGraphBindingCatalogResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "89afeaf3-0944-5ea1-9ba0-f1e5ae759694",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "GetExperienceLayoutGraphBindingStateRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.GetExperienceLayoutGraphBindingStateRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b64261b9-6177-5b64-bf76-e0bf9c9d3057",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "GetExperienceLayoutGraphBindingStateResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.GetExperienceLayoutGraphBindingStateResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "ac4724ed-8f18-5f74-b728-270a972dc65f",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "GetExperienceSectionGraphBindingCatalogRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.GetExperienceSectionGraphBindingCatalogRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "b8a6d743-3280-507a-9374-60fc61534325",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "GetExperienceSectionGraphBindingCatalogResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.GetExperienceSectionGraphBindingCatalogResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "04c0f85b-cba3-56fd-9d37-f084c6498e83",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "GetExperienceSectionGraphBindingStateRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.GetExperienceSectionGraphBindingStateRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "456fd0ad-3053-5d47-81b9-ebc7d29f49d0",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "GetExperienceSectionGraphBindingStateResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.GetExperienceSectionGraphBindingStateResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "4f9c42f6-492d-50a2-8159-72ddfd94465c",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "InvokeExperienceViewInvocationActionRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.InvokeExperienceViewInvocationActionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "09b86dd2-c206-5751-9f4a-114491572751",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "InvokeExperienceViewInvocationActionResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.InvokeExperienceViewInvocationActionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "4d3aa83c-89cb-5ddd-b38f-8ca7c50cbd9f",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "RecordExperienceViewInvocationActionRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.RecordExperienceViewInvocationActionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "788582ca-c0cf-5915-8444-ed508c458803",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "RecordExperienceViewInvocationActionResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.RecordExperienceViewInvocationActionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "e48ac3f8-66b9-514f-9287-fc2d5797e087",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ResolveExperienceInvocationActionRolePolicyRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ResolveExperienceInvocationActionRolePolicyRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "d744a2f4-23fa-5956-a2a8-9b363f5d179d",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "ResolveExperienceInvocationActionRolePolicyResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.ResolveExperienceInvocationActionRolePolicyResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "851efe70-ae3e-5d15-a4d4-61573bdc490f",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "WatchExperienceSectionGraphBindingsRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.WatchExperienceSectionGraphBindingsRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "e4ec0366-cdd5-55e0-8377-caf15043e298",
+      "module": "aware_experience_service_dto.experience.section_graph_binding.service_operation",
+      "name": "WatchExperienceSectionGraphBindingsResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.section_graph_binding.WatchExperienceSectionGraphBindingsResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7a2709ca-401f-554a-9e88-f78aaa023766",
+      "module": "aware_experience_service_dto.experience.session_commit.service_operation",
+      "name": "DescribeExperienceSessionRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_commit.DescribeExperienceSessionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "500987a8-fbda-5e9c-aec3-f393c063d3c5",
+      "module": "aware_experience_service_dto.experience.session_commit.service_operation",
+      "name": "DescribeExperienceSessionResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_commit.DescribeExperienceSessionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "5c070f24-458d-579f-b3ff-f1e903ba13ec",
+      "module": "aware_experience_service_dto.experience.session_commit.service_operation",
+      "name": "ExperienceSessionOperationRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_commit.ExperienceSessionOperationRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "7419a4f1-427c-5465-acb5-05738cf7af0e",
+      "module": "aware_experience_service_dto.experience.session_commit.service_operation",
+      "name": "ExperienceSessionOperationResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_commit.ExperienceSessionOperationResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "dd93c2c5-f2c3-5490-a438-ad12c35596a2",
+      "module": "aware_experience_service_dto.experience.session_commit.service_operation",
+      "name": "ExperienceSessionView",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_commit.ExperienceSessionView",
+      "functions": []
+    },
+    {
+      "class_config_id": "502c83fe-0202-55f8-9606-6c401099324b",
+      "module": "aware_experience_service_dto.experience.session_commit.service_operation",
+      "name": "MountExperienceSessionProfileRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_commit.MountExperienceSessionProfileRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "4f2d1a9c-e57a-532b-8c30-2a9fb580c3e1",
+      "module": "aware_experience_service_dto.experience.session_commit.service_operation",
+      "name": "MountExperienceSessionProfileResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_commit.MountExperienceSessionProfileResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "93c4f755-1338-560c-874c-f090f485645f",
+      "module": "aware_experience_service_dto.experience.session_commit.service_operation",
+      "name": "StartExperienceSessionRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_commit.StartExperienceSessionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "31b16cec-f9bb-5379-8f85-a86e34662a1e",
+      "module": "aware_experience_service_dto.experience.session_commit.service_operation",
+      "name": "StartExperienceSessionResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_commit.StartExperienceSessionResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "226386ae-e717-54b5-b91d-b5b78581d651",
+      "module": "aware_experience_service_dto.experience.session_context.models",
+      "name": "ExperienceSessionAttentionResolutionRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_context.ExperienceSessionAttentionResolutionRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c96e0571-95ff-5b69-9b06-0bdfc88cf38b",
+      "module": "aware_experience_service_dto.experience.session_context.models",
+      "name": "ExperienceSessionContextReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_context.ExperienceSessionContextReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "860007c8-2a79-5a71-8136-06f4131c9e2f",
+      "module": "aware_experience_service_dto.experience.session_context.models",
+      "name": "ExperienceSessionLensContext",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_context.ExperienceSessionLensContext",
+      "functions": []
+    },
+    {
+      "class_config_id": "a3597e6b-998c-5514-b3f4-8f35140b1135",
+      "module": "aware_experience_service_dto.experience.session_context.service_operation",
+      "name": "ExperienceSessionContextServiceRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_context.ExperienceSessionContextServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "207bd4ef-a861-590e-b50c-833f96e04a44",
+      "module": "aware_experience_service_dto.experience.session_context.service_operation",
+      "name": "ExperienceSessionContextServiceResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_context.ExperienceSessionContextServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "a8697f57-3066-5239-8f43-f78c32057b71",
+      "module": "aware_experience_service_dto.experience.session_context.service_operation",
+      "name": "ResolveExperienceSessionContextRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_context.ResolveExperienceSessionContextRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "cd2aeb8b-55c9-5b07-bd9e-148d45cad8b7",
+      "module": "aware_experience_service_dto.experience.session_context.service_operation",
+      "name": "ResolveExperienceSessionContextResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_context.ResolveExperienceSessionContextResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "88c40df3-733a-50b0-a8bb-a4726b62a0bd",
+      "module": "aware_experience_service_dto.experience.session_handoff.models",
+      "name": "ExperienceSessionHandoffActorAdmissionReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.ExperienceSessionHandoffActorAdmissionReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "1353635a-8e28-573b-a201-646867027647",
+      "module": "aware_experience_service_dto.experience.session_handoff.models",
+      "name": "ExperienceSessionHandoffActorContext",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.ExperienceSessionHandoffActorContext",
+      "functions": []
+    },
+    {
+      "class_config_id": "41dbce76-7ab9-5473-b432-48d5659b8301",
+      "module": "aware_experience_service_dto.experience.session_handoff.models",
+      "name": "ExperienceSessionHandoffFeatureLeaseReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.ExperienceSessionHandoffFeatureLeaseReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "6a4772d3-1fcf-565a-a88a-a57e4de38836",
+      "module": "aware_experience_service_dto.experience.session_handoff.models",
+      "name": "ExperienceSessionHandoffFeatureSpec",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.ExperienceSessionHandoffFeatureSpec",
+      "functions": []
+    },
+    {
+      "class_config_id": "f932a103-0aab-5a58-8b69-1499f403eb73",
+      "module": "aware_experience_service_dto.experience.session_handoff.models",
+      "name": "ExperienceSessionHandoffReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.ExperienceSessionHandoffReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "6540d897-c2d3-5eba-adad-84ba4cea6216",
+      "module": "aware_experience_service_dto.experience.session_handoff.models",
+      "name": "ExperienceSessionHandoffScope",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.ExperienceSessionHandoffScope",
+      "functions": []
+    },
+    {
+      "class_config_id": "878cd159-6d18-531b-9291-29b793729055",
+      "module": "aware_experience_service_dto.experience.session_handoff.models",
+      "name": "ExperienceSessionHandoffStatusReceipt",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.ExperienceSessionHandoffStatusReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "fa7f3502-0098-5a0d-b6e9-9377ec298772",
+      "module": "aware_experience_service_dto.experience.session_handoff.models",
+      "name": "ExperienceSessionIdentityEvidence",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.ExperienceSessionIdentityEvidence",
+      "functions": []
+    },
+    {
+      "class_config_id": "947af6cb-2b13-5ae8-afcb-cc1f578ce1ad",
+      "module": "aware_experience_service_dto.experience.session_handoff.service_operation",
+      "name": "EnsureExperienceSessionHandoffRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.EnsureExperienceSessionHandoffRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "92be0044-992b-5cca-8eb7-924a42f5f512",
+      "module": "aware_experience_service_dto.experience.session_handoff.service_operation",
+      "name": "EnsureExperienceSessionHandoffResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.EnsureExperienceSessionHandoffResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "dd952612-0576-5f1a-9e23-15beec4fc27c",
+      "module": "aware_experience_service_dto.experience.session_handoff.service_operation",
+      "name": "ExperienceSessionHandoffServiceRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.ExperienceSessionHandoffServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "e24af7d0-b8f0-5b23-a636-6b0aa6974a31",
+      "module": "aware_experience_service_dto.experience.session_handoff.service_operation",
+      "name": "ExperienceSessionHandoffServiceResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.ExperienceSessionHandoffServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7b0bc8c6-1daf-5ed6-88f2-fbb86ff7bb24",
+      "module": "aware_experience_service_dto.experience.session_handoff.service_operation",
+      "name": "GetExperienceSessionHandoffStatusRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.GetExperienceSessionHandoffStatusRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "8f1d0d31-eabe-5ede-a110-24bd07ddfd90",
+      "module": "aware_experience_service_dto.experience.session_handoff.service_operation",
+      "name": "GetExperienceSessionHandoffStatusResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_handoff.GetExperienceSessionHandoffStatusResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "d1e06c6e-a93c-5306-a13c-3fc34d2786a1",
+      "module": "aware_experience_service_dto.experience.session_view_frame.models",
+      "name": "ExperienceSessionViewFrame",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_view_frame.ExperienceSessionViewFrame",
+      "functions": []
+    },
+    {
+      "class_config_id": "c0589ed4-44b0-5ef4-b4e6-06f538f7585b",
+      "module": "aware_experience_service_dto.experience.session_view_frame.models",
+      "name": "ExperienceSessionViewFrameLens",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_view_frame.ExperienceSessionViewFrameLens",
+      "functions": []
+    },
+    {
+      "class_config_id": "390f6ad7-4560-517a-9945-57dc00b8cab5",
+      "module": "aware_experience_service_dto.experience.session_view_frame.service_operation",
+      "name": "ExperienceSessionViewFrameServiceRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_view_frame.ExperienceSessionViewFrameServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "3a6039d1-331d-5df9-80df-47c22cb9bd12",
+      "module": "aware_experience_service_dto.experience.session_view_frame.service_operation",
+      "name": "ExperienceSessionViewFrameServiceResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_view_frame.ExperienceSessionViewFrameServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "764c7923-a15e-5403-8eab-6c5b10c2b1a7",
+      "module": "aware_experience_service_dto.experience.session_view_frame.service_operation",
+      "name": "ResolveExperienceSessionViewFrameRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_view_frame.ResolveExperienceSessionViewFrameRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "f75481e2-a8c0-5b3a-b011-5952d634e6b9",
+      "module": "aware_experience_service_dto.experience.session_view_frame.service_operation",
+      "name": "ResolveExperienceSessionViewFrameResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.session_view_frame.ResolveExperienceSessionViewFrameResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "7347e718-8c34-5683-9386-e04cd956e2f5",
+      "module": "aware_experience_service_dto.experience.thread_layout_resolution.models",
+      "name": "ExperienceThreadLayoutAccessRequirement",
+      "aware_class_ref": "aware_experience_service_dto.experience.thread_layout_resolution.ExperienceThreadLayoutAccessRequirement",
+      "functions": []
+    },
+    {
+      "class_config_id": "aaa4935e-49bd-5692-8d9c-f4840c79d927",
+      "module": "aware_experience_service_dto.experience.thread_layout_resolution.models",
+      "name": "ExperienceThreadLayoutConfigTarget",
+      "aware_class_ref": "aware_experience_service_dto.experience.thread_layout_resolution.ExperienceThreadLayoutConfigTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "32c46027-305f-51a7-bb02-694224e0ced2",
+      "module": "aware_experience_service_dto.experience.thread_layout_resolution.models",
+      "name": "ExperienceThreadLayoutEnvironmentActivation",
+      "aware_class_ref": "aware_experience_service_dto.experience.thread_layout_resolution.ExperienceThreadLayoutEnvironmentActivation",
+      "functions": []
+    },
+    {
+      "class_config_id": "1fcc5656-3af1-5611-b3ed-1780212fc4c3",
+      "module": "aware_experience_service_dto.experience.thread_layout_resolution.models",
+      "name": "ExperienceThreadLayoutEnvironmentTarget",
+      "aware_class_ref": "aware_experience_service_dto.experience.thread_layout_resolution.ExperienceThreadLayoutEnvironmentTarget",
+      "functions": []
+    },
+    {
+      "class_config_id": "46cfe252-59e0-5862-9a37-1d8fab841a8a",
+      "module": "aware_experience_service_dto.experience.thread_layout_resolution.models",
+      "name": "ExperienceThreadLayoutIntentResolution",
+      "aware_class_ref": "aware_experience_service_dto.experience.thread_layout_resolution.ExperienceThreadLayoutIntentResolution",
+      "functions": []
+    },
+    {
+      "class_config_id": "0d5cae30-5d71-5600-9a0e-4151b7067a21",
+      "module": "aware_experience_service_dto.experience.thread_layout_resolution.models",
+      "name": "ExperienceThreadLayoutSectionViewMapping",
+      "aware_class_ref": "aware_experience_service_dto.experience.thread_layout_resolution.ExperienceThreadLayoutSectionViewMapping",
+      "functions": []
+    },
+    {
+      "class_config_id": "c3089f56-7a14-5600-a1da-936d583dbee7",
+      "module": "aware_experience_service_dto.experience.thread_layout_resolution.service_operation",
+      "name": "ExperienceThreadLayoutResolutionServiceRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.thread_layout_resolution.ExperienceThreadLayoutResolutionServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "c9efbf47-cbd8-5e8d-9e66-035e17c0b0b9",
+      "module": "aware_experience_service_dto.experience.thread_layout_resolution.service_operation",
+      "name": "ExperienceThreadLayoutResolutionServiceResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.thread_layout_resolution.ExperienceThreadLayoutResolutionServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "dc408419-191f-5a6e-937e-540a2e7dc7df",
+      "module": "aware_experience_service_dto.experience.thread_layout_resolution.service_operation",
+      "name": "ResolveExperienceThreadLayoutIntentRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.thread_layout_resolution.ResolveExperienceThreadLayoutIntentRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "7a40c105-8859-5add-9ecc-de7885b3b064",
+      "module": "aware_experience_service_dto.experience.thread_layout_resolution.service_operation",
+      "name": "ResolveExperienceThreadLayoutIntentResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.thread_layout_resolution.ResolveExperienceThreadLayoutIntentResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "faf8b59f-31b7-5984-841f-dcd56d875a61",
+      "module": "aware_experience_service_dto.experience.view_state.models",
+      "name": "ExperienceViewStateEvent",
+      "aware_class_ref": "aware_experience_service_dto.experience.view_state.ExperienceViewStateEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "f8443e2f-d9ba-54d4-ae0c-fd28eb13240e",
+      "module": "aware_experience_service_dto.experience.view_state.models",
+      "name": "ExperienceViewStateProviderProvenance",
+      "aware_class_ref": "aware_experience_service_dto.experience.view_state.ExperienceViewStateProviderProvenance",
+      "functions": []
+    },
+    {
+      "class_config_id": "58bbfa87-e4d4-5eec-9a70-82eb9f4094ec",
+      "module": "aware_experience_service_dto.experience.view_state.models",
+      "name": "ExperienceViewStateSnapshot",
+      "aware_class_ref": "aware_experience_service_dto.experience.view_state.ExperienceViewStateSnapshot",
+      "functions": []
+    },
+    {
+      "class_config_id": "8b47b3fe-f871-5a98-af57-571a9776c0d2",
+      "module": "aware_experience_service_dto.experience.view_state.service_operation",
+      "name": "ExperienceViewStateServiceRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.view_state.ExperienceViewStateServiceRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "91e5525c-d8be-5264-8f69-0895c9738b97",
+      "module": "aware_experience_service_dto.experience.view_state.service_operation",
+      "name": "ExperienceViewStateServiceResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.view_state.ExperienceViewStateServiceResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "40c469ac-0693-54d0-a98e-a09cee94e40b",
+      "module": "aware_experience_service_dto.experience.view_state.service_operation",
+      "name": "WatchExperienceViewStateRequest",
+      "aware_class_ref": "aware_experience_service_dto.experience.view_state.WatchExperienceViewStateRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "aa27e4ae-db7c-564a-bc96-d8d4f420ed22",
+      "module": "aware_experience_service_dto.experience.view_state.service_operation",
+      "name": "WatchExperienceViewStateResponse",
+      "aware_class_ref": "aware_experience_service_dto.experience.view_state.WatchExperienceViewStateResponse",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

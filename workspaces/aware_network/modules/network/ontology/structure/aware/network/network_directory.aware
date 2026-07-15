@@ -1,0 +1,18 @@
+class NetworkDirectory {
+    // Attributes
+    name String unique key = "default"
+
+    fn bootstrap construct (name String key = "default") -> NetworkDirectory {
+        """
+        Bootstrap the Network-owned directory/read-model root.
+
+        Contract:
+        - This root is the stable Network-owned directory lane for territory-wide discovery.
+        - Durable discovery facts remain committed on `NetworkNode`, `NetworkNodePeer`,
+          `NetworkNodeService`, and `NetworkNodeEnvironment`.
+        - Reads must derive from committed Network state or service-owned read models,
+          not ontology read functions.
+        """
+    }
+
+}

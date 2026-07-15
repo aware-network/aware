@@ -5,6 +5,7 @@ This renderer serves as a language-specific plugin for the ObjectConfigGraphRend
 handling the Dart-specific aspects of code generation with freezed and JsonSerializable.
 """
 
+import json
 from pathlib import Path, PurePosixPath
 from dataclasses import dataclass
 from uuid import UUID
@@ -50,10 +51,16 @@ from aware_meta_ontology.enum.enum_config import EnumConfig
 from aware_meta_ontology.enum.enum_option_overlay import EnumOptionOverlay
 from aware_meta_ontology.function.function_config import FunctionConfig
 from aware_meta_ontology.attribute.attribute_config import AttributeConfig
-from aware_meta_ontology.attribute.attribute_config_overlay import AttributeConfigOverlay
+from aware_meta_ontology.attribute.attribute_config_overlay import (
+    AttributeConfigOverlay,
+)
 from aware_meta_ontology.attribute.attribute_enums import AttributeCollectionType
-from aware_meta_ontology.attribute.attribute_type_descriptor import AttributeTypeDescriptor
-from aware_meta_ontology.attribute.attribute_type_descriptor_enums import AttributeTypeDescriptorKind
+from aware_meta_ontology.attribute.attribute_type_descriptor import (
+    AttributeTypeDescriptor,
+)
+from aware_meta_ontology.attribute.attribute_type_descriptor_enums import (
+    AttributeTypeDescriptorKind,
+)
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
 from aware_meta_ontology.graph.config.object_config_graph_enums import (
     ObjectConfigGraphNodeType,
@@ -85,7 +92,7 @@ from aware_meta.graph.config.render.layout_strategy import (
 from dart_grammar.primitive_codec import DartPrimitiveCodec
 
 # Utils
-from aware_utils.string_transform import to_camel_case, to_pascal_case
+from aware_utils.string_transform import to_camel_case, to_pascal_case, to_snake_case
 from aware_utils.logging import logger
 
 from dart_grammar.renderer_policy import DartRenderPolicy
@@ -118,7 +125,7 @@ def _layout_module_import_path(
     parts = file_path.parts
     for index, part in enumerate(parts):
         if part in {"lib", "bin", "test", "src"} and index + 1 < len(parts):
-            return PurePosixPath(*parts[index + 1:]).as_posix()
+            return PurePosixPath(*parts[index + 1 :]).as_posix()
 
     if not file_path.is_absolute() and file_path.parent != Path("."):
         return PurePosixPath(file_path).as_posix()
@@ -269,7 +276,11 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             layouts = node.layouts
             if not layouts:
                 continue
-            aware_layouts = [layout for layout in layouts if not layout.layout_kind or layout.layout_kind == "aware"]
+            aware_layouts = [
+                layout
+                for layout in layouts
+                if not layout.layout_kind or layout.layout_kind == "aware"
+            ]
             if not aware_layouts:
                 continue
             layout = min(
@@ -285,9 +296,15 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             rel_path = layout.relative_path
             source_pos = int(layout.source_position or 0)
             if node.class_config is not None:
-                self._layout_order_by_class_id[node.class_config.id] = (rel_path, source_pos)
+                self._layout_order_by_class_id[node.class_config.id] = (
+                    rel_path,
+                    source_pos,
+                )
             elif node.enum_config is not None:
-                self._layout_order_by_enum_id[node.enum_config.id] = (rel_path, source_pos)
+                self._layout_order_by_enum_id[node.enum_config.id] = (
+                    rel_path,
+                    source_pos,
+                )
             elif node.type == ObjectConfigGraphNodeType.function:
                 node_function_config = get_node_function_config(node)
                 if node_function_config is not None:
@@ -298,7 +315,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
 
         local_class_ids = set(classes_by_id.keys())
         external_classes_by_id: dict[UUID, ClassConfig] = self.external_class_lookup
-        external_classes_by_name_by_graph_id: dict[UUID, dict[str, list[ClassConfig]]] = {}
+        external_classes_by_name_by_graph_id: dict[
+            UUID, dict[str, list[ClassConfig]]
+        ] = {}
         for ext_graph in self.external_graphs:
             ext_name_map: dict[str, list[ClassConfig]] = {}
             for node in ext_graph.object_config_graph_nodes:
@@ -327,10 +346,14 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             for name, matches in name_map.items():
                 combined_classes_by_name.setdefault(name, []).extend(matches)
 
-        def _resolve_class_in_graph(name: str, *, graph_id: UUID | None) -> ClassConfig | None:
+        def _resolve_class_in_graph(
+            name: str, *, graph_id: UUID | None
+        ) -> ClassConfig | None:
             matches: list[ClassConfig] = []
             if graph_id is not None:
-                matches = classes_by_name_by_graph_id.get(graph_id, {}).get(name, []) or []
+                matches = (
+                    classes_by_name_by_graph_id.get(graph_id, {}).get(name, []) or []
+                )
             if not matches:
                 matches = combined_classes_by_name.get(name, []) or []
             if not matches:
@@ -348,7 +371,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
         # Note: Dart unions cannot span packages, so we only consider tag annotations from
         # the current graph. External graphs are used for base-key resolution only.
         # We preserve source appearance order by sorting on stable paths + annotation byte offsets.
-        tag_entries: dict[tuple[str, str], tuple[tuple[int, str, int, str, str], str]] = {}
+        tag_entries: dict[
+            tuple[str, str], tuple[tuple[int, str, int, str, str], str]
+        ] = {}
 
         def _annotation_order_key(
             disc: CodeSectionAnnotationDiscriminate, variant_cls: ClassConfig | None
@@ -356,18 +381,32 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             missing_bucket = 1
             path_key = ""
             if variant_cls is not None:
-                layout_path = self.layout_strategy.entity_layout_paths.get(str(variant_cls.id))
+                layout_path = self.layout_strategy.entity_layout_paths.get(
+                    str(variant_cls.id)
+                )
                 if layout_path is not None:
                     path_key = layout_path.as_posix()
                     missing_bucket = 0
             if disc.source_position is None:
-                raise ValueError(f"Discriminate annotation {disc.id} has no source position")
-            return (missing_bucket, path_key, disc.source_position, disc.tag_value or "", disc.class_name or "")
+                raise ValueError(
+                    f"Discriminate annotation {disc.id} has no source position"
+                )
+            return (
+                missing_bucket,
+                path_key,
+                disc.source_position,
+                disc.tag_value or "",
+                disc.class_name or "",
+            )
 
-        def _register_key(*, disc: CodeSectionAnnotationDiscriminate, source_graph_id: UUID | None) -> None:
+        def _register_key(
+            *, disc: CodeSectionAnnotationDiscriminate, source_graph_id: UUID | None
+        ) -> None:
             cls = _resolve_class_in_graph(disc.class_name, graph_id=source_graph_id)
             if cls is None:
-                logger.warning(f"Discriminate key references unknown class {disc.class_name}")
+                logger.warning(
+                    f"Discriminate key references unknown class {disc.class_name}"
+                )
                 return
             prev_attr = base_key_attr_by_id.get(cls.id)
             if prev_attr is not None and prev_attr != disc.attribute_name:
@@ -389,8 +428,13 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             if disc.mode == "key":
                 _register_key(disc=disc, source_graph_id=graph.id)
             elif disc.mode == "tag" and disc.tag_value:
-                variant_cls = _resolve_class_in_graph(disc.class_name, graph_id=graph.id)
-                tag_entries[key] = (_annotation_order_key(disc, variant_cls), disc.tag_value)
+                variant_cls = _resolve_class_in_graph(
+                    disc.class_name, graph_id=graph.id
+                )
+                tag_entries[key] = (
+                    _annotation_order_key(disc, variant_cls),
+                    disc.tag_value,
+                )
 
         for ext_graph in self.external_graphs:
             for ann in ext_graph.object_config_graph_annotations:
@@ -429,7 +473,11 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                     )
                     break
                 visited.add(parent_id)
-                cursor = classes_by_id.get(parent_id) or external_classes_by_id.get(parent_id) or cursor.parent_class
+                cursor = (
+                    classes_by_id.get(parent_id)
+                    or external_classes_by_id.get(parent_id)
+                    or cursor.parent_class
+                )
 
             if base_cls is None:
                 logger.warning(
@@ -455,8 +503,14 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                     + f"({union.discriminator} vs {discriminator}); using {union.discriminator}",
                 )
 
-            union.variants.append(_DiscriminatedUnionVariant(class_config=variant_cls, tag_value=tag_value))
-            self._discriminated_union_base_id_by_variant_id[variant_cls.id] = base_cls.id
+            union.variants.append(
+                _DiscriminatedUnionVariant(
+                    class_config=variant_cls, tag_value=tag_value
+                )
+            )
+            self._discriminated_union_base_id_by_variant_id[variant_cls.id] = (
+                base_cls.id
+            )
 
     @override
     def emit_file(
@@ -486,15 +540,23 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
         for obj in meta_objects:
             if not isinstance(obj, ClassConfigRelationship):
                 continue
-            self._rels_by_source_class_id.setdefault(obj.class_config_id, []).append(obj)
+            self._rels_by_source_class_id.setdefault(obj.class_config_id, []).append(
+                obj
+            )
             for ra in obj.class_config_relationship_attributes:
                 if ra.role != ClassConfigRelationshipAttributeRole.reference:
                     continue
                 if ra.direction == ClassConfigRelationshipDirection.forward:
-                    if obj.forward_loading_strategy == ClassConfigRelationshipSideLoadingStrategy.lazy:
+                    if (
+                        obj.forward_loading_strategy
+                        == ClassConfigRelationshipSideLoadingStrategy.lazy
+                    ):
                         self._lazy_attr_ids.add(ra.attribute_config_id)
                 elif ra.direction == ClassConfigRelationshipDirection.reverse:
-                    if obj.reverse_loading_strategy == ClassConfigRelationshipSideLoadingStrategy.lazy:
+                    if (
+                        obj.reverse_loading_strategy
+                        == ClassConfigRelationshipSideLoadingStrategy.lazy
+                    ):
                         self._lazy_attr_ids.add(ra.attribute_config_id)
 
         # 1. Collect objects
@@ -503,7 +565,8 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
         functions = [
             obj
             for obj in meta_objects
-            if isinstance(obj, FunctionConfig) and obj.id not in self._class_owned_function_ids
+            if isinstance(obj, FunctionConfig)
+            and obj.id not in self._class_owned_function_ids
         ]
 
         # Discriminated union policy (API runtime):
@@ -540,7 +603,10 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             if (
                 isinstance(obj, EnumConfig)
                 or isinstance(obj, ClassConfig)
-                or (isinstance(obj, FunctionConfig) and obj.id not in self._class_owned_function_ids)
+                or (
+                    isinstance(obj, FunctionConfig)
+                    and obj.id not in self._class_owned_function_ids
+                )
             ):
                 top_level.append(obj)
 
@@ -599,7 +665,12 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
         # - Our canonical layout strategy may still place the variant class in its own file for
         #   SSOT/template parity. We keep that path stable by exporting the union base.
         variant_only_classes = [c for c in classes if _is_variant_only(c)]
-        has_only_variant_classes = bool(variant_only_classes) and not emitted_class_ids and not enums and not functions
+        has_only_variant_classes = (
+            bool(variant_only_classes)
+            and not emitted_class_ids
+            and not enums
+            and not functions
+        )
         if has_only_variant_classes:
             self._emit_generated_file_header(writer)
 
@@ -616,7 +687,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
 
             base_modules: set[str] = set()
             for variant_cls in variant_only_classes:
-                base_id = self._discriminated_union_base_id_by_variant_id.get(variant_cls.id)
+                base_id = self._discriminated_union_base_id_by_variant_id.get(
+                    variant_cls.id
+                )
                 if base_id is None:
                     continue
                 union_base = self._discriminated_unions_by_base_id.get(base_id)
@@ -641,9 +714,13 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                 )
 
             for module in sorted(base_modules):
-                with writer.start_section(self._spec_import, qualname=f"export.{module}") as export_section:
+                with writer.start_section(
+                    self._spec_import, qualname=f"export.{module}"
+                ) as export_section:
                     _ = export_section.token("export ")
-                    _ = export_section.token(f"'{module}'", CodeSectionImportSegment.MODULE.value)
+                    _ = export_section.token(
+                        f"'{module}'", CodeSectionImportSegment.MODULE.value
+                    )
                     _ = export_section.token(";\n")
 
             return
@@ -656,7 +733,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
 
         # Resolve the module path for this file to avoid generating self-imports.
         current_module: str | None = None
-        first_class = next((obj for obj in meta_objects if isinstance(obj, ClassConfig)), None)
+        first_class = next(
+            (obj for obj in meta_objects if isinstance(obj, ClassConfig)), None
+        )
         if first_class is not None:
             try:
                 path = self.layout_strategy.get_class_file_path(first_class)
@@ -667,7 +746,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             except Exception:
                 current_module = None
         if current_module is None:
-            first_enum = next((obj for obj in meta_objects if isinstance(obj, EnumConfig)), None)
+            first_enum = next(
+                (obj for obj in meta_objects if isinstance(obj, EnumConfig)), None
+            )
             if first_enum is not None:
                 try:
                     path = self.layout_strategy.get_enum_file_path(first_enum)
@@ -712,7 +793,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                 if not first_item:
                     _ = writer.token("\n")
                 if union is not None:
-                    self._render_discriminated_union(writer, union, list(union.variants))
+                    self._render_discriminated_union(
+                        writer, union, list(union.variants)
+                    )
                 else:
                     self._render_class(writer, obj, class_to_class_config_map)
                 first_item = False
@@ -778,7 +861,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                     class_config_attribute_config.attribute_config,
                     CodePrimitiveBaseType.uuid,
                 )
-                for class_config_attribute_config in (obj.class_config_attribute_configs)
+                for class_config_attribute_config in (
+                    obj.class_config_attribute_configs
+                )
             )
             for obj in classes_to_scan
         )
@@ -791,9 +876,27 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                     resolve_type_info(class_config_attribute_config.attribute_config),
                 )
                 and self._attribute_is_base_type(
-                    class_config_attribute_config.attribute_config, CodePrimitiveBaseType.bytes
+                    class_config_attribute_config.attribute_config,
+                    CodePrimitiveBaseType.bytes,
                 )
-                for class_config_attribute_config in (obj.class_config_attribute_configs)
+                for class_config_attribute_config in (
+                    obj.class_config_attribute_configs
+                )
+            )
+            for obj in classes_to_scan
+        )
+        has_decimal = any(
+            any(
+                self._should_emit_attribute_for_policy(
+                    obj,
+                    link.attribute_config,
+                    resolve_type_info(link.attribute_config),
+                )
+                and self._attribute_is_base_type(
+                    link.attribute_config,
+                    CodePrimitiveBaseType.decimal,
+                )
+                for link in obj.class_config_attribute_configs
             )
             for obj in classes_to_scan
         )
@@ -806,6 +909,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             # Uint8List lives in the Dart SDK typed_data library; import only when needed.
             merged_imports.add("dart:typed_data")
             # Converters for Uint8List serialization.
+            merged_imports.add("package:aware_model_helpers/converters.dart")
+
+        if has_decimal:
             merged_imports.add("package:aware_model_helpers/converters.dart")
 
         merged_imports.update(imports)
@@ -824,9 +930,13 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
 
         # Emit imports
         for import_path in sorted(merged_imports):
-            with writer.start_section(self._spec_import, qualname=f"import.{import_path}") as import_section:
+            with writer.start_section(
+                self._spec_import, qualname=f"import.{import_path}"
+            ) as import_section:
                 _ = import_section.token("import ")
-                _ = import_section.token(f"'{import_path}'", CodeSectionImportSegment.MODULE.value)
+                _ = import_section.token(
+                    f"'{import_path}'", CodeSectionImportSegment.MODULE.value
+                )
                 _ = import_section.token(";\n")
 
         _ = writer.token("\n")
@@ -835,20 +945,28 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
         file_basename = "models"
         file_path: Path | None = None
 
-        first_class = next((obj for obj in meta_objects if isinstance(obj, ClassConfig)), None)
+        first_class = next(
+            (obj for obj in meta_objects if isinstance(obj, ClassConfig)), None
+        )
         if first_class is not None:
             try:
                 file_path = self.layout_strategy.get_class_file_path(first_class)
             except Exception as e:
-                logger.warning(f"Error determining file path for class {first_class.name}: {e}")
+                logger.warning(
+                    f"Error determining file path for class {first_class.name}: {e}"
+                )
 
         if file_path is None:
-            first_enum = next((obj for obj in meta_objects if isinstance(obj, EnumConfig)), None)
+            first_enum = next(
+                (obj for obj in meta_objects if isinstance(obj, EnumConfig)), None
+            )
             if first_enum is not None:
                 try:
                     file_path = self.layout_strategy.get_enum_file_path(first_enum)
                 except Exception as e:
-                    logger.warning(f"Error determining file path for enum {first_enum.name}: {e}")
+                    logger.warning(
+                        f"Error determining file path for enum {first_enum.name}: {e}"
+                    )
 
         if file_path is not None:
             file_basename = file_path.stem
@@ -878,7 +996,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             if isinstance(entity, ClassConfig):
                 self._graph_classes_by_id[entity.id] = entity
 
-        local_enum_ids: set[UUID] = {entity.id for entity in meta_objects if isinstance(entity, EnumConfig)}
+        local_enum_ids: set[UUID] = {
+            entity.id for entity in meta_objects if isinstance(entity, EnumConfig)
+        }
         for entity in meta_objects:
             if isinstance(entity, EnumConfig):
                 self._graph_enums_by_id[entity.id] = entity
@@ -887,7 +1007,10 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             # Variant-only discriminated-union classes are emitted within their base union file.
             # Importing the variant's own module would be invalid/empty.
             base_id = self._discriminated_union_base_id_by_variant_id.get(cls_cfg.id)
-            if base_id is not None and cls_cfg.id not in self._discriminated_unions_by_base_id:
+            if (
+                base_id is not None
+                and cls_cfg.id not in self._discriminated_unions_by_base_id
+            ):
                 base_cls = self._graph_classes_by_id.get(base_id)
                 if base_cls is not None:
                     cls_cfg = base_cls
@@ -909,7 +1032,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                     return override
             # Local (same-package) enums: we can safely import them even if they are emitted in a
             # different file, as long as the layout strategy knows the entity placement.
-            if enum_cfg.id not in local_enum_ids and not self._layout_has_entity_path(enum_cfg.id):
+            if enum_cfg.id not in local_enum_ids and not self._layout_has_entity_path(
+                enum_cfg.id
+            ):
                 return None
             path = self.layout_strategy.get_enum_file_path(enum_cfg)
             return _layout_module_import_path(
@@ -933,7 +1058,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                     if mod:
                         current_modules.add(mod)
 
-        def _collect_descriptor_entity_ids(desc: AttributeTypeDescriptor) -> tuple[set[UUID], set[UUID]]:
+        def _collect_descriptor_entity_ids(
+            desc: AttributeTypeDescriptor,
+        ) -> tuple[set[UUID], set[UUID]]:
             """
             Collect referenced ClassConfig/EnumConfig ids from a descriptor tree.
 
@@ -944,13 +1071,21 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             class_ids: set[UUID] = set()
             enum_ids: set[UUID] = set()
 
-            if desc.kind == AttributeTypeDescriptorKind.class_ and desc.class_config_id is not None:
+            if (
+                desc.kind == AttributeTypeDescriptorKind.class_
+                and desc.class_config_id is not None
+            ):
                 class_ids.add(desc.class_config_id)
-            elif desc.kind == AttributeTypeDescriptorKind.enum and desc.enum_config_id is not None:
+            elif (
+                desc.kind == AttributeTypeDescriptorKind.enum
+                and desc.enum_config_id is not None
+            ):
                 enum_ids.add(desc.enum_config_id)
 
             for link in desc.child_links:
-                child_class_ids, child_enum_ids = _collect_descriptor_entity_ids(link.child)
+                child_class_ids, child_enum_ids = _collect_descriptor_entity_ids(
+                    link.child
+                )
                 class_ids.update(child_class_ids)
                 enum_ids.update(child_enum_ids)
 
@@ -972,9 +1107,13 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             for class_config_attribute_config in obj.class_config_attribute_configs:
                 attribute_config = class_config_attribute_config.attribute_config
                 type_info = resolve_type_info(attribute_config)
-                if not self._should_emit_attribute_for_policy(obj, attribute_config, type_info):
+                if not self._should_emit_attribute_for_policy(
+                    obj, attribute_config, type_info
+                ):
                     continue
-                class_ids, enum_ids = _collect_descriptor_entity_ids(attribute_config.type_descriptor)
+                class_ids, enum_ids = _collect_descriptor_entity_ids(
+                    attribute_config.type_descriptor
+                )
 
                 for class_id in class_ids:
                     if class_id in local_class_ids:
@@ -1007,7 +1146,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                     if mod and mod not in current_modules:
                         imports.add(mod)
         normalized_imports = {
-            _normalize_relative_import_path(import_path=import_path, current_module=current_module)
+            _normalize_relative_import_path(
+                import_path=import_path, current_module=current_module
+            )
             for import_path in imports
         }
         return list(normalized_imports)
@@ -1027,9 +1168,13 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                 _ = writer.token(f"/// {line}\n" if line else "///\n")
 
         # Start enum definition
-        with writer.start_section(self._spec_enum, qualname=enum_config.name) as enum_scope:
+        with writer.start_section(
+            self._spec_enum, qualname=enum_config.name
+        ) as enum_scope:
             # JsonEnum annotation
-            _ = enum_scope.token("@JsonEnum(fieldRename: FieldRename.snake, alwaysCreate: true)\n")
+            _ = enum_scope.token(
+                "@JsonEnum(fieldRename: FieldRename.snake, alwaysCreate: true)\n"
+            )
 
             # Enum declaration
             _ = enum_scope.token("enum ")
@@ -1039,16 +1184,22 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             # Use indentation for enum body
             with enum_scope.indent():
                 # Canonical ordering: stable by position, then value.
-                sorted_options = sorted(enum_config.enum_options, key=lambda opt: (opt.position, opt.value))
+                sorted_options = sorted(
+                    enum_config.enum_options, key=lambda opt: (opt.position, opt.value)
+                )
 
                 # Add each enum value (camelCase or overlay-provided)
                 for i, option in enumerate(sorted_options):
                     rendered_name: str | None = None
                     wire_name: str | None = None
-                    overlay = self.get_overlay_by_entity_id(CodeSectionAnnotationOverlayEntity.enum_option, option.id)
+                    overlay = self.get_overlay_by_entity_id(
+                        CodeSectionAnnotationOverlayEntity.enum_option, option.id
+                    )
                     if overlay:
                         if not isinstance(overlay, EnumOptionOverlay):
-                            raise ValueError(f"Overlay for enum option {option.id} is not an EnumOptionOverlay")
+                            raise ValueError(
+                                f"Overlay for enum option {option.id} is not an EnumOptionOverlay"
+                            )
                         rendered_name = overlay.rendered_name
                         wire_name = overlay.wire_name
 
@@ -1070,16 +1221,26 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                         if option_desc:
                             for raw_line in option_desc.splitlines():
                                 line = raw_line.rstrip()
-                                _ = enum_value_scope.token(f"/// {line}\n" if line else "///\n")
+                                _ = enum_value_scope.token(
+                                    f"/// {line}\n" if line else "///\n"
+                                )
 
                         # If wire_name is present and differs from the default wire name implied by `@JsonEnum`,
                         # emit @JsonValue before the case.
-                        if (wire_name and wire_name != option.value) or (case_name != canonical_case_name):
-                            _ = enum_value_scope.token(f"@JsonValue('{wire_name or option.value}')\n")
+                        if (wire_name and wire_name != option.value) or (
+                            case_name != canonical_case_name
+                        ):
+                            _ = enum_value_scope.token(
+                                f"@JsonValue('{wire_name or option.value}')\n"
+                            )
 
                         # Manual indent token to keep VALUE segment clean (no leading spaces).
-                        _ = enum_value_scope.token(" " * (enum_value_scope.indent_level * writer.indent_size))
-                        _ = enum_value_scope.token(case_name, CodeSectionEnumValueSegment.VALUE.value)
+                        _ = enum_value_scope.token(
+                            " " * (enum_value_scope.indent_level * writer.indent_size)
+                        )
+                        _ = enum_value_scope.token(
+                            case_name, CodeSectionEnumValueSegment.VALUE.value
+                        )
 
                         # Use commas between values; no trailing semicolon unless members follow (not emitted here).
                         if i < len(sorted_options) - 1:
@@ -1089,12 +1250,16 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             _ = enum_scope.token("}\n\n")
 
             # Extension for JSON conversion
-            _ = enum_scope.token(f"extension {enum_config.name}Extension on {enum_config.name} {{\n")
+            _ = enum_scope.token(
+                f"extension {enum_config.name}Extension on {enum_config.name} {{\n"
+            )
             with enum_scope.indent():
                 _ = enum_scope.token(
                     f"static String toJson({enum_config.name} type) => _${enum_config.name}EnumMap[type]!;\n\n"
                 )
-                _ = enum_scope.token(f"static {enum_config.name} fromJson(String json) =>\n")
+                _ = enum_scope.token(
+                    f"static {enum_config.name} fromJson(String json) =>\n"
+                )
                 with enum_scope.indent():
                     _ = enum_scope.token(
                         f"_${enum_config.name}EnumMap.map((key, value) => MapEntry(value, key))[json]!;\n"
@@ -1113,7 +1278,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             _ = enum_scope.token("}\n\n")
 
             # List/Set helpers for collection enum attributes (used by @JsonKey(fromJson/toJson) emit).
-            _ = enum_scope.token(f"extension List{enum_config.name}Extension on List<{enum_config.name}> {{\n")
+            _ = enum_scope.token(
+                f"extension List{enum_config.name}Extension on List<{enum_config.name}> {{\n"
+            )
             with enum_scope.indent():
                 _ = enum_scope.token(
                     f"static List<String> toJson(List<{enum_config.name}> values) => "
@@ -1133,7 +1300,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                 )
             _ = enum_scope.token("}\n\n")
 
-            _ = enum_scope.token(f"extension Set{enum_config.name}Extension on Set<{enum_config.name}> {{\n")
+            _ = enum_scope.token(
+                f"extension Set{enum_config.name}Extension on Set<{enum_config.name}> {{\n"
+            )
             with enum_scope.indent():
                 _ = enum_scope.token(
                     f"static List<String> toJson(Set<{enum_config.name}> values) => "
@@ -1218,7 +1387,10 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
 
         ordered_links = sorted(
             class_config.class_config_attribute_configs,
-            key=lambda link: (link.position, (link.attribute_config.name if link.attribute_config else "")),
+            key=lambda link: (
+                link.position,
+                (link.attribute_config.name if link.attribute_config else ""),
+            ),
         )
         for link in ordered_links:
             attr = link.attribute_config
@@ -1270,7 +1442,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             # Use indentation for class body
             with cls.indent():
                 # JsonSerializable annotation for factory constructor
-                _ = cls.token("@JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)\n")
+                _ = cls.token(
+                    "@JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)\n"
+                )
                 _ = cls.token(f"factory {class_config.name}.def({{\n")
 
                 # Canonical field ordering: preserve SSOT order of appearance.
@@ -1280,10 +1454,13 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                     class_to_class_config_map=class_to_class_config_map,
                 ):
                     type_info = resolve_type_info(attr)
-                    if not self._should_emit_attribute_for_policy(class_config, attr, type_info):
+                    if not self._should_emit_attribute_for_policy(
+                        class_config, attr, type_info
+                    ):
                         continue
                     is_relationship = (
-                        type_info.kind == AttributeTypeDescriptorKind.class_ and type_info.class_config is not None
+                        type_info.kind == AttributeTypeDescriptorKind.class_
+                        and type_info.class_config is not None
                     )
                     attrs_in_order.append((attr, is_relationship))
 
@@ -1298,7 +1475,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                         if is_relationship:
                             if attr in edge_backed_rel_attrs:
                                 continue
-                            self._render_relationship_parameter(cls, attr, is_factory=False)
+                            self._render_relationship_parameter(
+                                cls, attr, is_factory=False
+                            )
                         else:
                             self._render_factory_parameter(cls, attr)
 
@@ -1311,7 +1490,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                         if is_relationship:
                             if attr in edge_backed_rel_attrs:
                                 continue
-                            self._render_relationship_parameter(cls, attr, is_factory=True)
+                            self._render_relationship_parameter(
+                                cls, attr, is_factory=True
+                            )
                         else:
                             self._render_constructor_parameter(cls, attr)
 
@@ -1336,7 +1517,15 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                                     field_name = overlay.rendered_name
 
                             _ = cls.token(f"{field_name}: {field_name}")
-                            if not is_relationship and attr.name == "id":
+                            default_expr = (
+                                None
+                                if is_relationship
+                                or self._should_default_empty_list(attr)
+                                else self._attribute_default_expr(attr)
+                            )
+                            if default_expr is not None:
+                                _ = cls.token(f" ?? {default_expr}")
+                            elif not is_relationship and attr.name == "id":
                                 _ = cls.token(" ?? UuidValue.fromString(Uuid().v4())")
                             _ = cls.token(",\n")
 
@@ -1344,8 +1533,28 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                 _ = cls.token("}\n\n")
 
                 # JSON factory constructor
-                _ = cls.token(f"factory {class_config.name}.fromJson(Map<String, dynamic> json) => ")
-                _ = cls.token(f"_${class_config.name}FromJson(json);\n")
+                json_defaults = [
+                    (self._attribute_wire_name(attr), default_expr)
+                    for attr, is_relationship in attrs_in_order
+                    if not is_relationship
+                    and not self._should_default_empty_list(attr)
+                    and (default_expr := self._json_default_expr(attr)) is not None
+                ]
+                _ = cls.token(
+                    f"factory {class_config.name}.fromJson(Map<String, dynamic> json) => "
+                )
+                if json_defaults:
+                    _ = cls.token(f"_${class_config.name}FromJson({{\n")
+                    with cls.indent():
+                        _ = cls.token("...json,\n")
+                        for wire_name, default_expr in json_defaults:
+                            _ = cls.token(
+                                f"if (!json.containsKey('{wire_name}')) '{wire_name}': "
+                                + f"{default_expr},\n"
+                            )
+                    _ = cls.token("});\n")
+                else:
+                    _ = cls.token(f"_${class_config.name}FromJson(json);\n")
 
             _ = cls.token("}")
 
@@ -1385,7 +1594,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                     ctor_name = to_camel_case(tag_value)
 
                     _ = cls.token(f"@FreezedUnionValue('{tag_value}')\n")
-                    _ = cls.token("@JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)\n")
+                    _ = cls.token(
+                        "@JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)\n"
+                    )
                     _ = cls.token(f"factory {base.name}.{ctor_name}({{\n")
 
                     # Canonical field ordering: preserve SSOT order of appearance.
@@ -1394,17 +1605,22 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                         if attr.name == discriminator:
                             continue
                         type_info = resolve_type_info(attr)
-                        if not self._should_emit_attribute_for_policy(variant_class, attr, type_info):
+                        if not self._should_emit_attribute_for_policy(
+                            variant_class, attr, type_info
+                        ):
                             continue
                         is_relationship = (
-                            type_info.kind == AttributeTypeDescriptorKind.class_ and type_info.class_config is not None
+                            type_info.kind == AttributeTypeDescriptorKind.class_
+                            and type_info.class_config is not None
                         )
                         attrs_in_order.append((attr, is_relationship))
 
                     with cls.indent():
                         for attr, is_relationship in attrs_in_order:
                             if is_relationship:
-                                self._render_relationship_parameter(cls, attr, is_factory=False)
+                                self._render_relationship_parameter(
+                                    cls, attr, is_factory=False
+                                )
                             else:
                                 self._render_union_parameter(cls, attr)
 
@@ -1416,7 +1632,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
 
             _ = cls.token("}")
 
-    def _render_union_parameter(self, scope: CodeSectionScope, attr_config: AttributeConfig) -> None:
+    def _render_union_parameter(
+        self, scope: CodeSectionScope, attr_config: AttributeConfig
+    ) -> None:
         """
         Render a constructor parameter for union variants.
 
@@ -1430,10 +1648,14 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
 
         rendered_name = to_camel_case(attr_config.name)
         wire_name: str | None = None
-        overlay = self.get_overlay_by_entity_id(CodeSectionAnnotationOverlayEntity.attribute, attr_config.id)
+        overlay = self.get_overlay_by_entity_id(
+            CodeSectionAnnotationOverlayEntity.attribute, attr_config.id
+        )
         if overlay is not None:
             if not isinstance(overlay, AttributeConfigOverlay):
-                raise ValueError(f"Overlay for attribute {attr_config.id} is not an AttributeConfigOverlay")
+                raise ValueError(
+                    f"Overlay for attribute {attr_config.id} is not an AttributeConfigOverlay"
+                )
             if overlay.rendered_name:
                 rendered_name = overlay.rendered_name
             if overlay.wire_name:
@@ -1445,22 +1667,54 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             _ = scope.token("@UuidValueListConverter() ")
         elif dart_type == "Uint8List":
             _ = scope.token("@Uint8ListConverter() ")
+        elif dart_type == "AwareDecimal":
+            converter = (
+                "NullableAwareDecimalConverter"
+                if self._is_optional_on_runtime(attr_config)
+                else "AwareDecimalConverter"
+            )
+            _ = scope.token(f"@{converter}() ")
+        elif dart_type == "List<AwareDecimal>":
+            converter = (
+                "NullableAwareDecimalListConverter"
+                if self._is_optional_on_runtime(attr_config) and not list_default
+                else "AwareDecimalListConverter"
+            )
+            _ = scope.token(f"@{converter}() ")
         elif self._is_enum_type(attr_config):
             name_prefix = f"name: '{wire_name}', " if wire_name else ""
-            enum_name = type_info.enum_config.name if type_info.enum_config is not None else None
+            enum_name = (
+                type_info.enum_config.name
+                if type_info.enum_config is not None
+                else None
+            )
             enum_ext = (
                 f"List{enum_name}Extension"
-                if enum_name and type_info.collection_kind == AttributeCollectionType.list
+                if enum_name
+                and type_info.collection_kind == AttributeCollectionType.list
                 else (
                     f"Set{enum_name}Extension"
-                    if enum_name and type_info.collection_kind == AttributeCollectionType.set
-                    else f"{enum_name}Extension" if enum_name else f"{dart_type}Extension"
+                    if enum_name
+                    and type_info.collection_kind == AttributeCollectionType.set
+                    else (
+                        f"{enum_name}Extension"
+                        if enum_name
+                        else f"{dart_type}Extension"
+                    )
                 )
             )
             _ = scope.token(f"@JsonKey({name_prefix}fromJson: {enum_ext}.")
-            _ = scope.token("fromJsonNullable" if self._is_optional_on_runtime(attr_config) else "fromJson")
+            _ = scope.token(
+                "fromJsonNullable"
+                if self._is_optional_on_runtime(attr_config)
+                else "fromJson"
+            )
             _ = scope.token(f", toJson: {enum_ext}.")
-            _ = scope.token("toJsonNullable" if self._is_optional_on_runtime(attr_config) else "toJson")
+            _ = scope.token(
+                "toJsonNullable"
+                if self._is_optional_on_runtime(attr_config)
+                else "toJson"
+            )
             _ = scope.token(") ")
         elif wire_name:
             _ = scope.token(f"@JsonKey(name: '{wire_name}') ")
@@ -1472,11 +1726,17 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             _ = scope.token("required ")
 
         _ = scope.token(dart_type)
-        if self._is_optional_on_runtime(attr_config) and not dart_type.endswith("?") and not list_default:
+        if (
+            self._is_optional_on_runtime(attr_config)
+            and not dart_type.endswith("?")
+            and not list_default
+        ):
             _ = scope.token("?")
         _ = scope.token(f" {rendered_name},\n")
 
-    def _render_factory_parameter(self, scope: CodeSectionScope, attr_config: AttributeConfig) -> None:
+    def _render_factory_parameter(
+        self, scope: CodeSectionScope, attr_config: AttributeConfig
+    ) -> None:
         """
         Render a parameter in the factory constructor.
 
@@ -1509,10 +1769,14 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             # Apply overlay if present (reserved keywords, explicit overlays, etc.)
             rendered_name = to_camel_case(attr_config.name)
             wire_name: str | None = None
-            overlay = self.get_overlay_by_entity_id(CodeSectionAnnotationOverlayEntity.attribute, attr_config.id)
+            overlay = self.get_overlay_by_entity_id(
+                CodeSectionAnnotationOverlayEntity.attribute, attr_config.id
+            )
             if overlay is not None:
                 if not isinstance(overlay, AttributeConfigOverlay):
-                    raise ValueError(f"Overlay for attribute {attr_config.id} is not an AttributeConfigOverlay")
+                    raise ValueError(
+                        f"Overlay for attribute {attr_config.id} is not an AttributeConfigOverlay"
+                    )
                 if overlay.rendered_name:
                     rendered_name = overlay.rendered_name
                 if overlay.wire_name:
@@ -1524,17 +1788,41 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                 _ = attr.token("@UuidValueListConverter() ")
             elif dart_type == "Uint8List":
                 _ = attr.token("@Uint8ListConverter() ")
+            elif dart_type == "AwareDecimal":
+                converter = (
+                    "NullableAwareDecimalConverter"
+                    if self._is_optional_on_runtime(attr_config)
+                    else "AwareDecimalConverter"
+                )
+                _ = attr.token(f"@{converter}() ")
+            elif dart_type == "List<AwareDecimal>":
+                converter = (
+                    "NullableAwareDecimalListConverter"
+                    if self._is_optional_on_runtime(attr_config) and not list_default
+                    else "AwareDecimalListConverter"
+                )
+                _ = attr.token(f"@{converter}() ")
             elif self._is_enum_type(attr_config):
                 # Single JsonKey annotation: include `name:` when we renamed the identifier.
                 name_prefix = f"name: '{wire_name}', " if wire_name else ""
-                enum_name = type_info.enum_config.name if type_info.enum_config is not None else None
+                enum_name = (
+                    type_info.enum_config.name
+                    if type_info.enum_config is not None
+                    else None
+                )
                 enum_ext = (
                     f"List{enum_name}Extension"
-                    if enum_name and type_info.collection_kind == AttributeCollectionType.list
+                    if enum_name
+                    and type_info.collection_kind == AttributeCollectionType.list
                     else (
                         f"Set{enum_name}Extension"
-                        if enum_name and type_info.collection_kind == AttributeCollectionType.set
-                        else f"{enum_name}Extension" if enum_name else f"{dart_type}Extension"
+                        if enum_name
+                        and type_info.collection_kind == AttributeCollectionType.set
+                        else (
+                            f"{enum_name}Extension"
+                            if enum_name
+                            else f"{dart_type}Extension"
+                        )
                     )
                 )
                 _ = attr.token(f"@JsonKey({name_prefix}fromJson: {enum_ext}.")
@@ -1561,13 +1849,19 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
 
             # Type and name (camelCase field name in Dart)
             _ = attr.token(dart_type, CodeSectionAttributeSegment.TYPE.value)
-            if self._is_optional_on_runtime(attr_config) and not dart_type.endswith("?") and not list_default:
+            if (
+                self._is_optional_on_runtime(attr_config)
+                and not dart_type.endswith("?")
+                and not list_default
+            ):
                 _ = attr.token("?")
             _ = attr.token(" ")
             _ = attr.token(rendered_name, CodeSectionAttributeSegment.NAME.value)
             _ = attr.token(",\n")
 
-    def _render_constructor_parameter(self, scope: CodeSectionScope, attr_config: AttributeConfig) -> None:
+    def _render_constructor_parameter(
+        self, scope: CodeSectionScope, attr_config: AttributeConfig
+    ) -> None:
         """
         Render a parameter in the regular constructor.
 
@@ -1577,10 +1871,14 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
         """
         dart_type = self._get_type_from_attribute_config(attr_config)
         param_name = to_camel_case(attr_config.name)
-        overlay = self.get_overlay_by_entity_id(CodeSectionAnnotationOverlayEntity.attribute, attr_config.id)
+        overlay = self.get_overlay_by_entity_id(
+            CodeSectionAnnotationOverlayEntity.attribute, attr_config.id
+        )
         if overlay is not None:
             if not isinstance(overlay, AttributeConfigOverlay):
-                raise ValueError(f"Overlay for attribute {attr_config.id} is not an AttributeConfigOverlay")
+                raise ValueError(
+                    f"Overlay for attribute {attr_config.id} is not an AttributeConfigOverlay"
+                )
             if overlay.rendered_name:
                 param_name = overlay.rendered_name
 
@@ -1588,16 +1886,25 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             _ = scope.token(f"{dart_type} {param_name} = const [],\n")
             return
 
+        if self._attribute_default_expr(attr_config) is not None:
+            _ = scope.token(f"{dart_type}? {param_name},\n")
+            return
+
         if not self._is_optional_on_constructor(attr_config):
             _ = scope.token("required ")
 
         _ = scope.token(dart_type)
-        if self._is_optional_on_constructor(attr_config) and not dart_type.endswith("?"):
+        if self._is_optional_on_constructor(attr_config) and not dart_type.endswith(
+            "?"
+        ):
             _ = scope.token("?")
         _ = scope.token(f" {param_name},\n")
 
     def _render_relationship_parameter(
-        self, scope: CodeSectionScope, attr_config: AttributeConfig, is_factory: bool = False
+        self,
+        scope: CodeSectionScope,
+        attr_config: AttributeConfig,
+        is_factory: bool = False,
     ) -> None:
         """
         Render a relationship parameter.
@@ -1608,7 +1915,10 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             is_factory: Whether the parameter is being rendered in the factory constructor
         """
         type_info = resolve_type_info(attr_config)
-        if type_info.kind != AttributeTypeDescriptorKind.class_ or type_info.class_config is None:
+        if (
+            type_info.kind != AttributeTypeDescriptorKind.class_
+            or type_info.class_config is None
+        ):
             return
 
         class_name = to_pascal_case(type_info.class_config.name)
@@ -1616,10 +1926,14 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
 
         # Apply overlay if present
         prefix = ""
-        overlay = self.get_overlay_by_entity_id(CodeSectionAnnotationOverlayEntity.attribute, attr_config.id)
+        overlay = self.get_overlay_by_entity_id(
+            CodeSectionAnnotationOverlayEntity.attribute, attr_config.id
+        )
         if overlay:
             if not isinstance(overlay, AttributeConfigOverlay):
-                raise ValueError(f"Overlay for attribute {attr_config.id} is not an AttributeConfigOverlay")
+                raise ValueError(
+                    f"Overlay for attribute {attr_config.id} is not an AttributeConfigOverlay"
+                )
             if overlay.rendered_name:
                 attribute_name = overlay.rendered_name
             if overlay.wire_name:
@@ -1629,9 +1943,13 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
         is_list = self._relationship_is_list_from_descriptor(attr_config)
         if is_list:
             if is_factory:
-                _ = scope.token(f"{prefix}List<{class_name}> {attribute_name} = const [],\n")
+                _ = scope.token(
+                    f"{prefix}List<{class_name}> {attribute_name} = const [],\n"
+                )
             else:
-                _ = scope.token(f"{prefix}@Default(const []) List<{class_name}> {attribute_name},\n")
+                _ = scope.token(
+                    f"{prefix}@Default(const []) List<{class_name}> {attribute_name},\n"
+                )
         else:
             is_optional = (
                 self._is_optional_on_constructor(attr_config)
@@ -1650,7 +1968,10 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
         type_info: AttributeTypeInfo,
     ) -> bool:
         target_cls = type_info.class_config
-        if type_info.kind == AttributeTypeDescriptorKind.class_ and target_cls is not None:
+        if (
+            type_info.kind == AttributeTypeDescriptorKind.class_
+            and target_cls is not None
+        ):
             target_is_inline = target_cls.value_mode == ClassValueMode.inline_value
             if (
                 class_config.value_mode != ClassValueMode.inline_value
@@ -1677,14 +1998,18 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             not attr_config.is_public
             and type_info.kind == AttributeTypeDescriptorKind.primitive
             and primitive_config is not None
-            and CodePrimitiveType.model_validate(primitive_config.primitive_type).base_type
+            and CodePrimitiveType.model_validate(
+                primitive_config.primitive_type
+            ).base_type
             == CodePrimitiveBaseType.uuid
             and not self.policy.emit_foreign_key_fields
         ):
             return False
         return True
 
-    def _external_relationship_import_override_matches_policy(self, *, target_class_id: UUID | None) -> bool:
+    def _external_relationship_import_override_matches_policy(
+        self, *, target_class_id: UUID | None
+    ) -> bool:
         if target_class_id is None:
             return False
         suffix = self.policy.external_relationship_import_root_suffix
@@ -1699,7 +2024,9 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             package_root = override.split("/", 1)[0]
         return package_root.endswith(suffix)
 
-    def _render_function(self, writer: CodeSectionWriter, function_config: FunctionConfig, schema: str) -> None:
+    def _render_function(
+        self, writer: CodeSectionWriter, function_config: FunctionConfig, schema: str
+    ) -> None:
         """
         Render a standalone function.
 
@@ -1718,7 +2045,11 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                     code_section=code_section,
                     segments=segments,
                     is_public=True,
-                    description=function_config.description if function_config.description else None,
+                    description=(
+                        function_config.description
+                        if function_config.description
+                        else None
+                    ),
                 ),
             ),
             qualname=function_config.name,
@@ -1752,10 +2083,17 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
         type_info = resolve_type_info(attr_config)
 
         base_type = "dynamic"
-        if type_info.kind == AttributeTypeDescriptorKind.primitive and type_info.primitive_config:
-            prim = CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type)
+        if (
+            type_info.kind == AttributeTypeDescriptorKind.primitive
+            and type_info.primitive_config
+        ):
+            prim = CodePrimitiveType.model_validate(
+                type_info.primitive_config.primitive_type
+            )
             base_type = self._primitive_codec.render(prim) or "dynamic"
-        elif type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config:
+        elif (
+            type_info.kind == AttributeTypeDescriptorKind.enum and type_info.enum_config
+        ):
             enum_id = type_info.enum_config.id
             # Use enum type when:
             # - it is emitted in this file (no import needed), OR
@@ -1771,7 +2109,10 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
                 else:
                     # Otherwise fall back to String so codegen can proceed without an unresolved symbol.
                     base_type = "String"
-        elif type_info.kind == AttributeTypeDescriptorKind.class_ and type_info.class_config:
+        elif (
+            type_info.kind == AttributeTypeDescriptorKind.class_
+            and type_info.class_config
+        ):
             base_type = to_pascal_case(type_info.class_config.name)
 
         # Descriptor-first: collection kind is SSOT (e.g. `String[]` in `.aware` must become `List<String>` in Dart).
@@ -1782,13 +2123,17 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
 
         return base_type
 
-    def _get_type_from_primitive_type(self, dart_primitive_type: CodePrimitiveType) -> str:
+    def _get_type_from_primitive_type(
+        self, dart_primitive_type: CodePrimitiveType
+    ) -> str:
         # Back-compat helper kept temporarily; SSOT is the primitive codec.
         return self._primitive_codec.render(dart_primitive_type) or "dynamic"
 
     # Descriptor-driven helpers -------------------------------------------------
 
-    def _relationship_is_list_from_descriptor(self, attr_config: AttributeConfig) -> bool:
+    def _relationship_is_list_from_descriptor(
+        self, attr_config: AttributeConfig
+    ) -> bool:
         """
         Determine whether a relationship attribute is a collection using its descriptor tree.
 
@@ -1800,13 +2145,18 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
             type_info = resolve_type_info(attr_config)
             return bool(type_info.is_collection)
         except Exception as e:
-            logger.debug(f"Descriptor collection inference failed for {attr_config.name}: {e}")
+            logger.debug(
+                f"Descriptor collection inference failed for {attr_config.name}: {e}"
+            )
             return False
 
     def _is_enum_type(self, attr_config: AttributeConfig) -> bool:
         """Check if the attribute is an enum type."""
         type_info = resolve_type_info(attr_config)
-        if type_info.kind != AttributeTypeDescriptorKind.enum or type_info.enum_config is None:
+        if (
+            type_info.kind != AttributeTypeDescriptorKind.enum
+            or type_info.enum_config is None
+        ):
             return False
         enum_id = type_info.enum_config.id
         if enum_id in self._local_enum_ids:
@@ -1837,14 +2187,107 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
     def _is_optional_on_constructor(self, attr_config: AttributeConfig) -> bool:
         """Check if the attribute is optional in the constructor."""
         # ID is optional in constructor as it has a default
-        return attr_config.name in ["id"] or not attr_config.is_required
+        return (
+            attr_config.name in ["id"]
+            or attr_config.default_value is not None
+            or not attr_config.is_required
+        )
+
+    def _attribute_default_expr(self, attr_config: AttributeConfig) -> str | None:
+        if attr_config.default_value is None:
+            return None
+        value = json.loads(attr_config.default_value)
+        if value is None:
+            if attr_config.is_required:
+                raise ValueError(
+                    f"Required Dart attribute {attr_config.name!r} cannot use a null default."
+                )
+            return None
+        type_info = resolve_type_info(attr_config)
+        if (
+            type_info.kind == AttributeTypeDescriptorKind.primitive
+            and type_info.primitive_config is not None
+            and not type_info.is_collection
+        ):
+            primitive_type = CodePrimitiveType.model_validate(
+                type_info.primitive_config.primitive_type
+            )
+            literal = self._primitive_codec.to_typed_literal_string(
+                value,
+                primitive_type,
+            )
+            if primitive_type.base_type == CodePrimitiveBaseType.datetime:
+                return f"DateTime.parse({literal})"
+            if primitive_type.base_type == CodePrimitiveBaseType.uuid:
+                return f"UuidValue.fromString({literal})"
+            if primitive_type.base_type == CodePrimitiveBaseType.bytes:
+                return f"Uint8List.fromList({literal})"
+            return literal
+        if (
+            type_info.kind == AttributeTypeDescriptorKind.enum
+            and type_info.enum_config is not None
+        ):
+            if not isinstance(value, str):
+                raise ValueError(
+                    f"Dart enum default for {attr_config.name!r} must be a string."
+                )
+            enum_config = type_info.enum_config
+            option = next(
+                (
+                    candidate
+                    for candidate in enum_config.enum_options
+                    if candidate.value == value
+                ),
+                None,
+            )
+            if option is None:
+                raise ValueError(
+                    f"Unknown Dart enum default {value!r} for "
+                    f"{enum_config.name}.{attr_config.name}."
+                )
+            rendered_name = to_camel_case(option.value)
+            overlay = self.get_overlay_by_entity_id(
+                CodeSectionAnnotationOverlayEntity.enum_option,
+                option.id,
+            )
+            if overlay is not None:
+                if not isinstance(overlay, EnumOptionOverlay):
+                    raise ValueError(
+                        f"Overlay for enum option {option.id} is not an EnumOptionOverlay"
+                    )
+                if overlay.rendered_name:
+                    rendered_name = overlay.rendered_name
+            return f"{enum_config.name}.{rendered_name}"
+        raise ValueError(
+            f"Unsupported Dart default domain for attribute {attr_config.name!r}."
+        )
+
+    def _json_default_expr(self, attr_config: AttributeConfig) -> str | None:
+        if attr_config.default_value is None:
+            return None
+        value = json.loads(attr_config.default_value)
+        if value is None:
+            return None
+        self._attribute_default_expr(attr_config)
+        return self._primitive_codec.to_literal_string(value)
+
+    def _attribute_wire_name(self, attr_config: AttributeConfig) -> str:
+        overlay = self.get_overlay_by_entity_id(
+            CodeSectionAnnotationOverlayEntity.attribute,
+            attr_config.id,
+        )
+        if isinstance(overlay, AttributeConfigOverlay) and overlay.wire_name:
+            return overlay.wire_name
+        return to_snake_case(attr_config.name)
 
     def _should_default_empty_list(self, attr_config: AttributeConfig) -> bool:
         """Return True when the attribute is a list collection that should default to empty."""
         type_info = resolve_type_info(attr_config)
         return type_info.collection_kind == AttributeCollectionType.list
 
-    def _attribute_is_base_type(self, attr_config: AttributeConfig, base_type: CodePrimitiveBaseType) -> bool:
+    def _attribute_is_base_type(
+        self, attr_config: AttributeConfig, base_type: CodePrimitiveBaseType
+    ) -> bool:
         """
         Determine whether the given attribute uses a primitive type of the given base type.
 
@@ -1853,9 +2296,14 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
         unions and nested container types.
         """
         type_info = resolve_type_info(attr_config)
-        if type_info.kind != AttributeTypeDescriptorKind.primitive or type_info.primitive_config is None:
+        if (
+            type_info.kind != AttributeTypeDescriptorKind.primitive
+            or type_info.primitive_config is None
+        ):
             return False
-        code_primitive_type = CodePrimitiveType.model_validate(type_info.primitive_config.primitive_type)
+        code_primitive_type = CodePrimitiveType.model_validate(
+            type_info.primitive_config.primitive_type
+        )
         return self._primitive_type_uses_base_type(code_primitive_type, base_type)
 
     def _primitive_type_uses_base_type(
@@ -1875,23 +2323,38 @@ class DartRenderer(ObjectConfigGraphRendererLanguage):
 
         # Union types – check all union members (e.g. Bytes? => UNION[BYTES, NULL])
         if bt == CodePrimitiveBaseType.union and dart_primitive_type.union_types:
-            return any(self._primitive_type_uses_base_type(t, base_type) for t in dart_primitive_type.union_types)
+            return any(
+                self._primitive_type_uses_base_type(t, base_type)
+                for t in dart_primitive_type.union_types
+            )
 
         # Arrays – check the item type
         if bt == CodePrimitiveBaseType.array and dart_primitive_type.item_type:
-            return self._primitive_type_uses_base_type(dart_primitive_type.item_type, base_type)
+            return self._primitive_type_uses_base_type(
+                dart_primitive_type.item_type, base_type
+            )
 
         # Dicts – check key/value types (conservative)
         if bt == CodePrimitiveBaseType.dict:
             key = dart_primitive_type.key_type
             value = dart_primitive_type.value_type
-            return any(self._primitive_type_uses_base_type(t, base_type) for t in (key, value) if t is not None)
+            return any(
+                self._primitive_type_uses_base_type(t, base_type)
+                for t in (key, value)
+                if t is not None
+            )
 
         return False
 
 
-def _normalize_relative_import_path(*, import_path: str, current_module: str | None) -> str:
-    if current_module is None or import_path.startswith("package:") or import_path.startswith("dart:"):
+def _normalize_relative_import_path(
+    *, import_path: str, current_module: str | None
+) -> str:
+    if (
+        current_module is None
+        or import_path.startswith("package:")
+        or import_path.startswith("dart:")
+    ):
         return import_path
     current_path = PurePosixPath(current_module)
     target_path = PurePosixPath(import_path)

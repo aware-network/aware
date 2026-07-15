@@ -1,0 +1,140 @@
+sdk aware_sdk {
+    "Canonical actor-facing Aware client and renderer over Interface SDK."
+
+    api interface
+
+    surface interface_session {
+        "Durable Interface attachment to one canonical Identity Session."
+
+        method start {
+            "Start or resolve one commit-backed InterfaceSession shared door."
+            operation start_interface_session
+            method_family ensure
+            effect write
+            mutation_scope remote_service
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+
+        method ensure {
+            "Admit or resume one actor-facing Interface namespace."
+            operation admit_interface
+            method_family ensure
+            effect write
+            mutation_scope remote_service
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+    }
+
+    surface app_session {
+        "Actor attachment to one committed App screen through Interface authority."
+
+        method enter {
+            "Enter and render one screen from a committed aware.app.launch.v0 descriptor."
+            operation enter_app_screen
+            method_family ensure
+            effect write
+            mutation_scope remote_service
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+
+        method watch {
+            "Follow committed Interface surface transitions after App screen entry."
+            operation watch_current_surface
+            method_family retrieve
+            effect stream
+            mutation_scope none
+            confirmation_policy none
+            execution_mode stream
+            runtime_binding_kind composed
+        }
+    }
+
+    surface current_surface {
+        "Current Interface screen, pane, and action state rendered for one actor."
+
+        method retrieve {
+            "Read and render the current Interface surface."
+            operation get_current_surface
+            method_family retrieve
+            effect read
+            mutation_scope none
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+
+        method list {
+            "List the panes and declared actions on the current Interface surface."
+            operation list_current_panes
+            method_family list
+            effect read
+            mutation_scope none
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+
+        method invoke {
+            "Perform one action declared by the current Interface and Experience surface."
+            operation perform_current_action
+            method_family invoke
+            effect write
+            mutation_scope remote_service
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+
+        method watch {
+            "Follow committed Interface surface transitions for the admitted actor."
+            operation watch_current_surface
+            method_family retrieve
+            effect stream
+            mutation_scope none
+            confirmation_policy none
+            execution_mode stream
+            runtime_binding_kind composed
+        }
+    }
+
+    operation admit_interface {
+        "Admit or resume one actor-facing Interface namespace."
+        operation interface_sdk.admit_interface
+    }
+
+    operation start_interface_session {
+        "Start or resolve one durable InterfaceSession through Interface service authority."
+        operation interface_sdk.start_interface_session
+    }
+
+    operation get_current_surface {
+        "Read the canonical Interface state rendered as the actor's current surface."
+        operation interface_sdk.get_interface_state
+    }
+
+    operation enter_app_screen {
+        "Enter one committed App screen through the shared Interface SDK rail."
+        operation interface_sdk.enter_app_screen
+    }
+
+    operation list_current_panes {
+        "List panes and declared actions from the canonical Interface state."
+        operation interface_sdk.get_interface_state
+    }
+
+    operation perform_current_action {
+        "Perform one current-surface action through Interface authority."
+        operation interface_sdk.perform_interface_action
+    }
+
+    operation watch_current_surface {
+        "Watch canonical Interface state transitions."
+        operation interface_sdk.watch_interface_state
+    }
+}

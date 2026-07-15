@@ -1,0 +1,27 @@
+class ServiceContractOperationQuotaPolicy {
+    // Attributes
+    burst_limit Int?
+    fail_closed Bool = true
+    limit_amount Int?
+    over_limit_behavior ServiceContractOperationQuotaOverLimitBehavior = deny
+    unit ServiceContractOperationQuotaUnit = operation
+    window ServiceContractOperationQuotaWindow = none
+
+    fn build construct (
+        unit ServiceContractOperationQuotaUnit = operation,
+        limit_amount Int? = null,
+        window ServiceContractOperationQuotaWindow = none,
+        burst_limit Int? = null,
+        over_limit_behavior ServiceContractOperationQuotaOverLimitBehavior = deny,
+        fail_closed Bool = true
+    ) -> ServiceContractOperationQuotaPolicy {
+        """
+        Creates the Service-owned quota policy intent for one operation grant.
+
+        Contract:
+        - Parent ServiceContractConfigOperationGrant scope is propagated by constructor lowering.
+        - Quota policy declares usage allowance intent only.
+        - Metering, billing, and financial settlement remain downstream runtime/Economy concerns.
+        """
+    }
+}

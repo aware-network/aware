@@ -1,0 +1,47 @@
+sdk network_sdk {
+    "Canonical Network SDK operations over the Network service API."
+
+    api network
+
+    operation reconcile_node_publication {
+        "Reconcile one complete Node runtime publication through canonical Network Service authority."
+        endpoint network.publication.reconcile_node_publication
+    }
+
+    operation upsert_peer {
+        "Upsert one canonical NetworkNodePeer edge used for node-to-node routing."
+        endpoint network.peer.upsert
+    }
+
+    operation list_peers {
+        "List peer edges for one NetworkNode from Network Service topology truth."
+        endpoint network.peer.list
+        view network.territory_discovery
+    }
+
+    operation list_hosted_services {
+        "List hosted Service advertisements for one NetworkNode."
+        endpoint network.hosted_service.list
+        view network.territory_discovery
+        view network.session_status
+    }
+
+    operation list_environments {
+        "List Environment advertisements known to Network Service topology truth."
+        endpoint network.environment.list
+        view network.territory_discovery
+        view network.session_status
+    }
+
+    operation resolve_hosted_service_routes {
+        "Resolve remote hosted-Service routes for a consumer NetworkNode."
+        endpoint network.route.resolve_hosted_service_routes
+    }
+
+    operation discover_territory {
+        "Resolve the Control territory read model."
+        endpoint network.discovery.discover_territory
+        view network.territory_discovery
+        view network.session_status
+    }
+}

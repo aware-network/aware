@@ -1,0 +1,204 @@
+aware = 1
+
+[[programs]]
+ref = "economy:EnsureExternalCapitalProviderRoute_v0"
+path = "programs/seed/ensure_external_capital_provider_route_v0.aware"
+name = "EnsureExternalCapitalProviderRoute_v0"
+dependencies = [
+  "economy-ontology",
+]
+required_symbols = [
+  "plan.provider_finance_entity_id",
+  "plan.provider_key",
+  "plan.provider_label",
+  "plan.route_key",
+  "plan.coin_symbol",
+  "plan.coin_name",
+  "plan.coin_decimals",
+  "plan.external_currency",
+  "plan.external_minor_unit_exponent",
+  "plan.min_external_amount_minor",
+  "plan.max_external_amount_minor",
+]
+optional_symbols = ["plan.environment_id", "plan.process_id", "plan.thread_id"]
+
+[[programs]]
+ref = "economy:EnsureProviderEconomyCatalog_v0"
+path = "programs/seed/ensure_provider_economy_catalog_v0.aware"
+name = "EnsureProviderEconomyCatalog_v0"
+dependencies = [
+  "economy-ontology",
+  "identity-ontology",
+]
+required_symbols = [
+  "plan.provider_identity_id",
+  "plan.provider_actor_id",
+  "plan.smart_contract_config_name",
+  "plan.smart_contract_type",
+  "plan.smart_contract_address",
+]
+optional_symbols = ["plan.environment_id", "plan.process_id", "plan.thread_id"]
+
+[[programs]]
+ref = "economy:EconomySettlementRoleConfigPolicies_v1"
+path = "programs/policy/economy_settlement_role_config_policies_v1.aware"
+name = "EconomySettlementRoleConfigPolicies_v1"
+dependencies = [
+  "economy-ontology",
+  "identity-ontology",
+  "meta-ontology",
+]
+required_symbols = [
+  "plan.role_config_name",
+]
+optional_symbols = [
+  "plan.role_config_description",
+  "plan.environment_id",
+  "plan.process_id",
+  "plan.thread_id",
+]
+
+[[programs]]
+ref = "economy:ReconcileTransferWalletBalances_v1"
+path = "programs/finance/reconcile_transfer_wallet_balances_v1.aware"
+name = "ReconcileTransferWalletBalances_v1"
+dependencies = [
+  "economy-ontology",
+]
+required_symbols = [
+  "plan.source_wallet_id",
+  "plan.source_expected_coin_balance",
+  "plan.source_new_coin_balance",
+  "plan.target_wallet_id",
+  "plan.target_expected_coin_balance",
+  "plan.target_new_coin_balance",
+  "plan.coin_id",
+]
+optional_symbols = ["plan.environment_id", "plan.process_id", "plan.thread_id"]
+
+[[programs]]
+ref = "economy:EnsureEconomyActorRoleBindingFromBranch_v1"
+path = "programs/policy/ensure_economy_actor_role_binding_from_branch_v1.aware"
+name = "EnsureEconomyActorRoleBindingFromBranch_v1"
+dependencies = [
+  "economy-ontology",
+  "identity-ontology",
+  "meta-ontology",
+]
+required_symbols = [
+  "plan.actor_id",
+  "plan.actor_identity_branch_id",
+  "plan.role_config_name",
+  "plan.economy_domain_branch_id",
+]
+optional_symbols = ["plan.environment_id", "plan.process_id", "plan.thread_id"]
+
+[[programs]]
+ref = "economy:CreateWalletTransfer_v1"
+path = "programs/transaction/create_wallet_transfer_v1.aware"
+name = "CreateWalletTransfer_v1"
+dependencies = [
+  "economy-ontology",
+]
+required_symbols = [
+  "plan.transaction_id",
+  "plan.source_wallet_id",
+  "plan.source_wallet_public_id",
+  "plan.target_wallet_id",
+  "plan.target_wallet_public_id",
+  "plan.coin_id",
+  "plan.coin_amount",
+  "plan.nonce",
+  "plan.source_expected_coin_balance",
+  "plan.source_new_coin_balance",
+  "plan.target_expected_coin_balance",
+  "plan.target_new_coin_balance",
+  "plan.wallet_source_wallet_id_branch_id",
+  "plan.wallet_target_wallet_id_branch_id",
+  "plan.reconcile_transfer_wallet_balances_invocation_plan_artifact",
+]
+optional_symbols = [
+  "plan.description",
+  "plan.idempotency_key",
+  "plan.environment_id",
+  "plan.process_id",
+  "plan.thread_id",
+]
+
+[[programs]]
+ref = "economy:SettleSmartContractReservation_v0"
+path = "programs/settlement/settle_smart_contract_reservation_v0.aware"
+name = "SettleSmartContractReservation_v0"
+dependencies = [
+  "economy-ontology",
+]
+required_symbols = [
+  "plan.smart_contract_id",
+  "plan.permit_id",
+  "plan.reservation_id",
+  "plan.service_request_id",
+  "plan.final_cost",
+  "plan.service_operation_config_id",
+  "plan.payer_finance_entity_id",
+  "plan.payer_wallet_public_id",
+  "plan.receiver_finance_entity_id",
+  "plan.receiver_wallet_public_id",
+  "plan.coin_id",
+  "plan.reservation_op_nonce",
+]
+optional_symbols = ["plan.environment_id", "plan.process_id", "plan.thread_id"]
+
+[[programs]]
+ref = "economy:SettleSmartContractReservation_v1"
+path = "programs/settlement/settle_smart_contract_reservation_v1.aware"
+name = "SettleSmartContractReservation_v1"
+dependencies = [
+  "economy-ontology",
+]
+required_symbols = [
+  "plan.smart_contract_id",
+  "plan.permit_id",
+  "plan.reservation_id",
+  "plan.service_request_id",
+  "plan.service_operation_config_id",
+  "plan.payer_finance_entity_id",
+  "plan.payer_wallet_public_id",
+  "plan.receiver_finance_entity_id",
+  "plan.receiver_wallet_public_id",
+  "plan.coin_id",
+  "plan.reservation_op_nonce",
+]
+optional_symbols = ["plan.environment_id", "plan.process_id", "plan.thread_id"]
+
+[[programs]]
+ref = "economy:SettleSmartContractReservation_v2"
+path = "programs/settlement/settle_smart_contract_reservation_v2.aware"
+name = "SettleSmartContractReservation_v2"
+dependencies = [
+  "economy-ontology",
+]
+required_symbols = [
+  "plan.smart_contract_id",
+  "plan.permit_id",
+  "plan.reservation_id",
+  "plan.payer_finance_entity_id",
+  "plan.payer_wallet_id",
+  "plan.payer_wallet_public_id",
+  "plan.payer_expected_coin_balance",
+  "plan.payer_new_coin_balance",
+  "plan.receiver_finance_entity_id",
+  "plan.receiver_wallet_id",
+  "plan.receiver_wallet_public_id",
+  "plan.receiver_expected_coin_balance",
+  "plan.receiver_new_coin_balance",
+  "plan.coin_id",
+  "plan.escrow_id",
+  "plan.wallet_payer_wallet_id_branch_id",
+  "plan.wallet_receiver_wallet_id_branch_id",
+  "plan.reconcile_transfer_wallet_balances_invocation_plan_artifact",
+]
+optional_symbols = [
+  "plan.environment_id",
+  "plan.process_id",
+  "plan.thread_id",
+]

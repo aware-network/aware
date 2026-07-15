@@ -1,0 +1,276 @@
+/// Canonical request/response DTOs for the Experience section-graph-binding service boundary.
+///
+/// These are transport-level DTOs over Experience-owned section-graph-binding semantics.
+/// They do not replace ontology truth and they do not authorize direct Attention mutation.
+
+class ExperienceSectionGraphBindingServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class ExperienceSectionGraphBindingServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+    state section_graph_binding.ExperienceSectionGraphBindingState?
+    snapshot section_graph_binding.ExperienceSectionGraphBindingStateSnapshot?
+}
+
+class GetExperienceSectionGraphBindingCatalogRequest augment section_graph_binding.ExperienceSectionGraphBindingServiceRequest {
+    operation String = "get_experience_section_graph_binding_catalog"
+    experience_name String
+    section_keys String[] = []
+    binding_keys String[] = []
+}
+
+class GetExperienceSectionGraphBindingCatalogResponse augment section_graph_binding.ExperienceSectionGraphBindingServiceResponse {
+    operation String = "get_experience_section_graph_binding_catalog"
+    experience_name String
+    catalog_revision String?
+    bindings section_graph_binding.ExperienceSectionGraphBindingDescriptor[] = []
+}
+
+class GetExperienceLayoutGraphBindingCatalogRequest augment section_graph_binding.ExperienceSectionGraphBindingServiceRequest {
+    operation String = "get_experience_layout_graph_binding_catalog"
+    experience_name String
+    layout_binding_keys String[] = []
+}
+
+class GetExperienceLayoutGraphBindingCatalogResponse augment section_graph_binding.ExperienceSectionGraphBindingServiceResponse {
+    operation String = "get_experience_layout_graph_binding_catalog"
+    experience_name String
+    catalog_revision String?
+    bindings section_graph_binding.ExperienceLayoutGraphBindingDescriptor[] = []
+}
+
+class GetExperienceSectionGraphBindingStateRequest augment section_graph_binding.ExperienceSectionGraphBindingServiceRequest {
+    operation String = "get_experience_section_graph_binding_state"
+    experience_name String
+    binding_key String
+}
+
+class GetExperienceSectionGraphBindingStateResponse augment section_graph_binding.ExperienceSectionGraphBindingServiceResponse {
+    operation String = "get_experience_section_graph_binding_state"
+    experience_name String
+    catalog_revision String?
+    state section_graph_binding.ExperienceSectionGraphBindingState
+}
+
+class GetExperienceLayoutGraphBindingStateRequest augment section_graph_binding.ExperienceSectionGraphBindingServiceRequest {
+    operation String = "get_experience_layout_graph_binding_state"
+    experience_name String
+    layout_binding_key String
+}
+
+class GetExperienceLayoutGraphBindingStateResponse augment section_graph_binding.ExperienceSectionGraphBindingServiceResponse {
+    operation String = "get_experience_layout_graph_binding_state"
+    experience_name String
+    catalog_revision String?
+    state section_graph_binding.ExperienceLayoutGraphBindingState
+}
+
+class ExperienceSectionGraphBindingActivationScope {
+    window_key String?
+    layout_key String?
+    section_key String?
+    layout_section_id UUID?
+    section_focus_scope_id UUID?
+    focus_scope_id UUID?
+    observable_id UUID?
+    branch_id UUID?
+    state_projection_hash String?
+    focus_target section_graph_binding.ExperienceSectionFocusTarget?
+}
+
+class ActivateExperienceSectionGraphBindingRequest augment section_graph_binding.ExperienceSectionGraphBindingServiceRequest {
+    operation String = "activate_experience_section_graph_binding"
+    experience_name String
+    binding_key String
+    activation_scope section_graph_binding.ExperienceSectionGraphBindingActivationScope?
+    rationale String?
+    section_title String?
+    section_description String?
+    focus_scope_title String?
+    focus_scope_description String?
+}
+
+class ActivateExperienceSectionGraphBindingResponse augment section_graph_binding.ExperienceSectionGraphBindingServiceResponse {
+    operation String = "activate_experience_section_graph_binding"
+    experience_name String
+    catalog_revision String?
+    state section_graph_binding.ExperienceSectionGraphBindingState
+}
+
+class ActivateExperienceLayoutGraphBindingRequest augment section_graph_binding.ExperienceSectionGraphBindingServiceRequest {
+    operation String = "activate_experience_layout_graph_binding"
+    experience_name String
+    layout_binding_key String
+    activation_scope section_graph_binding.ExperienceSectionGraphBindingActivationScope?
+    rationale String?
+    section_title String?
+    section_description String?
+    focus_scope_title String?
+    focus_scope_description String?
+}
+
+class ActivateExperienceLayoutGraphBindingResponse augment section_graph_binding.ExperienceSectionGraphBindingServiceResponse {
+    operation String = "activate_experience_layout_graph_binding"
+    experience_name String
+    catalog_revision String?
+    state section_graph_binding.ExperienceLayoutGraphBindingState
+}
+
+class ExperienceViewEventTransitionTrigger {
+    source_view_ref String?
+    event_id UUID?
+    event_type String
+    action_intent_id UUID?
+    action_type String?
+}
+
+class ExperienceViewEventTransitionTarget {
+    target_view_ref String
+    target_binding_key String
+    target_section_key String?
+    target_graph_identity_ref String?
+    section_view section_graph_binding.ExperienceSectionViewResolution?
+}
+
+class ExperienceViewEventTransitionReceipt {
+    transition_key String
+    experience_name String
+    trigger section_graph_binding.ExperienceViewEventTransitionTrigger
+    target section_graph_binding.ExperienceViewEventTransitionTarget
+    state section_graph_binding.ExperienceSectionGraphBindingState
+    info String?
+}
+
+class ApplyExperienceViewEventTransitionRequest augment section_graph_binding.ExperienceSectionGraphBindingServiceRequest {
+    operation String = "apply_experience_view_event_transition"
+    experience_name String
+    profile_key String?
+    transition_key String
+    source_view_ref String?
+    event_id UUID?
+    event_type String
+    action_intent_id UUID?
+    action_type String?
+    target_view_ref String?
+    target_binding_key String?
+    target_section_key String?
+    target_graph_identity_ref String?
+    activation_scope section_graph_binding.ExperienceSectionGraphBindingActivationScope?
+    rationale String?
+    section_title String?
+    section_description String?
+    focus_scope_title String?
+    focus_scope_description String?
+}
+
+class ApplyExperienceViewEventTransitionResponse augment section_graph_binding.ExperienceSectionGraphBindingServiceResponse {
+    operation String = "apply_experience_view_event_transition"
+    experience_name String
+    catalog_revision String?
+    receipt section_graph_binding.ExperienceViewEventTransitionReceipt
+    state section_graph_binding.ExperienceSectionGraphBindingState
+}
+
+class RecordExperienceViewInvocationActionRequest augment section_graph_binding.ExperienceSectionGraphBindingServiceRequest {
+    operation String = "record_experience_view_invocation_action"
+    experience_name String
+    projection_experience_view_instance_id UUID
+    view_invocation_action_config_id UUID
+    invocation_key UUID
+    actor_id UUID?
+    api_call_id UUID?
+    sdk_operation_call_id UUID?
+    request_ref String?
+    receipt_ref String?
+    status String = "pending"
+}
+
+class RecordExperienceViewInvocationActionResponse augment section_graph_binding.ExperienceSectionGraphBindingServiceResponse {
+    operation String = "record_experience_view_invocation_action"
+    experience_name String
+    receipt section_graph_binding.ExperienceViewInvocationActionReceipt
+}
+
+class InvokeExperienceViewInvocationActionRequest augment section_graph_binding.ExperienceSectionGraphBindingServiceRequest {
+    operation String = "invoke_experience_view_invocation_action"
+    experience_name String
+    projection_experience_view_instance_id UUID
+    view_invocation_action_config_id UUID
+    invocation_key UUID
+    actor_id UUID?
+    admitted_actor_role_bindings actor_admission.ExperienceActorConfigRoleAdmissionBinding[] = []
+    admission_evidence JsonObject = {}
+    request_payload JsonObject = {}
+    request_ref String?
+    receipt_ref String?
+}
+
+class InvokeExperienceViewInvocationActionResponse augment section_graph_binding.ExperienceSectionGraphBindingServiceResponse {
+    operation String = "invoke_experience_view_invocation_action"
+    experience_name String
+    receipt section_graph_binding.ExperienceViewInvocationActionReceipt?
+    admission_preflight section_graph_binding.ExperienceInvocationActionAdmissionPreflight?
+    api_dispatch_receipt section_graph_binding.ExperienceViewInvocationActionApiDispatchReceipt?
+    response_payload JsonValue?
+}
+
+class ResolveExperienceInvocationActionRolePolicyRequest augment section_graph_binding.ExperienceSectionGraphBindingServiceRequest {
+    operation String = "resolve_experience_invocation_action_role_policy"
+    experience_name String
+    experience_invocation_action_config_id UUID
+    action_key String?
+}
+
+class ResolveExperienceInvocationActionRolePolicyResponse augment section_graph_binding.ExperienceSectionGraphBindingServiceResponse {
+    operation String = "resolve_experience_invocation_action_role_policy"
+    experience_name String
+    accepted Bool = false
+    status String
+    resolution section_graph_binding.ExperienceInvocationActionRolePolicyResolution
+}
+
+class WatchExperienceSectionGraphBindingsRequest augment section_graph_binding.ExperienceSectionGraphBindingServiceRequest {
+    operation String = "watch_experience_section_graph_bindings"
+    experience_name String
+    section_keys String[] = []
+    binding_keys String[] = []
+    poll_interval_ms Int = 1000
+}
+
+class WatchExperienceSectionGraphBindingsResponse augment section_graph_binding.ExperienceSectionGraphBindingServiceResponse {
+    operation String = "watch_experience_section_graph_bindings"
+    experience_name String
+    snapshot section_graph_binding.ExperienceSectionGraphBindingStateSnapshot
+}
+
+ann section_graph_binding.ExperienceSectionGraphBindingServiceRequest::operation discriminate key
+ann section_graph_binding.GetExperienceSectionGraphBindingCatalogRequest::operation discriminate tag "get_experience_section_graph_binding_catalog"
+ann section_graph_binding.GetExperienceLayoutGraphBindingCatalogRequest::operation discriminate tag "get_experience_layout_graph_binding_catalog"
+ann section_graph_binding.GetExperienceSectionGraphBindingStateRequest::operation discriminate tag "get_experience_section_graph_binding_state"
+ann section_graph_binding.GetExperienceLayoutGraphBindingStateRequest::operation discriminate tag "get_experience_layout_graph_binding_state"
+ann section_graph_binding.ActivateExperienceSectionGraphBindingRequest::operation discriminate tag "activate_experience_section_graph_binding"
+ann section_graph_binding.ActivateExperienceLayoutGraphBindingRequest::operation discriminate tag "activate_experience_layout_graph_binding"
+ann section_graph_binding.ApplyExperienceViewEventTransitionRequest::operation discriminate tag "apply_experience_view_event_transition"
+ann section_graph_binding.RecordExperienceViewInvocationActionRequest::operation discriminate tag "record_experience_view_invocation_action"
+ann section_graph_binding.InvokeExperienceViewInvocationActionRequest::operation discriminate tag "invoke_experience_view_invocation_action"
+ann section_graph_binding.ResolveExperienceInvocationActionRolePolicyRequest::operation discriminate tag "resolve_experience_invocation_action_role_policy"
+ann section_graph_binding.WatchExperienceSectionGraphBindingsRequest::operation discriminate tag "watch_experience_section_graph_bindings"
+
+ann section_graph_binding.ExperienceSectionGraphBindingServiceResponse::operation discriminate key
+ann section_graph_binding.GetExperienceSectionGraphBindingCatalogResponse::operation discriminate tag "get_experience_section_graph_binding_catalog"
+ann section_graph_binding.GetExperienceLayoutGraphBindingCatalogResponse::operation discriminate tag "get_experience_layout_graph_binding_catalog"
+ann section_graph_binding.GetExperienceSectionGraphBindingStateResponse::operation discriminate tag "get_experience_section_graph_binding_state"
+ann section_graph_binding.GetExperienceLayoutGraphBindingStateResponse::operation discriminate tag "get_experience_layout_graph_binding_state"
+ann section_graph_binding.ActivateExperienceSectionGraphBindingResponse::operation discriminate tag "activate_experience_section_graph_binding"
+ann section_graph_binding.ActivateExperienceLayoutGraphBindingResponse::operation discriminate tag "activate_experience_layout_graph_binding"
+ann section_graph_binding.ApplyExperienceViewEventTransitionResponse::operation discriminate tag "apply_experience_view_event_transition"
+ann section_graph_binding.RecordExperienceViewInvocationActionResponse::operation discriminate tag "record_experience_view_invocation_action"
+ann section_graph_binding.InvokeExperienceViewInvocationActionResponse::operation discriminate tag "invoke_experience_view_invocation_action"
+ann section_graph_binding.ResolveExperienceInvocationActionRolePolicyResponse::operation discriminate tag "resolve_experience_invocation_action_role_policy"
+ann section_graph_binding.WatchExperienceSectionGraphBindingsResponse::operation discriminate tag "watch_experience_section_graph_bindings"

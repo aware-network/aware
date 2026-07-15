@@ -1,0 +1,38 @@
+class PriceReservation {
+    // Attributes
+    actual_cost_basis_amount Decimal?
+    actual_markup_amount Decimal?
+    additional_metadata JsonObject? = {}
+    final_amount Decimal?
+    meter_evidence_ref String?
+    reservation_key String key
+    reserved_at DateTime
+    status PriceReservationStatus = reserved
+
+    fn build construct (
+        reservation_key String key,
+        reserved_at DateTime,
+        additional_metadata JsonObject? = {},
+        status PriceReservationStatus = reserved
+    ) -> PriceReservation {
+        """
+        Creates one Economy-owned price reservation receipt under a RateSnapshot.
+
+        Receipt: PriceReservation(status=reserved) linked to the authoritative quoted RateSnapshot.
+        """
+    }
+
+    fn set_status (
+        status PriceReservationStatus,
+        final_amount Decimal? = null,
+        actual_cost_basis_amount Decimal? = null,
+        actual_markup_amount Decimal? = null,
+        meter_evidence_ref String? = null
+    ) -> PriceReservation {
+        """
+        Updates one price reservation lifecycle status and optional settled amount.
+
+        Receipt: PriceReservation status/final amount and actual metering transition.
+        """
+    }
+}

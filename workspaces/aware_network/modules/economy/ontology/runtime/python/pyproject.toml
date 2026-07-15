@@ -1,0 +1,49 @@
+[project]
+name = "aware-economy"
+version = "0.1.0"
+description = "Aware economy managing Finances and Blockchain"
+authors = [
+  { name = "Luis Lechuga", email = "luis@aware.run" },
+]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-code",
+  "aware-economy-ontology",
+  "aware-economy-ontology-orm-models",
+  "aware-economy-service-dto",
+  "aware-meta",
+  "aware-orm",
+  "aware-utils",
+  "pydantic>=2.8.2,<3.0.0",
+  "python-dotenv>=1.0.1,<2.0.0",
+  "aiohttp>=3.11.11,<4.0.0",
+  "eth-keys>=0.6.1,<0.7.0",
+  "pydantic-settings>=2.7.1,<3.0.0",
+  "cryptography>=45.0.5,<46.0.0",
+]
+
+[tool.black]
+line-length = 120
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = "E266"
+
+[tool.mypy]
+plugins = ['pydantic.mypy']
+ignore_missing_imports = true
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_economy"]
+
+[tool.aware.tests]
+requires_module = "economy"

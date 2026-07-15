@@ -1,0 +1,25 @@
+class ServiceApiProviderSetServicePackage {
+    // Relationships
+    service_package ServicePackage key
+
+    // Attributes
+    description String?
+    membership_key String?
+
+    fn build construct(
+        service_package_id UUID key,
+        membership_key String? = null,
+        description String? = null
+    ) -> ServiceApiProviderSetServicePackage {
+        """
+        Create one provider-set membership bridge to a committed ServicePackage.
+
+        Contract:
+        - Parent `ServiceApiProviderSet` scope is injected by propagation.
+        - Identity is keyed by the attached `ServicePackage`.
+        - The optional `membership_key` is descriptive routing provenance, not identity.
+        """
+    }
+}
+
+ann service.ServiceApiProviderSetServicePackage::service_package load eager

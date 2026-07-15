@@ -1,0 +1,20 @@
+class ServiceSubscriptionInvoice {
+    // Relationships
+    coin aware_economy.coin.Coin key
+
+    // Attributes
+    amount Decimal key
+    external_invoice_handle String?
+    status ServiceSubscriptionInvoiceStatus = open
+
+    fn build construct (
+        amount Decimal key,
+        coin_id UUID key,
+        external_invoice_handle String? = null,
+        status ServiceSubscriptionInvoiceStatus = open
+    ) -> ServiceSubscriptionInvoice {
+        """
+        Records one invoice under a ServiceSubscription.
+        """
+    }
+}

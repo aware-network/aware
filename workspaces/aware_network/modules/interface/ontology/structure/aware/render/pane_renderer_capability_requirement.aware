@@ -1,0 +1,20 @@
+class PaneRendererCapabilityRequirement {
+    // Attributes
+    capability_kind PaneRenderCapabilityKind key
+    capability_key String key
+    is_required Bool = true
+
+    fn create construct (
+        capability_kind PaneRenderCapabilityKind key,
+        capability_key String key,
+        is_required Bool = true
+    ) -> PaneRendererCapabilityRequirement {
+        """
+        Declare one required or preferred renderer capability.
+
+        Contract:
+        - Renderers decide whether they can satisfy a PaneRenderSpec before attempting render.
+        - Fallback remains a renderer/package policy until the spec grows explicit fallback nodes.
+        """
+    }
+}

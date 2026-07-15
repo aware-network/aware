@@ -1,0 +1,29 @@
+class AppPackageExperiencePackage {
+    // Relationships
+    experience_package aware_experience.environment.ExperiencePackage key
+    experience_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    description String?
+    role String = "experience"
+
+    fn build construct(
+        experience_package_id UUID key,
+        experience_package_object_instance_graph_commit_id UUID? = null,
+        role String = "experience",
+        description String? = null
+    ) -> AppPackageExperiencePackage {
+        """
+        Create one app package dependency on an ExperiencePackage.
+
+        Contract:
+        - Parent AppPackage scope is injected by propagation.
+        - Identity is keyed by the attached ExperiencePackage.
+        - This is the app front door dependency: app screens resolve Experience
+          layout graph bindings, not Environment internals.
+        """
+    }
+}
+
+ann interface.AppPackageExperiencePackage::experience_package load eager
+ann interface.AppPackageExperiencePackage::experience_package_object_instance_graph_commit load eager

@@ -6,7 +6,6 @@ It does not emit or adapt old ``aware_runtime`` handler manifests.
 
 from __future__ import annotations
 
-import json
 import re
 from contextlib import contextmanager
 from pathlib import Path
@@ -15,9 +14,11 @@ from collections.abc import Iterator
 from typing import Mapping
 from uuid import UUID
 
+from aware_code.section.builder_index import CodeSectionBuilderIndex
 from aware_code.section.writer import CodeSectionWriter
 from aware_code_ontology.code.code import Code
 from aware_code_ontology.code.code_enums import CodeLanguage
+from aware_content.builder import get_text
 from aware_meta.graph.config.render.layout_strategy import (
     ObjectConfigGraphRenderLayoutStrategy,
 )
@@ -305,6 +306,21 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
             return
         self._emit_meta_handlers_file(writer=writer)
 
+    def render_provider_source_artifact(self, *, relative_path: Path) -> str:
+        """Render the generated Meta provider through the normal emit path."""
+
+        code = self.create_empty_code()
+        with CodeSectionWriter(
+            code,
+            CodeSectionBuilderIndex(),
+            indent_size=self.indent,
+        ) as writer:
+            self._emit_meta_handlers_file(writer=writer)
+        return self.canonicalize_generated_source(
+            relative_path=relative_path,
+            source=get_text(code.content_part_text),
+        )
+
     def _emit_meta_handlers_file(self, *, writer: CodeSectionWriter) -> None:
         self._render_phase_timings.clear()
         with self._record_render_phase("entries"):
@@ -318,7 +334,8 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
                 "aware_code.types": {"JsonArray", "JsonObject"},
                 "aware_meta.graph.instance.builder": {"build_object_instance_graph"},
                 "aware_meta.graph.instance.diff_orm": {
-                    "build_object_instance_graph_changes_from_orm_change_set"
+                    "OrmChangeTranslationError",
+                    "build_object_instance_graph_changes_from_orm_change_set",
                 },
                 "aware_meta.runtime.handler_executor.contracts": {
                     "MetaGraphHandlerExecutionRequest",
@@ -477,14 +494,34 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
                     f"result = await _call_{self._function_token(owner=owner, fn=fn)}"
                     "(bound_input=bound_input, target=target)\n"
                 )
-                iw.write(
-                    "changes, constructed_class_instance_ids = "
-                    "_changes_from_current_collector(\n"
-                )
+                iw.write("change_evidence = _changes_from_current_collector(\n")
                 with iw:
                     iw.write("request=request,\n")
                     iw.write("pre_state=pre_state,\n")
                 iw.write(")\n")
+                iw.write("if change_evidence is None:\n")
+                with iw:
+                    iw.write("post_oig = _post_oig_with_root_model(\n")
+                    with iw:
+                        iw.write("request=request,\n")
+                        iw.write("pre_state=pre_state,\n")
+                        iw.write("root_model=root_model,\n")
+                    iw.write(")\n")
+                    iw.write(
+                        "return MetaGraphLanguageHandlerExecution(\n"
+                        "    success=True,\n"
+                        '    payload=JsonObject({"value": _json_payload_value(result)}),\n'
+                        "    post_oig=post_oig,\n"
+                        "    root_object_id=root_model.id,\n"
+                        "    root_class_instance_identity_id=pre_state.root_class_instance_identity_id,\n"
+                        "    constructed_class_instance_ids="
+                        "_constructed_class_instance_ids_from_post_oig(\n"
+                        "        pre_state=pre_state,\n"
+                        "        post_oig=post_oig,\n"
+                        "    ),\n"
+                        ")\n"
+                    )
+                iw.write("changes, constructed_class_instance_ids = change_evidence\n")
                 iw.write(
                     "return MetaGraphLanguageHandlerExecution(\n"
                     "    success=True,\n"
@@ -950,28 +987,31 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         *,
         entries: list[tuple[ClassConfig, ClassConfigFunctionConfig, FunctionConfig]],
     ) -> dict[str, set[str]]:
-        if self._function_impl_ownership != "compiler":
-            return {}
         delegate = self._compiler_renderer_delegate()
         imports: dict[str, set[str]] = {}
         for owner, link, fn in entries:
-            sig, generated = self._compiler_render_artifacts(
-                owner=owner,
-                link=link,
-                fn=fn,
-            )
+            generated = None
+            if self._function_impl_ownership == "compiler":
+                sig, generated = self._compiler_render_artifacts(
+                    owner=owner,
+                    link=link,
+                    fn=fn,
+                )
+            else:
+                sig = delegate._render_signature(fn=fn)  # noqa: SLF001
             if generated is not None:
                 imports = self._merge_imports(imports, generated.runtime_imports)
             for param in sig.params:
-                delegate._collect_type_imports(  # noqa: SLF001
-                    imports,
-                    type_annotation=param.type_annotation,
-                )
-                delegate._collect_type_imports_by_id(  # noqa: SLF001
-                    imports,
-                    type_id=param.type_id,
-                    type_name=param.type_name,
-                )
+                if self._function_impl_ownership == "compiler":
+                    delegate._collect_type_imports(  # noqa: SLF001
+                        imports,
+                        type_annotation=param.type_annotation,
+                    )
+                    delegate._collect_type_imports_by_id(  # noqa: SLF001
+                        imports,
+                        type_id=param.type_id,
+                        type_name=param.type_name,
+                    )
                 if (
                     param.default_expr is not None
                     and param.type_id is not None
@@ -983,15 +1023,16 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
                     )  # noqa: SLF001
                     if module:
                         imports.setdefault(module, set()).add(param.type_name)
-            delegate._collect_type_imports(  # noqa: SLF001
-                imports,
-                type_annotation=sig.return_type,
-            )
-            delegate._collect_type_imports_by_id(  # noqa: SLF001
-                imports,
-                type_id=sig.return_type_id,
-                type_name=sig.return_type_name,
-            )
+            if self._function_impl_ownership == "compiler":
+                delegate._collect_type_imports(  # noqa: SLF001
+                    imports,
+                    type_annotation=sig.return_type,
+                )
+                delegate._collect_type_imports_by_id(  # noqa: SLF001
+                    imports,
+                    type_id=sig.return_type_id,
+                    type_name=sig.return_type_name,
+                )
         return imports
 
     def _root_id_helper_source(
@@ -1264,20 +1305,23 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
             '            "Generated Meta instance handler requires an active ORM change collector."\n'
             "        )\n"
             "    change_set = collector.snapshot()\n"
-            "    changes = tuple(\n"
-            "        build_object_instance_graph_changes_from_orm_change_set(\n"
-            "            before_oig=pre_state.before_oig,\n"
-            "            object_instance_graph_identity_id=(\n"
-            "                request.staged_call.lane_scope.object_instance_graph_identity_id\n"
-            "            ),\n"
-            "            ocg=request.execution_plan.index.ocg,\n"
-            "            opg=request.execution_plan.object_projection_graph,\n"
-            "            change_set=change_set,\n"
-            "            class_configs_by_id=dict(request.execution_plan.index.class_configs_by_id),\n"
-            "            relationships_by_id=dict(request.execution_plan.index.relationships_by_id),\n"
-            "            enum_option_resolver=default_meta_enum_option_resolver,\n"
+            "    try:\n"
+            "        changes = tuple(\n"
+            "            build_object_instance_graph_changes_from_orm_change_set(\n"
+            "                before_oig=pre_state.before_oig,\n"
+            "                object_instance_graph_identity_id=(\n"
+            "                    request.staged_call.lane_scope.object_instance_graph_identity_id\n"
+            "                ),\n"
+            "                ocg=request.execution_plan.index.ocg,\n"
+            "                opg=request.execution_plan.object_projection_graph,\n"
+            "                change_set=change_set,\n"
+            "                class_configs_by_id=dict(request.execution_plan.index.class_configs_by_id),\n"
+            "                relationships_by_id=dict(request.execution_plan.index.relationships_by_id),\n"
+            "                enum_option_resolver=default_meta_enum_option_resolver,\n"
+            "            )\n"
             "        )\n"
-            "    )\n"
+            "    except OrmChangeTranslationError:\n"
+            "        return None\n"
             "    constructed_class_instance_ids = tuple(\n"
             "        class_change.class_instance_id\n"
             "        for root_change in changes\n"
@@ -1561,13 +1605,9 @@ class PythonMetaRuntimeHandlersRenderer(ObjectConfigGraphRendererLanguage):
         self,
         edge: FunctionConfigAttributeConfig,
     ) -> str | None:
-        default_value = edge.attribute_config.default_value
-        if default_value is None:
-            return None
-        try:
-            return repr(json.loads(default_value))
-        except Exception:
-            return repr(default_value)
+        return self._compiler_renderer_delegate()._render_default_expr(  # noqa: SLF001
+            edge.attribute_config
+        )
 
     def _runtime_handlers_import_root(self) -> str:
         return self.layout_strategy.import_root or ""

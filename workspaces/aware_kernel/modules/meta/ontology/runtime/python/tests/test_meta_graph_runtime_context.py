@@ -13,6 +13,7 @@ import pytest
 
 from aware_code_ontology.code.code_enums import CodeLanguage
 from aware_code.semantic_materialization import (
+    SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_PREFLIGHT,
     SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_ISOLATE_TARGET_MANIFESTS,
     SEMANTIC_MATERIALIZATION_RUNTIME_TARGET_MANIFEST_POLICY_KEY,
     SEMANTIC_MATERIALIZATION_TARGET_MANIFEST_PATHS_CONTEXT_KEY,
@@ -1225,10 +1226,55 @@ def test_meta_graph_context_strict_catalog_cache_reads_through_materialized_payl
     )
     package_name = "demo-ontology"
     fqn_prefix = "demo"
+    dependency_manifest_path = (
+        workspace_root
+        / "modules"
+        / "dependency"
+        / "structure"
+        / "ontology"
+        / "aware.toml"
+    )
+    dependency_package_name = "dependency-ontology"
+    dependency_fqn_prefix = "dependency"
+    _write_minimal_aware_manifest(
+        manifest_path=dependency_manifest_path,
+        package_name=dependency_package_name,
+        fqn_prefix=dependency_fqn_prefix,
+    )
     _write_minimal_aware_manifest(
         manifest_path=manifest_path,
         package_name=package_name,
         fqn_prefix=fqn_prefix,
+        dependency_package_names=(dependency_package_name,),
+    )
+    dependency_source_graph = _runtime_graph(
+        name="Dependency",
+        fqn_prefix=dependency_fqn_prefix,
+        projection_name="Dependency",
+        projection_hash="sha256:test:Dependency:source",
+    )
+    dependency_graph_id = stable_object_config_graph_id(
+        fqn_prefix=dependency_fqn_prefix,
+        language=CodeLanguage.aware.value,
+    )
+    dependency_source_graph.id = dependency_graph_id
+    for node in dependency_source_graph.object_config_graph_nodes:
+        node.object_config_graph_id = dependency_graph_id
+    for projection in dependency_source_graph.object_projection_graphs:
+        projection.object_config_graph_id = dependency_graph_id
+    dependency_runtime_graph = dependency_source_graph.model_copy(deep=True)
+    dependency_runtime_graph.hash = "sha256:test:Dependency:runtime"
+    dependency_runtime_graph.object_projection_graphs[0].projection_hash = (
+        "sha256:test:Dependency:runtime"
+    )
+    _write_context_graph_cache(
+        workspace_root=workspace_root,
+        manifest_path=dependency_manifest_path,
+        package_name=dependency_package_name,
+        fqn_prefix=dependency_fqn_prefix,
+        graph=dependency_source_graph,
+        runtime_graph=dependency_runtime_graph,
+        dependency_signature=_external_graph_signature(external_graphs=()),
     )
     graph_id = stable_object_config_graph_id(
         fqn_prefix=fqn_prefix,
@@ -1250,12 +1296,33 @@ def test_meta_graph_context_strict_catalog_cache_reads_through_materialized_payl
     runtime_graph.object_projection_graphs[0].projection_hash = (
         "sha256:test:Demo:runtime-from-materialized-cache"
     )
+    derivation_contexts: list[tuple[str, ...]] = []
+
+    def _derive_runtime_graph(
+        *_args: object,
+        **kwargs: object,
+    ) -> SimpleNamespace:
+        external_runtime_graphs = cast(
+            tuple[ObjectConfigGraph, ...],
+            kwargs.get("external_runtime_graphs", ()),
+        )
+        derivation_contexts.append(
+            tuple(str(graph.fqn_prefix or "") for graph in external_runtime_graphs)
+        )
+        return SimpleNamespace(runtime_graph=runtime_graph)
+
     monkeypatch.setattr(
         "aware_meta.runtime.graph_context.derive_runtime_object_config_graph",
-        lambda *_args, **_kwargs: SimpleNamespace(runtime_graph=runtime_graph),
+        _derive_runtime_graph,
     )
     source_manifest_hash = "sha256:test:source-from-committed-materialization"
-    fresh_dependency_signature = _external_graph_signature(external_graphs=())
+    source_dependency_signature = _external_graph_signature(
+        external_graphs=(dependency_source_graph,),
+    )
+    runtime_dependency_signature = _external_graph_signature(
+        external_graphs=(dependency_runtime_graph,),
+    )
+    assert source_dependency_signature != runtime_dependency_signature
     _write_context_graph_cache(
         workspace_root=workspace_root,
         manifest_path=manifest_path,
@@ -1272,24 +1339,38 @@ def test_meta_graph_context_strict_catalog_cache_reads_through_materialized_payl
         fqn_prefix=fqn_prefix,
         graph=source_graph,
         source_manifest_hash=source_manifest_hash,
-        dependency_signature=fresh_dependency_signature,
+        dependency_signature=runtime_dependency_signature,
+    )
+    dependency_entry = MetaRuntimePackageIndexEntry(
+        module_id="dependency",
+        package_name=dependency_package_name,
+        fqn_prefix=dependency_fqn_prefix,
+        manifest_path=dependency_manifest_path,
     )
     entry = MetaRuntimePackageIndexEntry(
         module_id="demo",
         package_name=package_name,
         fqn_prefix=fqn_prefix,
         manifest_path=manifest_path,
+        dependency_package_names=(dependency_package_name,),
     )
 
     context = build_meta_graph_runtime_context_for_aware_package_manifests(
-        package_manifest_paths=(manifest_path,),
+        package_manifest_paths=(dependency_manifest_path, manifest_path),
         workspace_root=workspace_root,
         strict_package_graph_cache=True,
-        package_entries_by_manifest_path={manifest_path.resolve(): entry},
+        package_entries_by_manifest_path={
+            dependency_manifest_path.resolve(): dependency_entry,
+            manifest_path.resolve(): entry,
+        },
         package_graph_cache_request_signature="sha256:test:request",
     )
 
-    package_timing = context.package_timings[0]
+    package_timing = next(
+        timing
+        for timing in context.package_timings
+        if timing.package_name == package_name
+    )
     assert package_timing.cache_status == "hit"
     assert package_timing.cache_source == "catalog_materialized_package_cache"
     assert "read_package_source_texts" not in package_timing.phase_timings_s
@@ -1302,6 +1383,7 @@ def test_meta_graph_context_strict_catalog_cache_reads_through_materialized_payl
     assert "write_catalog_context_cache_from_materialized_payload" in (
         package_timing.phase_timings_s
     )
+    assert (dependency_fqn_prefix,) in derivation_contexts
 
     package_id = stable_object_config_graph_package_id(
         package_name=package_name,
@@ -1324,7 +1406,7 @@ def test_meta_graph_context_strict_catalog_cache_reads_through_materialized_payl
         OBJECT_CONFIG_GRAPH_PACKAGE_REUSE_CACHE_KIND_CONTEXT_GRAPHS
     )
     assert refreshed_payload["source_manifest_hash"] == source_manifest_hash
-    assert refreshed_payload["dependency_signature"] == fresh_dependency_signature
+    assert refreshed_payload["dependency_signature"] == source_dependency_signature
     assert refreshed_payload["runtime_graph_derivation_signature"] == (
         OBJECT_CONFIG_GRAPH_PACKAGE_CONTEXT_GRAPHS_DERIVATION_SIGNATURE
     )
@@ -1333,8 +1415,98 @@ def test_meta_graph_context_strict_catalog_cache_reads_through_materialized_payl
     )
 
 
-def test_meta_graph_context_strict_catalog_cache_fails_closed_on_stale_read_through(
+def test_strict_catalog_prefers_newer_materialized_semantic_fingerprint(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _clear_meta_package_graph_session_cache()
+    workspace_root = tmp_path
+    manifest_path = (
+        workspace_root / "modules" / "demo" / "structure" / "ontology" / "aware.toml"
+    )
+    package_name = "demo-ontology"
+    fqn_prefix = "demo"
+    _write_minimal_aware_manifest(
+        manifest_path=manifest_path,
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+    )
+    graph_id = stable_object_config_graph_id(
+        fqn_prefix=fqn_prefix,
+        language=CodeLanguage.aware.value,
+    )
+    stale_graph = _runtime_graph(
+        name="Demo Stale",
+        fqn_prefix=fqn_prefix,
+        projection_name="Demo",
+        projection_hash="sha256:test:Demo:stale",
+    )
+    stale_graph.id = graph_id
+    for node in stale_graph.object_config_graph_nodes:
+        node.object_config_graph_id = graph_id
+    for projection in stale_graph.object_projection_graphs:
+        projection.object_config_graph_id = graph_id
+    dependency_signature = _external_graph_signature(external_graphs=())
+    _write_context_graph_cache(
+        workspace_root=workspace_root,
+        manifest_path=manifest_path,
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+        graph=stale_graph,
+        source_manifest_hash="sha256:test:source-manifest-stale",
+        dependency_signature=dependency_signature,
+    )
+
+    current_graph = stale_graph.model_copy(deep=True)
+    current_graph.name = "Demo Current"
+    current_graph.hash = "sha256:test:Demo:current"
+    current_graph.object_projection_graphs[0].projection_hash = (
+        "sha256:test:Demo:current"
+    )
+    current_runtime_graph = current_graph.model_copy(deep=True)
+    current_runtime_graph.hash = "sha256:test:Demo:current-runtime"
+    _write_materialized_package_cache(
+        workspace_root=workspace_root,
+        manifest_path=manifest_path,
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+        graph=current_graph,
+        source_manifest_hash="sha256:test:source-manifest-current",
+        dependency_signature=dependency_signature,
+    )
+    monkeypatch.setattr(
+        "aware_meta.runtime.graph_context.derive_runtime_object_config_graph",
+        lambda *_args, **_kwargs: SimpleNamespace(runtime_graph=current_runtime_graph),
+    )
+    diagnostics: dict[str, object] = {}
+
+    cached_graphs = _try_load_catalog_cached_package_graphs(
+        cache_owner_root=workspace_root,
+        catalog_entry=MetaRuntimePackageIndexEntry(
+            module_id="demo",
+            package_name=package_name,
+            fqn_prefix=fqn_prefix,
+            manifest_path=manifest_path,
+        ),
+        external_graphs=(),
+        phase_timings_s={},
+        diagnostics=diagnostics,
+    )
+
+    assert cached_graphs is not None
+    assert cached_graphs.source_graph is not None
+    assert cached_graphs.source_graph.hash == current_graph.hash
+    assert cached_graphs.runtime_graph.hash == current_runtime_graph.hash
+    assert diagnostics["cache_source"] == "catalog_materialized_package_cache"
+    assert diagnostics["catalog_context_cache_status"] == "miss"
+    assert diagnostics["catalog_context_cache_miss_reason"] == (
+        "context_cache_superseded_by_materialized_package"
+    )
+
+
+def test_meta_graph_context_strict_catalog_cache_rederives_current_source_context(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     workspace_root = tmp_path
     manifest_path = (
@@ -1378,6 +1550,12 @@ def test_meta_graph_context_strict_catalog_cache_fails_closed_on_stale_read_thro
         graph=source_graph,
         dependency_signature="sha256:test:stale-materialized-dependency",
     )
+    current_runtime_graph = source_graph.model_copy(deep=True)
+    current_runtime_graph.hash = "sha256:test:Demo:current-runtime"
+    monkeypatch.setattr(
+        "aware_meta.runtime.graph_context.derive_runtime_object_config_graph",
+        lambda *_args, **_kwargs: SimpleNamespace(runtime_graph=current_runtime_graph),
+    )
     diagnostics: dict[str, object] = {}
     phase_timings_s: dict[str, float] = {}
 
@@ -1394,9 +1572,14 @@ def test_meta_graph_context_strict_catalog_cache_fails_closed_on_stale_read_thro
         diagnostics=diagnostics,
     )
 
-    assert cached_graphs is None
-    assert diagnostics["cache_status"] == "miss"
-    assert diagnostics["cache_miss_reason"] == "dependency_signature_mismatch"
+    assert cached_graphs is not None
+    assert cached_graphs.source_graph is not None
+    assert cached_graphs.source_graph.hash == source_graph.hash
+    assert cached_graphs.runtime_graph.hash == current_runtime_graph.hash
+    assert diagnostics["cache_status"] == "hit"
+    assert diagnostics["cache_source"] == (
+        "catalog_context_source_dependency_rederivation"
+    )
     assert diagnostics["catalog_context_cache_status"] == "miss"
     assert diagnostics["catalog_context_cache_miss_reason"] == (
         "dependency_signature_mismatch"
@@ -1405,8 +1588,107 @@ def test_meta_graph_context_strict_catalog_cache_fails_closed_on_stale_read_thro
     assert diagnostics["catalog_materialized_cache_miss_reason"] == (
         "dependency_signature_mismatch"
     )
+    assert diagnostics["catalog_context_rederivation_status"] == "written"
     assert "read_package_source_texts" not in phase_timings_s
     assert "analyze_meta_ocg_sources" not in phase_timings_s
+    assert (
+        "derive_runtime_graph_from_context_source_after_dependency_movement"
+        in phase_timings_s
+    )
+
+    package_id = stable_object_config_graph_package_id(
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+    )
+    branch_id = _stable_object_config_graph_package_branch_id(
+        workspace_root=workspace_root,
+        aware_toml_path=manifest_path,
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+    )
+    refreshed_payload = json.loads(
+        object_config_graph_package_context_reuse_cache_path(
+            aware_root=workspace_root,
+            branch_id=branch_id,
+            object_config_graph_package_id=package_id,
+        ).read_text(encoding="utf-8")
+    )
+    assert refreshed_payload["dependency_signature"] == _external_graph_signature(
+        external_graphs=()
+    )
+    assert refreshed_payload["runtime_object_config_graph_hash"] == (
+        current_runtime_graph.hash
+    )
+
+
+def test_meta_graph_context_strict_rederivation_rejects_source_manifest_drift(
+    tmp_path: Path,
+) -> None:
+    workspace_root = tmp_path
+    manifest_path = (
+        workspace_root / "modules" / "demo" / "structure" / "ontology" / "aware.toml"
+    )
+    package_name = "demo-ontology"
+    fqn_prefix = "demo"
+    _write_minimal_aware_manifest(
+        manifest_path=manifest_path,
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+    )
+    graph_id = stable_object_config_graph_id(
+        fqn_prefix=fqn_prefix,
+        language=CodeLanguage.aware.value,
+    )
+    source_graph = _runtime_graph(
+        name="Demo",
+        fqn_prefix=fqn_prefix,
+        projection_name="Demo",
+        projection_hash="sha256:test:Demo:stale",
+    )
+    source_graph.id = graph_id
+    for node in source_graph.object_config_graph_nodes:
+        node.object_config_graph_id = graph_id
+    for projection in source_graph.object_projection_graphs:
+        projection.object_config_graph_id = graph_id
+    _write_context_graph_cache(
+        workspace_root=workspace_root,
+        manifest_path=manifest_path,
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+        graph=source_graph,
+        source_manifest_hash="sha256:test:context-source",
+        dependency_signature="sha256:test:stale-context-dependency",
+    )
+    _write_materialized_package_cache(
+        workspace_root=workspace_root,
+        manifest_path=manifest_path,
+        package_name=package_name,
+        fqn_prefix=fqn_prefix,
+        graph=source_graph,
+        source_manifest_hash="sha256:test:materialized-source",
+        dependency_signature="sha256:test:stale-materialized-dependency",
+    )
+    diagnostics: dict[str, object] = {}
+
+    cached_graphs = _try_load_catalog_cached_package_graphs(
+        cache_owner_root=workspace_root,
+        catalog_entry=MetaRuntimePackageIndexEntry(
+            module_id="demo",
+            package_name=package_name,
+            fqn_prefix=fqn_prefix,
+            manifest_path=manifest_path,
+        ),
+        external_graphs=(),
+        phase_timings_s={},
+        diagnostics=diagnostics,
+    )
+
+    assert cached_graphs is None
+    assert diagnostics["cache_status"] == "miss"
+    assert diagnostics["catalog_context_rederivation_status"] == "rejected"
+    assert diagnostics["catalog_context_rederivation_reason"] == (
+        "source_manifest_hash_mismatch"
+    )
 
 
 def test_meta_graph_context_rejects_stale_nested_namespace_cache_shape(
@@ -4136,6 +4418,73 @@ def test_meta_workspace_materialization_runtime_context_uses_provider_package_sc
     assert context.projection_hash_for_name("CodePackage")
 
 
+def test_required_projection_owners_merge_catalog_and_compact_lookup(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from aware_meta.runtime.package_index import (
+        MetaRuntimePackageIndexEntry,
+        MetaRuntimePackageProjectionIndex,
+        MetaRuntimeProjectionIndexEntry,
+    )
+
+    alpha = MetaRuntimePackageIndexEntry(
+        module_id="alpha",
+        package_name="alpha-ontology",
+        fqn_prefix="aware_alpha",
+        manifest_path=tmp_path / "alpha" / "aware.toml",
+        projection_names=("Alpha", "Shared"),
+    )
+    beta = MetaRuntimePackageIndexEntry(
+        module_id="beta",
+        package_name="beta-ontology",
+        fqn_prefix="aware_beta",
+        manifest_path=tmp_path / "beta" / "aware.toml",
+        projection_names=("Shared",),
+    )
+    compact = MetaRuntimePackageProjectionIndex(
+        catalog_signature="test",
+        packages_by_name={
+            alpha.package_name: alpha,
+            beta.package_name: beta,
+        },
+        projections_by_name={
+            "Shared": MetaRuntimeProjectionIndexEntry(
+                projection_name="Shared",
+                package_name=beta.package_name,
+                fqn_prefix=beta.fqn_prefix,
+                manifest_path=beta.manifest_path,
+            )
+        },
+    )
+    monkeypatch.setattr(
+        graph_context_module,
+        "load_meta_runtime_package_projection_lookup",
+        lambda **_kwargs: compact,
+    )
+
+    def fail_full_index(**_kwargs: object) -> object:
+        raise AssertionError("compact ownership must avoid full index hydration")
+
+    monkeypatch.setattr(
+        graph_context_module,
+        "build_meta_runtime_package_projection_index",
+        fail_full_index,
+    )
+
+    package_names = graph_context_module._required_projection_package_names(
+        repo_root=tmp_path,
+        aware_root=tmp_path,
+        entries_by_package_name={
+            alpha.package_name: alpha,
+            beta.package_name: beta,
+        },
+        required_projection_names=("Alpha", "Shared"),
+    )
+
+    assert package_names == ("alpha-ontology", "beta-ontology")
+
+
 def test_meta_workspace_materialization_runtime_context_roots_runtime_state_at_workspace_root(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -4189,6 +4538,8 @@ def test_meta_workspace_materialization_runtime_context_roots_runtime_state_at_w
     assert captured["workspace_root"] == workspace_root
     assert captured["package_manifest_paths"] == (manifest_path.resolve(),)
     assert captured["handler_owner_prefixes"] == ("aware_workspace",)
+    assert captured["load_source_graph_payloads"] is True
+    assert captured["runtime_context_graph_body_requirement"] == ("runtime_graph_body")
     assert context.phase_timings_s["runtime_factory_total_s"] == 0.123
     for phase_name in (
         "workspace_provider_select_manifest_paths_s",
@@ -4262,6 +4613,7 @@ def test_meta_workspace_materialization_runtime_context_uses_strict_catalog_cach
         workspace_root=workspace_root,
         repo_root=repo_root,
         manifest_path=manifest_path,
+        demand=(SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_PREFLIGHT),
         context={
             SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_CONTEXT_KEY: {
                 "schema": SEMANTIC_ONTOLOGY_PACKAGE_CATALOG_SCHEMA,
@@ -4292,6 +4644,9 @@ def test_meta_workspace_materialization_runtime_context_uses_strict_catalog_cach
 
     assert context is not None
     assert captured["strict_package_graph_cache"] is True
+    assert captured["load_source_graph_payloads"] is False
+    assert captured["runtime_context_graph_body_requirement"] == "index_only"
+    assert captured["discover_generated_handlers"] is False
     assert captured["package_manifest_paths"] == (manifest_path.resolve(),)
     assert isinstance(captured["package_graph_cache_request_signature"], str)
     entries_by_manifest = captured["package_entries_by_manifest_path"]
@@ -4305,6 +4660,71 @@ def test_meta_workspace_materialization_runtime_context_uses_strict_catalog_cach
     assert captured["source_analysis_allowed_manifest_paths"] == (
         manifest_path.resolve(),
         support_manifest_path.resolve(),
+    )
+
+
+def test_meta_workspace_preflight_falls_back_to_full_context_when_compact_is_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import aware_meta.runtime.factory as runtime_factory
+
+    repo_root = tmp_path / "kernel"
+    workspace_root = tmp_path / "home"
+    manifest_path = workspace_root / "modules" / "home" / "aware.toml"
+    _write_minimal_aware_manifest(
+        manifest_path=manifest_path,
+        package_name="home-ontology",
+        fqn_prefix="aware_home",
+    )
+    calls: list[dict[str, object]] = []
+
+    class _Runtime:
+        context = SimpleNamespace(
+            index=object(),
+            phase_timings_s={},
+            package_timings=(),
+            runtime_graphs=(),
+            source_graphs=(),
+            projection_hash_for_name=lambda _name: "sha256:test",
+        )
+
+    def _build_runtime(**kwargs: object) -> object:
+        calls.append(dict(kwargs))
+        if len(calls) == 1:
+            raise RuntimeError("compact sidecar unavailable")
+        return _Runtime()
+
+    monkeypatch.setattr(
+        runtime_factory,
+        "build_meta_graph_runtime_for_aware_package_manifests",
+        _build_runtime,
+    )
+    request = SemanticPackageMaterializationRuntimeContextRequest(
+        provider_key="aware_meta",
+        semantic_owner=META_OBJECT_CONFIG_GRAPH_OWNER,
+        workspace_root=workspace_root,
+        repo_root=repo_root,
+        manifest_path=manifest_path,
+        demand=(SEMANTIC_MATERIALIZATION_RUNTIME_CONTEXT_DEMAND_READ_ONLY_PREFLIGHT),
+    )
+
+    context = build_meta_workspace_materialization_runtime_context(request)
+
+    assert context is not None
+    assert len(calls) == 2
+    assert calls[0]["load_source_graph_payloads"] is False
+    assert calls[0]["runtime_context_graph_body_requirement"] == "index_only"
+    assert calls[0]["discover_generated_handlers"] is False
+    assert calls[1]["load_source_graph_payloads"] is True
+    assert calls[1]["runtime_context_graph_body_requirement"] == ("runtime_graph_body")
+    assert calls[1]["discover_generated_handlers"] is False
+    assert (
+        context.phase_timings_s["workspace_provider_preflight_full_context_fallback_s"]
+        >= 0.0
+    )
+    assert context.runtime_context_preflight_fallback_reason == (
+        "RuntimeError: compact sidecar unavailable"
     )
 
 
@@ -4414,6 +4834,7 @@ def test_meta_workspace_materialization_runtime_context_allows_runtime_support_r
     assert captured["strict_package_graph_cache"] is True
     assert captured["package_manifest_paths"] == selected_paths
     assert captured["source_analysis_allowed_manifest_paths"] == selected_paths
+    assert captured["discover_generated_handlers"] is True
 
 
 def test_meta_workspace_materialization_runtime_context_uses_handler_backed_ocg_mutations() -> (

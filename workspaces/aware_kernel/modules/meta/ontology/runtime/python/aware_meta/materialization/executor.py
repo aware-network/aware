@@ -11,6 +11,7 @@ from aware_meta.materialization.contracts import (
     MaterializationStepRunner,
     validate_materialization_plan,
 )
+from aware_meta.materialization_diagnostics import materialization_failure_details
 from aware_meta.materialization.receipts import (
     MaterializationRunReceipt,
     MaterializationStepReceipt,
@@ -145,7 +146,7 @@ class MaterializationExecutor:
                 head_commit_id=None,
                 started_at_utc=step_started_at,
                 finished_at_utc=utc_now_iso(),
-                details={},
+                details=materialization_failure_details(exc),
                 error=str(exc),
             )
             await self._notify_step_finished(

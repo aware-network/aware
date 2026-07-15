@@ -1,0 +1,22 @@
+/// MemoryEpisodic projection (v0)
+///
+/// Contract:
+/// - MemoryEpisodic is a standalone branchable projection lane.
+/// - Memory binds to Identity Actor relationally.
+/// - Episodic evidence is modeled as ordered/linked `MemoryEpisode` receipts.
+projection MemoryEpisodic is_branchable {
+    root memory.MemoryEpisodic
+
+    memory.MemoryEpisodic::actor Identity
+    memory.MemoryEpisodic::content_chain
+    memory.MemoryEpisodic::episodes
+
+    memory.MemoryEpisode::content_chain_content
+    memory.MemoryEpisode::content_chain_section
+
+    observable episodic.home {
+        """
+        Episodic-memory lane surface (episode timeline + content chain anchors).
+        """
+    }
+}

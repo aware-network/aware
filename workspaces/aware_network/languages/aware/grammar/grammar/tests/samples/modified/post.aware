@@ -1,9 +1,0 @@
-/// Blog post or article
-class Post {
-    // Relationships
-    author default.User
-
-    // Attributes
-    content String?
-    title String
-}

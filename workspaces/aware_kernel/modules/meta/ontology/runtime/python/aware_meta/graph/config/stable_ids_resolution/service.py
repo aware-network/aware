@@ -44,6 +44,7 @@ from aware_meta.graph.config.stable_ids_spec.spec import (
     StableIdsSpec,
 )
 from aware_meta.attribute.config.type_descriptor_helpers import resolve_type_info
+from aware_types import canonical_decimal_text
 
 # Meta Ontology
 from aware_meta_ontology.annotation.code_section_annotation_oneof_enums import (
@@ -714,6 +715,46 @@ def _derive_param_and_template_key(
             ),
             None,
             attr_name,
+        )
+
+    if base == CodePrimitiveBaseType.decimal:
+        default_value = _parse_default_value(
+            raw_default=attr_config.default_value,
+            param_type="str",
+        )
+        if default_value is _MISSING_DEFAULT:
+            if nullable:
+                raise ValueError(
+                    "nullable Decimal identity keys require a non-null default in "
+                    "auto-generated stable-id formulas "
+                    + f"(class={class_name!r}, function={function_name!r}, "
+                    + f"attribute={attr_name!r})"
+                )
+            text_name = f"{attr_name}_text"
+            return (
+                ParamSpec(name=attr_name, type="decimal"),
+                LetSpec(
+                    op="decimal_text",
+                    name=text_name,
+                    param=attr_name,
+                ),
+                text_name,
+            )
+
+        canonical_default = canonical_decimal_text(
+            default_value,
+            field_name=f"{class_name}.{attr_name} default",
+        )
+        text_name = f"{attr_name}_text"
+        return (
+            ParamSpec(name=attr_name, type="decimal", optional=True),
+            LetSpec(
+                op="decimal_text_default",
+                name=text_name,
+                param=attr_name,
+                default=canonical_default,
+            ),
+            text_name,
         )
 
     raise ValueError(

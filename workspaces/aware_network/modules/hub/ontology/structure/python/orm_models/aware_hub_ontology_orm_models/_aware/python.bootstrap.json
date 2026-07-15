@@ -1,0 +1,20 @@
+{
+  "dependency_import_roots": [
+    "aware_code_ontology_orm_models"
+  ],
+  "modules": [
+    "aware_hub_ontology_orm_models.hub.hub_artifact",
+    "aware_hub_ontology_orm_models.hub.hub_authority",
+    "aware_hub_ontology_orm_models.hub.hub_channel",
+    "aware_hub_ontology_orm_models.hub.hub_code_package_publication",
+    "aware_hub_ontology_orm_models.hub.hub_enums",
+    "aware_hub_ontology_orm_models.hub.hub_producer_provenance",
+    "aware_hub_ontology_orm_models.hub.hub_publication_receipt",
+    "aware_hub_ontology_orm_models.stable_ids"
+  ],
+  "package_prefix": "aware_hub_ontology_orm_models",
+  "pydantic_model_dependency_import_roots": [
+    "aware_code_ontology_orm_models"
+  ],
+  "version": "v1"
+}

@@ -1,0 +1,8 @@
+service aware_external_capital_provider {
+    api external_capital;
+
+    operation create_wallet_funding_session {
+        endpoint external_capital.wallet_funding_session.create_wallet_funding_session;
+        admission identity_required;
+    }
+}

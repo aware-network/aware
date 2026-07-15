@@ -1,0 +1,16 @@
+[project]
+name = "aware-hub-experience"
+version = "0.1.0"
+description = "Root product-owned Hub discovery experience package for public map surfaces."
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.8.0,<3.0.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_hub_experience"]
+include = ["aware_hub_experience/py.typed"]

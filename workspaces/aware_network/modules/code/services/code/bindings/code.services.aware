@@ -1,0 +1,107 @@
+service aware_code {
+    api code
+
+    operation semantic_contract_describe {
+        endpoint code.semantic_contract.describe
+    }
+
+    operation semantic_contract_validate {
+        endpoint code.semantic_contract.validate
+    }
+
+    operation semantic_contract_normalize {
+        endpoint code.semantic_contract.normalize
+    }
+
+    operation semantic_contract_find_manifest_resolution {
+        endpoint code.semantic_contract.find_manifest_resolution
+    }
+
+    operation semantic_contract_resolve_semantic_scope {
+        endpoint code.semantic_contract.resolve_semantic_scope
+    }
+
+    operation semantic_source_meaning_resolve {
+        endpoint code.semantic_source_meaning.resolve
+    }
+
+    operation semantic_source_meaning_resolve_delta {
+        endpoint code.semantic_source_meaning.resolve_delta
+    }
+
+    operation view_state_resolve_package_selector {
+        endpoint code.view_state.resolve_package_selector
+        receipt read_model
+        view code.package_selector
+    }
+
+    operation view_state_resolve_editor {
+        endpoint code.view_state.resolve_editor
+        receipt read_model
+        view code.editor
+    }
+
+    operation semantic_workflow_coverage_resolve {
+        endpoint code.semantic_workflow_coverage.resolve
+    }
+
+    operation package_delta_normalize {
+        endpoint code.package_delta.normalize
+    }
+
+    operation package_delta_fingerprint {
+        endpoint code.package_delta.fingerprint
+    }
+
+    operation package_layout_describe {
+        endpoint code.package_layout.describe
+    }
+
+    operation package_layout_discover {
+        endpoint code.package_layout.discover
+    }
+
+    operation package_layout_validate {
+        endpoint code.package_layout.validate
+    }
+
+    operation section_delta_validate {
+        endpoint code.section_delta.validate
+    }
+
+    operation section_delta_normalize {
+        endpoint code.section_delta.normalize
+    }
+
+    operation section_delta_fingerprint {
+        endpoint code.section_delta.fingerprint
+    }
+
+    operation section_delta_resolve_package_delta {
+        endpoint code.section_delta.resolve_package_delta
+    }
+
+    operation source_projection_validate {
+        endpoint code.source_projection.validate
+    }
+
+    operation source_projection_normalize {
+        endpoint code.source_projection.normalize
+    }
+
+    operation source_projection_fingerprint {
+        endpoint code.source_projection.fingerprint
+    }
+
+    operation source_projection_resolve_package_delta {
+        endpoint code.source_projection.resolve_package_delta
+    }
+
+    operation generated_materialization_delta_resolve_package_delta {
+        endpoint code.generated_materialization_delta.resolve_package_delta
+    }
+
+    operation source_ownership_classify {
+        endpoint code.source_ownership.classify
+    }
+}

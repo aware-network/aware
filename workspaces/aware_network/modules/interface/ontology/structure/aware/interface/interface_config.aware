@@ -1,0 +1,74 @@
+class InterfaceConfig {
+    // Relationships
+    interfaces Interface[]
+    interface_config_window_configs InterfaceConfigWindowConfig[]
+    interface_config_pane_configs InterfaceConfigPaneConfig[]
+
+    // Attributes
+    name String key
+    description String?
+
+    fn build construct (
+        name String key,
+        description String? = null
+    ) -> InterfaceConfig {
+        """
+        Create one deterministic InterfaceConfig.
+        """
+    }
+
+    fn create_interface (
+        os InterfaceOs,
+        version String
+    ) -> Interface {
+        """
+        Create one runtime Interface instance under this InterfaceConfig.
+        """
+        let created = construct interfaces.build(
+            os = os,
+            version = version,
+        )
+    }
+
+    fn attach_window_config (
+        window_config_id UUID
+    ) -> InterfaceConfigWindowConfig {
+        """
+        Attach one existing standalone WindowConfig beneath this InterfaceConfig.
+        """
+        let created = construct interface_config_window_configs.build(
+            window_config_id = window_config_id,
+        )
+    }
+
+    fn attach_pane_config (
+        pane_config_id UUID,
+        narrative_key String? = null
+    ) -> InterfaceConfigPaneConfig {
+        """
+        Attach one existing standalone PaneConfig beneath this InterfaceConfig.
+        """
+        let created = construct interface_config_pane_configs.build(
+            pane_config_id = pane_config_id,
+            narrative_key = narrative_key,
+        )
+    }
+
+    fn create_pane_config (
+        name String,
+        projection_experience_view_id UUID,
+        pane_kind String,
+        view_ref String? = null,
+        description String? = null
+    ) -> PaneConfig {
+        """
+        Compatibility helper: create one standalone PaneConfig and attach it to this InterfaceConfig.
+
+        Contract:
+        - Pane semantic identity remains standalone.
+        - This helper exists so current runtime/materialization rails can stay on one projection lane during
+          the extraction.
+        - Long-term authored `pane` / `interface` grammar should replace this convenience path.
+        """
+    }
+}

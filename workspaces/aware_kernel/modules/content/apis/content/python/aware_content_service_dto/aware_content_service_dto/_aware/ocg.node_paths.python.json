@@ -26,9 +26,21 @@
       "relative_path": "content/content_service_operation.py"
     },
     {
+      "node_id": "13b14152-4d81-58a6-9dc9-3fab0aa1ff22",
+      "node_type": "class",
+      "entity_id": "3fb63903-2a7f-58b1-bb91-d3894d68949e",
+      "relative_path": "content/content_service_operation.py"
+    },
+    {
       "node_id": "72526f13-f35a-5ac4-996c-5b51372d0d7c",
       "node_type": "class",
       "entity_id": "4bc1da32-22fa-522e-b4b9-720f116e653f",
+      "relative_path": "content/content_service_operation.py"
+    },
+    {
+      "node_id": "152aa8b5-e8bf-5d81-a9c4-61952988ca1c",
+      "node_type": "class",
+      "entity_id": "566670f2-407b-5b3f-8219-73f9ff035af5",
       "relative_path": "content/content_service_operation.py"
     },
     {
@@ -74,9 +86,21 @@
       "relative_path": "content/content_service_operation.py"
     },
     {
+      "node_id": "1e5dc956-226e-52ab-a7f8-0f4f23c09e59",
+      "node_type": "class",
+      "entity_id": "bdd9f1b5-1f2e-565a-af1c-fc45d69147cf",
+      "relative_path": "content/content_service_operation.py"
+    },
+    {
       "node_id": "c8a5c769-356c-573b-96a3-e806adc342ee",
       "node_type": "class",
       "entity_id": "e2d855ff-51e2-513b-a41e-b2f7d7be3485",
+      "relative_path": "content/content_service_operation.py"
+    },
+    {
+      "node_id": "7d399cef-6e2a-5bf2-b113-4db83feffa28",
+      "node_type": "class",
+      "entity_id": "e6fd957e-c7ff-57fd-ad5b-c35df31f3f8b",
       "relative_path": "content/content_service_operation.py"
     },
     {

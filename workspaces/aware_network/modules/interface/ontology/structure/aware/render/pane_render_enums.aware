@@ -1,0 +1,69 @@
+enum PaneRenderNodeKind {
+    box
+    column
+    field
+    list_item
+    metric
+    row
+    scroll
+    section_header
+    repeat
+    disclosure
+    text
+    status
+    text_input
+    button
+    receipt
+    component
+}
+
+enum PaneRenderSemanticRole {
+    pane
+    section
+    heading
+    paragraph
+    message
+    metadata
+    metric
+    status
+    input
+    action
+    receipt
+}
+
+enum PaneStateBindingTransform {
+    raw
+    text
+    count
+    plural_count
+    exists
+    equals
+    not_empty
+    is_empty
+}
+
+enum PaneStateBindingTargetProperty {
+    text
+    visible
+    enabled
+    value
+    tone
+    items
+    identity
+    media_ref
+}
+
+enum PaneActionEvent {
+    activate
+    submit
+    change
+}
+
+enum PaneRenderCapabilityKind {
+    node_kind
+    layout_kind
+    input_kind
+    action_binding
+    receipt
+    render_component
+}

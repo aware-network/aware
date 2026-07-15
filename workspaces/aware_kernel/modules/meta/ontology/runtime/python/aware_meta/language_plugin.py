@@ -45,6 +45,7 @@ from aware_meta.graph.config.render.renderer_language import (
     ObjectConfigGraphRendererLanguage,
     ObjectConfigGraphRendererPolicy,
 )
+
 # OCG Render Layout Strategy
 from aware_meta.graph.config.render.layout_strategy import (
     ObjectConfigGraphRenderLayoutStrategy,
@@ -83,7 +84,11 @@ class RendererProfileInputContract:
     optional_keys: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
-        allowed_modes = {"graph_only", "graph_plus_profile_inputs", "profile_inputs_first"}
+        allowed_modes = {
+            "graph_only",
+            "graph_plus_profile_inputs",
+            "profile_inputs_first",
+        }
         if self.input_mode not in allowed_modes:
             raise ValueError(
                 f"RendererProfileInputContract.input_mode must be one of {sorted(allowed_modes)!r}, "
@@ -144,7 +149,9 @@ class MetaLanguageDeclaredOutputProducedFile:
 
     def __post_init__(self) -> None:
         if self.content_bytes is not None and self.content_text is not None:
-            raise ValueError("Produced file cannot provide both bytes and text content.")
+            raise ValueError(
+                "Produced file cannot provide both bytes and text content."
+            )
 
 
 @dataclass(frozen=True)
@@ -203,7 +210,9 @@ class MetaLanguagePlugin:
     code_plugin: CodeLanguagePlugin[Any]  # Reuse existing primitive layer plugin
 
     # ---------- Surgical rendering ----------
-    surgical_renderers: Mapping[type[object], type[MetaRenderer]]  # Entity type -> Renderer class
+    surgical_renderers: Mapping[
+        type[object], type[MetaRenderer]
+    ]  # Entity type -> Renderer class
 
     # ---------- Annotation compilation ----------
     # Compile CodeSectionAnnotation entries into ObjectConfigGraphAnnotation wrappers (verb-specific views).
@@ -211,7 +220,9 @@ class MetaLanguagePlugin:
     annotation_compiler: MetaAnnotationCompiler | None = None
 
     # ---------- Full ObjectConfigGraph Rendering ----------
-    language_renderers: Mapping[str, type[ObjectConfigGraphRendererLanguage]] | None = None
+    language_renderers: Mapping[str, type[ObjectConfigGraphRendererLanguage]] | None = (
+        None
+    )
     # Renderers to run when a workflow does not specify `renderer_kind`.
     #
     # This list is intentionally explicit to avoid the historical ambiguity of
@@ -220,17 +231,28 @@ class MetaLanguagePlugin:
     default_renderer_names: tuple[str, ...] = ()
     # Optional profile-specific default renderers (e.g., api_runtime vs orm_runtime).
     # When provided and a profile is supplied, the matching renderer set is used.
-    default_renderer_names_by_profile: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
+    default_renderer_names_by_profile: Mapping[str, tuple[str, ...]] = field(
+        default_factory=dict
+    )
     # Optional profile-specific renderer policy (language-defined).
-    renderer_policies_by_profile: Mapping[str, ObjectConfigGraphRendererPolicy] = field(default_factory=dict)
+    renderer_policies_by_profile: Mapping[str, ObjectConfigGraphRendererPolicy] = field(
+        default_factory=dict
+    )
     # Optional profile-specific transformer policy (language-defined).
-    transformer_policies_by_profile: Mapping[str, ObjectConfigGraphTransformerPolicy] = field(default_factory=dict)
+    transformer_policies_by_profile: Mapping[
+        str, ObjectConfigGraphTransformerPolicy
+    ] = field(default_factory=dict)
     # Optional profile-specific input requirements consumed by env-artifacts.
-    renderer_profile_input_contracts: Mapping[str, RendererProfileInputContract] = field(default_factory=dict)
-    declared_output_producer: Callable[
-        [MetaLanguageDeclaredOutputProducerRequest],
-        MetaLanguageDeclaredOutputProducerResult,
-    ] | None = None
+    renderer_profile_input_contracts: Mapping[str, RendererProfileInputContract] = (
+        field(default_factory=dict)
+    )
+    declared_output_producer: (
+        Callable[
+            [MetaLanguageDeclaredOutputProducerRequest],
+            MetaLanguageDeclaredOutputProducerResult,
+        ]
+        | None
+    ) = None
     # Optional profile-scoped generated-materialization delta renderers.
     #
     # These are the delta-first counterpart to full language renderers: Meta
@@ -241,6 +263,10 @@ class MetaLanguagePlugin:
         Callable[[], MetaLanguageGeneratedMaterializationDeltaRenderer],
     ] = field(default_factory=dict)
     default_generated_delta_renderer_names_by_profile: Mapping[
+        str,
+        tuple[str, ...],
+    ] = field(default_factory=dict)
+    default_generated_delta_renderer_names_by_kind: Mapping[
         str,
         tuple[str, ...],
     ] = field(default_factory=dict)
@@ -256,19 +282,24 @@ class MetaLanguagePlugin:
 
     # ---------- Layout strategy ----------
     layout_strategy: type[ObjectConfigGraphRenderLayoutStrategy] | None = None
-    package_strategy_factory: Callable[[Path], ObjectConfigGraphPackageStrategy] | None = None
-    package_strategy_configurator: Callable[
-        [MetaLanguagePackageStrategyConfigurationRequest],
-        None,
-    ] | None = None
+    package_strategy_factory: (
+        Callable[[Path], ObjectConfigGraphPackageStrategy] | None
+    ) = None
+    package_strategy_configurator: (
+        Callable[
+            [MetaLanguagePackageStrategyConfigurationRequest],
+            None,
+        ]
+        | None
+    ) = None
 
     # ---------- Reserved keywords / invalid identifiers ----------
     #
     # Language plugins may provide per-entity identifier rules that the meta layer compiles into
     # ObjectConfigGraphOverlay entries (second-pass) so renderers never rename directly.
-    reserved_keyword_policies: Mapping[CodeSectionAnnotationOverlayEntity, ReservedKeywordEntityPolicy] = field(
-        default_factory=dict
-    )
+    reserved_keyword_policies: Mapping[
+        CodeSectionAnnotationOverlayEntity, ReservedKeywordEntityPolicy
+    ] = field(default_factory=dict)
 
     # ---------- Runtime IR -> Language (optional) ----------
     #
@@ -318,7 +349,9 @@ class MetaLanguagePlugin:
             kind = self.default_renderer_names[0]
         renderer_cls = self.language_renderers.get(kind)
         if renderer_cls is None:
-            raise KeyError(f"No renderer registered for kind '{kind}' in language {self.language}")
+            raise KeyError(
+                f"No renderer registered for kind '{kind}' in language {self.language}"
+            )
         language_renderer = renderer_cls(layout_strategy=layout_strategy)
 
         renderer = ObjectConfigGraphRenderer(
@@ -365,7 +398,9 @@ class MetaLanguagePlugin:
         for name in renderer_names:
             renderer_cls = self.language_renderers.get(name)
             if renderer_cls is None:
-                raise KeyError(f"Default renderer '{name}' is not registered for language {self.language}")
+                raise KeyError(
+                    f"Default renderer '{name}' is not registered for language {self.language}"
+                )
             language_renderer = renderer_cls(layout_strategy=layout_strategy)
             renderer = ObjectConfigGraphRenderer(
                 renderer_language=language_renderer,
@@ -379,16 +414,21 @@ class MetaLanguagePlugin:
             renderers[name] = renderer
         return renderers
 
-    def get_renderer_profile_input_contract(self, profile: str | None) -> RendererProfileInputContract:
+    def get_renderer_profile_input_contract(
+        self, profile: str | None
+    ) -> RendererProfileInputContract:
         """Return generic backend input requirements for a renderer profile."""
         if profile is None:
             return RendererProfileInputContract()
-        return self.renderer_profile_input_contracts.get(profile, RendererProfileInputContract())
+        return self.renderer_profile_input_contracts.get(
+            profile, RendererProfileInputContract()
+        )
 
     def get_generated_delta_renderers(
         self,
         *,
         profile: str | None = None,
+        renderer_kind: str | None = None,
         kind: str | None = None,
     ) -> dict[str, MetaLanguageGeneratedMaterializationDeltaRenderer]:
         """Instantiate generated-materialization delta renderers for a profile."""
@@ -405,12 +445,14 @@ class MetaLanguagePlugin:
             return {kind: renderer_factory()}
 
         renderer_names = tuple(self.generated_delta_renderers.keys())
-        if profile is not None:
+        if renderer_kind is not None:
+            renderer_names = self.default_generated_delta_renderer_names_by_kind.get(
+                renderer_kind.strip(),
+                (),
+            )
+        elif profile is not None:
             profile_key = profile.strip()
-            if (
-                profile_key
-                and self.default_generated_delta_renderer_names_by_profile
-            ):
+            if profile_key and self.default_generated_delta_renderer_names_by_profile:
                 renderer_names = (
                     self.default_generated_delta_renderer_names_by_profile.get(
                         profile_key,
@@ -440,6 +482,7 @@ class MetaLanguagePlugin:
 
         renderers = self.get_generated_delta_renderers(
             profile=request.renderer_profile,
+            renderer_kind=request.renderer_kind,
             kind=request.capability_key,
         )
         if not renderers:
@@ -505,14 +548,18 @@ class MetaLanguagePlugin:
         base_dir: Path,
         template_paths: dict[str, Path] | None = None,
         entity_template_paths: dict[str, Path] | None = None,
-        generated_ocg_node_manifest: GeneratedObjectConfigGraphNodeManifest | None = None,
+        generated_ocg_node_manifest: (
+            GeneratedObjectConfigGraphNodeManifest | None
+        ) = None,
         import_root: str | None = None,
     ) -> ObjectConfigGraphRenderLayoutStrategy | None:
         """Instantiate the layout strategy for this language."""
 
         if self.layout_strategy is None:
             return None
-        if issubclass(self.layout_strategy, ObjectConfigGraphRenderLayoutStrategyTemplate):
+        if issubclass(
+            self.layout_strategy, ObjectConfigGraphRenderLayoutStrategyTemplate
+        ):
             return self.layout_strategy(
                 base_dir=base_dir,
                 template_paths=template_paths,
@@ -526,7 +573,9 @@ class MetaLanguagePlugin:
             import_root=import_root,
         )
 
-    def create_package_strategy(self, base_dir: Path) -> ObjectConfigGraphPackageStrategy | None:
+    def create_package_strategy(
+        self, base_dir: Path
+    ) -> ObjectConfigGraphPackageStrategy | None:
         if self.package_strategy_factory is None:
             return None
         return self.package_strategy_factory(base_dir)

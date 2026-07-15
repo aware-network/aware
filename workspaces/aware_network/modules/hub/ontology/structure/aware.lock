@@ -1,0 +1,52 @@
+{
+  "aware_lock": 4,
+  "packages": {
+    "code-ontology": {
+      "dependencies": [
+        "content-ontology"
+      ],
+      "fqn_prefix": "aware_code",
+      "ocg_commit_id": null,
+      "ocg_hash": "1898f2343f48edcc9713e2e09d42496548ba8a75fc7a0103e1b39464e701cdad",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "code-ontology",
+      "version_number": 1
+    },
+    "content-ontology": {
+      "dependencies": [
+        "storage-ontology"
+      ],
+      "fqn_prefix": "aware_content",
+      "ocg_commit_id": "765cbe1a-06b3-57b4-9501-95a8ab8e26c1",
+      "ocg_hash": "f1d20b9c13703325f86b21e2e16617de2f60e287372cb1e0fb5e2d4096768791",
+      "ocg_lane_branch_id": "bd337f20-85ed-574b-bc77-603d5e4bd648",
+      "ocg_lane_projection_hash": "a41380b76d9a87bf3cbfee59dd38748729b2ad3b7308f084482422e62a94b3fe",
+      "package_name": "content-ontology",
+      "version_number": 1
+    },
+    "hub-ontology": {
+      "dependencies": [
+        "code-ontology"
+      ],
+      "fqn_prefix": "aware_hub",
+      "ocg_commit_id": "8c240d15-d427-54c9-a0d1-7f2afe4d86f9",
+      "ocg_hash": "2b4d495c141afb6e98fb5bed019e6b1e593fff27b4c58640f58546a749d97ffe",
+      "ocg_lane_branch_id": "6ea22e02-28ab-5b83-8adf-685666802107",
+      "ocg_lane_projection_hash": "be578547c3884eea68813cb2f1652dab2fd0a2be2b436d271ce01797c4a5ba74",
+      "package_name": "hub-ontology",
+      "version_number": 1
+    },
+    "storage-ontology": {
+      "dependencies": [],
+      "fqn_prefix": "aware_storage",
+      "ocg_commit_id": null,
+      "ocg_hash": "f76135d28074c4363ae1f6d5067426bb818edec2da5dc8cda697341267e01cb9",
+      "ocg_lane_branch_id": null,
+      "ocg_lane_projection_hash": null,
+      "package_name": "storage-ontology",
+      "version_number": 1
+    }
+  },
+  "root_package_name": "hub-ontology"
+}

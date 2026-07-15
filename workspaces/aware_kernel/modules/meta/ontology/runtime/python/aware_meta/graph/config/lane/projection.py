@@ -188,6 +188,7 @@ def compose_ocg_seed_schema_graph(
                 composite_hash=schema_graph.hash,
                 composite_fqn_prefix=schema_graph.fqn_prefix,
                 validate_portals=False,
+                deep_clone_entries=False,
                 timings=timings,
                 timing_prefix="seed_schema_view.compose",
             )

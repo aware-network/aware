@@ -905,8 +905,7 @@ def test_class_parent_update_generated_delta_routes_through_language_plugin(
     result = evidence.result
     assert result is not None
     assert (
-        result.mode
-        is CodeGeneratedMaterializationDeltaMode.grammar_anchor_render_ready
+        result.mode is CodeGeneratedMaterializationDeltaMode.grammar_anchor_render_ready
     )
     entry = result.entries[0]
     assert entry.grammar_anchor_render_delta is not None
@@ -1482,6 +1481,10 @@ def _sql_plugin_support_operation() -> dict[str, object]:
                 "sql_schema": {
                     "descriptor_key": "sql_schema",
                     "capability_key": "fake_sql_delta",
+                    "target_language": "sql",
+                    "renderer_profile": "sql_runtime",
+                    "materialization_source": "sql_schema",
+                    "product_intent": "sql_schema",
                     "owner_key": "content.default.PluginCoverage",
                     "relative_path": "schema/from_hint.sql",
                 },
@@ -1500,7 +1503,14 @@ class _FakeSqlGeneratedDeltaRenderer(MetaLanguageGeneratedMaterializationDeltaRe
         self,
         request: MetaLanguageGeneratedMaterializationDeltaRenderRequest,
     ) -> bool:
-        return request.operation.ontology_subject_kind == "class"
+        return (
+            request.operation.ontology_subject_kind == "class"
+            and request.renderer_profile == self.renderer_profile
+            and request.materialization_source == self.materialization_source
+            and request.capability_key == self.renderer_key
+            and request.context.renderer_profile == self.renderer_profile
+            and request.context.materialization_source == self.materialization_source
+        )
 
     def render_generated_materialization_delta(
         self,

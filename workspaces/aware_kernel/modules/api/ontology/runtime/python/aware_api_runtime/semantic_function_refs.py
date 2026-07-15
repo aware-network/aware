@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from aware_api_ontology.api.api import Api
 from aware_api_ontology.api.api_capability import ApiCapability
+from aware_api_ontology.api.api_capability_endpoint import ApiCapabilityEndpoint
 from aware_meta.materialization.function_refs import meta_ontology_function_ref
+from aware_api_runtime.semantic_registry import (
+    API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY,
+)
 
 
 API_CREATE_FUNCTION = meta_ontology_function_ref(Api.create)
@@ -10,16 +14,19 @@ API_CREATE_CAPABILITY_FUNCTION = meta_ontology_function_ref(Api.create_capabilit
 API_CAPABILITY_CREATE_ENDPOINT_FUNCTION = meta_ontology_function_ref(
     ApiCapability.create_endpoint
 )
+API_CAPABILITY_ENDPOINT_UPDATE_FUNCTION = meta_ontology_function_ref(
+    ApiCapabilityEndpoint.update_config
+)
 
 API_CREATE_FUNCTION_REF = API_CREATE_FUNCTION.ref
 API_CREATE_CAPABILITY_FUNCTION_REF = API_CREATE_CAPABILITY_FUNCTION.ref
 API_CAPABILITY_CREATE_ENDPOINT_FUNCTION_REF = (
     API_CAPABILITY_CREATE_ENDPOINT_FUNCTION.ref
 )
-
-API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY = (
-    "semantic_operation_function_call_resolution"
+API_CAPABILITY_ENDPOINT_UPDATE_FUNCTION_REF = (
+    API_CAPABILITY_ENDPOINT_UPDATE_FUNCTION.ref
 )
+
 API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CONTRACT_VERSION = (
     "aware.api.semantic-operation-function-call-resolution.v0"
 )
@@ -56,6 +63,8 @@ __all__ = [
     "API_CAPABILITY_CREATE_ENDPOINT_FUNCTION",
     "API_CAPABILITY_CREATE_ENDPOINT_FUNCTION_CALL_BINDING_REF",
     "API_CAPABILITY_CREATE_ENDPOINT_FUNCTION_REF",
+    "API_CAPABILITY_ENDPOINT_UPDATE_FUNCTION",
+    "API_CAPABILITY_ENDPOINT_UPDATE_FUNCTION_REF",
     "API_CAPABILITY_ENDPOINT_CREATE_OPERATION",
     "API_CAPABILITY_CREATE_OPERATION",
     "API_CREATE_CAPABILITY_FUNCTION",

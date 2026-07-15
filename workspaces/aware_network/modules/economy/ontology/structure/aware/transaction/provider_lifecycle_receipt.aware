@@ -1,0 +1,68 @@
+class ProviderLifecycleReceipt {
+    // Relationships
+    coin coin.Coin
+    provider_finance_entity finance.FinanceEntity key
+    transaction Transaction
+    transaction_external TransactionExternal
+    wallet wallet.Wallet
+    wallet_finance_entity finance.FinanceEntity
+    wallet_public wallet.WalletPublic
+
+    // Attributes
+    amount Decimal
+    event_kind ProviderLifecycleEventKind
+    external_created_at DateTime
+    idempotency_key String
+    metadata_json JsonObject?
+    new_available_balance Decimal
+    new_balance Decimal
+    new_held_balance Decimal
+    previous_available_balance Decimal
+    previous_balance Decimal
+    previous_held_balance Decimal
+    processed_at DateTime = now()
+    provider_event_id String
+    provider_lifecycle_effect_key String key
+    provider_lifecycle_object_id String key
+    provider_payment_reference String
+    provider_key String key
+    provider_payload_hash String
+    status ProviderLifecycleStatus
+
+    fn record construct (
+        provider_finance_entity_id UUID key,
+        provider_key String key,
+        provider_lifecycle_object_id String key,
+        provider_lifecycle_effect_key String key,
+        provider_event_id String,
+        wallet_finance_entity_id UUID,
+        wallet_id UUID,
+        wallet_public_id UUID,
+        coin_id UUID,
+        amount Decimal,
+        event_kind ProviderLifecycleEventKind,
+        status ProviderLifecycleStatus,
+        idempotency_key String,
+        previous_balance Decimal,
+        new_balance Decimal,
+        previous_held_balance Decimal,
+        new_held_balance Decimal,
+        previous_available_balance Decimal,
+        new_available_balance Decimal,
+        provider_payment_reference String,
+        provider_payload_hash String,
+        external_created_at DateTime,
+        transaction_id UUID,
+        transaction_external_id UUID,
+        metadata_json JsonObject? = null
+    ) -> ProviderLifecycleReceipt {
+        """
+        Records a provider lifecycle event as Aware Economy receipt truth.
+
+        Receipt: one provider lifecycle object/effect stage correlated to the
+        original external-ingress transaction. Provider evidence never selects
+        Aware wallet coordinates; Economy derives them from committed funding
+        truth and remains the only WalletBalance mutation authority.
+        """
+    }
+}

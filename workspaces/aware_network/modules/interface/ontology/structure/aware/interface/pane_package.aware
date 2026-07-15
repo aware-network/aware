@@ -1,0 +1,135 @@
+class PanePackage {
+    // Relationships
+    source_code_package aware_code.package.CodePackage?
+    experience_packages PanePackageExperiencePackage[]
+    render_component_packages PanePackageRenderComponentPackage[]
+    pane_config PaneConfig unique
+    pane_config_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit?
+
+    // Attributes
+    aware_pane_version Int = 1
+    dart JsonObject = {}
+    description String?
+    exclude_paths JsonArray = []
+    force_fresh_scan Bool = true
+    fqn_prefix String?
+    include_paths JsonArray = []
+    manifest_relative_path String?
+    name String key
+    package_root String = "."
+    pane_name String?
+    python JsonObject = {}
+    sources_root String = "."
+    title String?
+    version_number Int = 1
+
+    fn build construct(
+        name String key,
+        pane_config_id UUID,
+        pane_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        pane_name String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_pane_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = ".",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        python JsonObject = {},
+        dart JsonObject = {}
+    ) -> PanePackage {
+        """
+        Create the canonical Pane-owned package root over an existing `PaneConfig`.
+
+        Contract:
+        - Identity is keyed by pane package `name`.
+        - `PanePackage` is the package/public root over an existing canonical `PaneConfig`.
+        - `pane_config_id` must point at the canonical standalone pane semantic id for this package root.
+        - `pane_config_object_instance_graph_commit_id` pins the historical ObjectInstanceGraphCommit
+          for the semantic PaneConfig root so package consumers can replay exact pane truth without
+          resolving branch head or reopening authoring TOML.
+        - `source_code_package_id` is the explicit raw-source provenance link for this semantic leaf package.
+        - Manifest/build/python/dart attributes mirror `aware.pane.toml` so committed package truth
+          can drive Interface and Workspace pane routing without reopening authoring TOML.
+        - Interface packages and later Workspace mounts should depend on `PanePackage`, not raw `PaneConfig`.
+        """
+    }
+
+    fn sync_manifest_truth(
+        pane_config_object_instance_graph_commit_id UUID? = null,
+        source_code_package_id UUID? = null,
+        fqn_prefix String? = null,
+        pane_name String? = null,
+        version_number Int = 1,
+        title String? = null,
+        description String? = null,
+        aware_pane_version Int = 1,
+        manifest_relative_path String? = null,
+        package_root String = ".",
+        sources_root String = ".",
+        include_paths JsonArray = [],
+        exclude_paths JsonArray = [],
+        force_fresh_scan Bool = true,
+        python JsonObject = {},
+        dart JsonObject = {}
+    ) -> PanePackage {
+        """
+        Sync mutable manifest/build/python/dart truth onto an existing PanePackage root.
+
+        This keeps `build` create-only for empty package lanes while allowing committed package
+        truth to follow the latest parsed `aware.pane.toml` snapshot and pinned semantic PaneConfig
+        commit.
+        """
+    }
+
+    fn attach_experience_package (
+        experience_package_id UUID,
+        description String? = null
+    ) -> PanePackageExperiencePackage {
+        """
+        Attach one Experience package to this PanePackage.
+
+        Contract:
+        - This is the pane-local package/import rail for the one Experience view
+          a PaneConfig adapts.
+        - Pane packages resolve ProjectionExperienceView through this declared
+          dependency before any Interface package consumes the pane.
+        - Interface packages must not use their own Experience package
+          dependencies to rescue unresolved pane view refs.
+        """
+        let created = construct experience_packages.build(
+            experience_package_id = experience_package_id,
+            description = description,
+        )
+    }
+
+    fn attach_render_component_package (
+        render_component_package_id UUID,
+        description String? = null
+    ) -> PanePackageRenderComponentPackage {
+        """
+        Attach one render component package to this PanePackage.
+
+        Contract:
+        - This is the pane-local package/import rail for rich renderer component contracts.
+        - It declares which reusable components authored PaneRenderSpec nodes may reference.
+        - Components provide ports and renderer capability requirements; they do not own pane state
+          or bypass canonical ActionBinding/API execution.
+        """
+        let created = construct render_component_packages.build(
+            render_component_package_id = render_component_package_id,
+            description = description,
+        )
+    }
+}
+
+ann interface.PanePackage::source_code_package load eager
+ann interface.PanePackage::experience_packages load eager
+ann interface.PanePackage::render_component_packages load eager
+ann interface.PanePackage::pane_config load eager
+ann interface.PanePackage::pane_config_object_instance_graph_commit load eager

@@ -1,0 +1,18 @@
+aware_pane = 1
+
+[pane]
+package_name = "aware-meta-graph-panes"
+fqn_prefix = "aware_meta_graph_panes"
+pane_name = "meta_graph_canvas"
+title = "Meta Graph Canvas Pane"
+description = "General Meta graph canvas pane over OCG, OPG, OIG, branch, and commit view state."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+
+[[dependencies]]
+package_name = "aware-meta-experience"
+kind = "experience_package"

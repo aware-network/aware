@@ -1,0 +1,23 @@
+class PaneInputBinding {
+    // Attributes
+    payload_path String key
+    source_node_key String?
+    source_json_path String?
+    literal_value String?
+
+    fn create construct (
+        payload_path String key,
+        source_node_key String? = null,
+        source_json_path String? = null,
+        literal_value String? = null
+    ) -> PaneInputBinding {
+        """
+        Create one deterministic action payload binding.
+
+        Contract:
+        - Renderer-local input values are payload inputs only, never canonical state.
+        - Canonical state values can be copied through `source_json_path`.
+        - Constants can be supplied through `literal_value` for simple action payloads.
+        """
+    }
+}

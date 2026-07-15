@@ -1,0 +1,27 @@
+aware_interface = 1
+
+[interface]
+package_name = "aware-economy-interface"
+fqn_prefix = "aware_economy_interface"
+title = "Aware Economy Interface"
+description = "Economy-owned Interface package for wallet-first capital compiler panes."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+config_bundle_path = "bundles/interface.config.bundle.json"
+compilation_mode = "interface_ontology"
+
+[dart]
+package_path = "dart/aware_economy_interface"
+package_name = "aware_economy_interface"
+
+[[dependencies]]
+package_name = "aware-control-shell-attention"
+kind = "attention_package"
+
+[[dependencies]]
+package_name = "aware-economy-wallet-capital-pane"
+kind = "pane_package"

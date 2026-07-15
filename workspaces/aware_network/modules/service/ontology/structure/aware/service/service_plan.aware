@@ -1,0 +1,24 @@
+class ServicePlan {
+    // Relationships
+    coin aware_economy.coin.Coin key
+    smart_contract_config aware_economy.smart_contract.SmartContractConfig key
+
+    // Attributes
+    cycle ServicePlanCycle key
+    external_price_handle String?
+    policy_json JsonObject = {}
+    price_amount Decimal key
+
+    fn build construct (
+        cycle ServicePlanCycle key,
+        price_amount Decimal key,
+        coin_id UUID key,
+        smart_contract_config_id UUID key,
+        external_price_handle String? = null,
+        policy_json JsonObject = {}
+    ) -> ServicePlan {
+        """
+        Creates one Service-owned pricing plan under a concrete Service.
+        """
+    }
+}

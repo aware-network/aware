@@ -1,0 +1,24 @@
+service aware_file_system {
+    api filesystem;
+
+    operation snapshot_scan {
+        endpoint filesystem.snapshot.scan;
+    }
+
+    operation delta_collect {
+        endpoint filesystem.delta.collect;
+    }
+
+    operation delta_apply {
+        endpoint filesystem.delta.apply;
+    }
+
+    operation root_verify {
+        endpoint filesystem.root.verify;
+    }
+
+    operation backend_capabilities {
+        endpoint filesystem.backend.capabilities;
+    }
+}
+

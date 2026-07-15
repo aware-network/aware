@@ -12,11 +12,11 @@
       }
     ]
   },
-  "domain_commit_id": "5fa22954-e72d-558d-a29d-f526c170c324",
-  "object_instance_graph_commit_id": "6f5aa0f6-9a93-5494-9213-5013486a22ae",
+  "domain_commit_id": "2a70180f-31f2-5c19-a159-c485b878d2b7",
+  "object_instance_graph_commit_id": "4b9bc7af-0cf6-597e-b738-146718bf0345",
   "package_name": "environment-ontology",
   "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
   "source_kind": "workspace_revision",
   "workspace_relative_package_root": "workspaces/aware_network/modules/environment/ontology",
-  "workspace_revision_code_package_id": "6db0bc7d-cbde-5675-8f0a-eaa507ddc262"
+  "workspace_revision_code_package_id": "dd65dd70-668e-58fb-8e29-5b86f6cd504e"
 }

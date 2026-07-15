@@ -1,0 +1,53 @@
+{
+  "artifact_changes": [],
+  "artifact_family": "ocg_language_materialization",
+  "artifact_role": "lifecycle_receipt",
+  "materialization": {
+    "name": "skill-sql",
+    "source_kind": "ontology",
+    "source_package_name": "skill-ontology"
+  },
+  "output_key": "language_materialization_lifecycle_receipt",
+  "output_kind": "materialization_lifecycle_receipt",
+  "package": {
+    "import_root": null,
+    "name": "aware-skill-ontology",
+    "output_root": "sql",
+    "receipt_package_rel_path": "_aware/ocg.language_materialization.lifecycle.json",
+    "receipt_path": "sql/_aware/ocg.language_materialization.lifecycle.json"
+  },
+  "package_outcomes": [
+    {
+      "artifact_change_refs": [],
+      "import_root": null,
+      "output_root": "sql",
+      "package_name": "aware-skill-ontology"
+    }
+  ],
+  "producer_key": "aware_meta.object_config_graph.language_materialization",
+  "provenance": {
+    "input_object_instance_graph_commit_id": null,
+    "object_config_graph_commit_id": null,
+    "object_config_graph_package_id": null,
+    "source_code_package_id": null,
+    "source_object_instance_graph_commit_id": null
+  },
+  "provider_key": "aware_meta",
+  "required_for": [
+    "environment_config",
+    "runtime_index",
+    "workspace_revision"
+  ],
+  "schema": "aware.meta.language_materialization.lifecycle_receipt.v1",
+  "semantic_owner": "aware_meta.object_config_graph",
+  "status": "available",
+  "summary": {
+    "changes_by_kind": {},
+    "changes_by_producer_step": {},
+    "changes_by_stageability": {},
+    "changes_total": 0,
+    "package_count": 1,
+    "warning_count": 0
+  },
+  "target_language_plugin_id": "sql"
+}

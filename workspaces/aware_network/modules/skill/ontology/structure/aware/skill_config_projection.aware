@@ -1,0 +1,24 @@
+/// SkillConfig projection
+///
+/// Purpose:
+/// - Expose the reusable Skill orchestration config as its own semantic lane.
+/// - Keep Skill-owned endpoint requirement truth as `SkillConfigApiEndpoint`.
+/// - Route authored targets through Experience-owned graph identity truth.
+/// - Keep package/public mounting separate through `SkillPackage`.
+projection SkillConfig is_branchable {
+    root skill.SkillConfig
+
+    skill.SkillConfig::apis
+    skill.SkillConfig::experiences
+    skill.SkillConfigExperience::projection_experience aware_experience.ProjectionExperience
+    skill.SkillConfigExperience::targets
+    skill.SkillConfigTarget::projection_experience_graph_identity aware_experience.ProjectionExperienceGraph
+    skill.SkillConfigApi::api aware_api.Api
+    skill.SkillConfigApi::api_endpoints
+    skill.SkillConfigApiEndpoint::api_endpoint aware_api.Api
+    skill.SkillConfig::steps
+    skill.SkillConfigStep::skill_config_api_endpoint
+    skill.SkillConfigStep::targets
+    skill.SkillConfigStepTarget::skill_config_target
+    skill.SkillConfig::runs SkillRun
+}

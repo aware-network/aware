@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from pathlib import Path
 from hashlib import sha256
 from typing import Mapping, cast
 from uuid import UUID
 
+from aware_code_ontology.code.code_enums import CodeLanguage as OntologyCodeLanguage
 from aware_code_service_dto.code.features.package_common import CodePackagePathRole
 from aware_code_service_dto.code.features.package_delta import (
     CodePackageDelta,
@@ -49,6 +51,12 @@ from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGra
 from aware_meta_ontology.graph.config.object_config_graph_enums import (
     ObjectConfigGraphNodeType,
 )
+from aware_meta.graph.config.render.generated_ocg_node_manifest import (
+    GeneratedObjectConfigGraphNodeManifest,
+)
+from aware_meta.graph.config.render.layout_strategy import (
+    ObjectConfigGraphRenderLayoutStrategy,
+)
 from aware_types import JsonObject
 from sql_grammar.layout_strategy import SQLLayoutStrategyNamespace
 from sql_grammar.migrations.postgres_ddl import (
@@ -76,9 +84,151 @@ SQL_ORM_MIGRATION_ARTIFACT_ROLE = "sql_orm_migration"
 SQL_ORM_SOURCE_ARTIFACT_PAYLOAD_KEY = "sql_orm_source_artifact"
 SQL_ORM_SOURCE_RENDERER_PROFILE = "orm_models"
 SQL_ORM_SOURCE_RENDERER_KIND = "sqlite"
+SQL_ORM_SOURCE_ARTIFACT_PAYLOAD_CONTRACT_VERSION = (
+    "aware.sql.orm-source-artifact-payload.v1"
+)
 
 
-class SqlOrmRuntimeGeneratedDeltaRenderer(MetaLanguageGeneratedMaterializationDeltaRenderer):
+@dataclass(frozen=True, slots=True)
+class SqlOrmSourceArtifactPayload:
+    """SQL-owned renderer input for one generated source container."""
+
+    relative_path: str
+    renderer_kind: str
+    source_renderer_profile: str
+    materialization_source: str
+    owner_key: str | None = None
+    enums: tuple[EnumConfig, ...] = ()
+    classes: tuple[ClassConfig, ...] = ()
+    class_lookup: tuple[ClassConfig, ...] = ()
+    language_graph: ObjectConfigGraph | None = None
+    external_language_graphs: tuple[ObjectConfigGraph, ...] = ()
+    contract_version: str = SQL_ORM_SOURCE_ARTIFACT_PAYLOAD_CONTRACT_VERSION
+
+    @classmethod
+    def from_mapping(
+        cls,
+        value: Mapping[str, object],
+    ) -> "SqlOrmSourceArtifactPayload":
+        source_container = mapping_value(value.get("source_container"))
+        classes = _class_configs_from_value(source_container.get("classes"))
+        enums = _enum_configs_from_value(source_container.get("enums"))
+        legacy_class = value.get("class_config") or value.get("class")
+        if not classes and isinstance(legacy_class, Mapping):
+            classes = (ClassConfig.model_validate(legacy_class),)
+        return cls(
+            contract_version=(
+                optional_text(value.get("contract_version"))
+                or SQL_ORM_SOURCE_ARTIFACT_PAYLOAD_CONTRACT_VERSION
+            ),
+            relative_path=optional_text(value.get("relative_path")) or "",
+            renderer_kind=(
+                optional_text(value.get("renderer_kind"))
+                or optional_text(value.get("source_renderer_kind"))
+                or SQL_ORM_SOURCE_RENDERER_KIND
+            ),
+            source_renderer_profile=(
+                optional_text(value.get("source_renderer_profile"))
+                or optional_text(value.get("renderer_profile"))
+                or SQL_ORM_SOURCE_RENDERER_PROFILE
+            ),
+            materialization_source=(
+                optional_text(value.get("materialization_source"))
+                or SQL_ORM_MATERIALIZATION_SOURCE
+            ),
+            owner_key=optional_text(value.get("owner_key")),
+            enums=enums,
+            classes=classes,
+            class_lookup=_class_configs_from_value(value.get("class_lookup")),
+            language_graph=_object_config_graph_from_value(
+                value.get("language_graph") or value.get("object_config_graph")
+            ),
+            external_language_graphs=_object_config_graphs_from_value(
+                value.get("external_language_graphs")
+            ),
+        )
+
+    def evidence_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "contract_version": self.contract_version,
+            "relative_path": self.relative_path,
+            "renderer_kind": self.renderer_kind,
+            "source_renderer_profile": self.source_renderer_profile,
+            "materialization_source": self.materialization_source,
+            "owner_key": self.owner_key,
+            "source_container": {
+                "enums": tuple(
+                    item.model_dump(mode="json", exclude_none=True)
+                    for item in self.enums
+                ),
+                "classes": tuple(
+                    item.model_dump(mode="json", exclude_none=True)
+                    for item in self.classes
+                ),
+            },
+            "class_lookup": tuple(
+                item.model_dump(mode="json", exclude_none=True)
+                for item in self.class_lookup
+            ),
+        }
+        if self.language_graph is not None:
+            payload["language_graph"] = self.language_graph.model_dump(
+                mode="json",
+                exclude_none=True,
+            )
+        if self.external_language_graphs:
+            payload["external_language_graphs"] = tuple(
+                graph.model_dump(mode="json", exclude_none=True)
+                for graph in self.external_language_graphs
+            )
+        return payload
+
+
+def build_sql_orm_source_artifact_payload(
+    *,
+    language_graph: ObjectConfigGraph,
+    relative_path: str,
+    renderer_kind: str,
+    source_renderer_profile: str,
+    materialization_source: str,
+    generated_ocg_node_manifest: GeneratedObjectConfigGraphNodeManifest | None = None,
+    external_language_graphs: tuple[ObjectConfigGraph, ...] = (),
+    owner_key: str | None = None,
+) -> SqlOrmSourceArtifactPayload | None:
+    """Resolve one SQL source container from language-graph layout truth."""
+
+    layout = SQLLayoutStrategyNamespace(
+        Path("."),
+        generated_ocg_node_manifest=generated_ocg_node_manifest,
+    )
+    layout.bind_graph(language_graph)
+    enums, classes = _source_container_at_path(
+        graph=language_graph,
+        layout=layout,
+        target_path=Path(relative_path),
+    )
+    if not enums and not classes:
+        return None
+    class_lookup = _class_lookup_from_graphs(
+        (language_graph, *external_language_graphs),
+    )
+    return SqlOrmSourceArtifactPayload(
+        relative_path=relative_path,
+        renderer_kind=renderer_kind,
+        source_renderer_profile=source_renderer_profile,
+        materialization_source=materialization_source,
+        owner_key=owner_key,
+        enums=enums,
+        classes=classes,
+        class_lookup=tuple(class_lookup.values()),
+        language_graph=language_graph,
+        external_language_graphs=external_language_graphs,
+    )
+
+
+class SqlOrmRuntimeGeneratedDeltaRenderer(
+    MetaLanguageGeneratedMaterializationDeltaRenderer
+):
     renderer_key = SQL_ORM_GENERATED_DELTA_RENDERER_NAME
     renderer_profile = SQL_ORM_RENDERER_PROFILE
     materialization_source = SQL_ORM_MATERIALIZATION_SOURCE
@@ -88,7 +238,7 @@ class SqlOrmRuntimeGeneratedDeltaRenderer(MetaLanguageGeneratedMaterializationDe
         request: MetaLanguageGeneratedMaterializationDeltaRenderRequest,
     ) -> bool:
         operation = request.operation
-        if operation.ontology_subject_kind == "class":
+        if operation.ontology_subject_kind in {"class", "enum", "relationship"}:
             return operation.operation_family in {"create", "delete", "update"}
         if operation.ontology_subject_kind == "attribute":
             return operation.operation_family in {"create", "delete", "update"}
@@ -160,8 +310,12 @@ def _context_with_defaults(
         sources_root=sources_root,
         target_language=context.target_language or "sql",
         renderer_profile=context.renderer_profile or SQL_ORM_RENDERER_PROFILE,
-        materialization_source=(context.materialization_source or SQL_ORM_MATERIALIZATION_SOURCE),
-        product_intent=(context.product_intent or SQL_ORM_GENERATED_MATERIALIZATION_PRODUCT_INTENT),
+        materialization_source=(
+            context.materialization_source or SQL_ORM_MATERIALIZATION_SOURCE
+        ),
+        product_intent=(
+            context.product_intent or SQL_ORM_GENERATED_MATERIALIZATION_PRODUCT_INTENT
+        ),
         artifact_family=context.artifact_family or SQL_ORM_CLASS_ARTIFACT_FAMILY,
         artifact_role=context.artifact_role or SQL_ORM_CLASS_ARTIFACT_ROLE,
         target_hints=context.target_hints,
@@ -241,7 +395,10 @@ def _delta_request(
         ],
         action_bindings=[
             CodeGeneratedMaterializationActionBinding(
-                action_key=("aware_meta.sql_orm.class.source_artifact." f"{operation.operation_key}"),
+                action_key=(
+                    "aware_meta.sql_orm.class.source_artifact."
+                    f"{operation.operation_key}"
+                ),
                 event_key=event_key,
                 target=target,
                 policy_key="aware_meta.generated_materialization.class.sql_source",
@@ -274,7 +431,8 @@ def _attribute_migration_package_delta(
         authority_kind=CodePackageDeltaAuthorityKind.semantic_materialization.value,
         paths=[
             CodePackageDeltaPath(
-                relative_path=target.relative_path or _attribute_migration_relative_path(operation=operation),
+                relative_path=target.relative_path
+                or _attribute_migration_relative_path(operation=operation),
                 kind=CodePackageDeltaKind.create,
                 content_text=content_text,
                 after_hash=_digest(content_text),
@@ -340,8 +498,8 @@ def _delta_result(
         mode=CodeGeneratedMaterializationDeltaMode.package_delta_ready,
         target=target,
         package_delta=package_delta,
-        artifact_family=context.artifact_family,
-        artifact_role=context.artifact_role,
+        artifact_family=context.artifact_family or target.artifact_family,
+        artifact_role=context.artifact_role or target.artifact_role,
         artifact_key=target.target_key,
         relative_path=target.relative_path,
         after_hash=content_hash,
@@ -459,8 +617,13 @@ def _target_ref(
         renderer_key=SQL_ORM_CLASS_RENDERER_KEY,
         renderer_profile=context.renderer_profile,
         materialization_source=context.materialization_source,
-        artifact_family=context.artifact_family,
-        artifact_role=context.artifact_role,
+        artifact_family=(
+            context.artifact_family
+            or (hint.artifact_family if hint is not None else None)
+        ),
+        artifact_role=(
+            context.artifact_role or (hint.artifact_role if hint is not None else None)
+        ),
         output_key=hint.output_key if hint is not None else None,
         relative_path=relative_path,
         metadata=_json_object(
@@ -534,8 +697,14 @@ def _package_delta(
                         else CodePackageDeltaKind.update
                     )
                 ),
-                content_text=(None if operation.operation_family == "delete" else content_text),
-                after_hash=(None if operation.operation_family == "delete" else _digest(content_text)),
+                content_text=(
+                    None if operation.operation_family == "delete" else content_text
+                ),
+                after_hash=(
+                    None
+                    if operation.operation_family == "delete"
+                    else _digest(content_text)
+                ),
                 language=CodeLanguage.sql,
                 is_structural=True,
                 path_role=CodePackagePathRole.generated_code,
@@ -577,16 +746,43 @@ def _sql_source_artifact_text(
         payload=payload,
         context=context,
     )
-    language_graph = _language_graph_from_payload(payload)
+    renderer.set_external_graphs(list(payload.external_language_graphs))
+    renderer.set_external_class_lookup(
+        _class_lookup_from_graphs(payload.external_language_graphs)
+    )
+    if payload.language_graph is not None:
+        language_overlay = next(
+            (
+                overlay
+                for overlay in payload.language_graph.object_config_graph_overlays
+                if overlay.language == OntologyCodeLanguage.sql
+            ),
+            None,
+        )
+        if language_overlay is not None:
+            renderer.set_language_overlay(language_overlay)
+        renderer.layout_strategy.bind_graph(payload.language_graph)
+        renderer.bind_object_config_graph(payload.language_graph)
+    if payload.enums or payload.classes:
+        class_lookup = {item.id: item for item in payload.class_lookup}
+        for cls in payload.classes:
+            class_lookup.setdefault(cls.id, cls)
+        return _non_empty_source_artifact(
+            renderer.render_source_artifact(
+                enums=payload.enums,
+                classes=payload.classes,
+                class_lookup=class_lookup,
+            )
+        )
+
+    language_graph = payload.language_graph
     if language_graph is not None:
-        renderer.layout_strategy.bind_graph(language_graph)
-        renderer.bind_object_config_graph(language_graph)
         class_lookup = _class_lookup_from_graph(language_graph)
         source_container = _source_container_from_graph(
             graph=language_graph,
             renderer=renderer,
             target=target,
-            payload=payload,
+            relative_path=payload.relative_path,
         )
         if source_container is not None:
             enums, classes = source_container
@@ -610,10 +806,10 @@ def _sql_source_artifact_text(
             )
         )
 
-    cls = _class_config_from_payload(payload)
+    cls = next(iter(payload.classes), None)
     if cls is None:
         return None
-    class_lookup = _class_lookup_from_payload(payload)
+    class_lookup = {item.id: item for item in payload.class_lookup}
     class_lookup.setdefault(cls.id, cls)
     return _non_empty_source_artifact(
         renderer.render_class_source_artifact(
@@ -643,7 +839,9 @@ def _attribute_migration_text(
         if sql_type is None:
             return (
                 render_failfast_sql(
-                    reasons=(f"unsupported SQL attribute create migration: {table_name}.{column_name}",),
+                    reasons=(
+                        f"unsupported SQL attribute create migration: {table_name}.{column_name}",
+                    ),
                 ),
                 (
                     "sql_orm_migration_artifact_ready",
@@ -701,7 +899,8 @@ def _attribute_migration_text(
             and not current_required
         ):
             return (
-                render_drop_not_null(table_name=table_name, column_name=column_name) + "\n",
+                render_drop_not_null(table_name=table_name, column_name=column_name)
+                + "\n",
                 (
                     "sql_orm_migration_artifact_ready",
                     "sql_orm_migration_attribute_update_drop_not_null",
@@ -709,7 +908,10 @@ def _attribute_migration_text(
             )
         return (
             render_failfast_sql(
-                reasons=("unsupported SQL attribute update migration: " f"{table_name}.{column_name}",),
+                reasons=(
+                    "unsupported SQL attribute update migration: "
+                    f"{table_name}.{column_name}",
+                ),
             ),
             (
                 "sql_orm_migration_artifact_ready",
@@ -724,7 +926,9 @@ def _attribute_migration_relative_path(
     *,
     operation: MetaProviderDeltaTypedOperation,
 ) -> str:
-    safe_operation = re.sub(r"[^a-zA-Z0-9_.-]+", "_", operation.operation_key).strip("_.-")
+    safe_operation = re.sub(r"[^a-zA-Z0-9_.-]+", "_", operation.operation_key).strip(
+        "_.-"
+    )
     if not safe_operation:
         safe_operation = _digest(operation.operation_key).split(":", 1)[1][:12]
     return f"migrations/{safe_operation}.sql"
@@ -732,7 +936,9 @@ def _attribute_migration_relative_path(
 
 def _attribute_name(operation: MetaProviderDeltaTypedOperation) -> str | None:
     for payload in _operation_payloads(operation):
-        attribute_name = optional_text(payload.get("attribute_name")) or optional_text(payload.get("name"))
+        attribute_name = optional_text(payload.get("attribute_name")) or optional_text(
+            payload.get("name")
+        )
         if attribute_name is not None:
             return attribute_name
     return _attribute_name_from_key(operation.semantic_key)
@@ -802,37 +1008,56 @@ def _source_container_from_graph(
     graph: ObjectConfigGraph,
     renderer: SQLRenderer,
     target: CodeGeneratedMaterializationTargetRef,
-    payload: Mapping[str, object],
+    relative_path: str,
 ) -> tuple[tuple[EnumConfig, ...], tuple[ClassConfig, ...]] | None:
-    target_path = _target_source_relative_path(target=target, payload=payload)
+    target_path = _target_source_relative_path(
+        target=target,
+        relative_path=relative_path,
+    )
     if target_path is None:
         return None
-
-    enums: list[EnumConfig] = []
-    classes: list[ClassConfig] = []
-    layout = renderer.layout_strategy
-    for node in graph.object_config_graph_nodes:
-        if node.type == ObjectConfigGraphNodeType.enum and node.enum_config is not None:
-            enum_path = layout.get_enum_file_path(node.enum_config)
-            if _same_relative_path(enum_path, target_path):
-                enums.append(node.enum_config)
-            continue
-        if node.type == ObjectConfigGraphNodeType.class_ and node.class_config is not None:
-            class_path = layout.get_class_file_path(node.class_config)
-            if _same_relative_path(class_path, target_path):
-                classes.append(node.class_config)
-
+    enums, classes = _source_container_at_path(
+        graph=graph,
+        layout=renderer.layout_strategy,
+        target_path=target_path,
+    )
     if not enums and not classes:
         return None
+    return (enums, classes)
+
+
+def _source_container_at_path(
+    *,
+    graph: ObjectConfigGraph,
+    layout: ObjectConfigGraphRenderLayoutStrategy,
+    target_path: Path,
+) -> tuple[tuple[EnumConfig, ...], tuple[ClassConfig, ...]]:
+    enums: list[EnumConfig] = []
+    classes: list[ClassConfig] = []
+    for node in graph.object_config_graph_nodes:
+        if node.type == ObjectConfigGraphNodeType.enum and node.enum_config is not None:
+            if _same_relative_path(
+                layout.get_enum_file_path(node.enum_config), target_path
+            ):
+                enums.append(node.enum_config)
+            continue
+        if (
+            node.type == ObjectConfigGraphNodeType.class_
+            and node.class_config is not None
+        ):
+            if _same_relative_path(
+                layout.get_class_file_path(node.class_config), target_path
+            ):
+                classes.append(node.class_config)
     return (tuple(enums), tuple(classes))
 
 
 def _target_source_relative_path(
     *,
     target: CodeGeneratedMaterializationTargetRef,
-    payload: Mapping[str, object],
+    relative_path: str,
 ) -> Path | None:
-    value = optional_text(payload.get("relative_path")) or target.relative_path
+    value = optional_text(relative_path) or target.relative_path
     if not value:
         return None
     return Path(value)
@@ -848,7 +1073,7 @@ def _same_relative_path(left: Path, right: Path) -> bool:
 def _sql_source_artifact_payload(
     *,
     operation: MetaProviderDeltaTypedOperation,
-) -> Mapping[str, object] | None:
+) -> SqlOrmSourceArtifactPayload | None:
     for source in (
         operation.current,
         operation.extra,
@@ -856,71 +1081,32 @@ def _sql_source_artifact_payload(
         mapping_value(operation.current.get("payload")),
     ):
         value = source.get(SQL_ORM_SOURCE_ARTIFACT_PAYLOAD_KEY)
-        if isinstance(value, Mapping):
+        if isinstance(value, SqlOrmSourceArtifactPayload):
             return value
+        if isinstance(value, Mapping):
+            return SqlOrmSourceArtifactPayload.from_mapping(value)
     return None
 
 
 def _sql_source_artifact_renderer(
     *,
-    payload: Mapping[str, object],
+    payload: SqlOrmSourceArtifactPayload,
     context: MetaLanguageGeneratedMaterializationDeltaContext,
 ) -> SQLRenderer:
     base_dir = Path(context.package_root or ".")
     layout_strategy = SQLLayoutStrategyNamespace(base_dir)
-    renderer_kind = (
-        optional_text(payload.get("renderer_kind"))
-        or optional_text(payload.get("source_renderer_kind"))
-        or SQL_ORM_SOURCE_RENDERER_KIND
-    )
+    renderer_kind = payload.renderer_kind
     if renderer_kind == "sqlite":
         renderer: SQLRenderer = SqliteSQLRenderer(layout_strategy=layout_strategy)
     else:
         renderer = SQLRenderer(layout_strategy=layout_strategy)
 
-    renderer_profile = (
-        optional_text(payload.get("source_renderer_profile"))
-        or optional_text(payload.get("renderer_profile"))
-        or SQL_ORM_SOURCE_RENDERER_PROFILE
-    )
+    renderer_profile = payload.source_renderer_profile
     if renderer_profile == SQL_ORM_SOURCE_RENDERER_PROFILE:
         renderer.set_policy(SQLRenderPolicy.orm_models_default())
     else:
         renderer.set_policy(SQLRenderPolicy.projection_default())
     return renderer
-
-
-def _language_graph_from_payload(
-    payload: Mapping[str, object],
-) -> ObjectConfigGraph | None:
-    value = payload.get("language_graph") or payload.get("object_config_graph")
-    if not isinstance(value, Mapping):
-        return None
-    return ObjectConfigGraph.model_validate(value)
-
-
-def _class_config_from_payload(
-    payload: Mapping[str, object],
-) -> ClassConfig | None:
-    value = payload.get("class_config") or payload.get("class")
-    if not isinstance(value, Mapping):
-        return None
-    return ClassConfig.model_validate(value)
-
-
-def _class_lookup_from_payload(
-    payload: Mapping[str, object],
-) -> dict[UUID, ClassConfig]:
-    lookup: dict[UUID, ClassConfig] = {}
-    classes = payload.get("class_lookup") or payload.get("classes")
-    if not isinstance(classes, tuple | list):
-        return lookup
-    for item in classes:
-        if not isinstance(item, Mapping):
-            continue
-        cls = ClassConfig.model_validate(item)
-        lookup[cls.id] = cls
-    return lookup
 
 
 def _class_lookup_from_graph(graph: ObjectConfigGraph) -> dict[UUID, ClassConfig]:
@@ -932,6 +1118,49 @@ def _class_lookup_from_graph(graph: ObjectConfigGraph) -> dict[UUID, ClassConfig
     return lookup
 
 
+def _class_lookup_from_graphs(
+    graphs: tuple[ObjectConfigGraph, ...],
+) -> dict[UUID, ClassConfig]:
+    lookup: dict[UUID, ClassConfig] = {}
+    for graph in graphs:
+        lookup.update(_class_lookup_from_graph(graph))
+    return lookup
+
+
+def _class_configs_from_value(value: object) -> tuple[ClassConfig, ...]:
+    if not isinstance(value, tuple | list):
+        return ()
+    return tuple(
+        ClassConfig.model_validate(item) for item in value if isinstance(item, Mapping)
+    )
+
+
+def _enum_configs_from_value(value: object) -> tuple[EnumConfig, ...]:
+    if not isinstance(value, tuple | list):
+        return ()
+    return tuple(
+        EnumConfig.model_validate(item) for item in value if isinstance(item, Mapping)
+    )
+
+
+def _object_config_graph_from_value(value: object) -> ObjectConfigGraph | None:
+    if not isinstance(value, Mapping):
+        return None
+    return ObjectConfigGraph.model_validate(value)
+
+
+def _object_config_graphs_from_value(
+    value: object,
+) -> tuple[ObjectConfigGraph, ...]:
+    if not isinstance(value, tuple | list):
+        return ()
+    return tuple(
+        ObjectConfigGraph.model_validate(item)
+        for item in value
+        if isinstance(item, Mapping)
+    )
+
+
 def _class_from_graph(
     *,
     operation: MetaProviderDeltaTypedOperation,
@@ -939,7 +1168,11 @@ def _class_from_graph(
 ) -> ClassConfig | None:
     class_name = _class_name(operation)
     class_fqn = _owner_key(operation)
-    candidates = tuple(cls for cls in class_lookup.values() if cls.value_mode == ClassValueMode.graph_ref)
+    candidates = tuple(
+        cls
+        for cls in class_lookup.values()
+        if cls.value_mode == ClassValueMode.graph_ref
+    )
     for cls in candidates:
         if class_name is not None and cls.name == class_name:
             return cls
@@ -963,7 +1196,10 @@ def _target_hint(
             continue
         if hint.renderer_profile and hint.renderer_profile != SQL_ORM_RENDERER_PROFILE:
             continue
-        if hint.materialization_source and hint.materialization_source != SQL_ORM_MATERIALIZATION_SOURCE:
+        if (
+            hint.materialization_source
+            and hint.materialization_source != SQL_ORM_MATERIALIZATION_SOURCE
+        ):
             continue
         if owner_key and hint.owner_key and hint.owner_key != owner_key:
             continue
@@ -991,12 +1227,15 @@ def _relative_path(
 
 def _owner_key(operation: MetaProviderDeltaTypedOperation) -> str | None:
     for payload in _operation_payloads(operation):
-        owner_key = optional_text(payload.get("owner_key"))
-        if owner_key is not None:
-            return owner_key
-        class_fqn = optional_text(payload.get("class_fqn"))
-        if class_fqn is not None:
-            return class_fqn
+        for key in (
+            "owner_key",
+            "class_fqn",
+            "enum_fqn",
+            "source_class_fqn",
+        ):
+            owner_key = optional_text(payload.get(key))
+            if owner_key is not None:
+                return owner_key
     return _semantic_owner_from_key(operation.semantic_key)
 
 
@@ -1049,7 +1288,9 @@ def _normalized_path(value: str | None) -> str | None:
     text = optional_text(value)
     if text is None:
         return None
-    parts = [part for part in text.replace("\\", "/").split("/") if part and part != "."]
+    parts = [
+        part for part in text.replace("\\", "/").split("/") if part and part != "."
+    ]
     return "/".join(parts) or None
 
 
@@ -1071,12 +1312,18 @@ def _sorted_unique(values: tuple[str, ...]) -> tuple[str, ...]:
 
 
 def _json_object(value: Mapping[str, object]) -> JsonObject:
-    return cast(JsonObject, {key: item for key, item in value.items() if item is not None})
+    return cast(
+        JsonObject, {key: item for key, item in value.items() if item is not None}
+    )
 
 
 __all__ = [
     "SQL_ORM_GENERATED_DELTA_RENDERER_NAME",
     "SQL_ORM_MATERIALIZATION_SOURCE",
     "SQL_ORM_RENDERER_PROFILE",
+    "SQL_ORM_SOURCE_ARTIFACT_PAYLOAD_CONTRACT_VERSION",
+    "SQL_ORM_SOURCE_ARTIFACT_PAYLOAD_KEY",
+    "SqlOrmSourceArtifactPayload",
     "SqlOrmRuntimeGeneratedDeltaRenderer",
+    "build_sql_orm_source_artifact_payload",
 ]

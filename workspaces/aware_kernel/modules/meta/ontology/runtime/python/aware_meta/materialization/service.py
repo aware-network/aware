@@ -156,6 +156,7 @@ from aware_meta.graph.instance.commit.validator import (
 from aware_meta.runtime.author import resolve_meta_author_id
 from aware_meta.runtime.graph_context import find_meta_graph_projection_hash_by_name
 from aware_meta.runtime.package_index import (
+    load_meta_runtime_package_projection_index,
     MetaRuntimePackageIndexEntry,
     record_full_package_materialization_index,
 )
@@ -239,26 +240,26 @@ class _ModelIntrospectionOverlay(ModelIntrospection):
         *,
         include_unset: bool = False,
     ) -> tuple[bool, object]:
+        if name in self.values_by_name:
+            return True, self.values_by_name[name]
         found, value = self.source.try_field_value(
             name,
             include_unset=include_unset,
         )
         if found:
             return True, value
-        if name in self.values_by_name:
-            return True, self.values_by_name[name]
         return False, None
 
     def try_virtual_value(self, attribute_config: object) -> tuple[bool, object]:
         return self.source.try_virtual_value(attribute_config)  # type: ignore[arg-type]
 
     def try_attribute_value(self, attribute_config: object) -> tuple[bool, object]:
-        found, value = self.source.try_attribute_value(attribute_config)  # type: ignore[arg-type]
-        if found:
-            return True, value
         name = getattr(attribute_config, "name", None)
         if name in self.values_by_name:
             return True, self.values_by_name[str(name)]
+        found, value = self.source.try_attribute_value(attribute_config)  # type: ignore[arg-type]
+        if found:
+            return True, value
         return False, None
 
     def try_class_config_id(self) -> UUID | None:
@@ -723,6 +724,49 @@ def _materialization_index_runtime_sidecar_projection_hashes_by_id(
     )
 
 
+def _materialization_index_runtime_package_index_projection_hashes_by_id(
+    *,
+    workspace_root: Path,
+    result: ObjectConfigGraphPackageLeafMaterializationResult,
+) -> dict[UUID, str]:
+    package = result.object_config_graph_package
+    index = load_meta_runtime_package_projection_index(aware_root=workspace_root)
+    if index is None:
+        return {}
+    current_hash = str(result.object_config_graph.hash or "").strip()
+    object_config_graph_id = result.object_config_graph.id
+    projection_hashes_by_id: dict[UUID, str] = {}
+
+    def remember(*, opg_id: UUID, projection_hash: str) -> bool:
+        existing = projection_hashes_by_id.get(opg_id)
+        if existing is not None and existing != projection_hash:
+            return False
+        projection_hashes_by_id[opg_id] = projection_hash
+        return True
+
+    for entry in index.projections_by_name.values():
+        if entry.package_name != package.package_name:
+            continue
+        if entry.fqn_prefix != package.fqn_prefix:
+            continue
+        if entry.object_config_graph_id != object_config_graph_id:
+            continue
+        if current_hash and entry.object_config_graph_hash != current_hash:
+            continue
+        projection_hash = str(entry.projection_hash or "").strip()
+        if not projection_hash:
+            continue
+        opg_id = entry.object_projection_graph_id
+        if opg_id is None:
+            opg_id = stable_object_projection_graph_id(
+                object_config_graph_id=object_config_graph_id,
+                name=entry.projection_name,
+            )
+        if not remember(opg_id=opg_id, projection_hash=projection_hash):
+            return {}
+    return projection_hashes_by_id
+
+
 def _runtime_sidecar_projection_hashes_by_id(
     *,
     sidecar: Mapping[str, object],
@@ -1148,7 +1192,7 @@ def _build_code_package_source_manifest_root(
     sources_root: str | None,
     fqn_prefix: str | None,
     source_text_by_relative_path: Mapping[str, str],
-) -> tuple[CodePackage, list[BaseORMModel]]:
+) -> tuple[CodePackage, list[ModelIntrospection]]:
     with disable_autobind():
         code_package = CodePackage(
             id=code_package_id,
@@ -1162,7 +1206,7 @@ def _build_code_package_source_manifest_root(
             sources_root=sources_root,
             fqn_prefix=fqn_prefix,
         )
-        related_models: list[BaseORMModel] = []
+        related_models: list[ModelIntrospection] = []
         for relative_path, content_text in sorted(source_text_by_relative_path.items()):
             package_code_id = stable_code_package_code_id(
                 code_package_id=code_package_id,
@@ -1196,7 +1240,16 @@ def _build_code_package_source_manifest_root(
                 path_role=CodePackagePathRole.authored_source,
             )
             code_package.code_package_codes.append(package_code)
-            related_models.extend([package_code, code, content_part_text])
+            related_models.extend(
+                [
+                    _ModelIntrospectionOverlay(
+                        source=package_code,
+                        values_by_name={"code_id": code_id},
+                    ),
+                    code,
+                    content_part_text,
+                ]
+            )
     return code_package, related_models
 
 
@@ -1949,6 +2002,9 @@ async def realize_object_config_graph_package_language_materialization_packages(
     actor_id: UUID | None,
 ) -> ObjectConfigGraphPackageLeafMaterializationResult:
     """Commit realized generated CodePackage refs back into the Meta package row."""
+    generated_code_package_refs = tuple(
+        dict(ref) for ref in generated_code_package_refs
+    )
     realizations = _language_materialization_package_realizations_by_code_package_id(
         generated_code_package_refs=generated_code_package_refs,
         object_config_graph_package_id=result.object_config_graph_package.id,
@@ -2046,7 +2102,50 @@ async def realize_object_config_graph_package_language_materialization_packages(
             object_instance_graph_identity_id=object_instance_graph_identity_id,
         )
     if not changes:
-        return result
+        package_head_commit_id = result.object_config_graph_package_head_commit_id
+        package_oig_commit_id = (
+            result.object_config_graph_package_object_instance_graph_commit_id
+        )
+        if package_head_commit_id is None or package_oig_commit_id is None:
+            raise RuntimeError(
+                "No-change language materialization realization requires current "
+                "ObjectConfigGraphPackage HEAD evidence."
+            )
+        phase_timings_s[
+            "realize_object_config_graph_package_language_materialization_packages."
+            "reuse_existing_head"
+        ] = 0.0
+        object_config_graph_package.source_code_package = result.code_package
+        object_config_graph_package.source_code_package_id = result.code_package.id
+        object_config_graph_package.object_config_graph = result.object_config_graph
+        object_config_graph_package.object_config_graph_id = (
+            result.object_config_graph.id
+        )
+        object_config_graph_package.object_config_graph_object_instance_graph_commit_id = (
+            result.object_config_graph_object_instance_graph_commit_id
+        )
+        materialization_index_receipt = _materialization_index_receipt_with_realization(
+            receipt=result.materialization_index_receipt,
+            object_config_graph_package_id=(result.object_config_graph_package.id),
+            object_config_graph_package_head_commit_id=package_head_commit_id,
+            object_config_graph_package_object_instance_graph_commit_id=(
+                package_oig_commit_id
+            ),
+            realization_count=realization_count,
+            generated_code_package_refs=generated_code_package_refs,
+        )
+        realized_result = replace(
+            result,
+            object_config_graph_package=object_config_graph_package,
+            phase_timings_s=dict(sorted(phase_timings_s.items())),
+            materialization_index_receipt=materialization_index_receipt,
+        )
+        if workspace_root is not None:
+            realized_result = _persist_language_materialization_reuse_evidence(
+                result=realized_result,
+                workspace_root=workspace_root,
+            )
+        return realized_result
 
     committer = FSLaneCommitter()
     with _record_phase(
@@ -2136,13 +2235,15 @@ async def realize_object_config_graph_package_language_materialization_packages(
     ] = _round_duration_s(perf_counter() - started_at)
     materialization_index_receipt = _materialization_index_receipt_with_realization(
         receipt=result.materialization_index_receipt,
+        object_config_graph_package_id=result.object_config_graph_package.id,
         object_config_graph_package_head_commit_id=commit.commit.id,
         object_config_graph_package_object_instance_graph_commit_id=(
             object_config_graph_package_oig_commit_id
         ),
         realization_count=realization_count,
+        generated_code_package_refs=generated_code_package_refs,
     )
-    return replace(
+    realized_result = replace(
         result,
         object_config_graph_package=object_config_graph_package,
         object_config_graph_package_commit_id=commit.commit.id,
@@ -2153,6 +2254,12 @@ async def realize_object_config_graph_package_language_materialization_packages(
         phase_timings_s=dict(sorted(phase_timings_s.items())),
         materialization_index_receipt=materialization_index_receipt,
     )
+    if workspace_root is not None:
+        realized_result = _persist_language_materialization_reuse_evidence(
+            result=realized_result,
+            workspace_root=workspace_root,
+        )
+    return realized_result
 
 
 def _language_materialization_package_realizations_by_code_package_id(
@@ -2161,6 +2268,30 @@ def _language_materialization_package_realizations_by_code_package_id(
     object_config_graph_package_id: UUID,
 ) -> dict[UUID, Mapping[str, object]]:
     realizations: dict[UUID, Mapping[str, object]] = {}
+    for realization in _complete_language_materialization_package_realization_refs(
+        generated_code_package_refs=generated_code_package_refs,
+        object_config_graph_package_id=object_config_graph_package_id,
+    ):
+        code_package_id = _payload_uuid(realization, "code_package_id")
+        if code_package_id is None:
+            continue
+        realizations[code_package_id] = realization
+        declared_code_package_id = _payload_uuid(
+            realization,
+            "declared_code_package_id",
+        )
+        if declared_code_package_id is not None:
+            realizations[declared_code_package_id] = realization
+    return realizations
+
+
+def _complete_language_materialization_package_realization_refs(
+    *,
+    generated_code_package_refs: Iterable[Mapping[str, object]],
+    object_config_graph_package_id: UUID,
+) -> tuple[dict[str, object], ...]:
+    refs: list[dict[str, object]] = []
+    seen: set[tuple[UUID, UUID]] = set()
     for ref in generated_code_package_refs:
         if (
             ref.get("schema")
@@ -2173,18 +2304,28 @@ def _language_materialization_package_realizations_by_code_package_id(
         ):
             continue
         code_package_id = _payload_uuid(ref, "code_package_id")
+        code_package_commit_id = _payload_uuid(ref, "code_package_commit_id")
+        code_package_head_commit_id = _payload_uuid(
+            ref,
+            "code_package_head_commit_id",
+        )
         code_package_oig_commit_id = _payload_uuid(
             ref,
             "code_package_object_instance_graph_commit_id",
         )
-        if code_package_id is None or code_package_oig_commit_id is None:
+        if (
+            code_package_id is None
+            or code_package_commit_id is None
+            or code_package_head_commit_id is None
+            or code_package_oig_commit_id is None
+        ):
             continue
-        realization = dict(ref)
-        realizations[code_package_id] = realization
-        declared_code_package_id = _payload_uuid(ref, "declared_code_package_id")
-        if declared_code_package_id is not None:
-            realizations[declared_code_package_id] = realization
-    return realizations
+        identity = (code_package_id, code_package_oig_commit_id)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        refs.append(dict(ref))
+    return tuple(refs)
 
 
 def _language_materialization_package_realization_count(
@@ -2202,9 +2343,11 @@ def _language_materialization_package_realization_count(
 def _materialization_index_receipt_with_realization(
     *,
     receipt: Mapping[str, object] | None,
+    object_config_graph_package_id: UUID,
     object_config_graph_package_head_commit_id: UUID,
     object_config_graph_package_object_instance_graph_commit_id: UUID,
     realization_count: int,
+    generated_code_package_refs: Iterable[Mapping[str, object]],
 ) -> Mapping[str, object] | None:
     if receipt is None:
         return None
@@ -2217,21 +2360,130 @@ def _materialization_index_receipt_with_realization(
         object_config_graph_package_object_instance_graph_commit_id
     )
     payload["semantic"] = semantic
+    realization_refs = _complete_language_materialization_package_realization_refs(
+        generated_code_package_refs=generated_code_package_refs,
+        object_config_graph_package_id=object_config_graph_package_id,
+    )
     payload["language_materialization_package_realization"] = {
         "schema": (
             "aware.meta.object_config_graph_package."
-            "language_materialization_package_realization.v1"
+            "language_materialization_package_realization.v2"
         ),
         "status": "materialized",
         "realization_count": realization_count,
+        "object_config_graph_package_id": str(object_config_graph_package_id),
         "object_config_graph_package_head_commit_id": str(
             object_config_graph_package_head_commit_id
         ),
         "object_config_graph_package_object_instance_graph_commit_id": str(
             object_config_graph_package_object_instance_graph_commit_id
         ),
+        "generated_code_package_refs": realization_refs,
     }
     return payload
+
+
+def _language_materialization_package_realizations_from_reuse_receipt(
+    *,
+    receipt: Mapping[str, object] | None,
+    object_config_graph_package_id: UUID,
+    object_config_graph_package_head_commit_id: UUID,
+    object_config_graph_package_object_instance_graph_commit_id: UUID,
+) -> tuple[dict[UUID, Mapping[str, object]], str]:
+    if receipt is None:
+        return {}, "receipt_missing"
+    witness = receipt.get("language_materialization_package_realization")
+    if not isinstance(witness, Mapping):
+        return {}, "witness_missing"
+    if (
+        witness.get("schema") != "aware.meta.object_config_graph_package."
+        "language_materialization_package_realization.v2"
+    ):
+        return {}, "witness_schema_mismatch"
+    if witness.get("status") != "materialized":
+        return {}, "witness_status_incomplete"
+    expected_ids = {
+        "object_config_graph_package_id": object_config_graph_package_id,
+        "object_config_graph_package_head_commit_id": (
+            object_config_graph_package_head_commit_id
+        ),
+        "object_config_graph_package_object_instance_graph_commit_id": (
+            object_config_graph_package_object_instance_graph_commit_id
+        ),
+    }
+    for key, expected_id in expected_ids.items():
+        if _payload_uuid(witness, key) != expected_id:
+            return {}, f"{key}_mismatch"
+    raw_refs = witness.get("generated_code_package_refs")
+    if not isinstance(raw_refs, (list, tuple)):
+        return {}, "generated_code_package_refs_missing"
+    refs = tuple(ref for ref in raw_refs if isinstance(ref, Mapping))
+    realizations = _language_materialization_package_realizations_by_code_package_id(
+        generated_code_package_refs=refs,
+        object_config_graph_package_id=object_config_graph_package_id,
+    )
+    realization_count = _language_materialization_package_realization_count(
+        realizations
+    )
+    raw_realization_count = witness.get("realization_count")
+    if (
+        isinstance(raw_realization_count, bool)
+        or not isinstance(raw_realization_count, int)
+        or raw_realization_count <= 0
+        or raw_realization_count != realization_count
+    ):
+        return {}, "realization_count_mismatch"
+    return realizations, "complete"
+
+
+def _persist_language_materialization_reuse_evidence(
+    *,
+    result: ObjectConfigGraphPackageLeafMaterializationResult,
+    workspace_root: Path,
+) -> ObjectConfigGraphPackageLeafMaterializationResult:
+    receipt = result.materialization_index_receipt
+    cache_key = receipt.get("cache_key") if isinstance(receipt, Mapping) else None
+    if not isinstance(cache_key, Mapping):
+        raise RuntimeError(
+            "Language materialization realization requires a materialization-index "
+            "cache key."
+        )
+    source_manifest_hash = str(cache_key.get("source_manifest_hash") or "").strip()
+    dependency_signature = str(cache_key.get("dependency_signature") or "").strip()
+    if not source_manifest_hash or not dependency_signature:
+        raise RuntimeError(
+            "Language materialization realization requires source and dependency "
+            "signatures."
+        )
+    phase_timings_s = dict(result.phase_timings_s)
+    with _record_phase(
+        phase_timings_s,
+        "persist_language_materialization_reuse_evidence.write_reuse_cache",
+    ):
+        _write_object_config_graph_package_reuse_cache(
+            result=result,
+            source_manifest_hash=source_manifest_hash,
+            dependency_signature=dependency_signature,
+        )
+    module_root = _find_module_root(
+        aware_toml_path=result.aware_toml_path,
+        workspace_root=workspace_root,
+    )
+    with _record_phase(
+        phase_timings_s,
+        "persist_language_materialization_reuse_evidence.record_projection_index",
+    ):
+        _record_runtime_package_projection_index(
+            result=result,
+            workspace_root=workspace_root,
+            module_root=module_root,
+            source_manifest_hash=source_manifest_hash,
+            dependency_signature=dependency_signature,
+        )
+    return replace(
+        result,
+        phase_timings_s=dict(sorted(phase_timings_s.items())),
+    )
 
 
 def _round_duration_s(duration_s: float) -> float:
@@ -3277,12 +3529,28 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
                 )
             )
             projection_hashes_by_id.update(runtime_sidecar_projection_hashes_by_id)
+        with _record_phase(
+            phase_timings_s,
+            f"{receipt_phase_prefix}.runtime_package_index_projection_hashes_by_id",
+        ):
+            runtime_package_index_projection_hashes_by_id = (
+                _materialization_index_runtime_package_index_projection_hashes_by_id(
+                    workspace_root=workspace_root,
+                    result=result,
+                )
+            )
+            projection_hashes_by_id.update(
+                runtime_package_index_projection_hashes_by_id
+            )
         phase_timings_s[f"{receipt_phase_prefix}.metric.projection_hash_count"] = float(
             len(projection_hashes_by_id)
         )
         phase_timings_s[
             f"{receipt_phase_prefix}.metric.runtime_sidecar_projection_hash_count"
         ] = float(len(runtime_sidecar_projection_hashes_by_id))
+        phase_timings_s[
+            f"{receipt_phase_prefix}.metric.runtime_package_index_projection_hash_count"
+        ] = float(len(runtime_package_index_projection_hashes_by_id))
         with _record_phase(
             phase_timings_s,
             f"{receipt_phase_prefix}.identity_plane_coverage_check",
@@ -3366,7 +3634,11 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
             source_manifest_hash=source_manifest_hash,
             dependency_signature=dependency_signature,
         )
-    return result
+    return _with_final_leaf_phase_timings(
+        result=result,
+        phase_timings_s=phase_timings_s,
+        package_started_at=package_started_at,
+    )
 
 
 def _find_module_root(*, aware_toml_path: Path, workspace_root: Path) -> Path:
@@ -4071,10 +4343,16 @@ async def _try_reuse_existing_object_config_graph_package_cache(
             projection_hash=object_config_graph_projection_hash,
         )
     )
+    object_config_graph_package_head = await store.head(
+        branch_id=branch_id,
+        projection_hash=object_config_graph_package_projection_hash,
+    )
     object_config_graph_package_head_commit_id = _decode_head_commit_id(
-        head=await store.head(
-            branch_id=branch_id,
-            projection_hash=object_config_graph_package_projection_hash,
+        head=object_config_graph_package_head,
+    )
+    object_config_graph_package_head_oig_commit_id = (
+        _decode_head_object_instance_graph_commit_id(
+            head=object_config_graph_package_head,
         )
     )
     if code_package_head_commit_id != _payload_uuid(
@@ -4091,6 +4369,12 @@ async def _try_reuse_existing_object_config_graph_package_cache(
         payload, "object_config_graph_package_head_commit_id"
     ):
         miss("object_config_graph_package_head_commit_id_mismatch")
+        return None
+    if object_config_graph_package_head_oig_commit_id != _payload_uuid(
+        payload,
+        "object_config_graph_package_object_instance_graph_commit_id",
+    ):
+        miss("object_config_graph_package_object_instance_graph_commit_id_mismatch")
         return None
 
     object_config_graph_payload = _object_config_graph_payload_from_reuse_cache(payload)
@@ -4185,6 +4469,24 @@ async def _try_reuse_existing_object_config_graph_package_cache(
         sources_root=sources_root_relative,
         fqn_prefix=fqn_prefix,
     )
+    cached_index_receipt = _materialization_index_receipt_from_reuse_cache(payload)
+    (
+        language_materialization_package_realizations,
+        language_realization_evidence_status,
+    ) = _language_materialization_package_realizations_from_reuse_receipt(
+        receipt=cached_index_receipt,
+        object_config_graph_package_id=resolved_object_config_graph_package_id,
+        object_config_graph_package_head_commit_id=(
+            object_config_graph_package_head_commit_id
+        ),
+        object_config_graph_package_object_instance_graph_commit_id=(
+            object_config_graph_package_oig_commit_id
+        ),
+    )
+    phase_timings_s[
+        "reuse_existing_object_config_graph_package_cache."
+        "language_realization_evidence." + language_realization_evidence_status
+    ] = 0.0
     (
         object_config_graph_package,
         _language_materialization_related_models,
@@ -4205,6 +4507,9 @@ async def _try_reuse_existing_object_config_graph_package_cache(
         language_materialization_specs=language_materialization_specs,
         package_root=language_materialization_package_root,
         workspace_root=workspace_root,
+        language_materialization_package_realizations=(
+            language_materialization_package_realizations
+        ),
     )
     object_config_graph_package.source_code_package = code_package
     object_config_graph_package.object_config_graph = object_config_graph
@@ -4249,7 +4554,7 @@ async def _try_reuse_existing_object_config_graph_package_cache(
         semantic_commit_phase_timings_s={},
         object_config_graph_payload=object_config_graph_payload,
     )
-    cached_index_receipt = _materialization_index_receipt_from_reuse_cache(payload)
+    fingerprint_reuse_has_cached_index_receipt = cached_index_receipt is not None
     if cached_index_receipt is None:
         result = _with_materialization_index_receipt(
             result=result,
@@ -4267,20 +4572,53 @@ async def _try_reuse_existing_object_config_graph_package_cache(
             result,
             materialization_index_receipt=cached_index_receipt,
         )
-    _write_object_config_graph_package_reuse_cache(
-        result=result,
-        source_manifest_hash=source_manifest_hash,
-        dependency_signature=dependency_signature,
-    )
+    if fingerprint_reuse_has_cached_index_receipt:
+        phase_timings_s[
+            "write_object_config_graph_package_reuse_cache.skipped_fingerprint_reuse"
+        ] = 0.0
+    else:
+        with _record_phase(
+            phase_timings_s, "write_object_config_graph_package_reuse_cache"
+        ):
+            _write_object_config_graph_package_reuse_cache(
+                result=result,
+                source_manifest_hash=source_manifest_hash,
+                dependency_signature=dependency_signature,
+            )
     if workspace_root is not None and module_root is not None:
-        _record_runtime_package_projection_index(
-            result=result,
-            workspace_root=workspace_root,
-            module_root=module_root,
-            source_manifest_hash=source_manifest_hash,
-            dependency_signature=dependency_signature,
-        )
-    return result
+        if fingerprint_reuse_has_cached_index_receipt:
+            phase_timings_s[
+                "record_runtime_package_projection_index.skipped_fingerprint_reuse"
+            ] = 0.0
+        else:
+            with _record_phase(
+                phase_timings_s, "record_runtime_package_projection_index"
+            ):
+                _record_runtime_package_projection_index(
+                    result=result,
+                    workspace_root=workspace_root,
+                    module_root=module_root,
+                    source_manifest_hash=source_manifest_hash,
+                    dependency_signature=dependency_signature,
+                )
+    return _with_final_leaf_phase_timings(
+        result=result,
+        phase_timings_s=phase_timings_s,
+        package_started_at=package_started_at,
+    )
+
+
+def _with_final_leaf_phase_timings(
+    *,
+    result: ObjectConfigGraphPackageLeafMaterializationResult,
+    phase_timings_s: dict[str, float],
+    package_started_at: float,
+) -> ObjectConfigGraphPackageLeafMaterializationResult:
+    phase_timings_s["total"] = _round_duration_s(perf_counter() - package_started_at)
+    return replace(
+        result,
+        phase_timings_s=dict(sorted(phase_timings_s.items())),
+    )
 
 
 def _write_object_config_graph_package_reuse_cache(
@@ -5680,6 +6018,18 @@ def _decode_head_commit_id(*, head: object) -> UUID | None:
     if not isinstance(head, dict):
         return None
     raw_commit_id = head.get("commit_id")
+    if not isinstance(raw_commit_id, str) or not raw_commit_id.strip():
+        return None
+    try:
+        return UUID(raw_commit_id)
+    except ValueError:
+        return None
+
+
+def _decode_head_object_instance_graph_commit_id(*, head: object) -> UUID | None:
+    if not isinstance(head, dict):
+        return None
+    raw_commit_id = head.get("object_instance_graph_commit_id")
     if not isinstance(raw_commit_id, str) or not raw_commit_id.strip():
         return None
     try:

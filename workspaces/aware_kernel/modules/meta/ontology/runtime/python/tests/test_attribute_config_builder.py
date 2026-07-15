@@ -2,11 +2,16 @@ from __future__ import annotations
 
 from uuid import uuid4
 
+import pytest
+
 from aware_code_ontology.attribute.code_section_attribute import CodeSectionAttribute
 from aware_grammar.primitive_codec import AwarePrimitiveCodec
 from aware_grammar.type_descriptor_adapter import AwareTypeDescriptorAdapter
 
-from aware_meta.attribute.config.builder import build_attribute_config_from_code
+from aware_meta.attribute.config.builder import (
+    DecimalValueError,
+    build_attribute_config_from_code,
+)
 from aware_meta.fqn_resolver import (
     FqnRegistry,
     NamespacePath,
@@ -16,9 +21,7 @@ from aware_meta.test_support import make_enum_config
 
 def _scope_with_enum(enum_name: str):
     code_id = uuid4()
-    namespace = NamespacePath(
-        package="aware_service", namespace="service"
-    )
+    namespace = NamespacePath(package="aware_service", namespace="service")
     registry = FqnRegistry(namespace_by_code_id={code_id: namespace})
     _ = registry.add_enum_with_namespace(
         make_enum_config(
@@ -106,3 +109,62 @@ def test_build_attribute_config_from_code_preserves_enum_collection_defaults() -
     )
 
     assert attribute_config.default_value == '["none", "reserve_before_execute"]'
+
+
+def test_build_attribute_config_from_code_canonicalizes_decimal_default() -> None:
+    scope = _scope_with_enum("UnusedEnum")
+
+    attribute_config = build_attribute_config_from_code(
+        fqn_scope=scope,
+        primitive_codec=AwarePrimitiveCodec(),
+        type_descriptor_adapter=AwareTypeDescriptorAdapter(),
+        code_section_attribute=_code_section_attribute(
+            type_text="Decimal",
+            default_value_text="1.2300",
+            is_required=True,
+        ),
+        owner_key="aware_test.exact_amount::input",
+    )
+
+    assert attribute_config.default_value == '"1.23"'
+
+
+def test_build_attribute_config_from_code_canonicalizes_decimal_list_default() -> None:
+    scope = _scope_with_enum("UnusedEnum")
+
+    attribute_config = build_attribute_config_from_code(
+        fqn_scope=scope,
+        primitive_codec=AwarePrimitiveCodec(),
+        type_descriptor_adapter=AwareTypeDescriptorAdapter(),
+        code_section_attribute=_code_section_attribute(
+            type_text="Decimal[]",
+            default_value_text="[1.00, 2.500, 1e-3]",
+            is_required=True,
+        ),
+        owner_key="aware_test.exact_samples::input",
+    )
+
+    assert attribute_config.default_value == '["1", "2.5", "0.001"]'
+
+
+@pytest.mark.parametrize(
+    "default_value_text",
+    ['["1.25"]', "[true]", "[NaN]"],
+)
+def test_build_attribute_config_from_code_rejects_non_numeric_decimal_list_items(
+    default_value_text: str,
+) -> None:
+    scope = _scope_with_enum("UnusedEnum")
+
+    with pytest.raises(DecimalValueError):
+        build_attribute_config_from_code(
+            fqn_scope=scope,
+            primitive_codec=AwarePrimitiveCodec(),
+            type_descriptor_adapter=AwareTypeDescriptorAdapter(),
+            code_section_attribute=_code_section_attribute(
+                type_text="Decimal[]",
+                default_value_text=default_value_text,
+                is_required=True,
+            ),
+            owner_key="aware_test.invalid_exact_samples::input",
+        )

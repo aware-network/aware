@@ -17,6 +17,13 @@ enum ActionExecutionStatus {
     timed_out
 }
 
+/// Result of atomically claiming one deterministic ActionExecution attempt.
+enum ActionExecutionClaimStatus {
+    claimed
+    already_running
+    already_terminal
+}
+
 /// Canonical lifecycle stage emitted by reactivity action feedback.
 ///
 /// Notes:

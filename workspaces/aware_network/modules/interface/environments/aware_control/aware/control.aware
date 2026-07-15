@@ -1,0 +1,29 @@
+// Aware Control Environment
+//
+// Environment-owned OS profile/session topology for the first product
+// environment in aware_network. Attention owns layout/section focus topology;
+// this source only declares profile, process, thread, and session defaults.
+
+profile control.default default {
+    title "Aware Control"
+    description "Environment-owned OS profile for Aware Control identity admission, network readiness, and environment selection."
+    narrative "Admit identity, observe kernel readiness, and select target environments from an Environment-owned OS profile."
+
+    process continuous control default {
+        title "Control"
+        narrative "Continuous control process for bootstrap, identity admission, and operator handoff."
+        intent control
+
+        thread control.main default {
+            title "Control Main"
+            narrative "Primary control thread for identity admission, host readiness, and network territory status."
+            workspace_view thread.workspace
+        }
+    }
+
+    session control.default default {
+        title "Aware Control"
+        purpose "Identity admission and environment selection before an actor joins a target environment."
+        default process control thread control.main
+    }
+}

@@ -27,6 +27,7 @@
     "aware_reactivity_ontology.event.event_config_condition_config",
     "aware_reactivity_ontology.event.event_config_condition_config_scope",
     "aware_reactivity_ontology.event.event_config_condition_config_scope_event",
+    "aware_reactivity_ontology.event.event_config_meaning_resolver_config",
     "aware_reactivity_ontology.event.event_enums",
     "aware_reactivity_ontology.event.event_schedule",
     "aware_reactivity_ontology.stable_ids"

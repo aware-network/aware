@@ -1,0 +1,19 @@
+/// PaneRenderSpec projection
+///
+/// Purpose:
+/// - Commit renderer-neutral PaneRenderSpec truth as ontology data.
+/// - Keep render nodes, state bindings, action bindings, input bindings,
+///   style tokens, and renderer requirements in one replayable render lane.
+projection PaneRenderSpec is_branchable {
+    root render.PaneRenderSpec
+
+    render.PaneRenderSpec::pane_config PaneConfig
+    render.PaneRenderSpec::state_model aware_meta.ObjectConfigGraph
+    render.PaneRenderSpec::nodes
+    render.PaneRenderNode::state_bindings
+    render.PaneRenderNode::action_bindings
+    render.PaneActionBinding::projection_experience_view_invocation_action ProjectionExperience
+    render.PaneActionBinding::input_bindings
+    render.PaneRenderNode::style_tokens
+    render.PaneRenderSpec::renderer_requirements
+}

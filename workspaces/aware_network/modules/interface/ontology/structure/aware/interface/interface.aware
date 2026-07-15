@@ -1,0 +1,102 @@
+class Interface {
+    // Relationships
+    /// Interface-owned system Actor used for pre-operator provenance.
+    ///
+    /// Contract:
+    /// - Interface bootstrap/admission actions are never actorless.
+    /// - The human/operator Actor is bound later by Identity admission.
+    /// - This portal points at Identity's canonical system Actor for this Interface.
+    system_actor aware_identity.actor.Actor?
+    interface_sessions InterfaceSession[]
+    interface_identities InterfaceIdentity[]
+    environments InterfaceEnvironment[]
+    interface_windows InterfaceWindow[]
+    source_network_operation_hops aware_network.network.NetworkOperationHop[]
+    target_network_operation_hops aware_network.network.NetworkOperationHop[]
+
+    // Attributes
+    os InterfaceOs key
+    version String key
+
+    fn build construct (os InterfaceOs key, version String key) -> Interface {
+        """
+        Create one Interface runtime instance under InterfaceConfig.
+        """
+    }
+
+    fn attach_window (window_id UUID) -> InterfaceWindow {
+        """
+        Creates (or ensures) an InterfaceWindow link for an existing Window.
+
+        Canonical v0:
+        - Window instances live in the `window` projection lane (separate receipt).
+        - This function commits only the link object (`InterfaceWindow`) in the `interface` lane.
+        - InterfaceWindow id is derived deterministically from (interface_id, window_id).
+        - Idempotent: safe to call multiple times for the same `window_id`.
+
+        Projection boundary:
+        - `InterfaceWindow::window` is a portal to the `window` projection.
+        - The caller must create/ensure the target `window.Window` separately (e.g. via `window.Window.build(window_id)`).
+        """
+        let attached = construct interface_windows.create(
+            window_id = window_id,
+        )
+    }
+
+    fn attach_environment (environment_id UUID) -> InterfaceEnvironment {
+        """
+        Creates (or ensures) an InterfaceEnvironment access association.
+
+        Contract:
+        - Interface owns the Environment access contract.
+        - Window thread targets must reference this association instead of granting Environment access
+          from raw Window state.
+        - Idempotent: safe to call multiple times for the same `environment_id`.
+        """
+        let attached = construct environments.create(
+            environment_id = environment_id,
+        )
+    }
+
+    fn start_session (
+        identity_session_id UUID key,
+        name String key,
+        state InterfaceSessionState = active
+    ) -> InterfaceSession {
+        """
+        Start or attach one commit-backed InterfaceSession.
+
+        Contract:
+        - `identity_session_id` is canonical Identity participation evidence.
+        - Identity Session membership admits every participant; the shared
+          InterfaceSession is not owned by one InterfaceIdentity.
+        - The commit records durable client/session provenance before any
+          transport binding is registered.
+        - Network connection and bearer-token lifecycle remain ephemeral
+          transport concerns.
+        """
+        let created_session = construct interface_sessions.build(
+            identity_session_id = identity_session_id,
+            name = name,
+            state = state,
+        )
+    }
+
+    fn set_active_window_navigation_context (
+        window_id UUID,
+        environment_id UUID,
+        environment_navigation_context_id UUID
+    ) -> InterfaceWindowNavigationContext {
+        """
+        Ensures Interface Environment access, ensures the InterfaceWindow link,
+        and selects the protected EnvironmentNavigationContext target for that
+        window inside the Interface commit.
+
+        Contract:
+        - Interface follows navigation-context truth, not raw Thread truth.
+        - Process/Thread selection is mutated through the Environment
+          NavigationContext API/service rail.
+        """
+    }
+
+}

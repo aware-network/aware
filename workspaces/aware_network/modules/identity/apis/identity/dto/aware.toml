@@ -1,0 +1,15 @@
+aware = 1
+
+[package]
+package_name = "identity-service-dto"
+fqn_prefix = "aware_identity_service_dto"
+kind = "api"
+version_number = 1
+title = "Identity Service DTO"
+description = "API-owned DTO package for Identity service endpoint payloads."
+
+[build]
+environment_slug = "aware_identity_service_dto"
+
+[[dependencies]]
+package_name = "identity-ontology"

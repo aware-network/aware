@@ -1,0 +1,775 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "5f450b4e-0ec9-5116-bd0d-21859d742aae",
+      "module": "aware_economy_ontology.analytics.economy_analytic",
+      "name": "EconomyAnalytic",
+      "aware_class_ref": "aware_economy.analytics.EconomyAnalytic",
+      "functions": [
+        {
+          "function_config_id": "5bff7a19-95a1-5bc1-9666-236d3bf16b53",
+          "name": "build",
+          "input_model": "EconomyAnalyticBuildInput",
+          "output_model": "EconomyAnalyticBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "10113812-1deb-5eef-a73f-92b21fef0663",
+      "module": "aware_economy_ontology.analytics.economy_analytic_execution",
+      "name": "EconomyAnalyticExecution",
+      "aware_class_ref": "aware_economy.analytics.EconomyAnalyticExecution",
+      "functions": []
+    },
+    {
+      "class_config_id": "bb7c4a80-0dad-5597-8dd0-a60fe12f2dc6",
+      "module": "aware_economy_ontology.analytics.economy_analytic_execution_metric",
+      "name": "EconomyAnalyticExecutionMetric",
+      "aware_class_ref": "aware_economy.analytics.EconomyAnalyticExecutionMetric",
+      "functions": []
+    },
+    {
+      "class_config_id": "509c649f-a9a4-50c8-9210-f8fcc76d1f4e",
+      "module": "aware_economy_ontology.analytics.economy_analytic_metric",
+      "name": "EconomyAnalyticMetric",
+      "aware_class_ref": "aware_economy.analytics.EconomyAnalyticMetric",
+      "functions": []
+    },
+    {
+      "class_config_id": "93575c8f-ef80-50af-bbca-40952c9560eb",
+      "module": "aware_economy_ontology.coin.coin",
+      "name": "Coin",
+      "aware_class_ref": "aware_economy.coin.Coin",
+      "functions": [
+        {
+          "function_config_id": "c68d319c-b331-5825-b28c-7330b16ee0e0",
+          "name": "build",
+          "input_model": "CoinBuildInput",
+          "output_model": "CoinBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8d7137e2-65fe-50aa-be98-18158f6f0602",
+      "module": "aware_economy_ontology.coin.coin_exchange_rate",
+      "name": "CoinExchangeRate",
+      "aware_class_ref": "aware_economy.coin.CoinExchangeRate",
+      "functions": []
+    },
+    {
+      "class_config_id": "06ea02ba-a6ed-5c0d-b81d-cb1829d491ae",
+      "module": "aware_economy_ontology.economy.economy_package",
+      "name": "EconomyPackage",
+      "aware_class_ref": "aware_economy.economy.EconomyPackage",
+      "functions": [
+        {
+          "function_config_id": "d4ccfb08-5507-5be0-bdff-ab6bb52373ab",
+          "name": "build",
+          "input_model": "EconomyPackageBuildInput",
+          "output_model": "EconomyPackageBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "170c7a08-9f31-5e3c-961f-68dbbacc0add",
+      "module": "aware_economy_ontology.escrow.escrow",
+      "name": "Escrow",
+      "aware_class_ref": "aware_economy.escrow.Escrow",
+      "functions": [
+        {
+          "function_config_id": "32ad684f-b7f1-5c0b-bc65-187ce928c785",
+          "name": "create_via_wallet_public",
+          "input_model": "EscrowCreateViaWalletPublicInput",
+          "output_model": "EscrowCreateViaWalletPublicOutput"
+        },
+        {
+          "function_config_id": "51566cf7-ed91-582e-bdae-a8f567bc1bc9",
+          "name": "release",
+          "input_model": "EscrowReleaseInput",
+          "output_model": "EscrowReleaseOutput"
+        },
+        {
+          "function_config_id": "fc40a0e3-3089-5b44-bd03-b19fee88dafb",
+          "name": "release_for_reservation_status",
+          "input_model": "EscrowReleaseForReservationStatusInput",
+          "output_model": "EscrowReleaseForReservationStatusOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "aa00289a-0a5c-5d54-b6a4-d1b875790d76",
+      "module": "aware_economy_ontology.external_capital.external_capital_provider_config",
+      "name": "ExternalCapitalProviderConfig",
+      "aware_class_ref": "aware_economy.external_capital.ExternalCapitalProviderConfig",
+      "functions": [
+        {
+          "function_config_id": "b76363d4-1cf5-544c-9f1f-d3eb7431cb2f",
+          "name": "add_route",
+          "input_model": "ExternalCapitalProviderConfigAddRouteInput",
+          "output_model": "ExternalCapitalProviderConfigAddRouteOutput"
+        },
+        {
+          "function_config_id": "dc031637-bab5-51f0-8507-7fbb959bfa1c",
+          "name": "build",
+          "input_model": "ExternalCapitalProviderConfigBuildInput",
+          "output_model": "ExternalCapitalProviderConfigBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9b2faa01-3598-5014-9eb9-875b5e552fce",
+      "module": "aware_economy_ontology.external_capital.external_capital_provider_route",
+      "name": "ExternalCapitalProviderRoute",
+      "aware_class_ref": "aware_economy.external_capital.ExternalCapitalProviderRoute",
+      "functions": [
+        {
+          "function_config_id": "51dd3d4d-e00f-52f0-8200-c793c2088211",
+          "name": "build_via_external_capital_provider_config",
+          "input_model": "ExternalCapitalProviderRouteBuildViaExternalCapitalProviderConfigInput",
+          "output_model": "ExternalCapitalProviderRouteBuildViaExternalCapitalProviderConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "629ea9aa-8046-58e0-b331-3f5e7730d04b",
+      "module": "aware_economy_ontology.finance.finance_entity",
+      "name": "FinanceEntity",
+      "aware_class_ref": "aware_economy.finance.FinanceEntity",
+      "functions": [
+        {
+          "function_config_id": "7b314b50-9a2b-545a-b283-5188c21d482d",
+          "name": "build",
+          "input_model": "FinanceEntityBuildInput",
+          "output_model": "FinanceEntityBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "27a37b68-9357-579a-bd5c-7e5ddf7a38ce",
+      "module": "aware_economy_ontology.price.price",
+      "name": "Price",
+      "aware_class_ref": "aware_economy.price.Price",
+      "functions": [
+        {
+          "function_config_id": "dd62e36e-8772-518a-8199-c703ca27621e",
+          "name": "build",
+          "input_model": "PriceBuildInput",
+          "output_model": "PriceBuildOutput"
+        },
+        {
+          "function_config_id": "8ecbf30a-3a74-52c9-bed8-f591242c91e1",
+          "name": "create_price_schedule",
+          "input_model": "PriceCreatePriceScheduleInput",
+          "output_model": "PriceCreatePriceScheduleOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a3cbc0ea-ef41-542d-941a-fea0df01ea04",
+      "module": "aware_economy_ontology.price.price_reservation",
+      "name": "PriceReservation",
+      "aware_class_ref": "aware_economy.price.PriceReservation",
+      "functions": [
+        {
+          "function_config_id": "d67db9e4-c8db-58b5-b6f4-17ac6a971f15",
+          "name": "build_via_rate_snapshot",
+          "input_model": "PriceReservationBuildViaRateSnapshotInput",
+          "output_model": "PriceReservationBuildViaRateSnapshotOutput"
+        },
+        {
+          "function_config_id": "cbba2d08-ae38-5c97-a017-9904e1a51f54",
+          "name": "set_status",
+          "input_model": "PriceReservationSetStatusInput",
+          "output_model": "PriceReservationSetStatusOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "899c15f3-dee6-5e25-ab71-9b464a997b52",
+      "module": "aware_economy_ontology.price.price_schedule",
+      "name": "PriceSchedule",
+      "aware_class_ref": "aware_economy.price.PriceSchedule",
+      "functions": [
+        {
+          "function_config_id": "486929a3-185e-50b7-9825-574eb932ff52",
+          "name": "build_via_price",
+          "input_model": "PriceScheduleBuildViaPriceInput",
+          "output_model": "PriceScheduleBuildViaPriceOutput"
+        },
+        {
+          "function_config_id": "27f85b3f-3ecd-5258-a82c-9b2e5451d829",
+          "name": "capture_rate_snapshot",
+          "input_model": "PriceScheduleCaptureRateSnapshotInput",
+          "output_model": "PriceScheduleCaptureRateSnapshotOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f528cb16-4a79-5d66-a40e-5c637b4c07dd",
+      "module": "aware_economy_ontology.price.pricing_policy",
+      "name": "PricingPolicy",
+      "aware_class_ref": "aware_economy.price.PricingPolicy",
+      "functions": [
+        {
+          "function_config_id": "9afdf3b9-bcb8-527e-827b-ca7149d3a2bf",
+          "name": "build",
+          "input_model": "PricingPolicyBuildInput",
+          "output_model": "PricingPolicyBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5cf65cfb-1cad-5e35-8aa6-3ff5afd94f64",
+      "module": "aware_economy_ontology.price.rate_snapshot",
+      "name": "RateSnapshot",
+      "aware_class_ref": "aware_economy.price.RateSnapshot",
+      "functions": [
+        {
+          "function_config_id": "c37a4fb3-e806-5db0-8688-b295fa61dd00",
+          "name": "build_via_price_schedule",
+          "input_model": "RateSnapshotBuildViaPriceScheduleInput",
+          "output_model": "RateSnapshotBuildViaPriceScheduleOutput"
+        },
+        {
+          "function_config_id": "cdc5c5ca-70b7-5059-85ec-0485ee598702",
+          "name": "create_price_reservation",
+          "input_model": "RateSnapshotCreatePriceReservationInput",
+          "output_model": "RateSnapshotCreatePriceReservationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b4a7fedb-0f47-5610-b3ea-59faaf27132e",
+      "module": "aware_economy_ontology.smart_contract.smart_contract",
+      "name": "SmartContract",
+      "aware_class_ref": "aware_economy.smart_contract.SmartContract",
+      "functions": [
+        {
+          "function_config_id": "ab1015b9-2a96-58ba-8da0-dcd9562b3911",
+          "name": "add_member",
+          "input_model": "SmartContractAddMemberInput",
+          "output_model": "SmartContractAddMemberOutput"
+        },
+        {
+          "function_config_id": "0e8412cb-85de-54e4-acf7-aa582f4cb815",
+          "name": "build_via_smart_contract_config",
+          "input_model": "SmartContractBuildViaSmartContractConfigInput",
+          "output_model": "SmartContractBuildViaSmartContractConfigOutput"
+        },
+        {
+          "function_config_id": "cd5bc061-35a8-5ce8-a178-06bca9515881",
+          "name": "finalize_settlement",
+          "input_model": "SmartContractFinalizeSettlementInput",
+          "output_model": "SmartContractFinalizeSettlementOutput"
+        },
+        {
+          "function_config_id": "7c68ee10-193f-5ed9-a92b-9d0bf5f7105e",
+          "name": "finalize_settlement_canonical",
+          "input_model": "SmartContractFinalizeSettlementCanonicalInput",
+          "output_model": "SmartContractFinalizeSettlementCanonicalOutput"
+        },
+        {
+          "function_config_id": "77e72f92-7cb3-57fc-bb9d-e48a4f2ad1bf",
+          "name": "open_session_permit",
+          "input_model": "SmartContractOpenSessionPermitInput",
+          "output_model": "SmartContractOpenSessionPermitOutput"
+        },
+        {
+          "function_config_id": "22342170-ebe7-5bf4-ba42-634562dbdb62",
+          "name": "prepare_settlement",
+          "input_model": "SmartContractPrepareSettlementInput",
+          "output_model": "SmartContractPrepareSettlementOutput"
+        },
+        {
+          "function_config_id": "df49f881-1967-50f6-8d62-228555c11822",
+          "name": "prepare_settlement_canonical",
+          "input_model": "SmartContractPrepareSettlementCanonicalInput",
+          "output_model": "SmartContractPrepareSettlementCanonicalOutput"
+        },
+        {
+          "function_config_id": "0196a9be-a840-5b0b-9259-5c292aff57dd",
+          "name": "release_reservation",
+          "input_model": "SmartContractReleaseReservationInput",
+          "output_model": "SmartContractReleaseReservationOutput"
+        },
+        {
+          "function_config_id": "9de4a669-0d6b-5c0b-9703-d514e8e68855",
+          "name": "reserve_operation",
+          "input_model": "SmartContractReserveOperationInput",
+          "output_model": "SmartContractReserveOperationOutput"
+        },
+        {
+          "function_config_id": "fe9c9fce-732b-588f-b321-565ca136793c",
+          "name": "settle_operation",
+          "input_model": "SmartContractSettleOperationInput",
+          "output_model": "SmartContractSettleOperationOutput"
+        },
+        {
+          "function_config_id": "7c1a744d-0e5e-59de-b79b-bf2501da2012",
+          "name": "settle_operation_canonical",
+          "input_model": "SmartContractSettleOperationCanonicalInput",
+          "output_model": "SmartContractSettleOperationCanonicalOutput"
+        },
+        {
+          "function_config_id": "89effe85-0cd2-54e7-9664-a6f8e8ee2965",
+          "name": "validate_settlement_wallet_transitions_canonical",
+          "input_model": "SmartContractValidateSettlementWalletTransitionsCanonicalInput",
+          "output_model": "SmartContractValidateSettlementWalletTransitionsCanonicalOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "104052ea-dde3-50cf-bc6f-3b9e4f568817",
+      "module": "aware_economy_ontology.smart_contract.smart_contract_config",
+      "name": "SmartContractConfig",
+      "aware_class_ref": "aware_economy.smart_contract.SmartContractConfig",
+      "functions": [
+        {
+          "function_config_id": "b11529ae-b3b0-5cd5-871f-dfbe64b2b8af",
+          "name": "build",
+          "input_model": "SmartContractConfigBuildInput",
+          "output_model": "SmartContractConfigBuildOutput"
+        },
+        {
+          "function_config_id": "2bc6c92b-e7d6-5875-8e39-e30db923ba98",
+          "name": "create_smart_contract",
+          "input_model": "SmartContractConfigCreateSmartContractInput",
+          "output_model": "SmartContractConfigCreateSmartContractOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "073d359c-f731-551d-8e12-2159a3733325",
+      "module": "aware_economy_ontology.smart_contract.smart_contract_member",
+      "name": "SmartContractMember",
+      "aware_class_ref": "aware_economy.smart_contract.SmartContractMember",
+      "functions": [
+        {
+          "function_config_id": "a3dd3bba-7538-555c-8f3a-0b8525991453",
+          "name": "create_via_smart_contract",
+          "input_model": "SmartContractMemberCreateViaSmartContractInput",
+          "output_model": "SmartContractMemberCreateViaSmartContractOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a28b7bdf-314d-51a1-8b2d-8573b69015cf",
+      "module": "aware_economy_ontology.smart_contract.smart_contract_permit",
+      "name": "SmartContractPermit",
+      "aware_class_ref": "aware_economy.smart_contract.SmartContractPermit",
+      "functions": [
+        {
+          "function_config_id": "c322debe-f437-5eb8-8f22-0e8c952d1013",
+          "name": "create_via_smart_contract",
+          "input_model": "SmartContractPermitCreateViaSmartContractInput",
+          "output_model": "SmartContractPermitCreateViaSmartContractOutput"
+        },
+        {
+          "function_config_id": "8ff8a9d8-f4fa-5202-bf19-8b6b44c31f55",
+          "name": "note_operation",
+          "input_model": "SmartContractPermitNoteOperationInput",
+          "output_model": "SmartContractPermitNoteOperationOutput"
+        },
+        {
+          "function_config_id": "bd7610df-6f5a-52ea-808c-79a8d19aafd3",
+          "name": "reserve_operation",
+          "input_model": "SmartContractPermitReserveOperationInput",
+          "output_model": "SmartContractPermitReserveOperationOutput"
+        },
+        {
+          "function_config_id": "feb39da9-8960-54b0-b161-c0d15c82d260",
+          "name": "revoke",
+          "input_model": "SmartContractPermitRevokeInput",
+          "output_model": "SmartContractPermitRevokeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d867c40d-d586-5247-83af-3836a5fe1e12",
+      "module": "aware_economy_ontology.smart_contract.smart_contract_reservation",
+      "name": "SmartContractReservation",
+      "aware_class_ref": "aware_economy.smart_contract.SmartContractReservation",
+      "functions": [
+        {
+          "function_config_id": "2cb5c9b1-84e0-5631-bc4f-ebcb13de0126",
+          "name": "create_via_smart_contract_permit",
+          "input_model": "SmartContractReservationCreateViaSmartContractPermitInput",
+          "output_model": "SmartContractReservationCreateViaSmartContractPermitOutput"
+        },
+        {
+          "function_config_id": "c6a4f580-4d2e-5e77-9c34-44e6152cb7da",
+          "name": "prepare_settlement",
+          "input_model": "SmartContractReservationPrepareSettlementInput",
+          "output_model": "SmartContractReservationPrepareSettlementOutput"
+        },
+        {
+          "function_config_id": "b2aaa633-e0d7-5e48-b62d-15257df58429",
+          "name": "set_status",
+          "input_model": "SmartContractReservationSetStatusInput",
+          "output_model": "SmartContractReservationSetStatusOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a2b9c03d-35ee-5b92-a4a9-70bf09a3ac19",
+      "module": "aware_economy_ontology.smart_contract.smart_contract_settlement",
+      "name": "SmartContractSettlement",
+      "aware_class_ref": "aware_economy.smart_contract.SmartContractSettlement",
+      "functions": [
+        {
+          "function_config_id": "0a1150ac-02e9-5b3a-a055-3f35fadbd0fe",
+          "name": "create_transaction",
+          "input_model": "SmartContractSettlementCreateTransactionInput",
+          "output_model": "SmartContractSettlementCreateTransactionOutput"
+        },
+        {
+          "function_config_id": "5d7601a8-138f-51c7-b1be-760c6f6ac898",
+          "name": "create_via_smart_contract_reservation",
+          "input_model": "SmartContractSettlementCreateViaSmartContractReservationInput",
+          "output_model": "SmartContractSettlementCreateViaSmartContractReservationOutput"
+        },
+        {
+          "function_config_id": "6d9b0005-7064-5ad0-9b74-92131b08cd0a",
+          "name": "set_status",
+          "input_model": "SmartContractSettlementSetStatusInput",
+          "output_model": "SmartContractSettlementSetStatusOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1e46c62a-10da-55f3-ab3b-8bd68e31bc28",
+      "module": "aware_economy_ontology.transaction.capital_conversion_quote",
+      "name": "CapitalConversionQuote",
+      "aware_class_ref": "aware_economy.transaction.CapitalConversionQuote",
+      "functions": [
+        {
+          "function_config_id": "a8145e35-8b27-53f6-92a9-49b6eacebd2a",
+          "name": "build",
+          "input_model": "CapitalConversionQuoteBuildInput",
+          "output_model": "CapitalConversionQuoteBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "cc74b758-e5ef-5b97-950c-e2b3cc497ca5",
+      "module": "aware_economy_ontology.transaction.provider_lifecycle_receipt",
+      "name": "ProviderLifecycleReceipt",
+      "aware_class_ref": "aware_economy.transaction.ProviderLifecycleReceipt",
+      "functions": [
+        {
+          "function_config_id": "0444ece6-6d53-5713-9601-25f50128eef6",
+          "name": "record",
+          "input_model": "ProviderLifecycleReceiptRecordInput",
+          "output_model": "ProviderLifecycleReceiptRecordOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6fd40c3f-7390-52f3-8eff-3722387bac15",
+      "module": "aware_economy_ontology.transaction.transaction",
+      "name": "Transaction",
+      "aware_class_ref": "aware_economy.transaction.Transaction",
+      "functions": [
+        {
+          "function_config_id": "961a1627-8873-5af2-87ba-0a0bb5946735",
+          "name": "create",
+          "input_model": "TransactionCreateInput",
+          "output_model": "TransactionCreateOutput"
+        },
+        {
+          "function_config_id": "5977d44e-7791-5e39-a61b-bb92a87f09e9",
+          "name": "create_external_ingress",
+          "input_model": "TransactionCreateExternalIngressInput",
+          "output_model": "TransactionCreateExternalIngressOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fe8f9cbb-e01d-5884-bba3-5cccb4b50533",
+      "module": "aware_economy_ontology.transaction.transaction_external",
+      "name": "TransactionExternal",
+      "aware_class_ref": "aware_economy.transaction.TransactionExternal",
+      "functions": [
+        {
+          "function_config_id": "87f97f2f-3814-52bf-87ac-0bcc012d9304",
+          "name": "record",
+          "input_model": "TransactionExternalRecordInput",
+          "output_model": "TransactionExternalRecordOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7bfb2859-bf84-5a25-bce4-5fa7fde8681e",
+      "module": "aware_economy_ontology.transaction.transaction_external_method",
+      "name": "TransactionExternalMethod",
+      "aware_class_ref": "aware_economy.transaction.TransactionExternalMethod",
+      "functions": []
+    },
+    {
+      "class_config_id": "95676713-975a-54a1-91c3-466b51e4fd7d",
+      "module": "aware_economy_ontology.transaction.transaction_intent",
+      "name": "TransactionIntent",
+      "aware_class_ref": "aware_economy.transaction.TransactionIntent",
+      "functions": [
+        {
+          "function_config_id": "bffe3489-043d-5e95-9fc9-1b855f70104f",
+          "name": "cancel",
+          "input_model": "TransactionIntentCancelInput",
+          "output_model": "TransactionIntentCancelOutput"
+        },
+        {
+          "function_config_id": "d24923f7-5760-5512-9671-0728dbae102f",
+          "name": "cancel_from_external_evidence",
+          "input_model": "TransactionIntentCancelFromExternalEvidenceInput",
+          "output_model": "TransactionIntentCancelFromExternalEvidenceOutput"
+        },
+        {
+          "function_config_id": "40c3a7d4-8346-594f-8b96-733aeca08994",
+          "name": "confirm",
+          "input_model": "TransactionIntentConfirmInput",
+          "output_model": "TransactionIntentConfirmOutput"
+        },
+        {
+          "function_config_id": "3bb76d6c-2d96-5c97-ba77-f28e58445b9c",
+          "name": "create",
+          "input_model": "TransactionIntentCreateInput",
+          "output_model": "TransactionIntentCreateOutput"
+        },
+        {
+          "function_config_id": "3b8f2fba-60a6-592c-91df-a3b235d61ca0",
+          "name": "mark_pending",
+          "input_model": "TransactionIntentMarkPendingInput",
+          "output_model": "TransactionIntentMarkPendingOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "96a7234e-98f6-5884-bdaf-a9122decae6c",
+      "module": "aware_economy_ontology.transaction.transaction_intent_external_expiration",
+      "name": "TransactionIntentExternalExpiration",
+      "aware_class_ref": "aware_economy.transaction.TransactionIntentExternalExpiration",
+      "functions": []
+    },
+    {
+      "class_config_id": "53f98431-f5a3-5a10-b41b-44d2297a48e2",
+      "module": "aware_economy_ontology.wallet.wallet",
+      "name": "Wallet",
+      "aware_class_ref": "aware_economy.wallet.Wallet",
+      "functions": [
+        {
+          "function_config_id": "0f14f628-e061-5345-98fc-1b922c00d4f2",
+          "name": "apply_coin_delta",
+          "input_model": "WalletApplyCoinDeltaInput",
+          "output_model": "WalletApplyCoinDeltaOutput"
+        },
+        {
+          "function_config_id": "547b45a5-a457-5a3f-ab58-89eac9a24f66",
+          "name": "apply_external_ingress",
+          "input_model": "WalletApplyExternalIngressInput",
+          "output_model": "WalletApplyExternalIngressOutput"
+        },
+        {
+          "function_config_id": "070c64bd-9799-54f4-a127-4f3a6020b2c9",
+          "name": "build",
+          "input_model": "WalletBuildInput",
+          "output_model": "WalletBuildOutput"
+        },
+        {
+          "function_config_id": "dc07a8ed-e6f1-54f7-91fe-4504fb2a57a4",
+          "name": "initiate_transaction",
+          "input_model": "WalletInitiateTransactionInput",
+          "output_model": "WalletInitiateTransactionOutput"
+        },
+        {
+          "function_config_id": "581a22e0-fef5-5b92-a24b-aa5adcd44d30",
+          "name": "reconcile_coin_balance",
+          "input_model": "WalletReconcileCoinBalanceInput",
+          "output_model": "WalletReconcileCoinBalanceOutput"
+        },
+        {
+          "function_config_id": "50ee75cb-5231-51ae-bdfd-e065cdb8ec87",
+          "name": "release_coin_hold",
+          "input_model": "WalletReleaseCoinHoldInput",
+          "output_model": "WalletReleaseCoinHoldOutput"
+        },
+        {
+          "function_config_id": "833d8a7a-db82-5f04-a179-13027ab6e606",
+          "name": "reserve_coin_hold",
+          "input_model": "WalletReserveCoinHoldInput",
+          "output_model": "WalletReserveCoinHoldOutput"
+        },
+        {
+          "function_config_id": "4a10c51c-0869-5fc8-957d-dff93646c57d",
+          "name": "set_coin_balance",
+          "input_model": "WalletSetCoinBalanceInput",
+          "output_model": "WalletSetCoinBalanceOutput"
+        },
+        {
+          "function_config_id": "6716b9cb-6a68-5c1a-8df6-d8bfd5c616e0",
+          "name": "settle_coin_hold",
+          "input_model": "WalletSettleCoinHoldInput",
+          "output_model": "WalletSettleCoinHoldOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "95a1eda3-c638-5021-9990-29eddf1b1ba1",
+      "module": "aware_economy_ontology.wallet.wallet_balance",
+      "name": "WalletBalance",
+      "aware_class_ref": "aware_economy.wallet.WalletBalance",
+      "functions": [
+        {
+          "function_config_id": "b3a01623-c7b0-5a9a-a950-f7dc2e29bb79",
+          "name": "create_via_wallet",
+          "input_model": "WalletBalanceCreateViaWalletInput",
+          "output_model": "WalletBalanceCreateViaWalletOutput"
+        },
+        {
+          "function_config_id": "c0c645eb-1238-52aa-8c8f-592db131b74b",
+          "name": "set_balance",
+          "input_model": "WalletBalanceSetBalanceInput",
+          "output_model": "WalletBalanceSetBalanceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9604899f-2ae0-5e66-9b4b-bec7c2b5230b",
+      "module": "aware_economy_ontology.wallet.wallet_external_ingress_application",
+      "name": "WalletExternalIngressApplication",
+      "aware_class_ref": "aware_economy.wallet.WalletExternalIngressApplication",
+      "functions": []
+    },
+    {
+      "class_config_id": "94a43712-6f80-518d-89f0-474dbda675ff",
+      "module": "aware_economy_ontology.wallet.wallet_private",
+      "name": "WalletPrivate",
+      "aware_class_ref": "aware_economy.wallet.WalletPrivate",
+      "functions": [
+        {
+          "function_config_id": "b0fe1976-18b3-55b3-8d84-4eada7f28d5a",
+          "name": "build",
+          "input_model": "WalletPrivateBuildInput",
+          "output_model": "WalletPrivateBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f8cb47c2-6090-59c0-bde6-c8990f2b7a7b",
+      "module": "aware_economy_ontology.wallet.wallet_public",
+      "name": "WalletPublic",
+      "aware_class_ref": "aware_economy.wallet.WalletPublic",
+      "functions": [
+        {
+          "function_config_id": "d44b408e-0e70-52c3-b3b0-3affa28ce53b",
+          "name": "build",
+          "input_model": "WalletPublicBuildInput",
+          "output_model": "WalletPublicBuildOutput"
+        },
+        {
+          "function_config_id": "091089fc-68f5-5244-9611-4b583a35f8c2",
+          "name": "lock_escrow",
+          "input_model": "WalletPublicLockEscrowInput",
+          "output_model": "WalletPublicLockEscrowOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "7f5e2c20-85dc-5a05-a972-e7a849dac5a0",
+      "module": "aware_economy_ontology.coin.coin_enums",
+      "name": "CoinType"
+    },
+    {
+      "enum_config_id": "2db035c3-a12c-57f9-be2f-de618efa8b09",
+      "module": "aware_economy_ontology.escrow.escrow_enums",
+      "name": "EscrowStatus"
+    },
+    {
+      "enum_config_id": "fdf77dd6-69fa-52dc-91be-05c38b0c2723",
+      "module": "aware_economy_ontology.external_capital.external_capital_enums",
+      "name": "ExternalCapitalConversionMode"
+    },
+    {
+      "enum_config_id": "c61c612e-0bcd-5d26-b418-947675a9ed83",
+      "module": "aware_economy_ontology.external_capital.external_capital_enums",
+      "name": "ExternalCapitalProviderStatus"
+    },
+    {
+      "enum_config_id": "70619fb3-4764-5348-9526-344d282ac1b9",
+      "module": "aware_economy_ontology.external_capital.external_capital_enums",
+      "name": "ExternalCapitalRouteStatus"
+    },
+    {
+      "enum_config_id": "c1163ad0-fad0-52ab-996d-5e874ce15e48",
+      "module": "aware_economy_ontology.price.price_enums",
+      "name": "PriceType"
+    },
+    {
+      "enum_config_id": "daccb019-6606-5711-bdc4-754614703ae0",
+      "module": "aware_economy_ontology.price.price_reservation_enums",
+      "name": "PriceReservationStatus"
+    },
+    {
+      "enum_config_id": "14bd2bf3-7d4a-5c61-89e5-6abe5dca4d38",
+      "module": "aware_economy_ontology.smart_contract.smart_contract_enums",
+      "name": "SmartContractMemberType"
+    },
+    {
+      "enum_config_id": "3066a370-23c3-5c42-96a5-b812b78b4877",
+      "module": "aware_economy_ontology.smart_contract.smart_contract_enums",
+      "name": "SmartContractStatus"
+    },
+    {
+      "enum_config_id": "bf55fcd0-2ab9-50d4-961b-1c7e5504b657",
+      "module": "aware_economy_ontology.smart_contract.smart_contract_enums",
+      "name": "SmartContractType"
+    },
+    {
+      "enum_config_id": "0d075592-94e4-56af-8e50-b51d35018bca",
+      "module": "aware_economy_ontology.smart_contract.smart_contract_permit_enums",
+      "name": "SmartContractPermitStatus"
+    },
+    {
+      "enum_config_id": "1ffcb732-273a-55f6-8725-a90e008c2a77",
+      "module": "aware_economy_ontology.smart_contract.smart_contract_reservation_enums",
+      "name": "ReservationStatus"
+    },
+    {
+      "enum_config_id": "1053c94d-be9d-5404-af1c-e8e96f8fe481",
+      "module": "aware_economy_ontology.smart_contract.smart_contract_settlement_enums",
+      "name": "SmartContractSettlementStatus"
+    },
+    {
+      "enum_config_id": "3716f816-8bdc-5c18-b3d1-dc9ce4e19751",
+      "module": "aware_economy_ontology.transaction.provider_lifecycle_receipt_enums",
+      "name": "ProviderLifecycleEventKind"
+    },
+    {
+      "enum_config_id": "d1302ea1-9681-5378-b000-9f20111b6810",
+      "module": "aware_economy_ontology.transaction.provider_lifecycle_receipt_enums",
+      "name": "ProviderLifecycleStatus"
+    },
+    {
+      "enum_config_id": "be813561-ca49-5969-944c-08dea2f87e82",
+      "module": "aware_economy_ontology.transaction.transaction_enums",
+      "name": "TransactionKind"
+    },
+    {
+      "enum_config_id": "9db829dc-8221-560b-8448-0da95b9ed015",
+      "module": "aware_economy_ontology.transaction.transaction_enums",
+      "name": "TransactionStatus"
+    },
+    {
+      "enum_config_id": "9514f4d0-6c83-5922-b3f1-ef6584081db7",
+      "module": "aware_economy_ontology.transaction.transaction_external_enums",
+      "name": "TransactionExternalStatus"
+    },
+    {
+      "enum_config_id": "0a9ccdf3-68d3-5021-b5e8-3ea965993b49",
+      "module": "aware_economy_ontology.transaction.transaction_intent_enums",
+      "name": "TransactionIntentStatus"
+    }
+  ]
+}

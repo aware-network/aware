@@ -74,6 +74,16 @@ from python_grammar.renderer_delta_orm_runtime import (
     PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME,
     PythonOrmRuntimeGeneratedDeltaRenderer,
 )
+from python_grammar.renderer_delta_structural import (
+    PYTHON_STRUCTURAL_GENERATED_DELTA_RENDERER_NAME,
+    PythonStructuralGeneratedDeltaRenderer,
+)
+from python_grammar.renderer_delta_runtime_handlers import (
+    PYTHON_RUNTIME_HANDLER_GENERATED_DELTA_RENDERER_NAME,
+    PYTHON_RUNTIME_HANDLER_IMPL_KIND,
+    PYTHON_RUNTIME_HANDLER_META_KIND,
+    PythonRuntimeHandlerGeneratedDeltaRenderer,
+)
 
 ONTOLOGY_DTO_RENDERER_PROFILE = "ontology_dto"
 ONTOLOGY_ORM_MODELS_RENDERER_PROFILE = "orm_models"
@@ -201,9 +211,25 @@ PYTHON_META_PLUGIN = MetaLanguagePlugin(
         PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME: (
             PythonOrmRuntimeGeneratedDeltaRenderer
         ),
+        PYTHON_STRUCTURAL_GENERATED_DELTA_RENDERER_NAME: (
+            PythonStructuralGeneratedDeltaRenderer
+        ),
+        PYTHON_RUNTIME_HANDLER_GENERATED_DELTA_RENDERER_NAME: (
+            PythonRuntimeHandlerGeneratedDeltaRenderer
+        ),
     },
     default_generated_delta_renderer_names_by_profile={
         "orm_runtime": (PYTHON_ORM_GENERATED_DELTA_RENDERER_NAME,),
+        "orm_models": (PYTHON_STRUCTURAL_GENERATED_DELTA_RENDERER_NAME,),
+        "ontology_dto": (PYTHON_STRUCTURAL_GENERATED_DELTA_RENDERER_NAME,),
+    },
+    default_generated_delta_renderer_names_by_kind={
+        PYTHON_RUNTIME_HANDLER_IMPL_KIND: (
+            PYTHON_RUNTIME_HANDLER_GENERATED_DELTA_RENDERER_NAME,
+        ),
+        PYTHON_RUNTIME_HANDLER_META_KIND: (
+            PYTHON_RUNTIME_HANDLER_GENERATED_DELTA_RENDERER_NAME,
+        ),
     },
     # Legacy entity-level renderer wiring is intentionally empty.
     # Forward graph->code projection should be a shared Code API contract:

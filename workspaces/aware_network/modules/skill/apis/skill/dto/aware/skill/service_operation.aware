@@ -1,0 +1,114 @@
+/// Skill service operation DTOs (transport-only).
+///
+/// Contract:
+/// - Exposes Skill invocation through the canonical API-Service boundary.
+/// - Carries clean committed SkillPackage and ApiPackage refs only.
+/// - Keeps actor-provided step payloads at the API-call boundary; Skill owns routing receipts.
+///
+/// Note:
+/// - These DTOs are not SSOT execution state.
+/// - Canonical truth remains SkillConfig, SkillRun, SkillRunStep, ApiCall, and committed package refs.
+
+class SkillServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class SkillServiceResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+}
+
+class SkillPackageRef {
+    family_key String = "skill"
+    package_kind String = "skill"
+    package_name String
+    semantic_package_id UUID?
+    semantic_object_instance_graph_commit_id UUID
+    semantic_branch_id UUID?
+    semantic_root_kind String?
+    semantic_root_id UUID?
+    semantic_root_object_instance_graph_commit_id UUID?
+    source_code_package_id UUID?
+}
+
+class SkillApiPackageRef {
+    family_key String = "api"
+    package_kind String = "api"
+    package_name String
+    semantic_package_id UUID?
+    semantic_object_instance_graph_commit_id UUID
+    semantic_branch_id UUID?
+    semantic_projection_name String?
+    semantic_root_kind String?
+    semantic_root_id UUID?
+    source_code_package_id UUID?
+}
+
+class SkillStepApiCallInput {
+    skill_config_step_id UUID
+    request_payload JsonObject = {}
+    call_key UUID?
+    description String?
+}
+
+class SkillInvokeRequest augment skill.SkillServiceRequest {
+    operation String = "invoke"
+    skill_package skill.SkillPackageRef
+    api_packages skill.SkillApiPackageRef[] = []
+    skill_config_id UUID
+    run_key String
+    step_inputs skill.SkillStepApiCallInput[] = []
+    run_status String = "succeeded"
+    step_status String = "succeeded"
+    description String?
+    commit Bool = true
+    publish Bool = false
+}
+
+class SkillApiCallReceipt {
+    skill_config_step_id UUID
+    api_call_id UUID
+    api_capability_endpoint_id UUID
+    call_key UUID
+    request_hash String
+    request_model_id UUID
+    request_class_config_id UUID
+    branch_id UUID
+    projection_hash String
+    commit_id UUID
+    head_commit_id UUID
+}
+
+class SkillRunStepReceipt {
+    skill_config_step_id UUID
+    skill_run_step_id UUID
+    api_call skill.SkillApiCallReceipt
+    status String
+}
+
+class SkillInvokeResult {
+    skill_config_id UUID
+    skill_run_id UUID
+    run_key String
+    status String
+    branch_id UUID
+    projection_hash String
+    commit_id UUID
+    head_commit_id UUID
+    steps skill.SkillRunStepReceipt[] = []
+}
+
+class SkillInvokeResponse augment skill.SkillServiceResponse {
+    operation String = "invoke"
+    result skill.SkillInvokeResult?
+}
+
+ann skill.SkillServiceRequest::operation discriminate key
+ann skill.SkillInvokeRequest::operation discriminate tag "invoke"
+
+ann skill.SkillServiceResponse::operation discriminate key
+ann skill.SkillInvokeResponse::operation discriminate tag "invoke"

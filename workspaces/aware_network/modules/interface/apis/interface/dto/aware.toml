@@ -1,0 +1,21 @@
+aware = 1
+
+[package]
+package_name = "interface-service-dto"
+fqn_prefix = "aware_interface_service_dto"
+kind = "api"
+version_number = 1
+title = "Interface Service DTO"
+description = "API-owned DTO package for Interface local control-plane, host state, and configuration payloads."
+
+[build]
+environment_slug = "aware_interface_service_dto"
+
+[[dependencies]]
+package_name = "environment-service-dto"
+
+[[dependencies]]
+package_name = "experience-service-dto"
+
+[[dependencies]]
+package_name = "interface-ontology"

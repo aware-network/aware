@@ -1,0 +1,137 @@
+pane identity_admission {
+    kind identity_admission
+
+    view aware_control_identity.identity.admission.v1 default {
+        """Identity admission and actor readiness pane for the active Interface session."""
+    }
+
+    render default {
+        view aware_control_identity.identity.admission.v1;
+        version "0.1.0";
+        root root;
+
+        require node_kind column;
+        require node_kind row;
+        require node_kind box;
+        require node_kind field;
+        require node_kind section_header;
+        require node_kind text;
+        require node_kind status;
+        require node_kind text_input;
+        require node_kind button;
+        require node_kind component;
+        require node_kind receipt;
+        require action_binding view_action;
+
+        node root column role pane {
+            style density = "comfortable";
+        }
+
+        node header row parent root order 0 role heading {
+            style layout = "pane_header";
+            style align = "center";
+        }
+
+        node title text parent header order 0 role heading {
+            text "Create your Aware identity";
+            style typography = "pane_title";
+            style align = "center";
+        }
+
+        node status status parent header order 1 role status {
+            bind text from state.status attr status transform text fallback "ready";
+            bind tone from state.status_tone attr status_tone transform text;
+        }
+
+        node intro text parent root order 1 role paragraph {
+            text "Choose how this Interface presents you to humans, agents, and services.";
+            style tone = "muted";
+            style align = "center";
+        }
+
+        node preview box parent root order 2 role section {
+        }
+
+        node preview.header section_header parent preview order 0 role heading {
+            text "Public identity";
+        }
+
+        node preview.name field parent preview order 1 role metadata {
+            label "Display name";
+            style display = "prose";
+            bind text from state.display_name attr display_name transform text fallback "Choose a display name";
+        }
+
+        node preview.handle field parent preview order 2 role metadata {
+            label "Public handle";
+            style display = "identifier";
+            bind text from state.public_handle attr public_handle transform text fallback "Choose a public handle";
+        }
+
+        node preview.bio_hint text parent preview order 3 role paragraph {
+            text "Add a short bio to make this identity recognizable across the network.";
+            style tone = "muted";
+            bind visible from state.bio attr bio transform is_empty;
+        }
+
+        node bio_preview component parent preview order 4 role paragraph {
+            component aware.content.markdown_viewer;
+            fallback_node_kind text;
+            fallback_text "Bio preview";
+            bind text from state.bio attr bio transform text port markdown;
+            bind visible from state.bio attr bio transform not_empty;
+        }
+
+        node form box parent root order 3 role section {
+        }
+
+        node form.header section_header parent form order 0 role heading {
+            text "Admission profile";
+        }
+
+        node display_name_input text_input parent form order 1 role input {
+            label "Display name";
+            placeholder "Luis Lechuga";
+            bind value from state.display_name attr display_name transform text;
+        }
+
+        node public_handle_input text_input parent form order 2 role input {
+            label "Public handle";
+            placeholder "@luis";
+            bind value from state.public_handle attr public_handle transform text;
+        }
+
+        node bio_input text_input parent form order 3 role input {
+            label "Bio";
+            placeholder "Builder of Aware";
+            bind value from state.bio attr bio transform text;
+            style input = "multiline";
+        }
+
+        node form.note text parent form order 4 role paragraph {
+            text "Markdown is supported. Keep it clear enough for humans and agents to recognize you.";
+            style tone = "muted";
+        }
+
+        node actions row parent root order 4 role action {
+            style layout = "metadata_bar";
+        }
+
+        node submit button parent actions order 0 role action {
+            label "Admit identity";
+            style emphasis = "primary";
+            action activate view admit_identity {
+                input profile.display_name from display_name_input;
+                input profile.public_handle from public_handle_input;
+                input profile.bio from bio_input;
+                receipt show_receipt;
+            }
+        }
+
+        node receipt receipt parent root order 5 role receipt {
+            style tone = "receipt";
+            bind text from state.receipt.summary attr provenance transform text;
+            bind visible from state.receipt.summary attr provenance transform not_empty;
+        }
+    }
+}

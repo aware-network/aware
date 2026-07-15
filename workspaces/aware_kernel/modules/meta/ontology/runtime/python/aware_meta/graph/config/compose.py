@@ -228,6 +228,7 @@ def _is_composite_projection_identity(
 
 def _merge_models_by_id(items: Iterable[TModel], *, key: str) -> list[TModel]:
     merged: dict[UUID, TModel] = {}
+    payloads: dict[UUID, Mapping[str, Any]] = {}
     order: list[UUID] = []
     for item in items:
         item_id = getattr(item, "id", None)
@@ -237,7 +238,11 @@ def _merge_models_by_id(items: Iterable[TModel], *, key: str) -> list[TModel]:
             )
         existing = merged.get(item_id)
         if existing is not None:
-            if _stable_model_payload(existing) != _stable_model_payload(item):
+            existing_payload = payloads.get(item_id)
+            if existing_payload is None:
+                existing_payload = _stable_model_payload(existing)
+                payloads[item_id] = existing_payload
+            if existing_payload != _stable_model_payload(item):
                 raise ValueError(f"Conflicting {key} entry id={item_id}")
             continue
         merged[item_id] = item
@@ -255,6 +260,7 @@ def _record_compose_input_metrics(
     ocgs: Sequence[ObjectConfigGraph],
     timings: SeedTimings | None,
     timing_prefix: str,
+    deep_clone_entries: bool,
 ) -> None:
     if timings is None:
         return
@@ -264,6 +270,7 @@ def _record_compose_input_metrics(
     relationship_counts = [len(ocg.object_config_graph_relationships) for ocg in ocgs]
 
     maybe_metric(timings, f"{metric_prefix}_ocg_count", len(ocgs))
+    maybe_metric(timings, f"{metric_prefix}_deep_clone_entries", deep_clone_entries)
     maybe_metric(timings, f"{metric_prefix}_node_count", sum(node_counts))
     maybe_metric(
         timings, f"{metric_prefix}_node_count_max", max(node_counts, default=0)
@@ -283,7 +290,10 @@ def _record_compose_input_metrics(
 
 
 def _rebind_object_config_graph_id(
-    items: Iterable[TModel], *, composite_ocg_id: UUID
+    items: Iterable[TModel],
+    *,
+    composite_ocg_id: UUID,
+    deep: bool = True,
 ) -> list[TModel]:
     """Clone items and rebind `object_config_graph_id` to the composite OCG id when present.
 
@@ -295,7 +305,7 @@ def _rebind_object_config_graph_id(
     """
     out: list[TModel] = []
     for item in items:
-        item_copy = item.model_copy(deep=True)
+        item_copy = item.model_copy(deep=deep)
         if hasattr(item_copy, "object_config_graph_id"):
             setattr(item_copy, "object_config_graph_id", composite_ocg_id)
         out.append(item_copy)
@@ -579,9 +589,12 @@ def _prune_inbound_class_config_relationships(*, ocg: ObjectConfigGraph) -> None
         rels = class_config.class_config_relationships
         if not rels:
             continue
-        class_config.class_config_relationships = [
-            rel for rel in rels if rel.class_config_id == class_config.id
-        ]
+        outbound_rels = [rel for rel in rels if rel.class_config_id == class_config.id]
+        if len(outbound_rels) == len(rels):
+            continue
+        class_config_copy = class_config.model_copy(deep=False)
+        class_config_copy.class_config_relationships = outbound_rels
+        node.class_config = class_config_copy
 
 
 def compose_object_config_graphs(
@@ -592,6 +605,7 @@ def compose_object_config_graphs(
     composite_hash: str,
     composite_fqn_prefix: str,
     validate_portals: bool = True,
+    deep_clone_entries: bool = True,
     timings: SeedTimings | None = None,
     timing_prefix: str = "compose_object_config_graphs",
 ) -> ObjectConfigGraph:
@@ -615,6 +629,7 @@ def compose_object_config_graphs(
         ocgs=ocgs,
         timings=timings,
         timing_prefix=timing_prefix,
+        deep_clone_entries=deep_clone_entries,
     )
 
     with maybe_timed(timings, _compose_timing_key(timing_prefix, "validate_language")):
@@ -631,6 +646,7 @@ def compose_object_config_graphs(
             _rebind_object_config_graph_id(
                 (a for ocg in ocgs for a in ocg.object_config_graph_annotations),
                 composite_ocg_id=composite_id,
+                deep=deep_clone_entries,
             ),
             key="annotation",
         )
@@ -639,6 +655,7 @@ def compose_object_config_graphs(
             _rebind_object_config_graph_id(
                 (m for ocg in ocgs for m in ocg.object_config_graph_mirrors),
                 composite_ocg_id=composite_id,
+                deep=deep_clone_entries,
             ),
             key="mirror",
         )
@@ -647,6 +664,7 @@ def compose_object_config_graphs(
             _rebind_object_config_graph_id(
                 (n for ocg in ocgs for n in ocg.object_config_graph_nodes),
                 composite_ocg_id=composite_id,
+                deep=deep_clone_entries,
             ),
             key="node",
         )
@@ -667,6 +685,7 @@ def compose_object_config_graphs(
             _rebind_object_config_graph_id(
                 (p for ocg in ocgs for p in ocg.object_projection_graphs),
                 composite_ocg_id=composite_id,
+                deep=deep_clone_entries,
             ),
             key="opg",
         )

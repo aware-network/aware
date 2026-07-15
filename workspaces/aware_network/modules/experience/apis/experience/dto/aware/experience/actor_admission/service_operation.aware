@@ -1,0 +1,44 @@
+/// Service DTOs for Experience ActorConfig admission.
+///
+/// The operation admits one actor under an Experience-owned ActorConfig and
+/// delegates concrete role materialization to Identity.
+
+class ExperienceActorConfigAdmissionServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class ExperienceActorConfigAdmissionServiceResponse {
+    operation String
+    request_id UUID?
+    accepted Bool = false
+    status String
+    error String?
+    receipt actor_admission.ExperienceActorConfigAdmissionReceipt?
+    evidence JsonObject = {}
+}
+
+class AdmitExperienceActorConfigRequest augment actor_admission.ExperienceActorConfigAdmissionServiceRequest {
+    operation String = "admit_experience_actor_config"
+    experience_name String
+    actor_id UUID
+    actor_config_id UUID
+    class_instance_identity_id UUID
+    object_instance_graph_branch_key String = "all"
+    object_instance_graph_branch_id UUID?
+    requested_role_config_ids UUID[] = []
+    requested_role_config_names String[] = []
+    reason String?
+    evidence JsonObject = {}
+}
+
+class AdmitExperienceActorConfigResponse augment actor_admission.ExperienceActorConfigAdmissionServiceResponse {
+    operation String = "admit_experience_actor_config"
+    receipt actor_admission.ExperienceActorConfigAdmissionReceipt
+}
+
+ann actor_admission.ExperienceActorConfigAdmissionServiceRequest::operation discriminate key
+ann actor_admission.AdmitExperienceActorConfigRequest::operation discriminate tag "admit_experience_actor_config"
+
+ann actor_admission.ExperienceActorConfigAdmissionServiceResponse::operation discriminate key
+ann actor_admission.AdmitExperienceActorConfigResponse::operation discriminate tag "admit_experience_actor_config"

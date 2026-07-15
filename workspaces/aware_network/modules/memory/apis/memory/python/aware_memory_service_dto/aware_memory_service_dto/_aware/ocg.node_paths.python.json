@@ -1,0 +1,263 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "5151d335-3be8-5970-b421-1eba22af686e",
+      "node_type": "class",
+      "entity_id": "152947f0-ff73-5840-b2db-2de0acdd6963",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "fd9c7edd-9776-5bb2-b4a8-febb31c0d6f5",
+      "node_type": "class",
+      "entity_id": "19f0b561-4aa6-50b7-ac53-c72a7cf2cd06",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "9c57a713-f64e-5ee6-92e4-658f73ea4e73",
+      "node_type": "class",
+      "entity_id": "1d6dc301-3b7c-5673-b822-6fd65d961ce3",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "9c4c5810-ccb4-5c43-b9de-6fa7d5e0b3ba",
+      "node_type": "class",
+      "entity_id": "1ef5fbf8-83dd-5f6b-9296-94085ad9265b",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "b0ba5f9e-96c0-5974-b0f6-8e8ff694b31c",
+      "node_type": "class",
+      "entity_id": "21cdc868-7121-598a-9a84-9d1429939ef9",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "8ab7cc12-bc93-51b0-a9ed-fb806d5cf185",
+      "node_type": "class",
+      "entity_id": "3e3c1712-6a55-5e68-a8ae-d87c29a2c292",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "bdbe1ce3-31a5-5071-951e-6543960d7c49",
+      "node_type": "class",
+      "entity_id": "43a1a551-0adf-54b8-b01a-53e2c807f23a",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "26235c02-4528-588e-9aa3-e2bf6535740c",
+      "node_type": "class",
+      "entity_id": "4518f392-7253-5768-90bb-0c86eb162ba6",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "84cbd4bc-e058-5037-98aa-91f6e6adb003",
+      "node_type": "class",
+      "entity_id": "61e9c18f-a38c-5d28-a06d-1c0bda5d5ee9",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "64a4ecab-7c3a-5ddf-aa65-550011f7f729",
+      "node_type": "class",
+      "entity_id": "8a579288-6887-57f0-8ccc-ec91b3d2689f",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "0a7d7c32-532b-51e4-883d-c409c0849c57",
+      "node_type": "class",
+      "entity_id": "afab1c1f-5f10-565e-9074-9dfcc883442f",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "5082c553-15ab-59e5-bc1c-d3d36d3c24fb",
+      "node_type": "class",
+      "entity_id": "ba56b14d-7127-5308-81ea-63c4cfaec185",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "6c65d759-e7b5-5fa1-8be6-a6d72c4491cc",
+      "node_type": "class",
+      "entity_id": "c90ef1fe-046d-5f08-a6a2-dbb08fe2a748",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "ee126731-e6e1-5c0d-acc5-4cce7986f43b",
+      "node_type": "class",
+      "entity_id": "e8c71cfd-6020-52b4-a75d-73435506d3c3",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "1d0db9ad-cd11-5336-a250-4bcb2735ddc1",
+      "node_type": "class",
+      "entity_id": "f9529e1e-3fc9-5580-b8b6-2b1f1a052128",
+      "relative_path": "memory/working/models.py"
+    },
+    {
+      "node_id": "09663c91-dcb3-5d9e-a490-c2dd45e6742d",
+      "node_type": "class",
+      "entity_id": "07520573-5132-59e9-bcc5-4c4d605b520c",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "60e5e97e-8b30-52e6-86d0-ba0f262eebf6",
+      "node_type": "class",
+      "entity_id": "18463bd7-9ae4-54f9-a840-8c5c43fc8807",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "ce725534-b96b-59bc-93ef-26d024ef66f4",
+      "node_type": "class",
+      "entity_id": "202af164-6bcd-5303-8c76-363cfc360319",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "aca55b1d-ed51-5c6b-9952-aa828b599033",
+      "node_type": "class",
+      "entity_id": "2233b31d-ad3f-5300-9d18-d10983b71b72",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "c95c7bcf-9da2-5005-b1f1-157e70b2ec95",
+      "node_type": "class",
+      "entity_id": "33671f02-d20c-57ed-80a3-f7a700227726",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "ee338883-46bb-573a-8fe2-73fdf33c754f",
+      "node_type": "class",
+      "entity_id": "37d9a4f2-1d53-515c-ae45-f23b5810efb0",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "a2a0bfb3-081d-59e3-a896-c09472258ca2",
+      "node_type": "class",
+      "entity_id": "3beb8c7d-49b2-56ac-a6f0-927b9df7e045",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "8132b1c9-9e3b-541e-9916-c6d14928b246",
+      "node_type": "class",
+      "entity_id": "4c9ff547-2c5d-58c1-b619-dd559dd8ec25",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "64d7cc7c-9563-550e-a12c-99a08a15b082",
+      "node_type": "class",
+      "entity_id": "513efacb-6892-56ae-b654-107b4fb5ebd3",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "b669acc9-49c0-5fd2-be08-f99cc9afc076",
+      "node_type": "class",
+      "entity_id": "552b8845-0234-54a0-b2f0-ed44903b1280",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "497a10a9-0f3a-50a1-a067-4374df5dae33",
+      "node_type": "class",
+      "entity_id": "67a8bb36-4c2c-5d8c-8146-66b27683c830",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "394d04b9-ac91-533e-ba65-0ffdeb8f317b",
+      "node_type": "class",
+      "entity_id": "68a09b1f-14d6-5bcb-a0f3-66ec979758d4",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "290e6cab-94cd-5cc1-bbdd-442806a145eb",
+      "node_type": "class",
+      "entity_id": "68f99877-77b5-5a3f-8eba-88544662f064",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "9308f2f8-8d69-5f9c-94ab-fdd67c90e4e1",
+      "node_type": "class",
+      "entity_id": "71a4a735-90f4-5f10-846f-14aaf147eb16",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "6c9137de-2113-5a16-919f-d0912c4f8c13",
+      "node_type": "class",
+      "entity_id": "7297e0e6-7903-5a94-8add-0f969b1e3b89",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "32fcc263-118f-5ebe-9f10-6d5ee60d823e",
+      "node_type": "class",
+      "entity_id": "7fb37df3-2f05-5a9c-b4f2-9ce1c4418ffd",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "c9fb65aa-db93-5023-8185-8d843f7eb132",
+      "node_type": "class",
+      "entity_id": "825d8f1f-c4d1-50b9-9424-6a8f9358260c",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "1b46f6f9-a537-5655-8ec2-bef6829a1636",
+      "node_type": "class",
+      "entity_id": "8657f9b3-2fab-52eb-8ad7-f123c4cff304",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "b604ad0f-aee7-5c24-b9ca-e01201eca565",
+      "node_type": "class",
+      "entity_id": "96822740-9553-579a-96f0-0124f0da5b3e",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "71bf7b51-5925-5d03-9ebb-b6b0e5c5b729",
+      "node_type": "class",
+      "entity_id": "9c71f070-bd11-54f9-a2ec-7de31254839f",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "d37f0736-0a2d-5e04-9105-31e8cea99f8b",
+      "node_type": "class",
+      "entity_id": "af63ccac-3290-52eb-9d16-33cadb7aab30",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "20499346-c1dc-5417-afdf-dd909219e94d",
+      "node_type": "class",
+      "entity_id": "b03530a7-bc5d-5a73-9c1a-8dd0dd3d9498",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "15bf9444-5b1c-5fca-af7d-480da7f4686a",
+      "node_type": "class",
+      "entity_id": "b4075c27-78e3-5221-b301-cba16a56aac8",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "13f25c6e-2003-5747-8af4-051994f577ef",
+      "node_type": "class",
+      "entity_id": "b71c41ed-145d-5540-8ff7-81aa3b88584f",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "50cec196-acb5-57a6-bdc7-3db049ae8811",
+      "node_type": "class",
+      "entity_id": "c0985720-fb36-5b2b-aafd-8db022337c3b",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "e87cab61-efff-5c1d-955c-c2ab47117957",
+      "node_type": "class",
+      "entity_id": "c364a913-2c33-5bd5-80b9-e60754d329f4",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "da6ce331-4498-59bb-97a9-8f3827d5f7eb",
+      "node_type": "class",
+      "entity_id": "c42a50c3-b762-5d51-a281-5fe384f3dda8",
+      "relative_path": "memory/working/service_operation.py"
+    },
+    {
+      "node_id": "815ca240-2b11-555e-80c7-52206e364ba1",
+      "node_type": "class",
+      "entity_id": "eb8e27cf-fd20-5a17-93f5-d93927652406",
+      "relative_path": "memory/working/service_operation.py"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+class ServicePackageProvidedApiPackage {
+    // Relationships
+    api_package aware_api.api.ApiPackage key
+    api_package_object_instance_graph_commit aware_meta.graph.instance.ObjectInstanceGraphCommit
+    service_protocol_package aware_api.api.ApiPackageLanguagePackage
+
+    // Attributes
+    service_protocol_plan_hash_sha256 String
+    description String?
+
+    fn build construct (
+        api_package_id UUID key,
+        service_protocol_package_id UUID,
+        service_protocol_plan_hash_sha256 String,
+        api_package_object_instance_graph_commit_id UUID,
+        description String? = null
+    ) -> ServicePackageProvidedApiPackage {
+        """
+        Create one package-level Service provider bridge to one API package.
+
+        Contract:
+        - Parent `ServicePackage` scope is injected by propagation.
+        - Identity is keyed by the attached `ApiPackage`.
+        - This declares that the Service package provides/hosts this API package.
+        - The API package commit, selected API-owned service-protocol language
+          package, and normalized protocol-plan digest are materialized
+          dependency-lock truth. They are not authored `aware.service.toml` pins.
+        - The selected `ApiPackageLanguagePackage` owns the exact generated
+          CodePackage commit pin.
+        - Commit relationships may remain unresolved in this projection while
+          their UUID pins preserve exact cross-graph replay identity.
+        - It is the package-level counterpart to config-level `ServiceConfigApi` fulfillment.
+        """
+    }
+}
+
+ann service.ServicePackageProvidedApiPackage::api_package load eager
+ann service.ServicePackageProvidedApiPackage::api_package_object_instance_graph_commit load eager
+ann service.ServicePackageProvidedApiPackage::service_protocol_package load eager

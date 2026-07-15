@@ -148,6 +148,12 @@
           "name": "ensure_request_config",
           "input_model": "ApiCapabilityEndpointEnsureRequestConfigInput",
           "output_model": "ApiCapabilityEndpointEnsureRequestConfigOutput"
+        },
+        {
+          "function_config_id": "726d7014-47af-5a4a-83d8-ed297df4f3d5",
+          "name": "update_config",
+          "input_model": "ApiCapabilityEndpointUpdateConfigInput",
+          "output_model": "ApiCapabilityEndpointUpdateConfigOutput"
         }
       ]
     },

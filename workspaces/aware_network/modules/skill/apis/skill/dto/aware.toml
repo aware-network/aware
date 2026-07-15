@@ -1,0 +1,12 @@
+aware = 1
+
+[package]
+package_name = "skill-service-dto"
+fqn_prefix = "aware_skill_service_dto"
+kind = "api"
+version_number = 1
+title = "Skill Service DTO"
+description = "API-owned OCG DTO package for Skill service invocation payloads and receipts."
+
+[build]
+environment_slug = "aware_skill_service_dto"

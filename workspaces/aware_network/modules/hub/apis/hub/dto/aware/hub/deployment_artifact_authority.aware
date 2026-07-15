@@ -1,0 +1,79 @@
+/// Hub-owned deployment artifact authority DTOs.
+///
+/// Contract:
+/// - Hub owns the public deployment authority request/response model.
+/// - Producers such as Workspace map their revision truth into generic
+///   producer provenance.
+/// - Hub resolves deployment artifact payload locks; it does not resolve
+///   WorkspaceRevision semantics.
+
+class DeploymentArtifactAuthorityRequest {
+    operation String
+    request_id UUID?
+}
+
+class DeploymentArtifactAuthorityResponse {
+    operation String
+    request_id UUID?
+    success Bool = true
+    info String?
+    error String?
+}
+
+class DeploymentArtifactProducerProvenance {
+    producer_kind String
+    producer_revision_id String?
+    source_revision_id String?
+    source_revision_kind String?
+    materialization_ref String?
+    build_ref String?
+}
+
+class DeploymentArtifactLock {
+    artifact_family String = "workspace-deployment"
+    artifact_key String
+    channel String = "stable"
+    revision_id String
+    payload_url String
+    payload_sha256 String
+    payload_contract_version String = "aware.workspace_deployment.payload.v1"
+}
+
+class DeploymentArtifactTarget {
+    selector_key String
+    target_ref String
+    node_package_name String
+}
+
+class ResolveDeploymentArtifactRequest augment hub.DeploymentArtifactAuthorityRequest {
+    operation String = "resolve_deployment_artifact"
+    artifact_family String = "workspace-deployment"
+    artifact_key String?
+    channel String = "stable"
+    revision_id String?
+    authority_base_url String?
+    index_url String?
+}
+
+class ResolveDeploymentArtifactResponse augment hub.DeploymentArtifactAuthorityResponse {
+    operation String = "resolve_deployment_artifact"
+    authority_source_url String
+    artifact_family String
+    artifact_key String
+    channel String
+    revision_id String
+    payload_url String
+    payload_sha256 String
+    selector_key String
+    target_ref String
+    producer hub.DeploymentArtifactProducerProvenance
+    node_package_name String
+    artifact_lock hub.DeploymentArtifactLock
+    target hub.DeploymentArtifactTarget
+}
+
+ann hub.DeploymentArtifactAuthorityRequest::operation discriminate key
+ann hub.ResolveDeploymentArtifactRequest::operation discriminate tag "resolve_deployment_artifact"
+
+ann hub.DeploymentArtifactAuthorityResponse::operation discriminate key
+ann hub.ResolveDeploymentArtifactResponse::operation discriminate tag "resolve_deployment_artifact"

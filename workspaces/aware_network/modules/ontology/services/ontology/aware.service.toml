@@ -1,0 +1,45 @@
+aware_service = 1
+
+[service]
+package_name = "aware-ontology-service"
+fqn_prefix = "aware_ontology_service"
+version_number = 1
+title = "Aware Ontology Service"
+description = "Canonical Ontology service package over the generated Ontology API service-protocol rail."
+
+[build]
+sources_dir = "bindings"
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+compilation_mode = "service_ontology"
+
+[host]
+service_surface = "service"
+activation_mode = "materialize_and_load_committed"
+materialize_on_start = true
+
+[host.contract]
+entrypoint = "aware_ontology_service.host_contract:resolve_service_host_contract"
+
+[implementation]
+
+[[implementation.packages]]
+package_name = "aware-ontology-service"
+language = "python"
+import_root = "aware_ontology_service"
+manifest_path = "pyproject.toml"
+package_root = "."
+entrypoint = "aware_ontology_service.service_bindings:build_service_bindings"
+role = "service_bindings"
+
+[[api_provider_sets]]
+key = "kernel.ontology_authority.v1"
+title = "Kernel Ontology Authority"
+membership_key = "kernel-ontology-host"
+description = "Kernel Ontology GraphOS authority service provider."
+
+[[dependencies]]
+package_name = "ontology-service-api"
+version_number = 1
+kind = "api_service_protocol"

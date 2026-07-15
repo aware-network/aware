@@ -8,9 +8,12 @@ import pytest
 
 from aware_code.package import snapshot_commit, snapshot_index, snapshot_source_text
 from aware_code_ontology.code.code_enums import CodeLanguage
+from aware_code_ontology.code.code import Code
 from aware_code_ontology.code.code_plan import CodeContentPlan, CodeSectionPlan
 from aware_code_ontology.code.code_section_enums import CodeSectionType
 from aware_code_ontology.package.code_package_artifact import CodePackageArtifactRef
+from aware_code_ontology.package.code_package import CodePackage
+from aware_code_ontology.package.code_package_code import CodePackageCode
 from aware_meta.graph.instance.commit.state_snapshot_segments import (
     commit_state_witness_cursor_summary_payload,
 )
@@ -22,10 +25,30 @@ from aware_meta.graph.instance.commit.state_witness import (
 )
 
 
-def test_cursor_snapshot_index_hit_skips_legacy_segment_metadata(monkeypatch) -> None:
-    class RaisingSnapshotStore:
-        def snapshot_state_class_segment_index_metadata(self, **_kwargs):
-            raise AssertionError("legacy class-segment metadata reader was called")
+def test_snapshot_introspection_derives_association_code_id() -> None:
+    code_package = CodePackage.model_construct(id=uuid4())
+    code = Code.model_construct(id=uuid4())
+    package_code = CodePackageCode.model_construct(id=uuid4(), code=code)
+
+    source = snapshot_commit._code_package_snapshot_introspection_source(
+        source=package_code,
+        code_package=code_package,
+        code_package_config_id=uuid4(),
+        surface="runtime",
+    )
+
+    assert source.try_field_value("code_id") == (True, code.id)
+
+
+def test_cursor_snapshot_index_hit_requires_backing_segment_metadata(
+    monkeypatch,
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    class SnapshotStore:
+        def snapshot_state_class_segment_index_metadata(self, **kwargs):
+            calls.append(dict(kwargs))
+            return object()
 
     chunk = CommitStateWitnessCursorChunkSummary(
         index=0,
@@ -63,14 +86,100 @@ def test_cursor_snapshot_index_hit_skips_legacy_segment_metadata(monkeypatch) ->
     monkeypatch.setattr(
         snapshot_commit,
         "FSSnapshotStore",
-        lambda: RaisingSnapshotStore(),
+        lambda: SnapshotStore(),
     )
 
+    branch_id = uuid4()
+    commit_id = uuid4()
     assert snapshot_commit._code_package_text_snapshot_state_snapshot_index_hit(
         payload=payload,
-        branch_id=uuid4(),
+        branch_id=branch_id,
         projection_hash="projection",
-        commit_id=uuid4(),
+        commit_id=commit_id,
+    )
+    assert calls == [
+        {
+            "branch_id": branch_id,
+            "projection_hash": "projection",
+            "commit_id": commit_id,
+            "expected_graph_hash": cursor_hash,
+        }
+    ]
+
+    class MissingSnapshotStore:
+        def snapshot_state_class_segment_index_metadata(self, **_kwargs):
+            return None
+
+    monkeypatch.setattr(
+        snapshot_commit,
+        "FSSnapshotStore",
+        lambda: MissingSnapshotStore(),
+    )
+    assert not snapshot_commit._code_package_text_snapshot_state_snapshot_index_hit(
+        payload=payload,
+        branch_id=branch_id,
+        projection_hash="projection",
+        commit_id=commit_id,
+    )
+
+
+@pytest.mark.asyncio
+async def test_exact_head_snapshot_state_requires_matching_healthy_index(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from aware_code.package import snapshot_health
+
+    code_package_id = uuid4()
+    head_commit_id = uuid4()
+    object_instance_graph_commit_id = uuid4()
+    observed: dict[str, object] = {}
+
+    async def _load_evidence(
+        **kwargs: object,
+    ) -> snapshot_health.CodePackageSelectedSnapshotHealthEvidence | None:
+        observed.update(kwargs)
+        if kwargs["expected_head_commit_id"] != head_commit_id:
+            return None
+        return snapshot_health.CodePackageSelectedSnapshotHealthEvidence(
+            code_package_id=code_package_id,
+            head_commit_id=head_commit_id,
+            object_instance_graph_commit_id=object_instance_graph_commit_id,
+            graph_hash_post="sha256:graph",
+            snapshot_fingerprint="sha256:snapshot",
+            source_snapshot_fingerprint="sha256:source",
+            artifact_state_index={},
+            required_relative_paths=tuple(kwargs["required_relative_paths"]),
+        )
+
+    monkeypatch.setattr(
+        snapshot_health,
+        "load_code_package_selected_snapshot_health_evidence",
+        _load_evidence,
+    )
+
+    assert await snapshot_commit.has_code_package_text_snapshot_state_at_head(
+        branch_id=uuid4(),
+        projection_hash="code-package",
+        code_package_id=code_package_id,
+        head_commit_id=head_commit_id,
+        object_instance_graph_commit_id=object_instance_graph_commit_id,
+    )
+    assert observed["expected_head_commit_id"] == head_commit_id
+    assert await snapshot_commit.has_code_package_text_snapshot_state_at_head(
+        branch_id=uuid4(),
+        projection_hash="code-package",
+        code_package_id=code_package_id,
+        head_commit_id=head_commit_id,
+        object_instance_graph_commit_id=object_instance_graph_commit_id,
+        required_relative_paths=("pyproject.toml",),
+    )
+
+    assert not await snapshot_commit.has_code_package_text_snapshot_state_at_head(
+        branch_id=uuid4(),
+        projection_hash="code-package",
+        code_package_id=code_package_id,
+        head_commit_id=uuid4(),
+        object_instance_graph_commit_id=object_instance_graph_commit_id,
     )
 
 
@@ -84,6 +193,12 @@ async def test_noop_snapshot_index_result_uses_supplied_payload(monkeypatch) -> 
         "_code_package_text_snapshot_index_hit",
         raising_index_hit,
     )
+
+    class SnapshotStore:
+        def snapshot_state_class_segment_index_metadata(self, **_kwargs):
+            return object()
+
+    monkeypatch.setattr(snapshot_commit, "FSSnapshotStore", SnapshotStore)
 
     code_package_id = uuid4()
     code_package_config_id = uuid4()
@@ -407,6 +522,39 @@ async def test_snapshot_index_rejects_payload_when_head_commit_record_missing(
     )
 
     assert payload is None
+
+
+@pytest.mark.asyncio
+async def test_snapshot_index_uses_commit_health_without_body_hydration() -> None:
+    from types import SimpleNamespace
+
+    branch_id = uuid4()
+    head_commit_id = uuid4()
+    object_instance_graph_id = uuid4()
+    head = {
+        "commit_id": str(head_commit_id),
+        "graph_hash_post": "sha256:graph",
+        "object_instance_graph_id": str(object_instance_graph_id),
+    }
+
+    class FakeStore:
+        async def get_commit_health_metadata(self, **kwargs: object):
+            assert kwargs["commit_id"] == head_commit_id
+            return SimpleNamespace(
+                commit_id=head_commit_id,
+                graph_hash_post="sha256:graph",
+                object_instance_graph_id=object_instance_graph_id,
+            )
+
+        async def get_commit_record(self, **_kwargs: object):
+            raise AssertionError("commit body was hydrated")
+
+    assert await snapshot_index._snapshot_index_head_commit_record_readable(
+        store=FakeStore(),  # type: ignore[arg-type]
+        branch_id=branch_id,
+        projection_hash="projection",
+        head=head,
+    )
 
 
 @pytest.mark.asyncio
@@ -1319,10 +1467,9 @@ def test_source_snapshot_fingerprint_delta_falls_back_on_mismatched_paths() -> N
     assert current.delta_hit is False
 
 
-def test_seed_witness_desired_state_uses_witness_cursor_hash(
+def test_product_witness_desired_state_uses_witness_cursor_hash(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv(snapshot_commit._CODE_PACKAGE_STATE_CLASS_SEGMENTS_ENV, "1")
     monkeypatch.setattr(
         snapshot_commit,
         "_CODE_PACKAGE_STATE_ROW_MAP_MIN_SOURCE_OBJECT_COUNT",
@@ -1368,7 +1515,7 @@ def test_seed_witness_desired_state_uses_witness_cursor_hash(
         source_object_state_index={},
     )
 
-    result = snapshot_commit._code_package_seed_witness_desired_state_if_enabled(
+    result = snapshot_commit._code_package_witness_desired_state_for_product(
         desired_state,
     )
 
@@ -1378,6 +1525,103 @@ def test_seed_witness_desired_state_uses_witness_cursor_hash(
     assert result.graph_hash == result.post_witness_cursor_summary.cursor_hash
     assert result.post_witness_cursor_chunks
     assert result.graph_meta["hash"] == result.graph_hash
+
+    assert (
+        snapshot_commit._code_package_witness_desired_state_for_product(result)
+        is result
+    )
+
+
+def test_segmented_pre_state_evidence_preserves_witness_cursor_hash() -> None:
+    chunk = CommitStateWitnessCursorChunkSummary(
+        index=0,
+        first_segment_key="class:00000000-0000-0000-0000-000000000001",
+        last_segment_key="class:00000000-0000-0000-0000-000000000001",
+        segment_count=1,
+        row_count=3,
+        digest="chunk-digest",
+    )
+    cursor_hash = compute_commit_state_witness_cursor_hash((chunk,))
+    summary = CommitStateWitnessCursorSummary(
+        schema=COMMIT_STATE_WITNESS_CURSOR_SCHEMA,
+        state_hash=None,
+        legacy_witness_hash=None,
+        cursor_hash=cursor_hash,
+        row_count=3,
+        segment_count=1,
+        chunk_size=64,
+        chunks=(chunk,),
+    )
+
+    evidence = snapshot_commit._code_package_snapshot_state_pre_state_evidence(
+        state_payload={
+            "schema": "aware.oig.snapshot_state_class_segment_index.v3",
+            "graph_hash_source": "witness_cursor_hash",
+            "state_witness_cursor": commit_state_witness_cursor_summary_payload(
+                summary
+            ),
+        },
+        state_hash="state-hash",
+        row_count=3,
+        head_commit_id=uuid4(),
+    )
+
+    assert evidence.graph_hash_source == "witness_cursor_hash"
+    assert evidence.witness_cursor_hash == cursor_hash
+    assert evidence.state_hash is None
+    assert evidence.row_count == 3
+
+
+def test_large_state_hash_head_requires_one_witness_migration() -> None:
+    commit_id = uuid4()
+    graph_hash = "state-hash"
+
+    assert snapshot_commit._code_package_head_requires_witness_migration(
+        head={
+            "commit_id": str(commit_id),
+            "graph_hash_source": "state_hash",
+            "graph_hash_post": graph_hash,
+        },
+        snapshot_index_payload={"object_count": 500},
+    )
+    assert not snapshot_commit._code_package_head_requires_witness_migration(
+        head={
+            "commit_id": str(commit_id),
+            "graph_hash_source": "state_hash",
+            "graph_hash_post": graph_hash,
+        },
+        snapshot_index_payload={
+            "object_count": 500,
+            "state_snapshot": {
+                "state_snapshot_kind": "class_segment_index",
+                "state_snapshot_graph_hash": graph_hash,
+            },
+        },
+    )
+    assert not snapshot_commit._code_package_head_requires_witness_migration(
+        head={
+            "commit_id": str(commit_id),
+            "graph_hash_source": "witness_cursor_hash",
+        },
+        snapshot_index_payload={"object_count": 500},
+    )
+    assert not snapshot_commit._code_package_head_requires_witness_migration(
+        head={
+            "commit_id": str(commit_id),
+            "graph_hash_source": "state_hash",
+        },
+        snapshot_index_payload={"object_count": 499},
+    )
+
+
+def test_legacy_head_without_snapshot_index_skips_witness_migration() -> None:
+    assert not snapshot_commit._code_package_head_requires_witness_migration(
+        head={
+            "commit_id": str(uuid4()),
+            "graph_hash_source": "state_hash",
+        },
+        snapshot_index_payload=None,
+    )
 
 
 def test_snapshot_state_index_hit_accepts_class_segment_index(
@@ -1414,6 +1658,162 @@ def test_snapshot_state_index_hit_accepts_class_segment_index(
         commit_id=commit_id,
     )
     assert len(calls) == 1
+
+
+def test_snapshot_state_index_hit_rejects_row_state_hash_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _Store:
+        def has_snapshot_state_rows_file_metadata(self, **_kwargs: object) -> bool:
+            raise AssertionError("drifted state hash must fail before file metadata")
+
+    monkeypatch.setattr(snapshot_commit, "FSSnapshotStore", _Store)
+
+    assert not snapshot_commit._code_package_text_snapshot_state_snapshot_index_hit(
+        payload={
+            "graph_hash_post": "sha256:commit-state",
+            "state_snapshot": {
+                "state_snapshot_payload_sha256": "sha256:payload",
+                "state_snapshot_state_hash": "sha256:different-state",
+                "state_snapshot_file_size": 100,
+                "state_snapshot_file_mtime_ns": 200,
+                "state_snapshot_file_ctime_ns": 300,
+            },
+        },
+        branch_id=uuid4(),
+        projection_hash="CodePackage",
+        commit_id=uuid4(),
+    )
+
+
+@pytest.mark.asyncio
+async def test_legacy_state_hash_reuse_misses_when_segment_metadata_is_absent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _Store:
+        def snapshot_state_class_segment_index_metadata(
+            self,
+            **_kwargs: object,
+        ) -> None:
+            return None
+
+    monkeypatch.setattr(snapshot_commit, "FSSnapshotStore", _Store)
+    source_states = {uuid4(): object() for _ in range(500)}
+
+    result = await snapshot_commit._try_build_code_package_reused_witness_segment_desired_state(
+        index=None,
+        opg=None,
+        branch_id=uuid4(),
+        projection_hash="CodePackage",
+        head={
+            "commit_id": str(uuid4()),
+            "graph_hash_post": "state-hash",
+            "graph_hash_source": "state_hash",
+        },
+        previous_snapshot_index_payload=None,
+        domain_oig_id=uuid4(),
+        code_package=CodePackage.model_construct(id=uuid4()),
+        code_package_config_id=uuid4(),
+        manifest_kind="ontology",
+        surface="runtime",
+        objects_by_id={},
+        current_source_states_by_id=source_states,
+        changed_path_source_state=None,
+        current_source_object_path_index=None,
+        previous_source_states_by_id=source_states,
+        oigi_id=uuid4(),
+    )
+
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_witness_head_without_reusable_source_state_uses_full_rebuild() -> None:
+    result = await snapshot_commit._try_build_code_package_reused_witness_segment_desired_state(
+        index=None,
+        opg=None,
+        branch_id=uuid4(),
+        projection_hash="CodePackage",
+        head={
+            "commit_id": str(uuid4()),
+            "graph_hash_post": "witness-hash",
+            "graph_hash_source": "witness_cursor_hash",
+        },
+        previous_snapshot_index_payload=None,
+        domain_oig_id=uuid4(),
+        code_package=CodePackage.model_construct(id=uuid4()),
+        code_package_config_id=uuid4(),
+        manifest_kind="pyproject_toml",
+        surface="runtime",
+        objects_by_id={},
+        current_source_states_by_id=None,
+        changed_path_source_state=None,
+        current_source_object_path_index=None,
+        previous_source_states_by_id=None,
+        oigi_id=uuid4(),
+    )
+
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_large_existing_state_snapshot_publishes_missing_segment_index(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    writes: list[dict[str, object]] = []
+
+    class _Store:
+        async def get_snapshot_state_rows(self, **_kwargs: object) -> object:
+            return {"state_hash": "state-hash"}
+
+        def snapshot_state_class_segment_index_metadata(
+            self,
+            **_kwargs: object,
+        ) -> None:
+            return None
+
+        async def put_state_snapshot_rows_from_payloads(
+            self,
+            **kwargs: object,
+        ) -> object:
+            writes.append(dict(kwargs))
+            return {
+                "payload_sha256": "payload-hash",
+                "state_hash": "state-hash",
+            }
+
+        def snapshot_state_rows_file_metadata(
+            self,
+            **_kwargs: object,
+        ) -> dict[str, object]:
+            return {"state_snapshot_file_size": 1}
+
+    monkeypatch.setattr(snapshot_commit, "FSSnapshotStore", _Store)
+    desired_state = SimpleNamespace(
+        graph_hash_source="state_hash",
+        post_witness_ref=None,
+        post_witness_cursor_summary=None,
+        previous_commit_id=uuid4(),
+        replacement_class_segments=(),
+        state_index=SimpleNamespace(node_count=500),
+        object_instance_graph_id=uuid4(),
+        graph_hash="state-hash",
+        graph_meta={},
+        class_instance_payloads=({"id": str(uuid4())},),
+        class_instances=(),
+        class_instance_relationships=(),
+    )
+
+    metadata = await snapshot_commit._ensure_code_package_text_snapshot_state_snapshot_from_state_inner(
+        branch_id=uuid4(),
+        projection_hash="CodePackage",
+        commit_id=uuid4(),
+        desired_state=desired_state,
+    )
+
+    assert metadata["state_snapshot_payload_sha256"] == "payload-hash"
+    assert len(writes) == 1
+    assert writes[0]["write_state_class_segment_index"] is True
 
 
 @pytest.mark.asyncio

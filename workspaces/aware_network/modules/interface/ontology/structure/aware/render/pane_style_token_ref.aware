@@ -1,0 +1,18 @@
+class PaneStyleTokenRef {
+    // Attributes
+    token_key String key
+    token_value String?
+
+    fn create construct (
+        token_key String key,
+        token_value String? = null
+    ) -> PaneStyleTokenRef {
+        """
+        Attach renderer-adaptive style intent to a render node.
+
+        Contract:
+        - Tokens express semantic intent such as emphasis, density, status, or destructive.
+        - Exact Flutter/CSS/Textual styling remains renderer policy, not ontology truth.
+        """
+    }
+}

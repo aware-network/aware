@@ -1,0 +1,188 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "6410c1d4-70b1-5564-bd1b-9e5ed9eacc71",
+      "module": "aware_hub_ontology.hub.hub_artifact",
+      "name": "HubArtifact",
+      "aware_class_ref": "aware_hub.hub.HubArtifact",
+      "functions": [
+        {
+          "function_config_id": "5ed1b1d2-a1dd-5d8f-9582-14e094657893",
+          "name": "build_via_hub_authority",
+          "input_model": "HubArtifactBuildViaHubAuthorityInput",
+          "output_model": "HubArtifactBuildViaHubAuthorityOutput"
+        },
+        {
+          "function_config_id": "14671471-0caa-5fb4-bee8-165dc7b374f7",
+          "name": "publish_revision",
+          "input_model": "HubArtifactPublishRevisionInput",
+          "output_model": "HubArtifactPublishRevisionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ed890bdc-70ee-5733-9e7b-781bd6a03fe0",
+      "module": "aware_hub_ontology.hub.hub_artifact",
+      "name": "HubArtifactRevision",
+      "aware_class_ref": "aware_hub.hub.HubArtifactRevision",
+      "functions": [
+        {
+          "function_config_id": "f3a684a9-84b2-57d8-b650-119f69504a18",
+          "name": "build_via_hub_artifact",
+          "input_model": "HubArtifactRevisionBuildViaHubArtifactInput",
+          "output_model": "HubArtifactRevisionBuildViaHubArtifactOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "bb47aa6f-aae9-56b6-9ca6-900c8c39d15b",
+      "module": "aware_hub_ontology.hub.hub_authority",
+      "name": "HubAuthority",
+      "aware_class_ref": "aware_hub.hub.HubAuthority",
+      "functions": [
+        {
+          "function_config_id": "8b958773-35f8-5762-9bb3-38492815f71c",
+          "name": "ensure_artifact",
+          "input_model": "HubAuthorityEnsureArtifactInput",
+          "output_model": "HubAuthorityEnsureArtifactOutput"
+        },
+        {
+          "function_config_id": "9834ac35-2729-5049-a996-2919c80741ba",
+          "name": "ensure_authority",
+          "input_model": "HubAuthorityEnsureAuthorityInput",
+          "output_model": "HubAuthorityEnsureAuthorityOutput"
+        },
+        {
+          "function_config_id": "d6a0d39c-14fc-5091-91ca-5c44c6b9715c",
+          "name": "ensure_channel",
+          "input_model": "HubAuthorityEnsureChannelInput",
+          "output_model": "HubAuthorityEnsureChannelOutput"
+        },
+        {
+          "function_config_id": "00881a25-e0d4-55c2-af18-30824d3fc843",
+          "name": "publish_artifact",
+          "input_model": "HubAuthorityPublishArtifactInput",
+          "output_model": "HubAuthorityPublishArtifactOutput"
+        },
+        {
+          "function_config_id": "7c7cdf0b-b070-5e9b-9eb2-ceadc1eea26c",
+          "name": "publish_code_package",
+          "input_model": "HubAuthorityPublishCodePackageInput",
+          "output_model": "HubAuthorityPublishCodePackageOutput"
+        },
+        {
+          "function_config_id": "c921d41f-1519-5102-9774-41b339d3344b",
+          "name": "record_code_package_publication",
+          "input_model": "HubAuthorityRecordCodePackagePublicationInput",
+          "output_model": "HubAuthorityRecordCodePackagePublicationOutput"
+        },
+        {
+          "function_config_id": "69c3d5cc-a6e9-5d67-8486-f1d96389ae91",
+          "name": "record_receipt",
+          "input_model": "HubAuthorityRecordReceiptInput",
+          "output_model": "HubAuthorityRecordReceiptOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "dbcf8e91-f0a8-5033-afd9-5c99b2a45cdc",
+      "module": "aware_hub_ontology.hub.hub_channel",
+      "name": "HubChannel",
+      "aware_class_ref": "aware_hub.hub.HubChannel",
+      "functions": [
+        {
+          "function_config_id": "b45374a1-9c53-5e1a-b7ea-29b6e1e0a1bc",
+          "name": "build_via_hub_authority",
+          "input_model": "HubChannelBuildViaHubAuthorityInput",
+          "output_model": "HubChannelBuildViaHubAuthorityOutput"
+        },
+        {
+          "function_config_id": "0b8007e4-e997-502d-aafe-ad6ed0ce9947",
+          "name": "upsert_head",
+          "input_model": "HubChannelUpsertHeadInput",
+          "output_model": "HubChannelUpsertHeadOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2418d971-dcd9-5e3d-badf-d4cc126a2880",
+      "module": "aware_hub_ontology.hub.hub_channel",
+      "name": "HubChannelHead",
+      "aware_class_ref": "aware_hub.hub.HubChannelHead",
+      "functions": [
+        {
+          "function_config_id": "86de2934-319d-5c92-a531-691cdfe51628",
+          "name": "build_via_hub_channel",
+          "input_model": "HubChannelHeadBuildViaHubChannelInput",
+          "output_model": "HubChannelHeadBuildViaHubChannelOutput"
+        },
+        {
+          "function_config_id": "4b336a6c-6ee9-589d-b518-2fb24fa5c6d9",
+          "name": "move",
+          "input_model": "HubChannelHeadMoveInput",
+          "output_model": "HubChannelHeadMoveOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3695e42f-2265-5c76-96e1-de713acdb5b2",
+      "module": "aware_hub_ontology.hub.hub_code_package_publication",
+      "name": "HubCodePackagePublication",
+      "aware_class_ref": "aware_hub.hub.HubCodePackagePublication",
+      "functions": [
+        {
+          "function_config_id": "8f9e77b4-c856-54df-ba8e-cc12469519ff",
+          "name": "publish_via_hub_authority",
+          "input_model": "HubCodePackagePublicationPublishViaHubAuthorityInput",
+          "output_model": "HubCodePackagePublicationPublishViaHubAuthorityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5f7af6dc-8ce0-5fda-89d4-269f36c3b2cf",
+      "module": "aware_hub_ontology.hub.hub_producer_provenance",
+      "name": "HubProducerProvenance",
+      "aware_class_ref": "aware_hub.hub.HubProducerProvenance",
+      "functions": [
+        {
+          "function_config_id": "88188025-a0a9-5fdf-88a9-35eb7ee7f156",
+          "name": "build",
+          "input_model": "HubProducerProvenanceBuildInput",
+          "output_model": "HubProducerProvenanceBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2e5bda43-9982-5c0b-90bf-986faf62e150",
+      "module": "aware_hub_ontology.hub.hub_publication_receipt",
+      "name": "HubPublicationReceipt",
+      "aware_class_ref": "aware_hub.hub.HubPublicationReceipt",
+      "functions": [
+        {
+          "function_config_id": "4343790e-14fc-564f-b81b-7da10d35cc14",
+          "name": "build_via_hub_authority",
+          "input_model": "HubPublicationReceiptBuildViaHubAuthorityInput",
+          "output_model": "HubPublicationReceiptBuildViaHubAuthorityOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "3fb62b1b-33f7-5977-b3a4-5f9becf50106",
+      "module": "aware_hub_ontology.hub.hub_enums",
+      "name": "HubArtifactStatus"
+    },
+    {
+      "enum_config_id": "d3f36622-a014-5067-9e78-eb47a3247c51",
+      "module": "aware_hub_ontology.hub.hub_enums",
+      "name": "HubAuthorityVisibility"
+    },
+    {
+      "enum_config_id": "cf6186e1-e877-5c15-8b8c-8f55372be25a",
+      "module": "aware_hub_ontology.hub.hub_enums",
+      "name": "HubPublicationReceiptStatus"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+// Window projection (v0)
+//
+// Contract:
+// - Window is renderer/application state for an InterfaceWindow target.
+// - Window.active_layout is the direct visible Attention Layout pointer.
+// - WindowLayout is compatibility/override/cached section-binding state.
+// - WindowLayoutSection is the rendering target bridge between Attention-Observable (LayoutSection) and Experience-View (ProjectionExperienceView).
+
+projection Window {
+    root window.Window
+    window.Window::active_layout Layout
+    window.Window::layouts
+    window.WindowLayout::layout Layout
+    window.WindowLayout::layout_sections
+    window.WindowLayoutSection::layout_section Layout
+    window.WindowLayoutSection::projection_experience_view ProjectionExperience
+}

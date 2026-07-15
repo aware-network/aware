@@ -1,0 +1,44 @@
+/// Request/response DTOs for Experience session context resolution.
+///
+/// The operation validates the Experience session actor handoff context, then
+/// resolves the shared Environment/Attention target through Environment service
+/// API truth. It returns a read receipt for consumers such as Interface.
+
+class ExperienceSessionContextServiceRequest {
+    operation String
+    request_id UUID?
+}
+
+class ExperienceSessionContextServiceResponse {
+    operation String
+    request_id UUID?
+    accepted Bool = false
+    status String
+    error String?
+    receipt session_context.ExperienceSessionContextReceipt?
+    evidence JsonObject = {}
+}
+
+class ResolveExperienceSessionContextRequest augment session_context.ExperienceSessionContextServiceRequest {
+    operation String = "resolve_experience_session_context"
+    session_scope session_handoff.ExperienceSessionHandoffScope
+    actor_context session_handoff.ExperienceSessionHandoffActorContext?
+    environment_admission aware_environment_service_dto.environment.EnvironmentActorAdmissionReceipt?
+    environment_session_join aware_environment_service_dto.environment.EnvironmentSessionJoinReceipt?
+    experience_actor_admission actor_admission.ExperienceActorConfigAdmissionReceipt?
+    experience_identity_session_config_id UUID?
+    environment_attention session_context.ExperienceSessionAttentionResolutionRequest?
+    idempotency_key String?
+    evidence JsonObject = {}
+}
+
+class ResolveExperienceSessionContextResponse augment session_context.ExperienceSessionContextServiceResponse {
+    operation String = "resolve_experience_session_context"
+    receipt session_context.ExperienceSessionContextReceipt
+}
+
+ann session_context.ExperienceSessionContextServiceRequest::operation discriminate key
+ann session_context.ResolveExperienceSessionContextRequest::operation discriminate tag "resolve_experience_session_context"
+
+ann session_context.ExperienceSessionContextServiceResponse::operation discriminate key
+ann session_context.ResolveExperienceSessionContextResponse::operation discriminate tag "resolve_experience_session_context"

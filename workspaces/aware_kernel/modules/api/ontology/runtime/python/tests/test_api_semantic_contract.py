@@ -7,7 +7,9 @@ from aware_api_runtime.semantic_contract import (
     AWARE_API_SEMANTIC_CONTRACT,
     API_CAPABILITY_PARTICIPATION,
     API_MANIFEST_RESOLUTION,
+    API_MATERIALIZATION_DELTA_ADAPTER_METADATA,
     API_MATERIALIZATION_INPUTS,
+    API_PROVIDER_DELTA_PRODUCT_READINESS,
     API_MATERIALIZATION_REQUIRED_PROJECTIONS,
     API_MATERIALIZATION_RUNTIME,
     API_MATERIALIZATION_RUNTIME_CONTEXT,
@@ -16,6 +18,13 @@ from aware_api_runtime.semantic_contract import (
     API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_METADATA,
     API_SEMANTIC_OPERATION_FUNCTION_CALL_RESOLUTION_CAPABILITY_PARTICIPATION,
     API_SEMANTIC_WORKFLOWS,
+)
+from aware_code.semantic_materialization import (
+    SEMANTIC_MATERIALIZATION_CAPABILITY,
+    SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_METADATA_KEY,
+    SEMANTIC_PROVIDER_DELTA_FUNCTIONAL_MATERIALIZATION_KEY,
+    SEMANTIC_PROVIDER_DELTA_PRODUCT_READINESS_CONTRACT_VERSION,
+    SEMANTIC_PROVIDER_DELTA_PRODUCT_READINESS_KEY,
 )
 from aware_api_runtime.semantic_function_refs import (
     API_CAPABILITY_CREATE_ENDPOINT_FUNCTION_REF,
@@ -166,6 +175,38 @@ def test_api_meta_mutation_contract_resolves_through_registry() -> None:
     )
 
 
+def test_api_materialization_contract_declares_functional_delta_adapter() -> None:
+    contract = AWARE_API_SEMANTIC_CONTRACT
+    (participation,) = contract.capability_participation_for(
+        capability=SEMANTIC_MATERIALIZATION_CAPABILITY,
+    )
+    adapter = participation.metadata[
+        SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_METADATA_KEY
+    ]
+
+    assert adapter == API_MATERIALIZATION_DELTA_ADAPTER_METADATA
+    assert adapter[SEMANTIC_PROVIDER_DELTA_FUNCTIONAL_MATERIALIZATION_KEY] is True
+    readiness = adapter[SEMANTIC_PROVIDER_DELTA_PRODUCT_READINESS_KEY]
+    assert readiness == API_PROVIDER_DELTA_PRODUCT_READINESS
+    assert readiness["contract_version"] == (
+        SEMANTIC_PROVIDER_DELTA_PRODUCT_READINESS_CONTRACT_VERSION
+    )
+    assert readiness["provider_key"] == "aware_api"
+    assert readiness["status"] == "ready"
+    assert readiness["workspace_delta_first_ready_operation_count"] == 4
+    assert readiness["blocked_operation_count"] == 4
+    ready_cases = {operation["case_key"] for operation in readiness["ready_operations"]}
+    assert "aware_api.api_capability_endpoint.description.update" in ready_cases
+    blocked_cases = {
+        operation["case_key"] for operation in readiness["blocked_operations"]
+    }
+    assert blocked_cases >= {
+        "aware_api.api.update",
+        "aware_api.api_capability.update",
+        "aware_api.api_capability_endpoint.identity_or_request_contract.update",
+    }
+
+
 def test_api_materialization_runtime_uses_ontology_package_names() -> None:
     assert len(API_MATERIALIZATION_RUNTIME) == 1
     descriptor = API_MATERIALIZATION_RUNTIME[0]
@@ -183,7 +224,11 @@ def test_api_materialization_runtime_uses_ontology_package_names() -> None:
         package.package_name: package.projection_names
         for package in descriptor.runtime_projection_packages
     }
-    assert projection_packages["api-ontology"] == ("Api", "ApiPackage")
+    assert projection_packages["api-ontology"] == (
+        "Api",
+        "ApiCall",
+        "ApiPackage",
+    )
     assert projection_packages["code-ontology"] == (
         "CodePackage",
         "CodePackageConfig",

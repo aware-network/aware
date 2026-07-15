@@ -10,7 +10,9 @@ from aware_code_ontology.primitive.code_primitive_enums import CodePrimitiveBase
 from aware_code.types import Json
 
 
-def from_string_or_raise(primitive_codec: SqlPrimitiveCodec, type_text: str) -> CodePrimitiveType:
+def from_string_or_raise(
+    primitive_codec: SqlPrimitiveCodec, type_text: str
+) -> CodePrimitiveType:
     primitive = primitive_codec.parse(type_text)
     if not primitive:
         raise ValueError(f"Failed to parse primitive type: {type_text}")
@@ -21,26 +23,80 @@ def test_basic_primitive_type_detection():
     """Test that SQL primitive types are correctly detected."""
     primitive_codec = SqlPrimitiveCodec()
     # Test basic primitive types
-    assert from_string_or_raise(primitive_codec, "TEXT").base_type == CodePrimitiveBaseType.string
-    assert from_string_or_raise(primitive_codec, "VARCHAR").base_type == CodePrimitiveBaseType.string
-    assert from_string_or_raise(primitive_codec, "INTEGER").base_type == CodePrimitiveBaseType.integer
-    assert from_string_or_raise(primitive_codec, "INT").base_type == CodePrimitiveBaseType.integer
-    assert from_string_or_raise(primitive_codec, "BOOLEAN").base_type == CodePrimitiveBaseType.boolean
-    assert from_string_or_raise(primitive_codec, "BOOL").base_type == CodePrimitiveBaseType.boolean
-    assert from_string_or_raise(primitive_codec, "FLOAT").base_type == CodePrimitiveBaseType.float
-    assert from_string_or_raise(primitive_codec, "DECIMAL").base_type == CodePrimitiveBaseType.float
-    assert from_string_or_raise(primitive_codec, "NUMERIC").base_type == CodePrimitiveBaseType.float
-    assert from_string_or_raise(primitive_codec, "BYTEA").base_type == CodePrimitiveBaseType.bytes
-    assert from_string_or_raise(primitive_codec, "TIMESTAMP").base_type == CodePrimitiveBaseType.datetime
-    assert from_string_or_raise(primitive_codec, "UUID").base_type == CodePrimitiveBaseType.uuid
-    assert from_string_or_raise(primitive_codec, "JSONB").base_type == CodePrimitiveBaseType.json
-    assert from_string_or_raise(primitive_codec, "JSON").base_type == CodePrimitiveBaseType.json
-    assert from_string_or_raise(primitive_codec, "VECTOR").base_type == CodePrimitiveBaseType.vector
+    assert (
+        from_string_or_raise(primitive_codec, "TEXT").base_type
+        == CodePrimitiveBaseType.string
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "VARCHAR").base_type
+        == CodePrimitiveBaseType.string
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "INTEGER").base_type
+        == CodePrimitiveBaseType.integer
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "INT").base_type
+        == CodePrimitiveBaseType.integer
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "BOOLEAN").base_type
+        == CodePrimitiveBaseType.boolean
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "BOOL").base_type
+        == CodePrimitiveBaseType.boolean
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "FLOAT").base_type
+        == CodePrimitiveBaseType.float
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "DECIMAL").base_type
+        == CodePrimitiveBaseType.decimal
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "NUMERIC").base_type
+        == CodePrimitiveBaseType.decimal
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "BYTEA").base_type
+        == CodePrimitiveBaseType.bytes
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "TIMESTAMP").base_type
+        == CodePrimitiveBaseType.datetime
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "UUID").base_type
+        == CodePrimitiveBaseType.uuid
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "JSONB").base_type
+        == CodePrimitiveBaseType.json
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "JSON").base_type
+        == CodePrimitiveBaseType.json
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "VECTOR").base_type
+        == CodePrimitiveBaseType.vector
+    )
 
     # Test case insensitive
-    assert from_string_or_raise(primitive_codec, "text").base_type == CodePrimitiveBaseType.string
-    assert from_string_or_raise(primitive_codec, "integer").base_type == CodePrimitiveBaseType.integer
-    assert from_string_or_raise(primitive_codec, "boolean").base_type == CodePrimitiveBaseType.boolean
+    assert (
+        from_string_or_raise(primitive_codec, "text").base_type
+        == CodePrimitiveBaseType.string
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "integer").base_type
+        == CodePrimitiveBaseType.integer
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "boolean").base_type
+        == CodePrimitiveBaseType.boolean
+    )
 
 
 def test_array_types():
@@ -69,21 +125,33 @@ def test_array_types():
     # Nested arrays
     nested = from_string_or_raise(primitive_codec, "TEXT[][]")
     assert nested.base_type == CodePrimitiveBaseType.array
-    assert nested.item_type is not None and nested.item_type.base_type == CodePrimitiveBaseType.array
+    assert (
+        nested.item_type is not None
+        and nested.item_type.base_type == CodePrimitiveBaseType.array
+    )
     assert primitive_codec.render(nested) == "TEXT[][]"
 
     # ARRAY<T> / ARRAY[T] / ARRAY(T) syntaxes
     arr_angle = from_string_or_raise(primitive_codec, "ARRAY<TEXT>")
     assert arr_angle.base_type == CodePrimitiveBaseType.array
-    assert arr_angle.item_type is not None and arr_angle.item_type.base_type == CodePrimitiveBaseType.string
+    assert (
+        arr_angle.item_type is not None
+        and arr_angle.item_type.base_type == CodePrimitiveBaseType.string
+    )
 
     arr_sq = from_string_or_raise(primitive_codec, "ARRAY[INTEGER]")
     assert arr_sq.base_type == CodePrimitiveBaseType.array
-    assert arr_sq.item_type is not None and arr_sq.item_type.base_type == CodePrimitiveBaseType.integer
+    assert (
+        arr_sq.item_type is not None
+        and arr_sq.item_type.base_type == CodePrimitiveBaseType.integer
+    )
 
     arr_paren = from_string_or_raise(primitive_codec, "ARRAY(BOOLEAN)")
     assert arr_paren.base_type == CodePrimitiveBaseType.array
-    assert arr_paren.item_type is not None and arr_paren.item_type.base_type == CodePrimitiveBaseType.boolean
+    assert (
+        arr_paren.item_type is not None
+        and arr_paren.item_type.base_type == CodePrimitiveBaseType.boolean
+    )
 
 
 def test_vector_types():
@@ -115,12 +183,18 @@ def test_vector_types():
     # Vector inside array wrappers
     vec_arr = from_string_or_raise(primitive_codec, "VECTOR(512)[]")
     assert vec_arr.base_type == CodePrimitiveBaseType.array
-    assert vec_arr.item_type is not None and vec_arr.item_type.base_type == CodePrimitiveBaseType.vector
+    assert (
+        vec_arr.item_type is not None
+        and vec_arr.item_type.base_type == CodePrimitiveBaseType.vector
+    )
     assert vec_arr.item_type.constraints == {"dimension": 512}
 
     vec_arr2 = from_string_or_raise(primitive_codec, "ARRAY(VECTOR(512))")
     assert vec_arr2.base_type == CodePrimitiveBaseType.array
-    assert vec_arr2.item_type is not None and vec_arr2.item_type.base_type == CodePrimitiveBaseType.vector
+    assert (
+        vec_arr2.item_type is not None
+        and vec_arr2.item_type.base_type == CodePrimitiveBaseType.vector
+    )
     assert vec_arr2.item_type.constraints == {"dimension": 512}
 
 
@@ -166,10 +240,23 @@ def test_to_string_conversion():
     dict_type = build_code_primitive_type(base_type=CodePrimitiveBaseType.dict)
     assert primitive_codec.render(dict_type) == "JSONB"
 
+    decimal_type = build_code_primitive_type(base_type=CodePrimitiveBaseType.decimal)
+    assert primitive_codec.render(decimal_type) == "NUMERIC"
+    assert primitive_codec.to_typed_literal_string("1.2300", decimal_type) == "1.23"
+
     # Parameterized string types should normalize to TEXT (via mapping)
-    assert from_string_or_raise(primitive_codec, "VARCHAR(255)").base_type == CodePrimitiveBaseType.string
-    assert from_string_or_raise(primitive_codec, "CHAR(10)").base_type == CodePrimitiveBaseType.string
-    assert from_string_or_raise(primitive_codec, "DOUBLE PRECISION").base_type == CodePrimitiveBaseType.float
+    assert (
+        from_string_or_raise(primitive_codec, "VARCHAR(255)").base_type
+        == CodePrimitiveBaseType.string
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "CHAR(10)").base_type
+        == CodePrimitiveBaseType.string
+    )
+    assert (
+        from_string_or_raise(primitive_codec, "DOUBLE PRECISION").base_type
+        == CodePrimitiveBaseType.float
+    )
 
 
 def test_exact_token_disambiguation_does_not_use_substrings():
@@ -298,7 +385,10 @@ def test_get_inner_type_extraction():
     assert primitive_codec.get_inner_type("ARRAY[INTEGER]") == "INTEGER"
     assert primitive_codec.get_inner_type("ARRAY[TEXT]") == "TEXT"
     assert primitive_codec.get_inner_type("array[varchar]") == "varchar"
-    assert primitive_codec.get_inner_type("ARRAY[TIMESTAMP WITH TIME ZONE]") == "TIMESTAMP WITH TIME ZONE"
+    assert (
+        primitive_codec.get_inner_type("ARRAY[TIMESTAMP WITH TIME ZONE]")
+        == "TIMESTAMP WITH TIME ZONE"
+    )
 
     # Test ARRAY(TYPE) notation
     assert primitive_codec.get_inner_type("ARRAY(INTEGER)") == "INTEGER"
@@ -312,7 +402,10 @@ def test_get_inner_type_extraction():
 
     # Test complex types with parameters
     assert primitive_codec.get_inner_type("DECIMAL(10,2)[]") == "DECIMAL(10,2)"
-    assert primitive_codec.get_inner_type("NUMERIC(precision, scale)[]") == "NUMERIC(precision, scale)"
+    assert (
+        primitive_codec.get_inner_type("NUMERIC(precision, scale)[]")
+        == "NUMERIC(precision, scale)"
+    )
 
     # Test non-list types (should return unchanged)
     assert primitive_codec.get_inner_type("INTEGER") == "INTEGER"
@@ -376,7 +469,8 @@ def test_sql_constraints():
     primitive_codec = SqlPrimitiveCodec()
     # Test string constraints
     string_type = build_code_primitive_type(
-        base_type=CodePrimitiveBaseType.string, constraints=Json({"min_length": 5, "max_length": 100})
+        base_type=CodePrimitiveBaseType.string,
+        constraints=Json({"min_length": 5, "max_length": 100}),
     )
     constraints = primitive_codec.get_sql_constraints(string_type)
     assert constraints is not None
@@ -385,7 +479,8 @@ def test_sql_constraints():
 
     # Test numeric constraints
     int_type = build_code_primitive_type(
-        base_type=CodePrimitiveBaseType.integer, constraints=Json({"minimum": 0, "maximum": 999})
+        base_type=CodePrimitiveBaseType.integer,
+        constraints=Json({"minimum": 0, "maximum": 999}),
     )
     constraints = primitive_codec.get_sql_constraints(int_type)
     assert constraints is not None

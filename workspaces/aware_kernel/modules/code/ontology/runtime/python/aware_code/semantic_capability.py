@@ -6,9 +6,9 @@ from pathlib import Path
 from typing import Literal
 
 from aware_code_ontology.code.code_plan import CodePackageDelta
+from aware_code.semantic_capability_keys import SEMANTIC_ANALYSIS_CAPABILITY
 
 
-SEMANTIC_ANALYSIS_CAPABILITY = "semantic_analysis"
 SemanticCapabilityEventVerb = Literal[
     "noop",
     "create",
@@ -232,6 +232,21 @@ class SemanticCapabilityDependencyRequirement:
 
 
 @dataclass(frozen=True, slots=True)
+class SemanticCapabilityDependencyGraph:
+    package_name: str
+    graph_kind: str
+    graph: Mapping[str, object]
+    provider_key: str | None = None
+    semantic_owner: str | None = None
+    semantic_branch_id: str | None = None
+    semantic_projection_name: str | None = None
+    semantic_projection_hash: str | None = None
+    semantic_object_instance_graph_commit_id: str | None = None
+    semantic_root_object_instance_graph_commit_id: str | None = None
+    metadata: Mapping[str, object] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
 class SemanticCapabilityFunctionCallPlan:
     function_ref: str
     binding_key: str | None = None
@@ -294,8 +309,7 @@ class SemanticCapabilityChangePreview:
                 event.evidence_payload() for event in self.semantic_events
             ),
             "typed_operations": tuple(
-                operation.evidence_payload()
-                for operation in self.typed_operations
+                operation.evidence_payload() for operation in self.typed_operations
             ),
             "action_bindings": tuple(
                 action_binding.evidence_payload()
@@ -312,6 +326,7 @@ class SemanticAnalysisCapabilityRequest:
     manifest_path: Path | None = None
     workspace_root: Path | None = None
     code_package_delta: CodePackageDelta | None = None
+    dependency_graphs: tuple[SemanticCapabilityDependencyGraph, ...] = ()
     metadata: Mapping[str, object] = field(default_factory=dict)
 
 
@@ -337,6 +352,7 @@ __all__ = [
     "SemanticCapabilityActionKind",
     "SemanticCapabilityChangePreview",
     "SemanticCapabilityDependencyRequirement",
+    "SemanticCapabilityDependencyGraph",
     "SemanticCapabilityDelta",
     "SemanticCapabilityDiagnostic",
     "SemanticCapabilityEvent",

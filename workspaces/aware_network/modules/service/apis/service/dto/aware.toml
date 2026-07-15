@@ -1,0 +1,16 @@
+aware = 1
+
+[package]
+package_name = "service-service-dto"
+fqn_prefix = "aware_service_service_dto"
+kind = "api"
+version_number = 1
+title = "Service Service DTO"
+description = "API-owned DTO package for Service operation envelopes, host-control payloads, and API dispatch payloads."
+
+[build]
+environment_slug = "aware_service_service_dto"
+
+[build.namespace]
+"host.aware" = "host"
+"continuity.aware" = "continuity"

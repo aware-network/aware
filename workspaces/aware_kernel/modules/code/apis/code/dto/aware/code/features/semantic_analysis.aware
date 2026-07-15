@@ -22,6 +22,21 @@ class CodeSemanticAnalysisDependencyRequirement : inline_value {
     metadata JsonObject?
 }
 
+/// Read-only provider-owned graph context for one declared semantic dependency.
+class CodeSemanticAnalysisDependencyGraph : inline_value {
+    package_name String
+    graph_kind String
+    provider_key String?
+    semantic_owner String?
+    semantic_branch_id String?
+    semantic_projection_name String?
+    semantic_projection_hash String?
+    semantic_object_instance_graph_commit_id String?
+    semantic_root_object_instance_graph_commit_id String?
+    graph JsonObject
+    metadata JsonObject?
+}
+
 /// Provider-owned semantic before/after candidate derived from a CodePackageDelta.
 class CodeSemanticDelta : inline_value {
     delta_key String
@@ -115,6 +130,7 @@ class PreviewCodeSemanticAnalysisPackageDeltaRequest augment code.CodeServiceReq
     delta code.CodePackageDelta
     layout_contract code.CodePackageLayoutContract?
     semantic_contract code.CodeSemanticContract?
+    dependency_graphs code.CodeSemanticAnalysisDependencyGraph[] = []
     include_provider_payload Bool = false
     strict Bool = true
     metadata JsonObject?

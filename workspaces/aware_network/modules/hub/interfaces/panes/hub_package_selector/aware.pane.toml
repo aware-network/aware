@@ -1,0 +1,24 @@
+aware_pane = 1
+
+[pane]
+package_name = "aware-hub-package-selector-pane"
+fqn_prefix = "aware_hub_package_selector_pane"
+pane_name = "hub_package_selector"
+description = "Hub public CodePackage discovery pane package for the aware_control interface."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+
+[[dependencies]]
+package_name = "aware-hub-experience"
+kind = "experience_package"
+
+[dart]
+package_path = "dart/aware_hub_package_selector_pane"
+package_name = "aware_hub_package_selector_pane"
+
+[dart.flutter]
+library = "package:aware_hub_package_selector_pane/aware_hub_package_selector_pane.dart"
+symbol = "registerPanePackage"

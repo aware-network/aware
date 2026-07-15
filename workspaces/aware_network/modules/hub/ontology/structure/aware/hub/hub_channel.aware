@@ -1,0 +1,87 @@
+class HubChannel {
+    // Relationships
+    heads HubChannelHead[]
+
+    // Attributes
+    channel_key String key
+    description String?
+    title String?
+    visibility HubAuthorityVisibility = public
+
+    fn build construct(
+        channel_key String key,
+        title String? = null,
+        description String? = null,
+        visibility HubAuthorityVisibility = public
+    ) -> HubChannel {
+        """
+        Create one Hub-owned channel.
+        """
+    }
+
+    fn upsert_head(
+        artifact_family String key,
+        artifact_key String key,
+        revision_id String,
+        selector_key String? = null,
+        artifact_revision_id UUID? = null,
+        code_package_publication_id UUID? = null,
+        updated_at_utc String? = null
+    ) -> HubChannelHead {
+        """
+        Move a channel head to one artifact revision/publication.
+        """
+        let created = construct heads.build(
+            artifact_family = artifact_family,
+            artifact_key = artifact_key,
+            revision_id = revision_id,
+            selector_key = selector_key,
+            artifact_revision_id = artifact_revision_id,
+            code_package_publication_id = code_package_publication_id,
+            updated_at_utc = updated_at_utc,
+        )
+    }
+}
+
+class HubChannelHead {
+    // Relationships
+    artifact_revision HubArtifactRevision?
+    code_package_publication HubCodePackagePublication?
+
+    // Attributes
+    artifact_family String key
+    artifact_key String key
+    revision_id String
+    selector_key String?
+    updated_at_utc String?
+
+    fn build construct(
+        artifact_family String key,
+        artifact_key String key,
+        revision_id String,
+        selector_key String? = null,
+        artifact_revision_id UUID? = null,
+        code_package_publication_id UUID? = null,
+        updated_at_utc String? = null
+    ) -> HubChannelHead {
+        """
+        Create one channel head row scoped by channel, artifact family, and artifact key.
+        """
+    }
+
+    fn move(
+        revision_id String,
+        selector_key String? = null,
+        artifact_revision_id UUID? = null,
+        code_package_publication_id UUID? = null,
+        updated_at_utc String? = null
+    ) -> HubChannelHead {
+        """
+        Move this channel head through its own mutation boundary.
+        """
+    }
+}
+
+ann hub.HubChannel::heads load eager
+ann hub.HubChannelHead::artifact_revision load eager
+ann hub.HubChannelHead::code_package_publication load eager
