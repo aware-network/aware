@@ -16,6 +16,8 @@ from aware_economy_ontology.price.price_enums import PriceType
 from aware_economy_ontology.price.pricing_policy import PricingPolicy
 from aware_economy_ontology.stable_ids import stable_economy_package_id
 from aware_economy.stable_ids import stable_coin_id
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+from aware_meta_ontology.stable_ids import stable_object_instance_graph_commit_id
 
 
 async def materialize(
@@ -121,7 +123,18 @@ async def materialize(
             }
         )
 
-    if package_lane.last_commit_id is None or package_lane.last_head_commit_id is None:
+    package_domain_commit_id, package_object_instance_graph_commit_id = (
+        await _resolve_committed_package_receipts(
+            branch_id=request.branch_id,
+            projection_hash=package_lane.binding.projection_hash,
+            domain_commit_id=package_lane.last_commit_id,
+            object_instance_graph_commit_id=package_lane.last_head_commit_id,
+        )
+    )
+    if (
+        package_domain_commit_id is None
+        or package_object_instance_graph_commit_id is None
+    ):
         raise RuntimeError(
             "Economy semantic package materialization did not produce committed package receipts"
         )
@@ -136,9 +149,9 @@ async def materialize(
                 else None
             ),
             "semantic_branch_id": str(request.branch_id),
-            "economy_package_commit_id": str(package_lane.last_commit_id),
+            "economy_package_commit_id": str(package_domain_commit_id),
             "economy_package_object_instance_graph_commit_id": str(
-                package_lane.last_head_commit_id
+                package_object_instance_graph_commit_id
             ),
             "materialized_prices": materialized_prices,
             "last_price_commit_id": (
@@ -159,21 +172,60 @@ async def materialize(
                 semantic_package_id=economy_package_id,
                 semantic_root_id=economy_package_id,
                 semantic_branch_id=request.branch_id,
-                semantic_head_commit_id=package_lane.last_head_commit_id,
+                semantic_head_commit_id=package_domain_commit_id,
                 semantic_object_instance_graph_commit_id=(
-                    package_lane.last_head_commit_id
+                    package_object_instance_graph_commit_id
                 ),
                 semantic_root_object_instance_graph_commit_id=(
-                    package_lane.last_head_commit_id
+                    package_object_instance_graph_commit_id
                 ),
                 semantic_root_kind="economy_package",
                 semantic_projection_name="EconomyPackage",
                 source_code_package_id=source_code_package_id,
             ),
         ),
-        commit_id=package_lane.last_commit_id,
-        head_commit_id=package_lane.last_head_commit_id,
+        commit_id=package_domain_commit_id,
+        head_commit_id=package_domain_commit_id,
     )
+
+
+async def _resolve_committed_package_receipts(
+    *,
+    branch_id: UUID,
+    projection_hash: str,
+    domain_commit_id: UUID | None,
+    object_instance_graph_commit_id: UUID | None,
+) -> tuple[UUID | None, UUID | None]:
+    commit_store = FSCommitStore()
+    resolved_domain_commit_id = domain_commit_id
+    if resolved_domain_commit_id is None:
+        head = await commit_store.head(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+        )
+        if head is not None and head.get("commit_id") is not None:
+            resolved_domain_commit_id = UUID(str(head["commit_id"]))
+
+    resolved_object_instance_graph_commit_id = object_instance_graph_commit_id
+    if (
+        resolved_object_instance_graph_commit_id is None
+        and resolved_domain_commit_id is not None
+    ):
+        identity_metadata = await commit_store.get_commit_identity_metadata(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=resolved_domain_commit_id,
+        )
+        if identity_metadata is not None:
+            resolved_object_instance_graph_commit_id = (
+                stable_object_instance_graph_commit_id(
+                    object_instance_graph_identity_id=(
+                        identity_metadata.object_instance_graph_identity_id
+                    ),
+                    commit_id=resolved_domain_commit_id,
+                )
+            )
+    return resolved_domain_commit_id, resolved_object_instance_graph_commit_id
 
 
 def _uuid_or_none(value: object) -> UUID | None:

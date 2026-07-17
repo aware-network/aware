@@ -72,7 +72,6 @@ abstract class InterfaceWindowConfigLayoutBundle
     @UuidValueConverter() required UuidValue windowConfigLayoutConfigId,
     @UuidValueConverter() required UuidValue layoutConfigId,
     required String key,
-    required bool isDefault,
     @Default(const []) List<InterfaceWindowLayoutSectionBundle> sections,
   }) = _InterfaceWindowConfigLayoutBundle;
 
@@ -80,24 +79,19 @@ abstract class InterfaceWindowConfigLayoutBundle
     required UuidValue windowConfigLayoutConfigId,
     required UuidValue layoutConfigId,
     required String key,
-    bool? isDefault,
     List<InterfaceWindowLayoutSectionBundle> sections = const [],
   }) {
     return _InterfaceWindowConfigLayoutBundle(
       windowConfigLayoutConfigId: windowConfigLayoutConfigId,
       layoutConfigId: layoutConfigId,
       key: key,
-      isDefault: isDefault ?? false,
       sections: sections,
     );
   }
 
   factory InterfaceWindowConfigLayoutBundle.fromJson(
     Map<String, dynamic> json,
-  ) => _$InterfaceWindowConfigLayoutBundleFromJson({
-    ...json,
-    if (!json.containsKey('is_default')) 'is_default': false,
-  });
+  ) => _$InterfaceWindowConfigLayoutBundleFromJson(json);
 }
 
 @freezed

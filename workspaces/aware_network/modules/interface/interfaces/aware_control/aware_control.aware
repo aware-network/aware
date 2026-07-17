@@ -1,6 +1,6 @@
 interface aware_control {
     window main {
-        layout coordination_center default {}
+        layout coordination_center
     }
 
     pane identity_admission {

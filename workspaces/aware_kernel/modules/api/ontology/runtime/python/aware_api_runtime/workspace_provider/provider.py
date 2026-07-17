@@ -7,6 +7,7 @@ import json
 import msgpack
 from pathlib import Path
 from pathlib import PurePosixPath
+from time import perf_counter
 from types import SimpleNamespace
 from typing import Any, cast
 from uuid import UUID
@@ -612,6 +613,9 @@ async def _materialize_api_dto_export(
         materialize_api_dto_packages,
     )
 
+    materialization_started_at = perf_counter()
+    phase_timings_s: dict[str, float] = {}
+    phase_started_at = perf_counter()
     api_toml_path = _api_dto_declaring_api_toml_path(request=request)
     workspace = APIWorkspace.from_toml(
         toml_path=api_toml_path,
@@ -623,7 +627,10 @@ async def _materialize_api_dto_export(
         dto_manifest_path=request.manifest_path,
     )
     runtime_package_dir = resolve_api_runtime_package_dir(snapshot=snapshot)
-    phase_timings_s: dict[str, float] = {}
+    phase_timings_s["build_api_dto_workspace_snapshot"] = round(
+        perf_counter() - phase_started_at,
+        6,
+    )
     direct_dependency_materialization_details: list[Mapping[str, object]] = []
     accessible_graphs = await resolve_source_owned_api_dto_export_accessible_graphs(
         runtime=request.runtime,
@@ -639,13 +646,20 @@ async def _materialize_api_dto_export(
             direct_dependency_materialization_details
         ),
     )
+    phase_started_at = perf_counter()
     dto_materializations = materialize_api_dto_packages(
         snapshot=snapshot,
         runtime_package_dir=runtime_package_dir,
         repo_root=request.workspace_root,
         accessible_graphs=accessible_graphs,
         dependency_repo_roots=_workspace_dependency_roots_from_context(request.context),
+        phase_timings_s=phase_timings_s,
     )
+    phase_timings_s["materialize_api_dto_packages"] = round(
+        perf_counter() - phase_started_at,
+        6,
+    )
+    phase_started_at = perf_counter()
     dto_materialization = _api_dto_materialization_for_export(
         dto_materializations=dto_materializations,
         package_name=export.package_name,
@@ -655,20 +669,35 @@ async def _materialize_api_dto_export(
         request=request,
         package_name=export.package_name,
     )
+    phase_timings_s["resolve_api_dto_result"] = round(
+        perf_counter() - phase_started_at,
+        6,
+    )
+    phase_started_at = perf_counter()
     artifact_ownership_receipts = _api_dto_artifact_ownership_receipts(
         api_package_name=snapshot.spec.api.package_name,
         workspace_root=request.workspace_root,
         dto_materializations=(dto_materialization,),
     )
+    phase_timings_s["build_api_dto_artifact_ownership_receipts"] = round(
+        perf_counter() - phase_started_at,
+        6,
+    )
+    phase_started_at = perf_counter()
     runtime_artifact_ownership_receipts = _publish_api_dto_runtime_graph_artifacts(
         request=request,
         package_name=export.package_name,
         graph=graph,
     )
+    phase_timings_s["publish_api_dto_runtime_graph_artifacts"] = round(
+        perf_counter() - phase_started_at,
+        6,
+    )
     artifact_ownership_receipts = (
         *artifact_ownership_receipts,
         *runtime_artifact_ownership_receipts,
     )
+    phase_started_at = perf_counter()
     language_code_package_ref = await materialize_api_dto_language_code_package(
         index=request.index,
         actor_id=request.actor_id,
@@ -678,7 +707,13 @@ async def _materialize_api_dto_export(
         ),
         import_root=dto_materialization.import_root,
         package_root=dto_materialization.package_root,
+        phase_timings_s=phase_timings_s,
     )
+    phase_timings_s["materialize_api_dto_language_code_package"] = round(
+        perf_counter() - phase_started_at,
+        6,
+    )
+    phase_started_at = perf_counter()
     language_code_package_payload = language_code_package_ref.to_payload()
     language_code_package_payload["runtime_artifact_refs"] = tuple(
         {
@@ -697,6 +732,11 @@ async def _materialize_api_dto_export(
         dto_materializations=(dto_materialization,),
         source_code_package_id=source_code_package_id,
     )
+    phase_timings_s["build_api_dto_generated_code_package_deltas"] = round(
+        perf_counter() - phase_started_at,
+        6,
+    )
+    phase_started_at = perf_counter()
     materialized_files = tuple(
         _workspace_relative_path(workspace_root=request.workspace_root, path=path)
         for path in dto_materialization.materialization_result.files
@@ -708,6 +748,14 @@ async def _materialize_api_dto_export(
     semantic_keys = (
         f"api_dto:{export.package_name}",
         f"api:{snapshot.spec.api.package_name}",
+    )
+    phase_timings_s["assemble_api_dto_result"] = round(
+        perf_counter() - phase_started_at,
+        6,
+    )
+    phase_timings_s["total"] = round(
+        perf_counter() - materialization_started_at,
+        6,
     )
     return SemanticPackageMaterializationResult(
         details={

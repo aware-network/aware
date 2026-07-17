@@ -4,6 +4,9 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from uuid import UUID
 
+from aware_code.package.artifact_delta_plan import (
+    CodePackageArtifactCurrentStateIndex,
+)
 from aware_code.package.snapshot_contract import (
     CODE_PACKAGE_ARTIFACT_STATE_INDEX_SCHEMA,
 )
@@ -27,7 +30,7 @@ class CodePackageSelectedSnapshotHealthEvidence:
     graph_hash_post: str
     snapshot_fingerprint: str | None
     source_snapshot_fingerprint: str | None
-    artifact_state_index: Mapping[str, object]
+    artifact_current_state: CodePackageArtifactCurrentStateIndex
     required_relative_paths: tuple[str, ...]
 
 
@@ -109,20 +112,32 @@ async def load_code_package_selected_snapshot_health_evidence(
         required_paths=required_paths,
     ):
         return None
+    snapshot_fingerprint = _optional_text(payload.get("snapshot_fingerprint"))
+    source_snapshot_fingerprint = _optional_text(
+        payload.get("source_snapshot_fingerprint")
+    )
+    artifact_current_state = CodePackageArtifactCurrentStateIndex.from_payload(
+        {
+            **artifact_state,
+            "current_state_status": "selected_snapshot_health",
+            "code_package_id": str(code_package_id),
+            "snapshot_fingerprint": snapshot_fingerprint,
+            "source_snapshot_fingerprint": source_snapshot_fingerprint,
+            "head_commit_id": str(head_commit_id),
+            "object_instance_graph_commit_id": str(object_instance_graph_commit_id),
+            "graph_hash_post": graph_hash_post,
+        }
+    )
+    if artifact_current_state is None:
+        return None
     return CodePackageSelectedSnapshotHealthEvidence(
         code_package_id=code_package_id,
         head_commit_id=head_commit_id,
         object_instance_graph_commit_id=object_instance_graph_commit_id,
         graph_hash_post=graph_hash_post,
-        snapshot_fingerprint=_optional_text(payload.get("snapshot_fingerprint")),
-        source_snapshot_fingerprint=_optional_text(
-            payload.get("source_snapshot_fingerprint")
-        ),
-        artifact_state_index={
-            str(key): value
-            for key, value in artifact_state.items()
-            if isinstance(key, str)
-        },
+        snapshot_fingerprint=snapshot_fingerprint,
+        source_snapshot_fingerprint=source_snapshot_fingerprint,
+        artifact_current_state=artifact_current_state,
         required_relative_paths=required_paths,
     )
 

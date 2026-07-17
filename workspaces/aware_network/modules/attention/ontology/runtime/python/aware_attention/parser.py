@@ -21,7 +21,6 @@ class AttentionSectionConfigOwnership:
 @dataclass(frozen=True, slots=True)
 class AttentionLayoutConfigOwnership:
     key: str
-    is_default: bool
     source_path: str
     sections: tuple[AttentionSectionConfigOwnership, ...]
 
@@ -69,12 +68,6 @@ def load_attention_layout_ownership_from_sources(
                 )
             layout_by_key[layout_key] = layout
 
-    default_count = sum(1 for layout in layout_by_key.values() if layout.is_default)
-    if default_count > 1:
-        raise ValueError(
-            "Attention authored topology allows at most one default layout; "
-            + f"got {default_count}"
-        )
     return AttentionSourceOwnership(
         layouts=tuple(
             sorted(
@@ -143,7 +136,6 @@ def _load_attention_layout_definition(
         )
     return AttentionLayoutConfigOwnership(
         key=layout_key,
-        is_default=node.child_by_field_name("default_marker") is not None,
         source_path=source_rel,
         sections=tuple(sections),
     )

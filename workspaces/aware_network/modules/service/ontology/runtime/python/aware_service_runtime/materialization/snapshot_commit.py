@@ -1553,7 +1553,7 @@ async def _commit_snapshot(
             object_projection_graph_identity_id=opgi.id,
             object_instance_graph_id=domain_oig_id,
         )
-    before_oig = await await_with_service_api_trace(
+    before_oig, parent_commit_id = await await_with_service_api_trace(
         _load_before_oig(
             index=index,
             branch_id=branch_id,
@@ -1651,6 +1651,8 @@ async def _commit_snapshot(
             branch_id=branch_id,
             projection_hash=projection_hash,
             root_object_id=root_object_id,
+            parent_commit_id=parent_commit_id,
+            graph_hash_pre=before_oig.hash,
             graph_hash_post=after_oig.hash,
         )
         commit_action = CommitActionDescriptor(
@@ -1739,7 +1741,7 @@ async def _load_before_oig(
             phase="service_snapshot.load_before_oig.materializer_get",
             fields=trace_fields,
         )
-        return oig
+        return oig, UUID(str(head["commit_id"]))
     with service_api_trace_phase(
         "service_snapshot.load_before_oig.build_rooted_base",
         **trace_fields,
@@ -1752,7 +1754,7 @@ async def _load_before_oig(
             object_projection_graph=opg,
             root_source_object_id=root_object_id,
             oig_id=domain_oig_id,
-        )
+        ), None
 
 
 def _snapshot_commit_id(
@@ -1761,11 +1763,14 @@ def _snapshot_commit_id(
     branch_id: UUID,
     projection_hash: str,
     root_object_id: UUID,
+    parent_commit_id: UUID | None,
+    graph_hash_pre: str,
     graph_hash_post: str,
 ) -> UUID:
     return uuid5(
         namespace,
-        f"{branch_id}:{projection_hash}:{root_object_id}:{graph_hash_post}",
+        f"{branch_id}:{projection_hash}:{root_object_id}:"
+        f"{parent_commit_id or ''}:{graph_hash_pre}:{graph_hash_post}",
     )
 
 

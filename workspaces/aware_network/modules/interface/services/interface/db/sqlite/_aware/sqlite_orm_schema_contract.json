@@ -1,0 +1,111 @@
+{
+  "import_root": "aware_interface_service_local_sqlite",
+  "language_graph_ref": "a75e81659e2f2a9f27d059bd6633e0bbe6a044cfefef22ecd2ddc53b4ce8354c",
+  "materialization_source": "ontology",
+  "package_name": "interface-service-db-sqlite",
+  "renderer_kind": "sqlite",
+  "renderer_profile": "orm_models",
+  "runtime_graph_ref": "233806df9188014dd332ddb18926b622f8e4915a1a009e69c705cae1555f88f5",
+  "schema": "aware.orm.local_state.sqlite.schema_contract.v1",
+  "schema_contract": "aware_interface_service_local.sqlite.orm_schema",
+  "schema_paths": [
+    "commit_store/local_oig_commit.sql",
+    "commit_store/local_oig_commit_action.sql",
+    "commit_store/local_oig_lane_commit.sql",
+    "commit_store/local_oig_lane_head.sql",
+    "commit_store/local_oig_projection_cursor.sql",
+    "commit_store/local_oig_snapshot.sql"
+  ],
+  "schema_version": 1,
+  "source_graph_ref": "17902bc63511a1630dcb759b89827d1c7b7d08c56d8b3de6325bf10c1b4f2bcc",
+  "tables": [
+    {
+      "columns": [
+        "id",
+        "commit_id",
+        "branch_id",
+        "graph_hash_pre",
+        "graph_hash_post",
+        "projection_hash",
+        "object_instance_graph_id",
+        "object_instance_graph_commit_id",
+        "payload_json",
+        "parent_commit_id"
+      ],
+      "json_columns": [],
+      "storage_indexes": [],
+      "table": "local_oig_commit"
+    },
+    {
+      "columns": [
+        "id",
+        "branch_id",
+        "projection_hash",
+        "operation_label",
+        "call_target",
+        "function_id",
+        "object_id",
+        "class_instance_identity_id",
+        "actor_id",
+        "commit_id"
+      ],
+      "json_columns": [],
+      "storage_indexes": [],
+      "table": "local_oig_commit_action"
+    },
+    {
+      "columns": [
+        "id",
+        "branch_id",
+        "projection_hash",
+        "commit_id"
+      ],
+      "json_columns": [],
+      "storage_indexes": [],
+      "table": "local_oig_lane_commit"
+    },
+    {
+      "columns": [
+        "id",
+        "branch_id",
+        "projection_hash",
+        "graph_hash_post",
+        "object_instance_graph_id",
+        "root_object_instance_id",
+        "v",
+        "head_commit_id"
+      ],
+      "json_columns": [],
+      "storage_indexes": [],
+      "table": "local_oig_lane_head"
+    },
+    {
+      "columns": [
+        "id",
+        "branch_id",
+        "projection_hash",
+        "projector_id",
+        "graph_hash_post",
+        "v",
+        "head_commit_id"
+      ],
+      "json_columns": [],
+      "storage_indexes": [],
+      "table": "local_oig_projection_cursor"
+    },
+    {
+      "columns": [
+        "id",
+        "branch_id",
+        "projection_hash",
+        "oig_json",
+        "indexes_json",
+        "v",
+        "commit_id"
+      ],
+      "json_columns": [],
+      "storage_indexes": [],
+      "table": "local_oig_snapshot"
+    }
+  ]
+}

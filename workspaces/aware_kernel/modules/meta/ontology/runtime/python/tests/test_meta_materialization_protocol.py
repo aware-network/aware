@@ -7,6 +7,7 @@ from uuid import uuid4
 import pytest
 
 from aware_code_ontology.code.code_enums import CodeLanguage
+import aware_meta.materialization.executor as materialization_executor
 import aware_meta.materialization.schemas as materialization_schemas
 from aware_meta.materialization.contracts import (
     MaterializationLaneContext,
@@ -291,6 +292,53 @@ async def test_materialization_executor_preserves_structured_failure_details() -
         "source_paths": ("repository/repository.aware",),
         "output_path": "handlers/impl/repository/repository.py",
     }
+
+
+@pytest.mark.asyncio
+async def test_materialization_executor_logs_failed_step_traceback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    plan = MaterializationPlan(
+        module_id="meta",
+        pipeline_id="meta.semantic.render",
+        lane=_lane(),
+        steps=(
+            MaterializationStep(
+                step_id="render:repository",
+                step_kind="semantic.render",
+                payload={},
+                commit_requested=False,
+            ),
+        ),
+    )
+
+    async def _runner(
+        *,
+        plan: MaterializationPlan,
+        step: MaterializationStep,
+    ) -> MaterializationStepResult:
+        _ = (plan, step)
+        raise RuntimeError("render exploded")
+
+    logged_calls: list[tuple[object, ...]] = []
+    monkeypatch.setattr(
+        materialization_executor.logger,
+        "exception",
+        lambda *args, **kwargs: logged_calls.append((*args, kwargs)),
+    )
+
+    with pytest.raises(MaterializationExecutionError):
+        await MaterializationExecutor().run(plan=plan, runner=_runner)
+
+    assert logged_calls == [
+        (
+            "Materialization step execution failed: pipeline_id=%s step_id=%s step_kind=%s",
+            "meta.semantic.render",
+            "render:repository",
+            "semantic.render",
+            {},
+        )
+    ]
 
 
 def test_validate_materialization_plan_requires_projection_hash() -> None:

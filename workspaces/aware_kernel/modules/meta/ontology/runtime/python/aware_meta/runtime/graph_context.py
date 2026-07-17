@@ -392,6 +392,7 @@ def build_meta_graph_runtime_context_for_aware_package_manifests(
         | None
     ) = None,
     package_cache_owner_roots_by_manifest_path: Mapping[Path, Path] | None = None,
+    package_graph_cache_write_root: Path | None = None,
     source_analysis_allowed_manifest_paths: Iterable[Path] = (),
     package_graph_cache_request_signature: str | None = None,
     load_source_graph_payloads: bool = True,
@@ -603,26 +604,34 @@ def build_meta_graph_runtime_context_for_aware_package_manifests(
                 for package_name, graph in runtime_graph_by_package_name.items()
                 if package_name in dependency_closure_names
             )
-            if strict_package_graph_cache and catalog_entry is not None:
-                assert catalog_entry is not None
-                cached_graphs = _try_load_catalog_cached_package_graphs(
-                    cache_owner_root=package_cache_owner_root,
-                    catalog_entry=catalog_entry,
-                    external_graph_refs=external_graph_refs,
-                    external_runtime_graphs=external_runtime_graphs,
-                    load_source_graph=load_source_graph_payloads,
-                    phase_timings_s=package_phase_timings_s,
-                    diagnostics=cache_diagnostics,
-                )
-            else:
-                cached_graphs = _try_load_cached_package_graphs(
-                    workspace_root=package_cache_owner_root,
-                    manifest_path=manifest_path,
-                    spec=spec,
-                    external_graphs=external_graphs,
-                    external_runtime_graphs=external_runtime_graphs,
-                    phase_timings_s=package_phase_timings_s,
-                    diagnostics=cache_diagnostics,
+            try:
+                if strict_package_graph_cache and catalog_entry is not None:
+                    assert catalog_entry is not None
+                    cached_graphs = _try_load_catalog_cached_package_graphs(
+                        cache_owner_root=package_cache_owner_root,
+                        catalog_entry=catalog_entry,
+                        external_graph_refs=external_graph_refs,
+                        external_runtime_graphs=external_runtime_graphs,
+                        load_source_graph=load_source_graph_payloads,
+                        phase_timings_s=package_phase_timings_s,
+                        diagnostics=cache_diagnostics,
+                    )
+                else:
+                    cached_graphs = _try_load_cached_package_graphs(
+                        workspace_root=package_cache_owner_root,
+                        manifest_path=manifest_path,
+                        spec=spec,
+                        external_graphs=external_graphs,
+                        external_runtime_graphs=external_runtime_graphs,
+                        phase_timings_s=package_phase_timings_s,
+                        diagnostics=cache_diagnostics,
+                    )
+            except (RuntimeError, ValueError) as exc:
+                if strict_cache_required:
+                    raise
+                cached_graphs = None
+                cache_diagnostics["cache_miss_reason"] = (
+                    f"cache_artifact_invalid:{type(exc).__name__}: {exc}"
                 )
             cache_status = "hit"
             cache_source = _diagnostic_string(
@@ -693,7 +702,10 @@ def build_meta_graph_runtime_context_for_aware_package_manifests(
                     "write_context_package_graph_cache",
                 ):
                     _try_write_context_package_graph_cache(
-                        workspace_root=package_cache_owner_root,
+                        workspace_root=(
+                            package_graph_cache_write_root
+                            or package_cache_owner_root
+                        ),
                         manifest_path=manifest_path,
                         spec=spec,
                         external_graphs=external_graphs,
@@ -1377,6 +1389,7 @@ def build_meta_workspace_materialization_runtime_context(
             return build_meta_graph_runtime_for_aware_package_manifests(
                 package_manifest_paths=manifest_paths,
                 workspace_root=request.workspace_root,
+                aware_root=request.authority_root,
                 composite_name="Aware Workspace Meta Materialization Context",
                 implementation_policy=(
                     _workspace_materialization_implementation_policy()
@@ -1402,22 +1415,30 @@ def build_meta_workspace_materialization_runtime_context(
                 ),
             )
 
+        requested_load_source_graph_payloads = (
+            _runtime_context_load_source_graph_payloads_for_request(request)
+        )
+        requested_graph_body_requirement = (
+            _runtime_context_graph_body_requirement_for_request(request)
+        )
         try:
             runtime = build_runtime_for_requirement(
-                load_source_graph_payloads=(
-                    _runtime_context_load_source_graph_payloads_for_request(request)
-                ),
-                graph_body_requirement=(
-                    _runtime_context_graph_body_requirement_for_request(request)
-                ),
+                load_source_graph_payloads=requested_load_source_graph_payloads,
+                graph_body_requirement=requested_graph_body_requirement,
             )
         except (FileNotFoundError, RuntimeError, ValueError) as exc:
-            if not _runtime_context_read_only_preflight_requested(request):
+            if requested_load_source_graph_payloads:
                 raise
-            preflight_fallback_reason = f"{type(exc).__name__}: {exc}"
+            read_only_preflight = _runtime_context_read_only_preflight_requested(
+                request
+            )
+            preflight_fallback_reason = (
+                f"{type(exc).__name__}: {exc}" if read_only_preflight else None
+            )
             preflight_fallback_evidence = (
                 dict(exc.evidence)
-                if isinstance(exc, MetaGraphRuntimeCompactContextError)
+                if read_only_preflight
+                and isinstance(exc, MetaGraphRuntimeCompactContextError)
                 else {}
             )
             fallback_started_at = perf_counter()
@@ -1425,11 +1446,18 @@ def build_meta_workspace_materialization_runtime_context(
                 load_source_graph_payloads=True,
                 graph_body_requirement=(
                     _RUNTIME_CONTEXT_GRAPH_BODY_REQUIREMENT_RUNTIME_GRAPH_BODY
+                    if read_only_preflight
+                    else requested_graph_body_requirement
                 ),
             )
-            provider_phase_timings_s[
+            fallback_timing_key = (
                 "workspace_provider_preflight_full_context_fallback_s"
-            ] = _round_duration_s(perf_counter() - fallback_started_at)
+                if read_only_preflight
+                else "workspace_provider_runtime_only_source_payload_retry_s"
+            )
+            provider_phase_timings_s[fallback_timing_key] = _round_duration_s(
+                perf_counter() - fallback_started_at
+            )
         else:
             preflight_fallback_reason = None
             preflight_fallback_evidence = {}

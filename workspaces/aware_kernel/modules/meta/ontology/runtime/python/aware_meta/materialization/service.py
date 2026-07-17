@@ -2819,7 +2819,12 @@ async def materialize_object_config_graph_package_leaf_from_manifest(
             projection_name="ObjectConfigGraphPackage",
         )
     )
-    source_text_by_relative_path: dict[str, str] = {}
+    manifest_package_relative_path = aware_toml_path.relative_to(
+        package_root
+    ).as_posix()
+    source_text_by_relative_path: dict[str, str] = {
+        manifest_package_relative_path: aware_toml_path.read_text(encoding="utf-8")
+    }
     with _record_phase(phase_timings_s, "read_owned_source_texts"):
         for owned_source in owned_source_files:
             relative_path = owned_source.source_relative_path

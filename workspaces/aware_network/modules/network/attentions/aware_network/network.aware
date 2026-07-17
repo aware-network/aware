@@ -1,4 +1,4 @@
-layout territory default {
+layout territory {
     section inspector {
         title "Territories"
         order 0

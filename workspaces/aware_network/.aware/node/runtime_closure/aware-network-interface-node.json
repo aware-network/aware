@@ -1,0 +1,126 @@
+{
+  "node_selection": {
+    "node_config_id": "9ae57cc7-c8e1-5a38-8d00-778d62925a34",
+    "node_package_head_commit_id": "7fbba8ce-533a-5c44-bac0-b533e974ce11",
+    "package_selection": {
+      "family_key": "node",
+      "manifest_path": "modules/node/nodes/aware_network_interface_host/aware.node.toml",
+      "package_kind": "node",
+      "package_name": "aware-network-interface-node",
+      "semantic_head_commit_id": "7fbba8ce-533a-5c44-bac0-b533e974ce11",
+      "semantic_object_instance_graph_commit_id": "6478a133-260e-5f62-be08-18c7abebed6e",
+      "semantic_package_id": "4bc96a1d-52fc-5c54-abb7-ff68bc571189",
+      "semantic_root_id": "9ae57cc7-c8e1-5a38-8d00-778d62925a34",
+      "semantic_root_kind": "node_config",
+      "semantic_root_object_instance_graph_commit_id": "bf98cf8a-78a3-5f95-a20a-4427ef43d2a4",
+      "source_code_package_id": "7ae1be71-5f81-542f-ad0a-b38716ad4ccc"
+    },
+    "selector_key": "aware_network_interface_host",
+    "target_ref": "aware_network_interface_host"
+  },
+  "package_selections": [
+    {
+      "family_key": "node",
+      "manifest_path": "modules/node/nodes/aware_network_interface_host/aware.node.toml",
+      "package_kind": "node",
+      "package_name": "aware-network-interface-node",
+      "semantic_branch_id": null,
+      "semantic_head_commit_id": "7fbba8ce-533a-5c44-bac0-b533e974ce11",
+      "semantic_object_instance_graph_commit_id": "6478a133-260e-5f62-be08-18c7abebed6e",
+      "semantic_package_id": "4bc96a1d-52fc-5c54-abb7-ff68bc571189",
+      "semantic_root_id": "9ae57cc7-c8e1-5a38-8d00-778d62925a34",
+      "semantic_root_kind": "node_config",
+      "semantic_root_object_instance_graph_commit_id": "bf98cf8a-78a3-5f95-a20a-4427ef43d2a4",
+      "source_code_package_id": "7ae1be71-5f81-542f-ad0a-b38716ad4ccc"
+    },
+    {
+      "code_semantic_package_binding_id": "6dfb16af-d456-55f0-8aac-eef6ccef5a5e",
+      "code_semantic_provider_registration_id": "a3c6a610-2547-57b8-9523-114f1ec13847",
+      "family_key": "service",
+      "manifest_path": "modules/interface/services/interface/aware.service.toml",
+      "package_kind": "service",
+      "package_name": "aware-interface-service",
+      "semantic_branch_id": "39bb24e1-5aae-5906-9c1f-f2e33479caa2",
+      "semantic_head_commit_id": "a2dc5655-da70-50f0-87ad-61bde1449732",
+      "semantic_object_instance_graph_commit_id": "686a0d75-b166-597a-b831-c94fc8ef09d0",
+      "semantic_package_id": "6cc07296-19fa-529d-b65f-01fd00a79e88",
+      "semantic_root_id": "d760e46f-debf-5ac2-99f7-ae406e8c6f87",
+      "semantic_root_kind": "service_config",
+      "semantic_root_object_instance_graph_commit_id": "9ee53633-b5ec-5876-b299-04c4fcc198d0",
+      "source_code_package_id": "dbd4d51a-e8af-545a-aae9-524632000978"
+    },
+    {
+      "code_semantic_package_binding_id": "b0cbc852-593c-51c9-a9a6-cb1a88d74466",
+      "code_semantic_provider_registration_id": "8b983eb6-1353-52d9-8f74-6e392581462e",
+      "family_key": "interface",
+      "manifest_path": "modules/interface/interfaces/aware_control/aware.interface.toml",
+      "package_kind": "interface",
+      "package_name": "aware-control-interface",
+      "semantic_branch_id": "428ec6bb-0fd4-58fc-8fe2-e88f3ad3faa6",
+      "semantic_head_commit_id": "50c5c903-29a8-5c94-b2c3-c9a1ee92e5ef",
+      "semantic_object_instance_graph_commit_id": "c35c5112-837c-57a7-8a81-b060ea553a67",
+      "semantic_package_id": "f6453e34-de79-5952-8581-eb671225f518",
+      "semantic_projection_hash": "4c6d1d446e3e7ed49f0a5bd37bca3d5d8075c488d021e88173ffeb779957562c",
+      "semantic_root_id": "35f6cb75-4e95-555e-bc1c-3c950557b367",
+      "semantic_root_kind": "interface_config",
+      "semantic_root_object_instance_graph_commit_id": "abd2144d-c87f-5ca1-97f4-83983bf7f857",
+      "source_code_package_id": "96f1bb27-06d6-59f1-9f42-68b39afdb460"
+    }
+  ],
+  "required_python_packages": [
+    "aware-interface-service",
+    "aware-node-service",
+    "aware-service-service"
+  ],
+  "runtime_inputs": [
+    {
+      "manifest_path": "modules/interface/services/interface/aware.service.toml",
+      "package_selection": {
+        "code_semantic_package_binding_id": "6dfb16af-d456-55f0-8aac-eef6ccef5a5e",
+        "code_semantic_provider_registration_id": "a3c6a610-2547-57b8-9523-114f1ec13847",
+        "family_key": "service",
+        "manifest_path": "modules/interface/services/interface/aware.service.toml",
+        "package_kind": "service",
+        "package_name": "aware-interface-service",
+        "semantic_branch_id": "39bb24e1-5aae-5906-9c1f-f2e33479caa2",
+        "semantic_head_commit_id": "a2dc5655-da70-50f0-87ad-61bde1449732",
+        "semantic_object_instance_graph_commit_id": "686a0d75-b166-597a-b831-c94fc8ef09d0",
+        "semantic_package_id": "6cc07296-19fa-529d-b65f-01fd00a79e88",
+        "semantic_root_id": "d760e46f-debf-5ac2-99f7-ae406e8c6f87",
+        "semantic_root_kind": "service_config",
+        "semantic_root_object_instance_graph_commit_id": "9ee53633-b5ec-5876-b299-04c4fcc198d0",
+        "source_code_package_id": "dbd4d51a-e8af-545a-aae9-524632000978"
+      },
+      "runtime_kind": "service",
+      "target_name": "aware_interface"
+    },
+    {
+      "manifest_path": "modules/interface/interfaces/aware_control/aware.interface.toml",
+      "package_selection": {
+        "code_semantic_package_binding_id": "b0cbc852-593c-51c9-a9a6-cb1a88d74466",
+        "code_semantic_provider_registration_id": "8b983eb6-1353-52d9-8f74-6e392581462e",
+        "family_key": "interface",
+        "manifest_path": "modules/interface/interfaces/aware_control/aware.interface.toml",
+        "package_kind": "interface",
+        "package_name": "aware-control-interface",
+        "semantic_branch_id": "428ec6bb-0fd4-58fc-8fe2-e88f3ad3faa6",
+        "semantic_head_commit_id": "50c5c903-29a8-5c94-b2c3-c9a1ee92e5ef",
+        "semantic_object_instance_graph_commit_id": "c35c5112-837c-57a7-8a81-b060ea553a67",
+        "semantic_package_id": "f6453e34-de79-5952-8581-eb671225f518",
+        "semantic_projection_hash": "4c6d1d446e3e7ed49f0a5bd37bca3d5d8075c488d021e88173ffeb779957562c",
+        "semantic_root_id": "35f6cb75-4e95-555e-bc1c-3c950557b367",
+        "semantic_root_kind": "interface_config",
+        "semantic_root_object_instance_graph_commit_id": "abd2144d-c87f-5ca1-97f4-83983bf7f857",
+        "source_code_package_id": "96f1bb27-06d6-59f1-9f42-68b39afdb460"
+      },
+      "runtime_kind": "interface",
+      "target_name": "aware_control"
+    }
+  ],
+  "runtime_kinds": [
+    "interface",
+    "node",
+    "service"
+  ],
+  "schema": "aware.node.runtime_closure.v1"
+}

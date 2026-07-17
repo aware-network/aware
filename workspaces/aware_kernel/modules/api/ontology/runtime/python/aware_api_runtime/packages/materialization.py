@@ -9,6 +9,7 @@ from collections.abc import Iterable
 from pathlib import Path
 import shutil
 import tomllib
+from time import perf_counter
 from typing import Mapping, TypeAlias, TypeVar
 
 from aware_code_ontology.code.code_enums import CodeLanguage
@@ -812,6 +813,7 @@ def materialize_api_dto_packages(
     repo_root: Path,
     accessible_graphs: tuple[ObjectConfigGraph, ...] | None = None,
     dependency_repo_roots: Iterable[str | Path] = (),
+    phase_timings_s: dict[str, float] | None = None,
 ) -> tuple[ApiDtoPackageMaterializationResult, ...]:
     api_dto_exports = tuple(
         export
@@ -950,6 +952,8 @@ def materialize_api_dto_packages(
                     external_dependency_packages
                 )
             ),
+            phase_timings_s=phase_timings_s,
+            phase_prefix=f"api_dto_render.{package.package_name}",
         )
         results.append(
             ApiDtoPackageMaterializationResult(
@@ -2665,7 +2669,12 @@ def _materialize_graph_via_meta(
     post_step_executable_overrides_by_tool_id: (
         Mapping[str, Mapping[str, str]] | None
     ) = None,
+    phase_timings_s: dict[str, float] | None = None,
+    phase_prefix: str = "api_graph_render",
 ) -> LocalMaterializationExecutionResult:
+    timings = phase_timings_s if phase_timings_s is not None else {}
+    total_started_at = perf_counter()
+    phase_started_at = perf_counter()
     renderer_profile = _materialization_renderer_profile(
         materialization_config=materialization_config
     )
@@ -2673,6 +2682,10 @@ def _materialize_graph_via_meta(
         aware_root=aware_root,
         materialization_config=materialization_config,
     )
+    timings[f"{phase_prefix}.load_profile"] = round(
+        perf_counter() - phase_started_at, 6
+    )
+    phase_started_at = perf_counter()
     transform_result = GraphMaterializationTransformService().transform(
         GraphMaterializationTransformRequest(
             source_graph=object_config_graph,
@@ -2686,6 +2699,10 @@ def _materialize_graph_via_meta(
             include_projection_graphs=True,
         )
     )
+    timings[f"{phase_prefix}.transform_graph"] = round(
+        perf_counter() - phase_started_at, 6
+    )
+    phase_started_at = perf_counter()
     language_graph = transform_result.require_language_graph()
     layout_strategy.bind_graph(language_graph)
     candidate_paths = _expand_entity_candidate_paths_for_graph(
@@ -2693,6 +2710,10 @@ def _materialize_graph_via_meta(
         language_graph=language_graph,
         candidate_paths=candidate_paths,
     )
+    timings[f"{phase_prefix}.bind_layout_and_expand_candidates"] = round(
+        perf_counter() - phase_started_at, 6
+    )
+    phase_started_at = perf_counter()
     _clean_api_runtime_render_output_for_full_render(
         aware_root=aware_root,
         materialization_config=materialization_config,
@@ -2703,6 +2724,10 @@ def _materialize_graph_via_meta(
         materialization_config=materialization_config,
         candidate_paths=candidate_paths,
     )
+    timings[f"{phase_prefix}.clean_full_render_outputs"] = round(
+        perf_counter() - phase_started_at, 6
+    )
+    phase_started_at = perf_counter()
     import_overrides = _python_language_external_import_overrides(
         target_language=materialization_config.target_language,
         language_external_graphs=transform_result.language_external_graphs,
@@ -2711,6 +2736,10 @@ def _materialize_graph_via_meta(
             python_external_import_overrides_by_entity_id
         ),
     )
+    timings[f"{phase_prefix}.resolve_import_overrides"] = round(
+        perf_counter() - phase_started_at, 6
+    )
+    phase_started_at = perf_counter()
     render_result = render_language_materialization(
         LanguageMaterializationRenderRequest(
             target_language_plugin_id=materialization_config.target_language,
@@ -2726,12 +2755,20 @@ def _materialize_graph_via_meta(
             candidate_paths=candidate_paths,
         )
     )
+    timings[f"{phase_prefix}.render_language_materialization"] = round(
+        perf_counter() - phase_started_at, 6
+    )
+    phase_started_at = perf_counter()
     _validate_api_dto_rendered_entity_files(
         layout_strategy=layout_strategy,
         language_graph=language_graph,
         materialization_config=materialization_config,
         rendered_files=tuple(render_result.written_files),
     )
+    timings[f"{phase_prefix}.validate_rendered_files"] = round(
+        perf_counter() - phase_started_at, 6
+    )
+    phase_started_at = perf_counter()
     package_result = build_language_materialization_packages(
         LanguageMaterializationPackageBuildRequest(
             target_language_plugin_id=materialization_config.target_language,
@@ -2745,7 +2782,11 @@ def _materialize_graph_via_meta(
             package_kind=renderer_profile,
         )
     )
+    timings[f"{phase_prefix}.build_language_packages"] = round(
+        perf_counter() - phase_started_at, 6
+    )
     package_results = tuple(package_result.package_results)
+    phase_started_at = perf_counter()
     declared_outputs = produce_language_plugin_declared_outputs(
         LanguagePluginDeclaredOutputProductionRequest(
             target_language_plugin_id=materialization_config.target_language,
@@ -2775,6 +2816,10 @@ def _materialize_graph_via_meta(
             language_graph_ref=transform_result.language_graph_ref,
         )
     )
+    timings[f"{phase_prefix}.produce_declared_outputs"] = round(
+        perf_counter() - phase_started_at, 6
+    )
+    phase_started_at = perf_counter()
     post_step_receipts: tuple[dict[str, object], ...] = ()
     post_step_warnings: tuple[str, ...] = ()
     if execute_post_steps and package_results:
@@ -2789,6 +2834,10 @@ def _materialize_graph_via_meta(
                 ),
             )
         )
+    timings[f"{phase_prefix}.execute_post_steps"] = round(
+        perf_counter() - phase_started_at, 6
+    )
+    phase_started_at = perf_counter()
     materialized_files = _materialized_result_files(
         render_files=tuple(render_result.written_files),
         declared_output_files=tuple(
@@ -2815,6 +2864,10 @@ def _materialize_graph_via_meta(
         *package_result.warnings,
         *post_step_warnings,
     ]
+    timings[f"{phase_prefix}.assemble_result"] = round(
+        perf_counter() - phase_started_at, 6
+    )
+    timings[f"{phase_prefix}.total"] = round(perf_counter() - total_started_at, 6)
     return LocalMaterializationExecutionResult(
         materialization_name=materialization_config.name,
         source_package_name=materialization_config.source_package_name,

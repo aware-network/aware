@@ -1,6 +1,6 @@
 {
-  "byte_count": 136973235,
-  "excluded_path_count": 21,
+  "byte_count": 166279332,
+  "excluded_path_count": 18,
   "excluded_paths": [
     "workspaces/aware_kernel/libs/model_helpers/dart/aware_model_helpers/.dart_tool",
     "workspaces/aware_kernel/modules/api/libs/api/dart/.dart_tool",
@@ -11,8 +11,6 @@
     "workspaces/aware_network/modules/hub/apis/hub/dart/aware_hub_service_api/.dart_tool",
     "workspaces/aware_network/modules/hub/interfaces/panes/hub_package_selector/dart/aware_hub_package_selector_pane/.dart_tool",
     "workspaces/aware_network/modules/interface/apis/interface/dart/aware_interface_service_api/.dart_tool",
-    "workspaces/aware_network/modules/interface/experiences/aware_control/languages/dart/aware_control/.dart_tool",
-    "workspaces/aware_network/modules/interface/interfaces/aware_control/dart/aware_control_interface/.dart_tool",
     "workspaces/aware_network/modules/interface/interfaces/panes/interface_mount_status/dart/aware_interface_mount_status_pane/.dart_tool",
     "workspaces/aware_network/modules/interface/libs/app_factory/dart/aware_app_factory/.dart_tool",
     "workspaces/aware_network/modules/interface/libs/interface_control/dart/aware_interface_control/.dart_tool",
@@ -20,12 +18,11 @@
     "workspaces/aware_network/modules/interface/libs/windows/dart/aware_windows/.dart_tool",
     "workspaces/aware_network/modules/meta/interfaces/render_components/aware_meta_graph_render_components/dart/aware_meta_graph_render_components/.dart_tool",
     "workspaces/aware_network/modules/network/apis/network/dart/aware_network_service_api/.dart_tool",
-    "workspaces/aware_network/modules/network/experiences/aware_network/languages/dart/aware_network_experience/.dart_tool",
     "workspaces/aware_network/modules/network/interfaces/panes/network_territory/dart/aware_network_territory_pane/.dart_tool",
     "workspaces/aware_network/modules/node/interfaces/panes/node_session_status/dart/aware_node_session_status_pane/.dart_tool"
   ],
-  "file_count": 11848,
-  "json_file_count": 347,
+  "file_count": 11957,
+  "json_file_count": 487,
   "manifest_version": "aware.workspace.public_git_mirror.v1",
   "policy": {
     "base_authority": "workspace_revision_filesystem",
@@ -45,5 +42,5 @@
     "secret_looking_files": "rejected"
   },
   "status": "ready",
-  "workspace_revision_id": "404e7b6a-cf1e-5ec2-a1a4-b212c9d6a402"
+  "workspace_revision_id": "40487d44-c554-54f8-b8a9-dc98f28f99b4"
 }

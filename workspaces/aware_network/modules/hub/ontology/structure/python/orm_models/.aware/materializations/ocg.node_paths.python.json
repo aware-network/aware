@@ -1,0 +1,71 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "39861ae9-ae32-5bed-8659-b665ba821f01",
+      "node_type": "class",
+      "entity_id": "6410c1d4-70b1-5564-bd1b-9e5ed9eacc71",
+      "relative_path": "hub/hub_artifact.py"
+    },
+    {
+      "node_id": "44f04bdf-cab9-5188-b495-a8a1295a5439",
+      "node_type": "class",
+      "entity_id": "ed890bdc-70ee-5733-9e7b-781bd6a03fe0",
+      "relative_path": "hub/hub_artifact.py"
+    },
+    {
+      "node_id": "c8853e27-088e-5ca2-9a13-abb30d372526",
+      "node_type": "class",
+      "entity_id": "bb47aa6f-aae9-56b6-9ca6-900c8c39d15b",
+      "relative_path": "hub/hub_authority.py"
+    },
+    {
+      "node_id": "9750f963-9459-540b-aa29-8897f6132164",
+      "node_type": "class",
+      "entity_id": "2418d971-dcd9-5e3d-badf-d4cc126a2880",
+      "relative_path": "hub/hub_channel.py"
+    },
+    {
+      "node_id": "015b40cd-def2-58f0-b241-52d22372542b",
+      "node_type": "class",
+      "entity_id": "dbcf8e91-f0a8-5033-afd9-5c99b2a45cdc",
+      "relative_path": "hub/hub_channel.py"
+    },
+    {
+      "node_id": "2704cf8c-ab4b-5b32-ac27-e9203e3a2725",
+      "node_type": "class",
+      "entity_id": "3695e42f-2265-5c76-96e1-de713acdb5b2",
+      "relative_path": "hub/hub_code_package_publication.py"
+    },
+    {
+      "node_id": "17cb9641-604c-5e68-9160-a2a4ba7924ec",
+      "node_type": "class",
+      "entity_id": "5f7af6dc-8ce0-5fda-89d4-269f36c3b2cf",
+      "relative_path": "hub/hub_producer_provenance.py"
+    },
+    {
+      "node_id": "b338a859-7b82-5d0d-9f8e-78006f4b66db",
+      "node_type": "class",
+      "entity_id": "2e5bda43-9982-5c0b-90bf-986faf62e150",
+      "relative_path": "hub/hub_publication_receipt.py"
+    },
+    {
+      "node_id": "979f8995-73f4-526a-b668-68d353eae06b",
+      "node_type": "enum",
+      "entity_id": "3fb62b1b-33f7-5977-b3a4-5f9becf50106",
+      "relative_path": "hub/hub_enums.py"
+    },
+    {
+      "node_id": "4dfcb8c3-b234-570e-a659-1292a85ed1a1",
+      "node_type": "enum",
+      "entity_id": "cf6186e1-e877-5c15-8b8c-8f55372be25a",
+      "relative_path": "hub/hub_enums.py"
+    },
+    {
+      "node_id": "41a95b74-3c45-589e-bd99-5764a49d30d2",
+      "node_type": "enum",
+      "entity_id": "d3f36622-a014-5067-9e78-eb47a3247c51",
+      "relative_path": "hub/hub_enums.py"
+    }
+  ]
+}

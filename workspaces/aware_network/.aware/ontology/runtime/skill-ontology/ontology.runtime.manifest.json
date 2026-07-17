@@ -1,0 +1,22 @@
+{
+  "code_package_id": "dfda931d-2753-52bc-9088-cccfc7b4cced",
+  "db_schema": {
+    "backend_targets": [
+      "postgres"
+    ],
+    "package_kind": "ontology",
+    "sql_roots": [
+      {
+        "path": "../../../../modules/skill/ontology/structure/sql/schema",
+        "path_mode": "manifest_relative"
+      }
+    ]
+  },
+  "domain_commit_id": "fd036645-4900-5c05-9af0-209a068fa686",
+  "object_instance_graph_commit_id": "b4cc5d2f-a509-52a2-88e4-88e3b1284159",
+  "package_name": "skill-ontology",
+  "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
+  "source_kind": "workspace_revision",
+  "workspace_relative_package_root": "modules/skill/ontology",
+  "workspace_revision_code_package_id": "6adf9285-095c-59f1-a820-f5261f526d0f"
+}

@@ -19,4 +19,3 @@ class WindowConfigLayoutConfig(BaseModel):
 
     # Attributes
     description: str | None = Field(default=None)
-    is_default: bool = Field(default=False)

@@ -67,7 +67,6 @@ def project_interface_config_bundle_from_committed_package(
                         "WindowConfigLayoutConfig.layout_config_id",
                     ),
                     key=layout_config.key,
-                    is_default=bool(layout_binding.is_default),
                     sections=[
                         InterfaceWindowLayoutSectionBundle(
                             layout_config_section_config_id=section.id,

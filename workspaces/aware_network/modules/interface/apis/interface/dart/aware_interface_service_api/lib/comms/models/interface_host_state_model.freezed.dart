@@ -14974,7 +14974,7 @@ as Map<String, dynamic>,
 /// @nodoc
 mixin _$InterfaceRuntimeLayoutState {
 
-@UuidValueConverter() UuidValue? get layoutConfigId; String get layoutKey; String get label; bool get isDefault; bool get isActive;
+@UuidValueConverter() UuidValue? get layoutConfigId; String get layoutKey; String get label; bool get isActive;
 /// Create a copy of InterfaceRuntimeLayoutState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -14987,16 +14987,16 @@ $InterfaceRuntimeLayoutStateCopyWith<InterfaceRuntimeLayoutState> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is InterfaceRuntimeLayoutState&&(identical(other.layoutConfigId, layoutConfigId) || other.layoutConfigId == layoutConfigId)&&(identical(other.layoutKey, layoutKey) || other.layoutKey == layoutKey)&&(identical(other.label, label) || other.label == label)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.isActive, isActive) || other.isActive == isActive));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InterfaceRuntimeLayoutState&&(identical(other.layoutConfigId, layoutConfigId) || other.layoutConfigId == layoutConfigId)&&(identical(other.layoutKey, layoutKey) || other.layoutKey == layoutKey)&&(identical(other.label, label) || other.label == label)&&(identical(other.isActive, isActive) || other.isActive == isActive));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,layoutConfigId,layoutKey,label,isDefault,isActive);
+int get hashCode => Object.hash(runtimeType,layoutConfigId,layoutKey,label,isActive);
 
 @override
 String toString() {
-  return 'InterfaceRuntimeLayoutState(layoutConfigId: $layoutConfigId, layoutKey: $layoutKey, label: $label, isDefault: $isDefault, isActive: $isActive)';
+  return 'InterfaceRuntimeLayoutState(layoutConfigId: $layoutConfigId, layoutKey: $layoutKey, label: $label, isActive: $isActive)';
 }
 
 
@@ -15007,7 +15007,7 @@ abstract mixin class $InterfaceRuntimeLayoutStateCopyWith<$Res>  {
   factory $InterfaceRuntimeLayoutStateCopyWith(InterfaceRuntimeLayoutState value, $Res Function(InterfaceRuntimeLayoutState) _then) = _$InterfaceRuntimeLayoutStateCopyWithImpl;
 @useResult
 $Res call({
-@UuidValueConverter() UuidValue? layoutConfigId, String layoutKey, String label, bool isDefault, bool isActive
+@UuidValueConverter() UuidValue? layoutConfigId, String layoutKey, String label, bool isActive
 });
 
 
@@ -15024,13 +15024,12 @@ class _$InterfaceRuntimeLayoutStateCopyWithImpl<$Res>
 
 /// Create a copy of InterfaceRuntimeLayoutState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? layoutConfigId = freezed,Object? layoutKey = null,Object? label = null,Object? isDefault = null,Object? isActive = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? layoutConfigId = freezed,Object? layoutKey = null,Object? label = null,Object? isActive = null,}) {
   return _then(_self.copyWith(
 layoutConfigId: freezed == layoutConfigId ? _self.layoutConfigId : layoutConfigId // ignore: cast_nullable_to_non_nullable
 as UuidValue?,layoutKey: null == layoutKey ? _self.layoutKey : layoutKey // ignore: cast_nullable_to_non_nullable
 as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
-as String,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
-as bool,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as String,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -15116,10 +15115,10 @@ return def(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function(@UuidValueConverter()  UuidValue? layoutConfigId,  String layoutKey,  String label,  bool isDefault,  bool isActive)?  def,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function(@UuidValueConverter()  UuidValue? layoutConfigId,  String layoutKey,  String label,  bool isActive)?  def,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _InterfaceRuntimeLayoutState() when def != null:
-return def(_that.layoutConfigId,_that.layoutKey,_that.label,_that.isDefault,_that.isActive);case _:
+return def(_that.layoutConfigId,_that.layoutKey,_that.label,_that.isActive);case _:
   return orElse();
 
 }
@@ -15137,10 +15136,10 @@ return def(_that.layoutConfigId,_that.layoutKey,_that.label,_that.isDefault,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function(@UuidValueConverter()  UuidValue? layoutConfigId,  String layoutKey,  String label,  bool isDefault,  bool isActive)  def,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function(@UuidValueConverter()  UuidValue? layoutConfigId,  String layoutKey,  String label,  bool isActive)  def,}) {final _that = this;
 switch (_that) {
 case _InterfaceRuntimeLayoutState():
-return def(_that.layoutConfigId,_that.layoutKey,_that.label,_that.isDefault,_that.isActive);case _:
+return def(_that.layoutConfigId,_that.layoutKey,_that.label,_that.isActive);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -15157,10 +15156,10 @@ return def(_that.layoutConfigId,_that.layoutKey,_that.label,_that.isDefault,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function(@UuidValueConverter()  UuidValue? layoutConfigId,  String layoutKey,  String label,  bool isDefault,  bool isActive)?  def,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function(@UuidValueConverter()  UuidValue? layoutConfigId,  String layoutKey,  String label,  bool isActive)?  def,}) {final _that = this;
 switch (_that) {
 case _InterfaceRuntimeLayoutState() when def != null:
-return def(_that.layoutConfigId,_that.layoutKey,_that.label,_that.isDefault,_that.isActive);case _:
+return def(_that.layoutConfigId,_that.layoutKey,_that.label,_that.isActive);case _:
   return null;
 
 }
@@ -15172,13 +15171,12 @@ return def(_that.layoutConfigId,_that.layoutKey,_that.label,_that.isDefault,_tha
 
 @JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
 class _InterfaceRuntimeLayoutState implements InterfaceRuntimeLayoutState {
-   _InterfaceRuntimeLayoutState({@UuidValueConverter() this.layoutConfigId, required this.layoutKey, required this.label, required this.isDefault, required this.isActive});
+   _InterfaceRuntimeLayoutState({@UuidValueConverter() this.layoutConfigId, required this.layoutKey, required this.label, required this.isActive});
   factory _InterfaceRuntimeLayoutState.fromJson(Map<String, dynamic> json) => _$InterfaceRuntimeLayoutStateFromJson(json);
 
 @override@UuidValueConverter() final  UuidValue? layoutConfigId;
 @override final  String layoutKey;
 @override final  String label;
-@override final  bool isDefault;
 @override final  bool isActive;
 
 /// Create a copy of InterfaceRuntimeLayoutState
@@ -15194,16 +15192,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InterfaceRuntimeLayoutState&&(identical(other.layoutConfigId, layoutConfigId) || other.layoutConfigId == layoutConfigId)&&(identical(other.layoutKey, layoutKey) || other.layoutKey == layoutKey)&&(identical(other.label, label) || other.label == label)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&(identical(other.isActive, isActive) || other.isActive == isActive));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InterfaceRuntimeLayoutState&&(identical(other.layoutConfigId, layoutConfigId) || other.layoutConfigId == layoutConfigId)&&(identical(other.layoutKey, layoutKey) || other.layoutKey == layoutKey)&&(identical(other.label, label) || other.label == label)&&(identical(other.isActive, isActive) || other.isActive == isActive));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,layoutConfigId,layoutKey,label,isDefault,isActive);
+int get hashCode => Object.hash(runtimeType,layoutConfigId,layoutKey,label,isActive);
 
 @override
 String toString() {
-  return 'InterfaceRuntimeLayoutState.def(layoutConfigId: $layoutConfigId, layoutKey: $layoutKey, label: $label, isDefault: $isDefault, isActive: $isActive)';
+  return 'InterfaceRuntimeLayoutState.def(layoutConfigId: $layoutConfigId, layoutKey: $layoutKey, label: $label, isActive: $isActive)';
 }
 
 
@@ -15214,7 +15212,7 @@ abstract mixin class _$InterfaceRuntimeLayoutStateCopyWith<$Res> implements $Int
   factory _$InterfaceRuntimeLayoutStateCopyWith(_InterfaceRuntimeLayoutState value, $Res Function(_InterfaceRuntimeLayoutState) _then) = __$InterfaceRuntimeLayoutStateCopyWithImpl;
 @override @useResult
 $Res call({
-@UuidValueConverter() UuidValue? layoutConfigId, String layoutKey, String label, bool isDefault, bool isActive
+@UuidValueConverter() UuidValue? layoutConfigId, String layoutKey, String label, bool isActive
 });
 
 
@@ -15231,13 +15229,12 @@ class __$InterfaceRuntimeLayoutStateCopyWithImpl<$Res>
 
 /// Create a copy of InterfaceRuntimeLayoutState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? layoutConfigId = freezed,Object? layoutKey = null,Object? label = null,Object? isDefault = null,Object? isActive = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? layoutConfigId = freezed,Object? layoutKey = null,Object? label = null,Object? isActive = null,}) {
   return _then(_InterfaceRuntimeLayoutState(
 layoutConfigId: freezed == layoutConfigId ? _self.layoutConfigId : layoutConfigId // ignore: cast_nullable_to_non_nullable
 as UuidValue?,layoutKey: null == layoutKey ? _self.layoutKey : layoutKey // ignore: cast_nullable_to_non_nullable
 as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
-as String,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
-as bool,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as String,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

@@ -12,6 +12,30 @@ from _meta_runtime_support import (
 from _interface_runtime_test_paths import REPO_ROOT
 
 
+def test_missing_attribute_replay_error_requires_complete_coordinate_envelope(
+    monkeypatch,
+) -> None:
+    monkeypatch.syspath_prepend(
+        str(REPO_ROOT / "workspaces" / "aware_network" / "modules" / "interface" / "ontology" / "runtime" / "python")
+    )
+    from aware_interface.materialization.snapshot_commit import (
+        _is_missing_attribute_config_replay_error,
+    )
+
+    assert not _is_missing_attribute_config_replay_error(
+        RuntimeError("Missing AttributeConfig for owner_key=owner attribute_id=attribute")
+    )
+    assert not _is_missing_attribute_config_replay_error(
+        RuntimeError("Missing AttributeConfig for attribute_config_id=config owner_key=owner")
+    )
+    assert not _is_missing_attribute_config_replay_error(
+        RuntimeError(
+            "Missing AttributeConfig for attribute_config_id=config "
+            "class_instance_id=instance attribute_id=attribute"
+        )
+    )
+
+
 @pytest.mark.asyncio
 async def test_interface_config_bundle_materializes_canonical_interface_ontology(tmp_path: Path, monkeypatch) -> None:
     repo_root = REPO_ROOT
@@ -23,7 +47,9 @@ async def test_interface_config_bundle_materializes_canonical_interface_ontology
     import aware_interface_service_dto  # noqa: F401
     import aware_interface_ontology  # noqa: F401
 
-    from aware_interface.ontology.materialization import materialize_interface_config_bundle
+    from aware_interface.ontology.materialization import (
+        materialize_interface_config_bundle,
+    )
     from aware_interface_service_dto.comms.models.interface_config_bundle import (
         InterfaceConfigBundle,
         InterfacePaneConfigBundle,
@@ -110,7 +136,6 @@ async def test_interface_config_bundle_materializes_canonical_interface_ontology
                             window_config_layout_config_id=window_config_layout_config_id,
                             layout_config_id=layout_config_id,
                             key=layout_key,
-                            is_default=True,
                             sections=[
                                 InterfaceWindowLayoutSectionBundle(
                                     layout_config_section_config_id=layout_config_section_config_id,
@@ -198,9 +223,20 @@ async def test_interface_config_bundle_materializes_canonical_interface_ontology
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "missing_attribute_coordinates",
+    (
+        (
+            "class_instance_id=fee0807e-7f12-5839-8201-e494c2b02e19 "
+            "class_config_id=5dad0929-125d-5238-9906-35ab07a4d110"
+        ),
+        "owner_key=7e897763-bf96-54f5-8262-d47fcbc38714",
+    ),
+)
 async def test_interface_snapshot_materialization_bridges_removed_attribute_replay(
     tmp_path: Path,
     monkeypatch,
+    missing_attribute_coordinates: str,
 ) -> None:
     repo_root = REPO_ROOT
 
@@ -212,7 +248,9 @@ async def test_interface_snapshot_materialization_bridges_removed_attribute_repl
     import aware_interface_ontology  # noqa: F401
 
     from aware_attention_ontology.stable_ids import stable_layout_config_id
-    from aware_interface.ontology.materialization import materialize_interface_config_bundle
+    from aware_interface.ontology.materialization import (
+        materialize_interface_config_bundle,
+    )
     from aware_interface_service_dto.comms.models.interface_config_bundle import (
         InterfaceConfigBundle,
         InterfacePaneConfigBundle,
@@ -310,7 +348,6 @@ async def test_interface_snapshot_materialization_bridges_removed_attribute_repl
                                 window_config_layout_config_id=(window_config_layout_config_id),
                                 layout_config_id=layout_config_id,
                                 key=layout_key,
-                                is_default=True,
                                 sections=[
                                     InterfaceWindowLayoutSectionBundle(
                                         layout_config_section_config_id=(layout_config_section_config_id),
@@ -362,8 +399,7 @@ async def test_interface_snapshot_materialization_bridges_removed_attribute_repl
             raise RuntimeError(
                 "Missing AttributeConfig for "
                 "attribute_config_id=56dd8b83-fabf-5e83-b12e-5bdb3abdcebe "
-                "class_instance_id=fee0807e-7f12-5839-8201-e494c2b02e19 "
-                "class_config_id=5dad0929-125d-5238-9906-35ab07a4d110 "
+                f"{missing_attribute_coordinates} "
                 "attribute_id=de3b1606-1aee-5ca3-a07b-ebd5544d81e0"
             )
 

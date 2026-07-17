@@ -54,7 +54,6 @@ _InterfaceWindowConfigLayoutBundle _$InterfaceWindowConfigLayoutBundleFromJson(
     json['layout_config_id'] as String,
   ),
   key: json['key'] as String,
-  isDefault: json['is_default'] as bool,
   sections:
       (json['sections'] as List<dynamic>?)
           ?.map(
@@ -76,7 +75,6 @@ Map<String, dynamic> _$InterfaceWindowConfigLayoutBundleToJson(
     instance.layoutConfigId,
   ),
   'key': instance.key,
-  'is_default': instance.isDefault,
   'sections': instance.sections.map((e) => e.toJson()).toList(),
 };
 

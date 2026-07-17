@@ -1,0 +1,41 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "2502746c-2987-55a4-9474-78ad2abfd850",
+      "node_type": "class",
+      "entity_id": "90a3c17e-a088-566f-9b39-af35503daf4f",
+      "relative_path": "commit_store/local_oig_commit.py"
+    },
+    {
+      "node_id": "70cc857f-5a5f-5621-9094-cc88e7590f52",
+      "node_type": "class",
+      "entity_id": "ee2c2e77-fc7c-5a9b-bda8-82bed3308991",
+      "relative_path": "commit_store/local_oig_commit_action.py"
+    },
+    {
+      "node_id": "52f0822f-0695-522e-83df-4ee693710409",
+      "node_type": "class",
+      "entity_id": "d521cf63-44b6-5e9d-ac6a-969fe5f01426",
+      "relative_path": "commit_store/local_oig_lane_commit.py"
+    },
+    {
+      "node_id": "a8d844d5-80c4-555f-b65f-3e523ab69767",
+      "node_type": "class",
+      "entity_id": "6cbebad7-1812-51f4-8fdf-1c8f5237cd17",
+      "relative_path": "commit_store/local_oig_lane_head.py"
+    },
+    {
+      "node_id": "2cfedbfa-d402-5baf-bfc6-e94310db3e69",
+      "node_type": "class",
+      "entity_id": "d0b8454e-dfb3-5cc3-963f-0a56463495bb",
+      "relative_path": "commit_store/local_oig_projection_cursor.py"
+    },
+    {
+      "node_id": "e7b223a4-789a-5a59-8073-c1b2aad11627",
+      "node_type": "class",
+      "entity_id": "7a9a7a0e-1902-5afe-9c93-4f4bcc33505d",
+      "relative_path": "commit_store/local_oig_snapshot.py"
+    }
+  ]
+}

@@ -1123,4 +1123,4 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-Distributed under the MIT License. See [LICENSE](LICENSE).
+Distributed under the Apache License 2.0. See [LICENSE](LICENSE).

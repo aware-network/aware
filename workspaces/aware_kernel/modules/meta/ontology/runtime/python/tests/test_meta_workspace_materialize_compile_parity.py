@@ -584,11 +584,17 @@ def test_meta_workspace_language_reuse_evidence_covers_context_owned_targets(
         leaf_result=leaf_result,
     )
 
-    assert evidence == {
-        "status": "complete",
-        "reason": "workspace_language_targets_realized",
-        "target_count": 2,
-        "package_count": 2,
+    assert evidence["status"] == "complete"
+    assert evidence["reason"] == "workspace_language_targets_realized"
+    assert evidence["target_count"] == 2
+    assert evidence["package_count"] == 2
+    materialized_rows = cast(
+        tuple[dict[str, object], ...],
+        evidence["materialized_language_packages"],
+    )
+    assert {row["code_package_id"] for row in materialized_rows} == {
+        ontology_ref["code_package_id"],
+        runtime_ref["code_package_id"],
     }
 
 

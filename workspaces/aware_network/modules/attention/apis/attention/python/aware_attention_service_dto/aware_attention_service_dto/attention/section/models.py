@@ -95,7 +95,6 @@ class AttentionRuntimeMountLayoutRequest(BaseModel):
     layout_config_id: UUID | None = Field(default=None)
     layout_id: UUID | None = Field(default=None)
     layout_key: str
-    is_default: bool = Field(default=False)
     sections: list[AttentionRuntimeMountSectionRequest] = Field(default_factory=list)
 
 

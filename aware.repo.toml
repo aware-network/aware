@@ -4,6 +4,16 @@ aware_repo = 1
 handle = "aware"
 workspaces_dir = "workspaces"
 
+[licensing]
+default_spdx_expression = "Apache-2.0"
+license_path = "LICENSE"
+notice_path = "NOTICE"
+third_party_notices_path = "THIRD_PARTY_NOTICES.md"
+generated_output_policy_path = "docs/legal/GENERATED_OUTPUT_POLICY.md"
+artifact_provenance_path = "docs/legal/ARTIFACT_PROVENANCE.toml"
+contribution_policy_path = "CONTRIBUTING.md"
+security_policy_path = "SECURITY.md"
+
 [[workspaces]]
 handle = "aware_kernel"
 path = "aware_kernel"
@@ -16,6 +26,46 @@ path = "aware_network"
 role = "readme"
 source_path = "README.md"
 target_path = "README.md"
+
+[[repository_files]]
+role = "license"
+source_path = "LICENSE"
+target_path = "LICENSE"
+
+[[repository_files]]
+role = "notice"
+source_path = "NOTICE"
+target_path = "NOTICE"
+
+[[repository_files]]
+role = "third_party_notices"
+source_path = "THIRD_PARTY_NOTICES.md"
+target_path = "THIRD_PARTY_NOTICES.md"
+
+[[repository_files]]
+role = "contribution_policy"
+source_path = "CONTRIBUTING.md"
+target_path = "CONTRIBUTING.md"
+
+[[repository_files]]
+role = "security_policy"
+source_path = "SECURITY.md"
+target_path = "SECURITY.md"
+
+[[repository_files]]
+role = "open_source_policy"
+source_path = "docs/legal/OPEN_SOURCE_POLICY.md"
+target_path = "docs/legal/OPEN_SOURCE_POLICY.md"
+
+[[repository_files]]
+role = "generated_output_policy"
+source_path = "docs/legal/GENERATED_OUTPUT_POLICY.md"
+target_path = "docs/legal/GENERATED_OUTPUT_POLICY.md"
+
+[[repository_files]]
+role = "artifact_provenance"
+source_path = "docs/legal/ARTIFACT_PROVENANCE.toml"
+target_path = "docs/legal/ARTIFACT_PROVENANCE.toml"
 
 [[repository_files]]
 role = "agent_coordination_surface:AGENTS.md"

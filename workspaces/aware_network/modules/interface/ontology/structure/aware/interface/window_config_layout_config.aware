@@ -4,12 +4,10 @@ class WindowConfigLayoutConfig {
 
     // Attributes
     description String?
-    is_default Bool = false
 
     fn build construct (
         layout_config_id UUID key,
-        description String? = null,
-        is_default Bool = false
+        description String? = null
     ) -> WindowConfigLayoutConfig {
         """
         Create one deterministic WindowConfig↔LayoutConfig bridge.
@@ -17,8 +15,7 @@ class WindowConfigLayoutConfig {
     }
 
     fn set_attachment_config (
-        description String? = null,
-        is_default Bool = false
+        description String? = null
     ) -> WindowConfigLayoutConfig {
         """
         Update the WindowConfig-scoped layout attachment on the join itself.

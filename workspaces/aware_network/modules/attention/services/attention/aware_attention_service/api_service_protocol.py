@@ -3461,6 +3461,7 @@ def _select_runtime_mount_layout(
         )
         if selected is not None:
             return selected
+        return None
 
     preferred_layout_key = _normalize_optional_text(request.preferred_layout_key)
     if preferred_layout_key is not None:
@@ -3475,6 +3476,7 @@ def _select_runtime_mount_layout(
         )
         if selected is not None:
             return selected
+        return None
 
     preferred_section_key = _normalize_optional_text(request.preferred_section_key)
     if preferred_section_key is not None:
@@ -3490,10 +3492,9 @@ def _select_runtime_mount_layout(
         if len(matching_layouts) == 1:
             return matching_layouts[0]
 
-    default_layouts = tuple(layout for layout in request.layouts if layout.is_default)
-    if default_layouts:
-        return default_layouts[0]
-    return request.layouts[0]
+    if len(request.layouts) == 1:
+        return request.layouts[0]
+    return None
 
 
 def _normalize_environment_runtime_target(

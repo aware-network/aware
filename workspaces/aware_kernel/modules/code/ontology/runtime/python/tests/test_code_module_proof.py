@@ -1188,6 +1188,7 @@ async def test_code_package_text_snapshot_initializes_with_snapshot_seed_commit(
     from aware_meta.graph.instance.commit.committer import FSLaneCommitter
     from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
     from aware_meta.graph.instance.commit.fs_snapshot_store import FSSnapshotStore
+    from aware_meta.graph.instance.commit.materializer import OIGMaterializer
 
     calls = {"seed": 0}
 
@@ -1210,6 +1211,11 @@ async def test_code_package_text_snapshot_initializes_with_snapshot_seed_commit(
         snapshot_commit,
         "FSLaneCommitter",
         _SeedOnlyCommitter,
+    )
+    monkeypatch.setattr(
+        snapshot_commit,
+        "_code_package_state_class_segments_required",
+        lambda **_: True,
     )
 
     with IsolatedAwareRoot(
@@ -1272,6 +1278,14 @@ async def test_code_package_text_snapshot_initializes_with_snapshot_seed_commit(
             projection_hash=projection_hash,
             commit_id=result.commit_id,
         )
+        replayed_oig, _ = await OIGMaterializer().get(
+            branch_id=branch_id,
+            ocg=idx.ocg,
+            opg=idx.opg_by_hash[projection_hash],
+            commit_id=None,
+            attribute_configs_by_id=idx.attribute_configs_by_id,
+            class_configs_by_id=idx.class_configs_by_id,
+        )
 
     assert record is not None
     assert record.commit_id == result.commit_id
@@ -1282,6 +1296,7 @@ async def test_code_package_text_snapshot_initializes_with_snapshot_seed_commit(
     assert commit_wrapper is not None
     assert commit_wrapper.id == result.object_instance_graph_commit_id
     assert commit_wrapper.commit.id == result.commit_id
+    assert replayed_oig.hash == record.envelope.graph_hash_post
 
 
 @pytest.mark.asyncio
@@ -1559,8 +1574,12 @@ async def test_code_package_text_snapshot_update_uses_identity_snapshot_diff(
 
     assert first.commit_id != second.commit_id
     assert second.change_count > 0
-    assert direct_state_diff_calls["count"] == 1
-    assert state_selection_calls["count"] == 1
+    # Seed establishes the initial direct state; inferred-path update performs
+    # one additional row-shaped diff without loading a raw OIG. Packages below
+    # the segmented-source threshold use two sidecar selections: desired-state
+    # reuse and pre-state evidence.
+    assert direct_state_diff_calls["count"] == 2
+    assert state_selection_calls["count"] == 2
     assert not first_raw_snapshot_exists
     assert not second_raw_snapshot_exists
     assert first_state_snapshot_exists

@@ -82,7 +82,9 @@ def test_build_attention_compile_plan_from_anchor_uses_stable_ids() -> None:
     assert section.is_visible is True
 
 
-def test_emit_attention_compile_plan_artifact_writes_deterministic_payload(tmp_path: Path) -> None:
+def test_emit_attention_compile_plan_artifact_writes_deterministic_payload(
+    tmp_path: Path,
+) -> None:
     plan = build_attention_compile_plan_from_anchor(
         anchor_payload=_anchor_payload(),
         package_name="attention_layout_workspace",

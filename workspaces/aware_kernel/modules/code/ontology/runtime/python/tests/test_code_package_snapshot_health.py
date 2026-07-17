@@ -29,6 +29,7 @@ async def test_selected_health_loads_only_required_source_paths(
         "artifact_state_index": {
             "schema": CODE_PACKAGE_ARTIFACT_STATE_INDEX_SCHEMA,
             "code_package_id": str(code_package_id),
+            "artifacts": [],
         },
         "source_text_hash_index": {
             "source_texts": [],
@@ -82,7 +83,16 @@ async def test_selected_health_loads_only_required_source_paths(
     )
 
     assert evidence is not None
-    assert evidence.artifact_state_index["code_package_id"] == str(code_package_id)
+    assert evidence.artifact_current_state.code_package_id == str(code_package_id)
+    assert evidence.artifact_current_state.head_commit_id == str(head_commit_id)
+    assert evidence.artifact_current_state.object_instance_graph_commit_id == str(
+        object_instance_graph_commit_id
+    )
+    assert evidence.artifact_current_state.graph_hash_post == "sha256:graph"
+    assert evidence.artifact_current_state.snapshot_fingerprint == "sha256:snapshot"
+    assert (
+        evidence.artifact_current_state.source_snapshot_fingerprint == "sha256:source"
+    )
     assert observed["include_source_object_index"] is False
     assert observed["selected_relative_paths"] == frozenset({"pyproject.toml"})
 
@@ -104,6 +114,7 @@ async def test_selected_health_fails_closed_for_missing_required_path(
             "artifact_state_index": {
                 "schema": CODE_PACKAGE_ARTIFACT_STATE_INDEX_SCHEMA,
                 "code_package_id": str(code_package_id),
+                "artifacts": [],
             },
             "source_text_hash_index": {
                 "source_texts": [],

@@ -1,0 +1,22 @@
+{
+  "code_package_id": "76fa4d74-0040-51aa-b399-9f7209513868",
+  "db_schema": {
+    "backend_targets": [
+      "postgres"
+    ],
+    "package_kind": "ontology",
+    "sql_roots": [
+      {
+        "path": "../../../../modules/economy/ontology/structure/sql/schema",
+        "path_mode": "manifest_relative"
+      }
+    ]
+  },
+  "domain_commit_id": "587ba284-78fc-5b8b-815d-999bdaf78c7f",
+  "object_instance_graph_commit_id": "aecf896a-7262-5132-b2b3-f7a006aff8b2",
+  "package_name": "economy-ontology",
+  "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
+  "source_kind": "workspace_revision",
+  "workspace_relative_package_root": "modules/economy/ontology",
+  "workspace_revision_code_package_id": "1b98029d-dc3b-58ec-a0b5-dbda2f8392b7"
+}

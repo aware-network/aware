@@ -38,7 +38,10 @@ from aware_interface_ontology.stable_ids import (
     stable_interface_config_id,
     stable_interface_package_id,
 )
-from aware_experience.compiler.models import ExperienceProjectionViewOwnership
+from aware_experience.compiler.models import (
+    ExperienceProjectionViewInvocationActionOwnership,
+    ExperienceProjectionViewOwnership,
+)
 from aware_meta_ontology.stable_ids import stable_attribute_config_id
 from aware_meta_ontology.graph.config.object_config_graph import ObjectConfigGraph
 from _interface_runtime_test_paths import REPO_ROOT
@@ -901,6 +904,34 @@ def test_api_view_action_truth_hydrates_experience_view_action_for_panes() -> No
     assert binding["target_ref"] == "identity.signup_via_profile.signup_via_profile"
     assert binding["endpoint_ref"] == "identity.signup_via_profile.signup_via_profile"
     assert "projection_experience_view_invocation_action_id" in binding
+
+
+def test_target_bearing_experience_action_still_hydrates_api_view_identity() -> None:
+    api_view_truth = _identity_admission_api_view_truth()
+    actions = _hydrate_projection_view_invocation_actions(
+        view=ExperienceProjectionViewOwnership(
+            key="admission.v1",
+            is_default=True,
+            source_path="identity/experiences/aware_actor/experiences.aware",
+            api_view_ref="identity.identity_admission",
+            invocation_actions=(
+                ExperienceProjectionViewInvocationActionOwnership(
+                    key="admit_identity",
+                    source_path="identity/experiences/aware_actor/experiences.aware",
+                    endpoint_ref="identity.signup_via_profile.signup_via_profile",
+                ),
+            ),
+        ),
+        api_view_truth=api_view_truth,
+        view_ref="aware_control_identity.identity.admission.v1",
+    )
+
+    assert len(actions) == 1
+    assert actions[0].api_view_capability_endpoint_id == (
+        api_view_truth.action_endpoints_by_key[
+            "admit_identity"
+        ].api_view_capability_endpoint_id
+    )
 
 
 def _identity_admission_api_view_truth() -> ApiViewStateTruth:

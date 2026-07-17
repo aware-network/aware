@@ -20,7 +20,6 @@ class InterfaceWindowConfigLayoutBundle {
     window_config_layout_config_id UUID
     layout_config_id UUID
     key String
-    is_default Bool = false
     sections comms.models.InterfaceWindowLayoutSectionBundle[] = []
 }
 

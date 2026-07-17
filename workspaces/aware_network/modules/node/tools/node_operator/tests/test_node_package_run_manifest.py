@@ -429,6 +429,25 @@ def test_local_experience_refs_expand_declared_cross_workspace_dependencies(
     assert resolved == tuple(sorted((conversation_toml, memory_toml)))
 
 
+def test_local_experience_refs_resolve_workspace_revision_module_root(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "workspace-revision"
+    experience_toml = _seed_experience_toml(
+        repo_root,
+        "modules/identity/experiences/aware_identity/aware.experience.toml",
+        package_name="identity-default",
+        fqn_prefix="aware_identity_experience_default",
+    )
+
+    resolved = direct_interface_local._experience_toml_paths_for_refs(
+        repo_root=repo_root,
+        experience_refs=("identity-default",),
+    )
+
+    assert resolved == (experience_toml,)
+
+
 def _seed_identity_module_experience_package(repo_root: Path) -> Path:
     module_root = repo_root / "workspaces/aware_network/modules/identity"
     module_root.mkdir(parents=True, exist_ok=True)

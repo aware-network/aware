@@ -66,7 +66,7 @@ async def build(key: str, description: str | None = None) -> WindowConfig:
 
 
 async def attach_layout_config(
-    window_config: WindowConfig, layout_config_id: UUID, description: str | None = None, is_default: bool = False
+    window_config: WindowConfig, layout_config_id: UUID, description: str | None = None
 ) -> WindowConfigLayoutConfig:
     """
     Attach one attention-owned LayoutConfig to this Interface-side window configuration.
@@ -83,12 +83,9 @@ async def attach_layout_config(
 
     for existing in window_config.layout_configs:
         if existing.id == window_config_layout_config_id or existing.layout_config_id == layout_config_id:
-            if existing.is_default != bool(is_default) or (
-                description is not None and existing.description != description
-            ):
+            if description is not None and existing.description != description:
                 return await existing.set_attachment_config(
                     description=description,
-                    is_default=is_default,
                 )
             return existing
 
@@ -98,7 +95,6 @@ async def attach_layout_config(
         layout_config=None,
         layout_config_id=layout_config_id,
         description=description,
-        is_default=is_default,
     )
     window_config.layout_configs.append(created)
     return created

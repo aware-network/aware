@@ -1,13 +1,21 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+import hashlib
 from pathlib import Path
+import tomllib
 from uuid import UUID
 
 from aware_code.package.discovery import discover_packages_from_manifest_paths
 from aware_code.package.schemas import CodePackageInfo
 from aware_code.package.snapshot_commit import commit_code_package_text_snapshot
 from aware_code.semantic_contract_config import source_code_package_config_ref
+from aware_code.semantic_contract import (
+    CODE_PACKAGE_STATIC_ARTIFACT_FAMILY,
+    CODE_PACKAGE_STATIC_ARTIFACT_OUTPUT_KEY,
+    CODE_PACKAGE_STATIC_ARTIFACT_PRODUCER_KEY,
+    CODE_PROVIDER_OWNER,
+)
 from aware_code.semantic_currentness import (
     SemanticMaterializationCurrentnessReplayRequest,
     SemanticMaterializationCurrentnessReplayResult,
@@ -58,6 +66,7 @@ async def materialize(
     )
     source_root = _code_package_source_root(code_package=code_package)
     snapshot = await commit_code_package_text_snapshot(
+        authority_root=request.authority_root,
         index=request.index,
         actor_id=request.actor_id,
         branch_id=request.branch_id,
@@ -93,6 +102,16 @@ async def materialize(
         "object_count": snapshot.object_count,
         "change_count": snapshot.change_count,
     }
+    artifact_ownership_receipts = _declared_package_artifact_ownership_receipts(
+        workspace_root=request.workspace_root,
+        code_package=code_package,
+        source_code_package_id=snapshot.code_package.id,
+        source_object_instance_graph_commit_id=(
+            snapshot.object_instance_graph_commit_id
+        ),
+    )
+    if artifact_ownership_receipts:
+        details["artifact_ownership_receipts"] = artifact_ownership_receipts
     return SemanticPackageMaterializationResult(
         details=details,
         bundle_packages=(
@@ -121,6 +140,95 @@ async def materialize(
         commit_id=snapshot.commit_id,
         head_commit_id=snapshot.head_commit_id,
     )
+
+
+def _declared_package_artifact_ownership_receipts(
+    *,
+    workspace_root: Path,
+    code_package: CodePackageInfo,
+    source_code_package_id: UUID,
+    source_object_instance_graph_commit_id: UUID,
+) -> list[dict[str, object]]:
+    manifest_path = (workspace_root / code_package.manifest_path).resolve()
+    if manifest_path.name != "pyproject.toml" or not manifest_path.is_file():
+        return []
+    with manifest_path.open("rb") as handle:
+        manifest = tomllib.load(handle)
+    tool = manifest.get("tool")
+    aware = tool.get("aware") if isinstance(tool, Mapping) else None
+    declared = aware.get("package_artifacts") if isinstance(aware, Mapping) else None
+    if declared is None:
+        return []
+    if not isinstance(declared, list):
+        raise RuntimeError("tool.aware.package_artifacts must be an array of tables")
+
+    package_root = (workspace_root / code_package.root_path).resolve()
+    receipts: list[dict[str, object]] = []
+    for index, entry in enumerate(declared):
+        if not isinstance(entry, Mapping):
+            raise RuntimeError(f"tool.aware.package_artifacts[{index}] must be a table")
+        raw_path = entry.get("path")
+        if not isinstance(raw_path, str) or not raw_path.strip():
+            raise RuntimeError(
+                f"tool.aware.package_artifacts[{index}].path is required"
+            )
+        relative_path = Path(raw_path.strip())
+        if relative_path.is_absolute() or any(
+            part in {"", ".", ".."} for part in relative_path.parts
+        ):
+            raise RuntimeError(
+                f"tool.aware.package_artifacts[{index}].path is unsafe: {raw_path!r}"
+            )
+        artifact_path = (package_root / relative_path).resolve()
+        if not artifact_path.is_relative_to(package_root):
+            raise RuntimeError(
+                f"tool.aware.package_artifacts[{index}].path escaped package root"
+            )
+        if not artifact_path.is_file():
+            raise RuntimeError(
+                f"tool.aware.package_artifacts[{index}] is missing: {raw_path!r}"
+            )
+        workspace_relative_path = artifact_path.relative_to(
+            workspace_root.resolve()
+        ).as_posix()
+        payload = artifact_path.read_bytes()
+        media_type = entry.get("media_type")
+        if media_type is not None and (
+            not isinstance(media_type, str) or not media_type.strip()
+        ):
+            raise RuntimeError(
+                f"tool.aware.package_artifacts[{index}].media_type must be non-empty"
+            )
+        receipts.append(
+            {
+                "producer_provider_key": "aware_code",
+                "semantic_owner": CODE_PROVIDER_OWNER,
+                "producer_key": CODE_PACKAGE_STATIC_ARTIFACT_PRODUCER_KEY,
+                "producer_kind": "code_package_static_artifact",
+                "output_key": CODE_PACKAGE_STATIC_ARTIFACT_OUTPUT_KEY,
+                "output_kind": "artifact",
+                "artifact_family": CODE_PACKAGE_STATIC_ARTIFACT_FAMILY,
+                "artifact_role": "runtime_asset",
+                "artifact_key": workspace_relative_path,
+                "path": workspace_relative_path,
+                "manifest_path": code_package.manifest_path.as_posix(),
+                "package_name": code_package.name,
+                "source_code_package_id": str(source_code_package_id),
+                "source_object_instance_graph_commit_id": str(
+                    source_object_instance_graph_commit_id
+                ),
+                "status": "available",
+                "digest": hashlib.sha256(payload).hexdigest(),
+                "digest_algorithm": "sha256",
+                "media_type": (
+                    media_type.strip() if isinstance(media_type, str) else None
+                ),
+                "size_bytes": len(payload),
+                "runtime_contract_version": ("aware.code.package-static-artifact.v1"),
+                "required_for": ["workspace_revision", "public_checkout"],
+            }
+        )
+    return receipts
 
 
 async def resolve_currentness_replay(
@@ -275,6 +383,7 @@ async def _materialize_code_package_delta_snapshot(
     )
     branch_id = _semantic_branch_id_for_delta_request(request=request)
     snapshot = await commit_code_package_text_snapshot(
+        authority_root=getattr(request, "authority_root", None),
         index=index,
         actor_id=_optional_uuid_value(getattr(request, "actor_id", None)),
         branch_id=branch_id,

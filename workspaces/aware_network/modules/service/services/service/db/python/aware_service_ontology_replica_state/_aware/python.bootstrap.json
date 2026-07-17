@@ -1,0 +1,12 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_service_ontology_replica_state.replica_store.service_ontology_ocg_migration_marker",
+    "aware_service_ontology_replica_state.replica_store.service_ontology_replica_apply_receipt",
+    "aware_service_ontology_replica_state.replica_store.service_ontology_replica_commit_receipt",
+    "aware_service_ontology_replica_state.replica_store.service_ontology_replica_cursor",
+    "aware_service_ontology_replica_state.replica_store.service_ontology_replica_subscription"
+  ],
+  "package_prefix": "aware_service_ontology_replica_state",
+  "version": "v1"
+}

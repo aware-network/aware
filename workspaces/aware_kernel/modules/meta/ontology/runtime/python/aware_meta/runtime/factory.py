@@ -126,6 +126,7 @@ def build_meta_graph_runtime_for_aware_package_manifests(
         package_cache_owner_roots_by_manifest_path=(
             package_cache_owner_roots_by_manifest_path
         ),
+        package_graph_cache_write_root=aware_root,
         source_analysis_allowed_manifest_paths=source_analysis_allowed_manifest_paths,
         package_graph_cache_request_signature=package_graph_cache_request_signature,
         load_source_graph_payloads=load_source_graph_payloads,

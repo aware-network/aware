@@ -1,6 +1,6 @@
 interface aware_economy {
     window main {
-        layout coordination_center default {}
+        layout coordination_center
     }
 
     pane wallet_capital {

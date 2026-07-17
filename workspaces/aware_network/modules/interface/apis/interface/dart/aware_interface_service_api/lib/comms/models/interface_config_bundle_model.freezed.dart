@@ -550,7 +550,7 @@ as String,
 /// @nodoc
 mixin _$InterfaceWindowConfigLayoutBundle {
 
-@UuidValueConverter() UuidValue get windowConfigLayoutConfigId;@UuidValueConverter() UuidValue get layoutConfigId; String get key; bool get isDefault; List<InterfaceWindowLayoutSectionBundle> get sections;
+@UuidValueConverter() UuidValue get windowConfigLayoutConfigId;@UuidValueConverter() UuidValue get layoutConfigId; String get key; List<InterfaceWindowLayoutSectionBundle> get sections;
 /// Create a copy of InterfaceWindowConfigLayoutBundle
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -563,16 +563,16 @@ $InterfaceWindowConfigLayoutBundleCopyWith<InterfaceWindowConfigLayoutBundle> ge
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is InterfaceWindowConfigLayoutBundle&&(identical(other.windowConfigLayoutConfigId, windowConfigLayoutConfigId) || other.windowConfigLayoutConfigId == windowConfigLayoutConfigId)&&(identical(other.layoutConfigId, layoutConfigId) || other.layoutConfigId == layoutConfigId)&&(identical(other.key, key) || other.key == key)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&const DeepCollectionEquality().equals(other.sections, sections));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InterfaceWindowConfigLayoutBundle&&(identical(other.windowConfigLayoutConfigId, windowConfigLayoutConfigId) || other.windowConfigLayoutConfigId == windowConfigLayoutConfigId)&&(identical(other.layoutConfigId, layoutConfigId) || other.layoutConfigId == layoutConfigId)&&(identical(other.key, key) || other.key == key)&&const DeepCollectionEquality().equals(other.sections, sections));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,windowConfigLayoutConfigId,layoutConfigId,key,isDefault,const DeepCollectionEquality().hash(sections));
+int get hashCode => Object.hash(runtimeType,windowConfigLayoutConfigId,layoutConfigId,key,const DeepCollectionEquality().hash(sections));
 
 @override
 String toString() {
-  return 'InterfaceWindowConfigLayoutBundle(windowConfigLayoutConfigId: $windowConfigLayoutConfigId, layoutConfigId: $layoutConfigId, key: $key, isDefault: $isDefault, sections: $sections)';
+  return 'InterfaceWindowConfigLayoutBundle(windowConfigLayoutConfigId: $windowConfigLayoutConfigId, layoutConfigId: $layoutConfigId, key: $key, sections: $sections)';
 }
 
 
@@ -583,7 +583,7 @@ abstract mixin class $InterfaceWindowConfigLayoutBundleCopyWith<$Res>  {
   factory $InterfaceWindowConfigLayoutBundleCopyWith(InterfaceWindowConfigLayoutBundle value, $Res Function(InterfaceWindowConfigLayoutBundle) _then) = _$InterfaceWindowConfigLayoutBundleCopyWithImpl;
 @useResult
 $Res call({
-@UuidValueConverter() UuidValue windowConfigLayoutConfigId,@UuidValueConverter() UuidValue layoutConfigId, String key, bool isDefault, List<InterfaceWindowLayoutSectionBundle> sections
+@UuidValueConverter() UuidValue windowConfigLayoutConfigId,@UuidValueConverter() UuidValue layoutConfigId, String key, List<InterfaceWindowLayoutSectionBundle> sections
 });
 
 
@@ -600,13 +600,12 @@ class _$InterfaceWindowConfigLayoutBundleCopyWithImpl<$Res>
 
 /// Create a copy of InterfaceWindowConfigLayoutBundle
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? windowConfigLayoutConfigId = null,Object? layoutConfigId = null,Object? key = null,Object? isDefault = null,Object? sections = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? windowConfigLayoutConfigId = null,Object? layoutConfigId = null,Object? key = null,Object? sections = null,}) {
   return _then(_self.copyWith(
 windowConfigLayoutConfigId: null == windowConfigLayoutConfigId ? _self.windowConfigLayoutConfigId : windowConfigLayoutConfigId // ignore: cast_nullable_to_non_nullable
 as UuidValue,layoutConfigId: null == layoutConfigId ? _self.layoutConfigId : layoutConfigId // ignore: cast_nullable_to_non_nullable
 as UuidValue,key: null == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
-as String,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
-as bool,sections: null == sections ? _self.sections : sections // ignore: cast_nullable_to_non_nullable
+as String,sections: null == sections ? _self.sections : sections // ignore: cast_nullable_to_non_nullable
 as List<InterfaceWindowLayoutSectionBundle>,
   ));
 }
@@ -692,10 +691,10 @@ return def(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function(@UuidValueConverter()  UuidValue windowConfigLayoutConfigId, @UuidValueConverter()  UuidValue layoutConfigId,  String key,  bool isDefault,  List<InterfaceWindowLayoutSectionBundle> sections)?  def,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function(@UuidValueConverter()  UuidValue windowConfigLayoutConfigId, @UuidValueConverter()  UuidValue layoutConfigId,  String key,  List<InterfaceWindowLayoutSectionBundle> sections)?  def,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _InterfaceWindowConfigLayoutBundle() when def != null:
-return def(_that.windowConfigLayoutConfigId,_that.layoutConfigId,_that.key,_that.isDefault,_that.sections);case _:
+return def(_that.windowConfigLayoutConfigId,_that.layoutConfigId,_that.key,_that.sections);case _:
   return orElse();
 
 }
@@ -713,10 +712,10 @@ return def(_that.windowConfigLayoutConfigId,_that.layoutConfigId,_that.key,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function(@UuidValueConverter()  UuidValue windowConfigLayoutConfigId, @UuidValueConverter()  UuidValue layoutConfigId,  String key,  bool isDefault,  List<InterfaceWindowLayoutSectionBundle> sections)  def,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function(@UuidValueConverter()  UuidValue windowConfigLayoutConfigId, @UuidValueConverter()  UuidValue layoutConfigId,  String key,  List<InterfaceWindowLayoutSectionBundle> sections)  def,}) {final _that = this;
 switch (_that) {
 case _InterfaceWindowConfigLayoutBundle():
-return def(_that.windowConfigLayoutConfigId,_that.layoutConfigId,_that.key,_that.isDefault,_that.sections);case _:
+return def(_that.windowConfigLayoutConfigId,_that.layoutConfigId,_that.key,_that.sections);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -733,10 +732,10 @@ return def(_that.windowConfigLayoutConfigId,_that.layoutConfigId,_that.key,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function(@UuidValueConverter()  UuidValue windowConfigLayoutConfigId, @UuidValueConverter()  UuidValue layoutConfigId,  String key,  bool isDefault,  List<InterfaceWindowLayoutSectionBundle> sections)?  def,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function(@UuidValueConverter()  UuidValue windowConfigLayoutConfigId, @UuidValueConverter()  UuidValue layoutConfigId,  String key,  List<InterfaceWindowLayoutSectionBundle> sections)?  def,}) {final _that = this;
 switch (_that) {
 case _InterfaceWindowConfigLayoutBundle() when def != null:
-return def(_that.windowConfigLayoutConfigId,_that.layoutConfigId,_that.key,_that.isDefault,_that.sections);case _:
+return def(_that.windowConfigLayoutConfigId,_that.layoutConfigId,_that.key,_that.sections);case _:
   return null;
 
 }
@@ -748,13 +747,12 @@ return def(_that.windowConfigLayoutConfigId,_that.layoutConfigId,_that.key,_that
 
 @JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
 class _InterfaceWindowConfigLayoutBundle implements InterfaceWindowConfigLayoutBundle {
-   _InterfaceWindowConfigLayoutBundle({@UuidValueConverter() required this.windowConfigLayoutConfigId, @UuidValueConverter() required this.layoutConfigId, required this.key, required this.isDefault, final  List<InterfaceWindowLayoutSectionBundle> sections = const []}): _sections = sections;
+   _InterfaceWindowConfigLayoutBundle({@UuidValueConverter() required this.windowConfigLayoutConfigId, @UuidValueConverter() required this.layoutConfigId, required this.key, final  List<InterfaceWindowLayoutSectionBundle> sections = const []}): _sections = sections;
   factory _InterfaceWindowConfigLayoutBundle.fromJson(Map<String, dynamic> json) => _$InterfaceWindowConfigLayoutBundleFromJson(json);
 
 @override@UuidValueConverter() final  UuidValue windowConfigLayoutConfigId;
 @override@UuidValueConverter() final  UuidValue layoutConfigId;
 @override final  String key;
-@override final  bool isDefault;
  final  List<InterfaceWindowLayoutSectionBundle> _sections;
 @override@JsonKey() List<InterfaceWindowLayoutSectionBundle> get sections {
   if (_sections is EqualUnmodifiableListView) return _sections;
@@ -776,16 +774,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InterfaceWindowConfigLayoutBundle&&(identical(other.windowConfigLayoutConfigId, windowConfigLayoutConfigId) || other.windowConfigLayoutConfigId == windowConfigLayoutConfigId)&&(identical(other.layoutConfigId, layoutConfigId) || other.layoutConfigId == layoutConfigId)&&(identical(other.key, key) || other.key == key)&&(identical(other.isDefault, isDefault) || other.isDefault == isDefault)&&const DeepCollectionEquality().equals(other._sections, _sections));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InterfaceWindowConfigLayoutBundle&&(identical(other.windowConfigLayoutConfigId, windowConfigLayoutConfigId) || other.windowConfigLayoutConfigId == windowConfigLayoutConfigId)&&(identical(other.layoutConfigId, layoutConfigId) || other.layoutConfigId == layoutConfigId)&&(identical(other.key, key) || other.key == key)&&const DeepCollectionEquality().equals(other._sections, _sections));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,windowConfigLayoutConfigId,layoutConfigId,key,isDefault,const DeepCollectionEquality().hash(_sections));
+int get hashCode => Object.hash(runtimeType,windowConfigLayoutConfigId,layoutConfigId,key,const DeepCollectionEquality().hash(_sections));
 
 @override
 String toString() {
-  return 'InterfaceWindowConfigLayoutBundle.def(windowConfigLayoutConfigId: $windowConfigLayoutConfigId, layoutConfigId: $layoutConfigId, key: $key, isDefault: $isDefault, sections: $sections)';
+  return 'InterfaceWindowConfigLayoutBundle.def(windowConfigLayoutConfigId: $windowConfigLayoutConfigId, layoutConfigId: $layoutConfigId, key: $key, sections: $sections)';
 }
 
 
@@ -796,7 +794,7 @@ abstract mixin class _$InterfaceWindowConfigLayoutBundleCopyWith<$Res> implement
   factory _$InterfaceWindowConfigLayoutBundleCopyWith(_InterfaceWindowConfigLayoutBundle value, $Res Function(_InterfaceWindowConfigLayoutBundle) _then) = __$InterfaceWindowConfigLayoutBundleCopyWithImpl;
 @override @useResult
 $Res call({
-@UuidValueConverter() UuidValue windowConfigLayoutConfigId,@UuidValueConverter() UuidValue layoutConfigId, String key, bool isDefault, List<InterfaceWindowLayoutSectionBundle> sections
+@UuidValueConverter() UuidValue windowConfigLayoutConfigId,@UuidValueConverter() UuidValue layoutConfigId, String key, List<InterfaceWindowLayoutSectionBundle> sections
 });
 
 
@@ -813,13 +811,12 @@ class __$InterfaceWindowConfigLayoutBundleCopyWithImpl<$Res>
 
 /// Create a copy of InterfaceWindowConfigLayoutBundle
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? windowConfigLayoutConfigId = null,Object? layoutConfigId = null,Object? key = null,Object? isDefault = null,Object? sections = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? windowConfigLayoutConfigId = null,Object? layoutConfigId = null,Object? key = null,Object? sections = null,}) {
   return _then(_InterfaceWindowConfigLayoutBundle(
 windowConfigLayoutConfigId: null == windowConfigLayoutConfigId ? _self.windowConfigLayoutConfigId : windowConfigLayoutConfigId // ignore: cast_nullable_to_non_nullable
 as UuidValue,layoutConfigId: null == layoutConfigId ? _self.layoutConfigId : layoutConfigId // ignore: cast_nullable_to_non_nullable
 as UuidValue,key: null == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
-as String,isDefault: null == isDefault ? _self.isDefault : isDefault // ignore: cast_nullable_to_non_nullable
-as bool,sections: null == sections ? _self._sections : sections // ignore: cast_nullable_to_non_nullable
+as String,sections: null == sections ? _self._sections : sections // ignore: cast_nullable_to_non_nullable
 as List<InterfaceWindowLayoutSectionBundle>,
   ));
 }

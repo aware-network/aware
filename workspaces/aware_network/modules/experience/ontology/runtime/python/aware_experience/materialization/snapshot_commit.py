@@ -1554,12 +1554,27 @@ async def _ensure_binding_portal_source_identity(
             "Experience binding portal source projection is missing: "
             f"projection_hash={projection_hash}"
         )
+    head = await FSCommitStore().head(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+    )
+    raw_commit_id = head.get("commit_id") if isinstance(head, Mapping) else None
+    raw_object_instance_graph_id = (
+        head.get("object_instance_graph_id") if isinstance(head, Mapping) else None
+    )
+    if raw_commit_id is None or raw_object_instance_graph_id is None:
+        raise RuntimeError(
+            "Experience binding portal source requires committed lane HEAD identity: "
+            f"branch_id={branch_id} projection_hash={projection_hash}"
+        )
+    object_instance_graph_id = (
+        raw_object_instance_graph_id
+        if isinstance(raw_object_instance_graph_id, UUID)
+        else UUID(str(raw_object_instance_graph_id))
+    )
     await ensure_object_instance_graph_identity_lane_head(
         index=index,
-        object_instance_graph_id=stable_object_instance_graph_id(
-            object_projection_graph_id=opg.id,
-            key=str(branch_id),
-        ),
+        object_instance_graph_id=object_instance_graph_id,
         domain_projection_hash=projection_hash,
         author_id=author_id,
         label=label,
@@ -3141,7 +3156,8 @@ async def _commit_snapshot(
         union_selections=None,
     )
     if not changes:
-        head = await FSCommitStore().head(
+        commit_store = FSCommitStore()
+        head = await commit_store.head(
             branch_id=branch_id,
             projection_hash=projection_hash,
         )
@@ -3156,13 +3172,18 @@ async def _commit_snapshot(
             if isinstance(raw_head_commit_id, UUID)
             else UUID(str(raw_head_commit_id))
         )
+        committed_oig_commit_id = await _committed_oig_commit_id_for_head(
+            commit_store=commit_store,
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            head_commit_id=head_commit_id,
+            head=head,
+            operation_label=operation_label,
+        )
         return _SnapshotCommit(
             commit_id=head_commit_id,
             head_commit_id=head_commit_id,
-            object_instance_graph_commit_id=stable_object_instance_graph_commit_id(
-                object_instance_graph_identity_id=oigi_id,
-                commit_id=head_commit_id,
-            ),
+            object_instance_graph_commit_id=committed_oig_commit_id,
             object_count=len(objects_by_id),
             change_count=0,
         )
@@ -3214,6 +3235,57 @@ async def _commit_snapshot(
         object_count=len(objects_by_id),
         change_count=len(changes),
     )
+
+
+async def _committed_oig_commit_id_for_head(
+    *,
+    commit_store: FSCommitStore,
+    branch_id: UUID,
+    projection_hash: str,
+    head_commit_id: UUID,
+    head: Mapping[str, object],
+    operation_label: str,
+) -> UUID:
+    committed_identity = await commit_store.get_commit_identity_metadata(
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        commit_id=head_commit_id,
+    )
+    if committed_identity is None:
+        committed_head = await commit_store.get_commit(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            commit_id=head_commit_id,
+        )
+        if committed_head is None:
+            raise RuntimeError(
+                "Experience snapshot no-change HEAD has no committed identity: "
+                f"operation_label={operation_label!r} "
+                f"head_commit_id={head_commit_id}"
+            )
+        committed_oigi_id = committed_head.object_instance_graph_identity_id
+    else:
+        committed_oigi_id = committed_identity.object_instance_graph_identity_id
+    committed_oig_commit_id = stable_object_instance_graph_commit_id(
+        object_instance_graph_identity_id=committed_oigi_id,
+        commit_id=head_commit_id,
+    )
+    raw_head_oig_commit_id = head.get("object_instance_graph_commit_id")
+    if raw_head_oig_commit_id is not None:
+        head_oig_commit_id = (
+            raw_head_oig_commit_id
+            if isinstance(raw_head_oig_commit_id, UUID)
+            else UUID(str(raw_head_oig_commit_id))
+        )
+        if head_oig_commit_id != committed_oig_commit_id:
+            raise RuntimeError(
+                "Experience snapshot no-change HEAD identity mismatch: "
+                f"operation_label={operation_label!r} "
+                f"head_commit_id={head_commit_id} "
+                f"head_oig_commit_id={head_oig_commit_id} "
+                f"committed_oig_commit_id={committed_oig_commit_id}"
+            )
+    return committed_oig_commit_id
 
 
 async def _load_before_oig(

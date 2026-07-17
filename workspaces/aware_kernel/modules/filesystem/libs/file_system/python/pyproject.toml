@@ -4,12 +4,13 @@ version = "0.1.2"
 description = "Filesystem watcher and indexing utilities for aware-cli aware_sdk workflows."
 readme = "README.md"
 requires-python = ">=3.12"
-license = { file = "LICENSE" }
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 authors = [
   { name = "AWARE Team" }
 ]
 classifiers = [
-  "License :: OSI Approved :: MIT License",
+  "License :: OSI Approved :: Apache Software License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.12",
   "Operating System :: OS Independent",

@@ -349,23 +349,28 @@ async def materialize(
     render_profile = _render_profile_from_request(request=request)
     language_started_at = perf_counter()
     if _should_materialize_language_outputs(render_profile=render_profile):
-        if _should_skip_language_outputs_for_reused_leaf(
+        language_reuse_evidence = _reused_leaf_language_artifact_evidence(
             request=request,
             leaf_result=leaf_result,
+        )
+        if _should_skip_language_outputs_for_reused_leaf(
+            leaf_result=leaf_result,
+            artifact_evidence=language_reuse_evidence,
         ):
             language_bridge_details = (
                 _skipped_reused_leaf_language_materialization_details(
                     render_profile=render_profile,
                     semantic_commit_strategy=leaf_result.semantic_commit_strategy,
-                    artifact_evidence=(
-                        _reused_leaf_language_artifact_evidence(
-                            request=request,
-                            leaf_result=leaf_result,
-                        )
-                    ),
+                    artifact_evidence=language_reuse_evidence,
                 )
             )
-            materialized_language_packages = ()
+            materialized_language_packages = tuple(
+                dict(row)
+                for row in language_reuse_evidence.get(
+                    "materialized_language_packages", ()
+                )
+                if isinstance(row, Mapping)
+            )
         else:
             language_request = _meta_source_manifest_request_from_ontology_request(
                 request=request,
@@ -727,6 +732,21 @@ async def resolve_currentness_replay(
             status="must_execute",
             reason="ontology_replay_output_receipts_missing",
         )
+    if not _ontology_materialized_language_package_witness_complete(
+        bundles=request.bundles,
+    ):
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="must_execute",
+            reason="ontology_materialized_language_package_witness_incomplete",
+        )
+    if not _ontology_embedded_binding_witness_complete(
+        bundles=request.bundles,
+        replay_output_details=request.replay_output_details,
+    ):
+        return SemanticMaterializationCurrentnessReplayResult(
+            status="must_execute",
+            reason="ontology_embedded_binding_witness_incomplete",
+        )
     for bundle in request.bundles:
         if bundle.semantic_root_object_instance_graph_commit_id is None:
             return SemanticMaterializationCurrentnessReplayResult(
@@ -765,6 +785,103 @@ async def resolve_currentness_replay(
                 semantic_graphs="required",
             )
         ),
+    )
+
+
+def _ontology_materialized_language_package_witness_complete(
+    *,
+    bundles: Iterable[SemanticPackageMaterializationBundle],
+) -> bool:
+    semantic_packages = tuple(
+        semantic_package
+        for bundle in bundles
+        for semantic_package in bundle.semantic_packages
+    )
+    if not semantic_packages:
+        return False
+    for semantic_package in semantic_packages:
+        materialized_packages = semantic_package.get("materialized_language_packages")
+        if (
+            not isinstance(materialized_packages, (list, tuple))
+            or not materialized_packages
+        ):
+            return False
+        for materialized_package in materialized_packages:
+            if not isinstance(materialized_package, Mapping):
+                return False
+            if any(
+                _uuid_or_none(materialized_package.get(field_name)) is None
+                for field_name in (
+                    "code_package_branch_id",
+                    "code_package_config_id",
+                    "code_package_head_commit_id",
+                    "code_package_id",
+                    "code_package_object_instance_graph_commit_id",
+                )
+            ):
+                return False
+            if any(
+                not _non_empty_string(materialized_package.get(field_name))
+                for field_name in ("package_name", "package_root")
+            ):
+                return False
+    return True
+
+
+def _ontology_embedded_binding_witness_complete(
+    *,
+    bundles: Iterable[SemanticPackageMaterializationBundle],
+    replay_output_details: Mapping[str, object],
+) -> bool:
+    expected_output_by_code_package_id: dict[UUID, str] = {}
+    for bundle in bundles:
+        for semantic_package in bundle.semantic_packages:
+            materialized_packages = semantic_package.get(
+                "materialized_language_packages"
+            )
+            if not isinstance(materialized_packages, (list, tuple)):
+                continue
+            for materialized_package in materialized_packages:
+                if not isinstance(materialized_package, Mapping):
+                    continue
+                if materialized_package.get("language") != "python":
+                    continue
+                renderer_profile = materialized_package.get("renderer_profile")
+                expected_output = {
+                    "ontology_dto": "python.ocg_binding_snapshot",
+                    "orm_models": "python.orm_graph_binding",
+                    "orm_runtime": "python.orm_graph_binding",
+                }.get(renderer_profile)
+                if expected_output is None:
+                    continue
+                code_package_id = _uuid_or_none(
+                    materialized_package.get("code_package_id")
+                )
+                if code_package_id is None:
+                    return False
+                expected_output_by_code_package_id[code_package_id] = expected_output
+
+    if not expected_output_by_code_package_id:
+        return True
+
+    witnessed_outputs: set[tuple[UUID, str]] = set()
+    raw_receipts = replay_output_details.get("artifact_ownership_receipts")
+    if not isinstance(raw_receipts, (list, tuple)):
+        return False
+    for receipt in raw_receipts:
+        if not isinstance(receipt, Mapping) or receipt.get("status") != "available":
+            continue
+        code_package_id = _uuid_or_none(receipt.get("code_package_id"))
+        output_key = receipt.get("output_key")
+        if code_package_id is None or not isinstance(output_key, str):
+            continue
+        if "workspace_revision" not in tuple(receipt.get("required_for") or ()):
+            continue
+        witnessed_outputs.add((code_package_id, output_key))
+
+    return all(
+        (code_package_id, output_key) in witnessed_outputs
+        for code_package_id, output_key in expected_output_by_code_package_id.items()
     )
 
 
@@ -1004,8 +1121,8 @@ def _should_materialize_language_outputs(*, render_profile: str) -> bool:
 
 def _should_skip_language_outputs_for_reused_leaf(
     *,
-    request: SemanticPackageMaterializationRequest,
     leaf_result: object,
+    artifact_evidence: Mapping[str, object],
 ) -> bool:
     strategy = str(getattr(leaf_result, "semantic_commit_strategy", "") or "").strip()
     if strategy not in {"fingerprint_reuse", "unchanged"}:
@@ -1015,11 +1132,8 @@ def _should_skip_language_outputs_for_reused_leaf(
         is not None
         and getattr(leaf_result, "object_config_graph_head_commit_id", None) is not None
         and getattr(leaf_result, "code_package_head_commit_id", None) is not None
-        and _reused_leaf_language_artifact_evidence(
-            request=request,
-            leaf_result=leaf_result,
-        )["status"]
-        == "complete"
+        and artifact_evidence.get("status") == "complete"
+        and bool(artifact_evidence.get("materialized_language_packages"))
     )
 
 
@@ -1087,11 +1201,25 @@ def _reused_leaf_language_artifact_evidence(
                     "target_count": len(materializations),
                     "package_count": package_count,
                 }
+    materialized_language_packages = meta_workspace_provider.object_config_graph_package_materialized_language_packages(
+        leaf_result=cast(
+            ObjectConfigGraphPackageLeafMaterializationResult,
+            leaf_result,
+        )
+    )
+    if not materialized_language_packages:
+        return {
+            "status": "incomplete",
+            "reason": "materialized_language_package_witness_missing",
+            "target_count": len(materializations),
+            "package_count": package_count,
+        }
     return {
         "status": "complete",
         "reason": "materialized_language_packages_present",
         "target_count": len(materializations),
         "package_count": package_count,
+        "materialized_language_packages": materialized_language_packages,
     }
 
 

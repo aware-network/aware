@@ -17,6 +17,7 @@ from aware_meta.materialization.receipts import (
     MaterializationStepReceipt,
     utc_now_iso,
 )
+from aware_utils.logging import logger
 
 
 @dataclass(slots=True)
@@ -137,6 +138,12 @@ class MaterializationExecutor:
             )
             return receipt
         except Exception as exc:
+            logger.exception(
+                "Materialization step execution failed: pipeline_id=%s step_id=%s step_kind=%s",
+                plan.pipeline_id,
+                step.step_id,
+                step.step_kind,
+            )
             receipt = MaterializationStepReceipt(
                 step_id=step.step_id,
                 step_kind=step.step_kind,

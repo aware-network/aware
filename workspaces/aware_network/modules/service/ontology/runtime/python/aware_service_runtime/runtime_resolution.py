@@ -6,6 +6,7 @@ from hashlib import sha256
 import json
 from pathlib import Path, PurePosixPath
 from time import perf_counter
+import tomllib
 from typing import cast
 from uuid import NAMESPACE_URL, UUID, uuid5
 
@@ -529,6 +530,7 @@ def _load_api_dependency_runtime_resolution_from_artifact(
                         key="python_root_relpath",
                         repo_root=dependency.repo_root,
                         manifest_path=runtime_semantics_path,
+                        allowed_runtime_roots=allowed_runtime_roots,
                     ),
                     key="python_root_relpath",
                     manifest_path=runtime_semantics_path,
@@ -542,6 +544,7 @@ def _load_api_dependency_runtime_resolution_from_artifact(
                         key="runtime_root_relpath",
                         repo_root=dependency.repo_root,
                         manifest_path=runtime_semantics_path,
+                        allowed_runtime_roots=allowed_runtime_roots,
                     ),
                     key="runtime_root_relpath",
                     manifest_path=runtime_semantics_path,
@@ -554,6 +557,7 @@ def _load_api_dependency_runtime_resolution_from_artifact(
                     key="aware_toml_relpath",
                     repo_root=dependency.repo_root,
                     manifest_path=runtime_semantics_path,
+                    allowed_runtime_roots=allowed_runtime_roots,
                 ),
                 key="aware_toml_relpath",
                 manifest_path=runtime_semantics_path,
@@ -588,6 +592,7 @@ def _resolve_runtime_semantics_path_field(
     key: str,
     repo_root: Path,
     manifest_path: Path,
+    allowed_runtime_roots: tuple[Path, ...] = (),
 ) -> Path:
     raw_value = payload.get(key)
     if not isinstance(raw_value, str) or not raw_value.strip():
@@ -597,8 +602,67 @@ def _resolve_runtime_semantics_path_field(
         )
     path = Path(raw_value).expanduser()
     if not path.is_absolute():
-        path = repo_root / path
+        path = (
+            _runtime_semantics_workspace_root(
+                payload=payload,
+                repo_root=repo_root,
+                allowed_runtime_roots=allowed_runtime_roots,
+                manifest_path=manifest_path,
+            )
+            / path
+        )
     return path.resolve()
+
+
+def _runtime_semantics_workspace_root(
+    *,
+    payload: Mapping[str, object],
+    repo_root: Path,
+    allowed_runtime_roots: tuple[Path, ...],
+    manifest_path: Path,
+) -> Path:
+    raw_handle = payload.get("workspace_handle")
+    if raw_handle is None:
+        return repo_root.resolve()
+    if not isinstance(raw_handle, str) or not raw_handle.strip():
+        raise RuntimeError(
+            "API runtime semantics workspace_handle must be a non-empty string: "
+            f"{manifest_path}"
+        )
+    handle = raw_handle.strip()
+    candidate_roots = tuple(
+        dict.fromkeys(
+            root.expanduser().resolve() for root in (repo_root, *allowed_runtime_roots)
+        )
+    )
+    matching_roots = tuple(
+        root
+        for root in candidate_roots
+        if _runtime_workspace_handle(root=root) == handle
+    )
+    if len(matching_roots) != 1:
+        raise RuntimeError(
+            "API runtime semantics workspace authority must resolve exactly once: "
+            f"workspace_handle={handle!r} matches="
+            f"{[root.as_posix() for root in matching_roots]} "
+            f"manifest={manifest_path}"
+        )
+    return matching_roots[0]
+
+
+def _runtime_workspace_handle(*, root: Path) -> str | None:
+    manifest_path = root / "aware.workspace.toml"
+    if not manifest_path.is_file():
+        return None
+    try:
+        payload = tomllib.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, tomllib.TOMLDecodeError):
+        return None
+    workspace = payload.get("workspace")
+    if not isinstance(workspace, Mapping):
+        return None
+    handle = str(workspace.get("handle") or "").strip()
+    return handle or None
 
 
 def _require_runtime_semantics_relpath_field(

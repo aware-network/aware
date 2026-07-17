@@ -1709,7 +1709,7 @@ async def _provider_delta_root_head_context(
     if root_oig_commit_id is None:
         return {}
     try:
-        store = FSCommitStore(root_dir=_provider_delta_workspace_root(request=request))
+        store = FSCommitStore(root_dir=_provider_delta_authority_root(request=request))
         domain_commit_id = (
             await store.domain_commit_id_for_object_instance_graph_commit_id(
                 branch_id=branch_id,
@@ -1741,7 +1741,7 @@ async def _provider_delta_domain_commit_head_context(
 ) -> dict[str, UUID | None]:
     object_instance_graph_id: UUID | None = None
     object_instance_graph_identity_id: UUID | None = None
-    store = FSCommitStore(root_dir=_provider_delta_workspace_root(request=request))
+    store = FSCommitStore(root_dir=_provider_delta_authority_root(request=request))
     try:
         head = await store.head(branch_id=branch_id, projection_hash=projection_hash)
         if head is not None and _uuid_value(head.get("commit_id")) == domain_commit_id:
@@ -1928,6 +1928,17 @@ def _provider_delta_workspace_root(*, request: object) -> Path | None:
     )
     text = _optional_text(value)
     return Path(text).expanduser().resolve() if text is not None else None
+
+
+def _provider_delta_authority_root(*, request: object) -> Path | None:
+    value = _request_or_durable_execution_input_value(
+        request=request,
+        keys=("authority_root",),
+    )
+    text = _optional_text(value)
+    if text is not None:
+        return Path(text).expanduser().resolve()
+    return _provider_delta_workspace_root(request=request)
 
 
 def _provider_delta_oig_commit_receipt_payload(

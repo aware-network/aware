@@ -2464,7 +2464,6 @@ def _runtime_layout_state_model(
         layout_config_id=state.layout_config_id,
         layout_key=state.layout_key,
         label=state.label,
-        is_default=state.is_default,
         is_active=state.is_active,
     )
 

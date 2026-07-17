@@ -22,8 +22,7 @@ class WindowConfig {
 
     fn attach_layout_config (
         layout_config_id UUID,
-        description String? = null,
-        is_default Bool = false
+        description String? = null
     ) -> WindowConfigLayoutConfig {
         """
         Attach one attention-owned LayoutConfig to this Interface-side window configuration.
@@ -31,7 +30,6 @@ class WindowConfig {
         let created = construct layout_configs.build(
             layout_config_id = layout_config_id,
             description = description,
-            is_default = is_default,
         )
     }
 }

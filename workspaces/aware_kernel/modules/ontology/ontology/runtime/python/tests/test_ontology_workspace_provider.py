@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, cast
@@ -2036,6 +2037,12 @@ async def test_ontology_provider_skips_language_outputs_for_complete_reuse_artif
     )
     assert result.details["language_artifact_completeness_target_count"] == 1
     assert result.details["language_artifact_completeness_package_count"] == 1
+    assert (
+        result.details["meta_language_materialization_bridge"][
+            "materialized_language_package_count"
+        ]
+        == 1
+    )
     bridge = cast(
         dict[str, object],
         result.details["meta_language_materialization_bridge"],
@@ -2052,12 +2059,14 @@ def test_ontology_provider_uses_workspace_language_reuse_evidence_when_manifest_
     from aware_ontology.materialization import workspace_provider
 
     leaf_result = _fake_leaf_result(package_name="demo-ontology")
+    leaf_result.semantic_commit_strategy = "fingerprint_reuse"
     leaf_result.object_config_graph_package.language_materializations = ()
     expected = {
         "status": "complete",
         "reason": "workspace_language_targets_realized",
         "target_count": 2,
         "package_count": 2,
+        "materialized_language_packages": ({"code_package_id": "one"},),
     }
     observed: dict[str, object] = {}
 
@@ -2081,6 +2090,19 @@ def test_ontology_provider_uses_workspace_language_reuse_evidence_when_manifest_
 
     assert evidence == expected
     assert observed == {"request": request, "leaf_result": leaf_result}
+
+    assert not workspace_provider._should_skip_language_outputs_for_reused_leaf(  # noqa: SLF001
+        leaf_result=leaf_result,
+        artifact_evidence={
+            "status": "complete",
+            "target_count": 2,
+            "package_count": 2,
+        },
+    )
+    assert workspace_provider._should_skip_language_outputs_for_reused_leaf(  # noqa: SLF001
+        leaf_result=leaf_result,
+        artifact_evidence=expected,
+    )
 
 
 @pytest.mark.asyncio
@@ -3261,7 +3283,7 @@ async def test_ontology_currentness_replay_requires_semantic_graph_context(
     async def _read_head(**_kwargs: object) -> dict[str, object]:
         return {"object_instance_graph_commit_id": str(oig_commit_id)}
 
-    result = await workspace_provider.resolve_currentness_replay(
+    incomplete = await workspace_provider.resolve_currentness_replay(
         SemanticMaterializationCurrentnessReplayRequest(
             provider_key="aware_ontology",
             semantic_owner="aware_ontology.provider",
@@ -3272,6 +3294,71 @@ async def test_ontology_currentness_replay_requires_semantic_graph_context(
             input_proof={"kind": "declared_source_tree", "complete": True},
             bundles=(bundle,),
             read_head=_read_head,
+        )
+    )
+    assert incomplete.status == "must_execute"
+    assert incomplete.reason == (
+        "ontology_materialized_language_package_witness_incomplete"
+    )
+
+    materialized_package_id = uuid4()
+    complete_bundle = replace(
+        bundle,
+        semantic_packages=(
+            {
+                "materialized_language_packages": (
+                    {
+                        "code_package_branch_id": str(uuid4()),
+                        "code_package_config_id": str(uuid4()),
+                        "code_package_head_commit_id": str(uuid4()),
+                        "code_package_id": str(materialized_package_id),
+                        "code_package_object_instance_graph_commit_id": str(uuid4()),
+                        "language": "python",
+                        "package_name": "aware-demo-ontology",
+                        "package_root": "modules/demo/ontology/structure/python",
+                        "renderer_profile": "orm_runtime",
+                    },
+                )
+            },
+        ),
+    )
+    missing_binding = await workspace_provider.resolve_currentness_replay(
+        SemanticMaterializationCurrentnessReplayRequest(
+            provider_key="aware_ontology",
+            semantic_owner="aware_ontology.provider",
+            workspace_root=Path.cwd(),
+            workspace_manifest_kind="ontology",
+            semantic_package_family="ontology",
+            semantic_package_kind="ontology_package",
+            input_proof={"kind": "declared_source_tree", "complete": True},
+            bundles=(complete_bundle,),
+            read_head=_read_head,
+        )
+    )
+    assert missing_binding.status == "must_execute"
+    assert missing_binding.reason == "ontology_embedded_binding_witness_incomplete"
+
+    result = await workspace_provider.resolve_currentness_replay(
+        SemanticMaterializationCurrentnessReplayRequest(
+            provider_key="aware_ontology",
+            semantic_owner="aware_ontology.provider",
+            workspace_root=Path.cwd(),
+            workspace_manifest_kind="ontology",
+            semantic_package_family="ontology",
+            semantic_package_kind="ontology_package",
+            input_proof={"kind": "declared_source_tree", "complete": True},
+            bundles=(complete_bundle,),
+            read_head=_read_head,
+            replay_output_details={
+                "artifact_ownership_receipts": (
+                    {
+                        "code_package_id": str(materialized_package_id),
+                        "output_key": "python.orm_graph_binding",
+                        "required_for": ("workspace_revision",),
+                        "status": "available",
+                    },
+                )
+            },
         )
     )
 

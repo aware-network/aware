@@ -15,27 +15,62 @@ _REPO_ROOT_STR = str(_REPO_ROOT)
 if _REPO_ROOT_STR not in sys.path:
     sys.path.insert(0, _REPO_ROOT_STR)
 _INTERFACE_RUNTIME_ROOT_STR = str(
-    _REPO_ROOT / "workspaces" / "aware_network" / "modules" / "interface" / "ontology" / "runtime" / "python"
+    _REPO_ROOT
+    / "workspaces"
+    / "aware_network"
+    / "modules"
+    / "interface"
+    / "ontology"
+    / "runtime"
+    / "python"
 )
 if _INTERFACE_RUNTIME_ROOT_STR not in sys.path:
     sys.path.insert(0, _INTERFACE_RUNTIME_ROOT_STR)
 _ATTENTION_RUNTIME_ROOT_STR = str(
-    _REPO_ROOT / "workspaces" / "aware_network" / "modules" / "attention" / "ontology" / "runtime" / "python"
+    _REPO_ROOT
+    / "workspaces"
+    / "aware_network"
+    / "modules"
+    / "attention"
+    / "ontology"
+    / "runtime"
+    / "python"
 )
 if _ATTENTION_RUNTIME_ROOT_STR not in sys.path:
     sys.path.insert(0, _ATTENTION_RUNTIME_ROOT_STR)
 _NETWORK_RUNTIME_ROOT_STR = str(
-    _REPO_ROOT / "workspaces" / "aware_network" / "modules" / "network" / "ontology" / "runtime" / "python"
+    _REPO_ROOT
+    / "workspaces"
+    / "aware_network"
+    / "modules"
+    / "network"
+    / "ontology"
+    / "runtime"
+    / "python"
 )
 if _NETWORK_RUNTIME_ROOT_STR not in sys.path:
     sys.path.insert(0, _NETWORK_RUNTIME_ROOT_STR)
 _IDENTITY_RUNTIME_ROOT_STR = str(
-    _REPO_ROOT / "workspaces" / "aware_network" / "modules" / "identity" / "ontology" / "runtime" / "python"
+    _REPO_ROOT
+    / "workspaces"
+    / "aware_network"
+    / "modules"
+    / "identity"
+    / "ontology"
+    / "runtime"
+    / "python"
 )
 if _IDENTITY_RUNTIME_ROOT_STR not in sys.path:
     sys.path.insert(0, _IDENTITY_RUNTIME_ROOT_STR)
 _ENVIRONMENT_RUNTIME_ROOT_STR = str(
-    _REPO_ROOT / "workspaces" / "aware_network" / "modules" / "environment" / "ontology" / "runtime" / "python"
+    _REPO_ROOT
+    / "workspaces"
+    / "aware_network"
+    / "modules"
+    / "environment"
+    / "ontology"
+    / "runtime"
+    / "python"
 )
 if _ENVIRONMENT_RUNTIME_ROOT_STR not in sys.path:
     sys.path.insert(0, _ENVIRONMENT_RUNTIME_ROOT_STR)
@@ -122,7 +157,7 @@ def _write_interface_source(root: Path) -> None:
             [
                 "interface aware_app {",
                 "    window main {",
-                "        layout scene_view default {",
+                "        layout scene_view {",
                 "            section scene",
                 "            section overlay_left",
                 "        }",
@@ -140,7 +175,9 @@ def _write_interface_source(root: Path) -> None:
     )
 
 
-def _write_attention_backed_interface_source(root: Path, *, layout_key: str = "scene_view") -> None:
+def _write_attention_backed_interface_source(
+    root: Path, *, layout_key: str = "scene_view"
+) -> None:
     _ = (root / "home_story_app.aware").write_text(
         "\n".join(
             [
@@ -259,7 +296,9 @@ def _write_render_component_package(root: Path) -> None:
     )
 
 
-def _write_sdk_package(root: Path, *, include_operation_dependency: bool = False) -> Path:
+def _write_sdk_package(
+    root: Path, *, include_operation_dependency: bool = False
+) -> Path:
     sdk_root = root / "sdks" / "home" / "aware"
     sdk_root.mkdir(parents=True, exist_ok=True)
     toml_path = sdk_root / "aware.sdk.toml"
@@ -323,7 +362,14 @@ def _write_attention_compile_artifact(
     layout_key: str = "scene_view",
     section_key: str = "overlay_left",
 ) -> Path:
-    artifact_path = root / ".aware" / "attention" / "runtime" / package_name / "attention.compile_plan.json"
+    artifact_path = (
+        root
+        / ".aware"
+        / "attention"
+        / "runtime"
+        / package_name
+        / "attention.compile_plan.json"
+    )
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
     _ = artifact_path.write_text(
         json.dumps(
@@ -443,7 +489,9 @@ def _write_workspace_truth(root: Path) -> None:
         + "\n",
         encoding="utf-8",
     )
-    _ = (api_root / "bindings" / "home_devices.apis.aware").parent.mkdir(parents=True, exist_ok=True)
+    _ = (api_root / "bindings" / "home_devices.apis.aware").parent.mkdir(
+        parents=True, exist_ok=True
+    )
     _ = (api_root / "bindings" / "home_devices.apis.aware").write_text(
         "\n".join(
             [
@@ -525,7 +573,8 @@ def _write_workspace_truth(root: Path) -> None:
                 "modules": [
                     {
                         "manifest_path": (
-                            "modules/home/structure/ontology/.aware/environment/runtime/" "environment.manifest.json"
+                            "modules/home/structure/ontology/.aware/environment/runtime/"
+                            "environment.manifest.json"
                         )
                     }
                 ]
@@ -536,14 +585,27 @@ def _write_workspace_truth(root: Path) -> None:
         encoding="utf-8",
     )
 
-    module_runtime_dir = root / "modules" / "home" / "structure" / "ontology" / ".aware" / "environment" / "runtime"
+    module_runtime_dir = (
+        root
+        / "modules"
+        / "home"
+        / "structure"
+        / "ontology"
+        / ".aware"
+        / "environment"
+        / "runtime"
+    )
     module_runtime_dir.mkdir(parents=True, exist_ok=True)
     _ = (module_runtime_dir / "environment.manifest.json").write_text(
         json.dumps({"ocg": {"snapshot": "ocg.snapshot.msgpack"}}, indent=2) + "\n",
         encoding="utf-8",
     )
-    object_config_graph_id = stable_object_config_graph_id(fqn_prefix="aware_home", language="aware")
-    object_config_graph_identity_id = stable_object_config_graph_identity_id(key="aware_home")
+    object_config_graph_id = stable_object_config_graph_id(
+        fqn_prefix="aware_home", language="aware"
+    )
+    object_config_graph_identity_id = stable_object_config_graph_identity_id(
+        key="aware_home"
+    )
     object_projection_graph_id = stable_object_projection_graph_id(
         object_config_graph_id=object_config_graph_id,
         name="home",
@@ -589,9 +651,15 @@ def _write_workspace_truth(root: Path) -> None:
                             {
                                 "view_name": "security_door",
                                 "action_key": "unlock_door",
-                                "api_view_capability_endpoint_id": str(api_view_capability_endpoint_id),
-                                "api_capability_endpoint_id": str(api_capability_endpoint_id),
-                                "endpoint_ref": ("home_devices.unlock_door.unlock_door"),
+                                "api_view_capability_endpoint_id": str(
+                                    api_view_capability_endpoint_id
+                                ),
+                                "api_capability_endpoint_id": str(
+                                    api_capability_endpoint_id
+                                ),
+                                "endpoint_ref": (
+                                    "home_devices.unlock_door.unlock_door"
+                                ),
                             }
                         ],
                     }
@@ -693,7 +761,9 @@ def _write_workspace_manifest_with_sdk(root: Path) -> None:
     )
 
 
-def _build_projection_identity_ocg(*, projection_name: str = "home") -> ObjectConfigGraph:
+def _build_projection_identity_ocg(
+    *, projection_name: str = "home"
+) -> ObjectConfigGraph:
     object_config_graph_id = uuid5(
         NAMESPACE_URL,
         f"aware://tests/interface-compile/object-config-graph/{projection_name}",
@@ -747,7 +817,9 @@ def _build_projection_identity_ocg(*, projection_name: str = "home") -> ObjectCo
                     "object_projection_graph_nodes": [
                         {
                             "id": str(object_projection_graph_node_id),
-                            "object_projection_graph_id": str(object_projection_graph_id),
+                            "object_projection_graph_id": str(
+                                object_projection_graph_id
+                            ),
                             "class_config_id": str(state_model_class_config_id),
                             "is_root": True,
                             "class_config": {
@@ -855,7 +927,9 @@ def test_compile_interface_workspace_returns_snapshot_only_for_raw_xor(
 
     assert result.snapshot.spec.interface.package_name == "home-story-interface"
     assert result.snapshot.source_files == (Path("home_story_app.aware"),)
-    assert result.snapshot.pane_source_files == (Path("panes/door_control/door_control.aware"),)
+    assert result.snapshot.pane_source_files == (
+        Path("panes/door_control/door_control.aware"),
+    )
     assert result.compile_plan is None
     assert result.compile_plan_artifact is None
     assert result.dart_registrar_bundle_artifact is None
@@ -937,7 +1011,9 @@ def test_interface_projection_catalog_uses_declared_workspace_dependency_index(
         NAMESPACE_URL,
         "aware://tests/interface/provider-backed-codepackage-opgi",
     )
-    package_index_path = kernel_root / ".aware" / "meta" / "runtime" / "package_projection_index.v1.json"
+    package_index_path = (
+        kernel_root / ".aware" / "meta" / "runtime" / "package_projection_index.v1.json"
+    )
     package_index_path.parent.mkdir(parents=True, exist_ok=True)
     code_manifest_path = code_ontology_root / "structure" / "aware.toml"
     _ = package_index_path.write_text(
@@ -962,7 +1038,9 @@ def test_interface_projection_catalog_uses_declared_workspace_dependency_index(
                         "package_name": "code-ontology",
                         "fqn_prefix": "aware_code",
                         "manifest_path": str(code_manifest_path),
-                        "object_projection_graph_identity_id": str(provider_projection_identity_id),
+                        "object_projection_graph_identity_id": str(
+                            provider_projection_identity_id
+                        ),
                     }
                 ],
                 "semantic_objects": [],
@@ -1011,11 +1089,164 @@ def test_interface_projection_catalog_uses_declared_workspace_dependency_index(
     assert (
         kernel_root.resolve(),
         "declared_workspace_dependency_artifact_root",
-    ) in tuple((root.root, root.source_kind) for root in snapshot.dependency_catalog_roots)
+    ) in tuple(
+        (root.root, root.source_kind) for root in snapshot.dependency_catalog_roots
+    )
 
     projection_catalog = _resolve_projection_identity_catalog(snapshot=snapshot)
 
-    assert projection_catalog["codepackage"].object_projection_graph_identity_id == provider_projection_identity_id
+    assert (
+        projection_catalog["codepackage"].object_projection_graph_identity_id
+        == provider_projection_identity_id
+    )
+
+
+def test_pane_manifest_resolution_is_bounded_to_declared_workspace_dependencies(
+    tmp_path: Path,
+) -> None:
+    from aware_interface.workspace import _resolve_pane_toml_path
+
+    repo_root = tmp_path / "repo"
+    agent_workspace_root = repo_root / "workspaces" / "aware_agent"
+    agent_module_root = agent_workspace_root / "modules" / "agent"
+    workspace_dependency_root = repo_root / "workspaces" / "aware_workspace"
+    undeclared_workspace_root = repo_root / "workspaces" / "undeclared"
+    agent_module_root.mkdir(parents=True)
+    workspace_dependency_root.mkdir(parents=True)
+    undeclared_workspace_root.mkdir(parents=True)
+
+    _ = (agent_workspace_root / "aware.workspace.toml").write_text(
+        "\n".join(
+            [
+                "aware = 1",
+                "",
+                "[workspace]",
+                'handle = "aware_agent"',
+                "",
+                "[[workspace.dependencies]]",
+                'id = "aware_workspace"',
+                'kind = "workspace"',
+                'source = "workspace://aware_workspace"',
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    for workspace_root, handle in (
+        (workspace_dependency_root, "aware_workspace"),
+        (undeclared_workspace_root, "undeclared"),
+    ):
+        _ = (workspace_root / "aware.workspace.toml").write_text(
+            "\n".join(
+                [
+                    "aware = 1",
+                    "",
+                    "[workspace]",
+                    f'handle = "{handle}"',
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+    def write_pane(workspace_root: Path, package_name: str) -> Path:
+        module_root = workspace_root / "modules" / "workspace"
+        manifest_path = (
+            module_root / "interfaces" / "panes" / package_name / "aware.pane.toml"
+        )
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        _ = manifest_path.write_text(
+            "\n".join(
+                [
+                    "aware_pane = 1",
+                    "",
+                    "[pane]",
+                    f'package_name = "{package_name}"',
+                    f'fqn_prefix = "{package_name.replace("-", "_")}"',
+                    'pane_name = "control"',
+                    "",
+                    "[build]",
+                    'sources_dir = "."',
+                    'include_paths = ["*.aware"]',
+                    "exclude_paths = []",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        _ = (module_root / "aware.module.toml").write_text(
+            "\n".join(
+                [
+                    "aware = 1",
+                    "",
+                    "[[packages]]",
+                    'id = "control_pane"',
+                    'kind = "pane"',
+                    f'manifest = "{manifest_path.relative_to(module_root).as_posix()}"',
+                    'visibility = "module"',
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        return manifest_path
+
+    declared_manifest = write_pane(
+        workspace_dependency_root,
+        "aware-workspace-control-pane",
+    )
+    _ = write_pane(undeclared_workspace_root, "undeclared-control-pane")
+
+    assert (
+        _resolve_pane_toml_path(
+            repo_root=repo_root,
+            workspace_root=agent_module_root,
+            package_name="aware-workspace-control-pane",
+        )
+        == declared_manifest.resolve()
+    )
+    with pytest.raises(FileNotFoundError, match="declared Workspace dependencies"):
+        _resolve_pane_toml_path(
+            repo_root=repo_root,
+            workspace_root=agent_module_root,
+            package_name="undeclared-control-pane",
+        )
+
+
+def test_aware_control_resolves_cross_module_panes_from_module_registries() -> None:
+    workspace_root = _REPO_ROOT / "workspaces" / "aware_network"
+    interface_toml_path = (
+        workspace_root
+        / "modules"
+        / "interface"
+        / "interfaces"
+        / "aware_control"
+        / "aware.interface.toml"
+    )
+
+    snapshot = InterfaceWorkspace.from_toml(
+        toml_path=interface_toml_path,
+        repo_root=workspace_root,
+    ).build_snapshot()
+
+    pane_paths_by_package = {
+        package.spec.pane.package_name: package.spec_path
+        for package in snapshot.pane_packages
+    }
+    assert (
+        pane_paths_by_package["aware-hub-package-selector-pane"]
+        == (
+            workspace_root
+            / "modules"
+            / "hub"
+            / "interfaces"
+            / "panes"
+            / "hub_package_selector"
+            / "aware.pane.toml"
+        ).resolve()
+    )
+    assert "aware-identity-admission-pane" in pane_paths_by_package
+    assert "aware-network-territory-pane" in pane_paths_by_package
 
 
 def test_compile_interface_workspace_emits_plan_for_interface_ontology(
@@ -1052,9 +1283,16 @@ def test_compile_interface_workspace_emits_plan_for_interface_ontology(
     assert '"interface_ownership"' in payload
     assert '"home_story.security.door"' in payload
     assert '"home_devices.unlock_door"' not in payload
-    dart_payload = result.dart_registrar_bundle_artifact.path.read_text(encoding="utf-8")
-    assert "import 'package:aware_pane_runtime/aware_pane_runtime.dart';" in dart_payload
-    assert "import 'package:aware_door_control_pane/aware_door_control_pane.dart'" in dart_payload
+    dart_payload = result.dart_registrar_bundle_artifact.path.read_text(
+        encoding="utf-8"
+    )
+    assert (
+        "import 'package:aware_pane_runtime/aware_pane_runtime.dart';" in dart_payload
+    )
+    assert (
+        "import 'package:aware_door_control_pane/aware_door_control_pane.dart'"
+        in dart_payload
+    )
     assert "void registerPanePackages(PanePackageRegistry registry)" in dart_payload
     assert ".registerPanePackage(registry);" in dart_payload
     assert "apiPackages:" not in dart_payload
@@ -1092,9 +1330,17 @@ def test_compile_interface_workspace_emits_render_component_registrars(
     )
 
     assert result.dart_registrar_bundle_artifact is not None
-    dart_payload = result.dart_registrar_bundle_artifact.path.read_text(encoding="utf-8")
-    assert "package:aware_content_render_components/" "aware_content_render_components.dart" in dart_payload
-    assert "void registerRenderComponents(RenderComponentRegistryBuilder registry)" in dart_payload
+    dart_payload = result.dart_registrar_bundle_artifact.path.read_text(
+        encoding="utf-8"
+    )
+    assert (
+        "package:aware_content_render_components/"
+        "aware_content_render_components.dart" in dart_payload
+    )
+    assert (
+        "void registerRenderComponents(RenderComponentRegistryBuilder registry)"
+        in dart_payload
+    )
     assert ".registerRenderComponents(registry);" in dart_payload
 
 
@@ -1110,7 +1356,15 @@ def test_compile_interface_workspace_ignores_experience_view_model_decoder_regis
     )
     _write_interface_source(root)
     _write_pane_package(root)
-    registry_dir = root / "experiences" / "home_story" / "languages" / "dart" / "aware_home_story_experience" / "lib"
+    registry_dir = (
+        root
+        / "experiences"
+        / "home_story"
+        / "languages"
+        / "dart"
+        / "aware_home_story_experience"
+        / "lib"
+    )
     registry_dir.mkdir(parents=True, exist_ok=True)
     _ = (registry_dir / "view_model_registry.dart").write_text(
         "final awareHomeStoryExperienceViewModelDecoders = <String, Object>{};\n",
@@ -1129,11 +1383,19 @@ def test_compile_interface_workspace_ignores_experience_view_model_decoder_regis
     )
 
     assert result.dart_registrar_bundle_artifact is not None
-    dart_payload = result.dart_registrar_bundle_artifact.path.read_text(encoding="utf-8")
-    assert "import 'package:aware_home_story_experience/aware_home_story_experience.dart'" not in dart_payload
+    dart_payload = result.dart_registrar_bundle_artifact.path.read_text(
+        encoding="utf-8"
+    )
+    assert (
+        "import 'package:aware_home_story_experience/aware_home_story_experience.dart'"
+        not in dart_payload
+    )
     assert "viewStateDecoderRegistry:" not in dart_payload
     assert "<Map<String, InterfaceViewStateDecoder>>[" not in dart_payload
-    assert "aware_home_story_experience.awareHomeStoryExperienceViewModelDecoders" not in dart_payload
+    assert (
+        "aware_home_story_experience.awareHomeStoryExperienceViewModelDecoders"
+        not in dart_payload
+    )
 
 
 def test_compile_interface_workspace_emits_config_bundle_for_interface_ontology(
@@ -1161,7 +1423,9 @@ def test_compile_interface_workspace_emits_config_bundle_for_interface_ontology(
     assert result.compile_plan_artifact is not None
     assert result.config_bundle_artifact is not None
     assert result.dart_registrar_bundle_artifact is not None
-    assert result.config_bundle_artifact.relpath == "bundles/interface.config.bundle.json"
+    assert (
+        result.config_bundle_artifact.relpath == "bundles/interface.config.bundle.json"
+    )
 
     payload = json.loads(result.config_bundle_artifact.path.read_text(encoding="utf-8"))
     assert payload["name"] == "aware_app"
@@ -1172,22 +1436,37 @@ def test_compile_interface_workspace_emits_config_bundle_for_interface_ontology(
         {
             "key": "scene",
             "layout_config_section_config_id": (
-                payload["window_configs"][0]["layout_configs"][0]["sections"][0]["layout_config_section_config_id"]
+                payload["window_configs"][0]["layout_configs"][0]["sections"][0][
+                    "layout_config_section_config_id"
+                ]
             ),
         },
         {
             "key": "overlay_left",
             "layout_config_section_config_id": (
-                payload["window_configs"][0]["layout_configs"][0]["sections"][1]["layout_config_section_config_id"]
+                payload["window_configs"][0]["layout_configs"][0]["sections"][1][
+                    "layout_config_section_config_id"
+                ]
             ),
         },
     ]
     assert payload["pane_configs"][0]["name"] == "door_control"
-    assert payload["pane_configs"][0]["pane_package_name"] == "home-story-door-control-pane"
+    assert (
+        payload["pane_configs"][0]["pane_package_name"]
+        == "home-story-door-control-pane"
+    )
     assert payload["pane_configs"][0]["pane_package_id"] is not None
     assert payload["pane_configs"][0]["pane_kind"] == "door"
-    assert payload["pane_configs"][0]["projection_experience_views"][0]["view_ref"] == "home_story.security.door"
-    assert payload["pane_configs"][0]["projection_experience_views"][0]["projection_view_key"] == "security.door"
+    assert (
+        payload["pane_configs"][0]["projection_experience_views"][0]["view_ref"]
+        == "home_story.security.door"
+    )
+    assert (
+        payload["pane_configs"][0]["projection_experience_views"][0][
+            "projection_view_key"
+        ]
+        == "security.door"
+    )
     assert "api_capability_endpoints" not in payload["pane_configs"][0]
     assert "sdk_operations" not in payload["pane_configs"][0]
 
@@ -1271,7 +1550,9 @@ def test_compile_interface_workspace_accepts_projection_identity_ocg_override(
     except ValueError as exc:
         assert "without workspace OPG identity truth" in str(exc)
     else:
-        raise AssertionError("Expected compile_interface_workspace to require projection identity truth")
+        raise AssertionError(
+            "Expected compile_interface_workspace to require projection identity truth"
+        )
 
     result = compile_interface_workspace(
         toml_path=toml_path,
@@ -1284,16 +1565,31 @@ def test_compile_interface_workspace_accepts_projection_identity_ocg_override(
     assert result.config_bundle_artifact is not None
     assert result.dart_registrar_bundle_artifact is not None
     payload = json.loads(result.config_bundle_artifact.path.read_text(encoding="utf-8"))
-    assert payload["pane_configs"][0]["projection_experience_views"][0]["view_ref"] == "home_story.security.door"
-    assert payload["pane_configs"][0]["projection_experience_views"][0]["projection_view_key"] == "security.door"
-    assert payload["pane_configs"][0]["projection_experience_views"][0]["state_model_id"] == str(
+    assert (
+        payload["pane_configs"][0]["projection_experience_views"][0]["view_ref"]
+        == "home_story.security.door"
+    )
+    assert (
+        payload["pane_configs"][0]["projection_experience_views"][0][
+            "projection_view_key"
+        ]
+        == "security.door"
+    )
+    assert payload["pane_configs"][0]["projection_experience_views"][0][
+        "state_model_id"
+    ] == str(
         uuid5(
             NAMESPACE_URL,
             "aware://tests/interface-compile/class-config/aware_home.home.Door",
         )
     )
-    dart_payload = result.dart_registrar_bundle_artifact.path.read_text(encoding="utf-8")
-    assert "sectionRepresentations: const <InterfacePackageRuntimeSectionRepresentation>[" in dart_payload
+    dart_payload = result.dart_registrar_bundle_artifact.path.read_text(
+        encoding="utf-8"
+    )
+    assert (
+        "sectionRepresentations: const <InterfacePackageRuntimeSectionRepresentation>["
+        in dart_payload
+    )
     assert "projectionViewKey: 'security.door'" in dart_payload
 
 
@@ -1396,10 +1692,14 @@ def test_compile_interface_workspace_emits_attention_backed_layout_sections(
             "layout_config_section_config_id": "8741f7e0-4e72-5be3-a49c-51c6f181f8af",
         }
     ]
-    assert payload["pane_configs"][0]["projection_experience_views"][0]["section_mounts"] == [
+    assert payload["pane_configs"][0]["projection_experience_views"][0][
+        "section_mounts"
+    ] == [
         {
             "layout_config_section_config_id": "8741f7e0-4e72-5be3-a49c-51c6f181f8af",
-            "mount_id": payload["pane_configs"][0]["projection_experience_views"][0]["section_mounts"][0]["mount_id"],
+            "mount_id": payload["pane_configs"][0]["projection_experience_views"][0][
+                "section_mounts"
+            ][0]["mount_id"],
             "is_default": False,
         }
     ]
@@ -1428,12 +1728,16 @@ def test_compile_interface_workspace_fails_when_attention_layout_truth_is_missin
     except ValueError as exc:
         assert "missing Attention-backed layout truth" in str(exc)
     else:
-        raise AssertionError("Expected compile_interface_workspace to require Attention-backed layout truth")
+        raise AssertionError(
+            "Expected compile_interface_workspace to require Attention-backed layout truth"
+        )
 
 
 def test_root_aware_app_interface_workspace_snapshot_exposes_authored_sources() -> None:
     repo_root = _REPO_ROOT
-    interface_toml_path = repo_root / "interfaces" / "aware_app" / "aware.interface.toml"
+    interface_toml_path = (
+        repo_root / "interfaces" / "aware_app" / "aware.interface.toml"
+    )
 
     snapshot = InterfaceWorkspace.from_toml(
         toml_path=interface_toml_path,
@@ -1453,10 +1757,12 @@ def test_root_aware_app_interface_workspace_snapshot_exposes_authored_sources() 
     )
     assert snapshot.pane_source_files == (
         Path(
-            "workspaces/aware_network/modules/hub/interfaces/panes/" "hub_package_selector/hub_package_selector.aware"
+            "workspaces/aware_network/modules/hub/interfaces/panes/"
+            "hub_package_selector/hub_package_selector.aware"
         ),
         Path(
-            "workspaces/aware_network/modules/identity/interfaces/panes/" "identity_admission/identity_admission.aware"
+            "workspaces/aware_network/modules/identity/interfaces/panes/"
+            "identity_admission/identity_admission.aware"
         ),
         Path(
             "workspaces/aware_network/modules/interface/interfaces/panes/"
@@ -1466,19 +1772,38 @@ def test_root_aware_app_interface_workspace_snapshot_exposes_authored_sources() 
             "workspaces/aware_network/modules/interface/interfaces/panes/"
             "interface_mount_status/interface_mount_status.aware"
         ),
-        Path("workspaces/aware_network/modules/network/interfaces/panes/" "network_territory/network_territory.aware"),
-        Path("workspaces/aware_network/modules/node/interfaces/panes/" "node_session_status/node_session_status.aware"),
+        Path(
+            "workspaces/aware_network/modules/network/interfaces/panes/"
+            "network_territory/network_territory.aware"
+        ),
+        Path(
+            "workspaces/aware_network/modules/node/interfaces/panes/"
+            "node_session_status/node_session_status.aware"
+        ),
         Path("panes/terminal/terminal.aware"),
     )
     assert (
         snapshot.config_bundle_path
-        == (repo_root / "interfaces" / "aware_app" / "bundles" / "interface.config.bundle.json").resolve()
+        == (
+            repo_root
+            / "interfaces"
+            / "aware_app"
+            / "bundles"
+            / "interface.config.bundle.json"
+        ).resolve()
     )
 
 
 def test_home_story_sample_interface_package_compiles_authored_source() -> None:
     repo_root = _REPO_ROOT / "workspaces" / "aware_home"
-    interface_toml_path = repo_root / "modules" / "home" / "interfaces" / "aware_app" / "aware.interface.toml"
+    interface_toml_path = (
+        repo_root
+        / "modules"
+        / "home"
+        / "interfaces"
+        / "aware_app"
+        / "aware.interface.toml"
+    )
 
     result = compile_interface_workspace(
         toml_path=interface_toml_path,
@@ -1490,7 +1815,9 @@ def test_home_story_sample_interface_package_compiles_authored_source() -> None:
     assert result.compile_plan is not None
     assert result.compile_plan_artifact is not None
     assert result.snapshot.source_files == (Path("home_story_app.aware"),)
-    assert tuple(package.spec.pane.pane_name for package in result.snapshot.pane_packages) == (
+    assert tuple(
+        package.spec.pane.pane_name for package in result.snapshot.pane_packages
+    ) == (
         "door_control",
         "home_overview",
         "tv_status",
@@ -1522,17 +1849,35 @@ def test_home_story_sample_interface_package_compiles_authored_source() -> None:
         "door_control",
         "tv_status",
     )
-    dart_payload = result.dart_registrar_bundle_artifact.path.read_text(encoding="utf-8")
-    assert "No pane-package Dart registrars declared for this interface package." in dart_payload
-    assert "package:aware_home_overview_pane/aware_home_overview_pane.dart" not in dart_payload
-    assert "package:aware_door_control_pane/aware_door_control_pane.dart" not in dart_payload
+    dart_payload = result.dart_registrar_bundle_artifact.path.read_text(
+        encoding="utf-8"
+    )
+    assert (
+        "No pane-package Dart registrars declared for this interface package."
+        in dart_payload
+    )
+    assert (
+        "package:aware_home_overview_pane/aware_home_overview_pane.dart"
+        not in dart_payload
+    )
+    assert (
+        "package:aware_door_control_pane/aware_door_control_pane.dart"
+        not in dart_payload
+    )
     assert "package:aware_tv_status_pane/aware_tv_status_pane.dart" not in dart_payload
     assert ".registerPanePackage(registry);" not in dart_payload
 
 
 def test_home_story_sample_interface_package_emits_config_bundle() -> None:
     repo_root = _REPO_ROOT / "workspaces" / "aware_home"
-    interface_toml_path = repo_root / "modules" / "home" / "interfaces" / "aware_app" / "aware.interface.toml"
+    interface_toml_path = (
+        repo_root
+        / "modules"
+        / "home"
+        / "interfaces"
+        / "aware_app"
+        / "aware.interface.toml"
+    )
 
     result = compile_interface_workspace(
         toml_path=interface_toml_path,
@@ -1543,17 +1888,25 @@ def test_home_story_sample_interface_package_emits_config_bundle() -> None:
 
     assert result.config_bundle_artifact is not None
     assert result.dart_registrar_bundle_artifact is not None
-    assert result.config_bundle_artifact.path == interface_toml_path.parent / "bundles" / "interface.config.bundle.json"
+    assert (
+        result.config_bundle_artifact.path
+        == interface_toml_path.parent / "bundles" / "interface.config.bundle.json"
+    )
 
     payload = json.loads(result.config_bundle_artifact.path.read_text(encoding="utf-8"))
     assert payload["name"] == "aware_app"
     assert "apis" not in payload
     assert tuple(window["key"] for window in payload["window_configs"]) == ("main",)
-    assert tuple(layout["key"] for layout in payload["window_configs"][0]["layout_configs"]) == (
+    assert tuple(
+        layout["key"] for layout in payload["window_configs"][0]["layout_configs"]
+    ) == (
         "configuration_map",
         "scene_view",
     )
-    assert tuple(section["key"] for section in payload["window_configs"][0]["layout_configs"][1]["sections"]) == (
+    assert tuple(
+        section["key"]
+        for section in payload["window_configs"][0]["layout_configs"][1]["sections"]
+    ) == (
         "scene",
         "overlay_left",
         "overlay_right",
@@ -1570,18 +1923,44 @@ def test_home_story_sample_interface_package_emits_config_bundle() -> None:
         "home-story-tv-status-pane",
     )
     assert all(pane["pane_package_id"] for pane in payload["pane_configs"])
-    assert payload["pane_configs"][0]["projection_experience_views"][0]["view_ref"] == "home_story.overview.home"
-    assert payload["pane_configs"][0]["projection_experience_views"][0]["projection_view_key"] == "overview.home"
-    assert payload["pane_configs"][1]["projection_experience_views"][0]["view_ref"] == "home_story.security.door"
-    assert payload["pane_configs"][1]["projection_experience_views"][0]["projection_view_key"] == "security.door"
-    assert payload["pane_configs"][2]["projection_experience_views"][0]["view_ref"] == "home_story.entertainment.tv"
-    assert payload["pane_configs"][2]["projection_experience_views"][0]["projection_view_key"] == "entertainment.tv"
+    assert (
+        payload["pane_configs"][0]["projection_experience_views"][0]["view_ref"]
+        == "home_story.overview.home"
+    )
+    assert (
+        payload["pane_configs"][0]["projection_experience_views"][0][
+            "projection_view_key"
+        ]
+        == "overview.home"
+    )
+    assert (
+        payload["pane_configs"][1]["projection_experience_views"][0]["view_ref"]
+        == "home_story.security.door"
+    )
+    assert (
+        payload["pane_configs"][1]["projection_experience_views"][0][
+            "projection_view_key"
+        ]
+        == "security.door"
+    )
+    assert (
+        payload["pane_configs"][2]["projection_experience_views"][0]["view_ref"]
+        == "home_story.entertainment.tv"
+    )
+    assert (
+        payload["pane_configs"][2]["projection_experience_views"][0][
+            "projection_view_key"
+        ]
+        == "entertainment.tv"
+    )
     pane_by_name = {pane["name"]: pane for pane in payload["pane_configs"]}
     assert "api_capability_endpoints" not in pane_by_name["door_control"]
     assert "sdk_operations" not in pane_by_name["door_control"]
     assert {
         action["target_ref"]
-        for action in pane_by_name["door_control"]["projection_experience_views"][0]["invocation_actions"]
+        for action in pane_by_name["door_control"]["projection_experience_views"][0][
+            "invocation_actions"
+        ]
     } == {
         "home_devices.unlock_door.unlock_door",
         "home_devices.lock_door.lock_door",

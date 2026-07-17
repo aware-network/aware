@@ -10,6 +10,7 @@ from aware_network.network.node.local_info import (
 )
 from aware_network.network.node.manager import NetworkNodeManager
 from aware_network_ontology.stable_ids import stable_network_node_id
+from aware_node_operator.operator_identity import stable_operator_node_identity
 
 
 def test_normalize_local_network_node_info_fills_dev_public_key_and_stable_id() -> None:
@@ -26,6 +27,19 @@ def test_normalize_local_network_node_info_preserves_consistent_identity() -> No
     public_key = "dev:node:test-kernel"
     node_id = stable_network_node_id(public_key=public_key)
     info = LocalNetworkNodeInfo(id=node_id, public_key=public_key)
+
+    assert normalize_local_network_node_info_identity(info) is info
+
+
+def test_workspace_operator_identity_is_network_node_identity_stable() -> None:
+    identity = stable_operator_node_identity(
+        workspace_revision_id=uuid4(),
+        node_package="aware-network-environment-node",
+    )
+    info = LocalNetworkNodeInfo(
+        id=identity.node_id,
+        public_key=identity.public_key,
+    )
 
     assert normalize_local_network_node_info_identity(info) is info
 

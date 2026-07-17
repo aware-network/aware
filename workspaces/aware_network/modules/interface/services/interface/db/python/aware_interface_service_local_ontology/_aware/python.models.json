@@ -1,0 +1,48 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "90a3c17e-a088-566f-9b39-af35503daf4f",
+      "module": "aware_interface_service_local_ontology.commit_store.local_oig_commit",
+      "name": "LocalOigCommit",
+      "aware_class_ref": "aware_interface_service_local.commit_store.LocalOigCommit",
+      "functions": []
+    },
+    {
+      "class_config_id": "ee2c2e77-fc7c-5a9b-bda8-82bed3308991",
+      "module": "aware_interface_service_local_ontology.commit_store.local_oig_commit_action",
+      "name": "LocalOigCommitAction",
+      "aware_class_ref": "aware_interface_service_local.commit_store.LocalOigCommitAction",
+      "functions": []
+    },
+    {
+      "class_config_id": "d521cf63-44b6-5e9d-ac6a-969fe5f01426",
+      "module": "aware_interface_service_local_ontology.commit_store.local_oig_lane_commit",
+      "name": "LocalOigLaneCommit",
+      "aware_class_ref": "aware_interface_service_local.commit_store.LocalOigLaneCommit",
+      "functions": []
+    },
+    {
+      "class_config_id": "6cbebad7-1812-51f4-8fdf-1c8f5237cd17",
+      "module": "aware_interface_service_local_ontology.commit_store.local_oig_lane_head",
+      "name": "LocalOigLaneHead",
+      "aware_class_ref": "aware_interface_service_local.commit_store.LocalOigLaneHead",
+      "functions": []
+    },
+    {
+      "class_config_id": "d0b8454e-dfb3-5cc3-963f-0a56463495bb",
+      "module": "aware_interface_service_local_ontology.commit_store.local_oig_projection_cursor",
+      "name": "LocalOigProjectionCursor",
+      "aware_class_ref": "aware_interface_service_local.commit_store.LocalOigProjectionCursor",
+      "functions": []
+    },
+    {
+      "class_config_id": "7a9a7a0e-1902-5afe-9c93-4f4bcc33505d",
+      "module": "aware_interface_service_local_ontology.commit_store.local_oig_snapshot",
+      "name": "LocalOigSnapshot",
+      "aware_class_ref": "aware_interface_service_local.commit_store.LocalOigSnapshot",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

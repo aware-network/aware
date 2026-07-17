@@ -636,7 +636,6 @@ class InterfaceRuntimeLayoutState {
     layout_config_id UUID?
     layout_key String
     label String
-    is_default Bool = false
     is_active Bool = false
 }
 

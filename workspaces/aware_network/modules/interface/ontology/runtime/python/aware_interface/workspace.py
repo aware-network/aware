@@ -115,11 +115,15 @@ class InterfaceWorkspaceSnapshot:
 
     @property
     def pane_source_files(self) -> tuple[Path, ...]:
-        return tuple(path for package in self.pane_packages for path in package.source_files)
+        return tuple(
+            path for package in self.pane_packages for path in package.source_files
+        )
 
     @property
     def pane_render_spec_files(self) -> tuple[Path, ...]:
-        return tuple(path for package in self.pane_packages for path in package.render_spec_files)
+        return tuple(
+            path for package in self.pane_packages for path in package.render_spec_files
+        )
 
 
 class InterfaceWorkspace:
@@ -130,7 +134,9 @@ class InterfaceWorkspace:
     def __init__(self, *, spec_path: str | Path, repo_root: str | Path | None = None):
         resolved_spec_path = Path(spec_path).resolve()
         if not resolved_spec_path.exists():
-            raise FileNotFoundError(f"aware.interface.toml not found: {resolved_spec_path}")
+            raise FileNotFoundError(
+                f"aware.interface.toml not found: {resolved_spec_path}"
+            )
         self._spec_path = resolved_spec_path
         self._package_root = resolved_spec_path.parent
         if repo_root is None:
@@ -161,7 +167,9 @@ class InterfaceWorkspace:
 
     def build_snapshot(self) -> InterfaceWorkspaceSnapshot:
         spec = load_aware_interface_toml_spec(toml_path=self._spec_path)
-        workspace_root = _resolve_workspace_root(start=self._package_root, fallback=self._repo_root)
+        workspace_root = _resolve_workspace_root(
+            start=self._package_root, fallback=self._repo_root
+        )
 
         ordered_source_files = _collect_authored_source_files(
             package_root=self._package_root,
@@ -207,7 +215,9 @@ class InterfaceWorkspace:
             workspace_root=workspace_root,
         )
 
-        config_bundle_path = (self._package_root / spec.build.config_bundle_path).resolve()
+        config_bundle_path = (
+            self._package_root / spec.build.config_bundle_path
+        ).resolve()
         _assert_within(
             base=self._package_root,
             candidate=config_bundle_path,
@@ -239,7 +249,8 @@ def _load_declared_attention_packages(
     attention_package_names = tuple(
         dependency.package_name.strip()
         for dependency in dependencies
-        if dependency.kind == AwareInterfaceDependencyKind.attention_package and dependency.package_name.strip()
+        if dependency.kind == AwareInterfaceDependencyKind.attention_package
+        and dependency.package_name.strip()
     )
     if not attention_package_names:
         return ()
@@ -247,7 +258,12 @@ def _load_declared_attention_packages(
     package_snapshots: list[InterfaceAttentionPackageSnapshot] = []
     for package_name in attention_package_names:
         runtime_artifact_path = (
-            repo_root / ".aware" / "attention" / "runtime" / package_name / "attention.compile_plan.json"
+            repo_root
+            / ".aware"
+            / "attention"
+            / "runtime"
+            / package_name
+            / "attention.compile_plan.json"
         ).resolve()
         _assert_within(
             base=repo_root,
@@ -280,7 +296,9 @@ def _load_declared_attention_packages(
                 runtime_artifact_path=runtime_artifact_path,
             )
         )
-    return tuple(sorted(package_snapshots, key=lambda item: item.package_name.casefold()))
+    return tuple(
+        sorted(package_snapshots, key=lambda item: item.package_name.casefold())
+    )
 
 
 def _load_workspace_attention_packages(
@@ -304,10 +322,16 @@ def _load_workspace_attention_packages(
         package_name = (manifest.attention.package_name or "").strip()
         if not package_name:
             raise ValueError(
-                "Workspace attention manifest requires non-empty [attention].package_name: " + str(resolved_path)
+                "Workspace attention manifest requires non-empty [attention].package_name: "
+                + str(resolved_path)
             )
         runtime_artifact_path = (
-            repo_root / ".aware" / "attention" / "runtime" / package_name / "attention.compile_plan.json"
+            repo_root
+            / ".aware"
+            / "attention"
+            / "runtime"
+            / package_name
+            / "attention.compile_plan.json"
         ).resolve()
         _assert_within(
             base=repo_root,
@@ -322,7 +346,8 @@ def _load_workspace_attention_packages(
             )
         if not runtime_artifact_path.exists():
             raise FileNotFoundError(
-                "Workspace attention entry is missing compiled runtime artifact: " + f"{runtime_artifact_path}"
+                "Workspace attention entry is missing compiled runtime artifact: "
+                + f"{runtime_artifact_path}"
             )
         package_snapshots.append(
             _load_attention_package_snapshot(
@@ -330,7 +355,9 @@ def _load_workspace_attention_packages(
                 runtime_artifact_path=runtime_artifact_path,
             )
         )
-    return tuple(sorted(package_snapshots, key=lambda item: item.package_name.casefold()))
+    return tuple(
+        sorted(package_snapshots, key=lambda item: item.package_name.casefold())
+    )
 
 
 def _load_declared_pane_packages(
@@ -342,7 +369,8 @@ def _load_declared_pane_packages(
     pane_package_names = tuple(
         dependency.package_name.strip()
         for dependency in dependencies
-        if dependency.kind == AwareInterfaceDependencyKind.pane_package and dependency.package_name.strip()
+        if dependency.kind == AwareInterfaceDependencyKind.pane_package
+        and dependency.package_name.strip()
     )
     if not pane_package_names:
         return ()
@@ -406,7 +434,8 @@ def _load_declared_experience_packages(
     experience_package_names = tuple(
         dependency.package_name.strip()
         for dependency in dependencies
-        if dependency.kind == AwareInterfaceDependencyKind.experience_package and dependency.package_name.strip()
+        if dependency.kind == AwareInterfaceDependencyKind.experience_package
+        and dependency.package_name.strip()
     )
     if not experience_package_names:
         return ()
@@ -437,7 +466,8 @@ def _load_pane_package_experience_packages(
     package_names = tuple(
         dependency.package_name.strip()
         for dependency in spec.dependencies
-        if dependency.kind == AwarePaneDependencyKind.experience_package and dependency.package_name.strip()
+        if dependency.kind == AwarePaneDependencyKind.experience_package
+        and dependency.package_name.strip()
     )
     return _load_experience_package_snapshots_by_name(
         repo_root=repo_root,
@@ -462,7 +492,9 @@ def _load_experience_package_snapshots_by_name(
     for package_name in package_names:
         package_key = package_name.casefold()
         if package_key in seen:
-            raise ValueError(f"{label} declared duplicate package_name={package_name!r}")
+            raise ValueError(
+                f"{label} declared duplicate package_name={package_name!r}"
+            )
         seen.add(package_key)
         spec_path = _resolve_experience_toml_path(
             repo_root=repo_root,
@@ -509,7 +541,8 @@ def _load_declared_render_component_packages(
     render_component_package_names = tuple(
         dependency.package_name.strip()
         for dependency in dependencies
-        if dependency.kind == AwareInterfaceDependencyKind.render_component_package and dependency.package_name.strip()
+        if dependency.kind == AwareInterfaceDependencyKind.render_component_package
+        and dependency.package_name.strip()
     )
     if not render_component_package_names:
         return ()
@@ -558,11 +591,17 @@ def _load_attention_package_snapshot(
     runtime_artifact_path: Path,
 ) -> InterfaceAttentionPackageSnapshot:
     try:
-        raw_payload = json.loads(runtime_artifact_path.read_text(encoding="utf-8") or "{}")
+        raw_payload = json.loads(
+            runtime_artifact_path.read_text(encoding="utf-8") or "{}"
+        )
     except json.JSONDecodeError as exc:
-        raise ValueError(f"Failed to parse attention compile artifact at {runtime_artifact_path}: {exc}") from exc
+        raise ValueError(
+            f"Failed to parse attention compile artifact at {runtime_artifact_path}: {exc}"
+        ) from exc
     if not isinstance(raw_payload, dict):
-        raise ValueError(f"Attention compile artifact must be a JSON object: {runtime_artifact_path}")
+        raise ValueError(
+            f"Attention compile artifact must be a JSON object: {runtime_artifact_path}"
+        )
 
     payload_package_name = str(raw_payload.get("package_name") or "").strip()
     if payload_package_name != package_name:
@@ -573,7 +612,9 @@ def _load_attention_package_snapshot(
 
     layout_rows = raw_payload.get("layout_ontology")
     if not isinstance(layout_rows, list):
-        raise ValueError(f"Attention compile artifact is missing layout_ontology list: {runtime_artifact_path}")
+        raise ValueError(
+            f"Attention compile artifact is missing layout_ontology list: {runtime_artifact_path}"
+        )
 
     layouts: list[InterfaceAttentionLayoutSnapshot] = []
     for index, layout_row in enumerate(layout_rows):
@@ -602,10 +643,17 @@ def _load_attention_package_snapshot(
                     + f"{runtime_artifact_path}#{index}:{section_index}"
                 )
             section_key = str(section_row.get("section_key") or "").strip()
-            layout_section_config_id = str(section_row.get("layout_config_section_config_id") or "").strip()
+            layout_section_config_id = str(
+                section_row.get("layout_config_section_config_id") or ""
+            ).strip()
             section_config_id = str(section_row.get("section_config_id") or "").strip()
             section_title = str(section_row.get("title") or "").strip()
-            if not section_key or not layout_section_config_id or not section_config_id or not section_title:
+            if (
+                not section_key
+                or not layout_section_config_id
+                or not section_config_id
+                or not section_title
+            ):
                 raise ValueError(
                     "Attention compile artifact section rows must declare section_key, "
                     + "layout_config_section_config_id, section_config_id, and title: "
@@ -631,7 +679,9 @@ def _load_attention_package_snapshot(
                 )
             description_raw = section_row.get("description")
             section_description = (
-                description_raw.strip() if isinstance(description_raw, str) and description_raw.strip() else None
+                description_raw.strip()
+                if isinstance(description_raw, str) and description_raw.strip()
+                else None
             )
             sections.append(
                 InterfaceAttentionLayoutSectionSnapshot(
@@ -647,11 +697,14 @@ def _load_attention_package_snapshot(
             )
         if "territories" in layout_row:
             raise ValueError(
-                "Attention compile artifact territories are no longer supported: " + f"{runtime_artifact_path}#{index}"
+                "Attention compile artifact territories are no longer supported: "
+                + f"{runtime_artifact_path}#{index}"
             )
         description_raw = layout_row.get("description")
         layout_description = (
-            description_raw.strip() if isinstance(description_raw, str) and description_raw.strip() else None
+            description_raw.strip()
+            if isinstance(description_raw, str) and description_raw.strip()
+            else None
         )
         frame_mode = str(layout_row.get("frame_mode") or "").strip()
         if not frame_mode:
@@ -681,13 +734,21 @@ def _load_attention_package_snapshot(
     )
 
 
-def _resolve_attention_toml_path(*, repo_root: Path, workspace_root: Path, package_name: str) -> Path:
-    workspace_direct_path = (workspace_root / "attentions" / package_name / "aware.attention.toml").resolve()
+def _resolve_attention_toml_path(
+    *, repo_root: Path, workspace_root: Path, package_name: str
+) -> Path:
+    workspace_direct_path = (
+        workspace_root / "attentions" / package_name / "aware.attention.toml"
+    ).resolve()
     if workspace_direct_path.exists():
         return workspace_direct_path
-    repo_direct_path = (repo_root / "attentions" / package_name / "aware.attention.toml").resolve()
     matches: list[Path] = []
-    for path in sorted(repo_root.rglob("aware.attention.toml")):
+    for path in _declared_workspace_package_manifest_paths(
+        repo_root=repo_root,
+        workspace_root=workspace_root,
+        directory_name="attentions",
+        filename="aware.attention.toml",
+    ):
         if not path.is_file():
             continue
         try:
@@ -709,8 +770,6 @@ def _resolve_attention_toml_path(*, repo_root: Path, workspace_root: Path, packa
             + f"attention_package {package_name!r} under {workspace_root}: "
             + ", ".join(path.as_posix() for path in workspace_local_matches)
         )
-    if repo_direct_path.exists():
-        return repo_direct_path
     if len(matches) == 1:
         return matches[0]
     if len(matches) > 1:
@@ -720,7 +779,7 @@ def _resolve_attention_toml_path(*, repo_root: Path, workspace_root: Path, packa
         )
     raise FileNotFoundError(
         "Declared attention_package "
-        + f"{package_name!r} does not resolve to an aware.attention.toml package under {repo_root}"
+        + f"{package_name!r} does not resolve under the consumer Workspace or its declared Workspace dependencies"
     )
 
 
@@ -730,15 +789,26 @@ def _resolve_experience_toml_path(
     workspace_root: Path,
     package_name: str,
 ) -> Path:
-    workspace_direct_path = (workspace_root / "experiences" / package_name / "aware.experience.toml").resolve()
+    workspace_direct_path = (
+        workspace_root / "experiences" / package_name / "aware.experience.toml"
+    ).resolve()
     if workspace_direct_path.exists():
         return workspace_direct_path
-    repo_direct_path = (repo_root / "experiences" / package_name / "aware.experience.toml").resolve()
     matches = sorted(
         path.resolve()
-        for path in repo_root.rglob("aware.experience.toml")
+        for path in _declared_workspace_package_manifest_paths(
+            repo_root=repo_root,
+            workspace_root=workspace_root,
+            directory_name="experiences",
+            filename="aware.experience.toml",
+        )
         if path.is_file()
-        and (load_aware_experience_toml_spec(toml_path=path).experience.package_name or "").strip().casefold()
+        and (
+            load_aware_experience_toml_spec(toml_path=path).experience.package_name
+            or ""
+        )
+        .strip()
+        .casefold()
         == package_name.casefold()
     )
     workspace_local_matches = _select_workspace_local_matches(
@@ -753,8 +823,6 @@ def _resolve_experience_toml_path(
             + f"experience_package {package_name!r} under {workspace_root}: "
             + ", ".join(path.as_posix() for path in workspace_local_matches)
         )
-    if repo_direct_path.exists():
-        return repo_direct_path
     if len(matches) == 1:
         return matches[0]
     if len(matches) > 1:
@@ -764,7 +832,7 @@ def _resolve_experience_toml_path(
         )
     raise FileNotFoundError(
         "Declared experience_package "
-        + f"{package_name!r} does not resolve to an aware.experience.toml package under {repo_root}"
+        + f"{package_name!r} does not resolve under the consumer Workspace or its declared Workspace dependencies"
     )
 
 
@@ -774,17 +842,25 @@ def _resolve_pane_toml_path(
     workspace_root: Path,
     package_name: str,
 ) -> Path:
-    workspace_direct_path = (workspace_root / "panes" / package_name / "aware.pane.toml").resolve()
+    workspace_direct_path = (
+        workspace_root / "panes" / package_name / "aware.pane.toml"
+    ).resolve()
     if workspace_direct_path.exists():
         return workspace_direct_path
-    repo_direct_path = (repo_root / "panes" / package_name / "aware.pane.toml").resolve()
-    matches = sorted(
-        path.resolve()
-        for path in repo_root.rglob("aware.pane.toml")
-        if path.is_file()
-        and (load_aware_pane_toml_spec(toml_path=path).pane.package_name or "").strip().casefold()
-        == package_name.casefold()
-    )
+    matches_by_path: dict[Path, Path] = {}
+    for path in _declared_workspace_package_manifest_paths(
+        repo_root=repo_root,
+        workspace_root=workspace_root,
+        directory_name="panes",
+        filename="aware.pane.toml",
+    ):
+        if (
+            load_aware_pane_toml_spec(toml_path=path).pane.package_name or ""
+        ).strip().casefold() != package_name.casefold():
+            continue
+        resolved_path = path.resolve()
+        matches_by_path[resolved_path] = resolved_path
+    matches = sorted(matches_by_path.values())
     workspace_local_matches = _select_workspace_local_matches(
         workspace_root=workspace_root,
         matches=matches,
@@ -797,8 +873,6 @@ def _resolve_pane_toml_path(
             + f"pane_package {package_name!r} under {workspace_root}: "
             + ", ".join(path.as_posix() for path in workspace_local_matches)
         )
-    if repo_direct_path.exists():
-        return repo_direct_path
     if len(matches) == 1:
         return matches[0]
     if len(matches) > 1:
@@ -807,7 +881,9 @@ def _resolve_pane_toml_path(
             + f"{package_name!r}: {', '.join(path.as_posix() for path in matches)}"
         )
     raise FileNotFoundError(
-        "Declared pane_package " + f"{package_name!r} does not resolve to an aware.pane.toml package under {repo_root}"
+        "Declared pane_package "
+        + f"{package_name!r} does not resolve to an aware.pane.toml package under the consumer Workspace "
+        + f"or its declared Workspace dependencies: consumer={workspace_root}"
     )
 
 
@@ -818,16 +894,28 @@ def _resolve_render_component_toml_path(
     package_name: str,
 ) -> Path:
     workspace_direct_path = (
-        workspace_root / "render_components" / package_name / "aware.render_component.toml"
+        workspace_root
+        / "render_components"
+        / package_name
+        / "aware.render_component.toml"
     ).resolve()
     if workspace_direct_path.exists():
         return workspace_direct_path
-    repo_direct_path = (repo_root / "render_components" / package_name / "aware.render_component.toml").resolve()
     matches = sorted(
         path.resolve()
-        for path in repo_root.rglob("aware.render_component.toml")
+        for path in _declared_workspace_package_manifest_paths(
+            repo_root=repo_root,
+            workspace_root=workspace_root,
+            directory_name="render_components",
+            filename="aware.render_component.toml",
+        )
         if path.is_file()
-        and (load_aware_render_component_toml_spec(toml_path=path).render_component.package_name or "")
+        and (
+            load_aware_render_component_toml_spec(
+                toml_path=path
+            ).render_component.package_name
+            or ""
+        )
         .strip()
         .casefold()
         == package_name.casefold()
@@ -844,8 +932,6 @@ def _resolve_render_component_toml_path(
             + f"render_component_package {package_name!r} under {workspace_root}: "
             + ", ".join(path.as_posix() for path in workspace_local_matches)
         )
-    if repo_direct_path.exists():
-        return repo_direct_path
     if len(matches) == 1:
         return matches[0]
     if len(matches) > 1:
@@ -856,11 +942,13 @@ def _resolve_render_component_toml_path(
         )
     raise FileNotFoundError(
         "Declared render_component_package "
-        + f"{package_name!r} does not resolve to an aware.render_component.toml package under {repo_root}"
+        + f"{package_name!r} does not resolve under the consumer Workspace or its declared Workspace dependencies"
     )
 
 
-def _compile_attention_workspace(*, toml_path: Path, repo_root: Path, emit_compile_plan: bool) -> None:
+def _compile_attention_workspace(
+    *, toml_path: Path, repo_root: Path, emit_compile_plan: bool
+) -> None:
     attention_runtime_root = (repo_root / "modules" / "attention" / "runtime").resolve()
     if str(attention_runtime_root) not in sys.path:
         sys.path.insert(0, str(attention_runtime_root))
@@ -885,7 +973,9 @@ def _discover_workspace_pane_packages(
     pane_packages: list[InterfacePanePackageSnapshot] = []
     for spec_path in spec_paths:
         package_root = spec_path.parent.resolve()
-        _assert_within(base=repo_root, candidate=package_root, label="workspace pane package")
+        _assert_within(
+            base=repo_root, candidate=package_root, label="workspace pane package"
+        )
         spec = load_aware_pane_toml_spec(toml_path=spec_path)
         source_files = _collect_authored_source_files(
             package_root=package_root,
@@ -1101,11 +1191,15 @@ def _selected_workspace_manifest_paths(
 
 
 def _workspace_module_roots(*, workspace_root: Path) -> tuple[Path, ...]:
-    modules_workspace_root = _containing_modules_workspace_root(workspace_root=workspace_root)
+    modules_workspace_root = _containing_modules_workspace_root(
+        workspace_root=workspace_root
+    )
     if modules_workspace_root is None:
         return ()
     modules_root = modules_workspace_root / "modules"
-    return tuple(sorted(child.resolve() for child in modules_root.iterdir() if child.is_dir()))
+    return tuple(
+        sorted(child.resolve() for child in modules_root.iterdir() if child.is_dir())
+    )
 
 
 def _containing_modules_workspace_root(*, workspace_root: Path) -> Path | None:
@@ -1152,7 +1246,9 @@ def _resolve_compile_time_dependency_catalog_roots(
             "declared_workspace_dependency_artifact_root",
         )
     add(workspace_root, "workspace_authoring_artifact_root")
-    modules_workspace_root = _containing_modules_workspace_root(workspace_root=workspace_root)
+    modules_workspace_root = _containing_modules_workspace_root(
+        workspace_root=workspace_root
+    )
     if modules_workspace_root is not None:
         add(modules_workspace_root, "workspace_module_dependency_artifact_root")
     return tuple(roots)
@@ -1168,8 +1264,90 @@ def _local_package_manifest_paths(
     if not search_root.exists():
         return ()
     if not search_root.is_dir():
-        raise NotADirectoryError(f"Local package root must be a directory: {search_root}")
-    return tuple(sorted(path.resolve() for path in search_root.rglob(filename) if path.is_file()))
+        raise NotADirectoryError(
+            f"Local package root must be a directory: {search_root}"
+        )
+    return tuple(
+        sorted(path.resolve() for path in search_root.rglob(filename) if path.is_file())
+    )
+
+
+def _declared_workspace_package_manifest_paths(
+    *,
+    repo_root: Path,
+    workspace_root: Path,
+    directory_name: str,
+    filename: str,
+) -> tuple[Path, ...]:
+    declared_workspace_roots = (
+        workspace_root.resolve(),
+        *_local_dependency_workspace_roots(
+            repo_root=repo_root,
+            workspace_root=workspace_root,
+        ),
+    )
+    manifests: set[Path] = set()
+    for declared_workspace_root in declared_workspace_roots:
+        manifests.update(
+            _local_package_manifest_paths(
+                root=declared_workspace_root,
+                directory_name=directory_name,
+                filename=filename,
+            )
+        )
+        manifests.update(
+            _workspace_module_package_manifest_paths(
+                workspace_root=declared_workspace_root,
+                filename=filename,
+            )
+        )
+    return tuple(sorted(manifests))
+
+
+def _workspace_module_package_manifest_paths(
+    *,
+    workspace_root: Path,
+    filename: str,
+) -> tuple[Path, ...]:
+    manifests: set[Path] = set()
+    for module_root in _workspace_module_roots(workspace_root=workspace_root):
+        module_toml_path = module_root / "aware.module.toml"
+        if not module_toml_path.is_file():
+            continue
+        try:
+            payload = tomllib.loads(module_toml_path.read_text(encoding="utf-8"))
+        except (OSError, tomllib.TOMLDecodeError) as exc:
+            raise ValueError(
+                f"Failed to load module package registry {module_toml_path}: {exc}"
+            ) from exc
+        packages = payload.get("packages", ())
+        if not isinstance(packages, list):
+            raise ValueError(
+                f"Module package registry must declare [[packages]] rows: {module_toml_path}"
+            )
+        for package in packages:
+            if not isinstance(package, Mapping):
+                raise ValueError(
+                    f"Module package registry row must be a table: {module_toml_path}"
+                )
+            manifest = str(package.get("manifest") or "").strip()
+            if not manifest:
+                continue
+            candidate = (module_root / manifest).resolve()
+            _assert_within(
+                base=module_root,
+                candidate=candidate,
+                label="module package manifest",
+            )
+            if candidate.name != filename:
+                continue
+            if not candidate.is_file():
+                raise FileNotFoundError(
+                    "Module package manifest declared by aware.module.toml was not found: "
+                    + f"module={module_root.name!r} manifest={manifest!r}"
+                )
+            manifests.add(candidate)
+    return tuple(sorted(manifests))
 
 
 def _collect_authored_source_files(
@@ -1186,7 +1364,9 @@ def _collect_authored_source_files(
     if not sources_root.exists():
         raise FileNotFoundError(f"Authored sources_dir does not exist: {sources_root}")
     if not sources_root.is_dir():
-        raise NotADirectoryError(f"Authored sources_dir must be a directory: {sources_root}")
+        raise NotADirectoryError(
+            f"Authored sources_dir must be a directory: {sources_root}"
+        )
 
     files_by_rel: dict[str, Path] = {}
     for include in include_paths:
@@ -1222,7 +1402,9 @@ def _collect_pane_render_spec_files(
             if not candidate.is_file():
                 continue
             resolved = candidate.resolve()
-            _assert_within(base=package_root, candidate=resolved, label="pane render_spec")
+            _assert_within(
+                base=package_root, candidate=resolved, label="pane render_spec"
+            )
             _assert_within(base=rel_base, candidate=resolved, label="pane render_spec")
             rel_from_base = resolved.relative_to(rel_base).as_posix()
             files_by_rel[rel_from_base] = Path(rel_from_base)
@@ -1240,7 +1422,10 @@ def _resolve_repo_root(*, start: Path) -> Path:
 def _resolve_workspace_root(*, start: Path, fallback: Path) -> Path:
     cursor = start.resolve()
     for candidate in [cursor, *cursor.parents]:
-        if any((candidate / directory_name).is_dir() for directory_name in _LOCAL_WORKSPACE_PACKAGE_DIRS):
+        if any(
+            (candidate / directory_name).is_dir()
+            for directory_name in _LOCAL_WORKSPACE_PACKAGE_DIRS
+        ):
             return candidate
     return fallback.resolve()
 
@@ -1248,15 +1433,25 @@ def _resolve_workspace_root(*, start: Path, fallback: Path) -> Path:
 def _assert_within(*, base: Path, candidate: Path, label: str) -> None:
     base_resolved = base.resolve()
     candidate_resolved = candidate.resolve()
-    if candidate_resolved == base_resolved or base_resolved in candidate_resolved.parents:
+    if (
+        candidate_resolved == base_resolved
+        or base_resolved in candidate_resolved.parents
+    ):
         return
-    raise ValueError(f"{label} resolved outside package boundary: base={base_resolved} candidate={candidate_resolved}")
+    raise ValueError(
+        f"{label} resolved outside package boundary: base={base_resolved} candidate={candidate_resolved}"
+    )
 
 
-def _select_workspace_local_matches(*, workspace_root: Path, matches: list[Path]) -> tuple[Path, ...]:
+def _select_workspace_local_matches(
+    *, workspace_root: Path, matches: list[Path]
+) -> tuple[Path, ...]:
     resolved_workspace_root = workspace_root.resolve()
     return tuple(
-        path for path in matches if resolved_workspace_root == path.parent or resolved_workspace_root in path.parents
+        path
+        for path in matches
+        if resolved_workspace_root == path.parent
+        or resolved_workspace_root in path.parents
     )
 
 

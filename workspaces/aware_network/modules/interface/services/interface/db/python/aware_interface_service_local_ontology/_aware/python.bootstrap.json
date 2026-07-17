@@ -1,0 +1,13 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_interface_service_local_ontology.commit_store.local_oig_commit",
+    "aware_interface_service_local_ontology.commit_store.local_oig_commit_action",
+    "aware_interface_service_local_ontology.commit_store.local_oig_lane_commit",
+    "aware_interface_service_local_ontology.commit_store.local_oig_lane_head",
+    "aware_interface_service_local_ontology.commit_store.local_oig_projection_cursor",
+    "aware_interface_service_local_ontology.commit_store.local_oig_snapshot"
+  ],
+  "package_prefix": "aware_interface_service_local_ontology",
+  "version": "v1"
+}

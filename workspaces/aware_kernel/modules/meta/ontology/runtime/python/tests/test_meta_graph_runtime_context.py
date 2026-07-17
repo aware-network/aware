@@ -1883,12 +1883,13 @@ def test_meta_graph_context_strict_catalog_cache_uses_owner_root(
     assert context.projection_hash_for_name("Demo") == ("sha256:test:Demo:runtime")
 
 
-def test_meta_graph_context_source_analysis_allowed_writes_owner_root_cache(
+def test_meta_graph_context_invalid_target_cache_rebuilds_in_authority_root(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     consumer_root = tmp_path / "home"
     owner_root = tmp_path / "workspace_support"
+    authority_root = tmp_path / "workspace_authority"
     consumer_root.mkdir()
     package_name = "demo-ontology"
     fqn_prefix = "demo"
@@ -1929,9 +1930,18 @@ def test_meta_graph_context_source_analysis_allowed_writes_owner_root_cache(
             object_config_graph=graph.model_copy(deep=True),
         )
 
+    def load_invalid_cache(**_: object) -> object:
+        raise RuntimeError(
+            "lane_commit_not_replayable_under_current_materializer_contract"
+        )
+
     monkeypatch.setattr(
         "aware_meta.semantic_analysis.analyze_meta_ocg_sources",
         analyze_sources,
+    )
+    monkeypatch.setattr(
+        "aware_meta.runtime.graph_context._try_load_catalog_cached_package_graphs",
+        load_invalid_cache,
     )
 
     context = build_meta_graph_runtime_context_for_aware_package_manifests(
@@ -1942,6 +1952,7 @@ def test_meta_graph_context_source_analysis_allowed_writes_owner_root_cache(
         package_cache_owner_roots_by_manifest_path={
             manifest_path.resolve(): owner_root
         },
+        package_graph_cache_write_root=authority_root,
         source_analysis_allowed_manifest_paths=(manifest_path,),
         package_graph_cache_request_signature="sha256:test:request",
     )
@@ -1953,19 +1964,33 @@ def test_meta_graph_context_source_analysis_allowed_writes_owner_root_cache(
         fqn_prefix=fqn_prefix,
     )
     branch_id = _stable_object_config_graph_package_branch_id(
-        workspace_root=owner_root,
+        workspace_root=authority_root,
         aware_toml_path=manifest_path,
         package_name=package_name,
         fqn_prefix=fqn_prefix,
     )
     assert object_config_graph_package_context_reuse_cache_path(
-        aware_root=owner_root,
+        aware_root=authority_root,
         branch_id=branch_id,
         object_config_graph_package_id=package_id,
     ).is_file()
-    assert not (
-        consumer_root / ".aware" / "meta" / "object_config_graph_package_reuse"
-    ).exists()
+    assert not (owner_root / ".aware").exists()
+
+    with pytest.raises(
+        RuntimeError,
+        match="lane_commit_not_replayable_under_current_materializer_contract",
+    ):
+        build_meta_graph_runtime_context_for_aware_package_manifests(
+            package_manifest_paths=(manifest_path,),
+            workspace_root=consumer_root,
+            strict_package_graph_cache=True,
+            package_entries_by_manifest_path={manifest_path.resolve(): entry},
+            package_cache_owner_roots_by_manifest_path={
+                manifest_path.resolve(): owner_root
+            },
+            package_graph_cache_write_root=authority_root,
+            package_graph_cache_request_signature="sha256:test:request",
+        )
 
 
 def test_meta_graph_context_strict_catalog_cache_fails_closed_on_catalog_drift(
@@ -4485,7 +4510,7 @@ def test_required_projection_owners_merge_catalog_and_compact_lookup(
     assert package_names == ("alpha-ontology", "beta-ontology")
 
 
-def test_meta_workspace_materialization_runtime_context_roots_runtime_state_at_workspace_root(
+def test_meta_workspace_materialization_runtime_context_uses_explicit_authority_root(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -4493,6 +4518,7 @@ def test_meta_workspace_materialization_runtime_context_roots_runtime_state_at_w
 
     repo_root = tmp_path / "kernel"
     workspace_root = tmp_path / "home"
+    authority_root = tmp_path / "workspace-authority"
     repo_root.mkdir()
     workspace_root.mkdir()
     manifest_path = (
@@ -4526,6 +4552,7 @@ def test_meta_workspace_materialization_runtime_context_roots_runtime_state_at_w
         semantic_owner=META_OBJECT_CONFIG_GRAPH_OWNER,
         workspace_root=workspace_root,
         repo_root=repo_root,
+        authority_root=authority_root,
         manifest_path=manifest_path,
         context={
             "runtime_handler_owner_prefixes": ("aware_workspace",),
@@ -4536,6 +4563,7 @@ def test_meta_workspace_materialization_runtime_context_roots_runtime_state_at_w
 
     assert context is not None
     assert captured["workspace_root"] == workspace_root
+    assert captured["aware_root"] == authority_root
     assert captured["package_manifest_paths"] == (manifest_path.resolve(),)
     assert captured["handler_owner_prefixes"] == ("aware_workspace",)
     assert captured["load_source_graph_payloads"] is True
@@ -4725,6 +4753,70 @@ def test_meta_workspace_preflight_falls_back_to_full_context_when_compact_is_una
     )
     assert context.runtime_context_preflight_fallback_reason == (
         "RuntimeError: compact sidecar unavailable"
+    )
+
+
+def test_meta_workspace_execution_retries_invalid_lazy_source_payload_with_full_source_graphs(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import aware_meta.runtime.factory as runtime_factory
+
+    repo_root = tmp_path / "kernel"
+    workspace_root = tmp_path / "home"
+    authority_root = tmp_path / "authority"
+    manifest_path = workspace_root / "modules" / "home" / "aware.toml"
+    _write_minimal_aware_manifest(
+        manifest_path=manifest_path,
+        package_name="home-ontology",
+        fqn_prefix="aware_home",
+    )
+    calls: list[dict[str, object]] = []
+
+    class _Runtime:
+        context = SimpleNamespace(
+            index=object(),
+            phase_timings_s={},
+            package_timings=(),
+            runtime_graphs=(),
+            source_graphs=(),
+            projection_hash_for_name=lambda _name: "sha256:test",
+        )
+
+    def _build_runtime(**kwargs: object) -> object:
+        calls.append(dict(kwargs))
+        if len(calls) == 1:
+            raise RuntimeError("lazy dependency source payload is not replayable")
+        return _Runtime()
+
+    monkeypatch.setattr(
+        runtime_factory,
+        "build_meta_graph_runtime_for_aware_package_manifests",
+        _build_runtime,
+    )
+    request = SemanticPackageMaterializationRuntimeContextRequest(
+        provider_key="aware_code",
+        semantic_owner="aware_code.provider",
+        workspace_root=workspace_root,
+        repo_root=repo_root,
+        manifest_path=manifest_path,
+        authority_root=authority_root,
+        context={"runtime_context_graph_publication_mode": "runtime_only"},
+    )
+
+    context = build_meta_workspace_materialization_runtime_context(request)
+
+    assert context is not None
+    assert len(calls) == 2
+    assert calls[0]["aware_root"] == authority_root
+    assert calls[0]["load_source_graph_payloads"] is False
+    assert calls[1]["aware_root"] == authority_root
+    assert calls[1]["load_source_graph_payloads"] is True
+    assert (
+        context.phase_timings_s[
+            "workspace_provider_runtime_only_source_payload_retry_s"
+        ]
+        >= 0.0
     )
 
 

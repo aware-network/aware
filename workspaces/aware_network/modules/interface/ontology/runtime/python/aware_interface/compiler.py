@@ -33,7 +33,7 @@ class InterfaceWindowLayoutSectionOwnership:
 @dataclass(frozen=True, slots=True)
 class InterfaceWindowLayoutOwnership:
     key: str
-    is_default: bool
+    is_reference: bool
     source_path: str
     sections: tuple[InterfaceWindowLayoutSectionOwnership, ...]
 
@@ -319,9 +319,8 @@ def _load_interface_window_definition(
 
     layouts: list[InterfaceWindowLayoutOwnership] = []
     seen_layout_keys: set[str] = set()
-    default_layout_count = 0
     for child in _iter_semantic_children(body, "interface_layout_item"):
-        if child.type != "interface_layout_def":
+        if child.type not in {"interface_layout_ref", "interface_layout_def"}:
             continue
         layout = _load_interface_layout_definition(
             node=child,
@@ -337,18 +336,12 @@ def _load_interface_window_definition(
                 f"Interface {interface_name!r} window {window_key!r} duplicates layout {layout.key!r} in {source_path}"
             )
         seen_layout_keys.add(layout_key)
-        default_layout_count += 1 if layout.is_default else 0
         layouts.append(layout)
 
     if not layouts:
         raise ValueError(
             f"Interface {interface_name!r} window {window_key!r} must declare at least one layout in {source_path}"
         )
-    if default_layout_count > 1:
-        raise ValueError(
-            f"Interface {interface_name!r} window {window_key!r} allows at most one default layout in {source_path}"
-        )
-
     return InterfaceWindowOwnership(
         key=window_key,
         source_path=source_rel,
@@ -371,7 +364,8 @@ def _load_interface_layout_definition(
             f"Interface {interface_name!r} window {window_key!r} has a layout with empty key in {source_path}"
         )
     body = node.child_by_field_name("body")
-    if body is None:
+    is_reference = node.type == "interface_layout_ref"
+    if body is None and not is_reference:
         raise ValueError(
             f"Interface {interface_name!r} window {window_key!r} layout {layout_key!r} "
             + f"is missing a body in {source_path}"
@@ -379,7 +373,11 @@ def _load_interface_layout_definition(
 
     sections: list[InterfaceWindowLayoutSectionOwnership] = []
     seen_section_keys: set[str] = set()
-    for child in _iter_semantic_children(body, "interface_layout_item"):
+    for child in (
+        _iter_semantic_children(body, "interface_layout_item")
+        if body is not None
+        else ()
+    ):
         if child.type == "interface_layout_section_def":
             section_key = _symbol_key(_field_text(source_bytes, child, "section_name"))
             if not section_key:
@@ -404,7 +402,7 @@ def _load_interface_layout_definition(
 
     return InterfaceWindowLayoutOwnership(
         key=layout_key,
-        is_default=node.child_by_field_name("default_marker") is not None,
+        is_reference=is_reference,
         source_path=source_rel,
         sections=tuple(sections),
     )

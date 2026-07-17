@@ -89,6 +89,28 @@ HEAD_VERSION = 1
 OBJECT_INSTANCE_GRAPH_COMMIT_HEALTH_INDEX_VERSION = 1
 
 
+class OigCommitRecordUnavailableError(ValueError):
+    """A commit lineage coordinate cannot be resolved to a current record."""
+
+    def __init__(
+        self,
+        *,
+        branch_id: UUID,
+        projection_hash: str,
+        commit_id: UUID,
+        lookup_commit_id: UUID,
+    ) -> None:
+        self.branch_id = branch_id
+        self.projection_hash = projection_hash
+        self.commit_id = commit_id
+        self.lookup_commit_id = lookup_commit_id
+        super().__init__(
+            "Missing commit record for "
+            f"{commit_id} in lane ({branch_id}, {projection_hash}); "
+            f"resolved_lookup_commit_id={lookup_commit_id}"
+        )
+
+
 def _record_fs_commit_store_elapsed(
     *,
     phase: str,
@@ -2097,8 +2119,11 @@ class FSCommitStore:
                         commit_id=lookup_commit_id,
                     )
             if record is None:
-                raise ValueError(
-                    f"Missing commit record for {current_commit_id} in lane ({branch_id}, {projection_hash})"
+                raise OigCommitRecordUnavailableError(
+                    branch_id=branch_id,
+                    projection_hash=projection_hash,
+                    commit_id=current_commit_id,
+                    lookup_commit_id=lookup_commit_id,
                 )
 
             chain.append(record)

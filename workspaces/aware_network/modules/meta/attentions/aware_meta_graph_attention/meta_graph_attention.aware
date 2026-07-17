@@ -1,4 +1,4 @@
-layout graph_canvas default {
+layout graph_canvas {
     section graph {
         title "Graph"
         description "General Meta graph canvas section."

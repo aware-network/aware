@@ -427,11 +427,13 @@ def _layout_bundle(
         for layout in window_bundle.layout_configs:
             if layout.layout_config_id == layout_config_id:
                 return layout
+        return None
     normalized_layout_key = (layout_key or "").strip().casefold()
     if normalized_layout_key:
         for layout in window_bundle.layout_configs:
             if layout.key.strip().casefold() == normalized_layout_key:
                 return layout
+        return None
     normalized_section_key = (section_key or "").strip().casefold()
     if normalized_section_key:
         matching_layouts = tuple(
@@ -444,10 +446,9 @@ def _layout_bundle(
         )
         if len(matching_layouts) == 1:
             return matching_layouts[0]
-    for layout in window_bundle.layout_configs:
-        if layout.is_default:
-            return layout
-    return next(iter(window_bundle.layout_configs), None)
+    if len(window_bundle.layout_configs) == 1:
+        return window_bundle.layout_configs[0]
+    return None
 
 
 def _layout_section_config_id(
@@ -755,7 +756,7 @@ async def resolve_runtime_mount_from_attention(
     )
     local_layout_bundle = _layout_bundle(
         window_bundle=window_bundle,
-        layout_config_id=None,
+        layout_config_id=preferred_layout_config_id,
         layout_key=None,
         section_key=preferred_section_key,
     )
@@ -885,7 +886,6 @@ def _runtime_mount_layout_requests(
             AttentionRuntimeMountLayoutRequest(
                 layout_config_id=layout.layout_config_id,
                 layout_key=layout.key,
-                is_default=layout.is_default,
                 sections=[
                     AttentionRuntimeMountSectionRequest(
                         layout_config_section_config_id=(

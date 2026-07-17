@@ -107,7 +107,7 @@ def _write_multisection_attention_toml(root: Path) -> Path:
     _ = (package_root / "workspace_shell.aware").write_text(
         "\n".join(
             [
-                "layout ide_workbench default {",
+                "layout ide_workbench {",
                 "    section orchestration",
                 "    section primary",
                 "    section inspector",
@@ -147,7 +147,7 @@ def _write_configured_section_attention_toml(root: Path) -> Path:
     _ = (package_root / "coordination_shell.aware").write_text(
         "\n".join(
             [
-                "layout coordination_center default {",
+                "layout coordination_center {",
                 "    section conversation {",
                 '        title "Conversation"',
                 "        order 0",
@@ -204,7 +204,7 @@ def _write_control_shell_attention_toml(root: Path) -> Path:
     _ = (package_root / "control_shell.aware").write_text(
         "\n".join(
             [
-                "layout control_shell default {",
+                "layout control_shell {",
                 "    section identity {",
                 '        title "Identity"',
                 "        order 0",
@@ -274,6 +274,7 @@ def test_compile_attention_anchor_workspace_emits_compile_plan_artifact(
     layout_rows = payloads[0]["layout_ontology"]
     assert isinstance(layout_rows, list)
     assert layout_rows[0]["frame_mode"] == "horizontal"
+    assert "is_default" not in layout_rows[0]
 
 
 def test_compile_attention_workspace_returns_plan_without_emitting(
@@ -369,6 +370,7 @@ def test_compile_attention_workspace_supports_multisection_layouts(
     layout_rows = payloads[0]["layout_ontology"]
     assert isinstance(layout_rows, list)
     assert layout_rows[0]["layout_key"] == "ide_workbench"
+    assert "is_default" not in layout_rows[0]
     assert [section["section_key"] for section in layout_rows[0]["sections"]] == [
         "orchestration",
         "primary",

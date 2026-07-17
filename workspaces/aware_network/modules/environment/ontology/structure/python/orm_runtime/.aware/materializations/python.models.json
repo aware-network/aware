@@ -1,0 +1,615 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "d6ee7547-9d51-5208-af30-24addcfe3218",
+      "module": "aware_environment_ontology.environment.environment",
+      "name": "Environment",
+      "aware_class_ref": "aware_environment.environment.Environment",
+      "functions": [
+        {
+          "function_config_id": "3c853e50-92ab-58d1-bd57-931baec80725",
+          "name": "apply_profile",
+          "input_model": "EnvironmentApplyProfileInput",
+          "output_model": "EnvironmentApplyProfileOutput"
+        },
+        {
+          "function_config_id": "adcfd2ec-b1a1-5cae-9083-53a58b5beb66",
+          "name": "attach_ontology",
+          "input_model": "EnvironmentAttachOntologyInput",
+          "output_model": "EnvironmentAttachOntologyOutput"
+        },
+        {
+          "function_config_id": "d5ea5317-d7d8-5b97-b6d8-ac4d801ffcf3",
+          "name": "build",
+          "input_model": "EnvironmentBuildInput",
+          "output_model": "EnvironmentBuildOutput"
+        },
+        {
+          "function_config_id": "00b53e6a-73c1-5f25-8edd-59e686d44815",
+          "name": "start_session",
+          "input_model": "EnvironmentStartSessionInput",
+          "output_model": "EnvironmentStartSessionOutput"
+        },
+        {
+          "function_config_id": "7f289606-facb-5bb2-9c24-843498fe06dd",
+          "name": "update_picture",
+          "input_model": "EnvironmentUpdatePictureInput",
+          "output_model": "EnvironmentUpdatePictureOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4e688221-3f96-5961-a831-346c38b53606",
+      "module": "aware_environment_ontology.environment.environment_config",
+      "name": "EnvironmentConfig",
+      "aware_class_ref": "aware_environment.environment.EnvironmentConfig",
+      "functions": [
+        {
+          "function_config_id": "5b2669fe-f086-53b1-8ac2-6ca4d3b55dc3",
+          "name": "add_profile_config",
+          "input_model": "EnvironmentConfigAddProfileConfigInput",
+          "output_model": "EnvironmentConfigAddProfileConfigOutput"
+        },
+        {
+          "function_config_id": "a8900501-81ac-5b98-b6b0-2eb9863c3ce3",
+          "name": "add_session_config",
+          "input_model": "EnvironmentConfigAddSessionConfigInput",
+          "output_model": "EnvironmentConfigAddSessionConfigOutput"
+        },
+        {
+          "function_config_id": "23f246bd-42f6-522f-8a0a-b0f3e4ebd1bf",
+          "name": "attach_ontology_config",
+          "input_model": "EnvironmentConfigAttachOntologyConfigInput",
+          "output_model": "EnvironmentConfigAttachOntologyConfigOutput"
+        },
+        {
+          "function_config_id": "dec4447f-18e3-5d62-8b36-f2387d95c777",
+          "name": "build",
+          "input_model": "EnvironmentConfigBuildInput",
+          "output_model": "EnvironmentConfigBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b626aa79-4107-552c-b8af-0ffb36b9fc9a",
+      "module": "aware_environment_ontology.environment.environment_config_ontology_config",
+      "name": "EnvironmentConfigOntologyConfig",
+      "aware_class_ref": "aware_environment.environment.EnvironmentConfigOntologyConfig",
+      "functions": [
+        {
+          "function_config_id": "9e5dbffe-6f4c-530a-923b-264281fddcef",
+          "name": "build_via_environment_config",
+          "input_model": "EnvironmentConfigOntologyConfigBuildViaEnvironmentConfigInput",
+          "output_model": "EnvironmentConfigOntologyConfigBuildViaEnvironmentConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6849f7b1-2be3-5d86-8cb3-9c6a9dcd4587",
+      "module": "aware_environment_ontology.environment.environment_config_package",
+      "name": "EnvironmentConfigPackage",
+      "aware_class_ref": "aware_environment.environment.EnvironmentConfigPackage",
+      "functions": [
+        {
+          "function_config_id": "a02914b4-51c2-56d2-b676-1590d3ba6fe8",
+          "name": "attach_dependency",
+          "input_model": "EnvironmentConfigPackageAttachDependencyInput",
+          "output_model": "EnvironmentConfigPackageAttachDependencyOutput"
+        },
+        {
+          "function_config_id": "5622a6ed-954b-5636-b06e-a10026faa9ab",
+          "name": "attach_ontology_package",
+          "input_model": "EnvironmentConfigPackageAttachOntologyPackageInput",
+          "output_model": "EnvironmentConfigPackageAttachOntologyPackageOutput"
+        },
+        {
+          "function_config_id": "f1414281-179e-5b2e-98b2-6927ceed66da",
+          "name": "build",
+          "input_model": "EnvironmentConfigPackageBuildInput",
+          "output_model": "EnvironmentConfigPackageBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "149873f4-8333-55f6-aca4-72bbafeefb74",
+      "module": "aware_environment_ontology.environment.environment_config_package_dependency",
+      "name": "EnvironmentConfigPackageDependency",
+      "aware_class_ref": "aware_environment.environment.EnvironmentConfigPackageDependency",
+      "functions": [
+        {
+          "function_config_id": "c64f04cc-fa8a-5c7b-babc-608d39cf2c1d",
+          "name": "build_via_environment_config_package",
+          "input_model": "EnvironmentConfigPackageDependencyBuildViaEnvironmentConfigPackageInput",
+          "output_model": "EnvironmentConfigPackageDependencyBuildViaEnvironmentConfigPackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f5874d83-4245-506d-9f12-dbb6af5634a5",
+      "module": "aware_environment_ontology.environment.environment_config_package_ontology_package",
+      "name": "EnvironmentConfigPackageOntologyPackage",
+      "aware_class_ref": "aware_environment.environment.EnvironmentConfigPackageOntologyPackage",
+      "functions": [
+        {
+          "function_config_id": "1658bc87-2433-5315-809a-36bab66ba8cc",
+          "name": "build_via_environment_config_package",
+          "input_model": "EnvironmentConfigPackageOntologyPackageBuildViaEnvironmentConfigPackageInput",
+          "output_model": "EnvironmentConfigPackageOntologyPackageBuildViaEnvironmentConfigPackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e0515a91-7fef-5615-8077-7befbca37ff2",
+      "module": "aware_environment_ontology.environment.environment_navigation_context",
+      "name": "EnvironmentNavigationContext",
+      "aware_class_ref": "aware_environment.environment.EnvironmentNavigationContext",
+      "functions": [
+        {
+          "function_config_id": "565c92db-852e-5c81-879f-7a83784a4020",
+          "name": "build_via_environment_session",
+          "input_model": "EnvironmentNavigationContextBuildViaEnvironmentSessionInput",
+          "output_model": "EnvironmentNavigationContextBuildViaEnvironmentSessionOutput"
+        },
+        {
+          "function_config_id": "43523580-fba1-597f-ba02-83cafe033c38",
+          "name": "select_target",
+          "input_model": "EnvironmentNavigationContextSelectTargetInput",
+          "output_model": "EnvironmentNavigationContextSelectTargetOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1723cd63-cd68-5c1b-b955-e37e9ae2ddd5",
+      "module": "aware_environment_ontology.environment.environment_ontology",
+      "name": "EnvironmentOntology",
+      "aware_class_ref": "aware_environment.environment.EnvironmentOntology",
+      "functions": [
+        {
+          "function_config_id": "b4ca0401-f182-51d9-816e-2908a35492db",
+          "name": "build_via_environment",
+          "input_model": "EnvironmentOntologyBuildViaEnvironmentInput",
+          "output_model": "EnvironmentOntologyBuildViaEnvironmentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "add65104-a5c3-5d73-8a3f-d31aef1b05dc",
+      "module": "aware_environment_ontology.environment.environment_profile",
+      "name": "EnvironmentProfile",
+      "aware_class_ref": "aware_environment.environment.EnvironmentProfile",
+      "functions": [
+        {
+          "function_config_id": "429608ca-a2b5-52de-b635-054b918c9391",
+          "name": "build_via_environment",
+          "input_model": "EnvironmentProfileBuildViaEnvironmentInput",
+          "output_model": "EnvironmentProfileBuildViaEnvironmentOutput"
+        },
+        {
+          "function_config_id": "ba04b702-73cb-5a1b-8b74-6133c5858705",
+          "name": "create_process",
+          "input_model": "EnvironmentProfileCreateProcessInput",
+          "output_model": "EnvironmentProfileCreateProcessOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "db93d31b-9f3c-5090-8094-452b61f7f885",
+      "module": "aware_environment_ontology.environment.environment_profile_actor_config",
+      "name": "EnvironmentProfileActorConfig",
+      "aware_class_ref": "aware_environment.environment.EnvironmentProfileActorConfig",
+      "functions": [
+        {
+          "function_config_id": "46881fd6-75d3-50a5-9e93-8ce31e14a584",
+          "name": "create_via_environment_profile_config",
+          "input_model": "EnvironmentProfileActorConfigCreateViaEnvironmentProfileConfigInput",
+          "output_model": "EnvironmentProfileActorConfigCreateViaEnvironmentProfileConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e01228c4-bc69-5184-8f05-f2913fb1b2ad",
+      "module": "aware_environment_ontology.environment.environment_profile_config",
+      "name": "EnvironmentProfileConfig",
+      "aware_class_ref": "aware_environment.environment.EnvironmentProfileConfig",
+      "functions": [
+        {
+          "function_config_id": "d1f7accb-cf79-5f4f-8a4f-536bf83b70a2",
+          "name": "add_actor_config",
+          "input_model": "EnvironmentProfileConfigAddActorConfigInput",
+          "output_model": "EnvironmentProfileConfigAddActorConfigOutput"
+        },
+        {
+          "function_config_id": "dc13f3e6-7174-5de8-9cfe-9de478d3cb99",
+          "name": "build_via_environment_config",
+          "input_model": "EnvironmentProfileConfigBuildViaEnvironmentConfigInput",
+          "output_model": "EnvironmentProfileConfigBuildViaEnvironmentConfigOutput"
+        },
+        {
+          "function_config_id": "e4bad51b-8710-5e6f-b087-1c86327193d7",
+          "name": "create_process_config",
+          "input_model": "EnvironmentProfileConfigCreateProcessConfigInput",
+          "output_model": "EnvironmentProfileConfigCreateProcessConfigOutput"
+        },
+        {
+          "function_config_id": "6a1a7ea8-005a-5cb8-8849-64b503894720",
+          "name": "register_provider",
+          "input_model": "EnvironmentProfileConfigRegisterProviderInput",
+          "output_model": "EnvironmentProfileConfigRegisterProviderOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "dc25f247-856f-5b97-8642-eca85284daa1",
+      "module": "aware_environment_ontology.environment.environment_profile_package",
+      "name": "EnvironmentProfilePackage",
+      "aware_class_ref": "aware_environment.environment.EnvironmentProfilePackage",
+      "functions": [
+        {
+          "function_config_id": "3310705e-b631-5b3b-9206-c20d0c8be5fe",
+          "name": "attach_dependency",
+          "input_model": "EnvironmentProfilePackageAttachDependencyInput",
+          "output_model": "EnvironmentProfilePackageAttachDependencyOutput"
+        },
+        {
+          "function_config_id": "b70dfbef-dbfd-5df3-a28e-dabca865168b",
+          "name": "build",
+          "input_model": "EnvironmentProfilePackageBuildInput",
+          "output_model": "EnvironmentProfilePackageBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0ebb7a68-b081-59c1-983e-67d5bf9759da",
+      "module": "aware_environment_ontology.environment.environment_profile_package_dependency",
+      "name": "EnvironmentProfilePackageDependency",
+      "aware_class_ref": "aware_environment.environment.EnvironmentProfilePackageDependency",
+      "functions": [
+        {
+          "function_config_id": "1b10b87a-69d1-5407-9cd5-effef95bdd48",
+          "name": "build_via_environment_profile_package",
+          "input_model": "EnvironmentProfilePackageDependencyBuildViaEnvironmentProfilePackageInput",
+          "output_model": "EnvironmentProfilePackageDependencyBuildViaEnvironmentProfilePackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8f5c145f-e150-5947-b119-890d2128b5d8",
+      "module": "aware_environment_ontology.environment.environment_provider",
+      "name": "EnvironmentProvider",
+      "aware_class_ref": "aware_environment.environment.EnvironmentProvider",
+      "functions": [
+        {
+          "function_config_id": "94668a91-d498-5d1a-8027-ac47965f64c2",
+          "name": "build_via_environment_profile_config",
+          "input_model": "EnvironmentProviderBuildViaEnvironmentProfileConfigInput",
+          "output_model": "EnvironmentProviderBuildViaEnvironmentProfileConfigOutput"
+        },
+        {
+          "function_config_id": "8d4e362a-0965-56cd-bed4-cdd99921a80b",
+          "name": "grant_scope",
+          "input_model": "EnvironmentProviderGrantScopeInput",
+          "output_model": "EnvironmentProviderGrantScopeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c0da2eda-797d-54a3-87af-de234c0d9eb7",
+      "module": "aware_environment_ontology.environment.environment_provider_grant",
+      "name": "EnvironmentProviderGrant",
+      "aware_class_ref": "aware_environment.environment.EnvironmentProviderGrant",
+      "functions": [
+        {
+          "function_config_id": "1b665ee8-8850-5c1b-aa34-acf6c2974fa5",
+          "name": "build_via_environment_provider",
+          "input_model": "EnvironmentProviderGrantBuildViaEnvironmentProviderInput",
+          "output_model": "EnvironmentProviderGrantBuildViaEnvironmentProviderOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4e254503-55e2-5014-8550-85dee034c2a2",
+      "module": "aware_environment_ontology.environment.environment_session",
+      "name": "EnvironmentSession",
+      "aware_class_ref": "aware_environment.environment.EnvironmentSession",
+      "functions": [
+        {
+          "function_config_id": "d4037059-bc07-5a0c-b3bd-44fbe81c281b",
+          "name": "attach_attention_session",
+          "input_model": "EnvironmentSessionAttachAttentionSessionInput",
+          "output_model": "EnvironmentSessionAttachAttentionSessionOutput"
+        },
+        {
+          "function_config_id": "984132a3-2273-543b-b486-eaa0ff124b2a",
+          "name": "build_via_environment",
+          "input_model": "EnvironmentSessionBuildViaEnvironmentInput",
+          "output_model": "EnvironmentSessionBuildViaEnvironmentOutput"
+        },
+        {
+          "function_config_id": "0f73ee3e-9c87-5a8e-8a3f-a2a59db7b469",
+          "name": "create_navigation_context",
+          "input_model": "EnvironmentSessionCreateNavigationContextInput",
+          "output_model": "EnvironmentSessionCreateNavigationContextOutput"
+        },
+        {
+          "function_config_id": "9d51cd0e-38da-5b95-9028-9124c0436f8f",
+          "name": "resolve_thread",
+          "input_model": "EnvironmentSessionResolveThreadInput",
+          "output_model": "EnvironmentSessionResolveThreadOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6b7580ff-db9d-5136-9dfe-4b49262ff0a2",
+      "module": "aware_environment_ontology.environment.environment_session_attention_session",
+      "name": "EnvironmentSessionAttentionSession",
+      "aware_class_ref": "aware_environment.environment.EnvironmentSessionAttentionSession",
+      "functions": [
+        {
+          "function_config_id": "1b4a7586-41ef-5eed-980a-311d934256cf",
+          "name": "build_via_environment_session",
+          "input_model": "EnvironmentSessionAttentionSessionBuildViaEnvironmentSessionInput",
+          "output_model": "EnvironmentSessionAttentionSessionBuildViaEnvironmentSessionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5d396103-7848-53b9-9bd6-45d53adb0555",
+      "module": "aware_environment_ontology.environment.environment_session_config",
+      "name": "EnvironmentSessionConfig",
+      "aware_class_ref": "aware_environment.environment.EnvironmentSessionConfig",
+      "functions": [
+        {
+          "function_config_id": "bd35f391-d027-56cb-954d-a9576f70cda7",
+          "name": "build_via_environment_config",
+          "input_model": "EnvironmentSessionConfigBuildViaEnvironmentConfigInput",
+          "output_model": "EnvironmentSessionConfigBuildViaEnvironmentConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "985f5910-fc18-5f5f-a9f0-5345c7db22fc",
+      "module": "aware_environment_ontology.environment.environment_session_thread",
+      "name": "EnvironmentSessionThread",
+      "aware_class_ref": "aware_environment.environment.EnvironmentSessionThread",
+      "functions": [
+        {
+          "function_config_id": "dd82b990-326e-5991-b563-970e41614d45",
+          "name": "build_via_environment_session",
+          "input_model": "EnvironmentSessionThreadBuildViaEnvironmentSessionInput",
+          "output_model": "EnvironmentSessionThreadBuildViaEnvironmentSessionOutput"
+        },
+        {
+          "function_config_id": "3a3c86f3-b205-5d7b-b02e-50522d9b000a",
+          "name": "select_attention_session",
+          "input_model": "EnvironmentSessionThreadSelectAttentionSessionInput",
+          "output_model": "EnvironmentSessionThreadSelectAttentionSessionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "af4dba0e-6a9d-56b5-a26d-d71abed5293a",
+      "module": "aware_environment_ontology.process.process",
+      "name": "Process",
+      "aware_class_ref": "aware_environment.process.Process",
+      "functions": [
+        {
+          "function_config_id": "2e29b8e6-65e9-54b7-83d7-e08d6d85cf89",
+          "name": "build_via_environment_profile",
+          "input_model": "ProcessBuildViaEnvironmentProfileInput",
+          "output_model": "ProcessBuildViaEnvironmentProfileOutput"
+        },
+        {
+          "function_config_id": "2bf7e1cc-5ee2-53c7-a285-3d2504d65cd0",
+          "name": "create_thread",
+          "input_model": "ProcessCreateThreadInput",
+          "output_model": "ProcessCreateThreadOutput"
+        },
+        {
+          "function_config_id": "476c1cae-a2da-524d-ae2b-e652e56dd238",
+          "name": "update_picture",
+          "input_model": "ProcessUpdatePictureInput",
+          "output_model": "ProcessUpdatePictureOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5d27245b-86db-56db-9e92-315765499cfb",
+      "module": "aware_environment_ontology.process.process_config",
+      "name": "ProcessConfig",
+      "aware_class_ref": "aware_environment.process.ProcessConfig",
+      "functions": [
+        {
+          "function_config_id": "51d9ece0-5205-51cd-af39-bbee94481c9b",
+          "name": "build_via_environment_profile_config",
+          "input_model": "ProcessConfigBuildViaEnvironmentProfileConfigInput",
+          "output_model": "ProcessConfigBuildViaEnvironmentProfileConfigOutput"
+        },
+        {
+          "function_config_id": "e1bb0d12-7736-591d-9090-cd704ad657d5",
+          "name": "create_thread_config",
+          "input_model": "ProcessConfigCreateThreadConfigInput",
+          "output_model": "ProcessConfigCreateThreadConfigOutput"
+        },
+        {
+          "function_config_id": "3703f932-684a-5e2f-894b-c083083b0f19",
+          "name": "update_picture",
+          "input_model": "ProcessConfigUpdatePictureInput",
+          "output_model": "ProcessConfigUpdatePictureOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "36560a04-eb66-545c-8409-c3a0598e5287",
+      "module": "aware_environment_ontology.thread.thread",
+      "name": "ActorDirectoryEntry",
+      "aware_class_ref": "aware_environment.thread.ActorDirectoryEntry",
+      "functions": []
+    },
+    {
+      "class_config_id": "8ec664f8-e59a-54a9-bddf-8f76b3d79c5c",
+      "module": "aware_environment_ontology.thread.thread",
+      "name": "ActorDirectoryResponse",
+      "aware_class_ref": "aware_environment.thread.ActorDirectoryResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "faecade4-a09f-56de-bd36-ae99d40d057c",
+      "module": "aware_environment_ontology.thread.thread",
+      "name": "Thread",
+      "aware_class_ref": "aware_environment.thread.Thread",
+      "functions": [
+        {
+          "function_config_id": "3530a268-be3a-53e0-ba1c-61ebe433e08c",
+          "name": "add_layout",
+          "input_model": "ThreadAddLayoutInput",
+          "output_model": "ThreadAddLayoutOutput"
+        },
+        {
+          "function_config_id": "001f247b-7534-52ee-8b71-9d497064fc6e",
+          "name": "attach_lane",
+          "input_model": "ThreadAttachLaneInput",
+          "output_model": "ThreadAttachLaneOutput"
+        },
+        {
+          "function_config_id": "79f22542-b66e-5042-a69a-86ce72042835",
+          "name": "build_via_process",
+          "input_model": "ThreadBuildViaProcessInput",
+          "output_model": "ThreadBuildViaProcessOutput"
+        },
+        {
+          "function_config_id": "8e4700f0-c4d9-50a7-a958-9fd0d8b848a0",
+          "name": "update_picture",
+          "input_model": "ThreadUpdatePictureInput",
+          "output_model": "ThreadUpdatePictureOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3d540c24-5098-5291-87fc-28baf831604d",
+      "module": "aware_environment_ontology.thread.thread_config",
+      "name": "ThreadConfig",
+      "aware_class_ref": "aware_environment.thread.ThreadConfig",
+      "functions": [
+        {
+          "function_config_id": "14c21c60-0cc3-51f3-b1c7-3be7cd75c93f",
+          "name": "add_layout_config",
+          "input_model": "ThreadConfigAddLayoutConfigInput",
+          "output_model": "ThreadConfigAddLayoutConfigOutput"
+        },
+        {
+          "function_config_id": "2d42d822-5059-5bb7-9a2c-233fddfa8e6a",
+          "name": "add_object_projection_graph",
+          "input_model": "ThreadConfigAddObjectProjectionGraphInput",
+          "output_model": "ThreadConfigAddObjectProjectionGraphOutput"
+        },
+        {
+          "function_config_id": "9809f21a-a20c-554f-a0b9-be2cd6da00c6",
+          "name": "build_via_process_config",
+          "input_model": "ThreadConfigBuildViaProcessConfigInput",
+          "output_model": "ThreadConfigBuildViaProcessConfigOutput"
+        },
+        {
+          "function_config_id": "16d42ab7-3d43-5be1-a646-615340261f7c",
+          "name": "update_picture",
+          "input_model": "ThreadConfigUpdatePictureInput",
+          "output_model": "ThreadConfigUpdatePictureOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f3e68958-85fc-59fb-ad9a-d439ff669598",
+      "module": "aware_environment_ontology.thread.thread_config_layout_config",
+      "name": "ThreadConfigLayoutConfig",
+      "aware_class_ref": "aware_environment.thread.ThreadConfigLayoutConfig",
+      "functions": [
+        {
+          "function_config_id": "c93a1242-d4c3-5913-a8e5-1d981a290606",
+          "name": "add_section",
+          "input_model": "ThreadConfigLayoutConfigAddSectionInput",
+          "output_model": "ThreadConfigLayoutConfigAddSectionOutput"
+        },
+        {
+          "function_config_id": "dc5efbf8-ed26-59ce-a110-77f0beff0fa6",
+          "name": "create_via_thread_config",
+          "input_model": "ThreadConfigLayoutConfigCreateViaThreadConfigInput",
+          "output_model": "ThreadConfigLayoutConfigCreateViaThreadConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2fe7b919-1d04-5c55-bfb1-d1795619c012",
+      "module": "aware_environment_ontology.thread.thread_config_layout_config_section",
+      "name": "ThreadConfigLayoutConfigSection",
+      "aware_class_ref": "aware_environment.thread.ThreadConfigLayoutConfigSection",
+      "functions": [
+        {
+          "function_config_id": "459c082a-9952-549b-b7c4-4c1e99444d1e",
+          "name": "create_via_thread_config_layout_config",
+          "input_model": "ThreadConfigLayoutConfigSectionCreateViaThreadConfigLayoutConfigInput",
+          "output_model": "ThreadConfigLayoutConfigSectionCreateViaThreadConfigLayoutConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "71961d38-6418-53c8-9e4f-bbd0479e9232",
+      "module": "aware_environment_ontology.thread.thread_config_object_projection_graph",
+      "name": "ThreadConfigObjectProjectionGraph",
+      "aware_class_ref": "aware_environment.thread.ThreadConfigObjectProjectionGraph",
+      "functions": [
+        {
+          "function_config_id": "e60c6763-9218-567e-9ae6-ce1c07fe4adb",
+          "name": "create_via_thread_config",
+          "input_model": "ThreadConfigObjectProjectionGraphCreateViaThreadConfigInput",
+          "output_model": "ThreadConfigObjectProjectionGraphCreateViaThreadConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0af2a6ed-590d-50e0-ba9c-5162bd3b5b60",
+      "module": "aware_environment_ontology.thread.thread_layout",
+      "name": "ThreadLayout",
+      "aware_class_ref": "aware_environment.thread.ThreadLayout",
+      "functions": [
+        {
+          "function_config_id": "56a5b224-9d92-5e1e-9948-9790911a0f9e",
+          "name": "create_via_thread",
+          "input_model": "ThreadLayoutCreateViaThreadInput",
+          "output_model": "ThreadLayoutCreateViaThreadOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "4ba0ecfe-739f-54a6-80da-ec0798df9563",
+      "module": "aware_environment_ontology.thread.thread_object_instance_graph_branch",
+      "name": "ThreadObjectInstanceGraphBranch",
+      "aware_class_ref": "aware_environment.thread.ThreadObjectInstanceGraphBranch",
+      "functions": [
+        {
+          "function_config_id": "4dbe84fb-318c-5503-b3f2-b1d4484faf13",
+          "name": "backfill_identity_anchor",
+          "input_model": "ThreadObjectInstanceGraphBranchBackfillIdentityAnchorInput",
+          "output_model": "ThreadObjectInstanceGraphBranchBackfillIdentityAnchorOutput"
+        },
+        {
+          "function_config_id": "b9ea64d6-e83a-574b-90f9-6f44f4da7bf5",
+          "name": "create_for_lane",
+          "input_model": "ThreadObjectInstanceGraphBranchCreateForLaneInput",
+          "output_model": "ThreadObjectInstanceGraphBranchCreateForLaneOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "708660a0-d8ff-5fe7-bfdf-d8a532ff52d7",
+      "module": "aware_environment_ontology.priority.priority_enums",
+      "name": "PriorityLevel"
+    },
+    {
+      "enum_config_id": "9bddf64a-656c-572e-a0ff-520235ac9c83",
+      "module": "aware_environment_ontology.process.process_enums",
+      "name": "ProcessStatus"
+    }
+  ]
+}

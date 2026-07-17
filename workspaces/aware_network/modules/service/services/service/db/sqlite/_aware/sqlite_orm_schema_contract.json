@@ -1,0 +1,184 @@
+{
+  "import_root": "aware_service_ontology_replica_state_sqlite",
+  "language_graph_ref": "d326d8a21162d59978dfabc1bbd6caa9542447e8925bcb45d7568f936dfcc307",
+  "materialization_source": "ontology",
+  "package_name": "service-ontology-replica-state-sqlite",
+  "renderer_kind": "sqlite",
+  "renderer_profile": "orm_models",
+  "runtime_graph_ref": "bd193852d079abbb1992c04a5dc909548f639ddcf3ad82efcc0293f0e1f560cf",
+  "schema": "aware.orm.local_state.sqlite.schema_contract.v1",
+  "schema_contract": "aware_service_ontology_replica_state.sqlite.orm_schema",
+  "schema_paths": [
+    "replica_store/service_ontology_ocg_migration_marker.sql",
+    "replica_store/service_ontology_replica_apply_receipt.sql",
+    "replica_store/service_ontology_replica_commit_receipt.sql",
+    "replica_store/service_ontology_replica_cursor.sql",
+    "replica_store/service_ontology_replica_subscription.sql"
+  ],
+  "schema_version": 1,
+  "source_graph_ref": "a1de1296159e3ec2f9d12a35a6c51095969e93c8782ab63ec8d294b5da0ef6f7",
+  "tables": [
+    {
+      "columns": [
+        "id",
+        "marker_identity",
+        "service_package_name",
+        "service_local_state_db_path",
+        "consumer_key",
+        "consumer_kind",
+        "package_key",
+        "artifact_contract_version",
+        "object_config_graph_package_id",
+        "object_config_graph_id",
+        "source_object_instance_graph_id",
+        "branch_id",
+        "projection_hash",
+        "ocg_head_commit_id",
+        "graph_hash_post",
+        "applied_artifact_digest",
+        "digest_algorithm",
+        "status",
+        "blocker_reason",
+        "artifact_key",
+        "manifest_path",
+        "workspace_relative_path",
+        "attempted_commit_ids",
+        "applied_commit_ids",
+        "receipt",
+        "evidence",
+        "applied_at_unix_ms",
+        "updated_at_unix_ms",
+        "v"
+      ],
+      "json_columns": [
+        "attempted_commit_ids",
+        "applied_commit_ids",
+        "receipt",
+        "evidence"
+      ],
+      "storage_indexes": [
+        {
+          "columns": [
+            "marker_identity"
+          ],
+          "name": "uidx_service_ontology_ocg_migration_marker_by_mark_c5e46c264f72",
+          "unique": true
+        },
+        {
+          "columns": [
+            "service_package_name",
+            "consumer_key",
+            "service_local_state_db_path",
+            "updated_at_unix_ms"
+          ],
+          "name": "idx_service_ontology_ocg_migration_marker_by_servi_e271299c093f",
+          "unique": false
+        },
+        {
+          "columns": [
+            "service_package_name",
+            "service_local_state_db_path",
+            "consumer_key",
+            "package_key",
+            "object_config_graph_id",
+            "branch_id",
+            "projection_hash"
+          ],
+          "name": "uidx_service_ontology_ocg_migration_marker_by_serv_e0f0178ea5be",
+          "unique": true
+        }
+      ],
+      "table": "service_ontology_ocg_migration_marker"
+    },
+    {
+      "columns": [
+        "id",
+        "branch_id",
+        "projection_hash",
+        "commit_id",
+        "projector_id",
+        "projector_version",
+        "schema_version",
+        "started_at_unix_ms",
+        "finished_at_unix_ms",
+        "class_row_count",
+        "association_row_count",
+        "mutation_row_count",
+        "idempotency_status",
+        "status",
+        "error",
+        "v",
+        "subscription_id",
+        "commit_receipt_id"
+      ],
+      "json_columns": [],
+      "storage_indexes": [],
+      "table": "service_ontology_replica_apply_receipt"
+    },
+    {
+      "columns": [
+        "id",
+        "branch_id",
+        "projection_hash",
+        "commit_id",
+        "object_instance_graph_commit_id",
+        "parent_commit_id",
+        "graph_hash_pre",
+        "graph_hash_post",
+        "object_instance_graph_id",
+        "root_object_id",
+        "head_version",
+        "created_at_unix_ms",
+        "operation_label",
+        "call_target",
+        "function_id",
+        "object_id",
+        "class_instance_identity_id",
+        "apply_status",
+        "error",
+        "v",
+        "subscription_id",
+        "parent_commit_receipt_id"
+      ],
+      "json_columns": [],
+      "storage_indexes": [],
+      "table": "service_ontology_replica_commit_receipt"
+    },
+    {
+      "columns": [
+        "id",
+        "branch_id",
+        "projection_hash",
+        "projector_id",
+        "head_commit_id",
+        "graph_hash_post",
+        "head_version",
+        "last_applied_at_unix_ms",
+        "status",
+        "v",
+        "subscription_id",
+        "head_commit_receipt_id"
+      ],
+      "json_columns": [],
+      "storage_indexes": [],
+      "table": "service_ontology_replica_cursor"
+    },
+    {
+      "columns": [
+        "id",
+        "service_package_id",
+        "service_name",
+        "branch_id",
+        "projection_hash",
+        "source_api_projection_id",
+        "api_graph_projection_id",
+        "replica_role",
+        "status",
+        "v"
+      ],
+      "json_columns": [],
+      "storage_indexes": [],
+      "table": "service_ontology_replica_subscription"
+    }
+  ]
+}

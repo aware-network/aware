@@ -25,7 +25,7 @@ from aware_meta.runtime.handler_context import current_handler_session
 
 
 async def set_attachment_config(
-    window_config_layout_config: WindowConfigLayoutConfig, description: str | None = None, is_default: bool = False
+    window_config_layout_config: WindowConfigLayoutConfig, description: str | None = None
 ) -> WindowConfigLayoutConfig:
     """
     Update the WindowConfig-scoped layout attachment on the join itself.
@@ -34,13 +34,12 @@ async def set_attachment_config(
     # --- AWARE: LOGIC START set_attachment_config
     if description is not None:
         window_config_layout_config.description = description
-    window_config_layout_config.is_default = bool(is_default)
     return window_config_layout_config
     # --- AWARE: LOGIC END set_attachment_config
 
 
 async def build_via_window_config(
-    window_config_id: UUID, layout_config_id: UUID, description: str | None = None, is_default: bool = False
+    window_config_id: UUID, layout_config_id: UUID, description: str | None = None
 ) -> WindowConfigLayoutConfig:
     """
     Create one deterministic WindowConfig↔LayoutConfig bridge.
@@ -66,15 +65,17 @@ async def build_via_window_config(
                     "WindowConfigLayoutConfig existing layout_config_id mismatch: "
                     f"window_config_layout_config_id={edge_id}"
                 )
-            if description is not None and existing.description not in (None, description):
+            if description is not None and existing.description not in (
+                None,
+                description,
+            ):
                 raise RuntimeError(
                     "WindowConfigLayoutConfig existing description mismatch: "
                     f"window_config_layout_config_id={edge_id}"
                 )
-            if description is not None or existing.is_default != bool(is_default):
+            if description is not None:
                 return await existing.set_attachment_config(
                     description=description,
-                    is_default=is_default,
                 )
             return existing
 
@@ -85,13 +86,11 @@ async def build_via_window_config(
             layout_config=resolved_layout_config,
             layout_config_id=layout_config_id,
             description=description,
-            is_default=bool(is_default),
         )
     return WindowConfigLayoutConfig.model_construct(
         id=edge_id,
         window_config_id=window_config_id,
         layout_config_id=layout_config_id,
         description=description,
-        is_default=bool(is_default),
     )
     # --- AWARE: LOGIC END build_via_window_config

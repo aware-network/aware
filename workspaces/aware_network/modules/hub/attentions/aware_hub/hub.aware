@@ -1,4 +1,4 @@
-layout discovery default {
+layout discovery {
     section discovery {
         title "Hub Discovery"
         order 0

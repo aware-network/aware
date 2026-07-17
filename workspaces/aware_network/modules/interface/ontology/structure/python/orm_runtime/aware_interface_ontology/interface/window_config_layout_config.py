@@ -27,18 +27,15 @@ class WindowConfigLayoutConfig(ORMModel):
 
     # Attributes
     description: str | None = Field(default=None)
-    is_default: bool = Field(default=False)
 
     # Foreign Keys
     window_config_id: UUID = Field(description="Foreign key for WindowConfig.layout_configs")
     layout_config_id: UUID = Field(description="Foreign key for WindowConfigLayoutConfig.layout_config")
 
-    async def set_attachment_config(
-        self, description: str | None = None, is_default: bool = False
-    ) -> WindowConfigLayoutConfig:
+    async def set_attachment_config(self, description: str | None = None) -> WindowConfigLayoutConfig:
         """Update the WindowConfig-scoped layout attachment on the join itself."""
 
-        payload = {"description": description, "is_default": is_default}
+        payload = {"description": description}
         result = await invoke_instance(orm_model=self, function_name="set_attachment_config", payload=payload)
         value = result.get("value") if isinstance(result, dict) and "value" in result else result
         if isinstance(value, WindowConfigLayoutConfig):
@@ -47,7 +44,7 @@ class WindowConfigLayoutConfig(ORMModel):
 
     @classmethod
     async def build_via_window_config(
-        cls, window_config_id: UUID, layout_config_id: UUID, description: str | None = None, is_default: bool = False
+        cls, window_config_id: UUID, layout_config_id: UUID, description: str | None = None
     ) -> WindowConfigLayoutConfig:
         """Create one deterministic WindowConfig↔LayoutConfig bridge."""
 
@@ -55,7 +52,6 @@ class WindowConfigLayoutConfig(ORMModel):
             "window_config_id": window_config_id,
             "layout_config_id": layout_config_id,
             "description": description,
-            "is_default": is_default,
         }
         result = await invoke_constructor(orm_class=cls, function_name="build_via_window_config", payload=payload)
         value = result.get("value") if isinstance(result, dict) and "value" in result else result
@@ -66,7 +62,6 @@ class WindowConfigLayoutConfig(ORMModel):
 
 class WindowConfigLayoutConfigSetAttachmentConfigInput(BaseModel):
     description: str | None = Field(default=None)
-    is_default: bool = Field(default=False)
 
 
 class WindowConfigLayoutConfigSetAttachmentConfigOutput(BaseModel):
@@ -77,7 +72,6 @@ class WindowConfigLayoutConfigBuildViaWindowConfigInput(BaseModel):
     window_config_id: UUID = Field(description="Foreign key for WindowConfig.layout_configs")
     layout_config_id: UUID
     description: str | None = Field(default=None)
-    is_default: bool = Field(default=False)
 
 
 class WindowConfigLayoutConfigBuildViaWindowConfigOutput(BaseModel):

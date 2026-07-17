@@ -26,10 +26,14 @@ from aware_api_ontology.stable_ids import stable_api_id, stable_api_package_id
 from aware_code.semantic_contract_config import source_code_package_config_ref
 from aware_code.types import JsonArray, JsonObject, JsonValue
 from aware_code_ontology.code.code_enums import CodeLanguage
+from aware_code_ontology.code.code_plan import CodePackagePathRole
 from aware_code_ontology.package.code_package import CodePackage
 
 from aware_code_ontology.stable_ids import stable_code_package_id
 from aware_code.package.snapshot_commit import commit_code_package_text_snapshot
+from aware_code.package.snapshot_health import (
+    load_code_package_selected_snapshot_health_evidence,
+)
 from aware_api_runtime.manifest.spec import (
     AwareApiTomlDartTargetSpec,
     AwareApiTomlPythonProductTargetSpec,
@@ -1458,6 +1462,21 @@ async def resolve_source_owned_api_dto_export_accessible_graphs(
         ).build_snapshot()
     if not _source_owned_api_dto_export_package_names(snapshot=snapshot):
         return resolved_input_accessible_graphs
+    with _record_phase(
+        timings,
+        "pre_resolve_api_package_dependency_context."
+        "reuse_complete_workspace_semantic_context",
+    ):
+        reusable_context_graphs = (
+            _api_dependency_graph_context_reusable_graphs_for_materialization(
+                snapshot=snapshot,
+                accessible_graphs=resolved_input_accessible_graphs,
+                source="workspace_semantic_context",
+                dependency_repo_roots=dependency_repo_roots,
+            )
+        )
+    if reusable_context_graphs is not None:
+        return reusable_context_graphs
     with _record_phase(
         timings,
         "pre_resolve_api_package_dependency_context."
@@ -3879,6 +3898,7 @@ async def materialize_api_dto_language_code_package(
     package_name: str,
     import_root: str,
     package_root: Path,
+    phase_timings_s: dict[str, float] | None = None,
 ) -> ApiLanguageCodePackageMaterialization:
     resolved_package_root = package_root.resolve()
     target = _api_dto_language_code_package_target(
@@ -3900,6 +3920,7 @@ async def materialize_api_dto_language_code_package(
         code_package_projection_hash=code_package_projection_hash,
         workspace_root=workspace_root,
         targets=(target,),
+        phase_timings_s=phase_timings_s,
     )
     return refs[0]
 
@@ -3946,9 +3967,16 @@ async def _materialize_api_language_code_package_targets(
     code_package_projection_hash: str,
     workspace_root: Path,
     targets: tuple[ApiLanguageCodePackageTarget, ...],
+    phase_timings_s: dict[str, float] | None = None,
 ) -> tuple[ApiLanguageCodePackageMaterialization, ...]:
+    timings = phase_timings_s if phase_timings_s is not None else {}
     refs: list[ApiLanguageCodePackageMaterialization] = []
     for target in targets:
+        phase_prefix = (
+            "api_language_code_package."
+            f"{target.language.value}.{target.package_name}"
+        )
+        phase_started_at = perf_counter()
         code_package_config_id = _api_language_code_package_config_id(target=target)
         expected_code_package_id = stable_code_package_id(
             code_package_config_id=code_package_config_id,
@@ -3958,6 +3986,10 @@ async def _materialize_api_language_code_package_targets(
         language_branch_id = _api_language_code_package_branch_id(
             code_package_id=expected_code_package_id,
         )
+        timings[f"{phase_prefix}.resolve_target"] = _round_duration_s(
+            perf_counter() - phase_started_at
+        )
+        phase_started_at = perf_counter()
         await _reset_code_package_lane_if_root_mismatch(
             branch_id=language_branch_id,
             projection_hash=code_package_projection_hash,
@@ -3965,6 +3997,10 @@ async def _materialize_api_language_code_package_targets(
             package_name=target.package_name,
             target_label=f"api_language:{target.language.value}",
         )
+        timings[f"{phase_prefix}.reset_lane_if_needed"] = _round_duration_s(
+            perf_counter() - phase_started_at
+        )
+        phase_started_at = perf_counter()
         manifest_relative_path = _relative_to(
             path=target.manifest_path,
             root=workspace_root,
@@ -3980,12 +4016,26 @@ async def _materialize_api_language_code_package_targets(
             root=workspace_root,
             label="api_language_package.sources_root",
         )
+        source_texts_by_relative_path: dict[str, str] = {}
         unparsed_texts_by_relative_path: dict[str, str] = {}
+        path_roles_by_relative_path: dict[str, CodePackagePathRole] = {}
         for source_file in _api_language_code_source_files(target=target):
             relative_path = source_file.relative_to(target.package_root).as_posix()
-            unparsed_texts_by_relative_path[relative_path] = source_file.read_text(
-                encoding="utf-8"
+            content_text = source_file.read_text(encoding="utf-8")
+            path_role = _api_language_code_package_path_role(
+                target=target,
+                relative_path=relative_path,
             )
+            path_roles_by_relative_path[relative_path] = path_role
+            if path_role is CodePackagePathRole.generated_code:
+                source_texts_by_relative_path[relative_path] = content_text
+            else:
+                unparsed_texts_by_relative_path[relative_path] = content_text
+        timings[f"{phase_prefix}.read_source_files"] = _round_duration_s(
+            perf_counter() - phase_started_at
+        )
+        phase_started_at = perf_counter()
+        snapshot_phase_timings_s: dict[str, float] = {}
         snapshot_commit = await commit_code_package_text_snapshot(
             index=index,
             actor_id=actor_id,
@@ -4000,23 +4050,46 @@ async def _materialize_api_language_code_package_targets(
             package_root=package_root_relative,
             sources_root=sources_root_relative,
             fqn_prefix=target.import_root,
-            source_texts_by_relative_path={},
+            source_texts_by_relative_path=source_texts_by_relative_path,
             unparsed_texts_by_relative_path=unparsed_texts_by_relative_path,
+            path_roles_by_relative_path=path_roles_by_relative_path,
+            phase_timings_s=snapshot_phase_timings_s,
         )
-        hydrated_code_package = await _hydrate_lane_root_from_head(
-            index=index,
+        timings[f"{phase_prefix}.commit_text_snapshot"] = _round_duration_s(
+            perf_counter() - phase_started_at
+        )
+        for snapshot_phase, duration_s in snapshot_phase_timings_s.items():
+            timings[f"{phase_prefix}.commit_text_snapshot.{snapshot_phase}"] = (
+                _round_duration_s(duration_s)
+            )
+        phase_started_at = perf_counter()
+        snapshot_health = await load_code_package_selected_snapshot_health_evidence(
             branch_id=language_branch_id,
             projection_hash=code_package_projection_hash,
-            root_id=expected_code_package_id,
-            root_type=CodePackage,
+            code_package_id=expected_code_package_id,
+            expected_head_commit_id=snapshot_commit.head_commit_id,
+            expected_object_instance_graph_commit_id=(
+                snapshot_commit.object_instance_graph_commit_id
+            ),
+            required_relative_paths=path_roles_by_relative_path,
         )
-        if hydrated_code_package is None:
+        timings[f"{phase_prefix}.verify_head_health"] = _round_duration_s(
+            perf_counter() - phase_started_at
+        )
+        if snapshot_health is None:
             raise RuntimeError(
-                "API language CodePackage materialization did not hydrate: "
+                "API language CodePackage commit did not publish exact-head snapshot "
+                "health; preserving provider-owned lane: "
                 f"package_name={target.package_name!r} "
                 f"language={target.language.value!r} "
-                f"code_package_id={expected_code_package_id}"
+                f"branch_id={language_branch_id} "
+                f"projection_hash={code_package_projection_hash!r} "
+                f"code_package_id={expected_code_package_id} "
+                f"head_commit_id={snapshot_commit.head_commit_id} "
+                "object_instance_graph_commit_id="
+                f"{snapshot_commit.object_instance_graph_commit_id}"
             )
+        hydrated_code_package = snapshot_commit.code_package
         refs.append(
             ApiLanguageCodePackageMaterialization(
                 code_package=hydrated_code_package,
@@ -4365,6 +4438,38 @@ def _api_language_code_source_files(
                 continue
             files_by_rel[rel_path] = resolved
     return tuple(files_by_rel[key] for key in sorted(files_by_rel))
+
+
+def _api_language_code_package_path_role(
+    *,
+    target: ApiLanguageCodePackageTarget,
+    relative_path: str,
+) -> CodePackagePathRole:
+    path = PurePosixPath(relative_path)
+    manifest_relative_path = target.manifest_path.relative_to(
+        target.package_root
+    ).as_posix()
+    if relative_path == manifest_relative_path:
+        return CodePackagePathRole.generated_manifest
+    if _is_api_language_source_path(path=path, language=target.language):
+        return CodePackagePathRole.generated_code
+    return CodePackagePathRole.generated_metadata
+
+
+def _is_api_language_source_path(
+    *,
+    path: PurePosixPath,
+    language: CodeLanguage,
+) -> bool:
+    if language is CodeLanguage.python:
+        return path.suffix.lower() == ".py"
+    if language is CodeLanguage.dart:
+        return path.suffix.lower() == ".dart"
+    if language is CodeLanguage.aware:
+        return path.suffix.lower() == ".aware"
+    if language is CodeLanguage.sql:
+        return path.suffix.lower() == ".sql"
+    return bool(path.suffix)
 
 
 def _is_api_language_code_path_excluded(

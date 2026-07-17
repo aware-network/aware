@@ -711,7 +711,6 @@ class InterfaceRuntimeLayoutState(BaseModel):
     layout_config_id: UUID | None = Field(default=None)
     layout_key: str
     label: str
-    is_default: bool = Field(default=False)
     is_active: bool = Field(default=False)
 
 

@@ -4,6 +4,7 @@ from aware_code.module_semantic_contract import (
     ModuleCapabilityExecutionPolicyDescriptor,
     ModuleSemanticContract,
     ModuleSemanticManifestResolutionDescriptor,
+    ModuleSemanticMaterializationArtifactOutputDescriptor,
     ModuleSemanticMaterializationRuntimeContextDescriptor,
     ModuleSemanticMaterializationRuntimeDescriptor,
     ModuleSemanticPackageRoleDescriptor,
@@ -32,6 +33,9 @@ CODE_MODULE_OWNER = "aware_code.module"
 CODE_PROVIDER_OWNER = "aware_code.provider"
 CODE_MATERIALIZATION_RUNTIME_ONTOLOGY_PACKAGE_NAMES = ("code-ontology",)
 CODE_MATERIALIZATION_REQUIRED_PROJECTIONS = ("CodePackage",)
+CODE_PACKAGE_STATIC_ARTIFACT_PRODUCER_KEY = "aware_code.package.static_artifact.v1"
+CODE_PACKAGE_STATIC_ARTIFACT_OUTPUT_KEY = "code.package_static_artifact"
+CODE_PACKAGE_STATIC_ARTIFACT_FAMILY = "code_package_static_artifact"
 
 CODE_PROVIDER_DELTA_OPERATION: dict[str, object] = {
     "case_key": "aware_code.code_package_text_snapshot.delta",
@@ -230,6 +234,20 @@ CODE_MATERIALIZATION_RUNTIME_CONTEXT = (
         },
     ),
 )
+CODE_MATERIALIZATION_ARTIFACT_OUTPUTS = (
+    ModuleSemanticMaterializationArtifactOutputDescriptor(
+        semantic_owner=CODE_PROVIDER_OWNER,
+        producer_key=CODE_PACKAGE_STATIC_ARTIFACT_PRODUCER_KEY,
+        output_key=CODE_PACKAGE_STATIC_ARTIFACT_OUTPUT_KEY,
+        artifact_family=CODE_PACKAGE_STATIC_ARTIFACT_FAMILY,
+        artifact_role="runtime_asset",
+        output_kind="artifact",
+        required_for=("workspace_revision", "public_checkout"),
+        artifact_scope_policy="replace",
+        required=False,
+        runtime_contract_version="aware.code.package-static-artifact.v1",
+    ),
+)
 
 AWARE_CODE_SEMANTIC_CONTRACT = ModuleSemanticContract(
     provider_key="aware_code",
@@ -237,6 +255,7 @@ AWARE_CODE_SEMANTIC_CONTRACT = ModuleSemanticContract(
     capability_execution_policy=CODE_CAPABILITY_EXECUTION_POLICY,
     package_roles=CODE_PACKAGE_ROLES,
     manifest_resolution=CODE_MANIFEST_RESOLUTION,
+    materialization_artifact_outputs=CODE_MATERIALIZATION_ARTIFACT_OUTPUTS,
     materialization_runtime=CODE_MATERIALIZATION_RUNTIME,
     materialization_runtime_context=CODE_MATERIALIZATION_RUNTIME_CONTEXT,
 )
@@ -252,6 +271,10 @@ __all__ = [
     "CODE_MATERIALIZATION_CAPABILITY_METADATA",
     "CODE_MATERIALIZATION_DELTA_ADAPTER_METADATA",
     "CODE_MATERIALIZATION_REQUIRED_PROJECTIONS",
+    "CODE_MATERIALIZATION_ARTIFACT_OUTPUTS",
+    "CODE_PACKAGE_STATIC_ARTIFACT_FAMILY",
+    "CODE_PACKAGE_STATIC_ARTIFACT_OUTPUT_KEY",
+    "CODE_PACKAGE_STATIC_ARTIFACT_PRODUCER_KEY",
     "CODE_MATERIALIZATION_RUNTIME",
     "CODE_MATERIALIZATION_RUNTIME_CONTEXT",
     "CODE_MATERIALIZATION_RUNTIME_ONTOLOGY_PACKAGE_NAMES",

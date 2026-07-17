@@ -19,6 +19,9 @@ from aware_history_ontology.stable_ids import (
     stable_commit_parent_id,
 )
 import aware_meta.runtime.commit.identity_history as identity_history_mod
+from aware_meta.graph.instance.commit.fs_commit_store import (
+    OigCommitRecordUnavailableError,
+)
 from aware_meta.graph.instance.commit.state_index import build_commit_state_index
 from aware_meta.runtime.commit.identity_history import (
     _canonicalize_domain_commit_identity_for_history,
@@ -181,6 +184,143 @@ async def test_oigi_history_materialized_head_hash_mismatch_resets_lane(
     assert len(ensure_calls) == 1
     assert perf_ms["test_invalid_oigi_head_reset_count"] == 1
     assert perf_ms["test_invalid_oigi_head_state_hash_reset_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_oigi_history_unavailable_record_resets_and_reseeds_lane(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    domain_oig_id = uuid4()
+    original_head_commit_id = uuid4()
+    valid_graph_base = _minimal_oig(graph_hash="")
+    valid_graph = valid_graph_base.model_copy(
+        update={"hash": build_commit_state_index(valid_graph_base).compute_hash()}
+    )
+    reseeded_head_commit_id = uuid4()
+    reset_calls: list[dict[str, object]] = []
+    ensure_calls: list[dict[str, object]] = []
+
+    class _Materializer:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        async def get(self, **_: object):
+            self.calls += 1
+            if self.calls == 1:
+                raise OigCommitRecordUnavailableError(
+                    branch_id=domain_oig_id,
+                    projection_hash="oigi-hash",
+                    commit_id=original_head_commit_id,
+                    lookup_commit_id=original_head_commit_id,
+                )
+            return valid_graph, {}
+
+    class _Store:
+        aware_root = tmp_path
+
+        async def head(self, **_: object):
+            return {
+                "commit_id": str(reseeded_head_commit_id),
+                "object_instance_graph_id": str(valid_graph.id),
+            }
+
+    class _Index:
+        ocg = object()
+        attribute_configs_by_id: dict[object, object] = {}
+        class_configs_by_id: dict[object, object] = {}
+
+    monkeypatch.setattr(
+        identity_history_mod,
+        "reset_invalid_object_instance_graph_identity_lane",
+        lambda **kwargs: reset_calls.append(kwargs),
+    )
+
+    async def _ensure(**kwargs: object) -> None:
+        ensure_calls.append(kwargs)
+
+    monkeypatch.setattr(
+        identity_history_mod,
+        "ensure_object_instance_graph_identity_lane_head",
+        _ensure,
+    )
+    perf_ms: dict[str, int] = {}
+
+    materialized = await _materialize_oigi_history_head_with_recovery(  # pyright: ignore[reportArgumentType]
+        materializer=_Materializer(),  # type: ignore[arg-type]
+        lane_materializer=None,
+        store=_Store(),  # type: ignore[arg-type]
+        index=_Index(),  # type: ignore[arg-type]
+        oigi_opg=object(),  # type: ignore[arg-type]
+        domain_oig_id=domain_oig_id,
+        domain_projection_hash="domain-hash",
+        oigi_projection_hash="oigi-hash",
+        head_commit_id=original_head_commit_id,
+        head_oig_id=uuid4(),
+        author_id=uuid4(),
+        perf_ms=perf_ms,
+        perf_metric_prefix="test",
+    )
+
+    assert materialized.before_oig is valid_graph
+    assert materialized.head_commit_id == reseeded_head_commit_id
+    assert len(reset_calls) == 1
+    assert len(ensure_calls) == 1
+    assert perf_ms["test_invalid_oigi_head_reset_count"] == 1
+    assert perf_ms["test_invalid_oigi_head_record_unavailable_reset_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_oigi_history_unavailable_record_with_explicit_lane_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    domain_oig_id = uuid4()
+    commit_id = uuid4()
+
+    class _Materializer:
+        async def get(self, **_: object):
+            raise OigCommitRecordUnavailableError(
+                branch_id=domain_oig_id,
+                projection_hash="oigi-hash",
+                commit_id=commit_id,
+                lookup_commit_id=commit_id,
+            )
+
+    class _Store:
+        aware_root = tmp_path
+
+    class _Index:
+        ocg = object()
+        attribute_configs_by_id: dict[object, object] = {}
+        class_configs_by_id: dict[object, object] = {}
+
+    def _unexpected_reset(**_: object) -> None:
+        raise AssertionError("explicit lane materialization must not reset state")
+
+    monkeypatch.setattr(
+        identity_history_mod,
+        "reset_invalid_object_instance_graph_identity_lane",
+        _unexpected_reset,
+    )
+    materializer = _Materializer()
+
+    with pytest.raises(OigCommitRecordUnavailableError):
+        await _materialize_oigi_history_head_with_recovery(  # pyright: ignore[reportArgumentType]
+            materializer=materializer,  # type: ignore[arg-type]
+            lane_materializer=materializer,  # type: ignore[arg-type]
+            store=_Store(),  # type: ignore[arg-type]
+            index=_Index(),  # type: ignore[arg-type]
+            oigi_opg=object(),  # type: ignore[arg-type]
+            domain_oig_id=domain_oig_id,
+            domain_projection_hash="domain-hash",
+            oigi_projection_hash="oigi-hash",
+            head_commit_id=commit_id,
+            head_oig_id=uuid4(),
+            author_id=uuid4(),
+            perf_ms={},
+            perf_metric_prefix="test",
+        )
 
 
 def test_oigi_primitive_row_backed_prestate_reuses_existing_attribute() -> None:

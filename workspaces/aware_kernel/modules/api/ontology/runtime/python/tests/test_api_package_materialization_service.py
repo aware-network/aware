@@ -6096,6 +6096,7 @@ async def test_api_dto_export_provider_passes_context_graphs_to_materialization(
 
     assert observed["resolver_accessible_graphs"] == (context_graph,)
     assert observed["accessible_graphs"] == (context_graph,)
+    assert observed["phase_timings_s"] is not None
     runtime_root = dto_manifest_path.parent / ".aware/api/runtime/network-service-dto"
     runtime_manifest = json.loads(
         (runtime_root / "api.manifest.json").read_text(encoding="utf-8")
@@ -6114,6 +6115,7 @@ async def test_api_dto_export_provider_passes_context_graphs_to_materialization(
         "package_name": "dto",
         "import_root": "aware_network_service_dto",
         "package_root": dto_package_root,
+        "phase_timings_s": result.details["api_dto_phase_timings_s"],
     }
     dto_bundle = result.bundle_packages[0]
     assert dto_bundle.semantic_root_kind == "api_dto"
@@ -6164,6 +6166,24 @@ async def test_api_dto_export_provider_passes_context_graphs_to_materialization(
             CodePackagePathRole.generated_code.value
         ),
     }
+    phase_timings = cast(dict[str, float], result.details["api_dto_phase_timings_s"])
+    expected_phase_names = {
+        "build_api_dto_workspace_snapshot",
+        "materialize_api_dto_packages",
+        "resolve_api_dto_result",
+        "build_api_dto_artifact_ownership_receipts",
+        "publish_api_dto_runtime_graph_artifacts",
+        "materialize_api_dto_language_code_package",
+        "build_api_dto_generated_code_package_deltas",
+        "assemble_api_dto_result",
+        "total",
+    }
+    assert expected_phase_names <= phase_timings.keys()
+    assert phase_timings["total"] >= max(
+        phase_timings[phase_name]
+        for phase_name in expected_phase_names
+        if phase_name != "total"
+    )
 
 
 def test_api_provider_delta_reads_context_graphs_for_runtime_plan() -> None:
@@ -7584,6 +7604,245 @@ def test_api_runtime_artifact_refs_include_only_byte_addressed_files() -> None:
             "artifact_role": "runtime_file",
         },
     )
+
+
+@pytest.mark.asyncio
+async def test_api_dto_language_code_package_reports_commit_phase_timings(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import aware_api_runtime.compile_materialization.service as package_service
+
+    package_root = tmp_path / "dto"
+    _write(package_root / "pyproject.toml", "[project]\nname = 'dto'\n")
+    _write(package_root / "aware_dto" / "__init__.py", "VALUE = 1\n")
+    commit_id = uuid4()
+    oig_commit_id = uuid4()
+    observed_commit_kwargs: dict[str, object] = {}
+    commit_call_count = 0
+    code_package = SimpleNamespace(id=uuid4())
+
+    async def _fake_reset(**_: object) -> None:
+        return None
+
+    async def _fake_commit(**kwargs: object) -> object:
+        nonlocal commit_call_count
+        commit_call_count += 1
+        observed_commit_kwargs.update(kwargs)
+        if "phase_timings_s" in kwargs:
+            phase_timings_s = cast(dict[str, float], kwargs["phase_timings_s"])
+            phase_timings_s.update(
+                {
+                    "fast_noop_lookup": 0.125,
+                    "total": 0.25,
+                }
+            )
+        return SimpleNamespace(
+            code_package=code_package,
+            commit_id=commit_id,
+            head_commit_id=commit_id,
+            object_instance_graph_commit_id=oig_commit_id,
+        )
+
+    async def _fake_health(**_: object) -> object:
+        return SimpleNamespace()
+
+    monkeypatch.setattr(
+        package_service,
+        "find_meta_graph_projection_hash_by_name",
+        lambda **_: "code-package-projection",
+    )
+    monkeypatch.setattr(
+        package_service,
+        "_reset_code_package_lane_if_root_mismatch",
+        _fake_reset,
+    )
+    monkeypatch.setattr(
+        package_service,
+        "commit_code_package_text_snapshot",
+        _fake_commit,
+    )
+    monkeypatch.setattr(
+        package_service,
+        "load_code_package_selected_snapshot_health_evidence",
+        _fake_health,
+    )
+    monkeypatch.setattr(
+        package_service,
+        "_hydrate_lane_root_from_head",
+        lambda **_: pytest.fail(
+            "generated CodePackage health must not hydrate the OIG"
+        ),
+    )
+    monkeypatch.setattr(
+        package_service,
+        "_reset_generated_api_lane",
+        lambda **_: pytest.fail("post-commit health must never reset the lane"),
+    )
+    timings: dict[str, float] = {}
+
+    result = await package_service.materialize_api_dto_language_code_package(
+        index=cast(Any, object()),
+        actor_id=None,
+        workspace_root=tmp_path,
+        package_name="dto",
+        import_root="aware_dto",
+        package_root=package_root,
+        phase_timings_s=timings,
+    )
+
+    assert result.domain_commit_id == commit_id
+    assert result.object_instance_graph_commit_id == oig_commit_id
+    assert result.code_package is code_package
+    assert commit_call_count == 1
+    assert observed_commit_kwargs["source_texts_by_relative_path"] == {
+        "aware_dto/__init__.py": "VALUE = 1\n",
+    }
+    assert observed_commit_kwargs["unparsed_texts_by_relative_path"] == {
+        "pyproject.toml": "[project]\nname = 'dto'\n",
+    }
+    assert {
+        path: role.value
+        for path, role in cast(
+            dict[str, object],
+            observed_commit_kwargs["path_roles_by_relative_path"],
+        ).items()
+    } == {
+        "aware_dto/__init__.py": "generated_code",
+        "pyproject.toml": "generated_manifest",
+    }
+    assert {
+        "api_language_code_package.python.dto.resolve_target",
+        "api_language_code_package.python.dto.reset_lane_if_needed",
+        "api_language_code_package.python.dto.read_source_files",
+        "api_language_code_package.python.dto.commit_text_snapshot",
+        "api_language_code_package.python.dto.commit_text_snapshot.fast_noop_lookup",
+        "api_language_code_package.python.dto.commit_text_snapshot.total",
+        "api_language_code_package.python.dto.verify_head_health",
+    } <= timings.keys()
+    assert (
+        timings[
+            "api_language_code_package.python.dto.commit_text_snapshot.fast_noop_lookup"
+        ]
+        == 0.125
+    )
+
+
+@pytest.mark.asyncio
+async def test_api_dto_language_code_package_missing_health_preserves_lane(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import aware_api_runtime.compile_materialization.service as package_service
+
+    package_root = tmp_path / "dto"
+    _write(package_root / "pyproject.toml", "[project]\nname = 'dto'\n")
+    _write(package_root / "aware_dto" / "__init__.py", "VALUE = 1\n")
+    commit_id = uuid4()
+    oig_commit_id = uuid4()
+    commit_call_count = 0
+    health_call_count = 0
+
+    async def _fake_commit(**_: object) -> object:
+        nonlocal commit_call_count
+        commit_call_count += 1
+        return SimpleNamespace(
+            code_package=SimpleNamespace(id=uuid4()),
+            commit_id=commit_id,
+            head_commit_id=commit_id,
+            object_instance_graph_commit_id=oig_commit_id,
+        )
+
+    async def _fake_health(**_: object) -> None:
+        nonlocal health_call_count
+        health_call_count += 1
+        return None
+
+    async def _fake_root_check(**_: object) -> None:
+        return None
+
+    monkeypatch.setattr(
+        package_service,
+        "find_meta_graph_projection_hash_by_name",
+        lambda **_: "code-package-projection",
+    )
+    monkeypatch.setattr(
+        package_service,
+        "_reset_code_package_lane_if_root_mismatch",
+        _fake_root_check,
+    )
+    monkeypatch.setattr(
+        package_service,
+        "commit_code_package_text_snapshot",
+        _fake_commit,
+    )
+    monkeypatch.setattr(
+        package_service,
+        "load_code_package_selected_snapshot_health_evidence",
+        _fake_health,
+    )
+    monkeypatch.setattr(
+        package_service,
+        "_reset_generated_api_lane",
+        lambda **_: pytest.fail("missing post-commit health must preserve the lane"),
+    )
+
+    with pytest.raises(RuntimeError) as exc_info:
+        await package_service.materialize_api_dto_language_code_package(
+            index=cast(Any, object()),
+            actor_id=None,
+            workspace_root=tmp_path,
+            package_name="dto",
+            import_root="aware_dto",
+            package_root=package_root,
+        )
+
+    message = str(exc_info.value)
+    assert "preserving provider-owned lane" in message
+    assert f"head_commit_id={commit_id}" in message
+    assert f"object_instance_graph_commit_id={oig_commit_id}" in message
+    assert commit_call_count == 1
+    assert health_call_count == 1
+
+
+@pytest.mark.asyncio
+async def test_generated_code_package_lane_does_not_hydrate_matching_head(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import aware_api_runtime.compile_materialization.service as package_service
+
+    expected_code_package_id = uuid4()
+    branch_id = uuid4()
+    reset_calls: list[dict[str, object]] = []
+
+    class _Store:
+        aware_root = tmp_path
+
+        async def head(self, **_: object) -> dict[str, object]:
+            return {"root_object_id": str(expected_code_package_id)}
+
+    monkeypatch.setattr(package_service, "FSCommitStore", lambda: _Store())
+    monkeypatch.setattr(
+        package_service,
+        "_hydrate_lane_oig_from_head",
+        lambda **_: pytest.fail("matching-head reset check must not hydrate the OIG"),
+    )
+    monkeypatch.setattr(
+        package_service,
+        "_reset_generated_api_lane",
+        lambda **kwargs: reset_calls.append(kwargs),
+    )
+
+    await package_service._reset_code_package_lane_if_root_mismatch(
+        branch_id=branch_id,
+        projection_hash="code-package-projection",
+        expected_code_package_id=expected_code_package_id,
+        package_name="code-service-dto",
+        target_label="api_language:python",
+    )
+
+    assert reset_calls == []
 
 
 @pytest.mark.asyncio

@@ -1,4 +1,4 @@
-layout coordination_center default {
+layout coordination_center {
     section orchestration {
         title "Identity"
         order 0

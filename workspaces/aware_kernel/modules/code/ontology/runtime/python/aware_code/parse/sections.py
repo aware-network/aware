@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import hashlib
-from collections import Counter, defaultdict
+from collections import defaultdict
 from dataclasses import replace
 from typing import cast
 
@@ -66,7 +66,11 @@ def _build_import_plan(
     module_node = adapter.get_module_name(node)
     name_plans: list[ImportNamePlanDescriptor] = []
     for name_node, alias_node in adapter.get_import_names(node):
-        alias_text = _node_text(source=source, node=alias_node) if alias_node is not None else None
+        alias_text = (
+            _node_text(source=source, node=alias_node)
+            if alias_node is not None
+            else None
+        )
         name_plans.append(
             ImportNamePlanDescriptor(
                 name_text=_node_text(source=source, node=name_node),
@@ -121,7 +125,9 @@ def collect_section_identity_descriptors(
             annotation_plan = AnnotationPlanDescriptor(
                 path=adapter.get_path(node).strip(),
                 verb=adapter.get_verb(node).strip(),
-                args=tuple(arg.strip() for arg in adapter.get_args(node) if arg.strip()),
+                args=tuple(
+                    arg.strip() for arg in adapter.get_args(node) if arg.strip()
+                ),
             )
         if isinstance(adapter, CodeSectionImportAdapter):
             import_plan = _build_import_plan(
@@ -171,29 +177,45 @@ def collect_top_level_section_identity_descriptors(
             )
         )
 
-    descriptors.sort(key=lambda item: (item.byte_start, item.byte_end, item.section_type.value))
+    descriptors.sort(
+        key=lambda item: (item.byte_start, item.byte_end, item.section_type.value)
+    )
     return _with_unique_section_keys(tuple(descriptors))
 
 
 def _with_unique_section_keys(
     descriptors: tuple[SectionPlanDescriptor, ...],
 ) -> tuple[SectionPlanDescriptor, ...]:
-    key_counts = Counter((descriptor.section_type, descriptor.section_key) for descriptor in descriptors)
-    if not any(count > 1 for count in key_counts.values()):
-        return descriptors
-
     occurrences: defaultdict[tuple[CodeSectionType, str], int] = defaultdict(int)
+    used_identity_keys: set[tuple[CodeSectionType, str]] = set()
     unique_descriptors: list[SectionPlanDescriptor] = []
     for descriptor in descriptors:
-        key = (descriptor.section_type, descriptor.section_key)
+        key = (
+            descriptor.section_type,
+            descriptor.section_key.casefold().strip(),
+        )
         occurrences[key] += 1
-        if key_counts[key] == 1 or occurrences[key] == 1:
+        if key not in used_identity_keys:
+            used_identity_keys.add(key)
             unique_descriptors.append(descriptor)
             continue
+        candidate_key = f"{descriptor.section_key}#{occurrences[key]}"
+        candidate_identity_key = (
+            descriptor.section_type,
+            candidate_key.casefold().strip(),
+        )
+        while candidate_identity_key in used_identity_keys:
+            occurrences[key] += 1
+            candidate_key = f"{descriptor.section_key}#{occurrences[key]}"
+            candidate_identity_key = (
+                descriptor.section_type,
+                candidate_key.casefold().strip(),
+            )
+        used_identity_keys.add(candidate_identity_key)
         unique_descriptors.append(
             replace(
                 descriptor,
-                section_key=f"{descriptor.section_key}#{occurrences[key]}",
+                section_key=candidate_key,
             )
         )
     return tuple(unique_descriptors)

@@ -1,0 +1,22 @@
+{
+  "code_package_id": "831cd01b-a39a-5c88-8c88-b4aaa2f981a1",
+  "db_schema": {
+    "backend_targets": [
+      "postgres"
+    ],
+    "package_kind": "ontology",
+    "sql_roots": [
+      {
+        "path": "../../../../modules/ontology/ontology/structure/sql/schema",
+        "path_mode": "manifest_relative"
+      }
+    ]
+  },
+  "domain_commit_id": "40cf6836-8c05-5e03-8c6a-b42839add520",
+  "object_instance_graph_commit_id": "c3afcad3-269c-51f2-9265-8291c5a59ef7",
+  "package_name": "ontology-ontology",
+  "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
+  "source_kind": "workspace_revision",
+  "workspace_relative_package_root": "modules/ontology/ontology",
+  "workspace_revision_code_package_id": "33fb2058-e87d-5c15-9e00-0867da2989fd"
+}

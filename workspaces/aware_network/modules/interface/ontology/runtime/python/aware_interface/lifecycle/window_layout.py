@@ -32,9 +32,10 @@ def resolve_bootstrap_window_layout_state(
     if not active:
         return None
 
-    resolved_view_id = str(
-        projection_view_id or _DEFAULT_ENTRY_CONTROL_PLANE_VIEW_ID
-    ).strip() or _DEFAULT_ENTRY_CONTROL_PLANE_VIEW_ID
+    resolved_view_id = (
+        str(projection_view_id or _DEFAULT_ENTRY_CONTROL_PLANE_VIEW_ID).strip()
+        or _DEFAULT_ENTRY_CONTROL_PLANE_VIEW_ID
+    )
     layout_config_id = stable_layout_config_id(key=_BOOTSTRAP_LAYOUT_KEY)
 
     return InterfaceWindowLayoutState(
@@ -168,9 +169,7 @@ def resolve_bundle_window_layout_state(
 
     description = window_config.description
     if description is None:
-        description = (
-            "Layout resolved from canonical Interface bundle truth."
-        )
+        description = "Layout resolved from canonical Interface bundle truth."
 
     return InterfaceWindowLayoutState(
         source_kind="interface_bundle",
@@ -227,15 +226,16 @@ def _select_layout_config(
         for layout_config in window_config.layout_configs:
             if layout_config.layout_config_id == preferred_layout_config_id:
                 return layout_config
+        return None
     normalized_layout_key = (preferred_layout_key or "").strip().casefold()
     if normalized_layout_key:
         for layout_config in window_config.layout_configs:
             if layout_config.key.casefold() == normalized_layout_key:
                 return layout_config
-    for layout_config in window_config.layout_configs:
-        if layout_config.is_default:
-            return layout_config
-    return window_config.layout_configs[0]
+        return None
+    if len(window_config.layout_configs) == 1:
+        return window_config.layout_configs[0]
+    return None
 
 
 def _title_from_key(value: str) -> str:

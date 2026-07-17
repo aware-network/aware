@@ -49,7 +49,7 @@ PUBLIC_FORBIDDEN_BASE_DEPENDENCIES = {
 }
 
 PUBLIC_REQUIRED_CLASSIFIERS = {
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
@@ -173,7 +173,8 @@ def test_base_pyproject_declares_honest_public_package_metadata() -> None:
     assert project["description"] == (
         "Installable Aware ORM core for metadata-driven projection indexes and branch-aware sessions."
     )
-    assert project["license"] == {"file": "LICENSE"}
+    assert project["license"] == "Apache-2.0"
+    assert project["license-files"] == ["LICENSE"]
     assert PUBLIC_REQUIRED_CLASSIFIERS.issubset(classifiers)
     assert {"aware", "orm", "projection", "branch-aware", "metadata"}.issubset(keywords)
     assert project["urls"] == PUBLIC_REQUIRED_PROJECT_URLS

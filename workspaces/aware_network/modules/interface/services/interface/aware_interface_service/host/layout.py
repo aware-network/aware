@@ -424,7 +424,6 @@ def derive_runtime_layout_states(
             layout_config_id=layout.layout_config_id,
             layout_key=layout.key,
             label=_labelize_layout_key(layout.key),
-            is_default=layout.is_default,
             is_active=layout.layout_config_id == active_layout_config_id,
         )
         for layout in window_bundle.layout_configs

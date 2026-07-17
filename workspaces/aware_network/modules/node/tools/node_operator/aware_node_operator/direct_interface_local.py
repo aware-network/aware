@@ -46,7 +46,7 @@ DEFAULT_DIRECT_INTERFACE_LOCAL_EXPERIENCE_TOML_GLOB = (
 )
 DEFAULT_DIRECT_INTERFACE_LOCAL_EXPERIENCE_TOML_GLOBS = (
     DEFAULT_DIRECT_INTERFACE_LOCAL_EXPERIENCE_TOML_GLOB,
-    "modules/*/experience/**/aware.experience.toml",
+    "modules/*/experiences/**/aware.experience.toml",
 )
 _NODE_WORKSPACE_DEPLOYMENT_PAYLOAD_ENV = "AWARE_NODE_WORKSPACE_DEPLOYMENT_PAYLOAD_PATH"
 _IDENTITY_OPG_INDEX_RELATIVE_PATH = (
@@ -825,9 +825,17 @@ def _candidate_experience_toml_paths(*, repo_root: Path) -> tuple[Path, ...]:
 
 def _workspace_module_experience_toml_paths(*, repo_root: Path) -> tuple[Path, ...]:
     paths: list[Path] = []
-    for module_toml_path in sorted(
-        (repo_root / "workspaces").glob("*/modules/*/aware.module.toml")
-    ):
+    module_toml_paths = tuple(
+        dict.fromkeys(
+            (
+                *sorted((repo_root / "modules").glob("*/aware.module.toml")),
+                *sorted(
+                    (repo_root / "workspaces").glob("*/modules/*/aware.module.toml")
+                ),
+            )
+        )
+    )
+    for module_toml_path in module_toml_paths:
         try:
             payload = tomllib.loads(module_toml_path.read_text(encoding="utf-8"))
         except (OSError, tomllib.TOMLDecodeError):

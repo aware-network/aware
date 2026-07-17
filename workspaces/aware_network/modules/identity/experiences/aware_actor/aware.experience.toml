@@ -1,0 +1,32 @@
+aware_experience = 1
+
+[experience]
+package_name = "aware-actor"
+fqn_prefix = "aware_actor"
+version_number = 1
+title = "Aware Actor"
+description = "Canonical Actor Thread experience: roles, commits, and subscriptions as the first post-admission surface inside Aware Network."
+
+[build]
+environment_handle = "kernel"
+sources_dir = "."
+include_paths = ["**/*.aware"]
+exclude_paths = []
+force_fresh_scan = true
+
+[[dependencies]]
+package_name = "aware-control"
+kind = "experience_package"
+version_number = 1
+
+[[dependencies]]
+package_name = "aware-actor-attention"
+kind = "attention_package"
+
+[targets.dart]
+root_dir = "languages/dart"
+package_dir = "aware_actor"
+
+[targets.python]
+root_dir = "languages/python"
+package_dir = "aware_actor"

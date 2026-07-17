@@ -1,0 +1,103 @@
+{
+  "node_selection": {
+    "node_config_id": "c9d1863c-aae4-55c7-950f-f84bc9bfc585",
+    "node_package_head_commit_id": "25d5ac93-b589-5909-a6b8-337ee72c1d6e",
+    "package_selection": {
+      "family_key": "node",
+      "manifest_path": "modules/node/nodes/aware_network_environment_host/aware.node.toml",
+      "package_kind": "node",
+      "package_name": "aware-network-environment-node",
+      "semantic_head_commit_id": "25d5ac93-b589-5909-a6b8-337ee72c1d6e",
+      "semantic_object_instance_graph_commit_id": "1cc7a501-2345-564e-bb5c-35f30a246cfd",
+      "semantic_package_id": "c57dba13-d7b4-5f4b-9764-cb8733b0ef25",
+      "semantic_root_id": "c9d1863c-aae4-55c7-950f-f84bc9bfc585",
+      "semantic_root_kind": "node_config",
+      "semantic_root_object_instance_graph_commit_id": "909399f5-96c3-52d3-9629-12ee8f87b1f9",
+      "source_code_package_id": "262be057-4032-5a34-a256-24ec672ad944"
+    },
+    "selector_key": "aware_network_environment_host",
+    "target_ref": "aware_network_environment_host"
+  },
+  "package_selections": [
+    {
+      "family_key": "node",
+      "manifest_path": "modules/node/nodes/aware_network_environment_host/aware.node.toml",
+      "package_kind": "node",
+      "package_name": "aware-network-environment-node",
+      "semantic_branch_id": null,
+      "semantic_head_commit_id": "25d5ac93-b589-5909-a6b8-337ee72c1d6e",
+      "semantic_object_instance_graph_commit_id": "1cc7a501-2345-564e-bb5c-35f30a246cfd",
+      "semantic_package_id": "c57dba13-d7b4-5f4b-9764-cb8733b0ef25",
+      "semantic_root_id": "c9d1863c-aae4-55c7-950f-f84bc9bfc585",
+      "semantic_root_kind": "node_config",
+      "semantic_root_object_instance_graph_commit_id": "909399f5-96c3-52d3-9629-12ee8f87b1f9",
+      "source_code_package_id": "262be057-4032-5a34-a256-24ec672ad944"
+    },
+    {
+      "code_semantic_package_binding_id": "013cc71e-3721-58bf-a38c-7cc243d6e929",
+      "code_semantic_provider_registration_id": "1e8b326e-0c76-59bc-bc3e-94bdcfdcbc93",
+      "family_key": "environment",
+      "manifest_path": "modules/interface/environments/aware_control/aware.environment.toml",
+      "package_kind": "environment",
+      "package_name": "aware-control",
+      "semantic_branch_id": "8e3af435-78b1-5cf7-b087-aef3602c3eab",
+      "semantic_head_commit_id": "6134629a-203b-5190-8741-5560562e7f35",
+      "semantic_object_instance_graph_commit_id": "6134629a-203b-5190-8741-5560562e7f35",
+      "semantic_package_id": "9745e774-300b-5d68-a72f-f86bfeaed93c",
+      "semantic_root_id": "bcb19034-d09b-53f6-b81b-b50e49fdc743",
+      "semantic_root_kind": "environment_config",
+      "semantic_root_object_instance_graph_commit_id": "28a240a0-443f-5beb-bae4-82e780061251",
+      "source_code_package_id": "ef313c11-9876-57fe-9848-3209c0a49a91"
+    },
+    {
+      "code_semantic_package_binding_id": "f670775f-3185-501b-b45f-edf4b80a7f18",
+      "code_semantic_provider_registration_id": "3e4adfa7-18bc-54b3-b1eb-2393a22aa9a4",
+      "family_key": "service",
+      "manifest_path": "modules/environment/services/environment/aware.service.toml",
+      "package_kind": "service",
+      "package_name": "aware-environment-service",
+      "semantic_branch_id": "a3794501-e9fb-5384-b220-66ed2a9c20bd",
+      "semantic_head_commit_id": "5f5b20fe-1443-5316-bc33-d63a6a9f329a",
+      "semantic_object_instance_graph_commit_id": "271fc9e8-491e-5dbe-ab7d-6f173b1c4824",
+      "semantic_package_id": "8a1e8ba1-c9d5-5a3e-bb08-f8cf1ec56c6c",
+      "semantic_root_id": "b60ddf87-10b0-56a7-b06b-dae5974a2477",
+      "semantic_root_kind": "service_config",
+      "semantic_root_object_instance_graph_commit_id": "31766dd8-6f69-500b-a266-acfe30f2450e",
+      "source_code_package_id": "9093d6c0-23e9-5b64-b8c4-646b681eceaf"
+    }
+  ],
+  "required_python_packages": [
+    "aware-environment-service",
+    "aware-node-service",
+    "aware-service-service"
+  ],
+  "runtime_inputs": [
+    {
+      "manifest_path": "modules/environment/services/environment/aware.service.toml",
+      "package_selection": {
+        "code_semantic_package_binding_id": "f670775f-3185-501b-b45f-edf4b80a7f18",
+        "code_semantic_provider_registration_id": "3e4adfa7-18bc-54b3-b1eb-2393a22aa9a4",
+        "family_key": "service",
+        "manifest_path": "modules/environment/services/environment/aware.service.toml",
+        "package_kind": "service",
+        "package_name": "aware-environment-service",
+        "semantic_branch_id": "a3794501-e9fb-5384-b220-66ed2a9c20bd",
+        "semantic_head_commit_id": "5f5b20fe-1443-5316-bc33-d63a6a9f329a",
+        "semantic_object_instance_graph_commit_id": "271fc9e8-491e-5dbe-ab7d-6f173b1c4824",
+        "semantic_package_id": "8a1e8ba1-c9d5-5a3e-bb08-f8cf1ec56c6c",
+        "semantic_root_id": "b60ddf87-10b0-56a7-b06b-dae5974a2477",
+        "semantic_root_kind": "service_config",
+        "semantic_root_object_instance_graph_commit_id": "31766dd8-6f69-500b-a266-acfe30f2450e",
+        "source_code_package_id": "9093d6c0-23e9-5b64-b8c4-646b681eceaf"
+      },
+      "runtime_kind": "service",
+      "target_name": "aware_environment"
+    }
+  ],
+  "runtime_kinds": [
+    "environment",
+    "node",
+    "service"
+  ],
+  "schema": "aware.node.runtime_closure.v1"
+}

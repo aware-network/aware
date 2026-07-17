@@ -1,0 +1,891 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "529f6cd7-1488-53d7-b44f-47a7f37a74a7",
+      "module": "aware_identity_ontology_orm_models.actor.actor",
+      "name": "Actor",
+      "aware_class_ref": "aware_identity.actor.Actor",
+      "functions": [
+        {
+          "function_config_id": "8738cd4c-006e-5dfe-ae59-e65246ab5597",
+          "name": "add_role",
+          "input_model": "ActorAddRoleInput",
+          "output_model": "ActorAddRoleOutput"
+        },
+        {
+          "function_config_id": "d8b6f904-7196-52aa-9352-237b29c15ad1",
+          "name": "add_subscription",
+          "input_model": "ActorAddSubscriptionInput",
+          "output_model": "ActorAddSubscriptionOutput"
+        },
+        {
+          "function_config_id": "609fe027-ee5a-596f-8c52-35520f067b5c",
+          "name": "create_actor",
+          "input_model": "ActorCreateActorInput",
+          "output_model": "ActorCreateActorOutput"
+        },
+        {
+          "function_config_id": "29dba3a0-d629-5133-8fab-7eca83b63ea4",
+          "name": "ensure_commit",
+          "input_model": "ActorEnsureCommitInput",
+          "output_model": "ActorEnsureCommitOutput"
+        },
+        {
+          "function_config_id": "7bc02410-53ae-55c6-abc9-6a0e0d3d5fb9",
+          "name": "remove_role",
+          "input_model": "ActorRemoveRoleInput",
+          "output_model": "ActorRemoveRoleOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6fa2a423-0e6b-57fe-bfd6-2e76122c62bc",
+      "module": "aware_identity_ontology_orm_models.actor.actor_commit",
+      "name": "ActorCommit",
+      "aware_class_ref": "aware_identity.actor.ActorCommit",
+      "functions": [
+        {
+          "function_config_id": "a2a8534e-f24d-5ebc-a4bd-1ab17e84d282",
+          "name": "create_via_actor",
+          "input_model": "ActorCommitCreateViaActorInput",
+          "output_model": "ActorCommitCreateViaActorOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3f5a0ec9-acdb-5b91-afd5-dfb84d45fef7",
+      "module": "aware_identity_ontology_orm_models.actor.actor_config",
+      "name": "ActorConfig",
+      "aware_class_ref": "aware_identity.actor.ActorConfig",
+      "functions": [
+        {
+          "function_config_id": "36c0a4b5-f787-5555-a427-0e08e15c1e84",
+          "name": "add_role_config",
+          "input_model": "ActorConfigAddRoleConfigInput",
+          "output_model": "ActorConfigAddRoleConfigOutput"
+        },
+        {
+          "function_config_id": "ab9794d6-702f-59de-be0d-e82679461998",
+          "name": "create",
+          "input_model": "ActorConfigCreateInput",
+          "output_model": "ActorConfigCreateOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5e3bbd23-f44f-5026-8f87-f408d2d139d7",
+      "module": "aware_identity_ontology_orm_models.actor.actor_config_role_config",
+      "name": "ActorConfigRoleConfig",
+      "aware_class_ref": "aware_identity.actor.ActorConfigRoleConfig",
+      "functions": [
+        {
+          "function_config_id": "e769fdb1-841a-5db8-b443-5ff5c1298af3",
+          "name": "create_via_actor_config",
+          "input_model": "ActorConfigRoleConfigCreateViaActorConfigInput",
+          "output_model": "ActorConfigRoleConfigCreateViaActorConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9e40cfcf-fdff-5748-8f31-471b92f21253",
+      "module": "aware_identity_ontology_orm_models.actor.actor_event",
+      "name": "ActorEvent",
+      "aware_class_ref": "aware_identity.actor.ActorEvent",
+      "functions": []
+    },
+    {
+      "class_config_id": "11f5ae67-7d75-500a-be98-0d782f051891",
+      "module": "aware_identity_ontology_orm_models.actor.actor_role",
+      "name": "ActorRole",
+      "aware_class_ref": "aware_identity.actor.ActorRole",
+      "functions": [
+        {
+          "function_config_id": "814d0db0-95a0-5bc8-85d6-c15a28685ea8",
+          "name": "create_via_actor",
+          "input_model": "ActorRoleCreateViaActorInput",
+          "output_model": "ActorRoleCreateViaActorOutput"
+        },
+        {
+          "function_config_id": "eaf2aa01-02c2-557e-8ddb-4183aa9b2291",
+          "name": "delete",
+          "input_model": "ActorRoleDeleteInput",
+          "output_model": "ActorRoleDeleteOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "79e5ae2b-63c8-5290-b41d-ea8566ac9380",
+      "module": "aware_identity_ontology_orm_models.actor.actor_role_delta_plan",
+      "name": "ActorRoleDeltaPlan",
+      "aware_class_ref": "aware_identity.actor.ActorRoleDeltaPlan",
+      "functions": []
+    },
+    {
+      "class_config_id": "d5372157-0bfc-5176-a628-2dfd9c6e4339",
+      "module": "aware_identity_ontology_orm_models.actor.actor_subscription",
+      "name": "ActorSubscription",
+      "aware_class_ref": "aware_identity.actor.ActorSubscription",
+      "functions": [
+        {
+          "function_config_id": "d1f505ac-5c96-5bf8-8a37-e29c30ac2938",
+          "name": "create_via_actor",
+          "input_model": "ActorSubscriptionCreateViaActorInput",
+          "output_model": "ActorSubscriptionCreateViaActorOutput"
+        },
+        {
+          "function_config_id": "ba7a686d-6db8-50e8-a68d-63f516d2f572",
+          "name": "record_event",
+          "input_model": "ActorSubscriptionRecordEventInput",
+          "output_model": "ActorSubscriptionRecordEventOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c1d064ee-1476-5232-9ae2-ac9ec31a6e12",
+      "module": "aware_identity_ontology_orm_models.actor.actor_subscription_event",
+      "name": "ActorSubscriptionEvent",
+      "aware_class_ref": "aware_identity.actor.ActorSubscriptionEvent",
+      "functions": [
+        {
+          "function_config_id": "c648478d-e7e5-5c75-8bc0-46898557d663",
+          "name": "build_via_actor_subscription",
+          "input_model": "ActorSubscriptionEventBuildViaActorSubscriptionInput",
+          "output_model": "ActorSubscriptionEventBuildViaActorSubscriptionOutput"
+        },
+        {
+          "function_config_id": "22e60c1a-93c4-5c17-8311-5ef7f8e85147",
+          "name": "set_status",
+          "input_model": "ActorSubscriptionEventSetStatusInput",
+          "output_model": "ActorSubscriptionEventSetStatusOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c19e7768-ee39-57ee-bc9e-758a3283af86",
+      "module": "aware_identity_ontology_orm_models.auth.auth_token",
+      "name": "AuthToken",
+      "aware_class_ref": "aware_identity.auth.AuthToken",
+      "functions": [
+        {
+          "function_config_id": "48137c10-3d06-5d5b-ad6b-088caf847b8f",
+          "name": "create_apt_via_auth_token_registry",
+          "input_model": "AuthTokenCreateAptViaAuthTokenRegistryInput",
+          "output_model": "AuthTokenCreateAptViaAuthTokenRegistryOutput"
+        },
+        {
+          "function_config_id": "62995cb4-56b7-557a-83b4-8162b3dac828",
+          "name": "revoke",
+          "input_model": "AuthTokenRevokeInput",
+          "output_model": "AuthTokenRevokeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "09a7f407-e119-5880-a547-26916e670ac9",
+      "module": "aware_identity_ontology_orm_models.auth.auth_token_registry",
+      "name": "AuthTokenRegistry",
+      "aware_class_ref": "aware_identity.auth.AuthTokenRegistry",
+      "functions": [
+        {
+          "function_config_id": "ec069225-1ad0-5485-9f8b-ce905cbcdc1a",
+          "name": "create_token",
+          "input_model": "AuthTokenRegistryCreateTokenInput",
+          "output_model": "AuthTokenRegistryCreateTokenOutput"
+        },
+        {
+          "function_config_id": "d0792534-e711-5094-8434-1e54d45df055",
+          "name": "ensure_registry",
+          "input_model": "AuthTokenRegistryEnsureRegistryInput",
+          "output_model": "AuthTokenRegistryEnsureRegistryOutput"
+        },
+        {
+          "function_config_id": "5f9e9410-e511-5b97-b862-7955bf4d60a2",
+          "name": "issue_apt_token",
+          "input_model": "AuthTokenRegistryIssueAptTokenInput",
+          "output_model": "AuthTokenRegistryIssueAptTokenOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0ceb4cd7-02d3-589d-b1cf-edf9e83867c8",
+      "module": "aware_identity_ontology_orm_models.credential.credential_grant",
+      "name": "CredentialGrant",
+      "aware_class_ref": "aware_identity.credential.CredentialGrant",
+      "functions": [
+        {
+          "function_config_id": "014586b2-f897-5354-a95a-ac7a914022ac",
+          "name": "create_via_credential_profile",
+          "input_model": "CredentialGrantCreateViaCredentialProfileInput",
+          "output_model": "CredentialGrantCreateViaCredentialProfileOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7cb77384-aae8-5ce2-9117-53b62f699509",
+      "module": "aware_identity_ontology_orm_models.credential.credential_profile",
+      "name": "CredentialProfile",
+      "aware_class_ref": "aware_identity.credential.CredentialProfile",
+      "functions": [
+        {
+          "function_config_id": "4fed60c2-2c9e-5b5f-ae7c-fec71416caba",
+          "name": "attach_secret_material_ref",
+          "input_model": "CredentialProfileAttachSecretMaterialRefInput",
+          "output_model": "CredentialProfileAttachSecretMaterialRefOutput"
+        },
+        {
+          "function_config_id": "382a9502-7381-501b-a259-3354bee8b36b",
+          "name": "create_via_identity",
+          "input_model": "CredentialProfileCreateViaIdentityInput",
+          "output_model": "CredentialProfileCreateViaIdentityOutput"
+        },
+        {
+          "function_config_id": "d87f9f4e-98c0-58c6-9c68-06aae427dd62",
+          "name": "grant_scope",
+          "input_model": "CredentialProfileGrantScopeInput",
+          "output_model": "CredentialProfileGrantScopeOutput"
+        },
+        {
+          "function_config_id": "0641dbd1-65cd-5990-8c87-096aec11016f",
+          "name": "record_readiness",
+          "input_model": "CredentialProfileRecordReadinessInput",
+          "output_model": "CredentialProfileRecordReadinessOutput"
+        },
+        {
+          "function_config_id": "1f920110-a668-58f3-a8a9-b3082655462a",
+          "name": "record_usage",
+          "input_model": "CredentialProfileRecordUsageInput",
+          "output_model": "CredentialProfileRecordUsageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "e364845d-5d6a-5ff9-97f3-edda20553f0e",
+      "module": "aware_identity_ontology_orm_models.credential.credential_readiness_receipt",
+      "name": "CredentialReadinessReceipt",
+      "aware_class_ref": "aware_identity.credential.CredentialReadinessReceipt",
+      "functions": [
+        {
+          "function_config_id": "162526f4-11b0-5030-90ed-3523de15323f",
+          "name": "create_via_credential_profile",
+          "input_model": "CredentialReadinessReceiptCreateViaCredentialProfileInput",
+          "output_model": "CredentialReadinessReceiptCreateViaCredentialProfileOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8d9b17d5-6e3b-5e27-af5b-09bd47ba4c82",
+      "module": "aware_identity_ontology_orm_models.credential.credential_secret_material_ref",
+      "name": "CredentialSecretMaterialRef",
+      "aware_class_ref": "aware_identity.credential.CredentialSecretMaterialRef",
+      "functions": [
+        {
+          "function_config_id": "318a99be-a927-5c34-abaf-1fd1261716c0",
+          "name": "create_via_credential_profile",
+          "input_model": "CredentialSecretMaterialRefCreateViaCredentialProfileInput",
+          "output_model": "CredentialSecretMaterialRefCreateViaCredentialProfileOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c1027737-9124-59a4-84b2-1dfdfad96911",
+      "module": "aware_identity_ontology_orm_models.credential.credential_usage_receipt",
+      "name": "CredentialUsageReceipt",
+      "aware_class_ref": "aware_identity.credential.CredentialUsageReceipt",
+      "functions": [
+        {
+          "function_config_id": "7d5b840f-b909-54f0-a22b-17bfb58c6f1c",
+          "name": "create_via_credential_profile",
+          "input_model": "CredentialUsageReceiptCreateViaCredentialProfileInput",
+          "output_model": "CredentialUsageReceiptCreateViaCredentialProfileOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "84f4ba3e-450d-5445-bbec-88657d94e27d",
+      "module": "aware_identity_ontology_orm_models.human.human",
+      "name": "Human",
+      "aware_class_ref": "aware_identity.human.Human",
+      "functions": [
+        {
+          "function_config_id": "f99ec7a4-2b2e-562b-b8da-af64f634234c",
+          "name": "create_human",
+          "input_model": "HumanCreateHumanInput",
+          "output_model": "HumanCreateHumanOutput"
+        },
+        {
+          "function_config_id": "7a62657f-56b8-5b00-8227-d029cbe56481",
+          "name": "get_display_name",
+          "input_model": "HumanGetDisplayNameInput",
+          "output_model": "HumanGetDisplayNameOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5c795033-4f18-5d5d-868c-590810c01aee",
+      "module": "aware_identity_ontology_orm_models.identity.create_profile_request",
+      "name": "CreateProfileRequest",
+      "aware_class_ref": "aware_identity.identity.CreateProfileRequest",
+      "functions": []
+    },
+    {
+      "class_config_id": "47b1bc7f-b88a-557c-8a14-9cb8b179cc6d",
+      "module": "aware_identity_ontology_orm_models.identity.identity",
+      "name": "Identity",
+      "aware_class_ref": "aware_identity.identity.Identity",
+      "functions": [
+        {
+          "function_config_id": "5a216013-74f6-5515-beda-afb2116ed761",
+          "name": "create_credential_profile",
+          "input_model": "IdentityCreateCredentialProfileInput",
+          "output_model": "IdentityCreateCredentialProfileOutput"
+        },
+        {
+          "function_config_id": "2d3c6a91-56e5-5d37-85db-3fc147474832",
+          "name": "create_profile",
+          "input_model": "IdentityCreateProfileInput",
+          "output_model": "IdentityCreateProfileOutput"
+        },
+        {
+          "function_config_id": "ca415f3f-e919-5473-adce-28bccca8a46f",
+          "name": "ensure_actor",
+          "input_model": "IdentityEnsureActorInput",
+          "output_model": "IdentityEnsureActorOutput"
+        },
+        {
+          "function_config_id": "a92a552e-6247-56c4-8646-82e1c4696090",
+          "name": "find_relevant_patterns",
+          "input_model": "IdentityFindRelevantPatternsInput",
+          "output_model": "IdentityFindRelevantPatternsOutput"
+        },
+        {
+          "function_config_id": "af03b880-70ee-55d4-8e62-dd0ea6562304",
+          "name": "signup",
+          "input_model": "IdentitySignupInput",
+          "output_model": "IdentitySignupOutput"
+        },
+        {
+          "function_config_id": "8398463c-d7fe-5a34-befb-d7ced1c43954",
+          "name": "signup_via_profile",
+          "input_model": "IdentitySignupViaProfileInput",
+          "output_model": "IdentitySignupViaProfileOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f6c2e72b-cde6-5389-935a-d8e6cf3d81ac",
+      "module": "aware_identity_ontology_orm_models.identity.identity_connection",
+      "name": "IdentityConnection",
+      "aware_class_ref": "aware_identity.identity.IdentityConnection",
+      "functions": [
+        {
+          "function_config_id": "823154bd-8848-5473-9c0b-23893b5a8b62",
+          "name": "request",
+          "input_model": "IdentityConnectionRequestInput",
+          "output_model": "IdentityConnectionRequestOutput"
+        },
+        {
+          "function_config_id": "3a3df71b-0b98-5152-8292-a415f074b720",
+          "name": "respond",
+          "input_model": "IdentityConnectionRespondInput",
+          "output_model": "IdentityConnectionRespondOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ce931cd3-a26a-5417-a183-6c607339638a",
+      "module": "aware_identity_ontology_orm_models.identity.identity_pattern",
+      "name": "IdentityPattern",
+      "aware_class_ref": "aware_identity.identity.IdentityPattern",
+      "functions": [
+        {
+          "function_config_id": "30e5b579-3b89-5eb4-8897-6b22b9446f7c",
+          "name": "find_similar_across_identities",
+          "input_model": "IdentityPatternFindSimilarAcrossIdentitiesInput",
+          "output_model": "IdentityPatternFindSimilarAcrossIdentitiesOutput"
+        },
+        {
+          "function_config_id": "a0bddbbc-945e-580a-a396-467903ca37c8",
+          "name": "find_similar_by_content",
+          "input_model": "IdentityPatternFindSimilarByContentInput",
+          "output_model": "IdentityPatternFindSimilarByContentOutput"
+        },
+        {
+          "function_config_id": "fc0b12ec-15b6-5cd1-880f-f7513d4ca942",
+          "name": "promote_to_fact",
+          "input_model": "IdentityPatternPromoteToFactInput",
+          "output_model": "IdentityPatternPromoteToFactOutput"
+        },
+        {
+          "function_config_id": "ed77a9cc-adf0-53d2-8081-6276bc75f93a",
+          "name": "record_application",
+          "input_model": "IdentityPatternRecordApplicationInput",
+          "output_model": "IdentityPatternRecordApplicationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fe6fa1f0-bfcd-5712-a532-8b6506fb4879",
+      "module": "aware_identity_ontology_orm_models.identity.identity_pattern_evidence",
+      "name": "IdentityPatternEvidence",
+      "aware_class_ref": "aware_identity.identity.IdentityPatternEvidence",
+      "functions": [
+        {
+          "function_config_id": "8e8bf2c1-d972-53b5-8707-6e8c60ae1ee5",
+          "name": "find_similar_by_content",
+          "input_model": "IdentityPatternEvidenceFindSimilarByContentInput",
+          "output_model": "IdentityPatternEvidenceFindSimilarByContentOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "34355ae5-aab2-53a2-bd55-03c75c3580ab",
+      "module": "aware_identity_ontology_orm_models.identity.identity_profile",
+      "name": "IdentityProfile",
+      "aware_class_ref": "aware_identity.identity.IdentityProfile",
+      "functions": [
+        {
+          "function_config_id": "0448db9b-4b76-5926-9d20-40b02b4fb097",
+          "name": "create",
+          "input_model": "IdentityProfileCreateInput",
+          "output_model": "IdentityProfileCreateOutput"
+        },
+        {
+          "function_config_id": "d7142170-225f-5e92-8d49-908f7d730006",
+          "name": "update_bio",
+          "input_model": "IdentityProfileUpdateBioInput",
+          "output_model": "IdentityProfileUpdateBioOutput"
+        },
+        {
+          "function_config_id": "1c2b7fba-8d3b-5d28-8423-fd53c365e34b",
+          "name": "update_country",
+          "input_model": "IdentityProfileUpdateCountryInput",
+          "output_model": "IdentityProfileUpdateCountryOutput"
+        },
+        {
+          "function_config_id": "ff1b1661-a83b-5de6-b16d-f15cefedbab5",
+          "name": "update_language",
+          "input_model": "IdentityProfileUpdateLanguageInput",
+          "output_model": "IdentityProfileUpdateLanguageOutput"
+        },
+        {
+          "function_config_id": "8fa9f57e-0012-5a95-931f-d79ae6990e3a",
+          "name": "update_picture",
+          "input_model": "IdentityProfileUpdatePictureInput",
+          "output_model": "IdentityProfileUpdatePictureOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "63522374-fd52-5878-a585-e00c61c82f86",
+      "module": "aware_identity_ontology_orm_models.identity.identity_profile_search_response",
+      "name": "IdentityProfileSearchResponse",
+      "aware_class_ref": "aware_identity.identity.IdentityProfileSearchResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "c20d2348-b665-5d69-8760-41ed3716052d",
+      "module": "aware_identity_ontology_orm_models.identity.identity_profile_search_response",
+      "name": "IdentityProfileSearchResult",
+      "aware_class_ref": "aware_identity.identity.IdentityProfileSearchResult",
+      "functions": []
+    },
+    {
+      "class_config_id": "cddd418c-e3fd-5588-86ae-e3f4500cf56a",
+      "module": "aware_identity_ontology_orm_models.organization.organization",
+      "name": "Organization",
+      "aware_class_ref": "aware_identity.organization.Organization",
+      "functions": [
+        {
+          "function_config_id": "5596e37a-0791-5dc2-aaca-c8f3afd09413",
+          "name": "create",
+          "input_model": "OrganizationCreateInput",
+          "output_model": "OrganizationCreateOutput"
+        },
+        {
+          "function_config_id": "83a26b6a-4235-5d3b-81a0-8992687492f4",
+          "name": "create_member",
+          "input_model": "OrganizationCreateMemberInput",
+          "output_model": "OrganizationCreateMemberOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7c2fbee5-6f2c-5ab1-b61a-9e87777a6ca6",
+      "module": "aware_identity_ontology_orm_models.organization.organization_member",
+      "name": "OrganizationMember",
+      "aware_class_ref": "aware_identity.organization.OrganizationMember",
+      "functions": [
+        {
+          "function_config_id": "1788a266-de04-5a34-ab08-88d5e4321c95",
+          "name": "create_via_organization",
+          "input_model": "OrganizationMemberCreateViaOrganizationInput",
+          "output_model": "OrganizationMemberCreateViaOrganizationOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "68568b2b-6ec1-5835-8651-769bb62423bb",
+      "module": "aware_identity_ontology_orm_models.role.role",
+      "name": "Role",
+      "aware_class_ref": "aware_identity.role.Role",
+      "functions": [
+        {
+          "function_config_id": "8562abea-f0ba-5a1d-a659-1ece737b73af",
+          "name": "add_class_instance",
+          "input_model": "RoleAddClassInstanceInput",
+          "output_model": "RoleAddClassInstanceOutput"
+        },
+        {
+          "function_config_id": "842d6ebe-96f2-576e-a4c7-cbeaf385b4fb",
+          "name": "create",
+          "input_model": "RoleCreateInput",
+          "output_model": "RoleCreateOutput"
+        },
+        {
+          "function_config_id": "15ac26c6-cc8e-556a-81d0-cf0e57633eec",
+          "name": "delete",
+          "input_model": "RoleDeleteInput",
+          "output_model": "RoleDeleteOutput"
+        },
+        {
+          "function_config_id": "207a493f-8e6d-5ebb-90fa-57ab7d1e39df",
+          "name": "remove_class_instance",
+          "input_model": "RoleRemoveClassInstanceInput",
+          "output_model": "RoleRemoveClassInstanceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "5e8e3a0d-ab75-5136-8e47-054577662d6c",
+      "module": "aware_identity_ontology_orm_models.role.role_class_instance",
+      "name": "RoleClassInstance",
+      "aware_class_ref": "aware_identity.role.RoleClassInstance",
+      "functions": [
+        {
+          "function_config_id": "845ae7bb-acd9-5f39-9c26-060ea62353dc",
+          "name": "create_via_role",
+          "input_model": "RoleClassInstanceCreateViaRoleInput",
+          "output_model": "RoleClassInstanceCreateViaRoleOutput"
+        },
+        {
+          "function_config_id": "05ce1fc3-57ac-50ea-b81a-c73459d614d5",
+          "name": "delete",
+          "input_model": "RoleClassInstanceDeleteInput",
+          "output_model": "RoleClassInstanceDeleteOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a5a8bb88-e2a6-579e-a79b-76aba2e1f2eb",
+      "module": "aware_identity_ontology_orm_models.role.role_config",
+      "name": "RoleConfig",
+      "aware_class_ref": "aware_identity.role.RoleConfig",
+      "functions": [
+        {
+          "function_config_id": "42af933a-4ed7-5deb-9cb4-c21c18aa27ad",
+          "name": "create",
+          "input_model": "RoleConfigCreateInput",
+          "output_model": "RoleConfigCreateOutput"
+        },
+        {
+          "function_config_id": "b2203f12-7ca9-5e41-b6d2-674d5075f0ac",
+          "name": "upsert_class_config_policy",
+          "input_model": "RoleConfigUpsertClassConfigPolicyInput",
+          "output_model": "RoleConfigUpsertClassConfigPolicyOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2c4987c7-406c-5016-9294-e0418948e19e",
+      "module": "aware_identity_ontology_orm_models.role.role_config_class_config",
+      "name": "RoleConfigClassConfig",
+      "aware_class_ref": "aware_identity.role.RoleConfigClassConfig",
+      "functions": [
+        {
+          "function_config_id": "5fed178b-020c-5180-9a4a-cf2b0b414827",
+          "name": "create_via_role_config",
+          "input_model": "RoleConfigClassConfigCreateViaRoleConfigInput",
+          "output_model": "RoleConfigClassConfigCreateViaRoleConfigOutput"
+        },
+        {
+          "function_config_id": "634f432f-366d-58c1-a1a2-283295eadd8e",
+          "name": "upsert_function_config_policy",
+          "input_model": "RoleConfigClassConfigUpsertFunctionConfigPolicyInput",
+          "output_model": "RoleConfigClassConfigUpsertFunctionConfigPolicyOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2c1a1a45-2bb4-5c5b-9d94-814216244842",
+      "module": "aware_identity_ontology_orm_models.role.role_config_class_config_function_config",
+      "name": "RoleConfigClassConfigFunctionConfig",
+      "aware_class_ref": "aware_identity.role.RoleConfigClassConfigFunctionConfig",
+      "functions": [
+        {
+          "function_config_id": "b0066720-beb3-56fa-a128-e2a4c25a55ce",
+          "name": "create_via_role_config_class_config",
+          "input_model": "RoleConfigClassConfigFunctionConfigCreateViaRoleConfigClassConfigInput",
+          "output_model": "RoleConfigClassConfigFunctionConfigCreateViaRoleConfigClassConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "47d2bfa5-b957-5124-bf32-11a25994c18c",
+      "module": "aware_identity_ontology_orm_models.role.role_config_class_config_relationship",
+      "name": "RoleConfigClassConfigRelationship",
+      "aware_class_ref": "aware_identity.role.RoleConfigClassConfigRelationship",
+      "functions": []
+    },
+    {
+      "class_config_id": "72c10977-e3f3-5ba4-ad60-347bb0338fdb",
+      "module": "aware_identity_ontology_orm_models.session.session",
+      "name": "Session",
+      "aware_class_ref": "aware_identity.session.Session",
+      "functions": [
+        {
+          "function_config_id": "faabee10-82e7-5c49-af4b-d8b58226abbc",
+          "name": "attach_provider_session",
+          "input_model": "SessionAttachProviderSessionInput",
+          "output_model": "SessionAttachProviderSessionOutput"
+        },
+        {
+          "function_config_id": "fc8efd46-eb78-53a2-b7de-04473bf747a2",
+          "name": "build_via_session_config",
+          "input_model": "SessionBuildViaSessionConfigInput",
+          "output_model": "SessionBuildViaSessionConfigOutput"
+        },
+        {
+          "function_config_id": "39d3a4ce-6231-5c22-a78c-c4e46d2fcbdb",
+          "name": "join_actor",
+          "input_model": "SessionJoinActorInput",
+          "output_model": "SessionJoinActorOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7905b8ae-7c1a-5208-a3ef-cef5b1d910ab",
+      "module": "aware_identity_ontology_orm_models.session.session_config",
+      "name": "SessionConfig",
+      "aware_class_ref": "aware_identity.session.SessionConfig",
+      "functions": [
+        {
+          "function_config_id": "dc953276-68c4-5e0e-9418-67881ed789de",
+          "name": "add_actor_config",
+          "input_model": "SessionConfigAddActorConfigInput",
+          "output_model": "SessionConfigAddActorConfigOutput"
+        },
+        {
+          "function_config_id": "c8a31459-9b52-53c0-ad3c-4a913baa59f2",
+          "name": "create",
+          "input_model": "SessionConfigCreateInput",
+          "output_model": "SessionConfigCreateOutput"
+        },
+        {
+          "function_config_id": "2db20438-9409-5885-b091-0dbbc7a46a1e",
+          "name": "start_session",
+          "input_model": "SessionConfigStartSessionInput",
+          "output_model": "SessionConfigStartSessionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b6b6aac0-89c9-5d3d-98ed-5eee653ddafe",
+      "module": "aware_identity_ontology_orm_models.session.session_config_actor_config",
+      "name": "SessionConfigActorConfig",
+      "aware_class_ref": "aware_identity.session.SessionConfigActorConfig",
+      "functions": [
+        {
+          "function_config_id": "dcbf2e8a-b3a0-5d9e-84eb-43482ea826b7",
+          "name": "create_via_session_config",
+          "input_model": "SessionConfigActorConfigCreateViaSessionConfigInput",
+          "output_model": "SessionConfigActorConfigCreateViaSessionConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "da82b87e-c8dc-5cb5-ab83-07dd2e4feb1c",
+      "module": "aware_identity_ontology_orm_models.session.session_member",
+      "name": "SessionMember",
+      "aware_class_ref": "aware_identity.session.SessionMember",
+      "functions": [
+        {
+          "function_config_id": "2f7d25c7-d8d0-5e08-b598-677d0776af46",
+          "name": "add_actor_role",
+          "input_model": "SessionMemberAddActorRoleInput",
+          "output_model": "SessionMemberAddActorRoleOutput"
+        },
+        {
+          "function_config_id": "ffb92d18-2b32-57ad-9fd3-d5c406b24dc8",
+          "name": "create_via_session",
+          "input_model": "SessionMemberCreateViaSessionInput",
+          "output_model": "SessionMemberCreateViaSessionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "12d71e14-1021-5d90-8e21-05f4bc3a32e8",
+      "module": "aware_identity_ontology_orm_models.session.session_member_actor_role",
+      "name": "SessionMemberActorRole",
+      "aware_class_ref": "aware_identity.session.SessionMemberActorRole",
+      "functions": [
+        {
+          "function_config_id": "7610e5e5-bee2-57cb-bd6b-16408a2ad729",
+          "name": "create_via_session_member",
+          "input_model": "SessionMemberActorRoleCreateViaSessionMemberInput",
+          "output_model": "SessionMemberActorRoleCreateViaSessionMemberOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2bef409a-8a41-5685-9837-62359190f274",
+      "module": "aware_identity_ontology_orm_models.session.session_provider",
+      "name": "SessionProvider",
+      "aware_class_ref": "aware_identity.session.SessionProvider",
+      "functions": [
+        {
+          "function_config_id": "2fb3dc3a-fc75-5457-8902-c56fcdd7db96",
+          "name": "bind_session_config",
+          "input_model": "SessionProviderBindSessionConfigInput",
+          "output_model": "SessionProviderBindSessionConfigOutput"
+        },
+        {
+          "function_config_id": "6da5042d-eed4-53a6-bb87-81de7975bd4a",
+          "name": "register",
+          "input_model": "SessionProviderRegisterInput",
+          "output_model": "SessionProviderRegisterOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3b42285b-ab32-5ec1-a6ae-dbb0c9bee06f",
+      "module": "aware_identity_ontology_orm_models.session.session_provider_session",
+      "name": "SessionProviderSession",
+      "aware_class_ref": "aware_identity.session.SessionProviderSession",
+      "functions": [
+        {
+          "function_config_id": "174c558f-5c0c-5c2d-8317-e6ebad98a0bb",
+          "name": "create_via_session",
+          "input_model": "SessionProviderSessionCreateViaSessionInput",
+          "output_model": "SessionProviderSessionCreateViaSessionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3cf6d3dc-bd00-5a06-83af-8ad5ff96060f",
+      "module": "aware_identity_ontology_orm_models.session.session_provider_session_config",
+      "name": "SessionProviderSessionConfig",
+      "aware_class_ref": "aware_identity.session.SessionProviderSessionConfig",
+      "functions": [
+        {
+          "function_config_id": "883428a6-7694-5e61-9992-8a61f6a6c328",
+          "name": "create_via_session_provider",
+          "input_model": "SessionProviderSessionConfigCreateViaSessionProviderInput",
+          "output_model": "SessionProviderSessionConfigCreateViaSessionProviderOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "e935b038-c462-5dc3-b8ea-a155d3ee2fbe",
+      "module": "aware_identity_ontology_orm_models.actor.actor_enums",
+      "name": "ActorType"
+    },
+    {
+      "enum_config_id": "1fe79380-b827-55e1-814d-cd0a0d67e96e",
+      "module": "aware_identity_ontology_orm_models.actor.actor_event_enums",
+      "name": "ActorEventRole"
+    },
+    {
+      "enum_config_id": "274e8552-153a-52df-b006-a9e7869fbde6",
+      "module": "aware_identity_ontology_orm_models.actor.actor_subscription_enums",
+      "name": "SubscriptionActivationStatus"
+    },
+    {
+      "enum_config_id": "eef3da07-4356-5eef-8e33-5333982cd277",
+      "module": "aware_identity_ontology_orm_models.actor.actor_subscription_enums",
+      "name": "SubscriptionAddressingPolicy"
+    },
+    {
+      "enum_config_id": "466bcf24-4814-5d6a-80bb-78a80f4c4c07",
+      "module": "aware_identity_ontology_orm_models.actor.actor_subscription_enums",
+      "name": "SubscriptionFilterMode"
+    },
+    {
+      "enum_config_id": "04778307-bfcc-5928-8d3b-ad394b948fd2",
+      "module": "aware_identity_ontology_orm_models.actor.actor_subscription_enums",
+      "name": "SubscriptionStatus"
+    },
+    {
+      "enum_config_id": "2f75a6c1-1fb5-54a8-b4de-db34c2f8157e",
+      "module": "aware_identity_ontology_orm_models.auth.auth_token_enums",
+      "name": "AuthTokenType"
+    },
+    {
+      "enum_config_id": "14fef8b5-c687-55d8-987b-b2c4e9232bc2",
+      "module": "aware_identity_ontology_orm_models.credential.credential_profile_enums",
+      "name": "CredentialGrantEffect"
+    },
+    {
+      "enum_config_id": "f413533a-16d1-5499-9889-2df9737377fc",
+      "module": "aware_identity_ontology_orm_models.credential.credential_profile_enums",
+      "name": "CredentialKind"
+    },
+    {
+      "enum_config_id": "4c627b4d-4576-548b-a6fa-ccae54720bfe",
+      "module": "aware_identity_ontology_orm_models.credential.credential_profile_enums",
+      "name": "CredentialProfileStatus"
+    },
+    {
+      "enum_config_id": "877f05de-5fc8-5e27-931f-d91100a51393",
+      "module": "aware_identity_ontology_orm_models.credential.credential_profile_enums",
+      "name": "CredentialReadinessStatus"
+    },
+    {
+      "enum_config_id": "eed22e34-9b58-5072-8424-cc92cfe46e6a",
+      "module": "aware_identity_ontology_orm_models.credential.credential_profile_enums",
+      "name": "CredentialSecretResolverKind"
+    },
+    {
+      "enum_config_id": "2eb4801e-c809-5623-98e4-78d1cbcf307b",
+      "module": "aware_identity_ontology_orm_models.credential.credential_profile_enums",
+      "name": "CredentialTargetKind"
+    },
+    {
+      "enum_config_id": "5ca2e961-cc58-5368-bcbc-31ee9b1e6c77",
+      "module": "aware_identity_ontology_orm_models.credential.credential_profile_enums",
+      "name": "CredentialUsageStatus"
+    },
+    {
+      "enum_config_id": "7eb11057-eb9a-5131-bb39-04a67b734413",
+      "module": "aware_identity_ontology_orm_models.identity.identity_connection_enums",
+      "name": "ConnectionRequestStatus"
+    },
+    {
+      "enum_config_id": "47c53eb0-74d0-5370-9b24-3b5554789247",
+      "module": "aware_identity_ontology_orm_models.identity.identity_enums",
+      "name": "IdentityType"
+    },
+    {
+      "enum_config_id": "18c9fa29-ca39-530e-8359-0f6594a37ffe",
+      "module": "aware_identity_ontology_orm_models.identity.identity_pattern_enums",
+      "name": "IdentityPatternType"
+    },
+    {
+      "enum_config_id": "c6a5e62f-8c52-5423-83cf-bedbc6c2bd37",
+      "module": "aware_identity_ontology_orm_models.organization.organization_enums",
+      "name": "OrganizationMemberRole"
+    },
+    {
+      "enum_config_id": "993c0238-9843-5545-bcfa-810e73ca5c98",
+      "module": "aware_identity_ontology_orm_models.role.role_enums",
+      "name": "AccessLevelType"
+    },
+    {
+      "enum_config_id": "2713c72b-28b0-5d5c-a687-0d6e9e2928bd",
+      "module": "aware_identity_ontology_orm_models.role.role_enums",
+      "name": "VisibilityType"
+    }
+  ]
+}

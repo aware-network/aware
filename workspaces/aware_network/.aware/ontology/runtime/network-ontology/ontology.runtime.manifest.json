@@ -1,0 +1,22 @@
+{
+  "code_package_id": "8680cb2e-a815-554b-9deb-d899b3bbfa90",
+  "db_schema": {
+    "backend_targets": [
+      "postgres"
+    ],
+    "package_kind": "ontology",
+    "sql_roots": [
+      {
+        "path": "../../../../modules/network/ontology/structure/sql/schema",
+        "path_mode": "manifest_relative"
+      }
+    ]
+  },
+  "domain_commit_id": "c6db1eea-4fc2-503d-8423-484ea81737ff",
+  "object_instance_graph_commit_id": "06fb492a-d704-5fd5-a4da-fbe9631f2d89",
+  "package_name": "network-ontology",
+  "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
+  "source_kind": "workspace_revision",
+  "workspace_relative_package_root": "modules/network/ontology",
+  "workspace_revision_code_package_id": "43258cda-0ed5-5d65-8d60-775f17af8d38"
+}

@@ -1,0 +1,22 @@
+{
+  "code_package_id": "6d461e2d-5ece-5ceb-8f15-e5abe99bad4e",
+  "db_schema": {
+    "backend_targets": [
+      "postgres"
+    ],
+    "package_kind": "ontology",
+    "sql_roots": [
+      {
+        "path": "../../../../modules/history/ontology/structure/sql/schema",
+        "path_mode": "manifest_relative"
+      }
+    ]
+  },
+  "domain_commit_id": "a73f2535-02e0-5ace-a071-b650d8edec86",
+  "object_instance_graph_commit_id": "428160a6-f552-50ec-9140-28c00c639c67",
+  "package_name": "history-ontology",
+  "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
+  "source_kind": "workspace_revision",
+  "workspace_relative_package_root": "modules/history/ontology",
+  "workspace_revision_code_package_id": "8fc62afa-33c2-584f-bd9c-3c5e8202a5a5"
+}

@@ -1,0 +1,197 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "b1ca7958-72d5-5a42-8570-2b584cf32a77",
+      "node_type": "class",
+      "entity_id": "4afbf582-ab2f-57b3-bb41-2259618d08b6",
+      "relative_path": "actor/actor_focus.py"
+    },
+    {
+      "node_id": "676499af-4086-5a41-abc5-2fd76a9ce97b",
+      "node_type": "class",
+      "entity_id": "20bd4e9a-3762-5af6-9d64-d17f07aa6ee7",
+      "relative_path": "actor/actor_focus_evidence.py"
+    },
+    {
+      "node_id": "f685bd3d-30e4-5d9e-982e-b8fcdd1d4154",
+      "node_type": "class",
+      "entity_id": "93a89680-369b-5b79-9a37-e2f9a4de4afc",
+      "relative_path": "actor/actor_focus_request.py"
+    },
+    {
+      "node_id": "73b54867-a71b-5fb2-a2e6-704585ab6872",
+      "node_type": "class",
+      "entity_id": "ca7ca9c8-0174-570e-944f-00f3e73ec483",
+      "relative_path": "actor/actor_focus_request_response.py"
+    },
+    {
+      "node_id": "db5abf76-689b-571e-9ea9-f1109e49cd23",
+      "node_type": "class",
+      "entity_id": "07cf95b1-0068-56e2-b737-d03129fce2ca",
+      "relative_path": "actor/actor_focus_scope.py"
+    },
+    {
+      "node_id": "9216ed27-171a-5e73-9098-37c403ee3bea",
+      "node_type": "class",
+      "entity_id": "81c0fbe2-0577-5cf0-b540-c85daee42aca",
+      "relative_path": "actor/actor_focus_scope_evidence.py"
+    },
+    {
+      "node_id": "f9a5f1d3-8a0d-569e-93ba-79aef072ac28",
+      "node_type": "class",
+      "entity_id": "2259ca7e-57a0-574c-ad70-6c1ec92a08e6",
+      "relative_path": "actor/actor_focus_scope_request.py"
+    },
+    {
+      "node_id": "2cb721df-52c5-5824-8613-f4e66725e545",
+      "node_type": "class",
+      "entity_id": "f67ccc0a-9480-5fe8-a4a4-07c3d1149c16",
+      "relative_path": "attention/attention_package.py"
+    },
+    {
+      "node_id": "681234c5-55bb-5742-8ab7-224dd6f58aab",
+      "node_type": "class",
+      "entity_id": "9f9afbf1-e6c2-5ce5-83d1-a4063d3b9248",
+      "relative_path": "attention/attention_package_layout_config.py"
+    },
+    {
+      "node_id": "990c77db-b252-5648-9971-352073289737",
+      "node_type": "class",
+      "entity_id": "dcabb070-9acc-54f9-86e2-b777c2a55aaf",
+      "relative_path": "focus/focus.py"
+    },
+    {
+      "node_id": "f9ee43fe-288f-5d3c-8d2d-dd5c0e12fca8",
+      "node_type": "class",
+      "entity_id": "80db298b-8bc2-57e5-967e-93bba22f48e8",
+      "relative_path": "focus/focus_scope.py"
+    },
+    {
+      "node_id": "2edc535a-bdeb-58f2-94b3-cfe7e5614684",
+      "node_type": "class",
+      "entity_id": "bcfaa41b-0c1d-57a8-9f43-cde6e9f2850c",
+      "relative_path": "focus/focus_scope_commit.py"
+    },
+    {
+      "node_id": "27c70c1a-0b48-5b45-8aa8-928ccd7e2999",
+      "node_type": "class",
+      "entity_id": "fe93f9c6-0b4a-5132-bdde-f15c2a4a75b0",
+      "relative_path": "focus/focus_scope_request.py"
+    },
+    {
+      "node_id": "e522f297-b904-562f-96c0-8caf133360ac",
+      "node_type": "class",
+      "entity_id": "7f01ff0c-0a9a-50ea-8213-82b0d9e8e554",
+      "relative_path": "focus/focus_scope_request_response.py"
+    },
+    {
+      "node_id": "74e30070-2b73-5007-acf3-7440d5897021",
+      "node_type": "class",
+      "entity_id": "72776555-365b-5a0e-94ae-29d99b310dfc",
+      "relative_path": "layout/layout.py"
+    },
+    {
+      "node_id": "b51d4aa2-2438-5b2c-8b0a-140314f1c9ef",
+      "node_type": "class",
+      "entity_id": "c467a156-20bd-5d1a-b635-07caef3975a7",
+      "relative_path": "layout/layout_config.py"
+    },
+    {
+      "node_id": "eab32f4a-b4f4-596e-81db-450e4b738c20",
+      "node_type": "class",
+      "entity_id": "d00e09a2-d2a3-5559-93d1-54193e96b7ae",
+      "relative_path": "layout/layout_config_section_config.py"
+    },
+    {
+      "node_id": "63ea7444-9646-56ef-9f26-8285cec2986b",
+      "node_type": "class",
+      "entity_id": "be6a26c7-7d4e-5f23-8f7e-d182d44c4acd",
+      "relative_path": "layout/layout_section.py"
+    },
+    {
+      "node_id": "129eba3a-a4c9-5998-aee6-15714d5154d9",
+      "node_type": "class",
+      "entity_id": "b6db0813-e6fe-57a9-b477-7be9243a8ef0",
+      "relative_path": "section/section.py"
+    },
+    {
+      "node_id": "79186dc2-6cd3-5d15-a06e-fa2ace9f66dc",
+      "node_type": "class",
+      "entity_id": "1fdb9c8a-960d-5793-a127-4d5ff806118e",
+      "relative_path": "section/section_config.py"
+    },
+    {
+      "node_id": "3381b900-7d9a-5f83-aa8c-2f200b6c1a05",
+      "node_type": "class",
+      "entity_id": "1ca0c28b-8c76-5952-9046-dca1d1d3e568",
+      "relative_path": "section/section_focus_scope.py"
+    },
+    {
+      "node_id": "b2203a90-3f57-5283-ab1c-1de91ff837b0",
+      "node_type": "class",
+      "entity_id": "f0a45d58-3334-5acc-8601-89259f50d36a",
+      "relative_path": "session/attention_focus_transition.py"
+    },
+    {
+      "node_id": "5d9f4dba-e7ca-53a3-a577-58e167864ace",
+      "node_type": "class",
+      "entity_id": "d20765ff-a73b-59c3-8af8-42e43299c664",
+      "relative_path": "session/attention_layout_topology_transition.py"
+    },
+    {
+      "node_id": "3276bebe-9f5d-569e-9137-3c8c3259214b",
+      "node_type": "class",
+      "entity_id": "775535ff-49e9-53a0-96a9-120ccb8b0afd",
+      "relative_path": "session/attention_layout_topology_transition_section.py"
+    },
+    {
+      "node_id": "97fbb196-54f1-50b8-bec3-b7d2441659c7",
+      "node_type": "class",
+      "entity_id": "3e874dd1-fb93-58c0-a217-2a58019d43d4",
+      "relative_path": "session/attention_layout_transition.py"
+    },
+    {
+      "node_id": "7a5aaca9-4d0e-5cb8-97ae-d728021c912c",
+      "node_type": "class",
+      "entity_id": "02e3ccd4-9a17-5887-9c25-d13efa820d82",
+      "relative_path": "session/attention_layout_transition_section.py"
+    },
+    {
+      "node_id": "f3b719be-8bdb-5531-82b6-8ee6735443e6",
+      "node_type": "class",
+      "entity_id": "83b14ad9-8af0-57f0-bfcd-e1e7166b3522",
+      "relative_path": "session/attention_session.py"
+    },
+    {
+      "node_id": "6b492a96-e264-5a37-8fc4-50dfabfd8d65",
+      "node_type": "class",
+      "entity_id": "8e57a110-39b3-52f1-a6df-da3ce9229e23",
+      "relative_path": "session/attention_session_layout.py"
+    },
+    {
+      "node_id": "97fb3cff-3420-5ce0-90c9-736bcc3f5866",
+      "node_type": "class",
+      "entity_id": "3012da7d-5f8e-5c0d-9020-a002a56647ba",
+      "relative_path": "session/attention_session_section.py"
+    },
+    {
+      "node_id": "cec7adfe-3197-598b-b3cf-ea583d90626c",
+      "node_type": "enum",
+      "entity_id": "0893f5aa-bbe2-59f2-8b99-36adedc5ec3e",
+      "relative_path": "actor/actor_focus_enums.py"
+    },
+    {
+      "node_id": "cfa8fb85-6766-534b-9dbf-25e4b26cd73d",
+      "node_type": "enum",
+      "entity_id": "ea73b87c-a33e-5eac-86e0-7e941c61d218",
+      "relative_path": "actor/actor_focus_enums.py"
+    },
+    {
+      "node_id": "0d4ba65e-e357-5bed-9963-13e42b4f8937",
+      "node_type": "enum",
+      "entity_id": "2e3ced63-2a1b-553a-bcd5-c09136f78135",
+      "relative_path": "focus/focus_enums.py"
+    }
+  ]
+}

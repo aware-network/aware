@@ -91,7 +91,6 @@ def test_project_interface_config_bundle_from_committed_package_derives_observab
     assert bundle.apis == []
     assert bundle.window_configs[0].key == "main"
     assert bundle.window_configs[0].layout_configs[0].key == "ide"
-    assert bundle.window_configs[0].layout_configs[0].is_default is True
     assert bundle.window_configs[0].layout_configs[0].sections[0].key == "primary"
 
     pane = bundle.pane_configs[0]
@@ -178,7 +177,6 @@ def _resolved_interface_ref(
         window_config_id=_WINDOW_CONFIG_ID,
         layout_config_id=_LAYOUT_CONFIG_ID,
         layout_config=layout_config,
-        is_default=True,
     )
     window_config = WindowConfig.model_construct(
         id=_WINDOW_CONFIG_ID,

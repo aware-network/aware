@@ -113,34 +113,30 @@ def test_package_orchestrator_derives_external_projection_lanes_from_committed_w
         )
     }
 
-    branch_ids_from_explicit_package_base = (
-        _resolve_dependency_projection_reference_branch_ids(
-            manifest_spec=manifest_spec,
-            compile_plan_payload={
-                "projection_experience_ownership": [
-                    {"name": "aware_goals", "projection": "Goal"}
-                ],
-                "environment_profile_ownership": [
-                    {
-                        "process_configs": [
-                            {
-                                "thread_configs": [
-                                    {
-                                        "projection_experiences": [
-                                            {
-                                                "experience_name": "aware_conversation_spaces"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-            },
-            semantic_materialization_context=None,
-            existing={"aware-conversations": dependency_branch_id},
-        )
+    branch_ids_from_explicit_package_base = _resolve_dependency_projection_reference_branch_ids(
+        manifest_spec=manifest_spec,
+        compile_plan_payload={
+            "projection_experience_ownership": [
+                {"name": "aware_goals", "projection": "Goal"}
+            ],
+            "environment_profile_ownership": [
+                {
+                    "process_configs": [
+                        {
+                            "thread_configs": [
+                                {
+                                    "projection_experiences": [
+                                        {"experience_name": "aware_conversation_spaces"}
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+        },
+        semantic_materialization_context=None,
+        existing={"aware-conversations": dependency_branch_id},
     )
     assert branch_ids_from_explicit_package_base[
         "aware_conversation_spaces"
@@ -1625,7 +1621,10 @@ async def test_materialize_experience_package_from_manifest_commits_canonical_pa
             for obj in code_package_session.imap_all_objects()
             if isinstance(obj, Code)
         ]
-        assert len(codes) == 1
+        assert {code.relative_path for code in codes} == {
+            "aware.experience.toml",
+            "experiences.aware",
+        }
 
         rerun = await materialize_experience_package_from_manifest(
             runtime=runtime,
@@ -1867,9 +1866,15 @@ async def test_materialize_experience_package_from_manifest_skips_api_view_langu
 
 
 @pytest.mark.asyncio
-async def test_dependency_reference_install_scope_does_not_materialize_programs(
+@pytest.mark.parametrize(
+    ("dependency_kind", "expected_section_surface_calls"),
+    (("experience_package", 0), ("attention_package", 1)),
+)
+async def test_dependency_reference_install_scope_materializes_only_external_attention_sections(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    dependency_kind: str,
+    expected_section_surface_calls: int,
 ) -> None:
     repo_root = REPO_ROOT
     workspace_root = tmp_path / "experience_package_dependency_reference"
@@ -1877,6 +1882,7 @@ async def test_dependency_reference_install_scope_does_not_materialize_programs(
     experience_toml_path = _write_experience_package_fixture(
         workspace_root=workspace_root,
         dependency_package_name="aware-control",
+        dependency_kind=dependency_kind,
     )
     _prepend_experience_meta_python_roots(repo_root=repo_root, monkeypatch=monkeypatch)
 
@@ -1907,6 +1913,14 @@ async def test_dependency_reference_install_scope_does_not_materialize_programs(
                 "Environment profile topology"
             )
 
+        section_surface_calls: list[dict[str, object]] = []
+
+        async def _materialize_experience_section_surface_ontology(
+            **kwargs: object,
+        ):
+            section_surface_calls.append(kwargs)
+            return None
+
         monkeypatch.setattr(
             service_mod,
             "materialize_experience_program_ontology",
@@ -1917,7 +1931,13 @@ async def test_dependency_reference_install_scope_does_not_materialize_programs(
             "materialize_experience_environment_profile_ontology",
             _materialize_experience_environment_profile_ontology,
         )
+        monkeypatch.setattr(
+            service_mod,
+            "materialize_experience_section_surface_ontology",
+            _materialize_experience_section_surface_ontology,
+        )
 
+        branch_id = uuid4()
         result = await service_mod.materialize_experience_package_from_manifest(
             runtime=runtime,
             index=index,
@@ -1925,7 +1945,7 @@ async def test_dependency_reference_install_scope_does_not_materialize_programs(
             environment_id=uuid4(),
             process_id=uuid4(),
             thread_id=uuid4(),
-            branch_id=uuid4(),
+            branch_id=branch_id,
             workspace_root=workspace_root,
             experience_toml_path=experience_toml_path,
             allow_unresolved_projection_experiences=True,
@@ -1938,6 +1958,17 @@ async def test_dependency_reference_install_scope_does_not_materialize_programs(
             result.phase_timings_s["materialize_environment_profile_ontology.skipped"]
             == 0.0
         )
+        assert len(section_surface_calls) == expected_section_surface_calls
+        if expected_section_surface_calls:
+            assert "materialize_section_surface_ontology" in result.phase_timings_s
+            assert section_surface_calls[0]["lane"].branch_id == branch_id
+        else:
+            assert (
+                result.phase_timings_s[
+                    "materialize_section_surface_ontology.skipped"
+                ]
+                == 0.0
+            )
         assert result.phase_timings_s["materialize_program_ontology.skipped"] == 0.0
 
 

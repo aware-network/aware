@@ -34,40 +34,28 @@ class InterfaceCompileResult:
     snapshot: InterfaceWorkspaceSnapshot
     compile_plan: InterfaceCompilePlan | None = None
     compile_plan_artifact: InterfaceCompilePlanArtifact | None = None
-    render_spec_materialization_artifact: (
-        InterfacePaneRenderSpecMaterializationArtifact | None
-    ) = None
+    render_spec_materialization_artifact: InterfacePaneRenderSpecMaterializationArtifact | None = None
     config_bundle_artifact: InterfaceConfigBundleArtifact | None = None
-    dart_registrar_bundle_artifact: InterfaceDartPaneRegistrarBundleArtifact | None = (
-        None
-    )
+    dart_registrar_bundle_artifact: InterfaceDartPaneRegistrarBundleArtifact | None = None
 
 
 def resolve_interface_runtime_package_dir(
-    *, snapshot: InterfaceWorkspaceSnapshot
+    *, snapshot: InterfaceWorkspaceSnapshot, artifact_root: Path | None = None
 ) -> Path:
     package_name = (snapshot.spec.interface.package_name or "").strip()
     if not package_name:
-        raise ValueError(
-            "Interface package_name must be non-empty for runtime artifact persistence"
-        )
-    return (
-        snapshot.repo_root / ".aware" / "interface" / "runtime" / package_name
-    ).resolve()
+        raise ValueError("Interface package_name must be non-empty for runtime artifact persistence")
+    resolved_artifact_root = artifact_root.resolve() if artifact_root is not None else snapshot.repo_root
+    return (resolved_artifact_root / ".aware" / "interface" / "runtime" / package_name).resolve()
 
 
-def resolve_interface_dart_package_dir(
-    *, snapshot: InterfaceWorkspaceSnapshot
-) -> Path | None:
+def resolve_interface_dart_package_dir(*, snapshot: InterfaceWorkspaceSnapshot) -> Path | None:
     dart_spec = snapshot.spec.dart
     if dart_spec is None:
         return None
     dart_package_dir = (snapshot.package_root / dart_spec.package_path).resolve()
     package_root = snapshot.package_root.resolve()
-    if (
-        dart_package_dir != package_root
-        and package_root not in dart_package_dir.parents
-    ):
+    if dart_package_dir != package_root and package_root not in dart_package_dir.parents:
         raise ValueError(
             "Interface dart.package_path resolved outside interface package root: "
             + f"base={package_root} candidate={dart_package_dir}"
@@ -86,13 +74,12 @@ def compile_interface_workspace(
     state_model_catalog: Mapping[str, UUID] | None = None,
     state_attribute_catalog: Mapping[str, Mapping[str, UUID]] | None = None,
     api_view_catalog: Mapping[str, ApiViewStateTruth] | None = None,
+    artifact_root: str | Path | None = None,
 ) -> InterfaceCompileResult:
     workspace = InterfaceWorkspace.from_toml(toml_path=toml_path, repo_root=repo_root)
     snapshot = workspace.build_snapshot()
-    if (
-        snapshot.spec.build.compilation_mode
-        != AwareInterfaceCompilationMode.interface_ontology
-        or (not emit_compile_plan and not emit_config_bundle)
+    if snapshot.spec.build.compilation_mode != AwareInterfaceCompilationMode.interface_ontology or (
+        not emit_compile_plan and not emit_config_bundle
     ):
         return InterfaceCompileResult(snapshot=snapshot)
 
@@ -102,9 +89,7 @@ def compile_interface_workspace(
     for ocg in projection_identity_graphs:
         projection_catalog.update(build_projection_identity_catalog_from_ocg(ocg=ocg))
     if projection_identity_ocg is not None:
-        projection_catalog.update(
-            build_projection_identity_catalog_from_ocg(ocg=projection_identity_ocg)
-        )
+        projection_catalog.update(build_projection_identity_catalog_from_ocg(ocg=projection_identity_ocg))
     resolved_projection_catalog = projection_catalog or None
     merged_state_model_catalog = dict(state_model_catalog or {})
     for ocg in projection_identity_graphs:
@@ -126,35 +111,37 @@ def compile_interface_workspace(
         ).items():
             merged_state_attribute_catalog.setdefault(key, value)
     resolved_state_attribute_catalog = merged_state_attribute_catalog or None
-    runtime_package_dir = resolve_interface_runtime_package_dir(snapshot=snapshot)
+    resolved_artifact_root = Path(artifact_root).resolve() if artifact_root is not None else snapshot.repo_root
+    runtime_package_dir = resolve_interface_runtime_package_dir(
+        snapshot=snapshot,
+        artifact_root=resolved_artifact_root,
+    )
     dart_package_dir = resolve_interface_dart_package_dir(snapshot=snapshot)
     compile_plan_artifact = (
         emit_interface_compile_plan_artifact(
             plan=compile_plan,
             runtime_package_dir=runtime_package_dir,
-            repo_root=snapshot.repo_root,
+            repo_root=resolved_artifact_root,
         )
         if emit_compile_plan
         else None
     )
-    render_spec_materialization_artifact = (
-        emit_interface_pane_render_spec_materialization_artifact(
-            snapshot=snapshot,
-            plan=compile_plan,
-            runtime_package_dir=runtime_package_dir,
-            repo_root=snapshot.repo_root,
-            projection_catalog=resolved_projection_catalog,
-            state_model_catalog=resolved_state_model_catalog,
-            state_attribute_catalog=resolved_state_attribute_catalog,
-            api_view_catalog=api_view_catalog,
-        )
+    render_spec_materialization_artifact = emit_interface_pane_render_spec_materialization_artifact(
+        snapshot=snapshot,
+        plan=compile_plan,
+        runtime_package_dir=runtime_package_dir,
+        repo_root=resolved_artifact_root,
+        projection_catalog=resolved_projection_catalog,
+        state_model_catalog=resolved_state_model_catalog,
+        state_attribute_catalog=resolved_state_attribute_catalog,
+        api_view_catalog=api_view_catalog,
     )
     dart_registrar_bundle_artifact = (
         emit_interface_dart_pane_registrar_bundle_artifact(
             snapshot=snapshot,
             plan=compile_plan,
             dart_package_dir=dart_package_dir,
-            repo_root=snapshot.repo_root,
+            repo_root=resolved_artifact_root,
             projection_catalog=resolved_projection_catalog,
             state_model_catalog=resolved_state_model_catalog,
             state_attribute_catalog=resolved_state_attribute_catalog,
@@ -177,7 +164,7 @@ def compile_interface_workspace(
         config_bundle_artifact = emit_interface_config_bundle_artifact(
             bundle=config_bundle,
             config_bundle_path=snapshot.config_bundle_path,
-            repo_root=snapshot.repo_root,
+            repo_root=resolved_artifact_root,
         )
     return InterfaceCompileResult(
         snapshot=snapshot,

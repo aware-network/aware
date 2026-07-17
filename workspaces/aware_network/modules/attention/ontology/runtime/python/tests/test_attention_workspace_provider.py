@@ -104,7 +104,7 @@ def _write_control_attention_package(workspace_root: Path) -> Path:
     _ = (package_root / "control_shell.aware").write_text(
         "\n".join(
             [
-                "layout control_shell default {",
+                "layout control_shell {",
                 "    section identity {",
                 '        title "Identity"',
                 "        order 0",
@@ -150,6 +150,47 @@ def test_attention_workspace_provider_uses_meta_runtime_contracts() -> None:
 
     assert "aware_runtime" not in _import_roots(provider_path)
     assert "aware_environment_service_dto" not in _import_roots(provider_path)
+
+
+@pytest.mark.asyncio
+async def test_attention_workspace_provider_uses_typed_authority_for_lane_state(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workspace_root = tmp_path / "workspace"
+    authority_root = tmp_path / "authority"
+    workspace_root.mkdir()
+    authority_root.mkdir()
+    _ = (workspace_root / "aware.workspace.toml").write_text(
+        "aware_workspace = 1\n",
+        encoding="utf-8",
+    )
+    toml_path = _write_control_attention_package(workspace_root)
+    observed: dict[str, object] = {}
+
+    async def _record_materialization(**kwargs: object) -> None:
+        observed.update(kwargs)
+        return None
+
+    monkeypatch.setattr(
+        workspace_provider,
+        "materialize_attention_compile_plan_ontology",
+        _record_materialization,
+    )
+
+    await materialize(
+        SemanticPackageMaterializationRequest(
+            runtime=_WorkspaceRuntimeWithoutManifest(),
+            index=_attention_index(),
+            actor_id=None,
+            branch_id=uuid4(),
+            workspace_root=workspace_root,
+            manifest_path=toml_path.relative_to(workspace_root),
+            authority_root=authority_root,
+        )
+    )
+
+    assert observed["aware_root"] == authority_root
 
 
 @pytest.mark.asyncio

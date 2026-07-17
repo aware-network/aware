@@ -210,7 +210,6 @@ def test_resolve_bundle_backed_pane_descriptors_supports_multi_mount_sections() 
                         window_config_layout_config_id=uuid4(),
                         layout_config_id=uuid4(),
                         key="configuration_map",
-                        is_default=True,
                         sections=[
                             InterfaceWindowLayoutSectionBundle(
                                 layout_config_section_config_id=workspace_section_id,

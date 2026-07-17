@@ -8,7 +8,14 @@ _REPO_ROOT_STR = str(_REPO_ROOT)
 if _REPO_ROOT_STR not in sys.path:
     sys.path.insert(0, _REPO_ROOT_STR)
 _INTERFACE_RUNTIME_ROOT_STR = str(
-    _REPO_ROOT / "workspaces" / "aware_network" / "modules" / "interface" / "ontology" / "runtime" / "python"
+    _REPO_ROOT
+    / "workspaces"
+    / "aware_network"
+    / "modules"
+    / "interface"
+    / "ontology"
+    / "runtime"
+    / "python"
 )
 if _INTERFACE_RUNTIME_ROOT_STR not in sys.path:
     sys.path.insert(0, _INTERFACE_RUNTIME_ROOT_STR)
@@ -133,7 +140,7 @@ def _write_interface_package(root: Path) -> Path:
             [
                 "interface aware_app {",
                 "    window main {",
-                "        layout scene default {",
+                "        layout scene {",
                 "            section body",
                 "        }",
                 "    }",
@@ -184,8 +191,12 @@ def test_load_interface_semantic_scope_for_interface_manifest(tmp_path: Path) ->
     assert scope.package_kind == "interface"
     assert scope.manifest_path == interface_manifest.resolve()
     assert scope.interface_dependency_scope is not None
-    assert scope.interface_dependency_scope.interface_package_name == "aware-app-interface"
-    assert scope.interface_dependency_scope.declared_experience_package_names == ("home-story",)
+    assert (
+        scope.interface_dependency_scope.interface_package_name == "aware-app-interface"
+    )
+    assert scope.interface_dependency_scope.declared_experience_package_names == (
+        "home-story",
+    )
     assert "home_story" in scope.interface_dependency_scope.experience_catalog
     assert scope.pane_catalog_resolution is not None
     assert scope.pane_catalog_resolution.declared_workspace is False

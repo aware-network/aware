@@ -1,0 +1,197 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "ac0a686f-77ee-5bdc-ad99-6cdc42b96e8b",
+      "node_type": "class",
+      "entity_id": "d6ee7547-9d51-5208-af30-24addcfe3218",
+      "relative_path": "environment/environment.py"
+    },
+    {
+      "node_id": "2fa3d7e2-d1ad-526b-b6b0-8676e1750c08",
+      "node_type": "class",
+      "entity_id": "4e688221-3f96-5961-a831-346c38b53606",
+      "relative_path": "environment/environment_config.py"
+    },
+    {
+      "node_id": "d5bf8220-c792-5148-bb5d-bb06e00b3487",
+      "node_type": "class",
+      "entity_id": "b626aa79-4107-552c-b8af-0ffb36b9fc9a",
+      "relative_path": "environment/environment_config_ontology_config.py"
+    },
+    {
+      "node_id": "564b54cf-8cb7-5def-ace8-9747f6436722",
+      "node_type": "class",
+      "entity_id": "6849f7b1-2be3-5d86-8cb3-9c6a9dcd4587",
+      "relative_path": "environment/environment_config_package.py"
+    },
+    {
+      "node_id": "47127c4f-af4d-540c-97a4-4bc5c60a5c00",
+      "node_type": "class",
+      "entity_id": "149873f4-8333-55f6-aca4-72bbafeefb74",
+      "relative_path": "environment/environment_config_package_dependency.py"
+    },
+    {
+      "node_id": "5f93c808-f5ab-5575-ba87-ac2e58b93c55",
+      "node_type": "class",
+      "entity_id": "f5874d83-4245-506d-9f12-dbb6af5634a5",
+      "relative_path": "environment/environment_config_package_ontology_package.py"
+    },
+    {
+      "node_id": "0caa4293-3725-5756-966a-b4a7d14f2a26",
+      "node_type": "class",
+      "entity_id": "e0515a91-7fef-5615-8077-7befbca37ff2",
+      "relative_path": "environment/environment_navigation_context.py"
+    },
+    {
+      "node_id": "bdfa4686-781d-53c6-ae14-be1d4a7c0332",
+      "node_type": "class",
+      "entity_id": "1723cd63-cd68-5c1b-b955-e37e9ae2ddd5",
+      "relative_path": "environment/environment_ontology.py"
+    },
+    {
+      "node_id": "6748549c-1626-5761-a2b4-9326c9f7ba18",
+      "node_type": "class",
+      "entity_id": "add65104-a5c3-5d73-8a3f-d31aef1b05dc",
+      "relative_path": "environment/environment_profile.py"
+    },
+    {
+      "node_id": "9a137c01-45c3-577b-9b55-3e6f899efa30",
+      "node_type": "class",
+      "entity_id": "db93d31b-9f3c-5090-8094-452b61f7f885",
+      "relative_path": "environment/environment_profile_actor_config.py"
+    },
+    {
+      "node_id": "5e6e47a0-82c5-5afb-856e-31964ad098ad",
+      "node_type": "class",
+      "entity_id": "e01228c4-bc69-5184-8f05-f2913fb1b2ad",
+      "relative_path": "environment/environment_profile_config.py"
+    },
+    {
+      "node_id": "0004b1ec-b6b7-5f4b-958b-345da8d7dc24",
+      "node_type": "class",
+      "entity_id": "dc25f247-856f-5b97-8642-eca85284daa1",
+      "relative_path": "environment/environment_profile_package.py"
+    },
+    {
+      "node_id": "cbb926d8-9a29-58a5-ba8d-e5039ae1abb0",
+      "node_type": "class",
+      "entity_id": "0ebb7a68-b081-59c1-983e-67d5bf9759da",
+      "relative_path": "environment/environment_profile_package_dependency.py"
+    },
+    {
+      "node_id": "834e19ec-d094-5f5e-82fb-46ee48a6a9f7",
+      "node_type": "class",
+      "entity_id": "8f5c145f-e150-5947-b119-890d2128b5d8",
+      "relative_path": "environment/environment_provider.py"
+    },
+    {
+      "node_id": "d978cae1-7401-5797-a6ea-4d470aaedfc7",
+      "node_type": "class",
+      "entity_id": "c0da2eda-797d-54a3-87af-de234c0d9eb7",
+      "relative_path": "environment/environment_provider_grant.py"
+    },
+    {
+      "node_id": "1ccc8895-525d-5ebb-aef2-6c59947b2175",
+      "node_type": "class",
+      "entity_id": "4e254503-55e2-5014-8550-85dee034c2a2",
+      "relative_path": "environment/environment_session.py"
+    },
+    {
+      "node_id": "2ebc59a6-165b-5906-93d8-3d0a8800b664",
+      "node_type": "class",
+      "entity_id": "6b7580ff-db9d-5136-9dfe-4b49262ff0a2",
+      "relative_path": "environment/environment_session_attention_session.py"
+    },
+    {
+      "node_id": "d3768688-ce54-5f8a-9536-36cb795fba84",
+      "node_type": "class",
+      "entity_id": "5d396103-7848-53b9-9bd6-45d53adb0555",
+      "relative_path": "environment/environment_session_config.py"
+    },
+    {
+      "node_id": "7beb9782-fcee-5ad1-9932-900a9ab4440d",
+      "node_type": "class",
+      "entity_id": "985f5910-fc18-5f5f-a9f0-5345c7db22fc",
+      "relative_path": "environment/environment_session_thread.py"
+    },
+    {
+      "node_id": "28f685b1-2982-5bc2-a5c4-58f19f373bac",
+      "node_type": "class",
+      "entity_id": "af4dba0e-6a9d-56b5-a26d-d71abed5293a",
+      "relative_path": "process/process.py"
+    },
+    {
+      "node_id": "3102d25a-6ea9-5732-bf66-5c60c87e132d",
+      "node_type": "class",
+      "entity_id": "5d27245b-86db-56db-9e92-315765499cfb",
+      "relative_path": "process/process_config.py"
+    },
+    {
+      "node_id": "cdea0b60-bbcb-5376-ab8d-fff6957ec328",
+      "node_type": "class",
+      "entity_id": "36560a04-eb66-545c-8409-c3a0598e5287",
+      "relative_path": "thread/thread.py"
+    },
+    {
+      "node_id": "431e07e9-6001-5002-a28f-5b36b6668890",
+      "node_type": "class",
+      "entity_id": "8ec664f8-e59a-54a9-bddf-8f76b3d79c5c",
+      "relative_path": "thread/thread.py"
+    },
+    {
+      "node_id": "a741cf8c-3b6b-5649-9dc9-002eba76838a",
+      "node_type": "class",
+      "entity_id": "faecade4-a09f-56de-bd36-ae99d40d057c",
+      "relative_path": "thread/thread.py"
+    },
+    {
+      "node_id": "5ebf3ecc-78dc-59b7-ae69-d0dbad3fde02",
+      "node_type": "class",
+      "entity_id": "3d540c24-5098-5291-87fc-28baf831604d",
+      "relative_path": "thread/thread_config.py"
+    },
+    {
+      "node_id": "ee3db38f-58b8-573a-ae4b-3ecbbd9e8fa0",
+      "node_type": "class",
+      "entity_id": "f3e68958-85fc-59fb-ad9a-d439ff669598",
+      "relative_path": "thread/thread_config_layout_config.py"
+    },
+    {
+      "node_id": "794ffa3f-c47d-511d-84cb-5492a8a1de58",
+      "node_type": "class",
+      "entity_id": "2fe7b919-1d04-5c55-bfb1-d1795619c012",
+      "relative_path": "thread/thread_config_layout_config_section.py"
+    },
+    {
+      "node_id": "ea5b6614-c6c1-57f6-8611-28b9e933ad6f",
+      "node_type": "class",
+      "entity_id": "71961d38-6418-53c8-9e4f-bbd0479e9232",
+      "relative_path": "thread/thread_config_object_projection_graph.py"
+    },
+    {
+      "node_id": "75796ed3-8c22-5a94-bfa9-5e043e5daf0f",
+      "node_type": "class",
+      "entity_id": "0af2a6ed-590d-50e0-ba9c-5162bd3b5b60",
+      "relative_path": "thread/thread_layout.py"
+    },
+    {
+      "node_id": "ca427ffa-2140-56f6-a5f5-1544cb7116c1",
+      "node_type": "class",
+      "entity_id": "4ba0ecfe-739f-54a6-80da-ec0798df9563",
+      "relative_path": "thread/thread_object_instance_graph_branch.py"
+    },
+    {
+      "node_id": "1f81e57b-f080-5aaa-a7ce-0480d1e8d7d4",
+      "node_type": "enum",
+      "entity_id": "708660a0-d8ff-5fe7-bfdf-d8a532ff52d7",
+      "relative_path": "priority/priority_enums.py"
+    },
+    {
+      "node_id": "d4cc0c31-9cac-51c8-bac8-0097ffcc519d",
+      "node_type": "enum",
+      "entity_id": "9bddf64a-656c-572e-a0ff-520235ac9c83",
+      "relative_path": "process/process_enums.py"
+    }
+  ]
+}

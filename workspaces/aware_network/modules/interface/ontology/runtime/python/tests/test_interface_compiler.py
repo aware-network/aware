@@ -87,7 +87,7 @@ def _write_interface_source(root: Path) -> None:
             [
                 "interface aware_app {",
                 "    window main {",
-                "        layout configuration_map default {",
+                "        layout configuration_map {",
                 "            section workspace",
                 "            section inspector",
                 "        }",
@@ -117,7 +117,7 @@ def _write_interface_source_with_duplicate_section_mount(root: Path) -> None:
             [
                 "interface aware_app {",
                 "    window main {",
-                "        layout configuration_map default {",
+                "        layout configuration_map {",
                 "            section workspace",
                 "        }",
                 "    }",
@@ -126,6 +126,29 @@ def _write_interface_source_with_duplicate_section_mount(root: Path) -> None:
                 "        mount main.configuration_map.workspace",
                 "        mount main.configuration_map.workspace",
                 "        narrative security.control",
+                "    }",
+                "}",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+
+def _write_attention_interface_source(
+    root: Path, *, declare_locally: bool = False
+) -> None:
+    layout_line = (
+        "        layout scene_view {\n            section overlay_left\n        }"
+        if declare_locally
+        else "        layout scene_view"
+    )
+    _ = (root / "home_story_app.aware").write_text(
+        "\n".join(
+            [
+                "interface aware_app {",
+                "    window main {",
+                layout_line,
                 "    }",
                 "}",
                 "",
@@ -1380,6 +1403,54 @@ def test_interface_workspace_snapshot_loads_declared_attention_package_artifact(
     assert len(attention_package.layouts) == 1
     assert attention_package.layouts[0].layout_key == "scene_view"
     assert attention_package.layouts[0].sections[0].section_key == "overlay_left"
+
+
+def test_attention_backed_interface_uses_bodyless_layout_reference(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path
+    toml_path = _write_interface_toml(
+        root,
+        dependencies=(("home-shell-attention", "attention_package"),),
+    )
+    _write_attention_interface_source(root)
+    _write_attention_compile_artifact(root)
+
+    snapshot = InterfaceWorkspace.from_toml(
+        toml_path=toml_path, repo_root=root
+    ).build_snapshot()
+    plan = build_interface_compile_plan(snapshot=snapshot)
+    layout = plan.interface_ownership[0].windows[0].layouts[0]
+
+    assert layout.key == "scene_view"
+    assert layout.is_reference is True
+    assert layout.sections == ()
+
+    bundle = build_interface_config_bundle(snapshot=snapshot, plan=plan)
+    compiled_layout = bundle.window_configs[0].layout_configs[0]
+    assert compiled_layout.key == "scene_view"
+    assert [section.key for section in compiled_layout.sections] == ["overlay_left"]
+
+
+def test_attention_backed_interface_rejects_braced_layout_declaration(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path
+    toml_path = _write_interface_toml(
+        root,
+        dependencies=(("home-shell-attention", "attention_package"),),
+    )
+    _write_attention_interface_source(root, declare_locally=True)
+    _write_attention_compile_artifact(root)
+
+    snapshot = InterfaceWorkspace.from_toml(
+        toml_path=toml_path, repo_root=root
+    ).build_snapshot()
+    with pytest.raises(
+        ValueError,
+        match="must use bodyless layout references",
+    ):
+        build_interface_compile_plan(snapshot=snapshot)
 
 
 def test_interface_workspace_snapshot_loads_workspace_attention_manifest_when_dependency_is_undeclared(

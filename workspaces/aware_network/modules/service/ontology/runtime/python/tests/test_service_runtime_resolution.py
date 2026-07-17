@@ -1151,10 +1151,19 @@ def test_service_protocol_runtime_resolution_allows_declared_workspace_dependenc
             {
                 "package_name": "support-ontology",
                 "kind": "ontology",
-                "aware_toml_relpath": dependency_aware.as_posix(),
-                "package_root_relpath": dependency_aware.parent.as_posix(),
-                "python_root_relpath": dependency_python.as_posix(),
-                "runtime_root_relpath": dependency_runtime.as_posix(),
+                "workspace_handle": "kernel_support",
+                "aware_toml_relpath": dependency_aware.relative_to(
+                    dependency_root
+                ).as_posix(),
+                "package_root_relpath": dependency_aware.parent.relative_to(
+                    dependency_root
+                ).as_posix(),
+                "python_root_relpath": dependency_python.relative_to(
+                    dependency_root
+                ).as_posix(),
+                "runtime_root_relpath": dependency_runtime.relative_to(
+                    dependency_root
+                ).as_posix(),
             }
         ],
     )

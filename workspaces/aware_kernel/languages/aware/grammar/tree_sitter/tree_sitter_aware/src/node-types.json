@@ -5467,6 +5467,22 @@
     }
   },
   {
+    "type": "interface_layout_ref",
+    "named": true,
+    "fields": {
+      "layout_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ident",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "interface_layout_section_def",
     "named": true,
     "fields": {
@@ -5592,6 +5608,10 @@
         },
         {
           "type": "interface_layout_def",
+          "named": true
+        },
+        {
+          "type": "interface_layout_ref",
           "named": true
         }
       ]

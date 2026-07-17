@@ -1,0 +1,181 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "e36537cd-48ae-5626-8ae7-f11bdfd88778",
+      "module": "aware_history_ontology.branch.branch",
+      "name": "Branch",
+      "aware_class_ref": "aware_history.branch.Branch",
+      "functions": [
+        {
+          "function_config_id": "bc0a6a2d-1119-51eb-8d9a-3549bc001b2e",
+          "name": "attach_lane",
+          "input_model": "BranchAttachLaneInput",
+          "output_model": "BranchAttachLaneOutput"
+        },
+        {
+          "function_config_id": "78b782b9-a9ce-5b0a-bc7f-195ecf86ed2a",
+          "name": "create",
+          "input_model": "BranchCreateInput",
+          "output_model": "BranchCreateOutput"
+        },
+        {
+          "function_config_id": "08aa2841-82e2-54aa-9eab-1bcc1f0d3851",
+          "name": "create_version",
+          "input_model": "BranchCreateVersionInput",
+          "output_model": "BranchCreateVersionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d97967be-b972-58f6-a5bc-4369809201e0",
+      "module": "aware_history_ontology.change.change",
+      "name": "Change",
+      "aware_class_ref": "aware_history.change.Change",
+      "functions": [
+        {
+          "function_config_id": "695159ce-8800-5d37-8714-008cac1aed68",
+          "name": "create",
+          "input_model": "ChangeCreateInput",
+          "output_model": "ChangeCreateOutput"
+        },
+        {
+          "function_config_id": "4db366fd-3a68-553e-87f2-9b3739ca6392",
+          "name": "create_delta",
+          "input_model": "ChangeCreateDeltaInput",
+          "output_model": "ChangeCreateDeltaOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "98e38a0c-9140-514d-8359-9364124e108a",
+      "module": "aware_history_ontology.change.change_delta",
+      "name": "ChangeDelta",
+      "aware_class_ref": "aware_history.change.ChangeDelta",
+      "functions": [
+        {
+          "function_config_id": "5819c352-3554-51f3-a548-cc721fa63ad5",
+          "name": "create_via_change",
+          "input_model": "ChangeDeltaCreateViaChangeInput",
+          "output_model": "ChangeDeltaCreateViaChangeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "01af5be3-7da4-5303-bcb2-20f6751ca879",
+      "module": "aware_history_ontology.commit.commit",
+      "name": "Commit",
+      "aware_class_ref": "aware_history.commit.Commit",
+      "functions": [
+        {
+          "function_config_id": "d5063263-719d-5910-9917-ed7fd7f44eeb",
+          "name": "add_parent",
+          "input_model": "CommitAddParentInput",
+          "output_model": "CommitAddParentOutput"
+        },
+        {
+          "function_config_id": "37db28e2-5441-5d05-9406-933166e03c1d",
+          "name": "create_via_lane",
+          "input_model": "CommitCreateViaLaneInput",
+          "output_model": "CommitCreateViaLaneOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "23dcf35c-8f94-5e4f-832d-a367a61aa3d4",
+      "module": "aware_history_ontology.commit.commit_parent",
+      "name": "CommitParent",
+      "aware_class_ref": "aware_history.commit.CommitParent",
+      "functions": [
+        {
+          "function_config_id": "b74a4360-558d-5644-a056-7b92f7d1937a",
+          "name": "create_via_commit",
+          "input_model": "CommitParentCreateViaCommitInput",
+          "output_model": "CommitParentCreateViaCommitOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "caafb6e4-eead-528b-9f14-697a9f6b4751",
+      "module": "aware_history_ontology.lane.lane",
+      "name": "Lane",
+      "aware_class_ref": "aware_history.lane.Lane",
+      "functions": [
+        {
+          "function_config_id": "1a1b32b2-2877-5631-bd39-ed64f64f84b1",
+          "name": "advance_head",
+          "input_model": "LaneAdvanceHeadInput",
+          "output_model": "LaneAdvanceHeadOutput"
+        },
+        {
+          "function_config_id": "32855c57-2e56-5205-a56c-8f582a25ee77",
+          "name": "create_commit",
+          "input_model": "LaneCreateCommitInput",
+          "output_model": "LaneCreateCommitOutput"
+        },
+        {
+          "function_config_id": "32adc62f-f50a-56e9-963d-cbcf6f68ec65",
+          "name": "create_via_branch",
+          "input_model": "LaneCreateViaBranchInput",
+          "output_model": "LaneCreateViaBranchOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d340fc06-56e4-5aff-b43d-7a39f2caa11a",
+      "module": "aware_history_ontology.migration.migration",
+      "name": "Migration",
+      "aware_class_ref": "aware_history.migration.Migration",
+      "functions": [
+        {
+          "function_config_id": "96e7883e-ffbc-5a70-9d81-4c9d97005c76",
+          "name": "create_via_version",
+          "input_model": "MigrationCreateViaVersionInput",
+          "output_model": "MigrationCreateViaVersionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "763370ab-b44f-5269-8df8-231531b293d8",
+      "module": "aware_history_ontology.version.version",
+      "name": "Version",
+      "aware_class_ref": "aware_history.version.Version",
+      "functions": [
+        {
+          "function_config_id": "f697a701-52cf-5b2a-af1f-5bd25394be8d",
+          "name": "create_migration",
+          "input_model": "VersionCreateMigrationInput",
+          "output_model": "VersionCreateMigrationOutput"
+        },
+        {
+          "function_config_id": "b7b176b3-a941-5e46-a540-8aaecf23031a",
+          "name": "create_via_branch",
+          "input_model": "VersionCreateViaBranchInput",
+          "output_model": "VersionCreateViaBranchOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "beea439d-9850-577f-8b76-8324b14ba386",
+      "module": "aware_history_ontology.change.change_enums",
+      "name": "ChangeDeltaKind"
+    },
+    {
+      "enum_config_id": "e4126641-dd12-5d03-ba71-8c5c578684cd",
+      "module": "aware_history_ontology.change.change_enums",
+      "name": "ChangeType"
+    },
+    {
+      "enum_config_id": "b62129a1-0da6-5390-9888-a2f3a18554f7",
+      "module": "aware_history_ontology.commit.commit_enums",
+      "name": "CommitStatus"
+    },
+    {
+      "enum_config_id": "1e77bae8-77c2-53fa-8cc3-354e72b39766",
+      "module": "aware_history_ontology.migration.migration_enums",
+      "name": "MigrationStatus"
+    }
+  ]
+}

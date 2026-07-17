@@ -1,0 +1,27 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "f8a0c8df-2970-527e-a70d-7366718f6987",
+      "module": "aware_meta_temporal_session_state_orm_models.temporal.temporal_frame",
+      "name": "TemporalFrame",
+      "aware_class_ref": "aware_meta_temporal_session_state.temporal.TemporalFrame",
+      "functions": []
+    },
+    {
+      "class_config_id": "981f0467-57a9-5b4d-b58e-cfdfbdaee327",
+      "module": "aware_meta_temporal_session_state_orm_models.temporal.temporal_session",
+      "name": "TemporalSession",
+      "aware_class_ref": "aware_meta_temporal_session_state.temporal.TemporalSession",
+      "functions": []
+    },
+    {
+      "class_config_id": "6a26c105-29b7-5c30-920f-4909c82e229f",
+      "module": "aware_meta_temporal_session_state_orm_models.temporal.temporal_session_tombstone",
+      "name": "TemporalSessionTombstone",
+      "aware_class_ref": "aware_meta_temporal_session_state.temporal.TemporalSessionTombstone",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

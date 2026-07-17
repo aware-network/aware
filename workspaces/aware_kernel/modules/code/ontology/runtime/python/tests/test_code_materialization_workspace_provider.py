@@ -23,6 +23,7 @@ from aware_code.semantic_materialization import (
     SemanticPackageMaterializationRequest,
 )
 from aware_meta.handlers._generated import meta_handlers as meta_meta_handlers
+from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
 from aware_meta.runtime import (
     MetaGraphFunctionImplOwnership,
     MetaGraphImplementationPolicy,
@@ -100,10 +101,14 @@ async def test_code_materialization_provider_commits_selected_raw_package(
     )
 
     with IsolatedMetaAwareRoot(
-        tmp_path / "aware_root",
+        tmp_path / "ambient_aware_root",
         persistence_backend="fs",
-    ) as aware_root:
-        runtime = _build_code_meta_runtime(repo_root=repo_root, aware_root=aware_root)
+    ) as ambient_aware_root:
+        authority_root = tmp_path / "workspace_authority"
+        runtime = _build_code_meta_runtime(
+            repo_root=repo_root,
+            aware_root=ambient_aware_root,
+        )
         assert runtime.context is not None
         idx = runtime.context.index
 
@@ -115,6 +120,7 @@ async def test_code_materialization_provider_commits_selected_raw_package(
                 branch_id=uuid4(),
                 workspace_root=workspace_root,
                 manifest_path=Path("libs/demo/pyproject.toml"),
+                authority_root=authority_root,
             )
         )
 
@@ -128,13 +134,89 @@ async def test_code_materialization_provider_commits_selected_raw_package(
     assert bundle.semantic_projection_name == "CodePackage"
     assert bundle.semantic_root_kind == "code_package"
     assert bundle.source_code_package_id == bundle.semantic_package_id
+    authority_store = FSCommitStore(root_dir=authority_root)
+    ambient_store = FSCommitStore(root_dir=ambient_aware_root)
+    assert authority_store.commit_file_path(
+        branch_id=bundle.semantic_branch_id,
+        projection_hash=str(bundle.semantic_projection_hash),
+        commit_id=result.commit_id,
+    ).is_file()
+    assert not ambient_store.commit_file_path(
+        branch_id=bundle.semantic_branch_id,
+        projection_hash=str(bundle.semantic_projection_hash),
+        commit_id=result.commit_id,
+    ).exists()
+
+
+@pytest.mark.asyncio
+async def test_code_materialization_provider_emits_declared_binary_artifact(
+    tmp_path: Path,
+) -> None:
+    workspace_root = tmp_path / "workspace"
+    _write(
+        workspace_root / "libs" / "demo" / "pyproject.toml",
+        "\n".join(
+            [
+                "[project]",
+                'name = "aware-demo-lib"',
+                'version = "0.1.0"',
+                "",
+                "[[tool.aware.package_artifacts]]",
+                'path = "aware_demo_lib/runtime.wasm"',
+                'media_type = "application/wasm"',
+                "",
+            ]
+        ),
+    )
+    artifact_path = workspace_root / "libs/demo/aware_demo_lib/runtime.wasm"
+    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+    artifact_path.write_bytes(bytes.fromhex("0061736d01000000"))
+
+    with IsolatedMetaAwareRoot(
+        tmp_path / "aware_root",
+        persistence_backend="fs",
+    ) as aware_root:
+        runtime = _build_code_meta_runtime(
+            repo_root=REPO_ROOT,
+            aware_root=aware_root,
+        )
+        result = await materialize(
+            SemanticPackageMaterializationRequest(
+                runtime=runtime,
+                index=runtime.context.index,
+                actor_id=None,
+                branch_id=uuid4(),
+                workspace_root=workspace_root,
+                manifest_path=Path("libs/demo/pyproject.toml"),
+                authority_root=tmp_path / "authority",
+            )
+        )
+
+    (receipt,) = result.details["artifact_ownership_receipts"]
+    assert receipt["path"] == "libs/demo/aware_demo_lib/runtime.wasm"
+    assert receipt["media_type"] == "application/wasm"
+    assert receipt["digest"] == (
+        "93a44bbb96c751218e4c00d479e4c14358122a389acca16205b1e4d0dc5f9476"
+    )
+    assert receipt["size_bytes"] == 8
+
+
+def test_code_materialization_contract_declares_static_package_artifacts() -> None:
+    (descriptor,) = AWARE_CODE_SEMANTIC_CONTRACT.materialization_artifact_outputs_for(
+        semantic_owner="aware_code.provider",
+    )
+    assert descriptor.output_key == "code.package_static_artifact"
+    assert descriptor.artifact_family == "code_package_static_artifact"
+    assert descriptor.required_for == ("workspace_revision", "public_checkout")
 
 
 def test_code_materialization_contract_declares_functional_delta_adapter() -> None:
     (participation,) = AWARE_CODE_SEMANTIC_CONTRACT.capability_participation_for(
         capability=SEMANTIC_MATERIALIZATION_CAPABILITY,
     )
-    adapter = participation.metadata[SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_METADATA_KEY]
+    adapter = participation.metadata[
+        SEMANTIC_MATERIALIZATION_DELTA_ADAPTER_METADATA_KEY
+    ]
 
     assert adapter["callable_module"] == "aware_code.materialization.workspace_provider"
     assert adapter["callable_name"] == "materialize_delta"
@@ -149,8 +231,7 @@ def test_code_materialization_contract_declares_functional_delta_adapter() -> No
         )
     )
     assert (
-        runtime_context.callable_module
-        == "aware_code.materialization.runtime_context"
+        runtime_context.callable_module == "aware_code.materialization.runtime_context"
     )
     assert runtime_context.callable_name == (
         "build_code_workspace_materialization_runtime_context"
@@ -248,7 +329,10 @@ async def test_code_materialization_delta_provider_commits_text_snapshot(
     assert result["applied_semantic_keys"] == ["aware-demo-lib"]
     assert bundle_package["semantic_projection_name"] == "CodePackage"
     assert bundle_package["semantic_root_kind"] == "code_package"
-    assert bundle_package["source_code_package_id"] == bundle_package["semantic_package_id"]
+    assert (
+        bundle_package["source_code_package_id"]
+        == bundle_package["semantic_package_id"]
+    )
     assert bundle_package["semantic_object_instance_graph_commit_id"]
     assert bundle_package["source_object_instance_graph_commit_id"]
     assert details["mode"] == "delta"

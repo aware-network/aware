@@ -363,7 +363,6 @@ class _InterfaceRuntimeLayoutTruth:
     layout_config_id: UUID
     layout_key: str
     label: str
-    is_default: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -517,7 +516,6 @@ def build_interface_config_bundle(
                     ),
                     layout_config_id=layout_config_id,
                     key=layout.key,
-                    is_default=layout.is_default,
                     sections=sections,
                 )
             )
@@ -1597,14 +1595,19 @@ def _stable_api_view_id_from_compile_plan(
     observable_parts = tuple(
         part.strip() for part in observable_ref.split(".") if part.strip()
     )
-    if len(observable_parts) != 2:
+    resolved_projection: tuple[ProjectionIdentityTruth, str] | None = None
+    for split_index in range(len(observable_parts) - 1, 0, -1):
+        projection_name = ".".join(observable_parts[:split_index])
+        observable_key = ".".join(observable_parts[split_index:])
+        projection_truth = projection_identity_catalog.get(
+            _normalize_projection_name(projection_name)
+        )
+        if projection_truth is not None:
+            resolved_projection = (projection_truth, observable_key)
+            break
+    if resolved_projection is None:
         return None
-    projection_name, observable_key = observable_parts
-    projection_truth = projection_identity_catalog.get(
-        _normalize_projection_name(projection_name)
-    )
-    if projection_truth is None:
-        return None
+    projection_truth, observable_key = resolved_projection
     object_projection_graph_observable_id = (
         stable_object_projection_graph_observable_id(
             object_projection_graph_identity_id=(
@@ -2150,7 +2153,10 @@ def _hydrate_projection_view_invocation_actions(
 
     hydrated_actions: list[ExperienceProjectionViewInvocationActionOwnership] = []
     for action in view.invocation_actions:
-        if _projection_view_invocation_action_has_target(action):
+        if isinstance(
+            getattr(action, "api_view_capability_endpoint_id", None),
+            UUID,
+        ):
             hydrated_actions.append(action)
             continue
         if api_view_truth is None:
@@ -2200,19 +2206,6 @@ def _projection_view_invocation_action_from_api_truth(
         ),
         sdk_operation_id=action_truth.sdk_operation_id,
     )
-
-
-def _projection_view_invocation_action_has_target(
-    action: ExperienceProjectionViewInvocationActionOwnership,
-) -> bool:
-    action_kind = getattr(action, "action_kind", None)
-    target_ref = getattr(action, "target_ref", None)
-    if isinstance(action_kind, str) and isinstance(target_ref, str):
-        return bool(action_kind.strip() and target_ref.strip())
-    endpoint_ref = getattr(action, "endpoint_ref", None)
-    if isinstance(endpoint_ref, str) and endpoint_ref.strip():
-        return True
-    return isinstance(getattr(action, "sdk_operation_id", None), UUID)
 
 
 def _projection_view_invocation_action_config_id(
@@ -2484,6 +2477,11 @@ def _layout_mount_scope(
                 "Interface layout key is missing Attention-backed layout truth: "
                 + f"{layout.key!r}"
             )
+        if layout.is_reference:
+            raise ValueError(
+                "Interface layout references require Attention-backed layout truth: "
+                + f"{layout.key!r}"
+            )
         if not layout.sections:
             raise ValueError(
                 f"Interface layout {layout.key!r} must declare sections when no attention_package is linked"
@@ -2491,10 +2489,10 @@ def _layout_mount_scope(
         return _LayoutMountScope(
             section_keys={section.key.casefold() for section in layout.sections},
         )
-    if layout.sections:
+    if not layout.is_reference:
         raise ValueError(
-            "Attention-backed Interface layouts must not author structural topology. "
-            + f"Layout {layout.key!r} still declares sections."
+            "Attention-backed Interface layouts must use bodyless layout references; "
+            + f"layout {layout.key!r} is still authored as an Interface declaration."
         )
     return _LayoutMountScope(
         section_keys={
@@ -4294,8 +4292,7 @@ def _render_dart_pane_registrar_bundle(
                 "      InterfacePackageRuntimeLayout("
                 + f"layoutConfigId: '{layout.layout_config_id}', "
                 + f"layoutKey: '{layout.layout_key}', "
-                + f"label: '{layout.label}', "
-                + f"isDefault: {str(layout.is_default).lower()}),"
+                + f"label: '{layout.label}'),"
             )
         lines.append("    ],")
     if section_representations:
@@ -4382,7 +4379,6 @@ def _resolve_interface_runtime_layout_options(
                         layout_config_id=layout_config_id,
                         layout_key=layout_key,
                         label=_runtime_layout_label(layout_key),
-                        is_default=layout.is_default,
                     )
                 )
     return tuple(options)
@@ -4568,7 +4564,7 @@ def _encode_plan(*, plan: InterfaceCompilePlan) -> dict[str, object]:
                         "layouts": [
                             {
                                 "key": layout.key,
-                                "is_default": layout.is_default,
+                                "is_reference": layout.is_reference,
                                 "source_path": layout.source_path,
                                 "sections": [
                                     asdict(section) for section in layout.sections

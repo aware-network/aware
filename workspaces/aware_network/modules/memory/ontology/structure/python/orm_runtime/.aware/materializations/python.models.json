@@ -1,0 +1,251 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "40c0ffb9-fe1c-5094-9aee-ac511258bd50",
+      "module": "aware_memory_ontology.memory.memory_episode",
+      "name": "MemoryEpisode",
+      "aware_class_ref": "aware_memory.memory.MemoryEpisode",
+      "functions": [
+        {
+          "function_config_id": "4b5b5f23-21da-5d48-ac8d-2ba0e898980c",
+          "name": "find_similar_multimodal",
+          "input_model": "MemoryEpisodeFindSimilarMultimodalInput",
+          "output_model": "MemoryEpisodeFindSimilarMultimodalOutput"
+        },
+        {
+          "function_config_id": "9cfe284e-ac9e-588d-98b7-afb23fa8c30c",
+          "name": "find_similar_text",
+          "input_model": "MemoryEpisodeFindSimilarTextInput",
+          "output_model": "MemoryEpisodeFindSimilarTextOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2da4bc56-0460-5dd6-88b6-fb28692a12b5",
+      "module": "aware_memory_ontology.memory.memory_episodic",
+      "name": "MemoryEpisodic",
+      "aware_class_ref": "aware_memory.memory.MemoryEpisodic",
+      "functions": [
+        {
+          "function_config_id": "94fce2bb-a5f3-5e54-bc43-5baf43341e7c",
+          "name": "build",
+          "input_model": "MemoryEpisodicBuildInput",
+          "output_model": "MemoryEpisodicBuildOutput"
+        },
+        {
+          "function_config_id": "7492d8c1-6a05-5069-8567-a0edccaadc6b",
+          "name": "create_root",
+          "input_model": "MemoryEpisodicCreateRootInput",
+          "output_model": "MemoryEpisodicCreateRootOutput"
+        },
+        {
+          "function_config_id": "b0ebfa2f-a46e-5261-b64f-9a27eb52b84e",
+          "name": "create_thread",
+          "input_model": "MemoryEpisodicCreateThreadInput",
+          "output_model": "MemoryEpisodicCreateThreadOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6f201434-d0c3-5ccb-b3b7-06b6b525d7a8",
+      "module": "aware_memory_ontology.memory.memory_procedural",
+      "name": "MemoryProcedural",
+      "aware_class_ref": "aware_memory.memory.MemoryProcedural",
+      "functions": [
+        {
+          "function_config_id": "d0b0f640-505a-584b-bbf6-2f5c276f1aac",
+          "name": "build",
+          "input_model": "MemoryProceduralBuildInput",
+          "output_model": "MemoryProceduralBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "cff81031-deb9-5b95-93c9-c684c9a9856d",
+      "module": "aware_memory_ontology.memory.memory_procedure",
+      "name": "MemoryProcedure",
+      "aware_class_ref": "aware_memory.memory.MemoryProcedure",
+      "functions": []
+    },
+    {
+      "class_config_id": "d1ddd582-3461-5cbd-9b31-087be929520f",
+      "module": "aware_memory_ontology.memory.memory_procedure_config",
+      "name": "MemoryProcedureConfig",
+      "aware_class_ref": "aware_memory.memory.MemoryProcedureConfig",
+      "functions": []
+    },
+    {
+      "class_config_id": "3df2fa4a-12bf-5ce7-9f68-bb2c71597922",
+      "module": "aware_memory_ontology.memory.memory_procedure_episode",
+      "name": "MemoryProcedureEpisode",
+      "aware_class_ref": "aware_memory.memory.MemoryProcedureEpisode",
+      "functions": []
+    },
+    {
+      "class_config_id": "efa76b72-1c14-519d-9b93-889603eed4bb",
+      "module": "aware_memory_ontology.memory.memory_semantic",
+      "name": "MemorySemantic",
+      "aware_class_ref": "aware_memory.memory.MemorySemantic",
+      "functions": [
+        {
+          "function_config_id": "7fff743c-3d96-5f9d-8255-db9acf52a6e2",
+          "name": "build",
+          "input_model": "MemorySemanticBuildInput",
+          "output_model": "MemorySemanticBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "49be773d-7588-57ae-a79e-3449ca996340",
+      "module": "aware_memory_ontology.memory.memory_working",
+      "name": "MemoryWorking",
+      "aware_class_ref": "aware_memory.memory.MemoryWorking",
+      "functions": [
+        {
+          "function_config_id": "c653d9ad-60c8-5cb6-8941-e7dbf2eb70f2",
+          "name": "add_attention_item",
+          "input_model": "MemoryWorkingAddAttentionItemInput",
+          "output_model": "MemoryWorkingAddAttentionItemOutput"
+        },
+        {
+          "function_config_id": "2fbb8393-b8f4-5270-82cb-fc9ed92f8467",
+          "name": "add_content_item",
+          "input_model": "MemoryWorkingAddContentItemInput",
+          "output_model": "MemoryWorkingAddContentItemOutput"
+        },
+        {
+          "function_config_id": "e1f7a69a-d3e2-5d0f-a282-c0ffe82344ff",
+          "name": "add_event_item",
+          "input_model": "MemoryWorkingAddEventItemInput",
+          "output_model": "MemoryWorkingAddEventItemOutput"
+        },
+        {
+          "function_config_id": "032be2b7-445d-5def-aa4f-d4b6455446d1",
+          "name": "add_tool_item",
+          "input_model": "MemoryWorkingAddToolItemInput",
+          "output_model": "MemoryWorkingAddToolItemOutput"
+        },
+        {
+          "function_config_id": "3d4b0a08-a08c-5bde-98a3-53a66b8ea622",
+          "name": "build",
+          "input_model": "MemoryWorkingBuildInput",
+          "output_model": "MemoryWorkingBuildOutput"
+        },
+        {
+          "function_config_id": "78ef3c07-947f-5aef-b60a-8237365f5ee0",
+          "name": "create_item",
+          "input_model": "MemoryWorkingCreateItemInput",
+          "output_model": "MemoryWorkingCreateItemOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c42b8975-9d76-5011-b473-90558a3f3a36",
+      "module": "aware_memory_ontology.memory.memory_working_content_frame",
+      "name": "MemoryWorkingContentFrame",
+      "aware_class_ref": "aware_memory.memory.MemoryWorkingContentFrame",
+      "functions": [
+        {
+          "function_config_id": "d51811d2-9879-5bdd-96e6-af23b0e57f33",
+          "name": "build_via_memory_working_item",
+          "input_model": "MemoryWorkingContentFrameBuildViaMemoryWorkingItemInput",
+          "output_model": "MemoryWorkingContentFrameBuildViaMemoryWorkingItemOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9ab5b299-2f42-5e71-a3a7-61b3f5922938",
+      "module": "aware_memory_ontology.memory.memory_working_event_frame",
+      "name": "MemoryWorkingEventFrame",
+      "aware_class_ref": "aware_memory.memory.MemoryWorkingEventFrame",
+      "functions": [
+        {
+          "function_config_id": "d97c8093-5f36-5be4-a736-4b76cbbc278e",
+          "name": "build_via_memory_working_item",
+          "input_model": "MemoryWorkingEventFrameBuildViaMemoryWorkingItemInput",
+          "output_model": "MemoryWorkingEventFrameBuildViaMemoryWorkingItemOutput"
+        },
+        {
+          "function_config_id": "4386551f-f700-5545-a37b-a2a420e9ef8c",
+          "name": "record_resolved_meaning",
+          "input_model": "MemoryWorkingEventFrameRecordResolvedMeaningInput",
+          "output_model": "MemoryWorkingEventFrameRecordResolvedMeaningOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2edd883f-2452-5e1b-8509-8e0c87243393",
+      "module": "aware_memory_ontology.memory.memory_working_event_meaning",
+      "name": "MemoryWorkingEventMeaning",
+      "aware_class_ref": "aware_memory.memory.MemoryWorkingEventMeaning",
+      "functions": [
+        {
+          "function_config_id": "6dac4181-0637-542c-b0f4-382b97341520",
+          "name": "build_via_memory_working_event_frame",
+          "input_model": "MemoryWorkingEventMeaningBuildViaMemoryWorkingEventFrameInput",
+          "output_model": "MemoryWorkingEventMeaningBuildViaMemoryWorkingEventFrameOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "31e7c155-5c1e-57c5-a246-d652ff05483c",
+      "module": "aware_memory_ontology.memory.memory_working_item",
+      "name": "MemoryWorkingItem",
+      "aware_class_ref": "aware_memory.memory.MemoryWorkingItem",
+      "functions": [
+        {
+          "function_config_id": "ea75013b-90c7-5690-ae95-299eb112cb23",
+          "name": "build_via_memory_working",
+          "input_model": "MemoryWorkingItemBuildViaMemoryWorkingInput",
+          "output_model": "MemoryWorkingItemBuildViaMemoryWorkingOutput"
+        },
+        {
+          "function_config_id": "478ec3cc-7198-5771-a3b4-5bada58da07a",
+          "name": "create_content_frame",
+          "input_model": "MemoryWorkingItemCreateContentFrameInput",
+          "output_model": "MemoryWorkingItemCreateContentFrameOutput"
+        },
+        {
+          "function_config_id": "277f4a8a-7722-5fa6-8ada-b067d931bff7",
+          "name": "create_event_frame",
+          "input_model": "MemoryWorkingItemCreateEventFrameInput",
+          "output_model": "MemoryWorkingItemCreateEventFrameOutput"
+        },
+        {
+          "function_config_id": "a66aa2e2-6437-5dc2-bad5-d9acfa1e394f",
+          "name": "create_tool_frame",
+          "input_model": "MemoryWorkingItemCreateToolFrameInput",
+          "output_model": "MemoryWorkingItemCreateToolFrameOutput"
+        },
+        {
+          "function_config_id": "555db23f-2190-5114-8d11-0c1fb0b7a200",
+          "name": "link_attention_transition",
+          "input_model": "MemoryWorkingItemLinkAttentionTransitionInput",
+          "output_model": "MemoryWorkingItemLinkAttentionTransitionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "a0f5eecb-d1ad-5b99-8eb7-a328ec0a02ca",
+      "module": "aware_memory_ontology.memory.memory_working_tool_frame",
+      "name": "MemoryWorkingToolFrame",
+      "aware_class_ref": "aware_memory.memory.MemoryWorkingToolFrame",
+      "functions": [
+        {
+          "function_config_id": "746a511b-a891-5cb6-b5bf-1b78579de8b4",
+          "name": "build_via_memory_working_item",
+          "input_model": "MemoryWorkingToolFrameBuildViaMemoryWorkingItemInput",
+          "output_model": "MemoryWorkingToolFrameBuildViaMemoryWorkingItemOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "b65e1f51-0e7d-58c6-af50-7dc0a442733a",
+      "module": "aware_memory_ontology.memory.memory_working_item_enums",
+      "name": "MemoryWorkingItemKind"
+    }
+  ]
+}

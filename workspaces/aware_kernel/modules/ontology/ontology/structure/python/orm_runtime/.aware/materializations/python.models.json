@@ -1,0 +1,94 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "043af7f1-9107-5933-b6cb-fcc86f658424",
+      "module": "aware_ontology_ontology.ontology.ontology",
+      "name": "Ontology",
+      "aware_class_ref": "aware_ontology.ontology.Ontology",
+      "functions": [
+        {
+          "function_config_id": "c26521f6-1f39-544e-a0fc-61f73f50b631",
+          "name": "build_via_ontology_config",
+          "input_model": "OntologyBuildViaOntologyConfigInput",
+          "output_model": "OntologyBuildViaOntologyConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "bead5bba-40ce-5bef-8e0e-200caf0615b0",
+      "module": "aware_ontology_ontology.ontology.ontology_config",
+      "name": "OntologyConfig",
+      "aware_class_ref": "aware_ontology.ontology.OntologyConfig",
+      "functions": [
+        {
+          "function_config_id": "2351d8e8-9a92-5730-a931-649ba24919c5",
+          "name": "build",
+          "input_model": "OntologyConfigBuildInput",
+          "output_model": "OntologyConfigBuildOutput"
+        },
+        {
+          "function_config_id": "f3e5db9b-5717-586b-85bc-73d92ae34a6b",
+          "name": "create_ontology",
+          "input_model": "OntologyConfigCreateOntologyInput",
+          "output_model": "OntologyConfigCreateOntologyOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d76251eb-85fe-56fb-8eea-154d30f22e5b",
+      "module": "aware_ontology_ontology.ontology.ontology_package",
+      "name": "OntologyPackage",
+      "aware_class_ref": "aware_ontology.ontology.OntologyPackage",
+      "functions": [
+        {
+          "function_config_id": "aac6ac79-377c-50fd-8f6b-036e4c736c3a",
+          "name": "attach_dependency",
+          "input_model": "OntologyPackageAttachDependencyInput",
+          "output_model": "OntologyPackageAttachDependencyOutput"
+        },
+        {
+          "function_config_id": "f1cf0285-0410-5aef-98c0-f4fbfd6a6565",
+          "name": "attach_runtime_code_package",
+          "input_model": "OntologyPackageAttachRuntimeCodePackageInput",
+          "output_model": "OntologyPackageAttachRuntimeCodePackageOutput"
+        },
+        {
+          "function_config_id": "72e21011-ffb7-59e7-9148-fd3013c93670",
+          "name": "build",
+          "input_model": "OntologyPackageBuildInput",
+          "output_model": "OntologyPackageBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "0b865742-53d4-5022-a869-f9d322547c21",
+      "module": "aware_ontology_ontology.ontology.ontology_package_dependency",
+      "name": "OntologyPackageDependency",
+      "aware_class_ref": "aware_ontology.ontology.OntologyPackageDependency",
+      "functions": [
+        {
+          "function_config_id": "8a234cf1-2df9-58fb-a5a4-0f611fff9fc6",
+          "name": "build_via_ontology_package",
+          "input_model": "OntologyPackageDependencyBuildViaOntologyPackageInput",
+          "output_model": "OntologyPackageDependencyBuildViaOntologyPackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "6f05623c-8965-5768-85ba-03a41d8b9803",
+      "module": "aware_ontology_ontology.ontology.ontology_package_runtime_code_package",
+      "name": "OntologyPackageRuntimeCodePackage",
+      "aware_class_ref": "aware_ontology.ontology.OntologyPackageRuntimeCodePackage",
+      "functions": [
+        {
+          "function_config_id": "87d11c2b-dcd8-5107-8c5c-e1ca8a544f74",
+          "name": "build_via_ontology_package",
+          "input_model": "OntologyPackageRuntimeCodePackageBuildViaOntologyPackageInput",
+          "output_model": "OntologyPackageRuntimeCodePackageBuildViaOntologyPackageOutput"
+        }
+      ]
+    }
+  ],
+  "enums": []
+}

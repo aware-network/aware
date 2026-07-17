@@ -3937,7 +3937,7 @@ def _bind_window_config__attach_layout_config(*, positional: JsonArray, keyword:
     return _bind_keyword_payload(
         positional=positional,
         keyword=keyword,
-        field_names=("layout_config_id", "description", "is_default"),
+        field_names=("layout_config_id", "description"),
         function_name="attach_layout_config",
     )
 
@@ -3962,7 +3962,7 @@ def _bind_window_config_layout_config__set_attachment_config(
     return _bind_keyword_payload(
         positional=positional,
         keyword=keyword,
-        field_names=("description", "is_default"),
+        field_names=("description",),
         function_name="set_attachment_config",
     )
 
@@ -3987,7 +3987,7 @@ def _bind_window_config_layout_config__build_via_window_config(
     return _bind_keyword_payload(
         positional=positional,
         keyword=keyword,
-        field_names=("window_config_id", "layout_config_id", "description", "is_default"),
+        field_names=("window_config_id", "layout_config_id", "description"),
         function_name="build_via_window_config",
     )
 
@@ -4013,14 +4013,10 @@ def _root_id_window_config_layout_config__build_via_window_config(
     description = bound_input.get("description")
     if description is None:
         description = None
-    is_default = bound_input.get("is_default")
-    if is_default is None:
-        is_default = False
     _aware_self_values = {
         "window_config_id": window_config_id,
         "layout_config_id": layout_config_id,
         "description": description,
-        "is_default": is_default,
     }
     _aware_self_binding = CONSTRUCTOR_STABLE_ID_BINDINGS_BY_CLASS_CONFIG_ID.get("3417ec25-2c24-59cb-bce3-d4a274d98773")
     if _aware_self_binding is None:

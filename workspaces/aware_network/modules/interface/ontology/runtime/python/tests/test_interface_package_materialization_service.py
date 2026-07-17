@@ -164,7 +164,9 @@ def _build_home_projection_identity_ocg() -> ObjectConfigGraph:
                     "object_projection_graph_nodes": [
                         {
                             "id": str(object_projection_graph_node_id),
-                            "object_projection_graph_id": str(object_projection_graph_id),
+                            "object_projection_graph_id": str(
+                                object_projection_graph_id
+                            ),
                             "class_config_id": str(state_model_class_config_id),
                             "is_root": True,
                             "class_config": {
@@ -321,10 +323,16 @@ async def test_interface_workspace_provider_reports_full_rebuild_fallback_contra
         "interface_config",
         "pane_render_spec",
     }
-    pane_outputs = [item for item in semantic_outputs if item["role"] == "pane_render_spec"]
+    pane_outputs = [
+        item for item in semantic_outputs if item["role"] == "pane_render_spec"
+    ]
     assert [item["branch_id"] for item in pane_outputs] == list(pane_branches)
-    assert [item["object_instance_graph_commit_id"] for item in pane_outputs] == list(pane_oig_commit_ids)
-    assert result.details["phase_timings_s"] == {"commit_interface_package_snapshot_s": 1.25}
+    assert [item["object_instance_graph_commit_id"] for item in pane_outputs] == list(
+        pane_oig_commit_ids
+    )
+    assert result.details["phase_timings_s"] == {
+        "commit_interface_package_snapshot_s": 1.25
+    }
 
 
 @pytest.mark.asyncio
@@ -349,7 +357,11 @@ async def test_interface_workspace_provider_replays_current_heads_and_artifacts(
 
     async def _read_head(*, branch_id: UUID, projection_hash: str):
         commit_id = heads.get((branch_id, projection_hash))
-        return None if commit_id is None else {"object_instance_graph_commit_id": str(commit_id)}
+        return (
+            None
+            if commit_id is None
+            else {"object_instance_graph_commit_id": str(commit_id)}
+        )
 
     bundle = SemanticPackageMaterializationBundle(
         package_key="aware-control-interface",
@@ -397,13 +409,17 @@ async def test_interface_workspace_provider_replays_current_heads_and_artifacts(
     assert result.replay_kind == "previous_interface_output_bundles"
 
     artifact_path.write_text("stale\n", encoding="utf-8")
-    stale_result = await interface_workspace_provider.resolve_currentness_replay(request)
+    stale_result = await interface_workspace_provider.resolve_currentness_replay(
+        request
+    )
     assert stale_result.status == "must_execute"
     assert stale_result.reason == "interface_artifact_witness_mismatch"
 
     _write(artifact_path, '{"interface":"control"}\n')
     heads[(package_branch_id, "sha256:interface-config")] = uuid4()
-    stale_head_result = await interface_workspace_provider.resolve_currentness_replay(request)
+    stale_head_result = await interface_workspace_provider.resolve_currentness_replay(
+        request
+    )
     assert stale_head_result.status == "must_execute"
     assert stale_head_result.reason == "interface_config_live_head_mismatch"
 
@@ -473,13 +489,17 @@ async def test_interface_workspace_provider_materializes_render_component_packag
 
     result = await interface_workspace_provider.materialize(request)
 
-    expected_package_id = stable_render_component_package_id(name="aware-meta-graph-render-components")
+    expected_package_id = stable_render_component_package_id(
+        name="aware-meta-graph-render-components"
+    )
     assert result.mode == "full_rebuild"
     assert result.affected_semantic_keys == ("aware.meta.graph",)
     assert result.applied_semantic_keys == ("aware.meta.graph",)
     assert result.fallback_reason is not None
     assert "Render component package provider" in result.fallback_reason
-    assert result.details["render_component_package_name"] == ("aware-meta-graph-render-components")
+    assert result.details["render_component_package_name"] == (
+        "aware-meta-graph-render-components"
+    )
     assert result.details["render_component_package_id"] == str(expected_package_id)
     assert len(result.bundle_packages) == 1
     bundle = result.bundle_packages[0]
@@ -706,11 +726,17 @@ async def test_interface_workspace_provider_rejects_missing_linux_platform_runne
         await interface_workspace_provider.materialize(request)
 
 
-def _write_interface_package_fixture(*, workspace_root: Path, interface_config_id: str) -> Path:
+def _write_interface_package_fixture(
+    *, workspace_root: Path, interface_config_id: str
+) -> Path:
     from aware_interface_ontology.stable_ids import stable_interface_package_id
 
-    interface_package_id = str(stable_interface_package_id(name="aware-control-plane-interface"))
-    interface_toml_path = workspace_root / "interfaces" / "control_plane" / "aware.interface.toml"
+    interface_package_id = str(
+        stable_interface_package_id(name="aware-control-plane-interface")
+    )
+    interface_toml_path = (
+        workspace_root / "interfaces" / "control_plane" / "aware.interface.toml"
+    )
     _write(
         interface_toml_path,
         "\n".join(
@@ -744,7 +770,11 @@ def _write_interface_package_fixture(*, workspace_root: Path, interface_config_i
         exist_ok=True,
     )
     _write(
-        workspace_root / "interfaces" / "control_plane" / "bundles" / "interface.config.bundle.json",
+        workspace_root
+        / "interfaces"
+        / "control_plane"
+        / "bundles"
+        / "interface.config.bundle.json",
         "\n".join(
             [
                 "{",
@@ -801,7 +831,7 @@ def _write_authored_interface_package_fixture(*, workspace_root: Path) -> Path:
             [
                 "interface aware_app {",
                 "    window main {",
-                "        layout workspace default {",
+                "        layout workspace {",
                 "            section main",
                 "        }",
                 "    }",
@@ -912,16 +942,24 @@ def _write_authored_interface_package_fixture(*, workspace_root: Path) -> Path:
                                 "name": "security_door",
                                 "view_ref": "home_devices.security_door",
                                 "state_model_ref": "aware_home.home.Door",
-                                "state_model_id": ("0b8e17ec-b168-5a3b-9fc7-d60037cfb51c"),
+                                "state_model_id": (
+                                    "0b8e17ec-b168-5a3b-9fc7-d60037cfb51c"
+                                ),
                             }
                         ],
                         "view_capability_endpoints": [
                             {
                                 "view_name": "security_door",
                                 "action_key": "unlock_door",
-                                "api_view_capability_endpoint_id": str(api_view_capability_endpoint_id),
-                                "api_capability_endpoint_id": str(api_capability_endpoint_id),
-                                "endpoint_ref": ("home_devices.unlock_door.unlock_door"),
+                                "api_view_capability_endpoint_id": str(
+                                    api_view_capability_endpoint_id
+                                ),
+                                "api_capability_endpoint_id": str(
+                                    api_capability_endpoint_id
+                                ),
+                                "endpoint_ref": (
+                                    "home_devices.unlock_door.unlock_door"
+                                ),
                             }
                         ],
                     }
@@ -932,13 +970,18 @@ def _write_authored_interface_package_fixture(*, workspace_root: Path) -> Path:
         + "\n",
     )
     _write(
-        workspace_root / ".aware" / "environment" / "runtime" / "environment.manifest.json",
+        workspace_root
+        / ".aware"
+        / "environment"
+        / "runtime"
+        / "environment.manifest.json",
         json.dumps(
             {
                 "modules": [
                     {
                         "manifest_path": (
-                            "modules/home/structure/ontology/.aware/environment/runtime/" "environment.manifest.json"
+                            "modules/home/structure/ontology/.aware/environment/runtime/"
+                            "environment.manifest.json"
                         )
                     }
                 ]
@@ -948,7 +991,14 @@ def _write_authored_interface_package_fixture(*, workspace_root: Path) -> Path:
         + "\n",
     )
     module_runtime_dir = (
-        workspace_root / "modules" / "home" / "structure" / "ontology" / ".aware" / "environment" / "runtime"
+        workspace_root
+        / "modules"
+        / "home"
+        / "structure"
+        / "ontology"
+        / ".aware"
+        / "environment"
+        / "runtime"
     )
     _write(
         module_runtime_dir / "environment.manifest.json",
@@ -1006,14 +1056,24 @@ def _write_authored_interface_config_bundle(*, workspace_root: Path) -> Path:
         stable_interface_package_id,
     )
 
-    bundle_path = workspace_root / "interfaces" / "aware_app" / "bundles" / "interface.config.bundle.json"
+    bundle_path = (
+        workspace_root
+        / "interfaces"
+        / "aware_app"
+        / "bundles"
+        / "interface.config.bundle.json"
+    )
     _write(
         bundle_path,
         json.dumps(
             {
-                "interface_package_id": str(stable_interface_package_id(name="aware-authored-interface")),
+                "interface_package_id": str(
+                    stable_interface_package_id(name="aware-authored-interface")
+                ),
                 "interface_package_name": "aware-authored-interface",
-                "interface_config_id": str(stable_interface_config_id(name="aware_app")),
+                "interface_config_id": str(
+                    stable_interface_config_id(name="aware_app")
+                ),
                 "name": "aware_app",
                 "description": "Compiled authored interface",
                 "apis": [],
@@ -1034,14 +1094,16 @@ def _write_authored_interface_with_pane_render_fixture(
     interface_toml_path = _write_authored_interface_package_fixture(
         workspace_root=workspace_root,
     )
-    interface_source_path = workspace_root / "interfaces" / "aware_app" / "home_story_app.aware"
+    interface_source_path = (
+        workspace_root / "interfaces" / "aware_app" / "home_story_app.aware"
+    )
     _write(
         interface_source_path,
         "\n".join(
             [
                 "interface aware_app {",
                 "    window main {",
-                "        layout workspace default {",
+                "        layout workspace {",
                 "            section main",
                 "        }",
                 "    }",
@@ -1154,6 +1216,52 @@ def test_resolve_interface_package_materialization_spec_reuses_fresh_interface_o
     assert spec.config_bundle.name == "aware_app"
 
 
+def test_interface_package_source_snapshot_includes_authored_manifest(
+    tmp_path: Path,
+) -> None:
+    import aware_interface.materialization.service as materialization_service
+
+    workspace_root = tmp_path / "workspace"
+    interface_toml_path = _write_authored_interface_package_fixture(
+        workspace_root=workspace_root,
+    )
+    _write_authored_interface_config_bundle(workspace_root=workspace_root)
+    spec = materialization_service.resolve_interface_package_materialization_spec(
+        interface_toml_path=interface_toml_path,
+        workspace_root=workspace_root,
+    )
+
+    source_texts = materialization_service._interface_package_source_texts(spec=spec)
+
+    assert set(source_texts) == {"aware.interface.toml", "home_story_app.aware"}
+
+
+def test_interface_materialization_resolves_source_catalog_from_aware_repo(
+    tmp_path: Path,
+) -> None:
+    import aware_interface.materialization.service as materialization_service
+
+    repo_root = tmp_path / "repo"
+    workspace_root = repo_root / "workspaces" / "aware_agent"
+    workspace_root.mkdir(parents=True)
+    _ = (repo_root / "aware.repo.toml").write_text("aware = 1\n", encoding="utf-8")
+
+    assert (
+        materialization_service._resolve_interface_source_repo_root(
+            workspace_root=workspace_root,
+        )
+        == repo_root.resolve()
+    )
+    standalone_root = tmp_path / "standalone"
+    standalone_root.mkdir()
+    assert (
+        materialization_service._resolve_interface_source_repo_root(
+            workspace_root=standalone_root,
+        )
+        == standalone_root.resolve()
+    )
+
+
 def test_resolve_interface_package_materialization_spec_compiles_when_authored_source_is_newer(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1247,16 +1355,19 @@ def test_resolve_interface_package_materialization_spec_honors_force_fresh_scan(
     )
 
     assert len(compile_calls) == 1
+    assert compile_calls[0]["artifact_root"] == workspace_root.resolve()
 
 
-def test_interface_workspace_prefers_workspace_local_dependency_manifests(
+def test_interface_workspace_ignores_undeclared_and_revision_history_manifests(
     tmp_path: Path,
 ) -> None:
     from aware_interface.workspace import InterfaceWorkspace
 
     repo_root = tmp_path / "repo"
     workspace_root = repo_root / "workspace"
-    interface_toml_path = _write_authored_interface_package_fixture(workspace_root=workspace_root)
+    interface_toml_path = _write_authored_interface_package_fixture(
+        workspace_root=workspace_root
+    )
 
     # Competing repo-level manifests should not win over authored workspace-local ones.
     _write(
@@ -1293,6 +1404,27 @@ def test_interface_workspace_prefers_workspace_local_dependency_manifests(
             ]
         ),
     )
+    revision_experience_root = (
+        repo_root
+        / ".aware"
+        / "workspace"
+        / "revision-filesystem-roots"
+        / "old-revision"
+        / "deployment-1"
+        / "experiences"
+        / "home_story"
+    )
+    authored_experience_root = workspace_root / "experiences" / "home_story"
+    _write(
+        revision_experience_root / "aware.experience.toml",
+        (authored_experience_root / "aware.experience.toml").read_text(
+            encoding="utf-8"
+        ),
+    )
+    _write(
+        revision_experience_root / "home_story.aware",
+        (authored_experience_root / "home_story.aware").read_text(encoding="utf-8"),
+    )
 
     snapshot = InterfaceWorkspace.from_toml(
         toml_path=interface_toml_path,
@@ -1316,7 +1448,16 @@ async def test_materialize_interface_package_from_manifest_creates_package_and_c
     repo_root = REPO_ROOT
 
     monkeypatch.syspath_prepend(
-        str(repo_root / "workspaces" / "aware_network" / "modules" / "interface" / "ontology" / "runtime" / "python")
+        str(
+            repo_root
+            / "workspaces"
+            / "aware_network"
+            / "modules"
+            / "interface"
+            / "ontology"
+            / "runtime"
+            / "python"
+        )
     )
 
     import aware_code_ontology  # noqa: F401
@@ -1363,8 +1504,12 @@ async def test_materialize_interface_package_from_manifest_creates_package_and_c
             interface_toml_path=interface_toml_path,
         )
 
-        expected_interface_config_id = stable_interface_config_id(name="aware-control-plane")
-        expected_interface_package_id = stable_interface_package_id(name="aware-control-plane-interface")
+        expected_interface_config_id = stable_interface_config_id(
+            name="aware-control-plane"
+        )
+        expected_interface_package_id = stable_interface_package_id(
+            name="aware-control-plane-interface"
+        )
         expected_source_code_package_id = _interface_source_code_package_id(
             package_name="aware-control-plane-interface",
         )
@@ -1373,23 +1518,39 @@ async def test_materialize_interface_package_from_manifest_creates_package_and_c
         assert result.workspace_root == workspace_root.resolve()
         assert (
             result.config_bundle_path
-            == (workspace_root / "interfaces" / "control_plane" / "bundles" / "interface.config.bundle.json").resolve()
+            == (
+                workspace_root
+                / "interfaces"
+                / "control_plane"
+                / "bundles"
+                / "interface.config.bundle.json"
+            ).resolve()
         )
         assert result.interface_config.id == expected_interface_config_id
         assert result.interface_config.name == "aware-control-plane"
         assert result.interface_package.id == expected_interface_package_id
         assert result.interface_package.name == "aware-control-plane-interface"
-        assert result.interface_package.interface_config_id == expected_interface_config_id
+        assert (
+            result.interface_package.interface_config_id == expected_interface_config_id
+        )
         assert result.source_code_package_id == expected_source_code_package_id
-        assert result.interface_package.source_code_package_id == expected_source_code_package_id
+        assert (
+            result.interface_package.source_code_package_id
+            == expected_source_code_package_id
+        )
         assert result.interface_package.fqn_prefix == "aware_control_plane_interface"
         assert result.interface_package.version_number == 11
         assert result.interface_package.title == "Aware Control Plane"
         assert result.interface_package.description == "Control plane interface package"
         assert result.interface_package.aware_interface_version == 1
-        assert result.interface_package.manifest_relative_path == "interfaces/control_plane/aware.interface.toml"
+        assert (
+            result.interface_package.manifest_relative_path
+            == "interfaces/control_plane/aware.interface.toml"
+        )
         assert result.interface_package.package_root == "interfaces/control_plane"
-        assert result.interface_package.sources_root == "interfaces/control_plane/bindings"
+        assert (
+            result.interface_package.sources_root == "interfaces/control_plane/bindings"
+        )
         assert result.interface_package.config_bundle_path == (
             "interfaces/control_plane/bundles/interface.config.bundle.json"
         )
@@ -1415,7 +1576,9 @@ async def test_materialize_interface_package_from_manifest_creates_package_and_c
         interface_toml_path.write_text(
             interface_toml_path.read_text(encoding="utf-8")
             .replace("version_number = 11", "version_number = 12")
-            .replace('title = "Aware Control Plane"', 'title = "Aware Control Plane Updated"'),
+            .replace(
+                'title = "Aware Control Plane"', 'title = "Aware Control Plane Updated"'
+            ),
             encoding="utf-8",
         )
         rerun = await materialize_interface_package_from_manifest(
@@ -1433,7 +1596,9 @@ async def test_materialize_interface_package_from_manifest_creates_package_and_c
         assert rerun.source_code_package_id == expected_source_code_package_id
         assert rerun.interface_package.version_number == 12
         assert rerun.interface_package.title == "Aware Control Plane Updated"
-        assert rerun.interface_package.sources_root == "interfaces/control_plane/bindings"
+        assert (
+            rerun.interface_package.sources_root == "interfaces/control_plane/bindings"
+        )
         assert dict(rerun.interface_package.dart) == {
             "package_path": "dart/aware_control_plane_interface",
             "package_name": "aware_control_plane_interface",
@@ -1454,7 +1619,16 @@ async def test_materialize_interface_package_from_authored_pane_render_commits_r
     repo_root = REPO_ROOT
 
     monkeypatch.syspath_prepend(
-        str(repo_root / "workspaces" / "aware_network" / "modules" / "interface" / "ontology" / "runtime" / "python")
+        str(
+            repo_root
+            / "workspaces"
+            / "aware_network"
+            / "modules"
+            / "interface"
+            / "ontology"
+            / "runtime"
+            / "python"
+        )
     )
 
     import aware_code_ontology  # noqa: F401
@@ -1470,7 +1644,9 @@ async def test_materialize_interface_package_from_authored_pane_render_commits_r
     )
 
     workspace_root = tmp_path / "workspace"
-    interface_toml_path = _write_authored_interface_with_pane_render_fixture(workspace_root=workspace_root)
+    interface_toml_path = _write_authored_interface_with_pane_render_fixture(
+        workspace_root=workspace_root
+    )
 
     with isolated_meta_aware_root(tmp_path / "aware_root") as aware_root:
         runtime = build_interface_meta_runtime(
@@ -1561,7 +1737,16 @@ async def test_materialize_interface_package_snapshot_path_without_runtime_bind(
     repo_root = REPO_ROOT
 
     monkeypatch.syspath_prepend(
-        str(repo_root / "workspaces" / "aware_network" / "modules" / "interface" / "ontology" / "runtime" / "python")
+        str(
+            repo_root
+            / "workspaces"
+            / "aware_network"
+            / "modules"
+            / "interface"
+            / "ontology"
+            / "runtime"
+            / "python"
+        )
     )
 
     import aware_code_ontology  # noqa: F401
@@ -1605,8 +1790,12 @@ async def test_materialize_interface_package_snapshot_path_without_runtime_bind(
             prefer_snapshot_materialization=True,
         )
 
-        assert result.interface_config.id == stable_interface_config_id(name="aware-control-plane")
-        assert result.interface_package.id == stable_interface_package_id(name="aware-control-plane-interface")
+        assert result.interface_config.id == stable_interface_config_id(
+            name="aware-control-plane"
+        )
+        assert result.interface_package.id == stable_interface_package_id(
+            name="aware-control-plane-interface"
+        )
         assert result.source_code_package_id == _interface_source_code_package_id(
             package_name="aware-control-plane-interface",
         )
@@ -1628,7 +1817,16 @@ async def test_materialize_interface_package_snapshot_path_commits_authored_pane
     repo_root = REPO_ROOT
 
     monkeypatch.syspath_prepend(
-        str(repo_root / "workspaces" / "aware_network" / "modules" / "interface" / "ontology" / "runtime" / "python")
+        str(
+            repo_root
+            / "workspaces"
+            / "aware_network"
+            / "modules"
+            / "interface"
+            / "ontology"
+            / "runtime"
+            / "python"
+        )
     )
 
     import aware_code_ontology  # noqa: F401
@@ -1711,7 +1909,16 @@ async def test_materialize_interface_package_from_authored_source_compiles_bundl
     repo_root = REPO_ROOT
 
     monkeypatch.syspath_prepend(
-        str(repo_root / "workspaces" / "aware_network" / "modules" / "interface" / "ontology" / "runtime" / "python")
+        str(
+            repo_root
+            / "workspaces"
+            / "aware_network"
+            / "modules"
+            / "interface"
+            / "ontology"
+            / "runtime"
+            / "python"
+        )
     )
 
     import aware_code_ontology  # noqa: F401
@@ -1728,7 +1935,9 @@ async def test_materialize_interface_package_from_authored_source_compiles_bundl
     )
 
     workspace_root = tmp_path / "workspace"
-    interface_toml_path = _write_authored_interface_package_fixture(workspace_root=workspace_root)
+    interface_toml_path = _write_authored_interface_package_fixture(
+        workspace_root=workspace_root
+    )
 
     with isolated_meta_aware_root(tmp_path / "aware_root") as aware_root:
         runtime = build_interface_meta_runtime(
@@ -1756,26 +1965,37 @@ async def test_materialize_interface_package_from_authored_source_compiles_bundl
         )
 
         expected_interface_config_id = stable_interface_config_id(name="aware_app")
-        expected_interface_package_id = stable_interface_package_id(name="aware-authored-interface")
+        expected_interface_package_id = stable_interface_package_id(
+            name="aware-authored-interface"
+        )
         expected_source_code_package_id = _interface_source_code_package_id(
             package_name="aware-authored-interface",
         )
         assert result.config_bundle_path.exists()
         assert result.interface_config.id == expected_interface_config_id
         assert result.interface_package.id == expected_interface_package_id
-        assert result.interface_package.interface_config_id == expected_interface_config_id
+        assert (
+            result.interface_package.interface_config_id == expected_interface_config_id
+        )
         assert result.source_code_package_id == expected_source_code_package_id
-        assert result.interface_package.source_code_package_id == expected_source_code_package_id
+        assert (
+            result.interface_package.source_code_package_id
+            == expected_source_code_package_id
+        )
         assert result.interface_package.fqn_prefix == "aware_authored_interface"
         assert result.interface_package.version_number == 3
         assert result.interface_package.title == "Aware Authored Interface"
         assert result.interface_package.description == "Authored interface package"
         assert result.interface_package.aware_interface_version == 1
-        assert result.interface_package.manifest_relative_path == "interfaces/aware_app/aware.interface.toml"
+        assert (
+            result.interface_package.manifest_relative_path
+            == "interfaces/aware_app/aware.interface.toml"
+        )
         assert result.interface_package.package_root == "interfaces/aware_app"
         assert result.interface_package.sources_root == "interfaces/aware_app"
         assert (
-            result.interface_package.config_bundle_path == "interfaces/aware_app/bundles/interface.config.bundle.json"
+            result.interface_package.config_bundle_path
+            == "interfaces/aware_app/bundles/interface.config.bundle.json"
         )
         assert list(result.interface_package.include_paths) == ["*.aware"]
         assert list(result.interface_package.exclude_paths) == ["*.draft.aware"]
@@ -1792,7 +2012,8 @@ async def test_materialize_interface_package_from_authored_source_compiles_bundl
         assert result.config_bundle.window_configs[0].key == "main"
         assert result.config_bundle.pane_configs[0].name == "door_control"
         assert (
-            result.config_bundle.pane_configs[0].projection_experience_views[0].view_ref == "home_story.security.door"
+            result.config_bundle.pane_configs[0].projection_experience_views[0].view_ref
+            == "home_story.security.door"
         )
         assert result.interface_config_commit_id is not None
         assert result.interface_config_head_commit_id is not None

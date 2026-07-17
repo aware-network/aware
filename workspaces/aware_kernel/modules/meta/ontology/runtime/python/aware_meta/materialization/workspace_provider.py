@@ -873,6 +873,11 @@ async def materialize_provider_delta_outputs(
             blockers=("workspace_root_unavailable",),
             provider_delta_output_phase_timings=phase_timings.payload(),
         )
+    authority_root = _provider_delta_authority_root(
+        request=request,
+        context=context,
+        workspace_root=workspace_root,
+    )
     with phase_timings.record("head_move_preflight"):
         head_status = _optional_string_value(
             provider_delta_head_move_applied_receipt.get("status")
@@ -998,6 +1003,7 @@ async def materialize_provider_delta_outputs(
                 source_graph = await _provider_delta_hydrated_output_source_graph(
                     context=context,
                     workspace_root=workspace_root,
+                    authority_root=authority_root,
                     provider_delta_head_move_applied_receipt=(
                         provider_delta_head_move_applied_receipt
                     ),
@@ -1206,6 +1212,7 @@ async def _provider_delta_hydrated_output_source_graph(
     *,
     context: Mapping[str, object],
     workspace_root: Path,
+    authority_root: Path,
     provider_delta_head_move_applied_receipt: Mapping[str, object],
     target: _LanguageMaterializationTarget,
 ) -> _LanguageMaterializationSourceGraph | None:
@@ -1237,8 +1244,8 @@ async def _provider_delta_hydrated_output_source_graph(
     )
 
     materializer = CachedLaneMaterializer(
-        commits=FSCommitStore(root_dir=workspace_root),
-        snaps=FSSnapshotStore(root_dir=workspace_root),
+        commits=FSCommitStore(root_dir=authority_root),
+        snaps=FSSnapshotStore(root_dir=authority_root),
     )
     for projection_hash in projection_hashes:
         opg = getattr(index, "opg_by_hash", {}).get(projection_hash)
@@ -1493,6 +1500,20 @@ def _provider_delta_workspace_root(
         return Path(raw_value).resolve()
     except TypeError:
         return None
+
+
+def _provider_delta_authority_root(
+    *,
+    request: object,
+    context: Mapping[str, object],
+    workspace_root: Path,
+) -> Path:
+    raw_value = getattr(request, "authority_root", None) or context.get(
+        "authority_root"
+    )
+    if raw_value is None:
+        return workspace_root
+    return Path(raw_value).expanduser().resolve()
 
 
 def _provider_delta_request_package_value(
@@ -3436,6 +3457,19 @@ def _materialized_language_packages_from_leaf_result(
     )
 
 
+def object_config_graph_package_materialized_language_packages(
+    *,
+    leaf_result: ObjectConfigGraphPackageLeafMaterializationResult,
+    generated_code_package_refs: Iterable[Mapping[str, object]] = (),
+) -> tuple[dict[str, object], ...]:
+    """Project committed language-package witnesses into Workspace receipt rows."""
+
+    return _materialized_language_packages_from_leaf_result(
+        leaf_result=leaf_result,
+        generated_code_package_refs=generated_code_package_refs,
+    )
+
+
 def _generated_code_package_refs_by_code_package_id(
     generated_code_package_refs: Iterable[Mapping[str, object]],
 ) -> dict[str, Mapping[str, object]]:
@@ -3786,7 +3820,7 @@ def _leaf_lifecycle_receipts(
     leaf_result: ObjectConfigGraphPackageLeafMaterializationResult,
 ):
     return build_object_config_graph_package_language_lifecycle_receipts(
-        aware_root=request.workspace_root,
+        aware_root=request.authority_root or request.workspace_root,
         aware_toml_path=leaf_result.aware_toml_path,
         package_name=leaf_result.object_config_graph_package.package_name,
         source_code_package_id=leaf_result.code_package.id,
@@ -5215,6 +5249,12 @@ def object_config_graph_package_language_reuse_evidence(
         "reason": "workspace_language_targets_realized",
         "target_count": len(targets),
         "package_count": len(used_ref_indexes),
+        "materialized_language_packages": (
+            object_config_graph_package_materialized_language_packages(
+                leaf_result=leaf_result,
+                generated_code_package_refs=refs,
+            )
+        ),
     }
 
 

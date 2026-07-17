@@ -810,6 +810,7 @@ class SemanticPackageMaterializationExecutionContextRequest:
     index: Any
     actor_id: UUID | None
     branch_id: UUID
+    authority_root: Path | None = None
     context: Mapping[str, object] = field(default_factory=dict)
     provider_payload: Mapping[str, object] = field(default_factory=dict)
 
@@ -998,6 +999,7 @@ class SemanticPackageMaterializationRuntimeContextRequest:
     semantic_owner: str
     workspace_root: Path
     repo_root: Path
+    authority_root: Path | None = None
     actor_id: UUID | None = None
     manifest_path: Path | None = None
     demand: SemanticPackageMaterializationRuntimeContextDemand = (
@@ -1065,6 +1067,7 @@ class SemanticPackageMaterializationRequest:
     branch_id: UUID
     workspace_root: Path
     manifest_path: Path
+    authority_root: Path | None = None
     source_code_package_id: UUID | None = None
     source_code_package_config_id: UUID | None = None
     source_code_package_config_key: str | None = None

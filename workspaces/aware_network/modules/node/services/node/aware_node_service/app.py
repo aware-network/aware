@@ -88,7 +88,8 @@ class NetworkNodeApp(NetworkApp):
                 runtime=self._host_services_runtime,
                 configure_hosted_environments=False,
                 allow_prepared_local_providers=True,
-                require_complete=True,
+                include_node_control_plane_consumer=False,
+                require_complete=False,
             )
             await activate_node_hosted_service_lifecycles(
                 runtime=self._host_services_runtime

@@ -212,7 +212,6 @@ async def materialize_interface_config_bundle(
             for layout_bundle in window_bundle.layout_configs:
                 window_config_layout_config = await window_config.attach_layout_config(
                     layout_config_id=layout_bundle.layout_config_id,
-                    is_default=layout_bundle.is_default,
                 )
                 _require_expected_id(
                     actual=window_config_layout_config.id,

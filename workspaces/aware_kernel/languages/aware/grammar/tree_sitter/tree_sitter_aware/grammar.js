@@ -3047,9 +3047,16 @@ module.exports = grammar({
             '{',
             repeat(choice(
                 $.comment,
+                $.interface_layout_ref,
                 $.interface_layout_def
             )),
             '}'
+        ),
+
+        interface_layout_ref: $ => seq(
+            'layout',
+            field('layout_name', $.ident),
+            optional(';')
         ),
 
         interface_layout_def: $ => seq(

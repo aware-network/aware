@@ -37,9 +37,32 @@ from aware_code.types import JsonArray  # noqa: E402
 from aware_code_ontology.code.code_enums import CodeLanguage  # noqa: E402
 from aware_meta.materialization import workspace_provider  # noqa: E402
 from aware_meta.materialization.deltas import service as provider_delta  # noqa: E402
+from aware_meta.materialization.deltas import execution as provider_delta_execution  # noqa: E402
 from aware_meta.materialization.deltas.execution import (  # noqa: E402
     _provider_delta_oig_commit_receipt,
 )
+
+
+def test_provider_delta_execution_uses_explicit_authority_root(
+    tmp_path: Path,
+) -> None:
+    workspace_root = tmp_path / "source-workspace"
+    authority_root = tmp_path / "service-authority"
+    request = SimpleNamespace(
+        workspace_root=workspace_root,
+        authority_root=authority_root,
+    )
+
+    assert (
+        provider_delta_execution._provider_delta_authority_root(request=request)  # noqa: SLF001
+        == authority_root.resolve()
+    )
+    assert (
+        provider_delta_execution._provider_delta_authority_root(  # noqa: SLF001
+            request=SimpleNamespace(workspace_root=workspace_root),
+        )
+        == workspace_root.resolve()
+    )
 from aware_meta.materialization.deltas.ontology_execution.service import (  # noqa: E402
     build_provider_delta_ontology_execution_plan,
 )

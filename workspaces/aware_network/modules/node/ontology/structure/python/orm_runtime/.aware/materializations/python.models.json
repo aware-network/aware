@@ -1,0 +1,186 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "b36b8763-690f-5735-b29e-f271e419e51e",
+      "module": "aware_node_ontology.node.node_config",
+      "name": "NodeConfig",
+      "aware_class_ref": "aware_node.node.NodeConfig",
+      "functions": [
+        {
+          "function_config_id": "c273998d-ef34-5934-8b79-90ed3b97e3e6",
+          "name": "attach_environment_profile_mount",
+          "input_model": "NodeConfigAttachEnvironmentProfileMountInput",
+          "output_model": "NodeConfigAttachEnvironmentProfileMountOutput"
+        },
+        {
+          "function_config_id": "292812ff-9b74-53f8-b393-27e2a9b31100",
+          "name": "attach_environment_target",
+          "input_model": "NodeConfigAttachEnvironmentTargetInput",
+          "output_model": "NodeConfigAttachEnvironmentTargetOutput"
+        },
+        {
+          "function_config_id": "81f2fc81-27dc-51ff-8e2c-46b2186bbe96",
+          "name": "attach_interface_config",
+          "input_model": "NodeConfigAttachInterfaceConfigInput",
+          "output_model": "NodeConfigAttachInterfaceConfigOutput"
+        },
+        {
+          "function_config_id": "d9aed9f0-65fa-5a92-bb63-43fb1a1591b4",
+          "name": "attach_ontology_package",
+          "input_model": "NodeConfigAttachOntologyPackageInput",
+          "output_model": "NodeConfigAttachOntologyPackageOutput"
+        },
+        {
+          "function_config_id": "caace7d7-c482-5872-983a-32fe6fb18e95",
+          "name": "attach_service_config",
+          "input_model": "NodeConfigAttachServiceConfigInput",
+          "output_model": "NodeConfigAttachServiceConfigOutput"
+        },
+        {
+          "function_config_id": "890ac3f8-6636-5db2-9361-432089c227ab",
+          "name": "build",
+          "input_model": "NodeConfigBuildInput",
+          "output_model": "NodeConfigBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "af444d6a-2782-555e-8c47-973cf8db9db8",
+      "module": "aware_node_ontology.node.node_config_environment_profile_mount",
+      "name": "NodeConfigEnvironmentProfileMount",
+      "aware_class_ref": "aware_node.node.NodeConfigEnvironmentProfileMount",
+      "functions": [
+        {
+          "function_config_id": "352d296c-6346-5608-aabe-e924603b1d15",
+          "name": "build_via_node_config_environment_target",
+          "input_model": "NodeConfigEnvironmentProfileMountBuildViaNodeConfigEnvironmentTargetInput",
+          "output_model": "NodeConfigEnvironmentProfileMountBuildViaNodeConfigEnvironmentTargetOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "462d8dc5-ec87-549a-bd71-e0863d9733c0",
+      "module": "aware_node_ontology.node.node_config_environment_target",
+      "name": "NodeConfigEnvironmentTarget",
+      "aware_class_ref": "aware_node.node.NodeConfigEnvironmentTarget",
+      "functions": [
+        {
+          "function_config_id": "2a649079-44e1-541e-a163-251c38bffd3a",
+          "name": "add_profile_mount",
+          "input_model": "NodeConfigEnvironmentTargetAddProfileMountInput",
+          "output_model": "NodeConfigEnvironmentTargetAddProfileMountOutput"
+        },
+        {
+          "function_config_id": "15fd4a71-0fc3-58d4-8d21-76fa1abfaeba",
+          "name": "build_via_node_config",
+          "input_model": "NodeConfigEnvironmentTargetBuildViaNodeConfigInput",
+          "output_model": "NodeConfigEnvironmentTargetBuildViaNodeConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1fe770a6-67d9-5853-bfe6-5967d1387138",
+      "module": "aware_node_ontology.node.node_config_interface_target",
+      "name": "NodeConfigInterfaceTarget",
+      "aware_class_ref": "aware_node.node.NodeConfigInterfaceTarget",
+      "functions": [
+        {
+          "function_config_id": "932c1c11-f501-59fe-a591-eecfab46bccf",
+          "name": "build_via_node_config",
+          "input_model": "NodeConfigInterfaceTargetBuildViaNodeConfigInput",
+          "output_model": "NodeConfigInterfaceTargetBuildViaNodeConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c8ba5bcb-14bd-5e3c-a545-ba24af124fba",
+      "module": "aware_node_ontology.node.node_config_ontology_target",
+      "name": "NodeConfigOntologyTarget",
+      "aware_class_ref": "aware_node.node.NodeConfigOntologyTarget",
+      "functions": [
+        {
+          "function_config_id": "48286870-70ab-5d09-86f1-f738cc6a2a6a",
+          "name": "build_via_node_config",
+          "input_model": "NodeConfigOntologyTargetBuildViaNodeConfigInput",
+          "output_model": "NodeConfigOntologyTargetBuildViaNodeConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9c0f05df-ce97-5de0-80cf-8ae079752067",
+      "module": "aware_node_ontology.node.node_config_service_code_package",
+      "name": "NodeConfigServiceCodePackage",
+      "aware_class_ref": "aware_node.node.NodeConfigServiceCodePackage",
+      "functions": [
+        {
+          "function_config_id": "b97a26d9-15d8-505c-bfe5-7049d1d325a2",
+          "name": "build_via_node_config_service_target",
+          "input_model": "NodeConfigServiceCodePackageBuildViaNodeConfigServiceTargetInput",
+          "output_model": "NodeConfigServiceCodePackageBuildViaNodeConfigServiceTargetOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c982671a-05b3-54de-9341-a77c9e6ada40",
+      "module": "aware_node_ontology.node.node_config_service_target",
+      "name": "NodeConfigServiceTarget",
+      "aware_class_ref": "aware_node.node.NodeConfigServiceTarget",
+      "functions": [
+        {
+          "function_config_id": "0bd657f3-2810-5917-bb4e-d51344a3ea16",
+          "name": "activate_code_package",
+          "input_model": "NodeConfigServiceTargetActivateCodePackageInput",
+          "output_model": "NodeConfigServiceTargetActivateCodePackageOutput"
+        },
+        {
+          "function_config_id": "c87930e7-f8a7-5d42-bc67-d2f915ea6d68",
+          "name": "build_via_node_config",
+          "input_model": "NodeConfigServiceTargetBuildViaNodeConfigInput",
+          "output_model": "NodeConfigServiceTargetBuildViaNodeConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3945e9f9-ec8e-59b9-9e79-b7b000601cb1",
+      "module": "aware_node_ontology.node.node_package",
+      "name": "NodePackage",
+      "aware_class_ref": "aware_node.node.NodePackage",
+      "functions": [
+        {
+          "function_config_id": "c7205b58-a8f7-597b-a7c1-72d9e591c13e",
+          "name": "attach_included_node_package",
+          "input_model": "NodePackageAttachIncludedNodePackageInput",
+          "output_model": "NodePackageAttachIncludedNodePackageOutput"
+        },
+        {
+          "function_config_id": "745ebf14-2814-53ba-9b52-aa439ed37412",
+          "name": "build",
+          "input_model": "NodePackageBuildInput",
+          "output_model": "NodePackageBuildOutput"
+        },
+        {
+          "function_config_id": "0ebdd289-e7ed-57cb-9038-ddfa118b9e41",
+          "name": "sync_manifest_truth",
+          "input_model": "NodePackageSyncManifestTruthInput",
+          "output_model": "NodePackageSyncManifestTruthOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3c98aed8-be55-51e3-969a-04ca83d64747",
+      "module": "aware_node_ontology.node.node_package_included_node_package",
+      "name": "NodePackageIncludedNodePackage",
+      "aware_class_ref": "aware_node.node.NodePackageIncludedNodePackage",
+      "functions": [
+        {
+          "function_config_id": "103222be-403e-5216-9526-d41c7312d86f",
+          "name": "build_via_node_package",
+          "input_model": "NodePackageIncludedNodePackageBuildViaNodePackageInput",
+          "output_model": "NodePackageIncludedNodePackageBuildViaNodePackageOutput"
+        }
+      ]
+    }
+  ],
+  "enums": []
+}

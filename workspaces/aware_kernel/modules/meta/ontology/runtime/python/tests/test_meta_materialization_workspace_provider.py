@@ -2475,6 +2475,7 @@ async def test_meta_provider_delta_hydrated_output_source_graph_returns_language
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    authority_root = tmp_path / "authority"
     source_graph = ObjectConfigGraph(
         id=uuid4(),
         name="demo-ontology",
@@ -2485,8 +2486,11 @@ async def test_meta_provider_delta_hydrated_output_source_graph_returns_language
     )
 
     class _FakeCachedLaneMaterializer:
-        def __init__(self, **_kwargs: object) -> None:
-            pass
+        def __init__(self, **kwargs: object) -> None:
+            commits = kwargs["commits"]
+            snaps = kwargs["snaps"]
+            assert getattr(commits, "aware_root") == authority_root.resolve()
+            assert getattr(snaps, "_aware_root") == authority_root.resolve()
 
         async def get(self, **_kwargs: object) -> object:
             return SimpleNamespace(oig=object())
@@ -2530,6 +2534,7 @@ async def test_meta_provider_delta_hydrated_output_source_graph_returns_language
             ),
         },
         workspace_root=tmp_path,
+        authority_root=authority_root,
         provider_delta_head_move_applied_receipt={
             "head_refs": {
                 "semantic_branch_id": str(branch_id),

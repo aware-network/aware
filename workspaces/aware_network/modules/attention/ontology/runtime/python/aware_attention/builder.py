@@ -224,7 +224,6 @@ def _build_layout_plan(
         layout_payload.get("frame_mode"),
         field_name=f"layout[{layout_index}].frame_mode",
     ) or _expect_string(default_frame_mode, field_name="frame_mode")
-
     layout_config_id = stable_layout_config_id(key=layout_key)
     sections = _build_section_plans(
         layout_payload=layout_payload,

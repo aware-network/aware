@@ -1,0 +1,170 @@
+{
+  "import_root": "aware_meta_temporal_session_state_sqlite",
+  "language_graph_ref": "e00a8ed02fbea896fdce1e9b0d79fb131d7da90d462238b9e493222671695230",
+  "materialization_source": "ontology",
+  "package_name": "meta-temporal-session-state-sqlite",
+  "renderer_kind": "sqlite",
+  "renderer_profile": "orm_models",
+  "runtime_graph_ref": "4269ba8a9a20fc7b02da26727dd5857e3a732c603f59bb1074c387a846f6bb6a",
+  "schema": "aware.orm.local_state.sqlite.schema_contract.v1",
+  "schema_contract": "aware_meta_temporal_session_state.sqlite.orm_schema",
+  "schema_paths": [
+    "temporal/temporal_frame.sql",
+    "temporal/temporal_session.sql",
+    "temporal/temporal_session_tombstone.sql"
+  ],
+  "schema_version": 1,
+  "source_graph_ref": "1b962e64b0f71ff11e9fca43b101d7295520e3bc820a3c47e14200ecf87c6d65",
+  "tables": [
+    {
+      "columns": [
+        "id",
+        "branch_id",
+        "projection_hash",
+        "revision",
+        "operation",
+        "actor_id",
+        "function_id",
+        "object_id",
+        "idempotency_key",
+        "request_hash",
+        "graph_hash_pre",
+        "graph_hash_post",
+        "changes_json",
+        "payload_json",
+        "created_at_unix_ms",
+        "status",
+        "v",
+        "session_id"
+      ],
+      "json_columns": [
+        "changes_json",
+        "payload_json"
+      ],
+      "storage_indexes": [
+        {
+          "columns": [
+            "branch_id",
+            "projection_hash",
+            "revision"
+          ],
+          "name": "idx_temporal_frame_by_lane_revision_e8b35fba78a7",
+          "unique": false
+        },
+        {
+          "columns": [
+            "session_id",
+            "created_at_unix_ms"
+          ],
+          "name": "idx_temporal_frame_by_session_created_1e90e5f9b6b6",
+          "unique": false
+        },
+        {
+          "columns": [
+            "session_id",
+            "revision"
+          ],
+          "name": "uidx_temporal_frame_by_session_revision_07ea0a5a7bff",
+          "unique": true
+        }
+      ],
+      "table": "temporal_frame"
+    },
+    {
+      "columns": [
+        "id",
+        "branch_id",
+        "projection_hash",
+        "environment_id",
+        "process_id",
+        "thread_id",
+        "base_commit_id",
+        "base_graph_hash_post",
+        "overlay_graph_hash_post",
+        "overlay_oig_json",
+        "revision",
+        "status",
+        "writer_actor_id",
+        "writer_lease_expires_at_unix_ms",
+        "created_at_unix_ms",
+        "last_activity_at_unix_ms",
+        "last_apply_at_unix_ms",
+        "closed_at_unix_ms",
+        "finalized_commit_id",
+        "metadata_json",
+        "v"
+      ],
+      "json_columns": [
+        "metadata_json"
+      ],
+      "storage_indexes": [
+        {
+          "columns": [
+            "branch_id",
+            "projection_hash",
+            "status"
+          ],
+          "name": "idx_temporal_session_by_lane_status_cb154d371c66",
+          "unique": false
+        },
+        {
+          "columns": [
+            "status",
+            "last_activity_at_unix_ms"
+          ],
+          "name": "idx_temporal_session_by_last_activity_183864dd6608",
+          "unique": false
+        }
+      ],
+      "table": "temporal_session"
+    },
+    {
+      "columns": [
+        "id",
+        "branch_id",
+        "projection_hash",
+        "revision",
+        "operation",
+        "actor_id",
+        "finalized_commit_id",
+        "final_graph_hash_post",
+        "reason",
+        "closed_at_unix_ms",
+        "ttl_cleanup_at_unix_ms",
+        "payload_json",
+        "v",
+        "session_id"
+      ],
+      "json_columns": [
+        "payload_json"
+      ],
+      "storage_indexes": [
+        {
+          "columns": [
+            "branch_id",
+            "projection_hash",
+            "closed_at_unix_ms"
+          ],
+          "name": "idx_temporal_session_tombstone_by_lane_closed_cef064706c0a",
+          "unique": false
+        },
+        {
+          "columns": [
+            "closed_at_unix_ms"
+          ],
+          "name": "idx_temporal_session_tombstone_by_closed_at_6d95eac7f3d3",
+          "unique": false
+        },
+        {
+          "columns": [
+            "session_id",
+            "operation"
+          ],
+          "name": "uidx_temporal_session_tombstone_by_session_operati_ec373a40b765",
+          "unique": true
+        }
+      ],
+      "table": "temporal_session_tombstone"
+    }
+  ]
+}

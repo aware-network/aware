@@ -1,0 +1,22 @@
+{
+  "code_package_id": "24e6d1bb-4ea0-5527-a330-a9aa20ce4c03",
+  "db_schema": {
+    "backend_targets": [
+      "postgres"
+    ],
+    "package_kind": "ontology",
+    "sql_roots": [
+      {
+        "path": "../../../../modules/memory/ontology/structure/sql/schema",
+        "path_mode": "manifest_relative"
+      }
+    ]
+  },
+  "domain_commit_id": "30ddee5a-c00e-58da-9d37-f67c284019c2",
+  "object_instance_graph_commit_id": "9a8ff9e8-37ac-5c37-82b4-3245feb64b73",
+  "package_name": "memory-ontology",
+  "schema": "aware.workspace.revision_ontology_runtime_manifest.v1",
+  "source_kind": "workspace_revision",
+  "workspace_relative_package_root": "modules/memory/ontology",
+  "workspace_revision_code_package_id": "575899ff-98f4-585d-8265-94c59e314c2e"
+}

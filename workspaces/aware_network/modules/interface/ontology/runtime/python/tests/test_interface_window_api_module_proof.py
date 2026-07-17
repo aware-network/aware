@@ -67,7 +67,6 @@ async def test_interface_config_window_chain(tmp_path: Path) -> None:
             await window_config.attach_layout_config(
                 layout_config_id=layout_config_id,
                 description="Territory layout",
-                is_default=True,
             )
 
         config_lane = runtime.bind(
@@ -108,7 +107,6 @@ async def test_interface_config_window_chain(tmp_path: Path) -> None:
         assert window_layout.window_config_id == window_config_id
         assert window_layout.layout_config_id == layout_config_id
         assert window_layout.description == "Territory layout"
-        assert window_layout.is_default is True
 
         assert committed_interface_config.id == interface_config_id
         assert committed_interface_config.name == interface_config_name

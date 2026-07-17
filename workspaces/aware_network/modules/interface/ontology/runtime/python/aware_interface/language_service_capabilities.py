@@ -524,7 +524,9 @@ def _collect_interface_package_diagnostics(
 
             seen_window_keys: set[str] = set()
             seen_pane_names: set[str] = set()
-            layout_sections_by_window: dict[str, dict[str, frozenset[str]]] = {}
+            layout_sections_by_window: dict[
+                str, dict[str, frozenset[str] | None]
+            ] = {}
             windows_seen = 0
 
             for child in _iter_semantic_children(body, "interface_item"):
@@ -589,7 +591,7 @@ def _collect_window_diagnostics(
     interface_name: str,
     node: Node,
     seen_window_keys: set[str],
-    layout_sections_by_window: dict[str, dict[str, frozenset[str]]],
+    layout_sections_by_window: dict[str, dict[str, frozenset[str] | None]],
     enabled_groups: frozenset[str],
 ) -> None:
     def _is_enabled(group: str) -> bool:
@@ -628,11 +630,11 @@ def _collect_window_diagnostics(
         return
 
     seen_layout_keys: set[str] = set()
-    layout_sections: dict[str, frozenset[str]] = {}
+    layout_sections: dict[str, frozenset[str] | None] = {}
     default_layout_count = 0
     layout_count = 0
     for child in _iter_semantic_children(body, "interface_layout_item"):
-        if child.type != "interface_layout_def":
+        if child.type not in {"interface_layout_ref", "interface_layout_def"}:
             continue
         layout_count += 1
         layout_name_node = child.child_by_field_name("layout_name")
@@ -674,14 +676,7 @@ def _collect_window_diagnostics(
 
         layout_body = child.child_by_field_name("body")
         if layout_body is None:
-            if _is_enabled("layout"):
-                context.add(
-                    rng=_byte_range_for_node(layout_name_node),
-                    message=(
-                        f"Interface {interface_name!r} window {window_key!r} layout {layout_key!r} is missing a body."
-                    ),
-                    code="aware.interface.layout_body_missing",
-                )
+            layout_sections[layout_token] = None
             continue
 
         seen_section_keys: set[str] = set()
@@ -740,7 +735,7 @@ def _collect_pane_composition_diagnostics(
     dependency_scope: _InterfaceDependencyScope,
     pane_catalog: dict[str, _WorkspacePaneCatalogEntry],
     pane_catalog_authoritative: bool,
-    layout_sections_by_window: dict[str, dict[str, frozenset[str]]],
+    layout_sections_by_window: dict[str, dict[str, frozenset[str] | None]],
     enabled_groups: frozenset[str],
 ) -> None:
     def _is_enabled(group: str) -> bool:
@@ -840,12 +835,10 @@ def _collect_pane_composition_diagnostics(
                 )
                 continue
 
-            layout_scope = (
-                window_scope.get(target_parts[1].casefold())
-                if window_scope is not None
-                else None
-            )
-            if _is_enabled("mount") and layout_scope is None:
+            layout_token = target_parts[1].casefold()
+            layout_known = window_scope is not None and layout_token in window_scope
+            layout_scope = window_scope.get(layout_token) if layout_known else None
+            if _is_enabled("mount") and not layout_known:
                 context.add(
                     rng=_byte_range_for_node(target_node),
                     message=(

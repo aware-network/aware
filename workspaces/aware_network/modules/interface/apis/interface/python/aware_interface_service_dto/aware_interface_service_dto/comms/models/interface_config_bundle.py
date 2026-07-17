@@ -36,7 +36,6 @@ class InterfaceWindowConfigLayoutBundle(BaseModel):
     window_config_layout_config_id: UUID
     layout_config_id: UUID
     key: str
-    is_default: bool = Field(default=False)
     sections: list[InterfaceWindowLayoutSectionBundle] = Field(default_factory=list)
 
 

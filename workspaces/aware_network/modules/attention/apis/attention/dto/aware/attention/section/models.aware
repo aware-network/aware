@@ -69,7 +69,6 @@ class AttentionRuntimeMountLayoutRequest {
     layout_config_id UUID?
     layout_id UUID?
     layout_key String
-    is_default Bool = false
     sections AttentionRuntimeMountSectionRequest[] = []
 }
 

@@ -27,7 +27,10 @@ from aware_meta.graph.instance.commit import (
     fs_commit_store as fs_commit_store_module,
     fs_snapshot_store as fs_snapshot_store_module,
 )
-from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+from aware_meta.graph.instance.commit.fs_commit_store import (
+    FSCommitStore,
+    OigCommitRecordUnavailableError,
+)
 from aware_meta.graph.instance.commit.fs_runtime_state import (
     _SESSION_JSON_FILE_CACHE,
     _clear_fs_store_session_read_cache_for_tests,
@@ -109,6 +112,49 @@ def test_commit_store_requires_explicit_root_or_aware_root_env(
         match="FSCommitStore requires explicit root_dir or AWARE_ROOT",
     ):
         FSCommitStore()
+
+
+@pytest.mark.asyncio
+async def test_lineage_records_raise_typed_unavailable_error(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FSCommitStore(root_dir=tmp_path)
+    branch_id = uuid4()
+    commit_id = uuid4()
+    projection_hash = "ObjectInstanceGraphIdentity"
+
+    async def _missing_record(**_: object):
+        return None
+
+    async def _missing_domain_commit(**_: object):
+        return None
+
+    monkeypatch.setattr(store, "get_commit_record", _missing_record)
+    monkeypatch.setattr(
+        store,
+        "domain_commit_id_for_object_instance_graph_commit_id",
+        _missing_domain_commit,
+    )
+
+    with pytest.raises(OigCommitRecordUnavailableError) as exc_info:
+        async for _ in store.iter_lineage_forward_records(
+            branch_id=branch_id,
+            projection_hash=projection_hash,
+            head_commit_id=commit_id,
+            stop_at_commit_id=None,
+        ):
+            pass
+
+    error = exc_info.value
+    assert error.branch_id == branch_id
+    assert error.projection_hash == projection_hash
+    assert error.commit_id == commit_id
+    assert error.lookup_commit_id == commit_id
+    assert str(error) == (
+        f"Missing commit record for {commit_id} in lane "
+        f"({branch_id}, {projection_hash}); resolved_lookup_commit_id={commit_id}"
+    )
 
 
 def test_snapshot_store_requires_explicit_root_or_aware_root_env(

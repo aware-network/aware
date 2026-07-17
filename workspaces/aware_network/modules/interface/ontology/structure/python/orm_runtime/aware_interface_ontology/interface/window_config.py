@@ -48,11 +48,11 @@ class WindowConfig(ORMModel):
         return WindowConfig.validate_invocation_value(value)
 
     async def attach_layout_config(
-        self, layout_config_id: UUID, description: str | None = None, is_default: bool = False
+        self, layout_config_id: UUID, description: str | None = None
     ) -> WindowConfigLayoutConfig:
         """Attach one attention-owned LayoutConfig to this Interface-side window configuration."""
 
-        payload = {"layout_config_id": layout_config_id, "description": description, "is_default": is_default}
+        payload = {"layout_config_id": layout_config_id, "description": description}
         result = await invoke_instance(orm_model=self, function_name="attach_layout_config", payload=payload)
         value = result.get("value") if isinstance(result, dict) and "value" in result else result
         from aware_interface_ontology.interface.window_config_layout_config import WindowConfigLayoutConfig
@@ -74,7 +74,6 @@ class WindowConfigBuildOutput(BaseModel):
 class WindowConfigAttachLayoutConfigInput(BaseModel):
     layout_config_id: UUID
     description: str | None = Field(default=None)
-    is_default: bool = Field(default=False)
 
 
 class WindowConfigAttachLayoutConfigOutput(BaseModel):

@@ -87,6 +87,35 @@ def test_collect_top_level_section_identity_descriptors_basic_smoke() -> None:
     assert descriptors[0].section_key == "A"
 
 
+def test_section_keys_are_unique_under_stable_identity_normalization() -> None:
+    setup_code_plugins()
+    descriptors = collect_top_level_section_identity_descriptors(
+        content="""
+@freezed
+abstract class First {}
+
+@freezed
+abstract class Second {}
+
+@Freezed(unionKey: 'kind')
+abstract class Third {}
+
+@Freezed(unionKey: 'kind')
+abstract class Fourth {}
+""".strip(),
+        language=CodeLanguage.dart,
+    )
+    decorator_keys = [
+        descriptor.section_key
+        for descriptor in descriptors
+        if descriptor.section_type == CodeSectionType.decorator
+        and descriptor.qualname.casefold() == "freezed"
+    ]
+
+    assert decorator_keys == ["freezed", "freezed#2", "Freezed#3", "Freezed#4"]
+    assert len({key.casefold().strip() for key in decorator_keys}) == 4
+
+
 def test_collect_top_level_section_identity_descriptors_matches_builder_oracle() -> (
     None
 ):

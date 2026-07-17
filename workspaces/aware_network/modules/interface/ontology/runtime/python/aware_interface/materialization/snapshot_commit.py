@@ -713,7 +713,6 @@ def _build_interface_config_snapshot_objects(
                     window_config_id=window_config.id,
                     layout_config_id=layout_bundle.layout_config_id,
                     description=None,
-                    is_default=layout_bundle.is_default,
                 ),
             )
             window_config.layout_configs.append(layout_edge)
@@ -1224,12 +1223,9 @@ def _schema_replacement_snapshot_commit_id(
 
 def _is_missing_attribute_config_replay_error(exc: Exception) -> bool:
     message = str(exc)
-    return (
-        "Missing AttributeConfig for attribute_config_id=" in message
-        and "class_instance_id=" in message
-        and "class_config_id=" in message
-        and "attribute_id=" in message
-    )
+    if "Missing AttributeConfig for attribute_config_id=" not in message or "attribute_id=" not in message:
+        return False
+    return ("class_instance_id=" in message and "class_config_id=" in message) or "owner_key=" in message
 
 
 def _text_or_none(value: str | None) -> str | None:

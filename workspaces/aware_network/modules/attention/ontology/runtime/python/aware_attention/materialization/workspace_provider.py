@@ -60,7 +60,7 @@ async def materialize(
         runtime=cast(Any, runtime),
         index=request.index,
         actor_id=request.actor_id,
-        aware_root=request.workspace_root,
+        aware_root=request.authority_root or request.workspace_root,
         lane=MaterializationLaneContext(
             branch_id=attention_package_id,
             projection_hash=projection_hash,

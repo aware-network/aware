@@ -364,7 +364,6 @@ async def test_attention_watch_runtime_mount_stream_live_sdk(
         layouts=[
             AttentionRuntimeMountLayoutRequest(
                 layout_key=layout_key,
-                is_default=True,
                 sections=[
                     AttentionRuntimeMountSectionRequest(
                         section_key=section_key,
@@ -410,7 +409,6 @@ def _runtime_mount_request(
         layouts=[
             AttentionRuntimeMountLayoutRequest(
                 layout_key=layout_key,
-                is_default=True,
                 sections=[
                     AttentionRuntimeMountSectionRequest(
                         section_key=section_key,

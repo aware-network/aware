@@ -1,4 +1,4 @@
-layout configuration_map default {
+layout configuration_map {
     section main {
         title "Actor Home"
         order 0

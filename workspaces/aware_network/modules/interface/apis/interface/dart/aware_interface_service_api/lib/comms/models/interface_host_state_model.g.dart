@@ -2307,7 +2307,6 @@ _InterfaceRuntimeLayoutState _$InterfaceRuntimeLayoutStateFromJson(
   ),
   layoutKey: json['layout_key'] as String,
   label: json['label'] as String,
-  isDefault: json['is_default'] as bool,
   isActive: json['is_active'] as bool,
 );
 
@@ -2320,7 +2319,6 @@ Map<String, dynamic> _$InterfaceRuntimeLayoutStateToJson(
   ),
   'layout_key': instance.layoutKey,
   'label': instance.label,
-  'is_default': instance.isDefault,
   'is_active': instance.isActive,
 };
 

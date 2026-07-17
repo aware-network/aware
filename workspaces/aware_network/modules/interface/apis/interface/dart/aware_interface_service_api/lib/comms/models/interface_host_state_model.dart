@@ -2527,7 +2527,6 @@ abstract class InterfaceRuntimeLayoutState with _$InterfaceRuntimeLayoutState {
     @UuidValueConverter() UuidValue? layoutConfigId,
     required String layoutKey,
     required String label,
-    required bool isDefault,
     required bool isActive,
   }) = _InterfaceRuntimeLayoutState;
 
@@ -2535,14 +2534,12 @@ abstract class InterfaceRuntimeLayoutState with _$InterfaceRuntimeLayoutState {
     UuidValue? layoutConfigId,
     required String layoutKey,
     required String label,
-    bool? isDefault,
     bool? isActive,
   }) {
     return _InterfaceRuntimeLayoutState(
       layoutConfigId: layoutConfigId,
       layoutKey: layoutKey,
       label: label,
-      isDefault: isDefault ?? false,
       isActive: isActive ?? false,
     );
   }
@@ -2550,7 +2547,6 @@ abstract class InterfaceRuntimeLayoutState with _$InterfaceRuntimeLayoutState {
   factory InterfaceRuntimeLayoutState.fromJson(Map<String, dynamic> json) =>
       _$InterfaceRuntimeLayoutStateFromJson({
         ...json,
-        if (!json.containsKey('is_default')) 'is_default': false,
         if (!json.containsKey('is_active')) 'is_active': false,
       });
 }

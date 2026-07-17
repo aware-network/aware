@@ -4271,6 +4271,9 @@ async def test_materialize_object_config_graph_package_leaf_accepts_workspace_ap
             "apis/home_devices/packages/home_api/aware.toml"
         )
         assert result.code_package.package_root == "apis/home_devices/packages/home_api"
+        assert sorted(
+            edge.relative_path for edge in result.code_package.code_package_codes
+        ) == ["aware.toml", "door/request.aware"]
         assert result.object_config_graph.name == "aware_home_api"
         assert result.object_config_graph.fqn_prefix == "aware_home_api"
         await _assert_branch_has_committed_object_config_graph_topology(

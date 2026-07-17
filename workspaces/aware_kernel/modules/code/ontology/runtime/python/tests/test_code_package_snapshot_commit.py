@@ -147,7 +147,7 @@ async def test_exact_head_snapshot_state_requires_matching_healthy_index(
             graph_hash_post="sha256:graph",
             snapshot_fingerprint="sha256:snapshot",
             source_snapshot_fingerprint="sha256:source",
-            artifact_state_index={},
+            artifact_current_state={},
             required_relative_paths=tuple(kwargs["required_relative_paths"]),
         )
 
@@ -684,6 +684,67 @@ async def test_source_object_state_index_is_changed_text_scoped() -> None:
     assert changed_object.__class__.__name__ == "ContentPartText"
 
 
+def test_complete_snapshot_infers_changed_source_paths_from_exact_head() -> None:
+    previous = snapshot_commit._code_package_text_source_snapshot_fingerprint_result(
+        code_package_config_id=uuid4(),
+        package_name="aware-test-package",
+        language=CodeLanguage.python,
+        surface="runtime",
+        manifest_kind="pyproject_toml",
+        manifest_relative_path="pyproject.toml",
+        package_root="generated/aware-test-package",
+        sources_root="generated/aware-test-package/aware_test_package",
+        fqn_prefix="aware_test_package",
+        source_texts_by_relative_path={},
+        source_plans_by_relative_path={},
+        unparsed_texts_by_relative_path={
+            "aware_test_package/changed.py": "VALUE = 'before'\n",
+            "aware_test_package/deleted.py": "VALUE = 'deleted'\n",
+            "aware_test_package/same.py": "VALUE = 'same'\n",
+        },
+        path_roles_by_relative_path={},
+        previous_snapshot_index_payload=None,
+        changed_relative_paths=frozenset(),
+    )
+    current = snapshot_commit._code_package_text_source_snapshot_fingerprint_result(
+        code_package_config_id=uuid4(),
+        package_name="aware-test-package",
+        language=CodeLanguage.python,
+        surface="runtime",
+        manifest_kind="pyproject_toml",
+        manifest_relative_path="pyproject.toml",
+        package_root="generated/aware-test-package",
+        sources_root="generated/aware-test-package/aware_test_package",
+        fqn_prefix="aware_test_package",
+        source_texts_by_relative_path={},
+        source_plans_by_relative_path={},
+        unparsed_texts_by_relative_path={
+            "aware_test_package/added.py": "VALUE = 'added'\n",
+            "aware_test_package/changed.py": "VALUE = 'after'\n",
+            "aware_test_package/same.py": "VALUE = 'same'\n",
+        },
+        path_roles_by_relative_path={},
+        previous_snapshot_index_payload=None,
+        changed_relative_paths=frozenset(),
+    )
+
+    assert (
+        snapshot_commit._code_package_changed_relative_paths_from_source_hash_indexes(
+            previous_snapshot_index_payload={
+                "source_text_hash_index": previous.source_text_hash_index,
+            },
+            current_source_text_hash_index=current.source_text_hash_index,
+        )
+        == frozenset(
+            {
+                "aware_test_package/added.py",
+                "aware_test_package/changed.py",
+                "aware_test_package/deleted.py",
+            }
+        )
+    )
+
+
 @pytest.mark.asyncio
 async def test_source_object_signature_fast_fields_match_generic() -> None:
     for (
@@ -1088,6 +1149,94 @@ def test_changed_path_source_state_reuses_unchanged_path_states() -> None:
     )
     assert not (unchanged_path_ids & set(merged.changed_source_object_ids))
     assert not (unchanged_path_ids & set(merged.changed_source_states_by_id))
+
+
+def test_source_object_state_index_requires_complete_path_object_evidence() -> None:
+    source_object_id = uuid4()
+    required_paths = frozenset(("aware_test_package/module.py",))
+    objects = [{"source_object_id": str(source_object_id)}]
+
+    assert not snapshot_commit._code_package_source_object_state_index_covers_paths(
+        {"objects": objects, "path_source_object_index": []},
+        required_paths=required_paths,
+    )
+    assert not snapshot_commit._code_package_source_object_state_index_covers_paths(
+        {
+            "objects": objects,
+            "path_source_object_index": [
+                {
+                    "relative_path": "aware_test_package/module.py",
+                    "source_object_ids": [str(uuid4())],
+                }
+            ],
+        },
+        required_paths=required_paths,
+    )
+    assert snapshot_commit._code_package_source_object_state_index_covers_paths(
+        {
+            "objects": objects,
+            "path_source_object_index": [
+                {
+                    "relative_path": "aware_test_package/module.py",
+                    "source_object_ids": [str(source_object_id)],
+                }
+            ],
+        },
+        required_paths=required_paths,
+    )
+
+
+def test_rebuilt_desired_state_retains_complete_source_path_evidence() -> None:
+    source_object_id = uuid4()
+    class_config_id = uuid4()
+    class_instance_id = uuid4()
+    state_index = snapshot_commit.CommitStateIndex(rows=())
+    root_class_instance = snapshot_commit.ClassInstance.model_construct(
+        id=class_instance_id,
+        class_config_id=class_config_id,
+        source_object_id=source_object_id,
+        class_instance_attributes=[],
+    )
+    desired_state = snapshot_commit._CodePackageDesiredState(
+        object_instance_graph_id=uuid4(),
+        graph_hash=state_index.compute_hash(),
+        state_index=state_index,
+        root_metadata=snapshot_commit.ObjectInstanceGraphCommitRootMetadata(
+            object_instance_graph_key="branch",
+            object_instance_graph_name="name",
+            object_instance_graph_description=None,
+            root_class_config_id=class_config_id,
+            root_source_object_id=source_object_id,
+        ),
+        root_class_instance=root_class_instance,
+        class_instances=(root_class_instance,),
+        class_instance_payloads=(),
+        class_instances_by_id={class_instance_id: root_class_instance},
+        class_instance_relationships=(),
+        relationships_by_key={},
+        graph_meta={"hash": state_index.compute_hash()},
+        source_object_state_index={"objects": [], "path_source_object_index": []},
+    )
+    relative_path = "aware_test_package/module.py"
+    complete_source_index = {
+        "objects": [{"source_object_id": str(source_object_id)}],
+        "path_source_object_index": [
+            {
+                "relative_path": relative_path,
+                "source_object_ids": [str(source_object_id)],
+            }
+        ],
+    }
+
+    rebuilt = snapshot_commit._code_package_desired_state_with_complete_source_index(
+        desired_state=desired_state,
+        complete_source_index=complete_source_index,
+        required_source_paths=frozenset((relative_path,)),
+        package_name="aware_test_package",
+    )
+
+    assert rebuilt.source_object_state_index == complete_source_index
+    assert desired_state.source_object_state_index != complete_source_index
 
 
 def test_snapshot_plan_index_can_be_changed_path_scoped() -> None:
@@ -1805,6 +1954,7 @@ async def test_large_existing_state_snapshot_publishes_missing_segment_index(
     )
 
     metadata = await snapshot_commit._ensure_code_package_text_snapshot_state_snapshot_from_state_inner(
+        snapshot_store=_Store(),
         branch_id=uuid4(),
         projection_hash="CodePackage",
         commit_id=uuid4(),

@@ -1,0 +1,11 @@
+{
+  "dependency_import_roots": [],
+  "modules": [
+    "aware_meta_temporal_session_state_orm_models.stable_ids",
+    "aware_meta_temporal_session_state_orm_models.temporal.temporal_frame",
+    "aware_meta_temporal_session_state_orm_models.temporal.temporal_session",
+    "aware_meta_temporal_session_state_orm_models.temporal.temporal_session_tombstone"
+  ],
+  "package_prefix": "aware_meta_temporal_session_state_orm_models",
+  "version": "v1"
+}

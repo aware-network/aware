@@ -35,7 +35,7 @@ interface aware_app {
     api home_devices
 
     window main {
-        layout configuration_map default {
+        layout configuration_map {
             section workspace
             section inspector
         }
@@ -62,42 +62,64 @@ interface aware_app {
 
     pane_defs = _find_nodes(root, "pane_def")
     assert len(pane_defs) == 1
-    assert _text(source_bytes, pane_defs[0].child_by_field_name("name")) == "door_control"
+    assert (
+        _text(source_bytes, pane_defs[0].child_by_field_name("name")) == "door_control"
+    )
 
     pane_view_defs = _find_nodes(root, "pane_view_def")
     assert len(pane_view_defs) == 1
-    assert _text(source_bytes, pane_view_defs[0].child_by_field_name("view")) == "home_story.security.door"
-    assert _text(source_bytes, pane_view_defs[0].child_by_field_name("default_marker")) == "default"
+    assert (
+        _text(source_bytes, pane_view_defs[0].child_by_field_name("view"))
+        == "home_story.security.door"
+    )
+    assert (
+        _text(source_bytes, pane_view_defs[0].child_by_field_name("default_marker"))
+        == "default"
+    )
 
     interface_defs = _find_nodes(root, "interface_def")
     assert len(interface_defs) == 1
-    assert _text(source_bytes, interface_defs[0].child_by_field_name("name")) == "aware_app"
+    assert (
+        _text(source_bytes, interface_defs[0].child_by_field_name("name"))
+        == "aware_app"
+    )
 
     window_defs = _find_nodes(root, "interface_window_def")
     assert len(window_defs) == 1
-    assert _text(source_bytes, window_defs[0].child_by_field_name("window_name")) == "main"
+    assert (
+        _text(source_bytes, window_defs[0].child_by_field_name("window_name")) == "main"
+    )
 
     layout_defs = _find_nodes(root, "interface_layout_def")
     assert len(layout_defs) == 2
-    assert _text(source_bytes, layout_defs[0].child_by_field_name("layout_name")) == "configuration_map"
-    assert _text(source_bytes, layout_defs[0].child_by_field_name("default_marker")) == "default"
+    assert (
+        _text(source_bytes, layout_defs[0].child_by_field_name("layout_name"))
+        == "configuration_map"
+    )
+    assert layout_defs[0].child_by_field_name("default_marker") is None
 
     pane_mount_defs = _find_nodes(root, "interface_pane_mount_def")
     assert len(pane_mount_defs) == 2
-    assert _text(source_bytes, pane_mount_defs[0].child_by_field_name("target")) == "main.configuration_map.workspace"
+    assert (
+        _text(source_bytes, pane_mount_defs[0].child_by_field_name("target"))
+        == "main.configuration_map.workspace"
+    )
     assert pane_mount_defs[0].child_by_field_name("default_marker") is None
     assert pane_mount_defs[0].child_by_field_name("view") is None
 
     narratives = _find_nodes(root, "interface_pane_narrative_def")
     assert len(narratives) == 1
-    assert _text(source_bytes, narratives[0].child_by_field_name("narrative")) == "security.control"
+    assert (
+        _text(source_bytes, narratives[0].child_by_field_name("narrative"))
+        == "security.control"
+    )
 
 
 def test_interface_pane_mount_rejects_default_marker() -> None:
     source = """
 interface sample {
     window main {
-        layout configuration_map default {
+        layout configuration_map {
             section workspace {}
         }
     }
@@ -109,4 +131,60 @@ interface sample {
 """
     parser = Parser(language=AWARE_LANGUAGE)
     tree = parser.parse(source.encode("utf-8"))
+    assert tree.root_node.has_error
+
+
+def test_interface_parses_bodyless_attention_layout_reference() -> None:
+    source = """
+interface sample {
+    window main {
+        layout coordination_center
+    }
+
+    pane navigator {
+        mount main.coordination_center.primary
+    }
+}
+"""
+    source_bytes = source.encode("utf-8")
+    parser = Parser(language=AWARE_LANGUAGE)
+    tree = parser.parse(source_bytes)
+
+    assert not tree.root_node.has_error
+    layout_refs = _find_nodes(tree.root_node, "interface_layout_ref")
+    assert len(layout_refs) == 1
+    assert (
+        _text(source_bytes, layout_refs[0].child_by_field_name("layout_name"))
+        == "coordination_center"
+    )
+    assert layout_refs[0].child_by_field_name("default_marker") is None
+
+
+def test_interface_layout_reference_rejects_default_marker() -> None:
+    source = """
+interface sample {
+    window main {
+        layout coordination_center default
+    }
+}
+"""
+    parser = Parser(language=AWARE_LANGUAGE)
+    tree = parser.parse(source.encode("utf-8"))
+
+    assert tree.root_node.has_error
+
+
+def test_interface_layout_declaration_rejects_default_marker() -> None:
+    source = """
+interface sample {
+    window main {
+        layout coordination_center default {
+            section primary
+        }
+    }
+}
+"""
+    parser = Parser(language=AWARE_LANGUAGE)
+    tree = parser.parse(source.encode("utf-8"))
+
     assert tree.root_node.has_error

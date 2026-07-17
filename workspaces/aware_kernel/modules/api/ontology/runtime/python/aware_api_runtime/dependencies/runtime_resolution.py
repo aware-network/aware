@@ -1210,34 +1210,79 @@ def _emit_api_runtime_semantics_manifest(
             .as_posix()
         ),
         "dependency_packages": [
-            {
-                "package_name": package.package_name,
-                "kind": package.kind.value,
-                "aware_toml_relpath": _path_rel_or_abs(
-                    path=package.aware_toml_path,
-                    root=repo_root,
-                ),
-                "package_root_relpath": _path_rel_or_abs(
-                    path=package.package_root,
-                    root=repo_root,
-                ),
-                "python_root_relpath": _path_rel_or_abs(
-                    path=_runtime_dependency_python_root(
-                        package=package,
-                        snapshot=snapshot,
-                    ),
-                    root=repo_root,
-                ),
-                "runtime_root_relpath": _path_rel_or_abs(
-                    path=package.runtime_root, root=repo_root
-                ),
-            }
+            _runtime_dependency_package_manifest_payload(
+                package=package,
+                snapshot=snapshot,
+            )
             for package in dependency_packages
         ],
         "registered_class_config_count": registered_class_config_count,
     }
     _write_json_artifact(path=artifact_path, payload=payload)
     return artifact_path
+
+
+def _runtime_dependency_package_manifest_payload(
+    *,
+    package: _RuntimeDependencyPackage,
+    snapshot: APIWorkspaceSnapshot,
+) -> dict[str, object]:
+    workspace_coordinate = _owning_workspace_coordinate(
+        path=package.aware_toml_path,
+    )
+    path_root = (
+        workspace_coordinate[1]
+        if workspace_coordinate is not None
+        else snapshot.repo_root.resolve()
+    )
+    payload: dict[str, object] = {
+        "package_name": package.package_name,
+        "kind": package.kind.value,
+        "aware_toml_relpath": _path_rel_or_abs(
+            path=package.aware_toml_path,
+            root=path_root,
+        ),
+        "package_root_relpath": _path_rel_or_abs(
+            path=package.package_root,
+            root=path_root,
+        ),
+        "python_root_relpath": _path_rel_or_abs(
+            path=_runtime_dependency_python_root(
+                package=package,
+                snapshot=snapshot,
+            ),
+            root=path_root,
+        ),
+        "runtime_root_relpath": _path_rel_or_abs(
+            path=package.runtime_root,
+            root=path_root,
+        ),
+    }
+    if workspace_coordinate is not None:
+        payload["workspace_handle"] = workspace_coordinate[0]
+    return payload
+
+
+def _owning_workspace_coordinate(*, path: Path) -> tuple[str, Path] | None:
+    resolved = path.expanduser().resolve()
+    for candidate_root in (resolved.parent, *resolved.parents):
+        manifest_path = candidate_root / "aware.workspace.toml"
+        if not manifest_path.is_file():
+            continue
+        try:
+            payload = tomllib.loads(manifest_path.read_text(encoding="utf-8"))
+            workspace = payload.get("workspace")
+            handle = (
+                str(workspace.get("handle") or "").strip()
+                if isinstance(workspace, Mapping)
+                else ""
+            )
+        except (OSError, tomllib.TOMLDecodeError):
+            return None
+        if handle:
+            return handle, candidate_root.resolve()
+        return None
+    return None
 
 
 def _register_api_dependency_class_configs(

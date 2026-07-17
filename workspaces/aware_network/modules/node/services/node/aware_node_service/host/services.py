@@ -1453,6 +1453,7 @@ async def bind_node_service_api_dependency_routes(
     start_remote_refresh: bool = True,
     configure_hosted_environments: bool = True,
     allow_prepared_local_providers: bool = False,
+    include_node_control_plane_consumer: bool = True,
     require_complete: bool = False,
 ) -> tuple["NodeServiceApiDependencyRouteDescriptor", ...]:
     """Bind selected ServicePackage API requirements to live local ServiceHosts."""
@@ -1481,6 +1482,7 @@ async def bind_node_service_api_dependency_routes(
         node_app=node_app,
         runtime=runtime,
         allow_prepared_local_providers=allow_prepared_local_providers,
+        include_node_control_plane_consumer=include_node_control_plane_consumer,
     )
     if require_complete and resolution.pending_remote_provider_package_names:
         raise RuntimeError(
@@ -1686,6 +1688,7 @@ async def _resolve_node_service_api_dependency_routes_from_env(
     node_app: object | None = None,
     runtime: NodeHostServicesAssembly,
     allow_prepared_local_providers: bool = False,
+    include_node_control_plane_consumer: bool = True,
 ) -> _NodeServiceApiDependencyRouteResolution:
     package_refs_payload = _service_api_dependency_package_refs_payload_from_env()
     remote_provider_inputs = _remote_service_api_provider_inputs_from_env()
@@ -1721,15 +1724,28 @@ async def _resolve_node_service_api_dependency_routes_from_env(
         for package in local_service_packages
         if tuple(getattr(package, "required_api_packages", ()))
     )
-    network_service_api_consumer = (
-        _node_control_plane_network_service_api_consumer_package(
-            service_packages=service_packages,
+    network_service_api_consumer = None
+    if include_node_control_plane_consumer:
+        network_service_api_consumer = (
+            _node_control_plane_network_service_api_consumer_package(
+                service_packages=service_packages,
+            )
         )
-    )
     if network_service_api_consumer is not None:
         consumer_packages.append(network_service_api_consumer)
     if not consumer_packages:
         return _NodeServiceApiDependencyRouteResolution()
+    provider_packages = tuple(
+        package
+        for package in local_service_packages
+        if tuple(getattr(package, "provided_api_packages", ()))
+    )
+    remote_provider_inputs = _filter_remote_provider_inputs_for_consumers(
+        remote_provider_inputs=remote_provider_inputs,
+        consumer_packages=tuple(consumer_packages),
+        provider_packages=provider_packages,
+        service_packages=service_packages,
+    )
     remote_provider_inputs = await _hydrate_remote_service_api_provider_inputs_with_discovered_advertisements(
         node_app=node_app,
         remote_provider_inputs=remote_provider_inputs,
@@ -1742,10 +1758,14 @@ async def _resolve_node_service_api_dependency_routes_from_env(
     pending_remote_provider_names = _pending_remote_service_api_provider_package_names(
         remote_provider_inputs=remote_provider_inputs,
     )
-    provider_packages = tuple(
-        package
-        for package in local_service_packages
-        if tuple(getattr(package, "provided_api_packages", ()))
+    pending_remote_provider_names = (
+        _pending_remote_provider_package_names_for_consumers(
+            pending_remote_provider_package_names=pending_remote_provider_names,
+            consumer_packages=tuple(consumer_packages),
+            provider_packages=provider_packages,
+            remote_provider_runtimes=remote_provider_runtimes,
+            service_packages=service_packages,
+        )
     )
     filtered_consumer_packages = _filter_consumer_packages_for_pending_remote_providers(
         consumer_packages=tuple(consumer_packages),
@@ -2100,6 +2120,74 @@ def _pending_remote_service_api_provider_package_names(
         if package_name:
             names.add(package_name.casefold())
     return names
+
+
+def _filter_remote_provider_inputs_for_consumers(
+    *,
+    remote_provider_inputs: tuple[_RemoteServiceApiProviderInput, ...],
+    consumer_packages: tuple["ServicePackageLike", ...],
+    provider_packages: tuple["ServicePackageLike", ...],
+    service_packages: tuple["ServicePackageLike", ...],
+) -> tuple[_RemoteServiceApiProviderInput, ...]:
+    required_api_package_ids = {
+        requirement.api_package_id
+        for consumer in consumer_packages
+        for requirement in tuple(getattr(consumer, "required_api_packages", ()))
+    }
+    unresolved_api_package_ids = required_api_package_ids - _provided_api_package_ids(
+        packages=provider_packages,
+    )
+    relevant_provider_package_names = {
+        _hosted_service_package_name(package).casefold()
+        for package in service_packages
+        if _provided_api_package_ids(packages=(package,)) & unresolved_api_package_ids
+    }
+    return tuple(
+        provider_input
+        for provider_input in remote_provider_inputs
+        if _clean_text(
+            provider_input.service_package_ref_payload.get("package_name")
+        ).casefold()
+        in relevant_provider_package_names
+    )
+
+
+def _pending_remote_provider_package_names_for_consumers(
+    *,
+    pending_remote_provider_package_names: set[str],
+    consumer_packages: tuple["ServicePackageLike", ...],
+    provider_packages: tuple["ServicePackageLike", ...],
+    remote_provider_runtimes: tuple["NodeRemoteServiceApiProviderRuntime", ...],
+    service_packages: tuple["ServicePackageLike", ...],
+) -> set[str]:
+    if not pending_remote_provider_package_names:
+        return set()
+
+    required_api_package_ids = {
+        requirement.api_package_id
+        for consumer in consumer_packages
+        for requirement in tuple(getattr(consumer, "required_api_packages", ()))
+    }
+    available_api_package_ids = _provided_api_package_ids(packages=provider_packages)
+    available_api_package_ids.update(
+        _provided_api_package_ids(
+            packages=tuple(
+                provider_runtime.service_package
+                for provider_runtime in remote_provider_runtimes
+            )
+        )
+    )
+    unresolved_api_package_ids = required_api_package_ids - available_api_package_ids
+    if not unresolved_api_package_ids:
+        return set()
+
+    return {
+        package_name
+        for package in service_packages
+        for package_name in (_hosted_service_package_name(package).casefold(),)
+        if package_name in pending_remote_provider_package_names
+        and _provided_api_package_ids(packages=(package,)) & unresolved_api_package_ids
+    }
 
 
 def _filter_consumer_packages_for_pending_remote_providers(

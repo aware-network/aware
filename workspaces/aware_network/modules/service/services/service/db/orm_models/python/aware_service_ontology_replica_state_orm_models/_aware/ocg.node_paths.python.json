@@ -1,0 +1,35 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "13718a41-fc86-500c-8689-414a6b1b2e94",
+      "node_type": "class",
+      "entity_id": "e3cdb9fe-4253-5c7d-aecb-c2b96faf1639",
+      "relative_path": "replica_store/service_ontology_ocg_migration_marker.py"
+    },
+    {
+      "node_id": "c7055b88-beee-51b5-a185-18e7079aa7e6",
+      "node_type": "class",
+      "entity_id": "f999ba92-bf65-5cf4-a52b-0968e15fa1a2",
+      "relative_path": "replica_store/service_ontology_replica_apply_receipt.py"
+    },
+    {
+      "node_id": "fb0da2d9-f167-5776-9c7f-a61240129e4c",
+      "node_type": "class",
+      "entity_id": "9f86052e-9efd-5ff1-b73e-a307fd480eb1",
+      "relative_path": "replica_store/service_ontology_replica_commit_receipt.py"
+    },
+    {
+      "node_id": "8ec5e22c-2f75-5d55-ab7e-ec2acb793201",
+      "node_type": "class",
+      "entity_id": "0210268e-cfd7-58ca-9719-6de8456910ab",
+      "relative_path": "replica_store/service_ontology_replica_cursor.py"
+    },
+    {
+      "node_id": "84f38b72-c028-5283-a6c1-85ef620f5630",
+      "node_type": "class",
+      "entity_id": "5aa118b4-5078-5125-95cc-41ddcbc3037e",
+      "relative_path": "replica_store/service_ontology_replica_subscription.py"
+    }
+  ]
+}

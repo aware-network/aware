@@ -125,15 +125,19 @@ def resolve_interface_package_materialization_spec(
 ) -> InterfacePackageMaterializationSpec:
     resolved_interface_toml_path = interface_toml_path.resolve()
     resolved_workspace_root = workspace_root.resolve()
+    source_repo_root = _resolve_interface_source_repo_root(
+        workspace_root=resolved_workspace_root,
+    )
     snapshot = InterfaceWorkspace.from_toml(
         toml_path=resolved_interface_toml_path,
-        repo_root=resolved_workspace_root,
+        repo_root=source_repo_root,
     ).build_snapshot()
     pane_render_spec_materialization_path: Path | None = None
     if _interface_ontology_bundle_requires_compile(snapshot=snapshot):
         compile_result = compile_interface_workspace(
             toml_path=resolved_interface_toml_path,
-            repo_root=resolved_workspace_root,
+            repo_root=source_repo_root,
+            artifact_root=resolved_workspace_root,
             emit_config_bundle=True,
             projection_identity_ocg=projection_identity_ocg,
             projection_identity_ocgs=projection_identity_ocgs,
@@ -178,6 +182,14 @@ def resolve_interface_package_materialization_spec(
         package_fqn_prefix=package_fqn_prefix,
         pane_render_spec_materialization_path=pane_render_spec_materialization_path,
     )
+
+
+def _resolve_interface_source_repo_root(*, workspace_root: Path) -> Path:
+    resolved_workspace_root = workspace_root.resolve()
+    for candidate in (resolved_workspace_root, *resolved_workspace_root.parents):
+        if (candidate / "aware.repo.toml").is_file():
+            return candidate
+    return resolved_workspace_root
 
 
 def _interface_ontology_bundle_requires_compile(
@@ -284,13 +296,7 @@ async def materialize_interface_package_from_manifest(
             sources_root_relative=sources_root_relative,
             config_bundle_relative_path=config_bundle_relative_path,
         )
-    source_texts_by_relative_path: dict[str, str] = {}
-    for source_file in spec.source_files:
-        source_path = (spec.package_root / source_file).resolve()
-        if source_path.is_file():
-            source_texts_by_relative_path[source_file.as_posix()] = (
-                source_path.read_text(encoding="utf-8")
-            )
+    source_texts_by_relative_path = _interface_package_source_texts(spec=spec)
     source_snapshot = await commit_code_package_text_snapshot(
         index=cast(object, index),
         actor_id=actor_id,
@@ -543,13 +549,7 @@ async def _materialize_interface_package_snapshot(
 ) -> InterfacePackageMaterializationResult:
     phase_timings_s: dict[str, float] = {}
     phase_started = perf_counter()
-    source_texts_by_relative_path: dict[str, str] = {}
-    for source_file in spec.source_files:
-        source_path = (spec.package_root / source_file).resolve()
-        if source_path.is_file():
-            source_texts_by_relative_path[source_file.as_posix()] = (
-                source_path.read_text(encoding="utf-8")
-            )
+    source_texts_by_relative_path = _interface_package_source_texts(spec=spec)
     phase_timings_s["read_source_texts_s"] = perf_counter() - phase_started
     source_code_package_config_id = stable_code_package_config_id(
         config_key=code_package_source_config_key(
@@ -939,6 +939,23 @@ def _validate_interface_package_manifest_truth(
             + f"expected={dict(_interface_package_dart_payload(spec.manifest_spec))!r} "
             + f"actual={dict(interface_package.dart)!r}"
         )
+
+
+def _interface_package_source_texts(
+    *, spec: InterfacePackageMaterializationSpec
+) -> dict[str, str]:
+    source_texts = {
+        spec.interface_toml_path.name: spec.interface_toml_path.read_text(
+            encoding="utf-8"
+        )
+    }
+    for source_file in spec.source_files:
+        source_path = (spec.package_root / source_file).resolve()
+        if source_path.is_file():
+            source_texts[source_file.as_posix()] = source_path.read_text(
+                encoding="utf-8"
+            )
+    return source_texts
 
 
 async def _hydrate_lane_root_from_head(

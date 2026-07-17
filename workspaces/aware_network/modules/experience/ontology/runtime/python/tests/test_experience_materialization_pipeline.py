@@ -136,6 +136,8 @@ from aware_experience.materialization.service import (
     resolve_section_surface_materialization_specs,
     SensorConfigMaterializationSpec,
 )
+
+
 from aware_experience_ontology.stable_ids import (
     stable_projection_experience_id,
     stable_projection_experience_layout_graph_binding_id,
@@ -149,6 +151,44 @@ from aware_meta.runtime import MetaGraphRuntimeIndex
 import aware_experience.materialization.service as materialization_service
 import aware_experience.materialization.projection_contract_materialization as projection_contract_materialization
 import aware_experience.materialization.workspace_provider as experience_workspace_provider
+
+
+@pytest.mark.asyncio
+async def test_snapshot_no_change_uses_committed_head_oig_identity() -> None:
+    branch_id = uuid4()
+    head_commit_id = uuid4()
+    committed_oigi_id = uuid4()
+    runtime_oigi_id = uuid4()
+    expected_oig_commit_id = snapshot_commit.stable_object_instance_graph_commit_id(
+        object_instance_graph_identity_id=committed_oigi_id,
+        commit_id=head_commit_id,
+    )
+    assert expected_oig_commit_id != (
+        snapshot_commit.stable_object_instance_graph_commit_id(
+            object_instance_graph_identity_id=runtime_oigi_id,
+            commit_id=head_commit_id,
+        )
+    )
+
+    class _CommitStore:
+        async def get_commit_identity_metadata(self, **_kwargs: object):
+            return SimpleNamespace(
+                object_instance_graph_identity_id=committed_oigi_id,
+            )
+
+        async def get_commit(self, **_kwargs: object):
+            raise AssertionError("identity metadata is the committed authority")
+
+    result = await snapshot_commit._committed_oig_commit_id_for_head(  # noqa: SLF001
+        commit_store=cast(Any, _CommitStore()),
+        branch_id=branch_id,
+        projection_hash="experience-package-projection",
+        head_commit_id=head_commit_id,
+        head={"object_instance_graph_commit_id": str(expected_oig_commit_id)},
+        operation_label="ExperiencePackage.materialize_manifest_snapshot",
+    )
+
+    assert result == expected_oig_commit_id
 
 
 class _NoOpRuntimeInvoker:
@@ -3438,6 +3478,54 @@ def test_section_surface_snapshot_preserves_committed_projection_view_catalog() 
     ]
     assert [node.key for node in nodes] == ["space"]
     assert nodes[0].identity_keys == ("default",)
+
+
+@pytest.mark.asyncio
+async def test_binding_portal_source_identity_uses_committed_domain_oig(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    branch_id = uuid4()
+    domain_oig_id = uuid4()
+    author_id = uuid4()
+    projection_hash = "projection-experience"
+    head_reads: list[dict[str, object]] = []
+    ensure_calls: list[dict[str, object]] = []
+
+    class _FakeStore:
+        async def head(self, **kwargs: object) -> dict[str, object]:
+            head_reads.append(dict(kwargs))
+            return {
+                "commit_id": uuid4(),
+                "object_instance_graph_id": str(domain_oig_id),
+            }
+
+    async def _fake_ensure_identity(**kwargs: object) -> None:
+        ensure_calls.append(dict(kwargs))
+
+    monkeypatch.setattr(snapshot_commit, "FSCommitStore", _FakeStore)
+    monkeypatch.setattr(
+        snapshot_commit,
+        "ensure_object_instance_graph_identity_lane_head",
+        _fake_ensure_identity,
+    )
+    index = SimpleNamespace(
+        opg_by_hash={projection_hash: SimpleNamespace(id=uuid4())},
+    )
+
+    await snapshot_commit._ensure_binding_portal_source_identity(  # noqa: SLF001
+        index=cast(MetaGraphRuntimeIndex, index),
+        author_id=author_id,
+        branch_id=branch_id,
+        projection_hash=projection_hash,
+        label="binding-source",
+    )
+
+    assert head_reads == [
+        {"branch_id": branch_id, "projection_hash": projection_hash}
+    ]
+    assert len(ensure_calls) == 1
+    assert ensure_calls[0]["object_instance_graph_id"] == domain_oig_id
+    assert ensure_calls[0]["domain_projection_hash"] == projection_hash
 
 
 @pytest.mark.asyncio

@@ -20,7 +20,6 @@ class WindowConfigLayoutConfig(ORMModel):
 
     # Attributes
     description: str | None = Field(default=None)
-    is_default: bool = Field(default=False)
 
     # Foreign Keys
     window_config_id: UUID = Field(description="Foreign key for WindowConfig.layout_configs")

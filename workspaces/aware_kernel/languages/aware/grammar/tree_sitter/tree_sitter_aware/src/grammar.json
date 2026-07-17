@@ -13443,6 +13443,10 @@
               },
               {
                 "type": "SYMBOL",
+                "name": "interface_layout_ref"
+              },
+              {
+                "type": "SYMBOL",
                 "name": "interface_layout_def"
               }
             ]
@@ -13451,6 +13455,35 @@
         {
           "type": "STRING",
           "value": "}"
+        }
+      ]
+    },
+    "interface_layout_ref": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "layout"
+        },
+        {
+          "type": "FIELD",
+          "name": "layout_name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "ident"
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ";"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
     },

@@ -1457,6 +1457,55 @@ def test_api_dependency_graph_context_does_not_reuse_namespace_less_source_owned
 
 
 @pytest.mark.asyncio
+async def test_source_owned_api_dto_pre_resolve_reuses_complete_workspace_context(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    toml_path = _write_dependency_class_config_workspace(tmp_path)
+    with toml_path.open("a", encoding="utf-8") as handle:
+        handle.write(
+            "\n".join(
+                [
+                    "",
+                    "[[semantic_package_exports]]",
+                    'kind = "api_dto"',
+                    'package_name = "home-api"',
+                    'manifest_path = "apis/types/home/aware.toml"',
+                    "",
+                ]
+            )
+        )
+    api_graph = _home_api_context_graph()
+    ontology_graph = _home_ontology_context_graph()
+    timings: dict[str, float] = {}
+
+    monkeypatch.setattr(
+        api_materialization_service,
+        "_complete_dependency_context_graphs_from_runtime_artifact",
+        lambda **_: (_ for _ in ()).throw(
+            AssertionError("complete Workspace context must avoid artifact loading")
+        ),
+    )
+
+    graphs = await api_materialization_service.resolve_source_owned_api_dto_export_accessible_graphs(
+        runtime=cast(Any, object()),
+        index=cast(Any, object()),
+        actor_id=None,
+        branch_id=uuid4(),
+        workspace_root=tmp_path,
+        api_toml_path=toml_path,
+        accessible_graphs=(ontology_graph, api_graph),
+        phase_timings_s=timings,
+    )
+
+    assert tuple(graph.name for graph in graphs) == ("home-ontology", "home-api")
+    assert (
+        "pre_resolve_api_package_dependency_context."
+        "reuse_complete_workspace_semantic_context"
+    ) in timings
+
+
+@pytest.mark.asyncio
 async def test_source_owned_api_dto_pre_resolve_reuses_complete_runtime_graph_cache(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

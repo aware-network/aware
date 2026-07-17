@@ -124,7 +124,10 @@ from aware_meta.graph.instance.commit.contract import (
     ObjectInstanceGraphCommitRootMetadata,
     OigiHistoryDomainCommitProjection,
 )
-from aware_meta.graph.instance.commit.fs_commit_store import FSCommitStore
+from aware_meta.graph.instance.commit.fs_commit_store import (
+    FSCommitStore,
+    OigCommitRecordUnavailableError,
+)
 from aware_meta.graph.instance.commit.fs_snapshot_store import FSSnapshotStore
 from aware_meta.graph.instance.commit.stored_commit_records import (
     object_instance_graph_commit_envelope_from_commit,
@@ -800,11 +803,19 @@ async def _materialize_oigi_history_head_with_recovery(
             attribute_configs_by_id=dict(index.attribute_configs_by_id),
             class_configs_by_id=dict(index.class_configs_by_id),
         )
-    except (OigChangeApplyError, OigDeltaApplyError) as exc:
+    except (
+        OigChangeApplyError,
+        OigDeltaApplyError,
+        OigCommitRecordUnavailableError,
+    ) as exc:
         if lane_materializer is not None:
             raise
         recovery_cause: BaseException = exc
-        recovery_metric = "invalid_oigi_head_replay_reset_count"
+        recovery_metric = (
+            "invalid_oigi_head_record_unavailable_reset_count"
+            if isinstance(exc, OigCommitRecordUnavailableError)
+            else "invalid_oigi_head_replay_reset_count"
+        )
     else:
         materialized_pre_state_index = _commit_state_index_from_materialized_indexes(
             materialized_indexes=materialized_indexes,

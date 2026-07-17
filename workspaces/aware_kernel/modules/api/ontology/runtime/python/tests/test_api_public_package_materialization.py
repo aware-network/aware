@@ -1213,14 +1213,23 @@ def test_api_dto_materialization_uses_artifact_layout_with_precompiled_graph(
                 node.layouts = []
         accessible_graphs.append(graph)
 
+    phase_timings: dict[str, float] = {}
     results = materialize_api_dto_packages(
         snapshot=snapshot,
         runtime_package_dir=root / ".aware" / "api" / "runtime" / "home-story-api",
         repo_root=root,
         accessible_graphs=tuple(accessible_graphs),
+        phase_timings_s=phase_timings,
     )
 
     assert len(results) == 1
+    assert {
+        "api_dto_render.home-api.transform_graph",
+        "api_dto_render.home-api.render_language_materialization",
+        "api_dto_render.home-api.build_language_packages",
+        "api_dto_render.home-api.produce_declared_outputs",
+        "api_dto_render.home-api.total",
+    } <= phase_timings.keys()
     package_root = root / "python" / "aware_home_api"
     import_root = package_root / "aware_home_api"
     lock_door_path = import_root / "default" / "lock_door.py"

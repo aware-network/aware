@@ -1,0 +1,619 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "4afbf582-ab2f-57b3-bb41-2259618d08b6",
+      "module": "aware_attention_ontology_orm_models.actor.actor_focus",
+      "name": "ActorFocus",
+      "aware_class_ref": "aware_attention.actor.ActorFocus",
+      "functions": [
+        {
+          "function_config_id": "a3167601-03da-5bcc-8ad5-78df389ad12c",
+          "name": "create",
+          "input_model": "ActorFocusCreateInput",
+          "output_model": "ActorFocusCreateOutput"
+        },
+        {
+          "function_config_id": "2d7bf2cf-f5fa-5473-9e28-046e692605a3",
+          "name": "create_request",
+          "input_model": "ActorFocusCreateRequestInput",
+          "output_model": "ActorFocusCreateRequestOutput"
+        },
+        {
+          "function_config_id": "f73dba6f-e7b9-5c40-9e25-4fa135936971",
+          "name": "record_evidence",
+          "input_model": "ActorFocusRecordEvidenceInput",
+          "output_model": "ActorFocusRecordEvidenceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "20bd4e9a-3762-5af6-9d64-d17f07aa6ee7",
+      "module": "aware_attention_ontology_orm_models.actor.actor_focus_evidence",
+      "name": "ActorFocusEvidence",
+      "aware_class_ref": "aware_attention.actor.ActorFocusEvidence",
+      "functions": [
+        {
+          "function_config_id": "746daaa0-c8ba-517c-992b-b5f0c3e26210",
+          "name": "create_via_actor_focus",
+          "input_model": "ActorFocusEvidenceCreateViaActorFocusInput",
+          "output_model": "ActorFocusEvidenceCreateViaActorFocusOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "93a89680-369b-5b79-9a37-e2f9a4de4afc",
+      "module": "aware_attention_ontology_orm_models.actor.actor_focus_request",
+      "name": "ActorFocusRequest",
+      "aware_class_ref": "aware_attention.actor.ActorFocusRequest",
+      "functions": [
+        {
+          "function_config_id": "138d8d4b-06e3-5dbf-aadf-98d75d11bcc1",
+          "name": "accept",
+          "input_model": "ActorFocusRequestAcceptInput",
+          "output_model": "ActorFocusRequestAcceptOutput"
+        },
+        {
+          "function_config_id": "ff981355-4789-5f3a-bdf6-989f6c07ef1e",
+          "name": "build",
+          "input_model": "ActorFocusRequestBuildInput",
+          "output_model": "ActorFocusRequestBuildOutput"
+        },
+        {
+          "function_config_id": "d851913c-4194-5f56-8d91-5a5843003e56",
+          "name": "expire",
+          "input_model": "ActorFocusRequestExpireInput",
+          "output_model": "ActorFocusRequestExpireOutput"
+        },
+        {
+          "function_config_id": "593425d6-33bd-57c8-9b96-2f54eceef6df",
+          "name": "reject",
+          "input_model": "ActorFocusRequestRejectInput",
+          "output_model": "ActorFocusRequestRejectOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "ca7ca9c8-0174-570e-944f-00f3e73ec483",
+      "module": "aware_attention_ontology_orm_models.actor.actor_focus_request_response",
+      "name": "ActorFocusRequestResponse",
+      "aware_class_ref": "aware_attention.actor.ActorFocusRequestResponse",
+      "functions": []
+    },
+    {
+      "class_config_id": "07cf95b1-0068-56e2-b737-d03129fce2ca",
+      "module": "aware_attention_ontology_orm_models.actor.actor_focus_scope",
+      "name": "ActorFocusScope",
+      "aware_class_ref": "aware_attention.actor.ActorFocusScope",
+      "functions": [
+        {
+          "function_config_id": "26a4e6ba-b1b8-5832-9ea3-f551e740b0c8",
+          "name": "add_request",
+          "input_model": "ActorFocusScopeAddRequestInput",
+          "output_model": "ActorFocusScopeAddRequestOutput"
+        },
+        {
+          "function_config_id": "4fbe8166-e7fd-547c-82e0-3add309ace08",
+          "name": "create",
+          "input_model": "ActorFocusScopeCreateInput",
+          "output_model": "ActorFocusScopeCreateOutput"
+        },
+        {
+          "function_config_id": "8f0898a7-442a-54c3-b3cf-c96e41b89912",
+          "name": "record_evidence",
+          "input_model": "ActorFocusScopeRecordEvidenceInput",
+          "output_model": "ActorFocusScopeRecordEvidenceOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "81c0fbe2-0577-5cf0-b540-c85daee42aca",
+      "module": "aware_attention_ontology_orm_models.actor.actor_focus_scope_evidence",
+      "name": "ActorFocusScopeEvidence",
+      "aware_class_ref": "aware_attention.actor.ActorFocusScopeEvidence",
+      "functions": [
+        {
+          "function_config_id": "90386c99-70e6-57ef-9ee8-1162eb2d1a8b",
+          "name": "create_via_actor_focus_scope",
+          "input_model": "ActorFocusScopeEvidenceCreateViaActorFocusScopeInput",
+          "output_model": "ActorFocusScopeEvidenceCreateViaActorFocusScopeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "2259ca7e-57a0-574c-ad70-6c1ec92a08e6",
+      "module": "aware_attention_ontology_orm_models.actor.actor_focus_scope_request",
+      "name": "ActorFocusScopeRequest",
+      "aware_class_ref": "aware_attention.actor.ActorFocusScopeRequest",
+      "functions": [
+        {
+          "function_config_id": "99c52909-62e7-5324-8e18-f186a364af10",
+          "name": "create_via_actor_focus_scope",
+          "input_model": "ActorFocusScopeRequestCreateViaActorFocusScopeInput",
+          "output_model": "ActorFocusScopeRequestCreateViaActorFocusScopeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f67ccc0a-9480-5fe8-a4a4-07c3d1149c16",
+      "module": "aware_attention_ontology_orm_models.attention.attention_package",
+      "name": "AttentionPackage",
+      "aware_class_ref": "aware_attention.attention.AttentionPackage",
+      "functions": [
+        {
+          "function_config_id": "86a3be7b-b474-5ecc-b6a1-6adefc36a7a0",
+          "name": "attach_layout_config",
+          "input_model": "AttentionPackageAttachLayoutConfigInput",
+          "output_model": "AttentionPackageAttachLayoutConfigOutput"
+        },
+        {
+          "function_config_id": "f069a74f-e38f-534e-919e-3ec3a580c1e9",
+          "name": "build",
+          "input_model": "AttentionPackageBuildInput",
+          "output_model": "AttentionPackageBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "9f9afbf1-e6c2-5ce5-83d1-a4063d3b9248",
+      "module": "aware_attention_ontology_orm_models.attention.attention_package_layout_config",
+      "name": "AttentionPackageLayoutConfig",
+      "aware_class_ref": "aware_attention.attention.AttentionPackageLayoutConfig",
+      "functions": [
+        {
+          "function_config_id": "19e40e27-59af-5eb4-8425-24878c04cd4c",
+          "name": "build_via_attention_package",
+          "input_model": "AttentionPackageLayoutConfigBuildViaAttentionPackageInput",
+          "output_model": "AttentionPackageLayoutConfigBuildViaAttentionPackageOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "dcabb070-9acc-54f9-86e2-b777c2a55aaf",
+      "module": "aware_attention_ontology_orm_models.focus.focus",
+      "name": "Focus",
+      "aware_class_ref": "aware_attention.focus.Focus",
+      "functions": [
+        {
+          "function_config_id": "a892263d-ca42-552c-bb1d-86c92b208432",
+          "name": "build",
+          "input_model": "FocusBuildInput",
+          "output_model": "FocusBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "80db298b-8bc2-57e5-967e-93bba22f48e8",
+      "module": "aware_attention_ontology_orm_models.focus.focus_scope",
+      "name": "FocusScope",
+      "aware_class_ref": "aware_attention.focus.FocusScope",
+      "functions": [
+        {
+          "function_config_id": "d1ac4e93-2321-5561-848a-f43c2a818fd3",
+          "name": "build",
+          "input_model": "FocusScopeBuildInput",
+          "output_model": "FocusScopeBuildOutput"
+        },
+        {
+          "function_config_id": "a86489b5-a3b9-5155-a376-1fb3b06f8fe7",
+          "name": "create_request",
+          "input_model": "FocusScopeCreateRequestInput",
+          "output_model": "FocusScopeCreateRequestOutput"
+        },
+        {
+          "function_config_id": "f655a5d3-3a09-5bd1-aa1d-bdb5f36849dd",
+          "name": "ensure_commit",
+          "input_model": "FocusScopeEnsureCommitInput",
+          "output_model": "FocusScopeEnsureCommitOutput"
+        },
+        {
+          "function_config_id": "69892996-c8c8-58da-8c86-8ea6147912ba",
+          "name": "set_focus",
+          "input_model": "FocusScopeSetFocusInput",
+          "output_model": "FocusScopeSetFocusOutput"
+        },
+        {
+          "function_config_id": "802a2af5-8374-506f-a0f9-39b4bd57361b",
+          "name": "set_observable",
+          "input_model": "FocusScopeSetObservableInput",
+          "output_model": "FocusScopeSetObservableOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "bcfaa41b-0c1d-57a8-9f43-cde6e9f2850c",
+      "module": "aware_attention_ontology_orm_models.focus.focus_scope_commit",
+      "name": "FocusScopeCommit",
+      "aware_class_ref": "aware_attention.focus.FocusScopeCommit",
+      "functions": [
+        {
+          "function_config_id": "905ea813-e2f2-5bb6-8d61-c2ed06efb58b",
+          "name": "create_via_focus_scope",
+          "input_model": "FocusScopeCommitCreateViaFocusScopeInput",
+          "output_model": "FocusScopeCommitCreateViaFocusScopeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "fe93f9c6-0b4a-5132-bdde-f15c2a4a75b0",
+      "module": "aware_attention_ontology_orm_models.focus.focus_scope_request",
+      "name": "FocusScopeRequest",
+      "aware_class_ref": "aware_attention.focus.FocusScopeRequest",
+      "functions": [
+        {
+          "function_config_id": "a871c04a-67bb-5c05-ac36-35dbec51498e",
+          "name": "accept",
+          "input_model": "FocusScopeRequestAcceptInput",
+          "output_model": "FocusScopeRequestAcceptOutput"
+        },
+        {
+          "function_config_id": "4fce0c30-2a99-5b40-8033-5339ceb33f5b",
+          "name": "create_via_focus_scope",
+          "input_model": "FocusScopeRequestCreateViaFocusScopeInput",
+          "output_model": "FocusScopeRequestCreateViaFocusScopeOutput"
+        },
+        {
+          "function_config_id": "c8de0e30-2c3f-588e-afc1-2426d99ce494",
+          "name": "expire",
+          "input_model": "FocusScopeRequestExpireInput",
+          "output_model": "FocusScopeRequestExpireOutput"
+        },
+        {
+          "function_config_id": "554a0d7a-48ae-5f3c-a1cb-0e68b9ec4267",
+          "name": "reject",
+          "input_model": "FocusScopeRequestRejectInput",
+          "output_model": "FocusScopeRequestRejectOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "7f01ff0c-0a9a-50ea-8213-82b0d9e8e554",
+      "module": "aware_attention_ontology_orm_models.focus.focus_scope_request_response",
+      "name": "FocusScopeRequestResponse",
+      "aware_class_ref": "aware_attention.focus.FocusScopeRequestResponse",
+      "functions": [
+        {
+          "function_config_id": "1f0484c2-a713-5aaa-b3b8-084a172d1aaf",
+          "name": "build_via_focus_scope_request",
+          "input_model": "FocusScopeRequestResponseBuildViaFocusScopeRequestInput",
+          "output_model": "FocusScopeRequestResponseBuildViaFocusScopeRequestOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "72776555-365b-5a0e-94ae-29d99b310dfc",
+      "module": "aware_attention_ontology_orm_models.layout.layout",
+      "name": "Layout",
+      "aware_class_ref": "aware_attention.layout.Layout",
+      "functions": [
+        {
+          "function_config_id": "5ddb4e13-7ebc-59cf-a085-fea331ea21a6",
+          "name": "add_section",
+          "input_model": "LayoutAddSectionInput",
+          "output_model": "LayoutAddSectionOutput"
+        },
+        {
+          "function_config_id": "c47ebfba-214f-5eb5-a24c-78f9a6c13b75",
+          "name": "build",
+          "input_model": "LayoutBuildInput",
+          "output_model": "LayoutBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "c467a156-20bd-5d1a-b635-07caef3975a7",
+      "module": "aware_attention_ontology_orm_models.layout.layout_config",
+      "name": "LayoutConfig",
+      "aware_class_ref": "aware_attention.layout.LayoutConfig",
+      "functions": [
+        {
+          "function_config_id": "a042081e-d007-595a-99ae-6ab706fb9678",
+          "name": "add_section_config",
+          "input_model": "LayoutConfigAddSectionConfigInput",
+          "output_model": "LayoutConfigAddSectionConfigOutput"
+        },
+        {
+          "function_config_id": "ca7fc584-3689-50ec-a330-49fbfca08360",
+          "name": "build",
+          "input_model": "LayoutConfigBuildInput",
+          "output_model": "LayoutConfigBuildOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d00e09a2-d2a3-5559-93d1-54193e96b7ae",
+      "module": "aware_attention_ontology_orm_models.layout.layout_config_section_config",
+      "name": "LayoutConfigSectionConfig",
+      "aware_class_ref": "aware_attention.layout.LayoutConfigSectionConfig",
+      "functions": [
+        {
+          "function_config_id": "57c0b62d-2f44-520d-81cd-5d21fb12adb4",
+          "name": "create_via_layout_config",
+          "input_model": "LayoutConfigSectionConfigCreateViaLayoutConfigInput",
+          "output_model": "LayoutConfigSectionConfigCreateViaLayoutConfigOutput"
+        },
+        {
+          "function_config_id": "06da1365-8cb2-5652-8f16-5a3e96f97bf5",
+          "name": "set_geometry",
+          "input_model": "LayoutConfigSectionConfigSetGeometryInput",
+          "output_model": "LayoutConfigSectionConfigSetGeometryOutput"
+        },
+        {
+          "function_config_id": "e8f122cd-e480-50bf-a164-bb60cc382801",
+          "name": "set_visibility",
+          "input_model": "LayoutConfigSectionConfigSetVisibilityInput",
+          "output_model": "LayoutConfigSectionConfigSetVisibilityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "be6a26c7-7d4e-5f23-8f7e-d182d44c4acd",
+      "module": "aware_attention_ontology_orm_models.layout.layout_section",
+      "name": "LayoutSection",
+      "aware_class_ref": "aware_attention.layout.LayoutSection",
+      "functions": [
+        {
+          "function_config_id": "f0024a91-bb8f-5ca5-bcda-d8a885984d22",
+          "name": "create_via_layout",
+          "input_model": "LayoutSectionCreateViaLayoutInput",
+          "output_model": "LayoutSectionCreateViaLayoutOutput"
+        },
+        {
+          "function_config_id": "992640e9-a075-5bf2-922b-879abb1ad96a",
+          "name": "set_geometry",
+          "input_model": "LayoutSectionSetGeometryInput",
+          "output_model": "LayoutSectionSetGeometryOutput"
+        },
+        {
+          "function_config_id": "2e4c08aa-8b97-59e3-b74d-ceed1a7791c1",
+          "name": "set_visibility",
+          "input_model": "LayoutSectionSetVisibilityInput",
+          "output_model": "LayoutSectionSetVisibilityOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "b6db0813-e6fe-57a9-b477-7be9243a8ef0",
+      "module": "aware_attention_ontology_orm_models.section.section",
+      "name": "Section",
+      "aware_class_ref": "aware_attention.section.Section",
+      "functions": [
+        {
+          "function_config_id": "a3955a02-c7df-51cd-bf18-a8074336ee8c",
+          "name": "add_focus_scope",
+          "input_model": "SectionAddFocusScopeInput",
+          "output_model": "SectionAddFocusScopeOutput"
+        },
+        {
+          "function_config_id": "4196e688-3ee6-548b-8f78-569456a8b224",
+          "name": "build",
+          "input_model": "SectionBuildInput",
+          "output_model": "SectionBuildOutput"
+        },
+        {
+          "function_config_id": "40cfba9f-9d9a-5b99-a31b-703762ae75a1",
+          "name": "set_active_focus_scope",
+          "input_model": "SectionSetActiveFocusScopeInput",
+          "output_model": "SectionSetActiveFocusScopeOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1fdb9c8a-960d-5793-a127-4d5ff806118e",
+      "module": "aware_attention_ontology_orm_models.section.section_config",
+      "name": "SectionConfig",
+      "aware_class_ref": "aware_attention.section.SectionConfig",
+      "functions": [
+        {
+          "function_config_id": "6766fd8d-01bf-5b74-a357-9108f6faacf4",
+          "name": "build_via_layout_config_section_config",
+          "input_model": "SectionConfigBuildViaLayoutConfigSectionConfigInput",
+          "output_model": "SectionConfigBuildViaLayoutConfigSectionConfigOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "1ca0c28b-8c76-5952-9046-dca1d1d3e568",
+      "module": "aware_attention_ontology_orm_models.section.section_focus_scope",
+      "name": "SectionFocusScope",
+      "aware_class_ref": "aware_attention.section.SectionFocusScope",
+      "functions": [
+        {
+          "function_config_id": "30ea44a1-8498-5326-b947-122cff90c910",
+          "name": "build_via_section",
+          "input_model": "SectionFocusScopeBuildViaSectionInput",
+          "output_model": "SectionFocusScopeBuildViaSectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "f0a45d58-3334-5acc-8601-89259f50d36a",
+      "module": "aware_attention_ontology_orm_models.session.attention_focus_transition",
+      "name": "AttentionFocusTransition",
+      "aware_class_ref": "aware_attention.session.AttentionFocusTransition",
+      "functions": [
+        {
+          "function_config_id": "5615f634-f289-5e27-8b69-b5f1069fe73e",
+          "name": "create_via_attention_session_section",
+          "input_model": "AttentionFocusTransitionCreateViaAttentionSessionSectionInput",
+          "output_model": "AttentionFocusTransitionCreateViaAttentionSessionSectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "d20765ff-a73b-59c3-8af8-42e43299c664",
+      "module": "aware_attention_ontology_orm_models.session.attention_layout_topology_transition",
+      "name": "AttentionLayoutTopologyTransition",
+      "aware_class_ref": "aware_attention.session.AttentionLayoutTopologyTransition",
+      "functions": [
+        {
+          "function_config_id": "6734cd2a-10dd-58f6-8c97-9947e6b0b135",
+          "name": "attach_section_state",
+          "input_model": "AttentionLayoutTopologyTransitionAttachSectionStateInput",
+          "output_model": "AttentionLayoutTopologyTransitionAttachSectionStateOutput"
+        },
+        {
+          "function_config_id": "3544760b-e745-5e1a-a17a-4b40c6b8751b",
+          "name": "create_via_attention_session_layout",
+          "input_model": "AttentionLayoutTopologyTransitionCreateViaAttentionSessionLayoutInput",
+          "output_model": "AttentionLayoutTopologyTransitionCreateViaAttentionSessionLayoutOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "775535ff-49e9-53a0-96a9-120ccb8b0afd",
+      "module": "aware_attention_ontology_orm_models.session.attention_layout_topology_transition_section",
+      "name": "AttentionLayoutTopologyTransitionSection",
+      "aware_class_ref": "aware_attention.session.AttentionLayoutTopologyTransitionSection",
+      "functions": [
+        {
+          "function_config_id": "7519eb72-ac88-5ea7-b308-5613a2a3f72c",
+          "name": "create_via_attention_layout_topology_transition",
+          "input_model": "AttentionLayoutTopologyTransitionSectionCreateViaAttentionLayoutTopologyTransitionInput",
+          "output_model": "AttentionLayoutTopologyTransitionSectionCreateViaAttentionLayoutTopologyTransitionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3e874dd1-fb93-58c0-a217-2a58019d43d4",
+      "module": "aware_attention_ontology_orm_models.session.attention_layout_transition",
+      "name": "AttentionLayoutTransition",
+      "aware_class_ref": "aware_attention.session.AttentionLayoutTransition",
+      "functions": [
+        {
+          "function_config_id": "68cfff6b-43ff-5e7f-b388-24f9e18287a5",
+          "name": "attach_section_state",
+          "input_model": "AttentionLayoutTransitionAttachSectionStateInput",
+          "output_model": "AttentionLayoutTransitionAttachSectionStateOutput"
+        },
+        {
+          "function_config_id": "c32430cf-b35f-51ff-a5d3-26df4c710277",
+          "name": "create_via_attention_session_layout",
+          "input_model": "AttentionLayoutTransitionCreateViaAttentionSessionLayoutInput",
+          "output_model": "AttentionLayoutTransitionCreateViaAttentionSessionLayoutOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "02e3ccd4-9a17-5887-9c25-d13efa820d82",
+      "module": "aware_attention_ontology_orm_models.session.attention_layout_transition_section",
+      "name": "AttentionLayoutTransitionSection",
+      "aware_class_ref": "aware_attention.session.AttentionLayoutTransitionSection",
+      "functions": [
+        {
+          "function_config_id": "856b59a4-b52f-5fc0-9c7a-93e888f893e2",
+          "name": "create_via_attention_layout_transition",
+          "input_model": "AttentionLayoutTransitionSectionCreateViaAttentionLayoutTransitionInput",
+          "output_model": "AttentionLayoutTransitionSectionCreateViaAttentionLayoutTransitionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "83b14ad9-8af0-57f0-bfcd-e1e7166b3522",
+      "module": "aware_attention_ontology_orm_models.session.attention_session",
+      "name": "AttentionSession",
+      "aware_class_ref": "aware_attention.session.AttentionSession",
+      "functions": [
+        {
+          "function_config_id": "13f7d227-d424-5a92-b45f-72f46aff6d56",
+          "name": "build",
+          "input_model": "AttentionSessionBuildInput",
+          "output_model": "AttentionSessionBuildOutput"
+        },
+        {
+          "function_config_id": "71229756-f3f4-5d4f-b36d-50f869e4d159",
+          "name": "mount_layout",
+          "input_model": "AttentionSessionMountLayoutInput",
+          "output_model": "AttentionSessionMountLayoutOutput"
+        },
+        {
+          "function_config_id": "820cc46a-e671-525b-a71f-4f168a624c48",
+          "name": "set_active_layout",
+          "input_model": "AttentionSessionSetActiveLayoutInput",
+          "output_model": "AttentionSessionSetActiveLayoutOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "8e57a110-39b3-52f1-a6df-da3ce9229e23",
+      "module": "aware_attention_ontology_orm_models.session.attention_session_layout",
+      "name": "AttentionSessionLayout",
+      "aware_class_ref": "aware_attention.session.AttentionSessionLayout",
+      "functions": [
+        {
+          "function_config_id": "e3d87ecf-c10a-5589-a852-6e2db0f33553",
+          "name": "apply_layout_transition",
+          "input_model": "AttentionSessionLayoutApplyLayoutTransitionInput",
+          "output_model": "AttentionSessionLayoutApplyLayoutTransitionOutput"
+        },
+        {
+          "function_config_id": "c1914aef-28de-502d-96e7-aca86d5bd002",
+          "name": "apply_topology_transition",
+          "input_model": "AttentionSessionLayoutApplyTopologyTransitionInput",
+          "output_model": "AttentionSessionLayoutApplyTopologyTransitionOutput"
+        },
+        {
+          "function_config_id": "0bfe1961-9e3d-56f8-8d76-921094040011",
+          "name": "attach_section",
+          "input_model": "AttentionSessionLayoutAttachSectionInput",
+          "output_model": "AttentionSessionLayoutAttachSectionOutput"
+        },
+        {
+          "function_config_id": "a631557d-8ef9-577f-ab1b-d60bcc0cfa9a",
+          "name": "create_via_attention_session",
+          "input_model": "AttentionSessionLayoutCreateViaAttentionSessionInput",
+          "output_model": "AttentionSessionLayoutCreateViaAttentionSessionOutput"
+        },
+        {
+          "function_config_id": "79b294dd-43b3-5990-801e-634605020851",
+          "name": "set_active_section",
+          "input_model": "AttentionSessionLayoutSetActiveSectionInput",
+          "output_model": "AttentionSessionLayoutSetActiveSectionOutput"
+        }
+      ]
+    },
+    {
+      "class_config_id": "3012da7d-5f8e-5c0d-9020-a002a56647ba",
+      "module": "aware_attention_ontology_orm_models.session.attention_session_section",
+      "name": "AttentionSessionSection",
+      "aware_class_ref": "aware_attention.session.AttentionSessionSection",
+      "functions": [
+        {
+          "function_config_id": "29cdc430-1793-5a75-9307-ae8d58f352df",
+          "name": "append_transition",
+          "input_model": "AttentionSessionSectionAppendTransitionInput",
+          "output_model": "AttentionSessionSectionAppendTransitionOutput"
+        },
+        {
+          "function_config_id": "96412add-6b5b-5746-a522-30cef7c3bf7d",
+          "name": "create_via_attention_session_layout",
+          "input_model": "AttentionSessionSectionCreateViaAttentionSessionLayoutInput",
+          "output_model": "AttentionSessionSectionCreateViaAttentionSessionLayoutOutput"
+        },
+        {
+          "function_config_id": "abf1421f-f104-5590-8a40-54625130704c",
+          "name": "set_active_transition",
+          "input_model": "AttentionSessionSectionSetActiveTransitionInput",
+          "output_model": "AttentionSessionSectionSetActiveTransitionOutput"
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "enum_config_id": "ea73b87c-a33e-5eac-86e0-7e941c61d218",
+      "module": "aware_attention_ontology_orm_models.actor.actor_focus_enums",
+      "name": "ActorFocusLevelType"
+    },
+    {
+      "enum_config_id": "0893f5aa-bbe2-59f2-8b99-36adedc5ec3e",
+      "module": "aware_attention_ontology_orm_models.actor.actor_focus_enums",
+      "name": "ActorFocusRequestStatus"
+    },
+    {
+      "enum_config_id": "2e3ced63-2a1b-553a-bcd5-c09136f78135",
+      "module": "aware_attention_ontology_orm_models.focus.focus_enums",
+      "name": "FocusScopeRequestStatus"
+    }
+  ]
+}

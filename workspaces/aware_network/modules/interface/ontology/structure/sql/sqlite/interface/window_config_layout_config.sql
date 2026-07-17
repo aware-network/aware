@@ -11,7 +11,6 @@ CREATE TABLE window_config_layout_config (
   layout_config_id TEXT NOT NULL,
   -- ATTRIBUTES
   description TEXT,
-  is_default INTEGER NOT NULL,
   -- CONSTRAINTS
   PRIMARY KEY (branch_id, projection_hash, id),
   UNIQUE (branch_id, projection_hash, window_config_id, layout_config_id),

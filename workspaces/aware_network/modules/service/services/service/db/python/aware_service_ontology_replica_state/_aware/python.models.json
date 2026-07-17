@@ -1,0 +1,41 @@
+{
+  "language": "python",
+  "classes": [
+    {
+      "class_config_id": "e3cdb9fe-4253-5c7d-aecb-c2b96faf1639",
+      "module": "aware_service_ontology_replica_state.replica_store.service_ontology_ocg_migration_marker",
+      "name": "ServiceOntologyOcgMigrationMarker",
+      "aware_class_ref": "aware_service_ontology_replica_state.replica_store.ServiceOntologyOcgMigrationMarker",
+      "functions": []
+    },
+    {
+      "class_config_id": "f999ba92-bf65-5cf4-a52b-0968e15fa1a2",
+      "module": "aware_service_ontology_replica_state.replica_store.service_ontology_replica_apply_receipt",
+      "name": "ServiceOntologyReplicaApplyReceipt",
+      "aware_class_ref": "aware_service_ontology_replica_state.replica_store.ServiceOntologyReplicaApplyReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "9f86052e-9efd-5ff1-b73e-a307fd480eb1",
+      "module": "aware_service_ontology_replica_state.replica_store.service_ontology_replica_commit_receipt",
+      "name": "ServiceOntologyReplicaCommitReceipt",
+      "aware_class_ref": "aware_service_ontology_replica_state.replica_store.ServiceOntologyReplicaCommitReceipt",
+      "functions": []
+    },
+    {
+      "class_config_id": "0210268e-cfd7-58ca-9719-6de8456910ab",
+      "module": "aware_service_ontology_replica_state.replica_store.service_ontology_replica_cursor",
+      "name": "ServiceOntologyReplicaCursor",
+      "aware_class_ref": "aware_service_ontology_replica_state.replica_store.ServiceOntologyReplicaCursor",
+      "functions": []
+    },
+    {
+      "class_config_id": "5aa118b4-5078-5125-95cc-41ddcbc3037e",
+      "module": "aware_service_ontology_replica_state.replica_store.service_ontology_replica_subscription",
+      "name": "ServiceOntologyReplicaSubscription",
+      "aware_class_ref": "aware_service_ontology_replica_state.replica_store.ServiceOntologyReplicaSubscription",
+      "functions": []
+    }
+  ],
+  "enums": []
+}

@@ -477,6 +477,11 @@ async def run_experience_package_materialization(
             root=spec.workspace_root,
             label="package_root",
         )
+        manifest_package_relative_path = dependencies.relative_to(
+            path=spec.experience_toml_path,
+            root=snapshot.package_root,
+            label="package manifest",
+        )
         sources_root_relative = dependencies.relative_to(
             path=sources_root,
             root=spec.workspace_root,
@@ -572,6 +577,11 @@ async def run_experience_package_materialization(
             sources_root=sources_root_relative,
             fqn_prefix=spec.package_fqn_prefix,
             source_texts_by_relative_path=source_texts_by_relative_path,
+            unparsed_texts_by_relative_path={
+                manifest_package_relative_path: spec.experience_toml_path.read_text(
+                    encoding="utf-8"
+                )
+            },
         )
     with _record_optional_phase(phase_timings_s, "rehydrate_code_package_from_head"):
         code_package = await hydrate_lane_root_from_head(
@@ -775,43 +785,6 @@ async def run_experience_package_materialization(
                     allow_unresolved_projection_experiences
                 ),
             )
-        with _record_optional_phase(
-            phase_timings_s, "materialize_section_surface_ontology"
-        ):
-            section_surface_receipt = (
-                await dependencies.materialize_experience_section_surface_ontology(
-                    runtime=runtime,
-                    index=index,
-                    actor_id=actor_id,
-                    lane=projection_lane,
-                    compile_plan_payloads=(source_compile_plan_payload,),
-                    projection_reference_branch_ids_by_name=(
-                        projection_reference_branch_ids_by_name
-                    ),
-                    allow_unresolved_projection_experiences=(
-                        allow_unresolved_projection_experiences
-                    ),
-                )
-            )
-        with _record_optional_phase(
-            phase_timings_s, "materialize_activation_topology_ontology"
-        ):
-            activation_topology_receipt = (
-                await dependencies.materialize_experience_activation_topology_ontology(
-                    runtime=runtime,
-                    index=index,
-                    actor_id=actor_id,
-                    lane=projection_lane,
-                    compile_plan_payloads=(source_compile_plan_payload,),
-                    api_compile_plan_payloads=api_compile_plan_payloads,
-                    projection_reference_branch_ids_by_name=(
-                        projection_reference_branch_ids_by_name
-                    ),
-                    allow_unresolved_projection_experiences=(
-                        allow_unresolved_projection_experiences
-                    ),
-                )
-            )
         if experience_package_install_scope is ExperiencePackageInstallScope.activation:
             if environment_id is None:
                 raise RuntimeError(
@@ -844,6 +817,53 @@ async def run_experience_package_materialization(
                 )
         else:
             phase_timings_s["materialize_environment_profile_ontology.skipped"] = 0.0
+        materialize_section_surfaces = (
+            experience_package_install_scope is ExperiencePackageInstallScope.activation
+            or any(
+                dependency.kind is AwareExperienceDependencyKind.attention_package
+                for dependency in spec.manifest_spec.dependencies
+            )
+        )
+        if materialize_section_surfaces:
+            with _record_optional_phase(
+                phase_timings_s, "materialize_section_surface_ontology"
+            ):
+                section_surface_receipt = (
+                    await dependencies.materialize_experience_section_surface_ontology(
+                        runtime=runtime,
+                        index=index,
+                        actor_id=actor_id,
+                        lane=projection_lane,
+                        compile_plan_payloads=(source_compile_plan_payload,),
+                        projection_reference_branch_ids_by_name=(
+                            projection_reference_branch_ids_by_name
+                        ),
+                        allow_unresolved_projection_experiences=(
+                            allow_unresolved_projection_experiences
+                        ),
+                    )
+                )
+        else:
+            phase_timings_s["materialize_section_surface_ontology.skipped"] = 0.0
+        with _record_optional_phase(
+            phase_timings_s, "materialize_activation_topology_ontology"
+        ):
+            activation_topology_receipt = (
+                await dependencies.materialize_experience_activation_topology_ontology(
+                    runtime=runtime,
+                    index=index,
+                    actor_id=actor_id,
+                    lane=projection_lane,
+                    compile_plan_payloads=(source_compile_plan_payload,),
+                    api_compile_plan_payloads=api_compile_plan_payloads,
+                    projection_reference_branch_ids_by_name=(
+                        projection_reference_branch_ids_by_name
+                    ),
+                    allow_unresolved_projection_experiences=(
+                        allow_unresolved_projection_experiences
+                    ),
+                )
+            )
     if experience_package_install_scope is ExperiencePackageInstallScope.activation:
         with _record_optional_phase(phase_timings_s, "materialize_program_ontology"):
             program_receipts = (

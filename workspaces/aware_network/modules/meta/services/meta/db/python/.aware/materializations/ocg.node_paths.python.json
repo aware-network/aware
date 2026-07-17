@@ -1,0 +1,23 @@
+{
+  "language": "python",
+  "nodes": [
+    {
+      "node_id": "7cbf3a2c-2b21-5961-ac82-04e37abb4303",
+      "node_type": "class",
+      "entity_id": "f8a0c8df-2970-527e-a70d-7366718f6987",
+      "relative_path": "temporal/temporal_frame.py"
+    },
+    {
+      "node_id": "d5279c66-d53b-522c-9404-2489addea24d",
+      "node_type": "class",
+      "entity_id": "981f0467-57a9-5b4d-b58e-cfdfbdaee327",
+      "relative_path": "temporal/temporal_session.py"
+    },
+    {
+      "node_id": "40bc9547-f4df-588e-9127-1509e3c233ca",
+      "node_type": "class",
+      "entity_id": "6a26c105-29b7-5c30-920f-4909c82e229f",
+      "relative_path": "temporal/temporal_session_tombstone.py"
+    }
+  ]
+}

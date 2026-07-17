@@ -669,6 +669,41 @@ def test_runtime_dependency_package_resolution_falls_back_to_kernel_root(
     assert (
         packages[1].aware_toml_path == (workspace_package_root / "aware.toml").resolve()
     )
+    (workspace_root / "aware.workspace.toml").write_text(
+        'aware = 1\n[workspace]\nhandle = "aware_workspace"\n',
+        encoding="utf-8",
+    )
+    (kernel_root / "aware.workspace.toml").write_text(
+        'aware = 1\n[workspace]\nhandle = "aware_kernel"\n',
+        encoding="utf-8",
+    )
+    semantics_path = _emit_api_runtime_semantics_manifest(
+        snapshot=snapshot,
+        runtime_package_dir=(
+            workspace_root / ".aware" / "api" / "runtime" / "runtime-root-api"
+        ),
+        accessible_dependency_graphs_path=(
+            workspace_root
+            / ".aware"
+            / "api"
+            / "runtime"
+            / "runtime-root-api"
+            / API_ACCESSIBLE_DEPENDENCY_GRAPHS_FILENAME
+        ),
+        dependency_packages=packages,
+        registered_class_config_count=0,
+    )
+    semantics = json.loads(semantics_path.read_text(encoding="utf-8"))
+    kernel_payload = next(
+        item
+        for item in semantics["dependency_packages"]
+        if item["package_name"] == "code-api"
+    )
+    assert kernel_payload["workspace_handle"] == "aware_kernel"
+    assert kernel_payload["aware_toml_relpath"] == (
+        "modules/code/structure/api/aware.toml"
+    )
+    assert not Path(kernel_payload["python_root_relpath"]).is_absolute()
 
 
 def test_runtime_dependency_package_resolution_uses_explicit_dependency_roots(
