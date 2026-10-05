@@ -1,1 +1,0 @@
-"""Skill ontology runtime helpers."""

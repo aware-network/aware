@@ -1,8 +1,0 @@
-service aware_service {
-    api service;
-
-    operation invoke {
-        endpoint service.operation.invoke;
-        admission identity_required;
-    }
-}
