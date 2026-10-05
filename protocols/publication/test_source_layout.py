@@ -34,7 +34,8 @@ class SourceLayoutTests(unittest.TestCase):
         changed = [m for m in LAYOUT["moves"] if not m["byte_identical"]]
         provenance = json.loads((ROOT / "protocols/agent/source-provenance.json").read_bytes())
         amendments = set(provenance.get("owner_adoption", {}).get("public_changed_paths", []))
-        historical_readmes = {m["path"] for m in changed if m["path"].endswith("/README.md")}
+        historical_readmes = {m["path"] for m in changed
+                              if m["path"].endswith("/README.md") and m["path"] not in amendments}
         self.assertEqual(len(historical_readmes), 6)
         self.assertEqual({m["path"] for m in changed}, historical_readmes | amendments)
         for item in LAYOUT["moves"]:
@@ -76,9 +77,9 @@ class SourceLayoutTests(unittest.TestCase):
     def test_current_builder_refuses_immutable_overwrite_before_source_mutation(self):
         version = tomllib.loads((ROOT / LAYOUT["agent_projects"]["aware_agent_cli"] / "pyproject.toml").read_text())["project"]["version"]
         if not (ROOT / ("protocols/agent/distribution/aware-agent-fs-" + version + "-linux_x86_64-py312.tar.gz")).exists():
-            self.assertEqual(version, "0.1.0a5")
-            self.assertEqual(json.loads((ROOT / "protocols/agent/release.json").read_bytes())["version"], "0.1.0a4")
-            return  # a5 preparation does not promote the a4 selection
+            self.assertEqual(version, "0.1.0a6")
+            self.assertEqual(json.loads((ROOT / "protocols/agent/release.json").read_bytes())["version"], "0.1.0a5")
+            return  # a6 preparation does not promote the a5 selection
         paths = [ROOT / m["path"] for m in LAYOUT["moves"]]
         before = [p.read_bytes() for p in paths]
         result = subprocess.run([sys.executable, "-B", str(ROOT / "protocols/agent/build_bundle.py"),

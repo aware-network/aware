@@ -50,7 +50,8 @@ class BundleTests(unittest.TestCase):
                    else "protocols/agent/build_bundle.py")
         self.assertEqual(hashlib.sha256((ROOT.parents[1] / builder).read_bytes()).hexdigest(), self.release["builder_sha256"])
         provenance = json.loads(self.files["source-provenance.json"])
-        self.assertEqual(len(provenance["files"]), 34 if self.release["version"] == "0.1.0a5" else 33)
+        expected_files = {"0.1.0a3": 33, "0.1.0a4": 33, "0.1.0a5": 34, "0.1.0a6": 34}
+        self.assertEqual(len(provenance["files"]), expected_files[self.release["version"]])
         self.assertEqual(sum(r["disposition"] == "curated export facade" for r in provenance["files"]), 3)
         for record in provenance["files"]:
             module = record["package"].replace("-", "_")

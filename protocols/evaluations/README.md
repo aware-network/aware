@@ -44,6 +44,36 @@ Media is optional unless the claim depends on perception or timing. Keep ordinar
 CLI feedback lightweight. Evaluation reports may be authored directly: they are
 evidence, not manual edits to customer Issue/Goal authority.
 
+## Capture the interpreter actually used for task tests
+
+Record the Aware installation interpreter separately from every task-test
+interpreter. In the execution that runs the tests, resolve its chosen executable,
+capture its version and `sys.executable`, then run the tests with that recorded
+absolute executable. For example, if that task has chosen `python3`:
+
+```sh
+task_python="$(command -v python3)" || exit 1
+"$task_python" -c 'import sys; print(sys.executable); print(sys.version)'
+"$task_python" -m unittest discover -v
+```
+
+Use the task's actual test invocation; this example does not prescribe unittest
+or the Aware environment. Retain command, exit status and interpreter evidence
+in the same pass. Never infer the task version from installation or a different
+execution. Before transfer, sanitize private paths to stable symbolic coordinates
+without dropping the version or the link between observation and test command.
+Missing historical evidence stays unknown; do not rewrite a frozen evaluation.
+
+## Interpret Issue and publication evidence separately
+
+Issue `issue_day_index:pending` and `feed:unavailable` are not the Git index.
+Publication `shared_index_projection` and `index_reconciliation_pending` report
+that operation's Git-index reconciliation; a read projection is not a fresh Git
+status observation. Retain each result independently, including unknowns.
+Authored acceptance boxes start unchecked and have no checking operation in this
+profile. Passing tests or closing an Issue does not mark them, nor grant Goal or
+Specification acceptance. Report actual verification; do not manually check them.
+
 ## Structured submission v2
 
 Use a new immutable coordinate `evaluations/YYYY/MM/DD/<slug>/` containing:

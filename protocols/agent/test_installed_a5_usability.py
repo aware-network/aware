@@ -1,12 +1,16 @@
 """Real installed customer entrance; no copied Issue or publication decisions."""
 
 import importlib.metadata
+import json
+import os
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
 import test_installed_workflow as flow
+
+BINDING = json.loads(Path(os.environ["AWARE_REPAIR_BINDING"]).read_bytes())
 
 
 class InstalledA5Usability(unittest.TestCase):
@@ -65,9 +69,9 @@ class InstalledA5Usability(unittest.TestCase):
         )
 
     def test_version_and_installed_shared_summary_identity(self):
-        self.assertEqual(importlib.metadata.version("aware-agent-cli"), "0.1.0a5")
+        self.assertEqual(importlib.metadata.version("aware-agent-cli"), BINDING["version"])
         result = flow.invoke(self.root, "contract")
-        self.assertEqual(result["version"], "1.2.0")
+        self.assertEqual(result["version"], BINDING["consumer_contract"]["version"])
         import aware_agent_cli.main as entrance
         from aware_issue_cli.summary import summarize_result
 

@@ -1,6 +1,7 @@
 """Installed contract/setup proofs. Raw Git is disposable fixture setup only."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -10,6 +11,7 @@ import unittest
 
 CLI = Path(sys.executable).parent / "aware"
 PUBLIC = Path(__file__).resolve().parents[2]
+EXPECTED_CONTRACT = json.loads(Path(os.environ["AWARE_REPAIR_BINDING"]).read_bytes())["consumer_contract"]["version"]
 
 
 def run(root, *arguments, success=True):
@@ -46,7 +48,7 @@ class BootstrapTests(unittest.TestCase):
         source = PUBLIC / ("protocols/contracts/agent-fs/v" + result["version"])
         authored = json.loads((source / "contract.json").read_bytes())
         self.assertEqual(result["contract_ref"], "aware.agent.fs.v1")
-        self.assertEqual(result["version"], "1.2.0")
+        self.assertEqual(result["version"], EXPECTED_CONTRACT)
         self.assertEqual(result["actor_authentication"], "unavailable")
         for target, relative in authored["files"].items():
             self.assertEqual(result["template_sha256"][target], hashlib.sha256((source / relative).read_bytes()).hexdigest())
@@ -62,7 +64,7 @@ class BootstrapTests(unittest.TestCase):
         self.assertFalse(result["manual_integration_required"])
         provenance = json.loads((self.root / ".aware/agent-bootstrap.json").read_bytes())
         self.assertEqual(provenance["contract_ref"], "aware.agent.fs.v1")
-        self.assertEqual(provenance["version"], "1.2.0")
+        self.assertEqual(provenance["version"], EXPECTED_CONTRACT)
         for target, expected in provenance["rendered_sha256"].items():
             self.assertEqual(hashlib.sha256((self.root / target).read_bytes()).hexdigest(), expected)
         text = (self.root / "AGENTS.md").read_text()

@@ -199,7 +199,7 @@ def main(argv: list[str] | None = None) -> int:
             prog="aware", description="Agent-first, filesystem-only Issue workflow."
         )
         parser.add_argument(
-            "--version", action="version", version="aware-agent-cli 0.1.0a5"
+            "--version", action="version", version="aware-agent-cli 0.1.0a6"
         )
         parser.epilog = "Commands: init [--create-repository]; contract; issue open; issue <canonical Issue CLI command>; repository create; repository commit"
         parser.parse_args(args)

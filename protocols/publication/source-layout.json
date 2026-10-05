@@ -52,7 +52,7 @@
       "path": "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/main.py",
       "previous_path": "protocols/agent/source/aware_agent_cli/aware_agent_cli/main.py",
       "previous_sha256": "b9f0dd12106e7b3460c7e82a849405ab69a44bd110ed47cfad3ff52304d790ca",
-      "sha256": "6dad9609bbf9d95e07caf95b2d9913edd8c54b716a98e0bc03733fb27c2c24f2"
+      "sha256": "b026c7cb5bbe154fc737785b5c87add7190e37ba3a3120d19b66a5a64da65285"
     },
     {
       "byte_identical": true,
@@ -68,7 +68,7 @@
       "path": "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/AGENTS.md.in",
       "previous_path": "protocols/agent/source/aware_agent_cli/aware_agent_cli/templates/agent-fs-v1/AGENTS.md.in",
       "previous_sha256": "4213fad6e58f3bb6e04187b943672007c804edd80bdd9d18e95c34ecc33cebb9",
-      "sha256": "db4e0e4e296bf779eabbd16ceafaf314806b9d19d46a205591ae231982cf09a8"
+      "sha256": "9f7df103701fe7c1d822d73808bf4db18ebd213c1d4375d8eea031157810bfa0"
     },
     {
       "byte_identical": false,
@@ -76,15 +76,15 @@
       "path": "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/contract.json",
       "previous_path": "protocols/agent/source/aware_agent_cli/aware_agent_cli/templates/agent-fs-v1/contract.json",
       "previous_sha256": "4f5cbe634e6ff6412ff739fc7434d2cb69d92af8eb158970eb5308497c29d6f9",
-      "sha256": "116de0a8c3259b4a1f99764d7fbc200e568eb4e92cce057569cf29becbeb029d"
+      "sha256": "86fcfd35e1658bcc72ebb9ee127e9c2c76226ef050a2a257840e9b3be2098f00"
     },
     {
-      "byte_identical": true,
+      "byte_identical": false,
       "bytes": 737,
       "path": "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/docs/agents/README.md",
       "previous_path": "protocols/agent/source/aware_agent_cli/aware_agent_cli/templates/agent-fs-v1/docs/agents/README.md",
       "previous_sha256": "16165a330e88ed1c175ef7c4f8c1487e71065c9ab6f0eb4870d3fb8e4d486925",
-      "sha256": "16165a330e88ed1c175ef7c4f8c1487e71065c9ab6f0eb4870d3fb8e4d486925"
+      "sha256": "0745bc02d50adc03631a5a9e61b9ea7fee6fc7787ee8490a63d228c16eada17a"
     },
     {
       "byte_identical": false,
@@ -104,11 +104,11 @@
     },
     {
       "byte_identical": false,
-      "bytes": 1361,
+      "bytes": 1929,
       "path": "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/docs/agents/verification-and-handoff.md",
       "previous_path": "protocols/agent/source/aware_agent_cli/aware_agent_cli/templates/agent-fs-v1/docs/agents/verification-and-handoff.md",
       "previous_sha256": "c995db97a50a236d7acebe4346256b64e8c47a5b753e1157aa42a0bfd666ebbf",
-      "sha256": "d646f288fa49f704043ce994a7e267310cedda1fc451f53876575a6bc7238af6"
+      "sha256": "7b7d4e723f642e0b26334e6a270a1726af085b1aba18e9b371e496045106d193"
     },
     {
       "byte_identical": true,
@@ -136,11 +136,11 @@
     },
     {
       "byte_identical": false,
-      "bytes": 2648,
+      "bytes": 3918,
       "path": "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/docs/issues/PROTOCOL.md",
       "previous_path": "protocols/agent/source/aware_agent_cli/aware_agent_cli/templates/agent-fs-v1/docs/issues/PROTOCOL.md",
       "previous_sha256": "0b46f2e410db331fa477a3a695840556f826c8017453fe3b5cff351851252619",
-      "sha256": "dc8bb9b9f98194808ed0ed99288f55f90193c44a824438bf46f6c220119126a2"
+      "sha256": "e85d49c9ad4185a94b605f34ce61e1df6581facd34d0e380287c430e65550f51"
     },
     {
       "byte_identical": false,
@@ -148,7 +148,7 @@
       "path": "workspaces/aware_coordination/modules/workflow/clients/agent/python/pyproject.toml",
       "previous_path": "protocols/agent/source/aware_agent_cli/pyproject.toml",
       "previous_sha256": "98c2f28be2a3d0806e525419ce052673674a3bbfc7f091d41c96574c264cdd3c",
-      "sha256": "7d645ac97e27bdfd5647da1803fc5c2b0b87709df51ba5b86c986c4be52f9fc5"
+      "sha256": "7507a19a5238496122f9e6e4e521a793cdaf0505b7c20a0a6c72c734ede1819d"
     },
     {
       "byte_identical": true,
