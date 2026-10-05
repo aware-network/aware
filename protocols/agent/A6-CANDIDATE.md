@@ -1,6 +1,6 @@
 # a6 feedback correction — candidate checkpoint
 
-Status: producer technical checkpoint, pending independent review, not a
+Status: independently accepted technical candidate at `e02a06544e88`, not a
 promoted customer release. Published a5 and
 the root bootstrap remain selected and byte-identical to public revision
 `8ecf22d67b834ece5aa845171c70344b2069411e`. No Specification capability is added.
@@ -113,7 +113,21 @@ on the copied runner. It checks exact release/archive pins and installs into a
 new environment before tests. `--reuse-installed-for-tests` is explicitly only
 an installed replay, not a fresh-install claim.
 
-Next: independent candidate review, then a separately governed promotion/root
-contract migration if authorized. Publication and customer evaluation follow
+Next: a separately governed promotion/root contract migration if authorized.
+Publication and customer evaluation follow
 their own authorization. SPEC is a later separate capability cut. No public
 push, root-bootstrap upgrade, Goal capability or service authority follows here.
+
+## Independent technical acceptance
+
+The review supplied in this task independently verified the artifact pins and
+one-wheel change and reproduced a fresh checkout-hidden, network-disabled
+installation: **224 installed tests and 64 accounting/evaluator checks passed,
+zero skipped**. Published a5 and the root bootstrap remain unchanged.
+
+This is bounded technical acceptance, not promotion or release authorization.
+The reviewer could not independently access the cited private client evaluation,
+did not rebuild the archive, and did not perform exhaustive public-content
+clearance. Producer evaluation-format validation remains its own evidence; it
+does not become independent client-evidence verification. No candidate bytes
+changed for this record, and no new test run is claimed.
