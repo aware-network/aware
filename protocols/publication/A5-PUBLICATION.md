@@ -71,6 +71,47 @@ After publication, anonymously retrieve the revision-pinned archive and match
 its exact digest, then freshly replay installation with checkouts hidden,
 networking disabled and inherited environment cleared.
 
+## Observed public delivery and replay
+
+The authorized non-force push advanced `aware-network/aware/main` from
+`415460aa8118add0fb86601ff2377d6dc96d1d22` to implementation
+`fc35c775dc7aa8b3c052d28edaa8f5c3650537d6`; remote readback confirmed that head.
+The outgoing range contains accepted source/candidate/adoption closeout and
+the separately scoped public-experience promotion, not unrelated development work.
+
+An anonymous revision-pinned
+[archive download](https://raw.githubusercontent.com/aware-network/aware/fc35c775dc7aa8b3c052d28edaa8f5c3650537d6/protocols/agent/distribution/aware-agent-fs-0.1.0a5-linux_x86_64-py312.tar.gz)
+matched the full accepted SHA-256 above. A separate fresh shallow public clone
+with Git credential configuration disabled matched the same implementation head.
+No local source mirror substituted for that acquisition.
+
+Fresh installation from those public bytes ran under Bubblewrap with networking
+disabled, inherited environment cleared and all producer/public checkouts and
+older environments hidden. Only the exact installation packet and separate test
+tools were visible. **222 installed cases passed, zero skipped**; all 22 payload
+packages resolved, dependency checks passed, imports were environment-contained,
+and no editable/direct-URL distributions were present. The unchanged runner was
+used; no public-replay harness correction or runtime change was needed.
+
+The public-clone publication/accounting/bootstrap/evaluation replay separately
+passed **57 checks, zero skipped**, using that installed interpreter. These are
+producer public-delivery proofs, not a new independent client evaluation or an
+independent rebuild. Source fixtures, actor strings and failure injections do not
+establish authenticated actors or genuine interrupted-process recovery.
+
+Retained installed JUnit:
+`/tmp/aware-a5-public-replay.EtpO0np2/proof/installed.xml`, SHA-256
+`bf353fbc7dc3b6ca551a87941c657e8a6e3493dd29469f42e92b48ba96cc32e3`.
+Retained publication JUnit:
+`/tmp/aware-a5-public-replay.EtpO0np2/publication.xml`, SHA-256
+`e3b80858702e759618bfe1bacf0efb1496b74ae19576e19d3543a20e5e391034`.
+The fresh public clone remained clean after testing. The implementation's actual
+local publication receipt is `git:fc35c775dc7aa8b3c052d28edaa8f5c3650537d6`, with
+reference CAS and shared-index projection both applied, no pending reconciliation.
+Issue-day-index pending and unavailable FEED remain separate honest projections.
+
+## Retained limits
+
 No registry release, independent rebuild, exhaustive rights/privacy review,
 external a5 U/V/R acceptance, authenticated actor identity, sandbox, Goal writer,
 automatic interrupted-unborn recovery, Service/API or Experience is claimed.
