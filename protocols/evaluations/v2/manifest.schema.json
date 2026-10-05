@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "evaluation_id", "authority", "subject", "status", "evaluated_at_utc", "inputs", "environment", "executions", "passes", "artifact_digests", "non_claims"],
+  "properties": {
+    "schema": {"const": "aware.client-evaluation.agent-fs.v2"},
+    "evaluation_id": {"type": "string", "pattern": "^client-evaluation/[0-9]{4}-[0-9]{2}-[0-9]{2}/[a-z0-9][a-z0-9-]*$"},
+    "authority": {"const": "external-client-evidence-only"},
+    "subject": {"enum": ["installation", "existing_issue", "new_issue", "goal_readonly"]},
+    "status": {"enum": ["completed", "blocked", "interrupted"]},
+    "evaluated_at_utc": {"type": "string", "format": "date-time"},
+    "predecessor_commit": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/commit"}]},
+    "inputs": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_commit", "archive_sha256", "client_version", "brief_sha256", "profile", "target"],
+      "properties": {
+        "source_commit": {"$ref": "#/$defs/commit"},
+        "archive_sha256": {"$ref": "#/$defs/digest"},
+        "client_version": {"type": "string", "minLength": 1},
+        "brief_sha256": {"$ref": "#/$defs/digest"},
+        "profile": {"type": "string", "minLength": 1},
+        "contract_version": {"type": ["string", "null"]},
+        "target": {
+          "type": "object", "additionalProperties": false,
+          "required": ["starting_state", "baseline_commit", "protocol_manifest_sha256", "approved_outcome", "goal"],
+          "properties": {
+            "starting_state": {"enum": ["missing_directory", "empty_directory", "unborn_git", "committed_git", "not_selected"]},
+            "baseline_commit": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/commit"}]},
+            "protocol_manifest_sha256": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/digest"}]},
+            "approved_outcome": {"type": "string", "minLength": 1},
+            "goal": {"anyOf": [{"type": "null"}, {"type": "object", "additionalProperties": false, "required": ["ref", "sha256"], "properties": {"ref": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/digest"}}}]}
+          }
+        }
+      }
+    },
+    "environment": {
+      "type": "object", "additionalProperties": false,
+      "required": ["platform", "python", "development_checkout_visible", "public_consumer_checkout_visible", "editable_packages", "pythonpath_set", "service_available"],
+      "properties": {
+        "platform": {"type": "string", "minLength": 1}, "python": {"type": "string", "minLength": 1},
+        "development_checkout_visible": {"type": "boolean"}, "public_consumer_checkout_visible": {"type": "boolean"},
+        "editable_packages": {"type": "integer", "minimum": 0}, "pythonpath_set": {"type": "boolean"}, "service_available": {"type": "boolean"}
+      }
+    },
+    "executions": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["ref", "provider"], "properties": {"ref": {"type": "string", "minLength": 1}, "provider": {"type": "string", "minLength": 1}}}},
+    "passes": {"type": "array", "minItems": 4, "maxItems": 4, "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["pass", "result", "started_at_utc", "ended_at_utc", "execution_refs", "assistance"],
+      "properties": {
+        "pass": {"enum": ["I", "U", "V", "R"]},
+        "result": {"enum": ["passed", "failed", "blocked", "interrupted", "not_run", "not_applicable", "unsupported"]},
+        "started_at_utc": {"type": ["string", "null"], "format": "date-time"},
+        "ended_at_utc": {"type": ["string", "null"], "format": "date-time"},
+        "execution_refs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "assistance": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    }},
+    "artifact_digests": {"type": "object", "minProperties": 3, "additionalProperties": {"$ref": "#/$defs/digest"}},
+    "non_claims": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+  },
+  "$defs": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}}
+}

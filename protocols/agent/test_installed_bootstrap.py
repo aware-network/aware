@@ -43,10 +43,10 @@ class BootstrapTests(unittest.TestCase):
 
     def test_installed_contract_matches_authored_templates(self):
         result = run(self.root, "contract")
-        source = PUBLIC / "protocols/contracts/agent-fs/v1"
+        source = PUBLIC / "protocols/contracts/agent-fs/v1.1.0"
         authored = json.loads((source / "contract.json").read_bytes())
         self.assertEqual(result["contract_ref"], "aware.agent.fs.v1")
-        self.assertEqual(result["version"], "1.0.0")
+        self.assertEqual(result["version"], "1.1.0")
         self.assertEqual(result["actor_authentication"], "unavailable")
         for target, relative in authored["files"].items():
             self.assertEqual(result["template_sha256"][target], hashlib.sha256((source / relative).read_bytes()).hexdigest())
@@ -62,7 +62,7 @@ class BootstrapTests(unittest.TestCase):
         self.assertFalse(result["manual_integration_required"])
         provenance = json.loads((self.root / ".aware/agent-bootstrap.json").read_bytes())
         self.assertEqual(provenance["contract_ref"], "aware.agent.fs.v1")
-        self.assertEqual(provenance["version"], "1.0.0")
+        self.assertEqual(provenance["version"], "1.1.0")
         for target, expected in provenance["rendered_sha256"].items():
             self.assertEqual(hashlib.sha256((self.root / target).read_bytes()).hexdigest(), expected)
         text = (self.root / "AGENTS.md").read_text()

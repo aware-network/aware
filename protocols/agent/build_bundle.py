@@ -34,6 +34,7 @@ PACKAGES = {
         ["aware-issue-sdk==0.7.0a1", "aware-issue-fs-adapter==0.6.0a1"]),
 }
 REGISTRY = {"pydantic": "2.13.5", "pydantic_core": "2.46.5", "annotated_types": "0.8.0", "typing_inspection": "0.4.4"}
+PREPARATION_PACKAGES = ["aware-repository-sdk", "aware-repository-fs-adapter"]
 
 
 def digest(data: bytes) -> str:
@@ -135,7 +136,11 @@ def main() -> None:
     agent = root / "source/aware_agent_cli"
     (agent / "LICENSE").write_bytes(license_bytes)
     (agent / "NOTICE").write_text("Aware agent CLI\nCopyright 2026 Luis Lechuga Ruiz\nApache-2.0. Workflow composition only; existing domain owners retain decisions.\n")
-    for name in [*PACKAGES, "aware-agent-cli"]:
+    for name in PREPARATION_PACKAGES:
+        package = root / "source" / name.replace("-", "_")
+        (package / "LICENSE").write_bytes(license_bytes)
+        (package / "NOTICE").write_text(name + "\nCopyright 2026 Luis Lechuga Ruiz\nApache-2.0. Neutral filesystem preparation only; existing Issue and publication owners remain unchanged.\n")
+    for name in [*PACKAGES, *PREPARATION_PACKAGES, "aware-agent-cli"]:
         subprocess.run(["uv", "build", "--wheel", "--no-sources", "--out-dir", str(wheelhouse), str(root / "source" / name.replace("-", "_"))], check=True)
     registry_evidence = []
     for name, version in REGISTRY.items():
@@ -182,6 +187,11 @@ def main() -> None:
     provenance_document = {"source_revision": PIN, "files": provenance, "registry_acquisitions": registry_evidence,
                            "packaging_change": "Neutral export/dependency projection; three curated __init__ facades; business/owner implementation bytes unchanged.",
                            "consumer_versions": {name: record[2] for name, record in PACKAGES.items()}}
+    provenance_document["public_authored_preparation"] = {
+        path.relative_to(root).as_posix(): digest(path.read_bytes())
+        for name in PREPARATION_PACKAGES
+        for path in (root / "source" / name.replace("-", "_")).rglob("*")
+        if path.is_file() and "__pycache__" not in path.parts}
     (root / "source-provenance.json").write_text(json.dumps(provenance_document, indent=2, sort_keys=True) + "\n")
     for path in (root / "source").rglob("*"):
         if path.is_file() and "__pycache__" not in path.parts:
@@ -190,12 +200,14 @@ def main() -> None:
             destination.write_bytes(path.read_bytes())
     (bundle / "source-provenance.json").write_bytes((root / "source-provenance.json").read_bytes())
     wheels = [{"filename": path.name, "sha256": digest(path.read_bytes())} for path in sorted(wheelhouse.glob("*.whl"))]
-    if len(wheels) != 20:
+    if len(wheels) != 22:
         raise ValueError("unexpected_payload_count:" + str(len(wheels)))
-    contract = json.loads((public / "protocols/contracts/agent-fs/v1/contract.json").read_bytes())
+    contract_source = tomllib.loads((agent / "pyproject.toml").read_text())["tool"]["aware"]["agent-contract"]["source"]
+    contract = json.loads((public / contract_source / "contract.json").read_bytes())
     manifest = {"format": "aware.agent.fs.consumer-bundle.v1", "version": consumer_version, "authority_mode": "filesystem", "python_minor": "3.12", "platform": "linux_x86_64", "wheels": wheels,
                 "root_requirement": "aware-agent-cli==" + consumer_version, "source_revision": PIN,
                 "agent_contract": {"ref": contract["contract_ref"], "version": contract["version"]},
+                "preparation_operation": "repository_sdk.prepare_repository",
                 "supported_commands": ["aware", "aware-issue-cli"], "generated_service_or_ontology_packages": []}
     (bundle / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
     (bundle / "README.md").write_text("# Aware agent filesystem preview\n\nLinux x86-64 / Python 3.12.\nVerify SHA256SUMS before use. Sources and component notices accompany the wheels.\nInstall offline into a new venv: python3.12 -m venv /absolute/new-venv; /absolute/new-venv/bin/python -m pip install --no-index --find-links wheelhouse aware-agent-cli==" + consumer_version + "\nConsumer entrypoint: aware. Setup installs a versioned agent contract and modules. No service, ontology, generated API or development checkout.\n")

@@ -14,7 +14,7 @@ from aware_issue_sdk import (
     IssueStartProgressRequest, IssueReadProjectionResolveRequest,
     IssueReadProjectionResolveOutcome, IssueMutationOutcome,
 )
-from .setup import initialize as initialize_bootstrap, observe_contract
+from .setup import initialize as initialize_bootstrap, observe_contract, prepare_repository
 
 MANIFEST = '''aware = 1
 [protocol]
@@ -110,9 +110,11 @@ def main(argv: list[str] | None = None) -> int:
             return issue_main(args[1:])
         if args[:2] == ["repository", "commit"]:
             return issue_main(["commit-workspace", *args[2:]])
+        if args[:2] == ["repository", "create"]:
+            return prepare_repository(args[2:])
         parser = argparse.ArgumentParser(prog="aware", description="Agent-first, filesystem-only Issue workflow.")
-        parser.add_argument("--version", action="version", version="aware-agent-cli 0.1.0a2")
-        parser.epilog = "Commands: init; contract; issue open; issue <canonical Issue CLI command>; repository commit"
+        parser.add_argument("--version", action="version", version="aware-agent-cli 0.1.0a3")
+        parser.epilog = "Commands: init [--create-repository]; contract; issue open; issue <canonical Issue CLI command>; repository create; repository commit"
         parser.parse_args(args)
         parser.print_help()
         return 0

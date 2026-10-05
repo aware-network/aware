@@ -3,14 +3,14 @@
 Install once. Give an agent a customer-approved task. Keep ownership, scope,
 evidence and publication durable across executions—not trapped in chat history.
 
-This **0.1.0a2 filesystem preview** exposes existing Aware Issue and repository
+This **0.1.0a3 filesystem preview** exposes existing Aware Issue and repository
 owners through a thin `aware` interface. No service, generated API, ontology/ORM,
 Experience runtime or Aware development environment is required.
 
 ## Install
 
-Requires Linux x86-64, Python **3.12** with `venv`/`ensurepip`, and Git. Work in
-an existing Git repository with a committed HEAD and configured author name/email.
+Requires Linux x86-64, Python **3.12** with `venv`/`ensurepip`, and Git. Publication
+requires a customer-configured author name/email; Aware does not invent them.
 The installer does not create a repository, configure Git, install Python or
 overwrite an existing environment.
 
@@ -26,7 +26,7 @@ python3.12 protocols/agent/install.py --python-executable /usr/bin/python3.12 \
 Choose your actual Python 3.12 executable and a new environment path. After the
 clone, installation is offline, verifies the pinned archive and every member,
 and checks dependencies. Preserve the accompanying source and notices.
-The installer prints the retained source/notice location. The exact 20-package
+The installer prints the retained source/notice location. The exact 22-package
 closure is in [release.json](release.json); it is not Aware's development closure.
 
 ## Give the agent these inputs
@@ -36,11 +36,27 @@ closure is in [release.json](release.json); it is not Aware's development closur
 - Its own real, stable harness execution identity—not another agent's identifier.
 - [The consumer contract](AGENTS.md) and [the workflow below](quickstart.md).
 
-Initialize the **Issue-only** profile through tooling:
+Initialize the **Issue-only** profile through tooling in an exact existing Git
+root (committed or unborn):
 
 ```sh
 /tmp/aware-agent-env/bin/aware init --repository-root /absolute/customer-repo
 ```
+
+For an explicitly approved empty new target with an existing parent:
+
+```sh
+/tmp/aware-agent-env/bin/aware init --repository-root /absolute/new-project --create-repository
+```
+
+Without creation intent, a non-Git target returns `git_repository_required`.
+Nonempty non-Git directories, symlink paths and nested repository creation are
+refused, preserving customer files. Creation makes an unborn `main` branch and
+the scaffold—not a seed commit, staged source, remote, author or push.
+The first real commit uses the ordinary Issue/Workspace publication owner.
+For preparation alone, `aware repository create --repository-root <absolute-root>`
+calls the same SDK/provider; `--dry-run` writes nothing. Follow with `aware init`
+to install the scaffold. Results disclose retained non-atomic state on failure.
 
 This creates `aware.protocol.toml`, versioned `AGENTS.md` and missing modular
 agent/Issue/alignment docs, `.aware/agent-protocol.md` and `.aware/agent-bootstrap.json`.
@@ -52,7 +68,7 @@ customer review, not automatic precedence. Inspect `preserved` and
 three-operation `issue open` composition are not multi-file transactions.
 An interrupted operation must be inspected; do not erase durable receipts and retry blindly.
 
-The authored [contract](../contracts/README.md) is `aware.agent.fs.v1` / 1.0.0.
+The authored [contract](../contracts/README.md) is `aware.agent.fs.v1` / 1.1.0.
 The public repository, shipped CLI resources and customer scaffolds are rendered
 from those same templates. Contract versioning is independent of the CLI version
 and record/profile version; upgrades are explicit, never ordinary bootstrap side effects.
@@ -93,7 +109,8 @@ Closing an Issue cannot create Goal acceptance.
 
 ## Verify and report
 
-See [verification](VERIFICATION.md), [notice treatment](NOTICES.md) and the
+See [external evaluation instructions](../evaluations/README.md),
+[verification](VERIFICATION.md), [notice treatment](NOTICES.md) and the
 [launch summary](LAUNCH.md). Report reproducible findings through
 [GitHub Issues](https://github.com/aware-network/aware/issues), including the
 Git revision, archive digest, command/version, Python/platform, expected and

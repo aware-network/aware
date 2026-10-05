@@ -1,25 +1,26 @@
 {
   "agent_contract": {
     "ref": "aware.agent.fs.v1",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
-  "archive": "distribution/aware-agent-fs-0.1.0a2-linux_x86_64-py312.tar.gz",
-  "archive_bytes": 3555001,
-  "archive_sha256": "62085974eb99889aaf43275c7b6a635ebd6ed191513e563c812a556472c48dd6",
+  "archive": "distribution/aware-agent-fs-0.1.0a3-linux_x86_64-py312.tar.gz",
+  "archive_bytes": 3564011,
+  "archive_sha256": "4af072afaea666480009c03721c9846d122f61d7160fb1511329463762222a1c",
   "authority_mode": "filesystem",
-  "builder_sha256": "7e3391babf42a37d65a85757dd47196af2f479ab8b0e31110f8cfeca703cdcf9",
+  "builder_sha256": "796e7ade8bdb2aa6b633ae9a07339b07b18e8b9888eb5160e2157f912333eb4e",
   "format": "aware.agent.fs.consumer-bundle.v1",
   "generated_service_or_ontology_packages": [],
   "platform": "linux_x86_64",
+  "preparation_operation": "repository_sdk.prepare_repository",
   "python_minor": "3.12",
-  "root_requirement": "aware-agent-cli==0.1.0a2",
-  "source_provenance_sha256": "a5e1d3fa6d82e4630355eee00aee2ebefeab6c66ac9bf6340c90569de195df89",
+  "root_requirement": "aware-agent-cli==0.1.0a3",
+  "source_provenance_sha256": "c33c8e5b3d2b5933aa5ab644ed0c79123b59e48e073c35cf0f2299dcf9325122",
   "source_revision": "728831f6636a611a8baac61dbc258ed563a0e466",
   "supported_commands": [
     "aware",
     "aware-issue-cli"
   ],
-  "version": "0.1.0a2",
+  "version": "0.1.0a3",
   "wheels": [
     {
       "filename": "annotated_types-0.8.0-py3-none-any.whl",
@@ -30,8 +31,8 @@
       "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309"
     },
     {
-      "filename": "aware_agent_cli-0.1.0a2-py3-none-any.whl",
-      "sha256": "14183c5930542330bf171f6371b8254ccd5af06181b720722dd090cdf91f2642"
+      "filename": "aware_agent_cli-0.1.0a3-py3-none-any.whl",
+      "sha256": "dd4bf9550ebdf1969e68f9c8983ef4540b25376f1777bf89e9b3334c8b214801"
     },
     {
       "filename": "aware_issue_cli-0.6.0a1-py3-none-any.whl",
@@ -64,6 +65,14 @@
     {
       "filename": "aware_protocol_sdk-0.1.0-py3-none-any.whl",
       "sha256": "11d5b364bc113369dbbc8bfb7e7a8f6fccc394a878243f017a51d11fc696b533"
+    },
+    {
+      "filename": "aware_repository_fs_adapter-0.1.0a1-py3-none-any.whl",
+      "sha256": "ebad7d9df392ca58c8e1cae41abb1a3771b2c7c4d44df63a1b5dd8d253d3b4a0"
+    },
+    {
+      "filename": "aware_repository_sdk-0.1.0a1-py3-none-any.whl",
+      "sha256": "4a5159880ba56f18944d9f2d88df1a8b9c7f971125300d0368b9cfbf21a44fbb"
     },
     {
       "filename": "aware_workspace_operator-0.4.0a1-py3-none-any.whl",

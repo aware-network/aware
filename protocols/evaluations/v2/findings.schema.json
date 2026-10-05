@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false, "required": ["schema", "evaluation_id", "findings"],
+  "properties": {
+    "schema": {"const": "aware.client-evaluation.agent-fs.findings.v2"}, "evaluation_id": {"type": "string", "minLength": 1},
+    "findings": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "pass", "classification", "summary", "expected", "observed", "evidence_refs", "enforcement_result", "non_claims"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^F-[0-9]{3}$"}, "pass": {"enum": ["I", "U", "V", "R"]},
+        "classification": {"enum": ["strength", "defect", "unsupported_capability", "clarity", "privacy", "evidence_gap"]},
+        "summary": {"type": "string", "minLength": 1}, "expected": {"type": "string", "minLength": 1}, "observed": {"type": "string", "minLength": 1},
+        "evidence_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "operation_ref": {"type": ["string", "null"]}, "rejecting_component": {"type": ["string", "null"]}, "diagnostic": {"type": ["string", "null"]},
+        "enforcement_result": {"enum": ["accepted", "rejected", "unsupported", "not_evaluated"]},
+        "non_claims": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    }}
+  }
+}

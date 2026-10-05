@@ -6,14 +6,30 @@ import html
 import json
 from pathlib import Path
 import shlex
+import tomllib
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--render-public", action="store_true", help="Render this public repository's bootstrap and modules; producer Issue scope required.")
+    parser.add_argument("--seed-contract-version", action="store_true", help="Issue-approved one-time copy of the old immutable contract into the new authored coordinate; refuses overwrite.")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
-    source = root / "protocols/contracts/agent-fs/v1"
+    selected = tomllib.loads((root / "protocols/agent/source/aware_agent_cli/pyproject.toml").read_text())["tool"]["aware"]["agent-contract"]["source"]
+    source = root / selected
+    if not source.is_relative_to(root / "protocols/contracts"):
+        raise ValueError("contract_source_outside_authored_catalog")
+    if args.seed_contract_version:
+        if source.exists():
+            raise ValueError("contract_version_coordinate_exists")
+        previous = root / "protocols/contracts/agent-fs/v1"
+        old = json.loads((previous / "contract.json").read_bytes())
+        for relative in ["contract.json", *old["files"].values()]:
+            destination = source / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes((previous / relative).read_bytes())
+        print(json.dumps({"seeded": selected, "previous_preserved": True}))
+        return
     target = root / "protocols/agent/source/aware_agent_cli/aware_agent_cli/templates/agent-fs-v1"
     metadata_bytes = (source / "contract.json").read_bytes()
     metadata = json.loads(metadata_bytes)

@@ -1,6 +1,6 @@
 # Aware
 
-Durable, bounded work for AI agents in your existing repository.
+Durable, bounded work for AI agents in your repository.
 
 Give an agent an approved task. Keep its Issue, ownership, scope, evidence and
 commits durable when an execution ends. Aware starts with useful filesystem
@@ -21,12 +21,16 @@ python3.12 protocols/agent/install.py --python-executable /usr/bin/python3.12 \
 /tmp/aware-agent-env/bin/aware --help
 /tmp/aware-agent-env/bin/aware contract
 /tmp/aware-agent-env/bin/aware init --repository-root /absolute/customer-repo
+# For an explicitly approved EMPTY new target instead:
+/tmp/aware-agent-env/bin/aware init --repository-root /absolute/new-project --create-repository
 ```
 
-Requires Linux x86-64, Python 3.12 and an existing Git repository with committed
-HEAD and configured Git author. Select your actual Python executable and a new
+Requires Linux x86-64, Python 3.12 and Git. Existing exact Git roots, including
+unborn branches, are supported. New targets require explicit creation intent,
+an empty target and an existing parent. Publication requires your configured
+Git author; Aware never invents one. Select your actual Python executable and a new
 environment path. Installation after clone is offline and checks the exact
-20-package closure. It does not need Aware's development checkout or editable imports.
+22-package closure. It does not need Aware's development checkout or editable imports.
 
 - [Start an agent task: install, inputs and scope](protocols/agent/README.md)
 - [Copy-and-run Issue/commit workflow](protocols/agent/quickstart.md)
@@ -44,6 +48,10 @@ Existing customer files are preserved. Use `aware init --link-existing-agents`
 only when explicitly approving an appended contract link; inspect reported
 manual-integration requirements. No silent contract upgrade or overwritten instructions.
 See [the authored contract and version policy](protocols/contracts/README.md).
+Repository preparation creates no seed commit, remote or push. The first real
+commit follows ordinary Issue scope and the existing publication owner.
+See [external agent evaluation instructions](protocols/evaluations/README.md);
+installation-only feedback is welcome, without invented Goal or workflow results.
 
 ## Available now: filesystem Goal reader preview
 

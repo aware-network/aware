@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "sequence", "pass", "execution_ref", "observed_at_utc", "kind", "summary"],
+  "properties": {
+    "schema": {"const": "aware.client-evaluation.agent-fs.interaction.v2"}, "sequence": {"type": "integer", "minimum": 1},
+    "pass": {"enum": ["I", "U", "V", "R"]}, "execution_ref": {"type": "string", "minLength": 1},
+    "observed_at_utc": {"type": "string", "format": "date-time"},
+    "kind": {"enum": ["observation", "operation", "refusal", "question", "human_hint", "assessment", "handoff"]},
+    "summary": {"type": "string", "minLength": 1}, "command": {"type": ["string", "null"]},
+    "exit_code": {"type": ["integer", "null"]}, "diagnostics": {"type": "array", "items": {"type": "string"}}
+  }
+}

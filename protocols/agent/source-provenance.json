@@ -241,6 +241,18 @@
     }
   ],
   "packaging_change": "Neutral export/dependency projection; three curated __init__ facades; business/owner implementation bytes unchanged.",
+  "public_authored_preparation": {
+    "source/aware_repository_fs_adapter/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "source/aware_repository_fs_adapter/NOTICE": "e0ca4f699d7d4636976be91d36e3cbcb1bbcce0d0b2f5809d7d9256c098d7990",
+    "source/aware_repository_fs_adapter/README.md": "16d497adb8d2663a9ca0ca2cd0c7450b9a255691746bbbf4a711242caf6cc560",
+    "source/aware_repository_fs_adapter/aware_repository_fs_adapter/__init__.py": "aff062915942874b141fe336ab23b4af9bd07dedf0667a78988d45946e194bbd",
+    "source/aware_repository_fs_adapter/pyproject.toml": "a7432b79c6fbc4ac16094e958bd76e3552d198749bb0beeb576ff0e36136706c",
+    "source/aware_repository_sdk/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "source/aware_repository_sdk/NOTICE": "0aa346648cf6d417b2dc16caf806537f1dc8a9804546db303319089473f1e1dc",
+    "source/aware_repository_sdk/README.md": "59b76d2f4381e688a50197d17caf9799015d96248071d57ad2764416effde033",
+    "source/aware_repository_sdk/aware_repository_sdk/__init__.py": "78cc3e75e84cebff42b055fc65be98e5af0693160b510492134c108d1ccbb3fe",
+    "source/aware_repository_sdk/pyproject.toml": "594992265b20ab8c5f53b23de2c60cb199a05927519f6a7a466189d5d740c5b3"
+  },
   "registry_acquisitions": [
     {
       "filename": "pydantic-2.13.5-py3-none-any.whl",

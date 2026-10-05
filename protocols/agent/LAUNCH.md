@@ -2,7 +2,7 @@
 
 Aware is open source and agent-first.
 
-Bring an existing repository. Install the filesystem tooling. Give your agent
+Bring an existing repository—or explicitly prepare an empty new one. Install the filesystem tooling. Give your agent
 an approved task and exact scope. Aware keeps an Issue's ownership, evidence,
 scoped commits and handoff durable when an execution ends.
 

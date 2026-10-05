@@ -1,5 +1,8 @@
 # Agent filesystem preview verification
 
+Current **0.1.0a3** candidate: see [repository onboarding and evaluation proof](REPOSITORY-ONBOARDING-VERIFICATION.md).
+The historical a2 receipt below remains bound to a2, not automatic acceptance of a3.
+
 Consumer version: **0.1.0a2**, public Git preview dated 2026-10-05.
 Exact archive: `distribution/aware-agent-fs-0.1.0a2-linux_x86_64-py312.tar.gz`.
 SHA-256: `62085974eb99889aaf43275c7b6a635ebd6ed191513e563c812a556472c48dd6`.

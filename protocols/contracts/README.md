@@ -1,9 +1,13 @@
 # Versioned agent experience
 
-Authored template: [agent-fs/v1/AGENTS.md.in](agent-fs/v1/AGENTS.md.in).
-Identity/version: **`aware.agent.fs.v1` / 1.0.0**; selected authority: filesystem.
-The [contract manifest](agent-fs/v1/contract.json) declares its bootstrap and
+Current template: [agent-fs/v1.1.0/AGENTS.md.in](agent-fs/v1.1.0/AGENTS.md.in).
+Identity/version: **`aware.agent.fs.v1` / 1.1.0**; selected authority: filesystem.
+The [contract manifest](agent-fs/v1.1.0/contract.json) declares its bootstrap and
 modular operational, Issue and alignment docs.
+The [published 1.0.0 contract](agent-fs/v1/contract.json) remains byte-preserved.
+This public repository retains its previously installed 1.0.0 bootstrap; new
+customer installations select 1.1.0. An updated package does not rewrite a
+repository's accepted instructions.
 
 The same identify → explicit Issue → preserve work → exact scope → verify →
 commit → close/handoff discipline is used internally. This consumer contract
@@ -34,8 +38,8 @@ Those are provenance observations, not Identity/WorkContext or admission authori
 
 ## Immediate product boundary
 
-Existing committed Git repository → install → setup → real scoped agent task.
-Repository creation/first-commit authority is **not shipped**. We will add a
-supported owner-backed genesis operation separately rather than hiding raw Git
-creation/commit behind a bootstrap workaround. No user must wait for that to
-benefit from the existing-repository workflow today.
+Existing exact Git root, or explicit empty new target → install → setup → scoped
+agent task → first real Issue-owned publication. Creation intent is explicit;
+no seed commit, fabricated author, imported templates, remote or push. Neutral
+`repository_sdk.prepare_repository` owns preparation only. The existing Issue
+and publication owners keep their meaning, including unborn-branch CAS publication.

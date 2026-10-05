@@ -90,7 +90,8 @@ class InstalledWorkflow(unittest.TestCase):
         expected = {"aware-agent-cli", "aware-issue-cli", "aware-issue-fs-adapter", "aware-issue-sdk", "aware-issue-runtime",
                     "aware-issue-operational-runtime", "aware-workspace-operator", "aware-protocol-fs-adapter",
                     "aware-protocol-runtime", "aware-protocol-sdk", "jsonschema", "jsonschema-specifications", "attrs",
-                    "referencing", "rpds-py", "typing-extensions", "pydantic", "pydantic-core", "annotated-types", "typing-inspection"}
+                    "referencing", "rpds-py", "typing-extensions", "pydantic", "pydantic-core", "annotated-types", "typing-inspection",
+                    "aware-repository-sdk", "aware-repository-fs-adapter"}
         installed = {distribution.metadata["Name"].lower().replace("_", "-"): distribution for distribution in importlib.metadata.distributions()}
         self.assertTrue(expected <= installed.keys())
         for name in expected:

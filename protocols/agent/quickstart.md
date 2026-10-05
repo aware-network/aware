@@ -4,8 +4,9 @@ Commands below use Bash. Setup installs the versioned root contract and modules;
 inspect its preserved-file/integration report before continuing.
 
 Read [the contract](AGENTS.md). Install as described in [README](README.md).
-Use an existing customer Git repository with committed HEAD and configured Git
-author. The customer approves the objective and exact source paths; examples
+Use an existing exact customer Git root or an explicitly approved empty new
+target. Configure the real customer Git author before publication; Aware does
+not invent it or fabricate initial history. The customer approves exact source paths; examples
 below use `src/result.py`, not a license to edit an arbitrary repository.
 
 ## Establish the inputs
@@ -42,6 +43,13 @@ done
   --client-intent-id "$execution_id:open:customer-task" \
   --actor-ref "$execution_id" --actor-evidence-ref "harness:$execution_id"
 ```
+
+For a new empty target, replace the init line with
+`"$aware_cmd" init --repository-root "$customer_repo" --create-repository`.
+Its parent must exist, and it must not be nested in another repository.
+No seed commit is needed. The first scoped publication below creates the root
+commit through the same existing owner. Include only customer-approved created
+scaffold files; creation alone grants no Issue or remote-publication authority.
 
 `open` delegates snapshot creation, exact scope binding and start-progress to
 three existing SDK operations. The Issue path is included automatically; retain

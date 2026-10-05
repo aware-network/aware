@@ -31,7 +31,7 @@ class BundleTests(unittest.TestCase):
                 cls.wheels[canonicalize_name(metadata["Name"])] = (metadata, data)
 
     def test_exact_wheel_and_source_pins(self):
-        self.assertEqual(len(self.wheels), 20)
+        self.assertEqual(len(self.wheels), 22)
         self.assertEqual(self.release["version"], self.wheels["aware-agent-cli"][0]["Version"])
         self.assertEqual(self.release["root_requirement"], "aware-agent-cli==" + self.release["version"])
         for record in self.release["wheels"]:
@@ -108,12 +108,24 @@ class BundleTests(unittest.TestCase):
                 self.assertNotIn(b"/home/luis/", data, name)
 
     def test_contract_assets_and_identity_match_authored_inputs(self):
-        source = ROOT.parent / "contracts/agent-fs/v1"
+        source = ROOT.parent / "contracts/agent-fs/v1.1.0"
         metadata = json.loads((source / "contract.json").read_bytes())
         self.assertEqual(self.release["agent_contract"], {"ref": metadata["contract_ref"], "version": metadata["version"]})
         with zipfile.ZipFile(io.BytesIO(self.wheels["aware-agent-cli"][1])) as archive:
             for relative in ["contract.json", *metadata["files"].values()]:
                 self.assertEqual(archive.read("aware_agent_cli/templates/agent-fs-v1/" + relative), (source / relative).read_bytes())
+
+    def test_preparation_sources_and_wheels_match_without_new_domain_engine(self):
+        provenance = json.loads(self.files["source-provenance.json"])
+        for path, expected in provenance["public_authored_preparation"].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected)
+            self.assertEqual((ROOT / path).read_bytes(), self.files[path])
+        for name in ["aware-repository-sdk", "aware-repository-fs-adapter"]:
+            module = name.replace("-", "_")
+            source = (ROOT / "source" / module / module / "__init__.py").read_bytes()
+            with zipfile.ZipFile(io.BytesIO(self.wheels[name][1])) as archive:
+                self.assertEqual(source, archive.read(module + "/__init__.py"))
+        self.assertEqual(self.release["preparation_operation"], "repository_sdk.prepare_repository")
 
 
 if __name__ == "__main__":

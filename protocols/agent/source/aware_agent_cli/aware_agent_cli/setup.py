@@ -12,6 +12,8 @@ import subprocess
 import sys
 
 from aware_protocol_fs_adapter import admit_protocol_manifest, resolve_repository_path_at_use
+from aware_repository_sdk import RepositoryPrepareRequest, RepositorySdkOperationClient
+from aware_repository_fs_adapter import FilesystemRepositoryPrepareProvider
 
 START = "<!-- aware-agent-contract:start -->"
 END = "<!-- aware-agent-contract:end -->"
@@ -49,13 +51,15 @@ def observe_contract(arguments: list[str]) -> int:
 def initialize(arguments: list[str], *, manifest: str) -> int:
     parser = argparse.ArgumentParser(prog="aware init", description="Install missing versioned agent bootstrap/docs without overwriting customer files.")
     parser.add_argument("--repository-root", type=Path, required=True)
+    parser.add_argument("--create-repository", action="store_true", help="Explicitly prepare an empty new Git root; no commit, author configuration, remote or push.")
     parser.add_argument("--link-existing-agents", action="store_true", help="Explicitly append a managed contract link to an existing regular AGENTS.md; preserve its original bytes.")
     args = parser.parse_args(arguments)
-    root = args.repository_root.resolve(strict=True)
-    actual = Path(subprocess.check_output(["git", "-C", str(root), "rev-parse", "--show-toplevel"], text=True).strip()).resolve()
-    if root != actual:
-        raise ValueError("select_exact_git_repository_root")
-    subprocess.check_output(["git", "-C", str(root), "rev-parse", "--verify", "HEAD"], stderr=subprocess.PIPE)
+    prepared = RepositorySdkOperationClient(provider=FilesystemRepositoryPrepareProvider()).prepare_repository(
+        RepositoryPrepareRequest(str(args.repository_root), create_if_missing=args.create_repository))
+    if prepared.outcome == "refused":
+        print(json.dumps(prepared.to_wire(), sort_keys=True), file=sys.stderr)
+        return 2
+    root = Path(prepared.repository_root).resolve(strict=True)
     metadata, documents = template_inputs()
     command = command_path()
     writes = {"aware.protocol.toml": manifest.encode(),
@@ -112,5 +116,16 @@ def initialize(arguments: list[str], *, manifest: str) -> int:
     print(json.dumps({"outcome": "initialized", "profile": metadata["collaboration_profile"], "contract_ref": metadata["contract_ref"],
                       "contract_version": metadata["version"], "created": list(writes), "preserved": preserved,
                       "linked_existing_agents": linked is not None, "manual_integration_required": bool([p for p in preserved if p != "AGENTS.md"] or ("AGENTS.md" in preserved and linked is None)),
-                      "authority_mode": "filesystem", "goal_capability": "unavailable", "atomic": False}, sort_keys=True))
+                      "repository_preparation": prepared.to_wire(), "authority_mode": "filesystem", "goal_capability": "unavailable", "atomic": False}, sort_keys=True))
     return 0
+
+
+def prepare_repository(arguments: list[str]) -> int:
+    parser = argparse.ArgumentParser(prog="aware repository create", description="Prepare an empty repository through the same neutral SDK used by init; does not install the scaffold or publish.")
+    parser.add_argument("--repository-root", required=True)
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args(arguments)
+    result = RepositorySdkOperationClient(provider=FilesystemRepositoryPrepareProvider()).prepare_repository(
+        RepositoryPrepareRequest(args.repository_root, create_if_missing=True, dry_run=args.dry_run))
+    print(json.dumps(result.to_wire(), sort_keys=True))
+    return 2 if result.outcome == "refused" else 0
