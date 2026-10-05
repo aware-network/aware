@@ -122,8 +122,24 @@ The follow-up Git attributes preserve upstream legal CRLF/EOF bytes unchanged,
 rather than reformatting hash-qualified notices to suppress whitespace findings.
 No wheel or bundle bytes change with this preservation rule.
 
-The a2 publication Issue separately records its exact candidate, public-byte
-retrieval and fresh clone replay. The previous a1 receipt does not accept a2.
+The **0.1.0a2** implementation was non-force pushed at
+`7c32154df3923610cce831ca10c0574a7065c3cf`. An anonymous, revision-pinned
+GitHub archive download reproduced the full SHA-256 above. A fresh shallow public
+clone at that revision contained no old `workspaces`, `aware.repo.toml` or
+internal publication manifests. Its exact bundle installed into another new
+environment with networking disabled, development checkout hidden and inherited
+environment cleared. All **161 checks passed again, zero skipped**: 40 consumer,
+bootstrap, accounting and publication checks plus 121 pinned owner tests.
+Test-only pytest tools remained separately supplied; no consumer dependency changed.
+
+One replay attempt omitted the sandbox's `/dev` mount, so Git fixture setup
+refused access to `/dev/null` before any tested operation ran. Supplying the
+standard sandbox device mount resolved that runner error; no source or candidate
+bytes changed. This is producer public-delivery replay, not independent client
+acceptance, a registry release or a claim of authenticated identity/isolation.
+
+The [a2 publication Issue](../../docs/issues/2026/10/05/fb-2026-10-05-protocols-only-versioned-agent-experience-v0.md)
+records publication and closeout. The previous a1 receipt does not accept a2.
 Only the agent-interface wheel changes; the other 19 wheel identities/bytes
 remain equal to a1. Domain-owner source and the optional Goal distribution are
 unchanged. Contract `aware.agent.fs.v1` / 1.0.0 is separately versioned.

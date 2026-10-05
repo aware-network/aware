@@ -30,9 +30,11 @@
 
 
 
+
 ## Problem
 1. Public main mixes an installable agent product with obsolete Kernel/Network output and internal RepositoryRevision metadata.
 2. Customer setup lacks one versioned agent/bootstrap/documentation source and can leave agents reading stale internal service instructions.
+
 
 
 
@@ -42,13 +44,15 @@
 
 
 
+
 ## Acceptance Checklist
 - [x] Old workspace/internal publication outputs are absent from current tree; retirement is digest-bound and recoverable.
 - [x] AGENTS and operational/Issue/alignment docs share one authored versioned contract across public root, packaged assets and customer setup.
 - [x] Setup preserves existing customer files, supports an explicitly approved contract link and reports unresolved integration; no silent upgrade.
 - [x] Updated 20-package immutable candidate installs fresh offline with development checkout hidden; original owner and installed workflow tests pass.
 - [x] Root docs, consumer instructions and notices match only actual available capabilities; repository genesis remains explicitly unavailable.
-- [ ] Governed exact-path commits, non-force public push and public-byte replay complete before closeout.
+- [x] Governed exact-path commits, non-force public push and public-byte replay complete before closeout.
+
 
 
 
@@ -56,3 +60,4 @@
 - 2026-10-05T01:35:57Z — Opened the issue via `aware-cli issue open`. Initial lifecycle state is `open`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - 2026-10-05T01:36:15Z — Own protocols-only cleanup and versioned neutral agent onboarding. Issue names protocols/publication/project_protocols_only.py for retirement of baseline generated snapshot outputs, protocols/agent/build_bundle.py for consumer assembly and protocols/publication/render_agent_contract.py for templated bootstrap/docs. Preserve shared development sources and Git history. Retain selected aware-cli producer governance for this execution; future consumers use installed aware only. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - 2026-10-05T02:06:23Z — Retired 11,942 pinned obsolete outputs (166,140,980 bytes) through the declared projector and 30 exact-path producer commits ending cea65fa95daab1d1720404cc8c9761e937bdaa81; recoverable preimages and Git history retained. Consumer 0.1.0a2 archive SHA-256 62085974eb99889aaf43275c7b6a635ebd6ed191513e563c812a556472c48dd6 passed fresh offline checkout-hidden installation and 161 checks, zero skipped: 121 owner, 8 installed workflow, 15 bootstrap, 7 bundle and 10 publication. Only the interface wheel changed; 19 owner/third-party wheels remain unchanged. Versioned aware.agent.fs.v1 contract supplies root and packaged AGENTS plus operational, Issue and alignment docs. Setup preserves existing instructions and reports integration rather than silently upgrading them. Explicit producer root overrides retain selected governance after retiring old internal markers. GitHub private vulnerability reporting enabled and read back as enabled, a separate repository-setting action. A host disk exhaustion truncated this uncommitted Issue during the first note attempt; exact preexisting content was restored, with lifecycle and scope unchanged. Only this task disposable clone workspaces were relocated recoverably to free space; artifacts and retirement preimages preserved. Publication and public replay pending. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- 2026-10-05T02:10:09Z — Implementation 7c32154df3923610cce831ca10c0574a7065c3cf non-force pushed to aware-network/aware/main; remote readback matches. Anonymous revision-pinned HTTP archive retrieval reproduced SHA-256 62085974eb99889aaf43275c7b6a635ebd6ed191513e563c812a556472c48dd6. A fresh shallow public clone at the published revision has no retired workspace/internal manifests; its exact candidate installed into a second fresh offline environment with the development checkout hidden and inherited environment cleared. Public replay: 8 workflow + 15 bootstrap + 7 bundle + 10 publication + 121 pinned owner tests all passed, zero skipped. An initial sandbox invocation omitted its device mount; Git fixture setup refused /dev/null before domain operations. Supplying the standard /dev mount resolved the runner error without source or artifact changes. Public consumer and producer paths/index clean before this evidence update. Verification records the bounded replay, not independent client acceptance or authenticated identity. Supported scope is Linux x86-64/Python 3.12 and existing committed customer Git repositories; repository genesis, Goal writers and services remain unavailable. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
