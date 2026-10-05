@@ -44,7 +44,10 @@ class BundleTests(unittest.TestCase):
         self.assertEqual(self.release["root_requirement"], "aware-agent-cli==" + self.release["version"])
         for record in self.release["wheels"]:
             self.assertEqual(hashlib.sha256(self.files["wheelhouse/" + record["filename"]]).hexdigest(), record["sha256"])
-        self.assertEqual(hashlib.sha256((ROOT.parents[1] / "protocols/publication/builders/agent-0.1.0a3.py").read_bytes()).hexdigest(), self.release["builder_sha256"])
+        builder = ("protocols/publication/builders/agent-0.1.0a3.py"
+                   if self.release["version"] == "0.1.0a3"
+                   else "protocols/agent/build_bundle.py")
+        self.assertEqual(hashlib.sha256((ROOT.parents[1] / builder).read_bytes()).hexdigest(), self.release["builder_sha256"])
         provenance = json.loads(self.files["source-provenance.json"])
         self.assertEqual(len(provenance["files"]), 33)
         self.assertEqual(sum(r["disposition"] == "curated export facade" for r in provenance["files"]), 3)

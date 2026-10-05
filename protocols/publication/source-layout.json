@@ -39,12 +39,12 @@
       "sha256": "473ccb737513ddaaf7b337e6e39abc599be50dd84253763a111a433fb423dfd4"
     },
     {
-      "byte_identical": true,
+      "byte_identical": false,
       "bytes": 5717,
       "path": "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/main.py",
       "previous_path": "protocols/agent/source/aware_agent_cli/aware_agent_cli/main.py",
       "previous_sha256": "b9f0dd12106e7b3460c7e82a849405ab69a44bd110ed47cfad3ff52304d790ca",
-      "sha256": "b9f0dd12106e7b3460c7e82a849405ab69a44bd110ed47cfad3ff52304d790ca"
+      "sha256": "682e5f53712c9a26d24b4459dccbd2b27643e57ac11f2825c2ce30066b97bde3"
     },
     {
       "byte_identical": true,
@@ -135,12 +135,12 @@
       "sha256": "0b46f2e410db331fa477a3a695840556f826c8017453fe3b5cff351851252619"
     },
     {
-      "byte_identical": true,
+      "byte_identical": false,
       "bytes": 700,
       "path": "workspaces/aware_coordination/modules/workflow/clients/agent/python/pyproject.toml",
       "previous_path": "protocols/agent/source/aware_agent_cli/pyproject.toml",
       "previous_sha256": "98c2f28be2a3d0806e525419ce052673674a3bbfc7f091d41c96574c264cdd3c",
-      "sha256": "98c2f28be2a3d0806e525419ce052673674a3bbfc7f091d41c96574c264cdd3c"
+      "sha256": "e634da3b97cd4fa681d9586b771d7cce454263e7b48bcdcf553e9b81ffc0e4ac"
     },
     {
       "byte_identical": true,
@@ -191,12 +191,12 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "byte_identical": true,
+      "byte_identical": false,
       "bytes": 432,
       "path": "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/pyproject.toml",
       "previous_path": "protocols/agent/source/aware_issue_cli/pyproject.toml",
       "previous_sha256": "037159786599bb75d4956cfd1fb1e885e9f3c8521c93cda18690d7d43e8eb52d",
-      "sha256": "037159786599bb75d4956cfd1fb1e885e9f3c8521c93cda18690d7d43e8eb52d"
+      "sha256": "078a4e31ec99bc264a87aa8d55039e8d6ff79cc4ff0c9bfa3e573aebe9bfcad1"
     },
     {
       "byte_identical": true,
@@ -231,12 +231,12 @@
       "sha256": "a32f5d6814c7465c82177c5036d5dd206c4c7163e2688c8a166c7b15d47582a4"
     },
     {
-      "byte_identical": true,
-      "bytes": 59308,
+      "byte_identical": false,
+      "bytes": 60145,
       "path": "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/aware_issue_fs_adapter/provider.py",
       "previous_path": "protocols/agent/source/aware_issue_fs_adapter/aware_issue_fs_adapter/provider.py",
       "previous_sha256": "ae95032bf0ca397c90e7b47c5522e57888384d50d2882be146c93f264e2f0e6b",
-      "sha256": "ae95032bf0ca397c90e7b47c5522e57888384d50d2882be146c93f264e2f0e6b"
+      "sha256": "d0adb81e85de1b4f5ec449e20ba278d74c585f6124355bd5c37b85e7e76b69e3"
     },
     {
       "byte_identical": true,
@@ -247,12 +247,12 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "byte_identical": true,
+      "byte_identical": false,
       "bytes": 500,
       "path": "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/pyproject.toml",
       "previous_path": "protocols/agent/source/aware_issue_fs_adapter/pyproject.toml",
       "previous_sha256": "aa8b067b98e4bba90f5dbaf1b87ada788fc9b0b5b62d8c84889867b13f82bf6e",
-      "sha256": "aa8b067b98e4bba90f5dbaf1b87ada788fc9b0b5b62d8c84889867b13f82bf6e"
+      "sha256": "ed0e51b029288f1daddbd4502f76eb393adf3efe61b4e4e51ed9ce3c2d31fab1"
     },
     {
       "byte_identical": true,
@@ -511,12 +511,12 @@
       "sha256": "dbc842309a6d23993425f7481fc86777d8a1a5d04df5d512db6367ee72569128"
     },
     {
-      "byte_identical": true,
-      "bytes": 27083,
+      "byte_identical": false,
+      "bytes": 28258,
       "path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/operation.py",
       "previous_path": "protocols/agent/source/aware_issue_sdk/aware_issue_sdk/operation.py",
       "previous_sha256": "71ea8b7ceef1d979507880bd8e001270e38a8c402aeb63ac4b9da491a58c21a7",
-      "sha256": "71ea8b7ceef1d979507880bd8e001270e38a8c402aeb63ac4b9da491a58c21a7"
+      "sha256": "b321ceb34d4b6530b3d98d469b4a170bc5300a9e8791211de94e8f6cbf975ad1"
     },
     {
       "byte_identical": true,
@@ -527,12 +527,12 @@
       "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
     },
     {
-      "byte_identical": true,
+      "byte_identical": false,
       "bytes": 357,
       "path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/pyproject.toml",
       "previous_path": "protocols/agent/source/aware_issue_sdk/pyproject.toml",
       "previous_sha256": "f9cd4a79980e8e1278aa1578b824c9792552ab293084135b1c5ee69413a6614e",
-      "sha256": "f9cd4a79980e8e1278aa1578b824c9792552ab293084135b1c5ee69413a6614e"
+      "sha256": "e2e57d16693ec1906d5dc0f50dc0a102de3a39eb9bcf590d0601419499acaa3a"
     },
     {
       "byte_identical": true,
@@ -647,12 +647,12 @@
       "sha256": "9bf59946ba12218829e4256067cc70780614da4c5ceb923e7ea79542dcc98c43"
     },
     {
-      "byte_identical": true,
-      "bytes": 144989,
+      "byte_identical": false,
+      "bytes": 146347,
       "path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/commit.py",
       "previous_path": "protocols/agent/source/aware_workspace_operator/aware_workspace_operator/commit.py",
       "previous_sha256": "0fb542a158a604dc4a1de3780dbb63c4ecd72c6ec51a3fe0188311d55642e0f8",
-      "sha256": "0fb542a158a604dc4a1de3780dbb63c4ecd72c6ec51a3fe0188311d55642e0f8"
+      "sha256": "d1de5e384fe8a97e9bbd7ae596f3498deac3beadfe29107963523c8d45740f79"
     },
     {
       "byte_identical": true,
@@ -671,12 +671,12 @@
       "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
     },
     {
-      "byte_identical": true,
+      "byte_identical": false,
       "bytes": 343,
       "path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/pyproject.toml",
       "previous_path": "protocols/agent/source/aware_workspace_operator/pyproject.toml",
       "previous_sha256": "44bf20f2bc35a81644aa4e4a69bb085f65bdd0c0069d27f5b5e1b698a7e62a0c",
-      "sha256": "44bf20f2bc35a81644aa4e4a69bb085f65bdd0c0069d27f5b5e1b698a7e62a0c"
+      "sha256": "82ecd87a8ceae66286651e7f94fd3bdec4ade7f5f0e4582d5ab2492f65200b16"
     },
     {
       "byte_identical": true,

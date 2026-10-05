@@ -2371,7 +2371,7 @@ def _record_index_projection_debt(
     command_log: list[tuple[str, ...]],
 ) -> None:
     """Persist eligible original preimages before the reference CAS, not after it."""
-    if transaction._contents is None:
+    if transaction._contents is None or transaction.expected_head is None:
         return
     root = transaction.git_dir / "aware-transactions"
     descriptor, raw_path = tempfile.mkstemp(prefix="projection-preimage-", dir=root)
@@ -2536,22 +2536,29 @@ def _project_shared_index_atomically(
 ) -> str | None:
     """Project exact owned paths into the latest index under its native lock."""
 
-    if transaction._contents is None or transaction._mode is None:
+    fresh_index = not transaction._existed and transaction.expected_head is None
+    if not fresh_index and (transaction._contents is None or transaction._mode is None):
         return "shared_index_snapshot_missing"
     transaction_root = transaction.git_dir / "aware-transactions"
     lock_path = Path(f"{transaction.index_path}.lock")
     try:
         lock_descriptor = os.open(
-            lock_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, transaction._mode
+            lock_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+            transaction._mode if transaction._mode is not None else 0o600,
         )
     except FileExistsError:
         return "shared_index_lock_busy"
     lock_owned = True
     projection_path: Path | None = None
     try:
-        if not transaction.index_path.exists():
+        latest_exists = transaction.index_path.exists()
+        if transaction.index_path.is_symlink():
             return "shared_index_advanced"
-        latest_contents = transaction.index_path.read_bytes()
+        if not latest_exists and not fresh_index:
+            return "shared_index_advanced"
+        if latest_exists and (transaction.index_path.is_symlink() or not transaction.index_path.is_file()):
+            return "shared_index_advanced"
+        latest_contents = transaction.index_path.read_bytes() if latest_exists else None
         for path in requested_paths:
             if _shared_index_matches_expected_paths(
                 runner=runner, repo_root=repo_root,
@@ -2572,7 +2579,17 @@ def _project_shared_index_atomically(
         )
         projection_path = Path(raw_path)
         with os.fdopen(descriptor, "wb") as projection_file:
-            projection_file.write(latest_contents)
+            if latest_contents is not None:
+                projection_file.write(latest_contents)
+        if latest_contents is None:
+            projection_path.unlink()
+            empty_result = _run_git_optional(
+                runner=runner, repo_root=repo_root,
+                args=("git", "read-tree", "--empty"), command_log=command_log,
+                environment={"GIT_INDEX_FILE": projection_path.as_posix()},
+            )
+            if empty_result.returncode != 0:
+                return "shared_index_projection_prepare_failed"
         projection_result = _run_git_optional(
             runner=runner,
             repo_root=repo_root,
@@ -2584,8 +2601,12 @@ def _project_shared_index_atomically(
             return "shared_index_projection_prepare_failed"
         projected_contents = projection_path.read_bytes()
         if (
-            not transaction.index_path.exists()
-            or transaction.index_path.read_bytes() != latest_contents
+            transaction.index_path.is_symlink()
+            or transaction.index_path.exists() != latest_exists
+            or (latest_exists and (
+                transaction.index_path.is_symlink()
+                or transaction.index_path.read_bytes() != latest_contents
+            ))
         ):
             return "shared_index_advanced"
         reference_result = _run_git_optional(
@@ -2680,8 +2701,6 @@ def _shared_index_matches_expected_paths(
     command_log: list[tuple[str, ...]],
     environment: dict[str, str] | None = None,
 ) -> bool:
-    if expected_head is None:
-        return False
     for path in requested_paths:
         index = _run_git_optional(
             runner=runner,
@@ -2690,6 +2709,11 @@ def _shared_index_matches_expected_paths(
             command_log=command_log,
             environment=environment,
         )
+        if expected_head is None:
+            # An unborn tree has no entries; staged owned entries are foreign.
+            if index.returncode != 0 or index.stdout:
+                return False
+            continue
         tree = _run_git_optional(
             runner=runner,
             repo_root=repo_root,

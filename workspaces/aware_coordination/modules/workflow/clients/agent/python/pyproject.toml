@@ -1,11 +1,11 @@
 [project]
 name = "aware-agent-cli"
-version = "0.1.0a3"
+version = "0.1.0a4"
 description = "Agent-first filesystem workflows over Aware's canonical Issue SDK and Git owner."
 requires-python = ">=3.12"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
-dependencies = ["aware-issue-cli==0.6.0a1", "aware-issue-sdk==0.7.0a1", "aware-protocol-fs-adapter==0.2.0", "aware-repository-sdk==0.1.0a1", "aware-repository-fs-adapter==0.1.0a1"]
+dependencies = ["aware-issue-cli==0.6.0a2", "aware-issue-sdk==0.7.0a2", "aware-protocol-fs-adapter==0.2.0", "aware-repository-sdk==0.1.0a1", "aware-repository-fs-adapter==0.1.0a1"]
 
 [project.scripts]
 aware = "aware_agent_cli.main:main"

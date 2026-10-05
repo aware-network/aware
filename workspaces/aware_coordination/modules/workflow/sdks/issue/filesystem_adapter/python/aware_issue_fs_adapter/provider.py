@@ -772,6 +772,9 @@ class FilesystemIssueOperationProvider:
                 request=request,
                 outcome=publication_outcome,
                 commit_hash=report.commit_hash,
+                shared_index_projection=report.shared_index_projection,
+                shared_index_projection_error=report.shared_index_projection_error,
+                index_reconciliation_pending=report.index_reconciliation_pending,
                 transaction_mode=report.transaction_mode,
                 reference_update=report.reference_update,
                 evidence=evidence,
@@ -783,6 +786,9 @@ class FilesystemIssueOperationProvider:
             transaction_mode=report.transaction_mode,
             reference_update=report.reference_update,
             diagnostics=(error,),
+            shared_index_projection=report.shared_index_projection,
+            shared_index_projection_error=report.shared_index_projection_error,
+            index_reconciliation_pending=report.index_reconciliation_pending,
             evidence=(f"rejecting_component:{WORKSPACE_COMMIT_OPERATOR_REF}",),
         )
 
@@ -815,6 +821,9 @@ class FilesystemIssueOperationProvider:
         commit_hash: str | None = None,
         transaction_mode: str = "not_run",
         reference_update: str = "not_run",
+        shared_index_projection: str | None = None,
+        shared_index_projection_error: str | None = None,
+        index_reconciliation_pending: bool | None = None,
         evidence: tuple[str, ...] = (),
         diagnostics: tuple[str, ...] = (),
     ) -> IssueCommitWorkspaceResult:
@@ -829,6 +838,9 @@ class FilesystemIssueOperationProvider:
             transaction_mode=transaction_mode,
             commit_hash=commit_hash,
             reference_update=reference_update,
+            shared_index_projection=shared_index_projection,
+            shared_index_projection_error=shared_index_projection_error,
+            index_reconciliation_pending=index_reconciliation_pending,
             evidence=evidence,
             diagnostics=diagnostics,
         )

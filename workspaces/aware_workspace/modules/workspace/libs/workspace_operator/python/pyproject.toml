@@ -1,6 +1,6 @@
 [project]
 name = "aware-workspace-operator"
-version = "0.4.0a1"
+version = "0.4.0a2"
 requires-python = ">=3.12"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]

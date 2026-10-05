@@ -28,10 +28,13 @@ class SourceLayoutTests(unittest.TestCase):
 
     def test_only_provenance_link_readmes_changed(self):
         changed = [m for m in LAYOUT["moves"] if not m["byte_identical"]]
-        self.assertEqual(len(changed), 6)
-        self.assertTrue(all(m["path"].endswith("/README.md") for m in changed))
+        provenance = json.loads((ROOT / "protocols/agent/source-provenance.json").read_bytes())
+        amendments = set(provenance.get("owner_adoption", {}).get("public_changed_paths", []))
+        historical_readmes = {m["path"] for m in changed if m["path"].endswith("/README.md")}
+        self.assertEqual(len(historical_readmes), 6)
+        self.assertEqual({m["path"] for m in changed}, historical_readmes | amendments)
         for item in LAYOUT["moves"]:
-            if not item["path"].endswith("/README.md"):
+            if not item["path"].endswith("/README.md") and item["path"] not in amendments:
                 self.assertEqual(item["sha256"], item["previous_sha256"], item["path"])
 
     def test_workspace_files_are_allowlisted(self):
@@ -61,12 +64,16 @@ class SourceLayoutTests(unittest.TestCase):
             ast.parse(path.read_bytes(), filename=str(path))
 
     def test_historical_builder_and_candidate_are_unchanged(self):
-        release = json.loads((ROOT / "protocols/agent/release.json").read_bytes())
-        self.assertEqual(release["archive_sha256"], "4af072afaea666480009c03721c9846d122f61d7160fb1511329463762222a1c")
-        self.assertEqual(hashlib.sha256((ROOT / "protocols/agent" / release["archive"]).read_bytes()).hexdigest(), release["archive_sha256"])
-        self.assertEqual(hashlib.sha256((ROOT / "protocols/publication/builders/agent-0.1.0a3.py").read_bytes()).hexdigest(), release["builder_sha256"])
+        archive = ROOT / "protocols/agent/distribution/aware-agent-fs-0.1.0a3-linux_x86_64-py312.tar.gz"
+        self.assertEqual(hashlib.sha256(archive.read_bytes()).hexdigest(), "4af072afaea666480009c03721c9846d122f61d7160fb1511329463762222a1c")
+        self.assertEqual(hashlib.sha256((ROOT / "protocols/publication/builders/agent-0.1.0a3.py").read_bytes()).hexdigest(), "796e7ade8bdb2aa6b633ae9a07339b07b18e8b9888eb5160e2157f912333eb4e")
 
     def test_current_builder_refuses_immutable_overwrite_before_source_mutation(self):
+        version = tomllib.loads((ROOT / LAYOUT["agent_projects"]["aware_agent_cli"] / "pyproject.toml").read_text())["project"]["version"]
+        if not (ROOT / ("protocols/agent/distribution/aware-agent-fs-" + version + "-linux_x86_64-py312.tar.gz")).exists():
+            self.assertEqual(version, "0.1.0a4")
+            self.assertEqual(json.loads((ROOT / "protocols/agent/release.json").read_bytes())["version"], "0.1.0a3")
+            return  # source preparation has no immutable a4 candidate yet
         paths = [ROOT / m["path"] for m in LAYOUT["moves"]]
         before = [p.read_bytes() for p in paths]
         result = subprocess.run([sys.executable, "-B", str(ROOT / "protocols/agent/build_bundle.py"),

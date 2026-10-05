@@ -528,6 +528,9 @@ class IssueCommitWorkspaceResult:
     evidence: tuple[str, ...] = ()
     diagnostics: tuple[str, ...] = ()
     operation_ref: str = ISSUE_COMMIT_WORKSPACE_OPERATION_REF
+    shared_index_projection: str | None = None
+    shared_index_projection_error: str | None = None
+    index_reconciliation_pending: bool | None = None
 
     def __post_init__(self) -> None:
         if type(self.outcome) is not IssuePublicationOutcome:
@@ -535,6 +538,21 @@ class IssueCommitWorkspaceResult:
         if self.operation_ref != ISSUE_COMMIT_WORKSPACE_OPERATION_REF:
             raise IssueOperationContractError(
                 "operation_ref must identify issue_sdk.commit_workspace"
+            )
+        if self.shared_index_projection is not None and (
+            type(self.shared_index_projection) is not str
+            or self.shared_index_projection not in {"not_run", "applied", "failed"}
+        ):
+            raise IssueOperationContractError("invalid shared_index_projection")
+        if (
+            self.index_reconciliation_pending is not None
+            and type(self.index_reconciliation_pending) is not bool
+        ):
+            raise IssueOperationContractError("index_reconciliation_pending must be bool or null")
+        if self.shared_index_projection_error is not None:
+            object.__setattr__(
+                self, "shared_index_projection_error",
+                _text(self.shared_index_projection_error, "shared_index_projection_error"),
             )
         for field_name in (
             "issue_ref",
@@ -580,6 +598,9 @@ class IssueCommitWorkspaceResult:
             "transaction_mode": self.transaction_mode,
             "commit_hash": self.commit_hash,
             "publication_receipt_ref": self.publication_receipt_ref,
+            "shared_index_projection": self.shared_index_projection,
+            "shared_index_projection_error": self.shared_index_projection_error,
+            "index_reconciliation_pending": self.index_reconciliation_pending,
             "reference_update": self.reference_update,
             "evidence": list(self.evidence),
             "diagnostics": list(self.diagnostics),

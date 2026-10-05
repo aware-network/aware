@@ -113,7 +113,7 @@ def main(argv: list[str] | None = None) -> int:
         if args[:2] == ["repository", "create"]:
             return prepare_repository(args[2:])
         parser = argparse.ArgumentParser(prog="aware", description="Agent-first, filesystem-only Issue workflow.")
-        parser.add_argument("--version", action="version", version="aware-agent-cli 0.1.0a3")
+        parser.add_argument("--version", action="version", version="aware-agent-cli 0.1.0a4")
         parser.epilog = "Commands: init [--create-repository]; contract; issue open; issue <canonical Issue CLI command>; repository create; repository commit"
         parser.parse_args(args)
         parser.print_help()
