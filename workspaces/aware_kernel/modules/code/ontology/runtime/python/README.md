@@ -1,1 +1,0 @@
-# TODO: Add proper docs about Code Adapters
