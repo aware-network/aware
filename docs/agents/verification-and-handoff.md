@@ -22,3 +22,13 @@ Authored acceptance remains unchecked unless separately evidenced; Issue
 closeout does not evaluate it or grant Goal acceptance. Retain actual index
 warnings: unknown is not clean. Summaries preserve publication owner and
 reference-update state; default JSON remains available.
+
+## Acceptance criteria are not an automatic verdict
+
+Acceptance boxes are authored criteria, initially unchecked. This installation
+has no operation that evaluates or checks them. Recorded test evidence and a
+closed Issue do not change those boxes. Report the verification and actual
+outcome explicitly; do not hand-check the Markdown or claim the unchecked box
+is a failed test. Issue closure, verification evidence, authored criteria and
+Goal/Specification acceptance are separate. No Goal/Specification acceptance
+operation is supplied by this Issue-only profile.

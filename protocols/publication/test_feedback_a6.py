@@ -36,12 +36,12 @@ class FeedbackTests(unittest.TestCase):
         corrupted = dict(packaged, **{"docs/agents/README.md": b"`aware.agent.fs.v1` / 1.1.0.\n"})
         self.assertFalse(consistent_labels(corrupted))
 
-    def test_old_contract_and_live_bootstrap_remain_byte_identical(self):
-        paths = ["AGENTS.md", ".aware/agent-bootstrap.json", "protocols/agent/release.json",
+    def test_old_contract_and_a5_record_remain_byte_identical(self):
+        self.assertEqual((ROOT / "protocols/agent/release-a5.json").read_bytes(), MODULE.committed("protocols/agent/release.json"))
+        paths = [
                  "protocols/agent/release-a5-candidate.json", "protocols/agent/issue-a5-candidate-binding.json",
                  "protocols/agent/distribution/aware-agent-fs-0.1.0a5-linux_x86_64-py312.tar.gz"]
         paths.extend("protocols/contracts/agent-fs/v1.2.0/" + p for p in self.assets(ROOT / "protocols/contracts/agent-fs/v1.2.0"))
-        paths.extend("docs/agents/" + p for p in ["README.md", "operational-work.md", "repository-change.md", "verification-and-handoff.md"])
         for path in paths:
             self.assertEqual((ROOT / path).read_bytes(), MODULE.committed(path), path)
 

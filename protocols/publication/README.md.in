@@ -8,7 +8,7 @@ protocols—not a service prerequisite or an agent's private memory.
 
 ## Available now: agent-first Issue and commit preview
 
-The **0.1.0a5** installable OSS preview supports **repository setup → scoped Issue → evidence
+The **0.1.0a6** installable OSS preview supports **repository setup → scoped Issue → evidence
 → scoped Git commit → verified closeout or handoff**. The CLI and SDK delegate to
 existing neutral owners. No generated API, ontology/ORM, service or Experience
 runtime is installed.
@@ -18,6 +18,8 @@ placeholder authoring step. Optional `--format summary` makes receipts easier
 to read while preserving publication state and reconciliation warnings; full
 SDK JSON remains the default. Criteria start unchecked; verification is retained
 as evidence, not manufactured acceptance. Issue closure is not Goal acceptance.
+a6 corrects contract labels and clarifies evidence; the same domain owners and
+22-package closure remain in use.
 
 ```sh
 git clone --depth 1 https://github.com/aware-network/aware.git
@@ -96,8 +98,9 @@ Goal installed checks; see the [verification record](protocols/publication/VERIF
 
 ## What comes next
 
-Supported Goal creation/import and manifest preparation are the next useful
-product boundary. **They are not in this preview.** Neither are Goal approval,
+Specification coordination and supported Goal creation/import and manifest
+preparation are separate future capability cuts. **They are not in this preview.**
+Neither are Goal approval,
 effectful pursuit, dispatch or a complete autonomous collaboration loop.
 Issue lifecycle and scoped publication are available separately in the agent
 bundle above. Do not manually patch Goal records to bypass these gaps.

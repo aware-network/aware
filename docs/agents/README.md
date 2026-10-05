@@ -1,6 +1,6 @@
 # Modular agent contract
 
-`aware.agent.fs.v1` / 1.1.0. The root AGENTS.md selects the installed command.
+`aware.agent.fs.v1` / 1.2.1. The root AGENTS.md selects the installed command.
 Read only the relevant procedures:
 
 - [Operational work](operational-work.md): approved inputs, execution, Issue admission.

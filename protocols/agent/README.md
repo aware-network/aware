@@ -3,7 +3,7 @@
 Install once. Give an agent a customer-approved task. Keep ownership, scope,
 evidence and publication durable across executions—not trapped in chat history.
 
-This **0.1.0a5 filesystem preview** exposes existing Aware Issue and repository
+This **0.1.0a6 filesystem preview** exposes existing Aware Issue and repository
 owners through a thin `aware` interface. No service, generated API, ontology/ORM,
 Experience runtime or Aware development environment is required.
 
@@ -68,7 +68,7 @@ customer review, not automatic precedence. Inspect `preserved` and
 three-operation `issue open` composition are not multi-file transactions.
 An interrupted operation must be inspected; do not erase durable receipts and retry blindly.
 
-The authored [contract](../contracts/README.md) is `aware.agent.fs.v1` / 1.2.0.
+The authored [contract](../contracts/README.md) is `aware.agent.fs.v1` / 1.2.1.
 The public repository, shipped CLI resources and customer scaffolds are rendered
 from those same templates. Contract versioning is independent of the CLI version
 and record/profile version; upgrades are explicit, never ordinary bootstrap side effects.
@@ -136,7 +136,7 @@ is inferred from the installed fixture proofs.
 
 ## Publication and index state
 
-A successful commit and a clean Git index are separate observations. a5 carries
+A successful commit and a clean Git index are separate observations. The client carries
 `shared_index_projection`, `shared_index_projection_error` and
 `index_reconciliation_pending` through the installed CLI. Preserve these fields
 with the actual publication receipt. `true` means projection remains pending;
@@ -148,3 +148,12 @@ the exact Issue, publication receipt, projection error and observed status to
 the customer/maintainer. No automatic interrupted-unborn debt recovery is
 supported. Issue closeout remains a separately validated publication and cannot
 authorize recovery or manufacture Goal acceptance.
+
+Issue `issue_day_index:pending` and `feed:unavailable` refer to documentary
+projections, not the Git index. They can coexist with an applied publication
+and clean scoped Git status. A read projection is not a fresh Git status check.
+This profile has no operation to check authored acceptance boxes; retain actual
+verification rather than manually checking them or interpreting them as failed tests.
+
+a6 is a documentation-compatible correction: one agent wheel changed, the other
+21 wheels match a5 exactly. No new domain behavior or dependency is added.

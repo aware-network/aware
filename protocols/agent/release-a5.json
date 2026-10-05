@@ -1,11 +1,11 @@
 {
   "agent_contract": {
     "ref": "aware.agent.fs.v1",
-    "version": "1.2.1"
+    "version": "1.2.0"
   },
-  "archive": "distribution/aware-agent-fs-0.1.0a6-linux_x86_64-py312.tar.gz",
-  "archive_bytes": 3574644,
-  "archive_sha256": "c3d6e593fd5894a927d338da5347a32e9c9eda3aec0aadcf9a662d51e348b804",
+  "archive": "distribution/aware-agent-fs-0.1.0a5-linux_x86_64-py312.tar.gz",
+  "archive_bytes": 3573305,
+  "archive_sha256": "0e6a2c98a0d8c691b7078ab48194363971d547689514b5c8fa3a3d2f7ccc9184",
   "authority_mode": "filesystem",
   "builder_sha256": "0a7eacd4752dad4c1bac06c0e20ac6256283ed7b1aaeaff7e2a8e004a11119cb",
   "format": "aware.agent.fs.consumer-bundle.v1",
@@ -13,14 +13,14 @@
   "platform": "linux_x86_64",
   "preparation_operation": "repository_sdk.prepare_repository",
   "python_minor": "3.12",
-  "root_requirement": "aware-agent-cli==0.1.0a6",
-  "source_provenance_sha256": "028d3ce88810996f34575199b631b5c8ef2fdf4aeb67ad708623f62a4ea3796d",
+  "root_requirement": "aware-agent-cli==0.1.0a5",
+  "source_provenance_sha256": "afb8f89aaf556a728f90558e29f0a9e4f553bdbff6a6ce0ec8957ddd269d9dd7",
   "source_revision": "728831f6636a611a8baac61dbc258ed563a0e466",
   "supported_commands": [
     "aware",
     "aware-issue-cli"
   ],
-  "version": "0.1.0a6",
+  "version": "0.1.0a5",
   "wheels": [
     {
       "filename": "annotated_types-0.8.0-py3-none-any.whl",
@@ -31,8 +31,8 @@
       "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309"
     },
     {
-      "filename": "aware_agent_cli-0.1.0a6-py3-none-any.whl",
-      "sha256": "a2a1d670f41a011bc1158f080ba3c2c5171ff55a62d187277d08311af5b1c449"
+      "filename": "aware_agent_cli-0.1.0a5-py3-none-any.whl",
+      "sha256": "1c0568f56bbb3f567cc457fccc103bdb9da5f059d1e89da70721f60eadfc2c1c"
     },
     {
       "filename": "aware_issue_cli-0.6.0a3-py3-none-any.whl",

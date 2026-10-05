@@ -43,3 +43,25 @@ every constituent receipt on incomplete open. Publication summaries retain
 `operator_ref`, `transaction_mode` and `reference_update`, including refusals.
 Closeout index fields describe that operation only: pending is retained debt,
 unknown is missing evidence, and neither proves a clean current Git index.
+
+## Three distinct projection results
+
+`issue_authority:applied` means the authoritative Issue write applied.
+`issue_day_index:pending` means its day-index projection has not been updated;
+`feed:unavailable` means this installation has no FEED projection operation.
+Neither is the Git index. `shared_index_projection`, its error and
+`index_reconciliation_pending` describe the publication owner's Git-index
+reconciliation for that operation only. These statuses can legitimately differ.
+A read projection is Issue state, not a fresh observation of the Git index.
+Inspect actual receipts and read-only Git state; never treat pending or unknown
+as clean, or hand-edit a projection to hide retained debt.
+
+## Acceptance criteria are not an automatic verdict
+
+Acceptance boxes are authored criteria, initially unchecked. This installation
+has no operation that evaluates or checks them. Recorded test evidence and a
+closed Issue do not change those boxes. Report the verification and actual
+outcome explicitly; do not hand-check the Markdown or claim the unchecked box
+is a failed test. Issue closure, verification evidence, authored criteria and
+Goal/Specification acceptance are separate. No Goal/Specification acceptance
+operation is supplied by this Issue-only profile.

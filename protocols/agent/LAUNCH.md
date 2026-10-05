@@ -6,9 +6,11 @@ Bring an existing repository—or explicitly prepare an empty new one. Install t
 an approved task and exact scope. Aware keeps an Issue's ownership, evidence,
 scoped commits and handoff durable when an execution ends.
 
-The a5 preview takes the approved problem, objective and acceptance directly at
+The a6 preview takes the approved problem, objective and acceptance directly at
 Issue creation. Optional compact summaries retain real publication receipts and
 index warnings. No manual Issue authoring or service setup is required.
+Its versioned contract clarifies publication evidence and unchecked acceptance;
+the underlying Issue and commit owners are unchanged from a5.
 
 Available now: repository setup, Issue lifecycle, evidence updates, scoped Git
 publication, verified closeout and replacement-execution handoff. The CLI and

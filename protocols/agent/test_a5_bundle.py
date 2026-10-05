@@ -26,7 +26,7 @@ class A5BundleTests(BundleTests):
         )
         self.assertEqual(self.release["version"], "0.1.0a5")
         self.assertEqual(self.release["agent_contract"]["version"], "1.2.0")
-        self.assertEqual((ROOT / "release.json").read_bytes(), (ROOT / self.release_name).read_bytes())
+        self.assertEqual((ROOT / "release-a5.json").read_bytes(), (ROOT / self.release_name).read_bytes())
 
     def test_exact_owner_adoption_and_unchanged_dependency_payload(self):
         binding = json.loads((ROOT / "issue-a5-candidate-binding.json").read_bytes())

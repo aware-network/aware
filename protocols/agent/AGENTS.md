@@ -40,3 +40,10 @@ checks are neither a sandbox nor authority against arbitrary filesystem writers.
 Optional `--format summary` reuses the shared owner-facing summary. Preserve its
 publication state, receipts and index warnings; default SDK JSON remains available.
 Missing historical fields mean unknown, not success or a clean checkout.
+
+The installed contract is `aware.agent.fs.v1` / 1.2.1. Issue day-index/FEED
+projection statuses are separate from Git-index reconciliation. Authored
+acceptance has no checking operation in this profile; record actual evidence,
+never manually check authority records. For external evaluation, capture the
+task-test interpreter separately from the Aware installation interpreter;
+follow [the evaluation instructions](../evaluations/README.md).

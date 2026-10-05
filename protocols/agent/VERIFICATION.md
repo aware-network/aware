@@ -1,4 +1,26 @@
-# Current agent preview: 0.1.0a5
+# Current local selection: 0.1.0a6
+
+Exact archive SHA-256:
+`c3d6e593fd5894a927d338da5347a32e9c9eda3aec0aadcf9a662d51e348b804`.
+The [candidate-bound proof](A6-CANDIDATE.md) retains independently reproduced
+**224 installed tests and 64 accounting/evaluator checks, zero skipped**,
+accepted at `e02a06544e88` and closed at `43826e50ab29`.
+
+The selected [manifest](release.json) exactly equals
+[the a6 candidate](release-a6-candidate.json). One agent wheel changed; the other
+21 match [historical a5](release-a5.json). No dependency, domain implementation
+or authority profile changed. Contract 1.2.1 corrects version labels and explains
+projection/acceptance evidence. Customer contracts are not silently upgraded.
+
+[Local promotion evidence](../publication/A6-PROMOTION.md) is separate from public
+delivery: a6 is prepared locally, not pushed by this cut. No public a6 acquisition
+or release claim follows from the selected manifest. The independent reviewer
+could not access the private evaluation input, did not rebuild the archive and
+did not perform exhaustive public-content clearance.
+
+---
+
+# Historical agent preview: 0.1.0a5
 
 Exact archive SHA-256:
 `0e6a2c98a0d8c691b7078ab48194363971d547689514b5c8fa3a3d2f7ccc9184`.
@@ -9,7 +31,7 @@ independently reproduced at `81929f50acf8`. Candidate closeout is
 exhaustive public-safety review. The [publication record](../publication/A5-PUBLICATION.md)
 separately records promotion, public delivery and replay.
 
-The selected [release manifest](release.json) exactly equals the accepted
+The historical [release manifest](release-a5.json) exactly equals the accepted
 [a5 candidate record](release-a5-candidate.json). The unchanged a4 manifest is
 retained as [release-a4.json](release-a4.json). Four wheel versions changed;
 18 wheels are byte-identical to a4. No package is added. New Issue inputs and

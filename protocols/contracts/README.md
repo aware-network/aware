@@ -1,15 +1,18 @@
 # Versioned agent experience
 
-Current template: [agent-fs/v1.2.0/AGENTS.md.in](agent-fs/v1.2.0/AGENTS.md.in).
-Identity/version: **`aware.agent.fs.v1` / 1.2.0**; selected authority: filesystem.
-The [contract manifest](agent-fs/v1.2.0/contract.json) declares its bootstrap and
+Current template: [agent-fs/v1.2.1/AGENTS.md.in](agent-fs/v1.2.1/AGENTS.md.in).
+Identity/version: **`aware.agent.fs.v1` / 1.2.1**; selected authority: filesystem.
+The [contract manifest](agent-fs/v1.2.1/contract.json) declares its bootstrap and
 modular operational, Issue and alignment docs.
 The [published 1.0.0 contract](agent-fs/v1/contract.json) remains byte-preserved.
 The [1.1.0 contract](agent-fs/v1.1.0/contract.json) is also byte-preserved.
-This public repository explicitly migrated to 1.2.0 under its publication
-Issue; new customer installations also select 1.2.0. An updated package does
+The [1.2.0 contract](agent-fs/v1.2.0/contract.json) remains byte-preserved too.
+This public repository explicitly migrated to 1.2.1 under its promotion
+Issue; new customer installations also select 1.2.1. An updated package does
 not rewrite an existing customer's accepted instructions. Required authored
 Issue content and optional shared summaries are 1.2.0's workflow changes.
+The 1.2.1 patch corrects a modular version label and clarifies distinct projection
+statuses and unchecked acceptance. No new lifecycle or publication operation.
 
 The same identify → explicit Issue → preserve work → exact scope → verify →
 commit → close/handoff discipline is used internally. This consumer contract

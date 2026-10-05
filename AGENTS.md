@@ -1,6 +1,6 @@
 # Aware Agent Bootstrap Contract
 
-Contract: `aware.agent.fs.v1` **1.2.0**. Authority: **filesystem**.
+Contract: `aware.agent.fs.v1` **1.2.1**. Authority: **filesystem**.
 This is the bootstrap for agents working in this repository. Read it completely.
 Operational detail is in [the modular contract](docs/agents/README.md).
 Read only the modules relevant to the task, not a whole development doctrine.

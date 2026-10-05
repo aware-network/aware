@@ -92,7 +92,11 @@ Use narrative updates for actual progress or clarified customer direction:
 ## Implement, verify, publish
 
 Perform only the approved source changes. Run the real checks; do not turn the
-example below into a fabricated test pass. Record their result:
+example below into a fabricated test pass. Capture the actual test toolchain
+and version in the execution running it. For Python tasks, record the selected
+test executable and `sys.version`, then use that executable for the tests;
+the Aware installation interpreter does not prove the task interpreter.
+See [evaluation guidance](../evaluations/README.md). Record the real result:
 
 ```sh
 "$aware_cmd" issue append-update --repository-root "$customer_repo" \
@@ -132,6 +136,12 @@ SDK JSON remains the default. Summaries preserve `operator_ref`,
 `transaction_mode`, `reference_update`, actual receipts and operation-specific
 index evidence. A summary observation exposes the same digest as `source.digest`;
 the `issue_digest` helper above deliberately uses the default full JSON shape.
+
+`issue_day_index:pending` and `feed:unavailable` describe other documentary
+projections, not Git-index reconciliation. An Issue read projection is not a
+current Git status observation. Retain those statuses separately. There is no
+operation to check acceptance boxes in this profile; passed verification and
+closed lifecycle do not change them. Do not hand-check Issue Markdown.
 
 Extract the **actual** `publication_receipt_ref` from that apply result. Use it
 below, not a placeholder or a guessed hash:
