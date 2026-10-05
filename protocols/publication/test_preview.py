@@ -49,6 +49,11 @@ class PreviewTests(unittest.TestCase):
                 self.assertFalse(any(part.endswith("direct_url.json") for part in wheel.namelist()))
 
     def test_publication_receipt_matches_outputs_and_generator(self):
+        self.assertEqual(
+            (ROOT / "README.md").read_bytes(),
+            (ROOT / "protocols/publication/README.md.in").read_bytes(),
+            "README template drift would revert the selected consumer instructions",
+        )
         receipt = json.loads((ROOT / "protocols/publication/receipt.json").read_text())
         self.assertEqual(len(receipt["outputs"]), 106)
         for name, record in receipt["outputs"].items():

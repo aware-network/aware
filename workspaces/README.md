@@ -29,7 +29,8 @@ are evidence for old immutable artifacts, not a second active source rail.
 
 ## Source identity and installation
 
-Relocation preserves the accepted runtime, SDK, provider, CLI and legal bytes.
+The original relocation preserved the then-accepted runtime, SDK, provider, CLI
+and legal bytes. Later owner adoption is separately versioned and evidenced.
 The original [Goal capsule manifest](../protocols/publication/goal-source-capsule/manifest.json)
 retains its historical archive coordinates; its `source_path` values now point
 directly into this tree. Three build inputs are mapped into `consumer_build` by
@@ -39,9 +40,14 @@ their original pinned owner coordinates and curated-facade qualifications.
 Package README provenance links have been corrected for this layout only.
 
 Install using [the pinned installer](../protocols/agent/install.py), not an
-editable workspace or `PYTHONPATH`. Current customer version is **0.1.0a3**;
-its archive, wheels and 22-package dependency closure are unchanged by this
-source reorganization. Goal remains a separate qualified-input read-only preview.
+editable workspace or `PYTHONPATH`. The selected candidate is **0.1.0a4**, with
+22 reachable packages; its [adoption proof](../protocols/agent/REPOSITORY-A4-VERIFICATION.md)
+binds the shared publication-owner repair and five changed wheel versions.
+The other 17 wheels and immutable a3 artifact remain unchanged. This is local
+selection, not evidence of public delivery; see the
+[publication readiness record](../protocols/publication/A4-PUBLICATION-ALIGNMENT.md).
+The Repository SDK still owns preparation only: full publication-SDK unification
+is not claimed. Goal remains a separate qualified-input read-only preview.
 
 ## Maintain and build
 

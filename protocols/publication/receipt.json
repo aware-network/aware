@@ -9,8 +9,8 @@
   "license": "Apache-2.0 for Aware-authored content; upstream terms retained",
   "outputs": {
     "README.md": {
-      "bytes": 6573,
-      "sha256": "f652f85a018771e77a02d0aabcbc82ab99efdd13fdf6dc0c60c0fa5dc75a793e"
+      "bytes": 6871,
+      "sha256": "4011fc7ed3f9b9becfede64471891245071a8a7ddf8d893becbd236ebc7417ef"
     },
     "protocols/distributions/aware-goal-fs-preview-linux_x86_64-py312.tar.gz": {
       "bytes": 1185781,
