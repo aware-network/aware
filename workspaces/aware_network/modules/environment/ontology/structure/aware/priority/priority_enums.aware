@@ -1,7 +1,0 @@
-enum PriorityLevel {
-    critical
-    high
-    low
-    medium
-    urgent
-}
