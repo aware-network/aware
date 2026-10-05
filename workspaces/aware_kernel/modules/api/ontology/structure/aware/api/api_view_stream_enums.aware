@@ -1,5 +1,0 @@
-enum ApiViewStreamMode {
-    snapshot
-    snapshot_delta
-    live
-}
