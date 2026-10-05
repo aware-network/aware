@@ -1,3 +1,0 @@
-projection NetworkNodeConfig {
-    root network.NetworkNodeConfig
-}

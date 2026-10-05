@@ -1,3 +1,0 @@
-graph meta_graph_default on aware_meta {
-    root default
-}
