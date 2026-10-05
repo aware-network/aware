@@ -1,3 +1,0 @@
-graph wallet_capital_default on aware_economy {
-    root now
-}

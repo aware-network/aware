@@ -1,6 +1,0 @@
-enum SmartContractPermitStatus {
-    active
-    expired
-    paused
-    revoked
-}

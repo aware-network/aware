@@ -1,4 +1,0 @@
-enum EscrowStatus {
-    completed
-    locked
-}

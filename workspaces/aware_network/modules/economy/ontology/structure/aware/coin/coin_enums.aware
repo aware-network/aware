@@ -1,5 +1,0 @@
-enum CoinType {
-    crypto
-    fiat
-    token
-}

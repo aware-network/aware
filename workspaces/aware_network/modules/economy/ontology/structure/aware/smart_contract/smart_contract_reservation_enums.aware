@@ -1,7 +1,0 @@
-enum ReservationStatus {
-    cancelled
-    executed
-    expired
-    pending
-    settled
-}

@@ -1,5 +1,0 @@
-enum PriceReservationStatus {
-    cancelled
-    reserved
-    settled
-}

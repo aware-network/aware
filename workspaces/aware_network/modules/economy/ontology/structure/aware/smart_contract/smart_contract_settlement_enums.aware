@@ -1,4 +1,0 @@
-enum SmartContractSettlementStatus {
-    prepared
-    settled
-}

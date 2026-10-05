@@ -1,6 +1,0 @@
-enum TransactionIntentStatus {
-    canceled
-    confirmed
-    created
-    pending
-}
