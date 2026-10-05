@@ -33,16 +33,19 @@
    session or service admission is selected for this publication.
 
 ## Acceptance Checklist
-- [ ] Exact reviewed outer/payload/source digests preserved and source inspectable.
-- [ ] Fresh offline installation with development checkout unavailable.
-- [ ] Installed CLI demonstrates discovery, eligibility, direction and currentness
+- [x] Exact reviewed outer/payload/source digests preserved and source inspectable.
+- [x] Fresh offline installation with development checkout unavailable.
+- [x] Installed CLI demonstrates discovery, eligibility, direction and currentness
   on committed synthetic input without changing customer/repository state.
-- [ ] Public boundaries exclude customer creation/import, effectful writers,
+- [x] Public boundaries exclude customer creation/import, effectful writers,
   service/API, ontology/ORM and complete-workflow claims.
-- [ ] License/source/notice attachments accompany the public distribution.
-- [ ] Focused publication proofs and bounded content review pass.
+- [x] License/source/notice attachments accompany the public distribution.
+- [x] Focused publication proofs and bounded content review pass.
 - [ ] Selected CLI dry-run/apply publication and non-force push to the explicitly
   authorized `aware-network/aware/main`, with public bytes independently fetched.
 
 ## Updates (append-only)
 - 2026-10-05T00:26:07Z — Opened the issue via `aware-cli issue open`. Initial lifecycle state is `In Progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- 2026-10-05 — Implementation `1c6f557ef18b1019471500e8626bf9ca8fd7d779` published the root README/exporter, `protocols` consumer/source/distribution files and the exact Issue/day-index/feed paths through selected `aware-cli` dry-run/apply. No raw Git lifecycle mutation. Compatibility authority remains selected; the shared development tree was not modified. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- 2026-10-05 — Sample-only correction `f43e16a2ff06c66cb9900d0fc05f78f484ec1f89` committed `protocols/examples/read-only/aware.protocol.toml` and its README. Real admission had refused the missing native-profile Issue authority binding; this supplies the required binding without adding an Issue writer. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- 2026-10-05 — Ten publication tests pass. Fresh corrected-sandbox offline installation passes. Committed sample replay runs all four installed operations: eligible/current, repository unchanged. Exact payload remains `02dfda3a…5456f1`; exact source-attached envelope remains `10b12638…29c21`. Scope is explicitly public read-only preview, not complete self-serve collaboration; supported authoring remains a Goal-owner follow-up. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

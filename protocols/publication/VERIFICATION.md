@@ -38,10 +38,42 @@ byte/content review before this OSS cut.
   in the `rpds` SBOM is not an Aware-private path and is preserved.
 
 The sample is generated through the installed neutral Goal codec and committed
-as explicitly synthetic input. Its read-only replay is checked separately after
-the governed implementation commit; it is not customer Goal creation/import.
+as explicitly synthetic input. Its read-only replay passed against committed
+revision `f43e16a2ff06c66cb9900d0fc05f78f484ec1f89`, with networking disabled,
+the development checkout hidden and the environment cleared: all four command
+forms succeeded, eligibility was `eligible`, currentness was `current`, and
+HEAD, index hash, worktree status and Goal bytes were unchanged. This is not
+customer Goal creation/import.
 Any subsequent replay must use the sample's committed revision rather than
 manually rewriting Goal authority.
+
+Exact replay output hashes (not a substitute for rerunning the operations):
+
+| Output | SHA-256 |
+| --- | --- |
+| Discovery request | `4f3d654e63bbc260e1772b1c441b2c98c3f04233d89adda5fef12dca8c04fc8d` |
+| Eligibility | `c537fb0721798bf2db39865908f4a084eda31e36d4a71da9fdbe86aea577f172` |
+| Direction | `7266eaeb84a08b563cfc5681c87bba238baf6f2db0f99311f2e9c5199f5a93f7` |
+| Currentness | `01708aeb4497366b39232fa2a28eac70dde7ca877e17a9b651b1d6294220680d` |
+
+The first installation diagnostic failed because its sandbox accidentally made
+`/dev/null` unwritable after package installation. The successful result above
+used a **fresh target** and a corrected device mount; no payload byte changed.
+Initial sample admission correctly refused a missing required Issue authority
+binding. The sample manifest was corrected through the governed commit; the
+installed admission/evaluation logic was unchanged.
+
+## Public preparation decision
+
+Luis explicitly authorized protocols-first public Git publication on
+2026-10-05. The selected public scope is this **read-only preview with synthetic
+demo and already-qualified-input consumption**, not the formerly held claim of
+a self-serve complete collaboration product. The public source coordinate is
+this repository's attached/extracted capsule. Previously reviewed C-R/C-S
+notice bytes accompany the exact archive; the benchmark fixture is absent in
+this candidate. This advances the explicit, bounded public audience decision
+without asserting a new rights opinion or an unimplemented customer authoring
+capability. Filesystem-only is the delivered authority mode.
 
 Replay publication checks:
 
