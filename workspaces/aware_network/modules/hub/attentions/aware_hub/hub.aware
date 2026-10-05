@@ -1,8 +1,0 @@
-layout discovery {
-    section discovery {
-        title "Hub Discovery"
-        order 0
-        flex 1.0
-        visible true
-    }
-}
