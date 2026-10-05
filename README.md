@@ -76,7 +76,7 @@ Goal or grant an agent permission to work.
 - [Agent consumption contract](protocols/AGENTS.md)
 - [Operational model and version mapping](protocols/docs/model.md)
 - [Supported capabilities and limits](protocols/docs/capabilities.md)
-- [Inspectable source and acquisition/build inputs](protocols/source/README.md)
+- [Neutral source workspaces and acquisition/build inputs](workspaces/README.md)
 - [Exact distribution and publication receipt](protocols/publication/receipt.json)
 
 The preview has 13 payload distributions: seven Aware neutral packages and six
@@ -107,10 +107,13 @@ Report reproducible installation and usage findings through
 [GitHub Issues](https://github.com/aware-network/aware/issues), without secrets
 or private customer records.
 
-This repository publishes consumer protocols, tooling, docs and pinned source/
-distribution evidence—not the development monorepo or internal workspace runtime.
-Old Kernel/Network snapshots and `aware.repo.toml` are removed from the current
-tree; Git history remains unchanged. The repository itself uses the consumer
+`protocols/` owns consumer profiles, workflow contracts, installation, evaluations
+and distribution evidence. `workspaces/` contains only the reviewed neutral
+source required by those products, organized by domain ownership—not the full
+development monorepo, generated ontology/API outputs or service implementations.
+See the [exact source allowlist](protocols/publication/source-layout.json).
+Old Kernel/Network snapshots and `aware.repo.toml` remain retired; Git history
+is unchanged. The repository itself uses the consumer
 Issue profile in `aware.protocol.toml`, not an internal RepositoryRevision manifest.
 Agents contributing here follow the same [versioned bootstrap](AGENTS.md) and
 [modular procedures](docs/agents/README.md) that customer setup installs.

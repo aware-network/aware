@@ -12,6 +12,14 @@ from pip._vendor.packaging.requirements import Requirement
 from pip._vendor.packaging.utils import canonicalize_name
 
 ROOT = Path(__file__).resolve().parent
+LAYOUT = json.loads((ROOT.parents[1] / "protocols/publication/source-layout.json").read_bytes())
+MOVES = {m["previous_path"]: m["path"] for m in LAYOUT["moves"]}
+
+
+def public_source(previous):
+    return ROOT.parents[1] / MOVES["protocols/agent/" + previous]
+
+
 SPEC = importlib.util.spec_from_file_location("prior_install", ROOT.parent / "install.py")
 VERIFIER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(VERIFIER)
@@ -36,7 +44,7 @@ class BundleTests(unittest.TestCase):
         self.assertEqual(self.release["root_requirement"], "aware-agent-cli==" + self.release["version"])
         for record in self.release["wheels"]:
             self.assertEqual(hashlib.sha256(self.files["wheelhouse/" + record["filename"]]).hexdigest(), record["sha256"])
-        self.assertEqual(hashlib.sha256((ROOT / "build_bundle.py").read_bytes()).hexdigest(), self.release["builder_sha256"])
+        self.assertEqual(hashlib.sha256((ROOT.parents[1] / "protocols/publication/builders/agent-0.1.0a3.py").read_bytes()).hexdigest(), self.release["builder_sha256"])
         provenance = json.loads(self.files["source-provenance.json"])
         self.assertEqual(len(provenance["files"]), 33)
         self.assertEqual(sum(r["disposition"] == "curated export facade" for r in provenance["files"]), 3)
@@ -118,11 +126,11 @@ class BundleTests(unittest.TestCase):
     def test_preparation_sources_and_wheels_match_without_new_domain_engine(self):
         provenance = json.loads(self.files["source-provenance.json"])
         for path, expected in provenance["public_authored_preparation"].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected)
-            self.assertEqual((ROOT / path).read_bytes(), self.files[path])
+            self.assertEqual(hashlib.sha256(public_source(path).read_bytes()).hexdigest(), expected)
+            self.assertEqual(public_source(path).read_bytes(), self.files[path])
         for name in ["aware-repository-sdk", "aware-repository-fs-adapter"]:
             module = name.replace("-", "_")
-            source = (ROOT / "source" / module / module / "__init__.py").read_bytes()
+            source = public_source("source/" + module + "/" + module + "/__init__.py").read_bytes()
             with zipfile.ZipFile(io.BytesIO(self.wheels[name][1])) as archive:
                 self.assertEqual(source, archive.read(module + "/__init__.py"))
         self.assertEqual(self.release["preparation_operation"], "repository_sdk.prepare_repository")

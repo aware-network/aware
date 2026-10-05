@@ -59,10 +59,10 @@ class PreviewTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(generator).hexdigest(), receipt["generator_sha256"])
 
     def test_source_capsule_is_exact_public_source(self):
-        manifest = json.loads((ROOT / "protocols/source/manifest.json").read_text())
+        manifest = json.loads((ROOT / "protocols/publication/goal-source-capsule/manifest.json").read_text())
         self.assertEqual(len(manifest["aware_wheel_source"]), 70)
         for record in manifest["aware_wheel_source"]:
-            path = ROOT / "protocols/source/source/aware" / record["source_path"]
+            path = ROOT / record["source_path"]
             self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), record["sha256"])
 
     def test_digest_tampering_refused(self):

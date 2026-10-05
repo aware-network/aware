@@ -95,6 +95,10 @@ participant, bootstrap/grammar and generated interfaces are excluded rather than
 silently emulated. [Source dispositions](source-provenance.json) pin the selected
 owner files; business implementation bytes are unchanged. No checkout imports,
 editable dependencies or alternate domain engines are installed.
+The inspectable source now lives in [neutral workspaces](../../workspaces/README.md),
+not under this protocol directory. The accepted a3 artifact and source hashes
+remain unchanged; its historical builder is retained as provenance separately
+from the active workspace-based builder.
 
 Local tooling checks **declared** ownership, lifecycle, fresh Issue bytes and
 scope. It is not authenticated identity, a hostile-process sandbox, automatic

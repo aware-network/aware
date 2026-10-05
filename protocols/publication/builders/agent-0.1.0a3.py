@@ -8,7 +8,6 @@ import hashlib
 import importlib.util
 import io
 import json
-import os
 from pathlib import Path
 import subprocess
 import tarfile
@@ -16,10 +15,6 @@ import tempfile
 import tomllib
 import urllib.request
 import zipfile
-import sys
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "publication"))
-from source_layout import agent_project
 
 PIN = "728831f6636a611a8baac61dbc258ed563a0e466"
 BASE = "workspaces/aware_coordination/modules/workflow/"
@@ -87,23 +82,15 @@ def curate_init(raw: bytes, module: str) -> bytes:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source-repository", type=Path, help="Pinned owner repository; used only with explicit --refresh-owner-sources.")
-    parser.add_argument("--refresh-owner-sources", action="store_true", help="Issue-governed regeneration of the six original owner projections; never an implicit consumer build step.")
+    parser.add_argument("--source-repository", type=Path, required=True)
     parser.add_argument("--registry-wheelhouse", type=Path, required=True)
     args = parser.parse_args()
-    if args.refresh_owner_sources and args.source_repository is None:
-        parser.error("--refresh-owner-sources requires --source-repository")
-    if args.source_repository is not None and not args.refresh_owner_sources:
-        parser.error("--source-repository requires explicit --refresh-owner-sources")
-    repo = args.source_repository.resolve() if args.refresh_owner_sources else None
+    repo = args.source_repository.resolve()
     root = Path(__file__).resolve().parent
     public = root.parents[1]
-    consumer_version = tomllib.loads((agent_project("aware-agent-cli", public) / "pyproject.toml").read_text())["project"]["version"]
-    output = root / "distribution"
-    archive = output / ("aware-agent-fs-" + consumer_version + "-linux_x86_64-py312.tar.gz")
-    if archive.exists():
-        raise ValueError("immutable_candidate_exists: bump the public client version before building")
+    consumer_version = tomllib.loads((root / "source/aware_agent_cli/pyproject.toml").read_text())["project"]["version"]
     subprocess.run(["python3.12", "-B", str(public / "protocols/publication/render_agent_contract.py")], check=True)
+    output = root / "distribution"
     output.mkdir(exist_ok=True)
     working = Path(tempfile.mkdtemp(prefix="aware-agent-build-"))
     wheelhouse = working / "aware-agent-fs-linux_x86_64-py312" / "wheelhouse"
@@ -117,41 +104,44 @@ def main() -> None:
     for name, data in old_payload.items():
         if name.startswith("wheelhouse/") and name.endswith(".whl") and not name.startswith("wheelhouse/aware_goal_"):
             (wheelhouse / Path(name).name).write_bytes(data)
-    license_bytes = (public / "LICENSE").read_bytes()
-    provenance = json.loads((root / "source-provenance.json").read_bytes())["files"]
-    if args.refresh_owner_sources:
-        provenance = []
-        for name, (directory, module, version, selected, dependencies) in PACKAGES.items():
-            target = agent_project(name, public)
-            (target / module).mkdir(parents=True, exist_ok=True)
-            if selected is None:
-                listing = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", PIN, "--", directory + "/" + module], cwd=repo, text=True).splitlines()
-                selected = [path.removeprefix(directory + "/" + module + "/") for path in listing if path.endswith((".py", ".typed"))]
-            for relative in selected:
-                source_path = directory + "/" + module + "/" + relative
-                original = source(repo, source_path)
-                data = curate_init(original, module) if relative == "__init__.py" and module in {"aware_issue_sdk", "aware_issue_runtime", "aware_workspace_operator"} else original
-                destination = target / module / relative
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                destination.write_bytes(data)
-                provenance.append({"package": name, "source_path": source_path,
-                                   "source_sha256": digest(original), "shipped_sha256": digest(data),
-                                   "disposition": "curated export facade" if data != original else "byte-identical owner implementation"})
-            (target / "LICENSE").write_bytes(license_bytes)
-            (target / "NOTICE").write_text(f"{name}\nCopyright 2026 Luis Lechuga Ruiz\nAware-authored work is Apache-2.0.\nNeutral consumer packaging projection of the pinned owner; no domain decision rewrite.\n")
-            provenance_link = Path(os.path.relpath(root / "source-provenance.json", target)).as_posix()
-            (target / "README.md").write_text(f"# {name}\n\nSource-derived neutral consumer projection, version {version}.\nSource revision: `{PIN}`.\nOnly the published filesystem operation surface is supported.\nOriginal source coordinates and byte dispositions are in [the retained provenance]({provenance_link}).\n")
-            metadata = (f'[project]\nname = "{name}"\nversion = "{version}"\nrequires-python = ">=3.12"\n'
-                        'license = "Apache-2.0"\nlicense-files = ["LICENSE", "NOTICE"]\n'
-                        f'dependencies = {json.dumps(dependencies)}\n'
-                        '[build-system]\nrequires = ["hatchling>=1.27.0"]\nbuild-backend = "hatchling.build"\n'
-                        f'[tool.hatch.build.targets.wheel]\npackages = ["{module}"]\n')
-            if name == "aware-issue-cli":
-                metadata += '[project.scripts]\naware-issue-cli = "aware_issue_cli.main:main"\n'
-            (target / "pyproject.toml").write_text(metadata)
-    agent = agent_project("aware-agent-cli", public)
+    license_bytes = source(repo, "LICENSE")
+    provenance = []
+    for name, (directory, module, version, selected, dependencies) in PACKAGES.items():
+        target = root / "source" / name.replace("-", "_")
+        (target / module).mkdir(parents=True, exist_ok=True)
+        if selected is None:
+            listing = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", PIN, "--", directory + "/" + module], cwd=repo, text=True).splitlines()
+            selected = [path.removeprefix(directory + "/" + module + "/") for path in listing if path.endswith((".py", ".typed"))]
+        for relative in selected:
+            source_path = directory + "/" + module + "/" + relative
+            original = source(repo, source_path)
+            data = curate_init(original, module) if relative == "__init__.py" and module in {"aware_issue_sdk", "aware_issue_runtime", "aware_workspace_operator"} else original
+            destination = target / module / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(data)
+            provenance.append({"package": name, "source_path": source_path,
+                               "source_sha256": digest(original), "shipped_sha256": digest(data),
+                               "disposition": "curated export facade" if data != original else "byte-identical owner implementation"})
+        (target / "LICENSE").write_bytes(license_bytes)
+        (target / "NOTICE").write_text(f"{name}\nCopyright 2026 Luis Lechuga Ruiz\nAware-authored work is Apache-2.0.\nNeutral consumer packaging projection of the pinned owner; no domain decision rewrite.\n")
+        (target / "README.md").write_text(f"# {name}\n\nSource-derived neutral consumer projection, version {version}.\nSource revision: `{PIN}`.\nOnly the published filesystem operation surface is supported.\nOriginal source coordinates and byte dispositions are in `../../source-provenance.json`.\n")
+        metadata = (f'[project]\nname = "{name}"\nversion = "{version}"\nrequires-python = ">=3.12"\n'
+                    'license = "Apache-2.0"\nlicense-files = ["LICENSE", "NOTICE"]\n'
+                    f'dependencies = {json.dumps(dependencies)}\n'
+                    '[build-system]\nrequires = ["hatchling>=1.27.0"]\nbuild-backend = "hatchling.build"\n'
+                    f'[tool.hatch.build.targets.wheel]\npackages = ["{module}"]\n')
+        if name == "aware-issue-cli":
+            metadata += '[project.scripts]\naware-issue-cli = "aware_issue_cli.main:main"\n'
+        (target / "pyproject.toml").write_text(metadata)
+    agent = root / "source/aware_agent_cli"
+    (agent / "LICENSE").write_bytes(license_bytes)
+    (agent / "NOTICE").write_text("Aware agent CLI\nCopyright 2026 Luis Lechuga Ruiz\nApache-2.0. Workflow composition only; existing domain owners retain decisions.\n")
+    for name in PREPARATION_PACKAGES:
+        package = root / "source" / name.replace("-", "_")
+        (package / "LICENSE").write_bytes(license_bytes)
+        (package / "NOTICE").write_text(name + "\nCopyright 2026 Luis Lechuga Ruiz\nApache-2.0. Neutral filesystem preparation only; existing Issue and publication owners remain unchanged.\n")
     for name in [*PACKAGES, *PREPARATION_PACKAGES, "aware-agent-cli"]:
-        subprocess.run(["uv", "build", "--wheel", "--no-sources", "--out-dir", str(wheelhouse), str(agent_project(name, public))], check=True)
+        subprocess.run(["uv", "build", "--wheel", "--no-sources", "--out-dir", str(wheelhouse), str(root / "source" / name.replace("-", "_"))], check=True)
     registry_evidence = []
     for name, version in REGISTRY.items():
         paths = sorted(args.registry_wheelhouse.glob(name + "-" + version + "-*.whl"))
@@ -194,39 +184,20 @@ def main() -> None:
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(path.read_bytes())
     (bundle / "notices/CONSUMER-NOTICES.md").write_bytes((root / "NOTICES.md").read_bytes())
-    for record in provenance:
-        name = record["package"]
-        module = name.replace("-", "_")
-        relative = record["source_path"].split("/" + module + "/", 1)[1]
-        path = agent_project(name, public) / module / relative
-        current_digest = digest(path.read_bytes())
-        if current_digest != record["shipped_sha256"]:
-            record["previous_shipped_sha256"] = record["shipped_sha256"]
-            record["disposition"] = "explicit public workspace amendment; requires candidate review"
-        record["shipped_sha256"] = current_digest
-        record["public_source_path"] = path.relative_to(public).as_posix()
     provenance_document = {"source_revision": PIN, "files": provenance, "registry_acquisitions": registry_evidence,
-                           "public_workspace_revision": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=public, text=True).strip(),
-                           "packaging_change": "Build from reviewed public neutral workspace inputs; original owner revision is provenance, not an implicit source substitution. Current bytes are recorded separately.",
-                           "consumer_versions": {name: tomllib.loads((agent_project(name, public) / "pyproject.toml").read_text())["project"]["version"] for name in PACKAGES}}
-    provenance_document["public_workspace_inputs"] = {
-        path.relative_to(public).as_posix(): digest(path.read_bytes())
-        for name in [*PACKAGES, *PREPARATION_PACKAGES, "aware-agent-cli"]
-        for path in agent_project(name, public).rglob("*")
-        if path.is_file() and "__pycache__" not in path.parts}
+                           "packaging_change": "Neutral export/dependency projection; three curated __init__ facades; business/owner implementation bytes unchanged.",
+                           "consumer_versions": {name: record[2] for name, record in PACKAGES.items()}}
     provenance_document["public_authored_preparation"] = {
-        ("source/" + name.replace("-", "_") + "/" + path.relative_to(agent_project(name, public)).as_posix()): digest(path.read_bytes())
+        path.relative_to(root).as_posix(): digest(path.read_bytes())
         for name in PREPARATION_PACKAGES
-        for path in (agent_project(name, public)).rglob("*")
+        for path in (root / "source" / name.replace("-", "_")).rglob("*")
         if path.is_file() and "__pycache__" not in path.parts}
     (root / "source-provenance.json").write_text(json.dumps(provenance_document, indent=2, sort_keys=True) + "\n")
-    for name in [*PACKAGES, *PREPARATION_PACKAGES, "aware-agent-cli"]:
-        project = agent_project(name, public)
-        for path in project.rglob("*"):
-            if path.is_file() and "__pycache__" not in path.parts:
-                destination = bundle / "source" / name.replace("-", "_") / path.relative_to(project)
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                destination.write_bytes(path.read_bytes())
+    for path in (root / "source").rglob("*"):
+        if path.is_file() and "__pycache__" not in path.parts:
+            destination = bundle / "source" / path.relative_to(root / "source")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(path.read_bytes())
     (bundle / "source-provenance.json").write_bytes((root / "source-provenance.json").read_bytes())
     wheels = [{"filename": path.name, "sha256": digest(path.read_bytes())} for path in sorted(wheelhouse.glob("*.whl"))]
     if len(wheels) != 22:

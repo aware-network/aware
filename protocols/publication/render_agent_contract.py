@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import shlex
 import tomllib
+from source_layout import agent_project
 
 
 def main():
@@ -15,7 +16,8 @@ def main():
     parser.add_argument("--seed-contract-version", action="store_true", help="Issue-approved one-time copy of the old immutable contract into the new authored coordinate; refuses overwrite.")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
-    selected = tomllib.loads((root / "protocols/agent/source/aware_agent_cli/pyproject.toml").read_text())["tool"]["aware"]["agent-contract"]["source"]
+    project = agent_project("aware-agent-cli", root)
+    selected = tomllib.loads((project / "pyproject.toml").read_text())["tool"]["aware"]["agent-contract"]["source"]
     source = root / selected
     if not source.is_relative_to(root / "protocols/contracts"):
         raise ValueError("contract_source_outside_authored_catalog")
@@ -30,7 +32,7 @@ def main():
             destination.write_bytes((previous / relative).read_bytes())
         print(json.dumps({"seeded": selected, "previous_preserved": True}))
         return
-    target = root / "protocols/agent/source/aware_agent_cli/aware_agent_cli/templates/agent-fs-v1"
+    target = project / "aware_agent_cli/templates/agent-fs-v1"
     metadata_bytes = (source / "contract.json").read_bytes()
     metadata = json.loads(metadata_bytes)
     target.mkdir(parents=True, exist_ok=True)
@@ -48,7 +50,7 @@ def main():
             text = data.decode().replace("{{AWARE_COMMAND_MARKDOWN}}", "<code>aware</code>").replace("{{AWARE_COMMAND_SHELL}}", shlex.quote("aware")).replace("{{DOCS_PREFIX}}", "docs")
             outputs[name] = text.encode()
         outputs[".aware/agent-protocol.md"] = templates["AGENTS.md"].decode().replace("{{AWARE_COMMAND_MARKDOWN}}", "<code>aware</code>").replace("{{AWARE_COMMAND_SHELL}}", shlex.quote("aware")).replace("{{DOCS_PREFIX}}", "../docs").encode()
-        tree = ast.parse((root / "protocols/agent/source/aware_agent_cli/aware_agent_cli/main.py").read_bytes())
+        tree = ast.parse((project / "aware_agent_cli/main.py").read_bytes())
         manifest = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "MANIFEST" for t in n.targets))
         outputs["aware.protocol.toml"] = manifest.encode()
         record = {"contract_ref": metadata["contract_ref"], "version": metadata["version"], "command": "aware",

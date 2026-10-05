@@ -75,7 +75,7 @@ Only provide cross-Goal hints for explicitly approved prerequisite sources.
 
 The archive includes the complete notice envelope and an exact source capsule.
 The same source capsule is extracted for inspection under
-[`protocols/source/`](../source/README.md). Aware source/build inputs are pinned
+[`workspaces/`](../../workspaces/README.md). Aware source/build inputs are pinned
 to `3bea9cc913644700be810398293bca899020c299`; this does not require that private
 development revision to be accessible because its selected bytes are attached
 and public here. The modified `jsonschema 4.26.0+aware.1` source recipe is in

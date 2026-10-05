@@ -21,6 +21,18 @@ and [public evaluation instructions](../../protocols/evaluations/README.md).
 New setups receive `aware.agent.fs.v1` / 1.1.0; this repository retains its
 accepted 1.0.0 bootstrap, not a silently upgraded installation.
 Filesystem authority only. No generated API, ontology/ORM, service, Experience
-or Goal writer capability is admitted. External customer acceptance is pending.
+or Goal writer capability is admitted.
+
+Client archive commit `5d9f4dfc07f6d2d5642665cb20d77dc2ba5b70fd` reports a3
+installation and explicit creation passed; v2 validation reproduced 7 artifacts,
+3 findings and 4 interactions. See the [bounded intake](../../protocols/evaluations/admissions/a3-onboarding-20261005.md).
+U/V/R, Issue commits and closeout remain unrun externally. No general customer
+workflow acceptance is inferred; the development checkout was visible to that client.
+
+`protocols/` owns workflow/delivery/evaluation; [neutral workspaces](../../workspaces/README.md)
+contain only reviewed consumer source, not restored internal outputs. The exact
+[allowlist](../../protocols/publication/source-layout.json) binds previous and
+current coordinates. Customer a3 bytes, package closure and accepted agent
+contract versions remain unchanged.
 Alignment is contextual documentation, never assignment or approval authority.
 Use an exact explicitly approved Issue for work; do not infer one from this page.

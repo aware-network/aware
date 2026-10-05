@@ -4,6 +4,11 @@ This repository owns public consumer protocols, neutral SDK/provider/CLI
 surfaces, versioned agent documentation and installable distribution evidence.
 It is not a development monorepo export or an ontology/service release.
 
+Workflow contracts, profiles, delivery and evaluation live in `protocols/`.
+Reviewed neutral domain/SDK/provider/CLI source lives in `workspaces/`; see its
+[source boundary and build procedure](workspaces/README.md). Do not restore
+retired internal exports or broaden dependencies without explicit review.
+
 Use the same issue-first workflow customers consume: read `AGENTS.md`, install
 the pinned tooling through `protocols/agent/install.py`, and use the installed
 `aware` command. Add its venv `bin` to PATH or retain its absolute path. This

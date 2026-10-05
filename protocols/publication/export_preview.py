@@ -7,6 +7,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+from source_layout import current_path
 
 BASE = "592fca9473b1e72b130c0d84a452de7523fa93bb"
 
@@ -27,7 +28,7 @@ def main() -> None:
     module.verified_archive(envelope["payload/aware-goal-native-fs-v2-linux_x86_64-py312.tar.gz"],
                             module.PAYLOAD_SHA256)
     outputs = {"protocols/distributions/" + module.ARCHIVE: data}
-    outputs.update({"protocols/source/" + name: content for name, content in source.items()})
+    outputs.update({current_path("protocols/source/" + name): content for name, content in source.items()})
     outputs["README.md"] = (root / "protocols/publication/README.md.in").read_bytes()
     for name, content in sorted(outputs.items()):
         path = root / name
@@ -45,7 +46,7 @@ def main() -> None:
         "payload_sha256": module.PAYLOAD_SHA256,
         "source_capsule_sha256": module.SOURCE_SHA256,
         "authority_mode": "filesystem",
-        "publication_kind": "Protocols-only consumer Git product; not a WorkspaceRevision or internal repository export",
+        "publication_kind": "Consumer protocols and allowlisted neutral workspace source; not a WorkspaceRevision or internal repository export",
         "generator": "protocols/publication/export_preview.py",
         "generator_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "license": "Apache-2.0 for Aware-authored content; upstream terms retained",
