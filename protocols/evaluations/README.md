@@ -64,6 +64,18 @@ execution. Before transfer, sanitize private paths to stable symbolic coordinate
 without dropping the version or the link between observation and test command.
 Missing historical evidence stays unknown; do not rewrite a frozen evaluation.
 
+## Optional evidence helpers
+
+Producer/evaluator [tooling v1](tooling/README.md) supports early exact command
+capture, deterministic separate U snapshots, null-safe private receipt
+presentation and metadata-only allowlisted export. It is a standard-library
+Linux helper outside the installed product, not a U recipe or an agent runner.
+Arrange capture before discovery; freeze before V; give R durable customer
+records, not prior transcripts. Raw freezes and command streams stay private.
+Export intentionally omits source/patch payloads; independently review any
+additional report text or artifacts. Helper output is not a complete v2 report,
+sanitization certificate or transfer authority. Existing v2 schemas are unchanged.
+
 ## Interpret Issue and publication evidence separately
 
 Issue `issue_day_index:pending` and `feed:unavailable` are not the Git index.
