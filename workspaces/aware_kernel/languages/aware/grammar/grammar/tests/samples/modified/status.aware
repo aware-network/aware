@@ -1,6 +1,0 @@
-/// Status enumeration
-enum Status {
-    active
-    inactive
-    pending
-}

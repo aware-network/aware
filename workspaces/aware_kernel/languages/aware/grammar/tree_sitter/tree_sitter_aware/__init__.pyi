@@ -1,3 +1,0 @@
-"""Tree-sitter language binding for the Aware grammar"""
-
-def language() -> object: ...

@@ -1,8 +1,0 @@
-/// Sample demonstrating list relationships without reverse attributes.
-class Employee {
-    name String
-}
-
-class Department {
-    employees Employee[]
-}
