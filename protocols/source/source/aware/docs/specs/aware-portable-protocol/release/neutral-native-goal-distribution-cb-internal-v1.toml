@@ -1,0 +1,95 @@
+schema = "aware.portable-protocol.client-distribution-source.v1"
+profile = "aware.collaboration.fs_v2"
+authority_mode = "filesystem"
+python_minor = "3.12"
+platform = "linux_x86_64"
+package_source_revision = "3bea9cc913644700be810398293bca899020c299"
+bundle_prefix = "aware-neutral-native-goal-readonly-fs-v2-cb-test"
+launchers = ["aware-goal-native"]
+package_lock_path = "workspaces/aware_coordination/uv.lock"
+package_lock_sha256 = "9690dc762053ecda68015f97400016c6437f62acbc8a18d2fc709d6e22cee4f3"
+consumer_lock_path = "docs/specs/aware-portable-protocol/release/neutral-native-goal-cb-consumer-lock-v1.toml"
+consumer_lock_sha256 = "22bf2db47412c45c03207fd9b8c5c6b795fd093f7747d09320f04a01eda78a74"
+
+[interfaces]
+native_goal = "aware-goal-native-cli==0.1.0"
+
+[[source_packages]]
+name = "aware-goal-native-cli"
+version = "0.1.0"
+path = "workspaces/aware_coordination/modules/workflow/sdks/goal/python/native_cli"
+hashes = ["db31fd7b0fa119523103051ad57c9c0e7060484c523f0569f29be8b2326adac2"]
+
+[[source_packages]]
+name = "aware-goal-native-fs-adapter"
+version = "0.1.0"
+path = "workspaces/aware_coordination/modules/workflow/sdks/goal/python/native_fs_adapter"
+hashes = ["27cab59c6ae8178814c1a55c9ed023b5e39e440322af6d006057dcf9fcee7927"]
+
+[[source_packages]]
+name = "aware-goal-operational-runtime"
+version = "0.1.0"
+path = "workspaces/aware_coordination/modules/workflow/libs/goal_operational_runtime"
+hashes = ["d64ce8896e8bdda0ae13addb5300fc9f0f7b5f8b8b835ca1a2f26a26a1aca78c"]
+
+[[source_packages]]
+name = "aware-goal-sdk"
+version = "0.3.0"
+path = "workspaces/aware_coordination/modules/workflow/sdks/goal/python/public"
+hashes = ["9e12a67684079d17260f1dbe3cafc77e6b64033d5d5ada8d9b904cabe4107864"]
+
+[[source_packages]]
+name = "aware-protocol-fs-adapter"
+version = "0.2.0"
+path = "workspaces/aware_kernel/modules/protocol/libs/fs_adapter/python"
+hashes = ["4b2757702e7943535cf6028d95593d6f7fb52ce94a243fe21f05ccee4b7aa1cc"]
+
+[[source_packages]]
+name = "aware-protocol-runtime"
+version = "0.1.0"
+path = "workspaces/aware_kernel/modules/protocol/libs/runtime/python"
+hashes = ["44233e002970e672171c83469105bb54da95272c2f12c54f108ce6cd17962650"]
+
+[[source_packages]]
+name = "aware-protocol-sdk"
+version = "0.1.0"
+path = "workspaces/aware_kernel/modules/protocol/sdks/protocol/python"
+hashes = ["11d5b364bc113369dbbc8bfb7e7a8f6fccc394a878243f017a51d11fc696b533"]
+
+[[source_derived_packages]]
+name = "jsonschema"
+version = "4.26.0+aware.1"
+hashes = ["167abf85d02a18ec191827e1641b7a58a11c4da477732d0576cdb4e6b6ccd5a2"]
+source_sha256 = "0c26707e2efad8aa1bfc5b7ce170f3fccc2e4918ff85989ba9ffa9facb2be326"
+recipe_revision = "232dbb4dd3aba6bcba4b554c4dab63ef6f31a243"
+recipe_path = "docs/specs/aware-portable-protocol/release/third_party/jsonschema_omit_benchmarks_v1.py"
+recipe_sha256 = "22e4cdd3a50e1ae4e35d75460f64deb63e596256498713193da02c7c17517141"
+constraints_path = "docs/specs/aware-portable-protocol/release/third_party/build-constraints-jsonschema-v1.txt"
+constraints_sha256 = "f5ec3a01df64088a17fea59482bc6f3a1756f0d87099cb4708c7cfc106457bba"
+report_path = "docs/specs/aware-portable-protocol/provenance/neutral-jsonschema-omission-wheel-v1.md"
+report_sha256 = "9996390b6dde1a0d5a699725c12f6259b1b669f42ab3626c1d00894d44c97df3"
+
+[[registry_packages]]
+name = "attrs"
+version = "26.1.0"
+hashes = ["c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309"]
+
+[[registry_packages]]
+name = "jsonschema-specifications"
+version = "2025.9.1"
+hashes = ["98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe"]
+
+[[registry_packages]]
+name = "referencing"
+version = "0.37.0"
+hashes = ["381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231"]
+
+[[registry_packages]]
+name = "rpds-py"
+version = "2026.6.3"
+hashes = ["ecabd69db66de867690f9797f2f8fa27ba501bbc24540cbdbdc649cd15888ba6"]
+
+[[registry_packages]]
+name = "typing-extensions"
+version = "4.15.0"
+hashes = ["f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"]
