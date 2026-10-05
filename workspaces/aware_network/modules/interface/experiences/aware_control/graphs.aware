@@ -1,3 +1,0 @@
-graph identity_admission_default on aware_control_identity {
-    root default
-}
