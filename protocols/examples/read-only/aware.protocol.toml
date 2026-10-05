@@ -20,7 +20,9 @@ path_template = "YYYY/MM/DD/goal-YYYY-MM-DD-<slug>.md"
 
 [records.issue]
 profile = "aware.issue.markdown.v1"
-role = "unavailable"
+role = "authority"
+root = "protocols/examples/read-only/issues"
+path_template = "YYYY/MM/DD/fb-YYYY-MM-DD-<slug>.md"
 
 [records.feed]
 profile = "aware.feed.projection.v1"

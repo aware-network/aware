@@ -6,6 +6,8 @@ import path. Its example bootstrap references are intentionally synthetic;
 they do not establish real actor actions or acceptance.
 
 The sample manifest is explicitly selected for this test input. Its Goal root
-is outside `docs/goals`; other record capabilities are unavailable. Commit the
+is outside `docs/goals`. The admitted native profile also requires an Issue
+authority root declaration; that empty binding does not expose an Issue writer
+or create an Issue. FEED, Specification and evidence capabilities are unavailable. Commit the
 provided sample by obtaining it from the public repository, not by rebuilding
 its Markdown manually. Keep observation receipts outside this directory.
