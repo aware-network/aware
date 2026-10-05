@@ -1,0 +1,35 @@
+{
+  "archive": "distribution/aware-agent-fs-0.1.0a4-linux_x86_64-py312.tar.gz",
+  "archive_sha256": "52109f772692071681570e59a161ced33ac6606ff2effdff4fa2094cd4c58cbe",
+  "builder_sha256": "0a7eacd4752dad4c1bac06c0e20ac6256283ed7b1aaeaff7e2a8e004a11119cb",
+  "contract": {
+    "ref": "aware.agent.fs.v1",
+    "version": "1.1.0"
+  },
+  "owner_files": [
+    {
+      "path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/commit.py",
+      "previous_sha256": "0fb542a158a604dc4a1de3780dbb63c4ecd72c6ec51a3fe0188311d55642e0f8",
+      "revision": "b4a686b189f65d820c0456eaf55e55e830458657",
+      "sha256": "d1de5e384fe8a97e9bbd7ae596f3498deac3beadfe29107963523c8d45740f79"
+    },
+    {
+      "path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/operation.py",
+      "previous_sha256": "71ea8b7ceef1d979507880bd8e001270e38a8c402aeb63ac4b9da491a58c21a7",
+      "revision": "b4a686b189f65d820c0456eaf55e55e830458657",
+      "sha256": "b321ceb34d4b6530b3d98d469b4a170bc5300a9e8791211de94e8f6cbf975ad1"
+    },
+    {
+      "path": "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/aware_issue_fs_adapter/provider.py",
+      "previous_sha256": "ae95032bf0ca397c90e7b47c5522e57888384d50d2882be146c93f264e2f0e6b",
+      "revision": "b4a686b189f65d820c0456eaf55e55e830458657",
+      "sha256": "d0adb81e85de1b4f5ec449e20ba278d74c585f6124355bd5c37b85e7e76b69e3"
+    }
+  ],
+  "release_sha256": "a3e57d5e430cbc37194b9a16a264961e07e17781493703e8fd4ca5b44415a6c0",
+  "source_publication_status": "local-commit-not-yet-pushed",
+  "source_repository": "https://github.com/aware-network/aware",
+  "source_revision": "cb8c93594783cfdd56f392b6e65aea0d9f07ced0",
+  "status": "a4-candidate-not-consumer-promotion",
+  "version": "0.1.0a4"
+}
