@@ -1,0 +1,52 @@
+# Issue: Map neutral SPEC capabilities, consumer profile and release gates
+
+- Slug: specification-consumer-protocol-plan-v1
+- Tag: fb/2026-10-05/specification-consumer-protocol-plan-v1
+- Status: In Progress
+- Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
+- Priority: P1
+- Goal: TBD
+- Captured: 2026-10-05
+- Recorder: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
+- Source: Customer-directed work through aware issue open
+
+## Ownership Scope
+- `docs/issues/2026/10/05/fb-2026-10-05-specification-consumer-protocol-plan-v1.md`
+- `protocols/specification/PLAN.md`
+- `protocols/specification/readiness.json`
+- `protocols/specification/test_readiness.py`
+
+
+
+
+## Problem
+1. Accepted neutral SPEC and Workflow source checkpoints are not public installed capabilities. Protocol must map actual owner operations, qualified-input limits and neutral dependencies without silently upgrading a6 or claiming persisted binding/publication guards.
+
+
+
+
+
+## Goal
+1. Prepare a pinned consumer capability/profile/release matrix and prospective neutral package inventory for SPEC, preserving existing owners and recording the exact remaining gates.
+
+
+
+
+
+## Acceptance Checklist
+- [ ] Map authored SDK operations and real CLI/provider entrances; keep source, shipped, unsupported and held claims separate.
+- [ ] Pin six neutral SPEC supplier manifests and inspect their prospective dependency edges; no Kernel development-lock count is a consumer closure claim.
+- [ ] Describe explicit manifest/setup and approved-iteration gaps, one-Issue cardinality and future publication guard owner; no services, APIs, ontology or copied evaluators.
+- [ ] Plan checks pass while a6 payload, consumer contract, external evaluation, SDK sources and Evaluation integration files remain unchanged. No build or push.
+
+
+
+
+
+## Verified-by
+- protocols/specification/PLAN.md — Pinned capability/profile proposal, six-package inventory, supported-input and installation gates; 136 distinct preparation/adjacent checks, 18 matched owner blobs; no installed capability claim.
+
+## Updates (append-only)
+- Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Prepared Protocol SPEC mapping, proposed existing fs_v1/specification_fs_v1 carriage and prospective six-package neutral inventory at pinned owner source 21f817f59255. 24 standalone preparation checks + 112 adjacent checks passed (42 helper, 16 v2, 35 publication/layout, 19 a6 accounting); all 18 committed owner blobs matched. Ruff check/format and diff checks passed. This is provenance/planning, not runtime or installed SPEC acceptance. Approved-iteration authoring/import, durable binding and publication guards remain unavailable; setup/admission/write governance and owner review remain pending. a6 payload/contract and parallel Evaluation/SDK files unchanged. No build, installation, promotion or push. (outcome: preparation_checks_passed) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
