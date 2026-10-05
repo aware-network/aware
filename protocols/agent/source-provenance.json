@@ -1,16 +1,17 @@
 {
   "consumer_versions": {
-    "aware-issue-cli": "0.6.0a1",
-    "aware-issue-fs-adapter": "0.6.0a1",
+    "aware-issue-cli": "0.6.0a3",
+    "aware-issue-fs-adapter": "0.6.0a3",
     "aware-issue-operational-runtime": "0.2.0+oss.1",
     "aware-issue-runtime": "0.2.0a1",
-    "aware-issue-sdk": "0.7.0a1",
-    "aware-workspace-operator": "0.4.0a1"
+    "aware-issue-sdk": "0.7.0a3",
+    "aware-workspace-operator": "0.4.0a2"
   },
   "files": [
     {
       "disposition": "curated export facade",
       "package": "aware-issue-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/__init__.py",
       "shipped_sha256": "b96d6598ee8075adadeecbf8a8155db571c0761e8bfdda61f19759d3c47521c4",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/__init__.py",
       "source_sha256": "bf442436d7e0bc4cde78cc85e642c4eef26435ca83eecf4272e4a6c5ee36cb27"
@@ -18,6 +19,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/contracts.py",
       "shipped_sha256": "df0de299da455687b52b399b5a00f7f1a2685f1f8726aa9efc899390b3559467",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/contracts.py",
       "source_sha256": "df0de299da455687b52b399b5a00f7f1a2685f1f8726aa9efc899390b3559467"
@@ -25,6 +27,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/parser.py",
       "shipped_sha256": "9165861c2428fc47b1b6a2529ee05d6895e870465b5cba9eec8cbde315a1f34b",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/parser.py",
       "source_sha256": "9165861c2428fc47b1b6a2529ee05d6895e870465b5cba9eec8cbde315a1f34b"
@@ -32,6 +35,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/source_import.py",
       "shipped_sha256": "82ad00d9e064d2dd92da09f6474b40aae8bd5d05fdbc2a4a8d251c5d6cbccb53",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/source_import.py",
       "source_sha256": "82ad00d9e064d2dd92da09f6474b40aae8bd5d05fdbc2a4a8d251c5d6cbccb53"
@@ -39,6 +43,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/development.py",
       "shipped_sha256": "794510d1f079aa9a438de48f9922e015a31bb1b5bb712c5d5f204ab5d2224bab",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/development.py",
       "source_sha256": "794510d1f079aa9a438de48f9922e015a31bb1b5bb712c5d5f204ab5d2224bab"
@@ -46,6 +51,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/first_person_activity.py",
       "shipped_sha256": "3ef9d5ff9fd04bdd0e6661c24675ee601cb6c972bb9c14166628caef491f25fb",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/first_person_activity.py",
       "source_sha256": "3ef9d5ff9fd04bdd0e6661c24675ee601cb6c972bb9c14166628caef491f25fb"
@@ -53,6 +59,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/pulse.py",
       "shipped_sha256": "b92f474da05a890081eb93941996cf760e273431e1ef36e430b9623e5b1f8035",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/pulse.py",
       "source_sha256": "b92f474da05a890081eb93941996cf760e273431e1ef36e430b9623e5b1f8035"
@@ -60,6 +67,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/py.typed",
       "shipped_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/py.typed",
       "source_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
@@ -67,6 +75,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-operational-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/__init__.py",
       "shipped_sha256": "53022754a2d782d65b87947b2dd9d4df2a7b035e2beb3e97067c4fe3a7a0e1c4",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/__init__.py",
       "source_sha256": "53022754a2d782d65b87947b2dd9d4df2a7b035e2beb3e97067c4fe3a7a0e1c4"
@@ -74,6 +83,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-operational-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/activity_observation.py",
       "shipped_sha256": "d6a3e5d30191123de9c70f8ecf8c8ee4159ca0cc7c898193c41e63d77256e92e",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/activity_observation.py",
       "source_sha256": "d6a3e5d30191123de9c70f8ecf8c8ee4159ca0cc7c898193c41e63d77256e92e"
@@ -81,6 +91,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-operational-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/activity_observation_codec.py",
       "shipped_sha256": "a48c2df701d50928491a070efbfe3744def2233988ad2b5efb556f609d6ef1a6",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/activity_observation_codec.py",
       "source_sha256": "a48c2df701d50928491a070efbfe3744def2233988ad2b5efb556f609d6ef1a6"
@@ -88,6 +99,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-operational-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/codec.py",
       "shipped_sha256": "cd3ed2ee1c1f253f1ec32e4ea546d131c71532a03ecf2c6dafa27a34becf2aae",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/codec.py",
       "source_sha256": "cd3ed2ee1c1f253f1ec32e4ea546d131c71532a03ecf2c6dafa27a34becf2aae"
@@ -95,6 +107,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-operational-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/contracts.py",
       "shipped_sha256": "8790bcf09a05cfce2c106f829208a0864f2c8289f885554946e657592f166560",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/contracts.py",
       "source_sha256": "8790bcf09a05cfce2c106f829208a0864f2c8289f885554946e657592f166560"
@@ -102,6 +115,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-operational-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/host.py",
       "shipped_sha256": "db80cf0e15e42874d885bb6e18863211d6005be6635f54358e9ab8efe6bcab52",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/host.py",
       "source_sha256": "db80cf0e15e42874d885bb6e18863211d6005be6635f54358e9ab8efe6bcab52"
@@ -109,6 +123,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-operational-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/identity.py",
       "shipped_sha256": "78b4b99f67bc49009e94af62de4d0a4e43c15bf9820856ef5fb5df98fdd547c8",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/identity.py",
       "source_sha256": "78b4b99f67bc49009e94af62de4d0a4e43c15bf9820856ef5fb5df98fdd547c8"
@@ -116,6 +131,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-operational-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/journal.py",
       "shipped_sha256": "6360a80107aaa7bd354e4cd6d5b4f0d67a1c79b0036e49e207bb5143c4bd40e4",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/journal.py",
       "source_sha256": "6360a80107aaa7bd354e4cd6d5b4f0d67a1c79b0036e49e207bb5143c4bd40e4"
@@ -123,6 +139,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-operational-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/persistence.py",
       "shipped_sha256": "d1cd7ab81c138633381204bd55865fd345ed9bbd82b11daec8aebf2d57449ee1",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/persistence.py",
       "source_sha256": "d1cd7ab81c138633381204bd55865fd345ed9bbd82b11daec8aebf2d57449ee1"
@@ -130,6 +147,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-operational-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/py.typed",
       "shipped_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/py.typed",
       "source_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
@@ -137,6 +155,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-operational-runtime",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/state_machine.py",
       "shipped_sha256": "64f30e27f758d4fc9ecdfbc0456ca8b56dab437e18ea9a0026e9faf88867a4fb",
       "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/state_machine.py",
       "source_sha256": "64f30e27f758d4fc9ecdfbc0456ca8b56dab437e18ea9a0026e9faf88867a4fb"
@@ -144,6 +163,7 @@
     {
       "disposition": "curated export facade",
       "package": "aware-issue-sdk",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/__init__.py",
       "shipped_sha256": "b1701d8faa2ba71fe07348f1b888ce4ac5c7d5d271799ae23b507ad532d19986",
       "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/__init__.py",
       "source_sha256": "2ea95604bf280b85e42f9912d4c837ea8f7b459c9890ac57b712a5475246d335"
@@ -152,6 +172,7 @@
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-sdk",
       "previous_shipped_sha256": "71ea8b7ceef1d979507880bd8e001270e38a8c402aeb63ac4b9da491a58c21a7",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/operation.py",
       "shipped_sha256": "a32eb38d85f1a6f0701ae1e7a7dd5c923dff840c6e2337e8ade30a3e7d018200",
       "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/operation.py",
       "source_revision": "c112eeb065f414f810e3d4d221e20bcb9df38487",
@@ -160,6 +181,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-sdk",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/local_files.py",
       "shipped_sha256": "c5c85185bcfdeb09890a3a3db06c78372eb1b69e958591c30f5e148c4d03617c",
       "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/local_files.py",
       "source_revision": "c112eeb065f414f810e3d4d221e20bcb9df38487",
@@ -168,6 +190,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-sdk",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/py.typed",
       "shipped_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
       "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/py.typed",
       "source_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
@@ -175,6 +198,7 @@
     {
       "disposition": "curated export facade",
       "package": "aware-workspace-operator",
+      "public_source_path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/__init__.py",
       "shipped_sha256": "9bf59946ba12218829e4256067cc70780614da4c5ceb923e7ea79542dcc98c43",
       "source_path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/__init__.py",
       "source_sha256": "59aaf65329d7a17594cae670d46c296e693a3cd7a8ab84ac29ebb0b053812a44"
@@ -183,6 +207,7 @@
       "disposition": "byte-identical accepted owner repair",
       "package": "aware-workspace-operator",
       "previous_shipped_sha256": "0fb542a158a604dc4a1de3780dbb63c4ecd72c6ec51a3fe0188311d55642e0f8",
+      "public_source_path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/commit.py",
       "shipped_sha256": "d1de5e384fe8a97e9bbd7ae596f3498deac3beadfe29107963523c8d45740f79",
       "source_path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/commit.py",
       "source_revision": "b4a686b189f65d820c0456eaf55e55e830458657",
@@ -191,6 +216,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-workspace-operator",
+      "public_source_path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/models.py",
       "shipped_sha256": "4d5fe1add82a04749ce43060cf8d4f33c357bfb61587639eb18407d22888451c",
       "source_path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/models.py",
       "source_sha256": "4d5fe1add82a04749ce43060cf8d4f33c357bfb61587639eb18407d22888451c"
@@ -198,6 +224,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-workspace-operator",
+      "public_source_path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/py.typed",
       "shipped_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
       "source_path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/py.typed",
       "source_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
@@ -205,6 +232,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-fs-adapter",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/aware_issue_fs_adapter/__init__.py",
       "shipped_sha256": "a32f5d6814c7465c82177c5036d5dd206c4c7163e2688c8a166c7b15d47582a4",
       "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/aware_issue_fs_adapter/__init__.py",
       "source_sha256": "a32f5d6814c7465c82177c5036d5dd206c4c7163e2688c8a166c7b15d47582a4"
@@ -213,6 +241,7 @@
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-fs-adapter",
       "previous_shipped_sha256": "ae95032bf0ca397c90e7b47c5522e57888384d50d2882be146c93f264e2f0e6b",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/aware_issue_fs_adapter/provider.py",
       "shipped_sha256": "421e72b29c5a37fb55d1ec2e9aa6d0e93ae0269ddd7c094eba7ba56939da63ab",
       "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/aware_issue_fs_adapter/provider.py",
       "source_revision": "c112eeb065f414f810e3d4d221e20bcb9df38487",
@@ -221,6 +250,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-fs-adapter",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/aware_issue_fs_adapter/py.typed",
       "shipped_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/aware_issue_fs_adapter/py.typed",
       "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -228,6 +258,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-cli",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/__init__.py",
       "shipped_sha256": "7e5922df852df06b9934983d952f0defe4d35ddcdb927656e1c8cd24c86eaba8",
       "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/__init__.py",
       "source_sha256": "7e5922df852df06b9934983d952f0defe4d35ddcdb927656e1c8cd24c86eaba8"
@@ -235,6 +266,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-cli",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/main.py",
       "shipped_sha256": "8c0da3f0a899a466a937d304890ee2a49336f59c8e4a83e7097b9eedf792c7f5",
       "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/main.py",
       "source_revision": "c112eeb065f414f810e3d4d221e20bcb9df38487",
@@ -243,6 +275,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-cli",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/py.typed",
       "shipped_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/py.typed",
       "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -250,6 +283,7 @@
     {
       "disposition": "byte-identical owner implementation",
       "package": "aware-issue-cli",
+      "public_source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/summary.py",
       "shipped_sha256": "aff94afc33af9624206f0c0b361862ef26453a1109820e3d3a795c1665e59e8e",
       "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/summary.py",
       "source_revision": "c112eeb065f414f810e3d4d221e20bcb9df38487",
@@ -319,7 +353,7 @@
     ],
     "status": "a4-source-preparation-not-promotion"
   },
-  "packaging_change": "Neutral export/dependency projection; three curated __init__ facades; business/owner implementation bytes unchanged.",
+  "packaging_change": "Build from reviewed public neutral workspace inputs; original owner revision is provenance, not an implicit source substitution. Current bytes are recorded separately.",
   "public_authored_preparation": {
     "source/aware_repository_fs_adapter/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
     "source/aware_repository_fs_adapter/NOTICE": "e0ca4f699d7d4636976be91d36e3cbcb1bbcce0d0b2f5809d7d9256c098d7990",
@@ -332,6 +366,93 @@
     "source/aware_repository_sdk/aware_repository_sdk/__init__.py": "78cc3e75e84cebff42b055fc65be98e5af0693160b510492134c108d1ccbb3fe",
     "source/aware_repository_sdk/pyproject.toml": "594992265b20ab8c5f53b23de2c60cb199a05927519f6a7a466189d5d740c5b3"
   },
+  "public_workspace_inputs": {
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/NOTICE": "6fdf2199f4db31148d8caae6c8a343b37c98ac1793509f60d3c943a3e7850069",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/__init__.py": "473ccb737513ddaaf7b337e6e39abc599be50dd84253763a111a433fb423dfd4",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/main.py": "6dad9609bbf9d95e07caf95b2d9913edd8c54b716a98e0bc03733fb27c2c24f2",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/setup.py": "e391259780f05cba9955619ddb06fb4143c1911ed21691800b049f87253453c7",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/AGENTS.md.in": "db4e0e4e296bf779eabbd16ceafaf314806b9d19d46a205591ae231982cf09a8",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/contract.json": "116de0a8c3259b4a1f99764d7fbc200e568eb4e92cce057569cf29becbeb029d",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/docs/agents/README.md": "16165a330e88ed1c175ef7c4f8c1487e71065c9ab6f0eb4870d3fb8e4d486925",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/docs/agents/operational-work.md": "1ef978ce046071cbf4159c2bad8e1aa83e4bbb021a0a3423fdedbd5614801239",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/docs/agents/repository-change.md": "44d91b33da94b03e987f90d301834b83471201d26a905ec2cf40f76b48646d66",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/docs/agents/verification-and-handoff.md": "d646f288fa49f704043ce994a7e267310cedda1fc451f53876575a6bc7238af6",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/docs/alignment/CURRENT.md": "67fc94e8bb89a1a3d261ec3272243c944fe79cf42bb7fbd5f24c8052b4c67b1d",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/docs/alignment/PROTOCOL.md": "3ce334a375c32091a4962b21e57f8de7a579e072a07f3f5f9be317bcbd096207",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/docs/alignment/README.md": "c8a07f2bfb752d0f76c8a28862ef24c829dbc7d50a650b2af1ef38be87c841a1",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/aware_agent_cli/templates/agent-fs-v1/docs/issues/PROTOCOL.md": "dc8bb9b9f98194808ed0ed99288f55f90193c44a824438bf46f6c220119126a2",
+    "workspaces/aware_coordination/modules/workflow/clients/agent/python/pyproject.toml": "7d645ac97e27bdfd5647da1803fc5c2b0b87709df51ba5b86c986c4be52f9fc5",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/NOTICE": "94580a9485db87000375a03897e3c531324d58045b777ee6c74331845a428cb7",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/README.md": "a2116bfd5c466b0f06b1c72bd24ff3ddbc26672dd91971432f801248c8f0aa3f",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/__init__.py": "53022754a2d782d65b87947b2dd9d4df2a7b035e2beb3e97067c4fe3a7a0e1c4",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/activity_observation.py": "d6a3e5d30191123de9c70f8ecf8c8ee4159ca0cc7c898193c41e63d77256e92e",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/activity_observation_codec.py": "a48c2df701d50928491a070efbfe3744def2233988ad2b5efb556f609d6ef1a6",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/codec.py": "cd3ed2ee1c1f253f1ec32e4ea546d131c71532a03ecf2c6dafa27a34becf2aae",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/contracts.py": "8790bcf09a05cfce2c106f829208a0864f2c8289f885554946e657592f166560",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/host.py": "db80cf0e15e42874d885bb6e18863211d6005be6635f54358e9ab8efe6bcab52",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/identity.py": "78b4b99f67bc49009e94af62de4d0a4e43c15bf9820856ef5fb5df98fdd547c8",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/journal.py": "6360a80107aaa7bd354e4cd6d5b4f0d67a1c79b0036e49e207bb5143c4bd40e4",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/persistence.py": "d1cd7ab81c138633381204bd55865fd345ed9bbd82b11daec8aebf2d57449ee1",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/py.typed": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/aware_issue_operational_runtime/state_machine.py": "64f30e27f758d4fc9ecdfbc0456ca8b56dab437e18ea9a0026e9faf88867a4fb",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/pyproject.toml": "b1afe4d4eb1f93d312911322a7a00704a19442d9aff31d9733819a81ff3fae63",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/NOTICE": "8c2814a80ef319443fc3070f788eccb9a200fac18dae9b4271074a2f86511cbe",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/README.md": "f2ce423774d0b07727a8251723db40e366f2fd4ae6d3dda250cba4099430b6b3",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/__init__.py": "b96d6598ee8075adadeecbf8a8155db571c0761e8bfdda61f19759d3c47521c4",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/contracts.py": "df0de299da455687b52b399b5a00f7f1a2685f1f8726aa9efc899390b3559467",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/development.py": "794510d1f079aa9a438de48f9922e015a31bb1b5bb712c5d5f204ab5d2224bab",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/first_person_activity.py": "3ef9d5ff9fd04bdd0e6661c24675ee601cb6c972bb9c14166628caef491f25fb",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/parser.py": "9165861c2428fc47b1b6a2529ee05d6895e870465b5cba9eec8cbde315a1f34b",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/pulse.py": "b92f474da05a890081eb93941996cf760e273431e1ef36e430b9623e5b1f8035",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/py.typed": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/aware_issue_runtime/source_import.py": "82ad00d9e064d2dd92da09f6474b40aae8bd5d05fdbc2a4a8d251c5d6cbccb53",
+    "workspaces/aware_coordination/modules/workflow/libs/issue_runtime/pyproject.toml": "e36bdc863eb8cceedf1197d78b206bc4fb0f2d8e70da88a80ad6eca98e5a58fe",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/NOTICE": "7ff2c1e7a11f8c7f39f0804ef0cae5b424f91e90bdef2e0a654e9a45802ef4ed",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/README.md": "4eec1b33861e5674f8c819a334e404160e87ea19c91669bb0318c73f03855f18",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/__init__.py": "7e5922df852df06b9934983d952f0defe4d35ddcdb927656e1c8cd24c86eaba8",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/main.py": "8c0da3f0a899a466a937d304890ee2a49336f59c8e4a83e7097b9eedf792c7f5",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/aware_issue_cli/summary.py": "aff94afc33af9624206f0c0b361862ef26453a1109820e3d3a795c1665e59e8e",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/pyproject.toml": "39b7d86af3c8738611b1eda6ae665a9fecd548e9e03b49b5ff61b6205b95319c",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/NOTICE": "bc15f917885562f053f4ba52347ca165f67d60ffabed70c33dd5507e178d2170",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/README.md": "14ce331ea0a014c4ae1d73bcb0c8ad8fb6e1cd14546d1385824a4506317db11c",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/aware_issue_fs_adapter/__init__.py": "a32f5d6814c7465c82177c5036d5dd206c4c7163e2688c8a166c7b15d47582a4",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/aware_issue_fs_adapter/provider.py": "421e72b29c5a37fb55d1ec2e9aa6d0e93ae0269ddd7c094eba7ba56939da63ab",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/aware_issue_fs_adapter/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/pyproject.toml": "0d386cc7aabf07fcac68802fe64126de684a39cf41a463483b43ad886d5913c4",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/python/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/python/NOTICE": "aacddea244b30a09a978320882442d11b6edd75f9507d5a83de0178778ac44ef",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/python/README.md": "9ae7a93251f6629e8085964d0f65b0fde008af93a8665afaad1c7af722a8a8be",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/__init__.py": "b1701d8faa2ba71fe07348f1b888ce4ac5c7d5d271799ae23b507ad532d19986",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/local_files.py": "c5c85185bcfdeb09890a3a3db06c78372eb1b69e958591c30f5e148c4d03617c",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/operation.py": "a32eb38d85f1a6f0701ae1e7a7dd5c923dff840c6e2337e8ade30a3e7d018200",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/python/aware_issue_sdk/py.typed": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "workspaces/aware_coordination/modules/workflow/sdks/issue/python/pyproject.toml": "b6da3ca0d915116362d78fa504c13e23d5e328802d6de3e4a61bcc702216f9ee",
+    "workspaces/aware_workspace/modules/repository/sdks/repository/python/filesystem_adapter/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "workspaces/aware_workspace/modules/repository/sdks/repository/python/filesystem_adapter/NOTICE": "e0ca4f699d7d4636976be91d36e3cbcb1bbcce0d0b2f5809d7d9256c098d7990",
+    "workspaces/aware_workspace/modules/repository/sdks/repository/python/filesystem_adapter/README.md": "16d497adb8d2663a9ca0ca2cd0c7450b9a255691746bbbf4a711242caf6cc560",
+    "workspaces/aware_workspace/modules/repository/sdks/repository/python/filesystem_adapter/aware_repository_fs_adapter/__init__.py": "aff062915942874b141fe336ab23b4af9bd07dedf0667a78988d45946e194bbd",
+    "workspaces/aware_workspace/modules/repository/sdks/repository/python/filesystem_adapter/pyproject.toml": "a7432b79c6fbc4ac16094e958bd76e3552d198749bb0beeb576ff0e36136706c",
+    "workspaces/aware_workspace/modules/repository/sdks/repository/python/public/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "workspaces/aware_workspace/modules/repository/sdks/repository/python/public/NOTICE": "0aa346648cf6d417b2dc16caf806537f1dc8a9804546db303319089473f1e1dc",
+    "workspaces/aware_workspace/modules/repository/sdks/repository/python/public/README.md": "59b76d2f4381e688a50197d17caf9799015d96248071d57ad2764416effde033",
+    "workspaces/aware_workspace/modules/repository/sdks/repository/python/public/aware_repository_sdk/__init__.py": "78cc3e75e84cebff42b055fc65be98e5af0693160b510492134c108d1ccbb3fe",
+    "workspaces/aware_workspace/modules/repository/sdks/repository/python/public/pyproject.toml": "594992265b20ab8c5f53b23de2c60cb199a05927519f6a7a466189d5d740c5b3",
+    "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/NOTICE": "2b3fe94131ec78f072f6a1063c6ee13728f1d4a72bf9092e05f100c9e81c1ca4",
+    "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/README.md": "c42570fd52babf671d651014df23976783a9290aba67dd4bfdc75f9ea8077437",
+    "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/__init__.py": "9bf59946ba12218829e4256067cc70780614da4c5ceb923e7ea79542dcc98c43",
+    "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/commit.py": "d1de5e384fe8a97e9bbd7ae596f3498deac3beadfe29107963523c8d45740f79",
+    "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/models.py": "4d5fe1add82a04749ce43060cf8d4f33c357bfb61587639eb18407d22888451c",
+    "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/aware_workspace_operator/py.typed": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/pyproject.toml": "82ecd87a8ceae66286651e7f94fd3bdec4ade7f5f0e4582d5ab2492f65200b16"
+  },
+  "public_workspace_revision": "084c021b0db0e24d80681631d21adf6d05c821a9",
   "registry_acquisitions": [
     {
       "filename": "pydantic-2.13.5-py3-none-any.whl",

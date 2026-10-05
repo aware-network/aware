@@ -27,7 +27,7 @@ class InstalledRepositoryRepair(unittest.TestCase):
             "provider.py": "aware_issue_fs_adapter.provider",
         }
         for row in binding["owner_files"]:
-            origin = Path(importlib.util.find_spec(modules[Path(row["path"]).name]).origin)
+            origin = Path(importlib.util.find_spec(row.get("module") or modules[Path(row["path"]).name]).origin)
             self.assertTrue(origin.is_relative_to(Path(sys.prefix)))
             self.assertEqual(hashlib.sha256(origin.read_bytes()).hexdigest(), row["sha256"])
 
