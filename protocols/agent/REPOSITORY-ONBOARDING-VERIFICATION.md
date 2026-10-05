@@ -82,3 +82,14 @@ This is producer installed evidence, not external client acceptance, a registry
 release, cross-host reproducibility or exhaustive privacy/legal certification.
 The [scoped Issue](../../docs/issues/2026/10/05/fb-2026-10-05-agent-first-evaluation-repository-onboarding-v0.md)
 records the exact public Git delivery and follow-up public-clone replay separately.
+
+## Public Git replay
+
+Implementation `11efe16ffa2f652d1e632a84931423e84be6bc8b` was non-force pushed
+to `aware-network/aware/main`. An anonymous revision-pinned archive download
+reproduced the digest above. A fresh shallow public clone at that revision
+installed into another new environment offline, with development checkout hidden
+and inherited environment cleared. All **188 checks passed again, zero skipped**.
+The separately retained public owner-test JUnit digest is
+`5af69ddceb7918526163248c3744dd22fadc60768d47dae94ba332a2d81851d7`.
+No source fallback, registry publication or external client acceptance is implied.
