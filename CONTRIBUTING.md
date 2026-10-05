@@ -1,7 +1,22 @@
 # Contributing to Aware
 
-Contributions are welcome through the repository's issue-first workflow in
-`AGENTS.md` and `docs/issues/PROTOCOL.md`.
+This repository owns public consumer protocols, neutral SDK/provider/CLI
+surfaces, versioned agent documentation and installable distribution evidence.
+It is not a development monorepo export or an ontology/service release.
+
+Use the same issue-first workflow customers consume: read `AGENTS.md`, install
+the pinned tooling through `protocols/agent/install.py`, and use the installed
+`aware` command. Add its venv `bin` to PATH or retain its absolute path. This
+checkout already has `aware.protocol.toml`; do not rerun setup over it.
+Open one approved exact-scope Issue, record real checks, dry-run/apply scoped
+publication and close with the actual receipt. No resident service, internal
+checkout import or raw Git lifecycle workaround is required.
+
+Canonical templates are under `protocols/contracts/`; change authored versions,
+not generated scaffolds or installed packages. Generators require explicit
+Issue scope. Preserve immutable candidate bytes; publish a new version for a
+changed payload. Report exact revision/candidate, command and expected/observed
+behavior with private records redacted. Remote pushes need maintainer approval.
 
 ## License
 

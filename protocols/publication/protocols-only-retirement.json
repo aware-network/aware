@@ -1,0 +1,19 @@
+{
+  "baseline_revision": "592fca9473b1e72b130c0d84a452de7523fa93bb",
+  "format": "aware.protocols-only-retirement.v1",
+  "inventory_sha256": "91554cab3411fc6b948950323e313f7eb0a8e94dd382ec3d144de2578baedc9d",
+  "preservation": "Removed from current tree only; Git history unchanged and exact preimages quarantined locally.",
+  "retired_bytes": 166140980,
+  "retired_files": 11942,
+  "retired_roots": [
+    "workspaces",
+    "aware.repo.toml",
+    ".aware/repository/revision-filesystem.manifest.json",
+    ".aware/workspace/public-git-mirror.manifest.json",
+    "docs/legal",
+    "docs/goals/PROTOCOL.md",
+    "docs/specs/PROTOCOL.md",
+    "protocols/publication/infrastructure-readme.md"
+  ],
+  "verification": "Exact deleted paths and preimages are independently recoverable from this pinned baseline and the publication diff. No history rewrite."
+}

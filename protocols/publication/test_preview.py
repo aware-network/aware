@@ -50,7 +50,7 @@ class PreviewTests(unittest.TestCase):
 
     def test_publication_receipt_matches_outputs_and_generator(self):
         receipt = json.loads((ROOT / "protocols/publication/receipt.json").read_text())
-        self.assertEqual(len(receipt["outputs"]), 107)
+        self.assertEqual(len(receipt["outputs"]), 106)
         for name, record in receipt["outputs"].items():
             data = (ROOT / name).read_bytes()
             self.assertEqual(len(data), record["bytes"], name)

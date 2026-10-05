@@ -3,7 +3,8 @@
 Publication target: `aware-network/aware`, early read-only preview dated
 2026-10-05. This is a Git consumer overlay, not a WorkspaceRevision or a
 registry release. The canonical exporter is `export_preview.py`; its receipt
-binds generated outputs and preserves the earlier infrastructure README.
+binds generated outputs. The protocols-only cut retires the old infrastructure
+README from the current tree; it remains in Git history.
 
 ## Immutable inputs
 
@@ -24,7 +25,8 @@ byte/content review before this OSS cut.
 ## Current publication checks
 
 - Ten standard-library publication tests: outer and nested checksum coverage,
-  70 wheel-source matches, 107 exported output hashes, pinned exporter hash,
+  70 wheel-source matches, 106 current exported output hashes (107 in the first
+  overlay before retiring the infrastructure README), pinned exporter hash,
   13 wheels/seven Aware packages, no benchmark members, and acquisition-wrapper
   refusal of tampering, traversal, absolute paths, links, duplicate members,
   multiple roots and incomplete checksum coverage.

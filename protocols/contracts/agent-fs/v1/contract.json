@@ -1,0 +1,17 @@
+{
+  "contract_ref": "aware.agent.fs.v1",
+  "version": "1.0.0",
+  "authority_mode": "filesystem",
+  "collaboration_profile": "aware.collaboration.fs_v1",
+  "files": {
+    "AGENTS.md": "AGENTS.md.in",
+    "docs/agents/README.md": "docs/agents/README.md",
+    "docs/agents/operational-work.md": "docs/agents/operational-work.md",
+    "docs/agents/repository-change.md": "docs/agents/repository-change.md",
+    "docs/agents/verification-and-handoff.md": "docs/agents/verification-and-handoff.md",
+    "docs/issues/PROTOCOL.md": "docs/issues/PROTOCOL.md",
+    "docs/alignment/README.md": "docs/alignment/README.md",
+    "docs/alignment/PROTOCOL.md": "docs/alignment/PROTOCOL.md",
+    "docs/alignment/CURRENT.md": "docs/alignment/CURRENT.md"
+  }
+}

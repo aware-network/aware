@@ -1,6 +1,6 @@
 [project]
 name = "aware-agent-cli"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "Agent-first filesystem workflows over Aware's canonical Issue SDK and Git owner."
 requires-python = ">=3.12"
 license = "Apache-2.0"

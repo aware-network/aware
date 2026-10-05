@@ -3,7 +3,7 @@
 Install once. Give an agent a customer-approved task. Keep ownership, scope,
 evidence and publication durable across executions—not trapped in chat history.
 
-This **0.1.0a1 filesystem preview** exposes existing Aware Issue and repository
+This **0.1.0a2 filesystem preview** exposes existing Aware Issue and repository
 owners through a thin `aware` interface. No service, generated API, ontology/ORM,
 Experience runtime or Aware development environment is required.
 
@@ -15,11 +15,12 @@ The installer does not create a repository, configure Git, install Python or
 overwrite an existing environment.
 
 ```sh
-git clone https://github.com/aware-network/aware.git
+git clone --depth 1 https://github.com/aware-network/aware.git
 cd aware
 python3.12 protocols/agent/install.py --python-executable /usr/bin/python3.12 \
   --venv /tmp/aware-agent-env
 /tmp/aware-agent-env/bin/aware --help
+/tmp/aware-agent-env/bin/aware contract
 ```
 
 Choose your actual Python 3.12 executable and a new environment path. After the
@@ -41,10 +42,21 @@ Initialize the **Issue-only** profile through tooling:
 /tmp/aware-agent-env/bin/aware init --repository-root /absolute/customer-repo
 ```
 
-This creates `aware.protocol.toml` and `.aware/agent-protocol.md`; it does not
-overwrite existing files or a customer `AGENTS.md`. Initialization and the
+This creates `aware.protocol.toml`, versioned `AGENTS.md` and missing modular
+agent/Issue/alignment docs, `.aware/agent-protocol.md` and `.aware/agent-bootstrap.json`.
+It does not overwrite existing files or a customer `AGENTS.md`. To explicitly
+append a managed link to an existing regular `AGENTS.md`, select
+`--link-existing-agents`. Original instructions are retained; conflicts require
+customer review, not automatic precedence. Inspect `preserved` and
+`manual_integration_required` in the setup result. Initialization and the
 three-operation `issue open` composition are not multi-file transactions.
 An interrupted operation must be inspected; do not erase durable receipts and retry blindly.
+
+The authored [contract](../contracts/README.md) is `aware.agent.fs.v1` / 1.0.0.
+The public repository, shipped CLI resources and customer scaffolds are rendered
+from those same templates. Contract versioning is independent of the CLI version
+and record/profile version; upgrades are explicit, never ordinary bootstrap side effects.
+`aware contract` observes installed template identities/hashes, not actor authority.
 
 The useful loop is:
 

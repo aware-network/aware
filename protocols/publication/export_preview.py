@@ -8,8 +8,7 @@ import importlib.util
 import json
 from pathlib import Path
 
-BASE = "2fcb995bb8dd91733d8964c2db783b670354e2a8"
-BASE_README_SHA = "e0a835607ab6ac41a2e06dbfbe529e1101ace1dc76528d94103eca5f22af3f08"
+BASE = "592fca9473b1e72b130c0d84a452de7523fa93bb"
 
 
 def main() -> None:
@@ -29,11 +28,6 @@ def main() -> None:
                             module.PAYLOAD_SHA256)
     outputs = {"protocols/distributions/" + module.ARCHIVE: data}
     outputs.update({"protocols/source/" + name: content for name, content in source.items()})
-    archive_readme = root / "protocols/publication/infrastructure-readme.md"
-    previous = archive_readme.read_bytes() if archive_readme.exists() else (root / "README.md").read_bytes()
-    if hashlib.sha256(previous).hexdigest() != BASE_README_SHA:
-        raise ValueError("base_readme_changed")
-    outputs["protocols/publication/infrastructure-readme.md"] = previous
     outputs["README.md"] = (root / "protocols/publication/README.md.in").read_bytes()
     for name, content in sorted(outputs.items()):
         path = root / name
@@ -42,7 +36,7 @@ def main() -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(content)
     receipt = {
-        "format": "aware.protocols.git-consumer-overlay.v1",
+        "format": "aware.protocols.git-publication.v2",
         "public_preview": "goal-fs-readonly-preview-2026-10-05",
         "target_repository": "https://github.com/aware-network/aware",
         "base_git_revision": BASE,
@@ -51,7 +45,7 @@ def main() -> None:
         "payload_sha256": module.PAYLOAD_SHA256,
         "source_capsule_sha256": module.SOURCE_SHA256,
         "authority_mode": "filesystem",
-        "publication_kind": "Git-owned consumer overlay; not a new WorkspaceRevision",
+        "publication_kind": "Protocols-only consumer Git product; not a WorkspaceRevision or internal repository export",
         "generator": "protocols/publication/export_preview.py",
         "generator_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "license": "Apache-2.0 for Aware-authored content; upstream terms retained",

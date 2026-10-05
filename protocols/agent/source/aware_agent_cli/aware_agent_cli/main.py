@@ -14,7 +14,7 @@ from aware_issue_sdk import (
     IssueStartProgressRequest, IssueReadProjectionResolveRequest,
     IssueReadProjectionResolveOutcome, IssueMutationOutcome,
 )
-from aware_protocol_fs_adapter import admit_protocol_manifest, resolve_repository_path_at_use
+from .setup import initialize as initialize_bootstrap, observe_contract
 
 MANIFEST = '''aware = 1
 [protocol]
@@ -45,64 +45,8 @@ profile = "aware.protocol.evidence.v1"
 role = "unavailable"
 '''
 
-CONTRACT = '''# Aware filesystem agent contract
-
-Use the installed `aware` command. The customer chooses this filesystem profile;
-there is no service authority or automatic service fallback.
-
-Identify your real harness execution before work. Codex uses codex-$CODEX_THREAD_ID;
-Claude Code uses claude_code-$CLAUDE_CODE_SESSION_ID. If there is no unambiguous
-stable execution identity, stay read-only. Never borrow another execution's id.
-
-Open one explicitly chosen Issue with exact scope through `aware issue open`.
-Modify only its authored sources under customer approval. Do not manually edit
-Issue authority, ownership, lifecycle or evidence; use the installed operations.
-Observe the latest digest before every write. Commit explicit owned paths with
-`aware repository commit --dry-run`, then the identical apply. Do not use raw
-git add/commit to bypass the governed publication entrance.
-
-Preserve unrelated staged and unstaged work. Tests and publication receipts are
-evidence, not Goal acceptance. Close through the SDK-backed command with the
-actual implementation receipt. For replacement, the current owner blocks the
-Issue, transfers it to the exact new execution, and that execution observes and
-resumes it. A transcript, cache, title or cwd never grants ownership.
-
-This local profile checks declared identity/ownership, not authenticated actor
-identity or sandbox isolation. A process with filesystem permissions can bypass
-the tools. Service/API authentication is a later explicitly admitted authority.
-Goal creation/approval, effectful pursuit, dispatch and hosted service are absent.
-'''
-
-
 def initialize(arguments: list[str]) -> int:
-    parser = argparse.ArgumentParser(prog="aware init")
-    parser.add_argument("--repository-root", type=Path, required=True)
-    args = parser.parse_args(arguments)
-    root = args.repository_root.resolve(strict=True)
-    actual = Path(subprocess.check_output(
-        ["git", "-C", str(root), "rev-parse", "--show-toplevel"], text=True).strip()).resolve()
-    if root != actual:
-        raise ValueError("select_exact_git_repository_root")
-    targets = []
-    for name, text in (("aware.protocol.toml", MANIFEST), (".aware/agent-protocol.md", CONTRACT)):
-        result = resolve_repository_path_at_use(repository_root=root, relative_path=name,
-                                                field_name="bootstrap." + name)
-        if result.path is None:
-            raise ValueError("bootstrap_target_unresolvable:" + ",".join(result.diagnostics))
-        if (root / name).exists() or (root / name).is_symlink():
-            raise ValueError("bootstrap_target_exists:" + name)
-        targets.append((root / name, text))
-    for path, text in targets:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("x", encoding="utf-8") as stream:
-            stream.write(text)
-    admitted = admit_protocol_manifest(repository_root=root, manifest_path=root / "aware.protocol.toml")
-    if admitted.filesystem_profile is None:
-        raise ValueError("bootstrap_admission_refused:" + ",".join(admitted.diagnostics))
-    print(json.dumps({"outcome": "initialized", "profile": "aware.collaboration.fs_v1",
-                      "created": ["aware.protocol.toml", ".aware/agent-protocol.md"],
-                      "authority_mode": "filesystem", "goal_capability": "unavailable"}, sort_keys=True))
-    return 0
+    return initialize_bootstrap(arguments, manifest=MANIFEST)
 
 
 def open_issue(arguments: list[str]) -> int:
@@ -158,6 +102,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args and args[0] == "init":
             return initialize(args[1:])
+        if args and args[0] == "contract":
+            return observe_contract(args[1:])
         if args[:2] == ["issue", "open"]:
             return open_issue(args[2:])
         if args and args[0] == "issue":
@@ -165,8 +111,8 @@ def main(argv: list[str] | None = None) -> int:
         if args[:2] == ["repository", "commit"]:
             return issue_main(["commit-workspace", *args[2:]])
         parser = argparse.ArgumentParser(prog="aware", description="Agent-first, filesystem-only Issue workflow.")
-        parser.add_argument("--version", action="version", version="aware-agent-cli 0.1.0a1")
-        parser.epilog = "Commands: init; issue open; issue <canonical Issue CLI command>; repository commit"
+        parser.add_argument("--version", action="version", version="aware-agent-cli 0.1.0a2")
+        parser.epilog = "Commands: init; contract; issue open; issue <canonical Issue CLI command>; repository commit"
         parser.parse_args(args)
         parser.print_help()
         return 0

@@ -87,6 +87,8 @@ def main() -> None:
     repo = args.source_repository.resolve()
     root = Path(__file__).resolve().parent
     public = root.parents[1]
+    consumer_version = tomllib.loads((root / "source/aware_agent_cli/pyproject.toml").read_text())["project"]["version"]
+    subprocess.run(["python3.12", "-B", str(public / "protocols/publication/render_agent_contract.py")], check=True)
     output = root / "distribution"
     output.mkdir(exist_ok=True)
     working = Path(tempfile.mkdtemp(prefix="aware-agent-build-"))
@@ -190,14 +192,16 @@ def main() -> None:
     wheels = [{"filename": path.name, "sha256": digest(path.read_bytes())} for path in sorted(wheelhouse.glob("*.whl"))]
     if len(wheels) != 20:
         raise ValueError("unexpected_payload_count:" + str(len(wheels)))
-    manifest = {"format": "aware.agent.fs.consumer-bundle.v1", "version": "0.1.0a1", "authority_mode": "filesystem", "python_minor": "3.12", "platform": "linux_x86_64", "wheels": wheels,
-                "root_requirement": "aware-agent-cli==0.1.0a1", "source_revision": PIN,
+    contract = json.loads((public / "protocols/contracts/agent-fs/v1/contract.json").read_bytes())
+    manifest = {"format": "aware.agent.fs.consumer-bundle.v1", "version": consumer_version, "authority_mode": "filesystem", "python_minor": "3.12", "platform": "linux_x86_64", "wheels": wheels,
+                "root_requirement": "aware-agent-cli==" + consumer_version, "source_revision": PIN,
+                "agent_contract": {"ref": contract["contract_ref"], "version": contract["version"]},
                 "supported_commands": ["aware", "aware-issue-cli"], "generated_service_or_ontology_packages": []}
     (bundle / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
-    (bundle / "README.md").write_text("# Aware agent filesystem preview\n\nLinux x86-64 / Python 3.12.\nVerify SHA256SUMS before use. Sources and component notices accompany the wheels.\nInstall offline into a new venv: python3.12 -m venv /absolute/new-venv; /absolute/new-venv/bin/python -m pip install --no-index --find-links wheelhouse aware-agent-cli==0.1.0a1\nConsumer entrypoint: aware. No service, ontology, generated API or development checkout.\n")
+    (bundle / "README.md").write_text("# Aware agent filesystem preview\n\nLinux x86-64 / Python 3.12.\nVerify SHA256SUMS before use. Sources and component notices accompany the wheels.\nInstall offline into a new venv: python3.12 -m venv /absolute/new-venv; /absolute/new-venv/bin/python -m pip install --no-index --find-links wheelhouse aware-agent-cli==" + consumer_version + "\nConsumer entrypoint: aware. Setup installs a versioned agent contract and modules. No service, ontology, generated API or development checkout.\n")
     files = sorted(path for path in bundle.rglob("*") if path.is_file())
     (bundle / "SHA256SUMS").write_text("".join(digest(path.read_bytes()) + "  " + path.relative_to(bundle).as_posix() + "\n" for path in files))
-    archive = output / "aware-agent-fs-linux_x86_64-py312.tar.gz"
+    archive = output / ("aware-agent-fs-" + consumer_version + "-linux_x86_64-py312.tar.gz")
     with archive.open("wb") as stream:
         with gzip.GzipFile(filename="", fileobj=stream, mode="wb", mtime=0) as compressed:
             with tarfile.open(fileobj=compressed, mode="w") as tar:

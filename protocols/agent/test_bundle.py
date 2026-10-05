@@ -32,6 +32,8 @@ class BundleTests(unittest.TestCase):
 
     def test_exact_wheel_and_source_pins(self):
         self.assertEqual(len(self.wheels), 20)
+        self.assertEqual(self.release["version"], self.wheels["aware-agent-cli"][0]["Version"])
+        self.assertEqual(self.release["root_requirement"], "aware-agent-cli==" + self.release["version"])
         for record in self.release["wheels"]:
             self.assertEqual(hashlib.sha256(self.files["wheelhouse/" + record["filename"]]).hexdigest(), record["sha256"])
         self.assertEqual(hashlib.sha256((ROOT / "build_bundle.py").read_bytes()).hexdigest(), self.release["builder_sha256"])
@@ -104,6 +106,14 @@ class BundleTests(unittest.TestCase):
             if name.endswith((".json", ".md", ".py", ".toml", ".txt")):
                 self.assertNotIn(b"/home/aware/", data, name)
                 self.assertNotIn(b"/home/luis/", data, name)
+
+    def test_contract_assets_and_identity_match_authored_inputs(self):
+        source = ROOT.parent / "contracts/agent-fs/v1"
+        metadata = json.loads((source / "contract.json").read_bytes())
+        self.assertEqual(self.release["agent_contract"], {"ref": metadata["contract_ref"], "version": metadata["version"]})
+        with zipfile.ZipFile(io.BytesIO(self.wheels["aware-agent-cli"][1])) as archive:
+            for relative in ["contract.json", *metadata["files"].values()]:
+                self.assertEqual(archive.read("aware_agent_cli/templates/agent-fs-v1/" + relative), (source / relative).read_bytes())
 
 
 if __name__ == "__main__":

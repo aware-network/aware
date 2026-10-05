@@ -14,11 +14,12 @@ existing neutral owners. No generated API, ontology/ORM, service or Experience
 runtime is installed.
 
 ```sh
-git clone https://github.com/aware-network/aware.git
+git clone --depth 1 https://github.com/aware-network/aware.git
 cd aware
 python3.12 protocols/agent/install.py --python-executable /usr/bin/python3.12 \
   --venv /tmp/aware-agent-env
 /tmp/aware-agent-env/bin/aware --help
+/tmp/aware-agent-env/bin/aware contract
 /tmp/aware-agent-env/bin/aware init --repository-root /absolute/customer-repo
 ```
 
@@ -36,6 +37,13 @@ environment path. Installation after clone is offline and checks the exact
 The filesystem tools check declared ownership, lifecycle, fresh record bytes
 and exact publication scope; they are **not authenticated identity or a sandbox**.
 Unrelated work remains preserved. Issue closeout cannot manufacture Goal acceptance.
+
+Setup creates a versioned `AGENTS.md`, modular agent/Issue/alignment docs,
+`aware.protocol.toml` and bootstrap provenance when those paths are absent.
+Existing customer files are preserved. Use `aware init --link-existing-agents`
+only when explicitly approving an appended contract link; inspect reported
+manual-integration requirements. No silent contract upgrade or overwritten instructions.
+See [the authored contract and version policy](protocols/contracts/README.md).
 
 ## Available now: filesystem Goal reader preview
 
@@ -91,11 +99,12 @@ Report reproducible installation and usage findings through
 [GitHub Issues](https://github.com/aware-network/aware/issues), without secrets
 or private customer records.
 
-The existing [Kernel](workspaces/aware_kernel) and
-[Network](workspaces/aware_network) trees remain an earlier infrastructure
-snapshot. They are **not dependencies of this preview**. Their retained
-RepositoryRevision manifests describe that base snapshot, not this new
-Git-published consumer overlay. The previous infrastructure introduction is
-[preserved here](protocols/publication/infrastructure-readme.md).
+This repository publishes consumer protocols, tooling, docs and pinned source/
+distribution evidence—not the development monorepo or internal workspace runtime.
+Old Kernel/Network snapshots and `aware.repo.toml` are removed from the current
+tree; Git history remains unchanged. The repository itself uses the consumer
+Issue profile in `aware.protocol.toml`, not an internal RepositoryRevision manifest.
+Agents contributing here follow the same [versioned bootstrap](AGENTS.md) and
+[modular procedures](docs/agents/README.md) that customer setup installs.
 
 *Aware 4 Humanity.*

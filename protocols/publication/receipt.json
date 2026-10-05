@@ -1,24 +1,20 @@
 {
   "authority_mode": "filesystem",
   "aware_source_revision": "3bea9cc913644700be810398293bca899020c299",
-  "base_git_revision": "2fcb995bb8dd91733d8964c2db783b670354e2a8",
+  "base_git_revision": "592fca9473b1e72b130c0d84a452de7523fa93bb",
   "envelope_sha256": "10b126383498b4e4561109f5eb8059161b2c03546d19065b85506f4c41a29c21",
-  "format": "aware.protocols.git-consumer-overlay.v1",
+  "format": "aware.protocols.git-publication.v2",
   "generator": "protocols/publication/export_preview.py",
-  "generator_sha256": "e880f5ec3a161bf7a6d87aa77a277a483b6ee7676a198dc203ce3d33743c8092",
+  "generator_sha256": "4e9266be4f743f19456e70320ca5b9aff35fa4567fce38372fac96f0d0e010c6",
   "license": "Apache-2.0 for Aware-authored content; upstream terms retained",
   "outputs": {
     "README.md": {
-      "bytes": 5081,
-      "sha256": "775791c456af817d10809d6484751917294e56591a80f85a9c1bbc83e5cd767c"
+      "bytes": 5751,
+      "sha256": "2a821e99ae5416bc8801ff5390b9d56cfc8e949dea6476b39adbe0d69abebee9"
     },
     "protocols/distributions/aware-goal-fs-preview-linux_x86_64-py312.tar.gz": {
       "bytes": 1185781,
       "sha256": "10b126383498b4e4561109f5eb8059161b2c03546d19065b85506f4c41a29c21"
-    },
-    "protocols/publication/infrastructure-readme.md": {
-      "bytes": 7526,
-      "sha256": "e0a835607ab6ac41a2e06dbfbe529e1101ace1dc76528d94103eca5f22af3f08"
     },
     "protocols/source/README.md": {
       "bytes": 754,
@@ -439,7 +435,7 @@
   },
   "payload_sha256": "02dfda3a5ad1c3d85fd4c317dc392a867d24cc852001fa75394f90d1245456f1",
   "public_preview": "goal-fs-readonly-preview-2026-10-05",
-  "publication_kind": "Git-owned consumer overlay; not a new WorkspaceRevision",
+  "publication_kind": "Protocols-only consumer Git product; not a WorkspaceRevision or internal repository export",
   "source_capsule_sha256": "9abe97d23565e86954b092cf361ab6cf651fef11605789bb5794d49d9a9408c7",
   "target_repository": "https://github.com/aware-network/aware"
 }

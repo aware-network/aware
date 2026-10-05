@@ -1,24 +1,30 @@
 # Agent filesystem preview verification
 
-Consumer version: **0.1.0a1**, public Git preview dated 2026-10-05.
-Exact archive: `distribution/aware-agent-fs-linux_x86_64-py312.tar.gz`.
-SHA-256: `2ab8b1f087a6d2e2b4991a81b831fbd2374fa07cc17b58a251fc9c615230dc9e`.
+Consumer version: **0.1.0a2**, public Git preview dated 2026-10-05.
+Exact archive: `distribution/aware-agent-fs-0.1.0a2-linux_x86_64-py312.tar.gz`.
+SHA-256: `62085974eb99889aaf43275c7b6a635ebd6ed191513e563c812a556472c48dd6`.
 [release.json](release.json) binds all 20 wheels, producer-source revision,
 builder and source-disposition digest. This is a consumer Git overlay, not a
 WorkspaceRevision, generated API publication or registry release.
 
 ## What ran
 
-**145 checks passed, no skips:**
+**161 checks passed, no skips:**
 
 - **8 installed workflow tests:** initialize and open; implement/evidence/scoped
   publication/verified closeout; real scope refusal; former-owner refusal and
   durable replacement handoff; stale Issue-byte refusal; unrelated staged work
   preserved; forged publication receipt refusal; existing setup not overwritten.
-- **6 candidate accounting tests:** wheel/source/hash agreement; all 20 packages
+- **15 installed bootstrap tests:** complete rendered scaffold/hash provenance;
+  installed/authored template equivalence; read-only contract observation;
+  existing AGENTS/docs preservation; explicit managed link with original CRLF
+  retained; symlink/outside-root refusals before writes; stale/partial bootstrap
+  refusal; no silent upgrade; valid links, actual admission and shell quoting.
+- **7 candidate accounting tests:** wheel/source/hash agreement; all 20 packages
   reachable with applicable requirements satisfied; excluded surfaces physically
   absent; in-wheel Aware legal files; 103-component/185-file notice accounting;
-  bounded absence of Aware private paths in shipped text.
+  bounded absence of Aware private paths in shipped text; packaged contract bytes
+  equal authored templates and root requirement/version agrees with its wheel.
 - **10 retained Goal publication tests:** exact old archive/source/export hashes
   and acquisition refusal boundaries. These check the separate unchanged Goal
   preview and refreshed root README receipt, not new Goal semantics.
@@ -39,12 +45,19 @@ directory supplied explicitly. One archive-test attempt tried to open a generate
 wheelhouse `.gitignore` as a ZIP; the harness was corrected to select `.whl`
 members. Neither correction changed a domain operation or refusal rule.
 
+The first unpublished a2 assembly mistakenly reused a registry-loop version in
+its root requirement. Offline installation refused it. The builder now keeps
+consumer version separate and a regression assertion pins requirement/version
+to the actual CLI wheel. That failed internal archive was quarantined and is
+not public; this report binds the corrected, freshly installed candidate above.
+
 ## Reproduce
 
 After the documented installation:
 
 ```sh
 /tmp/aware-agent-env/bin/python -I -B protocols/agent/test_installed_workflow.py -v
+/tmp/aware-agent-env/bin/python -I -B protocols/agent/test_installed_bootstrap.py -v
 /tmp/aware-agent-env/bin/python -I -B protocols/agent/test_bundle.py -v
 python3.12 -B protocols/publication/test_preview.py -v
 ```
@@ -99,12 +112,18 @@ User-delegated OSS preparation chooses the conservative notice treatment in
 
 ## Public delivery receipt
 
-The implementation was non-force pushed to `aware-network/aware/main` at
+The **prior 0.1.0a1** implementation was non-force pushed to `aware-network/aware/main` at
 `44bf1a9060aa760312ff3a73ab5b3a30517910d7`. An unauthenticated, revision-pinned
-GitHub download returned the exact archive digest above (3,533,294 bytes),
+GitHub download returned its digest `2ab8b1f0…` (3,533,294 bytes),
 and the public README leads with the installed Issue/commit workflow.
 This is actual public Git delivery—not a registry release or external client evaluation.
 
 The follow-up Git attributes preserve upstream legal CRLF/EOF bytes unchanged,
 rather than reformatting hash-qualified notices to suppress whitespace findings.
 No wheel or bundle bytes change with this preservation rule.
+
+The a2 publication Issue separately records its exact candidate, public-byte
+retrieval and fresh clone replay. The previous a1 receipt does not accept a2.
+Only the agent-interface wheel changes; the other 19 wheel identities/bytes
+remain equal to a1. Domain-owner source and the optional Goal distribution are
+unchanged. Contract `aware.agent.fs.v1` / 1.0.0 is separately versioned.

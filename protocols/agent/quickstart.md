@@ -1,5 +1,8 @@
 # One bounded customer task
 
+Commands below use Bash. Setup installs the versioned root contract and modules;
+inspect its preserved-file/integration report before continuing.
+
 Read [the contract](AGENTS.md). Install as described in [README](README.md).
 Use an existing customer Git repository with committed HEAD and configured Git
 author. The customer approves the objective and exact source paths; examples
@@ -24,10 +27,18 @@ Select your actual date/slug and exact repository. In a fresh profile:
 
 ```sh
 "$aware_cmd" init --repository-root "$customer_repo"
+bootstrap_paths=(aware.protocol.toml AGENTS.md .aware/agent-protocol.md
+  .aware/agent-bootstrap.json docs/agents/README.md docs/agents/operational-work.md
+  docs/agents/repository-change.md docs/agents/verification-and-handoff.md
+  docs/issues/PROTOCOL.md docs/alignment/README.md docs/alignment/PROTOCOL.md
+  docs/alignment/CURRENT.md)
+scope_args=()
+for owned_path in "${bootstrap_paths[@]}"; do
+  scope_args+=(--scope-path "$owned_path")
+done
 "$aware_cmd" issue open --repository-root "$customer_repo" \
   --issue-ref "$issue_ref" --title "Customer-approved bounded outcome" \
-  --scope-path src/result.py --scope-path aware.protocol.toml \
-  --scope-path .aware/agent-protocol.md \
+  --scope-path src/result.py "${scope_args[@]}" \
   --client-intent-id "$execution_id:open:customer-task" \
   --actor-ref "$execution_id" --actor-evidence-ref "harness:$execution_id"
 ```
@@ -37,6 +48,9 @@ three existing SDK operations. The Issue path is included automatically; retain
 each receipt. If it reports `incomplete`, inspect those operations rather than
 assuming rollback. An existing Issue is not overwritten. Setup paths are scoped
 above because this first task will commit them too.
+For existing customer docs, review the report and include only paths explicitly
+approved for publication; do not absorb unrelated work. An optional
+`--link-existing-agents` setup is an explicit customer preparation decision.
 
 Define a helper that observes the latest digest through the installed operation:
 
@@ -71,10 +85,14 @@ example below into a fabricated test pass. Record their result:
   --message "Verification: <actual command, result and evidence>."
 
 commit_digest="$(issue_digest)"
+publication_paths=(src/result.py "$issue_path" "${bootstrap_paths[@]}")
+publication_args=()
+for owned_path in "${publication_paths[@]}"; do
+  publication_args+=(--path "$owned_path")
+done
 "$aware_cmd" repository commit --repository-root "$customer_repo" \
   --issue-ref "$issue_ref" --expected-issue-source-sha256 "$commit_digest" \
-  --path src/result.py --path "$issue_path" --path aware.protocol.toml \
-  --path .aware/agent-protocol.md --message "Deliver customer-approved outcome" \
+  "${publication_args[@]}" --message "Deliver customer-approved outcome" \
   --actor-ref "$execution_id" --actor-evidence-ref "harness:$execution_id" --dry-run
 ```
 

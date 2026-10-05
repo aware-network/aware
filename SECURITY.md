@@ -13,6 +13,12 @@ or publishing details before a fix and coordinated disclosure are ready.
 
 ## Supported releases
 
-Aware has not announced a stable release yet. Security fixes currently target
-the latest public RepositoryRevision. Development snapshots and files outside a
-declared public checkout profile are not supported releases.
+Aware has not announced a stable release. Support targets the exact current
+filesystem previews in `protocols/agent/release.json` and the independent
+`protocols/publication/receipt.json`, on their documented platform/Python.
+Historical internal workspace snapshots are not the current public product.
+
+The tools check declared owner, record freshness, lifecycle and publication
+scope. They do not authenticate actor identity or isolate arbitrary processes
+with filesystem access. Report an operator refusal bypass separately from raw
+filesystem access. Preserve revision, archive/wheel hash and sanitized evidence.

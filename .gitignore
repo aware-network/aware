@@ -1,0 +1,4 @@
+# Producer compatibility cache is local, not collaboration truth or public data.
+.aware/workflow_issue/
+__pycache__/
+*.pyc
