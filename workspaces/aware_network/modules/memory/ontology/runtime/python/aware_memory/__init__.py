@@ -1,1 +1,0 @@
-"""Aware Memory runtime package."""

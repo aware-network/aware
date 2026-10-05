@@ -1,8 +1,0 @@
-class MemoryProcedure {
-    // Relationships
-    content aware_content.content.Content key
-    procedure_config MemoryProcedureConfig key
-
-    // Attributes
-    reward_score Float = 0
-}

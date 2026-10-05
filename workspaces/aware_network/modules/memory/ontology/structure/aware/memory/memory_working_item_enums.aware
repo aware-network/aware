@@ -1,6 +1,0 @@
-enum MemoryWorkingItemKind {
-    attention
-    content
-    event
-    tool
-}

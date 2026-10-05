@@ -1,5 +1,0 @@
-class MemoryProcedureEpisode {
-    // Relationships
-    memory_episode MemoryEpisode key
-    memory_procedure MemoryProcedure key
-}
