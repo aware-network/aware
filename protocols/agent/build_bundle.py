@@ -118,7 +118,8 @@ def main() -> None:
         if name.startswith("wheelhouse/") and name.endswith(".whl") and not name.startswith("wheelhouse/aware_goal_"):
             (wheelhouse / Path(name).name).write_bytes(data)
     license_bytes = (public / "LICENSE").read_bytes()
-    provenance = json.loads((root / "source-provenance.json").read_bytes())["files"]
+    provenance_input = json.loads((root / "source-provenance.json").read_bytes())
+    provenance = provenance_input["files"]
     if args.refresh_owner_sources:
         provenance = []
         for name, (directory, module, version, selected, dependencies) in PACKAGES.items():
@@ -209,6 +210,8 @@ def main() -> None:
                            "public_workspace_revision": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=public, text=True).strip(),
                            "packaging_change": "Build from reviewed public neutral workspace inputs; original owner revision is provenance, not an implicit source substitution. Current bytes are recorded separately.",
                            "consumer_versions": {name: tomllib.loads((agent_project(name, public) / "pyproject.toml").read_text())["project"]["version"] for name in PACKAGES}}
+    if "owner_adoption" in provenance_input:
+        provenance_document["owner_adoption"] = provenance_input["owner_adoption"]
     provenance_document["public_workspace_inputs"] = {
         path.relative_to(public).as_posix(): digest(path.read_bytes())
         for name in [*PACKAGES, *PREPARATION_PACKAGES, "aware-agent-cli"]
