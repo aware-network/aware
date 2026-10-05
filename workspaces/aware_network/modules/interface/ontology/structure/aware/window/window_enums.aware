@@ -1,5 +1,0 @@
-enum WindowActiveLayoutMode {
-    follow_thread_active
-    pinned
-    override
-}

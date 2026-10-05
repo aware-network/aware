@@ -1,2 +1,0 @@
-"""Interface ontology helpers."""
-
