@@ -82,9 +82,23 @@ existing public archive; no generator or payload bytes changed. Scoped diff
 checks pass. Remote readback still showed public main at
 `8ecf22d67b834ece5aa845171c70344b2069411e`; selection is not remote delivery.
 
-Next: bounded review and explicit non-force push authorization for
+Next: explicit non-force push authorization for
 `aware-network/aware/main`; check remote ancestry before acting. After an
 authorized push, independently acquire revision-pinned public bytes and retain
 public-delivery evidence. Until then a6 availability is **local preparation**.
 Customer evaluation and SPEC work remain separate. No Goal writer, service,
 actor authentication, sandbox or automatic interrupted-unborn recovery is added.
+
+## Independent local-alignment acceptance
+
+The review supplied in this task accepted `7ce94f32a1ca` and reproduced **70
+promotion checks and 224 installed-only replay tests**, all passing. The selected
+manifest matches the accepted candidate byte-for-byte; a5, the payload and domain
+owner implementations are preserved, and the checkout was clean.
+
+This accepts local selection/documentation alignment only. The installed replay
+reused the independently tested a6 environment; it is not another fresh install
+or public acquisition. No push was made. This acceptance closes only the bounded
+local promotion Issue; a separately authorized public-delivery cut must check
+remote ancestry before pushing `aware-network/aware/main`. Recording this verdict
+changes no payload bytes and claims no new test execution.
