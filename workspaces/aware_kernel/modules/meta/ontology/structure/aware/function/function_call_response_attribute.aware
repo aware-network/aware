@@ -1,4 +1,0 @@
-edge FunctionCallResponseAttribute {
-    // Attributes
-    position Int
-}

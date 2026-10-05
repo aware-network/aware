@@ -1,4 +1,0 @@
-enum ObjectInstanceGraphChangeType {
-    object_instance
-    object_instance_relationship
-}

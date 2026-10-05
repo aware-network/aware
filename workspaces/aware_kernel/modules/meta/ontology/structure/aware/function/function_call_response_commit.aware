@@ -1,4 +1,0 @@
-edge FunctionCallResponseCommit {
-    // Attributes
-    position Int
-}

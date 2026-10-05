@@ -1,4 +1,0 @@
-class PrimitiveChange {
-    // Relationships
-    change aware_history.change.Change key
-}

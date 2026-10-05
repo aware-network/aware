@@ -1,4 +1,0 @@
-enum ObjectConfigGraphMirrorTargetKind {
-    class
-    enum
-}
