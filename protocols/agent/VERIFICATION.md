@@ -1,4 +1,4 @@
-# Current local selection: 0.1.0a6
+# Current public preview: 0.1.0a6
 
 Exact archive SHA-256:
 `c3d6e593fd5894a927d338da5347a32e9c9eda3aec0aadcf9a662d51e348b804`.
@@ -12,9 +12,13 @@ The selected [manifest](release.json) exactly equals
 or authority profile changed. Contract 1.2.1 corrects version labels and explains
 projection/acceptance evidence. Customer contracts are not silently upgraded.
 
-[Local promotion evidence](../publication/A6-PROMOTION.md) is separate from public
-delivery: a6 is prepared locally, not pushed by this cut. No public a6 acquisition
-or release claim follows from the selected manifest. The independent reviewer
+[Local promotion evidence](../publication/A6-PROMOTION.md) is separate from
+[public delivery](../publication/A6-PUBLICATION.md). The authorized non-force push
+at `c0949609e117836d39ffc52aca98afa5d932f553` was read back; anonymous pinned
+archive/manifest acquisition matched the accepted hashes. A fresh offline,
+checkout-hidden installation of those public bytes passed 224 installed tests;
+the public clone passed 70 publication/alignment checks, zero skipped. This is
+producer delivery replay, not a registry release or external U/V/R. The independent reviewer
 could not access the private evaluation input, did not rebuild the archive and
 did not perform exhaustive public-content clearance.
 
