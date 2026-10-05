@@ -1,0 +1,2 @@
+# Preserve hash-qualified upstream legal bytes, including original CRLF/EOF.
+notices/** -text -whitespace

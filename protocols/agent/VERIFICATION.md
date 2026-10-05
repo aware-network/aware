@@ -96,3 +96,15 @@ patterns; deliberate scanner test literals and upstream attribution are not
 private provenance. This is not exhaustive privacy, authorship or legal certification.
 User-delegated OSS preparation chooses the conservative notice treatment in
 [NOTICES.md](NOTICES.md); source transparency and honest limits remain visible.
+
+## Public delivery receipt
+
+The implementation was non-force pushed to `aware-network/aware/main` at
+`44bf1a9060aa760312ff3a73ab5b3a30517910d7`. An unauthenticated, revision-pinned
+GitHub download returned the exact archive digest above (3,533,294 bytes),
+and the public README leads with the installed Issue/commit workflow.
+This is actual public Git delivery—not a registry release or external client evaluation.
+
+The follow-up Git attributes preserve upstream legal CRLF/EOF bytes unchanged,
+rather than reformatting hash-qualified notices to suppress whitespace findings.
+No wheel or bundle bytes change with this preservation rule.
