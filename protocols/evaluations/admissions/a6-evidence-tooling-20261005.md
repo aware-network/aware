@@ -1,6 +1,7 @@
 # A6 external evidence triage and evaluator-tooling checkpoint
 
-Status: bounded preparation; independent source review pending.
+Status: bounded source/docs checkpoint accepted by the independent review relayed
+by Luis; no remote delivery or product release follows.
 Owner execution: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`.
 Issue: `fb/2026-10-05/evaluation-evidence-tooling-v1`.
 
@@ -94,8 +95,12 @@ its archive remains
 `c3d6e593fd5894a927d338da5347a32e9c9eda3aec0aadcf9a662d51e348b804`.
 No installed product, historical contract, owner source or v2 schema changed.
 
-Next: independent source/docs review, then a separately authorized public
-documentation/tooling delivery if accepted. New external evaluations can consume
+Independent review accepts source `d296cc4be9a0` and handoff `4f707fc4d376`,
+reproducing 112 helper/adjacent passes. Its limits are unchanged: no independent
+customer-operation replay, a6 payload change or push.
+
+Next: separately authorized public documentation/tooling delivery.
+New external evaluations can consume
 the optional helper without a product-runtime upgrade. SPEC stays on its separate
 owner path and will need its own candidate/integration proofs when ready.
 
