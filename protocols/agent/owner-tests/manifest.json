@@ -1,0 +1,35 @@
+{
+  "source_revision": "728831f6636a611a8baac61dbc258ed563a0e466",
+  "tests": [
+    {
+      "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python/tests/test_provider.py",
+      "test_path": "provider/test_provider.py",
+      "sha256": "9e7bf127e228e496283269f10451fe4598d4ce49d0cb27e9811f70cf5423b75a"
+    },
+    {
+      "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python/tests/test_cli.py",
+      "test_path": "cli/test_cli.py",
+      "sha256": "63f491ee077643db28e9d0bdb0ac4053fdcaa1d254dd57dad818f7d8b0c43a3a"
+    },
+    {
+      "source_path": "workspaces/aware_coordination/modules/workflow/sdks/issue/python/tests/test_issue_sdk_operation.py",
+      "test_path": "sdk/test_issue_sdk_operation.py",
+      "sha256": "2ef99651a609320ea860d0fa26aaa0a9efc039a673cd3a21b49d4a2cb1846728"
+    },
+    {
+      "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/tests/conftest.py",
+      "test_path": "state/conftest.py",
+      "sha256": "eede7f208059e1e7ffe13b44cb326a5143ab8e95ddae0108b05a4bf42482b325"
+    },
+    {
+      "source_path": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime/tests/test_state_machine.py",
+      "test_path": "state/test_state_machine.py",
+      "sha256": "b26ceb716d709e3362884d151ec496cd7033d4df08627bd3ffd3e30eca10a5cc"
+    },
+    {
+      "source_path": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python/tests/test_commit.py",
+      "test_path": "commit/test_commit.py",
+      "sha256": "6eb572379a158b330a62ccb5d49e41b5a88996c334d8861dec02ed58c4821e18"
+    }
+  ]
+}

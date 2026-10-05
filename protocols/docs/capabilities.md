@@ -1,4 +1,8 @@
-# Preview capability boundary
+# Native Goal reader capability boundary
+
+For the separate installable **Issue and repository commit** preview, see
+[its supported surface](../agent/README.md) and [installed proof](../agent/VERIFICATION.md).
+The table and unavailable list below describe only the native Goal distribution.
 
 | Available installed operation | What it establishes |
 | --- | --- |

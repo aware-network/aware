@@ -1,0 +1,101 @@
+{
+  "archive": "distribution/aware-agent-fs-linux_x86_64-py312.tar.gz",
+  "archive_bytes": 3533294,
+  "archive_sha256": "2ab8b1f087a6d2e2b4991a81b831fbd2374fa07cc17b58a251fc9c615230dc9e",
+  "authority_mode": "filesystem",
+  "builder_sha256": "f36c4bb7940b7b1550f888104dccd0a345b86a8137877ff8d8cb8728859e51d5",
+  "format": "aware.agent.fs.consumer-bundle.v1",
+  "generated_service_or_ontology_packages": [],
+  "platform": "linux_x86_64",
+  "python_minor": "3.12",
+  "root_requirement": "aware-agent-cli==0.1.0a1",
+  "source_provenance_sha256": "a5e1d3fa6d82e4630355eee00aee2ebefeab6c66ac9bf6340c90569de195df89",
+  "source_revision": "728831f6636a611a8baac61dbc258ed563a0e466",
+  "supported_commands": [
+    "aware",
+    "aware-issue-cli"
+  ],
+  "version": "0.1.0a1",
+  "wheels": [
+    {
+      "filename": "annotated_types-0.8.0-py3-none-any.whl",
+      "sha256": "f072f4d804ea359e4eaf198b1af7a8b0943881a87f31bb764f8bf219bb9419e0"
+    },
+    {
+      "filename": "attrs-26.1.0-py3-none-any.whl",
+      "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309"
+    },
+    {
+      "filename": "aware_agent_cli-0.1.0a1-py3-none-any.whl",
+      "sha256": "29155121fda50d7fca276f3845cd53313b065ac42e0aa2f0646fadbe5a9801bf"
+    },
+    {
+      "filename": "aware_issue_cli-0.6.0a1-py3-none-any.whl",
+      "sha256": "26d8602c77f91e760456ad30d8f5741f4563ee75f518a42afcb23d19834b23a0"
+    },
+    {
+      "filename": "aware_issue_fs_adapter-0.6.0a1-py3-none-any.whl",
+      "sha256": "1da39e39b5e3e5ae33542cb7d1d6e832d6dc4866ec2fc7a6a240f245638becee"
+    },
+    {
+      "filename": "aware_issue_operational_runtime-0.2.0+oss.1-py3-none-any.whl",
+      "sha256": "1a7bf5305e30e7717f9d8c0674fb57b740f7d313587394869c5631b70b25d1aa"
+    },
+    {
+      "filename": "aware_issue_runtime-0.2.0a1-py3-none-any.whl",
+      "sha256": "c16837864d6c4a1ce7e409ddd3c9d2f6bf2ed3e59fa2f9947dbe6b1368b3ecee"
+    },
+    {
+      "filename": "aware_issue_sdk-0.7.0a1-py3-none-any.whl",
+      "sha256": "2d938f4069a282f73958c47363428674a020804583f6088c3a3828c9910716c7"
+    },
+    {
+      "filename": "aware_protocol_fs_adapter-0.2.0-py3-none-any.whl",
+      "sha256": "4b2757702e7943535cf6028d95593d6f7fb52ce94a243fe21f05ccee4b7aa1cc"
+    },
+    {
+      "filename": "aware_protocol_runtime-0.1.0-py3-none-any.whl",
+      "sha256": "44233e002970e672171c83469105bb54da95272c2f12c54f108ce6cd17962650"
+    },
+    {
+      "filename": "aware_protocol_sdk-0.1.0-py3-none-any.whl",
+      "sha256": "11d5b364bc113369dbbc8bfb7e7a8f6fccc394a878243f017a51d11fc696b533"
+    },
+    {
+      "filename": "aware_workspace_operator-0.4.0a1-py3-none-any.whl",
+      "sha256": "b6d50762972aa8201e7b3c99cdb8c4c65f61055ea253ecedeb176eb3127cb7a8"
+    },
+    {
+      "filename": "jsonschema-4.26.0+aware.1-py3-none-any.whl",
+      "sha256": "167abf85d02a18ec191827e1641b7a58a11c4da477732d0576cdb4e6b6ccd5a2"
+    },
+    {
+      "filename": "jsonschema_specifications-2025.9.1-py3-none-any.whl",
+      "sha256": "98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe"
+    },
+    {
+      "filename": "pydantic-2.13.5-py3-none-any.whl",
+      "sha256": "346a034f080da3755d8e9cb5e00e8b07de1d39e4f6e2c87d8ab7cafa0b269a73"
+    },
+    {
+      "filename": "pydantic_core-2.46.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "sha256": "0fc5be0abd4a407e200d844b404e33639a554e7bd0d448e7b9ae181be4789ac2"
+    },
+    {
+      "filename": "referencing-0.37.0-py3-none-any.whl",
+      "sha256": "381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231"
+    },
+    {
+      "filename": "rpds_py-2026.6.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "sha256": "ecabd69db66de867690f9797f2f8fa27ba501bbc24540cbdbdc649cd15888ba6"
+    },
+    {
+      "filename": "typing_extensions-4.15.0-py3-none-any.whl",
+      "sha256": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"
+    },
+    {
+      "filename": "typing_inspection-0.4.4-py3-none-any.whl",
+      "sha256": "65b8397ba37ccbce054456aaccddfc91e6e3083c92824df348d96ca832f3f147"
+    }
+  ]
+}

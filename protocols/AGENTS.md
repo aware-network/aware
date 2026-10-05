@@ -1,4 +1,11 @@
-# Consuming the Aware Goal reader preview
+# Consuming Aware protocols
+
+For the installable **Issue and repository commit** workflow, use the
+[agent consumer contract](agent/AGENTS.md) and [quickstart](agent/quickstart.md).
+That bundle has its own Issue-only profile; its tooling creates the manifest
+without manual record edits. It does not grant Goal capabilities.
+
+The remainder of this file applies specifically to the separate Goal reader.
 
 This is the consumer contract for the read-only preview, not permission to
 contribute to the Aware source repository. Repository contributors additionally
@@ -26,7 +33,7 @@ follow the repository's root agent contract.
    fixture generator as a customer Goal-authoring tool.
 
 Current-epoch rejection is unsupported in this preview. Approval/pursuit
-writers, Goal creation/import, manifest setup, Issue lifecycle, Service/API
-and ActorWorld are unavailable. There is no automatic local fallback for a
+writers, Goal creation/import, native Goal manifest setup, Service/API
+and ActorWorld are unavailable in the Goal reader. There is no automatic local fallback for a
 service-owned target. Use the [quickstart](docs/quickstart.md) and retain the
 exact installed distribution identity when reporting findings.

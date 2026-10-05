@@ -1,5 +1,13 @@
 # One operational model, explicit authority
 
+The [agent-first Issue bundle](../agent/README.md) independently supports an
+Issue-only `aware.collaboration.fs_v1` profile with `aware.issue.markdown.v1`.
+Its Goal role is explicitly unavailable; setup does not reinterpret legacy
+lane rows as native Phases. It exposes `aware`/`aware-issue-cli` through the
+existing Issue SDK, filesystem provider, operational runtime and Workspace
+commit owner. The native Goal path and version table below refer to the
+separate read-only Goal distribution, not an implicit upgrade of that profile.
+
 A Goal describes direction; its lanes and phases describe contributions,
 dependencies and Gates. An Issue is a bounded work record, not proof that its
 Goal Gate has been accepted. Evidence outlives an agent execution. Another

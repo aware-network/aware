@@ -1,0 +1,12 @@
+[project]
+name = "aware-workspace-operator"
+version = "0.4.0a1"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+dependencies = ["pydantic==2.13.5"]
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+[tool.hatch.build.targets.wheel]
+packages = ["aware_workspace_operator"]

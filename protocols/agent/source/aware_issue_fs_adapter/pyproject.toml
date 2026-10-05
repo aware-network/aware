@@ -1,0 +1,12 @@
+[project]
+name = "aware-issue-fs-adapter"
+version = "0.6.0a1"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+dependencies = ["aware-issue-sdk==0.7.0a1", "aware-issue-runtime==0.2.0a1", "aware-issue-operational-runtime==0.2.0+oss.1", "aware-workspace-operator==0.4.0a1", "aware-protocol-fs-adapter==0.2.0"]
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+[tool.hatch.build.targets.wheel]
+packages = ["aware_issue_fs_adapter"]
