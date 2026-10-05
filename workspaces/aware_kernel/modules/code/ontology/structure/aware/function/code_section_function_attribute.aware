@@ -1,4 +1,0 @@
-edge CodeSectionFunctionAttribute {
-    position Int = 0
-    is_output Bool = false
-}
