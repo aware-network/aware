@@ -1,6 +1,0 @@
-enum ActorType {
-    agent_process_thread
-    human
-    organization
-    system
-}
