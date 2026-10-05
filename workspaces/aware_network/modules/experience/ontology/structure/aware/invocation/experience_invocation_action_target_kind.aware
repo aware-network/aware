@@ -1,4 +1,0 @@
-enum ExperienceInvocationActionTargetKind {
-    api
-    sdk
-}
