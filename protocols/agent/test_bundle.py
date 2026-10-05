@@ -26,9 +26,10 @@ SPEC.loader.exec_module(VERIFIER)
 
 
 class BundleTests(unittest.TestCase):
+    release_name = "release.json"
     @classmethod
     def setUpClass(cls):
-        cls.release = json.loads((ROOT / "release.json").read_bytes())
+        cls.release = json.loads((ROOT / cls.release_name).read_bytes())
         _, cls.files = VERIFIER.verified_archive((ROOT / cls.release["archive"]).read_bytes(), cls.release["archive_sha256"])
         cls.wheels = {}
         for name, data in cls.files.items():
@@ -49,7 +50,7 @@ class BundleTests(unittest.TestCase):
                    else "protocols/agent/build_bundle.py")
         self.assertEqual(hashlib.sha256((ROOT.parents[1] / builder).read_bytes()).hexdigest(), self.release["builder_sha256"])
         provenance = json.loads(self.files["source-provenance.json"])
-        self.assertEqual(len(provenance["files"]), 33)
+        self.assertEqual(len(provenance["files"]), 34 if self.release["version"] == "0.1.0a5" else 33)
         self.assertEqual(sum(r["disposition"] == "curated export facade" for r in provenance["files"]), 3)
         for record in provenance["files"]:
             module = record["package"].replace("-", "_")
@@ -119,7 +120,7 @@ class BundleTests(unittest.TestCase):
                 self.assertNotIn(b"/home/luis/", data, name)
 
     def test_contract_assets_and_identity_match_authored_inputs(self):
-        source = ROOT.parent / "contracts/agent-fs/v1.1.0"
+        source = ROOT.parent / ("contracts/agent-fs/v" + self.release["agent_contract"]["version"])
         metadata = json.loads((source / "contract.json").read_bytes())
         self.assertEqual(self.release["agent_contract"], {"ref": metadata["contract_ref"], "version": metadata["version"]})
         with zipfile.ZipFile(io.BytesIO(self.wheels["aware-agent-cli"][1])) as archive:

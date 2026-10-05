@@ -105,6 +105,20 @@ def _optional_text(value: object, field_name: str) -> str | None:
     return _text(value, field_name)
 
 
+def _authored_items(value: object, field_name: str) -> tuple[str, ...]:
+    """Freeze plain single-line authored items, not Markdown authority sections."""
+    result = _text_tuple(value, field_name)
+    for item in result:
+        _text(item, field_name)
+        if len(item.splitlines()) != 1 or any(
+            ord(character) < 32 or ord(character) == 127 for character in item
+        ):
+            raise IssueOperationContractError(
+                f"{field_name} must contain single-line text"
+            )
+    return result
+
+
 def _sha256(value: object, field_name: str) -> str:
     result = _text(value, field_name)
     if len(result) != 71 or not result.startswith("sha256:"):
@@ -267,6 +281,9 @@ class IssueEnsureSnapshotRequest:
     goal_ref: str = "TBD"
     source_description: str = "issue_sdk.ensure_issue_snapshot"
     expected_source_sha256: str | None = None
+    problem_items: tuple[str, ...] = ()
+    objective_items: tuple[str, ...] = ()
+    acceptance_items: tuple[str, ...] = ()
     operation_ref: ClassVar[str] = ISSUE_ENSURE_SNAPSHOT_OPERATION_REF
 
     def __post_init__(self) -> None:
@@ -291,6 +308,10 @@ class IssueEnsureSnapshotRequest:
                 self,
                 "expected_source_sha256",
                 _sha256(self.expected_source_sha256, "expected_source_sha256"),
+            )
+        for field_name in ("problem_items", "objective_items", "acceptance_items"):
+            object.__setattr__(
+                self, field_name, _authored_items(getattr(self, field_name), field_name)
             )
 
 
@@ -438,6 +459,9 @@ class IssueMutationResult:
     projection: IssueReadProjection | None = None
     evidence: tuple[str, ...] = ()
     diagnostics: tuple[str, ...] = ()
+    shared_index_projection: str | None = None
+    shared_index_projection_error: str | None = None
+    index_reconciliation_pending: bool | None = None
 
     def __post_init__(self) -> None:
         if type(self.outcome) is not IssueMutationOutcome:
@@ -469,6 +493,40 @@ class IssueMutationResult:
                     "closeout_publication_receipt_ref",
                 ),
             )
+        if (
+            any(
+                value is not None
+                for value in (
+                    self.shared_index_projection,
+                    self.shared_index_projection_error,
+                    self.index_reconciliation_pending,
+                )
+            )
+            and self.closeout_publication_receipt_ref is None
+        ):
+            raise IssueOperationContractError(
+                "index result requires a closeout publication receipt"
+            )
+        if self.shared_index_projection is not None and (
+            type(self.shared_index_projection) is not str
+            or self.shared_index_projection not in {"not_run", "applied", "failed"}
+        ):
+            raise IssueOperationContractError("invalid shared_index_projection")
+        if (
+            self.index_reconciliation_pending is not None
+            and type(self.index_reconciliation_pending) is not bool
+        ):
+            raise IssueOperationContractError(
+                "index_reconciliation_pending must be bool or null"
+            )
+        if self.shared_index_projection_error is not None:
+            object.__setattr__(
+                self,
+                "shared_index_projection_error",
+                _text(
+                    self.shared_index_projection_error, "shared_index_projection_error"
+                ),
+            )
         object.__setattr__(self, "evidence", _text_tuple(self.evidence, "evidence"))
         object.__setattr__(
             self, "diagnostics", _text_tuple(self.diagnostics, "diagnostics")
@@ -491,7 +549,7 @@ class IssueMutationResult:
             )
 
     def to_wire(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "contract": ISSUE_MUTATION_RESULT_CONTRACT,
             "operation_ref": self.operation_ref,
             "outcome": self.outcome.value,
@@ -511,6 +569,13 @@ class IssueMutationResult:
             "evidence": list(self.evidence),
             "diagnostics": list(self.diagnostics),
         }
+        if self.closeout_publication_receipt_ref is not None:
+            payload.update(
+                shared_index_projection=self.shared_index_projection,
+                shared_index_projection_error=self.shared_index_projection_error,
+                index_reconciliation_pending=self.index_reconciliation_pending,
+            )
+        return payload
 
 
 @dataclass(frozen=True, slots=True)
@@ -548,11 +613,16 @@ class IssueCommitWorkspaceResult:
             self.index_reconciliation_pending is not None
             and type(self.index_reconciliation_pending) is not bool
         ):
-            raise IssueOperationContractError("index_reconciliation_pending must be bool or null")
+            raise IssueOperationContractError(
+                "index_reconciliation_pending must be bool or null"
+            )
         if self.shared_index_projection_error is not None:
             object.__setattr__(
-                self, "shared_index_projection_error",
-                _text(self.shared_index_projection_error, "shared_index_projection_error"),
+                self,
+                "shared_index_projection_error",
+                _text(
+                    self.shared_index_projection_error, "shared_index_projection_error"
+                ),
             )
         for field_name in (
             "issue_ref",

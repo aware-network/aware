@@ -293,6 +293,30 @@ class FilesystemIssueOperationProvider:
                     source_sha256_before=before,
                     diagnostics=("issue_identity_already_exists_with_other_values",),
                 )
+            if (
+                (
+                    request.problem_items
+                    and request.problem_items != projection.problem_items
+                )
+                or (
+                    request.objective_items
+                    and request.objective_items != projection.goal_items
+                )
+                or (
+                    request.acceptance_items
+                    and request.acceptance_items
+                    != tuple(item.text for item in projection.acceptance_items)
+                )
+            ):
+                return self._mutation_result(
+                    operation_ref=request.operation_ref,
+                    issue_ref=request.issue_ref,
+                    outcome=IssueMutationOutcome.CONFLICT,
+                    source_sha256_before=before,
+                    diagnostics=(
+                        "issue_authored_content_already_exists_with_other_values",
+                    ),
+                )
             return self._mutation_result(
                 operation_ref=request.operation_ref,
                 issue_ref=request.issue_ref,
@@ -361,6 +385,9 @@ class FilesystemIssueOperationProvider:
             recorder=request.actor_ref,
             source=request.source_description,
             ownership_scope=(),
+            problem_items=request.problem_items,
+            objective_items=request.objective_items,
+            acceptance_items=request.acceptance_items,
             updates=(
                 (
                     f"- Ensured through `{request.operation_ref}`. "
@@ -696,6 +723,9 @@ class FilesystemIssueOperationProvider:
         return replace(
             mutation,
             closeout_publication_receipt_ref=closeout_receipt,
+            shared_index_projection=publication.report.shared_index_projection,
+            shared_index_projection_error=publication.report.shared_index_projection_error,
+            index_reconciliation_pending=publication.report.index_reconciliation_pending,
             evidence=(
                 *mutation.evidence,
                 f"implementation_publication_receipt:{verified_publication_receipt}",

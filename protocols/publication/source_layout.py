@@ -73,6 +73,12 @@ def main():
             item.update(bytes=len(data), sha256=hashlib.sha256(data).hexdigest(),
                         previous_sha256=hashlib.sha256(before).hexdigest(),
                         byte_identical=data == before)
+        for item in config.get("additions", []):
+            path = ROOT / relative(item["path"])
+            if path.is_symlink() or not path.is_file():
+                raise ValueError("layout_regular_file_required:" + item["path"])
+            data = path.read_bytes()
+            item.update(bytes=len(data), sha256=hashlib.sha256(data).hexdigest())
         CONFIG.write_text(json.dumps(config, indent=2, sort_keys=True) + "\n")
     print(json.dumps({"files": len(checked), "relocated": args.relocate, "recorded": args.record}))
 

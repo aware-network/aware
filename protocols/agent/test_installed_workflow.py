@@ -70,6 +70,9 @@ class InstalledWorkflow(unittest.TestCase):
     def open(self):
         return invoke(self.root, "issue", "open", "--repository-root", str(self.root), "--issue-ref", REF,
                       "--title", "Deliver bounded result", "--scope-path", "src/result.py", "--client-intent-id", "open-proof",
+                      "--problem", "The approved result needs durable bounded delivery.",
+                      "--objective", "Deliver value=2 without unrelated changes.",
+                      "--acceptance", "Preserve unrelated customer files and staging.",
                       "--actor-ref", ACTOR, "--actor-evidence-ref", "fixture-harness:" + ACTOR)
 
     def observe(self):

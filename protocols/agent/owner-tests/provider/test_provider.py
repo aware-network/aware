@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import hashlib
 import subprocess
+from dataclasses import replace
 from pathlib import Path
 
+import aware_workspace_operator.commit as commit_owner
+import pytest
 from aware_issue_fs_adapter import FilesystemIssueOperationProvider
 from aware_issue_sdk import (
     IssueAppendEvidenceRequest,
@@ -14,6 +17,7 @@ from aware_issue_sdk import (
     IssueCommitWorkspaceRequest,
     IssueEnsureSnapshotRequest,
     IssueMutationOutcome,
+    IssueOperationContractError,
     IssuePublicationOutcome,
     IssueReadProjectionResolveOutcome,
     IssueReadProjectionResolveRequest,
@@ -453,12 +457,169 @@ def test_close_requires_evidence_and_publication_receipt(tmp_path: Path) -> None
     assert result.to_wire()["closeout_publication_receipt_ref"] == (
         result.closeout_publication_receipt_ref
     )
+    assert result.shared_index_projection == "applied"
+    assert result.shared_index_projection_error is None
+    assert result.index_reconciliation_pending is False
     assert _git(
         repository, "show", "HEAD:" + issue.relative_to(repository).as_posix()
     ) == (issue.read_text(encoding="utf-8").rstrip())
     assert _git(
         repository, "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"
     ) == (issue.relative_to(repository).as_posix())
+
+
+def test_initial_authored_content_and_conflicting_ensure(tmp_path: Path) -> None:
+    repository = _repository(tmp_path)
+    issue = repository / "docs/issues/2026/09/20/fb-2026-09-20-example.md"
+    issue.unlink()  # remove only this synthetic fixture's seeded Issue
+    client = IssueSdkOperationClient(
+        provider=FilesystemIssueOperationProvider(repository_root=repository)
+    )
+    request = IssueEnsureSnapshotRequest(
+        issue_ref=ISSUE_REF,
+        title="Example",
+        priority="P1",
+        actor_ref="codex-example",
+        owner_ref="codex-example",
+        actor_evidence_ref="fixture:actor",
+        client_intent_id="fixture:content",
+        problem_items=("Readers lose the approved request.",),
+        objective_items=("Keep the approved work durable.",),
+        acceptance_items=(
+            "Reject changes outside the approved scope.",
+            "Preserve [x] as plain text.",
+        ),
+    )
+    created = client.ensure_issue_snapshot(request)
+    assert created.outcome is IssueMutationOutcome.APPLIED
+    assert created.projection.problem_items == request.problem_items
+    assert created.projection.goal_items == request.objective_items
+    assert (
+        tuple(item.text for item in created.projection.acceptance_items)
+        == request.acceptance_items
+    )
+    assert all(not item.checked for item in created.projection.acceptance_items)
+    before = issue.read_bytes()
+    assert (
+        client.ensure_issue_snapshot(request).outcome is IssueMutationOutcome.IDEMPOTENT
+    )
+    for field in ("problem_items", "objective_items", "acceptance_items"):
+        refused = client.ensure_issue_snapshot(
+            replace(request, **{field: ("Different approved content.",)})
+        )
+        assert refused.outcome is IssueMutationOutcome.CONFLICT
+        assert refused.diagnostics == (
+            "issue_authored_content_already_exists_with_other_values",
+        )
+        assert issue.read_bytes() == before
+    legacy = replace(request, problem_items=(), objective_items=(), acceptance_items=())
+    assert (
+        client.ensure_issue_snapshot(legacy).outcome is IssueMutationOutcome.IDEMPOTENT
+    )
+    assert issue.read_bytes() == before
+
+
+def test_authored_content_survives_real_publication_and_closeout(
+    tmp_path: Path,
+) -> None:
+    repository, _target = _publication_repository(tmp_path)
+    issue = repository / "docs/issues/2026/09/20/fb-2026-09-20-example.md"
+    issue.unlink()  # replace only the seeded synthetic record through its owner
+    client = IssueSdkOperationClient(
+        provider=FilesystemIssueOperationProvider(repository_root=repository)
+    )
+    request = IssueEnsureSnapshotRequest(
+        issue_ref=ISSUE_REF,
+        title="Example",
+        priority="P1",
+        owner_ref="codex-example",
+        actor_ref="codex-example",
+        actor_evidence_ref="fixture:actor",
+        client_intent_id="fixture:authored-closeout",
+        problem_items=("Execution history loses the approved request.",),
+        objective_items=("Preserve the approved request in the Issue.",),
+        acceptance_items=("Retain evidence without manufacturing acceptance.",),
+    )
+    assert client.ensure_issue_snapshot(request).outcome is IssueMutationOutcome.APPLIED
+    assert (
+        client.bind_issue_scope_paths(
+            IssueBindScopePathsRequest(
+                **_mutation_kwargs(issue, intent="authored-scope"),
+                scope_paths=(
+                    "src/example.py",
+                    issue.relative_to(repository).as_posix(),
+                ),
+            )
+        ).outcome
+        is IssueMutationOutcome.APPLIED
+    )
+    assert (
+        client.start_issue_progress(
+            IssueStartProgressRequest(
+                **_mutation_kwargs(issue, intent="authored-start")
+            )
+        ).outcome
+        is IssueMutationOutcome.APPLIED
+    )
+    receipt = _publish_implementation(repository=repository, issue=issue, client=client)
+    closed = client.close_issue(
+        IssueCloseRequest(
+            **_mutation_kwargs(issue, intent="authored-close"),
+            resolution="Delivered the bounded change; criteria remain authored evidence.",
+            verified_by=("fixture:focused-proof",),
+            publication_receipt_ref=receipt,
+        )
+    )
+    assert closed.outcome is IssueMutationOutcome.APPLIED
+    assert closed.projection.status == "closed"
+    assert closed.projection.problem_items == request.problem_items
+    assert closed.projection.goal_items == request.objective_items
+    assert tuple(item.text for item in closed.projection.acceptance_items) == (
+        request.acceptance_items
+    )
+    assert all(not item.checked for item in closed.projection.acceptance_items)
+    assert _git(
+        repository, "show", "HEAD:" + issue.relative_to(repository).as_posix()
+    ) == (issue.read_text().rstrip())
+
+
+def test_closeout_pending_index_is_reported_without_repair(tmp_path: Path) -> None:
+    repository, _target = _publication_repository(tmp_path)
+    issue = repository / "docs/issues/2026/09/20/fb-2026-09-20-example.md"
+    issue.write_text(
+        issue.read_text().replace(
+            "- `src/example.py`",
+            "- `src/example.py`\n- `" + issue.relative_to(repository).as_posix() + "`",
+        )
+    )
+    client = IssueSdkOperationClient(
+        provider=FilesystemIssueOperationProvider(repository_root=repository)
+    )
+    receipt = _publish_implementation(repository=repository, issue=issue, client=client)
+    before_index = _git(repository, "ls-files", "--stage")
+    lock = repository / ".git/index.lock"
+    lock.write_text("foreign closeout lock\n")  # labeled fixture fault injection only
+    result = client.close_issue(
+        IssueCloseRequest(
+            **_mutation_kwargs(issue, intent="close-pending-index"),
+            resolution="Completed bounded work.",
+            verified_by=("fixture:checks",),
+            publication_receipt_ref=receipt,
+        )
+    )
+    assert result.outcome is IssueMutationOutcome.APPLIED
+    assert result.closeout_publication_receipt_ref == "git:" + _git(
+        repository, "rev-parse", "HEAD"
+    )
+    assert result.shared_index_projection == "failed"
+    assert result.shared_index_projection_error == "shared_index_lock_busy"
+    assert result.index_reconciliation_pending is True
+    assert lock.read_text() == "foreign closeout lock\n"
+    assert _git(repository, "ls-files", "--stage") == before_index
+    assert result.projection.status == "closed"
+    assert "Closed" in _git(
+        repository, "show", "HEAD:" + issue.relative_to(repository).as_posix()
+    )
 
 
 def test_close_refuses_unverified_publication_receipt_without_mutation(
@@ -523,8 +684,11 @@ def test_close_rolls_back_source_when_publication_fails(tmp_path: Path) -> None:
     assert _git(repository, "rev-parse", "HEAD") == head_before
 
 
+@pytest.mark.parametrize("projection_busy", [False, True])
 def test_commit_workspace_plans_then_publishes_through_workspace_owner(
     tmp_path: Path,
+    monkeypatch,
+    projection_busy: bool,
 ) -> None:
     repository, target = _publication_repository(tmp_path)
     issue = repository / "docs/issues/2026/09/20/fb-2026-09-20-example.md"
@@ -533,6 +697,21 @@ def test_commit_workspace_plans_then_publishes_through_workspace_owner(
     client = IssueSdkOperationClient(
         provider=FilesystemIssueOperationProvider(repository_root=repository)
     )
+
+    if projection_busy:
+        original_projection = commit_owner._project_shared_index_atomically
+
+        def busy_projection(**kwargs):
+            lock = repository / ".git/index.lock"
+            lock.write_text("foreign lock\n", encoding="utf-8")
+            try:
+                return original_projection(**kwargs)
+            finally:
+                lock.unlink()
+
+        monkeypatch.setattr(
+            commit_owner, "_project_shared_index_atomically", busy_projection
+        )
 
     planned = client.commit_workspace(
         IssueCommitWorkspaceRequest(
@@ -562,6 +741,20 @@ def test_commit_workspace_plans_then_publishes_through_workspace_owner(
     assert applied.outcome is IssuePublicationOutcome.APPLIED
     assert applied.publication_receipt_ref == f"git:{applied.commit_hash}"
     assert applied.transaction_mode == "isolated_index_atomic_ref_v1"
+    assert planned.shared_index_projection == "not_run"
+    assert applied.shared_index_projection == (
+        "failed" if projection_busy else "applied"
+    )
+    assert applied.index_reconciliation_pending is projection_busy
+    assert applied.shared_index_projection_error == (
+        "shared_index_lock_busy" if projection_busy else None
+    )
+    assert applied.to_wire()["index_reconciliation_pending"] is projection_busy
+    for invalid in ["false", 1]:
+        with pytest.raises(IssueOperationContractError):
+            replace(applied, index_reconciliation_pending=invalid)
+    with pytest.raises(IssueOperationContractError):
+        replace(applied, shared_index_projection="clean")
     assert _git(repository, "show", "HEAD:src/example.py") == "after"
     assert target.read_text(encoding="utf-8") == "after\n"
     assert unrelated.read_text(encoding="utf-8") == "preserve me\n"

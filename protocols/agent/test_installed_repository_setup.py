@@ -53,6 +53,9 @@ class RepositorySetupTests(unittest.TestCase):
         paths = [*initialized["created"], "src/result.py", flow.ISSUE]
         args = ["issue", "open", "--repository-root", str(self.root), "--issue-ref", flow.REF,
                 "--title", "First customer result", "--client-intent-id", "new-repository-open",
+                "--problem", "A new repository needs its first governed contribution.",
+                "--objective", "Publish the exact approved first contribution.",
+                "--acceptance", "Preserve foreign staging and use the shared commit owner.",
                 "--actor-ref", flow.ACTOR, "--actor-evidence-ref", "fixture:" + flow.ACTOR]
         for path in paths:
             args.extend(["--scope-path", path])

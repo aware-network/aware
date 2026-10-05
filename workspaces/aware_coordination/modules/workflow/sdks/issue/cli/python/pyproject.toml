@@ -1,10 +1,10 @@
 [project]
 name = "aware-issue-cli"
-version = "0.6.0a2"
+version = "0.6.0a3"
 requires-python = ">=3.12"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
-dependencies = ["aware-issue-sdk==0.7.0a2", "aware-issue-fs-adapter==0.6.0a2"]
+dependencies = ["aware-issue-sdk==0.7.0a3", "aware-issue-fs-adapter==0.6.0a3"]
 [build-system]
 requires = ["hatchling>=1.27.0"]
 build-backend = "hatchling.build"

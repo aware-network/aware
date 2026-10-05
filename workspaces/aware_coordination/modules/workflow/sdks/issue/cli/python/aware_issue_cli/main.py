@@ -25,6 +25,8 @@ from aware_issue_sdk import (
     IssueStartProgressRequest,
 )
 
+from .summary import summarize_result
+
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="aware-issue-cli")
@@ -44,6 +46,9 @@ def _parser() -> argparse.ArgumentParser:
         default="issue_sdk.ensure_issue_snapshot",
     )
     ensure.add_argument("--expected-source-sha256")
+    ensure.add_argument("--problem", action="append", default=[])
+    ensure.add_argument("--objective", action="append", default=[])
+    ensure.add_argument("--acceptance", action="append", default=[])
     _actor_arguments(ensure)
 
     for command in ("start-progress", "block", "resume"):
@@ -82,6 +87,10 @@ def _parser() -> argparse.ArgumentParser:
     commit_workspace.add_argument("--dry-run", action="store_true")
     commit_workspace.add_argument("--actor-ref", required=True)
     commit_workspace.add_argument("--actor-evidence-ref", required=True)
+    for command_parser in subparsers.choices.values():
+        command_parser.add_argument(
+            "--format", choices=("json", "summary"), default="json"
+        )
     return parser
 
 
@@ -128,6 +137,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                     client_intent_id=args.client_intent_id,
                     actor_ref=args.actor_ref,
                     actor_evidence_ref=args.actor_evidence_ref,
+                    problem_items=tuple(args.problem),
+                    objective_items=tuple(args.objective),
+                    acceptance_items=tuple(args.acceptance),
                 )
             )
         elif args.command == "start-progress":
@@ -205,18 +217,25 @@ def main(argv: Sequence[str] | None = None) -> int:
             "close": "issue_sdk.close_issue",
             "commit-workspace": "issue_sdk.commit_workspace",
         }[args.command]
+        payload: dict[str, object] = {
+            "operation_ref": operation_ref,
+            "outcome": "malformed",
+            "diagnostics": [f"request_invalid:{type(error).__name__}"],
+        }
         print(
             json.dumps(
-                {
-                    "operation_ref": operation_ref,
-                    "outcome": "malformed",
-                    "diagnostics": [f"request_invalid:{type(error).__name__}"],
-                },
+                summarize_result(payload) if args.format == "summary" else payload,
                 sort_keys=True,
             )
         )
         return 2
-    print(json.dumps(result.to_wire(), sort_keys=True))
+    payload = result.to_wire()
+    print(
+        json.dumps(
+            summarize_result(payload) if args.format == "summary" else payload,
+            sort_keys=True,
+        )
+    )
     successful = result.outcome in {
         IssueReadProjectionResolveOutcome.FOUND,
         IssueMutationOutcome.APPLIED,

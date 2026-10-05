@@ -32,8 +32,9 @@ class InstalledRepositoryRepair(unittest.TestCase):
             self.assertEqual(hashlib.sha256(origin.read_bytes()).hexdigest(), row["sha256"])
 
     def test_candidate_version_and_no_editable_or_direct_url(self):
-        self.assertEqual(importlib.metadata.version("aware-agent-cli"), "0.1.0a4")
-        self.assertEqual(subprocess.check_output([str(flow.CLI), "--version"], text=True).strip(), "aware-agent-cli 0.1.0a4")
+        version = json.loads(Path(os.environ["AWARE_REPAIR_BINDING"]).read_text())["version"]
+        self.assertEqual(importlib.metadata.version("aware-agent-cli"), version)
+        self.assertEqual(subprocess.check_output([str(flow.CLI), "--version"], text=True).strip(), "aware-agent-cli " + version)
         for distribution in importlib.metadata.distributions():
             self.assertIsNone(distribution.read_text("direct_url.json"))
 
@@ -57,6 +58,9 @@ class InstalledRepositoryRepair(unittest.TestCase):
             paths = [*initialized["created"], "src/result.py", flow.ISSUE]
             args = ["issue", "open", "--repository-root", str(root), "--issue-ref", flow.REF,
                     "--title", "Installed repository repair", "--client-intent-id", "repair-open",
+                    "--problem", "The initial index must not hide the approved contribution.",
+                    "--objective", "Publish and close through the existing repository owner.",
+                    "--acceptance", "Preserve foreign staging and retain pending-index warnings.",
                     "--actor-ref", flow.ACTOR, "--actor-evidence-ref", "fixture:" + flow.ACTOR]
             for path in paths:
                 args.extend(["--scope-path", path])

@@ -141,6 +141,9 @@ def build_issue_document(
     source: str,
     ownership_scope: tuple[str, ...],
     updates: tuple[str, ...],
+    problem_items: tuple[str, ...] = (),
+    objective_items: tuple[str, ...] = (),
+    acceptance_items: tuple[str, ...] = (),
 ) -> IssueDocument:
     headers = [
         IssueHeaderLine(field="Slug", value=wrap_backticks(slug)),
@@ -164,15 +167,17 @@ def build_issue_document(
         ),
         IssueSection(
             heading="Problem",
-            lines=["1. TBD"],
+            lines=[f"{i}. {text}" for i, text in enumerate(problem_items, 1)]
+            or ["1. TBD"],
         ),
         IssueSection(
             heading="Goal",
-            lines=["1. TBD"],
+            lines=[f"{i}. {text}" for i, text in enumerate(objective_items, 1)]
+            or ["1. TBD"],
         ),
         IssueSection(
             heading="Acceptance Checklist",
-            lines=["- [ ] TBD"],
+            lines=[f"- [ ] {text}" for text in acceptance_items] or ["- [ ] TBD"],
         ),
         IssueSection(
             heading="Updates (append-only)",

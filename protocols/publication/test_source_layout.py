@@ -25,6 +25,10 @@ class SourceLayoutTests(unittest.TestCase):
             self.assertEqual(len(data), item["bytes"], item["path"])
             self.assertEqual(hashlib.sha256(data).hexdigest(), item["sha256"], item["path"])
             self.assertFalse((ROOT / item["previous_path"]).exists(), item["previous_path"])
+        for item in LAYOUT.get("additions", []):
+            data = (ROOT / item["path"]).read_bytes()
+            self.assertEqual(len(data), item["bytes"])
+            self.assertEqual(hashlib.sha256(data).hexdigest(), item["sha256"])
 
     def test_only_provenance_link_readmes_changed(self):
         changed = [m for m in LAYOUT["moves"] if not m["byte_identical"]]
@@ -39,6 +43,7 @@ class SourceLayoutTests(unittest.TestCase):
 
     def test_workspace_files_are_allowlisted(self):
         admitted = {m["path"] for m in LAYOUT["moves"] if m["path"].startswith("workspaces/")}
+        admitted.update(m["path"] for m in LAYOUT.get("additions", []))
         actual = {p.relative_to(ROOT).as_posix() for p in (ROOT / "workspaces").rglob("*")
                   if p.is_file() and "__pycache__" not in p.parts}
         self.assertEqual(actual, admitted | {"workspaces/README.md"})
@@ -71,9 +76,9 @@ class SourceLayoutTests(unittest.TestCase):
     def test_current_builder_refuses_immutable_overwrite_before_source_mutation(self):
         version = tomllib.loads((ROOT / LAYOUT["agent_projects"]["aware_agent_cli"] / "pyproject.toml").read_text())["project"]["version"]
         if not (ROOT / ("protocols/agent/distribution/aware-agent-fs-" + version + "-linux_x86_64-py312.tar.gz")).exists():
-            self.assertEqual(version, "0.1.0a4")
-            self.assertEqual(json.loads((ROOT / "protocols/agent/release.json").read_bytes())["version"], "0.1.0a3")
-            return  # source preparation has no immutable a4 candidate yet
+            self.assertEqual(version, "0.1.0a5")
+            self.assertEqual(json.loads((ROOT / "protocols/agent/release.json").read_bytes())["version"], "0.1.0a4")
+            return  # a5 preparation does not promote the a4 selection
         paths = [ROOT / m["path"] for m in LAYOUT["moves"]]
         before = [p.read_bytes() for p in paths]
         result = subprocess.run([sys.executable, "-B", str(ROOT / "protocols/agent/build_bundle.py"),
