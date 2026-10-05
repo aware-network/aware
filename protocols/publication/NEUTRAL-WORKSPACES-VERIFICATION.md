@@ -90,9 +90,21 @@ checkout-hidden/network-disabled boundary. The original build/source pins and
 qualification remain intact; no Goal approval, service authority, authenticated
 actor policy, hostile-process isolation or external U/V/R pass is implied.
 
+## Public Git replay
+
+Implementation `7a048da7c361235da1f2b1807a4a9f8988cee6b0` was published through
+exact-path Issue-governed dry-run/apply and non-force push to
+`aware-network/aware/main`; remote readback matched. A fresh public shallow clone
+at that revision installed the unchanged a3 archive into another fresh environment
+offline with the development checkout hidden and inherited environment cleared.
+All **198 tests passed again, zero skipped**, using that public tree and installed
+wheels. Public owner-test JUnit SHA-256:
+`2338a0504e746438e0ffe7957fbd6e2f16fa8b936428cbb439ffdfc165a0ef49`.
+The public clone and producer index were clean. No private client records,
+artifact bytes or accepted root bootstrap changed.
+
 ## Next outcome
 
-Publish this exact neutral-only tree through the governed Issue and bounded
-non-force Git delivery. Then ask a fresh client execution to complete a real
-approved Issue outcome on unchanged a3, followed separately by V and R.
+Ask a fresh client execution to complete a real approved Issue outcome on
+unchanged a3, followed separately by V and R.
 Additional source enters only after an explicit value/dependency/notice review.

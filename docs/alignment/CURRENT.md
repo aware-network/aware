@@ -34,5 +34,8 @@ contain only reviewed consumer source, not restored internal outputs. The exact
 [allowlist](../../protocols/publication/source-layout.json) binds previous and
 current coordinates. Customer a3 bytes, package closure and accepted agent
 contract versions remain unchanged.
+The [source-layout checkpoint](../../protocols/publication/NEUTRAL-WORKSPACES-VERIFICATION.md)
+records all 16 neutral projects rebuilding to accepted wheel hashes and 198
+checks passing in both producer and fresh public-clone installed replays.
 Alignment is contextual documentation, never assignment or approval authority.
 Use an exact explicitly approved Issue for work; do not infer one from this page.
