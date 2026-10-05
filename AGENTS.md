@@ -1,6 +1,6 @@
 # Aware Agent Bootstrap Contract
 
-Contract: `aware.agent.fs.v1` **1.0.0**. Authority: **filesystem**.
+Contract: `aware.agent.fs.v1` **1.2.0**. Authority: **filesystem**.
 This is the bootstrap for agents working in this repository. Read it completely.
 Operational detail is in [the modular contract](docs/agents/README.md).
 Read only the modules relevant to the task, not a whole development doctrine.
@@ -41,8 +41,9 @@ An SDK result, not cwd/cache/recency or a transcript, establishes the observed I
 Obtain the customer's approved objective, acceptance checks and exact source
 paths. Use `aware issue open` to create/bind/start the chosen Issue; retain its
 constituent receipts. It is a composition, not a multi-step transaction.
-Record the real objective and acceptance through `issue append-update` before
-implementation. The task must have the expected owner and `in_progress` state.
+Supply repeatable `--problem`, `--objective` and `--acceptance` at open.
+These are durable authored items; acceptance starts unchecked and closure does
+not automatically check it. Use `append-update` for progress and evidence. The task must have the expected owner and `in_progress` state.
 
 Observe `issue resolve-read-projection` before each mutation and supply the exact
 latest `projection.source.digest`. Do not manually edit Issue ownership,
@@ -83,6 +84,10 @@ installed package files, build outputs and generated/materialized targets remain
 read-only unless an explicit owner-approved generator operation is in scope.
 Tool setup may create missing bootstrap files only with customer preparation
 approval; this does not admit implementation work or authorize a Git publication.
+For an explicitly approved empty new target, `aware init --create-repository`
+may prepare Git and the scaffold. This does not configure an author, create a
+seed commit or push. The first real commit remains Issue-scoped through the
+same publication owner; an unborn branch is not an invented baseline.
 
 ## 7. Verify and publish with receipts
 

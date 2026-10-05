@@ -3,7 +3,7 @@
 Install once. Give an agent a customer-approved task. Keep ownership, scope,
 evidence and publication durable across executions—not trapped in chat history.
 
-This **0.1.0a4 filesystem preview** exposes existing Aware Issue and repository
+This **0.1.0a5 filesystem preview** exposes existing Aware Issue and repository
 owners through a thin `aware` interface. No service, generated API, ontology/ORM,
 Experience runtime or Aware development environment is required.
 
@@ -32,7 +32,7 @@ closure is in [release.json](release.json); it is not Aware's development closur
 ## Give the agent these inputs
 
 - Absolute customer Git root and installed command path.
-- Customer-approved objective, acceptance checks and exact authored source paths.
+- Customer-approved problem, objective, acceptance checks and exact authored source paths.
 - Its own real, stable harness execution identity—not another agent's identifier.
 - [The consumer contract](AGENTS.md) and [the workflow below](quickstart.md).
 
@@ -68,7 +68,7 @@ customer review, not automatic precedence. Inspect `preserved` and
 three-operation `issue open` composition are not multi-file transactions.
 An interrupted operation must be inspected; do not erase durable receipts and retry blindly.
 
-The authored [contract](../contracts/README.md) is `aware.agent.fs.v1` / 1.1.0.
+The authored [contract](../contracts/README.md) is `aware.agent.fs.v1` / 1.2.0.
 The public repository, shipped CLI resources and customer scaffolds are rendered
 from those same templates. Contract versioning is independent of the CLI version
 and record/profile version; upgrades are explicit, never ordinary bootstrap side effects.
@@ -81,6 +81,16 @@ dry-run/apply scoped commit → close with the real publication receipt.**
 
 For replacement, the owner blocks and transfers the Issue; the new execution
 observes its durable state and resumes. Neither a transcript nor a cache assigns work.
+
+`issue open` requires repeatable `--problem`, `--objective` and `--acceptance`
+single-line inputs. The shared SDK still supports legacy omitted-content calls;
+the new agent entrance prevents new placeholder Issues. Narrative updates retain
+progress, not rewrites or automatic acceptance. Criteria begin unchecked and
+closeout does not silently check them.
+
+Use optional `--format summary` for readable JSON summaries. Full SDK JSON is
+the default. Summaries preserve actual refs, diagnostics, publication state and
+operation-specific index evidence; they do not invent missing guarantees.
 
 ## Supported boundary
 
@@ -126,7 +136,7 @@ is inferred from the installed fixture proofs.
 
 ## Publication and index state
 
-A successful commit and a clean Git index are separate observations. a4 carries
+A successful commit and a clean Git index are separate observations. a5 carries
 `shared_index_projection`, `shared_index_projection_error` and
 `index_reconciliation_pending` through the installed CLI. Preserve these fields
 with the actual publication receipt. `true` means projection remains pending;

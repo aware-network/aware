@@ -1,4 +1,27 @@
-# Current agent preview: 0.1.0a4
+# Current agent preview: 0.1.0a5
+
+Exact archive SHA-256:
+`0e6a2c98a0d8c691b7078ab48194363971d547689514b5c8fa3a3d2f7ccc9184`.
+The [candidate-bound source/installed proof](A5-CANDIDATE.md) records
+**222 installed tests and 28 accounting/layout checks passed, zero skipped**,
+independently reproduced at `81929f50acf8`. Candidate closeout is
+`b5fa86f917e4`. This is technical acceptance, not an independent rebuild or
+exhaustive public-safety review. The [publication record](../publication/A5-PUBLICATION.md)
+separately records promotion, public delivery and replay.
+
+The selected [release manifest](release.json) exactly equals the accepted
+[a5 candidate record](release-a5-candidate.json). The unchanged a4 manifest is
+retained as [release-a4.json](release-a4.json). Four wheel versions changed;
+18 wheels are byte-identical to a4. No package is added. New Issue inputs and
+summaries reuse shared owners; they are not new lifecycle/publication engines.
+
+Reconciliation can remain pending; missing historical fields mean unknown.
+Interrupted-unborn recovery, authenticated identity, Goal writers and Service/API
+remain unavailable. Writer absence is not approval-policy enforcement.
+
+---
+
+# Historical agent preview: 0.1.0a4
 
 Exact archive SHA-256:
 `52109f772692071681570e59a161ced33ac6606ff2effdff4fa2094cd4c58cbe`.
@@ -16,7 +39,7 @@ remote-delivery receipts do not establish remote delivery of a4.
 
 # Agent filesystem preview verification
 
-Current **0.1.0a3** candidate: see [repository onboarding and evaluation proof](REPOSITORY-ONBOARDING-VERIFICATION.md).
+Historical **0.1.0a3** candidate: see [repository onboarding and evaluation proof](REPOSITORY-ONBOARDING-VERIFICATION.md).
 The historical a2 receipt below remains bound to a2, not automatic acceptance of a3.
 
 Consumer version: **0.1.0a2**, public Git preview dated 2026-10-05.

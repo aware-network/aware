@@ -17,3 +17,8 @@ For a replacement execution:
 A transcript is explanatory, not authority. Current local actor strings are
 declared rather than authenticated. Refusals and incomplete results remain
 evidence; do not convert absence of an operation into an enforcement pass.
+
+Authored acceptance remains unchecked unless separately evidenced; Issue
+closeout does not evaluate it or grant Goal acceptance. Retain actual index
+warnings: unknown is not clean. Summaries preserve publication owner and
+reference-update state; default JSON remains available.

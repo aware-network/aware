@@ -7,9 +7,13 @@
 5. Read the relevant alignment context, never treating it as assignment.
 6. Open one explicitly chosen Issue through `aware issue open`, or observe and
    resume a properly transferred Issue. Do not adopt a Closed or foreign-owned Issue.
-7. Record objective and acceptance through `issue append-update`. Retain the
+7. Supply approved `--problem`, `--objective` and `--acceptance` at open. Retain the
    open composition's individual SDK receipts; incomplete does not mean rollback.
 
 The concrete command examples ship in the installed contract's Issue procedure.
+An explicitly approved empty new target can use `aware init --create-repository`.
+Without creation intent, a missing repository is refused. Existing/unborn Git
+roots are supported; first publication uses the ordinary Issue-governed owner.
+Never fabricate an author, baseline or initial commit to bypass a refusal.
 Use each command's `--help` for supported flags. The current Issue-only profile
 cannot create Goals or grant approval, pursuit, dispatch or WorkContext authority.

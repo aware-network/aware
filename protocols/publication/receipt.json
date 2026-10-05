@@ -5,12 +5,12 @@
   "envelope_sha256": "10b126383498b4e4561109f5eb8059161b2c03546d19065b85506f4c41a29c21",
   "format": "aware.protocols.git-publication.v2",
   "generator": "protocols/publication/export_preview.py",
-  "generator_sha256": "132d6fd3dff99080cec36beb66869f9a618fbd42fccb13e86013681e1615c1f8",
+  "generator_sha256": "fdab8d37c59bc6745762eede50c124f865be1d56e2d7bad3ea0984bc44176c4a",
   "license": "Apache-2.0 for Aware-authored content; upstream terms retained",
   "outputs": {
     "README.md": {
-      "bytes": 6871,
-      "sha256": "4011fc7ed3f9b9becfede64471891245071a8a7ddf8d893becbd236ebc7417ef"
+      "bytes": 7268,
+      "sha256": "e7c73fa6f4ea8ec117b3786e422f179887a9e66138f7e7cbb7062197c27a2c95"
     },
     "protocols/distributions/aware-goal-fs-preview-linux_x86_64-py312.tar.gz": {
       "bytes": 1185781,

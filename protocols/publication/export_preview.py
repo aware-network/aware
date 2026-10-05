@@ -15,6 +15,7 @@ BASE = "592fca9473b1e72b130c0d84a452de7523fa93bb"
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--envelope", type=Path, required=True)
+    parser.add_argument("--refresh-readme-only", action="store_true", help="Update the authored README projection and receipt, requiring all other existing outputs to match before any write.")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
     spec = importlib.util.spec_from_file_location("preview_install", root / "protocols/install.py")
@@ -30,7 +31,16 @@ def main() -> None:
     outputs = {"protocols/distributions/" + module.ARCHIVE: data}
     outputs.update({current_path("protocols/source/" + name): content for name, content in source.items()})
     outputs["README.md"] = (root / "protocols/publication/README.md.in").read_bytes()
+    if args.refresh_readme_only:
+        for name, content in sorted(outputs.items()):
+            if name == "README.md":
+                continue
+            path = root / name
+            if path.is_symlink() or not path.is_file() or path.read_bytes() != content:
+                raise ValueError("readme_refresh_other_output_mismatch:" + name)
     for name, content in sorted(outputs.items()):
+        if args.refresh_readme_only and name != "README.md":
+            continue
         path = root / name
         if path.is_symlink():
             raise ValueError("symlink_output_not_supported")
@@ -55,7 +65,9 @@ def main() -> None:
     }
     (root / "protocols/publication/receipt.json").write_text(
         json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"generated_files": len(outputs), "envelope_sha256": module.ENVELOPE_SHA256}))
+    print(json.dumps({"generated_files": 1 if args.refresh_readme_only else len(outputs),
+                      "verified_outputs": len(outputs), "readme_only": args.refresh_readme_only,
+                      "envelope_sha256": module.ENVELOPE_SHA256}))
 
 
 if __name__ == "__main__":

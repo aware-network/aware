@@ -30,3 +30,16 @@ to push. Customer authorization and filesystem permissions remain necessary.
 
 Alignment and working notes are scoped authored documentation, not another Issue
 registry. A cache, transcript, cwd or title never grants current ownership.
+
+## Initial authored content and opt-in summary
+
+New `aware issue open` requests require repeatable `--problem`, `--objective`
+and `--acceptance`. They use the same SDK and Markdown owner; no manual record
+edits or automatic acceptance. Narrative updates do not rewrite these items.
+Omitted-content SDK compatibility remains available through lower-level tooling.
+
+Use `--format summary` for concise SDK evidence; JSON remains default. Preserve
+every constituent receipt on incomplete open. Publication summaries retain
+`operator_ref`, `transaction_mode` and `reference_update`, including refusals.
+Closeout index fields describe that operation only: pending is retained debt,
+unknown is missing evidence, and neither proves a clean current Git index.

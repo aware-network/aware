@@ -39,6 +39,9 @@ for owned_path in "${bootstrap_paths[@]}"; do
 done
 "$aware_cmd" issue open --repository-root "$customer_repo" \
   --issue-ref "$issue_ref" --title "Customer-approved bounded outcome" \
+  --problem "<actual customer-approved problem>" \
+  --objective "<actual customer-approved outcome>" \
+  --acceptance "<actual verification criterion>" \
   --scope-path src/result.py "${scope_args[@]}" \
   --client-intent-id "$execution_id:open:customer-task" \
   --actor-ref "$execution_id" --actor-evidence-ref "harness:$execution_id"
@@ -70,14 +73,20 @@ issue_digest() {
 }
 ```
 
-Record the **real** approved objective and acceptance, replacing the example:
+Replace the angle-bracket inputs before opening. These repeatable single-line
+items are written through the shared owner, not manually edited into Markdown.
+Acceptance starts unchecked; later verification and closure do not silently
+check it. The shared SDK retains legacy omitted-content compatibility, but
+the new `aware issue open` requires all three kinds of input.
+
+Use narrative updates for actual progress or clarified customer direction:
 
 ```sh
 "$aware_cmd" issue append-update --repository-root "$customer_repo" \
   --issue-ref "$issue_ref" --expected-source-sha256 "$(issue_digest)" \
   --client-intent-id "$execution_id:objective:customer-task" \
   --actor-ref "$execution_id" --actor-evidence-ref "harness:$execution_id" \
-  --message "Customer objective: <actual request>. Acceptance: <actual checks>."
+  --message "Progress or approved clarification: <actual update>."
 ```
 
 ## Implement, verify, publish
@@ -117,6 +126,13 @@ Preserve foreign staging and locks. Do not replay an applied commit or use raw
 Git repair; report the exact receipt/error and remaining work to the customer.
 Interrupted-unborn debt recovery is unsupported.
 
+Optional `--format summary` is available on the Issue and scoped-commit
+commands. It is a readable JSON projection, not a different operation. Full
+SDK JSON remains the default. Summaries preserve `operator_ref`,
+`transaction_mode`, `reference_update`, actual receipts and operation-specific
+index evidence. A summary observation exposes the same digest as `source.digest`;
+the `issue_digest` helper above deliberately uses the default full JSON shape.
+
 Extract the **actual** `publication_receipt_ref` from that apply result. Use it
 below, not a placeholder or a guessed hash:
 
@@ -132,6 +148,8 @@ publication_receipt='git:<actual commit from the successful apply result>'
 
 Close validates the implementation receipt and publishes a separate Issue-only
 closeout. Neither operation pushes a remote, approves a Goal, or dispatches work.
+Inspect closeout's own index fields too; they do not inherit commit's clean or
+pending state. Retain unknown and pending evidence honestly.
 Git publication here is local; a remote push requires the customer's separate approval.
 
 ## Replace an execution

@@ -5,6 +5,10 @@ import hashlib
 import importlib.util
 import io
 import json
+import shutil
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 import tarfile
 import unittest
@@ -31,6 +35,66 @@ def synthetic_archive(items: list[tuple[str, bytes, bytes]]) -> bytes:
 
 
 class PreviewTests(unittest.TestCase):
+    def readme_fixture(self, root):
+        receipt = json.loads((ROOT / "protocols/publication/receipt.json").read_bytes())
+        names = set(receipt["outputs"]) | {
+            "protocols/install.py", "protocols/publication/export_preview.py",
+            "protocols/publication/source_layout.py", "protocols/publication/source-layout.json",
+            "protocols/publication/README.md.in", "protocols/publication/receipt.json",
+        }
+        for name in names:
+            target = root / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / name, target)
+        return receipt
+
+    def test_readme_only_refresh_preserves_all_other_outputs(self):
+        with tempfile.TemporaryDirectory(prefix="aware-readme-projection-") as raw:
+            root = Path(raw)
+            receipt = self.readme_fixture(root)
+            template = root / "protocols/publication/README.md.in"
+            template.write_bytes(template.read_bytes() + b"\nTest-only projection marker.\n")
+            before = {name: (root / name).read_bytes() for name in receipt["outputs"] if name != "README.md"}
+            subprocess.run([sys.executable, "-B", str(root / "protocols/publication/export_preview.py"),
+                            "--envelope", str(root / "protocols/distributions" / INSTALL.ARCHIVE),
+                            "--refresh-readme-only"], check=True, capture_output=True)
+            self.assertEqual((root / "README.md").read_bytes(), template.read_bytes())
+            self.assertEqual(before, {name: (root / name).read_bytes() for name in before})
+            updated = json.loads((root / "protocols/publication/receipt.json").read_bytes())
+            self.assertEqual({name: row for name, row in receipt["outputs"].items() if name != "README.md"},
+                             {name: row for name, row in updated["outputs"].items() if name != "README.md"})
+
+    def test_readme_only_refresh_refuses_drift_before_any_write(self):
+        with tempfile.TemporaryDirectory(prefix="aware-readme-refusal-") as raw:
+            root = Path(raw)
+            receipt = self.readme_fixture(root)
+            name = next(name for name in receipt["outputs"] if name != "README.md" and name.endswith(".py"))
+            (root / name).write_bytes(b"Test-only unexpected source bytes.\n")
+            before = {name: (root / name).read_bytes() for name in receipt["outputs"]}
+            old_receipt = (root / "protocols/publication/receipt.json").read_bytes()
+            result = subprocess.run([sys.executable, "-B", str(root / "protocols/publication/export_preview.py"),
+                                     "--envelope", str(root / "protocols/distributions" / INSTALL.ARCHIVE),
+                                     "--refresh-readme-only"], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("readme_refresh_other_output_mismatch", result.stderr)
+            self.assertEqual(before, {name: (root / name).read_bytes() for name in before})
+            self.assertEqual(old_receipt, (root / "protocols/publication/receipt.json").read_bytes())
+
+    def test_public_bootstrap_is_explicitly_aligned_with_selected_contract(self):
+        release = json.loads((ROOT / "protocols/agent/release.json").read_bytes())
+        bootstrap = json.loads((ROOT / ".aware/agent-bootstrap.json").read_bytes())
+        self.assertEqual(release["agent_contract"], {"ref": bootstrap["contract_ref"], "version": bootstrap["version"]})
+        source = ROOT / ("protocols/contracts/agent-fs/v" + bootstrap["version"])
+        authored = json.loads((source / "contract.json").read_bytes())
+        for name, relative in authored["files"].items():
+            self.assertEqual(hashlib.sha256((source / relative).read_bytes()).hexdigest(), bootstrap["template_sha256"][name])
+        for name, digest in bootstrap["rendered_sha256"].items():
+            if name == "docs/alignment/CURRENT.md":
+                self.assertEqual(digest, hashlib.sha256((source / "docs/alignment/CURRENT.md").read_bytes()).hexdigest())
+                self.assertIn("approved authored amendment", (ROOT / name).read_text())
+            else:
+                self.assertEqual(hashlib.sha256((ROOT / name).read_bytes()).hexdigest(), digest, name)
+
     def test_exact_outer_and_nested_checksums(self):
         _, files = INSTALL.verified_archive(
             (ROOT / "protocols/distributions" / INSTALL.ARCHIVE).read_bytes(), INSTALL.ENVELOPE_SHA256)

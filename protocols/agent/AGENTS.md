@@ -10,11 +10,12 @@ contract and approvals too. This bundle selects filesystem authority explicitly.
 2. Use the exact installed `aware` path. Do not import development sources,
    install service dependencies, use a different environment or fabricate an
    unsupported capability. This local actor evidence is declared, not authenticated.
-3. Obtain the explicit customer repository, objective, acceptance and source
+3. Obtain the explicit customer repository, problem, objective, acceptance and source
    paths. Initialize through `aware init`; open exactly one scoped Issue through
    `aware issue open`. Never infer assignment from cwd, title, transcript or cache.
-4. Record the customer objective and acceptance through `append-update` before
-   implementation. Preserve other work. Modify only approved authored sources;
+4. Supply repeatable `--problem`, `--objective`, `--acceptance` at open. Criteria
+   start unchecked and closure does not automatically check them. Use
+   `append-update` for progress/evidence. Preserve other work. Modify only approved authored sources;
    do not manually edit Issue ownership, lifecycle, scope, histories or receipts.
 5. Observe through `resolve-read-projection` before every mutation. Supply the
    latest `projection.source.digest`; stale refusals require a fresh observation,
@@ -35,3 +36,7 @@ contract and approvals too. This bundle selects filesystem authority explicitly.
 Read [the copy-and-run workflow](quickstart.md). Goal creation, approval,
 effectful pursuit, dispatch and Service/API are not in this bundle. Local tool
 checks are neither a sandbox nor authority against arbitrary filesystem writers.
+
+Optional `--format summary` reuses the shared owner-facing summary. Preserve its
+publication state, receipts and index warnings; default SDK JSON remains available.
+Missing historical fields mean unknown, not success or a clean checkout.

@@ -1,7 +1,9 @@
 # a5 candidate: durable work through the installed owner
 
-This is a preparation guide, not the selected public release. a4 remains the
-published installation. This candidate targets Linux x86-64 / Python 3.12.
+This was the preparation guide for the reviewed a5 candidate. a5 is now selected
+for public delivery; use [the current copy-and-run workflow](quickstart.md).
+The immutable candidate records remain available for exact-byte comparison.
+This version targets Linux x86-64 / Python 3.12.
 Use only the exact reviewed archive and separately pinned candidate manifest.
 Install into a fresh environment with networking disabled; keep its source and
 legal attachments. Do not overwrite an existing installation or bootstrap.
