@@ -107,9 +107,11 @@ because that service is absent or a local CLI is available.
 
 ## Proposed retained-selection interface and setup agreement
 
-Direction agreement on `6dff6c2c9e51` is recorded; independent plan acceptance
-is still pending. The following is the proposed implementation contract for
-owner agreement, **not existing symbols, shipped commands or a new SDK operation**.
+Direction agreement on `6dff6c2c9e51` is recorded. The owner review of
+`5cc50cc7fa56` accepts direction and setup scope, with exact implementation held
+for the three clarifications incorporated below: read-only factory, safe descriptor
+lifetime and optional/lazy dependency placement. Independent amendment acceptance
+is still pending. This is **not existing symbols, shipped commands or a new SDK operation**.
 It builds on Protocol's issuer-retained resolver pattern and SPEC's existing
 descriptor-backed provider. Protocol must not import the SPEC parser/runtime.
 
@@ -161,12 +163,18 @@ No implicit `docs/specs` source base, directory scan or CWD selection.
 
 `consume_specification_selection` first verifies actual issuer membership,
 process/lifetime, unchanged repository/path identity and fresh manifest admission
-with the retained exact bytes and binding. It lends the **retained repository
-descriptor**, ordered SPEC package roots and a live revalidation guard to the
-trusted SPEC factory callback. The callback duplicates that descriptor into its
+with the retained exact bytes and binding. It lends a **fresh duplicate of the
+retained repository descriptor**, never the issuer's descriptor itself, plus
+ordered SPEC package roots and a live revalidation guard to the trusted SPEC
+factory callback. The callback duplicates the borrowed descriptor into its
 existing provider; it must not reopen an unchecked pathname. The borrowed
-descriptor closes on every exit, including factory failure. The selection stays
-retained until explicit release; subsequent provider use after release refuses.
+duplicate closes on every exit, including factory failure. If final validation
+fails after construction, the factory/composition closes the newly constructed
+provider, retires its newly issued admissions and preserves the original typed
+refusal. Cleanup errors remain secondary evidence, not successful construction.
+The selection stays retained until explicit release; subsequent provider use
+after release refuses. Closing any provider closes its own descriptors/admissions
+only: it does not release a selection shared with another provider.
 Both owners recheck before a successful return. Scalar display evidence is not
 a transferable source capability. This is a supported-entrance boundary, not
 isolation from hostile Python code or arbitrary filesystem writers.
@@ -186,6 +194,11 @@ It reuses the existing parser/lowerer/schema and `resolve_iteration_identity`;
 no wrapper reinterprets Phase, Gate, approval or iteration semantics. Raw
 `SpecificationFsSdkProvider(fd, roots)` remains explicitly compatibility/internal;
 the supported consumer CLI never falls back to it when admission fails.
+Initially this factory supports **observation and iteration admission only**,
+including original-provider read-only source-evidence revalidation. `create_draft`
+through this entrance must explicitly refuse **before any filesystem effect**
+until Issue-governed writing is separately implemented and accepted. Reusing
+the existing provider class cannot silently expose its compatibility writer.
 
 Protocol selection and `SpecificationIterationAdmission` remain different
 capabilities. The first admits source selection; only the original SPEC provider
@@ -196,10 +209,17 @@ to match regular committed blobs and rechecks its own Issue/HEAD horizon.
 
 Protocol FS ownership supplies the selection/borrow/guard interface. SPEC owns
 the factory and provider guard hooks. Keep Protocol references out of the neutral
-SPEC runtime, source-value contract and public SDK. The integration dependency
-belongs only in the FS composition; its package placement and exact neutral
-dependency edge require an owner-reviewed amendment before implementation.
-The six supplier pins above describe existing source, not that future edge.
+SPEC runtime, source-value contract and public SDK. Proposed placement is an
+optional **`protocol` extra in `aware-specification-fs-sdk-adapter`**, selecting
+the neutral Protocol FS adapter with an owner-reviewed version bound. Integration
+imports are lazy: ordinary SPEC FS imports without the extra stay usable in their
+explicit compatibility context. Missing integration on the new factory returns
+a typed unavailable/refusal result, never a raw-root fallback. The supported
+consumer CLI explicitly requires the extra and uses the guarded factory; its
+mandatory dependency must declare `aware-specification-fs-sdk-adapter[protocol]`
+with the reviewed version bound. No new integration wheel is proposed here.
+The six supplier pins above describe existing source, not that future extra or
+CLI edge; exact version constraints and changed wheel closure still need proof.
 
 ### Setup is a separate, Issue-governed manifest change
 
@@ -244,10 +264,28 @@ Exercise real issuer/factory hooks: unavailable/foreign/service profiles; raw or
 copied bindings, forged selection, cross-process/released state; root/manifest
 replacement, byte drift and symlink/mount/namespace substitution; incorrect
 template or unselected root; guard change during a read; descriptor cleanup on
-success/refusal. SPEC owns structural/semantic refusals; Protocol owns selection
+success/refusal, including post-construction failure cleanup, independent provider
+closure over a shared selection, missing-extra refusal and pre-effect draft
+refusal. SPEC owns structural/semantic refusals; Protocol owns selection
 refusals. Then test setup dry-run/apply/no-op, stale digest, out-of-scope or foreign
 Issue, existing-binding conflict, directory effects and dirty-work preservation.
 Expected guards are declarations until those actual installed paths are proved.
+
+Separate follow-up planning Issues are opened without starting runtime work:
+
+- `fb/2026-10-05/protocol-specification-selection-setup-v1`: Protocol issuer,
+  safe duplicate lending and Issue-governed SPEC-only setup composition.
+- `fb/2026-10-05/specification-readonly-protocol-factory-v1`: SPEC read-only
+  factory/guards, cleanup and optional/lazy integration plus explicit CLI extra.
+
+They are **Open**, retained by this preparation execution for explicit handoff,
+not In Progress implementation or ownership of the SPEC preview lane. Their
+initial scope is the planning record only. Transfer to each actual implementing
+execution and bind the exact agreed source paths through tooling before starting
+implementation or source mutation. Internal owner source cuts and public source projection remain
+separate; these records do not silently export supplier source or assign the
+ongoing SPEC iteration-preview lane. Integration acceptance must consume the real
+issuer and factory, not only mocks. Building/publishing remains a subsequent cut.
 
 ## Setup, drafting and pairing are different gates
 
@@ -416,3 +454,14 @@ accounting/limits only; they do not execute a selection issuer, guarded factory
 or setup writer. Those symbols remain proposed and owner agreement on their
 exact interface/dependency placement remains pending. No runtime, artifact,
 installed consumer, bootstrap or release channel changed.
+
+### Three-clarification amendment replay
+
+Recorded the owner review's read-only factory, safe duplicate/cleanup lifetime
+and optional/lazy `protocol` extra clarifications. **31 preparation checks and
+112 adjacent checks passed: 143 distinct checks, zero skips**. All 18 source
+pins matched again; Ruff and diff checks passed. The three added checks verify
+that the proposal declares these boundaries; they do not prove runtime refusal,
+descriptor cleanup or lazy imports. Follow-up Issues are Open planning records,
+with explicit source-scope/handoff gates before implementation. Independent
+amendment review and actual issuer/factory/setup integration remain pending.

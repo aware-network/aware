@@ -44,12 +44,20 @@
     "roots": "explicit_ordered_package_directories_from_selected_manifest_paths",
     "manifest_currentness": "exact_bytes_and_source_identity",
     "before_after_guard": true,
+    "factory_mode": "read_only_observation_and_iteration_admission",
+    "draft_writer": "explicit_pre_effect_refusal_until_Issue_governed_writer_accepted",
+    "borrowed_descriptor": "fresh_duplicate_never_issuer_retained_descriptor",
+    "construction_validation_failure": "close_new_provider_and_retire_new_admissions",
+    "provider_close": "provider_resources_only_not_shared_selection_release",
     "raw_constructor": "compatibility_internal_only_no_consumer_fallback",
     "iteration_capability": "distinct_original_SPEC_provider_admission",
     "serialized_authority": false,
     "write_authority": false,
     "git_commitment": false,
-    "integration_dependency": "FS_composition_only_placement_amendment_pending"
+    "integration_dependency": "optional_protocol_extra_in_FS_sdk_adapter",
+    "integration_imports": "lazy_missing_extra_typed_refusal_no_fallback",
+    "consumer_CLI_dependency": "explicit_FS_sdk_adapter_protocol_extra",
+    "integration_version_bound": "owner_review_pending"
   },
   "setup_behavior_proposal": {
     "status": "owner_agreement_pending_not_implemented",

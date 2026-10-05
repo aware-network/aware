@@ -204,8 +204,45 @@ class ReadinessTests(unittest.TestCase):
         )
         self.assertEqual(
             proposal["integration_dependency"],
-            "FS_composition_only_placement_amendment_pending",
+            "optional_protocol_extra_in_FS_sdk_adapter",
         )
+
+    def test_factory_is_read_only_even_when_provider_class_has_writer(self):
+        proposal = self.value["selection_interface_proposal"]
+        self.assertEqual(
+            proposal["factory_mode"], "read_only_observation_and_iteration_admission"
+        )
+        self.assertEqual(
+            proposal["draft_writer"],
+            "explicit_pre_effect_refusal_until_Issue_governed_writer_accepted",
+        )
+
+    def test_factory_failure_and_shared_selection_have_distinct_cleanup(self):
+        proposal = self.value["selection_interface_proposal"]
+        self.assertEqual(
+            proposal["borrowed_descriptor"],
+            "fresh_duplicate_never_issuer_retained_descriptor",
+        )
+        self.assertEqual(
+            proposal["construction_validation_failure"],
+            "close_new_provider_and_retire_new_admissions",
+        )
+        self.assertEqual(
+            proposal["provider_close"],
+            "provider_resources_only_not_shared_selection_release",
+        )
+
+    def test_optional_extra_is_lazy_but_required_by_consumer_cli(self):
+        proposal = self.value["selection_interface_proposal"]
+        self.assertEqual(
+            proposal["integration_imports"],
+            "lazy_missing_extra_typed_refusal_no_fallback",
+        )
+        self.assertEqual(
+            proposal["consumer_CLI_dependency"],
+            "explicit_FS_sdk_adapter_protocol_extra",
+        )
+        self.assertEqual(proposal["integration_version_bound"], "owner_review_pending")
 
     def test_setup_is_manifest_only_governed_not_an_authoring_shortcut(self):
         proposal = self.value["setup_behavior_proposal"]
