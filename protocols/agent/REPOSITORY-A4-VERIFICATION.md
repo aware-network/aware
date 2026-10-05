@@ -23,8 +23,10 @@ match accepted internal committed bytes; no second engine is introduced.
 Agent contract remains 1.1.0. No generated Service/API/DTO, ontology/ORM or
 Experience surface is introduced.
 
-`release.json` and the ordinary installer still select a3. The candidate record
-is deliberately separate. README/quickstart do not yet advertise a4. Historical
+At this candidate checkpoint, `release.json` and the ordinary installer selected
+a3. The candidate record is deliberately separate. README/quickstart did not
+yet advertise a4. Subsequent [reviewed local promotion](A4-CONSUMER-PROMOTION.md)
+selects these same accepted archive bytes without rebuilding. Historical
 a3 archive, builder and receipts remain unchanged.
 
 ## Executed proof

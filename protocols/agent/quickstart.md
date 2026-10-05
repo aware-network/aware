@@ -109,6 +109,14 @@ without `--dry-run`, retaining its JSON output. No raw `git add`/`git commit`.
 An out-of-scope path or wrong owner must be refused; preserve that evidence.
 Unrelated staged and unstaged work must remain untouched.
 
+Before closeout, inspect the apply result’s `shared_index_projection`,
+`shared_index_projection_error` and `index_reconciliation_pending`. A commit
+can be applied with reconciliation pending; retain the real receipt and warning
+without claiming a clean checkout. Missing/null historical fields mean unknown.
+Preserve foreign staging and locks. Do not replay an applied commit or use raw
+Git repair; report the exact receipt/error and remaining work to the customer.
+Interrupted-unborn debt recovery is unsupported.
+
 Extract the **actual** `publication_receipt_ref` from that apply result. Use it
 below, not a placeholder or a guessed hash:
 

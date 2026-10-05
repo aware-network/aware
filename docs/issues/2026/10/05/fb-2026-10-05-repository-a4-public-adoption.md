@@ -11,15 +11,20 @@
 - Source: Customer-directed work through aware issue open
 
 ## Ownership Scope
+- `README.md`
 - `docs/issues/2026/10/05/fb-2026-10-05-repository-a4-public-adoption.md`
 - `protocols/agent/A4-CONSUMER-PROMOTION.md`
+- `protocols/agent/README.md`
 - `protocols/agent/REPOSITORY-A4-PREPARATION.md`
 - `protocols/agent/REPOSITORY-A4-VERIFICATION.md`
+- `protocols/agent/VERIFICATION.md`
 - `protocols/agent/a4-consumer-promotion-manifest.json`
 - `protocols/agent/a4-consumer-promotion.patch`
 - `protocols/agent/build_bundle.py`
 - `protocols/agent/distribution/aware-agent-fs-0.1.0a4-linux_x86_64-py312.tar.gz`
+- `protocols/agent/quickstart.md`
 - `protocols/agent/release-a4-candidate.json`
+- `protocols/agent/release.json`
 - `protocols/agent/repository-a4-candidate-binding.json`
 - `protocols/agent/source-provenance.json`
 - `protocols/agent/test_bundle.py`
@@ -53,8 +58,14 @@
 
 
 
+
+
+
 ## Goal
 1. TBD
+
+
+
 
 
 
@@ -83,6 +94,9 @@
 
 
 
+
+
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a10a56-68f6-77b1-8e76-f2a1b93f9aa2`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a10a56-68f6-77b1-8e76-f2a1b93f9aa2`)
@@ -93,3 +107,5 @@
 - Final a4 archive 52109f772692: committed source cb8c935; 395 members/394 verified checksums, 22 wheels/17 unchanged, fresh offline checkout-hidden installation, 161 installed tests and 18 source/accounting tests passed zero skipped. Earlier unselected provenance-failing scratch and a3 overlap attempt excluded; correction and final proof recorded in REPOSITORY-A4-VERIFICATION.md. Exact candidate manifest/binding retained separately, public release.json remains a3. Independent candidate/content review pending; no promotion, push, external evaluation or interrupted-unborn recovery claim. (outcome: info) (recorder: `codex-01a10a56-68f6-77b1-8e76-f2a1b93f9aa2`)
 - Independent PASS at 178f4be3eada archive 52109f772692: 161 installed plus 18 accounting/source tests zero skipped; fresh offline hidden-checkout installation; 83 source inputs and owner bindings match; notices preserved and excluded surfaces absent. Reviewer codex-01a10a7e-d000-7880-91fb-ba193d7c2189. Prepare digest-bound consumer instructions/release-pointer patch for review without applying it. Issue remains open; default a3, public contents sufficiency/push/promotion held. (outcome: info) (recorder: `codex-01a10a56-68f6-77b1-8e76-f2a1b93f9aa2`)
 - Consumer promotion proposal prepared, not applied: exact patch and manifest bind root README, Agent README, quickstart, verification index and release pointer. Five current preimages and proposed exact candidate manifest hash verified; read-only git apply --check --unidiff-zero succeeds. Wording preserves pending/unknown distinctions and unsupported recovery. No candidate/runtime changes or tests rerun. Default a3 retained; independent instructions/content/pointer review next, Issue open. (outcome: info) (recorder: `codex-01a10a56-68f6-77b1-8e76-f2a1b93f9aa2`)
+- Independent PASS for ee4a9aceb115: five pre/postimage hashes, exact accepted a4 pointer, twelve shell examples and installed commit/close forms verified. Pending/unknown and unsupported recovery wording accepted; unchanged historical unresolved link retained. Exact five target paths admitted and current preimages rechecked before apply. Ordinary installer fresh isolated proof and closeout follow. No remote push or delivery claim. (outcome: info) (recorder: `codex-01a10a56-68f6-77b1-8e76-f2a1b93f9aa2`)
+- Reviewed promotion applied locally through admitted exact paths; five postimage hashes match proposal and release pointer is exact accepted a4 manifest. Ordinary unchanged installer, with no manifest substitution, passed in fresh Bubblewrap environment: offline, cleared environment, hidden development and workspace/Git sources; version a4, dependencies clean. Forty installed bootstrap/setup/workflow/repair tests passed zero skipped; eighteen accounting/source tests passed. Accepted 161-installed baseline remains unchanged, not rerun in full here. Archive 52109f772692 unchanged. Historical unresolved ../source/README.md link is retained and disclosed. No push, downloaded-byte delivery, comprehensive rights certification or external evaluation claimed. (outcome: info) (recorder: `codex-01a10a56-68f6-77b1-8e76-f2a1b93f9aa2`)

@@ -1,3 +1,19 @@
+# Current agent preview: 0.1.0a4
+
+Exact archive SHA-256:
+`52109f772692071681570e59a161ced33ac6606ff2effdff4fa2094cd4c58cbe`.
+[Candidate-bound source/installed proof](REPOSITORY-A4-VERIFICATION.md):
+161 installed tests plus 18 source/accounting tests passed, zero skipped,
+independently reproduced. The three owner implementations remain shared.
+Pending reconciliation and unknown historical fields are explicit; interrupted
+unborn recovery is unsupported. This is not authenticated actor identity,
+service authority, full SDK unification or exhaustive rights certification.
+
+The historical records below remain bound to their original candidates. Their
+remote-delivery receipts do not establish remote delivery of a4.
+
+---
+
 # Agent filesystem preview verification
 
 Current **0.1.0a3** candidate: see [repository onboarding and evaluation proof](REPOSITORY-ONBOARDING-VERIFICATION.md).

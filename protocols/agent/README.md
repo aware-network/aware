@@ -3,7 +3,7 @@
 Install once. Give an agent a customer-approved task. Keep ownership, scope,
 evidence and publication durable across executions—not trapped in chat history.
 
-This **0.1.0a3 filesystem preview** exposes existing Aware Issue and repository
+This **0.1.0a4 filesystem preview** exposes existing Aware Issue and repository
 owners through a thin `aware` interface. No service, generated API, ontology/ORM,
 Experience runtime or Aware development environment is required.
 
@@ -123,3 +123,18 @@ observed result. Redact customer records, credentials and private paths.
 This is an early OSS preview, not a stable API, registry release or a universal
 platform installer. No external customer acceptance or reproducible-build claim
 is inferred from the installed fixture proofs.
+
+## Publication and index state
+
+A successful commit and a clean Git index are separate observations. a4 carries
+`shared_index_projection`, `shared_index_projection_error` and
+`index_reconciliation_pending` through the installed CLI. Preserve these fields
+with the actual publication receipt. `true` means projection remains pending;
+null or absent historical fields mean unknown, never false or clean.
+
+Do not republish an applied commit, delete a foreign index lock, reset staging or
+use raw Git recovery to hide a warning. Preserve dirty/staged work and report
+the exact Issue, publication receipt, projection error and observed status to
+the customer/maintainer. No automatic interrupted-unborn debt recovery is
+supported. Issue closeout remains a separately validated publication and cannot
+authorize recovery or manufacture Goal acceptance.

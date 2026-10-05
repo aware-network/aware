@@ -8,7 +8,7 @@ protocols—not a service prerequisite or an agent's private memory.
 
 ## Available now: agent-first Issue and commit preview
 
-An installable OSS preview supports **repository setup → scoped Issue → evidence
+The **0.1.0a4** installable OSS preview supports **repository setup → scoped Issue → evidence
 → scoped Git commit → verified closeout or handoff**. The CLI and SDK delegate to
 existing neutral owners. No generated API, ontology/ORM, service or Experience
 runtime is installed.
@@ -40,7 +40,11 @@ environment path. Installation after clone is offline and checks the exact
 
 The filesystem tools check declared ownership, lifecycle, fresh record bytes
 and exact publication scope; they are **not authenticated identity or a sandbox**.
-Unrelated work remains preserved. Issue closeout cannot manufacture Goal acceptance.
+Unrelated work remains preserved. Successful publication can still report pending
+index reconciliation; it is not a clean-checkout claim. Missing historical result
+fields mean unknown, not clean. No automatic interrupted-unborn recovery is
+supported. See the workflow for handling this evidence without raw Git repair.
+Issue closeout cannot manufacture Goal acceptance.
 
 Setup creates a versioned `AGENTS.md`, modular agent/Issue/alignment docs,
 `aware.protocol.toml` and bootstrap provenance when those paths are absent.

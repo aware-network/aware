@@ -1,4 +1,13 @@
-# a4 consumer promotion proposal — not applied
+# a4 consumer promotion proposal and local application
+
+The candidate-bound proposal below was independently accepted at `ee4a9aceb115`
+and has now been applied locally. All five postimages match their reviewed
+hashes; `release.json` is byte-identical to `release-a4-candidate.json`.
+The ordinary installer selects a4 locally. Fresh isolated installation and
+governed closeout are recorded in the adoption Issue. Remote publication and
+downloaded-byte verification remain separate and have not occurred.
+
+## Retained proposal at review time
 
 Candidate `52109f772692071681570e59a161ced33ac6606ff2effdff4fa2094cd4c58cbe`
 passed independent technical review at `178f4be3eada`: 161 installed and 18
