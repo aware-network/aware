@@ -1,7 +1,0 @@
-enum ContentPackageArtifactStatus {
-    available
-    missing
-    stale
-    optional
-    failed
-}
