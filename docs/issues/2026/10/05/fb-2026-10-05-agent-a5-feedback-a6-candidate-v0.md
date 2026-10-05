@@ -52,14 +52,17 @@
 
 
 
+
 ## Problem
 1. Pinned a5 client evaluation 984d99987b1fe1ff629f954e51cfbeeaeab2da12 reports inconsistent contract labels, ambiguous status/acceptance interpretation, and missing task-test interpreter evidence.
 
 
 
 
+
 ## Goal
 1. Correct F-009 in contract 1.2.1; clarify F-010/F-011 and evaluator F-012; prepare separately versioned a6 candidate without new domain behavior, SPEC work, promotion or push.
+
 
 
 
@@ -72,7 +75,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Revalidated immutable client evaluation 984d99987b1fe1ff629f954e51cfbeeaeab2da12 (20 artifacts/108 interactions/12 findings). Reproduced F-009; prepared contract 1.2.1 and client 0.1.0a6 without domain changes or live selection migration. Six feedback regressions, ten source-layout tests and eighteen a5 archive accounting tests pass. First layout attempt failed an outdated README-count assertion; corrected it to separate admitted amendments from historical link-only edits. New installed tests await exact candidate. Candidate build via unchanged scoped builder in separate committed-source checkout is admitted; promotion/push/SPEC excluded. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Built exact a6 archive c3d6e593fd5894a927d338da5347a32e9c9eda3aec0aadcf9a662d51e348b804 from source checkpoint 59a53ad59a6f45c1bce1734ff04262027b7448ce with unchanged builder. One changed agent wheel, other 21 byte-identical; no new domain implementation or dependencies. Fresh offline checkout-hidden environment-cleared Python 3.12.3 installation: 224 installed tests, zero skipped (175 owner +47 retained installed +2 feedback). JUnit ed8710cb5ff32875124754e11ce032686f456dfbaeadb6154127d93c50d14ecf. Accounting/publication/evaluator checks: 64 passed zero skipped, plus three subtest assertions; JUnit 0eb3af5c9bde6265f987fea4a220e45a29a57cce64e088f80bfb2e83fe3612bc. Exact binding/report at protocols/agent/feedback-a6-candidate-binding.json and A6-CANDIDATE.md. Published a5/root bootstrap/old contracts unchanged; issue remains In Progress for independent review. No promotion, SPEC work, new external evaluation or push. Initial scratch build attempt preceded completed clone and failed before builder entry; retry waited. Source test assertion correction retained. No installed retry or reproducibility claim. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
