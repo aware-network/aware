@@ -33,6 +33,40 @@
     "admitted_customer_commands": [],
     "other_unavailable_records_implicitly_enabled": false
   },
+  "selection_interface_proposal": {
+    "status": "owner_agreement_pending_not_implemented",
+    "protocol_owner": "aware-protocol-fs-adapter",
+    "spec_owner": "SpecificationFsSdkProvider",
+    "issuer": "admit_specification_selection",
+    "capability": "SpecificationSourceSelection",
+    "consumer": "SpecificationFsSdkProvider.from_protocol_selection",
+    "source_base": "retained_repository_descriptor_not_reopened_path",
+    "roots": "explicit_ordered_package_directories_from_selected_manifest_paths",
+    "manifest_currentness": "exact_bytes_and_source_identity",
+    "before_after_guard": true,
+    "raw_constructor": "compatibility_internal_only_no_consumer_fallback",
+    "iteration_capability": "distinct_original_SPEC_provider_admission",
+    "serialized_authority": false,
+    "write_authority": false,
+    "git_commitment": false,
+    "integration_dependency": "FS_composition_only_placement_amendment_pending"
+  },
+  "setup_behavior_proposal": {
+    "status": "owner_agreement_pending_not_implemented",
+    "entrance": null,
+    "requires": "existing_prepared_Git_repository_and_exact_Issue_scope",
+    "precondition": "exact_manifest_bytes_and_fresh_Issue_admission",
+    "delta": "unavailable_SPEC_to_explicit_FS_authority_only",
+    "preserves": ["other_records", "target", "profile_versions", "bootstrap", "customer_comments", "unrelated_bytes", "directory_modes"],
+    "identical_binding": "observed_no_op_fresh_admission_still_required",
+    "different_active_binding": "refuse_pending_explicit_reconfiguration",
+    "missing_directories": "explicit_request_and_scope_only",
+    "effect_reporting": ["none", "applied", "unknown"],
+    "creates_SPEC_document": false,
+    "creates_approved_iteration": false,
+    "changes_customer_AGENTS": false,
+    "stages_commits_or_pushes": false
+  },
   "capabilities": [
     {
       "id": "spec-observe",

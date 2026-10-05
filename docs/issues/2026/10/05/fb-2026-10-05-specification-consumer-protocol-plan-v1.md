@@ -20,6 +20,7 @@
 
 
 
+
 ## Problem
 1. Accepted neutral SPEC and Workflow source checkpoints are not public installed capabilities. Protocol must map actual owner operations, qualified-input limits and neutral dependencies without silently upgrading a6 or claiming persisted binding/publication guards.
 
@@ -28,8 +29,10 @@
 
 
 
+
 ## Goal
 1. Prepare a pinned consumer capability/profile/release matrix and prospective neutral package inventory for SPEC, preserving existing owners and recording the exact remaining gates.
+
 
 
 
@@ -47,8 +50,10 @@
 
 
 
+
 ## Verified-by
 - protocols/specification/PLAN.md — Pinned capability/profile proposal, six-package inventory, supported-input and installation gates; 136 distinct preparation/adjacent checks, 18 matched owner blobs; no installed capability claim.
+
 
 
 ## Updates (append-only)
@@ -56,3 +61,4 @@
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Prepared Protocol SPEC mapping, proposed existing fs_v1/specification_fs_v1 carriage and prospective six-package neutral inventory at pinned owner source 21f817f59255. 24 standalone preparation checks + 112 adjacent checks passed (42 helper, 16 v2, 35 publication/layout, 19 a6 accounting); all 18 committed owner blobs matched. Ruff check/format and diff checks passed. This is provenance/planning, not runtime or installed SPEC acceptance. Approved-iteration authoring/import, durable binding and publication guards remain unavailable; setup/admission/write governance and owner review remain pending. a6 payload/contract and parallel Evaluation/SDK files unchanged. No build, installation, promotion or push. (outcome: preparation_checks_passed) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation checkpoint git:6dff6c2c9e515cddaedb3a0af5b7988cc3da5733 published locally through selected a5 Issue/repository operator; reference_update=cas_applied, transaction_mode=isolated_index_atomic_ref_v1, shared_index_projection=applied, index_reconciliation_pending=false. Exact four scoped paths only. Independent Protocol/SPEC/Workflow plan review remains pending; Issue remains In Progress. Next agree public admitted source/setup and chosen read-only/draft slice, then owner integration and neutral Bundle/installed proof. This checkpoint neither upgrades a6 nor authorizes public delivery. No push. (outcome: independent_plan_review_pending) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Recorded user/owner direction agreement on 6dff6c2c9e51, distinct from pending independent acceptance. Proposed exact Protocol admit/require/consume/release source-selection contract and SPEC from_protocol_selection factory; owner-held repository descriptor, exact manifest freshness, explicit roots, before/after guards and distinct original-provider iteration admission. Setup proposed as Issue-governed SPEC-only manifest opt-in preserving other bytes, bootstrap and private modes; no documents/iterations/publication created. Integration dependency placement and exact owner interface acceptance pending. 28 preparation + 112 adjacent checks passed, zero skips; 18 committed pins unchanged and matched; Ruff/diff checks pass. Proposal checks are not implemented issuer/setup or installed capability proof. a6 and parallel owner files unchanged; no build, install, promotion or push. (outcome: interface_agreement_pending) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

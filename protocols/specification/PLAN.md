@@ -105,6 +105,150 @@ resolver capability as Specification authority or copy its domain provider.
 Service authority is unavailable; files owned by a service cannot become writable
 because that service is absent or a local CLI is available.
 
+## Proposed retained-selection interface and setup agreement
+
+Direction agreement on `6dff6c2c9e51` is recorded; independent plan acceptance
+is still pending. The following is the proposed implementation contract for
+owner agreement, **not existing symbols, shipped commands or a new SDK operation**.
+It builds on Protocol's issuer-retained resolver pattern and SPEC's existing
+descriptor-backed provider. Protocol must not import the SPEC parser/runtime.
+
+### Protocol issues the selection; SPEC consumes it
+
+Proposed Protocol FS adapter surface:
+
+```text
+admit_specification_selection(
+    repository_root: Path,
+    manifest_path: Path,
+    selected_manifest_paths: tuple[str, ...],
+    expected_manifest_sha256: str | None = None,
+) -> SpecificationSelectionAdmission
+
+SpecificationSelectionAdmission:
+    admission: existing FilesystemProtocolAdmissionResult
+    selection: SpecificationSourceSelection | None
+
+require_specification_selection(selection: object)
+    -> SpecificationSourceSelection
+
+consume_specification_selection(selection, receiver)
+    -> receiver result, after before/after revalidation
+
+release_specification_selection(selection) -> None
+```
+
+`SpecificationSourceSelection` is opaque, process-local and owner-issued; its
+public constructor, copying, serialization and caller-built replacement are
+refused. Issuance retains the original repository descriptor and identity,
+manifest locator/source identity, exact manifest-byte digest, admitted filesystem
+profile, SPEC role/profile/root/template, exact ordered selected manifest paths,
+issuer process and live/released state. Only fresh on-disk admission can issue it;
+`admit_protocol_manifest_bytes`, a matching digest or decoded binding cannot.
+Typed failed admission returns no selection. Strictly valid admission alone does
+not suffice if SPEC is unavailable, a projection, foreign-profile or service-owned.
+The proposed initial allowlist is `aware.collaboration.fs_v1 / semantic_version=1`
+with SPEC authority/profile as above; recognizing other collaboration profiles
+does not admit them through this entrance without a separately reviewed mapping.
+
+For this slice, accept exactly `<spec-key>/aware.spec.toml` under the admitted
+record root. Selected paths are canonical repository-relative locators, unique
+and UTF-8-byte ordered, with one location segment at that slot. Each maps to its
+containing SPEC package directory relative to the repository descriptor. The
+slot never authenticates the semantic Specification key. Select all required
+roots explicitly; neither Protocol nor SPEC discovers roots from dependencies.
+No implicit `docs/specs` source base, directory scan or CWD selection.
+
+`consume_specification_selection` first verifies actual issuer membership,
+process/lifetime, unchanged repository/path identity and fresh manifest admission
+with the retained exact bytes and binding. It lends the **retained repository
+descriptor**, ordered SPEC package roots and a live revalidation guard to the
+trusted SPEC factory callback. The callback duplicates that descriptor into its
+existing provider; it must not reopen an unchecked pathname. The borrowed
+descriptor closes on every exit, including factory failure. The selection stays
+retained until explicit release; subsequent provider use after release refuses.
+Both owners recheck before a successful return. Scalar display evidence is not
+a transferable source capability. This is a supported-entrance boundary, not
+isolation from hostile Python code or arbitrary filesystem writers.
+
+Proposed SPEC entrance:
+
+```text
+SpecificationFsSdkProvider.from_protocol_selection(selection)
+    -> existing SpecificationFsSdkProvider with a retained source guard
+```
+
+The factory consumes the real Protocol issuer, validates the descriptor's existing
+SPEC source-base/mount/namespace checks and keeps the original selection guard.
+Every observation, iteration admission and source-evidence revalidation on this
+entrance checks that guard before reading and again before successful return.
+It reuses the existing parser/lowerer/schema and `resolve_iteration_identity`;
+no wrapper reinterprets Phase, Gate, approval or iteration semantics. Raw
+`SpecificationFsSdkProvider(fd, roots)` remains explicitly compatibility/internal;
+the supported consumer CLI never falls back to it when admission fails.
+
+Protocol selection and `SpecificationIterationAdmission` remain different
+capabilities. The first admits source selection; only the original SPEC provider
+issues/revalidates the second and its correlated closure evidence. Neither grants
+Issue write authority or committed-Git status. Read-only observation may inspect
+uncommitted sources; Workflow pairing independently requires every selected closure
+to match regular committed blobs and rechecks its own Issue/HEAD horizon.
+
+Protocol FS ownership supplies the selection/borrow/guard interface. SPEC owns
+the factory and provider guard hooks. Keep Protocol references out of the neutral
+SPEC runtime, source-value contract and public SDK. The integration dependency
+belongs only in the FS composition; its package placement and exact neutral
+dependency edge require an owner-reviewed amendment before implementation.
+The six supplier pins above describe existing source, not that future edge.
+
+### Setup is a separate, Issue-governed manifest change
+
+The supported first setup starts with an existing a6-prepared Git repository and
+its explicit Issue authority. Repository creation remains the existing `aware
+init --create-repository` operation, not a second SPEC bootstrap. New SPEC setup
+must use an explicitly approved Issue owning the exact Protocol manifest and any
+directories it will prepare. Preparation approval alone does not become Issue
+publication authority. No setup command name is admitted by this plan.
+
+Inputs are the explicit repository/manifest, exact observed manifest-byte digest,
+customer-selected relative SPEC root, supported fixed template and Issue/actor
+coordinates. Dry-run reports the exact before/after manifest digests, field/path
+delta, directory effects and refusals. Apply consumes the same request and freshly
+revalidates Issue ownership/status/scope, manifest bytes and concrete topology.
+Candidate bytes must pass existing Protocol admission before replace. Implement
+the write through the strongest supported source owner; do not hand-edit TOML or
+mint a receipt from a textual diff. Honest `none/applied/unknown` effects and
+fresh observations guide recovery; multi-file preparation is not atomic rollback.
+
+Allowed semantic delta: `records.specification` changes from unavailable to
+filesystem authority with `specification_fs_v1`, selected root and exact template.
+Preserve all other records, target, profile/semantic version and bootstrap fields;
+preserve customer comments and unrelated bytes. No automatic profile upgrade,
+Goal/FEED enablement, root reassignment or service-to-FS handover. Existing identical
+setup is an evidenced no-op, not a newly issued admission. A different active
+binding requires separately approved reconfiguration, not overwrite-by-default.
+Reobserve to issue a fresh selection; the setup receipt itself is not a capability.
+
+Missing record-root directories may be prepared only when explicitly in the
+request/scope. Existing directories and modes remain unchanged; refuse symlink,
+file-parent, escape or topology substitution before source access/mutation. Never
+chmod a private ancestor or overwrite existing packages. Missing SPEC documents
+still refuse observation: setup creates **no** `aware.spec.toml`, draft, approved
+iteration, seed commit, staging or remote. Supported input preparation/drafting
+remains its next owner cut. Customer AGENTS/bootstrap updates are separate,
+versioned opt-in changes; setup cannot claim new instructions shipped in a6.
+
+### Interface acceptance required before a consumer build
+
+Exercise real issuer/factory hooks: unavailable/foreign/service profiles; raw or
+copied bindings, forged selection, cross-process/released state; root/manifest
+replacement, byte drift and symlink/mount/namespace substitution; incorrect
+template or unselected root; guard change during a read; descriptor cleanup on
+success/refusal. SPEC owns structural/semantic refusals; Protocol owns selection
+refusals. Then test setup dry-run/apply/no-op, stale digest, out-of-scope or foreign
+Issue, existing-binding conflict, directory effects and dirty-work preservation.
+Expected guards are declarations until those actual installed paths are proved.
+
 ## Setup, drafting and pairing are different gates
 
 1. **Setup:** implement an explicit tooling-based opt-in for the chosen SPEC root,
@@ -245,7 +389,7 @@ The private owner checkout is needed only for this maintainer provenance check,
 never for the eventual customer bundle. A public source/rebuild input has not yet
 been exported. These checks and readiness JSON grant no operation authority.
 
-### Local preparation receipt
+### Initial local preparation receipt at `6dff6c2c9e51`
 
 Executed with Python 3.12.3:
 
@@ -261,3 +405,14 @@ runtime execution, candidate build/installation or external evaluation ran for
 this plan. The 190-case source review above is separate supporting evidence,
 not added to this count. Independent plan review remains pending; a6 delivery
 bytes and the existing consumer contract are unchanged.
+
+### Retained-selection/setup proposal replay
+
+After documenting the proposed interface and setup behavior, **28 preparation
+checks and the same 112 adjacent checks passed: 140 distinct checks, zero skips**.
+The maintainer replay again matched all 18 pinned source blobs and six supplier
+manifests. Ruff and diff checks passed. The four added checks verify proposal
+accounting/limits only; they do not execute a selection issuer, guarded factory
+or setup writer. Those symbols remain proposed and owner agreement on their
+exact interface/dependency placement remains pending. No runtime, artifact,
+installed consumer, bootstrap or release channel changed.

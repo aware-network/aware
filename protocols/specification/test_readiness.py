@@ -175,6 +175,73 @@ class ReadinessTests(unittest.TestCase):
         self.assertIs(profile["roots_discovered_from_dependencies"], False)
         self.assertIs(profile["other_unavailable_records_implicitly_enabled"], False)
 
+    def test_selection_interface_is_not_an_implemented_operation(self):
+        proposal = self.value["selection_interface_proposal"]
+        self.assertEqual(proposal["status"], "owner_agreement_pending_not_implemented")
+        self.assertEqual(proposal["issuer"], "admit_specification_selection")
+        self.assertEqual(
+            proposal["consumer"],
+            "SpecificationFsSdkProvider.from_protocol_selection",
+        )
+        self.assertEqual(proposal["protocol_owner"], "aware-protocol-fs-adapter")
+        for key in ("serialized_authority", "write_authority", "git_commitment"):
+            self.assertIs(proposal[key], False)
+
+    def test_selection_preserves_descriptor_and_original_provider_boundary(self):
+        proposal = self.value["selection_interface_proposal"]
+        self.assertEqual(
+            proposal["source_base"],
+            "retained_repository_descriptor_not_reopened_path",
+        )
+        self.assertIs(proposal["before_after_guard"], True)
+        self.assertEqual(
+            proposal["raw_constructor"],
+            "compatibility_internal_only_no_consumer_fallback",
+        )
+        self.assertEqual(
+            proposal["iteration_capability"],
+            "distinct_original_SPEC_provider_admission",
+        )
+        self.assertEqual(
+            proposal["integration_dependency"],
+            "FS_composition_only_placement_amendment_pending",
+        )
+
+    def test_setup_is_manifest_only_governed_not_an_authoring_shortcut(self):
+        proposal = self.value["setup_behavior_proposal"]
+        self.assertEqual(proposal["status"], "owner_agreement_pending_not_implemented")
+        self.assertIsNone(proposal["entrance"])
+        self.assertEqual(
+            proposal["requires"],
+            "existing_prepared_Git_repository_and_exact_Issue_scope",
+        )
+        self.assertEqual(
+            proposal["delta"], "unavailable_SPEC_to_explicit_FS_authority_only"
+        )
+        for key in (
+            "creates_SPEC_document",
+            "creates_approved_iteration",
+            "changes_customer_AGENTS",
+            "stages_commits_or_pushes",
+        ):
+            self.assertIs(proposal[key], False)
+        self.assertEqual(proposal["effect_reporting"], ["none", "applied", "unknown"])
+
+    def test_setup_preserves_bindings_and_private_directory_modes(self):
+        proposal = self.value["setup_behavior_proposal"]
+        self.assertLessEqual(
+            {"other_records", "bootstrap", "customer_comments", "directory_modes"},
+            set(proposal["preserves"]),
+        )
+        self.assertEqual(
+            proposal["different_active_binding"],
+            "refuse_pending_explicit_reconfiguration",
+        )
+        self.assertEqual(
+            proposal["identical_binding"],
+            "observed_no_op_fresh_admission_still_required",
+        )
+
     def test_observe_and_draft_use_authored_operations(self):
         for key, operation, provider in (
             (
