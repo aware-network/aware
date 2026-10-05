@@ -1,6 +1,0 @@
-enum FocusScopeRequestStatus {
-    pending
-    accepted
-    expired
-    rejected
-}
