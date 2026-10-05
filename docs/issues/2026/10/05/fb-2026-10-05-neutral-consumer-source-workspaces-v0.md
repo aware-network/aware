@@ -2,7 +2,7 @@
 
 - Slug: neutral-consumer-source-workspaces-v0
 - Tag: fb/2026-10-05/neutral-consumer-source-workspaces-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P0
 - Goal: TBD
@@ -411,6 +411,7 @@
 
 
 
+
 ## Problem
 1. Neutral product source is nested under protocols instead of a clear, allowlisted workspace tree.
 2. Fresh client onboarding evidence needs bounded intake without overstating U/V/R or disclosing private artifacts.
@@ -418,9 +419,11 @@
 
 
 
+
 ## Goal
 1. Publish protocols for operational/delivery contracts and workspaces for only the already reviewed neutral source.
 2. Preserve the accepted a3 payload, legal/runtime bytes and historical receipts; avoid implicit development-checkout source substitution in future builds.
+
 
 
 
@@ -437,8 +440,16 @@
 
 
 
+
+## Verified-by
+- 198 tests passed, zero skipped, producer and fresh public replay; 16 source projects rebuilt to exact accepted wheel hashes; v2 client intake at 5d9f4df valid seven artifacts/three findings/four interactions; current Git/integrity/index clean
+
 ## Updates (append-only)
 - 2026-10-05T03:26:49Z — Opened the issue via `aware-cli issue open`. Initial lifecycle state is `open`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - 2026-10-05T03:27:38Z — Retain explicitly selected producer aware-cli compatibility; consumers use aware. Author source_layout.py as the exact-coordinate relocation and inventory generator; export_preview.py may project the retained Goal capsule to declared workspace coordinates and publication provenance only. Preserve a3 and all historical archives, legal/runtime/template bytes, private client records and bootstrap version 1.0.0. Amend canonical build references without building or overwriting a published candidate. Fetch/validate client commit 5d9f4dfc07f6d2d5642665cb20d77dc2ba5b70fd; I only, not U/V/R. No shared development edits. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - 2026-10-05T03:37:10Z — Moved exactly 187 admitted source/metadata files: 181 byte-identical and six README provenance links only. Sixteen neutral source projects rebuild to exact accepted wheel hashes. New checkout-hidden, network-disabled, environment-cleared installation uses unchanged a3 SHA-256 4af072afaea666480009c03721c9846d122f61d7160fb1511329463762222a1c; 198 tests passed, zero skipped (77 consumer/accounting/evaluation/layout plus 121 pinned owner). Owner JUnit SHA-256 c882545bb4f60ce61d60faaf4bc5049d8a112bfdecf1c35217809cc59e54ba8d. Historical a3 builder, release manifest, all archives, legal/runtime/templates, root bootstrap and private client submission remain unchanged. Active builder consumes workspace inputs and refuses immutable overwrite; no new assembled candidate claim. Client archive 5d9f4dfc07f6d2d5642665cb20d77dc2ba5b70fd fetched at HEAD and v2 valid: seven artifacts, three findings, four interactions; I only, U/V/R unrun, development checkout visible. No shared development edits, extra internal source, release channel or archive writes. Exact-path publication and public replay next. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - 2026-10-05T03:42:40Z — Implementation 7a048da7c361235da1f2b1807a4a9f8988cee6b0 published via exact-path dry-run/apply (isolated_index_atomic_ref_v1, no pending reconciliation) and non-force push to aware-network/aware/main; remote readback matched. Fresh public shallow clone at that exact revision has 185 allowlisted workspace files and no old protocols source trees or internal manifests. Exact a3 installed offline in a second fresh environment with development checkout hidden and environment cleared. All 198 tests passed again, zero skipped. Public owner JUnit SHA-256 2338a0504e746438e0ffe7957fbd6e2f16fa8b936428cbb439ffdfc165a0ef49. Source/notice/runtime/archive/contract boundaries preserved. Producer and public clone clean before this receipt update; client archive remains immutable and I-only. No new payload, registry release or external U/V/R acceptance claimed. Close bounded source-layout cut; next external client exercises approved Issue outcome on unchanged a3. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- 2026-10-05T03:43:20Z — Close neutral-only source workspace publication; public replay and bounded client intake evidence committed at be9ef0818f2902d5b25268d9a7ad2268682edcda. Preserve a3 and I-only client limits; next client completes real Issue loop. Implementation commit: `7a048da7c361235da1f2b1807a4a9f8988cee6b0`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Public protocols/workspaces ownership split delivered with exact source allowlist, 16 wheel-matching neutral projects, unchanged consumer artifacts and two fresh installed 198-test replays. No retired internal outputs, new runtime version, private archive write or U/V/R acceptance.
