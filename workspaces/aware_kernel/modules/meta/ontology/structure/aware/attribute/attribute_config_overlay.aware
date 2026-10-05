@@ -1,5 +1,0 @@
-/// Per-language overrides for AttributeConfig entities.
-edge AttributeConfigOverlay {
-    rendered_name String?
-    wire_name String?
-}

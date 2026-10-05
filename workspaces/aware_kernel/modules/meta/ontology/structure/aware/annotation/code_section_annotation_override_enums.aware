@@ -1,4 +1,0 @@
-enum CodeSectionAnnotationOverrideTarget {
-    fk
-    relationship
-}
