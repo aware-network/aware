@@ -1,7 +1,8 @@
 # Standalone SPEC admit-runtime successor: local selection
 
-Status: selected locally; independent selection review accepted;
-**not publicly delivered**.
+Historical checkpoint: selected locally; independent selection review accepted;
+**not publicly delivered at that checkpoint**. Current status and remote receipts
+are in [PUBLICATION.md](PUBLICATION.md).
 Governing Issue: [fb/2026-10-06/specification-admit-runtime-selection-v1](../../../../docs/issues/2026/10/06/fb-2026-10-06-specification-admit-runtime-selection-v1.md).
 This selects the exact reviewed software and separate install entrance, not a
 new authority, agent-contract version or frozen customer bootstrap extension.
@@ -120,7 +121,8 @@ The acceptance admits local selection only: a6 and historical instructions
 remain unchanged, authoring remains unavailable, and no new authority,
 external evaluation or public delivery is admitted.
 
-Next: a separately authorized publication cut and revision-pinned public
-acquisition proof. External
+At this checkpoint, the next step was a separately authorized publication cut
+and revision-pinned public acquisition proof; now tracked in [PUBLICATION.md](PUBLICATION.md).
+External
 evaluation admission and authoring delivery remain separate. No push is
-authorized or claimed here.
+authorized or claimed by this historical selection record.

@@ -102,10 +102,10 @@ Goal installed checks; see the [verification record](protocols/publication/VERIF
 
 A separate, Git-distributed SPEC preview provides Issue-governed manifest/directory
 setup and strict reading of independently qualified existing documents. Install
-its 26-package closure in a separate Linux x86-64 / Python 3.12 environment:
+its 27-package closure in a separate Linux x86-64 / Python 3.12 environment:
 
 ```sh
-python3.12 protocols/specification/install.py \
+python3.12 protocols/specification/previews/admit-runtime-v1/install.py \
   --python-executable /usr/bin/python3.12 --venv /tmp/aware-spec-env
 /tmp/aware-spec-env/bin/aware-protocol --help
 /tmp/aware-spec-env/bin/aware-spec --help
@@ -115,17 +115,12 @@ See the [preview entrance](protocols/specification/README.md) for explicit input
 exact software/source/notices and capability limits. This is not an a6 upgrade:
 do not overlay installations. SPEC authoring/import and approved iterations are
 unavailable; without qualified documents, a new customer stops after setup.
-The supplementary command sequence remains draft; contract 1.3.0 is unallocated.
-
-## Locally selected admit-runtime successor — publication pending
-
-The reviewed standalone successor is selected locally as aware-protocol 0.3.1 /
-aware-spec 0.2.0, with 27 packages. It changes admit dispatch only; a6 and the
-published predecessor above remain unchanged. See the
-[successor entrance](protocols/specification/previews/admit-runtime-v1/README.md)
-and [selection record](protocols/specification/previews/admit-runtime-v1/SELECTION.md).
-Independent selection review is accepted; separately authorized public delivery
-remains pending. Do not infer GitHub availability from this local selection.
+The selected CLIs are aware-protocol 0.3.1 and aware-spec 0.2.0. Admit dispatch
+uses the existing neutral command runtime; SDK/provider/domain decisions retain
+their owners. The [delivery record](protocols/specification/previews/admit-runtime-v1/PUBLICATION.md)
+binds the exact software and receipts. The predecessor remains available through
+its explicitly versioned entrance. Historical command sequences remain drafts;
+contract 1.3.0 is unallocated. Publication is not a registry release or an a6 upgrade.
 
 ## What comes next
 

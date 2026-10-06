@@ -1,10 +1,26 @@
 # Filesystem Specification setup and read preview
 
-This page retains the **published predecessor** (Protocol CLI 0.3.0, 26 packages).
-The [0.3.1 successor](previews/admit-runtime-v1/README.md) has accepted local
-selection; public delivery remains pending. Its
-[selection record](previews/admit-runtime-v1/SELECTION.md) names exact bytes.
-The predecessor installer and historical receipts remain unchanged.
+The current Git preview is **aware-protocol 0.3.1 / aware-spec 0.2.0**, with
+27 packages in a separate Linux x86-64 / Python 3.12 installation. Follow the
+[selected entrance](previews/admit-runtime-v1/README.md) and
+[delivery record](previews/admit-runtime-v1/PUBLICATION.md).
+
+```sh
+python3.12 protocols/specification/previews/admit-runtime-v1/install.py \
+  --python-executable /usr/bin/python3.12 --venv /tmp/aware-spec-env
+/tmp/aware-spec-env/bin/aware-protocol --help
+/tmp/aware-spec-env/bin/aware-spec --help
+```
+
+Select the task's commands explicitly. Never overlay a6, existing SPEC environments
+or their wheelhouses. Authoring/import remains unavailable; reading requires
+qualified existing documents. Historical sequence/addendum files remain unfrozen,
+and contract 1.3.0 is unallocated. The dispatch change adds no domain authority.
+
+## Retained published predecessor: Protocol CLI 0.3.0, 26 packages
+
+The following entrance and receipts describe the preserved predecessor, not the
+current installation above. Its installer and artifact bytes remain unchanged.
 
 Status: Git-distributed standalone preview; not selected by a6 and not a registry
 release. See the [publication record](PUBLICATION.md) for selection and receipts.

@@ -1,8 +1,9 @@
-# SPEC admit-runtime successor — local selection
+# Filesystem SPEC setup/read preview — admit runtime
 
-Status: selected locally; independent selection review accepted, public delivery pending.
-The existing public SPEC entrance remains aware-protocol 0.3.0 / aware-spec 0.2.0.
-See the [selection record](SELECTION.md). This separately versioned candidate
+Status: selected standalone Git preview; not a registry release or a6 upgrade.
+The predecessor aware-protocol 0.3.0 / aware-spec 0.2.0 remains available through
+its [retained entrance](../../README.md). See the [delivery record](PUBLICATION.md)
+and [historical local selection](SELECTION.md). This separately versioned preview
 provides aware-protocol 0.3.1 / aware-spec 0.2.0 with the same
 filesystem operations; only admit dispatch adopts the neutral command runtime.
 It is neither a new authority nor an additional evaluator, policy or writer.
@@ -80,7 +81,8 @@ Bounded source/notice/disclosure coverage for this exact packet is accepted;
 upstream attribution and conservative binary-component qualifications remain
 intact. This is not exhaustive rights/secret clearance, exact binary linkage or a
 legal warranty. Independent layout and local integration review are accepted.
-This separate install/version entrance is selected locally; the inherited command
+This separate install/version entrance is selected for Git delivery; the inherited command
 sequence and interface addendum remain historical, unfrozen drafts. Independent
-selection review is accepted; customer delivery/evaluation and publication
-authorization remain separate. See the [evaluation protocol](../../../evaluations/README.md).
+selection review is accepted. Git delivery does not freeze those drafts or admit
+an external evaluation. Actual remote confirmation and public acquisition belong
+to the [delivery record](PUBLICATION.md). See the [evaluation protocol](../../../evaluations/README.md).
