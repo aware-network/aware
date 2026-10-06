@@ -1,6 +1,6 @@
 # Unselected SPEC CLI022 reader: local integration
 
-Status: local integration verified; independent review pending.
+Status: bounded local integration independently accepted.
 Not public selection, instruction freeze or remote delivery.
 
 Execution: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`.
@@ -100,8 +100,34 @@ The separate authored-change check passes. These legal bytes are hash-preserved
 and must not be reformatted. The report and Issue record actual evidence without
 hand-checking the Issue's authored acceptance boxes or closing it prematurely.
 
-Independent review remains pending. This receipt is local Git publication,
+Independent review is accepted below. This receipt is local Git publication,
 not selection, public acquisition, remote delivery or release authorization.
+
+## Independent bounded acceptance
+
+Luis relayed an independent PASS with no blocker for implementation
+`8e996bd0fbf6efae371f0858288a264fb2aea151`, with handoff
+`8256c5af4168ce6d019a53039d1f993027cb028e`.
+The independent JUnit receipt is
+`/tmp/aware-cli022-integration-review.9cRFylEh/checks.xml`, SHA-256
+`d40dbd6e35ed8f0c2a449e587e86b16aff04b5f3298ecf9d8881fb9985fb46dc`.
+It records **ten checks passed**, zero failures, errors or skips.
+
+The reviewer independently verified the fresh offline, checkout-hidden
+installation, all 456 reviewed paths and the exact 460-path integration scope,
+1,452 untouched baseline files and baseline Git modes. All 27 packages install
+cleanly; both CLIs activate and reuse refuses. Payload, source, installer and
+notice bytes remain exact. a6 and selected SPEC remain unchanged; this successor
+remains unselected. The 447 whitespace findings affect only retained upstream
+legal texts; other changes pass.
+
+Acceptance recording inspected the receipt digest/counts and the clean public
+checkout at the handoff revision. No tests, installation or domain matrix were
+rerun, and no artifact bytes changed. No reviewer identity was supplied or
+inferred. The Issue's acceptance criteria remain authored unchecked boxes;
+this evidence does not grant a separate Specification acceptance operation.
+Record acceptance and close this bounded Issue through the selected a6 client.
+Selection, instruction decisions and publication remain separately governed.
 
 ## Unchanged product boundaries
 
@@ -125,6 +151,6 @@ clearance, exact binary linkage, reproducible wheel builds or a legal warranty.
 Original whitespace in exact upstream legal texts must not be normalized;
 authored whitespace checks are scoped separately.
 
-Next: independent local-integration review, then separately scoped selection,
+Next: separately scoped selection,
 instruction decisions and explicitly authorized publication. No push,
 authoring admission or external evaluation authorization follows from this cut.
