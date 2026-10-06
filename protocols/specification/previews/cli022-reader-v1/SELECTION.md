@@ -103,6 +103,17 @@ SHA-256 `fe210bdef078f9052f4923ea9c7610e9757cb49ddddb44a712baa0d501782408`.
 These are producer verification receipts, not independent selection acceptance
 or consumer installation dependencies. The Issue remains In Progress for review.
 
+### Local publication receipt
+
+Selection implementation: `ea4e7b5db2c2cd0db729f93b86d5f91b3b378692`.
+Applied receipt: `git:ea4e7b5db2c2cd0db729f93b86d5f91b3b378692`.
+The retained verified a6 client published exactly eight paths after the identical
+dry-run, through `aware_workspace_operator.run_workspace_commit.v1`.
+Transaction mode: `isolated_index_atomic_ref_v1`; reference update:
+`cas_applied`; shared-index projection: `applied`; reconciliation pending: `false`.
+This is local Git publication only. The selection still needs independent review
+and a separate public-delivery decision. No bootstrap or artifact bytes changed.
+
 Next: independent local selection review, then a separately authorized publication
 cut with accurate public-status wording and revision-pinned acquisition proof.
 No push, instruction freeze, external evaluation admission or customer authoring

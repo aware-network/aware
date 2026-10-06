@@ -22,14 +22,17 @@
 
 
 
+
 ## Problem
 1. Accepted reader successor remains unselected; consumer entrances still identify the earlier SPEC reader.
 
 
 
 
+
 ## Goal
 1. Select the exact accepted separate CLI022 reader locally and align presentation while preserving a6, predecessor artifacts and authority boundaries.
+
 
 
 
@@ -42,7 +45,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Selected standalone SPEC CLI022 reader locally; independent selection review pending, not publicly delivered. Exact8-path delta: five presentation docs plus selection/test/tooling-owned Issue.7 checks pass including fresh offline installation with all /home/unrelated /tmp hidden, network disabled, environment cleared;27 packages/dependency checks/both CLIs/no direct URLs/reuse exit2/parent0700 survive.1912 baseline modes and1907 other bytes preserved;429/439/449 packet maps exact. Installer/source/notice/payload/accepted harness unchanged, a6 and customer bootstrap unchanged; preceding published offers retained. JUnit35ccc1d3c38b and installed receiptfe210bdef078 recorded in SELECTION.md. No matrix/customer operation replay, authoring,1.3.0 allocation,instruction freeze or push;day/FEED mirrors deferred. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Implementation ea4e7b5db2c2cd0db729f93b86d5f91b3b378692 / receipt git:ea4e7b5db2c2cd0db729f93b86d5f91b3b378692 committed through selected a6 identical dry-run/apply over8 exact paths; CAS/index applied,no reconciliation pending.7-check fresh offline proof retained; six accounting cases repeated with installer explicitly deselected. Independent local selection review pending; Issue In Progress, successor selected locally only, published predecessor/a6/bootstrap unchanged. No artifact/runtime change, domain replay, authoring, public delivery or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
