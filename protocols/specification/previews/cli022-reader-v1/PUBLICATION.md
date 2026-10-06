@@ -94,6 +94,48 @@ publication acceptance. Public acquisition still needs its own fresh installatio
 
 ## Observed public delivery
 
-Not yet recorded at the publication-preparation checkpoint. The authorized push,
-remote readback, anonymous acquisition and fresh installed replay must occur
-before a success claim is recorded here.
+The authorized non-force push advanced `aware-network/aware/main` from
+`763f5fea33964f115445e7191d726d7e10d6305c` to
+`80ef8b89fd9d5b84453ce2be4ae94548bdb017d3`; remote readback confirmed that exact
+revision. Applied local receipt: `git:80ef8b89fd9d5b84453ce2be4ae94548bdb017d3`,
+owner `aware_workspace_operator.run_workspace_commit.v1`, transaction
+`isolated_index_atomic_ref_v1`, reference CAS and shared-index projection applied,
+index reconciliation pending `false`. The push was a separate authorized effect.
+
+A fresh anonymous GitHub clone, with system/global Git configuration and
+credential helpers disabled, matched the exact delivered revision. A separately
+downloaded [revision-pinned packet](https://raw.githubusercontent.com/aware-network/aware/80ef8b89fd9d5b84453ce2be4ae94548bdb017d3/protocols/specification/previews/cli022-reader-v1/distribution/aware-specification-cli022-source-notice-review-v1.tar.gz)
+matched the selected packet digest and cloned distribution byte-for-byte; the
+clone's inner payload matched its selected digest. Public GitHub acquisition,
+not a producer source mirror or retained installation, supplied the replay.
+
+From that public checkout, **eight checks passed, zero skipped**, including a
+fresh offline installation with all /home and unrelated /tmp hidden, networking
+disabled and inherited environment cleared. All 27 packages installed and passed
+dependency checks. Protocol CLI 0.3.1, SPEC CLI 0.2.2, SPEC SDK 0.2.0 and FS SDK
+adapter 0.3.0 match selection; both CLIs activated. No editable/direct-URL records
+appeared. Reuse refused with exit 2 and private scratch parent mode 0700 survived.
+All three packet maps, exact nine-path scope, retained baseline files/Git modes,
+notice carriage, wording and links passed. The acquired checkout stayed clean.
+The original accepted real installer harness and public test logic were reused.
+
+Public-acquisition JUnit SHA-256:
+`db37bc4f542277e711fcf0d00233ecd99208a00366fa8b16db677af13178efbc`.
+Installed receipt SHA-256:
+`5a288f54860858dbb0ff2cf87f6b9550d34128f5093eded38c3227fc71c3c799`.
+The prepublication and public replays are the same eight obligations executed
+twice, not sixteen distinct proofs. Producer evidence, logs and fresh environment
+are retained outside customer records; they are not installation dependencies.
+
+This is observed producer public-delivery evidence, not independent publication
+acceptance, external U/V/R, another domain matrix, reproducible builds or registry
+release. Subsequent evidence/Issue-closeout commits change neither the payload,
+sources, notices, supported capabilities nor a6. Historical drafts stay unfrozen;
+contract 1.3.0 remains unallocated and authoring remains unavailable.
+
+One producer evidence-append request refused as
+`request_invalid:IssueOperationContractError`: the caller retained its input
+file's trailing newline. The caller trimmed that authored input and repeated
+fresh observation before the corrected append and publication plan. The malformed
+receipt and superseded dry-run are retained outside repository authority; no
+refusal was counted as a passing installed case or used to bypass an owner.
