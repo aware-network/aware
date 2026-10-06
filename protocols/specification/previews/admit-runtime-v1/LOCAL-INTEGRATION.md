@@ -70,6 +70,21 @@ used the owner's `content.ownership_scope`, checked all preimages, and left
 unrelated local permissions untouched. No refusal was bypassed or counted as a
 passing owner operation.
 
+## Applied local repository receipt
+
+Implementation commit: `2604819adab6db917e5443f991f2af843cf02a26`.
+Publication receipt: `git:2604819adab6db917e5443f991f2af843cf02a26`.
+The selected a6 client called `aware_workspace_operator.run_workspace_commit.v1`
+after the identical dry-run. Transaction mode: `isolated_index_atomic_ref_v1`;
+reference update: `cas_applied`; shared-index projection: `applied`;
+index reconciliation pending: `false`. The applied request covered 450 exact
+paths, including the Issue. This is local Git publication, not a remote push.
+
+After recording the detailed verification, eight accounting checks passed again;
+the independently counted ninth installer case had already passed in its fresh
+final installation and was explicitly deselected from that repeat. The Issue
+remains In Progress for independent local-integration review.
+
 ## Versions and unchanged boundaries
 
 This candidate offers Protocol CLI 0.3.1 and SPEC CLI 0.2.0 in a separate

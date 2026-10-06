@@ -464,14 +464,17 @@
 
 
 
+
 ## Problem
 1. The accepted unselected successor layout is not integrated into the governed public checkout.
 
 
 
 
+
 ## Goal
 1. Apply the exact reviewed additive delta at baseline 0b8710e7c0afb71df8f73685fc22f0632f74d722 and qualify the real integrated offline installer without selecting or publishing the successor.
+
 
 
 
@@ -484,7 +487,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a11141-c779-7971-8d1a-ef573f044314`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a11141-c779-7971-8d1a-ef573f044314`)
 - Applied exact reviewed 446-path delta plus three maintained integration artifacts. Final integrated installer/accounting replay: 9 passed, zero skipped; fresh offline install, producer checkouts hidden, environment cleared, 27 packages, dependency checks and reuse refusal. All 998 unrelated baseline bytes and all 1000 local file permissions preserved. JUnit sha256:a59a9a2dc82e2bcc6c56d9f822cb81a0438dfed97d3eb8854368276a10aad4b3; receipt sha256:96f1803c54bbf388e85630ff0bc08a8b17f52f77356df80717045c0786fbf678. Initial 8-pass/1-failure test-format assertion and read-only probe errors retained in LOCAL-INTEGRATION.md. No domain matrix rerun, instruction freeze, selection, evaluation or push. Independent local integration review pending. (outcome: source_verified) (recorder: `codex-01a11141-c779-7971-8d1a-ef573f044314`)
+- Implementation receipt git:2604819adab6db917e5443f991f2af843cf02a26. Real owner aware_workspace_operator.run_workspace_commit.v1; isolated_index_atomic_ref_v1; reference_update=cas_applied; shared_index_projection=applied; index_reconciliation_pending=false. Exact 450 scoped files published locally while Issue In Progress. Fresh installation/accounting: 9 distinct tests pass; post-documentation accounting replay: 8 pass with the previously proved installation explicitly deselected. Independent integration review requested; closure, instruction freeze, successor selection and public push remain separate. (outcome: handoff_pending_independent_review) (recorder: `codex-01a11141-c779-7971-8d1a-ef573f044314`)
