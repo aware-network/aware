@@ -65,3 +65,42 @@ scan, reproducible build or exact native-binary linkage proof.
 Publication verification and the remotely confirmed Git revision are recorded
 in the governing Issue after the non-force push. Its receipt identifies actual
 delivery; a local commit alone is not remote confirmation.
+
+### Observed public delivery
+
+The non-force push advanced `aware-network/aware/main` from
+`a80f2222a4f61a73f733a82ec9b48e767c82e675` to
+`f71e16baef0ce8a31b97d87ae65fe2f8d79da6a0`; remote readback confirmed that exact
+revision. The outgoing history included the reviewed evaluator tooling, SPEC
+preparation, vision alignment and accepted integration, followed by the scoped
+publication-status amendment. Its applied repository receipt was
+`git:f71e16baef0ce8a31b97d87ae65fe2f8d79da6a0`: reference CAS and shared-index
+projection applied, no pending index reconciliation.
+
+An anonymous public clone with credential configuration disabled matched that
+revision. The separately downloaded [revision-pinned packet](https://raw.githubusercontent.com/aware-network/aware/f71e16baef0ce8a31b97d87ae65fe2f8d79da6a0/protocols/specification/distribution/aware-specification-fs-review-packet-v1.tar.gz)
+matched the exact packet hash above; its clone payload matched the selected
+payload hash. Neither acquisition substituted a producer source mirror.
+
+From that public checkout, **41 checks passed, zero skipped**: ten current
+delivery/status/accounting checks and 31 historical preparation checks. The
+actual installation was fresh, offline and environment-cleared, with the
+development checkout, original public producer checkout and downloaded checkout
+hidden behind the replay mounts. Both supported CLIs activated; all 26 packages
+were present, no direct-URL installations were found, and reinstalling into the
+existing environment refused while retaining parent permissions. The acquired
+checkout remained clean.
+
+Public-download JUnit SHA-256:
+`0259444bc55bbd408c1bd70fbfa7a619312066f7bba707bfc9a418ec88291ebc`.
+Installed receipt SHA-256:
+`655060f4db9ac6db7419566986a34da0d5b8b4296dc139228637f2a11de3a27f`.
+Two earlier diagnostic attempts failed before installation because the nested
+replay lacked a writable temporary directory or proc mount; those failures are
+retained, not counted as passing product tests. Replay infrastructure alone was
+corrected; downloaded source and test logic did not change.
+
+This is producer Git-delivery evidence, not independent external U/V/R, a new
+domain matrix, registry release or SPEC acceptance. The previously accepted
+payload qualification remains its own receipt. Subsequent delivery-record and
+Issue-closeout commits change no software, source, notices or selected interfaces.
