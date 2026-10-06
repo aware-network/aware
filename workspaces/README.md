@@ -71,3 +71,9 @@ Refreshing the original six owner projections is a separate, explicit
 `--refresh-owner-sources --source-repository <pinned-owner-repository>` operation,
 never an automatic import of the internal checkout. Goal's pinned source/build
 inputs remain inspectable; no new Goal writer or build acceptance is implied.
+
+## Versioned SPEC preview source
+
+The [separate neutral snapshot](previews/specification-setup-read-v1/README.md)
+keeps exact reviewed SPEC suppliers isolated from differing a6 inputs. Its presence
+is not an agent-client upgrade, a new operation owner or a build acceptance.

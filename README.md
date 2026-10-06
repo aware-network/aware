@@ -98,6 +98,13 @@ third-party packages. Source, licenses, component notices and checksums accompan
 the distribution. The unchanged payload previously passed 43 Protocol and 41
 Goal installed checks; see the [verification record](protocols/publication/VERIFICATION.md).
 
+## Prepared Specification preview
+
+A separate filesystem SPEC setup/read layout is staged for review, not yet a
+selected a6 capability or public release. It requires explicit preparer selection
+and qualified existing documents; authoring is unavailable. See the
+[preview entrance](protocols/specification/README.md). a6 remains unchanged.
+
 ## What comes next
 
 Our delivery direction is **Issues → Specifications → Goals → shared map**.
