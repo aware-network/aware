@@ -63,7 +63,7 @@ used a fresh environment with all `/home` and unrelated `/tmp` hidden, networkin
 disabled and inherited environment cleared. Both supported CLIs activated;
 all 27 packages were present, dependency checks passed, no editable/direct-URL
 records existed, reuse refused with exit 2 and parent mode 0700 was preserved.
-Ruff lint/format and authored README whitespace checks passed.
+Ruff lint/format and authored-change whitespace checks passed.
 
 Final JUnit: `/tmp/aware-cli022-integration.OCCKLVYz/replay.QcXzfbjH/integration.xml`.
 SHA-256: `463154e6474ccbfbffcd8ad55e360047a633abb538a3ae414a664fbc6d561a65`.
@@ -81,6 +81,27 @@ initial installed receipt SHA-256:
 `1684c20eb172919fefc2f96bd497d4c00f592dc6459e4b5ad61b5805d16ef192`.
 Neither artifact was overwritten. The final replay used another new environment;
 repeated runs are ten distinct checks, not twenty distinct proofs.
+
+## Applied local publication
+
+Implementation commit: `8e996bd0fbf6efae371f0858288a264fb2aea151`.
+Applied publication receipt: `git:8e996bd0fbf6efae371f0858288a264fb2aea151`.
+The selected a6 command published exactly 460 paths after an identical dry-run,
+through `aware_workspace_operator.run_workspace_commit.v1`. Transaction mode:
+`isolated_index_atomic_ref_v1`; reference update: `cas_applied`; shared-index
+projection: `applied`; index reconciliation pending: `false`.
+The public checkout and index were clean after this local publication.
+
+The complete baseline-to-integration whitespace check returns exit 2 with 447
+findings in 14 exact upstream notice files; all are inside the packet's legal
+attachments. Diagnostic SHA-256:
+`0f98bcc2fd1b2e428280a08ce05cebf5b30335f58631a9fa1b258d315a347d60`.
+The separate authored-change check passes. These legal bytes are hash-preserved
+and must not be reformatted. The report and Issue record actual evidence without
+hand-checking the Issue's authored acceptance boxes or closing it prematurely.
+
+Independent review remains pending. This receipt is local Git publication,
+not selection, public acquisition, remote delivery or release authorization.
 
 ## Unchanged product boundaries
 
