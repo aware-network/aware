@@ -105,7 +105,7 @@ setup and strict reading of independently qualified existing documents. Install
 its 27-package closure in a separate Linux x86-64 / Python 3.12 environment:
 
 ```sh
-python3.12 protocols/specification/previews/admit-runtime-v1/install.py \
+python3.12 protocols/specification/previews/cli022-reader-v1/install.py \
   --python-executable /usr/bin/python3.12 --venv /tmp/aware-spec-env
 /tmp/aware-spec-env/bin/aware-protocol --help
 /tmp/aware-spec-env/bin/aware-spec --help
@@ -115,23 +115,21 @@ See the [preview entrance](protocols/specification/README.md) for explicit input
 exact software/source/notices and capability limits. This is not an a6 upgrade:
 do not overlay installations. SPEC authoring/import and approved iterations are
 unavailable; without qualified documents, a new customer stops after setup.
-The selected CLIs are aware-protocol 0.3.1 and aware-spec 0.2.0. Admit dispatch
+The selected CLIs are aware-protocol 0.3.1 and aware-spec 0.2.2, with SPEC SDK
+0.2.0 and filesystem SDK adapter 0.3.0. Admit dispatch
 uses the existing neutral command runtime; SDK/provider/domain decisions retain
-their owners. The [delivery record](protocols/specification/previews/admit-runtime-v1/PUBLICATION.md)
+their owners. The [delivery record](protocols/specification/previews/cli022-reader-v1/PUBLICATION.md)
 binds the exact software and receipts. The predecessor remains available through
 its explicitly versioned entrance. Historical command sequences remain drafts;
 contract 1.3.0 is unallocated. Publication is not a registry release or an a6 upgrade.
 
-## Locally selected SPEC CLI022 reader successor
+## Retained SPEC reader predecessors
 
-The reviewed separate reader successor is selected locally: aware-protocol
-0.3.1 / aware-spec 0.2.2, SDK 0.2.0 and filesystem SDK adapter 0.3.0.
-Independent selection review and public delivery remain pending. It is **not
-publicly delivered by this local checkpoint**; the published preview above
-remains accessible. See the [selected local entrance](protocols/specification/previews/cli022-reader-v1/README.md)
-and [selection record](protocols/specification/previews/cli022-reader-v1/SELECTION.md).
-Use a fresh, separate environment; do not overlay a6 or earlier SPEC installs.
-This is reader/interface adoption, not authoring, a new domain owner or a6 upgrade.
+The [Protocol 0.3.1 / SPEC 0.2.0 entrance](protocols/specification/previews/admit-runtime-v1/README.md)
+and original setup/read preview remain available with their exact artifacts and
+publication receipts. The CLI022 [historical local selection](protocols/specification/previews/cli022-reader-v1/SELECTION.md)
+records adoption without upgrading a6 or authorizing SPEC writers. Use fresh,
+separate installations; never overlay or silently switch an execution's command.
 
 ## What comes next
 

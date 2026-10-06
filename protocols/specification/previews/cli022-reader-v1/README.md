@@ -1,11 +1,13 @@
-# SPEC CLI 0.2.2 reader successor — local selection
+# SPEC CLI 0.2.2 reader — standalone Git preview
 
-Status: selected locally; independent selection review pending; not publicly delivered.
+Status: selected standalone Git preview; publication authorized by Luis.
+Remote confirmation and revision-pinned acquisition receipts are in
+[PUBLICATION.md](PUBLICATION.md); local preparation alone is not public delivery.
 a6 is unchanged. The published aware-protocol 0.3.1 / aware-spec 0.2.0 predecessor
 remains intact. This versioned selection uses aware-protocol 0.3.1 / aware-spec
 0.2.2, using SDK 0.2.0, FS SDK adapter 0.3.0 and Protocol FS adapter 0.4.0.
 The SDK/provider/domain owners are unchanged; no new evaluator or writer exists.
-See [the selection record](SELECTION.md); public delivery is a separate decision.
+See [the historical selection record](SELECTION.md) for accepted local adoption.
 
 ## Explicit separate installation
 
@@ -77,4 +79,5 @@ Contract 1.3.0 remains unallocated; no combined client or aware spec wrapper is
 supplied. Accepted layout/integration receipts retain their historical unselected
 fields; they are not rewritten by this decision. Independent selection review,
 instruction freeze and publication remain separate. No delivery or publication
-authority follows from local selection.
+authority follows from reader delivery. Public acquisition does not freeze
+historical instruction drafts or admit authoring.

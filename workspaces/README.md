@@ -88,10 +88,11 @@ retains separate installations and accepted source/notice boundaries. The
 remains its own checkpoint. This is not an agent/bootstrap upgrade or a new
 operation owner.
 
-## Locally selected SPEC CLI022 source
+## Selected Git SPEC CLI022 source
 
 The [separate versioned snapshot](previews/specification-cli022-reader-v1/README.md)
-retains the exact reviewed reader sources for the locally selected successor.
-See its [selection record](../protocols/specification/previews/cli022-reader-v1/SELECTION.md).
-Public delivery and independent selection review remain pending. a6 and older
+retains the exact reviewed reader sources for the selected Git preview.
+See its [delivery record](../protocols/specification/previews/cli022-reader-v1/PUBLICATION.md)
+and [historical selection](../protocols/specification/previews/cli022-reader-v1/SELECTION.md).
+Independent local selection review is accepted. a6 and older
 snapshots stay intact; no new operational rail or editable installation is admitted.

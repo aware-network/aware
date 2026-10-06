@@ -1,6 +1,8 @@
 # Standalone SPEC CLI022 reader: local selection
 
-Status: selected locally; independent selection review accepted; **not publicly delivered**.
+Historical checkpoint: selected locally; independent selection review accepted;
+**not publicly delivered at that checkpoint**. Current Git delivery status and
+receipts are in [PUBLICATION.md](PUBLICATION.md).
 Issue: [fb/2026-10-06/specification-cli022-selection-v1](../../../../docs/issues/2026/10/06/fb-2026-10-06-specification-cli022-selection-v1.md).
 This selects the accepted software and separate install entrance, not new
 authority, a frozen bootstrap extension or a registry release.
@@ -139,7 +141,8 @@ pending-review wording in the entrance/overview drafts belongs to that earlier
 checkpoint; this record supplies its acceptance without freezing those drafts.
 Publication's accurate current-status wording is a separate scoped cut.
 
-Next: a separately authorized publication
+At this checkpoint, next was a separately authorized publication
 cut with accurate public-status wording and revision-pinned acquisition proof.
 No push, instruction freeze, external evaluation admission or customer authoring
-is authorized by this local selection.
+was authorized by this local selection. The subsequent explicitly authorized
+delivery is recorded in [PUBLICATION.md](PUBLICATION.md).

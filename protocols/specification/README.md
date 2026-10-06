@@ -1,13 +1,14 @@
 # Filesystem Specification setup and read preview
 
-## Locally selected reader successor — public delivery pending
+## Selected standalone Git reader preview
 
-The reviewed local selection is **aware-protocol 0.3.1 / aware-spec 0.2.2**,
+The current Git preview is **aware-protocol 0.3.1 / aware-spec 0.2.2**,
 SDK 0.2.0 and filesystem SDK adapter 0.3.0, in a separate 27-package installation.
-Independent selection review is pending. This checkpoint is not publicly delivered;
-the last published predecessor below remains intact. Follow the
-[selected local entrance](previews/cli022-reader-v1/README.md) and
-[selection record](previews/cli022-reader-v1/SELECTION.md).
+Independent local selection review is accepted. Luis authorized Git delivery;
+remote confirmation and acquisition evidence are recorded in the
+[delivery record](previews/cli022-reader-v1/PUBLICATION.md).
+Follow the [selected entrance](previews/cli022-reader-v1/README.md).
+The published predecessors below remain intact; this is not a registry release.
 
 ```sh
 python3.12 protocols/specification/previews/cli022-reader-v1/install.py \
@@ -26,7 +27,7 @@ their existing owners and limits; no new authority follows from reader adoption.
 
 ## Retained published predecessor: Protocol CLI 0.3.1 / SPEC CLI 0.2.0
 
-The current Git preview is **aware-protocol 0.3.1 / aware-spec 0.2.0**, with
+The retained predecessor is **aware-protocol 0.3.1 / aware-spec 0.2.0**, with
 27 packages in a separate Linux x86-64 / Python 3.12 installation. Follow the
 [selected entrance](previews/admit-runtime-v1/README.md) and
 [delivery record](previews/admit-runtime-v1/PUBLICATION.md).
