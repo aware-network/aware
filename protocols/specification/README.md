@@ -1,6 +1,7 @@
 # Filesystem Specification setup and read preview
 
-Status: public-layout proposal for review; not published or selected by a6.
+Status: Git-distributed standalone preview; not selected by a6 and not a registry
+release. See the [publication record](PUBLICATION.md) for selection and receipts.
 This separate Linux x86-64 / Python 3.12 preview configures a SPEC binding through
 an approved Issue and reads independently qualified Specification packages.
 It does not supply SPEC authoring/import or approved iterations. New users can
@@ -64,7 +65,7 @@ The packet expands to `aware-specification-fs-review-packet-v1`; its inner paylo
 expands to `aware-specification-setup-read-internal-v3`. These retained names do
 not imply a different semantic profile. Its original README's 'no setup CLI'
 and historical nonclaims are construction evidence, explained by the attached
-installed boundaries. This page supplies the current proposed entrance.
+installed boundaries. This page supplies the current standalone entrance.
 
 Source indices retain original supplier revisions and packet-relative paths;
 delivery.json maps them to accessible paths here. The neutral snapshot is composite,
@@ -77,7 +78,8 @@ Aware-authored work follows the existing Apache-2.0 policy; upstream terms stay
 separate. Conservative native-component notices do not prove exact linkage or
 publisher toolchain identity. Historical notice indices remain unchanged.
 
-Exact packet notice/disclosure coverage has bounded acceptance; this new layout
-and wrapper require their own review. No exhaustive secret/legal warranty is
-made. Public coordinate, publication authorization and evaluation admission
-remain separate. Report findings via the existing [evaluation protocol](../evaluations/README.md).
+Exact packet notice/disclosure coverage, the public layout/wrapper and local
+integration have bounded independent acceptance. No exhaustive secret/legal
+warranty is made. Git delivery does not freeze the draft addendum, allocate
+1.3.0 or admit an external evaluation. Report findings via the existing
+[evaluation protocol](../evaluations/README.md).

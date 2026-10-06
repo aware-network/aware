@@ -40,12 +40,12 @@ their original pinned owner coordinates and curated-facade qualifications.
 Package README provenance links have been corrected for this layout only.
 
 Install using [the pinned installer](../protocols/agent/install.py), not an
-editable workspace or `PYTHONPATH`. The selected candidate is **0.1.0a4**, with
-22 reachable packages; its [adoption proof](../protocols/agent/REPOSITORY-A4-VERIFICATION.md)
-binds the shared publication-owner repair and five changed wheel versions.
-The other 17 wheels and immutable a3 artifact remain unchanged. This is local
-selection, not evidence of public delivery; see the
-[publication readiness record](../protocols/publication/A4-PUBLICATION-ALIGNMENT.md).
+editable workspace or `PYTHONPATH`. The selected agent preview is **0.1.0a6**, with
+22 reachable packages and agent contract **1.2.1**; see its
+[publication record](../protocols/publication/A6-PUBLICATION.md).
+The earlier [a4 adoption proof](../protocols/agent/REPOSITORY-A4-VERIFICATION.md)
+is historical evidence for the shared publication-owner repair, not the current
+client selection. Immutable earlier artifacts remain unchanged.
 The Repository SDK still owns preparation only: full publication-SDK unification
 is not claimed. Goal remains a separate qualified-input read-only preview.
 

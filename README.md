@@ -98,21 +98,34 @@ third-party packages. Source, licenses, component notices and checksums accompan
 the distribution. The unchanged payload previously passed 43 Protocol and 41
 Goal installed checks; see the [verification record](protocols/publication/VERIFICATION.md).
 
-## Prepared Specification preview
+## Available now: filesystem Specification setup and read preview
 
-A separate filesystem SPEC setup/read layout is staged for review, not yet a
-selected a6 capability or public release. It requires explicit preparer selection
-and qualified existing documents; authoring is unavailable. See the
-[preview entrance](protocols/specification/README.md). a6 remains unchanged.
+A separate, Git-distributed SPEC preview provides Issue-governed manifest/directory
+setup and strict reading of independently qualified existing documents. Install
+its 26-package closure in a separate Linux x86-64 / Python 3.12 environment:
+
+```sh
+python3.12 protocols/specification/install.py \
+  --python-executable /usr/bin/python3.12 --venv /tmp/aware-spec-env
+/tmp/aware-spec-env/bin/aware-protocol --help
+/tmp/aware-spec-env/bin/aware-spec --help
+```
+
+See the [preview entrance](protocols/specification/README.md) for explicit inputs,
+exact software/source/notices and capability limits. This is not an a6 upgrade:
+do not overlay installations. SPEC authoring/import and approved iterations are
+unavailable; without qualified documents, a new customer stops after setup.
+The supplementary command sequence remains draft; contract 1.3.0 is unallocated.
 
 ## What comes next
 
 Our delivery direction is **Issues → Specifications → Goals → shared map**.
 
-Issues and scoped commits are available now. Specifications are next, in
-preparation. Supported Goal creation/import and manifest preparation follow as
-separate capability cuts, then the shared map. **These future capabilities are
-not in this preview.** The separate Goal reader above remains read-only.
+Issues and scoped commits are available now; SPEC setup/read is available as the
+separate preview above. Supported SPEC authoring and approved iterations are
+next. Supported Goal creation/import and manifest preparation follow as separate
+capability cuts, then the shared map. **These future capabilities are not in this
+preview.** The separate Goal reader above remains read-only.
 Goal approval, effectful pursuit, dispatch and a complete autonomous
 collaboration loop remain unavailable.
 Issue lifecycle and scoped publication are available separately in the agent

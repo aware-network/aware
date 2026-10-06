@@ -1,7 +1,8 @@
 # SPEC preview: local delivery selection
 
-Status: locally integrated candidate for independent review; **not publicly
-delivered, not a registry release, and not an a6/bootstrap upgrade**.
+Historical checkpoint: local integration before publication, **not publicly
+delivered at that checkpoint, not a registry release, and not an a6/bootstrap
+upgrade**. Current delivery status is in [PUBLICATION.md](PUBLICATION.md).
 Issue: `fb/2026-10-06/specification-local-delivery-integration-v1`.
 
 ## Selected software and versions
@@ -72,7 +73,9 @@ It retains installation evidence.
 These checks cover carriage and preservation, not domain policy or authorization.
 The unchanged payload's prior installed domain proof is not replaced by them.
 
-Next: independent review of this actual repository integration and selection
-record. Consumer instruction freeze, any further version allocation, evaluation
-admission and **Luis's explicit publication authorization** remain separate.
-No public coordinate or public availability is claimed by a local commit.
+Independent local integration review was accepted and the scoped Issue closed
+at `d54d870924d6e41c2b24bb8ced20fa624084ab85`. At this historical checkpoint,
+consumer instruction freeze, further version allocation, evaluation admission
+and **Luis's explicit publication authorization** remained separate.
+No public availability was claimed by that local commit. The separately
+authorized publication cut is recorded in [PUBLICATION.md](PUBLICATION.md).

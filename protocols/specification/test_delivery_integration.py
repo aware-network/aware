@@ -1,4 +1,4 @@
-"""Maintainer byte accounting of local integration; no domain enforcement logic."""
+"""Maintainer delivery accounting and status checks; no domain enforcement logic."""
 
 import hashlib
 import json
@@ -99,20 +99,21 @@ class DeliveryIntegrationTests(unittest.TestCase):
             )
             self.assertEqual((ROOT / name).read_bytes(), original, name)
 
-    def test_two_reviewed_readme_updates_are_exact(self):
+    def test_two_publication_readme_updates_are_exact(self):
         self.assertEqual(
             sha((ROOT / "README.md").read_bytes()),
-            "37024352b0ed6136ec170c2e1bce18fe67a1ecf8845be906a58164d08d09270a",
+            "379d960ea35f46d9bebf63753d7c5c9cc15348c721ca6f1dc8343f011ba6813a",
         )
         self.assertEqual(
             sha((ROOT / "workspaces/README.md").read_bytes()),
-            "b69cdb806a550d56ece19450d0607a9a10116916ef3217ccff67a2936c90d773",
+            "d265e5503b76cd707a406676f8627ab1de280819669453b0881596af4134607e",
         )
 
-    def test_local_links_and_selection_do_not_claim_publication(self):
+    def test_local_links_and_historical_selection_are_preserved(self):
         for name in (
             "README.md",
             "LOCAL-SELECTION.md",
+            "PUBLICATION.md",
             "packet/README.md",
             "packet/instructions/specification-consumer-bootstrap-addendum-v1.md",
             "packet/instructions/specification-setup-customer-sequence-v1.md",
@@ -123,6 +124,7 @@ class DeliveryIntegrationTests(unittest.TestCase):
                     self.assertTrue((path.parent / target).is_file(), (name, target))
         selection = (HERE / "LOCAL-SELECTION.md").read_text()
         for required in (
+            "Historical checkpoint",
             "not publicly",
             "1.3.0 remains unallocated",
             "remain **drafts**",
@@ -130,6 +132,34 @@ class DeliveryIntegrationTests(unittest.TestCase):
         ):
             self.assertIn(required, selection)
         self.assertEqual(self.value["preserved_agent_contract"], "1.2.1")
+
+    def test_public_status_keeps_separate_interfaces_and_limits(self):
+        publication = (HERE / "PUBLICATION.md").read_text()
+        for required in (
+            "Luis explicitly authorized",
+            "26 packages in a separate environment",
+            "1.3.0 remains unallocated",
+            "remain drafts",
+            "New users without those inputs stop after setup.",
+            "SPEC authoring/import",
+            "not every write",
+            "not continuous",
+            PACKET_SHA,
+            PAYLOAD_SHA,
+        ):
+            self.assertIn(required, publication)
+        entrance = (HERE / "README.md").read_text()
+        self.assertIn("Git-distributed standalone preview", entrance)
+        self.assertIn("not selected by a6", entrance)
+        root_readme = (ROOT / "README.md").read_text()
+        self.assertIn(
+            "Available now: filesystem Specification setup and read preview",
+            root_readme,
+        )
+        self.assertIn("SPEC authoring/import and approved iterations are", root_readme)
+        source_readme = (ROOT / "workspaces/README.md").read_text()
+        self.assertIn("**0.1.0a6**", source_readme)
+        self.assertNotIn("selected candidate is **0.1.0a4**", source_readme)
 
     def test_actual_integrated_installer_offline(self):
         # Explicit maintainer replay target, retained for independent inspection.
