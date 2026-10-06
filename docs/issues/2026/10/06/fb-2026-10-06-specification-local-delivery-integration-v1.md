@@ -454,6 +454,7 @@
 
 
 
+
 ## Problem
 1. The independently accepted SPEC preview exists only as an isolated review tree
 
@@ -461,8 +462,10 @@
 
 
 
+
 ## Goal
 1. Land the exact accepted source-notice layout and explicit local selection without changing a6 or publishing
+
 
 
 
@@ -476,8 +479,10 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Locally integrated exact accepted layout af7c6a20c314 from baseline8a7c1658df99: all436 reviewed paths match, all429 packet-member mappings/source-notice bytes preserved, all559 untouched baseline files preserved. Added LOCAL-SELECTION and maintainer replay check only. Final40 checks passed (9 integration including real fresh offline checkout-hidden install, plus31 unchanged historical preparation cases); these are not40 domain or runtime-matrix proofs. Installed26 packages, both supported CLIs, no editable/direct-URL records, existing-environment refusal, parent permissions preserved. JUnit sha256:c1c37bb99252af72e14fa4ab636c13559d8f7e1304214a5ffdf4afec6f82cc11; install receipt sha256:50b28fdd7664a2eb10ea27f633e8985e1ca1d8a9d5322f2510c022f45a591375. Ruff and diff-check pass. Final helper has explicit producer replay inputs instead of embedded private paths; earlier40-pass replay retained as history. Packet865c57be5018/payload955e423c82e4/a6/1.2.1 unchanged; draft instructions not frozen,1.3.0 unallocated. Actual integrated layout/selection independent review pending. No source/runtime matrix rerun, Service/API, authoring, approval, external evaluation, remote transfer or push. Harness identity and actor evidence remain declared/local, not authenticated; Luis explicitly selected qualified a6 tooling after desktop PATH collision. (outcome: local_integration_review_pending) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation committed at0fe0465fd92d1fc187ce74cd554a0aa64a87db56 through selected a6 and genuine shared publication owner: publication_receipt_ref=git:0fe0465fd92d1fc187ce74cd554a0aa64a87db56, operator=aware_workspace_operator.run_workspace_commit.v1, transaction=isolated_index_atomic_ref_v1, reference_update=cas_applied, shared_index_projection=applied, index_reconciliation_pending=false. All439 exact paths published locally. Independent actual-integration/LOCAL-SELECTION review pending; Issue remains In Progress. Final40 PASS counts9 integration and31 historical preparation, not new domain acceptance; JUnit c1c37bb99252/install receipt50b28fdd7664 retained by producer. Full git show --check exits2 with447 inherited whitespace/EOF findings in14 exact upstream notice files (including CRLF licenses and Rust copyright HTML); all are accepted packet-matched legal bytes, intentionally unmodified. New authored/root/workspace/Issue-only check passes. Earlier blanket diff-check referred to tracked precommit docs, not these newly added notices. No packet/payload/a6/template/version freeze, Service/API, authoring, approval, evaluation, transfer or push. Actual local selection remains unpublished; consumer sequence/addendum drafts and unallocated1.3.0 remain explicit. (outcome: independent_integration_review_pending) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Luis-relayed independent PASS recorded for0fe0465fd92d1fc187ce74cd554a0aa64a87db56/handoff e1ea2694a9f47fd28774bfd6381dc2dbc016a9b6; no blocker. Reviewer independently reproduced40 checks (nine integration/31 historical preparation), fresh offline checkout-hidden install of26 packages, both CLIs/no direct-URL records, all436 reviewed layout paths/all559 preserved baseline files, and exactly three additional integration-owned files. All447 whitespace findings belong to14 unchanged upstream notice files, not new authored defects. Independent JUnit SHA-256 a3336193d8aa48c1b5c2bac662216741a1885cbd75341a6ee9d7eba50aa70c66; recorder checked retained receipt/header40 zero failures/errors/skips, did not rerun tests or infer reviewer execution. Exact bounded local integration accepted; closure authorized by supplied review. Next separately authorized publication cut with accurate public-status wording. Draft instructions/1.3.0 unallocated/a6 unchanged; no domain-matrix replay, artifact/source/payload changes, transfer or push. (outcome: bounded_local_integration_accepted) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
