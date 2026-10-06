@@ -1,6 +1,6 @@
 # Standalone SPEC CLI022 reader: local selection
 
-Status: selected locally; independent selection review pending; **not publicly delivered**.
+Status: selected locally; independent selection review accepted; **not publicly delivered**.
 Issue: [fb/2026-10-06/specification-cli022-selection-v1](../../../../docs/issues/2026/10/06/fb-2026-10-06-specification-cli022-selection-v1.md).
 This selects the accepted software and separate install entrance, not new
 authority, a frozen bootstrap extension or a registry release.
@@ -111,10 +111,35 @@ The retained verified a6 client published exactly eight paths after the identica
 dry-run, through `aware_workspace_operator.run_workspace_commit.v1`.
 Transaction mode: `isolated_index_atomic_ref_v1`; reference update:
 `cas_applied`; shared-index projection: `applied`; reconciliation pending: `false`.
-This is local Git publication only. The selection still needs independent review
-and a separate public-delivery decision. No bootstrap or artifact bytes changed.
+This is local Git publication only. Independent review is recorded below;
+a separate public-delivery decision remains required. No bootstrap or artifact bytes changed.
 
-Next: independent local selection review, then a separately authorized publication
+### Independent bounded acceptance
+
+Luis relayed the independent PASS, with no blocker, for selection
+`ea4e7b5db2c2cd0db729f93b86d5f91b3b378692`, handoff
+`14b8b4e47e65e00ade1f1f1548f4ed81df9a9251`.
+Independent receipt: `/tmp/aware-cli022-selection-review.mTRihspd/checks.xml`.
+SHA-256: `2c6929e4a6b2744706adda8314cc371fa417f73a763173c08ba7050ebdd41483`.
+It records **seven passing checks**, zero failures, errors or skips.
+
+The reviewer independently verified fresh offline, checkout-hidden installation,
+the exact eight-file delta, 1,907 untouched baseline files and all 1,912 baseline
+Git modes. All three packet maps match. Payload, source, notices, installer and
+a6 remain unchanged; all 27 packages install cleanly, both CLIs activate and
+reuse refuses. Presentation distinguishes local selection from public delivery
+and retains unsupported-authoring limits. No domain matrix was replayed.
+
+The recorder checked the receipt digest/counts and clean checkout at the exact
+handoff revision; no tests, installation or domain matrix were rerun. No reviewer
+identity was supplied or inferred. The Issue's authored criteria remain unchecked;
+this record supplies evidence, not an automatic Specification acceptance verdict.
+Record acceptance and close the bounded Issue through a6. Preparation-stage
+pending-review wording in the entrance/overview drafts belongs to that earlier
+checkpoint; this record supplies its acceptance without freezing those drafts.
+Publication's accurate current-status wording is a separate scoped cut.
+
+Next: a separately authorized publication
 cut with accurate public-status wording and revision-pinned acquisition proof.
 No push, instruction freeze, external evaluation admission or customer authoring
 is authorized by this local selection.
