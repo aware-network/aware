@@ -124,8 +124,8 @@ aware-spec 0.2.0, with 27 packages. It changes admit dispatch only; a6 and the
 published predecessor above remain unchanged. See the
 [successor entrance](protocols/specification/previews/admit-runtime-v1/README.md)
 and [selection record](protocols/specification/previews/admit-runtime-v1/SELECTION.md).
-Independent selection review and separately authorized public delivery remain
-pending. Do not infer GitHub availability from this local selection.
+Independent selection review is accepted; separately authorized public delivery
+remains pending. Do not infer GitHub availability from this local selection.
 
 ## What comes next
 

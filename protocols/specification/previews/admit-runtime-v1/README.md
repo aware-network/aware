@@ -1,6 +1,6 @@
 # SPEC admit-runtime successor — local selection
 
-Status: selected locally; independent selection review and public delivery pending.
+Status: selected locally; independent selection review accepted, public delivery pending.
 The existing public SPEC entrance remains aware-protocol 0.3.0 / aware-spec 0.2.0.
 See the [selection record](SELECTION.md). This separately versioned candidate
 provides aware-protocol 0.3.1 / aware-spec 0.2.0 with the same
@@ -82,5 +82,5 @@ intact. This is not exhaustive rights/secret clearance, exact binary linkage or 
 legal warranty. Independent layout and local integration review are accepted.
 This separate install/version entrance is selected locally; the inherited command
 sequence and interface addendum remain historical, unfrozen drafts. Independent
-selection review, customer delivery/evaluation and publication authorization
-remain separate. See the [evaluation protocol](../../../evaluations/README.md).
+selection review is accepted; customer delivery/evaluation and publication
+authorization remain separate. See the [evaluation protocol](../../../evaluations/README.md).

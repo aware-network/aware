@@ -1,6 +1,7 @@
 # Standalone SPEC admit-runtime successor: local selection
 
-Status: selected locally for independent review; **not publicly delivered**.
+Status: selected locally; independent selection review accepted;
+**not publicly delivered**.
 Governing Issue: [fb/2026-10-06/specification-admit-runtime-selection-v1](../../../../docs/issues/2026/10/06/fb-2026-10-06-specification-admit-runtime-selection-v1.md).
 This selects the exact reviewed software and separate install entrance, not a
 new authority, agent-contract version or frozen customer bootstrap extension.
@@ -95,7 +96,31 @@ Installed receipt SHA-256:
 These are producer selection/installation receipts, not independent selection
 acceptance, external U/V/R or another execution of the accepted domain matrix.
 
-Next: independent review of this local selection, then a separately authorized
-publication cut and revision-pinned public acquisition proof. External
+### Independent bounded acceptance
+
+Luis supplied an independent PASS for selection `f6d427981272` and handoff
+`794e380c0ad3`, with no blocker. The reviewer reproduced all seven checks,
+including a fresh offline installation with /home and unrelated /tmp hidden.
+The exact seven-file delta, remaining baseline bytes/Git modes, both packet
+maps and unchanged installer, payloads, sources, notices and replay harness
+were verified. Both CLIs activated, all 27 packages passed dependency checks,
+and reuse refused without changing parent permissions. Lint, formatting and
+authored selection-diff whitespace checks passed.
+
+The recorder independently rehashed and inspected the supplied installation
+receipt: SHA-256
+`658045c12e7b79b6089442e0b93ab148226af79e02ea36d3ff86583e4a2a52a8`.
+Its selected packet/payload hashes, installed status, 27-package inventory,
+CLI/runtime versions, empty direct-URL inventory, successful dependency check
+and exit-2 reuse refusal match the accepted selection. This receipt inspection
+does not claim another independent installation or domain-matrix replay.
+No reviewer identity was supplied or inferred.
+
+The acceptance admits local selection only: a6 and historical instructions
+remain unchanged, authoring remains unavailable, and no new authority,
+external evaluation or public delivery is admitted.
+
+Next: a separately authorized publication cut and revision-pinned public
+acquisition proof. External
 evaluation admission and authoring delivery remain separate. No push is
 authorized or claimed here.

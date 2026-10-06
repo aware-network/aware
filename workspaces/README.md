@@ -83,6 +83,6 @@ is not an agent-client upgrade, a new operation owner or a build acceptance.
 The [versioned neutral snapshot](previews/specification-admit-runtime-v1/README.md)
 preserves the exact successor inputs without replacing a6 or predecessor source.
 The [local selection](../protocols/specification/previews/admit-runtime-v1/SELECTION.md)
-retains separate installations and requires independent selection review before
-separately authorized public delivery. This is not an agent/bootstrap upgrade
-or a new operation owner.
+retains separate installations and has independent selection acceptance;
+separately authorized public delivery remains pending. This is not an
+agent/bootstrap upgrade or a new operation owner.
