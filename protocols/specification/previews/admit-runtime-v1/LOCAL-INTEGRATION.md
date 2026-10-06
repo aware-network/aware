@@ -1,6 +1,6 @@
 # Unselected admit-runtime successor: local integration checkpoint
 
-Status: local integration checks passed; independent review pending.
+Status: independent bounded local-integration review accepted.
 This is not public selection, frozen instructions or remote publication.
 
 Execution: `codex-01a11141-c779-7971-8d1a-ef573f044314`.
@@ -44,7 +44,9 @@ producer home, unrelated temporary files and inherited environment unavailable.
 Both supported CLIs activated. All 27 payload packages were present, dependency
 checks passed, no direct-URL/editable records appeared, and reuse refused with
 exit 2 without changing scratch-parent permissions. Ruff lint/format and Git
-whitespace checks also pass. No wheel, payload or domain runtime changed.
+whitespace checks for authored changes pass. The complete baseline-to-integration
+diff reports original whitespace in 14 hash-preserved upstream legal files;
+those exact texts must not be normalized. No wheel, payload or domain runtime changed.
 
 Final JUnit SHA-256:
 `a59a9a2dc82e2bcc6c56d9f822cb81a0438dfed97d3eb8854368276a10aad4b3`.
@@ -83,7 +85,36 @@ paths, including the Issue. This is local Git publication, not a remote push.
 After recording the detailed verification, eight accounting checks passed again;
 the independently counted ninth installer case had already passed in its fresh
 final installation and was explicitly deselected from that repeat. The Issue
-remains In Progress for independent local-integration review.
+remained In Progress pending independent local-integration review at that handoff.
+
+## Independent bounded acceptance
+
+Luis supplied an independent PASS with no blocker for implementation
+`2604819adab6db917e5443f991f2af843cf02a26` and handoff
+`2819650d99c882c552d354a96b811b31e1aa433e`. The reviewer independently ran all
+nine checks, including a fresh offline install with `/home` and unrelated `/tmp`
+hidden. The exact 446-path reviewed delta plus four governance/review files were
+verified, with no extra changes. All 998 untouched baseline files remain exact,
+and all 1,000 baseline Git modes are preserved. The producer's complete local
+permission comparison above remains separate from that Git-mode review.
+
+The independent installation receipt has SHA-256
+`a73eb2c001ccf282d6b5777ce00fb21e36fbe1f67d98cb427e097eb9f0df12a3`.
+It records the accepted packet/payload hashes, 27 packages, a successful dependency
+check, no direct-URL records and reuse refusal with exit 2. Both CLIs activated
+and scratch-parent permissions survived. Accepted source, notice and installer
+bytes are unchanged; a6 and selected SPEC are unchanged, and this successor
+remains unselected.
+
+The recorder verified that receipt's hash and contents, plus the authored-only
+whitespace check and exact-byte legal-text carriage. The complete diff's whitespace
+check returns exit 2 across 14 original legal files; its diagnostic SHA-256 is
+`91ec7dc1c060e061fc21a2bded4bb269886fbafe1edb7d1fc3a8c2ff56a42212`.
+This qualifies the earlier whitespace PASS, not a request to alter upstream texts.
+No reviewer identity was supplied or inferred. Neither reviewer nor recorder reran
+the domain matrix for this acceptance. The recorder did not repeat the nine tests
+or installation. Issue acceptance and closeout are recorded through the selected
+a6 operations; the authored acceptance boxes are not manually checked.
 
 ## Versions and unchanged boundaries
 
@@ -120,5 +151,7 @@ at `/mnt`. Only its approved scratch is writable. Logs, retained source/notices
 and `installed-receipt.json` stay in scratch. This replay tests the integrated
 installer and activation, not another 262-case domain matrix.
 
-Next: independent review of this local checkpoint. Selection/instruction decisions
-and any authorized non-force public delivery are separate operations.
+Next: separately govern successor selection/instruction decisions and any
+explicitly authorized non-force public delivery. This acceptance closes only the
+bounded local-integration work; no selection, instruction freeze, evaluation
+admission or push is authorized by it.
