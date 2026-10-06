@@ -117,6 +117,13 @@ do not overlay installations. SPEC authoring/import and approved iterations are
 unavailable; without qualified documents, a new customer stops after setup.
 The supplementary command sequence remains draft; contract 1.3.0 is unallocated.
 
+## Prepared admit-runtime successor
+
+An unselected, separately versioned SPEC successor is prepared for review. It
+changes admit dispatch only and does not upgrade a6 or the currently available
+SPEC entrance. See the [proposed entrance](protocols/specification/previews/admit-runtime-v1/README.md).
+No instruction freeze or public successor selection is implied.
+
 ## What comes next
 
 Our delivery direction is **Issues → Specifications → Goals → shared map**.
