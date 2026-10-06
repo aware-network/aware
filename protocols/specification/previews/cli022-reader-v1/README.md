@@ -1,10 +1,11 @@
-# SPEC CLI 0.2.2 reader successor — unselected preparation
+# SPEC CLI 0.2.2 reader successor — local selection
 
-Status: review-only public-layout proposal, not published or selected.
-Current a6 and selected SPEC aware-protocol 0.3.1 / aware-spec 0.2.0 remain
-unchanged. This versioned successor proposes aware-protocol 0.3.1 / aware-spec
+Status: selected locally; independent selection review pending; not publicly delivered.
+a6 is unchanged. The published aware-protocol 0.3.1 / aware-spec 0.2.0 predecessor
+remains intact. This versioned selection uses aware-protocol 0.3.1 / aware-spec
 0.2.2, using SDK 0.2.0, FS SDK adapter 0.3.0 and Protocol FS adapter 0.4.0.
 The SDK/provider/domain owners are unchanged; no new evaluator or writer exists.
+See [the selection record](SELECTION.md); public delivery is a separate decision.
 
 ## Explicit separate installation
 
@@ -19,7 +20,7 @@ python3.12 protocols/specification/previews/cli022-reader-v1/install.py \
 /tmp/aware-spec-cli022-env/bin/aware-spec --help
 ```
 
-Never overlay a6, selected SPEC or earlier preview environments/wheelhouses.
+Never overlay a6 or earlier SPEC preview environments/wheelhouses.
 The wrapper verifies the exact packet and payload, retains source/notices and
 delegates to the unchanged shipped offline install.sh. consumer-lock.json is
 an audit inventory, not a pip requirements file. Linux x86-64 / Python 3.12 are
@@ -70,8 +71,10 @@ All 45 in-wheel legal copies and 236 inherited notice files remain exact.
 Bounded source/notice accounting and instruction correction are accepted, not an
 exhaustive legal/privacy warranty, binary linkage attestation or public release.
 Historical instruction drafts and wider package READMEs remain historical,
-unfrozen owner inputs; this page describes only the narrower proposed selection.
-Customer AGENTS.md, a6 contract 1.2.1 and selected products stay unchanged.
+unfrozen owner inputs; this page describes only the narrower local selection.
+Customer AGENTS.md, a6 contract 1.2.1 and predecessor artifacts stay unchanged.
 Contract 1.3.0 remains unallocated; no combined client or aware spec wrapper is
-supplied. Layout/installer review, selection, instruction freeze and publication
-are separate gates. No delivery or publication authority follows from this tree.
+supplied. Accepted layout/integration receipts retain their historical unselected
+fields; they are not rewritten by this decision. Independent selection review,
+instruction freeze and publication remain separate. No delivery or publication
+authority follows from local selection.

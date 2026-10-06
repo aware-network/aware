@@ -122,12 +122,16 @@ binds the exact software and receipts. The predecessor remains available through
 its explicitly versioned entrance. Historical command sequences remain drafts;
 contract 1.3.0 is unallocated. Publication is not a registry release or an a6 upgrade.
 
-## Prepared SPEC reader successor
+## Locally selected SPEC CLI022 reader successor
 
-An unselected CLI 0.2.2 reader successor is prepared for review. It does not
-upgrade a6 or replace the available SPEC preview. See the
-[proposed entrance](protocols/specification/previews/cli022-reader-v1/README.md).
-Supported authoring remains separate and unavailable in this candidate.
+The reviewed separate reader successor is selected locally: aware-protocol
+0.3.1 / aware-spec 0.2.2, SDK 0.2.0 and filesystem SDK adapter 0.3.0.
+Independent selection review and public delivery remain pending. It is **not
+publicly delivered by this local checkpoint**; the published preview above
+remains accessible. See the [selected local entrance](protocols/specification/previews/cli022-reader-v1/README.md)
+and [selection record](protocols/specification/previews/cli022-reader-v1/SELECTION.md).
+Use a fresh, separate environment; do not overlay a6 or earlier SPEC installs.
+This is reader/interface adoption, not authoring, a new domain owner or a6 upgrade.
 
 ## What comes next
 

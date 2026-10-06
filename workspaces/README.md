@@ -78,7 +78,7 @@ The [separate neutral snapshot](previews/specification-setup-read-v1/README.md)
 keeps exact reviewed SPEC suppliers isolated from differing a6 inputs. Its presence
 is not an agent-client upgrade, a new operation owner or a build acceptance.
 
-## Selected admit-runtime SPEC source
+## Retained admit-runtime SPEC source
 
 The [versioned neutral snapshot](previews/specification-admit-runtime-v1/README.md)
 preserves the exact successor inputs without replacing a6 or predecessor source.
@@ -88,8 +88,10 @@ retains separate installations and accepted source/notice boundaries. The
 remains its own checkpoint. This is not an agent/bootstrap upgrade or a new
 operation owner.
 
-## Unselected SPEC CLI022 source
+## Locally selected SPEC CLI022 source
 
 The [separate versioned snapshot](previews/specification-cli022-reader-v1/README.md)
-retains the exact reviewed reader sources without replacing selected products
-or admitting a new operational rail.
+retains the exact reviewed reader sources for the locally selected successor.
+See its [selection record](../protocols/specification/previews/cli022-reader-v1/SELECTION.md).
+Public delivery and independent selection review remain pending. a6 and older
+snapshots stay intact; no new operational rail or editable installation is admitted.
