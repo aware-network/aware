@@ -2,7 +2,7 @@
 
 - Slug: specification-cli022-git-publication-v1
 - Tag: fb/2026-10-06/specification-cli022-git-publication-v1
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -24,6 +24,7 @@
 
 
 
+
 ## Problem
 1. Accepted local CLI022 selection is not publicly delivered and entrances retain preparation-stage wording.
 
@@ -31,8 +32,10 @@
 
 
 
+
 ## Goal
 1. Publish the exact accepted reader to aware-network/aware/main under Luis explicit approval, then prove anonymous revision-pinned public acquisition and offline installation.
+
 
 
 
@@ -47,8 +50,17 @@
 
 
 
+
+## Verified-by
+- Exact remote main80ef8b89fd9d5b84453ce2be4ae94548bdb017d3 and anonymous public acquisition directly verified by producer; separate packet578b25b0d68bed3546ac54fbfeb426062415e6b519df0a7829172e33a8340c2e/payload52d2d443ea8d7b2a5cf4533d78460f1f3c9c62a6bd65ee9a853e15bb07e694d0.8 public-download checks passed,zero skips with fresh offline checkout-hidden install. JUnitdb37bc4f542277e711fcf0d00233ecd99208a00366fa8b16db677af13178efbc;installed receipt5a288f54860858dbb0ff2cf87f6b9550d34128f5093eded38c3227fc71c3c799. a6/software/source/legal unchanged;no independent publication verdict,domain matrix or external evaluation replay claimed.
+- git:d3fda8a1d43b9c8ca2b7bb0d9468cf8a03e2f098
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Luis explicitly authorized non-force publication to aware-network/aware/main. Remote main763f5fea33964f115445e7191d726d7e10d6305c is ancestor of clean accepted selection f8c92919aba7.8 prepublication checks pass including fresh offline checkout-hidden install,27 packages/dependencies/both CLIs/no direct URLs/reuse refusal;9 exact presentation/test/Issue paths,1909 untouched baseline bytes/all1915 modes,three maps preserved. Artifact/installer/source/notices/a6 unchanged; source authority and authoring unchanged. Remote push/readback and anonymous pinned acquisition remain next, not yet claimed. JUnit eeff09628bff and installed receipt b5a83384dd3f recorded in PUBLICATION.md. No domain-matrix replay, registry release or instruction freeze;shared mirrors deferred. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Authorized non-force push advanced aware-network/aware/main from763f5fea33964f115445e7191d726d7e10d6305c to80ef8b89fd9d5b84453ce2be4ae94548bdb017d3, exact remote readback confirmed. Existing-owner local receipt git:80ef8b89fd9d5b84453ce2be4ae94548bdb017d3;CAS/index applied,no reconciliation pending. Fresh anonymous GitHub clone with credential configuration disabled matches delivered revision; separate pinned raw packet download matches578b25b0d68b and cloned bytes, payload52d2d443ea8d unchanged.8 public-acquisition checks pass, zero skips, including fresh offline install with all /home/unrelated /tmp hidden,network disabled,env cleared;27 packages/dependency checks/both CLIs/no editables/direct URLs/reuse exit2/parent0700. JUnitdb37bc4f5422 and installed receipt5a288f548608 recorded in PUBLICATION.md. Acquired checkout clean;three packet maps/baseline bytes/modes/nine scoped paths/notice/wording preserved.8 obligations replayed twice,not16 distinct proofs. No customer/domain matrix replay,registry release,authoring,instruction freeze or newauthority. Subsequent evidence and Issue closeout remain within Luis publication authorization;shared mirrors deferred. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Authorized non-force Git delivery completed with exact remote readback, anonymous revision-pinned public acquisition, separate packet digest verification and fresh offline installed replay. Existing owners, a6, artifacts and unsupported-authoring boundaries preserved. No registry release, domain-matrix replay, bootstrap extension or authoring/evaluation admission.
