@@ -72,3 +72,40 @@ selected by `AWARE_ADMIT_INTEGRATION_REPLAY_ROOT`; the reused real installer
 hides /home and unrelated /tmp, clears its environment and disables networking.
 No source mirror or retained environment substitutes for this proof.
 Record actual results, hashes and observed remote revision here and in the Issue.
+
+## Observed public delivery
+
+The authorized non-force push advanced `aware-network/aware/main` from
+`0b8710e7c0afb71df8f73685fc22f0632f74d722` to
+`5605d1c489e6896fcc2527d343553789f7bfd7d3`. Remote readback confirmed the exact
+revision. Its local receipt is `git:5605d1c489e6896fcc2527d343553789f7bfd7d3`:
+publication owner `aware_workspace_operator.run_workspace_commit.v1`,
+transaction `isolated_index_atomic_ref_v1`, reference CAS and shared-index
+projection applied, no pending reconciliation.
+
+An anonymous public clone, with Git credential configuration disabled, matched
+that exact revision. A separately downloaded [revision-pinned packet](https://raw.githubusercontent.com/aware-network/aware/5605d1c489e6896fcc2527d343553789f7bfd7d3/protocols/specification/previews/admit-runtime-v1/distribution/aware-protocol-admit-source-notice-review-v1.tar.gz)
+matched the selected packet digest; the clone's payload matched the selected
+payload digest. Acquisition used GitHub, not a producer source mirror.
+
+From that public checkout, **eight checks passed, zero skipped**, including a
+fresh offline installation with /home and unrelated /tmp hidden and installation
+environment cleared. All 27 packages were present, dependency checks passed,
+aware-protocol 0.3.1 and aware-spec 0.2.0 activated, no editable/direct-URL records
+appeared, and existing-environment reuse refused with parent permissions intact.
+The public checkout stayed clean. Byte/mode preservation, both packet mappings,
+current entrance/limit wording and historical notice accounting passed.
+The original selected real installer harness and test logic were reused.
+
+Public-download JUnit SHA-256:
+`c8942cfa0ce70b6a8c851eff295b0b9e36f06177b19c9945ee1e8e0e5b8980b4`.
+Installed receipt SHA-256:
+`65e08381c5faeaa047f5a011913ffc922ec6bd25d1f3d7b5228e1491538e4798`.
+The prior eight-check prepublication replay was a separate fresh execution of
+these obligations, not eight additional distinct proofs.
+
+This is producer public-delivery evidence, not external U/V/R, another domain
+matrix, reproducible builds, registry publication or authoring admission.
+Subsequent delivery-record and governed Issue-closeout commits do not change
+software, notices, source, selected interfaces or a6. Historical drafts remain
+unfrozen; contract 1.3.0 remains unallocated.
