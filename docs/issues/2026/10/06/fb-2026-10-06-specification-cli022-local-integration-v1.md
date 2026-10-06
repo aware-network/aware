@@ -2,7 +2,7 @@
 
 - Slug: specification-cli022-local-integration-v1
 - Tag: fb/2026-10-06/specification-cli022-local-integration-v1
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -476,6 +476,7 @@
 
 
 
+
 ## Problem
 1. Accepted CLI022 layout is not yet integrated into the public-source checkout.
 
@@ -484,8 +485,10 @@
 
 
 
+
 ## Goal
 1. Integrate the exact accepted additive delta and qualify its actual installer without changing product selection or pushing.
+
 
 
 
@@ -502,9 +505,18 @@
 
 
 
+
+## Verified-by
+- Independent10-check PASS, zero skipped; JUnit SHA256d40dbd6e35ed8f0c2a449e587e86b16aff04b5f3298ecf9d8881fb9985fb46dc. Recorder checked receipt integrity and clean handoff only; no tests/install/matrix rerun. Upstream legal whitespace preserved.
+- git:7bd78ecc23a6bc9818fe1526dfe5c807f5b7d8cc
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Integrated exact accepted456-path CLI022 delta plus four governance/replay paths.10 checks passed, zero skipped, including fresh offline install with all /home and unrelated /tmp hidden;27 packages, dependency checks and both CLIs activate;reuse exit2, parent0700 unchanged. All1452 untouched baseline files and1454 modes preserved;449 packet members/151 sources unchanged. Initial9-pass/one historical-selection assertion failure and successful install retained; corrected final replay uses another new environment. JUnit463154e6474c and installed receipt0eabf4b7e194 recorded in LOCAL-INTEGRATION.md. Independent integration review pending. a6/selected SPEC unchanged, successor unselected, no authoring, selection, instruction freeze or push; day/FEED mirrors deferred. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local integration committed at8e996bd0fbf6efae371f0858288a264fb2aea151 via selected a6 dry-run/identical apply over460 exact paths. Publication git:8e996bd0fbf6efae371f0858288a264fb2aea151; existing Workspace owner, isolated_index_atomic_ref_v1,cas_applied,index projection applied,no reconciliation pending.10 distinct checks pass including final fresh offline install; nine accounting cases repeated after evidence update, actual installer explicitly deselected from that repeat. Full diff447 whitespace findings confined to14 unchanged exact upstream notice files; authored checks pass, legal bytes not normalized. Independent local-integration review pending; Issue remains In Progress, a6 and selected SPEC unchanged, successor unselected. No294-case replay, authoring, selection, instruction freeze or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Recorded independent PASS for8e996bd0fbf6/handoff8256c5af4168 with no blocker:10 checks including fresh offline checkout-hidden installation;456 exact layout paths/460 integration scope,1452 untouched baseline files/modes,27 clean packages,both CLIs/reuse refusal, exact payload/source/installer/notices. JUnit d40dbd6e35ed8f0c2a449e587e86b16aff04b5f3298ecf9d8881fb9985fb46dc retained in LOCAL-INTEGRATION.md.447 whitespace findings belong only to preserved upstream legal texts; authored changes pass. Recorder verified receipt digest/counts and clean exact handoff; no tests/install/matrix rerun. Bounded integration can close after acceptance publication; successor unselected,a6/selected SPEC unchanged. Selection/instruction decisions/publication separately governed;no push, shared mirrors deferred. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Bounded local integration independently accepted: exact456-path layout and460-path composition, baseline preservation, unchanged artifacts and fresh offline activation. Successor remains unselected; selection, instruction decisions and publication separately governed. No push.
