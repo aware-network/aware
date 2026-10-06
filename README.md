@@ -2,6 +2,8 @@
 
 Durable, bounded work for AI agents in your repository.
 
+Aware's direction: Don't watch your agents. Watch your goals. → [https://aware.run](https://aware.run)
+
 Give an agent an approved task. Keep its Issue, ownership, scope, evidence and
 commits durable when an execution ends. Aware starts with useful filesystem
 protocols—not a service prerequisite or an agent's private memory.
@@ -98,10 +100,14 @@ Goal installed checks; see the [verification record](protocols/publication/VERIF
 
 ## What comes next
 
-Specification coordination and supported Goal creation/import and manifest
-preparation are separate future capability cuts. **They are not in this preview.**
-Neither are Goal approval,
-effectful pursuit, dispatch or a complete autonomous collaboration loop.
+Our delivery direction is **Issues → Specifications → Goals → shared map**.
+
+Issues and scoped commits are available now. Specifications are next, in
+preparation. Supported Goal creation/import and manifest preparation follow as
+separate capability cuts, then the shared map. **These future capabilities are
+not in this preview.** The separate Goal reader above remains read-only.
+Goal approval, effectful pursuit, dispatch and a complete autonomous
+collaboration loop remain unavailable.
 Issue lifecycle and scoped publication are available separately in the agent
 bundle above. Do not manually patch Goal records to bypass these gaps.
 
