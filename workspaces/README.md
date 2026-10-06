@@ -78,8 +78,11 @@ The [separate neutral snapshot](previews/specification-setup-read-v1/README.md)
 keeps exact reviewed SPEC suppliers isolated from differing a6 inputs. Its presence
 is not an agent-client upgrade, a new operation owner or a build acceptance.
 
-## Unselected admit-runtime successor source
+## Locally selected admit-runtime successor source
 
 The [versioned neutral snapshot](previews/specification-admit-runtime-v1/README.md)
-preserves the exact successor inputs without replacing either selected product's
-source. This is preparation, not an agent/bootstrap upgrade or new operation owner.
+preserves the exact successor inputs without replacing a6 or predecessor source.
+The [local selection](../protocols/specification/previews/admit-runtime-v1/SELECTION.md)
+retains separate installations and requires independent selection review before
+separately authorized public delivery. This is not an agent/bootstrap upgrade
+or a new operation owner.

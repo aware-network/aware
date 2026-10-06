@@ -1,5 +1,11 @@
 # Filesystem Specification setup and read preview
 
+This page retains the **published predecessor** (Protocol CLI 0.3.0, 26 packages).
+The [0.3.1 successor](previews/admit-runtime-v1/README.md) is selected locally;
+independent selection review and public delivery remain pending. Its
+[selection record](previews/admit-runtime-v1/SELECTION.md) names exact bytes.
+The predecessor installer and historical receipts remain unchanged.
+
 Status: Git-distributed standalone preview; not selected by a6 and not a registry
 release. See the [publication record](PUBLICATION.md) for selection and receipts.
 This separate Linux x86-64 / Python 3.12 preview configures a SPEC binding through

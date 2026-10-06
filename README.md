@@ -117,12 +117,15 @@ do not overlay installations. SPEC authoring/import and approved iterations are
 unavailable; without qualified documents, a new customer stops after setup.
 The supplementary command sequence remains draft; contract 1.3.0 is unallocated.
 
-## Prepared admit-runtime successor
+## Locally selected admit-runtime successor — publication pending
 
-An unselected, separately versioned SPEC successor is prepared for review. It
-changes admit dispatch only and does not upgrade a6 or the currently available
-SPEC entrance. See the [proposed entrance](protocols/specification/previews/admit-runtime-v1/README.md).
-No instruction freeze or public successor selection is implied.
+The reviewed standalone successor is selected locally as aware-protocol 0.3.1 /
+aware-spec 0.2.0, with 27 packages. It changes admit dispatch only; a6 and the
+published predecessor above remain unchanged. See the
+[successor entrance](protocols/specification/previews/admit-runtime-v1/README.md)
+and [selection record](protocols/specification/previews/admit-runtime-v1/SELECTION.md).
+Independent selection review and separately authorized public delivery remain
+pending. Do not infer GitHub availability from this local selection.
 
 ## What comes next
 

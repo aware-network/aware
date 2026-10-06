@@ -1,14 +1,15 @@
-# SPEC admit-runtime successor — unselected preparation
+# SPEC admit-runtime successor — local selection
 
-Status: public-layout proposal for review, not published or selected. The existing
-public SPEC entrance remains aware-protocol 0.3.0 / aware-spec 0.2.0. This separately
-versioned candidate provides aware-protocol 0.3.1 / aware-spec 0.2.0 with the same
+Status: selected locally; independent selection review and public delivery pending.
+The existing public SPEC entrance remains aware-protocol 0.3.0 / aware-spec 0.2.0.
+See the [selection record](SELECTION.md). This separately versioned candidate
+provides aware-protocol 0.3.1 / aware-spec 0.2.0 with the same
 filesystem operations; only admit dispatch adopts the neutral command runtime.
 It is neither a new authority nor an additional evaluator, policy or writer.
 
 ## Explicit separate installation
 
-Only after explicit preparer selection of this exact candidate, use a real Python
+After explicit preparer selection of this exact candidate, use a real Python
 3.12 executable and a new environment under an existing parent:
 
 ```sh
@@ -18,7 +19,7 @@ python3.12 protocols/specification/previews/admit-runtime-v1/install.py \
 /tmp/aware-spec-admit-env/bin/aware-spec --help
 ```
 
-Never overlay a6, the selected SPEC installation or their wheelhouses. This wrapper
+Never overlay a6, an existing SPEC installation or their wheelhouses. This wrapper
 verifies the exact source/notice packet and unchanged accepted payload, retaining
 both, then delegates to the existing offline installer. After acquisition, no
 network, editable import or Aware development checkout is required. Linux x86-64,
@@ -51,7 +52,7 @@ every-write detection and continuous confinement remain unsupported.
 The [historical command sequence](packet/instructions/specification-setup-customer-sequence-v1.md)
 and [historical interface addendum](packet/instructions/specification-consumer-bootstrap-addendum-v1.md)
 retain their predecessor 26-package/CLI 0.3.0 coordinates. They are unfrozen review
-inputs, not this candidate's selected instructions. The [packet README](packet/README.md)
+inputs, not this candidate's frozen instructions. The [packet README](packet/README.md)
 explains the successor. Customer AGENTS.md and a6 contract 1.2.1 stay unchanged;
 contract 1.3.0 remains unallocated. No aware spec wrapper or combined client exists.
 
@@ -78,6 +79,8 @@ wheel builds. No whole internal workspace is exported.
 Bounded source/notice/disclosure coverage for this exact packet is accepted;
 upstream attribution and conservative binary-component qualifications remain
 intact. This is not exhaustive rights/secret clearance, exact binary linkage or a
-legal warranty. The new layout/installer still needs independent review. Consumer
-instruction freeze, public selection, customer delivery/evaluation and publication
-authorization are separate. See the [evaluation protocol](../../../evaluations/README.md).
+legal warranty. Independent layout and local integration review are accepted.
+This separate install/version entrance is selected locally; the inherited command
+sequence and interface addendum remain historical, unfrozen drafts. Independent
+selection review, customer delivery/evaluation and publication authorization
+remain separate. See the [evaluation protocol](../../../evaluations/README.md).
