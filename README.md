@@ -122,6 +122,13 @@ binds the exact software and receipts. The predecessor remains available through
 its explicitly versioned entrance. Historical command sequences remain drafts;
 contract 1.3.0 is unallocated. Publication is not a registry release or an a6 upgrade.
 
+## Prepared SPEC reader successor
+
+An unselected CLI 0.2.2 reader successor is prepared for review. It does not
+upgrade a6 or replace the available SPEC preview. See the
+[proposed entrance](protocols/specification/previews/cli022-reader-v1/README.md).
+Supported authoring remains separate and unavailable in this candidate.
+
 ## What comes next
 
 Our delivery direction is **Issues → Specifications → Goals → shared map**.

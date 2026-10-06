@@ -1,0 +1,39 @@
+[project]
+name = "aware-protocol-cli"
+version = "0.3.1"
+description = "Thin CLI projection of canonical Aware Protocol SDK operations."
+authors = [{ name = "AWARE Team" }]
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-command-runtime>=0.1.1,<0.2.0",
+  "aware-protocol-fs-adapter>=0.4.0,<0.5.0",
+  "aware-protocol-sdk>=0.2.0,<0.3.0",
+]
+
+[project.scripts]
+aware-protocol = "aware_protocol_cli.main:main"
+
+[tool.uv.sources]
+aware-command-runtime = { workspace = true }
+aware-issue-fs-adapter = { path = "../../../../../../aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python", editable = true }
+aware-issue-sdk = { path = "../../../../../../aware_coordination/modules/workflow/sdks/issue/python", editable = true }
+aware-protocol-fs-adapter = { workspace = true }
+aware-protocol-sdk = { workspace = true }
+
+[project.optional-dependencies]
+specification-setup = ["aware-issue-sdk>=0.7.0,<0.8.0", "aware-issue-fs-adapter>=0.6.0,<0.7.0"]
+test = ["pytest>=8.4.2,<10.0.0"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_protocol_cli"]
+include = ["README.md", "aware_protocol_cli/py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

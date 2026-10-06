@@ -87,3 +87,9 @@ retains separate installations and accepted source/notice boundaries. The
 [historical local selection](../protocols/specification/previews/admit-runtime-v1/SELECTION.md)
 remains its own checkpoint. This is not an agent/bootstrap upgrade or a new
 operation owner.
+
+## Unselected SPEC CLI022 source
+
+The [separate versioned snapshot](previews/specification-cli022-reader-v1/README.md)
+retains the exact reviewed reader sources without replacing selected products
+or admitting a new operational rail.

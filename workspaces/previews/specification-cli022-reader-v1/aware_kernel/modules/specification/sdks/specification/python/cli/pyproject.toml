@@ -1,0 +1,14 @@
+[project]
+name = "aware-specification-cli"
+version = "0.2.2"
+requires-python = ">=3.12"
+dependencies = ["aware-specification-sdk>=0.2.0,<0.3.0", "aware-specification-fs-sdk-adapter[protocol]>=0.3.0,<0.4.0", "aware-command-runtime>=0.1.1,<0.2.0"]
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+[project.scripts]
+aware-spec = "aware_specification_cli.main:main"
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+[tool.hatch.build.targets.wheel]
+packages = ["aware_specification_cli"]
