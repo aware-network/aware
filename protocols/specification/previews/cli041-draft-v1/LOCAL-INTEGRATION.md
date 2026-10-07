@@ -1,6 +1,6 @@
 # Unselected SPEC CLI041 draft successor: local integration
 
-Status: locally integrated and verified; independent integration review pending.
+Status: bounded local integration independently accepted.
 Instructions remain draft. Not selection, instruction freeze or remote delivery.
 
 Execution: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`.
@@ -102,8 +102,8 @@ unchanged upstream legal files, all under packet/notices. Retained diagnostic:
 Other integrated changes pass whitespace checks. Legal texts remain byte-exact;
 no full-diff whitespace PASS is claimed.
 
-Record actual verification and local publication receipts below, then request
-independent bounded integration review. Keep this Issue In Progress until review.
+Independent bounded acceptance is recorded below. Record acceptance and close
+the integration Issue through the retained a6 client; selection remains separate.
 Selection and customer instruction decisions are separate. a6 and the selected
 Protocol0.3.1/SPEC0.2.2 setup/read preview remain unchanged. No overlay, silent
 command substitution, combined aware-spec wrapper or AGENTS upgrade.
@@ -111,3 +111,28 @@ Contract1.3.0 remains unallocated. No SPEC approval, approved-iteration authorin
 durable iteration-to-Issue writer, Service/API or dispatch is admitted.
 Currentness is observed state; every-write detection and continuous confinement
 remain unsupported. No push or remote acquisition is authorized by this cut.
+
+## Independent bounded acceptance
+
+Luis forwarded **PASS with no blocker** for implementation
+`9cf99431279cbede9a7e49ca3bcd609e05ae8e59`, with handoff
+`2b6b50f001c3d5dbc48d85e713ac098ee8ecd398`.
+The reviewer independently reproduced nine passing checks, including a fresh
+offline, checkout-hidden installation. All accepted layout bytes and Git
+executable modes survived; 26 packages, clean dependencies, absence of
+editable/direct-URL installations and aware-spec-only exposure were verified.
+Reuse refusal and private-parent permissions passed. a6 and selected SPEC stayed
+unchanged; checkout and index were clean. Exact upstream legal whitespace retains
+its documented qualification rather than a full-diff whitespace PASS.
+
+Independent JUnit: `/tmp/aware-cli041-integration-review.c0vJa0pO/integration.xml`.
+SHA-256: `1f7c8f77094838860aa88f5ca6cf9415d144fef7485038a3636143350d57e7eb`.
+This recording execution rehashed the receipt and verified nine tests with zero
+failures, errors or skips; it did not rerun installation or the authoring matrix.
+The reviewer changed no repository records and did not repeat that domain matrix.
+
+Acceptance supports this bounded integration Issue's closeout only. Instructions
+remain draft and the successor unselected. Next: separately governed selection
+and customer instruction decisions, followed by explicitly authorized delivery.
+No artifact, installer, source, notice, runtime, bootstrap or selection bytes
+changed in acceptance recording. No push is authorized or performed.
