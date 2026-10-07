@@ -2,7 +2,7 @@
 
 - Slug: specification-cli041-local-integration-v1
 - Tag: fb/2026-10-07/specification-cli041-local-integration-v1
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -473,6 +473,7 @@
 
 
 
+
 ## Problem
 1. Accepted CLI041 layout exists only in private proposal trees; exact public integration and independent review remain required.
 
@@ -481,8 +482,10 @@
 
 
 
+
 ## Goal
 1. Mechanically integrate only the accepted 453-path layout plus four governance/replay files; preserve baseline modes and selections.
+
 
 
 
@@ -499,9 +502,18 @@
 
 
 
+
+## Verified-by
+- Independent PASS:9 checks including fresh offline checkout-hidden installation; exact layout bytes/modes,26 clean packages,aware-spec-only,reuse/private permissions. Reviewer JUnit sha256:1f7c8f77094838860aa88f5ca6cf9415d144fef7485038a3636143350d57e7eb locally rehashed/counts checked. No tests or domain matrix rerun.
+- git:9cf99431279cbede9a7e49ca3bcd609e05ae8e59
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Integrated exact accepted453-path layout plus four governance/replay paths. Nine checks passed,zero skipped, including fresh offline installation with /home and unrelated /tmp hidden:26 packages,only aware-spec,dependency checks,no editables/direct URLs,reuse exit2,parent0700 intact. All1916 untouched baseline files/1918 Git modes,446 packet members/146 sources preserved. JUnit fdc9ff70a386 and installed receipt3f2a3b241b44 retained in LOCAL-INTEGRATION.md. Independent review pending; instructions draft,successor unselected,a6 and selected reader unchanged. No672-case matrix rerun,selection,freeze or push. Day-index pending and FEED unavailable are not Git-index claims. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation9cf99431279cbede9a7e49ca3bcd609e05ae8e59 applied through selected a6,receipt git:9cf99431279cbede9a7e49ca3bcd609e05ae8e59,457 exact paths,existing Workspace owner,isolated_index_atomic_ref_v1,CAS applied,Git-index projected,no reconciliation debt. Nine distinct checks pass incl fresh offline install; eight accounting cases repeated,installer explicitly deselected. Full diff447 findings in14 exact upstream notice files retained; other changes whitespace clean. Independent review pending; Issue remains In Progress. a6/selected SPEC unchanged,successor unselected,instructions draft. No672-case matrix replay,freeze,selection,remote transfer or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Recorded independent bounded PASS with no blocker for9cf99431279c/handoff2b6b50f001c3: nine checks including fresh offline checkout-hidden install; exact layout bytes/Git modes,26 clean packages,aware-spec-only,no editables/direct URLs,reuse/private permissions,a6/selected SPEC unchanged. Reviewer JUnit1f7c8f77094838860aa88f5ca6cf9415d144fef7485038a3636143350d57e7eb locally rehashed,9 tests/0 errors/failures/skips. Full-diff legal whitespace qualification preserved. No tests or authoring matrix rerun,no artifacts changed; instructions draft,successor unselected,selection/freeze/publication separate. Acceptance supports bounded Issue closeout; no push authorized. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independently accepted bounded exact CLI041 local integration; instructions remain draft and successor unselected. Selection, instruction freeze and public delivery are separately governed.
