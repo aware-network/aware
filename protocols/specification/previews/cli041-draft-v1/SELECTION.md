@@ -1,7 +1,7 @@
 # Standalone SPEC CLI041 governed draft: local selection
 
 Status: **selected locally; not publicly delivered**. Independent selection
-review pending. Historical customer command sequences remain drafts; this
+review accepted. Historical customer command sequences remain drafts; this
 software/entrance selection does not freeze an agent-contract extension.
 Issue: [fb/2026-10-07/specification-cli041-selection-v1](../../../../docs/issues/2026/10/07/fb-2026-10-07-specification-cli041-selection-v1.md).
 
@@ -126,3 +126,30 @@ unchecked: recorded verification and Issue closeout do not evaluate them.
 Independent bounded selection review is next. This local receipt authorizes
 neither instruction freeze nor remote publication. a6 and the separately
 published CLI022 setup/read installation remain exact. No push occurred.
+
+### Independent bounded acceptance
+
+Luis forwarded **PASS with no blocker** for implementation
+`12ecf42dd08a1c546e21de455fd529adcac5b3b1`, with handoff
+`1e6d05341c318a3623eea71888b14679de8e8a5a`.
+The reviewer independently reproduced seven passing checks, including fresh
+offline, checkout-hidden installation. The exact eight-file delta, all 2,368
+untouched baseline files and baseline Git executable modes were preserved.
+Payload, sources, notices and installer stayed unchanged. All 26 packages had
+clean dependencies, no editable/direct-URL installs and aware-spec-only exposure.
+a6 and CLI022 setup/read remained separate and unchanged. Lint, formatting,
+authored whitespace checks and the clean checkout/index were confirmed.
+
+Independent JUnit: `/tmp/aware-cli041-selection-review.S0LyFJfD/selection.xml`.
+SHA-256: `5fdbadc7b3c3d106fc50487196c43bc603e3084fb61481b7a8ac5ad0ae80f28e`.
+This recorder rehashed the receipt and verified seven tests with zero failures,
+errors or skips; no installation or authoring-matrix replay occurred here.
+The reviewer changed no repository records and performed no push.
+
+This acceptance permits bounded selection Issue closeout only. Instructions
+remain draft; publication requires separate explicit authorization. Earlier
+pending-review wording in the entrance/overview belongs to its preparation
+checkpoint; this decision supplies acceptance without freezing those sequences.
+Next: separately authorized public delivery with accurate status wording and
+revision-pinned acquisition proof. No runtime, artifact, bootstrap or selection
+bytes changed in acceptance recording. No push is authorized or performed.

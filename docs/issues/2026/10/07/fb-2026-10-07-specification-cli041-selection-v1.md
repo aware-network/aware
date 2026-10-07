@@ -23,6 +23,7 @@
 
 
 
+
 ## Problem
 1. Reviewed CLI041 authoring composition is integrated but unselected; customer entrances need explicit local software selection without implying Git delivery or bootstrap upgrade.
 
@@ -30,8 +31,10 @@
 
 
 
+
 ## Goal
 1. Select the exact standalone aware-spec0.4.1 draft composition and align five presentation documents; preserve a6 and CLI022 for separate setup and qualified reading.
+
 
 
 
@@ -46,8 +49,10 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Locally selected exact aware-spec0.4.1 draft composition; five presentation docs plus selection/test/Issue,exact8-path delta. Seven checks passed including unchanged real installer in fresh offline environment with /home and unrelated /tmp hidden,environment cleared;26 packages,clean dependencies,no editable/direct URLs,only aware-spec,reuse exit2,parent0700 preserved. Four packet maps match;2368 other baseline bytes/2373 Git modes preserved. JUnitfe2130fb6142 and installed receipt423b6df32aeb retained in SELECTION.md. a6 and CLI022 setup/read preserved,commands explicitly separate,no overlay or bootstrap upgrade. Independent review pending;instructions/historical sequences remain draft,1.3.0 unallocated. No672-case matrix rerun,customer publication,freeze,external evaluation acceptance or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local selection committed12ecf42dd08a1c546e21de455fd529adcac5b3b1,receipt git:12ecf42dd08a1c546e21de455fd529adcac5b3b1. Selected verified a6 dry-run/identical apply of8 exact paths; existing Workspace owner,isolated_index_atomic_ref_v1,CAS applied,index projected,no reconciliation debt;checkout clean. Seven distinct checks pass incl fresh offline installation; six accounting checks repeated,installer explicitly deselected. Independent selection review pending; Issue In Progress. Payload/source/notices/installer/replay unchanged;a6 and published CLI022 retained;instructions draft,1.3.0 unallocated. No domain matrix rerun,freeze,customer operation,external evaluation acceptance or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Recorded independent bounded PASS with no blocker for12ecf42dd08a/handoff1e6d05341c31:7 checks incl fresh offline hidden-checkout installation;exact8-file delta,2368 untouched baseline files/Git executable modes,26 clean packages,aware-spec-only,no editable/direct URLs,a6/CLI022 separately preserved. Payload/source/notices/installer unchanged;lint/format/whitespace and clean index verified. Reviewer JUnit5fdbadc7b3c3d106fc50487196c43bc603e3084fb61481b7a8ac5ad0ae80f28e locally rehashed,7tests/0failures/errors/skips. No tests/matrix rerun or artifacts changed. Bounded selection can close;instructions draft,publication separately authorized,no push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
