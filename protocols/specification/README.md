@@ -1,4 +1,22 @@
-# Filesystem Specification setup and read preview
+# Filesystem Specification previews
+
+## Locally selected governed draft composition — not publicly delivered
+
+The reviewed **aware-spec 0.4.1** composition is selected locally for governed
+draft creation, strict observation and existing iteration identity, with SPEC
+SDK0.3.1, filesystem SDK adapter0.4.1 and Protocol filesystem adapter0.6.1.
+Independent selection review remains pending. Follow the
+[separate draft entrance](previews/cli041-draft-v1/README.md) and
+[local selection](previews/cli041-draft-v1/SELECTION.md); this is not Git delivery,
+a registry release, a frozen agent-contract extension or an a6 upgrade.
+
+It installs **26 packages and only aware-spec**. Keep a6 for Issue/repository
+operations and the published CLI022 installation below for governed setup;
+there is no aware-protocol or aware launcher in the draft environment. Never
+overlay installations, combine wheelhouses or silently switch task commands.
+The draft entrance supplies explicit typed-input preparation, default preview,
+admitted apply and fresh reading. It creates no approval or approved iteration.
+Historical packet sequences stay draft; contract1.3.0 remains unallocated.
 
 ## Selected standalone Git reader preview
 

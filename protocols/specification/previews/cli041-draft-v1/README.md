@@ -1,13 +1,15 @@
-# SPEC CLI0.4.1 governed draft successor — unselected preparation
+# SPEC CLI0.4.1 governed draft preview — local selection
 
-Status: review-only public-layout proposal, not published or selected.
-a6 contract 1.2.1 and the selected Protocol CLI0.3.1 / SPEC CLI0.2.2 setup/read
-preview remain unchanged. This successor proposes only aware-spec 0.4.1 in a
+Status: selected locally; independent selection review pending; **not publicly delivered**.
+See the [selection record](SELECTION.md). Customer command sequences remain
+drafts, not a frozen agent-contract extension. a6 contract1.2.1 and the published
+Protocol CLI0.3.1 / SPEC CLI0.2.2 setup/read preview remain unchanged.
+This separate composition selects only aware-spec 0.4.1 in a
 fresh 26-package environment: SPEC SDK0.3.1, FS SDK adapter0.4.1 and Protocol FS
 adapter0.6.1. The governed extra is selected. The original domain owners remain
 authoritative; this layout introduces no parser, policy evaluator or writer.
 
-## Install separately after explicit preparer selection
+## Install separately after explicit task selection
 
 From this checkout, choose your actual Python3.12 executable and an unused
 absolute environment path under an existing private regular parent:
@@ -35,7 +37,7 @@ automatic rollback and continuous confinement are not promised.
 **Never overlay** a6, selected SPEC or any other preview environment. Only
 aware-spec is an admitted launcher here: there is no aware-protocol command,
 aware command, aware spec wrapper or bootstrap upgrade in this bundle. Use the
-[selected setup/read entrance](../../README.md) in its own installation for
+[published setup/read entrance](../cli022-reader-v1/README.md) in its own installation for
 setup, and the [a6 workflow](../../../agent/quickstart.md) for Issue/repository
 operations. Transitive SDKs are owners used by composition, not extra public CLIs.
 

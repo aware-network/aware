@@ -97,8 +97,11 @@ and [historical selection](../protocols/specification/previews/cli022-reader-v1/
 Independent local selection review is accepted. a6 and older
 snapshots stay intact; no new operational rail or editable installation is admitted.
 
-## Unselected SPEC CLI041 neutral sources
+## Locally selected SPEC CLI041 neutral sources
 
 The [versioned snapshot](previews/specification-cli041-draft-v1/README.md)
 retains the exact reviewed draft-composition source without replacing existing
-source snapshots, selected installations or semantic owners.
+source snapshots, a6, the separate CLI022 setup installation or semantic owners.
+See the [local selection](../protocols/specification/previews/cli041-draft-v1/SELECTION.md).
+Independent selection review is pending; Git delivery remains separate. No
+editable installation, additional interface or new operation owner is admitted.

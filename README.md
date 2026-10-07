@@ -131,21 +131,25 @@ publication receipts. The CLI022 [historical local selection](protocols/specific
 records adoption without upgrading a6 or authorizing SPEC writers. Use fresh,
 separate installations; never overlay or silently switch an execution's command.
 
-## Prepared SPEC draft successor
+## Locally selected SPEC CLI041 draft successor
 
-An explicitly unselected CLI0.4.1 draft successor is prepared for review. It
-proposes Issue-governed draft creation and reading in a separate installation,
-not SPEC approval or approved iterations. See the
-[proposed entrance](protocols/specification/previews/cli041-draft-v1/README.md). a6 and the available setup/read
-preview remain unchanged; this is not yet public delivery.
+The reviewed **aware-spec 0.4.1** draft composition is selected locally in a
+separate 26-package installation. Independent selection review remains pending;
+it is **not publicly delivered**. It supports Issue-governed draft creation and
+reading, not SPEC approval or approved iterations. See the
+[separate entrance](protocols/specification/previews/cli041-draft-v1/README.md)
+and [local selection](protocols/specification/previews/cli041-draft-v1/SELECTION.md).
+a6 remains the Issue/repository client; CLI022 remains the separately installed
+setup/read preview. Never overlay environments or silently replace task commands.
 
 ## What comes next
 
 Our delivery direction is **Issues → Specifications → Goals → shared map**.
 
 Issues and scoped commits are available now; SPEC setup/read is available as the
-separate preview above. Supported SPEC authoring and approved iterations are
-next. Supported Goal creation/import and manifest preparation follow as separate
+separate preview above. Public delivery of the locally selected SPEC draft
+composition is next; approved-iteration authoring remains a separate capability
+cut. Supported Goal creation/import and manifest preparation follow as separate
 capability cuts, then the shared map. **These future capabilities are not in this
 preview.** The separate Goal reader above remains read-only.
 Goal approval, effectful pursuit, dispatch and a complete autonomous
