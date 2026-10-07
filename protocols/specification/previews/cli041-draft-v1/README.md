@@ -1,7 +1,9 @@
-# SPEC CLI0.4.1 governed draft preview — local selection
+# SPEC CLI0.4.1 governed draft — standalone Git preview
 
-Status: selected locally; independent selection review pending; **not publicly delivered**.
-See the [selection record](SELECTION.md). Customer command sequences remain
+Status: selected standalone Git preview; independent local selection review accepted.
+Luis authorized delivery; actual remote confirmation and revision-pinned acquisition
+are recorded in [PUBLICATION.md](PUBLICATION.md). See the
+[historical selection record](SELECTION.md). Customer command sequences remain
 drafts, not a frozen agent-contract extension. a6 contract1.2.1 and the published
 Protocol CLI0.3.1 / SPEC CLI0.2.2 setup/read preview remain unchanged.
 This separate composition selects only aware-spec 0.4.1 in a

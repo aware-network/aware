@@ -1,7 +1,9 @@
 # Standalone SPEC CLI041 governed draft: local selection
 
-Status: **selected locally; not publicly delivered**. Independent selection
-review accepted. Historical customer command sequences remain drafts; this
+Historical checkpoint: **selected locally; not publicly delivered at that checkpoint**.
+Independent local selection review accepted. Actual Git delivery status and
+receipts are recorded in [PUBLICATION.md](PUBLICATION.md).
+Historical customer command sequences remain drafts; this
 software/entrance selection does not freeze an agent-contract extension.
 Issue: [fb/2026-10-07/specification-cli041-selection-v1](../../../../docs/issues/2026/10/07/fb-2026-10-07-specification-cli041-selection-v1.md).
 

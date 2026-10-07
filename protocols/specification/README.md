@@ -1,13 +1,15 @@
 # Filesystem Specification previews
 
-## Locally selected governed draft composition — not publicly delivered
+## Selected standalone Git governed draft preview
 
-The reviewed **aware-spec 0.4.1** composition is selected locally for governed
+The reviewed **aware-spec 0.4.1** composition is selected for governed
 draft creation, strict observation and existing iteration identity, with SPEC
 SDK0.3.1, filesystem SDK adapter0.4.1 and Protocol filesystem adapter0.6.1.
-Independent selection review remains pending. Follow the
+Independent local selection review is accepted; Luis authorized Git delivery.
+Remote confirmation and acquisition evidence are recorded in the
+[delivery record](previews/cli041-draft-v1/PUBLICATION.md). Follow the
 [separate draft entrance](previews/cli041-draft-v1/README.md) and
-[local selection](previews/cli041-draft-v1/SELECTION.md); this is not Git delivery,
+[historical local selection](previews/cli041-draft-v1/SELECTION.md); this is not
 a registry release, a frozen agent-contract extension or an a6 upgrade.
 
 It installs **26 packages and only aware-spec**. Keep a6 for Issue/repository
