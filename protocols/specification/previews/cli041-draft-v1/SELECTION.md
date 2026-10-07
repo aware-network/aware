@@ -108,3 +108,21 @@ Installed receipt: `/tmp/aware-cli041-selection.pRg1G954/installed-receipt.json`
 SHA-256 `423b6df32aebcef5be8ad2e1817ad1ef2c35e68fc2745cfcb8ed22a0038da46b`.
 These are producer proof coordinates, not independent selection acceptance or
 customer dependencies. The Issue stays In Progress for independent review.
+
+### Applied local selection and review handoff
+
+Implementation: `12ecf42dd08a1c546e21de455fd529adcac5b3b1`.
+Applied receipt: `git:12ecf42dd08a1c546e21de455fd529adcac5b3b1`.
+The retained verified a6 client dry-ran and identically applied the eight exact
+paths through `aware_workspace_operator.run_workspace_commit.v1` using
+`isolated_index_atomic_ref_v1`, `reference_update=cas_applied`, shared-index
+projection applied and `index_reconciliation_pending=false`. Checkout and index
+were clean after local implementation publication.
+
+Six accounting checks were repeated after evidence updates; the installer case
+was explicitly deselected from those repeats. Seven distinct checks passed;
+this is not multiple installation proofs. Authored Issue criteria remain
+unchecked: recorded verification and Issue closeout do not evaluate them.
+Independent bounded selection review is next. This local receipt authorizes
+neither instruction freeze nor remote publication. a6 and the separately
+published CLI022 setup/read installation remain exact. No push occurred.
