@@ -2,7 +2,7 @@
 
 - Slug: specification-cli041-git-publication-v1
 - Tag: fb/2026-10-07/specification-cli041-git-publication-v1
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -24,6 +24,7 @@
 
 
 
+
 ## Problem
 1. Accepted locally selected CLI041 preview is not remotely available; public status and revision-pinned acquisition/installation proof are required.
 
@@ -31,8 +32,10 @@
 
 
 
+
 ## Goal
 1. Under Luis current explicit authorization,align public presentation,push exact reviewed outgoing commits non-force to aware-network/aware/main,verify remote readback and fresh anonymous revision-pinned acquisition/offline installation.
+
 
 
 
@@ -48,8 +51,17 @@
 
 
 
+
+## Verified-by
+- Eight checks passed from fresh anonymous public checkout96f19a61999347c0435a6c8793475b4d6b3a72fa incl fresh offline hidden-checkout installation. JUnit sha256:69eecc4ea0b99a100693bfbb799d72a132e38e3991054eaaec4289d9a3abdf70;26 clean packages,only aware-spec,no editables/direct URLs,reuse/private0700 preserved. Same8 prepublication obligations repeated,not16 distinct; no672-case matrix or externalU/V/R.
+- git:96f19a61999347c0435a6c8793475b4d6b3a72fa
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Luis explicitly authorized Git delivery in this task. Remote main4c625d810799 observed;ancestor of accepted clean local60f9aecf0f52;outgoing8 accepted integration/selection/governance commits checked. Exact9-path public-status cut; eight prepublication checks passed incl fresh offline hidden-checkout install,26 clean packages,only aware-spec,no editables/direct URLs,reuse/private0700 preserved. Four maps and2370 other baseline files/2376 Git modes exact;payload/source/notices/installer/replay unchanged. JUnit e9c47e48c71b and installed receipt4f5b7aaba885 recorded. Publication/pinned public acquisition still pending actual effects. a6/CLI022 retained;instructions unfrozen,1.3.0 unallocated;no672-case authoring replay,registry release or external evaluation acceptance. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Authorized non-force push advanced remote aware-network/aware/main4c625d810799 to96f19a61999347c0435a6c8793475b4d6b3a72fa,readback exact. Applied local receiptgit:96f19a61999347c0435a6c8793475b4d6b3a72fa:existing Workspace owner,isolated-index CAS,index applied,no debt. Fresh anonymous GitHub clone exact96f19;separate revision-pinned packet downloadb78a45f66ef8 matches clone/payloada5dc83d12a79. Public-acquired checkout eight checks passed,zero skipped,including fresh offline hidden-checkout install:26 packages,clean dependencies,only aware-spec,no editables/direct URLs,reuse/private0700 intact,four maps/nine-path scope/baseline bytes/modes/links exact. Public JUnit69eecc4ea0b9 and installed receipt5499b3dceeeb retained in PUBLICATION.md. Same8 obligations replayed twice,not16 distinct;no672-case matrix or customer authoring replay. a6/CLI022 preserved;historical instructions draft,1.3.0 unallocated,no approval,approved iteration,registry release or external evaluation acceptance. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Authorized non-force public Git delivery of exact accepted CLI041 preview confirmed; anonymous revision-pinned public acquisition, separate packet digest and fresh offline installation passed. Receipt/closeout publication follows unchanged software. External participant evaluation remains next; instructions unfrozen and a6/CLI022 preserved.
