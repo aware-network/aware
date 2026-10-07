@@ -96,3 +96,51 @@ Installed receipt SHA-256:
 `4f5b7aaba88585d25cecafd08794541f2d73bf9f80663c3a9e94f4a464607f45`.
 These producer-local checks are not observed public acquisition. Actual remote
 delivery and a separate fresh public-checkout installation remain next.
+
+## Observed public delivery
+
+The authorized non-force push advanced aware-network/aware/main from
+`4c625d810799f277c6ef165b9d9bed04035af23f` to
+`96f19a61999347c0435a6c8793475b4d6b3a72fa`; remote readback confirmed that exact
+revision. Applied local receipt: `git:96f19a61999347c0435a6c8793475b4d6b3a72fa`.
+The existing publication owner reported isolated_index_atomic_ref_v1,
+reference_update=cas_applied, shared-index projection applied and reconciliation
+pending=false. Push was a separately authorized remote effect, not inferred
+from the local publication receipt.
+
+A fresh anonymous GitHub clone, with system/global Git configuration and
+credential helpers disabled, matched the exact delivered revision. A separately
+downloaded [revision-pinned packet](https://raw.githubusercontent.com/aware-network/aware/96f19a61999347c0435a6c8793475b4d6b3a72fa/protocols/specification/previews/cli041-draft-v1/distribution/aware-specification-cli041-source-notice-review-v1.tar.gz)
+matched b78a45f66ef8 and the cloned packet byte-for-byte. The cloned payload
+matched a5dc83d12a79. Actual public acquisition, not a producer source mirror,
+supplied the installation. The acquired checkout remained clean.
+
+From that checkout, **eight checks passed, zero skipped**, including a fresh
+offline installation with all /home and unrelated /tmp hidden and inherited
+environment cleared. All 26 packages had clean dependencies and no editable or
+direct-URL installations. Only aware-spec was exposed; its four help entrances
+activated. SPEC CLI0.4.1 / SDK0.3.1 / filesystem SDK adapter0.4.1 and Protocol
+filesystem adapter0.6.1 matched selection. Reuse refused with exit2, preserving
+the private-parent mode0700. All four packet maps, exact nine-path scope, 2,370
+untouched baseline files, all 2,376 baseline Git executable modes, notice carriage,
+current wording and links passed. Accepted public test logic and installer replay
+were unchanged. No customer draft was created by these acquisition checks.
+
+Public-acquisition JUnit:
+`/tmp/aware-cli041-publication.LaMRBy85/public-replay.sIMyrawg/publication.xml`,
+SHA-256 `69eecc4ea0b99a100693bfbb799d72a132e38e3991054eaaec4289d9a3abdf70`.
+Installed receipt SHA-256:
+`5499b3dceeeb9a1e6e77c7040e03eb8d3e6bef8a83e8175835ba36d0371b145e`.
+The same eight obligations were replayed before delivery and after public
+acquisition, not sixteen distinct proofs. Logs, fresh environments and download
+are retained outside customer records; they are producer evidence, not consumer
+dependencies.
+
+This is observed producer public-delivery evidence, not independent publication
+review, external U/V/R, a new 672-case authoring matrix, reproducible builds or
+registry release. Subsequent receipt and Issue-closeout commits do not change
+software, source, notice, installer, bootstrap or supported capability bytes.
+Customer sequences remain unfrozen previews; 1.3.0 remains unallocated, approval
+and approved-iteration authoring remain unavailable. Next: a fresh external
+participant uses the supported configure → draft preview/apply → observe loop,
+with a real approved outcome and Issue, without fabricated authority records.
