@@ -96,3 +96,9 @@ See its [delivery record](../protocols/specification/previews/cli022-reader-v1/P
 and [historical selection](../protocols/specification/previews/cli022-reader-v1/SELECTION.md).
 Independent local selection review is accepted. a6 and older
 snapshots stay intact; no new operational rail or editable installation is admitted.
+
+## Unselected SPEC CLI041 neutral sources
+
+The [versioned snapshot](previews/specification-cli041-draft-v1/README.md)
+retains the exact reviewed draft-composition source without replacing existing
+source snapshots, selected installations or semantic owners.

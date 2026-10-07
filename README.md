@@ -131,6 +131,14 @@ publication receipts. The CLI022 [historical local selection](protocols/specific
 records adoption without upgrading a6 or authorizing SPEC writers. Use fresh,
 separate installations; never overlay or silently switch an execution's command.
 
+## Prepared SPEC draft successor
+
+An explicitly unselected CLI0.4.1 draft successor is prepared for review. It
+proposes Issue-governed draft creation and reading in a separate installation,
+not SPEC approval or approved iterations. See the
+[proposed entrance](protocols/specification/previews/cli041-draft-v1/README.md). a6 and the available setup/read
+preview remain unchanged; this is not yet public delivery.
+
 ## What comes next
 
 Our delivery direction is **Issues → Specifications → Goals → shared map**.
