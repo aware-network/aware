@@ -81,6 +81,27 @@ These producer coordinates are not customer dependencies. The accepted authoring
 matrix was not rerun. The pure-input example remains the accepted earlier proof;
 this nine-check replay does not claim a new draft publication or participant run.
 
+### Applied local publication and handoff
+
+Implementation: `9cf99431279cbede9a7e49ca3bcd609e05ae8e59`.
+Applied receipt: `git:9cf99431279cbede9a7e49ca3bcd609e05ae8e59`.
+The verified a6 client dry-ran then applied the identical 457-path request through
+`aware_workspace_operator.run_workspace_commit.v1`, with transaction
+`isolated_index_atomic_ref_v1`, `reference_update=cas_applied`, Git-index
+projection applied and `index_reconciliation_pending=false`. The checkout and
+index were clean after implementation publication. The Issue remains In Progress
+for independent integration review; this is not remote delivery or selection.
+
+Eight accounting checks passed again after evidence updates and local commit;
+the fresh-installer case was explicitly deselected from those repeats. They are
+the same nine distinct checks, not additional installation or domain proofs.
+The baseline-to-implementation whitespace diagnostic has 447 findings in 14
+unchanged upstream legal files, all under packet/notices. Retained diagnostic:
+`/tmp/aware-cli041-integration.LJOl7CSX/whitespace.txt`, SHA-256
+`2f92958e11f4029ac7e9e9b7cca8a2ae76134c8b27993b8c5f88efcfd4172f3e`.
+Other integrated changes pass whitespace checks. Legal texts remain byte-exact;
+no full-diff whitespace PASS is claimed.
+
 Record actual verification and local publication receipts below, then request
 independent bounded integration review. Keep this Issue In Progress until review.
 Selection and customer instruction decisions are separate. a6 and the selected
