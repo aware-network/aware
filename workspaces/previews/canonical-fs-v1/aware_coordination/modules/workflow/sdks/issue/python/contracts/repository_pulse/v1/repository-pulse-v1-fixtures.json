@@ -1,0 +1,128 @@
+{
+  "schema_ref": "aware.coordination.repository-pulse.v1",
+  "cases": [
+    {
+      "name": "bounded_page_with_resolved_and_unresolved_goal_facets",
+      "input": {
+        "repository_revision": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "observed_at": "2026-08-21T06:00:00Z",
+        "issue_epoch": "issue-epoch",
+        "issue_cursor": 7,
+        "resolved_goal_refs": [
+          "goal/2026-07-22/aware-dev-persistent-semantic-evolution-session-v0"
+        ],
+        "limit": 2,
+        "sources": [
+          {
+            "source_path": "docs/issues/2026/08/21/fb-2026-08-21-alpha.md",
+            "content_text": "# Issue: Alpha\n\n- Slug: `alpha`\n- Tag: `fb/2026-08-21/alpha`\n- Status: In Progress\n- Priority: P0\n- Goal: goal/2026-07-22/aware-dev-persistent-semantic-evolution-session-v0\n\n## Goal\n1. Prove Pulse.\n\n## Acceptance Checklist\n- [ ] complete\n\n## Updates (append-only)\n- 2026-08-21T00:10:00Z — Opened the issue. (recorder: `codex-a`)\n- 2026-08-21T05:30:00Z — Canonical implementation landed `workspaces/example.py` 0123456789abcdef0123456789abcdef01234567. (recorder: `codex-a`)\n"
+          },
+          {
+            "source_path": "docs/issues/2026/08/21/fb-2026-08-21-beta.md",
+            "content_text": "# Issue: Beta\n\n- Slug: `beta`\n- Tag: `fb/2026-08-21/beta`\n- Status: Blocked\n- Priority: P0\n- Goal: goal/2026-08-21/missing-goal-v0\n\n## Goal\n1. Prove Pulse.\n\n## Acceptance Checklist\n- [ ] complete\n\n## Updates (append-only)\n- 2026-08-21T04:00:00Z — activity_kind=blocked Waiting for a Human decision. (recorder: `claude_code-b`)\n"
+          },
+          {
+            "source_path": "docs/issues/2026/08/21/fb-2026-08-21-gamma.md",
+            "content_text": "# Issue: Gamma\n\n- Slug: `gamma`\n- Tag: `fb/2026-08-21/gamma`\n- Status: Closed\n- Priority: P0\n\n## Goal\n1. Prove Pulse.\n\n## Acceptance Checklist\n- [ ] complete\n\n## Updates (append-only)\n- 2026-08-20T17:00:00Z — Resolved old work. (recorder: `codex-c`)\n"
+          }
+        ]
+      },
+      "expected_projection": {
+        "schema_ref": "aware.coordination.repository-pulse.v1",
+        "authority_kind": "local_uncommitted",
+        "repository_revision": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "observed_at": "2026-08-21T06:00:00Z",
+        "issue_epoch": "issue-epoch",
+        "issue_cursor": 7,
+        "query": {
+          "since_at": "2026-08-20T18:00:00Z",
+          "until_at": "2026-08-21T06:00:00Z",
+          "after_cursor": null,
+          "limit": 2
+        },
+        "diagnostics": {
+          "issues_considered": 3,
+          "activities_considered": 4,
+          "trusted_timed_activities": 4,
+          "unavailable_time_activities": 0,
+          "untrusted_time_activities": 0,
+          "identity_conflict_activities": 0,
+          "window_activities": 3
+        },
+        "items": [
+          {
+            "schema_ref": "aware.coordination.repository-pulse-activity.v1",
+            "activity_ref": "fb/2026-08-21/alpha#update-2",
+            "issue_ref": "fb/2026-08-21/alpha",
+            "issue_projection_revision": "sha256:43a29975fcae5dc921cbfc5504c28cae15e3ac5e0426465e7f87937d75ef89d4",
+            "issue_title": "Alpha",
+            "lifecycle": {
+              "value": "in_progress",
+              "raw_value": "In Progress",
+              "classification": "declared"
+            },
+            "priority": "P0",
+            "owner_execution_id": null,
+            "goal_ref": "goal/2026-07-22/aware-dev-persistent-semantic-evolution-session-v0",
+            "goal_resolution": "resolved",
+            "sequence": 2,
+            "headline": "Canonical implementation landed `workspaces/example.py` 0123456789abcdef0123456789abcdef01234567.",
+            "actor_execution_id": "codex-a",
+            "activity_at": "2026-08-21T05:30:00Z",
+            "time_authority": "source_declared",
+            "semantic_kind": {
+              "value": "commit",
+              "raw_value": null,
+              "classification": "inferred"
+            },
+            "references": [
+              {
+                "kind": "commit_sha",
+                "value": "0123456789abcdef0123456789abcdef01234567"
+              },
+              {
+                "kind": "repository_path",
+                "value": "workspaces/example.py"
+              }
+            ],
+            "outcome": null,
+            "source_path": "docs/issues/2026/08/21/fb-2026-08-21-alpha.md",
+            "source_observed_at": "2026-08-21T06:00:00Z"
+          },
+          {
+            "schema_ref": "aware.coordination.repository-pulse-activity.v1",
+            "activity_ref": "fb/2026-08-21/beta#update-1",
+            "issue_ref": "fb/2026-08-21/beta",
+            "issue_projection_revision": "sha256:a6612695d9332efb8f30dbf575d2fb6e089158d3f0341ac543ecb6f82eb861bc",
+            "issue_title": "Beta",
+            "lifecycle": {
+              "value": "blocked",
+              "raw_value": "Blocked",
+              "classification": "declared"
+            },
+            "priority": "P0",
+            "owner_execution_id": null,
+            "goal_ref": "goal/2026-08-21/missing-goal-v0",
+            "goal_resolution": "unresolved",
+            "sequence": 1,
+            "headline": "Waiting for a Human decision.",
+            "actor_execution_id": "claude_code-b",
+            "activity_at": "2026-08-21T04:00:00Z",
+            "time_authority": "source_declared",
+            "semantic_kind": {
+              "value": "blocked",
+              "raw_value": "blocked",
+              "classification": "declared"
+            },
+            "references": [],
+            "outcome": null,
+            "source_path": "docs/issues/2026/08/21/fb-2026-08-21-beta.md",
+            "source_observed_at": "2026-08-21T06:00:00Z"
+          }
+        ],
+        "next_cursor": "repository-pulse-v1.eyJhY3Rpdml0eV9hdCI6IjIwMjYtMDgtMjFUMDQ6MDA6MDBaIiwiYWN0aXZpdHlfcmVmIjoiZmIvMjAyNi0wOC0yMS9iZXRhI3VwZGF0ZS0xIiwicmVwb3NpdG9yeV9yZXZpc2lvbiI6InNoYTI1NjphYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwic2luY2VfYXQiOiIyMDI2LTA4LTIwVDE4OjAwOjAwWiIsInVudGlsX2F0IjoiMjAyNi0wOC0yMVQwNjowMDowMFoifQ",
+        "truncated": true
+      }
+    }
+  ]
+}

@@ -106,3 +106,8 @@ See the [historical local selection](../protocols/specification/previews/cli041-
 and [Git delivery record](../protocols/specification/previews/cli041-draft-v1/PUBLICATION.md).
 Independent local selection review is accepted. No
 editable installation, additional interface or new operation owner is admitted.
+
+## Unselected canonical neutral snapshot
+
+The [profile-derived snapshot](previews/canonical-fs-v1/README.md) preserves the
+accepted neutral sources without replacing earlier snapshots or selections.

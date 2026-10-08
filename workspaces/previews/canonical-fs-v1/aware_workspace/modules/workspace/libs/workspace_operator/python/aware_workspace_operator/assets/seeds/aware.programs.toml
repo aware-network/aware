@@ -1,0 +1,61 @@
+aware = 1
+
+[[programs]]
+ref = "kernel:KernelSeed"
+path = "aware_kernel.seed.aware"
+name = "KernelSeed"
+dependencies = [
+  "conversation-ontology",
+  "identity-ontology",
+  "agent-ontology",
+  "economy-ontology",
+  "history-ontology",
+  "meta-ontology",
+  "reactivity-ontology",
+  "service-ontology",
+]
+required_symbols = [
+  "seed.seed_id",
+  "seed.seed_version",
+  "seed.system_public_key",
+  "seed.provider_public_key",
+  "seed.executor_public_key",
+  "seed.executor_label",
+  "seed.service_config_name",
+  "seed.inference_service_name",
+  "seed.smart_contract_config_name",
+  "seed.smart_contract_type",
+  "seed.smart_contract_address",
+  "seed.inference_provider",
+  "seed.inference_model_name",
+  "seed.inference_model_id_on_provider",
+  "seed.inference_secondary_provider",
+  "seed.inference_secondary_model_name",
+  "seed.inference_secondary_model_id_on_provider",
+  "seed.inference_context_window",
+  "seed.inference_max_output_tokens",
+  "seed.inference_region_code",
+  "seed.secondary_actor_key",
+  "seed.secondary_thread_key",
+  "seed.secondary_thread_name",
+  "seed.secondary_thread_system_instruction_text",
+  "seed.secondary_thread_inference_group_key",
+  "seed.conversation_role_config_name",
+  "seed.conversation_role_config_description",
+  "seed.conversation_role_config_class_name",
+  "seed.conversation_role_config_function_name",
+  "seed.economy_role_config_name",
+  "seed.economy_role_config_description",
+  "seed.conversation_branch_id",
+  "seed.conversation_title",
+  "seed.conversation_description",
+  "seed.conversation_subscription_name",
+  "seed.conversation_event_config_name",
+  "seed.conversation_condition_config_name",
+]
+optional_symbols = [
+  "boot.environment_id",
+  "plan.environment_id",
+  "plan.process_id",
+  "plan.thread_id",
+]

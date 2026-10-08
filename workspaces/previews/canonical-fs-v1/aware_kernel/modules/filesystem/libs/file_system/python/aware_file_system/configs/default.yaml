@@ -1,0 +1,13 @@
+file_system:
+  root_path: ""
+  generate_tree: true
+
+filters:
+  use_gitignore: true
+  regex:
+    - "(^|/)(__pycache__|.git|.vscode|.idea)/"
+    - ".*\\.pyc$"
+    - ".*\\.pyo$"
+    - ".*\\.pyd$"
+  max_file_size: 10485760  # 10 MB in bytes
+  max_depth: 10
