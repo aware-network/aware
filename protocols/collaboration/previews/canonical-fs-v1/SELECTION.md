@@ -128,6 +128,28 @@ JUnit: `/tmp/aware-canonical-selection.S7pBOaYu/selection.xml`, SHA-256
 Installed receipt: `/tmp/aware-canonical-selection.S7pBOaYu/installed-receipt.json`,
 SHA-256 `eacef082475d47fd56db533e9f5d15656a596ed6d946e827acc78994656f730b`.
 That deterministic installation metadata also matches the earlier receipt;
-this new scratch environment was independently created by this execution,
+this new scratch environment was freshly created by this producer execution,
 not reused. These are producer proof coordinates, not independent review or
 customer dependencies. The Issue remains In Progress for independent review.
+
+### Applied local selection and independent-review handoff
+
+Implementation: `ff643f0e9bffec2d15851cf169d4e60e49d326d1`.
+Applied receipt: `git:ff643f0e9bffec2d15851cf169d4e60e49d326d1`.
+The retained verified a6 command dry-ran and identically applied the seven exact
+paths through `aware_workspace_operator.run_workspace_commit.v1`, with
+`isolated_index_atomic_ref_v1`, `reference_update=cas_applied`, shared-index
+projection applied and `index_reconciliation_pending=false`. Checkout and index
+were clean after implementation. Provider-native edits are not Workspace CAS
+mutation evidence; this receipt is local repository publication only.
+
+Six accounting checks were repeated after evidence updates, with the installer
+explicitly deselected. Seven distinct checks passed, with one new installation;
+repeated accounting is not another installed workflow proof. Authored Issue
+criteria remain unchecked; recorded verification does not evaluate them.
+
+Review the exact seven-file delta against the baseline and replay the selection
+test using a new private scratch directory. Preserve the original source/legal
+bytes and historical receipts. This Issue remains In Progress until independent
+bounded review; no acceptance is self-issued here. No domain replay, payload
+rebuild, bootstrap change, instruction freeze, transfer or push occurred.
