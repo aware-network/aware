@@ -1,6 +1,8 @@
 # Canonical neutral filesystem composition: local selection
 
-Selected locally; not publicly delivered. Independent selection review pending.
+Historical checkpoint: selected locally; not publicly delivered at that checkpoint.
+Independent bounded local selection review is accepted below.
+Actual Git delivery scope and receipts are recorded in [PUBLICATION.md](PUBLICATION.md).
 Instructions remain draft; this receipt does not freeze an agent contract.
 Issue: [fb/2026-10-08/canonical-neutral-local-selection-v1](../../../../docs/issues/2026/10/08/fb-2026-10-08-canonical-neutral-local-selection-v1.md).
 

@@ -1,7 +1,8 @@
-# Canonical filesystem collaboration — local selection
+# Canonical filesystem collaboration preview
 
-Selected locally; not publicly delivered. Independent selection review is
-pending; [SELECTION.md](SELECTION.md) records the exact accepted inputs and proof.
+Selected standalone Git preview; independent local selection review accepted.
+The [delivery record](PUBLICATION.md) binds actual public acquisition and
+installation evidence; [SELECTION.md](SELECTION.md) preserves the local checkpoint.
 This prepared-input entrance uses one shared installation for Issue/repository
 operations, governed SPEC setup, draft preview/apply and reading. Existing a6,
 CLI022 and CLI041 selections remain unchanged. Instructions remain draft;
@@ -9,8 +10,10 @@ contract 1.3.0 remains unallocated. The repository's a6 bootstrap is unchanged.
 
 ## Install once into a fresh environment
 
-Prerequisites: Linux x86-64, actual Python 3.12 and Git. From the prepared
-checkout, choose the actual interpreter explicitly. The temporary parent below
+Prerequisites: Linux x86-64, actual Python 3.12 and Git. Acquire
+[aware-network/aware](https://github.com/aware-network/aware), retain its exact
+revision, and run from its checkout. Choose the actual interpreter explicitly.
+The temporary parent below
 is private; the environment must not already exist.
 
 ```sh
@@ -89,6 +92,7 @@ or toolchain proof. The derived jsonschema recipe and publisher source URL/hash
 are attached; its original source archive is not. Reproducible builds, exhaustive
 secret detection, rights warranty and isolated benchmark scores are not claimed.
 
-The earlier layout/integration records remain historical preparation receipts.
-This local artifact selection does not freeze instructions, transfer, publish
-or authorize a push. The existing public agent contract remains unchanged.
+The earlier layout/integration/selection records remain historical receipts.
+Git delivery does not freeze instructions, establish unassisted onboarding,
+release to a registry or authorize any customer push. The existing public
+agent contract remains unchanged; see PUBLICATION.md for actual delivery scope.

@@ -107,10 +107,11 @@ and [Git delivery record](../protocols/specification/previews/cli041-draft-v1/PU
 Independent local selection review is accepted. No
 editable installation, additional interface or new operation owner is admitted.
 
-## Locally selected canonical neutral snapshot
+## Selected Git canonical neutral snapshot
 
 The [profile-derived snapshot](previews/canonical-fs-v1/README.md) preserves the
 accepted neutral sources without replacing earlier snapshots or selections.
-Its [selection receipt](../protocols/collaboration/previews/canonical-fs-v1/SELECTION.md)
-selects the accepted artifact locally, not another package inventory. Public
-delivery and independent selection review remain pending; a6 stays unchanged.
+Its [historical local selection](../protocols/collaboration/previews/canonical-fs-v1/SELECTION.md)
+and [Git delivery record](../protocols/collaboration/previews/canonical-fs-v1/PUBLICATION.md)
+identify the accepted artifact, not another package inventory. Independent local
+selection review is accepted; a6 stays unchanged. Prepared inputs remain required.
