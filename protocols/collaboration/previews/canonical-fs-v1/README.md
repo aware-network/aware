@@ -1,9 +1,11 @@
-# Canonical filesystem collaboration — unselected layout
+# Canonical filesystem collaboration — local selection
 
-This is a review-only instruction proposal, not selected or publicly delivered.
-It prepares one shared installation for Issue/repository operations, governed
-SPEC setup, draft preview/apply and reading. Existing a6, CLI022 and CLI041
-selections remain unchanged. Instructions remain draft; no version is allocated.
+Selected locally; not publicly delivered. Independent selection review is
+pending; [SELECTION.md](SELECTION.md) records the exact accepted inputs and proof.
+This prepared-input entrance uses one shared installation for Issue/repository
+operations, governed SPEC setup, draft preview/apply and reading. Existing a6,
+CLI022 and CLI041 selections remain unchanged. Instructions remain draft;
+contract 1.3.0 remains unallocated. The repository's a6 bootstrap is unchanged.
 
 ## Install once into a fresh environment
 
@@ -40,7 +42,7 @@ Do not hand-author authority records to conceal that gap. The independently
 selected [a6 entrance](../../../agent/quickstart.md) remains available separately;
 cross-candidate bootstrap equivalence is not established by this layout.
 
-For prepared inputs, follow [the family workflow](WORKFLOW.md). A proposed
+For prepared inputs, follow [the draft family workflow](WORKFLOW.md). A proposed
 [agent template](AGENTS.template.md) records these limits; it is not installed
 into customer repositories and must not overwrite an existing AGENTS.md.
 
@@ -87,5 +89,6 @@ or toolchain proof. The derived jsonschema recipe and publisher source URL/hash
 are attached; its original source archive is not. Reproducible builds, exhaustive
 secret detection, rights warranty and isolated benchmark scores are not claimed.
 
-Layout review does not select software, freeze instructions, transfer, publish
+The earlier layout/integration records remain historical preparation receipts.
+This local artifact selection does not freeze instructions, transfer, publish
 or authorize a push. The existing public agent contract remains unchanged.

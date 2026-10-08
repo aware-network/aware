@@ -1,0 +1,48 @@
+# Issue: Select canonical neutral FS composition locally without bootstrap or delivery changes
+
+- Slug: canonical-neutral-local-selection-v1
+- Tag: fb/2026-10-08/canonical-neutral-local-selection-v1
+- Status: In Progress
+- Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
+- Priority: P1
+- Goal: TBD
+- Captured: 2026-10-08
+- Recorder: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
+- Source: Customer-directed work through aware issue open
+
+## Ownership Scope
+- `README.md`
+- `docs/issues/2026/10/08/fb-2026-10-08-canonical-neutral-local-selection-v1.md`
+- `protocols/collaboration/previews/canonical-fs-v1/README.md`
+- `protocols/collaboration/previews/canonical-fs-v1/SELECTION.md`
+- `protocols/collaboration/previews/canonical-fs-v1/test_selection.py`
+- `workspaces/README.md`
+- `workspaces/previews/canonical-fs-v1/README.md`
+
+
+
+## Problem
+1. The accepted shared neutral installation remains locally integrated but unselected; presentation must identify its exact artifact without duplicating Workspace selection or implying self-service bootstrap.
+
+
+
+
+## Goal
+1. Select only the accepted prepared-input shared composition locally; preserve a6, existing SPEC entrances, original sources/notices, installers and root bootstrap.
+
+
+
+
+## Acceptance Checklist
+- [ ] Seven exact scoped paths only; all other baseline bytes and Git executable modes preserved.
+- [ ] Fresh offline installation with producer checkouts hidden verifies all 31 packages, three supported family commands and refusal of environment reuse without parent-mode change.
+- [ ] Workspace portable_protocols remains the sole software selector; package closure and accepted artifact bytes do not change.
+- [ ] Prepared repository/profile requirements, absent unified aware/init, draft instructions and held public delivery remain explicit.
+
+
+
+
+## Updates (append-only)
+- Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Local selection presentation prepared across seven exact paths. Seven checks passed, zero skipped, including a genuinely fresh offline checkout-hidden installation: 31 packages match the accepted manifest; three supported family commands; clean dependencies/no editable/direct URLs; reuse refuses and private parent stays 0700. All 3240 other baseline files and 3244 Git modes, 853 artifact mappings, prior selections/root bootstrap and historical receipts preserved. Evidence: protocols/collaboration/previews/canonical-fs-v1/SELECTION.md; JUnit /tmp/aware-canonical-selection.S7pBOaYu/selection.xml sha256:b8714b0567334f7c2ec44d7422779664c99103b58aefd964a0e514c61e9e1499. Installed metadata deterministic hash eacef082475d47fd56db533e9f5d15656a596ed6d946e827acc78994656f730b; new environment, not reused. No domain replay; acceptance criteria unchecked; local selection review, instruction freeze and public delivery held. No push. (outcome: passed) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

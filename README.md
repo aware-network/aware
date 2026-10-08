@@ -144,13 +144,16 @@ and [historical local selection](protocols/specification/previews/cli041-draft-v
 a6 remains the Issue/repository client; CLI022 remains the separately installed
 setup/read preview. Never overlay environments or silently replace task commands.
 
-## Prepared canonical filesystem composition
+## Locally selected canonical filesystem composition
 
-An unselected shared installation is prepared for review: Issue/repository,
-SPEC setup and governed drafting/reading through three existing family commands.
-See the [proposed entrance](protocols/collaboration/previews/canonical-fs-v1/README.md). This is not a
-unified aware command or new-repository bootstrap. Current selections remain
-unchanged; no public delivery is implied.
+The accepted shared installation is selected locally for prepared inputs:
+Issue/repository, SPEC setup and governed drafting/reading through three existing
+family commands in one 31-package environment. See the
+[local entrance](protocols/collaboration/previews/canonical-fs-v1/README.md) and
+[selection receipt](protocols/collaboration/previews/canonical-fs-v1/SELECTION.md).
+Independent selection review and public delivery remain pending. This is not a
+unified aware command or a repository/profile initializer. a6, existing SPEC
+previews and the repository bootstrap stay unchanged; instructions remain draft.
 
 ## What comes next
 
