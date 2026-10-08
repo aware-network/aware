@@ -181,6 +181,43 @@ class LocalIntegrationTests(unittest.TestCase):
         self.assertFalse((ROOT / "protocols/collaboration/selection.json").exists())
         self.assertIn("unselected", (HERE / "README.md").read_text())
 
+    def test_whitespace_diagnostic_hashes_raw_stdout(self):
+        diagnostic = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(ROOT),
+                "diff",
+                "--check",
+                BASELINE,
+                "5d3ca0893395caa92a126cc110be8294347052c4",
+            ],
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(diagnostic.returncode, 2)
+        self.assertEqual(diagnostic.stderr, b"")
+        self.assertEqual(len(diagnostic.stdout), 76907)
+        self.assertEqual(diagnostic.stdout.count(b"\r\n"), 199)
+        self.assertEqual(
+            sha(diagnostic.stdout),
+            "24303e1d02dc86827d367fd423097b0886890d2a210bd835013f62c1a2c4c36e",
+        )
+        rows = [
+            row
+            for row in diagnostic.stdout.splitlines()
+            if b": trailing whitespace." in row or b": new blank line at EOF." in row
+        ]
+        self.assertEqual(len(rows), 459)
+        self.assertEqual(len({row.split(b":", 1)[0] for row in rows}), 21)
+        # Reproduce the incorrect text-mode capture without changing any input.
+        normalized = diagnostic.stdout.decode().replace("\r\n", "\n").encode()
+        self.assertEqual(
+            sha(normalized),
+            "73f4ca19037cac4cc10c02165f95917a9e7e4799d204bcd52e1ae1dac9bcaa61",
+        )
+        self.assertNotEqual(sha(normalized), sha(diagnostic.stdout))
+
     def test_local_links_and_instruction_limits(self):
         for path in (
             HERE / "README.md",

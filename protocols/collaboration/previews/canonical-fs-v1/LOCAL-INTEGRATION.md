@@ -121,8 +121,20 @@ The baseline-to-implementation full whitespace diagnostic exits 2 with **459
 findings in 21 exact accepted files**: preserved notice inputs and two original
 supplier contract READMEs in the neutral source snapshot. All flagged postimages
 match the accepted layout; they are not new authored formatting defects. The
-diagnostic SHA-256 is
-`73f4ca19037cac4cc10c02165f95917a9e7e4799d204bcd52e1ae1dac9bcaa61`.
+raw stdout SHA-256 is
+`24303e1d02dc86827d367fd423097b0886890d2a210bd835013f62c1a2c4c36e`
+for the exact command:
+
+```sh
+git -C /path/to/this/checkout diff --check \
+  095b9c5cad57e8d4183533f385c7cf568caeb277 \
+  5d3ca0893395caa92a126cc110be8294347052c4
+```
+
+Capture stdout as bytes, without text-mode newline conversion. It contains
+76,907 bytes, including 199 CRLF sequences; stderr is empty and exit 2 is expected.
+The earlier `73f4ca19037c…` value identified newline-normalized text, not raw
+stdout. The maintainer regression reproduces the raw hash and distinction.
 Authored documentation/test changes pass their scoped whitespace checks.
 No full-diff whitespace PASS is claimed and no legal/source byte is normalized.
 
@@ -131,6 +143,35 @@ exact 867-path result, 853 original member mappings, all baseline Git modes,
 historical source/instruction distinction and actual fresh-install receipts.
 This handoff grants no selection, instruction freeze, external evaluation or
 remote publication. a6 and both selected SPEC entrances remain unchanged.
+
+## Independent technical review and evidence correction
+
+Luis supplied a technical PASS for the integration, with one evidence correction
+required before closeout: the diagnostic hash above must identify raw stdout.
+The reviewer reproduced ten passing tests, including fresh offline,
+checkout-hidden installation, exact 867-path scope, 863 postimages and 853 member
+mappings. All baseline Git modes and 2,377 untouched files survived; all 31
+package versions, three family commands, absence of editable/direct-URL records,
+existing selections/bootstrap and scoped lint/format passed.
+
+Independent installed receipt:
+`/tmp/aware-canonical-integration-review.l4cd6nmu/installed-receipt.json`, SHA-256
+`eacef082475d47fd56db533e9f5d15656a596ed6d946e827acc78994656f730b`.
+Recording rehashed and read that receipt; it did not rerun the installed domain
+matrix. The correction changes only this evidence text, its maintainer test and
+the original Issue update. All flagged source/legal bytes remain unchanged.
+The documentation skill kept raw-byte evidence distinct from historical text
+capture. Issue closeout awaits the bounded correction review; selection,
+instruction freeze and publication remain separate gates.
+
+Correction replay: **ten accounting checks passed**, zero skipped, with the
+fresh-installer case explicitly deselected. These comprise the nine original
+accounting checks plus the new raw-stdout regression; they do not claim another
+installation. JUnit:
+`/tmp/aware-canonical-local-integration.4vEdQDEP/diagnostic-correction.xml`, SHA-256
+`e310af23e176d0ec1db719ff147d217f9d16a0fb7cec878a1fd1753c4aae6ed4`.
+The raw regression also reproduces the earlier normalized hash and rejects its
+equivalence to raw bytes. Scoped lint, formatting and authored whitespace pass.
 
 ## Next boundary
 
