@@ -2,7 +2,7 @@
 
 - Slug: canonical-neutral-local-integration-v1
 - Tag: fb/2026-10-08/canonical-neutral-local-integration-v1
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -884,6 +884,7 @@
 
 
 
+
 ## Problem
 1. Accepted canonical layout remains a private proposal outside this local public checkout.
 
@@ -893,8 +894,10 @@
 
 
 
+
 ## Goal
 1. Integrate only the exact 863 reviewed paths plus four governance/review files; preserve selected a6 and SPEC previews.
+
 
 
 
@@ -913,12 +916,17 @@
 
 
 
+
+## Resolution
+Exact reviewed canonical layout locally integrated and independently accepted. Raw diagnostic evidence correction accepted at 5354679336c7; earlier installed proof stands. Selection, instruction freeze, self-service bootstrap and push remain separately governed.
+
 ## Verified-by
-- protocols/collaboration/previews/canonical-fs-v1/LOCAL-INTEGRATION.md — Implementation git:5d3ca0893395caa92a126cc110be8294347052c4 applied through existing publication owner, CAS applied and no index debt. Ten tests passed with fresh hidden/offline installation; exact source/notice whitespace retained. Independent bounded integration review pending; no selection or push.
-- protocols/collaboration/previews/canonical-fs-v1/LOCAL-INTEGRATION.md — Independent PASS for correction 5354679336c7, no remaining local-integration blocker. Reviewer raw diagnostic and normalized predecessor hashes agree; ten accounting checks passed, installer explicitly deselected. Independent JUnit d8b7e12c3bdc verified. Earlier independent installation stands without rerun. Payload, sources, notices and selections untouched. Supports bounded closeout only; no instruction freeze, selection or push.
+- Independent ten-test integration PASS including fresh offline hidden-checkout installation; correction PASS with ten accounting tests and installer explicitly deselected, JUnit SHA256 d8b7e12c3bdcabbd9742067b7c73d640060ba5f1b071d43ed8832e4ae10baa17; evidence recorded in LOCAL-INTEGRATION.md.
+- git:4fda295bc0abbba1ca9b382f1f3c6854e97d34f6
 
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Exact 863-path layout integrated with four governance/review files. Final ten checks passed with fresh offline checkout-hidden 31-package installation, three family commands, reuse refusal and 0700 parent preservation. All baseline bytes/Git modes and selected a6/SPEC preserved. Initial permission-assertion failure retained; no runtime/payload change. Prepared-input limits remain, no unified aware/bootstrap, freeze, selection or push. Independent integration review remains next. (outcome: implemented) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Independent technical integration PASS recorded; corrected raw whitespace stdout SHA-256 to 24303e1d02dc86827d367fd423097b0886890d2a210bd835013f62c1a2c4c36e. Prior capture normalized 199 CRLF sequences; exact command and raw-byte regression retained. 459 findings in 21 accepted files unchanged. Ten accounting checks passed with installer explicitly deselected; original installed acceptance retained. No payload/source/notice/runtime/selection changes. Correction review remains before closeout; no push. (outcome: corrected) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
