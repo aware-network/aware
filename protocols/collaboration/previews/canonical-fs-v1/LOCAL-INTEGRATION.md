@@ -1,7 +1,8 @@
 # Canonical neutral layout local integration
 
-Status: implementing checkpoint awaiting independent review. The composition
-remains unselected; instructions remain draft. No freeze, transfer or push.
+Status: bounded local integration independently accepted, including correction
+`5354679336c7`. The composition remains unselected; instructions remain draft.
+No freeze, transfer or push.
 
 Execution: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`.
 Issue: [fb/2026-10-08/canonical-neutral-local-integration-v1](../../../../docs/issues/2026/10/08/fb-2026-10-08-canonical-neutral-local-integration-v1.md).
@@ -138,7 +139,7 @@ stdout. The maintainer regression reproduces the raw hash and distinction.
 Authored documentation/test changes pass their scoped whitespace checks.
 No full-diff whitespace PASS is claimed and no legal/source byte is normalized.
 
-The Issue remains In Progress for independent integration review. Review the
+At implementation handoff, the Issue remained In Progress for review of the
 exact 867-path result, 853 original member mappings, all baseline Git modes,
 historical source/instruction distinction and actual fresh-install receipts.
 This handoff grants no selection, instruction freeze, external evaluation or
@@ -161,7 +162,7 @@ Recording rehashed and read that receipt; it did not rerun the installed domain
 matrix. The correction changes only this evidence text, its maintainer test and
 the original Issue update. All flagged source/legal bytes remain unchanged.
 The documentation skill kept raw-byte evidence distinct from historical text
-capture. Issue closeout awaits the bounded correction review; selection,
+capture. The bounded correction review is accepted below; selection,
 instruction freeze and publication remain separate gates.
 
 Correction replay: **ten accounting checks passed**, zero skipped, with the
@@ -173,9 +174,33 @@ installation. JUnit:
 The raw regression also reproduces the earlier normalized hash and rejects its
 equivalence to raw bytes. Scoped lint, formatting and authored whitespace pass.
 
+## Independent correction acceptance and closeout
+
+Luis supplied **PASS with no remaining local-integration blocker** for correction
+`5354679336c7b7b99e42d32e8e6947387d3dbb31`. The reviewer independently reproduced
+raw stdout hash `24303e1d…` and the earlier `73f4ca19…` after normalizing its 199
+CRLF sequences. Ten accounting tests passed with the installer explicitly
+deselected; lint and formatting passed. Only the report, maintainer test and
+Issue changed; payload, source, notice and selection bytes remained untouched.
+Checkout and index were clean.
+
+Independent correction JUnit:
+`/tmp/aware-canonical-diagnostic-review.a04WaIO2/correction.xml`, SHA-256
+`d8b7e12c3bdcabbd9742067b7c73d640060ba5f1b071d43ed8832e4ae10baa17`.
+Recording verified that hash and ten tests with zero failures, errors or skips;
+it did not rerun installation or the domain matrix. The earlier independent
+installation proof stands, with its original qualifications.
+
+This acceptance completes the bounded local-integration review and supports
+Issue closeout through the original owner. Verification evidence and Issue
+closure do not automatically check authored acceptance boxes, select the
+composition, freeze instructions or authorize publication. No installed
+capability or customer-readiness claim is widened.
+
 ## Next boundary
 
-Independent resulting-tree and installation review precedes closeout. The
+Independent resulting-tree, installation and correction reviews are complete.
+The next separately governed cut is selection and instruction alignment. The
 composition stays unselected, with no unified aware entrance, repository/profile
 initializer or proven cross-candidate bootstrap. Prepared repository/profile
 requirements remain explicit. a6 and selected SPEC previews, root AGENTS.md and
