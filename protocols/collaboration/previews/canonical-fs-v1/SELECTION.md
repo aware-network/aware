@@ -153,3 +153,32 @@ test using a new private scratch directory. Preserve the original source/legal
 bytes and historical receipts. This Issue remains In Progress until independent
 bounded review; no acceptance is self-issued here. No domain replay, payload
 rebuild, bootstrap change, instruction freeze, transfer or push occurred.
+
+### Independent bounded selection acceptance
+
+Luis forwarded **PASS with no blocker** for implementation
+`ff643f0e9bffec2d15851cf169d4e60e49d326d1`, with handoff
+`290d5779d0722e562840721047fc29ad5cb298df`.
+The reviewer independently verified seven passing checks, including a fresh
+offline, checkout-hidden installation. All 31 installed package versions match;
+the three supported family commands activate without editable/direct-URL
+installations. The exact seven-file delta, all 3,240 other baseline files and
+baseline Git modes were preserved. Payload, sources, notices, installers, a6,
+earlier SPEC previews and bootstrap remained unchanged. Lint, formatting,
+scoped whitespace checks and the clean checkout/index were confirmed.
+
+Independent JUnit: `/tmp/aware-canonical-selection-review.8SgZqNUB/selection.xml`.
+SHA-256: `8e7e781427b88a2a89566e81d2ae058ec2399ff3fa4e145c18ee403410354e2f`.
+This recorder rehashed and parsed the receipt: seven tests, zero failures,
+errors or skips. The reviewer changed no repository records and did not replay
+the domain matrix. No tests or installations were repeated while recording
+this acceptance.
+
+This accepts bounded local selection and permits its Issue closeout. Earlier
+pending-review wording records the preparation handoff; this acceptance is the
+subsequent decision, not a freeze of those draft instructions. Prepared inputs
+remain required; no unified aware or repository/profile initializer is admitted.
+Next: separately authorized public delivery with accurate status wording and
+revision-pinned acquisition proof. No new software selection, source/artifact,
+bootstrap, transfer or release change follows. Public delivery and push require
+separate authorization; no push is authorized or performed here.
