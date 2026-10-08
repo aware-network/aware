@@ -101,6 +101,37 @@ Documentation uses the repository's existing report format; the documentation
 skill kept this integration evidence separate from the unchanged draft consumer
 instructions. No source snapshot, legal text or customer AGENTS.md was rewritten.
 
+## Applied local publication and handoff
+
+Implementation: `5d3ca0893395caa92a126cc110be8294347052c4`.
+Applied receipt: `git:5d3ca0893395caa92a126cc110be8294347052c4`.
+The retained selected a6 command dry-ran, then applied the identical 867-path
+request against Issue source
+`sha256:fb6752149bee8b0d44e7b907cae7bbba5e6b1cafd823a8e97d3dc5d01849bc1a`.
+The existing `aware_workspace_operator.run_workspace_commit.v1` reported
+`isolated_index_atomic_ref_v1`, `reference_update=cas_applied`, shared index
+projection applied and `index_reconciliation_pending=false`. Checkout and index
+were clean after implementation publication. No raw Git lifecycle command ran.
+
+Nine accounting tests passed again after verification text and Issue update;
+the fresh-installer case was explicitly deselected from that repeat. These are
+the same ten distinct tests, not additional installed/domain proofs.
+
+The baseline-to-implementation full whitespace diagnostic exits 2 with **459
+findings in 21 exact accepted files**: preserved notice inputs and two original
+supplier contract READMEs in the neutral source snapshot. All flagged postimages
+match the accepted layout; they are not new authored formatting defects. The
+diagnostic SHA-256 is
+`73f4ca19037cac4cc10c02165f95917a9e7e4799d204bcd52e1ae1dac9bcaa61`.
+Authored documentation/test changes pass their scoped whitespace checks.
+No full-diff whitespace PASS is claimed and no legal/source byte is normalized.
+
+The Issue remains In Progress for independent integration review. Review the
+exact 867-path result, 853 original member mappings, all baseline Git modes,
+historical source/instruction distinction and actual fresh-install receipts.
+This handoff grants no selection, instruction freeze, external evaluation or
+remote publication. a6 and both selected SPEC entrances remain unchanged.
+
 ## Next boundary
 
 Independent resulting-tree and installation review precedes closeout. The

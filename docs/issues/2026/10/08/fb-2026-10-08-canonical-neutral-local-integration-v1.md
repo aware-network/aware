@@ -881,14 +881,17 @@
 
 
 
+
 ## Problem
 1. Accepted canonical layout remains a private proposal outside this local public checkout.
 
 
 
 
+
 ## Goal
 1. Integrate only the exact 863 reviewed paths plus four governance/review files; preserve selected a6 and SPEC previews.
+
 
 
 
@@ -900,6 +903,10 @@
 
 
 
+
+
+## Verified-by
+- protocols/collaboration/previews/canonical-fs-v1/LOCAL-INTEGRATION.md — Implementation git:5d3ca0893395caa92a126cc110be8294347052c4 applied through existing publication owner, CAS applied and no index debt. Ten tests passed with fresh hidden/offline installation; exact source/notice whitespace retained. Independent bounded integration review pending; no selection or push.
 
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
