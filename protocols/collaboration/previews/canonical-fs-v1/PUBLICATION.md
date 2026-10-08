@@ -121,3 +121,53 @@ This deterministic metadata matches prior installations; the environment here
 was genuinely fresh, not reused. These producer checks are not public acquisition
 or independent delivery acceptance. Actual push/readback and a separate public
 checkout installation remain next; no customer operation was replayed.
+
+## Observed public delivery
+
+The authorized non-force push advanced aware-network/aware/main from
+`095b9c5cad57e8d4183533f385c7cf568caeb277` to
+`8531324a08b3b6680e31a2177898133e9c063227`; remote readback confirmed that exact
+revision. Local implementation receipt: `git:8531324a08b3b6680e31a2177898133e9c063227`.
+The original repository owner reported `isolated_index_atomic_ref_v1`,
+`reference_update=cas_applied`, shared-index projection applied and
+`index_reconciliation_pending=false`. The push was a separately authorized
+remote effect, not inferred from that local publication receipt.
+
+A fresh anonymous GitHub clone, with inherited environment, system/global Git
+configuration, credential helpers and prompting disabled, matched the delivered
+revision exactly. The clone retained full main history for byte accounting.
+A separately downloaded [revision-pinned envelope](https://raw.githubusercontent.com/aware-network/aware/8531324a08b3b6680e31a2177898133e9c063227/protocols/collaboration/previews/canonical-fs-v1/distribution/canonical-neutral-source-notice-review-v1.tar.gz)
+matched SHA-256 `d135c339b7c1` and the cloned envelope byte-for-byte. The cloned
+payload matched `6225a71ca274`. Installation used that actual public checkout,
+not a reconstructed producer source mirror. Its checkout remained clean.
+
+From the public checkout, **eight checks passed, zero skipped**, including a
+separate fresh offline installation with all `/home` and unrelated `/tmp` hidden
+and inherited environment cleared. All 31 package versions match the accepted
+manifest, with clean dependencies and no editable/direct-URL metadata. The three
+supported family commands and their documented help entrances activate; there
+is no unified aware executable. Reuse refuses with exit 2, preserving the private
+parent's mode 0700. All 853 artifact mappings, the eight-path delivery scope,
+3,242 untouched baseline files, all 3,247 baseline Git executable modes, historic
+receipts and current local links pass. Accepted test/installer/payload/source and
+notice bytes remain exact. No customer mutation or domain-matrix replay occurred.
+
+Public checkout: `/tmp/aware-canonical-acquisition.Z9QjPpqZ/public`.
+Separate download: `/tmp/aware-canonical-acquisition.Z9QjPpqZ/public-envelope.tar.gz`.
+Public-acquisition JUnit: `/tmp/aware-canonical-public-replay.BbuFiIzr/publication.xml`.
+SHA-256: `d2ea7ddd9a8b17417c21112f7e998fd2a96ee7d68e5f271b1d82b118463ea5fc`.
+Installed receipt: `/tmp/aware-canonical-public-replay.BbuFiIzr/installed-receipt.json`.
+SHA-256: `eacef082475d47fd56db533e9f5d15656a596ed6d946e827acc78994656f730b`.
+Identical installation metadata records deterministic selection; preflight and
+public replay used different newly created environments. The same eight
+obligations passed before and after acquisition, not sixteen distinct proofs.
+Logs, environments and downloads are producer evidence, not consumer dependencies.
+
+This is observed public-delivery evidence, not independent publication review,
+external U/V/R, self-service/bootstrap acceptance, registry release, reproducible
+builds, exact binary linkage or exhaustive disclosure clearance. Receipt and
+Issue-closeout commits change governance evidence only, not software/source,
+notices, installer, bootstrap or supported capability bytes. Prepared inputs
+remain required; draft instructions and contract 1.3.0 stay unfrozen/unallocated.
+Next: separately scoped external prepared-input evaluation, or owner-backed
+repository/profile preparation qualification before a self-service claim.
