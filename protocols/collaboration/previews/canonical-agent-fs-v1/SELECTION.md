@@ -1,7 +1,7 @@
 # Unified filesystem collaboration local selection
 
 Status: **Selected locally; not publicly delivered**.
-Independent selection review pending. Instructions remain draft; the optional
+Independent bounded selection review accepted. Instructions remain draft; the optional
 agent template is not a frozen contract or automatic bootstrap.
 Issue: [canonical-agent-local-selection-v0](../../../../docs/issues/2026/10/09/fb-2026-10-09-canonical-agent-local-selection-v0.md).
 
@@ -104,9 +104,9 @@ replay hides checkouts and unrelated temporary files, disables networking and
 clears inherited environment. Missing namespace/interpreter prerequisites fail
 rather than skip. No Evaluation tooling enters the consumer installation.
 
-Next: independent bounded local selection review. Instruction freeze, customer
-evaluation, bootstrap adoption and revision-pinned public delivery remain separate
-decisions. This cut does not replay the 1,462-case domain matrix or customer U/V/R.
+Independent bounded selection review is accepted below. Instruction freeze,
+customer evaluation, bootstrap adoption and revision-pinned public delivery remain
+separate decisions. This cut does not replay the 1,462-case domain matrix or customer U/V/R.
 No push is authorized or performed.
 
 ### Recorded local proof
@@ -146,7 +146,31 @@ local repository publication, not Workspace source CAS or a remote release.
 Six accounting checks passed again after implementation with the existing fresh
 installer case explicitly deselected. Seven distinct checks passed overall;
 repeated accounting is neither a second installation nor a domain replay.
-The Issue remains In Progress for independent selection review. Review the exact
+At implementation handoff the Issue remained In Progress for review of the exact
 seven-file delta and replay with a new private scratch directory; retain original
 payloads, legal text and historical receipts. No acceptance is self-issued and
 no instruction freeze, bootstrap change, transfer or push follows.
+
+### Independent bounded selection acceptance
+
+Luis forwarded PASS with no blocker for implementation `b568b9c094b4`, handoff
+`89d841626942`. The reviewer independently reproduced seven checks, zero skipped,
+including fresh offline, checkout-hidden installation of 32 packages with clean
+dependencies, no editables/direct URLs and parity for 11 owner commands. The exact
+seven-file delta, 4,129 untouched baseline files and all 4,133 Git modes matched.
+Payload, source, notices, installer, historical receipts, predecessor selections
+and bootstrap remained unchanged. Fresh checkout cleanliness and preservation
+of the original dirty checkout were verified; lint/format and authored whitespace
+passed.
+
+Independent JUnit: `/tmp/aware-agent-selection-review.ZI4GIDH1/review.xml`, SHA-256
+`1a045dfa6a715d3acffb1681627b9edf61e3397de02e640620f2598bd5c939f5`.
+The implementing agent rehashed this receipt; the seven-case replay belongs to
+the independent reviewer and was not repeated while recording acceptance.
+Earlier pending-review entries describe preparation checkpoints, not the current
+decision. This acceptance permits bounded Issue closeout only.
+
+Next: separately authorized public delivery with exact target/ancestry checks
+and revision-pinned acquisition proof. Instructions remain draft; initialization
+and guard discovery are unfinished. No customer/domain replay, instruction freeze,
+transfer or push was performed by the reviewer or authorized by this verdict.
