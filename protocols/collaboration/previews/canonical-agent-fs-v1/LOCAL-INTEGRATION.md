@@ -1,6 +1,6 @@
 # Unified canonical Agent local integration
 
-Status: implementation checkpoint; independent integration review pending.
+Status: bounded local integration independently accepted.
 The proposal remains **unselected**, with draft instructions. No freeze or push.
 
 Execution: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`.
@@ -87,9 +87,10 @@ remain exact, including their whitespace; authored checks are scoped separately.
 
 ## Next boundary
 
-Record actual test and local publication receipts, then request independent
-integration review. The Issue remains In Progress. Selection, instruction freeze,
-customer evaluation and remotely verified publication require separate decisions.
+Independent acceptance is recorded below. Close the bounded integration Issue
+through its original owner, then open a separate local selection and instruction-
+alignment Issue. Instruction freeze, customer evaluation and remotely verified
+publication require separate decisions.
 Existing a6 and SPEC selections and root bootstrap remain unchanged.
 
 ## Applied publication and retained refusal
@@ -135,4 +136,19 @@ Raw stdout: 79,661 bytes, SHA-256
 `c6d59df9946e6456e1f96e7fcf47c32f0d59f39899e163a34fa4d3d4acff0ff0`;
 stderr empty. Capture bytes without newline conversion. Authored integration
 documentation/test changes pass their own checks; no full-diff whitespace PASS.
-Independent integration acceptance remains pending. No selection, freeze or push.
+No selection, freeze or push is admitted by integration acceptance.
+
+## Independent acceptance
+
+Luis relayed an independent PASS for implementation `0b5d8cfe57b8` and handoff
+`fc770a4e93fe`: nine checks passed, zero skipped, with fresh offline installation
+of 32 packages and parity for 11 owner commands. The reviewer matched all 881
+postimages, 885 scoped paths, source/notice mappings and baseline modes; confirmed
+unchanged selections/bootstrap and the retained original dirty-status hash; and
+distinguished the initial missing-author refusal from successful CAS/index
+publication. Lint and formatting passed.
+
+Receipt: `/tmp/aware-agent-integration-review.c4vbXbs5/review.xml`, SHA-256
+`e615f5612b2b1d68d2c45757bcc640dccbecec1ddb5a22e6168527def976088b`.
+This is the reviewer's replay, not another implementing-agent run. No domain
+matrix, customer workflow, selection, freeze or push occurred in that review.
