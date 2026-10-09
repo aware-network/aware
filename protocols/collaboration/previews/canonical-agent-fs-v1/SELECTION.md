@@ -1,6 +1,7 @@
 # Unified filesystem collaboration local selection
 
-Status: **Selected locally; not publicly delivered**.
+Historical checkpoint: selected locally; not publicly delivered at that checkpoint.
+Actual Git delivery and acquisition receipts are in [PUBLICATION.md](PUBLICATION.md).
 Independent bounded selection review accepted. Instructions remain draft; the optional
 agent template is not a frozen contract or automatic bootstrap.
 Issue: [canonical-agent-local-selection-v0](../../../../docs/issues/2026/10/09/fb-2026-10-09-canonical-agent-local-selection-v0.md).

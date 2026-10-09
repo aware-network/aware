@@ -155,16 +155,17 @@ Independent local selection review is accepted. This is not a
 unified aware command or a repository/profile initializer. a6, existing SPEC
 previews and the repository bootstrap stay unchanged; instructions remain draft.
 
-## Locally selected unified filesystem collaboration preview
+## Available now: unified filesystem collaboration preview
 
-The reviewed successor is **selected locally; not publicly delivered**. One
-fresh 32-package installation exposes `aware issue`, `aware protocol` and
+The selected Git preview offers one fresh 32-package installation and
+`aware issue`, `aware protocol` and
 `aware spec` through the existing SDK registrars and domain owners. See the
 [prepared-input entrance](protocols/collaboration/previews/canonical-agent-fs-v1/README.md)
-and [local selection record](protocols/collaboration/previews/canonical-agent-fs-v1/SELECTION.md).
+and [delivery record](protocols/collaboration/previews/canonical-agent-fs-v1/PUBLICATION.md).
 Initialization and automatic guard discovery remain unavailable; instructions
 remain draft. Existing published previews and the repository's a6 bootstrap
 are unchanged. Do not overlay installations or silently switch retained commands.
+This is a prepared-input preview, not a self-service repository/profile initializer.
 
 ## What comes next
 

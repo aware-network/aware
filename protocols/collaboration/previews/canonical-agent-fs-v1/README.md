@@ -1,16 +1,20 @@
 # Aware filesystem collaboration with one installed entrance
 
-Status: **Selected locally; not publicly delivered**. Instructions remain draft.
-Independent selection review pending; see [the selection record](SELECTION.md).
+Status: **Selected Git preview**. Instructions remain draft.
+Independent local selection is accepted; actual delivery/acquisition evidence is
+recorded in [PUBLICATION.md](PUBLICATION.md). Local authorization is not proof of push.
 This breaking successor offers one fresh installation and one `aware` command
 for the existing Issue/repository, Protocol setup and SPEC draft/read operations.
 It is not an in-place a6 upgrade. Existing selections and bootstrap stay unchanged.
 
 ## Install once
 
-Requires Linux x86-64, actual Python 3.12 and Git. From this local checkout root:
+Requires Linux x86-64, actual Python 3.12 and Git. Acquire the public source first;
+use the exact revision in the delivery record when reproducing a receipt:
 
 ```sh
+git clone https://github.com/aware-network/aware.git
+cd aware
 aware_parent="$(mktemp -d /tmp/aware-collaboration.XXXXXXXX)"
 aware_env="$aware_parent/env"
 /usr/bin/python3.12 protocols/collaboration/previews/canonical-agent-fs-v1/install.py \
@@ -98,8 +102,8 @@ Original indexes/checksums are relative to the unchanged extracted envelope;
 use `delivery.json` for remapped paths. Internal artifact directory names and
 historical source READMEs, seed/resident examples and producer nonclaims are
 provenance, not customer instructions. This README and WORKFLOW describe the
-locally selected prepared-input entrance. Earlier layout/delivery records retain
+selected prepared-input entrance. Earlier layout/delivery records retain
 their historical unselected status; this presentation does not retroactively
-change them. Local selection does not freeze instructions or authorize transfer
-or publication. Public delivery needs a separately authorized, revision-pinned
-acquisition proof.
+change them. Local selection does not freeze instructions. The separately
+authorized Git delivery record binds actual push and revision-pinned acquisition;
+no registry release, stable contract or bootstrap migration is implied.
