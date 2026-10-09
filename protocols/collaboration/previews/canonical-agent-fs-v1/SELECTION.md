@@ -130,3 +130,23 @@ SHA-256 `a9c8b803325289b0945f7972aae4fbb4b3919ae9c4abf565af2d9c885aba2823`.
 The deterministic metadata matches the integration receipt; this environment
 was newly installed, not reused. This is producer proof, not independent review
 or a customer prerequisite. No domain/customer transaction was replayed.
+
+### Applied local selection and review handoff
+
+Implementation: `b568b9c094b465cce0d3339e1187e1163bfaf9ac`.
+Actual receipt: `git:b568b9c094b465cce0d3339e1187e1163bfaf9ac`.
+The retained selected a6 command dry-ran then identically applied all seven paths
+against original Issue guard
+`sha256:db900c31f4ef3b07a55308008c8be09912823a93073804a39886aa3d8776b958`.
+The original publication owner reported `isolated_index_atomic_ref_v1`,
+`reference_update=cas_applied`, shared-index projection applied and no
+reconciliation debt. Checkout/index were clean after implementation. This is
+local repository publication, not Workspace source CAS or a remote release.
+
+Six accounting checks passed again after implementation with the existing fresh
+installer case explicitly deselected. Seven distinct checks passed overall;
+repeated accounting is neither a second installation nor a domain replay.
+The Issue remains In Progress for independent selection review. Review the exact
+seven-file delta and replay with a new private scratch directory; retain original
+payloads, legal text and historical receipts. No acceptance is self-issued and
+no instruction freeze, bootstrap change, transfer or push follows.
