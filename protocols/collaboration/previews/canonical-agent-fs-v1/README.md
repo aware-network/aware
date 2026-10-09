@@ -1,13 +1,14 @@
-# Aware filesystem collaboration — unified entrance proposal
+# Aware filesystem collaboration with one installed entrance
 
-Status: **unselected, review-only public layout**. Instructions remain draft.
+Status: **Selected locally; not publicly delivered**. Instructions remain draft.
+Independent selection review pending; see [the selection record](SELECTION.md).
 This breaking successor offers one fresh installation and one `aware` command
 for the existing Issue/repository, Protocol setup and SPEC draft/read operations.
 It is not an in-place a6 upgrade. Existing selections and bootstrap stay unchanged.
 
 ## Install once
 
-Requires Linux x86-64, actual Python 3.12 and Git. From the proposed checkout root:
+Requires Linux x86-64, actual Python 3.12 and Git. From this local checkout root:
 
 ```sh
 aware_parent="$(mktemp -d /tmp/aware-collaboration.XXXXXXXX)"
@@ -97,4 +98,8 @@ Original indexes/checksums are relative to the unchanged extracted envelope;
 use `delivery.json` for remapped paths. Internal artifact directory names and
 historical source READMEs, seed/resident examples and producer nonclaims are
 provenance, not customer instructions. This README and WORKFLOW describe the
-proposed entrance. Layout review does not select, freeze, transfer or publish.
+locally selected prepared-input entrance. Earlier layout/delivery records retain
+their historical unselected status; this presentation does not retroactively
+change them. Local selection does not freeze instructions or authorize transfer
+or publication. Public delivery needs a separately authorized, revision-pinned
+acquisition proof.

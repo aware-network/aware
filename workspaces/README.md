@@ -116,8 +116,12 @@ and [Git delivery record](../protocols/collaboration/previews/canonical-fs-v1/PU
 identify the accepted artifact, not another package inventory. Independent local
 selection review is accepted; a6 stays unchanged. Prepared inputs remain required.
 
-## Unselected unified neutral source snapshot
+## Locally selected unified neutral source snapshot
 
 The [profile-derived Agent snapshot](previews/canonical-agent-fs-v1/README.md)
 preserves accepted sources and notices without another package selector or
-replacement of existing source snapshots and operational selections.
+replacement of existing source snapshots and operational selections. Its
+[local selection record](../protocols/collaboration/previews/canonical-agent-fs-v1/SELECTION.md)
+selects the accepted artifact for prepared-input consumption, not public delivery
+or an editable install. The `portable_protocols` profile remains the sole software
+selector; repository bootstrap and published predecessor receipts stay unchanged.

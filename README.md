@@ -155,13 +155,16 @@ Independent local selection review is accepted. This is not a
 unified aware command or a repository/profile initializer. a6, existing SPEC
 previews and the repository bootstrap stay unchanged; instructions remain draft.
 
-## Prepared unified Aware successor
+## Locally selected unified filesystem collaboration preview
 
-An **unselected** successor proposes one installation and `aware issue`,
-`aware protocol` and `aware spec` over the existing owners. See the
-[review entrance](protocols/collaboration/previews/canonical-agent-fs-v1/README.md). Prepared inputs are still required;
-initialization and automatic guard discovery remain unavailable. Current
-published selections and bootstrap are unchanged. No public delivery is implied.
+The reviewed successor is **selected locally; not publicly delivered**. One
+fresh 32-package installation exposes `aware issue`, `aware protocol` and
+`aware spec` through the existing SDK registrars and domain owners. See the
+[prepared-input entrance](protocols/collaboration/previews/canonical-agent-fs-v1/README.md)
+and [local selection record](protocols/collaboration/previews/canonical-agent-fs-v1/SELECTION.md).
+Initialization and automatic guard discovery remain unavailable; instructions
+remain draft. Existing published previews and the repository's a6 bootstrap
+are unchanged. Do not overlay installations or silently switch retained commands.
 
 ## What comes next
 
