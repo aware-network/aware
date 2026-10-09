@@ -899,14 +899,17 @@
 
 
 
+
 ## Problem
 1. The accepted unified layout is not locally integrated; retained checkout deletions must remain untouched.
 
 
 
 
+
 ## Goal
 1. Integrate the exact reviewed layout and original sources/notices without selecting or publishing it.
+
 
 
 
@@ -919,7 +922,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Nine integration checks passed with fresh offline, checkout-hidden installation: 32 packages, 11 unified owner usage/options, 881 reviewed postimages and exact 885-path scope; source/notices, baseline bytes/modes and original selections preserved. Retained shared checkout untouched. Independent integration review pending; no domain matrix, customer workflow, selection, instruction freeze or push. (outcome: verified) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Implementation published locally at git:0b5d8cfe57b8242a7ea8f72417ccbf1fe0fe2c70 over exact 885 paths; CAS/index projection applied, no reconciliation debt. Nine full checks passed including fresh installation; eight accounting repeats passed with installer explicitly deselected. Initial no-author refusal retained; only existing local author metadata carried into isolated checkout. Original dirty checkout untouched. Independent review pending; no selection, instruction freeze or push. (outcome: verified) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

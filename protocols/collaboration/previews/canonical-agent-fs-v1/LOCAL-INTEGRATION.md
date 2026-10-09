@@ -91,3 +91,48 @@ Record actual test and local publication receipts, then request independent
 integration review. The Issue remains In Progress. Selection, instruction freeze,
 customer evaluation and remotely verified publication require separate decisions.
 Existing a6 and SPEC selections and root bootstrap remain unchanged.
+
+## Applied publication and retained refusal
+
+Implementation: `0b5d8cfe57b8242a7ea8f72417ccbf1fe0fe2c70`.
+Actual receipt: `git:0b5d8cfe57b8242a7ea8f72417ccbf1fe0fe2c70`.
+The original owner dry-ran then applied the identical 885-path request against
+Issue source
+`sha256:ce27b6854c98342fb06adf46ab1ef38f38746c59e662971eb29f2ec2ab9e7d0e`.
+It reported `isolated_index_atomic_ref_v1`, `reference_update=cas_applied`,
+shared-index projection applied and `index_reconciliation_pending=false`.
+The integration checkout and index were clean immediately after implementation.
+The original retained checkout was not changed.
+
+The first apply refused because a fresh clone does not inherit repository-local
+Git author configuration. That receipt has no commit/publication reference,
+`reference_update=not_run` and no reconciliation debt. HEAD remained the exact
+baseline. Only the source repository's existing configured name/email were
+carried into the fresh checkout, without invented identity or credentials; a
+new dry-run and identical apply then succeeded. This is Git authorship metadata,
+not authentication of the declared agent actor. The refusal remains retained.
+
+- Initial refusal: `/tmp/aware-agent-local-integration.KHRSyZsp/commit-apply.json`,
+  SHA-256 `3d0add4b7ff989eeeeffa6537183710480933338c3a51cc0ac1145208ff1acf3`.
+- Applied receipt: `/tmp/aware-agent-local-integration.KHRSyZsp/commit-configured-apply.json`,
+  SHA-256 `3176f7a28199d5ce347aa4ee51c087289e3a6aaf2e3a7b997532116352d64011`.
+
+Eight accounting checks passed again after commit; the existing installation
+case was explicitly deselected. These are the same nine distinct checks, not
+eight new installed proofs or another domain matrix.
+
+## Preserved whitespace diagnostic
+
+The exact baseline-to-implementation command below exits `2`, reporting 459
+findings in 21 accepted source/legal files. All flagged bytes match the reviewed
+layout. No original legal/source text is normalized or called an authored defect.
+
+```sh
+git -C /path/to/this/checkout diff --check 0e1af47a417df143681125e467930aedf4157cd2 0b5d8cfe57b8242a7ea8f72417ccbf1fe0fe2c70
+```
+
+Raw stdout: 79,661 bytes, SHA-256
+`c6d59df9946e6456e1f96e7fcf47c32f0d59f39899e163a34fa4d3d4acff0ff0`;
+stderr empty. Capture bytes without newline conversion. Authored integration
+documentation/test changes pass their own checks; no full-diff whitespace PASS.
+Independent integration acceptance remains pending. No selection, freeze or push.
