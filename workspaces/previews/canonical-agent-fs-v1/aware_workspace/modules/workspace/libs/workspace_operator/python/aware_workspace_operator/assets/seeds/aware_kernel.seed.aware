@@ -1,0 +1,430 @@
+// Canonical kernel genesis seed expressed as an Aware `program`.
+//
+// v0 contract:
+// - Deterministic: no IO, no randomness.
+// - Mutations happen only via commit-backed `call` invocations.
+// - Context is provided via actor contracts + port binds.
+//
+// Private keys are NOT stored here; the seed runner authenticates via node secrets
+// (`AWARE_KERNEL_SEED_KEYS_JSON` / `AWARE_KERNEL_SEED_KEYS_FILE`).
+
+program KernelSeed {
+    actor kernel_system system
+    actor kernel_provider organization
+    actor kernel_executor agent
+    actor kernel_executor_secondary agent
+
+    port identity_system_identity_id identity {
+        node main identity(identity=system_identity_id)
+    }
+    port identity_provider_identity_id identity {
+        node main identity(identity=provider_identity_id)
+    }
+    port identity_executor_identity_id identity {
+        node main identity(identity=executor_identity_id)
+    }
+    port agent_agent_id agent {
+        node main agent(agent=agent_id)
+    }
+    port agent_process_agent_process_id agent {
+        node main agent_process(agent_process=agent_process_id)
+    }
+    port agent_process_thread_secondary_thread_id agent {
+        node main agent_process_thread(agent_process_thread=secondary_thread_id)
+    }
+
+    let seed_id = seed.seed_id
+    let seed_version = seed.seed_version
+
+    // ---------------------------------------------------------------------
+    // Identity lanes
+    // ---------------------------------------------------------------------
+
+    let system_public_key = seed.system_public_key
+    let system_identity_id = identity.stable_identity_id(
+        public_key=system_public_key,
+        identity_type_value=system
+    )
+    let system_actor_id = identity.stable_actor_id(identity_id=system_identity_id)
+    bind identity_system_identity_id identity.main
+    kernel_system call program.port.identity_system_identity_id.projection_node plan.apply_program_ref(
+        program_ref="identity:EnsureIdentitySignup_v0",
+        symbols=kernel.symbols(
+            "plan.identity_public_key",
+            system_public_key,
+            "plan.identity_type_value",
+            "system"
+        )
+    )
+
+    let provider_public_key = seed.provider_public_key
+    let provider_identity_id = identity.stable_identity_id(
+        public_key=provider_public_key,
+        identity_type_value=organization
+    )
+    let provider_actor_id = identity.stable_actor_id(identity_id=provider_identity_id)
+    bind identity_provider_identity_id identity.main
+    kernel_provider call program.port.identity_provider_identity_id.projection_node plan.apply_program_ref(
+        program_ref="identity:EnsureIdentitySignup_v0",
+        symbols=kernel.symbols(
+            "plan.identity_public_key",
+            provider_public_key,
+            "plan.identity_type_value",
+            "organization"
+        )
+    )
+
+    // Executor agent identities (one per entry; no loops in v0).
+    let executor_public_key = seed.executor_public_key
+    let executor_label = seed.executor_label
+    input executor_identity_id from executor_identity_id default identity.stable_identity_id(
+        public_key=executor_public_key,
+        identity_type_value=agent
+    )
+    let executor_actor_id = identity.stable_actor_id(identity_id=executor_identity_id)
+    let secondary_actor_key = seed.secondary_actor_key
+    let executor_secondary_actor_id = identity.stable_actor_id(
+        identity_id=executor_identity_id,
+        key=secondary_actor_key
+    )
+    bind identity_executor_identity_id identity.main
+    kernel_executor call program.port.identity_executor_identity_id.projection_node plan.apply_program_ref(
+        program_ref="identity:EnsureAgentIdentitySignupViaProfile_v0",
+        symbols=kernel.symbols(
+            "plan.identity_public_key",
+            executor_public_key,
+            "plan.agent_label",
+            executor_label,
+            "plan.seed_id",
+            seed_id,
+            "plan.seed_version",
+            seed_version
+        )
+    )
+
+    // Agent-only multi-actor canonicalization:
+    // ensure deterministic secondary actor for the executor identity.
+    bind identity_executor_identity_id identity.main
+    kernel_executor call program.port.identity_executor_identity_id.projection_node identity.identity.Identity.ensure_actor(key=secondary_actor_key)
+
+    // ---------------------------------------------------------------------
+    // Agent lane (bootstrap: Agent + Process + Thread)
+    // ---------------------------------------------------------------------
+
+    // Boot environment id is resolved at runtime (BOOT environment).
+    let boot_environment_id = boot.environment_id
+
+    bind identity_executor_identity_id identity.main
+    kernel_executor call program.port.identity_executor_identity_id.projection_node plan.apply_program_ref(
+        program_ref="agent:EnsureBootAgentGraph_v0",
+        symbols=kernel.symbols(
+            "plan.agent_identity_id",
+            executor_identity_id,
+            "plan.environment_id",
+            boot_environment_id
+        )
+    )
+
+    // ---------------------------------------------------------------------
+    // Organization lane (provider org + members)
+    // ---------------------------------------------------------------------
+
+    bind identity_provider_identity_id identity.main
+    kernel_provider call program.port.identity_provider_identity_id.projection_node plan.apply_program_ref(
+        program_ref="identity:EnsureProviderOrganization_v0",
+        symbols=kernel.symbols(
+            "plan.provider_identity_id",
+            provider_identity_id,
+            "plan.provider_actor_id",
+            provider_actor_id,
+            "plan.member_identity_id",
+            executor_identity_id
+        )
+    )
+
+    // ---------------------------------------------------------------------
+    // Economy lanes (provider-owned catalog + deterministic wallet)
+    // ---------------------------------------------------------------------
+
+    bind identity_provider_identity_id identity.main
+    kernel_provider call program.port.identity_provider_identity_id.projection_node plan.apply_program_ref(
+        program_ref="economy:EnsureProviderEconomyCatalog_v0",
+        symbols=kernel.symbols(
+            "plan.provider_identity_id",
+            provider_identity_id,
+            "plan.provider_actor_id",
+            provider_actor_id,
+            "plan.smart_contract_config_name",
+            seed.smart_contract_config_name,
+            "plan.smart_contract_type",
+            seed.smart_contract_type,
+            "plan.smart_contract_address",
+            seed.smart_contract_address
+        )
+    )
+
+    // ---------------------------------------------------------------------
+    // Reactivity policy rails (conversation domain facts -> agent turn action)
+    // ---------------------------------------------------------------------
+
+    bind identity_executor_identity_id identity.main
+    kernel_executor call program.port.identity_executor_identity_id.projection_node plan.apply_program_ref(
+        program_ref="conversation_default:ConversationReactivityPolicies_v1"
+    )
+
+    // ---------------------------------------------------------------------
+    // ActorRole policy rails (role-config tool policy install, binding deferred)
+    // ---------------------------------------------------------------------
+
+    let conversation_role_config_name = seed.conversation_role_config_name
+    let conversation_role_config_description = seed.conversation_role_config_description
+    let conversation_role_config_class_name = seed.conversation_role_config_class_name
+    let conversation_role_config_function_name = seed.conversation_role_config_function_name
+    let economy_role_config_name = seed.economy_role_config_name
+    let economy_role_config_description = seed.economy_role_config_description
+
+    // Use system actor for policy bootstrap to keep seed deterministic under ACL-enforced nodes.
+    bind identity_system_identity_id identity.main
+    kernel_system call program.port.identity_system_identity_id.projection_node plan.apply_program_ref(
+        program_ref="identity:RoleConfigToolPolicies_v1",
+        symbols=kernel.symbols(
+            "plan.role_config_name",
+            conversation_role_config_name,
+            "plan.role_config_description",
+            conversation_role_config_description,
+            "plan.class_name",
+            conversation_role_config_class_name,
+            "plan.function_name",
+            conversation_role_config_function_name
+        )
+    )
+    kernel_system call program.port.identity_system_identity_id.projection_node plan.apply_program_ref(
+        program_ref="economy:EconomySettlementRoleConfigPolicies_v1",
+        symbols=kernel.symbols(
+            "plan.role_config_name",
+            economy_role_config_name,
+            "plan.role_config_description",
+            economy_role_config_description
+        )
+    )
+
+    // ---------------------------------------------------------------------
+    // Economy smart-contract lane ActorRole binding (system actor)
+    // ---------------------------------------------------------------------
+
+    let economy_smart_contract_config_id = economy.stable_smart_contract_config_id(
+        name=seed.smart_contract_config_name,
+        type=seed.smart_contract_type
+    )
+    let economy_smart_contract_id = economy.stable_smart_contract_id(
+        smart_contract_config_id=economy_smart_contract_config_id,
+        blockchain_address=seed.smart_contract_address
+    )
+
+    bind identity_system_identity_id identity.main
+    kernel_system call program.port.identity_system_identity_id.projection_node plan.apply_program_ref(
+        program_ref="economy:EnsureEconomyActorRoleBindingFromBranch_v1",
+        symbols=kernel.symbols(
+            "plan.actor_id",
+            system_actor_id,
+            "plan.actor_identity_branch_id",
+            system_identity_id,
+            "plan.role_config_name",
+            economy_role_config_name,
+            "plan.economy_domain_branch_id",
+            economy_smart_contract_id
+        )
+    )
+
+    // ---------------------------------------------------------------------
+    // Conversation default lane ACT-REACT binding (executor actor)
+    // ---------------------------------------------------------------------
+
+    let conversation_branch_id = seed.conversation_branch_id
+    let conversation_title = seed.conversation_title
+    let conversation_description = seed.conversation_description
+    let conversation_subscription_name = seed.conversation_subscription_name
+    let conversation_event_config_name = seed.conversation_event_config_name
+    let conversation_condition_config_name = seed.conversation_condition_config_name
+
+    bind identity_executor_identity_id identity.main
+    kernel_executor call program.port.identity_executor_identity_id.projection_node plan.apply_program_ref(
+        program_ref="conversation_default:EnsureConversationActorActReactBinding_v1",
+        symbols=kernel.symbols(
+            "plan.conversation_branch_id",
+            conversation_branch_id,
+            "plan.conversation_title",
+            conversation_title,
+            "plan.conversation_description",
+            conversation_description,
+            "plan.actor_id",
+            executor_actor_id,
+            "plan.actor_identity_branch_id",
+            executor_identity_id,
+            "plan.role_config_name",
+            conversation_role_config_name,
+            "plan.subscription_name",
+            conversation_subscription_name,
+            "plan.event_config_name",
+            conversation_event_config_name,
+            "plan.condition_config_name",
+            conversation_condition_config_name
+        )
+    )
+
+    // ---------------------------------------------------------------------
+    // Native inference linkage (catalog + service binding + APT selection)
+    // ---------------------------------------------------------------------
+
+    let service_config_id = service.stable_service_config_id(
+        name=seed.service_config_name
+    )
+    let inference_service_id = service.stable_service_id(
+        service_config_id=service_config_id,
+        name=seed.inference_service_name
+    )
+
+    let primary_inference_model_id = agent.stable_inference_model_id(
+        provider=seed.inference_provider,
+        name=seed.inference_model_name
+    )
+    let secondary_inference_model_id = agent.stable_inference_model_id(
+        provider=seed.inference_secondary_provider,
+        name=seed.inference_secondary_model_name
+    )
+    let inference_region_id = agent.stable_inference_region_id(code=seed.inference_region_code)
+    let primary_inference_deployment_id = agent.stable_inference_deployment_id(
+        inference_model_id=primary_inference_model_id,
+        model_id_on_provider=seed.inference_model_id_on_provider
+    )
+    let secondary_inference_deployment_id = agent.stable_inference_deployment_id(
+        inference_model_id=secondary_inference_model_id,
+        model_id_on_provider=seed.inference_secondary_model_id_on_provider
+    )
+    let inference_deployment_ids = kernel.list(
+        primary_inference_deployment_id,
+        secondary_inference_deployment_id
+    )
+    let inference_model_ids = kernel.list(
+        primary_inference_model_id,
+        secondary_inference_model_id
+    )
+
+    bind identity_executor_identity_id identity.main
+    kernel_executor call program.port.identity_executor_identity_id.projection_node plan.apply_program_ref(
+        program_ref="agent:EnsureInferenceCatalog_v0",
+        symbols=kernel.symbols(
+            "plan.inference_provider",
+            seed.inference_provider,
+            "plan.inference_model_name",
+            seed.inference_model_name,
+            "plan.inference_model_id_on_provider",
+            seed.inference_model_id_on_provider,
+            "plan.inference_context_window",
+            seed.inference_context_window,
+            "plan.inference_max_output_tokens",
+            seed.inference_max_output_tokens,
+            "plan.inference_region_code",
+            seed.inference_region_code
+        )
+    )
+
+    kernel_executor call program.port.identity_executor_identity_id.projection_node plan.apply_program_ref(
+        program_ref="agent:EnsureInferenceCatalog_v0",
+        symbols=kernel.symbols(
+            "plan.inference_provider",
+            seed.inference_secondary_provider,
+            "plan.inference_model_name",
+            seed.inference_secondary_model_name,
+            "plan.inference_model_id_on_provider",
+            seed.inference_secondary_model_id_on_provider,
+            "plan.inference_context_window",
+            seed.inference_context_window,
+            "plan.inference_max_output_tokens",
+            seed.inference_max_output_tokens,
+            "plan.inference_region_code",
+            seed.inference_region_code
+        )
+    )
+
+    kernel_executor call program.port.identity_executor_identity_id.projection_node plan.apply_program_ref(
+        program_ref="agent:EnsureAgentThreadInferenceReady_v0",
+        symbols=kernel.symbols(
+            "plan.agent_identity_id",
+            executor_identity_id,
+            "plan.service_config_id",
+            service_config_id,
+            "plan.service_id",
+            inference_service_id,
+            "plan.inference_provider",
+            seed.inference_provider,
+            "plan.inference_model_name",
+            seed.inference_model_name,
+            "plan.inference_model_id_on_provider",
+            seed.inference_model_id_on_provider,
+            "plan.inference_context_window",
+            seed.inference_context_window,
+            "plan.inference_max_output_tokens",
+            seed.inference_max_output_tokens,
+            "plan.inference_region_code",
+            seed.inference_region_code,
+            "plan.inference_deployment_ids",
+            inference_deployment_ids,
+            "plan.inference_model_ids",
+            inference_model_ids
+        )
+    )
+
+    // ---------------------------------------------------------------------
+    // Secondary native APT lane (codex-main): same service, codex-first model priority
+    // ---------------------------------------------------------------------
+
+    let secondary_thread_key = seed.secondary_thread_key
+    let secondary_thread_name = seed.secondary_thread_name
+    let secondary_thread_system_instruction_text = seed.secondary_thread_system_instruction_text
+    let secondary_thread_inference_group_key = seed.secondary_thread_inference_group_key
+
+    let agent_config_id = agent.stable_agent_config_id(
+        key="default"
+    )
+    input agent_id from agent_id default agent.stable_agent_id(
+        agent_config_id=agent_config_id,
+        identity_id=executor_identity_id,
+        key="default"
+    )
+    let agent_process_id = agent.stable_agent_process_id(
+        agent_id=agent_id,
+        key="default"
+    )
+    let secondary_thread_id = agent.stable_agent_process_thread_id(
+        agent_process_id=agent_process_id,
+        key=secondary_thread_key
+    )
+    let secondary_thread_inference_group_id = agent.stable_agent_process_inference_model_id(
+        agent_process_id=agent_process_id,
+        key=secondary_thread_inference_group_key
+    )
+    let secondary_thread_inference_model_ids = kernel.list(
+        secondary_inference_model_id,
+        primary_inference_model_id
+    )
+
+    bind agent_agent_id agent.main
+    bind agent_process_agent_process_id agent.main
+    kernel_executor_secondary call program.port.agent_process_agent_process_id.projection_node agent.process.AgentProcess.create_thread(
+        key=secondary_thread_key,
+        name=secondary_thread_name,
+        is_main=false,
+        system_instruction_text=secondary_thread_system_instruction_text
+    )
+    kernel_executor_secondary call program.port.agent_process_agent_process_id.projection_node agent.process.AgentProcess.create_inference_model(
+        inference_model_ids=secondary_thread_inference_model_ids,
+        key=secondary_thread_inference_group_key,
+        position=1,
+        inference_service_id=inference_service_id
+    )
+    bind agent_process_thread_secondary_thread_id agent.main
+    kernel_executor_secondary call program.port.agent_process_thread_secondary_thread_id.projection_node agent.process.AgentProcessThread.set_active_inference_model(
+        active_inference_model_id=secondary_thread_inference_group_id
+    )
+}

@@ -1,0 +1,268 @@
+{
+  "schema_ref": "aware.coordination.issue-development-read-projection.v2.fixtures",
+  "fixture_version": 1,
+  "cases": [
+    {
+      "name": "structured_alias_and_occurrence",
+      "input": {
+        "content_text": "# Issue: Time-aware sample\n\n- Slug: `time-aware-sample-v0`\n- Tag: `fb/2026-08-20/time-aware-sample-v0`\n- Status: Inprogress\n- Owner: `codex-fixture`\n- Priority: P0\n- Goal: `goal/sample`\n- Source: `Fixture authority`\n\n## Ownership Scope\n- `docs/issues/sample.md`\n\n## Problem\n1. Readers cannot see movement.\n\n## Goal\n1. Project exact Issue meaning.\n\n## Acceptance Checklist\n- [x] Preserve source.\n- [ ] Render later.\n\n## Verified-by\n- `proofs/sample-receipt.json`\n\n## Migration Notes\nKeep this unknown section exactly.\n\n## Resolution\nNot yet resolved.\n\n## Updates (append-only)\n- 2026-08-20T01:00:00Z — Opened the issue. (recorder: `codex-fixture`)\n- 2026-08-20T01:05:00Z — Luis approved the boundary. The proof is `proofs/sample-receipt.json` at 0123456789abcdef0123456789abcdef01234567. (activity_kind: `human_direction`) (recorder: `codex-fixture`)\n- 2026-08-20T01:06:00Z — Opaque legacy movement. (recorder: `codex-fixture`)\n",
+        "source_path": "docs/issues/2026/08/20/fb-2026-08-20-time-aware-sample-v0.md",
+        "source_observed_at": "2026-08-20T01:10:00Z"
+      },
+      "expected_projection": {
+        "schema_ref": "aware.coordination.issue-development-read-projection.v2",
+        "projection_revision": "sha256:2b0f7fa525381b15b0a061e3816b757a9a22d8130a380653edf5dccfc7adeb5c",
+        "identity": {
+          "issue_ref": "fb/2026-08-20/time-aware-sample-v0",
+          "title": "Time-aware sample",
+          "slug": "time-aware-sample-v0",
+          "tag": "fb/2026-08-20/time-aware-sample-v0",
+          "lifecycle": {
+            "value": "in_progress",
+            "raw_value": "Inprogress",
+            "classification": "normalized_alias"
+          },
+          "priority": "P0",
+          "owner_execution_id": "codex-fixture",
+          "goal_ref": "goal/sample",
+          "source_description": "Fixture authority",
+          "ownership_scope": [
+            "docs/issues/sample.md"
+          ]
+        },
+        "problem_items": [
+          {
+            "sequence": 1,
+            "text": "Readers cannot see movement.",
+            "checked": null,
+            "raw_markdown": null
+          }
+        ],
+        "goal_items": [
+          {
+            "sequence": 1,
+            "text": "Project exact Issue meaning.",
+            "checked": null,
+            "raw_markdown": null
+          }
+        ],
+        "acceptance_items": [
+          {
+            "sequence": 1,
+            "text": "Preserve source.",
+            "checked": true,
+            "raw_markdown": "- [x] Preserve source."
+          },
+          {
+            "sequence": 2,
+            "text": "Render later.",
+            "checked": false,
+            "raw_markdown": "- [ ] Render later."
+          }
+        ],
+        "activities": [
+          {
+            "activity_ref": "fb/2026-08-20/time-aware-sample-v0#update-1",
+            "sequence": 1,
+            "message": "2026-08-20T01:00:00Z — Opened the issue. (recorder: `codex-fixture`)",
+            "raw_markdown": "- 2026-08-20T01:00:00Z — Opened the issue. (recorder: `codex-fixture`)",
+            "headline": "Opened the issue.",
+            "detail": null,
+            "actor_execution_id": "codex-fixture",
+            "outcome": null,
+            "command": null,
+            "exit_code": null,
+            "structural_change_kind": "update_appended",
+            "semantic_kind": {
+              "value": "opened",
+              "raw_value": null,
+              "classification": "inferred"
+            },
+            "activity_at": "2026-08-20T01:00:00Z",
+            "time_authority": "source_declared",
+            "references": []
+          },
+          {
+            "activity_ref": "fb/2026-08-20/time-aware-sample-v0#update-2",
+            "sequence": 2,
+            "message": "2026-08-20T01:05:00Z — Luis approved the boundary. The proof is `proofs/sample-receipt.json` at 0123456789abcdef0123456789abcdef01234567. (activity_kind: `human_direction`) (recorder: `codex-fixture`)",
+            "raw_markdown": "- 2026-08-20T01:05:00Z — Luis approved the boundary. The proof is `proofs/sample-receipt.json` at 0123456789abcdef0123456789abcdef01234567. (activity_kind: `human_direction`) (recorder: `codex-fixture`)",
+            "headline": "Luis approved the boundary.",
+            "detail": "The proof is `proofs/sample-receipt.json` at 0123456789abcdef0123456789abcdef01234567.",
+            "actor_execution_id": "codex-fixture",
+            "outcome": null,
+            "command": null,
+            "exit_code": null,
+            "structural_change_kind": "update_appended",
+            "semantic_kind": {
+              "value": "human_direction",
+              "raw_value": "human_direction",
+              "classification": "declared"
+            },
+            "activity_at": "2026-08-20T01:05:00Z",
+            "time_authority": "source_declared",
+            "references": [
+              {
+                "kind": "commit_sha",
+                "value": "0123456789abcdef0123456789abcdef01234567"
+              },
+              {
+                "kind": "repository_path",
+                "value": "proofs/sample-receipt.json"
+              }
+            ]
+          },
+          {
+            "activity_ref": "fb/2026-08-20/time-aware-sample-v0#update-3",
+            "sequence": 3,
+            "message": "2026-08-20T01:06:00Z — Opaque legacy movement. (recorder: `codex-fixture`)",
+            "raw_markdown": "- 2026-08-20T01:06:00Z — Opaque legacy movement. (recorder: `codex-fixture`)",
+            "headline": "Opaque legacy movement.",
+            "detail": null,
+            "actor_execution_id": "codex-fixture",
+            "outcome": null,
+            "command": null,
+            "exit_code": null,
+            "structural_change_kind": "update_appended",
+            "semantic_kind": {
+              "value": "unknown",
+              "raw_value": null,
+              "classification": "unknown"
+            },
+            "activity_at": "2026-08-20T01:06:00Z",
+            "time_authority": "source_declared",
+            "references": []
+          }
+        ],
+        "attention_candidates": [
+          {
+            "candidate_ref": "attention:sha256:d06deb5d9378b7577435e2597f1e8c111ce3f5e7905c53be88e0ab10a5c17474",
+            "kind": "human_direction",
+            "source_activity_ref": "fb/2026-08-20/time-aware-sample-v0#update-2",
+            "raised_at": "2026-08-20T01:05:00Z",
+            "time_authority": "source_declared",
+            "classification": "declared",
+            "resolved_at": null,
+            "resolved_by_activity_ref": null
+          }
+        ],
+        "evidence_refs": [
+          {
+            "sequence": 1,
+            "text": "proofs/sample-receipt.json",
+            "checked": null,
+            "raw_markdown": "- `proofs/sample-receipt.json`"
+          }
+        ],
+        "resolution": "Not yet resolved.",
+        "additional_sections": [
+          {
+            "sequence": 1,
+            "heading": "Migration Notes",
+            "raw_lines": [
+              "Keep this unknown section exactly.",
+              ""
+            ]
+          }
+        ],
+        "source": {
+          "path": "docs/issues/2026/08/20/fb-2026-08-20-time-aware-sample-v0.md",
+          "digest": "sha256:2b0f7fa525381b15b0a061e3816b757a9a22d8130a380653edf5dccfc7adeb5c",
+          "raw_markdown": "# Issue: Time-aware sample\n\n- Slug: `time-aware-sample-v0`\n- Tag: `fb/2026-08-20/time-aware-sample-v0`\n- Status: Inprogress\n- Owner: `codex-fixture`\n- Priority: P0\n- Goal: `goal/sample`\n- Source: `Fixture authority`\n\n## Ownership Scope\n- `docs/issues/sample.md`\n\n## Problem\n1. Readers cannot see movement.\n\n## Goal\n1. Project exact Issue meaning.\n\n## Acceptance Checklist\n- [x] Preserve source.\n- [ ] Render later.\n\n## Verified-by\n- `proofs/sample-receipt.json`\n\n## Migration Notes\nKeep this unknown section exactly.\n\n## Resolution\nNot yet resolved.\n\n## Updates (append-only)\n- 2026-08-20T01:00:00Z — Opened the issue. (recorder: `codex-fixture`)\n- 2026-08-20T01:05:00Z — Luis approved the boundary. The proof is `proofs/sample-receipt.json` at 0123456789abcdef0123456789abcdef01234567. (activity_kind: `human_direction`) (recorder: `codex-fixture`)\n- 2026-08-20T01:06:00Z — Opaque legacy movement. (recorder: `codex-fixture`)\n",
+          "observed_at": "2026-08-20T01:10:00Z",
+          "observation_time_authority": "source_observed"
+        },
+        "latest_activity": {
+          "sequence": 3,
+          "activity_ref": "fb/2026-08-20/time-aware-sample-v0#update-3",
+          "activity_at": "2026-08-20T01:06:00Z",
+          "time_authority": "source_declared"
+        },
+        "canonical_receipt_coordinates": []
+      }
+    },
+    {
+      "name": "active_with_unavailable_activity_time",
+      "input": {
+        "content_text": "# Issue: Missing activity clock\n\n- Slug: `missing-activity-clock-v0`\n- Tag: `fb/2026-08-20/missing-activity-clock-v0`\n- Status: In Progress\n- Owner: `Unassigned`\n- Priority: P1\n\n## Updates (append-only)\n- Blocked by unavailable materialization receipts. (activity_kind: `blocker`)\n",
+        "source_path": "docs/issues/2026/08/20/fb-2026-08-20-missing-activity-clock-v0.md",
+        "source_observed_at": "2026-08-20T02:00:00+00:00"
+      },
+      "expected_projection": {
+        "schema_ref": "aware.coordination.issue-development-read-projection.v2",
+        "projection_revision": "sha256:e17ac442f780e55580d7d1ea43fdf6dfd2ed7f0de0c813a1aba9f85ad9930444",
+        "identity": {
+          "issue_ref": "fb/2026-08-20/missing-activity-clock-v0",
+          "title": "Missing activity clock",
+          "slug": "missing-activity-clock-v0",
+          "tag": "fb/2026-08-20/missing-activity-clock-v0",
+          "lifecycle": {
+            "value": "in_progress",
+            "raw_value": "In Progress",
+            "classification": "declared"
+          },
+          "priority": "P1",
+          "owner_execution_id": null,
+          "goal_ref": null,
+          "source_description": null,
+          "ownership_scope": []
+        },
+        "problem_items": [],
+        "goal_items": [],
+        "acceptance_items": [],
+        "activities": [
+          {
+            "activity_ref": "fb/2026-08-20/missing-activity-clock-v0#update-1",
+            "sequence": 1,
+            "message": "Blocked by unavailable materialization receipts. (activity_kind: `blocker`)",
+            "raw_markdown": "- Blocked by unavailable materialization receipts. (activity_kind: `blocker`)",
+            "headline": "Blocked by unavailable materialization receipts.",
+            "detail": null,
+            "actor_execution_id": null,
+            "outcome": null,
+            "command": null,
+            "exit_code": null,
+            "structural_change_kind": "update_appended",
+            "semantic_kind": {
+              "value": "blocked",
+              "raw_value": "blocker",
+              "classification": "normalized_alias"
+            },
+            "activity_at": null,
+            "time_authority": "unavailable",
+            "references": []
+          }
+        ],
+        "attention_candidates": [
+          {
+            "candidate_ref": "attention:sha256:71af5ec9387212af666964d2c5b2f4e44db62b37fa80f978cdc87898658ce6c0",
+            "kind": "blocked",
+            "source_activity_ref": "fb/2026-08-20/missing-activity-clock-v0#update-1",
+            "raised_at": null,
+            "time_authority": "unavailable",
+            "classification": "normalized_alias",
+            "resolved_at": null,
+            "resolved_by_activity_ref": null
+          }
+        ],
+        "evidence_refs": [],
+        "resolution": null,
+        "additional_sections": [],
+        "source": {
+          "path": "docs/issues/2026/08/20/fb-2026-08-20-missing-activity-clock-v0.md",
+          "digest": "sha256:e17ac442f780e55580d7d1ea43fdf6dfd2ed7f0de0c813a1aba9f85ad9930444",
+          "raw_markdown": "# Issue: Missing activity clock\n\n- Slug: `missing-activity-clock-v0`\n- Tag: `fb/2026-08-20/missing-activity-clock-v0`\n- Status: In Progress\n- Owner: `Unassigned`\n- Priority: P1\n\n## Updates (append-only)\n- Blocked by unavailable materialization receipts. (activity_kind: `blocker`)\n",
+          "observed_at": "2026-08-20T02:00:00Z",
+          "observation_time_authority": "source_observed"
+        },
+        "latest_activity": {
+          "sequence": 1,
+          "activity_ref": "fb/2026-08-20/missing-activity-clock-v0#update-1",
+          "activity_at": null,
+          "time_authority": "unavailable"
+        },
+        "canonical_receipt_coordinates": []
+      }
+    }
+  ]
+}

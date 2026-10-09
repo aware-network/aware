@@ -155,6 +155,14 @@ Independent local selection review is accepted. This is not a
 unified aware command or a repository/profile initializer. a6, existing SPEC
 previews and the repository bootstrap stay unchanged; instructions remain draft.
 
+## Prepared unified Aware successor
+
+An **unselected** successor proposes one installation and `aware issue`,
+`aware protocol` and `aware spec` over the existing owners. See the
+[review entrance](protocols/collaboration/previews/canonical-agent-fs-v1/README.md). Prepared inputs are still required;
+initialization and automatic guard discovery remain unavailable. Current
+published selections and bootstrap are unchanged. No public delivery is implied.
+
 ## What comes next
 
 Our delivery direction is **Issues → Specifications → Goals → shared map**.

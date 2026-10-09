@@ -1,0 +1,34 @@
+[project]
+name = "aware-workspace-operator"
+version = "0.4.0"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+description = "Opinionated workspace bootstrap and delivery-contract rails for Aware"
+authors = [
+  { name = "AWARE Team" }
+]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-issue-operational-runtime>=0.3.0,<0.4.0",
+  "pydantic>=2.8.2,<3.0.0",
+]
+
+[project.optional-dependencies]
+bootstrap = ["aware-grammar"]
+
+[tool.uv.sources]
+aware-issue-operational-runtime = { path = "../../../../../../aware_coordination/modules/workflow/libs/issue_operational_runtime", editable = true }
+
+[project.entry-points."aware_cli.command_packs"]
+commit = "aware_workspace_operator.cli.pack:get_command_specs"
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_workspace_operator"]
+include = [
+  "aware_workspace_operator/assets/**",
+  "aware_workspace_operator/py.typed",
+]

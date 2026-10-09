@@ -115,3 +115,9 @@ Its [historical local selection](../protocols/collaboration/previews/canonical-f
 and [Git delivery record](../protocols/collaboration/previews/canonical-fs-v1/PUBLICATION.md)
 identify the accepted artifact, not another package inventory. Independent local
 selection review is accepted; a6 stays unchanged. Prepared inputs remain required.
+
+## Unselected unified neutral source snapshot
+
+The [profile-derived Agent snapshot](previews/canonical-agent-fs-v1/README.md)
+preserves accepted sources and notices without another package selector or
+replacement of existing source snapshots and operational selections.

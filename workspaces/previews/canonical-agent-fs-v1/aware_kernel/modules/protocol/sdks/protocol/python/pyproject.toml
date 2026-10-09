@@ -1,0 +1,29 @@
+[project]
+name = "aware-protocol-sdk"
+version = "0.3.0"
+description = "Typed SDK boundary for canonical Aware Protocol target admission."
+authors = [{ name = "AWARE Team" }]
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.12"
+dependencies = [
+  "aware-protocol-runtime>=0.1.0",
+]
+
+[tool.uv.sources]
+aware-protocol-runtime = { workspace = true }
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2,<10.0.0"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_protocol_sdk"]
+include = ["README.md", "aware_protocol_sdk/py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
