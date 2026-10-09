@@ -22,14 +22,17 @@
 
 
 
+
 ## Problem
 1. The independently selected unified artifact is not publicly acquired yet; local selection is not a remote delivery receipt.
 
 
 
 
+
 ## Goal
 1. Publish the exact accepted prepared-input preview to aware-network/aware/main with non-force ancestry checks, truthful limits, preserved source/notices and anonymous pinned acquisition/install proof.
+
 
 
 
@@ -42,7 +45,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Luis authorized non-force publication to aware-network/aware/main. Eight prepublication checks passed with fresh offline checkout-hidden 32-package installation and 11-command parity; exact eight-path scope and baseline bytes/modes. Remote observed at 0e1af47a417d, ancestor of 9dd6daf559fc; outgoing eight accepted commits / 888 paths accounted. HTTPS dry-push target works; no actual push yet. Payload/source/notices/bootstrap unchanged. Actual public acquisition/install remains next. (outcome: verified) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Authorized non-force push/readback confirmed aware-network/aware/main at 30779a7e3f79997e4d2b96f18726f08bd3848e45. Anonymous exact-revision clone and separately pinned envelope download match; fresh public-checkout offline installation: eight checks passed, zero skips, 32 packages / 11 owner leaves. Public JUnit /tmp/aware-agent-public-install.q2MjEr8b/publication.xml SHA-256 bcc73353752a2266d9661a43391995a19496cefd20aeacc3e6d7043cdb2e297c. Original dirty checkout preserved. Receipt/closeout commits only remain; no customer/domain replay, initializer, guard discovery, instruction freeze, tag or registry release. (outcome: verified) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

@@ -122,3 +122,53 @@ Installed receipt: `/tmp/aware-agent-publication-preflight.yzCQASUc/installed-re
 SHA-256 `a9c8b803325289b0945f7972aae4fbb4b3919ae9c4abf565af2d9c885aba2823`.
 The deterministic metadata matches earlier proofs; this environment is newly
 installed, not reused. These producer checks are not remote acquisition receipts.
+
+## Observed public delivery
+
+The authorized non-force push advanced `aware-network/aware/main` from
+`0e1af47a417df143681125e467930aedf4157cd2` to
+`30779a7e3f79997e4d2b96f18726f08bd3848e45`; exact remote readback confirmed it.
+Local implementation receipt: `git:30779a7e3f79997e4d2b96f18726f08bd3848e45`.
+The original publication owner reported `isolated_index_atomic_ref_v1`,
+`reference_update=cas_applied`, shared-index projection applied and no
+reconciliation debt. Remote push is a distinct authorized effect, not inferred
+from that local receipt. Publication used the explicit GitHub HTTPS coordinate;
+the fresh checkout's local acquisition origin and original dirty checkout were
+not retargeted or edited.
+
+A fresh anonymous GitHub clone matched this revision exactly. Inherited
+environment, global/system Git configuration, credential helpers, extra HTTP
+headers and prompting were disabled. Its depth-16 history contains every required
+baseline for this proof. A separately downloaded
+[revision-pinned envelope](https://raw.githubusercontent.com/aware-network/aware/30779a7e3f79997e4d2b96f18726f08bd3848e45/protocols/collaboration/previews/canonical-agent-fs-v1/distribution/canonical-agent-source-notice-review-v1.tar.gz)
+matched full SHA-256 `49fd470e4aadf564ec40131f1bffbe95d0f8d65cf0946e60db07dfd88c09531d`
+and the cloned archive byte-for-byte. The cloned payload matched
+`db23274dcc05c3923c9f7ba33f6bf0d1cbda3717aa120d44ee74ef4d35297b11`.
+Installation used that actual public checkout, not a producer mirror or retained
+installation. The public acquisition checkout remained clean.
+
+From that checkout, eight checks passed, zero skipped. A second fresh offline
+installation hid `/home`, `/root` and unrelated `/tmp`, cleared inherited
+environment, verified all 32 package versions and clean dependencies, and found
+no editable/direct-URL records. Unified `aware` activates with usage/options
+parity for 11 owner leaves. Reuse refuses with exit 2, preserving private-parent
+permissions `0700`. Exact eight-path scope, 4,131 untouched baseline files, all
+4,136 Git modes, accepted artifact/source/notices, installer and historical
+receipts match. No customer mutation or full domain matrix was replayed.
+
+Public checkout: `/tmp/aware-agent-public-acquisition.aDwbBRhu/public`.
+Separate download: `/tmp/aware-agent-public-acquisition.aDwbBRhu/public-envelope.tar.gz`.
+Public-acquisition JUnit: `/tmp/aware-agent-public-install.q2MjEr8b/publication.xml`,
+SHA-256 `bcc73353752a2266d9661a43391995a19496cefd20aeacc3e6d7043cdb2e297c`.
+Installed receipt: `/tmp/aware-agent-public-install.q2MjEr8b/installed-receipt.json`,
+SHA-256 `a9c8b803325289b0945f7972aae4fbb4b3919ae9c4abf565af2d9c885aba2823`.
+Matching deterministic metadata does not mean environment reuse: preflight and
+public replay used different newly created environments. These are the same eight
+obligations before and after acquisition, not sixteen distinct proofs.
+
+Receipt and Issue-closeout commits update governance evidence only; they do not
+change the tested installer, payload, source, notice, workflow or bootstrap bytes.
+This is public Git delivery evidence, not independent publication review,
+self-service/onboarding acceptance, external U/V/R, a registry release or frozen
+instructions. Next: separately scoped prepared-input evaluation and owner-backed
+initialization/guard discovery before claiming an unassisted customer entrance.
