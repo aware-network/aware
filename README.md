@@ -9,9 +9,9 @@ Coherence is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-This is a prepared, unpublished initializer layout. Instructions remain draft.
-Use them against this review tree, not as a claim that unchanged public main
-already contains this installation.
+This initializer distribution is selected locally; public delivery is not yet
+authorized. Instructions remain draft. Use this reviewed checkout, not unchanged
+public main. See the [exact local selection](releases/canonical-initializer-fs-v1/LOCAL-SELECTION.md).
 
 ## Understand the protocols
 
@@ -27,7 +27,7 @@ the complete LICENSE, NOTICE, corresponding source and upstream attachments
 accompany this software. Six Code/Workspace wheels lack package-local legal
 files; this delivery is accepted only as the complete envelope, not detached wheels.
 
-From the prepared checkout root:
+From this reviewed checkout root:
 
 ```sh
 set -eu

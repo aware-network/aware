@@ -1,9 +1,11 @@
 # Current collaboration alignment
 
-The prepared customer composition is one installed `aware`: explicit repository
+The locally selected customer composition is one installed `aware`: explicit repository
 initialization, Issue publication/closeout and SPEC setup/draft/read. See
 [the entrance](../../README.md). Its 40-package payload is accepted; this public
-layout is not integrated, selected, frozen or published.
+layout is integrated and selected locally, not frozen or publicly delivered.
+See the [delivery selection](../../releases/SELECTED.json) and
+[selection scope](../../releases/canonical-initializer-fs-v1/LOCAL-SELECTION.md).
 
 Root AGENTS.md retains contributor compatibility selection. No resident, API,
 native-receiving or object authority is admitted. Automatic guard discovery and

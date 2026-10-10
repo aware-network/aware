@@ -1,5 +1,9 @@
 # Initializer distribution terms and source
 
+This complete distribution is [selected locally](LOCAL-SELECTION.md), not yet
+authorized for public delivery. [Current delivery coordinates](../SELECTED.json)
+do not select packages or alter the immutable envelope. Instructions remain draft.
+
 Read the complete [LICENSE](LICENSE), [NOTICE](NOTICE) and
 [third-party notice policy](source-history/THIRD_PARTY_NOTICES.md) before using
 the [installer](../../protocols/install.py). Aware's Apache terms do not replace

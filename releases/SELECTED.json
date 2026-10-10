@@ -1,0 +1,23 @@
+{
+  "selection_kind": "local_delivery_selection",
+  "release": "canonical-initializer-fs-v1",
+  "canonical_profile": "portable_protocols",
+  "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
+  "baseline_revision": "d669df7da01970a12b782663eefa8682d97bbf32",
+  "source_revision": "5c7838db7fea9438888bd8f86325e4e85f6a2c65",
+  "envelope": "canonical-initializer-fs-v1/canonical-initializer-source-notice-review-v1.tar.gz",
+  "envelope_sha256": "5f0edebe568d1cfd8a06a33e6122cd4e0d3dd68f764058b1aa098456cc2df13c",
+  "payload_sha256": "2d812c489485ee187cf45fca012fffdfda5fcdf93d60495a02b843f94e4a8b68",
+  "source_index": "canonical-initializer-fs-v1/SOURCE-INDEX.json",
+  "source_index_sha256": "69b4581f7ceef335fc9eb28f5e507198a638be56ab761e662ae60d195a8edfd1",
+  "installer": "protocols/install.py",
+  "commands": ["aware init", "aware issue", "aware protocol", "aware spec"],
+  "whole_envelope_required": true,
+  "detached_wheels_accepted": false,
+  "contributor_selection_changed": false,
+  "instruction_status": "draft",
+  "selection_review": "pending",
+  "public_delivery_authorized": false,
+  "domain_matrix_replayed": false,
+  "unassisted_onboarding_proven": false
+}
