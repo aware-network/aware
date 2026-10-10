@@ -1,6 +1,6 @@
 # Canonical initializer — local integration
 
-Status: local implementation awaiting independent integration review. Nothing in
+Status: bounded local integration independently accepted. Nothing in
 this record selects a consumer version, freezes instructions or authorizes push.
 
 ## Exact inputs and effects
@@ -40,7 +40,7 @@ All 13 implementation batches returned `outcome=applied`,
 `reference_update=cas_applied`, `shared_index_projection=applied` and
 `index_reconciliation_pending=false`. Final migration receipt:
 `git:dcc76b861887df78762690751929c3b2508466be`. The worktree and index were clean
-after that receipt. Independent integration acceptance remains pending.
+after that receipt. Independent acceptance is recorded below.
 
 Raw diagnostic command:
 `git diff --check f760ac28066191e50ba12d249928c0fd553f79b4 dcc76b861887df78762690751929c3b2508466be`.
@@ -109,3 +109,29 @@ resident service. Guard discovery and unassisted onboarding remain unfinished.
 
 Instructions remain draft. Selection, contributor migration, public delivery
 and publication are separate decisions.
+
+## Independent local integration acceptance
+
+The independent reviewer accepted aware-dev checkpoint
+`3ca43e1bbd958dee53ce8d00f9c8fa993cb0605d` and public handoff
+`0a7431742155cb6ab578b6c1b0ba7272ea598bfa` without a bounded integration blocker.
+Nineteen guards and eight integration checks reproduced, including a fresh
+offline, checkout-hidden installation of all 40 packages.
+
+Independent JUnit: `/tmp/aware-initializer-integration-review.fPMk135p/integration.xml`;
+SHA-256 `c05f7f79f812495560ab99438d5c6d2a060d32d74a5f13704b41359cc1c1d875`.
+This private maintainer evidence is not a customer installation prerequisite.
+
+All 1,086 accepted files retain exact bytes/executable modes. The reviewer
+matched all 4,011 retired files to recoverable pinned-history bytes/modes and
+all 13 publication batches to actual deltas, Issue scope and receipts. No index
+reconciliation is pending. Contributor authority, complete source/notice
+carriage and the raw audit remain unchanged. The known source-whitespace
+finding reproduces exactly; no full-diff whitespace PASS is claimed.
+
+Acceptance remains whole-envelope-only; six detached-wheel legal gaps are not
+repaired. This does not repeat the 2,098-case domain proof or establish
+unassisted onboarding. No test, installation, source payload, selection or
+push occurred while recording this acceptance. Bounded Issue closeout follows
+through the original owner; local selection and instruction alignment remain
+separately governed.
