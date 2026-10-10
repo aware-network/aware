@@ -1,18 +1,20 @@
 [project]
 name = "aware-protocol-fs-adapter"
-version = "0.2.0"
+version = "0.6.4"
 description = "Strict filesystem adapter for aware.protocol.toml manifests."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.12"
 dependencies = [
-  "aware-protocol-runtime>=0.1.0",
-  "aware-protocol-sdk>=0.1.0",
+  "aware-protocol-runtime>=0.1.1,<0.2.0",
+  "aware-protocol-sdk>=0.3.1,<0.4.0",
   "jsonschema>=4.23.0,<5.0.0",
 ]
 
 [project.optional-dependencies]
+bootstrap = ["aware-file-system>=0.3.3,<0.4.0"]
+draft = ["aware-file-system>=0.3.0,<0.4.0"]
 test = ["pytest>=8.4.2,<10.0.0"]
 
 [build-system]
@@ -24,6 +26,7 @@ packages = ["aware_protocol_fs_adapter"]
 include = [
   "aware_protocol_fs_adapter/py.typed",
   "aware_protocol_fs_adapter/schemas/*.json",
+  "aware_protocol_fs_adapter/templates/*.md",
 ]
 
 [tool.pytest.ini_options]
@@ -35,3 +38,4 @@ package = true
 [tool.uv.sources]
 aware-protocol-runtime = { workspace = true }
 aware-protocol-sdk = { workspace = true }
+aware-file-system = { workspace = true }

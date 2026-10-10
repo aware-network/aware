@@ -1,6 +1,6 @@
 [project]
 name = "aware-protocol-runtime"
-version = "0.1.0"
+version = "0.1.1"
 description = "Dependency-free canonical contracts for Aware Protocol manifests and targets."
 readme = "README.md"
 license = "Apache-2.0"

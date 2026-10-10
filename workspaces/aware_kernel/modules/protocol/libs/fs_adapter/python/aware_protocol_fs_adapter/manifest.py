@@ -5,14 +5,13 @@ from __future__ import annotations
 import errno
 import json
 import tomllib
+from collections.abc import Mapping
 from dataclasses import dataclass
 from hashlib import sha256
 from importlib.resources import files
 from pathlib import Path, PurePosixPath
-from typing import Mapping, cast
 from types import MappingProxyType
-
-from jsonschema import Draft202012Validator
+from typing import cast
 
 from aware_protocol_runtime import (
     ProtocolAdmissionOutcomeKind,
@@ -27,14 +26,18 @@ from aware_protocol_runtime import (
     ProtocolTarget,
     ProtocolTargetKind,
 )
+from jsonschema import Draft202012Validator
 
 from .goal_templates import NATIVE_GOAL_PATH_TEMPLATES, canonical_relative_path
+from .project_templates import PROJECT_PATH_TEMPLATE
 
 MANIFEST_FILENAME = "aware.protocol.toml"
 COLLABORATION_PROTOCOL_NAME = "aware.collaboration"
 COLLABORATION_FS_PROFILE = "aware.collaboration.fs_v1"
 COLLABORATION_NATIVE_FS_PROFILE = "aware.collaboration.fs_v2"
+COLLABORATION_PROJECT_FS_PROFILE = "aware.collaboration.fs_v3"
 NATIVE_GOAL_RECORD_PROFILE = "aware.goal.phase.markdown.v1"
+PROJECT_RECORD_PROFILE = "aware.project.context.toml.v1"
 SUPPORTED_RECORD_PROFILES: Mapping[str, str] = {
     "goal": "aware.goal.markdown.v1",
     "issue": "aware.issue.markdown.v1",
@@ -42,10 +45,18 @@ SUPPORTED_RECORD_PROFILES: Mapping[str, str] = {
     "specification": "specification_fs_v1",
     "evidence": "aware.protocol.evidence.v1",
 }
-SUPPORTED_NATIVE_RECORD_PROFILES: Mapping[str, str] = MappingProxyType({
-    **SUPPORTED_RECORD_PROFILES,
-    "goal": NATIVE_GOAL_RECORD_PROFILE,
-})
+SUPPORTED_NATIVE_RECORD_PROFILES: Mapping[str, str] = MappingProxyType(
+    {
+        **SUPPORTED_RECORD_PROFILES,
+        "goal": NATIVE_GOAL_RECORD_PROFILE,
+    }
+)
+SUPPORTED_PROJECT_RECORD_PROFILES: Mapping[str, str] = MappingProxyType(
+    {
+        **SUPPORTED_NATIVE_RECORD_PROFILES,
+        "project": PROJECT_RECORD_PROFILE,
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -81,19 +92,13 @@ class FilesystemProtocolProfile:
 
     def __post_init__(self) -> None:
         if type(self.protocol_manifest) is not ProtocolManifest:
-            raise ProtocolContractError(
-                "protocol_manifest must be ProtocolManifest"
-            )
+            raise ProtocolContractError("protocol_manifest must be ProtocolManifest")
         if type(self.agent_contract_path) is not str or not self.agent_contract_path:
-            raise ProtocolContractError(
-                "agent_contract_path must be non-empty text"
-            )
+            raise ProtocolContractError("agent_contract_path must be non-empty text")
         try:
             bindings = tuple(self.record_bindings)
         except TypeError as error:
-            raise ProtocolContractError(
-                "record_bindings must be iterable"
-            ) from error
+            raise ProtocolContractError("record_bindings must be iterable") from error
         if any(type(item) is not FilesystemRecordBinding for item in bindings):
             raise ProtocolContractError(
                 "record_bindings must contain FilesystemRecordBinding"
@@ -136,9 +141,7 @@ class FilesystemProtocolAdmissionResult:
 
     def __post_init__(self) -> None:
         if type(self.admission) is not ProtocolAdmissionResult:
-            raise ProtocolContractError(
-                "admission must be ProtocolAdmissionResult"
-            )
+            raise ProtocolContractError("admission must be ProtocolAdmissionResult")
         if (
             self.filesystem_profile is not None
             and type(self.filesystem_profile) is not FilesystemProtocolProfile
@@ -255,6 +258,49 @@ def admit_protocol_manifest_bytes(
     if isinstance(root_resolution, FilesystemProtocolAdmissionResult):
         return root_resolution
     resolved_root = root_resolution
+    content = validate_protocol_manifest_content(source=source)
+    if content.outcome is not ProtocolAdmissionOutcomeKind.CANONICAL_V1:
+        return content
+    parsed = tomllib.loads(source.decode("utf-8"))
+    containment_errors = _containment_errors(
+        parsed=parsed,
+        repository_root=resolved_root,
+    )
+    if containment_errors:
+        return _admission_failure(
+            source_digest=source_digest,
+            outcome=ProtocolAdmissionOutcomeKind.MALFORMED_V1,
+            diagnostics=containment_errors,
+        )
+    profile = parsed["protocol"]["profile"]
+    if profile in {COLLABORATION_NATIVE_FS_PROFILE, COLLABORATION_PROJECT_FS_PROFILE}:
+        goal_root = resolved_root / str(parsed["records"]["goal"]["root"])
+        if goal_root.exists() and not goal_root.is_dir():
+            return _admission_failure(
+                source_digest=source_digest,
+                outcome=ProtocolAdmissionOutcomeKind.MALFORMED_V1,
+                diagnostics=("native_goal_root_not_directory",),
+            )
+    if profile == COLLABORATION_PROJECT_FS_PROFILE:
+        project_root = resolved_root / str(parsed["records"]["project"]["root"])
+        if project_root.exists() and not project_root.is_dir():
+            return _admission_failure(
+                source_digest=source_digest,
+                outcome=ProtocolAdmissionOutcomeKind.MALFORMED_V1,
+                diagnostics=("project_root_not_directory",),
+            )
+    return content
+
+
+def validate_protocol_manifest_content(
+    *, source: bytes
+) -> FilesystemProtocolAdmissionResult:
+    """Existing content checks without filesystem admission or authority.
+
+    Used to validate prospective bootstrap bytes before a repository exists.
+    At-use topology remains exclusively in ``admit_protocol_manifest_bytes``.
+    """
+    source_digest = _source_digest(source)
     try:
         parsed = tomllib.loads(source.decode("utf-8"))
     except (UnicodeDecodeError, tomllib.TOMLDecodeError) as error:
@@ -276,12 +322,14 @@ def admit_protocol_manifest_bytes(
         )
 
     protocol = cast(dict[str, object], parsed["protocol"])
-    if (
-        protocol["name"] != COLLABORATION_PROTOCOL_NAME
-        or (protocol["profile"], protocol["semantic_version"]) not in {
-            (COLLABORATION_FS_PROFILE, 1), (COLLABORATION_NATIVE_FS_PROFILE, 2)
-        }
-    ):
+    if protocol["name"] != COLLABORATION_PROTOCOL_NAME or (
+        protocol["profile"],
+        protocol["semantic_version"],
+    ) not in {
+        (COLLABORATION_FS_PROFILE, 1),
+        (COLLABORATION_NATIVE_FS_PROFILE, 2),
+        (COLLABORATION_PROJECT_FS_PROFILE, 3),
+    }:
         return _admission_failure(
             source_digest=source_digest,
             outcome=ProtocolAdmissionOutcomeKind.FOREIGN_PROFILE,
@@ -297,10 +345,32 @@ def admit_protocol_manifest_bytes(
         )
 
     records = cast(dict[str, dict[str, object]], parsed["records"])
-    native = protocol["profile"] == COLLABORATION_NATIVE_FS_PROFILE
-    supported = SUPPORTED_NATIVE_RECORD_PROFILES if native else SUPPORTED_RECORD_PROFILES
+    project = protocol["profile"] == COLLABORATION_PROJECT_FS_PROFILE
+    native = protocol["profile"] in {
+        COLLABORATION_NATIVE_FS_PROFILE,
+        COLLABORATION_PROJECT_FS_PROFILE,
+    }
+    supported = (
+        SUPPORTED_PROJECT_RECORD_PROFILES
+        if project
+        else SUPPORTED_NATIVE_RECORD_PROFILES
+        if native
+        else SUPPORTED_RECORD_PROFILES
+    )
+    if "project" in records and not project:
+        return _admission_failure(
+            source_digest=source_digest,
+            outcome=ProtocolAdmissionOutcomeKind.FOREIGN_PROFILE,
+            diagnostics=("project_record_requires_fs_v3",),
+        )
+    if project and "project" not in records:
+        return _admission_failure(
+            source_digest=source_digest,
+            outcome=ProtocolAdmissionOutcomeKind.MALFORMED_V1,
+            diagnostics=("project_record_required_for_fs_v3",),
+        )
     profile_errors = tuple(
-        f"record_profile_mismatch:{record_key}:{record["profile"]}"
+        f"record_profile_mismatch:{record_key}:{record['profile']}"
         for record_key, record in sorted(records.items())
         if record["profile"] != supported[record_key]
     )
@@ -321,31 +391,20 @@ def admit_protocol_manifest_bytes(
             native_errors += ("native_goal_template_unsupported",)
         if not canonical_relative_path(cast(str, records["goal"].get("root", ""))):
             native_errors += ("native_goal_root_not_canonical",)
+        if project:
+            if records["project"]["role"] != ProtocolRecordRole.AUTHORITY.value:
+                native_errors += ("project_record_requires_authority",)
+            if records["project"].get("path_template") != PROJECT_PATH_TEMPLATE:
+                native_errors += ("project_template_unsupported",)
+            if not canonical_relative_path(
+                cast(str, records["project"].get("root", ""))
+            ):
+                native_errors += ("project_root_not_canonical",)
         if native_errors:
             return _admission_failure(
                 source_digest=source_digest,
                 outcome=ProtocolAdmissionOutcomeKind.MALFORMED_V1,
                 diagnostics=native_errors,
-            )
-
-    containment_errors = _containment_errors(
-        parsed=parsed,
-        repository_root=resolved_root,
-    )
-    if containment_errors:
-        return _admission_failure(
-            source_digest=source_digest,
-            outcome=ProtocolAdmissionOutcomeKind.MALFORMED_V1,
-            diagnostics=containment_errors,
-        )
-
-    if native:
-        goal_root = resolved_root / str(records["goal"]["root"])
-        if goal_root.exists() and not goal_root.is_dir():
-            return _admission_failure(
-                source_digest=source_digest,
-                outcome=ProtocolAdmissionOutcomeKind.MALFORMED_V1,
-                diagnostics=("native_goal_root_not_directory",),
             )
 
     try:

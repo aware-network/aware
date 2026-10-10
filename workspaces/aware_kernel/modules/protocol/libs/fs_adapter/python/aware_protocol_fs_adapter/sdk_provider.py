@@ -30,24 +30,19 @@ class FilesystemProtocolSdkProvider:
     ) -> ProtocolTargetAdmissionResult:
         if request.authority_mode is not ProtocolAuthorityMode.FILESYSTEM:
             return self._result(
+                request=request,
                 admission=ProtocolAdmissionResult(
                     outcome=ProtocolAdmissionOutcomeKind.AUTHORITY_UNAVAILABLE,
                     source_sha256=None,
-                    diagnostics=(
-                        "filesystem_provider_requires_filesystem_authority",
-                    ),
+                    diagnostics=("filesystem_provider_requires_filesystem_authority",),
                 ),
-                evidence=(
-                    f"requested_authority_mode:{request.authority_mode.value}",
-                ),
+                evidence=(f"requested_authority_mode:{request.authority_mode.value}",),
             )
 
         repository_root = Path(request.target_ref)
         source_path = Path(request.source_ref)
         manifest_path = (
-            source_path
-            if source_path.is_absolute()
-            else repository_root / source_path
+            source_path if source_path.is_absolute() else repository_root / source_path
         )
         admitted = admit_protocol_manifest(
             manifest_path=manifest_path,
@@ -58,6 +53,8 @@ class FilesystemProtocolSdkProvider:
             f"manifest_filename:{MANIFEST_FILENAME}",
         ]
         if admitted.filesystem_profile is not None:
+            # The adapter's canonical profile is inseparable from its manifest.
+            assert admitted.manifest is not None
             evidence.extend(
                 (
                     f"protocol_digest:{admitted.manifest.digest}",
@@ -69,6 +66,7 @@ class FilesystemProtocolSdkProvider:
                 )
             )
         return self._result(
+            request=request,
             admission=admitted.admission,
             evidence=tuple(evidence),
         )
@@ -76,15 +74,15 @@ class FilesystemProtocolSdkProvider:
     def _result(
         self,
         *,
+        request: ProtocolTargetAdmissionRequest,
         admission: ProtocolAdmissionResult,
         evidence: tuple[str, ...],
     ) -> ProtocolTargetAdmissionResult:
         return ProtocolTargetAdmissionResult(
+            request=request,
             provider_ref=FILESYSTEM_PROTOCOL_PROVIDER_REF,
             provider_distribution=FILESYSTEM_PROTOCOL_DISTRIBUTION,
-            provider_version=_distribution_version(
-                FILESYSTEM_PROTOCOL_DISTRIBUTION
-            ),
+            provider_version=_distribution_version(FILESYSTEM_PROTOCOL_DISTRIBUTION),
             admission=admission,
             evidence=evidence,
         )

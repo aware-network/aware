@@ -1,0 +1,51 @@
+aware = 1
+
+[profile]
+id = "aware-default"
+version = 1
+title = "Aware Kernel Seed Default Profile"
+description = "Default symbol profile for KernelSeed orchestration."
+
+[symbols]
+"seed.seed_id" = "aware-kernel"
+"seed.seed_version" = 1
+
+"seed.system_public_key" = "ed25519:0e60bc31fac4bacf0bb62a6f8bcf1eaf0168f1b23c9fc1cf0ab70e990c4a3246"
+"seed.provider_public_key" = "ed25519:48f334a378c300be97b00c1066d34b469ef378bacf886830b6569f3399ecfff8"
+"seed.executor_public_key" = "ed25519:d2c4657e1eac121afe3431ba8c8785e059241f5461d61431c70f095ac4ff8b1f"
+"seed.executor_label" = "aware-inference-executor"
+
+"seed.service_config_name" = "Aware Catalog"
+"seed.inference_service_name" = "Aware Inference"
+"seed.smart_contract_config_name" = "AwareMembership"
+"seed.smart_contract_type" = "utility"
+"seed.smart_contract_address" = "dev:membership"
+
+"seed.inference_provider" = "openai"
+"seed.inference_model_name" = "gpt-5.2"
+"seed.inference_model_id_on_provider" = "gpt-5.2"
+"seed.inference_secondary_provider" = "codex"
+"seed.inference_secondary_model_name" = "gpt-5.4"
+"seed.inference_secondary_model_id_on_provider" = "gpt-5.4"
+"seed.inference_context_window" = 400000
+"seed.inference_max_output_tokens" = 128000
+"seed.inference_region_code" = "global"
+"seed.secondary_actor_key" = "codex-main"
+"seed.secondary_thread_key" = "codex-main"
+"seed.secondary_thread_name" = "Codex Main"
+"seed.secondary_thread_system_instruction_text" = "You are Aware Codex."
+"seed.secondary_thread_inference_group_key" = "codex-main"
+
+"seed.conversation_role_config_name" = "aware.conversation.agent.turn.v1"
+"seed.conversation_role_config_description" = "Conversation agent-turn baseline tool policy (v1)."
+"seed.conversation_role_config_class_name" = "Conversation"
+"seed.conversation_role_config_function_name" = "add_message"
+"seed.economy_role_config_name" = "aware.economy.settlement.v1"
+"seed.economy_role_config_description" = "Economy settlement canonical service-operation policy (v1)."
+
+"seed.conversation_branch_id" = "b0fa138a-6d68-5d9d-8df7-0fe45f053c8e"
+"seed.conversation_title" = "Aware Dev Coordination"
+"seed.conversation_description" = "Seeded default conversation lane with ACT-REACT rails."
+"seed.conversation_subscription_name" = "conversation.agent.wakeup"
+"seed.conversation_event_config_name" = "conversation.message.created"
+"seed.conversation_condition_config_name" = "conversation.message.created"

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Protocol
 
 from aware_protocol_runtime import (
@@ -17,9 +17,7 @@ PROTOCOL_ADMIT_TARGET_PROVIDER_OPERATION_REF = "protocol.target.admit"
 PROTOCOL_TARGET_ADMISSION_REQUEST_CONTRACT = (
     "aware.protocol.target-admission-request.v1"
 )
-PROTOCOL_TARGET_ADMISSION_RESULT_CONTRACT = (
-    "aware.protocol.target-admission-result.v1"
-)
+PROTOCOL_TARGET_ADMISSION_RESULT_CONTRACT = "aware.protocol.target-admission-result.v2"
 
 
 def _text(value: object, field_name: str) -> str:
@@ -36,10 +34,12 @@ class ProtocolTargetAdmissionRequest:
     target_kind: ProtocolTargetKind = ProtocolTargetKind.REPOSITORY
 
     def __post_init__(self) -> None:
-        if type(self.authority_mode) is not ProtocolAuthorityMode:
+        if type(self) is not ProtocolTargetAdmissionRequest:
             raise ProtocolContractError(
-                "authority_mode must be ProtocolAuthorityMode"
+                "request must be ProtocolTargetAdmissionRequest"
             )
+        if type(self.authority_mode) is not ProtocolAuthorityMode:
+            raise ProtocolContractError("authority_mode must be ProtocolAuthorityMode")
         if type(self.target_kind) is not ProtocolTargetKind:
             raise ProtocolContractError("target_kind must be ProtocolTargetKind")
         object.__setattr__(self, "target_ref", _text(self.target_ref, "target_ref"))
@@ -61,11 +61,17 @@ class ProtocolTargetAdmissionResult:
     provider_distribution: str
     provider_version: str
     admission: ProtocolAdmissionResult
+    request: ProtocolTargetAdmissionRequest
     evidence: tuple[str, ...] = ()
     operation_ref: str = PROTOCOL_ADMIT_TARGET_OPERATION_REF
 
     def __post_init__(self) -> None:
-        if self.operation_ref != PROTOCOL_ADMIT_TARGET_OPERATION_REF:
+        if type(self) is not ProtocolTargetAdmissionResult:
+            raise ProtocolContractError("result must be ProtocolTargetAdmissionResult")
+        if (
+            type(self.operation_ref) is not str
+            or self.operation_ref != PROTOCOL_ADMIT_TARGET_OPERATION_REF
+        ):
             raise ProtocolContractError(
                 "operation_ref must identify protocol_sdk.admit_target"
             )
@@ -84,8 +90,14 @@ class ProtocolTargetAdmissionResult:
         )
         if type(self.admission) is not ProtocolAdmissionResult:
             raise ProtocolContractError("admission must be ProtocolAdmissionResult")
-        if isinstance(self.evidence, (str, bytes)):
-            raise ProtocolContractError("evidence must be an iterable of strings")
+        if type(self.request) is not ProtocolTargetAdmissionRequest:
+            raise ProtocolContractError(
+                "request must be ProtocolTargetAdmissionRequest"
+            )
+        object.__setattr__(self, "request", replace(self.request))
+        object.__setattr__(self, "admission", snapshot_admission(self.admission))
+        if type(self.evidence) not in (tuple, list):
+            raise ProtocolContractError("evidence must be a tuple or list of strings")
         evidence = tuple(self.evidence)
         if any(type(item) is not str or not item for item in evidence):
             raise ProtocolContractError("evidence must contain non-empty strings")
@@ -98,9 +110,48 @@ class ProtocolTargetAdmissionResult:
             "provider_ref": self.provider_ref,
             "provider_distribution": self.provider_distribution,
             "provider_version": self.provider_version,
+            "request": self.request.to_wire(),
             "admission": self.admission.to_wire(),
             "evidence": list(self.evidence),
         }
+
+
+def snapshot_admission(value: ProtocolAdmissionResult) -> ProtocolAdmissionResult:
+    """Reconstruct through the original value owners, not a second validator."""
+    if type(value.diagnostics) not in (tuple, list):
+        raise ProtocolContractError("diagnostics must be a tuple or list")
+    manifest = value.manifest
+    if manifest is not None:
+        # Require owner types before traversing malformed provider objects.
+        from aware_protocol_runtime import (
+            ProtocolBootstrap,
+            ProtocolIdentity,
+            ProtocolManifest,
+            ProtocolRecordBinding,
+            ProtocolTarget,
+        )
+
+        if type(manifest) is not ProtocolManifest:
+            raise ProtocolContractError("manifest must be ProtocolManifest")
+        for child, expected in (
+            (manifest.protocol, ProtocolIdentity),
+            (manifest.target, ProtocolTarget),
+            (manifest.bootstrap, ProtocolBootstrap),
+        ):
+            if type(child) is not expected:
+                raise ProtocolContractError("invalid manifest child")
+        if type(manifest.records) not in (tuple, list) or any(
+            type(child) is not ProtocolRecordBinding for child in manifest.records
+        ):
+            raise ProtocolContractError("invalid record binding")
+        manifest = replace(
+            manifest,
+            protocol=replace(manifest.protocol),
+            target=replace(manifest.target),
+            bootstrap=replace(manifest.bootstrap),
+            records=tuple(replace(child) for child in manifest.records),
+        )
+    return replace(value, manifest=manifest)
 
 
 class ProtocolTargetAdmissionProvider(Protocol):

@@ -1,6 +1,6 @@
 [project]
 name = "aware-protocol-sdk"
-version = "0.1.0"
+version = "0.3.1"
 description = "Typed SDK boundary for canonical Aware Protocol target admission."
 authors = [{ name = "AWARE Team" }]
 readme = "README.md"
@@ -8,7 +8,7 @@ license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.12"
 dependencies = [
-  "aware-protocol-runtime>=0.1.0",
+  "aware-protocol-runtime>=0.1.1,<0.2.0",
 ]
 
 [tool.uv.sources]

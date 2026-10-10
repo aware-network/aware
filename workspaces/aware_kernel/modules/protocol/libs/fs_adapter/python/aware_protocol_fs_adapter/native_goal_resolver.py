@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import os
 from pathlib import Path
-from typing import NoReturn, SupportsIndex
+from typing import NoReturn, SupportsIndex, final, override
 from weakref import WeakKeyDictionary
 
 from aware_protocol_runtime import ProtocolAdmissionOutcomeKind, ProtocolContractError
@@ -18,6 +18,7 @@ from aware_protocol_runtime import ProtocolAdmissionOutcomeKind, ProtocolContrac
 from .goal_templates import canonical_relative_path, match_native_goal_path
 from .manifest import (
     COLLABORATION_NATIVE_FS_PROFILE,
+    COLLABORATION_PROJECT_FS_PROFILE,
     FilesystemProtocolAdmissionResult,
     FilesystemProtocolProfile,
     admit_protocol_manifest,
@@ -27,6 +28,9 @@ from .manifest import (
 
 class NativeGoalResolverError(ProtocolContractError):
     """Pre-source typed refusal; never fabricates a Goal observation envelope."""
+
+    code: str
+    diagnostics: tuple[str, ...]
 
     def __init__(self, code: str, *, diagnostics: tuple[str, ...] = ()) -> None:
         self.code = code
@@ -58,10 +62,11 @@ class _RetainedAdmission:
 _ISSUED: WeakKeyDictionary[NativeGoalResolverCapability, _RetainedAdmission] = WeakKeyDictionary()
 
 
+@final
 class NativeGoalResolverCapability:
     """Opaque issuer-retained capability; public construction is forbidden."""
 
-    __slots__ = ("__weakref__",)
+    __slots__ = ("__weakref__",)  # pyright: ignore[reportUninitializedInstanceVariable]
 
     def __new__(cls) -> NativeGoalResolverCapability:
         raise TypeError("use admit_native_goal_resolver")
@@ -69,6 +74,7 @@ class NativeGoalResolverCapability:
     def __init_subclass__(cls, **kwargs: object) -> None:
         raise TypeError("native Goal capability cannot be subclassed")
 
+    @override
     def __reduce_ex__(self, protocol: SupportsIndex) -> NoReturn:
         raise TypeError("native Goal capability cannot be copied or serialized")
 
@@ -169,7 +175,7 @@ def _retained(capability: object) -> _RetainedAdmission:
 
 def require_native_goal_resolver(capability: object) -> NativeGoalResolverCapability:
     """Validate actual issuance and freshness, not just nominal type/digest."""
-    _retained(capability)
+    _ = _retained(capability)
     assert isinstance(capability, NativeGoalResolverCapability)
     capability.revalidate()
     return capability
@@ -187,7 +193,9 @@ def admit_native_goal_resolver(*, repository_root: Path, manifest_path: Path) ->
     profile = admission.filesystem_profile
     if profile is None:
         return NativeGoalResolverAdmission(admission, None)
-    if profile.protocol_manifest.protocol.profile != COLLABORATION_NATIVE_FS_PROFILE:
+    if profile.protocol_manifest.protocol.profile not in {
+        COLLABORATION_NATIVE_FS_PROFILE, COLLABORATION_PROJECT_FS_PROFILE,
+    }:
         raise NativeGoalResolverError("native_goal_profile_required")
     try:
         root = repository_root.resolve(strict=True)

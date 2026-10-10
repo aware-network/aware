@@ -21,7 +21,8 @@
         "issue": { "$ref": "#/$defs/record" },
         "feed": { "$ref": "#/$defs/record" },
         "specification": { "$ref": "#/$defs/record" },
-        "evidence": { "$ref": "#/$defs/record" }
+        "evidence": { "$ref": "#/$defs/record" },
+        "project": { "$ref": "#/$defs/record" }
       }
     }
   },
