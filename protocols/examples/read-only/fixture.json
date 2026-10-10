@@ -1,7 +1,0 @@
-{
-  "generator": "protocols/publication/build_demo_fixture.py",
-  "goal_path": "protocols/examples/read-only/goals/2026/10/05/goal-2026-10-05-reader-demo.md",
-  "goal_sha256": "bd0ff7a5a395f61a679f5b4beb040b988cbc9275c2dd79cc002b65f57ec3aaeb",
-  "purpose": "synthetic read-only fixture; no real approval or customer authority",
-  "serialization": "installed aware-goal-sdk 0.3.0 neutral codec"
-}
