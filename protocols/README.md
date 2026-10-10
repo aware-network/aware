@@ -1,20 +1,15 @@
-# Aware collaboration protocols
+# Filesystem collaboration protocols
 
-Start with the [agent Issue/commit preview](agent/README.md) and its
-[workflow](agent/quickstart.md). For an agent execution, read
-[AGENTS.md](AGENTS.md) before consuming the installed command.
+Read [coherence](COHERENCE.md), [Issues](issues/README.md),
+[repository publication](repository/README.md) and [SPEC drafts](specification/README.md).
+Shared guidance explains coordination; supported tooling applies admitted operations.
 
-The independent [Goal reader quickstart](docs/quickstart.md) exports a small, verified part of Aware's existing
-collaboration model: filesystem-owned native Goal Phase observations and
-direction currentness. It is not a second Goal evaluator or a service runtime.
-The SDK and CLI delegate to the neutral Goal owner through Protocol's retained
-filesystem admission capability.
+[Install once](../README.md) and use [initialization](INITIALIZATION.md) to prepare
+an explicit repository and Issue configuration. Follow [WORKFLOW.md](WORKFLOW.md)
+for actual inputs and guard meanings. This directory contains guidance and thin
+installation support, not copied domain implementations or historical previews.
 
-[Model](docs/model.md) · [Capabilities](docs/capabilities.md) ·
-[Source](source/README.md) · [Verification](publication/VERIFICATION.md)
-
-Keep the exact distribution together with its licenses, source and notice
-attachments. The publication receipt identifies the payload and sources;
-The Goal distribution supports `aware-goal-native`; the separate agent bundle
-supports `aware` and `aware-issue-cli`. Transitive entrypoints are not collectively
-supported interfaces. Do not merge their authority profiles or environments implicitly.
+`aware.protocol.toml` binds customer records and authority; it is not a software
+catalog. Workspace's `portable_protocols` profile is the sole package selector.
+Root contributor AGENTS retains its own selected CLI; customer init does not
+migrate it or authorize service startup.

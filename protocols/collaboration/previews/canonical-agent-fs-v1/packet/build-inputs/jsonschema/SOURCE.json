@@ -1,9 +1,0 @@
-{
-  "constraints_sha256": "f5ec3a01df64088a17fea59482bc6f3a1756f0d87099cb4708c7cfc106457bba",
-  "qualification": "Original publisher source URL/hash and omission recipe; no binary/toolchain reproducibility claim",
-  "recipe_revision": "232dbb4dd3aba6bcba4b554c4dab63ef6f31a243",
-  "recipe_sha256": "22e4cdd3a50e1ae4e35d75460f64deb63e596256498713193da02c7c17517141",
-  "source_sha256": "0c26707e2efad8aa1bfc5b7ce170f3fccc2e4918ff85989ba9ffa9facb2be326",
-  "source_url": "https://files.pythonhosted.org/packages/b3/fc/e067678238fa451312d4c62bf6e6cf5ec56375422aee02f9cb5f909b3047/jsonschema-4.26.0.tar.gz",
-  "wheel_sha256": "167abf85d02a18ec191827e1641b7a58a11c4da477732d0576cdb4e6b6ccd5a2"
-}
