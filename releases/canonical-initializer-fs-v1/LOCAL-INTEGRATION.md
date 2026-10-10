@@ -36,6 +36,21 @@ The exact plan partitions those paths into 13 disjoint batches, each below
 fresh Issue observation and an identical dry-run/apply pair. This is not an
 atomic migration; any incomplete receipt requires inspection, not blind retry.
 
+All 13 implementation batches returned `outcome=applied`,
+`reference_update=cas_applied`, `shared_index_projection=applied` and
+`index_reconciliation_pending=false`. Final migration receipt:
+`git:dcc76b861887df78762690751929c3b2508466be`. The worktree and index were clean
+after that receipt. Independent integration acceptance remains pending.
+
+Raw diagnostic command:
+`git diff --check f760ac28066191e50ba12d249928c0fd553f79b4 dcc76b861887df78762690751929c3b2508466be`.
+It returns exit `2`, one finding in the exact accepted committed-source README
+at `workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/contracts/semantic_target/v1/README.md`.
+Raw stdout SHA-256:
+`ec1a96bbd4eca24dbcb701aa1f10a53057c5ede6d2bcb7ff2ec4b49e99a2ee19`.
+That source byte sequence is retained, not normalized. Authored integration
+extras are checked separately; a full-diff whitespace PASS is not claimed.
+
 ## Reproduce integration accounting and installation
 
 From this repository, use a new private scratch directory and the producer's
