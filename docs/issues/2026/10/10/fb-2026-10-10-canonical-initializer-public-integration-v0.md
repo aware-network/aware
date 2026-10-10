@@ -2,7 +2,7 @@
 
 - Slug: canonical-initializer-public-integration-v0
 - Tag: fb/2026-10-10/canonical-initializer-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -7399,6 +7399,7 @@
 
 
 
+
 ## Problem
 1. The reviewed initializer tree is not integrated; expanded predecessor sources obscure the current composition.
 
@@ -7406,8 +7407,10 @@
 
 
 
+
 ## Goal
 1. Project only the accepted 1086-file tree and exact historical retirements, preserving whole-envelope carriage and contributor governance.
+
 
 
 
@@ -7422,8 +7425,17 @@
 
 
 
+
+## Verified-by
+- Independent review: 19 guards + 8 integration checks including fresh offline hidden 40-package install; /tmp/aware-initializer-integration-review.fPMk135p/integration.xml SHA-256 c05f7f79f812495560ab99438d5c6d2a060d32d74a5f13704b41359cc1c1d875. No domain-matrix replay or public publication approval.
+- git:9766d77331bec067813b3a98dc875066e1d07136
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local exact integration complete through 13 distinct original-owner publications; final migration receipt git:dcc76b861887df78762690751929c3b2508466be. Each CAS/index reconciliation applied. Eight integration checks including fresh offline hidden 40-package installation and 19 projection guards passed. All 1086 accepted files, whole envelope and bootstrap remain exact; 4011 expanded files retired into pinned history, two nonempty Issue ancestors preserved. Independent review remains pending. No instruction freeze, selection, customer workflow, domain-matrix replay or push. See releases/canonical-initializer-fs-v1/LOCAL-INTEGRATION.md; raw whitespace finding remains qualified. (outcome: ready_for_independent_review) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Independent bounded PASS for aware-dev 3ca43e1bbd958dee53ce8d00f9c8fa993cb0605d and public handoff 0a7431742155cb6ab578b6c1b0ba7272ea598bfa. Reviewer reproduced 19 guards + eight integration checks including fresh offline hidden 40-package installation; verified all 1086 exact file bytes/executable modes, all 4011 recoverable retirements and all 13 receipt/delta/scope bindings without index debt. JUnit /tmp/aware-initializer-integration-review.fPMk135p/integration.xml SHA-256 c05f7f79f812495560ab99438d5c6d2a060d32d74a5f13704b41359cc1c1d875. Whole-envelope delivery only; six detached-wheel legal gaps remain. Existing whitespace finding and raw audit retained. Close bounded integration only; no selection, instruction freeze, domain-matrix replay or push. (outcome: independent_review_pass) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Exact local integration independently accepted; source/notice envelope, 1086 file bytes/modes, 4011 pinned-history retirements and 13 original-owner publications verified. Contributor governance preserved. Separately governed selection and instruction alignment follow; six detached-wheel gaps, draft instructions and no-push boundary remain.
