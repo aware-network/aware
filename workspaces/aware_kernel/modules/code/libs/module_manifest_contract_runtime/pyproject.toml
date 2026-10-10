@@ -1,0 +1,17 @@
+[project]
+license = "Apache-2.0"
+name = "aware-code-module-manifest-contract-runtime"
+version = "0.1.0"
+description = "Neutral full Code module manifest grammar and meaning codec."
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_code_module_manifest_contract_runtime"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

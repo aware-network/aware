@@ -10,6 +10,21 @@ from collections.abc import Callable
 from dataclasses import replace
 from importlib import metadata
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from aware_issue_sdk.draft_package import (
+        IssueDraftPackageBinding,
+        IssueDraftPackageCleanupDisposition,
+        IssueDraftPackageRequest,
+    )
+    from aware_issue_sdk.source_change import (
+        IssueSourceChangeAdmission,
+        IssueSourceChangeRequest,
+    )
+
+    from .draft_package import FilesystemIssueDraftPackageAdmission
+    from .source_change import FilesystemIssueSourceChangeAdmission
 
 from aware_issue_operational_runtime import (
     ActorEvidence,
@@ -18,7 +33,6 @@ from aware_issue_operational_runtime import (
     AuthorityKind,
     BindIssueScopePathsIntent,
     BlockIssueIntent,
-    CloseIssueIntent,
     EnsureIssueIntent,
     IssueAuthorityEvidence,
     IssueIntent,
@@ -69,7 +83,6 @@ from aware_issue_sdk import (
     render_issue_document,
     set_header_value,
     set_ownership_scope,
-    set_resolution,
     set_verified_by,
 )
 from aware_protocol_fs_adapter import (
@@ -79,16 +92,10 @@ from aware_protocol_fs_adapter import (
     resolve_repository_path_at_use,
 )
 from aware_protocol_runtime import ProtocolAdmissionOutcomeKind
-from aware_workspace_operator import (
-    WorkspaceCommitIssueMetadata,
-    WorkspaceCommitOptions,
-    run_workspace_commit,
-    verify_repository_commit_receipt,
-)
 
 FILESYSTEM_ISSUE_PROVIDER_REF = "aware_issue_fs_adapter.filesystem.v1"
 FILESYSTEM_ISSUE_DISTRIBUTION = "aware-issue-fs-adapter"
-WORKSPACE_COMMIT_OPERATOR_REF = "aware_workspace_operator.run_workspace_commit.v1"
+WORKSPACE_COMMIT_OPERATOR_REF = "aware_issue_sdk.repository_publication"
 ISSUE_PATH_TEMPLATE = "YYYY/MM/DD/fb-YYYY-MM-DD-<slug>.md"
 _ISSUE_REF = re.compile(
     r"^fb/(?P<date>\d{4}-\d{2}-\d{2})/"
@@ -237,6 +244,91 @@ class FilesystemIssueOperationProvider:
                 f"source_sha256:{projection.source_digest}",
             ),
         )
+
+    def admit_source_change(
+        self, request: IssueSourceChangeRequest
+    ) -> FilesystemIssueSourceChangeAdmission:
+        from .source_change import _admit
+
+        return _admit(self, request)
+
+    def validate_source_change(self, admission: IssueSourceChangeAdmission) -> None:
+        from .source_change import _validate_bound
+
+        _validate_bound(self, admission)
+
+    def retain_draft_inputs(
+        self,
+        *,
+        protocol_target: object,
+        physical_plan: object,
+        attempt_ref: str,
+        client_intent_id: str,
+    ) -> object:
+        from .draft_package import _retain_inputs
+
+        return _retain_inputs(
+            self, protocol_target, physical_plan, attempt_ref, client_intent_id
+        )
+
+    def require_draft_input_custody(
+        self, value, *, protocol_target, physical_plan, client_intent_id
+    ):
+        from .draft_package import require_draft_input_custody
+
+        return require_draft_input_custody(
+            value,
+            provider=self,
+            protocol_target=protocol_target,
+            physical_plan=physical_plan,
+            client_intent_id=client_intent_id,
+        )
+
+    def claim_draft_input_custody(
+        self, value, *, protocol_target, physical_plan, client_intent_id, context_ref
+    ):
+        from .draft_package import claim_draft_input_custody
+
+        return claim_draft_input_custody(
+            value,
+            provider=self,
+            protocol_target=protocol_target,
+            physical_plan=physical_plan,
+            client_intent_id=client_intent_id,
+            context_ref=context_ref,
+        )
+
+    def admit_draft_package(
+        self,
+        request: IssueDraftPackageRequest,
+        *,
+        protocol_target: object,
+        physical_plan: object,
+        input_custody: object | None = None,
+    ) -> FilesystemIssueDraftPackageAdmission:
+        from .draft_package import _admit
+
+        return _admit(self, request, protocol_target, physical_plan, input_custody)
+
+    def validate_draft_package(self, admission: object) -> None:
+        from .draft_package import _validate_bound
+
+        _validate_bound(self, admission)
+
+    def observe_draft_package_binding(
+        self, admission: object
+    ) -> IssueDraftPackageBinding:
+        from .draft_package import _observe_binding
+
+        return _observe_binding(self, admission)
+
+    def observe_draft_package_cleanup(
+        self, *, protocol_target: object, physical_plan: object
+    ) -> IssueDraftPackageCleanupDisposition:
+        """Detached original-attempt disposition, including failed issuance."""
+        from .draft_package import _observe_cleanup
+
+        return _observe_cleanup(self, protocol_target, physical_plan)
 
     def ensure_issue_snapshot(
         self,
@@ -600,226 +692,30 @@ class FilesystemIssueOperationProvider:
         )
 
     def close_issue(self, request: IssueCloseRequest) -> IssueMutationResult:
+        """Retired physical orchestration: select the genuine Issue SDK runtime.
+
+        This compatibility refusal performs no source/Git IO and never calls a
+        foreign SDK. The consumer must explicitly bind the original runtime.
+        """
         if type(request) is not IssueCloseRequest:
             raise TypeError("request must be IssueCloseRequest")
-        target = self._mutation_target(
+        return self._mutation_result(
             operation_ref=request.operation_ref,
             issue_ref=request.issue_ref,
-        )
-        if isinstance(target, IssueMutationResult):
-            return target
-        _profile, relative_path, path = target
-        try:
-            source_before = path.read_bytes()
-        except FileNotFoundError:
-            return self._mutation_result(
-                operation_ref=request.operation_ref,
-                issue_ref=request.issue_ref,
-                outcome=IssueMutationOutcome.ABSENT,
-                evidence=(f"record_path:{relative_path}",),
-            )
-        except OSError as error:
-            return self._mutation_result(
-                operation_ref=request.operation_ref,
-                issue_ref=request.issue_ref,
-                outcome=IssueMutationOutcome.AUTHORITY_UNAVAILABLE,
-                diagnostics=(f"issue_source_unavailable:{type(error).__name__}",),
-            )
-        try:
-            verified_publication_receipt = verify_repository_commit_receipt(
-                repo_root=self._repository_root,
-                publication_receipt_ref=request.publication_receipt_ref,
-                expected_issue_ref=request.issue_ref,
-            )
-        except (TypeError, ValueError) as error:
-            return self._mutation_result(
-                operation_ref=request.operation_ref,
-                issue_ref=request.issue_ref,
-                outcome=IssueMutationOutcome.INVALID,
-                source_sha256_before=_source_digest(source_before),
-                evidence=(f"rejecting_component:{WORKSPACE_COMMIT_OPERATOR_REF}",),
-                diagnostics=(str(error) or "publication_receipt_invalid",),
-            )
-        except OSError as error:
-            return self._mutation_result(
-                operation_ref=request.operation_ref,
-                issue_ref=request.issue_ref,
-                outcome=IssueMutationOutcome.AUTHORITY_UNAVAILABLE,
-                source_sha256_before=_source_digest(source_before),
-                diagnostics=(
-                    f"publication_receipt_verification_unavailable:{type(error).__name__}",
-                ),
-            )
-
-        def close_document(document: IssueDocument) -> None:
-            set_resolution(document=document, resolution=request.resolution)
-            set_verified_by(
-                document=document,
-                entries=(*request.verified_by, verified_publication_receipt),
-            )
-            self._set_lifecycle(
-                document=document,
-                status="Closed",
-                operation_ref=request.operation_ref,
-                actor_ref=request.actor_ref,
-            )
-
-        mutation = self._mutate_existing(
-            request=request,
-            intent_factory=lambda context: CloseIssueIntent(
-                context=context,
-                issue_ref=request.issue_ref,
-            ),
-            document_mutator=close_document,
-            precondition=lambda projection: self._close_precondition(
-                projection=projection,
-                request=request,
-            ),
-        )
-        if mutation.outcome is not IssueMutationOutcome.APPLIED:
-            return mutation
-        if mutation.projection is None or mutation.source_sha256_after is None:
-            raise AssertionError("applied close omitted its projection or digest")
-        publication = run_workspace_commit(
-            options=WorkspaceCommitOptions(
-                repo_root=self._repository_root,
-                issue_path=relative_path,
-                target_paths=(relative_path,),
-                message=f"Close {request.issue_ref}",
-                owner_id=request.actor_ref,
-                dry_run=False,
-                allow_empty=False,
-                issue_metadata=WorkspaceCommitIssueMetadata(
-                    issue_tag=request.issue_ref,
-                    issue_owner=mutation.projection.owner_ref or "",
-                    issue_status="In Progress",
-                    ownership_scope=mutation.projection.ownership_scope,
-                ),
-                expected_issue_source_sha256=mutation.source_sha256_after,
-            )
-        )
-        if publication.exit_code != 0 or publication.report.commit_hash is None:
-            rollback = self._replace_source(
-                relative_path=relative_path,
-                path=path,
-                expected_source_sha256=mutation.source_sha256_after,
-                source=source_before,
-            )
-            diagnostics = (publication.report.error or "closeout_publication_failed",)
-            if rollback is not None:
-                diagnostics = (
-                    *diagnostics,
-                    f"closeout_source_rollback_failed:{rollback.value}",
-                )
-            return self._mutation_result(
-                operation_ref=request.operation_ref,
-                issue_ref=request.issue_ref,
-                outcome=IssueMutationOutcome.AUTHORITY_UNAVAILABLE,
-                source_sha256_before=_source_digest(source_before),
-                evidence=(f"rejecting_component:{WORKSPACE_COMMIT_OPERATOR_REF}",),
-                diagnostics=diagnostics,
-            )
-        closeout_receipt = f"git:{publication.report.commit_hash}"
-        return replace(
-            mutation,
-            closeout_publication_receipt_ref=closeout_receipt,
-            shared_index_projection=publication.report.shared_index_projection,
-            shared_index_projection_error=publication.report.shared_index_projection_error,
-            index_reconciliation_pending=publication.report.index_reconciliation_pending,
-            evidence=(
-                *mutation.evidence,
-                f"implementation_publication_receipt:{verified_publication_receipt}",
-                f"closeout_publication_receipt:{closeout_receipt}",
-                f"enforcing_component:{WORKSPACE_COMMIT_OPERATOR_REF}",
-            ),
+            outcome=IssueMutationOutcome.AUTHORITY_UNAVAILABLE,
+            diagnostics=("issue_repository_runtime_required",),
         )
 
     def commit_workspace(
-        self,
-        request: IssueCommitWorkspaceRequest,
+        self, request: IssueCommitWorkspaceRequest
     ) -> IssueCommitWorkspaceResult:
+        """No writer fallback or foreign orchestration in a physical provider."""
         if type(request) is not IssueCommitWorkspaceRequest:
             raise TypeError("request must be IssueCommitWorkspaceRequest")
-        target = self._mutation_target(
-            operation_ref=request.operation_ref,
-            issue_ref=request.issue_ref,
-        )
-        if isinstance(target, IssueMutationResult):
-            return self._publication_result_from_mutation_refusal(
-                request=request,
-                refusal=target,
-            )
-        profile, relative_path, path = target
-        try:
-            observed_issue_source_sha256 = _source_digest(path.read_bytes())
-        except FileNotFoundError:
-            return self._publication_result(
-                request=request,
-                outcome=IssuePublicationOutcome.INVALID,
-                diagnostics=("issue_source_absent",),
-            )
-        except OSError as error:
-            return self._publication_result(
-                request=request,
-                outcome=IssuePublicationOutcome.AUTHORITY_UNAVAILABLE,
-                diagnostics=(f"issue_source_unavailable:{type(error).__name__}",),
-            )
-        if observed_issue_source_sha256 != request.expected_issue_source_sha256:
-            return self._publication_result(
-                request=request,
-                outcome=IssuePublicationOutcome.STALE,
-                evidence=(f"rejecting_component:{FILESYSTEM_ISSUE_PROVIDER_REF}",),
-                diagnostics=("expected_issue_source_sha256_mismatch",),
-            )
-        outcome = run_workspace_commit(
-            options=WorkspaceCommitOptions(
-                repo_root=self._repository_root,
-                issue_path=relative_path,
-                target_paths=request.target_paths,
-                message=request.message,
-                owner_id=request.actor_ref,
-                dry_run=request.dry_run,
-                allow_empty=False,
-                expected_issue_source_sha256=request.expected_issue_source_sha256,
-            )
-        )
-        report = outcome.report
-        if outcome.exit_code == 0:
-            publication_outcome = (
-                IssuePublicationOutcome.PLANNED
-                if request.dry_run
-                else IssuePublicationOutcome.APPLIED
-            )
-            evidence = (
-                "authority_mode:filesystem",
-                f"protocol_digest:{profile.protocol_manifest.digest}",
-                f"issue_record_path:{relative_path}",
-                f"issue_source_sha256:{observed_issue_source_sha256}",
-                f"actor_evidence_ref:{request.actor_evidence_ref}",
-                f"enforcing_component:{WORKSPACE_COMMIT_OPERATOR_REF}",
-            )
-            return self._publication_result(
-                request=request,
-                outcome=publication_outcome,
-                commit_hash=report.commit_hash,
-                shared_index_projection=report.shared_index_projection,
-                shared_index_projection_error=report.shared_index_projection_error,
-                index_reconciliation_pending=report.index_reconciliation_pending,
-                transaction_mode=report.transaction_mode,
-                reference_update=report.reference_update,
-                evidence=evidence,
-            )
-        error = report.error or "workspace_commit_failed"
         return self._publication_result(
             request=request,
-            outcome=_publication_refusal_outcome(error),
-            transaction_mode=report.transaction_mode,
-            reference_update=report.reference_update,
-            diagnostics=(error,),
-            shared_index_projection=report.shared_index_projection,
-            shared_index_projection_error=report.shared_index_projection_error,
-            index_reconciliation_pending=report.index_reconciliation_pending,
-            evidence=(f"rejecting_component:{WORKSPACE_COMMIT_OPERATOR_REF}",),
+            outcome=IssuePublicationOutcome.AUTHORITY_UNAVAILABLE,
+            diagnostics=("issue_repository_runtime_required",),
         )
 
     def _publication_result_from_mutation_refusal(

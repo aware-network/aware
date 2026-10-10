@@ -84,6 +84,12 @@ from .persistence import (
     PersistedIssueRecord,
     PersistenceWriteResult,
 )
+from .source_scope_policy import (
+    IssueSourceScopeDecision,
+    IssueSourceScopeRefusal,
+    evaluate_issue_source_scope,
+    issue_scope_covers_path,
+)
 from .state_machine import apply_issue_intent
 
 __all__ = [
@@ -117,6 +123,8 @@ __all__ = [
     "IssueOperationalState",
     "IssueOwnershipScopePath",
     "IssueSnapshot",
+    "IssueSourceScopeDecision",
+    "IssueSourceScopeRefusal",
     "IssueStateStore",
     "IssueStatus",
     "IssueTimeAuthority",
@@ -157,7 +165,9 @@ __all__ = [
     "derive_workflow_issue_activity_unavailable",
     "encode_operational_record",
     "encode_workflow_issue_activity_observation_closure",
+    "evaluate_issue_source_scope",
     "fingerprint",
+    "issue_scope_covers_path",
     "replay_journal",
     "stable_issue_ref",
     "stable_local_ref",

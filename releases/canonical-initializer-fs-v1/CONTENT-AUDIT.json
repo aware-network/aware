@@ -1,0 +1,64 @@
+{
+  "clearance": "not_granted",
+  "expanded_entries": 5938,
+  "findings": [
+    {
+      "path": "source/workspaces/aware_kernel/modules/code/libs/retained_registry_policy_runtime/tests/test_admitted_planning_execution.py",
+      "pattern": "aware_private_home"
+    },
+    {
+      "path": "source/workspaces/aware_kernel/modules/code/libs/retained_registry_policy_runtime/tests/test_calculation.py",
+      "pattern": "aware_private_home"
+    },
+    {
+      "path": "source/workspaces/aware_kernel/modules/code/libs/retained_registry_policy_runtime/tests/test_retained_input_admission.py",
+      "pattern": "aware_private_home"
+    },
+    {
+      "path": "source/workspaces/aware_kernel/modules/code/libs/retained_registry_policy_runtime/tests/test_v3_real_environment_authority_completion.py",
+      "pattern": "aware_private_home"
+    },
+    {
+      "path": "source/workspaces/aware_kernel/modules/code/libs/semantic_contract_runtime/python/tests/test_retained_scope_interfaces.py",
+      "pattern": "aware_private_home"
+    },
+    {
+      "path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/tests/test_current_head_two_stage_host.py",
+      "pattern": "aware_private_home"
+    },
+    {
+      "path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/tests/test_dependency_target_code_conformance.py",
+      "pattern": "aware_private_home"
+    },
+    {
+      "path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/tests/test_dependency_target_issuer.py",
+      "pattern": "aware_private_home"
+    },
+    {
+      "path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/tests/test_direct_policy_conformance.py",
+      "pattern": "aware_private_home"
+    },
+    {
+      "path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/tests/test_local_materialize_command.py",
+      "pattern": "aware_private_home"
+    },
+    {
+      "path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/tests/test_semantic_issuer_factory.py",
+      "pattern": "aware_private_home"
+    },
+    {
+      "path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/tests/test_v3_direct_command_composition.py",
+      "pattern": "aware_private_home"
+    }
+  ],
+  "patterns": [
+    "aware_private_home",
+    "aware_temporary_path",
+    "aws_access_key",
+    "client_private_home",
+    "github_token",
+    "private_evaluation_coordinate",
+    "private_key_header"
+  ],
+  "qualification": "Seven byte patterns including binaries and carried source archives; not exhaustive disclosure or secret clearance"
+}

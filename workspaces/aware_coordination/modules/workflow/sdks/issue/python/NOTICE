@@ -1,4 +1,6 @@
-aware-issue-sdk
-Copyright 2026 Luis Lechuga Ruiz
-Aware-authored work is Apache-2.0.
-Neutral consumer packaging projection of the pinned owner; no domain decision rewrite.
+Aware
+Copyright 2025-2026 Luis Lechuga Ruiz
+
+The Aware-authored files in this distribution are licensed under Apache-2.0.
+Separately distributed dependencies retain their own licenses and notices;
+this NOTICE does not relicense them.
