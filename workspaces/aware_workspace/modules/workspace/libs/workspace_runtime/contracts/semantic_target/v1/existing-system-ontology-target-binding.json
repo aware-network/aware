@@ -1,0 +1,51 @@
+{
+  "authority_kind": "local_uncommitted",
+  "binding_fingerprint": "sha256:6dd4056d7f85c0e51a2ca46f8f07fc655b676f594eecb7393230c9f6460e94fd",
+  "composition": {
+    "authority_ref": null,
+    "contract_ref": "aware.workspace.composition.v1",
+    "observation_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "resolution_state": "authored_declaration"
+  },
+  "contract_version": "aware.workspace.semantic-target-binding.v1",
+  "provider": {
+    "capability_key": "ontology.semantic_resolution",
+    "contract_schema_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "semantic_version": "1.0.0",
+    "supported_package_kinds": [
+      "ontology"
+    ],
+    "supported_source_contract_versions": [
+      "aware.code.existing-system-admitted-source-slice-authority.v1"
+    ]
+  },
+  "repository_snapshot": {
+    "binding_key": "local-root:representative-pilot",
+    "cursor": 0,
+    "epoch": "epoch-representative-1",
+    "snapshot_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "selection": {
+    "rationale": "Use the existing operations package.",
+    "selected_at": "2026-08-20T08:00:00+00:00",
+    "selected_by": "aware_id:operator-1",
+    "selector_mode": "human"
+  },
+  "source": {
+    "source_authority_fingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "source_capability_key": "existing_system.source",
+    "source_contract_version": "aware.code.existing-system-admitted-source-slice-authority.v1"
+  },
+  "target": {
+    "manifest_path": "workspaces/pilot/modules/operations/aware.module.toml",
+    "module_id": "operations",
+    "module_ref": "module:operations",
+    "package_id": "operations-ontology",
+    "package_kind": "ontology",
+    "package_ref": "package:operations-ontology",
+    "package_root": "workspaces/pilot/modules/operations/ontology",
+    "repository_ref": "repository:pilot",
+    "workspace_handle": "pilot",
+    "workspace_ref": "workspace:pilot"
+  }
+}

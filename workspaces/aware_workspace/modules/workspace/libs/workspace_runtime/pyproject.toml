@@ -1,0 +1,45 @@
+[project]
+name = "aware-workspace-runtime"
+version = "0.2.1"
+license = "Apache-2.0"
+description = "Materialization-independent local operational runtime for Aware Workspace."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+  { name = "AWARE Team" }
+]
+dependencies = [
+  "packaging>=24.0,<27.0",
+  "aware-code-module-manifest-contract-runtime>=0.1.0",
+  "aware-code-package-delta-contract>=0.1.0",
+  "aware-code-semantic-contract-runtime>=0.1.0",
+  "aware-file-system>=0.1.3",
+  "aware-workspace-sdk>=0.2.1,<0.3.0",
+  "aware-code-retained-registry-policy-runtime>=0.1.0,<0.2.0",
+]
+
+[project.entry-points."aware_cli.command_packs"]
+workspace = "aware_workspace_command.pack:get_command_specs"
+
+[project.optional-dependencies]
+service = ["aware-local-service-runtime>=0.1.0"]
+publication = ["aware-issue-sdk>=0.10.2,<0.11.0"]
+test = [
+  "pytest>=8.2.0,<10.0.0",
+  "pytest-asyncio>=0.23.7,<2.0.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+  "aware_workspace_command",
+  "aware_workspace_materialize_transport",
+  "aware_workspace_runtime",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

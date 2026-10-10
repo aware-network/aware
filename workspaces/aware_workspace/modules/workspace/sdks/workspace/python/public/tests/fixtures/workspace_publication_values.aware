@@ -1,0 +1,283 @@
+// Isolated preparation fixture, not a registered SDK or authority constructor.
+// Collections preserve exact order; SDK tuple/list and codec qualification remains separate.
+
+enum WorkspacePublicationState {
+    not_published
+    published
+    unknown
+}
+
+enum WorkspaceReferenceUpdateState {
+    not_run
+    cas_applied
+    cas_failed
+    unknown
+}
+
+enum WorkspaceIndexProjectionState {
+    not_run
+    applied
+    pending
+    failed
+    unknown
+}
+
+enum WorkspaceCleanupState {
+    not_attempted
+    completed
+    incomplete
+    unknown
+}
+
+enum WorkspacePhysicalEffectKind {
+    repository_reference_update
+    shared_index_projection
+    transaction_index_write
+    transaction_index_cleanup
+    recovery_record_write
+    recovery_record_cleanup
+    descriptor_release
+    source_compensation
+}
+
+enum WorkspacePhysicalEffectState {
+    not_attempted
+    applied
+    failed
+    unknown
+}
+
+enum WorkspacePublicationFailurePhase {
+    request
+    admission
+    physical
+    finish
+    result
+    cleanup
+}
+
+class WorkspaceFileIdentity : inline_value {
+    device Int
+    inode Int
+}
+
+class WorkspaceGitCommand : inline_value {
+    arguments String[]
+}
+
+enum WorkspaceRepositoryLockReleaseObservationRepositoryLockRelease {
+    not_acquired
+    confirmed_released
+    not_released
+    unknown
+}
+
+enum WorkspaceRepositoryWriterObservationRepositoryWritePreflight {
+    not_run
+    passed
+    failed
+}
+
+enum WorkspaceRepositoryWriterObservationTransactionMode {
+    not_run
+    shared_index_snapshot_v0
+    isolated_index_atomic_ref_v1
+}
+
+enum WorkspaceRepositoryWriterObservationReferenceUpdate {
+    not_run
+    cas_applied
+    cas_failed
+}
+
+enum WorkspaceRepositoryWriterObservationSharedIndexProjection {
+    not_run
+    applied
+    failed
+}
+
+enum WorkspaceRepositoryWriterObservationStatus {
+    ok
+    failed
+    planned
+}
+
+enum WorkspaceRepositoryCommitResultAdmissionCompletion {
+    not_attempted
+    completed
+    pending
+    unknown
+}
+
+class WorkspaceRepositoryCommitRequest : inline_value {
+    repository_ref String
+    target_paths String[]
+    message String
+    attempt_ref String
+}
+
+class WorkspaceRepositoryPublicationBinding : inline_value {
+    binding_ref String
+    attempt_ref String
+    repository_ref String
+    publication_reference String
+    expected_head String?
+    target_paths String[]
+    postimages_digest String
+    message_digest String
+    provider_generation String
+    provider_ref String
+    execution_id String
+}
+
+class WorkspaceRepositoryPlanVerificationRequest : inline_value {
+    binding WorkspaceRepositoryPublicationBinding
+}
+
+class WorkspaceRepositoryPlanVerification : inline_value {
+    binding WorkspaceRepositoryPublicationBinding
+    original_plan_recognized Bool
+    plan_phase String
+    observation_ref String
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryAttemptObserveRequest : inline_value {
+    repository_ref String
+    binding_ref String
+    attempt_ref String
+    provider_ref String
+    provider_generation String
+    execution_id String
+}
+
+class WorkspaceRepositoryAttemptObservation : inline_value {
+    request WorkspaceRepositoryAttemptObserveRequest
+    observation_ref String
+    attempt_recognized Bool
+    plan_observation WorkspacePublicationPlanObservation?
+    result WorkspaceRepositoryCommitResult?
+    lock_release WorkspaceRepositoryLockReleaseObservation?
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryLockReleaseObservation : inline_value {
+    binding_ref String
+    attempt_ref String
+    provider_ref String
+    provider_generation String
+    transaction_ref String
+    release_observation_ref String
+    repository_lock_release WorkspaceRepositoryLockReleaseObservationRepositoryLockRelease
+    diagnostics String[]
+}
+
+class WorkspacePublicationCleanupObservation : inline_value {
+    binding_ref String?
+    attempt_ref String
+    cleanup_state WorkspaceCleanupState
+    lock_release WorkspaceRepositoryLockReleaseObservation?
+    ledger_complete Bool
+    effects WorkspaceRepositoryPhysicalEffect[]
+    diagnostics String[]
+}
+
+class WorkspacePublicationPlanObservation : inline_value {
+    binding_ref String?
+    attempt_ref String
+    resource_ownership String
+    cleanup_state WorkspaceCleanupState
+    ledger_complete Bool
+    effects WorkspaceRepositoryPhysicalEffect[]
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryPhysicalEffect : inline_value {
+    effect_ref String
+    subject_ref String
+    kind WorkspacePhysicalEffectKind
+    state WorkspacePhysicalEffectState
+    before_ref String?
+    after_ref String?
+    before_digest String?
+    after_digest String?
+    before_identity WorkspaceFileIdentity?
+    after_identity WorkspaceFileIdentity?
+    mode Int?
+    durability_confirmed Bool?
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryWriterObservation : inline_value {
+    repo_root String
+    issue_path String?
+    issue_tag String?
+    issue_owner String?
+    issue_status String?
+    committed_issue_blob_oid String?
+    owner_id String?
+    ownership_scope String[]
+    requested_paths String[]
+    staged_paths String[]
+    commit_message String?
+    commit_hash String?
+    idempotency_ref String?
+    request_fingerprint String?
+    idempotent_replay Bool
+    repository_write_preflight WorkspaceRepositoryWriterObservationRepositoryWritePreflight
+    index_restored Bool?
+    transaction_mode WorkspaceRepositoryWriterObservationTransactionMode
+    expected_head String?
+    candidate_commit String?
+    updated_reference String?
+    reference_update WorkspaceRepositoryWriterObservationReferenceUpdate
+    shared_index_unchanged Bool?
+    shared_index_projection WorkspaceRepositoryWriterObservationSharedIndexProjection
+    shared_index_projection_error String?
+    index_reconciliation_pending Bool
+    repository_admission_ref String?
+    repository_admission_evidence_digest String?
+    dry_run Bool
+    command_log WorkspaceGitCommand[]
+    status WorkspaceRepositoryWriterObservationStatus
+    error String?
+}
+
+class WorkspaceRepositoryCommitResult : inline_value {
+    binding_ref String
+    attempt_ref String
+    outcome String
+    publication_state WorkspacePublicationState
+    expected_head String?
+    candidate_commit String?
+    commit_hash String?
+    updated_reference String?
+    reference_update WorkspaceReferenceUpdateState
+    index_projection WorkspaceIndexProjectionState
+    cleanup_state WorkspaceCleanupState
+    lock_release WorkspaceRepositoryLockReleaseObservation?
+    admission_completion WorkspaceRepositoryCommitResultAdmissionCompletion
+    ledger_complete Bool
+    work_admission_receipt_ref String?
+    transaction_mode String
+    shared_index_unchanged Bool?
+    index_reconciliation_pending Bool?
+    original_writer_report WorkspaceRepositoryWriterObservation?
+    effects WorkspaceRepositoryPhysicalEffect[]
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryPublicationError : inline_value {
+    code String
+    phase WorkspacePublicationFailurePhase
+    binding_ref String?
+    attempt_ref String
+    provider_invoked Bool
+    result_validation_complete Bool
+    observation WorkspaceRepositoryCommitResult?
+    plan_observation WorkspacePublicationPlanObservation?
+    original_cause_type String?
+    original_cause_message String?
+    diagnostics String[]
+}

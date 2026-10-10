@@ -1,0 +1,264 @@
+// Unregistered qualification successor; no operation or capability constructor.
+// Lower with the unchanged Issue production publication value source.
+
+enum IssueRepositoryPublicationConsumeRequestPurpose {
+    repository_publication
+    issue_closeout_publication
+    index_reconciliation
+}
+
+enum IssueRepositoryPublicationPhysicalEffectKind {
+    repository_reference_update
+    shared_index_projection
+    transaction_index_write
+    transaction_index_cleanup
+    recovery_record_write
+    recovery_record_cleanup
+    descriptor_release
+    source_compensation
+}
+
+enum IssueRepositoryPublicationPhysicalEffectState {
+    not_attempted
+    applied
+    failed
+    unknown
+}
+
+enum IssueRepositoryPublicationLockReleaseObservationRepositoryLockRelease {
+    not_acquired
+    confirmed_released
+    not_released
+    unknown
+}
+
+enum IssueRepositoryPublicationEffectObservationPublicationState {
+    not_published
+    published
+    unknown
+}
+
+enum IssueRepositoryPublicationEffectObservationReferenceUpdate {
+    not_run
+    cas_applied
+    cas_failed
+    unknown
+}
+
+enum IssueRepositoryPublicationEffectObservationIndexProjection {
+    not_run
+    applied
+    pending
+    failed
+    unknown
+}
+
+enum IssueRepositoryPublicationEffectObservationCleanupState {
+    not_attempted
+    completed
+    incomplete
+    unknown
+}
+
+enum IssueRepositoryPublicationEffectObservationAdmissionCompletion {
+    not_attempted
+    completed
+    pending
+    unknown
+}
+
+enum IssueRepositoryPublicationAdmissionObservationPurpose {
+    repository_publication
+    issue_closeout_publication
+    index_reconciliation
+}
+
+enum IssueRepositoryPublicationAdmissionObservationConsumptionState {
+    not_consumed
+    consumed
+    unknown
+}
+
+enum IssueRepositoryPublicationAdmissionObservationCompletionState {
+    not_attempted
+    completed
+    pending
+    unknown
+}
+
+enum IssuePublicationCleanupObservationResourceOwnership {
+    not_acquired
+    owned
+    released
+    unknown
+}
+
+enum IssuePublicationCleanupObservationCleanupState {
+    not_attempted
+    completed
+    incomplete
+    unknown
+}
+
+enum IssueCloseoutSourceObservationSourceChangeState {
+    not_attempted
+    applied
+    failed
+    unknown
+}
+
+enum IssueCloseoutSourceObservationCleanupState {
+    not_attempted
+    completed
+    incomplete
+    unknown
+}
+
+enum IssueCloseoutObservationCompletionState {
+    not_attempted
+    completed
+    pending
+    unknown
+}
+
+class IssueRepositoryPublicationConsumeRequest : inline_value {
+    workspace_binding_ref String
+    attempt_ref String
+    workspace_provider_ref String
+    workspace_provider_generation String
+    execution_id String
+    consumer_ref String
+    purpose IssueRepositoryPublicationConsumeRequestPurpose
+}
+
+class IssueRepositoryFileIdentity : inline_value {
+    device Int
+    inode Int
+}
+
+class IssueRepositoryPublicationPhysicalEffect : inline_value {
+    effect_ref String
+    subject_ref String
+    kind IssueRepositoryPublicationPhysicalEffectKind
+    state IssueRepositoryPublicationPhysicalEffectState
+    before_ref String?
+    after_ref String?
+    before_digest String?
+    after_digest String?
+    before_identity IssueRepositoryFileIdentity?
+    after_identity IssueRepositoryFileIdentity?
+    mode Int?
+    durability_confirmed Bool?
+    diagnostics String[]
+}
+
+class IssueRepositoryPublicationLockReleaseObservation : inline_value {
+    binding_ref String
+    attempt_ref String
+    provider_ref String
+    provider_generation String
+    transaction_ref String
+    release_observation_ref String
+    repository_lock_release IssueRepositoryPublicationLockReleaseObservationRepositoryLockRelease
+    diagnostics String[]
+}
+
+class IssueRepositoryPublicationEffectObservation : inline_value {
+    binding IssueRepositoryPublicationBinding
+    workspace_observation_ref String
+    work_admission_receipt_ref String
+    publication_receipt_ref String?
+    publication_state IssueRepositoryPublicationEffectObservationPublicationState
+    expected_head String?
+    candidate_commit String?
+    commit_hash String?
+    updated_reference String?
+    reference_update IssueRepositoryPublicationEffectObservationReferenceUpdate
+    index_projection IssueRepositoryPublicationEffectObservationIndexProjection
+    cleanup_state IssueRepositoryPublicationEffectObservationCleanupState
+    lock_release IssueRepositoryPublicationLockReleaseObservation?
+    admission_completion IssueRepositoryPublicationEffectObservationAdmissionCompletion
+    transaction_mode String
+    shared_index_unchanged Bool?
+    index_reconciliation_pending Bool?
+    effects IssueRepositoryPublicationPhysicalEffect[]
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class IssueRepositoryPublicationAdmissionObservation : inline_value {
+    issue_ref String
+    expected_issue_source_sha256 String
+    provider_ref String
+    provider_generation String
+    execution_id String
+    observation_ref String
+    attempt_ref String
+    binding IssueRepositoryPublicationBinding
+    admission_receipt_ref String
+    enrollment_receipt_ref String?
+    work_admission_receipt_ref String?
+    consumer_ref String?
+    purpose IssueRepositoryPublicationAdmissionObservationPurpose
+    phase String
+    consumption_state IssueRepositoryPublicationAdmissionObservationConsumptionState
+    completion_state IssueRepositoryPublicationAdmissionObservationCompletionState
+    publication IssueRepositoryPublicationEffectObservation?
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class IssuePublicationCleanupObservation : inline_value {
+    issue_ref String?
+    provider_ref String
+    provider_generation String
+    execution_id String
+    observation_ref String
+    attempt_ref String
+    admission_receipt_ref String?
+    resource_ownership IssuePublicationCleanupObservationResourceOwnership
+    cleanup_state IssuePublicationCleanupObservationCleanupState
+    publication IssueRepositoryPublicationEffectObservation?
+    source_observation IssueCloseoutSourceObservation?
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class IssueCloseoutSourceObservation : inline_value {
+    issue_ref String
+    provider_ref String
+    provider_generation String
+    execution_id String
+    observation_ref String
+    attempt_ref String
+    close_admission_receipt_ref String
+    source_path String
+    source_change_state IssueCloseoutSourceObservationSourceChangeState
+    source_sha256_before String?
+    source_sha256_after String?
+    source_identity_before IssueRepositoryFileIdentity?
+    source_identity_after IssueRepositoryFileIdentity?
+    source_mode_before Int?
+    source_mode_after Int?
+    durability_confirmed Bool?
+    cleanup_state IssueCloseoutSourceObservationCleanupState
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class IssueCloseoutObservation : inline_value {
+    issue_ref String
+    provider_ref String
+    provider_generation String
+    execution_id String
+    observation_ref String
+    attempt_ref String
+    close_admission_receipt_ref String
+    implementation_publication_receipt_ref String
+    closeout_publication_receipt_ref String?
+    source_observation IssueCloseoutSourceObservation?
+    publication_admission IssueRepositoryPublicationAdmissionObservation?
+    completion_state IssueCloseoutObservationCompletionState
+    ledger_complete Bool
+    diagnostics String[]
+}

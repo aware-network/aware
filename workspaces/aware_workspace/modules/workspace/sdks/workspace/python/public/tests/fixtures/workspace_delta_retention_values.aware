@@ -1,0 +1,35 @@
+// Unregistered descriptive qualification fixture, not a client or authority.
+// Refusal evidence omits the live exception cause; it cannot restore a handle.
+
+enum WorkspaceRepositoryDeltaRetentionPhase {
+    allocated
+    initializing
+    active
+    refused
+    released
+}
+
+enum WorkspaceRepositoryDeltaRetentionRefusalCode {
+    retention_not_issued
+    retention_owner_mismatch
+    retention_binding_mismatch
+    retention_process_mismatch
+    retention_not_active
+    retention_initializer_spent
+    retention_storage_initialization_refused
+    retention_supplier_unavailable
+}
+
+class WorkspaceRepositoryDeltaRetentionObservation : inline_value {
+    retention_ref String
+    repository_binding_ref String?
+    phase WorkspaceRepositoryDeltaRetentionPhase
+    provider_generation String
+    original_process_id Int
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryDeltaRetentionRefusalEvidence : inline_value {
+    code WorkspaceRepositoryDeltaRetentionRefusalCode
+    observation WorkspaceRepositoryDeltaRetentionObservation?
+}

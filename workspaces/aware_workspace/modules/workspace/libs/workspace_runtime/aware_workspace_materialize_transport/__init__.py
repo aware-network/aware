@@ -1,0 +1,53 @@
+"""Portable Workspace materialization command transport."""
+
+from .contracts import (
+    WORKSPACE_MATERIALIZE_COMMAND_PROPOSAL_V2,
+    WORKSPACE_MATERIALIZE_COMMAND_PROPOSAL_V3,
+    WORKSPACE_MATERIALIZE_FAILURE_CODES_V2,
+    WORKSPACE_MATERIALIZE_HOST_COUNTER_ORDER_V2,
+    WORKSPACE_MATERIALIZE_HOST_RESULT_V2,
+    WORKSPACE_MATERIALIZE_HOST_RESULT_V4,
+    WORKSPACE_MATERIALIZE_HOST_STAGE_ORDER_V2,
+    WORKSPACE_MATERIALIZE_SELECTOR_KINDS_V2,
+    WORKSPACE_MATERIALIZE_TRANSPORT_NON_CLAIMS,
+    WorkspaceMaterializeCommandProposalV2,
+    WorkspaceMaterializeCommandProposalV3,
+    WorkspaceMaterializeCommandSelectorV2,
+    WorkspaceMaterializeHostResultV2,
+    WorkspaceMaterializeHostResultV4,
+    WorkspaceMaterializeSelectedRootV1,
+    WorkspaceMaterializeTransportContractError,
+    empty_workspace_materialize_host_counters_v2,
+)
+from .local_service import (
+    WORKSPACE_MATERIALIZE_LOCAL_SERVICE_CAPABILITY,
+    WORKSPACE_MATERIALIZE_LOCAL_SERVICE_OPERATION,
+    WORKSPACE_MATERIALIZE_ROUTE_ENV,
+    WorkspaceMaterializeLocalServiceTransport,
+    default_workspace_materialize_transport,
+)
+
+__all__ = [
+    "WORKSPACE_MATERIALIZE_COMMAND_PROPOSAL_V2",
+    "WORKSPACE_MATERIALIZE_COMMAND_PROPOSAL_V3",
+    "WORKSPACE_MATERIALIZE_FAILURE_CODES_V2",
+    "WORKSPACE_MATERIALIZE_HOST_COUNTER_ORDER_V2",
+    "WORKSPACE_MATERIALIZE_HOST_RESULT_V2",
+    "WORKSPACE_MATERIALIZE_HOST_RESULT_V4",
+    "WORKSPACE_MATERIALIZE_HOST_STAGE_ORDER_V2",
+    "WORKSPACE_MATERIALIZE_LOCAL_SERVICE_CAPABILITY",
+    "WORKSPACE_MATERIALIZE_LOCAL_SERVICE_OPERATION",
+    "WORKSPACE_MATERIALIZE_ROUTE_ENV",
+    "WORKSPACE_MATERIALIZE_SELECTOR_KINDS_V2",
+    "WORKSPACE_MATERIALIZE_TRANSPORT_NON_CLAIMS",
+    "WorkspaceMaterializeCommandProposalV2",
+    "WorkspaceMaterializeCommandProposalV3",
+    "WorkspaceMaterializeCommandSelectorV2",
+    "WorkspaceMaterializeHostResultV2",
+    "WorkspaceMaterializeHostResultV4",
+    "WorkspaceMaterializeSelectedRootV1",
+    "WorkspaceMaterializeLocalServiceTransport",
+    "WorkspaceMaterializeTransportContractError",
+    "default_workspace_materialize_transport",
+    "empty_workspace_materialize_host_counters_v2",
+]

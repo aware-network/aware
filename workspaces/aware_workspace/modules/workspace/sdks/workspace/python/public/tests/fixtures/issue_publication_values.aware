@@ -1,0 +1,34 @@
+// Isolated preparation fixture, not a registered SDK or authority constructor.
+// Collections preserve exact order; SDK tuple/list and codec qualification remains separate.
+
+enum IssueRepositoryPublicationEnrollmentRequestPurpose {
+    repository_publication
+    issue_closeout_publication
+    index_reconciliation
+}
+
+class IssueRepositoryPublicationBinding : inline_value {
+    workspace_binding_ref String
+    attempt_ref String
+    repository_ref String
+    publication_reference String
+    expected_head String?
+    target_paths String[]
+    postimages_digest String
+    message_digest String
+    workspace_provider_generation String
+    workspace_provider_ref String
+    execution_id String
+}
+
+class IssueRepositoryPublicationRequest : inline_value {
+    issue_ref String
+    expected_issue_source_sha256 String
+    binding IssueRepositoryPublicationBinding
+}
+
+class IssueRepositoryPublicationEnrollmentRequest : inline_value {
+    binding IssueRepositoryPublicationBinding
+    consumer_ref String
+    purpose IssueRepositoryPublicationEnrollmentRequestPurpose
+}

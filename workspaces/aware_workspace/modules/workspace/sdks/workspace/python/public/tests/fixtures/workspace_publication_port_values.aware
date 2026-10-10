@@ -1,0 +1,66 @@
+// Unregistered qualification successor; no operation or capability constructor.
+// Lower with the unchanged Workspace production publication value source.
+
+enum WorkspaceRepositoryPublicationObservationReceiptState {
+    present
+    absent
+    unknown
+}
+
+enum WorkspaceRepositoryPublicationObservationReachabilityState {
+    reachable
+    not_reachable
+    unknown
+}
+
+enum WorkspaceRepositoryIndexReconcileResultReconciliationState {
+    not_attempted
+    applied
+    pending
+    failed
+    unknown
+}
+
+class WorkspaceRepositoryPublicationObserveRequest : inline_value {
+    repository_ref String
+    publication_receipt_ref String
+    expected_binding_ref String?
+}
+
+class WorkspaceRepositoryPublicationObservation : inline_value {
+    request WorkspaceRepositoryPublicationObserveRequest
+    observation_ref String
+    provider_ref String
+    provider_generation String
+    receipt_state WorkspaceRepositoryPublicationObservationReceiptState
+    reachability_state WorkspaceRepositoryPublicationObservationReachabilityState
+    commit_hash String?
+    binding WorkspaceRepositoryPublicationBinding?
+    expected_binding_matches Bool?
+    result WorkspaceRepositoryCommitResult?
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryIndexReconcileRequest : inline_value {
+    repository_ref String
+    publication_receipt_ref String
+    target_paths String[]
+    attempt_ref String
+    expected_head String?
+}
+
+class WorkspaceRepositoryIndexReconcileResult : inline_value {
+    request WorkspaceRepositoryIndexReconcileRequest
+    observation_ref String
+    provider_ref String
+    provider_generation String
+    source_binding_ref String?
+    work_admission_receipt_ref String?
+    reconciliation_state WorkspaceRepositoryIndexReconcileResultReconciliationState
+    result WorkspaceRepositoryCommitResult?
+    lock_release WorkspaceRepositoryLockReleaseObservation?
+    effects WorkspaceRepositoryPhysicalEffect[]
+    ledger_complete Bool
+    diagnostics String[]
+}
