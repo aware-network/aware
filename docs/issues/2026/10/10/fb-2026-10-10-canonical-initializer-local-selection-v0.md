@@ -22,14 +22,17 @@
 
 
 
+
 ## Problem
 1. The accepted integration still describes a proposed unintegrated layout; no explicit local delivery selection exists.
 
 
 
 
+
 ## Goal
 1. Select only the exact reviewed initializer delivery, retaining Workspace portable_protocols as sole package selector and a6 contributor governance.
+
 
 
 
@@ -42,7 +45,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Exact eight-file local selection implemented against accepted integration closeout d669df7da01970a12b782663eefa8682d97bbf32. Seven checks passed, including fresh offline hidden 40-package install, all unaffected baseline bytes and all Git executable modes preserved, unchanged whole envelope/sources/notices/installer and contributor a6. JUnit /tmp/aware-initializer-selection-proof.wHVW9pht/selection.xml SHA-256 7699ac49347ee1a45273e43cbcde9091edb38975c27b78bbe3f756255a6cef85. Delivery record is not a package selector; portable_protocols remains canonical. Independent selection review pending, instructions draft, detached-wheel gaps remain. No domain/customer replay, contributor switch, freeze or push. (outcome: ready_for_independent_review) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Independent bounded local selection PASS for e55b58a08917, implementation evidence 6d6260b0418f. Seven checks passed including fresh offline hidden 40-package installation; exact eight-file delta, unaffected baseline bytes/modes, original scope/digest/CAS/index receipts and unchanged accepted artifacts verified. Independent JUnit /tmp/aware-initializer-selection-review.FhIZW7ve/selection.xml SHA-256 1252e48503fead96410a968ceef3e5799c902cf767d4836e60fce7a561d59ed4. portable_protocols remains sole package selector; whole-envelope carriage required, six detached-wheel legal gaps unresolved. Instructions draft; no repeated installation, 2098-case proof, customer replay, contributor migration, freeze, transfer or push during acceptance recording. (outcome: independent_review_pass) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

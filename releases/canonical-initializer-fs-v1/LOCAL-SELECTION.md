@@ -1,7 +1,7 @@
 # Local initializer selection
 
 The exact reviewed initializer distribution is selected for this local checkout.
-Instructions remain draft and independent selection review remains pending.
+The bounded local selection has passed independent review. Instructions remain draft.
 Nothing here authorizes transfer, push, contributor migration or a registry release.
 
 [SELECTED.json](../SELECTED.json) records delivery coordinates, not packages.
@@ -56,8 +56,8 @@ current wording and links, then reuses the accepted installer proof method in
 a fresh offline namespace. It does not repeat the 2,098-case domain matrix or
 provide a participant runner. Linux `bwrap` and Python 3.12 are required.
 
-Next: independent local selection review. Instruction freeze and revision-pinned
-public acquisition require a separate explicitly authorized publication cut.
+Instruction freeze and revision-pinned public acquisition require a separate
+explicitly authorized publication cut.
 
 Implementer replay: seven checks passed, including a fresh offline hidden
 installation of all 40 pinned versions, clean dependency checks, no
@@ -71,3 +71,29 @@ Private installation receipt: `/tmp/aware-initializer-selection-proof.wHVW9pht/i
 SHA-256 `407b4287704ea808c721a805d7ff8d82a0ce21f2cb318ab7c435cd5bfefd19c2`.
 These maintainer coordinates are not installation prerequisites; the replay
 above produces new receipts. No payload, source, notice or installer bytes changed.
+
+## Independent acceptance
+
+Independent review accepted selection checkpoint
+`e55b58a0891707ad31c0cfe7775db40122c4f28d`, with implementation evidence
+`6d6260b0418fd6461e2ebb02126c1feaabfc4ec3`. Seven checks passed, including
+fresh offline, checkout-hidden installation of all 40 packages. The reviewer
+also matched the actual dry-run/apply receipts, Issue scope and observed digest;
+no index reconciliation remained pending.
+
+The exact eight-file delta, every unaffected baseline file and executable mode,
+and unchanged payload, sources, notices, installer and contributor a6 were
+verified. `SELECTED.json` remains the delivery pointer and selection-time review
+snapshot; `portable_protocols` remains the sole package selector.
+
+Independent JUnit: `/tmp/aware-initializer-selection-review.FhIZW7ve/selection.xml`;
+SHA-256 `1252e48503fead96410a968ceef3e5799c902cf767d4836e60fce7a561d59ed4`.
+These private maintainer coordinates are evidence, not customer prerequisites.
+Acceptance is recorded through the original Issue owner, separately from its
+Issue-only closeout. No new installation or domain/customer workflow was run
+while recording it.
+
+Whole-envelope carriage remains required; the six detached-wheel legal gaps
+are unresolved. This acceptance neither repeats the 2,098-case domain proof
+nor establishes unassisted onboarding. Instructions remain draft, and no
+instruction freeze, contributor migration, transfer or push is authorized.
