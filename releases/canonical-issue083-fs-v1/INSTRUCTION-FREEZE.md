@@ -82,3 +82,25 @@ and one installer deselection. The phrase was split by Markdown wrapping; only
 the assertion's whitespace treatment changed. Its failed XML remains retained,
 SHA-256 `483cd922fb54d377e1d380083b270832fa6ac60badef9a369727a4fdf7c2b35a`.
 That correction changes no customer instruction bytes or runtime behavior.
+
+## Original local publication evidence
+
+Implementation: `df6320206e761665ecf7246959138e20eed6ed43`. Its actual delta is
+exactly the ten admitted paths. Original contributor a6 dry-run/apply share the
+same paths, message and Issue-byte guard
+`sha256:7651952c90322ea500bc2a107f112b3c029f24061a18bbac21f9e764bcd4adba`.
+The applied receipt reports `reference_update=cas_applied`,
+`transaction_mode=isolated_index_atomic_ref_v1`, `shared_index_projection=applied`
+and `index_reconciliation_pending=false`. The Workspace publication owner is
+unchanged. No instruction review, transfer or push follows from this local commit.
+
+Original receipt SHA-256 values:
+
+- Read: `7a270f137418c242811546073e9008698d6806dbafa8e933918a4886e7b5cb25`.
+- Dry-run: `e97cb37e6d6ae9bf31e14fa4abd55fd1a29ae1e9839b524b72f055e45759e497`.
+- Apply: `ae974212a8817e49563068e682628687f781628e7a3fac9aaaa1d9f01b989684`.
+- Final overlapping accounting, six passed / one installation deselected:
+  `8579d4ff2b2f477ddcca57c00b54dd722102329c81cfdf15ae8efe8693d99f63`.
+
+The governing Issue remains In Progress for independent freeze review. Its
+authored acceptance criteria are preserved; evidence does not hand-check them.
