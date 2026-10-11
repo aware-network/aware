@@ -380,8 +380,9 @@ def test_mounted_real_publication_then_invalid_return_preserves_effects(
 
 def test_successor_dependency_and_existing_entrypoint_are_explicit():
     project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())
-    assert project["project"]["version"] == "0.8.0"
+    assert project["project"]["version"] == "0.8.3"
     assert "aware-command-runtime>=0.1.1,<0.2.0" in project["project"]["dependencies"]
+    assert "aware-issue-fs-adapter>=0.9.4,<0.10.0" in project["project"]["dependencies"]
     assert project["project"]["scripts"] == {
         "aware-issue-cli": "aware_issue_cli.main:main"
     }

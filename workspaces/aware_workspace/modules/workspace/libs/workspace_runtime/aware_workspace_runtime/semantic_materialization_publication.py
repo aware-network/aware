@@ -2771,6 +2771,28 @@ class WorkspaceSemanticMaterializationPublisher:
             # Held Workspace rejection frames do not own another store alias.
             del self, occurrence
 
+    def _validate_graph_v5_record_transition(
+        self,
+        previous_body: bytes | None,
+        proposed_body: bytes,
+        *,
+        previous_head_body: bytes | None,
+        proposed_head_body: bytes | None,
+        expected_output_roles: tuple[str, ...],
+    ) -> None:
+        """Check write data outside exclusion; supply no approval or store effect."""
+        from .package_occurrence_lineage import validate_record_transition
+
+        try:
+            validate_record_transition(
+                previous_body, proposed_body,
+                previous_head_body=previous_head_body,
+                proposed_head_body=proposed_head_body,
+                expected_output_roles=expected_output_roles,
+            )
+        finally:
+            del self, previous_body, proposed_body, previous_head_body, proposed_head_body
+
     def _read_graph_v4_head(
         self,
         package_ref: str,

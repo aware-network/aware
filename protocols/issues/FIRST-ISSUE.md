@@ -26,8 +26,8 @@ docs/issues/2026/10/11/fb-2026-10-11-json-checker-draft.md
 The reference is used by `--issue-ref`; the repository-relative record path is
 used by `--scope-path`. They are not interchangeable. If you initialized a
 different `--issue-root`, use that configured root for the record path below.
-The installed help currently lists `--issue-ref` without this syntax; do not
-guess a different encoding when it returns `issue_ref_invalid`.
+The installed help and owner diagnostics explain this syntax. On
+`issue_ref_invalid`, stop and inspect the exact diagnostic; do not guess or retry.
 
 ## Prerequisites and example outcome
 

@@ -1,16 +1,21 @@
 [project]
 name = "aware-workspace-sdk"
-version = "0.2.1"
+version = "0.2.2"
 description = "Neutral Workspace SDK with explicitly selected original authority providers."
 license = "Apache-2.0"
 authors = [{ name = "AWARE Team" }]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "aware-workspace-runtime>=0.2.1,<0.3.0",
+  "aware-workspace-runtime>=0.2.2,<0.3.0",
 ]
 
 [project.optional-dependencies]
+source_projection = [
+  "aware-workspace-runtime[source_projection]>=0.2.2,<0.3.0",
+  "aware-workspace-fs-adapter>=0.1.2,<0.2.0",
+  "aware-issue-sdk>=0.10.3,<0.11.0",
+]
 preparation = ["aware-workspace-fs-adapter>=0.1.1,<0.2.0"]
 filesystem = ["aware-workspace-fs-adapter>=0.1.0,<0.2.0"]
 filesystem_delta_retention = ["aware-workspace-fs-adapter>=0.1.0,<0.2.0"]

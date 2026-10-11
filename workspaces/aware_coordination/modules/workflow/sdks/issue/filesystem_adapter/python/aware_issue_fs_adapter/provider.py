@@ -101,6 +101,11 @@ _ISSUE_REF = re.compile(
     r"^fb/(?P<date>\d{4}-\d{2}-\d{2})/"
     r"(?P<slug>[a-z0-9]+(?:-[a-z0-9]+)*)$"
 )
+_INVALID_ISSUE_REF_DIAGNOSTICS = (
+    "issue_ref_invalid",
+    "Expected fb/YYYY-MM-DD/<slug>; use lowercase letters or digits separated by single hyphens.",
+    "Example: fb/2026-10-11/json-checker-draft. Supply the Issue reference, not a Markdown path.",
+)
 
 
 class FilesystemIssueOperationProvider:
@@ -132,7 +137,7 @@ class FilesystemIssueOperationProvider:
             return self._result(
                 request=request,
                 outcome=IssueReadProjectionResolveOutcome.MALFORMED,
-                diagnostics=("issue_ref_invalid",),
+                diagnostics=_INVALID_ISSUE_REF_DIAGNOSTICS,
             )
         admission = self._admit_manifest()
         if not isinstance(admission, FilesystemProtocolProfile):
@@ -783,7 +788,7 @@ class FilesystemIssueOperationProvider:
                 operation_ref=operation_ref,
                 issue_ref=issue_ref,
                 outcome=IssueMutationOutcome.MALFORMED,
-                diagnostics=("issue_ref_invalid",),
+                diagnostics=_INVALID_ISSUE_REF_DIAGNOSTICS,
             )
         admission = self._admit_manifest()
         if not isinstance(admission, FilesystemProtocolProfile):

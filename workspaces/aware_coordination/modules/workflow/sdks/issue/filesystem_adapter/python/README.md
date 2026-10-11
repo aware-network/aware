@@ -2,6 +2,20 @@
 
 Filesystem authority provider for canonical Issue SDK operations.
 
+## Issue references
+
+Supply `fb/YYYY-MM-DD/<slug>`, for example
+`fb/2026-10-11/json-checker-draft`. A slug contains lowercase letters or digits,
+with single hyphens between segments. A reference is not a Markdown path:
+the provider resolves it under the Issue root admitted by `aware.protocol.toml`
+using `YYYY/MM/DD/fb-YYYY-MM-DD-<slug>.md`.
+
+Malformed references return the existing `issue_ref_invalid` diagnostic followed
+by the expected syntax and an example. This guidance comes from this owner and
+survives SDK and CLI JSON/summary presentation unchanged. Invalid syntax refuses
+before manifest admission or target access; it does not select a corrected
+reference, broaden authority or authorize a retry.
+
 ## Genuine single-use source-change admission
 
 `FilesystemIssueOperationProvider.admit_source_change()` freshly resolves the

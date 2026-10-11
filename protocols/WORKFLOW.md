@@ -1,67 +1,57 @@
-# Aware filesystem workflow
+# Aware filesystem onboarding review
 
-Use one installed `aware` entrance to initialize an explicit repository, read
-its protocol guidance and begin Issue-governed work. These frozen instructions
-have independent acceptance for the selected 40-package candidate. The
-[public instruction pins](../releases/canonical-initializer-fs-v1/PUBLIC-INSTRUCTIONS.json)
-bind the current presentation and accepted whole-envelope software; the
-[original freeze](../releases/canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md)
-preserves the review-time bytes. See the [publication receipt](../releases/canonical-initializer-fs-v1/PUBLICATION.md)
-for delivery status and the exact public acquisition revision. This is not a
-registry release or an unassisted-onboarding claim.
+Draft instructions for the accepted Issue CLI 0.8.3 / FS 0.9.4 composition:
+install once, initialize explicitly, admit an Issue and perform governed work.
+This internal review envelope carries the exact forty-package payload, committed
+`portable_protocols` sources and corresponding notices. Notice/disclosure
+acceptance, instruction freeze, public selection and delivery remain separate.
+Scripted installed proofs do not establish unassisted customer onboarding.
 
-## Install once
+## Install with the complete envelope
 
-Qualified target: Linux x86-64, Git and an actual Python 3.12 interpreter.
-From the acquired revision-pinned checkout root, first read the
-[complete terms and corresponding source](../releases/canonical-initializer-fs-v1/README.md).
-Use the shipped whole-envelope installer, which verifies and retains all source
-and notice attachments before invoking the unchanged offline payload installer:
+Qualified target: Linux x86-64 with `/usr/bin/python3.12`. Keep this entire
+envelope, including LICENSE, NOTICE, sources, upstream archives and indexes.
+Wheel-only acquisition is unsupported: six Code/Workspace wheels still lack
+package-local legal attachments. Do not discard the envelope after installation.
+
+Verify its outer `SHA256SUMS`, then expand
+`payload/aware-canonical-neutral-fs-internal-v1.tar.gz` in a fresh private scratch
+directory. It expands into `aware-canonical-neutral-fs-internal-v1`. Enter that
+directory and verify its inner `SHA256SUMS` before running the shipped installer:
 
 ```bash
 set -eu
-aware_init_parent="$(mktemp -d /tmp/aware-consumer.XXXXXXXX)"
+sha256sum -c SHA256SUMS
+aware_init_parent="$(mktemp -d)"
 aware_init_env="$aware_init_parent/env"
 test ! -e "$aware_init_env"
 test ! -L "$aware_init_env"
-/usr/bin/python3.12 protocols/install.py \
-  --python-executable /usr/bin/python3.12 --venv "$aware_init_env"
+PYTHON_BIN=/usr/bin/python3.12 /bin/sh ./install.sh "$aware_init_env"
 AWARE="$aware_init_env/bin/aware"
 "$AWARE" --help
 ```
 
-Choose your actual Python 3.12 executable explicitly. The environment must be
-absent; its private parent must exist. Keep the printed source/notice directory
-with the software. Do not bypass this carriage by installing the inner payload
-alone. After acquisition, installation is offline. Never overlay
-a6, an older SPEC preview or a resident development environment. All supported
-commands below use this same installation. The original family entrypoints
-remain parity/diagnostic entrances, not three separate toolchains. Do not infer
-support from other transitive executables.
+The target must be absent and its private parent must exist. Do not overlay a6,
+an older SPEC preview or a resident development environment. Use this same
+absolute `AWARE` command for every family. Standalone family entrypoints remain
+parity/diagnostic entrances, not separate required installations.
 
-The inner README's older statement that this candidate does not supply init is
-superseded by these candidate-bound instructions. Its bytes stay unchanged
-with the accepted archive and checksums. Selected source READMEs containing seed,
-resident or broad-workspace recipes are source history, not customer directions.
+These candidate-bound instructions supersede the immutable inner README's older
+no-init wording. Selected READMEs with seed, resident or broader-workspace recipes
+are source history, not customer directions. The payload is not edited to update
+that history. Neither installation nor init starts a resident service.
 
-## Required harness context
+## Harness identity and explicit initialization
 
-Run initialization in your actual supported agent harness. It must provide one
-unambiguous, nonblank stable session identity: `CODEX_THREAD_ID` for Codex or
-`CLAUDE_CODE_SESSION_ID` for Claude Code. Do not export fabricated values, copy
-another execution's id or reuse an evaluator fixture id to bypass refusal.
-Missing or ambiguous context refuses; installing wheels cannot create it.
-Keep the same harness execution for preview and apply. A new execution uses its
-own identity and must obtain fresh admission rather than replay another's plan.
+Use your actual supported agent harness with exactly one nonblank stable identity:
+`CODEX_THREAD_ID` for Codex or `CLAUDE_CODE_SESSION_ID` for Claude Code. Do not
+export fabricated values, copy another execution or borrow a fixture identity.
+Missing or ambiguous context refuses. Receipts identify execution; they do not
+claim cryptographic authentication or resident-session admission.
 
-These filesystem receipts identify the invoking execution; they are not a
-cryptographic authentication or resident-session admission claim. Test-only
-harness exports in qualification recipes are not customer setup instructions.
-
-## Initialize explicitly
-
-Select `aware_repo_root` as an explicit absolute target path under an existing
-parent directory. For a new repository, the target must be absent or empty:
+Choose `aware_repo_root` as an explicit absolute repository path under an existing
+parent. A new target must be absent or empty. Keep the same genuine execution for
+preview and apply:
 
 ```bash
 "$AWARE" init --help
@@ -69,136 +59,207 @@ parent directory. For a new repository, the target must be absent or empty:
   --create-repository --format summary
 ```
 
-Preview is the default and has no source effects. For a new repository, review
-the Workspace preparation preview (`outcome=planned`) and the prospective
-Protocol inputs separately (`status=prospective_only`). These inputs are not an
-admitted Protocol plan: `completion_verified=false` and `effect=none`.
-Apply obtains fresh Protocol admission after Workspace prepares the repository.
-To request those effects in the same genuine execution:
+Preview is the default and has no effects. Review the Workspace preparation
+preview (`outcome=planned`) and prospective Protocol inputs separately
+(`status=prospective_only`). Those inputs are not an admitted Protocol plan:
+`completion_verified=false` and `effect=none`. Apply obtains fresh Protocol
+admission after Workspace prepares the repository:
 
 ```bash
 "$AWARE" init --repo-root "$aware_repo_root" \
   --create-repository --apply --format json
 ```
 
-For an existing Git repository, omit `--create-repository`; retain the explicit
-target and preview before apply. Existing configuration/guidance refuses rather
-than being overwritten. This is not a repair or migration command. Inspect
-installed help for `--issue-root` and `--no-agent-contract`; do not infer a
-documentation-only or resident-service startup operation.
+For an existing Git repository omit `--create-repository`; preview before apply.
+Existing configuration/guidance refuses without overwrite. Init is not a repair
+or migration operation. Inspect help for `--issue-root` and `--no-agent-contract`.
 
-Init composes Workspace repository preparation followed by Protocol bootstrap.
-It retains both receipts, does not undo known effects if the second owner
-refuses, and does not silently retry. Success requires verified completion from
-both owners. Preserve error, effect, cleanup and retry fields even when a command
-returns nonzero: a refusal can follow known creation. Inspect existing effects
-before deciding a fresh request; never treat exit status as automatic rollback.
+Init preserves both owner receipts. If the second owner refuses after repository
+creation, known effects remain; nonzero exit is not rollback. Preserve effect,
+cleanup, completion and retry evidence. Do not automatically retry a failed
+mutation. Successful init supplies Issue directories, `aware.protocol.toml` and,
+by default, readable `AGENTS.md`. Read that guidance first. Init does not admit an
+Issue, create a seed commit, stage work, add a remote, approve documents or start
+a service. Tool installation, readable guidance and configuration are distinct.
 
-By default this prepares the Issue directories, an `aware.protocol.toml` binding
-and `AGENTS.md` guidance. It does not create a seed commit, stage work, add a
-remote, open an Issue, fabricate approval or start a service. Read the generated
-guidance to understand coordination rules before choosing an operation.
-Tool installation, readable guidance, repository preparation, operational
-configuration and future service startup are distinct steps.
+## Issue reference versus record path
 
-## Begin Issue-governed work
-
-`--issue-ref` is `fb/YYYY-MM-DD/lowercase-hyphenated-slug`, for example
-`fb/2026-10-11/json-checker-draft`. It is not the Markdown path, a filename or
-a UUID. The default record path is
-`docs/issues/2026/10/11/fb-2026-10-11-json-checker-draft.md`.
-Follow [the complete first-Issue admission example](issues/FIRST-ISSUE.md) for
-actual snapshot → explicit scope → fresh-guarded progress commands. Installed
-help lists the flag but does not yet explain its accepted reference encoding.
-
-Use the installed Issue SDK commands, not handwritten lifecycle evidence:
-
-```bash
-"$AWARE" issue ensure-snapshot --help
-"$AWARE" issue bind-scope --help
-"$AWARE" issue start-progress --help
-"$AWARE" issue publish-close --help
-```
-
-Before `ensure-snapshot`, explicitly choose the Issue reference, title, problem,
-objective, acceptance and creation intent. Its owner/actor references must name
-the current execution reported by init; its actor-evidence reference must point
-to your retained execution evidence, not a synthetic `fixture:` coordinate.
-Follow the installed help for the exact flags. Scope binding, In Progress
-admission and publication are separate operations; init does not authorize them.
-Preview publication with `--dry-run` before requesting it. Repository author
-configuration for a local Git commit is also separate from init.
-
-The accepted installed cases demonstrate init followed by first-Issue publication
-and closeout, including foreign-work preservation. They are synthetic tooling
-proofs, not evidence that a new participant can finish without guidance.
-Automatic guard discovery and a fully unassisted onboarding loop remain unproved.
-
-## SPEC and guard meanings
-
-The same installation also exposes:
+`--issue-ref` uses `fb/YYYY-MM-DD/lowercase-hyphenated-slug`, with four-digit year,
+two-digit month/day and lowercase letters/digits separated by single hyphens.
+Example: `fb/2026-10-11/json-checker-draft`. No `.md` suffix; do not pass a UUID,
+title, URL or filesystem path. With the default `docs/issues` root, it maps to:
 
 ```text
-aware protocol admit | setup-specification
-aware spec observe | iteration-identity | create-draft
+docs/issues/2026/10/11/fb-2026-10-11-json-checker-draft.md
 ```
 
-SPEC setup remains separately Issue-governed. Init does not configure SPEC
-documents or create drafts, approved iterations, bindings or Goals. Draft input
-preparation uses the supported typed tooling; do not fabricate approved records
-or a package-selection JSON to fill a missing entrance.
+That repository-relative record path is a `--scope-path`, not an Issue reference.
+If you configured a different Issue root, use its mapped record path instead.
+The installed help and owner refusal diagnostics now explain this distinction;
+`issue_ref_invalid` is still a refusal, not permission to guess and retry.
 
-Issue bytes, exact Protocol manifest bytes and draft input bytes have distinct
-guards, even when all are spelled `sha256:<hex>`. `ProtocolManifest.digest` is
-normalized semantic identity, not a manifest-byte currentness substitute.
-Protocol/SPEC selection locators are repository-relative; draft snapshot paths
-follow the invoking working directory, so explicit absolute input paths avoid
-ambiguity. No silent guard refresh or mutation retry is supported. Runtime
-currentness observes state, not every write; cooperative descriptor confinement
-does not claim continuous confinement.
+## Admit your first Issue
 
-## Source and notices
+The following is a customer-approved **draft-only** JSON checker example. Choose
+your own reference, task and exact scope before running it. The sample scope is
+the Issue record, manifest and `docs/specs/json-checker` descendants; it does not
+reserve paths, authorize foreign edits or implement/approve the application.
+Snapshot creation, scope binding and starting progress are separate SDK effects.
 
-The [source index](../releases/canonical-initializer-fs-v1/SOURCE-INDEX.json)
-binds the original committed `portable_protocols` capture and unchanged wheels;
-the [source map](../releases/canonical-initializer-fs-v1/SOURCE-MAP.json) locates
-their canonical public copies under `workspaces/`. The retained installation
-envelope also keeps its original `source/` coordinates. These maps are evidence,
-not a second package selector.
-Full producer discovery inventory stays producer-side. Customer
-`aware.protocol.toml` selects records/authority, not software packages.
+This block saves full receipts in a private directory outside the repository.
+Python only decodes public read projections; it does not create authority or
+import provider internals. Each mutation uses its immediately preceding explicit
+read. There is no guard-refresh loop or mutation retry.
 
-Keep the payload, LICENSE, NOTICE, indexes, source archives and all notice texts
-together. Aware's Apache-2.0 policy does not replace upstream terms. The root
-NOTICE's repository-wide reference is supplied as `source/THIRD_PARTY_NOTICES.md`.
-`NOTICE-BINDINGS.json` binds current wheel/resource identities to the inherited
-and additional attachments. Earlier indexes and held-input wording remain exact
-history; they are not this envelope's customer authority.
+```bash
+set -eu
+: "${AWARE:?Use the absolute command from your installation}"
+: "${aware_repo_root:?Set your explicitly initialized absolute repository path}"
+if test -n "${CODEX_THREAD_ID-}" && test -z "${CLAUDE_CODE_SESSION_ID-}"; then
+  first_issue_actor="codex-$CODEX_THREAD_ID"
+elif test -n "${CLAUDE_CODE_SESSION_ID-}" && test -z "${CODEX_THREAD_ID-}"; then
+  first_issue_actor="claude_code-$CLAUDE_CODE_SESSION_ID"
+else
+  echo 'Missing or ambiguous genuine harness identity; remain read-only.' >&2
+  exit 2
+fi
+printf 'Execution: %s\n' "$first_issue_actor"
+first_issue_actor_evidence="harness:$first_issue_actor"
+first_issue_ref='fb/2026-10-11/json-checker-draft'
+first_issue_record='docs/issues/2026/10/11/fb-2026-10-11-json-checker-draft.md'
+first_issue_evidence="$(mktemp -d "${TMPDIR:-/tmp}/aware-first-issue.XXXXXXXX")"
+first_issue_intent_prefix="$(basename "$first_issue_evidence")"
+printf 'Retain full receipts at %s\n' "$first_issue_evidence"
 
-Six selected Code/Workspace wheels declare Apache-2.0 metadata but have no
-package-local legal attachment. Their exact absence is visible in
-`aware_package_legal_inventory`; the repository LICENSE and NOTICE accompany
-the whole envelope. This is carriage accounting, not acceptance of orphan-wheel
-redistribution. Candidate-specific carriage is accepted only for the complete
-envelope; detached wheels remain unresolved. Do not detach wheels from their
-source/legal envelope. That carriage decision does not authorize public delivery.
+"$AWARE" issue ensure-snapshot --repository-root "$aware_repo_root" \
+  --issue-ref "$first_issue_ref" --title 'Draft a JSON checker specification' \
+  --priority P1 --owner-ref "$first_issue_actor" \
+  --source-description 'Customer-approved draft-only example' \
+  --problem 'Agents need a shared description of a read-only JSON checker.' \
+  --objective 'Create and observe a draft; do not implement or approve it.' \
+  --acceptance 'The draft requires that checking never modifies its input.' \
+  --client-intent-id "$first_issue_intent_prefix-create" \
+  --actor-ref "$first_issue_actor" --actor-evidence-ref "$first_issue_actor_evidence" \
+  --format json > "$first_issue_evidence/create.json"
 
-The schema resources keep scoped MIT/BSD attribution and documented adaptations.
-BSD-3-Clause is selected while the complete upstream file retains its alternative
-AFL text without selecting it. Pathspec's MPL terms and corresponding source are
-attached. Packaging's three original license documents and two license-index
-Python modules are attached as detected license-path inputs, not five separate
-legal obligations. Its upstream alternatives are preserved without relabelling
-them Aware Apache or silently selecting one. The source-derived jsonschema recipe,
-constraints and original
-publisher source URL/hash are carried; its original source archive is not attached.
+first_issue_read_guard() {
+  /usr/bin/python3.12 - "$1" "$first_issue_actor" <<'PY'
+import json, re, sys
+with open(sys.argv[1], encoding="utf-8") as source:
+    result = json.load(source)
+if result.get("outcome") != "found":
+    raise SystemExit("Issue read did not find the record; retain its full receipt.")
+projection = result["projection"]
+if projection["identity"]["owner_ref"] != sys.argv[2]:
+    raise SystemExit("Issue owner differs from this execution; do not mutate.")
+digest = projection["source"]["digest"]
+if not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
+    raise SystemExit("Issue read did not supply an exact source digest.")
+print(digest)
+PY
+}
 
-rpds and pydantic-core component accounts are conservative, not exact linkage or
-publisher-toolchain proof. Cython is correlated to msgpack, not silently assigned
-to PyYAML; LibYAML remains precautionary input from a configurable CI default.
-`CONTENT-AUDIT.json` preserves unsuppressed bounded findings, including binaries
-and carried source archives; it is not exhaustive disclosure or legal clearance.
+"$AWARE" issue resolve-read-projection --repository-root "$aware_repo_root" \
+  --issue-ref "$first_issue_ref" --format json > "$first_issue_evidence/scope-read.json"
+first_issue_scope_guard="$(first_issue_read_guard "$first_issue_evidence/scope-read.json")"
+"$AWARE" issue bind-scope --repository-root "$aware_repo_root" \
+  --issue-ref "$first_issue_ref" --expected-source-sha256 "$first_issue_scope_guard" \
+  --scope-path "$first_issue_record" --scope-path aware.protocol.toml \
+  --scope-path docs/specs/json-checker \
+  --client-intent-id "$first_issue_intent_prefix-scope" \
+  --actor-ref "$first_issue_actor" --actor-evidence-ref "$first_issue_actor_evidence" \
+  --format json > "$first_issue_evidence/scope.json"
 
-This FS installation does not admit Service/API, object operations, materialization,
-native receiving or Experience authority. No a6 compatibility migration layer
-or change to aware-dev's selected operational CLI is claimed.
+"$AWARE" issue resolve-read-projection --repository-root "$aware_repo_root" \
+  --issue-ref "$first_issue_ref" --format json > "$first_issue_evidence/progress-read.json"
+first_issue_progress_guard="$(first_issue_read_guard "$first_issue_evidence/progress-read.json")"
+"$AWARE" issue start-progress --repository-root "$aware_repo_root" \
+  --issue-ref "$first_issue_ref" --expected-source-sha256 "$first_issue_progress_guard" \
+  --client-intent-id "$first_issue_intent_prefix-progress" \
+  --actor-ref "$first_issue_actor" --actor-evidence-ref "$first_issue_actor_evidence" \
+  --format json > "$first_issue_evidence/progress.json"
+"$AWARE" issue resolve-read-projection --repository-root "$aware_repo_root" \
+  --issue-ref "$first_issue_ref" --format json > "$first_issue_evidence/admitted-read.json"
+printf 'Inspect admitted-read.json for owner, in_progress status and exact scope.\n'
+```
+
+The final projection should be `outcome=found`, this execution as owner,
+`status=in_progress` and exactly the chosen scope. Preserve every receipt.
+`harness:<execution>` is declared evidence, not cryptographic authentication.
+On nonzero exit stop, retain full stdout/stderr and inspect effects; do not
+repeat the block or assume snapshot/scope changes rolled back. This admits work,
+not SPEC configuration, draft creation, approval, publication or recovery.
+
+## Guarded work and paired publication
+
+Use the same installation's `aware protocol setup-specification` and
+`aware spec create-draft` preview/apply, then `aware spec observe`. Inspect
+installed help for required typed inputs and explicit coordinates. Draft input
+preparation uses the supported typed renderer/decoder, not handmade approval
+records or a package-selection JSON. Approved iterations and Goal writers remain
+unavailable.
+
+Issue guards identify exact Issue bytes from `projection.source.digest`.
+Protocol guards identify exact manifest bytes, not `ProtocolManifest.digest`
+(normalized semantic identity). Input guards identify the selected draft input
+snapshot. All may use `sha256:<hex>`; their artifacts are not interchangeable.
+Manifest/Protocol selection locators are repository-relative. Draft snapshot
+paths follow the invoking working directory; explicit absolute input paths
+avoid ambiguity. Stale requests refuse: no silent guard refresh or retry.
+
+Before publishing, establish an explicit local Git author separately from init,
+observe the current Issue guard and select only admitted exact paths. Inspect:
+
+```bash
+"$AWARE" issue commit-workspace --help
+"$AWARE" issue publish-close --help
+"$AWARE" issue close --help
+```
+
+Dry-run the exact publication request before apply. `publish-close` pairs
+publication and closeout in one live owner lifetime, but these are two effects,
+not an atomic transaction. Preserve both receipts: commits, reference-update
+state, index reconciliation, closure refusal, cleanup and known/unknown effects.
+A later close refusal does not undo a known commit. A separately invoked
+`close` cannot reconstruct the required live publication capability from a
+saved Git receipt. Do not republish merely to regain closeout authority or
+automatically refresh guards. Retain the original evidence and request an
+explicit supported recovery disposition; this guide does not supply a durable
+cross-execution closeout migration.
+
+Currentness checks observed state, not every write. Cooperative descriptor
+confinement is not continuous confinement. No command silently repairs foreign
+work or upgrades filesystem evidence into resident authority.
+
+## Sources and notices
+
+`SOURCE-INDEX.json` binds 1,043 committed selected files to `portable_protocols`
+and the exact wheels. It is evidence, not a second selector. Full discovery
+inventory remains producer-side. Customer `aware.protocol.toml` configures
+record selection/authority, not software packages.
+
+Keep LICENSE, NOTICE, `source/THIRD_PARTY_NOTICES.md`, all source archives,
+notices and indexes with the payload. `NOTICE-BINDINGS.json` binds current wheel
+identities/resources and openly inventories six missing package-local legal
+attachments. Earlier notice indexes and held-input wording stay byte-exact
+history, not this envelope's customer authority. Whole-envelope notice acceptance
+must be reviewed against these exact bytes; detached wheels remain unaccepted.
+
+The schema keeps scoped MIT/BSD attribution and adaptations. BSD-3-Clause is
+selected while the full upstream file retains its alternative AFL text without
+selecting it. Pathspec's MPL terms and corresponding source remain attached.
+Packaging's upstream license alternatives and two detected license-index Python
+modules are retained; the modules are not additional legal obligations.
+Source-derived jsonschema recipe, constraints and publisher source URL/hash
+are attached; the original source archive is not.
+
+rpds/pydantic-core component coverage is conservative, not exact binary linkage
+or a toolchain attestation. Cython is correlated to msgpack, not PyYAML; LibYAML
+is precautionary input from a configurable CI default. `CONTENT-AUDIT.json`
+keeps every bounded finding unsuppressed, including relative fixture paths.
+This is not exhaustive disclosure clearance or a legal warranty.
+
+This installation does not admit Service/API, object execution, materialization,
+native receiving or Experience authority. It does not replace aware-dev's
+selected contributor command. Public availability, instruction freeze and
+unassisted onboarding are not established by this review envelope.

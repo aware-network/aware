@@ -1,0 +1,191 @@
+// Unregistered descriptive qualification fixture, not an SDK implementation.
+// No plan, admission, provider, resource claim or live exception is serializable.
+
+enum WorkspaceSourceProjectionPhase {
+    prepared
+    enrolled
+    spent
+    terminal
+    retired
+}
+
+enum WorkspaceSourcePhysicalEffectState {
+    none
+    applied
+    unknown
+}
+
+enum WorkspaceSourcePhysicalReturnState {
+    not_dispatched
+    returned
+    unavailable
+}
+
+enum WorkspaceSourceBodyRetentionState {
+    not_attempted
+    retained
+    unknown
+}
+
+enum WorkspaceSourceConvergenceState {
+    not_attempted
+    converged
+    failed
+    unknown
+}
+
+enum WorkspaceSourceRetentionState {
+    not_attempted
+    retained
+    unavailable
+    unknown
+}
+
+enum WorkspaceSourceCleanupState {
+    not_attempted
+    completed
+    incomplete
+    unknown
+}
+
+enum WorkspaceSourcePhysicalGuarantee {
+    descriptor_walk_v1
+    continuous_root_v1
+}
+
+// Exact descriptive mirrors of the accepted original neutral owner values.
+class RepositoryObservationCoordinate : inline_value {
+    repository_binding_ref String
+    epoch String
+    cursor Int
+    snapshot_digest String
+    visibility_policy_ref String
+    visibility_policy_version String
+}
+
+class WorkspaceRepositoryPhysicalEffect : inline_value {
+    state WorkspaceSourcePhysicalEffectState
+    durability_confirmed Bool
+    before_exists Bool
+    before_content_digest String?
+    before_size_bytes Int?
+    after_exists Bool
+    after_content_digest String?
+    after_size_bytes Int?
+}
+
+class WorkspaceRepositoryMutationExecutionEvidence : inline_value {
+    physical_return_state WorkspaceSourcePhysicalReturnState
+    body_retention_state WorkspaceSourceBodyRetentionState
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class WorkspaceSourceProviderBinding : inline_value {
+    provider_ref String
+    provider_generation String
+    execution_id String
+    original_process_id Int
+    original_thread_id Int
+}
+
+class WorkspaceSourceFileIdentity : inline_value {
+    device Int
+    inode Int
+}
+
+class WorkspaceSourceObservation : inline_value {
+    observation_ref String
+    provider WorkspaceSourceProviderBinding
+    repository_binding_ref String
+    target_path String
+    root_identity WorkspaceSourceFileIdentity
+    target_identity WorkspaceSourceFileIdentity
+    coordinate RepositoryObservationCoordinate
+    content_digest String
+    size_bytes Int
+    body_ref String
+}
+
+class WorkspaceSourceProjectionRequest : inline_value {
+    source WorkspaceSourceObservation
+    operation_ref String
+    domain_target_ref String
+    profile_ref String
+    projected_content_digest String
+    projected_size_bytes Int
+    projected_body_ref String
+    physical_guarantee WorkspaceSourcePhysicalGuarantee
+}
+
+class WorkspaceSourceProjectionBinding : inline_value {
+    binding_ref String
+    attempt_ref String
+    provider WorkspaceSourceProviderBinding
+    operation_ref String
+    domain_target_ref String
+    profile_ref String
+    source_observation_ref String
+    repository_binding_ref String
+    target_path String
+    root_identity WorkspaceSourceFileIdentity
+    target_identity WorkspaceSourceFileIdentity
+    expected_coordinate RepositoryObservationCoordinate
+    expected_content_digest String
+    projected_content_digest String
+    projected_size_bytes Int
+    preimage_body_ref String
+    projected_body_ref String
+    physical_guarantee WorkspaceSourcePhysicalGuarantee
+}
+
+class WorkspaceSourceProjectionPlanObservation : inline_value {
+    binding WorkspaceSourceProjectionBinding
+    phase WorkspaceSourceProjectionPhase
+    original_plan_recognized Bool
+    diagnostics String[]
+}
+
+class WorkspaceSourceProjectionRetentionObservation : inline_value {
+    state WorkspaceSourceRetentionState
+    retention_ref String?
+    preimage_body_ref String?
+    postimage_body_ref String?
+    capture_ref String?
+    content_delta_ref String?
+    before_coordinate RepositoryObservationCoordinate?
+    after_coordinate RepositoryObservationCoordinate?
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class WorkspaceSourceProjectionCleanupObservation : inline_value {
+    state WorkspaceSourceCleanupState
+    observer_cleanup_state WorkspaceSourceCleanupState
+    retention_cleanup_state WorkspaceSourceCleanupState
+    physical_cleanup_state WorkspaceSourceCleanupState
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class WorkspaceSourceProjectionObservation : inline_value {
+    binding WorkspaceSourceProjectionBinding
+    phase WorkspaceSourceProjectionPhase
+    source_effect_state WorkspaceSourcePhysicalEffectState
+    mutation_receipt_ref String?
+    physical_effect WorkspaceRepositoryPhysicalEffect?
+    execution_evidence WorkspaceRepositoryMutationExecutionEvidence?
+    convergence_state WorkspaceSourceConvergenceState
+    retention WorkspaceSourceProjectionRetentionObservation
+    cleanup WorkspaceSourceProjectionCleanupObservation
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class WorkspaceSourceProjectionRefusalEvidence : inline_value {
+    code String
+    observation WorkspaceSourceProjectionObservation?
+    cleanup WorkspaceSourceProjectionCleanupObservation?
+    ledger_complete Bool
+    diagnostics String[]
+}

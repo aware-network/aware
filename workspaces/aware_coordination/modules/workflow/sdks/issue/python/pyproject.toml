@@ -1,6 +1,6 @@
 [project]
 name = "aware-issue-sdk"
-version = "0.10.2"
+version = "0.10.3"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 description = "Canonical Issue SDK operations with explicitly selected authority providers."
@@ -9,7 +9,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
   "aware-issue-runtime>=0.3.0,<0.4.0",
-  "aware-issue-operational-runtime>=0.3.1,<0.4.0",
+  "aware-issue-operational-runtime>=0.3.2,<0.4.0",
   "aware-file-system>=0.3.1,<0.4.0",
   "pydantic>=2.8.0,<3.0.0",
 ]
@@ -19,6 +19,11 @@ aware-file-system = { path = "../../../../../../aware_kernel/modules/filesystem/
 aware-issue-runtime = { workspace = true }
 
 [project.optional-dependencies]
+source_projection = [
+  "aware-issue-operational-runtime[source_projection]>=0.3.2,<0.4.0",
+  "aware-issue-fs-adapter>=0.9.3,<0.10.0",
+  "aware-workspace-sdk[source_projection]>=0.2.2,<0.3.0",
+]
 test = [
   "pytest>=8.4.2",
   "pytest-asyncio>=0.23.7",

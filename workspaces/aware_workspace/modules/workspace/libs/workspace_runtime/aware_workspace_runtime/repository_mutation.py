@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
-from dataclasses import dataclass
+from contextvars import copy_context
+from dataclasses import dataclass, replace
 from pathlib import PurePosixPath
 from typing import Protocol
 
@@ -147,16 +148,79 @@ class WorkspaceRepositoryMutationRequest:
 
 
 @dataclass(frozen=True, slots=True)
+class WorkspaceRepositoryMutationExecutionEvidence:
+    """Terminal execution evidence; unavailable returns never imply no effect.
+
+    The ledger covers physical dispatch, convergence and body retention, not
+    receipt-index persistence (reported separately by result_store_error). This
+    does not issue admission, certify canonical delta retention, or provide
+    durable pending-effect recovery. Historical results have no such carrier.
+    """
+
+    physical_return_state: str
+    body_retention_state: str
+    ledger_complete: bool
+    diagnostics: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.physical_return_state not in {
+            "not_dispatched",
+            "returned",
+            "unavailable",
+        }:
+            raise ValueError("Unsupported physical return state")
+        if self.body_retention_state not in {"not_attempted", "retained", "unknown"}:
+            raise ValueError("Unsupported body retention state")
+        if (
+            self.body_retention_state != "not_attempted"
+            and self.physical_return_state != "returned"
+        ):
+            raise ValueError("Body retention requires an original physical return")
+        if type(self.ledger_complete) is not bool:
+            raise TypeError("Execution ledger flag must be an exact bool")
+        if self.ledger_complete and (
+            self.physical_return_state == "unavailable"
+            or self.body_retention_state == "unknown"
+        ):
+            raise ValueError("Unavailable execution evidence cannot be complete")
+        diagnostics = tuple(self.diagnostics)
+        if len(diagnostics) > 16 or any(
+            type(value) is not str or not value.strip() for value in diagnostics
+        ):
+            raise ValueError("Execution diagnostics must be bounded nonblank text")
+        object.__setattr__(self, "diagnostics", diagnostics)
+
+
+@dataclass(frozen=True, slots=True)
 class WorkspaceRepositoryAuthorizedMutation:
     receipt: WorkspaceRepositoryMutationReceipt
     evidence: WorkspaceRepositoryChangeEvidence | None
+    execution_evidence: WorkspaceRepositoryMutationExecutionEvidence | None = None
 
     def __post_init__(self) -> None:
+        if (
+            self.execution_evidence is not None
+            and type(self.execution_evidence)
+            is not WorkspaceRepositoryMutationExecutionEvidence
+        ):
+            raise TypeError("Mutation execution evidence must be the exact contract")
         if self.receipt.outcome is RepositoryMutationOutcome.APPLIED:
             if self.evidence is None:
                 raise ValueError("Applied mutation requires authorized evidence")
         elif self.evidence is not None:
             raise ValueError("Unapplied mutation cannot carry authorized evidence")
+        execution = self.execution_evidence
+        if execution is not None:
+            if (
+                self.receipt.outcome is RepositoryMutationOutcome.APPLIED
+                or self.receipt.physical_effect is not None
+            ) and execution.physical_return_state != "returned":
+                raise ValueError("Known physical evidence requires its original return")
+            if (
+                execution.body_retention_state != "not_attempted"
+                and self.receipt.outcome is not RepositoryMutationOutcome.APPLIED
+            ):
+                raise ValueError("Body retention requires a converged applied mutation")
 
 
 class WorkspaceRepositoryMutationResultStore(Protocol):
@@ -232,6 +296,16 @@ class WorkspaceRepositoryMutationCoordinator:
     async def mutate(
         self, request: WorkspaceRepositoryMutationRequest
     ) -> WorkspaceRepositoryAuthorizedMutation:
+        return await self._mutate(request, projection_plan=None)
+
+    async def _mutate_source_projection(
+        self, request: WorkspaceRepositoryMutationRequest, *, plan
+    ) -> WorkspaceRepositoryAuthorizedMutation:
+        return await self._mutate(request, projection_plan=plan)
+
+    async def _mutate(
+        self, request: WorkspaceRepositoryMutationRequest, *, projection_plan
+    ) -> WorkspaceRepositoryAuthorizedMutation:
         confinement_profile = self._confinement_profile
         binding_ref = _required(
             self._session.binding.binding_key,
@@ -261,11 +335,16 @@ class WorkspaceRepositoryMutationCoordinator:
                 raise RuntimeError("Mutation receipt metadata store is unavailable")
 
             physical_result: ConfinedFileMutationResult | None = None
+            physical_dispatched = False
+            cancellation: asyncio.CancelledError | None = None
+            diagnostics: list[str] = []
+            body_retention_state = "not_attempted"
+            ledger_complete = True
 
             async def effect(
                 snapshot: WorkspaceRepositoryObservationSnapshot,
             ) -> WorkspaceRepositorySerializedEffect[ConfinedFileMutationResult | str]:
-                nonlocal physical_result
+                nonlocal physical_result, physical_dispatched
                 if _coordinate(snapshot, self._session) != request.expected_coordinate:
                     return WorkspaceRepositorySerializedEffect(
                         value="stale_coordinate",
@@ -304,14 +383,61 @@ class WorkspaceRepositoryMutationCoordinator:
                         value="no_content_change",
                         poll_after=False,
                     )
-                physical_result = await asyncio.to_thread(
-                    mutate_confined_file,
-                    root=self._session.binding.root_path,
-                    request=_physical_request(request),
-                    confinement_profile=confinement_profile,
+                physical_request = _physical_request(request)
+                if projection_plan is not None:
+                    from .repository_source_projection import (
+                        consume_original_projection_plan,
+                    )
+
+                    # Original Workspace plan/preimage and genuine Issue
+                    # consumption share this existing writer transaction.
+                    # The fixed supplying SDK cannot call Workspace back.
+                    consume_original_projection_plan(
+                        projection_plan, coordinator=self, request=request
+                    )
+
+                def dispatch():
+                    # Never let a worker BaseException escape through a Task:
+                    # KeyboardInterrupt/SystemExit otherwise bypass its awaiter.
+                    nonlocal physical_dispatched
+                    physical_dispatched = True
+                    try:
+                        return mutate_confined_file(
+                            root=self._session.binding.root_path,
+                            request=physical_request,
+                            confinement_profile=confinement_profile,
+                        ), None
+                    except BaseException as error:  # noqa: BLE001
+                        return None, error
+
+                # A shielded executor Future, rather than a cancellable worker
+                # Task, also survives asyncio's normal task-shutdown cancellation.
+                # Preserve to_thread's context propagation and the original writer.
+                worker = asyncio.get_running_loop().run_in_executor(
+                    None, copy_context().run, dispatch
                 )
+                interrupted: asyncio.CancelledError | None = None
+                while True:
+                    try:
+                        physical_result, dispatch_error = await asyncio.shield(worker)
+                        break
+                    except asyncio.CancelledError as error:
+                        # Cancellation cannot release the original session writer
+                        # lock while its physical worker is still executing.
+                        interrupted = error
+                if dispatch_error is not None:
+                    if interrupted is not None:
+                        diagnostics.append(
+                            f"physical_return:{type(dispatch_error).__name__}"
+                        )
+                        raise interrupted from dispatch_error
+                    raise dispatch_error
+                if interrupted is not None:
+                    raise interrupted
+                assert physical_result is not None
                 if (
-                    type(physical_result.confinement_profile) is not ConfinedMutationProfile
+                    type(physical_result.confinement_profile)
+                    is not ConfinedMutationProfile
                     or physical_result.confinement_profile is not confinement_profile
                 ):
                     # Do not converge or issue evidence for a downgraded or
@@ -334,7 +460,11 @@ class WorkspaceRepositoryMutationCoordinator:
 
             try:
                 transition = await self._session.run_serialized_transition(effect)
-            except Exception:  # noqa: BLE001 - failure becomes a typed receipt
+            except BaseException as error:  # noqa: BLE001 - retain terminal evidence
+                if isinstance(error, asyncio.CancelledError):
+                    cancellation = error
+                ledger_complete = False
+                diagnostics.append(f"mutation_execution:{type(error).__name__}")
                 result = _failed_result(
                     request=request,
                     binding_ref=binding_ref,
@@ -395,14 +525,76 @@ class WorkspaceRepositoryMutationCoordinator:
                         after=transition.after,
                     )
                     assert result.evidence is not None
-                    self._body_store.record(
-                        WorkspaceRepositoryOperationalChange(
-                            receipt=result.receipt,
-                            evidence=result.evidence,
-                            before_content=effect_value.before_content,
-                            after_content=effect_value.after_content,
+                    try:
+                        self._body_store.record(
+                            WorkspaceRepositoryOperationalChange(
+                                receipt=result.receipt,
+                                evidence=result.evidence,
+                                before_content=effect_value.before_content,
+                                after_content=effect_value.after_content,
+                            )
                         )
-                    )
+                    except BaseException as error:  # noqa: BLE001 - write is known
+                        if isinstance(error, asyncio.CancelledError):
+                            cancellation = error
+                        body_retention_state = "unknown"
+                        ledger_complete = False
+                        diagnostics.append(f"body_retention:{type(error).__name__}")
+                        result = replace(
+                            result,
+                            evidence=replace(
+                                result.evidence,
+                                changed_entries=tuple(
+                                    replace(
+                                        entry,
+                                        old_body_availability=RepositoryBodyAvailability.UNAVAILABLE,
+                                        new_body_availability=RepositoryBodyAvailability.UNAVAILABLE,
+                                    )
+                                    for entry in result.evidence.changed_entries
+                                ),
+                            ),
+                        )
+                    else:
+                        body_retention_state = "retained"
+            if (
+                projection_plan is not None
+                and physical_result is not None
+                and result.receipt.physical_effect is None
+            ):
+                # The projection seam needs the original physical return, not
+                # fabricated durability/existence inferred from an APPLIED
+                # convergence receipt. Legacy public mutation values stay exact.
+                result = replace(
+                    result,
+                    receipt=replace(
+                        result.receipt,
+                        physical_effect=WorkspaceRepositoryPhysicalEffect(
+                            state=physical_result.effect_state.value,
+                            durability_confirmed=physical_result.durability_confirmed,
+                            before_exists=physical_result.before_exists,
+                            before_content_digest=physical_result.before_content_digest,
+                            before_size_bytes=physical_result.before_size_bytes,
+                            after_exists=physical_result.after_exists,
+                            after_content_digest=physical_result.after_content_digest,
+                            after_size_bytes=physical_result.after_size_bytes,
+                        ),
+                    ),
+                )
+            result = replace(
+                result,
+                execution_evidence=WorkspaceRepositoryMutationExecutionEvidence(
+                    physical_return_state=(
+                        "returned"
+                        if physical_result is not None
+                        else "unavailable"
+                        if physical_dispatched
+                        else "not_dispatched"
+                    ),
+                    body_retention_state=body_retention_state,
+                    ledger_complete=ledger_complete,
+                    diagnostics=tuple(diagnostics),
+                ),
+            )
             self._results[receipt_ref] = (fingerprint, result)
             if self._result_store is not None:
                 try:
@@ -410,10 +602,16 @@ class WorkspaceRepositoryMutationCoordinator:
                         fingerprint=fingerprint,
                         result=result,
                     )
-                except Exception as error:  # noqa: BLE001 - effect already happened
+                except BaseException as error:  # noqa: BLE001 - effect already happened
+                    if isinstance(error, asyncio.CancelledError):
+                        cancellation = error
                     self._result_store_error = f"{type(error).__name__}: {error}"
             while len(self._results) > self._receipt_capacity:
                 self._results.pop(next(iter(self._results)))
+            if cancellation is not None:
+                # Preserve Task cancellation semantics only after recording the
+                # original terminal result. resolve_receipts remains read-only.
+                raise cancellation
             return result
 
     async def resolve_receipts(

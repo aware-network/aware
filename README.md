@@ -2,39 +2,38 @@
 
 Coherent work between agents in your Git repository.
 
-Aware provides shared protocols and tooling so agents can understand the same
-work, make bounded changes and leave evidence another execution can continue
-from. Issues organize work; Specifications describe its intended shape.
-Coherence is the value, not a promise of faster agents or conflict-free swarms.
+Aware provides shared rules and tooling so agents can understand the same work,
+make bounded changes and leave evidence another execution can continue from.
+Issues organize work; Specifications describe its intended shape. Coherence is
+the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-This is the selected initializer distribution. Its base frozen instructions have
-independent acceptance. The [first-Issue admission example](protocols/issues/FIRST-ISSUE.md)
-is a documentation correction pending independent review and public delivery.
-Use a revision-pinned checkout; the
-[publication receipt](releases/canonical-initializer-fs-v1/PUBLICATION.md) records
-delivery status and the exact revision tested through public acquisition.
-[Successor instruction pins](releases/canonical-initializer-fs-v1/FIRST-ISSUE-INSTRUCTIONS.json)
-bind the local correction. The [prior public pins](releases/canonical-initializer-fs-v1/PUBLIC-INSTRUCTIONS.json)
-and [original freeze](releases/canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md)
-remain historical evidence; the software and installer are unchanged.
+This is a prepared, unselected Issue083 successor layout. Instructions remain
+draft; it is not a claim that public main already delivers this software.
+The unchanged [delivery pointer](releases/SELECTED.json) still names the retained
+initializer predecessor. Selection, instruction freeze and publication follow
+separate review. Do not overlay either installation or migrate contributor tools.
 
 ## Understand the protocols
 
-Read [coherence between agents](protocols/COHERENCE.md), [Issue coordination](protocols/issues/README.md),
+Read [coherence](protocols/COHERENCE.md), [Issue coordination](protocols/issues/README.md),
 [repository publication](protocols/repository/README.md) and [SPEC drafts](protocols/specification/README.md).
-Understanding shared rules and admitting operations are different steps.
+Readable guidance explains shared rules; tooling applies separately admitted
+operations. Installation, repository configuration and service startup are
+different decisions. This filesystem composition does not start a service.
 
 ## Inspect terms and install once
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Before installing,
-read [distribution terms and source](releases/canonical-initializer-fs-v1/README.md):
-the complete LICENSE, NOTICE, corresponding source and upstream attachments
-accompany this software. Six Code/Workspace wheels lack package-local legal
-files; this delivery is accepted only as the complete envelope, not detached wheels.
+read [distribution terms and source](releases/canonical-issue083-fs-v1/README.md).
+Keep complete LICENSE, NOTICE, corresponding source, upstream attachments and
+the raw audit with the software. Six Code/Workspace wheels lack local legal
+files; acceptance is for the complete envelope, not detached wheels or a stripped
+inner bundle. The reviewed source-derived jsonschema recipe and publisher URL/hash
+are attached; its original source archive is not.
 
-From the acquired revision-pinned checkout root:
+From this prepared checkout root:
 
 ```sh
 set -eu
@@ -48,19 +47,18 @@ AWARE="$aware_env/bin/aware"
 "$AWARE" --help
 ```
 
-Choose your actual Python 3.12 executable explicitly. After acquisition,
-installation is offline; no editable checkout or development source is needed.
-The installer verifies and retains the whole envelope before delegating to the
-unchanged payload installer. It prints the retained source/notice directory.
-Do not overlay an old preview or silently replace an existing execution's CLI.
-Installation does not initialize a repository or start a service.
+Choose Python 3.12 explicitly. After acquisition installation is offline; no
+editable checkout or development source is needed. The existing installer
+verifies and retains the whole envelope before delegating to its payload's
+installer. It prints the full retained source/notice directory. Keep it.
+Reuse refuses; do not silently replace another execution's command.
 
 ## Initialize an explicit repository
 
-Run inside your genuine supported harness, supplying its own unambiguous stable
-execution identity. Do not fabricate or borrow session variables.
+Use your genuine harness with exactly one nonblank `CODEX_THREAD_ID` or
+`CLAUDE_CODE_SESSION_ID`; do not fabricate or borrow session identities.
 Set `aware_repo_root` to an explicit absolute target under an existing parent.
-For a new repository, the target must be absent or empty:
+A new target must be absent or empty:
 
 ```sh
 "$AWARE" init --repo-root "$aware_repo_root" \
@@ -69,38 +67,68 @@ For a new repository, the target must be absent or empty:
   --create-repository --apply --format json
 ```
 
-Preview is default and has no source effects. For a new repository it returns
-a Workspace preparation preview and prospective Protocol inputs, not two
-admitted plans. Apply gets fresh Protocol admission after repository preparation.
-For existing Git repositories omit `--create-repository`; existing guidance or
-configuration refuses rather than being overwritten.
+Preview has no effects: it returns a Workspace preparation preview and prospective
+Protocol inputs (`prospective_only`, `completion_verified=false`), not two admitted
+plans. Apply obtains fresh Protocol admission after repository preparation.
+For existing Git repositories omit `--create-repository`. Existing configuration
+or guidance refuses rather than being overwritten.
 
-Init preserves both owners' receipts. By default it prepares Issue directories,
-`aware.protocol.toml` and readable `AGENTS.md` guidance. It does not create a
-seed commit, stage changes, add a remote, open an Issue, approve a document or
-start a service. A late refusal may follow known creation: retain effects and
-cleanup evidence; never retry automatically or assume rollback.
+Init preserves both owner receipts and normally prepares Issue directories,
+`aware.protocol.toml` and readable `AGENTS.md`. Read that guidance. It does not
+open an Issue, create a seed commit, stage files, add a remote, approve a document
+or start a service. Late refusals may follow known creation; retain effects,
+completion and cleanup evidence. Nonzero exit is not rollback or permission to retry.
 
-Read [initialization and its boundaries](protocols/INITIALIZATION.md), then
-[the supported workflow](protocols/WORKFLOW.md). All commands use this one
-installation: `aware issue`, `aware protocol` and `aware spec`.
-Init starts with Issues; SPEC setup remains separately Issue-governed.
-Automatic guard discovery and unassisted customer onboarding are still unproved.
+## Admit your first Issue
 
-## Source and distribution
+`--issue-ref` is `fb/YYYY-MM-DD/lowercase-hyphenated-slug`, for example
+`fb/2026-10-11/json-checker-draft`, not a UUID, title or Markdown path. With the
+default Issue root its record is
+`docs/issues/2026/10/11/fb-2026-10-11-json-checker-draft.md`; that path belongs in
+scope, not in `--issue-ref`.
 
-- [Protocols](protocols/README.md): shared guidance and supported operation boundaries.
-- [Workspace source](workspaces/README.md): one canonical copy selected by `portable_protocols`.
-- [Complete distribution](releases/canonical-initializer-fs-v1/README.md): exact software, terms, notices and source.
-- [External evaluations](protocols/evaluations/README.md): report observations, including blockers.
-- [Contribution](CONTRIBUTING.md): retained contributor governance, distinct from customer initialization.
-- [History](docs/HISTORY.md): pinned predecessors, not competing current source trees.
+Follow [the complete first-Issue example](protocols/issues/FIRST-ISSUE.md), choosing
+your outcome and scope first. It creates a snapshot, reads the current Issue,
+binds scope and starts progress with separately observed Issue-byte guards.
+Missing identity, invalid references and stale guards refuse; do not guess,
+silently refresh or repeat a failed mutation.
 
-Source history and old README wording do not expand current capabilities.
-Root contributor `AGENTS.md` and its selected command remain unchanged.
-The generated customer guidance belongs to the original Protocol supplier;
-this public tree does not replace its template.
+Then use [the workflow](protocols/WORKFLOW.md) for Issue-governed SPEC setup,
+typed draft preparation, preview/apply and observation. All families use this
+one installation: `aware issue`, `aware protocol`, `aware spec`. Issue guards,
+exact Protocol-manifest byte guards and draft-input guards identify different
+artifacts; normalized manifest semantics are not byte currentness. Manifest
+locators are repository-relative; explicit absolute snapshot inputs avoid cwd
+ambiguity. Automatic guard discovery remains unfinished.
 
-Draft creation is not approval. Approved iterations, durable binding, Goals,
-Service/API, native receiving and object/materialization routes are not offered
-by this filesystem composition. Those lanes advance independently.
+## Publish and preserve evidence
+
+Establish a local Git author separately from init. Dry-run the exact admitted
+paths before apply. `aware issue publish-close` pairs publication and closeout in
+one live owner lifetime, but is not atomic. Preserve both receipts and any
+reference-update, index, closure, cleanup or uncertain-effects evidence.
+A later refusal does not undo a known commit. A saved Git receipt cannot recreate
+the live capability required by standalone `close`; do not republish to regain
+authority. Durable cross-execution closeout migration is not supplied here.
+
+See [publication boundaries](protocols/repository/README.md) and
+[initialization](protocols/INITIALIZATION.md). Scope is not a reservation;
+preserve foreign work. Observed currentness is not every-write detection, and
+cooperative descriptor confinement is not continuous confinement.
+
+## Source and next steps
+
+[Workspace source](workspaces/README.md) is one canonical copy selected by
+`portable_protocols`, not another package catalog. [Complete carriage](releases/canonical-issue083-fs-v1/README.md)
+and [review status](releases/canonical-issue083-fs-v1/REVIEW-STATUS.md) retain terms,
+sources, all twelve raw fixture findings and conservative native coverage.
+Historical source READMEs and pending labels do not expand current capabilities.
+[Contributor governance](CONTRIBUTING.md) and root `AGENTS.md` remain unchanged;
+the customer guidance template belongs to the original Protocol supplier.
+
+Fresh unassisted onboarding follows qualified delivery; these scripted proofs do
+not establish it. Report observations through [evaluations](protocols/evaluations/README.md).
+Issues come first, then Specifications, Goals and a shared map. Draft creation is
+not approval: approved iterations, durable binding, Goal writers, Service/API,
+native receiving and object/materialization routes are not offered by this
+filesystem composition. Those lanes advance independently.

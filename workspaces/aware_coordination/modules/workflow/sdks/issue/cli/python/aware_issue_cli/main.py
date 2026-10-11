@@ -90,6 +90,36 @@ def _parser(registry: AwareCommandRegistry) -> argparse.ArgumentParser:
 
 
 def _configure_issue_command(parser: argparse.ArgumentParser, *, command: str) -> None:
+    if command in {"commit-workspace", "publish-close"}:
+        parser.epilog = (
+            "Stop on refusal and retain full JSON, including known publication "
+            "and unknown cleanup. issue_publication_source_stale: observe and "
+            "review the changed Issue; do not silently refresh guards. "
+            "issue_source_out_of_scope: review the rejected paths against "
+            "explicitly admitted scope. No automatic retry."
+        )
+        if command == "publish-close":
+            parser.description = (
+                "Publish implementation, then close through the same original "
+                "owners in this invocation. Two non-atomic effects: publication "
+                "may succeed while closeout refuses. A saved Git receipt "
+                "cannot restore completion authority."
+            )
+    elif command == "close":
+        parser.epilog = (
+            "A fresh standalone close cannot recover original completion "
+            "authority from a saved Git receipt: "
+            "issue_closeout_original_implementation_required. Use publish-close "
+            "when planning a new implementation and its closeout together. "
+            "For an already-published implementation, retain its evidence and "
+            "request supported owner recovery; do not republish to regain authority."
+        )
+    elif command == "present-receipt":
+        parser.epilog = (
+            "Presentation only: no operation replay, guard refresh or authority "
+            "restoration. Exit 0 means presentation succeeded, not that the "
+            "recorded operation succeeded. Currentness is not revalidated."
+        )
     if command == "present-receipt":
         _configure_present(parser)
     elif command == "resolve-read-projection":
@@ -117,7 +147,11 @@ def _configure_issue_command(parser: argparse.ArgumentParser, *, command: str) -
         elif command == "close":
             parser.add_argument("--resolution", required=True)
             parser.add_argument("--verified-by", action="append", required=True)
-            parser.add_argument("--publication-receipt-ref", required=True)
+            parser.add_argument(
+                "--publication-receipt-ref",
+                required=True,
+                help="Original implementation receipt; a saved git:<commit> is evidence, not completion authority",
+            )
     parser.add_argument(
         "--format",
         choices=("json", "summary"),
@@ -157,17 +191,48 @@ def _configure_ensure(ensure: argparse.ArgumentParser) -> None:
 
 def _configure_commit(commit_workspace: argparse.ArgumentParser) -> None:
     _target_arguments(commit_workspace)
-    commit_workspace.add_argument("--expected-issue-source-sha256", required=True)
-    commit_workspace.add_argument("--path", action="append", required=True)
+    commit_workspace.add_argument(
+        "--expected-issue-source-sha256",
+        required=True,
+        help=(
+            "Exact Issue Markdown bytes: projection.source.digest from "
+            "resolve-read-projection --format json (sha256:<hex>). Not HEAD, "
+            "a Protocol semantic digest or a work-file digest. Paired closeout "
+            "uses this same guard without refreshing it."
+        ),
+    )
+    commit_workspace.add_argument(
+        "--path",
+        action="append",
+        required=True,
+        help="Repeat for exact admitted repository-relative implementation paths; paired closeout also requires the Issue document in scope",
+    )
     commit_workspace.add_argument("--message", required=True)
-    commit_workspace.add_argument("--dry-run", action="store_true")
+    commit_workspace.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=(
+            "Preview implementation only; no publication or closeout. Apply "
+            "prepares afresh, not from this preview's retained plan; earlier "
+            "HEAD and work-file bytes are not pinned for that later invocation."
+        ),
+    )
     commit_workspace.add_argument("--actor-ref", required=True)
     commit_workspace.add_argument("--actor-evidence-ref", required=True)
 
 
 def _target_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--repository-root", required=True)
-    parser.add_argument("--issue-ref", required=True)
+    parser.add_argument(
+        "--issue-ref",
+        required=True,
+        help=(
+            "Filesystem Issue reference fb/YYYY-MM-DD/<slug>; use lowercase "
+            "letters or digits separated by single hyphens. Example: "
+            "fb/2026-10-11/json-checker-draft. Supply the reference, not a "
+            "Markdown path."
+        ),
+    )
     parser.add_argument("--protocol-source", default="aware.protocol.toml")
 
 
@@ -179,7 +244,11 @@ def _actor_arguments(parser: argparse.ArgumentParser) -> None:
 
 def _mutation_arguments(parser: argparse.ArgumentParser) -> None:
     _target_arguments(parser)
-    parser.add_argument("--expected-source-sha256", required=True)
+    parser.add_argument(
+        "--expected-source-sha256",
+        required=True,
+        help="Exact Issue Markdown bytes: projection.source.digest from resolve-read-projection --format json (sha256:<hex>); never silently refresh on refusal",
+    )
     _actor_arguments(parser)
 
 

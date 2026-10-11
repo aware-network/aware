@@ -26,6 +26,7 @@ from .repository_delta import (
 from .repository_delta_resolution import WorkspaceRepositoryContentDeltaResolution
 from .repository_mutation import (
     WorkspaceRepositoryAuthorizedMutation,
+    WorkspaceRepositoryMutationExecutionEvidence,
     WorkspaceRepositoryMutationRequest,
     WorkspaceRepositoryTextReplacement,
 )
@@ -348,7 +349,7 @@ def repository_mutation_request_from_payload(
 def repository_authorized_mutation_payload(
     value: WorkspaceRepositoryAuthorizedMutation,
 ) -> dict[str, object]:
-    return _operation_payload(
+    payload = _operation_payload(
         "authorized_mutation",
         {
             "receipt": repository_mutation_receipt_payload(value.receipt),
@@ -359,13 +360,26 @@ def repository_authorized_mutation_payload(
             ),
         },
     )
+    if value.execution_evidence is not None:
+        payload["contract_version"] = "2"
+        payload["value"]["execution_evidence"] = _encode(
+            value.execution_evidence, WorkspaceRepositoryMutationExecutionEvidence
+        )
+    return payload
 
 
 def repository_authorized_mutation_from_payload(
     payload: object,
 ) -> WorkspaceRepositoryAuthorizedMutation:
-    value = _operation_value(payload, "authorized_mutation")
-    _exact_keys(value, _AUTHORIZED_MUTATION_KEYS, "authorized_mutation")
+    value = _operation_value(payload, "authorized_mutation", allow_version_two=True)
+    successor = payload["contract_version"] == "2"
+    _exact_keys(
+        value,
+        _AUTHORIZED_MUTATION_KEYS | {"execution_evidence"}
+        if successor
+        else _AUTHORIZED_MUTATION_KEYS,
+        "authorized_mutation",
+    )
     evidence_payload = value["evidence"]
     return WorkspaceRepositoryAuthorizedMutation(
         receipt=repository_mutation_receipt_from_payload(value["receipt"]),
@@ -373,6 +387,15 @@ def repository_authorized_mutation_from_payload(
             None
             if evidence_payload is None
             else repository_change_evidence_from_payload(evidence_payload)
+        ),
+        execution_evidence=(
+            _decode(
+                value["execution_evidence"],
+                WorkspaceRepositoryMutationExecutionEvidence,
+                "authorized_mutation.execution_evidence",
+            )
+            if successor
+            else None
         ),
     )
 
@@ -386,14 +409,17 @@ def _operation_payload(value_kind: str, value: dict[str, object]) -> dict[str, o
     }
 
 
-def _operation_value(payload: object, expected_kind: str) -> dict[str, object]:
+def _operation_value(
+    payload: object, expected_kind: str, *, allow_version_two: bool = False
+) -> dict[str, object]:
     envelope = _mapping(payload, "repository change operation envelope")
     _exact_keys(envelope, _ENVELOPE_KEYS, "repository change operation envelope")
     if envelope["contract_ref"] != WORKSPACE_REPOSITORY_CHANGE_OPERATION_CONTRACT_REF:
         raise ValueError("Repository change operation contract ref is unsupported")
-    if (
-        envelope["contract_version"]
-        != WORKSPACE_REPOSITORY_CHANGE_OPERATION_CONTRACT_VERSION
+    if envelope[
+        "contract_version"
+    ] != WORKSPACE_REPOSITORY_CHANGE_OPERATION_CONTRACT_VERSION and not (
+        allow_version_two and envelope["contract_version"] == "2"
     ):
         raise ValueError("Repository change operation contract version is unsupported")
     value_kind = _string(envelope["value_kind"], "value_kind")

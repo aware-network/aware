@@ -1,21 +1,21 @@
 # Repository changes and publication
 
-Agents work in a shared Git repository while preserving changes outside their
-admitted task. An Issue describes scope; the publication owner rereads authority
-and publishes exact requested paths. No scope declaration reserves those paths.
+Issue-governed publication uses the original Workspace owner through the same
+installed `aware issue` SDK commands. Preserve foreign work and select admitted
+exact paths. Source effects, a repository commit, semantic materialization and
+remote push are distinct; initialization does not stage, commit or add a remote.
 
-The [workflow](../WORKFLOW.md) exposes publication through `aware issue` and the
-original Workspace owner. Dry-run the exact request before apply. Keep source
-effects, repository commit, semantic materialization and remote push distinct.
-Initialization must not silently stage, commit or configure a remote.
+Use the [workflow and guard meanings](../WORKFLOW.md), set an explicit local Git
+author, and dry-run the exact publication request before apply. `publish-close`
+pairs publication and closeout in one live owner lifetime, but these are two
+effects, not an atomic transaction. Preserve both receipts, reference-update
+outcome, index reconciliation, closure refusal, cleanup and known/unknown effects.
+A later close refusal does not undo a known commit. Standalone `close` cannot
+recreate its live publication capability from a saved Git receipt. Do not
+republish to regain authority, refresh a guard silently or retry automatically.
+Retain evidence and request an explicit supported recovery disposition.
 
-Retain publication refs, reference-update outcome, index reconciliation and
-observed effects. Known publication is not safe to retry automatically. An
-uncertain or pending result needs original evidence and supported reconciliation,
-not raw Git lifecycle repair or a second workflow-state store.
-
-Workspace's change foundation is shared with later interpretation and object
-projection routes, but a file delta is not meaning or authority. This preview
-does not provide a public delta command, every-write detection or continuous
-confinement. See [coherence](../COHERENCE.md) and the separate
-[initialization preparation](../INITIALIZATION.md).
+Workspace deltas are change evidence, not meaning or authority. Public delta
+commands, every-write detection, continuous confinement and durable
+cross-execution closeout migration are not supplied by this preview. See
+[coherence](../COHERENCE.md) and [initialization](../INITIALIZATION.md).

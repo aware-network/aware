@@ -6,8 +6,8 @@ import argparse
 import json
 import sys
 import time
-from dataclasses import dataclass
-from typing import Any, Protocol
+from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING, Any, Protocol
 
 from aware_workspace_materialize_transport import (
     WORKSPACE_MATERIALIZE_COMMAND_PROPOSAL_V2,
@@ -28,6 +28,11 @@ from aware_workspace_materialize_transport.contracts import (
     WorkspaceMaterializeHostOperationReceiptV1,
     WorkspaceMaterializeHostResultV3,
 )
+
+if TYPE_CHECKING:
+    from aware_workspace_runtime.direct_command_composition import (
+        WorkspaceDirectCLISourceInspection,
+    )
 
 WORKSPACE_MATERIALIZE_COMMAND_RESULT = "aware.workspace.materialize-command-result.v2"
 WORKSPACE_MATERIALIZE_COMMAND_RESULT_V3 = "aware.workspace.materialize-command-result.v3"
@@ -176,7 +181,6 @@ class _DirectWorkspaceCommandTransport:
 
         from aware_workspace_runtime.direct_command_composition import (
             WorkspaceDirectCommandRootUnavailable,
-            admit_direct_workspace_cli_source,
         )
         from aware_workspace_runtime.lease import (
             WorkspaceObservationLeaseUnavailable,
@@ -200,7 +204,9 @@ class _DirectWorkspaceCommandTransport:
         root_text = proposal.participant_checkout_root
         if root_text is not None:
             try:
-                inspection = asyncio.run(admit_direct_workspace_cli_source(proposal=proposal))
+                inspection, self.admission_diagnostic = asyncio.run(
+                    _continue_direct_materialize_profile(proposal)
+                )
             except SourceObservationUnavailable:
                 failure_code = "workspace_manifest_not_admitted"
             except WorkspaceObservationLeaseUnavailable as error:
@@ -220,9 +226,10 @@ class _DirectWorkspaceCommandTransport:
                     raise WorkspaceMaterializeCommandError(
                         "direct host admission correspondence differs"
                     )
-                # The original Workspace command is live and its retained
-                # declarations were revalidated. No provider/catalog/graph
-                # admission is inferred from this source-only checkpoint.
+                # The continuation already checked the exact participant view
+                # and provider declaration under the original live command.
+                # Its resources have now retired. Preserve the existing wire
+                # refusal; the diagnostic names the reached prerequisite.
                 failure_code = "graph_host_not_ready"
         counters = dict(empty_workspace_materialize_host_counters_v2(proposal))
         counters["authority_preflight_count"] = 1
@@ -268,6 +275,51 @@ class _DirectWorkspaceCommandTransport:
             predecessor=predecessor,
             operation_receipt=inspection.operation_receipt,
         )
+
+
+async def _continue_direct_materialize_profile(
+    proposal: WorkspaceMaterializeCommandProposalV2 | WorkspaceMaterializeCommandProposalV3,
+) -> tuple[WorkspaceDirectCLISourceInspection, str]:
+    """Consume the original selected source before its command is retired.
+
+    Code interprets the selected registration and profile relationships;
+    Workspace's original issuer authenticates their retained correspondence.
+    A derived key requests an original factory binding. It cannot establish
+    that binding or authorize execution. Only detached inspection/diagnostics
+    leave this context, after final source validation and cleanup succeed.
+    """
+    from aware_code_semantic_contract_runtime.contracts import ContractViolation
+    from aware_workspace_runtime.direct_command_composition import (
+        _compose_direct_workspace_cli_source,
+        _resolve_direct_workspace_exact_provider_key,
+    )
+
+    async with _compose_direct_workspace_cli_source(proposal=proposal) as (
+        command, inspection, selected,
+    ):
+        if selected is None:
+            diagnostic = "selected_graph_assembly_unavailable"
+        else:
+            selected_started_ns = time.perf_counter_ns()
+            try:
+                provider_key = _resolve_direct_workspace_exact_provider_key(
+                    command, selected,
+                )
+            except ContractViolation as error:
+                diagnostic = f"selected_participant_admission_unavailable: {error}"
+            else:
+                diagnostic = (
+                    "original_selected_provider_factory_binding_unavailable: "
+                    + provider_key
+                )
+            inspection = replace(
+                inspection,
+                selected_timing_ns=(
+                    inspection.selected_timing_ns
+                    + time.perf_counter_ns() - selected_started_ns
+                ),
+            )
+        return inspection, diagnostic
 
 
 @dataclass(frozen=True, slots=True)
@@ -703,8 +755,8 @@ def _emit_result(
             f"Workspace materialize {result.outcome} "
             f"(stage={result.terminal_stage}, attempt={result.attempt_ref})"
         )
-        if diagnostic:
-            print(diagnostic, file=sys.stderr)
+    if diagnostic:
+        print(diagnostic, file=sys.stderr)
     return 0 if result.outcome == "succeeded" else 2
 
 

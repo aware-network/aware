@@ -1,13 +1,14 @@
-# Filesystem distribution
+# Filesystem distributions
 
-[canonical-initializer-fs-v1](canonical-initializer-fs-v1/README.md) is the selected
-40-package initializer distribution. The [installer](../protocols/install.py)
-uses its exact accepted envelope, not detached wheels. Earlier distributions
-remain available in [pinned history](../docs/HISTORY.md). See the
-[exact delivery record](SELECTED.json) and [local selection](canonical-initializer-fs-v1/LOCAL-SELECTION.md).
-Frozen instructions have independent acceptance. Luis separately authorized
-public delivery; see the [publication receipt](canonical-initializer-fs-v1/PUBLICATION.md)
-for actual remote results and the pinned acquisition revision. See the
-[public instruction pins](canonical-initializer-fs-v1/PUBLIC-INSTRUCTIONS.json)
-and unchanged [original freeze](canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md).
-This record points to the already accepted envelope, not a package catalog.
+[canonical-issue083-fs-v1](canonical-issue083-fs-v1/README.md) is a prepared,
+unselected successor: Issue CLI 0.8.3 / FS 0.9.4 in one 40-package installation.
+Its [installer](../protocols/install.py) retains the complete accepted envelope,
+including terms, corresponding source and notices. Detached wheels remain
+unaccepted. These successor instructions are draft, not a publication receipt.
+
+The unchanged [delivery pointer](SELECTED.json) still selects the
+[initializer predecessor](canonical-initializer-fs-v1/README.md). Its envelope
+and receipts remain exact; old expanded source coordinates bind its pinned Git
+history, not the successor source tree. Selection, instruction freeze and public
+delivery of the successor require separate governed cuts. No second package
+catalog is created; `portable_protocols` remains the sole software selector.

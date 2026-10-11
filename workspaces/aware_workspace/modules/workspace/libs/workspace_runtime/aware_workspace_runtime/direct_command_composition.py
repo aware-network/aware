@@ -15,6 +15,7 @@ from collections.abc import AsyncIterator, Callable, Iterator
 from contextlib import ExitStack, asynccontextmanager, contextmanager, nullcontext
 from dataclasses import dataclass, field, fields
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from threading import RLock, current_thread, get_ident
 from typing import TYPE_CHECKING, Any, cast
 from weakref import WeakKeyDictionary, WeakSet, finalize, ref
@@ -1356,7 +1357,7 @@ async def _compose_direct_workspace_cli_source(
         WorkspaceSelectedPackageSource | None,
     ]
 ]:
-    """Mount one process-local observer and original Workspace command parent.
+    """Mount original command-local source evidence without a maintained writer.
 
     State placement is fixed by the direct Workspace runtime, not a proposal
     field or a Local Development service. This entrance only proves retained
@@ -1389,30 +1390,36 @@ async def _compose_direct_workspace_cli_source(
     cache_root = state_root / hashlib.sha256(
         str(binding.root_path).encode("utf-8")
     ).hexdigest()
-    session = WorkspaceRepositoryObservationSession(
-        binding=binding,
-        provider=FileSystemIndexObservationProvider(
-            binding=binding, cache_dir=cache_root
-        ),
-    )
-    await session.start(background=False)
-    try:
-        store = WorkspaceRepositoryDeltaRetentionFactory.filesystem(
-            state_root=cache_root,
-        ).allocate_delta_retention()
-        store.initialize_delta_retention(
-            repository_binding_ref=binding.binding_key,
-            body_capacity=4096,
-            maximum_bytes=512 * 1024 * 1024,
+    cache_root.mkdir(parents=True, exist_ok=True)
+    # Each command owns its index and retained source bodies. It cannot write
+    # another command's cache or the maintained observer's index/journal.
+    with TemporaryDirectory(prefix="command-", dir=cache_root) as command_state:
+        command_root = Path(command_state)
+        session = WorkspaceRepositoryObservationSession(
+            binding=binding,
+            provider=FileSystemIndexObservationProvider(
+                binding=binding, cache_dir=command_root / "observation"
+            ),
+            observation_mode="command",
         )
-        with _compose_direct_workspace_command_source(
-            session=session,
-            store=store,
-            proposal=proposal,
-        ) as resources:
-            yield resources
-    finally:
-        await session.stop()
+        try:
+            await session.start(background=False)
+            store = WorkspaceRepositoryDeltaRetentionFactory.filesystem(
+                state_root=command_root / "retention",
+            ).allocate_delta_retention()
+            store.initialize_delta_retention(
+                repository_binding_ref=binding.binding_key,
+                body_capacity=4096,
+                maximum_bytes=512 * 1024 * 1024,
+            )
+            with _compose_direct_workspace_command_source(
+                session=session,
+                store=store,
+                proposal=proposal,
+            ) as resources:
+                yield resources
+        finally:
+            await session.stop()
 
 
 async def admit_direct_workspace_cli_source(

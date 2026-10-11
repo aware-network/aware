@@ -2,6 +2,25 @@
 
 Thin command-line projection of canonical Issue SDK operations.
 
+## Issue reference inputs
+
+Every target command takes `--issue-ref fb/YYYY-MM-DD/<slug>`, not an Issue
+Markdown path. For example, use `--issue-ref fb/2026-10-11/json-checker-draft`.
+The slug uses lowercase letters or digits separated by single hyphens. The FS
+provider resolves the reference through the admitted Protocol Issue binding;
+with root `docs/issues`, this example selects
+`docs/issues/2026/10/11/fb-2026-10-11-json-checker-draft.md`.
+
+The same argument help is available through the standalone registrar and
+`aware issue <command> --help`. Invalid references preserve the original
+`issue_ref_invalid` code and the provider's syntax/example diagnostics in both
+JSON and summary output. The CLI neither guesses a reference from a path nor
+implements another grammar or repairs authority.
+
+CLI 0.8.3 retains FS adapter `>=0.9.4,<0.10.0` so the help and owner diagnostics
+ship together. These source successors require a newly pinned installed
+candidate; they do not alter the currently published installation.
+
 The read and lifecycle commands select the filesystem provider and render its
 typed result. The CLI does not parse Issue Markdown, implement transition
 rules, select work, or treat local compatibility state as authority.
@@ -15,19 +34,39 @@ the supplied implementation receipt from the closeout publication receipt
 created by the selected authority. A fresh standalone invocation cannot recover
 original completion authority from a Git receipt and therefore refuses.
 
-## Explicit publication and closeout loop source checkpoint
+## Publish implementation and close together
 
 `publish-close` performs implementation publication, then separately admits and
 publishes closeout through the same genuine owner lifetime. It is **not atomic**.
-Both complete original owner receipts remain visible if closeout fails. Unknown
+The returned receipts retain the original owner evidence if closeout fails. Unknown
 CAS, unavailable unlock, pending index projection or consumer-return refusal
 stops the sequence; there is no publication retry or source rollback.
 
+Before publication, finish the Issue's admitted lifecycle and scope changes.
+Observe the current source through the selected installation:
+
 ```text
-<explicitly selected Issue CLI> publish-close \
+aware issue resolve-read-projection \
   --repository-root /absolute/approved/repository \
-  --issue-ref fb/YYYY-MM-DD/approved-task \
-  --expected-issue-source-sha256 sha256:<exact-Issue-bytes> \
+  --issue-ref fb/2026-10-11/approved-task \
+  --format json
+```
+
+Require `outcome="found"`. Use the returned `projection.source.digest` unchanged
+as `--expected-issue-source-sha256`. It is `sha256:<hex>` over the **exact Issue
+Markdown bytes**, not HEAD, a Protocol's normalized semantic digest, a SPEC
+draft digest or implementation-file bytes. Any intervening Issue edit makes
+that observation stale; do not automatically fetch a replacement guard and retry.
+
+After reviewing the admitted paths, source and verification evidence, use the
+paired command from that same selected installation. Substitute the observed
+guard and your genuine execution/evidence coordinates below:
+
+```text
+aware issue publish-close \
+  --repository-root /absolute/approved/repository \
+  --issue-ref fb/2026-10-11/approved-task \
+  --expected-issue-source-sha256 <reviewed-projection.source.digest> \
   --path exact/implementation/path \
   --message "Publish approved change" \
   --actor-ref <genuine-provider-execution> \
@@ -42,7 +81,48 @@ The Issue must be In Progress, owned by the genuine harness execution, and
 scope both the implementation and its exact Issue document. The supplied Issue
 digest is also the closeout source guard: it is not automatically refreshed
 after publication. A concurrent Issue edit refuses closeout and stays intact.
-`--dry-run` only plans implementation; it neither publishes nor closes.
+Save the complete JSON output in an approved evidence location outside the
+implementation paths, including on exit `2`. An implementation commit can exist
+even when the paired command refuses later closeout; inspect every receipt,
+not only the final outcome.
+
+`--dry-run` only plans implementation; it neither publishes nor closes. A later
+apply **prepares afresh**: it does not execute a retained dry-run plan or bind
+itself to the preview's HEAD and implementation bytes. Review intervening
+changes before deciding to invoke apply. Transaction-time owner validation is
+separate; preview does not grant publication or retry authority.
+
+The fresh standalone `close` command cannot reconstruct original completion
+authority from `--publication-receipt-ref git:<commit>`. It refuses with
+`issue_closeout_original_implementation_required`. If implementation is already
+published, retain that receipt and request supported original-owner recovery;
+the shipped CLI provides no durable completion reconstruction. **Do not
+republish implementation just to regain close authority.**
+
+## Handle publication refusals
+
+Keep the exact owner code and full failure/publication/cleanup evidence. Stop
+the attempted sequence; absence of diagnostics does not mean no effects.
+
+| Owner code | Next action |
+| --- | --- |
+| `issue_publication_source_stale` | Observe the current Issue and review the change against the prior guard. Any new request needs explicit review and fresh admission; never silently refresh the guard until apply succeeds. |
+| `issue_source_out_of_scope` | Compare rejected paths with admitted scope. Remove paths that do not belong, or explicitly admit the required scope through the Issue owner before a separately reviewed request. |
+| `issue_closeout_original_implementation_required` | Preserve the implementation receipt and request supported owner recovery. Saved Git evidence is not completion authority; do not republish to regain it. |
+
+Known publication stays known even if cleanup, closeout or consumer return
+fails. Unknown publication or cleanup stays unknown; do not infer rollback,
+successful unlock, permission to retry or completed closeout from Git reachability.
+For a non-publication failure such as missing Git author identity, preserve the
+original diagnostic and correct the input through its owner before evaluating
+any separately admitted request. This does not promise zero preparatory effects.
+
+`aware issue present-receipt --receipt-path /absolute/path/full-result.json`
+shows saved evidence without replaying the operation. Its wrapper records
+`operation_invoked=false`, `authority_restored=false` and
+`currentness=not_revalidated`. Exit `0` means presentation succeeded, not that
+the recorded operation succeeded. It neither recovers close authority nor
+refreshes the Issue-source guard.
 
 Each `aware.issue.repository-operation.v2` receipt contains the full Workspace
 result, Issue observation and original cleanup observations. JSON and summary
@@ -51,7 +131,9 @@ writer fields. These are presentation carriers, not the ordinary v1 result or
 a new native semantic binding. `present-receipt` also reads saved full compound
 output without restoring authority. Save full JSON before presenting summaries.
 
-This proves source-level CLI composition only. Successor dependency/profile
+This guidance follows the independently accepted nine-case shipped-install
+audit. CLI 0.8.3's help is a source successor, not a changed public installation.
+Successor dependency/profile
 qualification and checkout-hidden neutral installation remain separate; neither
 the selected aware-dev host command nor public artifacts are changed.
 

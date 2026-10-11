@@ -3,12 +3,13 @@ from __future__ import annotations
 import asyncio
 import inspect
 import logging
+import os
 import threading
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import PurePosixPath
-from typing import cast
+from typing import Literal, cast
 from uuid import UUID, uuid4
 
 from .contracts import (
@@ -95,7 +96,7 @@ class WorkspaceObservationRegistryConflict(WorkspaceObservationError):
 
 
 class WorkspaceRepositoryObservationSession:
-    """Single-writer, many-reader maintained repository observation session."""
+    """Original observation runtime for maintained or command-local evidence."""
 
     def __init__(
         self,
@@ -108,7 +109,14 @@ class WorkspaceRepositoryObservationSession:
         ),
         journal_capacity: int = 256,
         lease: WorkspaceRepositoryObservationLease | None = None,
+        observation_mode: Literal["maintained", "command"] = "maintained",
     ) -> None:
+        if type(observation_mode) is not str or observation_mode not in (
+            "maintained", "command",
+        ):
+            raise ValueError("Exact Workspace observation mode required")
+        if observation_mode == "command" and lease is not None:
+            raise ValueError("Command observation cannot accept a writer lease")
         if provider.root_path.resolve() != binding.root_path:
             raise ValueError(
                 "Observation provider root does not match repository binding"
@@ -125,6 +133,8 @@ class WorkspaceRepositoryObservationSession:
         self.max_background_poll_duty_cycle = max_background_poll_duty_cycle
         self.journal_capacity = journal_capacity
         self._lease = lease or FileWorkspaceRepositoryObservationLease(binding=binding)
+        self._observation_mode = observation_mode
+        self._process_id = os.getpid()
         self._epoch = uuid4().hex
         self._workspace_session_lock = threading.RLock()
         self._workspace_sessions: dict[tuple[str, str], str] = {}
@@ -152,6 +162,8 @@ class WorkspaceRepositoryObservationSession:
     def observe_workspace_session(self, *, execution_id: str, actor_ref: str) -> str:
         """Return Workspace-owned participant authority for this runtime session."""
 
+        if self._observation_mode == "command" and self._process_id != os.getpid():
+            raise WorkspaceObservationNotStartedError("Command observation process changed")
         if (
             not execution_id
             or execution_id != execution_id.strip()
@@ -162,7 +174,7 @@ class WorkspaceRepositoryObservationSession:
             raise ValueError("workspace_session_participant_invalid")
         key = (execution_id, actor_ref)
         with self._workspace_session_lock:
-            if not self._authority_admitted or self._state not in {
+            if not self.authority_admitted or self._state not in {
                 ObservationRuntimeState.RUNNING,
                 ObservationRuntimeState.DEGRADED,
             }:
@@ -184,9 +196,11 @@ class WorkspaceRepositoryObservationSession:
     ) -> None:
         """Reject authority retained across a Workspace epoch replacement."""
 
+        if self._observation_mode == "command" and self._process_id != os.getpid():
+            raise WorkspaceObservationNotStartedError("Command observation process changed")
         with self._workspace_session_lock:
             if (
-                not self._authority_admitted
+                not self.authority_admitted
                 or self._state
                 not in {ObservationRuntimeState.RUNNING, ObservationRuntimeState.DEGRADED}
                 or self._workspace_sessions.get((execution_id, actor_ref))
@@ -212,7 +226,9 @@ class WorkspaceRepositoryObservationSession:
 
     @property
     def authority_admitted(self) -> bool:
-        return self._authority_admitted
+        return self._authority_admitted and (
+            self._observation_mode == "maintained" or self._process_id == os.getpid()
+        )
 
     @property
     def query_cursor(self) -> int:
@@ -251,6 +267,11 @@ class WorkspaceRepositoryObservationSession:
     async def start(
         self, *, background: bool = True
     ) -> WorkspaceRepositoryObservationSnapshot:
+        if self._observation_mode == "command":
+            if self._process_id != os.getpid():
+                raise WorkspaceObservationNotStartedError("Command observation process changed")
+            if background:
+                raise ValueError("Command observation cannot start a maintained watcher")
         async with self._lifecycle_lock:
             if self._snapshot is not None and (
                 self._state is ObservationRuntimeState.RUNNING
@@ -260,7 +281,7 @@ class WorkspaceRepositoryObservationSession:
             if self._state is ObservationRuntimeState.STOPPED:
                 self._reset_authority_locked()
             acquired_here = False
-            if not self._authority_admitted:
+            if not self._authority_admitted and self._observation_mode == "maintained":
                 try:
                     self._lease.acquire()
                     self._authority_admitted = True
@@ -321,6 +342,7 @@ class WorkspaceRepositoryObservationSession:
                     entries=observation.entries,
                 )
                 self._snapshot = snapshot
+                self._authority_admitted = True
                 self._baseline_observed_at = (
                     observation.observed_at
                     if observation.baseline_observed_at is None
@@ -342,8 +364,14 @@ class WorkspaceRepositoryObservationSession:
                 raise
 
     async def admit(self) -> None:
-        """Admit the one authority without scanning the repository."""
+        """Admit maintained ownership, or require initialized command evidence."""
 
+        if self._observation_mode == "command":
+            if not self.authority_admitted or self._snapshot is None:
+                raise WorkspaceObservationNotStartedError(
+                    "Command observation requires its own initialized source snapshot"
+                )
+            return
         async with self._lifecycle_lock:
             if self._state is ObservationRuntimeState.STOPPED:
                 self._reset_authority_locked()
@@ -411,6 +439,8 @@ class WorkspaceRepositoryObservationSession:
             ) from error
 
     async def stop(self) -> None:
+        if self._observation_mode == "command" and self._process_id != os.getpid():
+            raise WorkspaceObservationNotStartedError("Command observation process changed")
         async with self._lifecycle_lock:
             if self._state is ObservationRuntimeState.STOPPED:
                 return
@@ -426,9 +456,9 @@ class WorkspaceRepositoryObservationSession:
             try:
                 await _close_provider(self.provider)
             finally:
-                if self._authority_admitted:
+                if self._authority_admitted and self._observation_mode == "maintained":
                     self._lease.release()
-                    self._authority_admitted = False
+                self._authority_admitted = False
                 async with self._published:
                     self._published.notify_all()
 
@@ -663,6 +693,8 @@ class WorkspaceRepositoryObservationSession:
         )
 
     def _ensure_started(self) -> None:
+        if self._observation_mode == "command" and self._process_id != os.getpid():
+            raise WorkspaceObservationNotStartedError("Command observation process changed")
         if self._state not in {
             ObservationRuntimeState.RUNNING,
             ObservationRuntimeState.DEGRADED,

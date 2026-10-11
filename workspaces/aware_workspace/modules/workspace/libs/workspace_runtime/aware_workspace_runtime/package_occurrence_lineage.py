@@ -304,6 +304,191 @@ def decode_record(body: bytes) -> dict[str, object]:
     return cast(dict[str, object], value)
 
 
+def validate_record_transition(
+    previous_body: bytes | None,
+    proposed_body: bytes,
+    *,
+    previous_head_body: bytes | None,
+    proposed_head_body: bytes | None,
+    expected_output_roles: tuple[str, ...],
+) -> None:
+    """Check the exact V5 write shape, without authorizing or performing a CAS.
+
+    The original issuer still supplies installed protection, negative/history
+    evidence, approvals, owner verification and the publication reservation.
+    In particular, a null previous body is data, not admitted genesis. Keeping
+    this check separate lets the issuer validate outside parent exclusion.
+    """
+    previous = proposed = before_pending = after_pending = None
+    before_head = confirmation = None
+    try:
+        if type(expected_output_roles) is not tuple or len(expected_output_roles) > 64:
+            head_wire._reject("V5 transition requires exact bounded output roles")
+        roles = tuple(
+            publication._v5_text(role, 192, token=True)
+            for role in expected_output_roles
+        )
+        if len(set(roles)) != len(roles):
+            head_wire._reject("V5 transition requires unique output roles")
+        previous = None if previous_body is None else decode_record(previous_body)
+        proposed = decode_record(proposed_body)
+        for record, body in (
+            (previous, previous_head_body),
+            (proposed, proposed_head_body),
+        ):
+            binding = None if record is None else record["public_head"]
+            if binding is None:
+                if body is not None:
+                    head_wire._reject("V5 transition has an unbound HEAD body")
+            else:
+                fields = cast(dict[str, object], binding)
+                if (
+                    type(body) is not bytes
+                    or len(body) != fields["body_size"]
+                    or ContentDigest.of_bytes(body).value != fields["body_digest"]
+                ):
+                    head_wire._reject("V5 transition retained HEAD body differs")
+                assert record is not None
+                _head_correspondence(
+                    record, body, expected_output_roles=expected_output_roles
+                )
+
+        after_pending = proposed["pending_operation"]
+        if previous is None:
+            if (
+                proposed["record_revision"] != 1
+                or proposed["state_tag"] != "reserved_genesis"
+                or type(after_pending) is not dict
+                or after_pending["phase"] != "reserved"
+                or after_pending["expected_prior_record_revision"] != 0
+                or proposed["checkpoint"] is not None
+            ):
+                head_wire._reject("V5 first record must reserve genesis")
+            return
+
+        if (
+            proposed["record_revision"] != cast(int, previous["record_revision"]) + 1
+            or proposed["previous_record_digest"] != previous["record_digest"]
+        ):
+            head_wire._reject("V5 transition must link the exact preceding record")
+        for field in (
+            "installation_digest",
+            "occurrence_key",
+            "occurrence",
+            "checkpoint",
+        ):
+            if proposed[field] != previous[field]:
+                head_wire._reject("V5 transition immutable occurrence evidence differs")
+        before_state, after_state = previous["state_tag"], proposed["state_tag"]
+        if before_state == "retired" and after_state == "reserved_genesis":
+            if proposed["incarnation_ref"] == previous["incarnation_ref"]:
+                head_wire._reject("V5 retired lineage must receive a new incarnation")
+        elif proposed["incarnation_ref"] != previous["incarnation_ref"]:
+            head_wire._reject("V5 transition changed the live incarnation")
+
+        before_pending = previous["pending_operation"]
+        if (before_state, after_state) in (
+            ("active", "reserved_successor"),
+            ("retired", "reserved_genesis"),
+        ):
+            if (
+                type(after_pending) is not dict
+                or after_pending["phase"] != "reserved"
+                or after_pending["expected_prior_record_revision"]
+                != previous["record_revision"]
+            ):
+                head_wire._reject("V5 reservation must bind the preceding revision")
+            if before_state == "active":
+                assert previous_head_body is not None
+                before_head = head_wire.decode_head(
+                    previous_head_body, expected_output_roles=expected_output_roles
+                )
+                pair = cast(dict[str, object], before_head["meta_pair_binding"])
+                if (
+                    proposed["public_head"] != previous["public_head"]
+                    or after_pending["claimed_prior_meta_pair_digest"]
+                    != pair["body_digest"]
+                ):
+                    head_wire._reject(
+                        "V5 successor must bind the exact prior pair and HEAD"
+                    )
+            return
+
+        if type(before_pending) is dict and type(after_pending) is dict:
+            before_pending = cast(dict[str, object], before_pending)
+            after_pending = cast(dict[str, object], after_pending)
+            # All input/correlation fields survive both internal transitions.
+            for field in _PENDING_FIELDS - {
+                "phase",
+                "committed_meta_pair_digest",
+                "proposed_head_digest",
+            }:
+                if before_pending[field] != after_pending[field]:
+                    head_wire._reject("V5 transition changed its pending operation")
+            if (
+                before_state in ("reserved_genesis", "reserved_successor")
+                and after_state == before_state
+                and before_pending["phase"] == "reserved"
+                and after_pending["phase"] == "meta_committed"
+                and proposed["public_head"] == previous["public_head"]
+            ):
+                if previous_head_body is not None:
+                    before_head = head_wire.decode_head(
+                        previous_head_body, expected_output_roles=expected_output_roles
+                    )
+                    if (
+                        after_pending["source_epoch_digest"]
+                        != before_head["source_epoch_digest"]
+                        and after_pending["committed_meta_pair_digest"]
+                        == after_pending["claimed_prior_meta_pair_digest"]
+                    ):
+                        head_wire._reject(
+                            "V5 changed source epoch requires a pair successor"
+                        )
+                return
+            if (
+                before_state in ("reserved_genesis", "reserved_successor")
+                and after_state == "active_pending"
+                and before_pending["phase"] == "meta_committed"
+                and after_pending["phase"] == "head_stored"
+                and before_pending["committed_meta_pair_digest"]
+                == after_pending["committed_meta_pair_digest"]
+            ):
+                return
+
+        if before_state == "active_pending" and after_state == "active":
+            # The exact state codecs already require both native objects.
+            before_pending = cast(dict[str, object], before_pending)
+            confirmation = cast(dict[str, object], proposed["confirmation"])
+            if (
+                proposed["public_head"] != previous["public_head"]
+                or confirmation["head_cas_revision"] != previous["record_revision"]
+                or confirmation["operation_ref"] != before_pending["operation_ref"]
+                or confirmation["meta_pair_body_digest"]
+                != before_pending["committed_meta_pair_digest"]
+                or confirmation["source_epoch_digest"]
+                != before_pending["source_epoch_digest"]
+            ):
+                head_wire._reject("V5 confirmation must bind the exact HEAD CAS")
+            return
+        if before_state == "active" and after_state == "retired":
+            if (
+                proposed["public_head"] != previous["public_head"]
+                or proposed["confirmation"] != previous["confirmation"]
+            ):
+                head_wire._reject(
+                    "V5 retirement must retain terminal publication evidence"
+                )
+            return
+        head_wire._reject("V5 occurrence transition is out of order")
+    finally:
+        # Held Workspace rejection frames are not another record/body custodian.
+        previous_body = previous_head_body = proposed_head_body = None
+        del proposed_body
+        previous = proposed = before_pending = after_pending = before_head = None
+        confirmation = record = body = binding = fields = pair = None
+
+
 def _plain_state_value(value: object) -> object:
     """Detach only native JSON and Service's exact original frozen JSON types."""
     remaining = 20_000

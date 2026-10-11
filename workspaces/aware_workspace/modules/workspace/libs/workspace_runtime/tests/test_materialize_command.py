@@ -4,7 +4,6 @@ import argparse
 import json
 
 import pytest
-
 from aware_workspace_command.materialize_command import (
     WorkspaceMaterializeCommandError,
     WorkspaceMaterializeCommandProposalV2,
@@ -497,7 +496,7 @@ def test_command_values_reject_foreign_and_reordered_shapes() -> None:
 
 @pytest.mark.parametrize("proposal_version", (2, 3))
 @pytest.mark.parametrize("json_output", (True, False))
-def test_public_source_contention_is_blocked_and_preserves_original_observer(
+def test_public_command_coexists_with_and_preserves_maintained_observer(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -511,8 +510,27 @@ def test_public_source_contention_is_blocked_and_preserves_original_observer(
     )
 
     repository = tmp_path / "repository"
-    repository.mkdir()
-    (repository / "aware.repo.toml").write_text("aware = 1\n")
+    package = repository / "workspaces/kernel/modules/storage/ontology"
+    package.mkdir(parents=True)
+    (repository / "aware.repo.toml").write_text(
+        'aware_repo=1\n[repo]\nhandle="demo"\n'
+        '[[workspaces]]\nhandle="Kernel"\npath="workspaces/kernel"\n'
+    )
+    (repository / "workspaces/kernel/aware.workspace.toml").write_text(
+        'aware=2\n[workspace]\nhandle="Kernel"\n'
+        '[[workspace.modules]]\nid="storage"\npath="modules/storage"\n'
+    )
+    admission = occurrence("storage-ontology").replace(
+        'value={module_id="main",package_id="provider",',
+        'value={scope={kind="local"},module_id="storage",package_id="ontology",',
+    )
+    (package.parent / "aware.module.toml").write_text(
+        'aware=3\n[module]\n[[packages]]\nid="ontology"\nkind="ontology"\n'
+        'manifest="ontology/aware.ontology.toml"\nvisibility="module"\n' + admission
+    )
+    (package / "aware.ontology.toml").write_text(
+        'aware_ontology=1\n[ontology]\npackage_name="storage-ontology"\n'
+    )
     monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "state"))
     binding = WorkspaceRepositoryBinding(repository)
     original = FileWorkspaceRepositoryObservationLease(binding=binding)
@@ -520,37 +538,44 @@ def test_public_source_contention_is_blocked_and_preserves_original_observer(
     original.acquire()
     before = original.lease_path.read_bytes()
     try:
-        arguments = _args(repo_root=str(repository), plan=True, json=json_output)
+        arguments = _args(
+            repo_root=str(repository), plan=True, json=json_output,
+            workspace_toml="workspaces/kernel/aware.workspace.toml",
+            package=["storage-ontology"],
+        )
         if proposal_version == 3:
             arguments.package = []
-            arguments.package_address = "kernel:storage:ontology"
+            arguments.package_address = "Kernel:storage:ontology"
         assert handle_workspace_materialize_command(args=arguments) == 2
         output = capsys.readouterr()
         if json_output:
             payload = json.loads(output.out)
             assert payload["outcome"] == "blocked"
-            assert payload["terminal_stage"] == "host_admission"
-            assert payload["failure_code"] == "participant_checkout_overlap"
-            assert payload["operation"] is None
+            assert payload["terminal_stage"] == (
+                "selection" if proposal_version == 3 else "host_admission"
+            )
+            assert payload["failure_code"] == "graph_host_not_ready"
+            assert payload["operation"]["host_receipt"]
             counters = {
                 row["counter"]: row["value"] for row in payload["host_counters"]
             }
             assert counters["authority_preflight_count"] == 1
+            assert counters["selected_package_count"] == (proposal_version == 3)
             for name in (
-                "selected_package_count", "graph_node_count", "graph_edge_count",
+                "graph_node_count", "graph_edge_count",
                 "graph_admission_count", "graph_execution_count",
             ):
                 assert counters[name] == 0
         else:
-            assert "Workspace materialize blocked (stage=host_admission" in output.out
-            assert "A maintained Workspace observer already owns" in output.err
+            assert "Workspace materialize blocked" in output.out
+            assert "A maintained Workspace observer already owns" not in output.err
         assert original.lease_path.read_bytes() == before
         with pytest.raises(WorkspaceObservationLeaseUnavailable):
             contender.acquire()
         assert original.lease_path.read_bytes() == before
     finally:
         original.release()
-    # The failed command neither stole the lease nor left another writer live.
+    # The command neither stole the lease nor left another writer live.
     contender.acquire()
     contender.release()
 
