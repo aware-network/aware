@@ -41,8 +41,8 @@ Retained local receipts (SHA-256):
 - Exact projection plan: `c6ac35278e2fa1afaaf864296243b58deb60f84709fdc5b8cef766dbd060517b`.
 
 These private execution receipts are retained by the producer handoff, not
-advertised as anonymously downloadable customer inputs. Independent review
-remains pending; there is no public push authorization in this Issue.
+advertised as anonymously downloadable customer inputs. Independent bounded
+integration acceptance is recorded below; no public push is authorized.
 
 Local implementation commit: `6dee8b993661352d4c532fc1b142a0d4e680803f`.
 Its actual delta from the incoming revision is exactly the admitted 72 paths.
@@ -120,3 +120,26 @@ not seven new distinct proofs. Failed receipt SHA-256:
 `94da371e40f02d1b6a1259cbb4f760610c56c642e35fd51230cea5b696e143a4`;
 corrected receipt SHA-256:
 `225f50b7b6365d45bea9f4d916438c6225e72f75fed2373db9c6e4f32bb2a758`.
+
+## Independent integration acceptance
+
+Luis supplied the independent PASS against producer `8d20603b4b8f` and exact
+public checkpoint `19d797ae0bec`. The reviewer reproduced 28 guards plus eight
+integration cases, zero skipped, including a fresh offline, checkout-hidden
+installation of all forty packages with Issue CLI 0.8.3 and FS adapter 0.9.4.
+The actual 72-path implementation and two-path receipt handoff, original CAS/index
+receipts, clean reconciliation, complete source/notice carriage and unchanged
+contributor/predecessor selection were independently confirmed.
+
+The producer retains the original independent receipt coordinates. SHA-256:
+
+- `guards.xml`: `1c80ef38143e9a2200a2e97746bed4fb2a9bb253786efdc64b44fc81c4525561`.
+- `integration.xml`: `3e40f8704b248d420d9b1d9766c4fa631f3f80848e56b51d2fbc2456cab1f27a`.
+- `installed-receipt.json`: `0fe4f553bba0e71bee574fdf7b47d5e66bb58e97d6c84f5887828e671ec62eb0`.
+
+The bounded integration Issue may close through the unchanged contributor a6
+owner. Its acceptance boxes remain authored criteria; recorded verification and
+closure do not automatically check them. The next cut is separately governed
+selection and instruction alignment, followed by explicitly authorized
+publication and fresh unassisted evaluation. This acceptance grants none of those
+effects and does not repeat the broader domain matrix or customer workflow.
