@@ -108,3 +108,28 @@ all twelve successor guidance pins remain exact. Independent review remains next
 Post-commit accounting: seven pass with the already-proven installer explicitly
 deselected, SHA-256 `7751a0a10759d2f718619d1e841b03d41ea16182cf029a270053ac583c03839e`.
 This is neither another installation nor a customer/domain workflow replay.
+
+## Independent status alignment acceptance
+
+Luis supplied independent PASS for public `537eaa12301d` / `161dc0a02afd`,
+recorded by producer `92b7fdf6f6e2` / `b1b665fe5d62`. Eight checks passed,
+zero skipped, including a fresh offline, checkout-hidden forty-package
+installation and eleven help entrances. Strengthened stale-wording and
+missing-revision controls pass. Twelve successor pins and historical freeze,
+software, commands, guards and notices remain exact. Actual ten/two-path deltas
+match original Issue guards and CAS/index receipts without debt. Anonymous remote
+observation confirms the delivered software at `2b0194bcde26`, distinct from
+this unpublished alignment. No blocker was found within the bounded review.
+
+Independent receipt: `/tmp/aware-draft-status-review.8e6vj77w/status.xml`.
+SHA-256: `aca86338a47f56febe567a0b8203c534f252a683746a32ea0ed6f5a0ab43d25a`.
+No tests, installations, workflow/domain replay or evaluation were rerun while
+recording this supplied acceptance. All twelve successor instruction pins and
+their record remain unchanged; its pending marker is historical, with this
+append-only acceptance recording the completed review gate.
+
+Acceptance permits closure of the bounded Issues, not another public push.
+The additional exact public range requires explicit target/range authorization,
+followed by pinned acquisition verification and separately admitted fresh
+unassisted U. Whole-envelope delivery and all existing legal/disclosure limits
+remain mandatory. No publication or evaluation occurs in this acceptance cut.
