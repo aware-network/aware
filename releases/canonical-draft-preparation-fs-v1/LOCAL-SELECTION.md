@@ -63,6 +63,16 @@ Private proof: `/tmp/aware-draft-local-selection.mw5twbTQ/selection.xml`, SHA-25
 Installed receipt: `/tmp/aware-draft-selection-installed.ewDzQgLi/installed-receipt.json`,
 SHA-256 `1a94993d9fb378b6a0d80fcd8d0dc1cb6bd4440963b7be53893d939233955b52`.
 These are proof coordinates, not public acquisition prerequisites.
-Original publication receipts follow after governed dry-run and identical apply.
+Original publication receipt: `git:822ee483179701fbd99670fd12027491e12acf26`.
+The actual delta is exactly eight admitted paths. Original dry-run and identical
+apply use guard `sha256:474d7e98b80558f870a4ed5767931c68a74cb029b1de72654df552a76931b9c3`.
+The owner reports `outcome=applied`, `reference_update=cas_applied`,
+`transaction_mode=isolated_index_atomic_ref_v1`,
+`operator_ref=aware_workspace_operator.run_workspace_commit.v1`,
+`shared_index_projection=applied`, `index_reconciliation_pending=false`.
+The subsequent evidence handoff changes only this ledger and the public Issue,
+using a freshly observed Issue-byte guard, never a fabricated publication receipt.
+`authored-fragments.xml` SHA-256 is
+`82d1215848bb3a6fe12663b0d68e3fe7f105ea41fafdbda970c3b843b553b927`.
 Independent bounded review remains pending. Local selection does not freeze
 instructions, establish unassisted onboarding or authorize transfer/publication.
