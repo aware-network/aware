@@ -10,11 +10,15 @@ the value, not a promise of faster agents or conflict-free swarms.
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
 The reviewed Issue083 successor is selected locally; public delivery is not yet
-authorized. Instructions remain draft. Use this reviewed checkout, not unchanged
-public main. The [delivery pointer](releases/SELECTED.json) binds its exact whole
-envelope; [local selection](releases/canonical-issue083-fs-v1/LOCAL-SELECTION.md)
-records the review boundaries. Do not overlay installations or migrate contributor
-tools. Instruction freeze and publication remain separately governed.
+authorized. Instructions are frozen locally, pending independent freeze review.
+Use this reviewed checkout, not unchanged public main. The
+[delivery pointer](releases/SELECTED.json) binds its exact whole envelope;
+[instruction pins](releases/canonical-issue083-fs-v1/INSTRUCTIONS.json) bind the
+customer guidance, not another package catalog. See
+[local selection](releases/canonical-issue083-fs-v1/LOCAL-SELECTION.md) and
+[freeze evidence](releases/canonical-issue083-fs-v1/INSTRUCTION-FREEZE.md).
+Do not overlay installations or migrate contributor tools. Publication remains
+separately authorized.
 
 ## Understand the protocols
 

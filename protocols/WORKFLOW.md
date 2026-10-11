@@ -1,10 +1,12 @@
-# Aware filesystem onboarding review
+# Aware filesystem onboarding
 
-Draft instructions for the accepted Issue CLI 0.8.3 / FS 0.9.4 composition:
+Locally frozen instructions, pending independent freeze review, for the accepted
+Issue CLI 0.8.3 / FS 0.9.4 composition:
 install once, initialize explicitly, admit an Issue and perform governed work.
-This internal review envelope carries the exact forty-package payload, committed
-`portable_protocols` sources and corresponding notices. Notice/disclosure
-acceptance, instruction freeze, public selection and delivery remain separate.
+The whole envelope carries the exact forty-package payload, committed
+`portable_protocols` sources and corresponding notices. Exact-envelope technical
+and bounded disposition decisions are recorded in the release review status.
+Public delivery is not yet authorized; frozen guidance does not grant it.
 Scripted installed proofs do not establish unassisted customer onboarding.
 
 ## Install with the complete envelope
@@ -14,19 +16,19 @@ envelope, including LICENSE, NOTICE, sources, upstream archives and indexes.
 Wheel-only acquisition is unsupported: six Code/Workspace wheels still lack
 package-local legal attachments. Do not discard the envelope after installation.
 
-Verify its outer `SHA256SUMS`, then expand
-`payload/aware-canonical-neutral-fs-internal-v1.tar.gz` in a fresh private scratch
-directory. It expands into `aware-canonical-neutral-fs-internal-v1`. Enter that
-directory and verify its inner `SHA256SUMS` before running the shipped installer:
+From this reviewed checkout root, first read
+[distribution terms and source](../releases/canonical-issue083-fs-v1/README.md).
+The whole-envelope installer verifies and retains the envelope, then delegates
+to its unchanged payload installer. Choose a fresh private environment:
 
 ```bash
 set -eu
-sha256sum -c SHA256SUMS
 aware_init_parent="$(mktemp -d)"
 aware_init_env="$aware_init_parent/env"
 test ! -e "$aware_init_env"
 test ! -L "$aware_init_env"
-PYTHON_BIN=/usr/bin/python3.12 /bin/sh ./install.sh "$aware_init_env"
+/usr/bin/python3.12 protocols/install.py \
+  --python-executable /usr/bin/python3.12 --venv "$aware_init_env"
 AWARE="$aware_init_env/bin/aware"
 "$AWARE" --help
 ```
@@ -262,4 +264,7 @@ This is not exhaustive disclosure clearance or a legal warranty.
 This installation does not admit Service/API, object execution, materialization,
 native receiving or Experience authority. It does not replace aware-dev's
 selected contributor command. Public availability, instruction freeze and
-unassisted onboarding are not established by this review envelope.
+unassisted onboarding are not established by the envelope's technical proof.
+The candidate-specific instruction pins record this separate local freeze,
+pending independent review; publication and fresh unassisted evaluation follow
+separately.
