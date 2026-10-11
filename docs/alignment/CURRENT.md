@@ -1,13 +1,15 @@
 # Current collaboration alignment
 
-The [locally selected entrance](../../README.md) composes explicit init, Issue work,
+The [published software entrance](../../README.md) composes explicit init, Issue work,
 SPEC setup, draft preparation/review and separately invoked draft preview/apply.
 Coherence is shared rules and recoverable evidence, not conflict-free execution.
 Readable protocols, tooling installation, repository configuration and service
 startup are distinct. This composition starts no service.
 
-The independently integrated successor is selected locally. Customer instructions
-are frozen locally pending independent review, not publicly delivered.
+The successor is publicly delivered at `2b0194bcde2643f04886e309d08587cde71dfd24`;
+the original instruction freeze has independent acceptance. Status-only guidance
+alignment and any further publication remain separately governed.
+See [delivery status](../../releases/canonical-draft-preparation-fs-v1/PUBLIC-STATUS.md).
 The [delivery pointer](../../releases/SELECTED.json) binds its exact artifacts,
 not another package catalog or operation authority. Contributor a6 and root
 governance remain unchanged. [Whole-envelope carriage](../../releases/canonical-draft-preparation-fs-v1/README.md)

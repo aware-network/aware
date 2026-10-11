@@ -9,14 +9,18 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The reviewed draft-preparation successor is selected locally; public delivery is
-not yet authorized. Instructions are frozen locally pending independent review.
-Use this reviewed checkout, not
-unchanged public main. The [delivery pointer](releases/SELECTED.json) binds the
-exact whole envelope; [local selection](releases/canonical-draft-preparation-fs-v1/LOCAL-SELECTION.md)
-records the review boundaries. Do not overlay installations or silently migrate
-contributor commands. [Instruction pins](releases/canonical-draft-preparation-fs-v1/INSTRUCTIONS.json)
-bind exact guidance/examples, not operation authority. Publication remains separately governed.
+The reviewed draft-preparation distribution is publicly delivered at
+[revision 2b0194bcde26](https://github.com/aware-network/aware/tree/2b0194bcde2643f04886e309d08587cde71dfd24).
+One installation supplies the SDK-backed operations below. The
+[delivery pointer](releases/SELECTED.json) binds the exact whole envelope;
+[delivery status](releases/canonical-draft-preparation-fs-v1/PUBLIC-STATUS.md)
+distinguishes the published software from this status-only guidance alignment.
+Do not overlay installations or silently migrate contributor commands.
+[Instruction pins](releases/canonical-draft-preparation-fs-v1/PUBLIC-INSTRUCTIONS.json)
+bind exact guidance/examples, not operation authority. The
+[historical freeze](releases/canonical-draft-preparation-fs-v1/INSTRUCTIONS.json)
+and its independent acceptance remain preserved. Remote operations still require
+their own explicit authorization.
 
 ## Understand the shared rules
 

@@ -1,5 +1,5 @@
 {
-  "selection_kind": "local_delivery_selection",
+  "selection_kind": "published_delivery_selection",
   "release": "canonical-draft-preparation-fs-v1",
   "canonical_profile": "portable_protocols",
   "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
@@ -20,11 +20,13 @@
   "whole_envelope_required": true,
   "detached_wheels_accepted": false,
   "contributor_selection_changed": false,
-  "instruction_status": "frozen_locally_review_pending",
+  "instruction_status": "status_alignment_review_pending",
   "selection_record": "canonical-draft-preparation-fs-v1/LOCAL-SELECTION.md",
   "selection_review": "accepted",
-  "public_delivery_authorized": false,
+  "public_delivery_authorized": true,
+  "published_revision": "2b0194bcde2643f04886e309d08587cde71dfd24",
+  "instruction_alignment_publication_authorized": false,
   "domain_matrix_replayed": false,
   "unassisted_onboarding_proven": false,
-  "instruction_record": "canonical-draft-preparation-fs-v1/INSTRUCTIONS.json"
+  "instruction_record": "canonical-draft-preparation-fs-v1/PUBLIC-INSTRUCTIONS.json"
 }

@@ -1,8 +1,10 @@
 # Draft-preparation whole distribution
 
-Locally selected successor; instructions are frozen locally pending independent
-review and public delivery is not yet authorized. See [exact instruction pins](INSTRUCTIONS.json)
-and [freeze evidence](INSTRUCTION-FREEZE.md).
+Publicly delivered software at
+[revision 2b0194bcde26](https://github.com/aware-network/aware/tree/2b0194bcde2643f04886e309d08587cde71dfd24).
+The original freeze has independent acceptance. See
+[successor instruction pins](PUBLIC-INSTRUCTIONS.json),
+[delivery and alignment status](PUBLIC-STATUS.md) and [freeze evidence](INSTRUCTION-FREEZE.md).
 See [local selection](LOCAL-SELECTION.md). Envelope `canonical-draft-preparation-source-notice-review-v1.tar.gz`
 has SHA-256 `3e1fab9a79c19476ece55a1f0d62aa7784e911d52a01d32b65655617bacdb9f8`; its payload is `f2ef55bd871ee054e2f707189537ea533c46d013e8fdbc676a830f9968b94513`.
 Use the [whole-envelope installer](../../protocols/install.py) through

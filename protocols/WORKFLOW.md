@@ -1,16 +1,17 @@
 # Aware filesystem onboarding
 
-Locally frozen instructions, pending independent review, for the accepted SDK-backed
-preparation candidate: install
-once, initialize explicitly, admit an Issue, configure SPEC and prepare a draft
+The accepted SDK-backed preparation distribution is publicly delivered at
+[revision 2b0194bcde26](https://github.com/aware-network/aware/tree/2b0194bcde2643f04886e309d08587cde71dfd24):
+install once, initialize explicitly, admit an Issue, configure SPEC and prepare a draft
 for review before explicit invocation. Agent CLI is 0.2.0a3; SPEC SDK is 0.3.3;
 SPEC FS SDK adapter and CLI are 0.4.3. Issue CLI 0.8.3 / FS 0.9.4 remain selected.
-This locally selected distribution carries the exact forty-package payload,
+This published distribution carries the exact forty-package payload,
 committed `portable_protocols` sources and corresponding notices. Candidate-bound
 whole-envelope notice/disclosure decisions are recorded; these are bounded
 engineering dispositions, not detached-wheel clearance or a legal warranty.
-Public delivery is not yet authorized. Exact [instruction pins](../releases/canonical-draft-preparation-fs-v1/INSTRUCTIONS.json)
-do not grant operation authority or establish public availability.
+Exact [instruction pins](../releases/canonical-draft-preparation-fs-v1/PUBLIC-INSTRUCTIONS.json)
+do not grant operation authority. [Delivery status](../releases/canonical-draft-preparation-fs-v1/PUBLIC-STATUS.md)
+separates the observed publication from this status-only alignment's review.
 Scripted installed proofs do not establish unassisted customer onboarding.
 
 ## Install with the complete envelope
@@ -377,5 +378,7 @@ This is not exhaustive disclosure clearance or a legal warranty.
 
 This installation does not admit Service/API, object execution, materialization,
 native receiving or Experience authority. It does not replace aware-dev's
-selected contributor command. Instructions are frozen locally pending independent
-review; public availability and unassisted onboarding are not established here.
+selected contributor command. The original instruction freeze is independently
+accepted and the software is publicly delivered. Instruction changes and any
+further publication require their own review and authorization; unassisted
+onboarding for this candidate remains unproven.
