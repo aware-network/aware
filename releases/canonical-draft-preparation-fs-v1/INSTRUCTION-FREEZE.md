@@ -1,8 +1,8 @@
 # Draft preparation customer instruction freeze
 
 Twelve customer instruction/example files are frozen locally against incoming
-revision `6d68ccce1b40eb5fb94d8745f08cb3547e74b1f9`; independent review remains
-pending. [INSTRUCTIONS.json](INSTRUCTIONS.json) binds exact bytes, not software
+revision `6d68ccce1b40eb5fb94d8745f08cb3547e74b1f9`; independent review is
+accepted below. [INSTRUCTIONS.json](INSTRUCTIONS.json) binds exact bytes, not software
 selection or operation authority. Public delivery remains unauthorized.
 
 Execution: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`.
@@ -97,3 +97,27 @@ all twelve instruction pins remain exact. No software or source/notice artifact
 is rebuilt, contributor command changed, domain matrix replayed or push performed.
 Independent freeze acceptance is separate. Revision-pinned public delivery requires
 Luis's explicit target authorization, then acquisition proof and fresh unassisted U.
+
+## Independent acceptance
+
+Luis supplied independent PASS for public `c02520b5eec8` / `ec8cacff7c40`,
+recorded by producer `ba37ef4a6f37` / `6990d6ff4d11`. Seven checks passed,
+zero skipped, including fresh offline, checkout-hidden installation of forty
+packages and eleven help entrances. All twelve pins, exact implementation and
+handoff scopes, original Issue guards and CAS/index receipts match without debt.
+Separate installed snapshot/round-trip/pure-rendering probes retain exact bytes,
+six members and cleanup closed, without creating documents or authority.
+
+Independent receipt: `/tmp/aware-draft-freeze-review.mdVzd6od/instructions.xml`.
+SHA-256: `4bc7f59521bdab38f738a81b9473b008fe78906ee54c589cdc3741887f18e17a`.
+No tests or installations were rerun while recording this supplied review.
+Software, sources, notices and all twelve customer instruction pins are unchanged.
+The instruction record's locally frozen/review-pending marker is retained as
+historical state; this ledger records the independent acceptance.
+
+This accepts the bounded instruction freeze, not public delivery. Publication
+requires separate explicit authorization naming the exact target and outgoing
+revision/range, followed by ancestry checks, revision-pinned acquisition proof
+and fresh unassisted evaluation. Whole-envelope delivery remains mandatory;
+detached-wheel gaps and disclosure qualifications remain unchanged. No push or
+evaluation follows automatically from this acceptance.
