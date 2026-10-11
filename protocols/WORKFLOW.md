@@ -1,34 +1,37 @@
-# Aware filesystem onboarding review
+# Aware filesystem onboarding
 
-Draft instructions for the accepted SDK-backed preparation candidate: install
+Locally frozen instructions, pending independent review, for the accepted SDK-backed
+preparation candidate: install
 once, initialize explicitly, admit an Issue, configure SPEC and prepare a draft
 for review before explicit invocation. Agent CLI is 0.2.0a3; SPEC SDK is 0.3.3;
 SPEC FS SDK adapter and CLI are 0.4.3. Issue CLI 0.8.3 / FS 0.9.4 remain selected.
-This internal review envelope carries the exact forty-package payload, committed
-`portable_protocols` sources and corresponding notices. Notice/disclosure
-acceptance, instruction freeze, public selection and delivery remain separate.
+This locally selected distribution carries the exact forty-package payload,
+committed `portable_protocols` sources and corresponding notices. Candidate-bound
+whole-envelope notice/disclosure decisions are recorded; these are bounded
+engineering dispositions, not detached-wheel clearance or a legal warranty.
+Public delivery is not yet authorized. Exact [instruction pins](../releases/canonical-draft-preparation-fs-v1/INSTRUCTIONS.json)
+do not grant operation authority or establish public availability.
 Scripted installed proofs do not establish unassisted customer onboarding.
 
 ## Install with the complete envelope
 
 Qualified target: Linux x86-64 with `/usr/bin/python3.12`. Keep this entire
-envelope, including LICENSE, NOTICE, sources, upstream archives and indexes.
+distribution, including LICENSE, NOTICE, sources, upstream archives and indexes.
 Wheel-only acquisition is unsupported: six Code/Workspace wheels still lack
 package-local legal attachments. Do not discard the envelope after installation.
 
-Verify its outer `SHA256SUMS`, then expand
-`payload/aware-canonical-neutral-fs-internal-v1.tar.gz` in a fresh private scratch
-directory. It expands into `aware-canonical-neutral-fs-internal-v1`. Enter that
-directory and verify its inner `SHA256SUMS` before running the shipped installer:
+From this reviewed checkout root, use the original whole-envelope installer.
+It verifies the envelope, retains terms and source, and delegates to the shipped
+payload installer without changing software:
 
 ```bash
 set -eu
-sha256sum -c SHA256SUMS
-aware_init_parent="$(mktemp -d)"
+aware_init_parent="$(mktemp -d /tmp/aware-consumer.XXXXXXXX)"
 aware_init_env="$aware_init_parent/env"
 test ! -e "$aware_init_env"
 test ! -L "$aware_init_env"
-PYTHON_BIN=/usr/bin/python3.12 /bin/sh ./install.sh "$aware_init_env"
+/usr/bin/python3.12 protocols/install.py \
+  --python-executable /usr/bin/python3.12 --venv "$aware_init_env"
 AWARE="$aware_init_env/bin/aware"
 "$AWARE" --help
 ```
@@ -38,7 +41,12 @@ an older SPEC preview or a resident development environment. Use this same
 absolute `AWARE` command for every family. Standalone family entrypoints remain
 parity/diagnostic entrances, not separate required installations.
 
-These candidate-bound instructions supersede the immutable inner README's older
+The installer reports the absolute `retained_source_and_notices` directory.
+Keep it with the software and set `aware_envelope_root` to that exact returned
+directory before running the typed input example. Reuse refuses. Do not separately
+acquire the inner bundle or discard the accepted attachments after installation.
+
+These candidate-bound instructions supersede the immutable inner/envelope README's older
 no-init wording. Selected READMEs with seed, resident or broader-workspace recipes
 are source history, not customer directions. The payload is not edited to update
 that history. Neither installation nor init starts a resident service.
@@ -210,11 +218,12 @@ handwrite approval/authority records or a package-selection JSON.
 The attached [typed input example](../workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py)
 prints canonical snapshot bytes through the original public types/encoder. Read
 and approve or replace its illustrative JSON-checker terms first. If you choose
-to run it, set `aware_envelope_root` to this expanded envelope's absolute path:
+to run it, set `aware_envelope_root` to the retained envelope directory returned
+by the installer:
 
 ```bash
 set -eu
-: "${aware_envelope_root:?Set the absolute path of this expanded envelope}"
+: "${aware_envelope_root:?Set the exact retained_source_and_notices directory}"
 : "${aware_init_env:?Use the fresh installation from this guide}"
 draft_input_parent="$(mktemp -d)"
 draft_snapshot_input="$draft_input_parent/snapshot.json"
@@ -348,8 +357,9 @@ Keep LICENSE, NOTICE, `source/THIRD_PARTY_NOTICES.md`, all source archives,
 notices and indexes with the payload. `NOTICE-BINDINGS.json` binds current wheel
 identities/resources and openly inventories six missing package-local legal
 attachments. Earlier notice indexes and held-input wording stay byte-exact
-history, not this envelope's customer authority. Whole-envelope notice acceptance
-must be reviewed against these exact bytes; detached wheels remain unaccepted.
+history, not this distribution's customer authority. Bounded whole-envelope
+notice/disclosure acceptance binds these exact bytes; detached wheels remain
+unaccepted. Keep the original raw findings and qualifications intact.
 
 The schema keeps scoped MIT/BSD attribution and adaptations. BSD-3-Clause is
 selected while the full upstream file retains its alternative AFL text without
@@ -367,5 +377,5 @@ This is not exhaustive disclosure clearance or a legal warranty.
 
 This installation does not admit Service/API, object execution, materialization,
 native receiving or Experience authority. It does not replace aware-dev's
-selected contributor command. Public availability, instruction freeze and
-unassisted onboarding are not established by this review envelope.
+selected contributor command. Instructions are frozen locally pending independent
+review; public availability and unassisted onboarding are not established here.
