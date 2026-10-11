@@ -1,0 +1,62 @@
+{
+  "record_kind": "candidate_instruction_byte_pins",
+  "status": "frozen_accepted",
+  "baseline_revision": "019dcdc0acb27e49c3569c2ce3e7427777303330",
+  "canonical_profile": "portable_protocols",
+  "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
+  "envelope_sha256": "5f0edebe568d1cfd8a06a33e6122cd4e0d3dd68f764058b1aa098456cc2df13c",
+  "payload_sha256": "2d812c489485ee187cf45fca012fffdfda5fcdf93d60495a02b843f94e4a8b68",
+  "source_index_sha256": "69b4581f7ceef335fc9eb28f5e507198a638be56ab761e662ae60d195a8edfd1",
+  "public_delivery_authorized": true,
+  "whole_envelope_required": true,
+  "detached_wheels_accepted": false,
+  "unassisted_onboarding_proven": false,
+  "files": {
+    "README.md": {
+      "bytes": 5311,
+      "sha256": "07e84c14a544b96f268aed9bcba334eaa6a63ca20e1bfca60a899f52e5c94735"
+    },
+    "protocols/README.md": {
+      "bytes": 882,
+      "sha256": "cb4ac9d6c67e79477ce65965c766dc6a8b10b38ce27867ec65cea8e7026f3685"
+    },
+    "protocols/COHERENCE.md": {
+      "bytes": 2584,
+      "sha256": "d643dd349141001b71d910ee326e081d3031dc05b070421e9a4fad3d17d1e925"
+    },
+    "protocols/INITIALIZATION.md": {
+      "bytes": 1295,
+      "sha256": "7514305b3f73da328c499fc1ea60aab0bba16fd9103f322154078f7e2bc434b3"
+    },
+    "protocols/WORKFLOW.md": {
+      "bytes": 10477,
+      "sha256": "9c3cab9dd637f1dfdb3716871794dd53e90545a693bc7137d6859bf7139c5dba"
+    },
+    "protocols/issues/README.md": {
+      "bytes": 863,
+      "sha256": "0af5e50ccf45186e80225b603104a58b53fd294c2941877676b411b1819d956d"
+    },
+    "protocols/repository/README.md": {
+      "bytes": 1231,
+      "sha256": "9d5c47bcb05199fdc3b814e334ee9c0b6a5a046395bebd55797860fef7764878"
+    },
+    "protocols/specification/README.md": {
+      "bytes": 852,
+      "sha256": "6ab790ed37dfb106e145eced2299f52df578077d719905d850d29eb45c63b62f"
+    },
+    "protocols/example-draft-input.py": {
+      "bytes": 1572,
+      "sha256": "775c29cabf3fe662807a489fe5f9b19b9c9a5d45277a81e222e8f58c4fe49552"
+    },
+    "releases/README.md": {
+      "bytes": 921,
+      "sha256": "4a0f522888b4dfd436cb81ce6a1f9f961b2631f5d8eb965a23d6b7cd59993a5c"
+    },
+    "releases/canonical-initializer-fs-v1/README.md": {
+      "bytes": 2881,
+      "sha256": "49e4bfcc55897dfe3b0c2fa5879ac6eafc4cb180e2fd7963389ed36f0db9a6b3"
+    }
+  },
+  "historical_instruction_record": "INSTRUCTIONS.json",
+  "historical_instruction_sha256": "cd86d0c8ced285d86acf52410da45784ff3f83aafeab328b2276ae9c4d537c0e"
+}

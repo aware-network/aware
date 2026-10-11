@@ -1,5 +1,5 @@
 {
-  "selection_kind": "local_delivery_selection",
+  "selection_kind": "delivery_selection",
   "release": "canonical-initializer-fs-v1",
   "canonical_profile": "portable_protocols",
   "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
@@ -15,10 +15,10 @@
   "whole_envelope_required": true,
   "detached_wheels_accepted": false,
   "contributor_selection_changed": false,
-  "instruction_status": "frozen_locally_review_pending",
-  "instruction_record": "canonical-initializer-fs-v1/INSTRUCTIONS.json",
+  "instruction_status": "frozen_accepted",
+  "instruction_record": "canonical-initializer-fs-v1/PUBLIC-INSTRUCTIONS.json",
   "selection_review": "accepted",
-  "public_delivery_authorized": false,
+  "public_delivery_authorized": true,
   "domain_matrix_replayed": false,
   "unassisted_onboarding_proven": false
 }

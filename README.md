@@ -9,10 +9,13 @@ Coherence is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-This initializer distribution is selected locally; public delivery is not yet
-authorized. Instructions are frozen for this local candidate, pending independent
-review. Use this reviewed checkout, not unchanged public main. See the
-[exact instruction freeze](releases/canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md).
+This is the selected initializer distribution. Its frozen instructions have
+independent acceptance. Use a revision-pinned checkout; the
+[publication receipt](releases/canonical-initializer-fs-v1/PUBLICATION.md) records
+delivery status and the exact revision tested through public acquisition.
+[Public instruction pins](releases/canonical-initializer-fs-v1/PUBLIC-INSTRUCTIONS.json)
+preserve the accepted commands; the [original freeze](releases/canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md)
+remains historical evidence.
 
 ## Understand the protocols
 
@@ -28,7 +31,7 @@ the complete LICENSE, NOTICE, corresponding source and upstream attachments
 accompany this software. Six Code/Workspace wheels lack package-local legal
 files; this delivery is accepted only as the complete envelope, not detached wheels.
 
-From this reviewed checkout root:
+From the acquired revision-pinned checkout root:
 
 ```sh
 set -eu

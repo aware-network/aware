@@ -1,10 +1,12 @@
 # Initializer distribution terms and source
 
-This complete distribution is [selected locally](LOCAL-SELECTION.md), not yet
-authorized for public delivery. [Current delivery coordinates](../SELECTED.json)
-do not select packages or alter the immutable envelope. Instructions are frozen
-for this local candidate, pending independent review; see the
-[instruction record](INSTRUCTION-FREEZE.md).
+This complete distribution has accepted [selection](LOCAL-SELECTION.md) and
+frozen instructions. [Current delivery coordinates](../SELECTED.json) do not
+select packages or alter the immutable envelope. Luis separately authorized
+public delivery; the [publication receipt](PUBLICATION.md) records actual remote
+and pinned acquisition results. [Public instruction pins](PUBLIC-INSTRUCTIONS.json)
+retain every accepted command; the [original freeze](INSTRUCTION-FREEZE.md)
+preserves historical review bytes.
 
 Read the complete [LICENSE](LICENSE), [NOTICE](NOTICE) and
 [third-party notice policy](source-history/THIRD_PARTY_NOTICES.md) before using

@@ -1,17 +1,19 @@
 # Aware filesystem workflow
 
 Use one installed `aware` entrance to initialize an explicit repository, read
-its protocol guidance and begin Issue-governed work. These instructions are
-frozen for the locally selected 40-package candidate, pending independent
-instruction review. The [instruction record](../releases/canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md)
-binds the exact guidance and accepted whole-envelope software. Public delivery
-is not yet authorized. This is not a registry release or an unassisted-onboarding
-claim.
+its protocol guidance and begin Issue-governed work. These frozen instructions
+have independent acceptance for the selected 40-package candidate. The
+[public instruction pins](../releases/canonical-initializer-fs-v1/PUBLIC-INSTRUCTIONS.json)
+bind the current presentation and accepted whole-envelope software; the
+[original freeze](../releases/canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md)
+preserves the review-time bytes. See the [publication receipt](../releases/canonical-initializer-fs-v1/PUBLICATION.md)
+for delivery status and the exact public acquisition revision. This is not a
+registry release or an unassisted-onboarding claim.
 
 ## Install once
 
 Qualified target: Linux x86-64, Git and an actual Python 3.12 interpreter.
-From this reviewed checkout root, first read the
+From the acquired revision-pinned checkout root, first read the
 [complete terms and corresponding source](../releases/canonical-initializer-fs-v1/README.md).
 Use the shipped whole-envelope installer, which verifies and retains all source
 and notice attachments before invoking the unchanged offline payload installer:
@@ -190,5 +192,5 @@ to PyYAML; LibYAML remains precautionary input from a configurable CI default.
 and carried source archives; it is not exhaustive disclosure or legal clearance.
 
 This FS installation does not admit Service/API, object operations, materialization,
-native receiving or Experience authority. No a6 compatibility migration layer,
-public coordinate or change to aware-dev's selected operational CLI is claimed.
+native receiving or Experience authority. No a6 compatibility migration layer
+or change to aware-dev's selected operational CLI is claimed.
