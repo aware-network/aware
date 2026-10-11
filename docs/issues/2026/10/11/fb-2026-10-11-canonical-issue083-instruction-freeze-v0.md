@@ -2,7 +2,7 @@
 
 - Slug: canonical-issue083-instruction-freeze-v0
 - Tag: fb/2026-10-11/canonical-issue083-instruction-freeze-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -25,6 +25,7 @@
 
 
 
+
 ## Problem
 1. Selected successor guidance still has draft status and no candidate-specific byte-pinned instruction record.
 
@@ -35,8 +36,10 @@
 
 
 
+
 ## Goal
 1. Freeze exact guidance and example bytes locally; whole-envelope installer and installed owners unchanged; independent review and public delivery separate.
+
 
 
 
@@ -58,6 +61,11 @@
 
 
 
+
+## Verified-by
+- Independent instructions.xml SHA-256 f7a1f7525facec5c4be2d413057db3b1e5d8a4ddcd7958fcab53fff8bf17aef1; local correction.xml SHA-256 40d84dd3a42b3487e61364ca0c61b1d5d4f3925802cc51984e76a3da59aae1b4; obsolete fragment refuses, corrected fragment resolves. No independent correction rerun claimed.
+- git:e4fb961caf34aedfbcad0f50845ed24ed0054ffb
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
@@ -65,3 +73,7 @@
 - Instruction freeze implementation df6320206e761665ecf7246959138e20eed6ed43 published locally through original contributor a6; exact ten-file delta, CAS/index applied, no reconciliation pending. Seven checks plus separate typed-example/decoder probes pass; six overlapping final accounting cases pass with installation excluded. All twelve pins, accepted software/source/notices/installer/contributor/history remain exact. Evidence-only two-path handoff follows. Remain In Progress for independent freeze review; no public-delivery/push authority or unassisted-onboarding claim. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Independent bounded freeze proof PASS received for db2ac24416bb: seven tests, zero skipped, fresh forty-package install; original twelve pins/ten-file delta/two-file handoff and typed-example bytes match. Nonblocking P3 corrected: FIRST-ISSUE links to actual guarded-work-and-paired-publication fragment; only its instruction pin changes. Original ten scope paths preserved; FIRST-ISSUE admitted before edit. Seven correction/accounting checks pass, installation explicitly deselected; old fragment negative control refuses, corrected and same-file fragments resolve. No wheel, source, notices, installer, pointer or contributor change. Remain In Progress for bounded correction confirmation/closeout; publication and unassisted evaluation separate. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Independent PASS was nonblocking; P3 requested fragment/pin correction verified with seven accounting/fragment cases and retained negative control. Correction committed at 7570d26086c4dcbc5a952192e58b2f18f5954032; exactly five paths, CAS/index applied, no debt. Record original proof acceptance plus separately local correction checks, not independent correction rerun. Prior pending-confirmation note is superseded by verified nonblocking closeout; no invented new acceptance gate. Evidence handoff then original-owner close follow. No reinstall, wheel change, publication authorization or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded freeze proof accepted; nonblocking P3 corrected and verified. Original seven-case installed proof retained; seven correction/accounting cases pass with installation excluded. Twelve pins exact, only FIRST-ISSUE row changed; software/carriage unchanged. Whole-envelope publication and unassisted evaluation remain separate.
