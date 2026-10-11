@@ -7,7 +7,7 @@ import os
 import re
 import tempfile
 from collections.abc import Callable
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from importlib import metadata
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -89,6 +89,7 @@ from aware_protocol_fs_adapter import (
     MANIFEST_FILENAME,
     FilesystemProtocolProfile,
     admit_protocol_manifest,
+    admit_protocol_manifest_bytes,
     resolve_repository_path_at_use,
 )
 from aware_protocol_runtime import ProtocolAdmissionOutcomeKind
@@ -108,6 +109,17 @@ _INVALID_ISSUE_REF_DIAGNOSTICS = (
 )
 
 
+@dataclass(frozen=True, slots=True)
+class FilesystemIssueOperationLimits:
+    """Optional composition-bound limits; ordinary direct FS defaults stay unchanged."""
+    source_bytes: int = 262_144
+    result_preflight: Callable[[IssueMutationResult], None] | None = None
+
+    def __post_init__(self):
+        if type(self.source_bytes) is not int or self.source_bytes <= 0:
+            raise ValueError("positive filesystem source limit required")
+
+
 class FilesystemIssueOperationProvider:
     """Invoke canonical Issue operations through one admitted filesystem target."""
 
@@ -116,6 +128,7 @@ class FilesystemIssueOperationProvider:
         *,
         repository_root: str | Path,
         protocol_source_ref: str = MANIFEST_FILENAME,
+        limits: FilesystemIssueOperationLimits | None = None,
     ) -> None:
         if not isinstance(repository_root, (str, Path)):
             raise TypeError("repository_root must be text or pathlib.Path")
@@ -125,6 +138,33 @@ class FilesystemIssueOperationProvider:
             raise ValueError("protocol_source_ref must be non-empty text")
         self._repository_root = Path(repository_root)
         self._protocol_source_ref = protocol_source_ref
+        if limits is not None and type(limits) is not FilesystemIssueOperationLimits:
+            raise TypeError("original filesystem limit policy required")
+        self._limits = limits
+
+    def _read_source(self, path):
+        if self._limits is None:
+            return path.read_bytes()
+        with path.open("rb") as stream:
+            source = stream.read(self._limits.source_bytes + 1)
+        if len(source) > self._limits.source_bytes:
+            raise OSError("issue source limit exceeded")
+        return source
+
+    def _planned_result(self, *, request, profile, relative_path, rendered, before=None):
+        if self._limits is None:
+            return None
+        if len(rendered) > self._limits.source_bytes:
+            raise ValueError("planned issue source limit exceeded")
+        result = self._mutation_result(operation_ref=request.operation_ref,
+            issue_ref=request.issue_ref, outcome=IssueMutationOutcome.APPLIED,
+            projection=parse_issue_projection(text=rendered.decode("utf-8"), source_path=relative_path),
+            source_sha256_before=before, source_sha256_after=_source_digest(rendered),
+            evidence=self._mutation_evidence(profile=profile, relative_path=relative_path,
+                source_sha256=_source_digest(rendered), projection_effect="applied"))
+        if self._limits.result_preflight is not None:
+            self._limits.result_preflight(result)
+        return result
 
     def resolve_read_projection(
         self,
@@ -183,7 +223,7 @@ class FilesystemIssueOperationProvider:
                 diagnostics=resolution.diagnostics,
             )
         try:
-            source = resolution.path.read_bytes()
+            source = self._read_source(resolution.path)
         except FileNotFoundError:
             return self._result(
                 request=request,
@@ -349,7 +389,7 @@ class FilesystemIssueOperationProvider:
             return target
         profile, relative_path, path = target
         try:
-            source = path.read_bytes()
+            source = self._read_source(path)
         except FileNotFoundError:
             source = None
         except OSError as error:
@@ -493,6 +533,12 @@ class FilesystemIssueOperationProvider:
             ),
         )
         rendered = render_issue_document(document=document).encode("utf-8")
+        try:
+            planned = self._planned_result(request=request, profile=profile,
+                relative_path=relative_path, rendered=rendered)
+        except ValueError:
+            return self._mutation_result(operation_ref=request.operation_ref, issue_ref=request.issue_ref,
+                outcome=IssueMutationOutcome.UNSUPPORTED_PROFILE, diagnostics=("issue_result_limit_exceeded",))
         write_result = self._create_source(
             relative_path=relative_path,
             path=path,
@@ -505,6 +551,8 @@ class FilesystemIssueOperationProvider:
                 outcome=write_result,
                 diagnostics=("issue_create_race",),
             )
+        if planned is not None:
+            return planned
         projection = parse_issue_projection(
             text=rendered.decode("utf-8"),
             source_path=relative_path,
@@ -915,7 +963,7 @@ class FilesystemIssueOperationProvider:
             return target
         profile, relative_path, path = target
         try:
-            source = path.read_bytes()
+            source = self._read_source(path)
         except FileNotFoundError:
             return self._mutation_result(
                 operation_ref=request.operation_ref,
@@ -1012,6 +1060,13 @@ class FilesystemIssueOperationProvider:
         document = parse_issue_document_text(text=source.decode("utf-8"))
         document_mutator(document)
         rendered = render_issue_document(document=document).encode("utf-8")
+        try:
+            planned = self._planned_result(request=request, profile=profile,
+                relative_path=relative_path, rendered=rendered, before=before)
+        except ValueError:
+            return self._mutation_result(operation_ref=request.operation_ref, issue_ref=request.issue_ref,
+                outcome=IssueMutationOutcome.UNSUPPORTED_PROFILE, source_sha256_before=before,
+                diagnostics=("issue_result_limit_exceeded",))
         write_outcome = self._replace_source(
             relative_path=relative_path,
             path=path,
@@ -1026,6 +1081,8 @@ class FilesystemIssueOperationProvider:
                 source_sha256_before=before,
                 diagnostics=("source_changed_before_write",),
             )
+        if planned is not None:
+            return planned
         updated_projection = parse_issue_projection(
             text=rendered.decode("utf-8"),
             source_path=relative_path,
@@ -1271,7 +1328,7 @@ class FilesystemIssueOperationProvider:
         if resolution.path != path:
             return IssueMutationOutcome.AUTHORITY_UNAVAILABLE
         try:
-            current = path.read_bytes()
+            current = self._read_source(path)
         except OSError:
             return IssueMutationOutcome.AUTHORITY_UNAVAILABLE
         if _source_digest(current) != expected_source_sha256:
@@ -1286,7 +1343,7 @@ class FilesystemIssueOperationProvider:
                 stream.write(source)
                 stream.flush()
                 os.fsync(stream.fileno())
-            if _source_digest(path.read_bytes()) != expected_source_sha256:
+            if _source_digest(self._read_source(path)) != expected_source_sha256:
                 return IssueMutationOutcome.STALE
             os.replace(temporary_path, path)
         except OSError:
@@ -1336,10 +1393,20 @@ class FilesystemIssueOperationProvider:
         manifest_path = Path(self._protocol_source_ref)
         if not manifest_path.is_absolute():
             manifest_path = self._repository_root / manifest_path
-        admission = admit_protocol_manifest(
-            manifest_path=manifest_path,
-            repository_root=self._repository_root,
-        )
+        if self._limits is None:
+            admission = admit_protocol_manifest(manifest_path=manifest_path,
+                                                repository_root=self._repository_root)
+        else:
+            try:
+                root = self._repository_root.resolve(strict=True)
+                manifest_path = manifest_path.resolve(strict=True)
+                manifest_path.relative_to(root)
+                if manifest_path.name != MANIFEST_FILENAME:
+                    raise ValueError("manifest filename mismatch")
+                source = self._read_source(manifest_path)
+            except (OSError, ValueError, RuntimeError):
+                return IssueReadProjectionResolveOutcome.AUTHORITY_UNAVAILABLE, (), ("bounded_manifest_unavailable",)
+            admission = admit_protocol_manifest_bytes(source=source, repository_root=root)
         if admission.outcome is ProtocolAdmissionOutcomeKind.CANONICAL_V1:
             if admission.filesystem_profile is None:
                 raise AssertionError("canonical Protocol admission omitted its profile")
@@ -1405,10 +1472,19 @@ class FilesystemIssueOperationProvider:
                 if candidate_resolution.path is None:
                     continue
                 try:
-                    document = parse_issue_source(
+                    source = (
                         candidate_resolution.path.read_text(encoding="utf-8")
+                        if self._limits is None
+                        else self._read_source(candidate_resolution.path).decode("utf-8")
                     )
-                except (OSError, UnicodeError):
+                    document = parse_issue_source(source)
+                except (OSError, UnicodeError) as error:
+                    if self._limits is not None:
+                        # An unreadable candidate may conceal the same identity.
+                        # Refuse before writing; overflow is never a safe skip.
+                        return (
+                            f"issue_duplicate_candidate_unavailable:{type(error).__name__}",
+                        )
                     continue
                 tag = document.header("Tag")
                 if tag == expected_issue_ref:

@@ -37,6 +37,11 @@ from .draft_evidence import (
     SpecificationDraftMemberBinding,
     SpecificationDraftPhysicalEffect,
 )
+from .input_observation import (
+    SpecificationInputObservationError,
+    SpecificationInputObservationRequest,
+    SpecificationInputObservationResult,
+)
 from .operation import (
     SpecificationDraftRequest,
     SpecificationDraftResult,
@@ -47,6 +52,9 @@ from .operation import (
 
 SPECIFICATION_SDK_VALUE_CONTRACT = "aware.specification.sdk-value.v1"
 _CARRIERS = (
+    SpecificationInputObservationRequest,
+    SpecificationInputObservationResult,
+    SpecificationInputObservationError,
     SpecificationDefinition,
     SpecificationInvariantDefinition,
     SpecificationIterationIdentity,

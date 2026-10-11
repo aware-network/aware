@@ -568,6 +568,10 @@ class _UnstableBody(RuntimeError):
     pass
 
 
+class _CaptureCleanupError(RuntimeError):
+    code = "capture_descriptor_cleanup_incomplete"
+
+
 def _read_stable_body(
     *,
     root: os.PathLike[str],
@@ -616,7 +620,9 @@ def _read_stable_body_once(
                 dir_fd=current,
             )
             descriptors.append(current)
-        source = os.open(parts[-1], os.O_RDONLY | os.O_NOFOLLOW, dir_fd=current)
+        source = os.open(
+            parts[-1], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=current
+        )
         descriptors.append(source)
         before = os.fstat(source)
         if (
@@ -637,8 +643,17 @@ def _read_stable_body_once(
         on_body_read(len(content))
         after = os.fstat(source)
     finally:
+        cleanup_error = None
         for descriptor in reversed(descriptors):
-            os.close(descriptor)
+            try:
+                os.close(descriptor)
+            except BaseException as error:  # noqa: BLE001 - attempt every descriptor release
+                cleanup_error = cleanup_error or error
+        if cleanup_error is not None:
+            # Cleanup uncertainty is terminal, not a reason to retry body reads.
+            raise _CaptureCleanupError(
+                "capture descriptor cleanup incomplete"
+            ) from cleanup_error
     if (
         len(content) != entry.size_bytes
         or len(content) > maximum_bytes

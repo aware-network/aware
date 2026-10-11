@@ -342,17 +342,17 @@ def test_interrupt_propagation_and_cleanup_match_predecessor(
 
 def test_source_metadata_has_only_agreed_neutral_consumer_edges():
     project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())
-    assert project["project"]["version"] == "0.4.2"
+    assert project["project"]["version"] == "0.4.3"
     assert project["project"]["dependencies"] == [
-        "aware-specification-sdk>=0.3.1,<0.4.0",
-        "aware-specification-fs-sdk-adapter[protocol]>=0.4.1,<0.5.0",
+        "aware-specification-sdk>=0.3.3,<0.4.0",
+        "aware-specification-fs-sdk-adapter[protocol]>=0.4.3,<0.5.0",
         "aware-command-runtime>=0.1.1,<0.2.0",
     ]
     assert project["project"]["scripts"] == {
         "aware-spec": "aware_specification_cli.main:main"
     }
     assert project["project"]["optional-dependencies"] == {
-        "governed": ["aware-specification-fs-sdk-adapter[governed]>=0.4.1,<0.5.0"]
+        "governed": ["aware-specification-fs-sdk-adapter[governed]>=0.4.3,<0.5.0"]
     }
     assert project["tool"]["uv"]["sources"]["aware-command-runtime"] == {
         "workspace": True
@@ -368,7 +368,9 @@ def test_source_metadata_has_only_agreed_neutral_consumer_edges():
         ("0.3.9", False),
         ("0.4.0rc1", False),
         ("0.4.0", False),
-        ("0.4.1", True),
+        ("0.4.1", False),
+        ("0.4.2", False),
+        ("0.4.3", True),
         ("0.4.9", True),
         ("0.5.0", False),
     ],

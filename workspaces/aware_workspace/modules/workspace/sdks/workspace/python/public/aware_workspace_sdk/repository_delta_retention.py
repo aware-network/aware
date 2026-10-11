@@ -147,6 +147,15 @@ class WorkspaceRepositoryDeltaRetentionClient(_Original):
         runtime, state = _client(self)
         return runtime.observe(state)
 
+    def verify_capture_separation(self, *, repository_root: Path, cache_root: Path):
+        """Check the actual original store location; this grants no capture authority."""
+        runtime, state = _client(self)
+        return runtime.verify_capture_separation(
+            state,
+            repository_root=repository_root,
+            cache_root=cache_root,
+        )
+
     def release_retention(self):
         runtime, state = _client(self)
         return runtime.release(state)

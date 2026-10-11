@@ -41,6 +41,9 @@ def register_family_commands(registry: AwareCommandRegistry, family: str) -> Non
         if not callable(registrar):
             raise ImportError("Required SPEC draft registrar unavailable")
         registrar(registry)
+        from .draft_preparation import register_draft_preparation_command
+
+        register_draft_preparation_command(registry)
 
 
 def run_family(

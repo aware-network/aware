@@ -13,11 +13,29 @@ from aware_issue_fs_adapter import FilesystemIssueOperationProvider
 from aware_protocol_fs_adapter import specification_draft_target as target_owner
 from aware_specification_cli import draft_commands as command
 from aware_specification_cli.main import main
+from aware_specification_fs_sdk_adapter import SpecificationFsInputObservationProvider
 from aware_specification_runtime import (
     SpecificationSnapshot,
     encode_specification_snapshot,
 )
-from aware_specification_sdk import SpecificationOperationError, SpecificationSdkClient
+from aware_specification_sdk import (
+    SPECIFICATION_INPUT_LIMIT,
+    SpecificationInputObservationClient,
+    SpecificationInputObservationError,
+    SpecificationInputObservationRequest,
+    SpecificationOperationError,
+    SpecificationSdkClient,
+)
+
+
+def observe_input(source):
+    return (
+        SpecificationInputObservationClient(SpecificationFsInputObservationProvider())
+        .observe_draft_input(
+            SpecificationInputObservationRequest(str(source), os.getcwd())
+        )
+        .body
+    )
 
 
 @pytest.fixture
@@ -463,7 +481,7 @@ def test_input_refusals_do_not_create_any_draft(inputs, capsys, mode):
         os.mkfifo(fifo)
         args[args.index("--snapshot-json") + 1] = str(fifo)
     elif mode == "too-large":
-        source.write_bytes(b"x" * (command.INPUT_LIMIT + 1))
+        source.write_bytes(b"x" * (SPECIFICATION_INPUT_LIMIT + 1))
     elif mode == "newline":
         source.write_bytes(source.read_bytes() + b"\n")
         args = args[: args.index("--expected-input-sha256")]
@@ -479,19 +497,19 @@ def test_input_refusals_do_not_create_any_draft(inputs, capsys, mode):
 
 def test_exact_input_limit_and_changed_file_observation(tmp_path, monkeypatch):
     source = tmp_path / "input"
-    source.write_bytes(b"x" * command.INPUT_LIMIT)
-    assert len(command.read_draft_input(source)) == command.INPUT_LIMIT
+    source.write_bytes(b"x" * SPECIFICATION_INPUT_LIMIT)
+    assert len(observe_input(source)) == SPECIFICATION_INPUT_LIMIT
     original = os.read
 
     def read(fd, count):
         result = original(fd, count)
         if result:
-            source.write_bytes(b"y" * command.INPUT_LIMIT)
+            source.write_bytes(b"y" * SPECIFICATION_INPUT_LIMIT)
         return result
 
     monkeypatch.setattr(os, "read", read)
-    with pytest.raises(command.DraftInputError, match="draft_input_changed"):
-        command.read_draft_input(source)
+    with pytest.raises(SpecificationInputObservationError, match="draft_input_changed"):
+        observe_input(source)
 
 
 def test_missing_governed_supplier_is_typed_without_compatibility_fallback(
@@ -818,3 +836,54 @@ def test_unavailable_preacquisition_observation_does_not_skip_atomic_owner_dispo
     assert "physical_observation" not in result["caller_cleanup"]
     assert repository_descriptors(root) == before
     assert not (root / "customer/specs/widget").exists()
+
+
+def test_relative_input_uses_public_sdk_with_explicit_cwd_base(
+    inputs, capsys, monkeypatch
+):
+    root, _, _, source, args = inputs
+    monkeypatch.chdir(root)
+    args[args.index("--snapshot-json") + 1] = source.name
+    original = SpecificationInputObservationClient.observe_draft_input
+    calls = []
+
+    def observe(self, request):
+        calls.append(request)
+        return original(self, request)
+
+    monkeypatch.setattr(
+        SpecificationInputObservationClient, "observe_draft_input", observe
+    )
+    result = run(args, capsys, exit_code=0)
+    assert calls == [SpecificationInputObservationRequest(source.name, str(root))]
+    observation = result["input_observation"]
+    assert observation["base_ref"] == str(root)
+    assert observation["source_ref"] == str(source)
+    assert (
+        observation["source_sha256"] == args[args.index("--expected-input-sha256") + 1]
+    )
+    assert observation["cleanup"] == "closed"
+    assert not hasattr(command, "read_draft_input")
+
+
+def test_unknown_input_cleanup_refuses_apply_before_authoring(
+    inputs, capsys, monkeypatch
+):
+    from aware_specification_fs_sdk_adapter import input_observation as owner
+
+    root, _, _, _, args = inputs
+    before = bodies(root)
+    close = owner.os.close
+
+    def interrupted(fd):
+        close(fd)
+        raise KeyboardInterrupt("cleanup observation interrupted")
+
+    monkeypatch.setattr(owner.os, "close", interrupted)
+    result = run(args + ["--apply"], capsys)
+    assert result["error"] == "draft_input_cleanup_unverified"
+    assert result["input_observation_error"]["cleanup"] == "unknown"
+    assert result["input_observation_error"]["effect"] == "unknown"
+    assert result["input_observation_error"]["observed_body_hex"]
+    assert not (root / "customer/specs/widget").exists()
+    assert bodies(root) == before

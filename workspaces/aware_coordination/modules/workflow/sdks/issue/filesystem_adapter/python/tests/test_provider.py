@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from aware_issue_fs_adapter import FilesystemIssueOperationProvider
+from aware_issue_fs_adapter.provider import FilesystemIssueOperationLimits
 from aware_issue_sdk import (
     IssueAppendEvidenceRequest,
     IssueAppendUpdateRequest,
@@ -155,6 +156,134 @@ def _resolve(repository: Path):
 
 def _digest(path: Path) -> str:
     return f"sha256:{hashlib.sha256(path.read_bytes()).hexdigest()}"
+
+
+def test_bounded_source_and_manifest_fail_before_projection(tmp_path):
+    root = _repository(tmp_path)
+    bounded = FilesystemIssueOperationProvider(repository_root=root,
+        limits=FilesystemIssueOperationLimits(source_bytes=128))
+    assert bounded.resolve_read_projection(IssueReadProjectionResolveRequest(ISSUE_REF)).outcome is IssueReadProjectionResolveOutcome.AUTHORITY_UNAVAILABLE
+    bounded = FilesystemIssueOperationProvider(repository_root=root,
+        limits=FilesystemIssueOperationLimits())
+    record = root / "docs/issues/2026/09/20/fb-2026-09-20-example.md"
+    record.write_bytes(b"x" * 262145)
+    assert bounded.resolve_read_projection(IssueReadProjectionResolveRequest(ISSUE_REF)).projection is None
+
+
+@pytest.mark.parametrize("operation", ["read", "create", "update"])
+@pytest.mark.parametrize("possible_duplicate", [False, True])
+def test_oversized_duplicate_candidate_refuses_before_effect(
+    tmp_path: Path, monkeypatch, operation: str, possible_duplicate: bool
+) -> None:
+    root = _repository(tmp_path)
+    record = root / "docs/issues/2026/09/20/fb-2026-09-20-example.md"
+    target_ref = "fb/2026-10-11/new" if operation == "create" else ISSUE_REF
+    candidate = record.with_name("fb-2026-09-20-candidate.md")
+    source = _issue(
+        issue_ref=target_ref if possible_duplicate else "fb/2026-09-20/unrelated"
+    ).encode("utf-8")
+    candidate.write_bytes(source + b"x" * (262_145 - len(source)))
+    before_files = {path.relative_to(root): path.read_bytes()
+                    for path in root.rglob("*") if path.is_file()}
+    before_paths = {path.relative_to(root) for path in root.rglob("*")}
+    bounded = FilesystemIssueOperationProvider(
+        repository_root=root, limits=FilesystemIssueOperationLimits()
+    )
+
+    def unexpected_effect(**kwargs):
+        pytest.fail("duplicate-candidate refusal must precede all write entrances")
+
+    monkeypatch.setattr(bounded, "_create_source", unexpected_effect)
+    monkeypatch.setattr(bounded, "_replace_source", unexpected_effect)
+    if operation == "read":
+        result = bounded.resolve_read_projection(
+            IssueReadProjectionResolveRequest(ISSUE_REF)
+        )
+        assert result.outcome is IssueReadProjectionResolveOutcome.MALFORMED
+    elif operation == "create":
+        result = bounded.ensure_issue_snapshot(IssueEnsureSnapshotRequest(
+            issue_ref=target_ref, title="New", priority="P1",
+            client_intent_id="create", actor_ref="codex-example",
+            actor_evidence_ref="evidence:create",
+        ))
+        assert result.outcome is IssueMutationOutcome.CONFLICT
+    else:
+        result = bounded.append_issue_update(IssueAppendUpdateRequest(
+            **_mutation_kwargs(record, intent="duplicate-limit"),
+            message="must not be installed",
+        ))
+        assert result.outcome is IssueMutationOutcome.CONFLICT
+    assert result.projection is None
+    assert result.diagnostics == ("issue_duplicate_candidate_unavailable:OSError",)
+    assert {path.relative_to(root) for path in root.rglob("*")} == before_paths
+    assert {path.relative_to(root): path.read_bytes()
+            for path in root.rglob("*") if path.is_file()} == before_files
+
+
+@pytest.mark.parametrize("possible_duplicate", [False, True])
+@pytest.mark.parametrize("bounded", [False, True])
+def test_duplicate_candidate_limit_boundary_and_direct_defaults(
+    tmp_path: Path, possible_duplicate: bool, bounded: bool
+) -> None:
+    root = _repository(tmp_path)
+    candidate = root / "docs/issues/2026/09/20/fb-2026-09-20-candidate.md"
+    source = _issue(
+        issue_ref=ISSUE_REF if possible_duplicate else "fb/2026-09-20/unrelated"
+    ).encode("utf-8")
+    size = 262_144 if bounded else 262_145
+    candidate.write_bytes(source + b"x" * (size - len(source)))
+    provider = FilesystemIssueOperationProvider(
+        repository_root=root,
+        limits=FilesystemIssueOperationLimits() if bounded else None,
+    )
+    result = provider.resolve_read_projection(IssueReadProjectionResolveRequest(ISSUE_REF))
+    if possible_duplicate:
+        assert result.outcome is IssueReadProjectionResolveOutcome.MALFORMED
+        assert result.diagnostics == ("issue_identity_duplicate_matches:2",)
+    else:
+        assert result.projection is not None
+        assert result.projection.issue_ref == ISSUE_REF
+
+
+def test_planned_result_failure_preserves_source_and_no_temporary(tmp_path):
+    root = _repository(tmp_path)
+    record = root / "docs/issues/2026/09/20/fb-2026-09-20-example.md"
+    before = record.read_bytes()
+    def refuse(result):
+        assert result.outcome is IssueMutationOutcome.APPLIED
+        raise ValueError("simulated complete response overflow")
+    bounded = FilesystemIssueOperationProvider(repository_root=root,
+        limits=FilesystemIssueOperationLimits(result_preflight=refuse))
+    result = bounded.append_issue_update(IssueAppendUpdateRequest(
+        **_mutation_kwargs(record, intent="bounded"), message="not installed"))
+    assert result.outcome is IssueMutationOutcome.UNSUPPORTED_PROFILE
+    assert record.read_bytes() == before
+    assert list(record.parent.iterdir()) == [record]
+
+
+def test_planned_create_failure_creates_no_issue_directory(tmp_path):
+    root = _repository(tmp_path)
+    def refuse(result): raise ValueError("simulated complete response overflow")
+    bounded = FilesystemIssueOperationProvider(repository_root=root,
+        limits=FilesystemIssueOperationLimits(result_preflight=refuse))
+    result = bounded.ensure_issue_snapshot(IssueEnsureSnapshotRequest(
+        issue_ref="fb/2026-10-11/new", title="New", priority="P1",
+        client_intent_id="create", actor_ref="caller", actor_evidence_ref="evidence"))
+    assert result.outcome is IssueMutationOutcome.UNSUPPORTED_PROFILE
+    assert not (root / "docs/issues/2026/10").exists()
+
+
+def test_markdown_expansion_limit_before_replacement(tmp_path):
+    root = _repository(tmp_path)
+    record = root / "docs/issues/2026/09/20/fb-2026-09-20-example.md"
+    before = record.read_bytes()
+    assert len((root / "aware.protocol.toml").read_bytes()) < 1500
+    bounded = FilesystemIssueOperationProvider(repository_root=root,
+        limits=FilesystemIssueOperationLimits(source_bytes=1500))
+    result = bounded.append_issue_update(IssueAppendUpdateRequest(
+        **_mutation_kwargs(record, intent="large"), message="x" * 1500))
+    assert result.outcome is IssueMutationOutcome.UNSUPPORTED_PROFILE
+    assert record.read_bytes() == before
 
 
 def _mutation_kwargs(issue: Path, *, intent: str) -> dict[str, str]:

@@ -22,6 +22,9 @@ from aware_specification_runtime import (
 from aware_specification_runtime.values import canonical_json_bytes
 from aware_specification_sdk import (
     SPECIFICATION_SDK_VALUE_CONTRACT,
+    SpecificationInputObservationError,
+    SpecificationInputObservationRequest,
+    SpecificationInputObservationResult,
     SpecificationObserveRequest,
     SpecificationOperationError,
     decode_specification_value,
@@ -34,7 +37,11 @@ from tree_sitter_aware.parsed_document import (
 )
 
 SOURCE = Path(__file__).resolve().parents[3] / "aware"
-OPERATIONS = ("specification_sdk.create_draft", "specification_sdk.observe")
+OPERATIONS = (
+    "specification_sdk.create_draft",
+    "specification_sdk.observe",
+    "specification_sdk.observe_draft_input",
+)
 
 
 def fixture_module(name, path=None):
@@ -101,6 +108,18 @@ def samples():
             evidence_diagnostics=("original_failure",),
             cleanup_evidence=k,
         ),
+        SpecificationInputObservationRequest("input.json", "/customer"),
+        SpecificationInputObservationResult(
+            SpecificationInputObservationRequest("input.json", "/customer"),
+            "/customer/input.json",
+            "provider",
+            "distribution",
+            "0.4.3",
+            "00ff",
+            2,
+            "sha256:" + hashlib.sha256(b"\x00\xff").hexdigest(),
+        ),
+        SpecificationInputObservationError("input_request_invalid"),
     )
     assert {type(value) for value in values} == set(wire._CARRIERS)
     return values
@@ -173,10 +192,11 @@ def test_source_oracle_and_original_parsed_provider_agree(materialized, bundle):
     ) == (
         "specification.draft.create",
         "specification.source.observe",
+        "specification.input.observe",
     )
-    assert len(materialized.manifest.schema_slices) == 5
-    assert len(bundle.types) == 28
-    assert len(materialized.inventory.operation_refs) == 2
+    assert len(materialized.manifest.schema_slices) == 8
+    assert len(bundle.types) == 32
+    assert len(materialized.inventory.operation_refs) == 3
     assert materialized.authority_grade == "portable_input"
     assert (
         source_contract(

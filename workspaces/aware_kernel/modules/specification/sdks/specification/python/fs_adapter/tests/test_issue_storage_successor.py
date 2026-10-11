@@ -58,7 +58,7 @@ def test_existing_cli_admits_adapter_successor_without_new_reader_edges():
     cli = tomllib.loads((Path(__file__).parents[2] / "cli/pyproject.toml").read_text())[
         "project"
     ]
-    assert cli["version"] == "0.4.2"
+    assert cli["version"] == "0.4.3"
     for value, extra in (
         (cli["dependencies"][1], "protocol"),
         (cli["optional-dependencies"]["governed"][0], "governed"),
@@ -66,7 +66,8 @@ def test_existing_cli_admits_adapter_successor_without_new_reader_edges():
         requirement = Requirement(value)
         assert requirement.name == "aware-specification-fs-sdk-adapter"
         assert requirement.extras == {extra}
-        assert "0.4.2" in requirement.specifier
+        assert "0.4.2" not in requirement.specifier
+        assert "0.4.3" in requirement.specifier
         assert "0.5.0" not in requirement.specifier
     assert all("issue" not in value for value in cli["dependencies"])
 

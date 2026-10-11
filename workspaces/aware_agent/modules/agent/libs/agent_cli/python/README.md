@@ -1,6 +1,6 @@
 # Neutral Agent CLI composition
 
-Source preview **0.2.0a2** supplies one `aware` entrance over the accepted family
+Source preview **0.2.0a3** supplies one `aware` entrance over the accepted family
 registrars and Kernel's command runtime. It is a composition library with a CLI
 entrypoint, not a new Agent SDK, evaluator or authority provider.
 
@@ -12,6 +12,7 @@ aware protocol setup-specification [original arguments]
 aware spec observe [original arguments]
 aware spec iteration-identity [original arguments]
 aware spec create-draft [original arguments]
+aware spec prepare-draft [explicit selections and authored input]
 ```
 
 Run `aware --help`, then `aware FAMILY --help` or
@@ -88,6 +89,60 @@ environment, PATH discovery, raw writer or Service/FS fallback. Generic context
 is not execution identity, Issue admission or authorization. The composition
 does not refresh guards or retry a failed publication. Family diagnostics and
 unknown/applied effect evidence remain unchanged.
+
+## Draft guard preparation
+
+`aware spec prepare-draft` composes the existing Issue read projection, Protocol
+manifest admission and SPEC input-observation SDK ports. It decodes and renders
+through the original SPEC functions. It does not construct draft custody, obtain
+write admission, run governed preview, create a package or apply anything.
+
+For a separately qualified successor installation:
+
+```bash
+aware spec prepare-draft \
+  --repository-root /absolute/customer \
+  --protocol-manifest aware.protocol.toml \
+  --spec-manifest docs/specs/widget/aware.spec.toml \
+  --snapshot-json /absolute/customer/inputs/widget.json \
+  --issue-ref fb/2026-10-11/widget \
+  --author-ref declared-author \
+  --authoring-intent-ref customer-draft-intent \
+  --client-intent-id customer-draft-attempt
+```
+
+Select an already admitted Issue and configured SPEC binding. The command does
+not set either up or infer current work. Snapshot input remains an authored
+input; preparation does not fabricate it. Relative input paths use the invocation
+directory; generated command arguments use the original observer's absolute
+input coordinate so a later invocation need not share that directory.
+
+The default summary labels the Issue, exact Protocol-manifest and snapshot-input
+byte guards, shows observed execution/status/scope and intended member paths,
+and supplies complete original `create-draft` preview/apply commands. Review the
+authored input, selections and intended members before explicitly choosing either
+command. **The printed apply command is never executed by preparation.**
+No manual hash calculation or individual digest-copy step is needed.
+
+`--format json` exposes original owner observations, the original SDK-encoded
+draft request, member digests and exact argv. This is a presentation of data,
+not a saved-plan import API, package catalog, write capability or authorization
+receipt. Separate observations are not an atomic repository snapshot or an
+exact retained publication plan. Rendered members remain subject to original
+staged validation at apply.
+
+The original command revalidates the unchanged reviewed guards and obtains fresh
+admission. If Issue, manifest or input bytes change, apply refuses; explicitly
+prepare and review again. Never refresh a guard to bypass a refusal or retry a
+known publication. Unknown cleanup retains owner evidence and yields no apply
+command. Existing family commands and their full mutation receipts are unchanged.
+
+The source composition requires SPEC SDK 0.3.3 and FS/CLI 0.4.3 or compatible
+successors within their finite bounds. Missing ports refuse before observation;
+there is no private-reader or provider fallback. Source tests do not update an
+installed consumer. Bundle must refresh `portable_protocols` and qualify a fresh
+offline, checkout-hidden candidate before customer adoption. Assisted setup,
+publication and saved-request transport are separate subsequent slices.
 
 Source tests and canonical capture are distinct from a qualified installed
 bundle. Do not change a repository's Environment-selected operational CLI or

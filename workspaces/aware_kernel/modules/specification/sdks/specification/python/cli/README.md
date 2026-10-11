@@ -1,6 +1,6 @@
 # Specification CLI
 
-Thin source-stage `aware-spec` 0.4.2 entrance; no service probing or fallback.
+Thin source-stage `aware-spec` 0.4.3 entrance; no service probing or fallback.
 Existing reader requests and owner behavior remain unchanged. Governed draft preview/application is
 an optional source-stage entrance with whole-context completion handling below;
 this README does not select a public installation or enable published previews.
@@ -211,3 +211,19 @@ iteration identity. JSON is portable evidence, not the retained SDK capability.
 No approval, iteration writer, Issue binding, Git publication or readiness
 authority is exposed by the historical diagnostic primitive. Source tests do
 not admit the new command in public a6 or any selected SPEC preview.
+## Input observation SDK consumption CLI 0.4.3
+
+Draft commands acquire snapshot bytes through
+`SpecificationInputObservationClient` and the explicitly selected FS input
+provider. There is no CLI-private reader or fallback. Relative `--snapshot-json`
+still means relative to the invocation directory; the CLI passes that directory
+as the explicit base. Repository-relative SPEC manifest conventions stay unchanged.
+
+The existing `input_sha256` field and explicit apply mismatch refusal are
+preserved. Additive `input_observation` / `input_observation_error` fields retain
+the source/base coordinate and original descriptor-cleanup evidence. Observation
+alone grants no publication authority; apply never refreshes a reviewed guard.
+
+Requires SDK `>=0.3.3,<0.4.0` and FS SDK adapter `>=0.4.3,<0.5.0` through
+the existing ordinary/governed extras. This source change is not an installed
+consumer release or unified guard-assistance acceptance.

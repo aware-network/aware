@@ -140,6 +140,23 @@ class FilesystemDeltaRetentionFactory(_Original):
 class FilesystemDeltaRetentionOwner(_Original):
     __slots__ = ()
 
+    def verify_capture_separation(self, *, repository_root: Path, cache_root: Path):
+        record = _record(self)
+        self.verify_original_owner(expected_binding_ref=record.binding)
+        # A retaining factory can name another root. Only the native store's
+        # actual location establishes physical separation.
+        store_root = record.store.store_root
+        roots = (repository_root, cache_root, store_root)
+        if any(
+            not isinstance(p, Path) or not p.is_absolute() or p.resolve() != p
+            for p in roots
+        ):
+            raise DeltaRetentionOwnerRefusal("retention_canonical_roots_required")
+        for index, left in enumerate(roots):
+            for right in roots[index + 1 :]:
+                if left.is_relative_to(right) or right.is_relative_to(left):
+                    raise DeltaRetentionOwnerRefusal("retention_capture_roots_overlap")
+
     def verify_original_owner(self, *, expected_binding_ref):
         record = _record(self)
         with _LOCK:

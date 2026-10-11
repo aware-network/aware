@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import argparse
-import errno
 import hashlib
 import importlib
 import json
 import os
-import stat
 import sys
 from copy import deepcopy
 from dataclasses import asdict, is_dataclass
@@ -17,10 +15,13 @@ from secrets import token_hex
 from typing import Any
 
 from aware_command_runtime import AwareCommandInvocation, AwareCommandRegistry
+from aware_specification_sdk import (
+    SpecificationInputObservationClient,
+    SpecificationInputObservationError,
+    SpecificationInputObservationRequest,
+)
 
 from .read_commands import SOURCE_ARGUMENT_HELP
-
-INPUT_LIMIT = 2 * 1024 * 1024
 
 
 class DraftInputError(ValueError):
@@ -77,67 +78,6 @@ def register_draft_commands(registry: AwareCommandRegistry) -> None:
         source="aware_specification_cli",
         operation_ref="specification_sdk.create_draft",
     )
-
-
-def _identity(value: os.stat_result) -> tuple[int, ...]:
-    return (
-        value.st_dev,
-        value.st_ino,
-        value.st_mode,
-        value.st_size,
-        value.st_mtime_ns,
-        value.st_ctime_ns,
-    )
-
-
-def read_draft_input(path: Path) -> bytes:
-    """One bounded regular-file observation, not Specification admission."""
-    try:
-        descriptor = os.open(
-            path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
-        )
-    except OSError as error:
-        reason = {
-            errno.ENOENT: "not_found",
-            errno.ENOTDIR: "parent_not_directory",
-            errno.EACCES: "permission_denied",
-            errno.EPERM: "permission_denied",
-            errno.ELOOP: "symlink_or_loop",
-        }.get(error.errno if error.errno is not None else 0, "unavailable")
-        raise DraftInputError(
-            "draft_input_open_failed",
-            diagnostics=(
-                "draft_input_reason:" + reason,
-                "draft_input_detail:" + type(error).__name__,
-            ),
-        ) from error
-    try:
-        before = os.fstat(descriptor)
-        if not stat.S_ISREG(before.st_mode):
-            raise DraftInputError("draft_input_regular_file_required")
-        if before.st_size > INPUT_LIMIT:
-            raise DraftInputError("draft_input_too_large")
-        parts = []
-        count = 0
-        while True:
-            body = os.read(descriptor, min(65536, INPUT_LIMIT + 1 - count))
-            if not body:
-                break
-            parts.append(body)
-            count += len(body)
-            if count > INPUT_LIMIT:
-                raise DraftInputError("draft_input_too_large")
-        after = os.fstat(descriptor)
-        named = path.lstat()
-        if _identity(before) != _identity(after) or _identity(after) != _identity(
-            named
-        ):
-            raise DraftInputError("draft_input_changed")
-        if count != before.st_size:
-            raise DraftInputError("draft_input_changed")
-        return b"".join(parts)
-    finally:
-        os.close(descriptor)
 
 
 def _wire(value: object) -> object:
@@ -253,8 +193,25 @@ def _handle(invocation: AwareCommandInvocation) -> int:
     try:
         if args.apply and args.expected_input_sha256 is None:
             raise DraftInputError("draft_apply_input_digest_required")
-        body = read_draft_input(Path(args.snapshot_json))
-        digest = "sha256:" + hashlib.sha256(body).hexdigest()
+        from aware_specification_fs_sdk_adapter import (
+            SpecificationFsInputObservationProvider,
+        )
+
+        input_observation = SpecificationInputObservationClient(
+            SpecificationFsInputObservationProvider()
+        ).observe_draft_input(
+            SpecificationInputObservationRequest(args.snapshot_json, os.getcwd())
+        )
+        body = input_observation.body
+        digest = input_observation.source_sha256
+        output["input_observation"] = {
+            "source_ref": input_observation.source_ref,
+            "base_ref": input_observation.request.base_ref,
+            "source_sha256": digest,
+            "byte_count": input_observation.byte_count,
+            "cleanup": input_observation.cleanup.value,
+            "observation_grade": input_observation.observation_grade,
+        }
         output["input_sha256"] = digest
         if (
             args.expected_input_sha256 is not None
@@ -351,7 +308,9 @@ def _handle(invocation: AwareCommandInvocation) -> int:
             + tuple(getattr(error, "cause_diagnostics", ()))
             + tuple(getattr(error, "__notes__", ()))
         )
-        if isinstance(error, DraftInputError):
+        if isinstance(error, (DraftInputError, SpecificationInputObservationError)):
+            if isinstance(error, SpecificationInputObservationError):
+                output["input_observation_error"] = asdict(error)
             next_action = {
                 "draft_apply_input_digest_required": (
                     "Run preview, review its exact input_sha256, then supply "

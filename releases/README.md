@@ -1,18 +1,14 @@
 # Filesystem distributions
 
-[canonical-issue083-fs-v1](canonical-issue083-fs-v1/README.md) is authorized for public delivery:
-Issue CLI 0.8.3 / FS 0.9.4 in one 40-package installation.
-Its [installer](../protocols/install.py) retains the complete accepted envelope,
-including terms, corresponding source and notices. Detached wheels remain
-unaccepted. Successor instructions are frozen and accepted;
-[public instruction pins](canonical-issue083-fs-v1/PUBLIC-INSTRUCTIONS.json) bind
-guidance, while [delivery evidence](canonical-issue083-fs-v1/PUBLICATION.md)
-records the actual public revision and acquisition proof.
+[canonical-draft-preparation-fs-v1](canonical-draft-preparation-fs-v1/README.md) is a prepared,
+unselected successor. One 40-package installation supplies explicit initialization,
+Issue operations, SPEC setup/drafting/reading and read-only draft preparation.
+Use the [whole-envelope installer](../protocols/install.py): terms, corresponding
+source, upstream inputs and raw audit must accompany the software. Six detached
+wheel legal gaps remain unresolved; detached or stripped acquisition is unaccepted.
 
-The [delivery pointer](SELECTED.json) binds the exact successor envelope; see
-[local selection](canonical-issue083-fs-v1/LOCAL-SELECTION.md). The
-[initializer predecessor](canonical-initializer-fs-v1/README.md), its envelope,
-receipts and historical selection remain exact. Its source coordinates bind
-pinned Git history, not the successor source tree. Selection and instruction
-acceptance do not establish unassisted onboarding. No second package
-catalog is created; `portable_protocols` remains the sole software selector.
+The unchanged [delivery pointer](SELECTED.json) selects the
+[Issue083 predecessor](canonical-issue083-fs-v1/README.md). Its archive and receipts
+remain exact. Earlier expanded source maps refer to their pinned Git histories.
+This successor has not been integrated, selected, frozen or delivered publicly.
+`portable_protocols` remains the sole software selector; maps are delivery evidence.

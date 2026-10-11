@@ -1,13 +1,12 @@
-# Aware filesystem onboarding
+# Aware filesystem onboarding review
 
-Accepted frozen instructions for the authorized whole-envelope delivery of the
-Issue CLI 0.8.3 / FS 0.9.4 composition:
-install once, initialize explicitly, admit an Issue and perform governed work.
-The whole envelope carries the exact forty-package payload, committed
-`portable_protocols` sources and corresponding notices. Exact-envelope technical
-and bounded disposition decisions are recorded in the release review status.
-See [delivery evidence](../releases/canonical-issue083-fs-v1/PUBLICATION.md) for
-the tested public revision and acquisition status.
+Draft instructions for the accepted SDK-backed preparation candidate: install
+once, initialize explicitly, admit an Issue, configure SPEC and prepare a draft
+for review before explicit invocation. Agent CLI is 0.2.0a3; SPEC SDK is 0.3.3;
+SPEC FS SDK adapter and CLI are 0.4.3. Issue CLI 0.8.3 / FS 0.9.4 remain selected.
+This internal review envelope carries the exact forty-package payload, committed
+`portable_protocols` sources and corresponding notices. Notice/disclosure
+acceptance, instruction freeze, public selection and delivery remain separate.
 Scripted installed proofs do not establish unassisted customer onboarding.
 
 ## Install with the complete envelope
@@ -17,19 +16,19 @@ envelope, including LICENSE, NOTICE, sources, upstream archives and indexes.
 Wheel-only acquisition is unsupported: six Code/Workspace wheels still lack
 package-local legal attachments. Do not discard the envelope after installation.
 
-From this reviewed checkout root, first read
-[distribution terms and source](../releases/canonical-issue083-fs-v1/README.md).
-The whole-envelope installer verifies and retains the envelope, then delegates
-to its unchanged payload installer. Choose a fresh private environment:
+Verify its outer `SHA256SUMS`, then expand
+`payload/aware-canonical-neutral-fs-internal-v1.tar.gz` in a fresh private scratch
+directory. It expands into `aware-canonical-neutral-fs-internal-v1`. Enter that
+directory and verify its inner `SHA256SUMS` before running the shipped installer:
 
 ```bash
 set -eu
+sha256sum -c SHA256SUMS
 aware_init_parent="$(mktemp -d)"
 aware_init_env="$aware_init_parent/env"
 test ! -e "$aware_init_env"
 test ! -L "$aware_init_env"
-/usr/bin/python3.12 protocols/install.py \
-  --python-executable /usr/bin/python3.12 --venv "$aware_init_env"
+PYTHON_BIN=/usr/bin/python3.12 /bin/sh ./install.sh "$aware_init_env"
 AWARE="$aware_init_env/bin/aware"
 "$AWARE" --help
 ```
@@ -193,22 +192,126 @@ On nonzero exit stop, retain full stdout/stderr and inspect effects; do not
 repeat the block or assume snapshot/scope changes rolled back. This admits work,
 not SPEC configuration, draft creation, approval, publication or recovery.
 
-## Guarded work and paired publication
+## Prepare a draft for review
 
-Use the same installation's `aware protocol setup-specification` and
-`aware spec create-draft` preview/apply, then `aware spec observe`. Inspect
-installed help for required typed inputs and explicit coordinates. Draft input
-preparation uses the supported typed renderer/decoder, not handmade approval
-records or a package-selection JSON. Approved iterations and Goal writers remain
-unavailable.
+After admitting the Issue, use the same installation's
+`aware protocol setup-specification` preview/apply to configure the explicit SPEC
+binding. Choose customer-approved directories and include every effect in the
+Issue's admitted scope. Read the setup receipt before proceeding; preparation
+does not configure SPEC or repair a missing binding.
+
+Provide a snapshot input produced through the supported typed authoring
+renderer/decoder. Choose its content and definition identity explicitly. This
+preparation requires that input to exist: it observes, decodes and renders it
+for review, but does not create the snapshot or approve its contents.
+No prequalified document package or approved iteration is required. Do not
+handwrite approval/authority records or a package-selection JSON.
+
+The attached [typed input example](../workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py)
+prints canonical snapshot bytes through the original public types/encoder. Read
+and approve or replace its illustrative JSON-checker terms first. If you choose
+to run it, set `aware_envelope_root` to this expanded envelope's absolute path:
+
+```bash
+set -eu
+: "${aware_envelope_root:?Set the absolute path of this expanded envelope}"
+: "${aware_init_env:?Use the fresh installation from this guide}"
+draft_input_parent="$(mktemp -d)"
+draft_snapshot_input="$draft_input_parent/snapshot.json"
+test ! -e "$draft_snapshot_input"
+test ! -L "$draft_snapshot_input"
+"$aware_init_env/bin/python" -I \
+  "$aware_envelope_root/source/workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py" \
+  > "$draft_snapshot_input"
+```
+
+This only creates an input snapshot in a new private directory outside the
+repository. It creates no document, Issue admission, approved gate or iteration.
+The gate labels in the example describe intended evidence, not accepted evidence.
+Keep the snapshot and review its content before continuing.
+
+Set each variable below to your explicit coordinate or intent before invoking
+this complete preparation block. The Issue must already be admitted; author
+and intent strings are declared correlation, not authenticated authority.
+
+```bash
+set -eu
+: "${AWARE:?Use the absolute command from your installation}"
+: "${aware_repo_root:?Set your explicitly initialized absolute repository path}"
+: "${draft_protocol_manifest:?Set the selected Protocol manifest locator}"
+: "${draft_spec_manifest:?Set the intended SPEC manifest locator}"
+: "${draft_snapshot_input:?Set the authored snapshot input path}"
+: "${first_issue_ref:?Set the existing admitted Issue reference}"
+: "${draft_author_ref:?Set the declared draft author}"
+: "${draft_authoring_intent_ref:?Set the customer-approved authoring intent}"
+: "${draft_client_intent_id:?Set this explicit draft attempt correlation}"
+"$AWARE" spec prepare-draft \
+  --repository-root "$aware_repo_root" \
+  --protocol-manifest "$draft_protocol_manifest" \
+  --spec-manifest "$draft_spec_manifest" \
+  --snapshot-json "$draft_snapshot_input" \
+  --issue-ref "$first_issue_ref" \
+  --author-ref "$draft_author_ref" \
+  --authoring-intent-ref "$draft_authoring_intent_ref" \
+  --client-intent-id "$draft_client_intent_id"
+```
+
+Preparation defaults to a concise summary. It labels `issue_source_bytes`,
+`protocol_manifest_bytes` and `snapshot_input_bytes`, shows observed Issue
+execution/status/scope, and lists the intended document members. It prints
+separate original `aware spec create-draft` preview and apply commands with all
+three guards. Add `--format json` for original owner observations, rendered
+request, member digests and exact argument vectors.
+
+**Review before invocation.** Independent observations are not an atomic
+snapshot or an exact publication plan. `status=prepared` does not validate write
+authority, Issue execution/lifecycle/scope or destination availability. Those
+checks belong to the separately invoked owners. Preparation issues no write
+admission, acquires no draft-input custody and never calls preview or apply.
+
+Check the selected repository, manifests, input, Issue execution/status/scope,
+author/intent and intended members. Decide whether to invoke the printed preview.
+Only after reviewing its outcome decide whether to invoke apply. Printed lines
+begin with `aware`; use your installation's absolute `"$AWARE"` in place of that
+leading executable and preserve every remaining argument and reviewed guard.
+Do not pass the lines to `eval`, execute JSON argument vectors automatically or
+recompute guards while copying the command.
+
+```bash
+"$AWARE" spec prepare-draft --help
+"$AWARE" spec create-draft --help
+"$AWARE" spec observe --help
+```
+
+The original draft command previews by default; `--apply` is explicit. A
+successful apply supplies actual publication, physical/Protocol cleanup and
+consumer-completion evidence. A refusal may follow known publication: preserve
+all effects, receipts and cleanup/uncertainty evidence; do not assume rollback
+or retry the mutation. Observe the published draft through the same installed
+`aware spec observe` entrance with explicit repository/manifest coordinates.
+Drafting and observation do not approve documents or create approved iterations.
+
+## Guard meanings and path bases
 
 Issue guards identify exact Issue bytes from `projection.source.digest`.
 Protocol guards identify exact manifest bytes, not `ProtocolManifest.digest`
-(normalized semantic identity). Input guards identify the selected draft input
-snapshot. All may use `sha256:<hex>`; their artifacts are not interchangeable.
-Manifest/Protocol selection locators are repository-relative. Draft snapshot
-paths follow the invoking working directory; explicit absolute input paths
-avoid ambiguity. Stale requests refuse: no silent guard refresh or retry.
+(normalized semantic identity). Input guards identify the exact acquired snapshot
+bytes, not any resulting SPEC document. All use `sha256:<hex>`; they are not
+interchangeable.
+
+Use an absolute repository root and repository-relative Protocol/SPEC manifest
+locators for the supported workflow. Keep those locator strings consistent with
+the configured binding and the original draft entrance. Snapshot input paths
+are absolute or relative to the invoking working directory; preparation retains
+the observed absolute source coordinate in the printed command. This does not
+make manifest paths relative to that directory or authorize guessed filenames.
+Explicit absolute input paths avoid ambiguity.
+
+Apply uses the reviewed guards unchanged. Staleness requires a new preparation
+and review decision, never silent guard refresh or automatic retry. Successful
+observation of changed bytes does not revive a refused/spent write admission.
+
+## Paired publication and closeout
 
 Before publishing, establish an explicit local Git author separately from init,
 observe the current Issue guard and select only admitted exact paths. Inspect:
@@ -236,7 +339,7 @@ work or upgrades filesystem evidence into resident authority.
 
 ## Sources and notices
 
-`SOURCE-INDEX.json` binds 1,043 committed selected files to `portable_protocols`
+`SOURCE-INDEX.json` binds 1,057 committed selected files to `portable_protocols`
 and the exact wheels. It is evidence, not a second selector. Full discovery
 inventory remains producer-side. Customer `aware.protocol.toml` configures
 record selection/authority, not software packages.
@@ -264,8 +367,5 @@ This is not exhaustive disclosure clearance or a legal warranty.
 
 This installation does not admit Service/API, object execution, materialization,
 native receiving or Experience authority. It does not replace aware-dev's
-selected contributor command. Public acquisition is recorded separately from
-the envelope's technical proof; unassisted onboarding remains unproved.
-The [public instruction pins](../releases/canonical-issue083-fs-v1/PUBLIC-INSTRUCTIONS.json)
-bind this accepted guidance. Earlier local instruction records remain history,
-not current delivery status. Fresh unassisted evaluation follows separately.
+selected contributor command. Public availability, instruction freeze and
+unassisted onboarding are not established by this review envelope.

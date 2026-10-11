@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
 from aware_workspace_runtime import (
     ObservationChangeKind,
     RepositoryContentDeltaState,
@@ -343,3 +344,62 @@ def test_per_capture_budget_can_reject_shared_target_without_second_read(
     assert delta.state is RepositoryContentDeltaState.OVER_BUDGET
     assert delta.new_body_ref is None
     assert coordinator.metrics().changed_body_read_count == 0
+
+
+def test_original_body_reader_uses_nonblocking_leaf_open(tmp_path, monkeypatch):
+    import os
+
+    from aware_workspace_runtime import repository_delta_capture as original
+
+    (tmp_path / "selected.txt").write_bytes(b"original")
+    entry = _entry(tmp_path, "selected.txt")
+    actual_open = os.open
+    flags_seen = []
+
+    def checked_open(path, flags, *args, **kwargs):
+        if path == "selected.txt":
+            flags_seen.append(flags)
+        return actual_open(path, flags, *args, **kwargs)
+
+    monkeypatch.setattr(os, "open", checked_open)
+    result = original._read_stable_body_once(
+        root=tmp_path,
+        path="selected.txt",
+        entry=entry,
+        maximum_bytes=100,
+        on_body_read=lambda count: None,
+    )
+    assert result == b"original"
+    assert flags_seen and all(flags & os.O_NONBLOCK for flags in flags_seen)
+
+
+def test_original_reader_attempts_every_descriptor_release_and_does_not_retry(
+    tmp_path, monkeypatch
+):
+    import os
+
+    from aware_workspace_runtime import repository_delta_capture as original
+
+    (tmp_path / "selected.txt").write_bytes(b"original")
+    entry = _entry(tmp_path, "selected.txt")
+    actual_close = os.close
+    calls = []
+
+    def unavailable_close_return(descriptor):
+        actual_close(descriptor)
+        calls.append(descriptor)
+        if len(calls) == 1:
+            raise KeyboardInterrupt("close return unavailable")
+
+    monkeypatch.setattr(os, "close", unavailable_close_return)
+    with pytest.raises(original._CaptureCleanupError) as failure:
+        original._read_stable_body(
+            root=tmp_path,
+            path="selected.txt",
+            entry=entry,
+            maximum_bytes=100,
+            maximum_attempts=3,
+            on_body_read=lambda count: None,
+        )
+    assert isinstance(failure.value.__cause__, KeyboardInterrupt)
+    assert len(calls) == 2

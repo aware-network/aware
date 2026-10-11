@@ -12,6 +12,29 @@ observable. Workflow owns their work association independently.
 
 This is a source implementation, not a customer distribution or release.
 
+## Read-only draft input observation SDK 0.3.3
+
+`SpecificationInputObservationClient(provider).observe_draft_input(request)`
+uses an explicitly selected read-only input provider, separate from retained
+SPEC document and draft-write authority. `SpecificationInputObservationRequest`
+contains explicit `source_ref` and `base_ref`. The result retains their exact
+correlation, resolved source coordinate, provider identity, byte count, exact
+`source_sha256` and immutable `body` bytes through bounded canonical `body_hex`.
+The fixed input limit is 2 MiB. Successful results require confirmed descriptor
+closure and describe observed state—not every-write detection or later currentness.
+
+`SpecificationInputObservationError` retains original request, invocation,
+cleanup and bounded observed-byte evidence. Malformed provider reports remain
+explicitly unvalidated with unknown cleanup/effects; they cannot supply a guard.
+No admission, descriptor or provider can be decoded from these values.
+`encode_specification_input_value` / `decode_specification_input_value` use the
+existing strict SDK envelope, with a 4 MiB plus 64 KiB wire bound before input
+decoding. Original value encodings and operation identities remain unchanged.
+
+The authored operation is `specification_sdk.observe_draft_input`, backed by
+`specification.input.observe`. Pure snapshot decoding/rendering and governed
+`create_draft` remain separate; apply still consumes explicitly reviewed guards.
+
 ## Authored closure and value encoding — SDK 0.3.2
 
 The genuine `aware/aware.sdk.toml` and its `.aware` value declarations close

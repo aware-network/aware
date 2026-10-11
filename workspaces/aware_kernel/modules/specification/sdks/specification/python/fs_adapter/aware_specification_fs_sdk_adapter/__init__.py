@@ -1,5 +1,6 @@
 from .draft import render_specification_draft
 from .governed_draft import open_governed_specification_draft
+from .input_observation import SpecificationFsInputObservationProvider
 from .provider import (
     SpecificationFsSdkProvider,
     SpecificationIterationAdmission,
@@ -13,6 +14,7 @@ from .source_evidence import (
 
 __all__ = [
     "SOURCE_EVIDENCE_CONTRACT",
+    "SpecificationFsInputObservationProvider",
     "SpecificationFsSdkProvider",
     "SpecificationIterationAdmission",
     "SpecificationIterationSourceEvidence",

@@ -588,7 +588,7 @@ def test_no_reader_is_explicit_compatibility_and_error_evidence_is_detached():
 def test_package_metadata_and_imports_are_dependency_neutral():
     base = Path(__file__).parents[1]
     metadata = tomllib.loads((base / "pyproject.toml").read_text())["project"]
-    assert metadata["version"] == "0.3.2"
+    assert metadata["version"] == "0.3.3"
     assert metadata["dependencies"] == ["aware-specification-runtime>=0.1.0,<0.2.0"]
     code = """
 import sys

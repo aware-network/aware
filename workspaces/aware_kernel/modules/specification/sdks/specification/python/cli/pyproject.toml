@@ -1,19 +1,19 @@
 [project]
 name = "aware-specification-cli"
-version = "0.4.2"
+version = "0.4.3"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 description = "Thin neutral filesystem Specification commands."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "aware-specification-sdk>=0.3.1,<0.4.0",
-    "aware-specification-fs-sdk-adapter[protocol]>=0.4.1,<0.5.0",
+    "aware-specification-sdk>=0.3.3,<0.4.0",
+    "aware-specification-fs-sdk-adapter[protocol]>=0.4.3,<0.5.0",
     "aware-command-runtime>=0.1.1,<0.2.0",
 ]
 
 [project.optional-dependencies]
-governed = ["aware-specification-fs-sdk-adapter[governed]>=0.4.1,<0.5.0"]
+governed = ["aware-specification-fs-sdk-adapter[governed]>=0.4.3,<0.5.0"]
 
 [tool.uv.sources]
 aware-specification-fs-sdk-adapter = { workspace = true }

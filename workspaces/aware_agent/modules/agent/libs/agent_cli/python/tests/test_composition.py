@@ -182,6 +182,9 @@ def test_original_public_handler_identities_are_mounted(family):
 
         register_read_commands(expected)
         register_draft_commands(expected)
+        from aware_agent_cli.draft_preparation import register_draft_preparation_command
+
+        register_draft_preparation_command(expected)
     assert actual.names() == expected.names()
     for a, e in zip(actual, expected, strict=True):
         assert a.handle is e.handle
@@ -195,7 +198,7 @@ def test_original_public_handler_identities_are_mounted(family):
 def test_owned_metadata_is_finite_neutral_and_explicit():
     project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())
     assert project["project"]["name"] == "aware-agent-cli"
-    assert project["project"]["version"] == "0.2.0a2"
+    assert project["project"]["version"] == "0.2.0a3"
     assert project["project"]["scripts"] == {"aware": "aware_agent_cli.main:main"}
     dependencies = [Requirement(raw) for raw in project["project"]["dependencies"]]
     assert {r.name for r in dependencies} == {
@@ -204,6 +207,14 @@ def test_owned_metadata_is_finite_neutral_and_explicit():
         "aware-protocol-cli",
         "aware-specification-cli",
         "aware-workspace-sdk",
+        "aware-issue-sdk",
+        "aware-issue-fs-adapter",
+        "aware-protocol-sdk",
+        "aware-protocol-fs-adapter",
+        "aware-protocol-runtime",
+        "aware-specification-sdk",
+        "aware-specification-fs-sdk-adapter",
+        "aware-specification-runtime",
     }
     assert next(r for r in dependencies if r.name == "aware-protocol-cli").extras == {
         "specification-setup",

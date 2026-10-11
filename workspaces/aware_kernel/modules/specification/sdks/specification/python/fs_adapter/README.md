@@ -339,3 +339,19 @@ producer profile; internal Issue packages are still not a consumer closure.
 CLI 0.3.0 must separately qualify adapter `[governed]>=0.3.2,<0.4.0`.
 No aggregate lock, installed candidate, reader selection or publication follows
 from this source successor.
+## Draft input observation adapter 0.4.3
+
+`SpecificationFsInputObservationProvider` serves the public input SDK port
+without constructing a retained SPEC source provider or write admission. Its
+request supplies an explicit absolute base; relative sources resolve under that
+base, not the process cwd. Absolute source paths remain explicit.
+
+This is the original bounded regular-file reader moved from the CLI. It retains
+the 2 MiB limit, nonblocking open, descriptor/name identity comparisons and
+once-only close. Final symlinks refuse; ancestor symlinks remain supported.
+Continuous confinement and every-write detection are not provided. Interrupted
+or uncertain cleanup cannot return success; late failures retain observed bytes
+and known cleanup. No scratch files or source mutations are performed.
+
+SDK floor: `>=0.3.3,<0.4.0`. Governed publication dependencies and authority
+remain unchanged. Installed qualification and consumer selection are separate.

@@ -72,13 +72,13 @@ def test_protocol_read_extra_is_optional_and_current_cli_bound_admits_patch_succ
         (MODULE / SUPPLIERS["specification_fs_sdk_adapter"][0]).read_text()
     )
     cli = tomllib.loads((MODULE / SUPPLIERS["specification_cli_python"][0]).read_text())
-    assert adapter["project"]["version"] == "0.4.2"
+    assert adapter["project"]["version"] == "0.4.3"
     assert adapter["project"]["optional-dependencies"]["protocol"] == [
         "aware-protocol-fs-adapter>=0.3.0,<0.7.0"
     ]
     assert not any("protocol" in item for item in adapter["project"]["dependencies"])
     assert (
-        "aware-specification-fs-sdk-adapter[protocol]>=0.4.1,<0.5.0"
+        "aware-specification-fs-sdk-adapter[protocol]>=0.4.3,<0.5.0"
         in cli["project"]["dependencies"]
     )
     selected = next(
@@ -96,7 +96,7 @@ def test_adapter_sdk03_dependency_is_exact_without_new_mandatory_edges():
         (MODULE / SUPPLIERS["specification_fs_sdk_adapter"][0]).read_text()
     )
     assert adapter["project"]["dependencies"] == [
-        "aware-specification-sdk>=0.3.1,<0.4.0",
+        "aware-specification-sdk>=0.3.3,<0.4.0",
         "aware-specification-fs-adapter",
     ]
 
@@ -110,7 +110,9 @@ def test_adapter_sdk03_dependency_is_exact_without_new_mandatory_edges():
         ("0.2.99", False),
         ("0.3.0rc1", False),
         ("0.3.0", False),
-        ("0.3.1", True),
+        ("0.3.1", False),
+        ("0.3.2", False),
+        ("0.3.3", True),
         ("0.3.99", True),
         ("0.4.0", False),
     ],

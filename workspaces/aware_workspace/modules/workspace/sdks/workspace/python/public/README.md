@@ -1,5 +1,34 @@
 # Workspace SDK neutral publication source
 
+## Public delta capture source candidate
+
+`aware_workspace_sdk.repository_delta_capture` exposes
+`WorkspaceRepositoryDeltaCaptureClient.filesystem(repository_root=...,
+cache_root=..., retention=...)`. It witnesses external filesystem effects through
+the original Workspace observer and canonical capture coordinator. No Object,
+Issue, Meta or Protocol dependency is added. Capture grants no write permission
+and does not infer which operation caused an observed change.
+
+Select an original allocated retention client, select capture, then initialize
+retention using `capture.repository_binding_ref`. Alternatively, pass an already
+active original client for that binding. `prepare_capture(selected_paths=(...))`
+obtains its snapshot internally and spends preparation even on refusal.
+`observe_capture()` obtains its own exact-path batch and retains original deltas;
+it accepts no caller snapshot, batch or provider. `capture_observation()` returns
+detached evidence without polling. `release_capture()` closes only that observer,
+never the borrowed retention client or domain files.
+
+The actual retained store, observation cache and source root must be physically
+separate. Excluded paths are refused, not reported absent. Failures preserve known
+deltas and an incomplete ledger; cleanup uncertainty remains unknown and does
+not authorize retry. This is cooperative command-local observation, not continuous
+confinement, every-write detection or operation recovery.
+
+This source candidate requires successor dependency/profile and installed
+qualification. Existing `0.2.2` SDK/runtime and `0.1.2` FS metadata is unchanged;
+do not package advancing source as the historical installed candidate. The
+selected operational CLI and public protocol profile remain unchanged.
+
 ## Repository preparation successor
 
 `aware_workspace_sdk.repository_preparation` owns the authored typed closure
@@ -39,10 +68,11 @@ identities; that compatibility sibling is not a newly qualified neutral Service 
 
 ## Qualification boundary
 
-This is a source split, not an available installed successor. Historical
-`0.1.0` metadata still declares the old generated/ORM closure and cannot be used
-to package advancing split bytes as an unchanged public release. Successor
-package metadata, canonical registrations/profile, honest locks and fresh
-checkout-hidden installation follow separate qualification.
+Qualification attaches to an exact source/installed closure, not the package
+namespace. The historical split is followed by separately pinned publication
+and source-projection successors. The new public capture source above is not
+part of those immutable installed candidates; successor metadata, profile,
+honest locks and fresh checkout-hidden installation still need qualification
+for this addition.
 
 See [source extraction and remaining gates](../../../../../../../../docs/reports/workspace-sdk-service-source-extraction-20261010.md).

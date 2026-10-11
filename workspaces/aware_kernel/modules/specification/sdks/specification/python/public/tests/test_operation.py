@@ -92,6 +92,7 @@ def test_public_sdk_import_boundary():
                 imports.add(node.module.split(".")[0])
     assert imports <= {
         "dataclasses",
+        "hashlib",
         "enum",
         "json",
         "pathlib",

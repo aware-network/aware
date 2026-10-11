@@ -1,12 +1,12 @@
 [project]
 name = "aware-specification-fs-sdk-adapter"
-version = "0.4.2"
+version = "0.4.3"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 description = "Neutral filesystem provider for Specification SDK operations."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["aware-specification-sdk>=0.3.1,<0.4.0", "aware-specification-fs-adapter"]
+dependencies = ["aware-specification-sdk>=0.3.3,<0.4.0", "aware-specification-fs-adapter"]
 
 [project.optional-dependencies]
 protocol = ["aware-protocol-fs-adapter>=0.3.0,<0.7.0"]

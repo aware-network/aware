@@ -217,6 +217,18 @@ class WorkspaceRepositoryDeltaRetentionRuntime:
             self._refuse(state, "retention_not_active")
         return owner
 
+    def verify_capture_separation(self, state, *, repository_root, cache_root):
+        owner = self._active_owner(state)
+        try:
+            owner.verify_capture_separation(
+                repository_root=repository_root,
+                cache_root=cache_root,
+            )
+        except (OSError, ValueError, TypeError) as error:
+            self._refuse(
+                state, getattr(error, "code", "retention_separation_refused"), error
+            )
+
     def release(self, state):
         state = self._state(state)
         with self._lock:

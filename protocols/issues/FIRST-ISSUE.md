@@ -135,6 +135,6 @@ other failures may follow already-applied snapshot or scope effects.
 
 This block admits work only. It does not configure SPEC, create a draft, approve
 anything, stage or commit files, close the Issue or perform recovery. Continue
-through [SPEC setup/draft guidance](../WORKFLOW.md#guarded-work-and-paired-publication) and
+through [SPEC setup/draft guidance](../WORKFLOW.md#paired-publication-and-closeout) and
 [governed publication](../repository/README.md) under the admitted scope. Keep
 the installed operation help and full effect/cleanup receipts available.
