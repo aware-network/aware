@@ -74,5 +74,21 @@ The subsequent evidence handoff changes only this ledger and the public Issue,
 using a freshly observed Issue-byte guard, never a fabricated publication receipt.
 `authored-fragments.xml` SHA-256 is
 `82d1215848bb3a6fe12663b0d68e3fe7f105ea41fafdbda970c3b843b553b927`.
-Independent bounded review remains pending. Local selection does not freeze
+Independent bounded review is accepted. Local selection does not freeze
 instructions, establish unassisted onboarding or authorize transfer/publication.
+
+## Independent selection acceptance
+
+Luis supplied independent PASS for `822ee4831797` / `afb86ebb2a91`: seven checks
+passed, zero skipped, including fresh offline, checkout-hidden installation of
+forty packages. Exact eight-/two-path deltas, Issue guards and CAS/index receipts
+match without debt; all 1,196 unaffected files and baseline modes remain exact.
+Software, installer, source/notice carriage and contributor governance are unchanged.
+The delivery pointer grants neither package selection nor operation authority.
+
+Independent receipt: `/tmp/aware-draft-selection-review.ri67fhzL/selection.xml`,
+SHA-256 `45b155089960f1e7f10ab969f7d1348bb7f8f473b8cbe2d3873130385289387b`.
+Both bounded selection Issues close through their respective lifecycle owners.
+No installation, preparation, domain matrix or unassisted evaluation is rerun here.
+Instruction freeze follows separately; publication remains unauthorized.
+Whole-envelope carriage is required; detached-wheel gaps remain unresolved.
