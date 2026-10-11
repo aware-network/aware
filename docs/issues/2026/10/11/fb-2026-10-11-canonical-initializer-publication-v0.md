@@ -24,14 +24,17 @@
 
 
 
+
 ## Problem
 1. Selected initializer and accepted frozen instructions are not yet publicly delivered.
 
 
 
 
+
 ## Goal
 1. Align status only, publish exact reviewed lineage to aware-network/aware/main, and prove pinned anonymous acquisition plus offline installation.
+
 
 
 
@@ -44,7 +47,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Luis authorized aware-network/aware/main publication and pinned acquisition. Seven preflight checks passed including fresh offline hidden 40-package installation and ten help entrances. Commands, typed example, old pins, whole envelope and contributor a6 unchanged; initial two maintainer failures retained. (outcome: Publication prepared; remote effect and anonymous acquisition still pending.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Non-force remote delivery and anonymous acquisition verified at 5e20279c719f30893147d2822ac6e9065f0cc897. Separate pinned envelope download matches. Seven checks passed from acquired checkout, including fresh offline hidden installation of 40 packages and ten helps; no customer/domain replay. Whole-envelope carriage and six detached-wheel gaps retained. (outcome: Published and acquired; record receipt and close bounded delivery Issue.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

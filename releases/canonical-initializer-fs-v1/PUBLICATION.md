@@ -1,14 +1,48 @@
 # Canonical initializer public delivery
 
-Luis explicitly authorized delivery to `aware-network/aware/main` and
-revision-pinned acquisition proof on 2026-10-11. Remote publication and
-acquisition verification are pending; this record must not be read as a
-completed delivery receipt until those actual results are recorded.
+Published to `aware-network/aware/main`; the first delivery and anonymous
+acquisition are verified at `5e20279c719f30893147d2822ac6e9065f0cc897`.
+Luis explicitly authorized this target and revision-pinned acquisition proof
+on 2026-10-11. The [tested public entrance](https://github.com/aware-network/aware/blob/5e20279c719f30893147d2822ac6e9065f0cc897/README.md)
+provides the frozen install/init instructions. Subsequent evidence and Issue
+closeout commits do not change software or pinned guidance.
 
 The publication baseline is `019dcdc0acb27e49c3569c2ce3e7427777303330`.
 Remote main was observed at `f760ac28066191e50ba12d249928c0fd553f79b4` and
 is ancestral to the clean local checkpoint. Ordinary non-force push is the
 only authorized remote effect; there is no tag, registry upload or deployment.
+
+Original Issue-owned dry-run and identical apply published ten paths with
+`isolated_index_atomic_ref_v1`, `reference_update=cas_applied`, shared-index
+projection applied and no reconciliation debt. The first non-force push moved
+remote main from `f760ac28066191e50ba12d249928c0fd553f79b4` to
+`5e20279c719f30893147d2822ac6e9065f0cc897`; all 23 outgoing commits belong to
+the accepted integration/selection/freeze and this delivery cut.
+
+## Public acquisition and installation
+
+A fresh anonymous depth-64 clone of GitHub main matched that exact revision.
+Inherited environment, global/system Git configuration, credential helpers,
+extra HTTP headers and prompting were disabled. A separate revision-pinned
+anonymous envelope download matches both the clone and its accepted SHA-256.
+Acquisition receipt SHA-256:
+`bf511e8eb4bfea672032fa38b7a2ab1a515c6cde01cd9f19deab6c9489764d92`.
+
+Seven checks passed, zero skipped, against the acquired checkout, including a
+second fresh offline installation with `/home`, `/root` and unrelated `/tmp`
+hidden and inherited environment cleared. All 40 package versions match,
+dependencies pass, no editable/direct-URL records appear, and ten documented
+help entrances work. Missing harness identity refuses without effects; reuse
+refuses and parent permissions remain `0700`. All 1,095 unaffected baseline
+files and all 1,099 baseline Git executable modes remain exact. Namespace or
+interpreter gaps fail rather than skip.
+
+Public replay JUnit SHA-256:
+`97fa431452c190df510ed7ce27ced039c3f4c52fc8b3019725fb136baedf4ea4`.
+Installed receipt SHA-256:
+`b3babd4e2dc9c31b2514a3970a243fe6830f98bba09b7bf1b6ceb7eab3462d57`.
+These are seven obligations repeated on different fresh installations, not
+fourteen distinct proofs. Neither replay executes customer/domain operations.
 
 ## Instructions and accepted software
 
