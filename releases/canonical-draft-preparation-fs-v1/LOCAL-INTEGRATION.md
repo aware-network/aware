@@ -52,7 +52,7 @@ and inherited environment cleared; it does not repurpose HOME. Expected package
 versions come from the original pinned payload lock.
 
 This is scripted installation/scope proof, not another domain matrix or unassisted
-onboarding. Independent integration review remains next. Instructions are draft;
+onboarding. Independent bounded integration review is accepted. Instructions are draft;
 the successor is unselected. Six detached-wheel legal gaps remain unresolved:
 acceptance is whole-envelope-only, never wheel-only or stripped delivery. All
 twelve classified relative-fixture findings and raw audit remain visible.
@@ -76,6 +76,24 @@ Dry-run and identical apply use that guard, exact paths and message. Receipts
 private proof root. The checksum-bound layout, envelope and software are unchanged.
 Only this ledger and the Issue receive the subsequent evidence handoff.
 
-Independent integration review remains pending; both public and producer Issues
-stay In Progress. The checkout/index is clean after implementation. Selection,
+Both public and producer Issues were In Progress at the initial handoff.
+The checkout/index was clean after implementation. Selection,
 freeze and remote publication are not implied by a local repository receipt.
+
+## Independent acceptance
+
+Luis supplied independent PASS for implementation `7b3f82dc3904` and handoff
+`04e94522b7df`: 28 guards and eight integration checks passed, zero skipped,
+including fresh offline, checkout-hidden installation of all forty packages.
+Dependencies are clean, with no editable/direct-URL installations. Exact commit
+deltas, original guards and applied CAS/index receipts match without debt;
+source/notice carriage, predecessor selection and contributor governance remain
+preserved. Missing-identity and reuse refusals pass; checkout/index remain clean.
+
+Independent receipt: `/tmp/aware-draft-integration-review.ttGd5BSV/integration.xml`,
+SHA-256 `922d2d94b51b2a05fc79cf092a74af4a75c2f737b90073be07669c67f0cb7898`.
+These are retained review coordinates, not public acquisition prerequisites.
+Acceptance recording does not rerun preparation, the domain matrix or unassisted
+evaluation. The bounded Issues close through their own original lifecycle owners.
+Selection/instruction alignment follows separately; freeze and push remain held.
+Whole-envelope delivery is required; detached-wheel gaps remain unresolved.
