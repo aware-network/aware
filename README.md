@@ -9,13 +9,16 @@ Coherence is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-This is the selected initializer distribution. Its frozen instructions have
-independent acceptance. Use a revision-pinned checkout; the
+This is the selected initializer distribution. Its base frozen instructions have
+independent acceptance. The [first-Issue admission example](protocols/issues/FIRST-ISSUE.md)
+is a documentation correction pending independent review and public delivery.
+Use a revision-pinned checkout; the
 [publication receipt](releases/canonical-initializer-fs-v1/PUBLICATION.md) records
 delivery status and the exact revision tested through public acquisition.
-[Public instruction pins](releases/canonical-initializer-fs-v1/PUBLIC-INSTRUCTIONS.json)
-preserve the accepted commands; the [original freeze](releases/canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md)
-remains historical evidence.
+[Successor instruction pins](releases/canonical-initializer-fs-v1/FIRST-ISSUE-INSTRUCTIONS.json)
+bind the local correction. The [prior public pins](releases/canonical-initializer-fs-v1/PUBLIC-INSTRUCTIONS.json)
+and [original freeze](releases/canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md)
+remain historical evidence; the software and installer are unchanged.
 
 ## Understand the protocols
 

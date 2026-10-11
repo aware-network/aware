@@ -9,6 +9,11 @@ unfinished work. Scope is not a file reservation; preserve foreign work.
 scope and progress operations. Init does not open an Issue or grant its authority.
 Source effects, governed publication and closeout remain separate operations.
 
+**First Issue:** `--issue-ref` uses `fb/YYYY-MM-DD/lowercase-hyphenated-slug`,
+for example `fb/2026-10-11/json-checker-draft`, not a Markdown path or UUID.
+Use the [complete first-Issue admission example](FIRST-ISSUE.md) for snapshot,
+explicit scope and fresh-guarded progress through this installed filesystem profile.
+
 Retain publication, index, effects and cleanup evidence. Known publication must
 not be automatically retried. A new execution needs fresh admission, not a
 borrowed actor or serialized capability. Planned handoff is not crash recovery.

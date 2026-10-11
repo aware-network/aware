@@ -1,0 +1,69 @@
+{
+  "record_kind": "candidate_instruction_byte_pins",
+  "status": "first_issue_correction_review_pending",
+  "baseline_revision": "62701c3d29337ef180bad4776cd58b07ec70decb",
+  "canonical_profile": "portable_protocols",
+  "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
+  "envelope_sha256": "5f0edebe568d1cfd8a06a33e6122cd4e0d3dd68f764058b1aa098456cc2df13c",
+  "payload_sha256": "2d812c489485ee187cf45fca012fffdfda5fcdf93d60495a02b843f94e4a8b68",
+  "source_index_sha256": "69b4581f7ceef335fc9eb28f5e507198a638be56ab761e662ae60d195a8edfd1",
+  "public_delivery_authorized": false,
+  "whole_envelope_required": true,
+  "detached_wheels_accepted": false,
+  "unassisted_onboarding_proven": false,
+  "files": {
+    "README.md": {
+      "bytes": 5594,
+      "sha256": "1934034b3f816befa7302a31791c75e5175a4eb994b1ddb72535726acf2780ff"
+    },
+    "protocols/README.md": {
+      "bytes": 882,
+      "sha256": "cb4ac9d6c67e79477ce65965c766dc6a8b10b38ce27867ec65cea8e7026f3685"
+    },
+    "protocols/COHERENCE.md": {
+      "bytes": 2584,
+      "sha256": "d643dd349141001b71d910ee326e081d3031dc05b070421e9a4fad3d17d1e925"
+    },
+    "protocols/INITIALIZATION.md": {
+      "bytes": 1295,
+      "sha256": "7514305b3f73da328c499fc1ea60aab0bba16fd9103f322154078f7e2bc434b3"
+    },
+    "protocols/WORKFLOW.md": {
+      "bytes": 10965,
+      "sha256": "9135eb33220d07c16639afa915fd33798f30205c9e17a62600be2fd17a45b7dd"
+    },
+    "protocols/issues/README.md": {
+      "bytes": 1184,
+      "sha256": "70161e1c6f5d29196eefe714d30a8a71ba29a7e1f0128a9cd50c56a35b3a17ba"
+    },
+    "protocols/repository/README.md": {
+      "bytes": 1231,
+      "sha256": "9d5c47bcb05199fdc3b814e334ee9c0b6a5a046395bebd55797860fef7764878"
+    },
+    "protocols/specification/README.md": {
+      "bytes": 852,
+      "sha256": "6ab790ed37dfb106e145eced2299f52df578077d719905d850d29eb45c63b62f"
+    },
+    "protocols/example-draft-input.py": {
+      "bytes": 1572,
+      "sha256": "775c29cabf3fe662807a489fe5f9b19b9c9a5d45277a81e222e8f58c4fe49552"
+    },
+    "releases/README.md": {
+      "bytes": 921,
+      "sha256": "4a0f522888b4dfd436cb81ce6a1f9f961b2631f5d8eb965a23d6b7cd59993a5c"
+    },
+    "releases/canonical-initializer-fs-v1/README.md": {
+      "bytes": 2881,
+      "sha256": "49e4bfcc55897dfe3b0c2fa5879ac6eafc4cb180e2fd7963389ed36f0db9a6b3"
+    },
+    "protocols/issues/FIRST-ISSUE.md": {
+      "bytes": 7423,
+      "sha256": "29330f21f9655c443f77e331e6da368f4471eb5a14aeb4a7d5f27d5933989d82"
+    }
+  },
+  "historical_instruction_record": "INSTRUCTIONS.json",
+  "historical_instruction_sha256": "cd86d0c8ced285d86acf52410da45784ff3f83aafeab328b2276ae9c4d537c0e",
+  "supersedes_instruction_record": "PUBLIC-INSTRUCTIONS.json",
+  "supersedes_instruction_sha256": "38fba88d0026c27434229b9017fcdbb8df402ea709038ee598d75febfb50432d",
+  "runtime_payload_changed": false
+}

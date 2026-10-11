@@ -103,6 +103,14 @@ configuration and future service startup are distinct steps.
 
 ## Begin Issue-governed work
 
+`--issue-ref` is `fb/YYYY-MM-DD/lowercase-hyphenated-slug`, for example
+`fb/2026-10-11/json-checker-draft`. It is not the Markdown path, a filename or
+a UUID. The default record path is
+`docs/issues/2026/10/11/fb-2026-10-11-json-checker-draft.md`.
+Follow [the complete first-Issue admission example](issues/FIRST-ISSUE.md) for
+actual snapshot → explicit scope → fresh-guarded progress commands. Installed
+help lists the flag but does not yet explain its accepted reference encoding.
+
 Use the installed Issue SDK commands, not handwritten lifecycle evidence:
 
 ```bash
