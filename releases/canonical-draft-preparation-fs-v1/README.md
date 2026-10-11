@@ -1,6 +1,7 @@
 # Draft-preparation whole distribution
 
-Prepared unselected successor; instructions remain draft. Envelope `canonical-draft-preparation-source-notice-review-v1.tar.gz`
+Locally selected successor; instructions remain draft and public delivery is not yet authorized.
+See [local selection](LOCAL-SELECTION.md). Envelope `canonical-draft-preparation-source-notice-review-v1.tar.gz`
 has SHA-256 `3e1fab9a79c19476ece55a1f0d62aa7784e911d52a01d32b65655617bacdb9f8`; its payload is `f2ef55bd871ee054e2f707189537ea533c46d013e8fdbc676a830f9968b94513`.
 Use the [whole-envelope installer](../../protocols/install.py) through
 [the entrance](../../README.md). Six package-local legal gaps remain unrepaired:
