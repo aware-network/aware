@@ -22,14 +22,17 @@
 
 
 
+
 ## Problem
 1. Independently accepted successor is locally integrated but delivery selection still names its predecessor.
 
 
 
 
+
 ## Goal
 1. Select the exact reviewed successor and align local-only guidance while preserving complete source/notice carriage and contributor selection.
+
 
 
 
@@ -43,7 +46,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Seven selection checks passed, zero skips, including fresh offline checkout-hidden forty-package installation with CLI 0.8.3 / FS 0.9.4. Exact eight-file delta preserves all 1,147 unaffected baseline files and all 1,152 baseline executable modes. Sole package selector portable_protocols; source/notice/payload/installer/contributor/predecessor bytes unchanged. Draft instructions and public_delivery_authorized=false retained. Original publication receipts and independent selection review follow; no domain matrix, unassisted workflow or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Local selection committed at c3be2f0d09a615604d6a0c92847c0af03e8316b0 through original contributor a6 owner: exact eight-path delta, applied CAS/index, no reconciliation pending. Seven checks include a fresh forty-package offline hidden-checkout installation; all 1,147 unaffected baseline files and all 1,152 baseline executable modes preserved. Software/carriage/installer/predecessor/contributor unchanged. Independent selection review is next; draft instructions, no freeze/public-delivery/push authority or unassisted-onboarding claim. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

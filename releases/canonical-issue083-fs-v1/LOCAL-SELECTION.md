@@ -67,7 +67,24 @@ Retained receipt SHA-256 values:
 - Installed smoke: `406d29528e1163b017ca3c64e3befa96d60b2d5f4fe8043ab9a8a33730b37056`.
 - Maintainer test: `842ac58309342f5b30915bc40216d7c0079712f755f7b425b2ab2a20b10426b1`.
 
-Original exact-path publication receipts follow after identical dry-run/apply.
+Local implementation: `c3be2f0d09a615604d6a0c92847c0af03e8316b0`.
+The actual delta from the incoming revision is exactly eight admitted paths.
+Original dry-run/apply share identical paths, message and Issue-byte guard
+`sha256:106550bd3f59c8461d82df0ad9230891a07e271f35668a85495906d82568db60`.
+Contributor a6 reports `outcome=applied`, `reference_update=cas_applied`,
+`transaction_mode=isolated_index_atomic_ref_v1`, `shared_index_projection=applied`
+and `index_reconciliation_pending=false`, through the original Workspace operator.
+Original receipt SHA-256 values:
+
+- Issue read: `0c43e8486c5bfcbb77769d34cd67ab95ca2f2eea127a586e832af73c48111724`.
+- Dry-run: `5445de52c513fe97a2ff7e0ba71d72b8c4532303324cfd30461ccb4157ceda38`.
+- Apply: `414716a5060cc0f96513052d5303be4000c90d2c475371f670f781f0ae516506`.
+
+The checkout/index is clean after implementation publication. The exact
+incoming-to-implementation `git diff --check` returns zero with empty raw stdout,
+SHA-256 `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+This is scoped selection whitespace, not normalization or a whole-history claim.
+
 No selection acceptance or instruction freeze follows merely from changing
 `SELECTED.json`. Next: independent bounded selection review, then separately
 governed instruction freeze and explicitly authorized revision-pinned publication.
