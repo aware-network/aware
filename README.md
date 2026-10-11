@@ -9,11 +9,12 @@ the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-This is a prepared, unselected Issue083 successor layout. Instructions remain
-draft; it is not a claim that public main already delivers this software.
-The unchanged [delivery pointer](releases/SELECTED.json) still names the retained
-initializer predecessor. Selection, instruction freeze and publication follow
-separate review. Do not overlay either installation or migrate contributor tools.
+The reviewed Issue083 successor is selected locally; public delivery is not yet
+authorized. Instructions remain draft. Use this reviewed checkout, not unchanged
+public main. The [delivery pointer](releases/SELECTED.json) binds its exact whole
+envelope; [local selection](releases/canonical-issue083-fs-v1/LOCAL-SELECTION.md)
+records the review boundaries. Do not overlay installations or migrate contributor
+tools. Instruction freeze and publication remain separately governed.
 
 ## Understand the protocols
 
@@ -33,7 +34,7 @@ files; acceptance is for the complete envelope, not detached wheels or a strippe
 inner bundle. The reviewed source-derived jsonschema recipe and publisher URL/hash
 are attached; its original source archive is not.
 
-From this prepared checkout root:
+From this reviewed checkout root:
 
 ```sh
 set -eu
