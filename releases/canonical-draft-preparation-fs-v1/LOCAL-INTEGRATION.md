@@ -60,3 +60,22 @@ twelve classified relative-fixture findings and raw audit remain visible.
 Selection, instruction freeze, transfer, publication and remote push remain
 separately authorized effects. No source pruning, supplier version change or
 contributor upgrade is included.
+
+## Original publication receipt
+
+Implementation: `7b3f82dc39047a9957e3f110d71a4685c549b888`; actual delta is the
+exact 78-path admitted publication. The original owner returned
+`git:7b3f82dc39047a9957e3f110d71a4685c549b888`, `outcome=applied`,
+`reference_update=cas_applied`, `transaction_mode=isolated_index_atomic_ref_v1`,
+`operator_ref=aware_workspace_operator.run_workspace_commit.v1`,
+`shared_index_projection=applied`, `index_reconciliation_pending=false`.
+
+Original read guard: `sha256:e7a460abceef3ea7d4d1893d109a4e7f726c17405187d2adc552b675f2709e8f`.
+Dry-run and identical apply use that guard, exact paths and message. Receipts
+`public-commit-dry-run.json` and `public-commit-apply.json` remain under the
+private proof root. The checksum-bound layout, envelope and software are unchanged.
+Only this ledger and the Issue receive the subsequent evidence handoff.
+
+Independent integration review remains pending; both public and producer Issues
+stay In Progress. The checkout/index is clean after implementation. Selection,
+freeze and remote publication are not implied by a local repository receipt.

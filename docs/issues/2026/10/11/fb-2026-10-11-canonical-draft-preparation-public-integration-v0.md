@@ -92,14 +92,17 @@
 
 
 
+
 ## Problem
 1. Accepted draft-preparation layout is not yet integrated against the exact incoming public revision.
 
 
 
 
+
 ## Goal
 1. Project the reviewed 74-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -112,7 +115,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Exact accepted 74-path layout projection plus four review/Issue files verified. 28 owner/projection guards and eight integration checks passed, zero skipped, including fresh offline checkout-hidden forty-package installation and prep help/missing-harness/reuse refusals. Complete sources/notices, predecessor selection and contributor a6 preserved. Next original exact-scope repository dry-run/apply; independent review before closeout. No selection, instruction freeze, full domain proof or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Implementation 7b3f82dc39047a9957e3f110d71a4685c549b888 changes exact 78 admitted paths. Original CAS/index receipt applied; no reconciliation debt. 28 guards and eight integration cases passed with fresh offline hidden-checkout forty-package installation. Complete artifacts, predecessor selection and contributor governance unchanged. Two-path evidence handoff only; independent integration review pending. No domain-matrix replay, selection, freeze or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
