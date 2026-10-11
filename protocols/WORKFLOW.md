@@ -1,12 +1,13 @@
 # Aware filesystem onboarding
 
-Locally frozen instructions, pending independent freeze review, for the accepted
+Accepted frozen instructions for the authorized whole-envelope delivery of the
 Issue CLI 0.8.3 / FS 0.9.4 composition:
 install once, initialize explicitly, admit an Issue and perform governed work.
 The whole envelope carries the exact forty-package payload, committed
 `portable_protocols` sources and corresponding notices. Exact-envelope technical
 and bounded disposition decisions are recorded in the release review status.
-Public delivery is not yet authorized; frozen guidance does not grant it.
+See [delivery evidence](../releases/canonical-issue083-fs-v1/PUBLICATION.md) for
+the tested public revision and acquisition status.
 Scripted installed proofs do not establish unassisted customer onboarding.
 
 ## Install with the complete envelope
@@ -263,8 +264,8 @@ This is not exhaustive disclosure clearance or a legal warranty.
 
 This installation does not admit Service/API, object execution, materialization,
 native receiving or Experience authority. It does not replace aware-dev's
-selected contributor command. Public availability, instruction freeze and
-unassisted onboarding are not established by the envelope's technical proof.
-The candidate-specific instruction pins record this separate local freeze,
-pending independent review; publication and fresh unassisted evaluation follow
-separately.
+selected contributor command. Public acquisition is recorded separately from
+the envelope's technical proof; unassisted onboarding remains unproved.
+The [public instruction pins](../releases/canonical-issue083-fs-v1/PUBLIC-INSTRUCTIONS.json)
+bind this accepted guidance. Earlier local instruction records remain history,
+not current delivery status. Fresh unassisted evaluation follows separately.

@@ -9,16 +9,17 @@ the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The reviewed Issue083 successor is selected locally; public delivery is not yet
-authorized. Instructions are frozen locally, pending independent freeze review.
-Use this reviewed checkout, not unchanged public main. The
+The reviewed Issue083 distribution is authorized for delivery to
+`aware-network/aware/main`. Its accepted instructions are frozen; revision-pinned
+public acquisition and installation evidence is recorded in
+[the delivery record](releases/canonical-issue083-fs-v1/PUBLICATION.md). The
 [delivery pointer](releases/SELECTED.json) binds its exact whole envelope;
-[instruction pins](releases/canonical-issue083-fs-v1/INSTRUCTIONS.json) bind the
+[public instruction pins](releases/canonical-issue083-fs-v1/PUBLIC-INSTRUCTIONS.json) bind the
 customer guidance, not another package catalog. See
 [local selection](releases/canonical-issue083-fs-v1/LOCAL-SELECTION.md) and
 [freeze evidence](releases/canonical-issue083-fs-v1/INSTRUCTION-FREEZE.md).
-Do not overlay installations or migrate contributor tools. Publication remains
-separately authorized.
+Do not overlay installations or migrate contributor tools. Delivery does not
+establish unassisted onboarding or authorize further publication.
 
 ## Understand the protocols
 
@@ -38,7 +39,7 @@ files; acceptance is for the complete envelope, not detached wheels or a strippe
 inner bundle. The reviewed source-derived jsonschema recipe and publisher URL/hash
 are attached; its original source archive is not.
 
-From this reviewed checkout root:
+From the revision-pinned acquired checkout root:
 
 ```sh
 set -eu

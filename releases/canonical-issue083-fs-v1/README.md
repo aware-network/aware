@@ -1,8 +1,9 @@
 # Issue083 whole distribution
 
-Selected locally; public delivery is not yet authorized. Instructions are frozen
-locally, pending independent freeze review. See [local selection](LOCAL-SELECTION.md),
-[instruction pins](INSTRUCTIONS.json) and [freeze evidence](INSTRUCTION-FREEZE.md).
+Authorized for delivery to `aware-network/aware/main`; instructions are frozen
+and accepted. See [delivery evidence](PUBLICATION.md) for the tested public
+revision and acquisition status, [public instruction pins](PUBLIC-INSTRUCTIONS.json)
+for current guidance, and [freeze evidence](INSTRUCTION-FREEZE.md) for review history.
 The exact envelope
 `canonical-issue083-source-notice-review-v1.tar.gz` has SHA-256 `a41782559bc3a2d9e02ceacc5bf458f0a77e53940b1b3bdcc8fabca6c15b53ea`; its payload is `0fb3d491b4b99578b06be99894b945d27834d49ad855029de227792ade4f16f4`.
 Use only the [whole-envelope installer](../../protocols/install.py) described at
