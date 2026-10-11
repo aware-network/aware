@@ -2,7 +2,7 @@
 
 - Slug: canonical-initializer-publication-v0
 - Tag: fb/2026-10-11/canonical-initializer-publication-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -25,6 +25,7 @@
 
 
 
+
 ## Problem
 1. Selected initializer and accepted frozen instructions are not yet publicly delivered.
 
@@ -32,8 +33,10 @@
 
 
 
+
 ## Goal
 1. Align status only, publish exact reviewed lineage to aware-network/aware/main, and prove pinned anonymous acquisition plus offline installation.
+
 
 
 
@@ -48,8 +51,17 @@
 
 
 
+
+## Verified-by
+- Preflight 7 checks; anonymous clone and separate envelope hash; public fresh offline hidden install 7 checks, 40 packages, ten helps; no domain matrix rerun.
+- git:9a9abeaafc5df7893e88a79f74e39bc53b775e92
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Luis authorized aware-network/aware/main publication and pinned acquisition. Seven preflight checks passed including fresh offline hidden 40-package installation and ten help entrances. Commands, typed example, old pins, whole envelope and contributor a6 unchanged; initial two maintainer failures retained. (outcome: Publication prepared; remote effect and anonymous acquisition still pending.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Non-force remote delivery and anonymous acquisition verified at 5e20279c719f30893147d2822ac6e9065f0cc897. Separate pinned envelope download matches. Seven checks passed from acquired checkout, including fresh offline hidden installation of 40 packages and ten helps; no customer/domain replay. Whole-envelope carriage and six detached-wheel gaps retained. (outcome: Published and acquired; record receipt and close bounded delivery Issue.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Published exact initializer at 5e20279c719f30893147d2822ac6e9065f0cc897 and verified anonymous pinned acquisition plus seven public replay checks; whole-envelope carriage remains required, unassisted customer evaluation separate.
