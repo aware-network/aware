@@ -85,7 +85,22 @@ incoming-to-implementation `git diff --check` returns zero with empty raw stdout
 SHA-256 `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
 This is scoped selection whitespace, not normalization or a whole-history claim.
 
-No selection acceptance or instruction freeze follows merely from changing
-`SELECTED.json`. Next: independent bounded selection review, then separately
-governed instruction freeze and explicitly authorized revision-pinned publication.
-Fresh unassisted evaluation follows qualified delivery.
+## Independent selection acceptance
+
+Independent PASS accepts producer `61f2e1dc4ca8` and public checkpoint
+`455343a77ce6`. Seven checks passed, zero skipped, including a fresh offline,
+checkout-hidden forty-package installation. The exact eight-file implementation
+and two-file handoff match original owner receipts without reconciliation debt;
+all 1,147 unaffected files and baseline executable modes are preserved.
+
+Retained independent receipt SHA-256 values:
+
+- Seven-case XML: `cf4efcf3bc35a69f547d27ef6dff180d223954cebe5846699a5321052e9f68f2`.
+- Installed receipt: `b1f340b0f8f2f4c7e1a876f7a7f49585ef8b6b74fd627d8d9a1093ef2f2f8bad`.
+
+The delivery pointer remains unchanged; its preparation review marker does not
+replace this acceptance record or confer instruction/publication authority.
+This evidence-only closeout does not repeat installation or the domain matrix.
+Next: separately governed instruction freeze, then explicitly authorized
+revision-pinned publication. Fresh unassisted evaluation follows qualified
+delivery. Whole-envelope carriage and detached-wheel limits remain unchanged.
