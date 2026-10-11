@@ -93,3 +93,18 @@ Review the exact ten-path implementation against the incoming published
 revision, original Issue/execution/scope admission, fresh guard-bound dry-run/apply
 receipts, successor pins and these retained proofs. The new alignment is not
 yet pushed; the public revision above remains the tested published software.
+
+Original public implementation: `537eaa12301d5355b2df2bc8c5a7a038cfff8a28`,
+exactly the ten admitted paths. Identical original contributor dry-run/apply
+used Issue-byte guard
+`sha256:74ed7da5f626455f6e936171655083da2efc91564be55f872100f5782e07b37e`.
+Applied receipt reports `reference_update=cas_applied`,
+`transaction_mode=isolated_index_atomic_ref_v1`,
+`operator_ref=aware_workspace_operator.run_workspace_commit.v1`,
+`shared_index_projection=applied`, `index_reconciliation_pending=false`.
+The two-path evidence handoff changes only this unpinned ledger and its Issue;
+all twelve successor guidance pins remain exact. Independent review remains next.
+
+Post-commit accounting: seven pass with the already-proven installer explicitly
+deselected, SHA-256 `7751a0a10759d2f718619d1e841b03d41ea16182cf029a270053ac583c03839e`.
+This is neither another installation nor a customer/domain workflow replay.
