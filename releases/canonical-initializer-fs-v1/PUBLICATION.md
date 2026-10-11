@@ -33,7 +33,7 @@ second fresh offline installation with `/home`, `/root` and unrelated `/tmp`
 hidden and inherited environment cleared. All 40 package versions match,
 dependencies pass, no editable/direct-URL records appear, and ten documented
 help entrances work. Missing harness identity refuses without effects; reuse
-refuses and parent permissions remain `0700`. All 1,095 unaffected baseline
+refuses and parent permissions remain `0700`. All 1,093 unaffected baseline
 files and all 1,099 baseline Git executable modes remain exact. Namespace or
 interpreter gaps fail rather than skip.
 
