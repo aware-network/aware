@@ -2,7 +2,7 @@
 
 - Slug: canonical-issue083-public-integration-v0
 - Tag: fb/2026-10-11/canonical-issue083-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -89,6 +89,7 @@
 
 
 
+
 ## Problem
 1. Accepted Issue083 layout is not yet integrated against the exact incoming public revision.
 
@@ -98,8 +99,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 68-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -118,6 +121,11 @@
 
 
 
+
+## Verified-by
+- Luis supplied independent PASS for 8d20603b4b8f / 19d797ae0bec; 28 guards and eight integration cases, zero skips; independent integration receipt sha256:3e40f8704b248d420d9b1d9766c4fa631f3f80848e56b51d2fbc2456cab1f27a; original CAS/index and exact source/notice preservation confirmed.
+- git:3eaa5d8d675a3e345513443d499031f5f79214d0
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
@@ -125,3 +133,7 @@
 - Local implementation 6dee8b993661352d4c532fc1b142a0d4e680803f changes exactly 72 admitted paths. Original owner outcome=applied, reference_update=cas_applied, isolated_index_atomic_ref_v1, index projection applied, no reconciliation pending. Eight integration checks plus 28 guards passed. Whole envelope preserved, predecessor unchanged, no selection/freeze/push. Independent bounded integration review is next; Issue remains In Progress. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Post-commit replay retained six passes / one exact-file-set failure / one installation deselection: pytest cache from initial proof was inside the checkout. Only generated proof cache moved to private retained evidence; cacheprovider disabled in replay instructions. Corrected seven overlapping cases pass, installation explicitly deselected. Accepted layout/software unchanged, no suppression of file-set assertion. Independent review remains next. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Luis supplied independent PASS for producer 8d20603b4b8f and public checkpoint 19d797ae0bec: 28 guards plus eight integration checks pass, zero skips; forty packages installed offline with checkout hidden, CLI 0.8.3 and FS 0.9.4; exact actual implementation/handoff, original CAS/index receipts without debt, source/notice/mode/contributor/predecessor preservation verified. Independent receipt hashes recorded in LOCAL-INTEGRATION.md. Historical cache failure remains retained. Bounded integration may close; selection/instruction alignment, publication and unassisted evaluation stay separate. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independently accepted exact local Issue083 integration and complete envelope carriage; no selection, instruction freeze or public push. Next separately govern selection/instruction alignment.
