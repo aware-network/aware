@@ -17,6 +17,7 @@ ROOT = Path(
 )
 RELEASE = ROOT / "releases/canonical-issue083-fs-v1"
 BASELINE = "5d35a566b0d7e565e3c7b33cb7e6d5632ffdcee8"
+FREEZE_CHECKPOINT = "f654b30bea29db00c0042c2caefe0cae0261ab3b"
 ENVELOPE_SHA = "a41782559bc3a2d9e02ceacc5bf458f0a77e53940b1b3bdcc8fabca6c15b53ea"
 PAYLOAD_SHA = "0fb3d491b4b99578b06be99894b945d27834d49ad855029de227792ade4f16f4"
 SOURCE_SHA = "3ae51d3c2a8238adb31335f2b2941a30495066d81f048ef8848b593249025fb0"
@@ -37,6 +38,7 @@ INSTRUCTIONS = {
 }
 SCOPE = {
     "README.md",
+    "protocols/issues/FIRST-ISSUE.md",
     "protocols/WORKFLOW.md",
     "docs/alignment/CURRENT.md",
     "releases/README.md",
@@ -75,6 +77,44 @@ def original_test():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def heading_fragments(text):
+    """Resolve ATX headings in these authored Markdown instructions, not code."""
+    anchors = set()
+    counts = {}
+    fence = None
+    for line in text.splitlines():
+        marker = re.match(r"^\s{0,3}(`{3,}|~{3,})", line)
+        if marker:
+            token = marker.group(1)
+            if fence is None:
+                fence = token
+            elif token[0] == fence[0] and len(token) >= len(fence):
+                fence = None
+            continue
+        if fence is not None:
+            continue
+        heading = re.match(r"^ {0,3}#{1,6}\s+(.+?)\s*#*\s*$", line)
+        if heading:
+            title = heading.group(1).lower()
+            title = re.sub(r"[`*_]", "", title)
+            slug = re.sub(r"[^\w\s-]", "", title).replace(" ", "-")
+            count = counts.get(slug, 0)
+            counts[slug] = count + 1
+            anchors.add(slug if not count else f"{slug}-{count}")
+    return anchors
+
+
+def verify_local_link(source, link):
+    if "://" in link:
+        return
+    path, _, fragment = link.partition("#")
+    target = source.parent / path if path else source
+    if not target.exists():
+        raise ValueError("local_link_target_missing:" + link)
+    if fragment and fragment not in heading_fragments(target.read_text()):
+        raise ValueError("local_link_fragment_missing:" + link)
 
 
 class Instructions(unittest.TestCase):
@@ -172,13 +212,7 @@ class Instructions(unittest.TestCase):
             if name.endswith(".md"):
                 text = (ROOT / name).read_text()
                 for link in re.findall(r"\]\(([^)]+)\)", text):
-                    if "://" not in link and not link.startswith("#"):
-                        self.assertTrue(
-                            (ROOT / name)
-                            .parent.joinpath(link.split("#", 1)[0])
-                            .exists(),
-                            (name, link),
-                        )
+                    verify_local_link(ROOT / name, link)
                 for block in re.findall(r"```(?:sh|bash)\n(.*?)```", text, re.DOTALL):
                     result = subprocess.run(
                         ["/bin/bash", "-n"],
@@ -188,6 +222,39 @@ class Instructions(unittest.TestCase):
                         check=False,
                     )
                     self.assertEqual(result.returncode, 0, (name, result.stderr))
+
+    def test_first_issue_fragment_and_single_instruction_pin_correction(self):
+        name = "protocols/issues/FIRST-ISSUE.md"
+        old_link = "../WORKFLOW.md#spec-and-guard-meanings"
+        new_link = "../WORKFLOW.md#guarded-work-and-paired-publication"
+        before = git("show", FREEZE_CHECKPOINT + ":" + name).decode()
+        after = (ROOT / name).read_text()
+        self.assertEqual(after, before.replace(old_link, new_link))
+        with self.assertRaisesRegex(ValueError, "local_link_fragment_missing"):
+            verify_local_link(ROOT / name, old_link)
+        verify_local_link(ROOT / name, new_link)
+        # Same-document fragments are checked too; fenced comments are not headings.
+        verify_local_link(
+            ROOT / "protocols/WORKFLOW.md", "#guarded-work-and-paired-publication"
+        )
+        with self.assertRaisesRegex(ValueError, "local_link_fragment_missing"):
+            verify_local_link(ROOT / "protocols/WORKFLOW.md", "#missing-heading")
+        self.assertEqual(
+            heading_fragments("# Repeat\n```python\n# Hidden\n```\n# Repeat\n"),
+            {"repeat", "repeat-1"},
+        )
+        previous = json.loads(
+            git(
+                "show",
+                FREEZE_CHECKPOINT
+                + ":releases/canonical-issue083-fs-v1/INSTRUCTIONS.json",
+            )
+        )
+        current = json.loads((RELEASE / "INSTRUCTIONS.json").read_bytes())
+        row = current["files"].pop(name)
+        old_row = previous["files"].pop(name)
+        self.assertNotEqual(row, old_row)
+        self.assertEqual(current, previous)
 
     def test_documented_install_guards_refuse_existing_targets(self):
         for name in ("README.md", "protocols/WORKFLOW.md"):

@@ -1,7 +1,8 @@
 # Issue083 customer instruction freeze
 
-Instructions are frozen locally, pending independent review. Public delivery is
-not authorized. The [instruction record](INSTRUCTIONS.json) binds twelve exact
+Instructions are frozen locally. Independent bounded proof PASS is recorded
+below; the P3 link/pin correction remains separately identified. Public delivery
+is not authorized. The [instruction record](INSTRUCTIONS.json) binds twelve exact
 guidance/example files, including the first-Issue reference and guarded admission
 example. It does not select software, admit operations or freeze historical source
 READMEs. Workspace's `portable_protocols` remains the sole package selector.
@@ -104,3 +105,41 @@ Original receipt SHA-256 values:
 
 The governing Issue remains In Progress for independent freeze review. Its
 authored acceptance criteria are preserved; evidence does not hand-check them.
+
+## Independent proof acceptance and P3 correction
+
+Independent PASS accepts producer `db2ac24416bb` and its original freeze proof:
+seven checks, zero skipped, fresh offline checkout-hidden forty-package
+installation and separate typed-example/decoder parity. All twelve original pins,
+ten-file implementation and two-file handoff match original receipts without
+index debt. Retained independent XML SHA-256:
+`f7a1f7525facec5c4be2d413057db3b1e5d8a4ddcd7958fcab53fff8bf17aef1`;
+installed receipt `fcd188d3c5efe61506b6fc6f9dde38e79784352f9f6a660b638c6aec521ce4f8`.
+
+The nonblocking P3 identified a nonexistent workflow fragment in FIRST-ISSUE.
+Its sole text change replaces `#spec-and-guard-meanings` with
+`#guarded-work-and-paired-publication`. Only that file's byte length/hash changes
+in the twelve-file instruction record; its other eleven pins and all metadata
+are exact. Current instruction-record SHA-256:
+`4acbf0a85cb857d9ea5e5d0f2b93ab27cc04c46e626cd9c1268bd9691f5ee3cc`.
+
+The original Issue owner admitted FIRST-ISSUE before editing, preserving the ten
+original scope paths. The cumulative source scope is eleven, not a relabeling of
+the originally reviewed ten-file implementation. All 1,148 other selection
+baseline files and all 1,155 baseline executable modes remain exact.
+
+Seven correction/accounting checks passed, zero skipped, with the installation
+case explicitly deselected. Local links now verify section fragments as well as
+file existence; the obsolete fragment fails its negative control and the corrected
+fragment resolves. The checker covers the authored ATX headings, ignores fenced
+code and checks same-document fragments. No fresh installation or domain matrix
+was repeated. Correction XML SHA-256:
+`40d84dd3a42b3487e61364ca0c61b1d5d4f3925802cc51984e76a3da59aae1b4`.
+Current maintainer test SHA-256:
+`d3ec012e62f3ebef4ed58006b41055b6e99c18eea394b61397b388a305c10298`.
+
+Historical instruction/test hashes above identify the original accepted proof.
+The correction updates customer presentation only. Software, sources, notices,
+installer, selection pointer and contributor a6 remain exact. Both Issues remain
+In Progress for bounded correction confirmation and closeout before separately
+authorized publication and fresh unassisted evaluation.
