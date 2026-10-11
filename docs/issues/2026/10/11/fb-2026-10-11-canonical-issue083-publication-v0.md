@@ -24,14 +24,17 @@
 
 
 
+
 ## Problem
 1. Accepted local selection and instruction freeze are not yet public.
 
 
 
 
+
 ## Goal
 1. Publish the exact accepted whole distribution to aware-network/aware/main with pinned anonymous acquisition and fresh offline installation evidence.
+
 
 
 
@@ -43,7 +46,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Luis approved aware-network/aware/main publication. Eight prepublication checks passed including fresh offline hidden installation of 40 packages and ten help entrances. Software, full legal/source carriage, contributor a6 and all shell blocks preserved. Anonymous acquisition and actual remote delivery remain pending; no unassisted workflow or domain matrix is claimed. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Non-force push confirmed delivery 0b8b0ab49d7f140ab1a4f6995d6c8e89cc1b3e3d. Anonymous depth-64 clone and separately pinned envelope download match. Eight public-acquisition checks passed including a second fresh offline hidden installation of all 40 packages and ten help entrances. Evidence-only publication follows; no unassisted onboarding or domain-matrix replay is claimed. Whole-envelope carriage and contributor a6 remain unchanged. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
