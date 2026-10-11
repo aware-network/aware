@@ -1,7 +1,7 @@
 # Initializer instruction freeze
 
-Instructions are frozen for the locally selected initializer candidate, pending
-independent instruction review. This freezes customer wording, not new runtime
+The instruction freeze for the locally selected initializer candidate has
+passed independent review. This freezes customer wording, not new runtime
 behavior, contributor governance or public-delivery authorization.
 
 [INSTRUCTIONS.json](INSTRUCTIONS.json) pins the exact customer entrance,
@@ -71,8 +71,8 @@ metadata, tests and Issue receipts to avoid self-referential hashes. Those
 governance bytes are retained in Git. Changed customer instructions require
 new byte pins and review; old pins are not silently reused.
 
-Next: independent instruction review and owner-backed closeout, then separately
-authorized revision-pinned public delivery and acquisition proof. No transfer,
+Next: separately authorized revision-pinned public delivery and acquisition
+proof after owner-backed closeout. No transfer,
 push, registry release or contributor CLI migration is authorized by this freeze.
 
 ## Implementer evidence
@@ -99,3 +99,33 @@ not change. That failed JUnit remains retained as `accounting-first.xml`,
 SHA-256 `30bf34b1b7adb92ef5ddcaee6719bf2b9b0f3cda00b96ce0e3231fb471e06d6c`.
 This evidence is implementation proof, not independent acceptance or a repeat
 of the 2,098-case domain matrix.
+
+## Independent acceptance
+
+Independent review accepted aware-dev checkpoint
+`71c543a95968696ea2380abb757cb3e539479b03` and public checkpoint
+`86079d9898e8e27ebd26e01e070c0a0ab615bdd6`. Seven checks passed, including fresh
+offline, checkout-hidden installation of all 40 packages and ten installed help
+entrances. All eleven instruction/example pins matched; the exact ten-file
+delta, unaffected bytes/modes and original owner scope/digest/commit receipts
+were verified. The root and workflow whole-envelope installer and executable
+existing-target guards agreed.
+
+The reviewer additionally ran the typed draft example and round-tripped it
+through the installed decoder without creating documents or authority. This is
+separate reviewer-reported evidence, not another case in the seven-test JUnit.
+
+Independent JUnit: `/tmp/aware-initializer-freeze-review.lM2iiTxt/instructions.xml`,
+SHA-256 `a4b1316dde9a02ca46cbb95e087862f893b7b6ebd2a04b7941c6e64cf1c68da0`.
+Private maintainer paths are evidence, not customer prerequisites.
+
+No pinned instruction, instruction-index, payload, source, notice, installer or
+contributor a6 byte changes during this acceptance cut. The pinned instructions
+and delivery metadata retain their original review-time status; this later
+acceptance record governs the bounded freeze review. Publication-status wording
+and its byte pins belong to the separately scoped delivery cut.
+
+Whole-envelope carriage remains required. Detached-wheel legal gaps and
+unassisted onboarding remain unresolved. No test/installation/domain/customer
+replay, transfer or push was performed while recording acceptance. Remote main
+was unchanged at `f760ac28066191e50ba12d249928c0fd553f79b4` in the review.
