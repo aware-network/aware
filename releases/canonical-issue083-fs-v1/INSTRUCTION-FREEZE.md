@@ -140,6 +140,18 @@ Current maintainer test SHA-256:
 
 Historical instruction/test hashes above identify the original accepted proof.
 The correction updates customer presentation only. Software, sources, notices,
-installer, selection pointer and contributor a6 remain exact. Both Issues remain
-In Progress for bounded correction confirmation and closeout before separately
-authorized publication and fresh unassisted evaluation.
+installer, selection pointer and contributor a6 remain exact. The nonblocking
+P3 is verified as requested; the original independent PASS accepts the bounded
+freeze proof. Original selected commands record Issue closeout. This does not
+claim an independent rerun of the correction or authorize publication.
+
+Correction implementation: `7570d26086c4dcbc5a952192e58b2f18f5954032`, exactly five
+paths: FIRST-ISSUE, its instruction record, maintainer test, freeze report and
+governing Issue. Original dry-run/apply agree, with CAS/index applied and no
+reconciliation pending. Dry-run receipt SHA-256:
+`5abf63da000a9a583566af95bd94473ec5b1daeadda801a52c41944ddff9b79c`;
+apply `cf01ded2d9ccb1d2c58c15b4952643a52fe91f62a5cbc8e761876e0bc628687a`.
+The overlapping final correction XML is
+`7c7a3754af058bd5c55c67baf85cc600b436a679793d227787e66232fab8e148`;
+seven passes with installation excluded, not seven additional distinct cases.
+Next is separately authorized publication and fresh unassisted evaluation.
