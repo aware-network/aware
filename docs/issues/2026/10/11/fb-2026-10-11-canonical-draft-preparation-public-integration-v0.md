@@ -2,7 +2,7 @@
 
 - Slug: canonical-draft-preparation-public-integration-v0
 - Tag: fb/2026-10-11/canonical-draft-preparation-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -94,6 +94,7 @@
 
 
 
+
 ## Problem
 1. Accepted draft-preparation layout is not yet integrated against the exact incoming public revision.
 
@@ -102,8 +103,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 74-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -120,9 +123,18 @@
 
 
 
+
+## Verified-by
+- Independent 28 guards plus eight integration checks; integration.xml sha256:922d2d94b51b2a05fc79cf092a74af4a75c2f737b90073be07669c67f0cb7898
+- git:7b3f82dc39047a9957e3f110d71a4685c549b888
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Exact accepted 74-path layout projection plus four review/Issue files verified. 28 owner/projection guards and eight integration checks passed, zero skipped, including fresh offline checkout-hidden forty-package installation and prep help/missing-harness/reuse refusals. Complete sources/notices, predecessor selection and contributor a6 preserved. Next original exact-scope repository dry-run/apply; independent review before closeout. No selection, instruction freeze, full domain proof or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation 7b3f82dc39047a9957e3f110d71a4685c549b888 changes exact 78 admitted paths. Original CAS/index receipt applied; no reconciliation debt. 28 guards and eight integration cases passed with fresh offline hidden-checkout forty-package installation. Complete artifacts, predecessor selection and contributor governance unchanged. Two-path evidence handoff only; independent integration review pending. No domain-matrix replay, selection, freeze or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Luis supplied independent PASS: 28 guards and eight fresh installed integration checks, zero skipped. Exact 78-path implementation and two-path handoff, source/notice carriage and original CAS/index receipts verified without debt. Receipt SHA-256 922d2d94b51b2a05fc79cf092a74af4a75c2f737b90073be07669c67f0cb7898. Close bounded integration only; selection/alignment follows separately, freeze and push held. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Exact whole-envelope integration independently accepted; selection, freeze and delivery remain separately governed.
