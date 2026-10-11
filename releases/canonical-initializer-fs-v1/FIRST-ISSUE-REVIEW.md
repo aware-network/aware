@@ -1,7 +1,7 @@
 # First Issue admission instruction correction
 
-Status: local documentation correction; eight scripted checks passed.
-Independent review is pending. Public delivery of this correction is not authorized.
+Status: independently accepted local documentation correction.
+Public delivery of this correction is not authorized.
 
 Baseline: `62701c3d29337ef180bad4776cd58b07ec70decb`.
 The external initializer evaluation at `96a253de998f56bf3ec9c858a4ba2f35b18ccb72`
@@ -50,6 +50,26 @@ remain exact. Envelope verification preserves every accepted attachment.
 Ruff lint/format and authored whitespace checks pass. This reuses an existing
 qualified installation; no new installation, SDK change or wheel build ran.
 
-Next: independently review this documentation and installed proof; SDK/CLI help
-and actionable owner diagnostics need their own source successor and installed
-qualification. A new public correction requires separate publication authority.
+## Independent acceptance
+
+Bounded PASS accepts implementation `4e0096df15b31343fcab6e786366b4024f89c584`
+and producer evidence `87cc899482c39710141d3917482924b73d811034`.
+The independent replay passed eight checks with eighteen installed command
+executions. It verified the documented record, exact scope and `in_progress`
+through fresh observed guards, explicit invalid-reference/missing-identity/
+stale refusals and preservation of foreign bytes and modes.
+
+Independent JUnit SHA-256:
+`d64367f4a369064b98b06d5f47c8a399a94e0f5c256742fbe9232de3b8b484b5`.
+Additional reviewer accounting matched all forty installed wheels across
+944 non-RECORD members, the nine-file implementation delta, twelve instruction
+pins and original publication receipts. This accounting is not an additional
+set of eight runtime cases. Software, notices, contributor a6 and historical
+pins remain unchanged.
+
+The replay reused an existing installation. Acceptance does not establish fresh
+installation, unassisted onboarding, SPEC creation or customer closeout.
+Separate publication authorization and a fresh unassisted U remain next;
+SDK/CLI help and actionable owner diagnostics need their own source successor
+and installed qualification. Existing instruction pins remain historical
+records; this acceptance does not silently rewrite their delivery status.

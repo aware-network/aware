@@ -23,14 +23,17 @@
 
 
 
+
 ## Problem
 1. External U initialized correctly but first Issue refused issue_ref_invalid; guidance and help did not supply its accepted encoding.
 
 
 
 
+
 ## Goal
 1. Document exact FS reference syntax and executable snapshot, fresh guarded scope and progress admission using the unchanged installed candidate.
+
 
 
 
@@ -43,7 +46,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Eight checks passed, zero skipped. Exact documented first-Issue block admitted snapshot/scope/progress through the unchanged shipped installation in fresh synthetic repositories under genuine execution. Eighteen actual aware subprocesses; invalid reference, missing identity and stale guard refuse. Foreign bytes/modes and unborn Git survive. Historical pins, source/notice carriage and contributor a6 unchanged. (outcome: Documentation successor ready for independent review; no wheel changes, unassisted evaluation or public push.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Independent bounded PASS for 4e0096df15b31343fcab6e786366b4024f89c584 and evidence 87cc899482c39710141d3917482924b73d811034. Eight checks and eighteen installed executions passed; reviewer matched forty wheels across 944 non-RECORD members, exact nine-file delta, twelve instruction pins and original receipts. Independent JUnit SHA-256 d64367f4a369064b98b06d5f47c8a399a94e0f5c256742fbe9232de3b8b484b5. (outcome: Instruction correction accepted; reused installation only. No fresh installation, unassisted onboarding, SPEC creation or customer closeout acceptance. Publication and SDK/help remain separate.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
