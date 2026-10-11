@@ -1,41 +1,44 @@
-# Aware filesystem initializer review
+# Aware filesystem workflow
 
-Draft instructions for one installed `aware` entrance: initialize a repository,
-read its protocol guidance, and begin Issue-governed work. This internal envelope
-includes the exact accepted 40-package payload, selected source snapshot and
-candidate-bound notice inputs. Public-content acceptance, instruction freeze,
-selection and delivery remain separate; this is not a registry release or an
-unassisted-onboarding claim.
+Use one installed `aware` entrance to initialize an explicit repository, read
+its protocol guidance and begin Issue-governed work. These instructions are
+frozen for the locally selected 40-package candidate, pending independent
+instruction review. The [instruction record](../releases/canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md)
+binds the exact guidance and accepted whole-envelope software. Public delivery
+is not yet authorized. This is not a registry release or an unassisted-onboarding
+claim.
 
 ## Install once
 
-Qualified target: Linux x86-64 with `/usr/bin/python3.12`. Verify the outer
-`SHA256SUMS`, then expand
-`payload/aware-canonical-neutral-fs-internal-v1.tar.gz` into a fresh private
-scratch directory. It expands into `aware-canonical-neutral-fs-internal-v1`.
-The `internal` name identifies the retained artifact, not an authority mode.
-Enter that directory and verify its `SHA256SUMS` before running the shipped
-installer:
+Qualified target: Linux x86-64, Git and an actual Python 3.12 interpreter.
+From this reviewed checkout root, first read the
+[complete terms and corresponding source](../releases/canonical-initializer-fs-v1/README.md).
+Use the shipped whole-envelope installer, which verifies and retains all source
+and notice attachments before invoking the unchanged offline payload installer:
 
 ```bash
 set -eu
-sha256sum -c SHA256SUMS
-aware_init_parent="$(mktemp -d)"
+aware_init_parent="$(mktemp -d /tmp/aware-consumer.XXXXXXXX)"
 aware_init_env="$aware_init_parent/env"
 test ! -e "$aware_init_env"
 test ! -L "$aware_init_env"
-PYTHON_BIN=/usr/bin/python3.12 /bin/sh ./install.sh "$aware_init_env"
-"$aware_init_env/bin/aware" --help
+/usr/bin/python3.12 protocols/install.py \
+  --python-executable /usr/bin/python3.12 --venv "$aware_init_env"
+AWARE="$aware_init_env/bin/aware"
+"$AWARE" --help
 ```
 
-The environment must be absent; its private parent must exist. Never overlay
+Choose your actual Python 3.12 executable explicitly. The environment must be
+absent; its private parent must exist. Keep the printed source/notice directory
+with the software. Do not bypass this carriage by installing the inner payload
+alone. After acquisition, installation is offline. Never overlay
 a6, an older SPEC preview or a resident development environment. All supported
 commands below use this same installation. The original family entrypoints
 remain parity/diagnostic entrances, not three separate toolchains. Do not infer
 support from other transitive executables.
 
 The inner README's older statement that this candidate does not supply init is
-superseded by these candidate-bound draft instructions. Its bytes stay unchanged
+superseded by these candidate-bound instructions. Its bytes stay unchanged
 with the accepted archive and checksums. Selected source READMEs containing seed,
 resident or broad-workspace recipes are source history, not customer directions.
 
@@ -59,8 +62,8 @@ Select `aware_repo_root` as an explicit absolute target path under an existing
 parent directory. For a new repository, the target must be absent or empty:
 
 ```bash
-"$aware_init_env/bin/aware" init --help
-"$aware_init_env/bin/aware" init --repo-root "$aware_repo_root" \
+"$AWARE" init --help
+"$AWARE" init --repo-root "$aware_repo_root" \
   --create-repository --format summary
 ```
 
@@ -72,7 +75,7 @@ Apply obtains fresh Protocol admission after Workspace prepares the repository.
 To request those effects in the same genuine execution:
 
 ```bash
-"$aware_init_env/bin/aware" init --repo-root "$aware_repo_root" \
+"$AWARE" init --repo-root "$aware_repo_root" \
   --create-repository --apply --format json
 ```
 
@@ -101,10 +104,10 @@ configuration and future service startup are distinct steps.
 Use the installed Issue SDK commands, not handwritten lifecycle evidence:
 
 ```bash
-"$aware_init_env/bin/aware" issue ensure-snapshot --help
-"$aware_init_env/bin/aware" issue bind-scope --help
-"$aware_init_env/bin/aware" issue start-progress --help
-"$aware_init_env/bin/aware" issue publish-close --help
+"$AWARE" issue ensure-snapshot --help
+"$AWARE" issue bind-scope --help
+"$AWARE" issue start-progress --help
+"$AWARE" issue publish-close --help
 ```
 
 Before `ensure-snapshot`, explicitly choose the Issue reference, title, problem,
@@ -146,8 +149,12 @@ does not claim continuous confinement.
 
 ## Source and notices
 
-`SOURCE-INDEX.json` binds `source/` to the original committed `portable_protocols`
-capture and the unchanged wheels. It is evidence, not a second package selector.
+The [source index](../releases/canonical-initializer-fs-v1/SOURCE-INDEX.json)
+binds the original committed `portable_protocols` capture and unchanged wheels;
+the [source map](../releases/canonical-initializer-fs-v1/SOURCE-MAP.json) locates
+their canonical public copies under `workspaces/`. The retained installation
+envelope also keeps its original `source/` coordinates. These maps are evidence,
+not a second package selector.
 Full producer discovery inventory stays producer-side. Customer
 `aware.protocol.toml` selects records/authority, not software packages.
 
@@ -162,8 +169,9 @@ Six selected Code/Workspace wheels declare Apache-2.0 metadata but have no
 package-local legal attachment. Their exact absence is visible in
 `aware_package_legal_inventory`; the repository LICENSE and NOTICE accompany
 the whole envelope. This is carriage accounting, not acceptance of orphan-wheel
-redistribution. Review the envelope's sufficiency before any public delivery;
-do not detach wheels from their source/legal envelope.
+redistribution. Candidate-specific carriage is accepted only for the complete
+envelope; detached wheels remain unresolved. Do not detach wheels from their
+source/legal envelope. That carriage decision does not authorize public delivery.
 
 The schema resources keep scoped MIT/BSD attribution and documented adaptations.
 BSD-3-Clause is selected while the complete upstream file retains its alternative

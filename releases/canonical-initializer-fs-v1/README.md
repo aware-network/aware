@@ -2,7 +2,9 @@
 
 This complete distribution is [selected locally](LOCAL-SELECTION.md), not yet
 authorized for public delivery. [Current delivery coordinates](../SELECTED.json)
-do not select packages or alter the immutable envelope. Instructions remain draft.
+do not select packages or alter the immutable envelope. Instructions are frozen
+for this local candidate, pending independent review; see the
+[instruction record](INSTRUCTION-FREEZE.md).
 
 Read the complete [LICENSE](LICENSE), [NOTICE](NOTICE) and
 [third-party notice policy](source-history/THIRD_PARTY_NOTICES.md) before using
@@ -33,6 +35,6 @@ the later exact-envelope owner decisions and independent confirmation govern
 this bounded layout input, not public selection or publication.
 
 The inner README's stale no-init claim and broad source READMEs are historical;
-[current draft instructions](../../README.md) describe this initializer candidate.
+[current instructions](../../README.md) describe this initializer candidate.
 The raw audit is not exhaustive secret detection. Disclosure is bounded to the
 reviewed contents; no scanner suppression or blanket path allowlist is added.

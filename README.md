@@ -10,8 +10,9 @@ Coherence is the value, not a promise of faster agents or conflict-free swarms.
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
 This initializer distribution is selected locally; public delivery is not yet
-authorized. Instructions remain draft. Use this reviewed checkout, not unchanged
-public main. See the [exact local selection](releases/canonical-initializer-fs-v1/LOCAL-SELECTION.md).
+authorized. Instructions are frozen for this local candidate, pending independent
+review. Use this reviewed checkout, not unchanged public main. See the
+[exact instruction freeze](releases/canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md).
 
 ## Understand the protocols
 

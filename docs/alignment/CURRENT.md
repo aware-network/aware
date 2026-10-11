@@ -3,9 +3,11 @@
 The locally selected customer composition is one installed `aware`: explicit repository
 initialization, Issue publication/closeout and SPEC setup/draft/read. See
 [the entrance](../../README.md). Its 40-package payload is accepted; this public
-layout is integrated and selected locally, not frozen or publicly delivered.
+layout is integrated and selected locally. Instructions are frozen for this
+local candidate, pending independent review; public delivery remains unauthorized.
 See the [delivery selection](../../releases/SELECTED.json) and
 [selection scope](../../releases/canonical-initializer-fs-v1/LOCAL-SELECTION.md).
+See the [exact instruction freeze](../../releases/canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md).
 
 Root AGENTS.md retains contributor compatibility selection. No resident, API,
 native-receiving or object authority is admitted. Automatic guard discovery and

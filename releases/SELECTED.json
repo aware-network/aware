@@ -15,8 +15,9 @@
   "whole_envelope_required": true,
   "detached_wheels_accepted": false,
   "contributor_selection_changed": false,
-  "instruction_status": "draft",
-  "selection_review": "pending",
+  "instruction_status": "frozen_locally_review_pending",
+  "instruction_record": "canonical-initializer-fs-v1/INSTRUCTIONS.json",
+  "selection_review": "accepted",
   "public_delivery_authorized": false,
   "domain_matrix_replayed": false,
   "unassisted_onboarding_proven": false

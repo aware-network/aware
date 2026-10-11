@@ -5,5 +5,7 @@
 uses its exact accepted envelope, not detached wheels. Earlier distributions
 remain available in [pinned history](../docs/HISTORY.md). See the
 [exact delivery record](SELECTED.json) and [local selection](canonical-initializer-fs-v1/LOCAL-SELECTION.md).
-Instructions remain draft; public delivery is not authorized by local selection.
+Instructions are frozen for this local candidate, pending independent review;
+public delivery is not authorized by local selection or instruction freeze.
+See the [instruction record](canonical-initializer-fs-v1/INSTRUCTION-FREEZE.md).
 This record points to the already accepted envelope, not a package catalog.
