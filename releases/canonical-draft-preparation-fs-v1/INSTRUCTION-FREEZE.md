@@ -84,6 +84,16 @@ Snapshot SHA-256: `a4b6b90945f48c10f17bbed3992c9805903375e4a3402e02ee65a41efb4f2
 Roundtrip receipt SHA-256: `7ea893eeaf313438ebf0cae38c3a81ec68e197c2a83bc5113d65d9bb0db31f9e`.
 These are retained proof coordinates, not customer acquisition prerequisites.
 
-Original owner dry-run/apply receipts and actual commits follow publication.
+Original publication: `git:c02520b5eec8d5ec9a8869eabaa73c3397d05055`, exactly
+the ten admitted paths. Identical original dry-run/apply use Issue-byte guard
+`sha256:eb87d5f49c49468e6bd03f986e72054200332383a5a8223db491039be76744e1`.
+The owner reports `reference_update=cas_applied`,
+`transaction_mode=isolated_index_atomic_ref_v1`,
+`operator_ref=aware_workspace_operator.run_workspace_commit.v1`,
+`shared_index_projection=applied`, `index_reconciliation_pending=false`.
+Six overlapping post-commit accounting cases pass with installation explicitly
+deselected. The evidence handoff changes only this ledger and the governing Issue;
+all twelve instruction pins remain exact. No software or source/notice artifact
+is rebuilt, contributor command changed, domain matrix replayed or push performed.
 Independent freeze acceptance is separate. Revision-pinned public delivery requires
 Luis's explicit target authorization, then acquisition proof and fresh unassisted U.
