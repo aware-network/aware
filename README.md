@@ -9,14 +9,16 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The reviewed target-fit successor is selected locally; public delivery is
-not yet authorized. Its instructions are frozen locally, pending independent
-review. Use this reviewed checkout, not unchanged public main. The
+The target-fit software is published at
+[`2a805bd45535089513f657b7ff0acffe4e54d697`](https://github.com/aware-network/aware/tree/2a805bd45535089513f657b7ff0acffe4e54d697).
+One installation supports init, Issues, SPEC setup, target-fit preparation and
+draft preview/apply/read. [Delivery status](releases/canonical-target-fit-fs-v1/PUBLIC-STATUS.md)
+separates that delivered software from this local status-only alignment, which
+awaits independent review and separate publication authorization. The
 [delivery pointer](releases/SELECTED.json) binds the exact whole envelope;
-[instruction pins and review](releases/canonical-target-fit-fs-v1/INSTRUCTION-FREEZE.md)
-and [local selection](releases/canonical-target-fit-fs-v1/LOCAL-SELECTION.md)
-record the boundaries. Do not overlay installations or silently migrate
-contributor commands. Publication remains separately authorized.
+[successor instruction pins](releases/canonical-target-fit-fs-v1/PUBLIC-INSTRUCTIONS.json)
+preserve the accepted commands and guards. Do not overlay installations or
+silently migrate contributor commands.
 
 ## Understand the shared rules
 

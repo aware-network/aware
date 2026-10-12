@@ -1,14 +1,17 @@
 # Current collaboration alignment
 
-The [locally selected entrance](../../README.md) composes explicit init, Issue work,
+The [delivered entrance](../../README.md) composes explicit init, Issue work,
 SPEC setup, target-fit preparation/review and separately invoked preview/apply.
 Coherence is shared rules and recoverable evidence, not conflict-free execution.
 Readable protocols, tooling installation, repository configuration and service
 startup are distinct. This filesystem composition starts no service.
 
-The reviewed integration is selected locally. Instructions are frozen locally,
-pending independent review, not publicly delivered. Read
-[the instruction freeze](../../releases/canonical-target-fit-fs-v1/INSTRUCTION-FREEZE.md).
+Software delivery is pinned to
+`2a805bd45535089513f657b7ff0acffe4e54d697`. Read
+[delivery status](../../releases/canonical-target-fit-fs-v1/PUBLIC-STATUS.md) and
+[accepted historical freeze](../../releases/canonical-target-fit-fs-v1/INSTRUCTION-FREEZE.md).
+This status-only alignment remains local, awaiting independent review and separate
+publication authorization; it does not establish unassisted onboarding.
 The [delivery pointer](../../releases/SELECTED.json) binds the accepted target-fit
 envelope; it does not select packages or admit operations. Contributor a6 and
 root governance remain unchanged. [Whole-envelope carriage](../../releases/canonical-target-fit-fs-v1/README.md)

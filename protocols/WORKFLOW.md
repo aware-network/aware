@@ -1,15 +1,18 @@
 # Aware target fit workflow
 
-Locally frozen instructions, pending independent review: install
+The target-fit software is published at
+[`2a805bd45535089513f657b7ff0acffe4e54d697`](https://github.com/aware-network/aware/tree/2a805bd45535089513f657b7ff0acffe4e54d697).
+Install
 once, initialize explicitly, admit an Issue, configure SPEC and prepare a draft
 for review before explicit invocation. Agent CLI is 0.2.0a4; Protocol SDK/FS are 0.3.2/0.6.5; SPEC SDK is 0.3.3;
 SPEC FS SDK adapter and CLI are 0.4.3. Issue CLI 0.8.3 / FS 0.9.4 remain selected.
-The locally selected whole distribution carries the exact forty-two-package
+The delivered whole distribution carries the exact forty-two-package
 payload, committed `portable_protocols` sources and corresponding notices.
-[Instruction pins](../releases/canonical-target-fit-fs-v1/INSTRUCTIONS.json)
+[Successor instruction pins](../releases/canonical-target-fit-fs-v1/PUBLIC-INSTRUCTIONS.json)
 bind this guidance to those accepted artifacts, not to operation authority.
-Public delivery is not yet authorized. Scripted installed proofs do not establish
-unassisted customer onboarding.
+This local status-only alignment awaits independent review and separate
+publication authorization. Scripted installed proofs do not establish unassisted
+customer onboarding. Read [delivery status](../releases/canonical-target-fit-fs-v1/PUBLIC-STATUS.md).
 
 ## Install with the complete envelope
 
@@ -396,6 +399,6 @@ Issue/Protocol/SPEC journey through another launcher.
 
 This installation does not admit Service/API, object execution, materialization,
 native receiving or Experience authority. It does not replace aware-dev's
-selected contributor command. Instructions are frozen locally, pending independent
-review. Public availability and unassisted onboarding are not established by
-this instruction freeze.
+selected contributor command. Delivered software is pinned above; this status-only
+alignment still awaits independent review and separate publication authorization.
+Unassisted onboarding is not established by installed proof or status alignment.
